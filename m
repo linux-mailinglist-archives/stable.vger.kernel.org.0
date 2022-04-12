@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 596D24FD155
+	by mail.lfdr.de (Postfix) with ESMTP id 1189D4FD154
 	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351327AbiDLG6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:58:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48012 "EHLO
+        id S1351332AbiDLG6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:58:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351621AbiDLGyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:54:06 -0400
+        with ESMTP id S1351647AbiDLGyJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:54:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AAF837A9C;
-        Mon, 11 Apr 2022 23:43:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C304A37BDD;
+        Mon, 11 Apr 2022 23:43:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD8B60BAF;
-        Tue, 12 Apr 2022 06:43:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C99C7C385A1;
-        Tue, 12 Apr 2022 06:43:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75E1560B90;
+        Tue, 12 Apr 2022 06:43:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86995C385A1;
+        Tue, 12 Apr 2022 06:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745802;
-        bh=v/454OdJDQcXxlAp032rnyzop73q340e+BHm975PKdU=;
+        s=korg; t=1649745804;
+        bh=SlgZdNp5xhD9Mr9FZhkiF1Dnqn/AYwdx7Q2czhz00eQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlmIGniKURAyDuVhnqXr6+7/qt5qugyugi/4jqNJIoCV/tIWLIt1PVhtB1tZLgu3A
-         IOXRXSnTUVApCCDITsbThNDL+pOozMZthnAFj3VcdjImwMGXjbecOvzzKOEUpUq8qZ
-         R8Vx1X9yCvdL/EaLrkDtLCYAIsFwm3Y5RTRdwit0=
+        b=0SJrg6fPVLBerWVmRVS38Q5GEe2zqmoSaEvS/hqaeNxZRpbusLZ5NHgmlAYm0HyxT
+         a22wqT3pjXEZvKMyJF8Jy0rhJPXWnTlaLDXvjIjCLCT4qdXvRvcm/2BQ3QPzqrt4gd
+         5RrFcOZ8Q5mjnjIv1F0q5s+U2tuP1o+qZ8WzSQas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lotus Fenn <lotusf@google.com>,
+        stable@vger.kernel.org, Ravi Bangoria <ravi.bangoria@amd.com>,
         Jim Mattson <jmattson@google.com>,
         Like Xu <likexu@tencent.com>,
-        David Dunn <daviddunn@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 013/277] KVM: x86/svm: Clear reserved bits written to PerfEvtSeln MSRs
-Date:   Tue, 12 Apr 2022 08:26:56 +0200
-Message-Id: <20220412062942.421248953@linuxfoundation.org>
+Subject: [PATCH 5.15 014/277] KVM: x86/pmu: Fix and isolate TSX-specific performance event logic
+Date:   Tue, 12 Apr 2022 08:26:57 +0200
+Message-Id: <20220412062942.449531344@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -57,72 +56,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Like Xu <likexu@tencent.com>
 
-[ Upstream commit 9b026073db2f1ad0e4d8b61c83316c8497981037 ]
+[ Upstream commit e644896f5106aa3f6d7e8c7adf2e4dc0fce53555 ]
 
-AMD EPYC CPUs never raise a #GP for a WRMSR to a PerfEvtSeln MSR. Some
-reserved bits are cleared, and some are not. Specifically, on
-Zen3/Milan, bits 19 and 42 are not cleared.
+HSW_IN_TX* bits are used in generic code which are not supported on
+AMD. Worse, these bits overlap with AMD EventSelect[11:8] and hence
+using HSW_IN_TX* bits unconditionally in generic code is resulting in
+unintentional pmu behavior on AMD. For example, if EventSelect[11:8]
+is 0x2, pmc_reprogram_counter() wrongly assumes that
+HSW_IN_TX_CHECKPOINTED is set and thus forces sampling period to be 0.
 
-When emulating such a WRMSR, KVM should not synthesize a #GP,
-regardless of which bits are set. However, undocumented bits should
-not be passed through to the hardware MSR. So, rather than checking
-for reserved bits and synthesizing a #GP, just clear the reserved
-bits.
+Also per the SDM, both bits 32 and 33 "may only be set if the processor
+supports HLE or RTM" and for "IN_TXCP (bit 33): this bit may only be set
+for IA32_PERFEVTSEL2."
 
-This may seem pedantic, but since KVM currently does not support the
-"Host/Guest Only" bits (41:40), it is necessary to clear these bits
-rather than synthesizing #GP, because some popular guests (e.g Linux)
-will set the "Host Only" bit even on CPUs that don't support
-EFER.SVME, and they don't expect a #GP.
+Opportunistically eliminate code redundancy, because if the HSW_IN_TX*
+bit is set in pmc->eventsel, it is already set in attr.config.
 
-For example,
-
-root@Ubuntu1804:~# perf stat -e r26 -a sleep 1
-
- Performance counter stats for 'system wide':
-
-                 0      r26
-
-       1.001070977 seconds time elapsed
-
-Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379957] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000130026) at rIP: 0xffffffff9b276a28 (native_write_msr+0x8/0x30)
-Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379958] Call Trace:
-Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379963]  amd_pmu_disable_event+0x27/0x90
-
-Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
-Reported-by: Lotus Fenn <lotusf@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Like Xu <likexu@tencent.com>
-Reviewed-by: David Dunn <daviddunn@google.com>
-Message-Id: <20220226234131.2167175-1-jmattson@google.com>
+Reported-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Reported-by: Jim Mattson <jmattson@google.com>
+Fixes: 103af0a98788 ("perf, kvm: Support the in_tx/in_tx_cp modifiers in KVM arch perfmon emulation v5")
+Co-developed-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Like Xu <likexu@tencent.com>
+Message-Id: <20220309084257.88931-1-likexu@tencent.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/pmu.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/x86/kvm/pmu.c           | 15 +++++----------
+ arch/x86/kvm/vmx/pmu_intel.c | 13 ++++++++++---
+ 2 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/kvm/svm/pmu.c b/arch/x86/kvm/svm/pmu.c
-index 369164368819..3faf1d9c6c91 100644
---- a/arch/x86/kvm/svm/pmu.c
-+++ b/arch/x86/kvm/svm/pmu.c
-@@ -261,12 +261,10 @@ static int amd_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 	/* MSR_EVNTSELn */
- 	pmc = get_gp_pmc_amd(pmu, msr, PMU_TYPE_EVNTSEL);
- 	if (pmc) {
--		if (data == pmc->eventsel)
--			return 0;
--		if (!(data & pmu->reserved_bits)) {
-+		data &= ~pmu->reserved_bits;
-+		if (data != pmc->eventsel)
- 			reprogram_gp_counter(pmc, data);
--			return 0;
--		}
-+		return 0;
+diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
+index 44a5ab91a99d..62333f9756a3 100644
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -96,8 +96,7 @@ static void kvm_perf_overflow_intr(struct perf_event *perf_event,
+ 
+ static void pmc_reprogram_counter(struct kvm_pmc *pmc, u32 type,
+ 				  u64 config, bool exclude_user,
+-				  bool exclude_kernel, bool intr,
+-				  bool in_tx, bool in_tx_cp)
++				  bool exclude_kernel, bool intr)
+ {
+ 	struct perf_event *event;
+ 	struct perf_event_attr attr = {
+@@ -113,16 +112,14 @@ static void pmc_reprogram_counter(struct kvm_pmc *pmc, u32 type,
+ 
+ 	attr.sample_period = get_sample_period(pmc, pmc->counter);
+ 
+-	if (in_tx)
+-		attr.config |= HSW_IN_TX;
+-	if (in_tx_cp) {
++	if ((attr.config & HSW_IN_TX_CHECKPOINTED) &&
++	    guest_cpuid_is_intel(pmc->vcpu)) {
+ 		/*
+ 		 * HSW_IN_TX_CHECKPOINTED is not supported with nonzero
+ 		 * period. Just clear the sample period so at least
+ 		 * allocating the counter doesn't fail.
+ 		 */
+ 		attr.sample_period = 0;
+-		attr.config |= HSW_IN_TX_CHECKPOINTED;
  	}
  
- 	return 1;
+ 	event = perf_event_create_kernel_counter(&attr, -1, current,
+@@ -229,9 +226,7 @@ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
+ 	pmc_reprogram_counter(pmc, type, config,
+ 			      !(eventsel & ARCH_PERFMON_EVENTSEL_USR),
+ 			      !(eventsel & ARCH_PERFMON_EVENTSEL_OS),
+-			      eventsel & ARCH_PERFMON_EVENTSEL_INT,
+-			      (eventsel & HSW_IN_TX),
+-			      (eventsel & HSW_IN_TX_CHECKPOINTED));
++			      eventsel & ARCH_PERFMON_EVENTSEL_INT);
+ }
+ EXPORT_SYMBOL_GPL(reprogram_gp_counter);
+ 
+@@ -267,7 +262,7 @@ void reprogram_fixed_counter(struct kvm_pmc *pmc, u8 ctrl, int idx)
+ 			      kvm_x86_ops.pmu_ops->find_fixed_event(idx),
+ 			      !(en_field & 0x2), /* exclude user */
+ 			      !(en_field & 0x1), /* exclude kernel */
+-			      pmi, false, false);
++			      pmi);
+ }
+ EXPORT_SYMBOL_GPL(reprogram_fixed_counter);
+ 
+diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
+index db1b88445acb..7abe77c8b5d0 100644
+--- a/arch/x86/kvm/vmx/pmu_intel.c
++++ b/arch/x86/kvm/vmx/pmu_intel.c
+@@ -396,6 +396,7 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 	struct kvm_pmc *pmc;
+ 	u32 msr = msr_info->index;
+ 	u64 data = msr_info->data;
++	u64 reserved_bits;
+ 
+ 	switch (msr) {
+ 	case MSR_CORE_PERF_FIXED_CTR_CTRL:
+@@ -451,7 +452,11 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		} else if ((pmc = get_gp_pmc(pmu, msr, MSR_P6_EVNTSEL0))) {
+ 			if (data == pmc->eventsel)
+ 				return 0;
+-			if (!(data & pmu->reserved_bits)) {
++			reserved_bits = pmu->reserved_bits;
++			if ((pmc->idx == 2) &&
++			    (pmu->raw_event_mask & HSW_IN_TX_CHECKPOINTED))
++				reserved_bits ^= HSW_IN_TX_CHECKPOINTED;
++			if (!(data & reserved_bits)) {
+ 				reprogram_gp_counter(pmc, data);
+ 				return 0;
+ 			}
+@@ -525,8 +530,10 @@ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
+ 	entry = kvm_find_cpuid_entry(vcpu, 7, 0);
+ 	if (entry &&
+ 	    (boot_cpu_has(X86_FEATURE_HLE) || boot_cpu_has(X86_FEATURE_RTM)) &&
+-	    (entry->ebx & (X86_FEATURE_HLE|X86_FEATURE_RTM)))
+-		pmu->reserved_bits ^= HSW_IN_TX|HSW_IN_TX_CHECKPOINTED;
++	    (entry->ebx & (X86_FEATURE_HLE|X86_FEATURE_RTM))) {
++		pmu->reserved_bits ^= HSW_IN_TX;
++		pmu->raw_event_mask |= (HSW_IN_TX|HSW_IN_TX_CHECKPOINTED);
++	}
+ 
+ 	bitmap_set(pmu->all_valid_pmc_idx,
+ 		0, pmu->nr_arch_gp_counters);
 -- 
 2.35.1
 
