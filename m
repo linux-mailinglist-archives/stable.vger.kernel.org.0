@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BFE4FD391
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE6B4FD3F8
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348925AbiDLHWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:22:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58550 "EHLO
+        id S1352665AbiDLHqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:46:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352068AbiDLHN0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A22DCE0ED;
-        Mon, 11 Apr 2022 23:54:18 -0700 (PDT)
+        with ESMTP id S238011AbiDLHiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:38:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B127E515A9;
+        Tue, 12 Apr 2022 00:09:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F17A9B81B35;
-        Tue, 12 Apr 2022 06:54:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 413BCC385A6;
-        Tue, 12 Apr 2022 06:54:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60AEB6153F;
+        Tue, 12 Apr 2022 07:09:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C019C385A5;
+        Tue, 12 Apr 2022 07:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746455;
-        bh=Jc8pgUnbZ/NjC/Hkh90e39VVKCwDKbAPR4E0Lwf2MiE=;
+        s=korg; t=1649747385;
+        bh=RPqEzanMnDxC24UF3o+CM9LqcNRSJxwgPiVt2BV2MzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYM5maUp7JGF1N98P1N7nuX/bLvb6Sfl3aDejGk3L7O/unxZqJsq8Komzgz0PKEj5
-         ZjhXLAqqBOFzXg/5zqvabf20lCnRUQEPYGNf1EjuqepqbsxAeAgMnhX/E0ym7fnrRb
-         eZpWn/RyetMXjGAnSTJm9QNt05QmeINRs5mVAuc4=
+        b=tgOlE61HCwMqTGIyC1LbUpHuPgt0PNzq9h6AoBjM3OtkJF098dn33k/RoOT8Awl5z
+         Cwop/C+fD+qZOYcRX5r0EYc3QvjPNCsXUUimamgCtgmCzD3cnHkMjZbcl/mj/dEvmX
+         Yfkyq27+GVuAOG9FmZg002cNRL8DiAWwE78i2sRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <philipp.zabel@gmail.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Scott Benesh <scott.benesh@microchip.com>,
+        Scott Teel <scott.teel@microchip.com>,
+        Kevin Barnett <kevin.barnett@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 012/285] drm/edid: remove non_desktop quirk for HPN-3515 and LEN-B800.
-Date:   Tue, 12 Apr 2022 08:27:49 +0200
-Message-Id: <20220412062944.031549172@linuxfoundation.org>
+Subject: [PATCH 5.17 058/343] scsi: smartpqi: Fix rmmod stack trace
+Date:   Tue, 12 Apr 2022 08:27:56 +0200
+Message-Id: <20220412062952.778376433@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <philipp.zabel@gmail.com>
+From: Don Brace <don.brace@microchip.com>
 
-[ Upstream commit 50dc95d561a2552b0d76a9f91b38005195bf2974 ]
+[ Upstream commit c4ff687d25c05919382a759503bd3821689f4e2f ]
 
-Now that there is support for the Microsoft VSDB for HMDs, remove the
-non-desktop quirk for two devices that are verified to contain it in
-their EDID: HPN-3515 and LEN-B800.
-Presumably most of the other Windows Mixed Reality headsets contain it
-as well, but there are ACR-7FCE and SEC-5194 devices without it.
+Prevent "BUG: scheduling while atomic: rmmod" stack trace.
 
-Tested with LEN-B800.
+Stop setting spin_locks before calling OS functions to remove devices.
 
-Signed-off-by: Philipp Zabel <philipp.zabel@gmail.com>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220123101653.147333-2-philipp.zabel@gmail.com
+Link: https://lore.kernel.org/r/164375207296.440833.4996145011193819683.stgit@brunhilda.pdev.net
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index b8f5419e514a..a71b82668a98 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -212,9 +212,7 @@ static const struct edid_quirk {
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index f0897d587454..2db9f874cc51 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -2513,17 +2513,15 @@ static void pqi_remove_all_scsi_devices(struct pqi_ctrl_info *ctrl_info)
+ 	struct pqi_scsi_dev *device;
+ 	struct pqi_scsi_dev *next;
  
- 	/* Windows Mixed Reality Headsets */
- 	EDID_QUIRK('A', 'C', 'R', 0x7fce, EDID_QUIRK_NON_DESKTOP),
--	EDID_QUIRK('H', 'P', 'N', 0x3515, EDID_QUIRK_NON_DESKTOP),
- 	EDID_QUIRK('L', 'E', 'N', 0x0408, EDID_QUIRK_NON_DESKTOP),
--	EDID_QUIRK('L', 'E', 'N', 0xb800, EDID_QUIRK_NON_DESKTOP),
- 	EDID_QUIRK('F', 'U', 'J', 0x1970, EDID_QUIRK_NON_DESKTOP),
- 	EDID_QUIRK('D', 'E', 'L', 0x7fce, EDID_QUIRK_NON_DESKTOP),
- 	EDID_QUIRK('S', 'E', 'C', 0x144a, EDID_QUIRK_NON_DESKTOP),
+-	spin_lock_irqsave(&ctrl_info->scsi_device_list_lock, flags);
+-
+ 	list_for_each_entry_safe(device, next, &ctrl_info->scsi_device_list,
+ 		scsi_device_list_entry) {
+ 		if (pqi_is_device_added(device))
+ 			pqi_remove_device(ctrl_info, device);
++		spin_lock_irqsave(&ctrl_info->scsi_device_list_lock, flags);
+ 		list_del(&device->scsi_device_list_entry);
+ 		pqi_free_device(device);
++		spin_unlock_irqrestore(&ctrl_info->scsi_device_list_lock, flags);
+ 	}
+-
+-	spin_unlock_irqrestore(&ctrl_info->scsi_device_list_lock, flags);
+ }
+ 
+ static int pqi_scan_scsi_devices(struct pqi_ctrl_info *ctrl_info)
 -- 
 2.35.1
 
