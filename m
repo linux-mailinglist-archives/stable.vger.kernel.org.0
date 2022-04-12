@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5214FCA95
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BF084FCAAA
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343517AbiDLAyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 20:54:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59764 "EHLO
+        id S244507AbiDLAyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 20:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243749AbiDLAxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:53:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE9734B8E;
-        Mon, 11 Apr 2022 17:48:55 -0700 (PDT)
+        with ESMTP id S244237AbiDLAyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:54:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1DB934BA4;
+        Mon, 11 Apr 2022 17:48:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AB38617D9;
-        Tue, 12 Apr 2022 00:48:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DFB5C385A4;
-        Tue, 12 Apr 2022 00:48:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04682B8198C;
+        Tue, 12 Apr 2022 00:48:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14F21C385AD;
+        Tue, 12 Apr 2022 00:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724534;
-        bh=wGDd1DgJlG3tYf/4Bdpf9xiaoMr7SoRx3JYSlpBk7xQ=;
+        s=k20201202; t=1649724535;
+        bh=UYPUE9Y3Aabbs8//bLRaLLuC72yw9bYNN85tgxuGTDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e1CGe3KPdnyAUaeWS1w2SOklCtvgXNQtINSFssuRgSYoJDsd2fcxIqZlz4zyvh34Z
-         tZT+sUgevLRfqWYBe4Qa/98YPfiHBFiRCDY6tYroADyL/XuRgZ9pGr2OLa9bfWKMzb
-         /RRj87gn8jU8MOKCmPheIM2BBHvW2vuG2FBJBN/FOirC2LFqOU1Ui+gn+sH7HjWhkY
-         45QiWCOARAijGKS0icXSI/0KU6ONbaTxc46m6qO8GlDGZ/9Tv7oaQ9QkYveZoD1Cvf
-         b946iF5ALReCBDNYpY2FNoxNYcR2kbtad2zSYKJIdWdu7q4D8XRTzIhkvserWg9N9p
-         UvCXDag4J0q7w==
+        b=Ub5qsW04CM1+uqZQ9t5x3jB+XppvPYaQBuc8dJ0D3sM5BM5ZCFD1zCesBwuVCc6Dk
+         MoJJkdfgBj1I9hSo8v7G867f7tmn4O+fYDcCqPVxsKQ3fdbbmp/SyKsAZuuJks0XRx
+         obCwyL+b9w7mDpsqBYkJ3Rhs9IOWES7wJ+ZKp/SpTprvetoQbPsrpWIkIIqm0OEvYt
+         EsfdcBYnDRIjvrIIOh6wPYpY5kg6rTtk67ftAvuaIOtD2cRi7UliE4jhPlWvoJID4T
+         2dRnAE5+/aHqTIFgawuLb0c3xQ7W07gNNAsPVYwUXqEDXs4+CwFHhfVeZn0VU6vqHe
+         Sg6wA0Y3E8XwQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Duoming Zhou <duoming@zju.edu.cn>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        pabeni@redhat.com, gregkh@linuxfoundation.org, mkl@pengutronix.de,
-        dmitry.torokhov@gmail.com, arnd@arndb.de, bigeasy@linutronix.de,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 37/41] drivers: net: slip: fix NPD bug in sl_tx_timeout()
-Date:   Mon, 11 Apr 2022 20:46:49 -0400
-Message-Id: <20220412004656.350101-37-sashal@kernel.org>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 38/41] io_uring: zero tag on rsrc removal
+Date:   Mon, 11 Apr 2022 20:46:50 -0400
+Message-Id: <20220412004656.350101-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004656.350101-1-sashal@kernel.org>
 References: <20220412004656.350101-1-sashal@kernel.org>
@@ -60,58 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit ec4eb8a86ade4d22633e1da2a7d85a846b7d1798 ]
+[ Upstream commit 8f0a24801bb44aa58496945aabb904c729176772 ]
 
-When a slip driver is detaching, the slip_close() will act to
-cleanup necessary resources and sl->tty is set to NULL in
-slip_close(). Meanwhile, the packet we transmit is blocked,
-sl_tx_timeout() will be called. Although slip_close() and
-sl_tx_timeout() use sl->lock to synchronize, we don`t judge
-whether sl->tty equals to NULL in sl_tx_timeout() and the
-null pointer dereference bug will happen.
+Automatically default rsrc tag in io_queue_rsrc_removal(), it's safer
+than leaving it there and relying on the rest of the code to behave and
+not use it.
 
-   (Thread 1)                 |      (Thread 2)
-                              | slip_close()
-                              |   spin_lock_bh(&sl->lock)
-                              |   ...
-...                           |   sl->tty = NULL //(1)
-sl_tx_timeout()               |   spin_unlock_bh(&sl->lock)
-  spin_lock(&sl->lock);       |
-  ...                         |   ...
-  tty_chars_in_buffer(sl->tty)|
-    if (tty->ops->..) //(2)   |
-    ...                       |   synchronize_rcu()
-
-We set NULL to sl->tty in position (1) and dereference sl->tty
-in position (2).
-
-This patch adds check in sl_tx_timeout(). If sl->tty equals to
-NULL, sl_tx_timeout() will goto out.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20220405132206.55291-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/1cf262a50df17478ea25b22494dcc19f3a80301f.1649336342.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/slip/slip.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
-index 5435b5689ce6..2a3892528ec3 100644
---- a/drivers/net/slip/slip.c
-+++ b/drivers/net/slip/slip.c
-@@ -469,7 +469,7 @@ static void sl_tx_timeout(struct net_device *dev, unsigned int txqueue)
- 	spin_lock(&sl->lock);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 5fc3a62eae72..d49d83a99c9f 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8419,13 +8419,15 @@ static int io_sqe_file_register(struct io_ring_ctx *ctx, struct file *file,
+ static int io_queue_rsrc_removal(struct io_rsrc_data *data, unsigned idx,
+ 				 struct io_rsrc_node *node, void *rsrc)
+ {
++	u64 *tag_slot = io_get_tag_slot(data, idx);
+ 	struct io_rsrc_put *prsrc;
  
- 	if (netif_queue_stopped(dev)) {
--		if (!netif_running(dev))
-+		if (!netif_running(dev) || !sl->tty)
- 			goto out;
+ 	prsrc = kzalloc(sizeof(*prsrc), GFP_KERNEL);
+ 	if (!prsrc)
+ 		return -ENOMEM;
  
- 		/* May be we must check transmitter timeout here ?
+-	prsrc->tag = *io_get_tag_slot(data, idx);
++	prsrc->tag = *tag_slot;
++	*tag_slot = 0;
+ 	prsrc->rsrc = rsrc;
+ 	list_add(&prsrc->list, &node->rsrc_list);
+ 	return 0;
 -- 
 2.35.1
 
