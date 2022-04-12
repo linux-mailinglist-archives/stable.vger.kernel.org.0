@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D84A24FD856
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC49B4FD57A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344347AbiDLHpX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:45:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60300 "EHLO
+        id S1354692AbiDLIKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353257AbiDLHZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:18 -0400
+        with ESMTP id S1357333AbiDLHkA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667CC4E39F;
-        Tue, 12 Apr 2022 00:00:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA36924BE9;
+        Tue, 12 Apr 2022 00:15:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06B91B81B4F;
-        Tue, 12 Apr 2022 07:00:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 718E3C385A6;
-        Tue, 12 Apr 2022 07:00:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3A8EB81B46;
+        Tue, 12 Apr 2022 07:15:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18DC4C385A5;
+        Tue, 12 Apr 2022 07:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746818;
-        bh=c+omZP6b97ce8PuNMw7NgKdL3P/XKwm+AoC4Zyoc8Sc=;
+        s=korg; t=1649747719;
+        bh=vWX/olCOiZMgMIxLWD6bJ7lU8zBx3ops744NpZqiIiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wsIoX2Kyc+IUGFTnK/xP/DTEMCRnkmPTuQmiRVVEOdKduGdYHDGWqE+5AJYACqC1Z
-         5BUu1GrrJhtJi2M0FS4Dz57cB8ET1dOpKwg4IrRUxp1bNxTzZa4vekH1owIk0JtKeY
-         VdtRBiDSy1LON2T7KuGsrRcLYhFrmFVovi+NpoTo=
+        b=up/UhgkP5ZtVVoAqEBRv5NnGpmSFcDw4iWL2Tgb++se2qSri7f+7x/Jg0XdZ67K3T
+         FWS51rfbOgQMJFbKbnl3PkVIFhJVmjSoFDEczwENzXPPfDr33rGict86Hh/PUAgfLO
+         ycyGKRjOEKXgcjRrZ8zxlEPK5Gz1rYFEI237bzUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 141/285] jfs: prevent NULL deref in diFree
+Subject: [PATCH 5.17 180/343] NFS: swap-out must always use STABLE writes.
 Date:   Tue, 12 Apr 2022 08:29:58 +0200
-Message-Id: <20220412062947.738757217@linuxfoundation.org>
+Message-Id: <20220412062956.559664790@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit a53046291020ec41e09181396c1e829287b48d47 ]
+[ Upstream commit c265de257f558a05c1859ee9e3fed04883b9ec0e ]
 
-Add validation check for JFS_IP(ipimap)->i_imap to prevent a NULL deref
-in diFree since diFree uses it without do any validations.
-When function jfs_mount calls diMount to initialize fileset inode
-allocation map, it can fail and JFS_IP(ipimap)->i_imap won't be
-initialized. Then it calls diFreeSpecial to close fileset inode allocation
-map inode and it will flow into jfs_evict_inode. Function jfs_evict_inode
-just validates JFS_SBI(inode->i_sb)->ipimap, then calls diFree. diFree use
-JFS_IP(ipimap)->i_imap directly, then it will cause a NULL deref.
+The commit handling code is not safe against memory-pressure deadlocks
+when writing to swap.  In particular, nfs_commitdata_alloc() blocks
+indefinitely waiting for memory, and this can consume all available
+workqueue threads.
 
-Reported-by: TCS Robot <tcs_robot@tencent.com>
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+swap-out most likely uses STABLE writes anyway as COND_STABLE indicates
+that a stable write should be used if the write fits in a single
+request, and it normally does.  However if we ever swap with a small
+wsize, or gather unusually large numbers of pages for a single write,
+this might change.
+
+For safety, make it explicit in the code that direct writes used for swap
+must always use FLUSH_STABLE.
+
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/nfs/direct.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jfs/inode.c b/fs/jfs/inode.c
-index 57ab424c05ff..072821b50ab9 100644
---- a/fs/jfs/inode.c
-+++ b/fs/jfs/inode.c
-@@ -146,12 +146,13 @@ void jfs_evict_inode(struct inode *inode)
- 		dquot_initialize(inode);
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 04aaf39a05cb..11c566d8769f 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -794,7 +794,7 @@ static const struct nfs_pgio_completion_ops nfs_direct_write_completion_ops = {
+  */
+ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
+ 					       struct iov_iter *iter,
+-					       loff_t pos)
++					       loff_t pos, int ioflags)
+ {
+ 	struct nfs_pageio_descriptor desc;
+ 	struct inode *inode = dreq->inode;
+@@ -802,7 +802,7 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
+ 	size_t requested_bytes = 0;
+ 	size_t wsize = max_t(size_t, NFS_SERVER(inode)->wsize, PAGE_SIZE);
  
- 		if (JFS_IP(inode)->fileset == FILESYSTEM_I) {
-+			struct inode *ipimap = JFS_SBI(inode->i_sb)->ipimap;
- 			truncate_inode_pages_final(&inode->i_data);
+-	nfs_pageio_init_write(&desc, inode, FLUSH_COND_STABLE, false,
++	nfs_pageio_init_write(&desc, inode, ioflags, false,
+ 			      &nfs_direct_write_completion_ops);
+ 	desc.pg_dreq = dreq;
+ 	get_dreq(dreq);
+@@ -948,11 +948,13 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter,
+ 	pnfs_init_ds_commit_info_ops(&dreq->ds_cinfo, inode);
  
- 			if (test_cflag(COMMIT_Freewmap, inode))
- 				jfs_free_zero_link(inode);
+ 	if (swap) {
+-		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
++		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
++							    FLUSH_STABLE);
+ 	} else {
+ 		nfs_start_io_direct(inode);
  
--			if (JFS_SBI(inode->i_sb)->ipimap)
-+			if (ipimap && JFS_IP(ipimap)->i_imap)
- 				diFree(inode);
+-		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
++		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos,
++							    FLUSH_COND_STABLE);
  
- 			/*
+ 		if (mapping->nrpages) {
+ 			invalidate_inode_pages2_range(mapping,
 -- 
 2.35.1
 
