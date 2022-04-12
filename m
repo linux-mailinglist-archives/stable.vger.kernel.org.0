@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E23254FD1A9
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:58:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4FC64FCFDA
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344455AbiDLG7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:59:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48860 "EHLO
+        id S243117AbiDLGiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:38:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352642AbiDLG4L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:56:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5744160A;
-        Mon, 11 Apr 2022 23:46:19 -0700 (PDT)
+        with ESMTP id S1350558AbiDLGiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:38:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1960817E33;
+        Mon, 11 Apr 2022 23:34:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF7F060A21;
-        Tue, 12 Apr 2022 06:46:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00CAAC385A1;
-        Tue, 12 Apr 2022 06:46:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B95EDB81B3B;
+        Tue, 12 Apr 2022 06:34:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37A2BC385A6;
+        Tue, 12 Apr 2022 06:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745978;
-        bh=IOovzYC0GjLr5QhhclSKwqs0PgtcJowYk7HNrU5jM5w=;
+        s=korg; t=1649745293;
+        bh=ClpIoo0LS0P+ll1ENChkG3eZ30WX9Q8orKrp5KGiIeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oilqc9IgQi8tP8/j8ohlWVaNNT/tfaIr4JdrADEc3fCbB+4oz24TgtlY3bs2Pkrcf
-         5RDO4Ic/zDxJQ+bm3zstiDRTzxT554dMqT3Lrg9EsVUhTA+CC9uqNm4B/JuLePJqbA
-         dI9rIshhhRclAIXptDEwqn3bwFVkFJAqDDSTfc5g=
+        b=MoDJPDtP9SBUBpy2Tu0YugyDA//JxDKNEL5o4zXFfPQXdRnT23xbSqAeHziodCNEl
+         mCBSinW3Dir2fdrjLie5h509daKKG0QLBFELE3d0CpcFxXgfeHq4kAd6K/Qkj1hHCJ
+         a8p34knnrzNGsgiPNsLX6ElfJOUN4ES564iSmm68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 116/277] clk: rockchip: drop CLK_SET_RATE_PARENT from dclk_vop* on rk3568
-Date:   Tue, 12 Apr 2022 08:28:39 +0200
-Message-Id: <20220412062945.397645975@linuxfoundation.org>
+        stable@vger.kernel.org, Zhou Guanghui <zhouguanghui1@huawei.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 029/171] iommu/arm-smmu-v3: fix event handling soft lockup
+Date:   Tue, 12 Apr 2022 08:28:40 +0200
+Message-Id: <20220412062928.728963213@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Zhou Guanghui <zhouguanghui1@huawei.com>
 
-[ Upstream commit ff3187eabb5ce478d15b6ed62eb286756adefac3 ]
+[ Upstream commit 30de2b541af98179780054836b48825fcfba4408 ]
 
-The pixel clocks dclk_vop[012] can be clocked from hpll, vpll, gpll or
-cpll. gpll and cpll also drive many other clocks, so changing the
-dclk_vop[012] clocks could change these other clocks as well. Drop
-CLK_SET_RATE_PARENT to fix that. With this change the VOP2 driver can
-only adjust the pixel clocks with the divider between the PLL and the
-dclk_vop[012] which means the user may have to adjust the PLL clock to a
-suitable rate using the assigned-clock-rate device tree property.
+During event processing, events are read from the event queue one
+by one until the queue is empty.If the master device continuously
+requests address access at the same time and the SMMU generates
+events, the cyclic processing of the event takes a long time and
+softlockup warnings may be reported.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20220126145549.617165-25-s.hauer@pengutronix.de
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+arm-smmu-v3 arm-smmu-v3.34.auto: event 0x0a received:
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00007f220000280a
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x000010000000007e
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00000000034e8670
+watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [irq/268-arm-smm:247]
+Call trace:
+ _dev_info+0x7c/0xa0
+ arm_smmu_evtq_thread+0x1c0/0x230
+ irq_thread_fn+0x30/0x80
+ irq_thread+0x128/0x210
+ kthread+0x134/0x138
+ ret_from_fork+0x10/0x1c
+Kernel panic - not syncing: softlockup: hung tasks
+
+Fix this by calling cond_resched() after the event information is
+printed.
+
+Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
+Link: https://lore.kernel.org/r/20220119070754.26528-1-zhouguanghui1@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-rk3568.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/rockchip/clk-rk3568.c b/drivers/clk/rockchip/clk-rk3568.c
-index 75ca855e720d..6e5440841d1e 100644
---- a/drivers/clk/rockchip/clk-rk3568.c
-+++ b/drivers/clk/rockchip/clk-rk3568.c
-@@ -1038,13 +1038,13 @@ static struct rockchip_clk_branch rk3568_clk_branches[] __initdata = {
- 			RK3568_CLKGATE_CON(20), 8, GFLAGS),
- 	GATE(HCLK_VOP, "hclk_vop", "hclk_vo", 0,
- 			RK3568_CLKGATE_CON(20), 9, GFLAGS),
--	COMPOSITE(DCLK_VOP0, "dclk_vop0", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_PARENT | CLK_SET_RATE_NO_REPARENT,
-+	COMPOSITE(DCLK_VOP0, "dclk_vop0", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_NO_REPARENT,
- 			RK3568_CLKSEL_CON(39), 10, 2, MFLAGS, 0, 8, DFLAGS,
- 			RK3568_CLKGATE_CON(20), 10, GFLAGS),
--	COMPOSITE(DCLK_VOP1, "dclk_vop1", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_PARENT | CLK_SET_RATE_NO_REPARENT,
-+	COMPOSITE(DCLK_VOP1, "dclk_vop1", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_NO_REPARENT,
- 			RK3568_CLKSEL_CON(40), 10, 2, MFLAGS, 0, 8, DFLAGS,
- 			RK3568_CLKGATE_CON(20), 11, GFLAGS),
--	COMPOSITE(DCLK_VOP2, "dclk_vop2", hpll_vpll_gpll_cpll_p, 0,
-+	COMPOSITE(DCLK_VOP2, "dclk_vop2", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_NO_REPARENT,
- 			RK3568_CLKSEL_CON(41), 10, 2, MFLAGS, 0, 8, DFLAGS,
- 			RK3568_CLKGATE_CON(20), 12, GFLAGS),
- 	GATE(CLK_VOP_PWM, "clk_vop_pwm", "xin24m", 0,
+diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+index 7067b7c11626..483c1362cc4a 100644
+--- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
++++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+@@ -1368,6 +1368,7 @@ static irqreturn_t arm_smmu_evtq_thread(int irq, void *dev)
+ 				dev_info(smmu->dev, "\t0x%016llx\n",
+ 					 (unsigned long long)evt[i]);
+ 
++			cond_resched();
+ 		}
+ 
+ 		/*
 -- 
 2.35.1
 
