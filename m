@@ -2,92 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E386A4FCF76
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:25:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A4FD4FD3E0
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229896AbiDLG1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:27:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39268 "EHLO
+        id S1356069AbiDLHeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:34:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238655AbiDLG1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:27:23 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0EB23585C
-        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 23:25:06 -0700 (PDT)
-Received: from kwepemi100010.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Kcwg23dCmzdZhr;
-        Tue, 12 Apr 2022 14:24:30 +0800 (CST)
-Received: from kwepemm600017.china.huawei.com (7.193.23.234) by
- kwepemi100010.china.huawei.com (7.221.188.54) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 12 Apr 2022 14:25:04 +0800
-Received: from localhost.localdomain (10.175.112.70) by
- kwepemm600017.china.huawei.com (7.193.23.234) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 12 Apr 2022 14:25:04 +0800
-From:   Xu Jia <xujia39@huawei.com>
-To:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>
-CC:     <duoming@zju.edu.cn>, <linma@zju.edu.cn>, <davem@davemloft.net>,
-        <kuba@kernel.org>
-Subject: [PATCH 5.10 2/2] hamradio: remove needs_free_netdev to avoid UAF
-Date:   Tue, 12 Apr 2022 14:39:04 +0800
-Message-ID: <1649745544-19915-2-git-send-email-xujia39@huawei.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1649745544-19915-1-git-send-email-xujia39@huawei.com>
-References: <1649745544-19915-1-git-send-email-xujia39@huawei.com>
+        with ESMTP id S1355654AbiDLH1w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:27:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A970E4EDE0;
+        Tue, 12 Apr 2022 00:07:59 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAA70B81B54;
+        Tue, 12 Apr 2022 07:07:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B69EC385A8;
+        Tue, 12 Apr 2022 07:07:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649747272;
+        bh=GKounZqJS96t0E4wQdvhNBG6ZpQrjW2xlU2vl6Bc/jc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=XG+ZwYWlmP+1S2M1aw2PYOvLDhl6NZuFYLDj+VXMGQsx1knlXo3/8LaUHjnG8VRJ+
+         50Wxg+lhdHSrkNKmHzkOgP8U1Qk318ZRCNJ1wOFMS0hofzzFRe0GqvFexiXBzs0JHy
+         mG8p0Q0Bgg2pGYAEazUYsPsrJ9EPjKxiMBWd3gOk=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 004/343] net: dsa: felix: fix possible NULL pointer dereference
+Date:   Tue, 12 Apr 2022 08:27:02 +0200
+Message-Id: <20220412062951.228586224@linuxfoundation.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.112.70]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- kwepemm600017.china.huawei.com (7.193.23.234)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-commit 81b1d548d00bcd028303c4f3150fa753b9b8aa71 upstream.
+[ Upstream commit 866b7a278cdb51eb158cd8513bc7438fc857804a ]
 
-The former patch "defer 6pack kfree after unregister_netdev" reorders
-the kfree of two buffer after the unregister_netdev to prevent the race
-condition. It also adds free_netdev() function in sixpack_close(), which
-is a direct copy from the similar code in mkiss_close().
+As the possible failure of the allocation, kzalloc() may return NULL
+pointer.
+Therefore, it should be better to check the 'sgi' in order to prevent
+the dereference of NULL pointer.
 
-However, in sixpack driver, the flag needs_free_netdev is set to true in
-sp_setup(), hence the unregister_netdev() will free the netdev
-automatically. Therefore, as the sp is netdev_priv, use-after-free
-occurs.
-
-This patch removes the needs_free_netdev = true and just let the
-free_netdev to finish this deallocation task.
-
-Fixes: 0b9111922b1f ("hamradio: defer 6pack kfree after unregister_netdev")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20211111141402.7551-1-linma@zju.edu.cn
+Fixes: 23ae3a7877718 ("net: dsa: felix: add stream gate settings for psfp").
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20220329090800.130106-1-zhengyongjun3@huawei.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Xu Jia <xujia39@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hamradio/6pack.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/dsa/ocelot/felix_vsc9959.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
-index 82507a6..83dc1c2 100644
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -311,7 +311,6 @@ static void sp_setup(struct net_device *dev)
- {
- 	/* Finish setting up the DEVICE info. */
- 	dev->netdev_ops		= &sp_netdev_ops;
--	dev->needs_free_netdev	= true;
- 	dev->mtu		= SIXP_MTU;
- 	dev->hard_header_len	= AX25_MAX_HEADER_LEN;
- 	dev->header_ops 	= &ax25_header_ops;
+diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
+index 33f0ceae381d..2875b5250856 100644
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -1940,6 +1940,10 @@ static int vsc9959_psfp_filter_add(struct ocelot *ocelot, int port,
+ 		case FLOW_ACTION_GATE:
+ 			size = struct_size(sgi, entries, a->gate.num_entries);
+ 			sgi = kzalloc(size, GFP_KERNEL);
++			if (!sgi) {
++				ret = -ENOMEM;
++				goto err;
++			}
+ 			vsc9959_psfp_parse_gate(a, sgi);
+ 			ret = vsc9959_psfp_sgi_table_add(ocelot, sgi);
+ 			if (ret) {
 -- 
-1.8.3.1
+2.35.1
+
+
 
