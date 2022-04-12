@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9414FD4D2
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:09:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3044FDB3F
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242290AbiDLHh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43052 "EHLO
+        id S1350160AbiDLHcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353776AbiDLHZy (ORCPT
+        with ESMTP id S1353786AbiDLHZy (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7001A63F4;
-        Tue, 12 Apr 2022 00:04:30 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADFA764DB;
+        Tue, 12 Apr 2022 00:04:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B62160B65;
-        Tue, 12 Apr 2022 07:04:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 150E5C385A1;
-        Tue, 12 Apr 2022 07:04:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A489B81A8F;
+        Tue, 12 Apr 2022 07:04:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3D15C385A6;
+        Tue, 12 Apr 2022 07:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747069;
-        bh=Sh3dOBmsLvqM/A9bPwyaG++I0BeeNMWpTYmy+3cxDe4=;
+        s=korg; t=1649747072;
+        bh=owCQkfvc1FFs6YguV6boUR1V1ik5jIJYW9wNlUGd5eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHL7ZgjARe3vRhot1Yn2jk+8EbQ5EEaRO8xrbETC2a8AB4bSo6aUgZnZD0JK3pUA6
-         0KsIqMGwm2hr8tDjDonrgGJ5/zEDjxrp8YNcxVd7Tmniui3Mbuz8Adj2Bsv6DEirCK
-         qnh8xDuFNX6ACFjZZO42QPtbBEKlJOGGu+ZI27Uo=
+        b=XdVWm5kS08ABDuUZBo78lhUWFpHSOjUkeFbeNUYwviSbgEQL0VMxxWh4YgGM80tKa
+         ZxFJFZQ6R06C+tDbmaSQUi0poWCci6XocsNv43kEgAxS3VaEHOzQBFj8Aaw4vuoNe0
+         3WMv0OoG2/nr4udmRKAtwfQ0eQGXBcWMyJ0yQC7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Ethan Lien <ethanlien@synology.com>,
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 231/285] btrfs: fix qgroup reserve overflow the qgroup limit
-Date:   Tue, 12 Apr 2022 08:31:28 +0200
-Message-Id: <20220412062950.326873309@linuxfoundation.org>
+Subject: [PATCH 5.16 232/285] btrfs: zoned: traverse devices under chunk_mutex in btrfs_can_activate_zone
+Date:   Tue, 12 Apr 2022 08:31:29 +0200
+Message-Id: <20220412062950.356130112@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -54,90 +54,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ethan Lien <ethanlien@synology.com>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit b642b52d0b50f4d398cb4293f64992d0eed2e2ce upstream.
+commit 0b9e66762aa0cda2a9c2d5542d64e04dac528fa6 upstream.
 
-We use extent_changeset->bytes_changed in qgroup_reserve_data() to record
-how many bytes we set for EXTENT_QGROUP_RESERVED state. Currently the
-bytes_changed is set as "unsigned int", and it will overflow if we try to
-fallocate a range larger than 4GiB. The result is we reserve less bytes
-and eventually break the qgroup limit.
+btrfs_can_activate_zone() can be called with the device_list_mutex already
+held, which will lead to a deadlock:
 
-Unlike regular buffered/direct write, which we use one changeset for
-each ordered extent, which can never be larger than 256M.  For
-fallocate, we use one changeset for the whole range, thus it no longer
-respects the 256M per extent limit, and caused the problem.
+insert_dev_extents() // Takes device_list_mutex
+`-> insert_dev_extent()
+ `-> btrfs_insert_empty_item()
+  `-> btrfs_insert_empty_items()
+   `-> btrfs_search_slot()
+    `-> btrfs_cow_block()
+     `-> __btrfs_cow_block()
+      `-> btrfs_alloc_tree_block()
+       `-> btrfs_reserve_extent()
+        `-> find_free_extent()
+         `-> find_free_extent_update_loop()
+          `-> can_allocate_chunk()
+           `-> btrfs_can_activate_zone() // Takes device_list_mutex again
 
-The following example test script reproduces the problem:
+Instead of using the RCU on fs_devices->device_list we
+can use fs_devices->alloc_list, protected by the chunk_mutex to traverse
+the list of active devices.
 
-  $ cat qgroup-overflow.sh
-  #!/bin/bash
+We are in the chunk allocation thread. The newer chunk allocation
+happens from the devices in the fs_device->alloc_list protected by the
+chunk_mutex.
 
-  DEV=/dev/sdj
-  MNT=/mnt/sdj
+  btrfs_create_chunk()
+    lockdep_assert_held(&info->chunk_mutex);
+    gather_device_info
+      list_for_each_entry(device, &fs_devices->alloc_list, dev_alloc_list)
 
-  mkfs.btrfs -f $DEV
-  mount $DEV $MNT
+Also, a device that reappears after the mount won't join the alloc_list
+yet and, it will be in the dev_list, which we don't want to consider in
+the context of the chunk alloc.
 
-  # Set qgroup limit to 2GiB.
-  btrfs quota enable $MNT
-  btrfs qgroup limit 2G $MNT
+  [15.166572] WARNING: possible recursive locking detected
+  [15.167117] 5.17.0-rc6-dennis #79 Not tainted
+  [15.167487] --------------------------------------------
+  [15.167733] kworker/u8:3/146 is trying to acquire lock:
+  [15.167733] ffff888102962ee0 (&fs_devs->device_list_mutex){+.+.}-{3:3}, at: find_free_extent+0x15a/0x14f0 [btrfs]
+  [15.167733]
+  [15.167733] but task is already holding lock:
+  [15.167733] ffff888102962ee0 (&fs_devs->device_list_mutex){+.+.}-{3:3}, at: btrfs_create_pending_block_groups+0x20a/0x560 [btrfs]
+  [15.167733]
+  [15.167733] other info that might help us debug this:
+  [15.167733]  Possible unsafe locking scenario:
+  [15.167733]
+  [15.171834]        CPU0
+  [15.171834]        ----
+  [15.171834]   lock(&fs_devs->device_list_mutex);
+  [15.171834]   lock(&fs_devs->device_list_mutex);
+  [15.171834]
+  [15.171834]  *** DEADLOCK ***
+  [15.171834]
+  [15.171834]  May be due to missing lock nesting notation
+  [15.171834]
+  [15.171834] 5 locks held by kworker/u8:3/146:
+  [15.171834]  #0: ffff888100050938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1c3/0x5a0
+  [15.171834]  #1: ffffc9000067be80 ((work_completion)(&fs_info->async_data_reclaim_work)){+.+.}-{0:0}, at: process_one_work+0x1c3/0x5a0
+  [15.176244]  #2: ffff88810521e620 (sb_internal){.+.+}-{0:0}, at: flush_space+0x335/0x600 [btrfs]
+  [15.176244]  #3: ffff888102962ee0 (&fs_devs->device_list_mutex){+.+.}-{3:3}, at: btrfs_create_pending_block_groups+0x20a/0x560 [btrfs]
+  [15.176244]  #4: ffff8881152e4b78 (btrfs-dev-00){++++}-{3:3}, at: __btrfs_tree_lock+0x27/0x130 [btrfs]
+  [15.179641]
+  [15.179641] stack backtrace:
+  [15.179641] CPU: 1 PID: 146 Comm: kworker/u8:3 Not tainted 5.17.0-rc6-dennis #79
+  [15.179641] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
+  [15.179641] Workqueue: events_unbound btrfs_async_reclaim_data_space [btrfs]
+  [15.179641] Call Trace:
+  [15.179641]  <TASK>
+  [15.179641]  dump_stack_lvl+0x45/0x59
+  [15.179641]  __lock_acquire.cold+0x217/0x2b2
+  [15.179641]  lock_acquire+0xbf/0x2b0
+  [15.183838]  ? find_free_extent+0x15a/0x14f0 [btrfs]
+  [15.183838]  __mutex_lock+0x8e/0x970
+  [15.183838]  ? find_free_extent+0x15a/0x14f0 [btrfs]
+  [15.183838]  ? find_free_extent+0x15a/0x14f0 [btrfs]
+  [15.183838]  ? lock_is_held_type+0xd7/0x130
+  [15.183838]  ? find_free_extent+0x15a/0x14f0 [btrfs]
+  [15.183838]  find_free_extent+0x15a/0x14f0 [btrfs]
+  [15.183838]  ? _raw_spin_unlock+0x24/0x40
+  [15.183838]  ? btrfs_get_alloc_profile+0x106/0x230 [btrfs]
+  [15.187601]  btrfs_reserve_extent+0x131/0x260 [btrfs]
+  [15.187601]  btrfs_alloc_tree_block+0xb5/0x3b0 [btrfs]
+  [15.187601]  __btrfs_cow_block+0x138/0x600 [btrfs]
+  [15.187601]  btrfs_cow_block+0x10f/0x230 [btrfs]
+  [15.187601]  btrfs_search_slot+0x55f/0xbc0 [btrfs]
+  [15.187601]  ? lock_is_held_type+0xd7/0x130
+  [15.187601]  btrfs_insert_empty_items+0x2d/0x60 [btrfs]
+  [15.187601]  btrfs_create_pending_block_groups+0x2b3/0x560 [btrfs]
+  [15.187601]  __btrfs_end_transaction+0x36/0x2a0 [btrfs]
+  [15.192037]  flush_space+0x374/0x600 [btrfs]
+  [15.192037]  ? find_held_lock+0x2b/0x80
+  [15.192037]  ? btrfs_async_reclaim_data_space+0x49/0x180 [btrfs]
+  [15.192037]  ? lock_release+0x131/0x2b0
+  [15.192037]  btrfs_async_reclaim_data_space+0x70/0x180 [btrfs]
+  [15.192037]  process_one_work+0x24c/0x5a0
+  [15.192037]  worker_thread+0x4a/0x3d0
 
-  # Try to fallocate a 3GiB file. This should fail.
-  echo
-  echo "Try to fallocate a 3GiB file..."
-  fallocate -l 3G $MNT/3G.file
-
-  # Try to fallocate a 5GiB file.
-  echo
-  echo "Try to fallocate a 5GiB file..."
-  fallocate -l 5G $MNT/5G.file
-
-  # See we break the qgroup limit.
-  echo
-  sync
-  btrfs qgroup show -r $MNT
-
-  umount $MNT
-
-When running the test:
-
-  $ ./qgroup-overflow.sh
-  (...)
-
-  Try to fallocate a 3GiB file...
-  fallocate: fallocate failed: Disk quota exceeded
-
-  Try to fallocate a 5GiB file...
-
-  qgroupid         rfer         excl     max_rfer
-  --------         ----         ----     --------
-  0/5           5.00GiB      5.00GiB      2.00GiB
-
-Since we have no control of how bytes_changed is used, it's better to
-set it to u64.
-
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Ethan Lien <ethanlien@synology.com>
+Fixes: a85f05e59bc1 ("btrfs: zoned: avoid chunk allocation if active block group has enough space")
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/zoned.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/extent_io.h
-+++ b/fs/btrfs/extent_io.h
-@@ -118,7 +118,7 @@ struct btrfs_bio_ctrl {
-  */
- struct extent_changeset {
- 	/* How many bytes are set/cleared in this operation */
--	unsigned int bytes_changed;
-+	u64 bytes_changed;
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1936,18 +1936,19 @@ int btrfs_zone_finish(struct btrfs_block
  
- 	/* Changed ranges */
- 	struct ulist range_changed;
+ bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices, u64 flags)
+ {
++	struct btrfs_fs_info *fs_info = fs_devices->fs_info;
+ 	struct btrfs_device *device;
+ 	bool ret = false;
+ 
+-	if (!btrfs_is_zoned(fs_devices->fs_info))
++	if (!btrfs_is_zoned(fs_info))
+ 		return true;
+ 
+ 	/* Non-single profiles are not supported yet */
+ 	ASSERT((flags & BTRFS_BLOCK_GROUP_PROFILE_MASK) == 0);
+ 
+ 	/* Check if there is a device with active zones left */
+-	mutex_lock(&fs_devices->device_list_mutex);
+-	list_for_each_entry(device, &fs_devices->devices, dev_list) {
++	mutex_lock(&fs_info->chunk_mutex);
++	list_for_each_entry(device, &fs_devices->alloc_list, dev_alloc_list) {
+ 		struct btrfs_zoned_device_info *zinfo = device->zone_info;
+ 
+ 		if (!device->bdev)
+@@ -1959,7 +1960,7 @@ bool btrfs_can_activate_zone(struct btrf
+ 			break;
+ 		}
+ 	}
+-	mutex_unlock(&fs_devices->device_list_mutex);
++	mutex_unlock(&fs_info->chunk_mutex);
+ 
+ 	return ret;
+ }
 
 
