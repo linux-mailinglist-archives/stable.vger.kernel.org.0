@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC02A4FD534
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF324FD74E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353867AbiDLHhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60934 "EHLO
+        id S1352502AbiDLH2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353669AbiDLHZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82BBA10FDF;
-        Tue, 12 Apr 2022 00:03:21 -0700 (PDT)
+        with ESMTP id S1351623AbiDLHMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D012513D57;
+        Mon, 11 Apr 2022 23:50:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DE0F60B65;
-        Tue, 12 Apr 2022 07:03:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26091C385A6;
-        Tue, 12 Apr 2022 07:03:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E7146103A;
+        Tue, 12 Apr 2022 06:50:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 838C2C385A1;
+        Tue, 12 Apr 2022 06:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747000;
-        bh=QoSKt1QfGOxXJk45hbuvdVdVfyISsG2D2JIrfiPHx8w=;
+        s=korg; t=1649746243;
+        bh=QhsvxtWGhK5wtgUU105j/Ut1BdLJxJR/yoBWlg8U0ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bLTrcL+NZBjJjN6ZEWtXDRATb3CkF4O5+uGW7opb07UJp2qSjtmy1imTfWUJchNM4
-         VkjRFip49Um2/jTlZ95nybCy4binClzn3t1cuv59gatLlUR0ay2aVJZCHMvc08aVVH
-         6TQT1Nj+15hsNCE0JSfxi8/uDsQbKKuAEpIPlV88=
+        b=t83h1Jsxkb6IQUqlHJ8emFD92GLklLZ1y//WLU8bUYLzTFvqbQcNIyN+WVNW+gCl2
+         S0x0djpsmTXQP6coIiQJLVqS6njK8F1DByvEiFCLe+l9WJT+Dxdm1hZHJfFZaciEda
+         ffkt7nElHpqXakW2GlEcLIEBvBjQ4ilw4AcWVu3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 157/285] scsi: core: Fix sbitmap depth in scsi_realloc_sdev_budget_map()
+        stable@vger.kernel.org, Yann Gautier <yann.gautier@foss.st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 211/277] mmc: mmci: stm32: correctly check all elements of sg list
 Date:   Tue, 12 Apr 2022 08:30:14 +0200
-Message-Id: <20220412062948.203087039@linuxfoundation.org>
+Message-Id: <20220412062948.147725878@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,59 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Yann Gautier <yann.gautier@foss.st.com>
 
-[ Upstream commit eaba83b5b8506bbc9ee7ca2f10aeab3fff3719e7 ]
+commit 0d319dd5a27183b75d984e3dc495248e59f99334 upstream.
 
-In commit edb854a3680b ("scsi: core: Reallocate device's budget map on
-queue depth change"), the sbitmap for the device budget map may be
-reallocated after the slave device depth is configured.
+Use sg and not data->sg when checking sg list elements. Else only the
+first element alignment is checked.
+The last element should be checked the same way, for_each_sg already set
+sg to sg_next(sg).
 
-When the sbitmap is reallocated we use the result from
-scsi_device_max_queue_depth() for the sbitmap size, but don't resize to
-match the actual device queue depth.
-
-Fix by resizing the sbitmap after reallocating the budget sbitmap. We do
-this instead of init'ing the sbitmap to the device queue depth as the user
-may want to change the queue depth later via sysfs or other.
-
-Link: https://lore.kernel.org/r/1647423870-143867-1-git-send-email-john.garry@huawei.com
-Fixes: edb854a3680b ("scsi: core: Reallocate device's budget map on queue depth change")
-Tested-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 46b723dd867d ("mmc: mmci: add stm32 sdmmc variant")
+Cc: stable@vger.kernel.org
+Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+Link: https://lore.kernel.org/r/20220317111944.116148-2-yann.gautier@foss.st.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_scan.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mmc/host/mmci_stm32_sdmmc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index d0ce723299bf..6bc0f5f511e1 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -223,6 +223,8 @@ static int scsi_realloc_sdev_budget_map(struct scsi_device *sdev,
- 	int ret;
- 	struct sbitmap sb_backup;
+--- a/drivers/mmc/host/mmci_stm32_sdmmc.c
++++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
+@@ -62,8 +62,8 @@ static int sdmmc_idma_validate_data(stru
+ 	 * excepted the last element which has no constraint on idmasize
+ 	 */
+ 	for_each_sg(data->sg, sg, data->sg_len - 1, i) {
+-		if (!IS_ALIGNED(data->sg->offset, sizeof(u32)) ||
+-		    !IS_ALIGNED(data->sg->length, SDMMC_IDMA_BURST)) {
++		if (!IS_ALIGNED(sg->offset, sizeof(u32)) ||
++		    !IS_ALIGNED(sg->length, SDMMC_IDMA_BURST)) {
+ 			dev_err(mmc_dev(host->mmc),
+ 				"unaligned scatterlist: ofst:%x length:%d\n",
+ 				data->sg->offset, data->sg->length);
+@@ -71,7 +71,7 @@ static int sdmmc_idma_validate_data(stru
+ 		}
+ 	}
  
-+	depth = min_t(unsigned int, depth, scsi_device_max_queue_depth(sdev));
-+
- 	/*
- 	 * realloc if new shift is calculated, which is caused by setting
- 	 * up one new default queue depth after calling ->slave_configure
-@@ -245,6 +247,9 @@ static int scsi_realloc_sdev_budget_map(struct scsi_device *sdev,
- 				scsi_device_max_queue_depth(sdev),
- 				new_shift, GFP_KERNEL,
- 				sdev->request_queue->node, false, true);
-+	if (!ret)
-+		sbitmap_resize(&sdev->budget_map, depth);
-+
- 	if (need_free) {
- 		if (ret)
- 			sdev->budget_map = sb_backup;
--- 
-2.35.1
-
+-	if (!IS_ALIGNED(data->sg->offset, sizeof(u32))) {
++	if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
+ 		dev_err(mmc_dev(host->mmc),
+ 			"unaligned last scatterlist: ofst:%x length:%d\n",
+ 			data->sg->offset, data->sg->length);
 
 
