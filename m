@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0613E4FD5CC
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:15:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B38BF4FD555
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353372AbiDLHdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:33:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33748 "EHLO
+        id S1353137AbiDLHvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:51:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353558AbiDLHZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFB425C78;
-        Tue, 12 Apr 2022 00:01:12 -0700 (PDT)
+        with ESMTP id S1357249AbiDLHjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90CE6F15;
+        Tue, 12 Apr 2022 00:14:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF4F360B2E;
-        Tue, 12 Apr 2022 07:01:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F29AFC385A1;
-        Tue, 12 Apr 2022 07:01:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C7A96171C;
+        Tue, 12 Apr 2022 07:14:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37597C385A1;
+        Tue, 12 Apr 2022 07:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746871;
-        bh=+YTNds+8z0t2zHdYuIfAV4xXR8U6PjwOkzvV2rN7NGI=;
+        s=korg; t=1649747655;
+        bh=2kkz2HUea5hGrLe3sIdjMljDa9VPFb9vQcDZSKUWuuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d11aYGUWXCaUdBts8vJwP8pcDOrDhX+xb8Pq3/xSTqK8z68xEWLc5kkhjcS8d6a0r
-         rHcpudVBgIveqxGQui+Yazzuw/hbeSPSd8/77nI+sQfnG0Wb2o/Z41/MynPY9IIKqo
-         oHMHf3RHLQA4t9mgg+Lv/6DldWgByI+aMycgyeiY=
+        b=r+Mz38X1iy2i7dwYYS5qHn3z51afrOex7ljTT8Pfo09J2QYD363wRBNntNb8yEtVo
+         WDyCzHfunUoMWmRAoeS14QL2DPtnJHnrAy7eRuga8OpRsPOMlBqI0nHO/PH4qDvzJS
+         4WeE9QaCVJNqIbv4oTAHxGOhsZKBm53nmQoxg5lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amjad Ouled-Ameur <aouledameur@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 120/285] phy: amlogic: meson8b-usb2: fix shared reset control use
+        stable@vger.kernel.org, Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 159/343] staging: vchiq_core: handle NULL result of find_service_by_handle
 Date:   Tue, 12 Apr 2022 08:29:37 +0200
-Message-Id: <20220412062947.130039106@linuxfoundation.org>
+Message-Id: <20220412062955.964487496@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,66 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amjad Ouled-Ameur <aouledameur@baylibre.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 6f1dedf089ab1a4f03ea7aadc3c4a99885b4b4a0 ]
+[ Upstream commit ca225857faf237234d2fffe5d1919467dfadd822 ]
 
-Use reset_control_rearm() call if an error occurs in case
-phy_meson8b_usb2_power_on() fails after reset() has been called, or in
-case phy_meson8b_usb2_power_off() is called i.e the resource is no longer
-used and the reset line may be triggered again by other devices.
+In case of an invalid handle the function find_servive_by_handle
+returns NULL. So take care of this and avoid a NULL pointer dereference.
 
-reset_control_rearm() keeps use of triggered_count sane in the reset
-framework, use of reset_control_reset() on shared reset line should
-be balanced with reset_control_rearm().
-
-Signed-off-by: Amjad Ouled-Ameur <aouledameur@baylibre.com>
-Reported-by: Jerome Brunet <jbrunet@baylibre.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220111095255.176141-4-aouledameur@baylibre.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/1642968143-19281-18-git-send-email-stefan.wahren@i2se.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/amlogic/phy-meson8b-usb2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../staging/vc04_services/interface/vchiq_arm/vchiq_core.c  | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/phy/amlogic/phy-meson8b-usb2.c b/drivers/phy/amlogic/phy-meson8b-usb2.c
-index 77e7e9b1428c..dd96763911b8 100644
---- a/drivers/phy/amlogic/phy-meson8b-usb2.c
-+++ b/drivers/phy/amlogic/phy-meson8b-usb2.c
-@@ -154,6 +154,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 	ret = clk_prepare_enable(priv->clk_usb_general);
- 	if (ret) {
- 		dev_err(&phy->dev, "Failed to enable USB general clock\n");
-+		reset_control_rearm(priv->reset);
- 		return ret;
- 	}
+diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
+index 7fe20d4b7ba2..b7295236671c 100644
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
+@@ -2306,6 +2306,9 @@ void vchiq_msg_queue_push(unsigned int handle, struct vchiq_header *header)
+ 	struct vchiq_service *service = find_service_by_handle(handle);
+ 	int pos;
  
-@@ -161,6 +162,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 	if (ret) {
- 		dev_err(&phy->dev, "Failed to enable USB DDR clock\n");
- 		clk_disable_unprepare(priv->clk_usb_general);
-+		reset_control_rearm(priv->reset);
- 		return ret;
- 	}
++	if (!service)
++		return;
++
+ 	while (service->msg_queue_write == service->msg_queue_read +
+ 		VCHIQ_MAX_SLOTS) {
+ 		if (wait_for_completion_interruptible(&service->msg_queue_pop))
+@@ -2326,6 +2329,9 @@ struct vchiq_header *vchiq_msg_hold(unsigned int handle)
+ 	struct vchiq_header *header;
+ 	int pos;
  
-@@ -199,6 +201,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 				dev_warn(&phy->dev, "USB ID detect failed!\n");
- 				clk_disable_unprepare(priv->clk_usb);
- 				clk_disable_unprepare(priv->clk_usb_general);
-+				reset_control_rearm(priv->reset);
- 				return -EINVAL;
- 			}
- 		}
-@@ -218,6 +221,7 @@ static int phy_meson8b_usb2_power_off(struct phy *phy)
++	if (!service)
++		return NULL;
++
+ 	if (service->msg_queue_write == service->msg_queue_read)
+ 		return NULL;
  
- 	clk_disable_unprepare(priv->clk_usb);
- 	clk_disable_unprepare(priv->clk_usb_general);
-+	reset_control_rearm(priv->reset);
- 
- 	/* power off the PHY by putting it into reset mode */
- 	regmap_update_bits(priv->regmap, REG_CTRL, REG_CTRL_POWER_ON_RESET,
 -- 
 2.35.1
 
