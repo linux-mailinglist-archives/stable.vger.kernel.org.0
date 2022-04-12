@@ -2,58 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 907974FCC5B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 04:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 392724FCE9A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 07:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231268AbiDLCUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 22:20:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49950 "EHLO
+        id S233285AbiDLFOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 01:14:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229921AbiDLCUA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 22:20:00 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A64833E26;
-        Mon, 11 Apr 2022 19:17:44 -0700 (PDT)
-Received: from dggpeml500024.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4Kcq8B06N8zgYW7;
-        Tue, 12 Apr 2022 10:15:54 +0800 (CST)
-Received: from dggpeml500017.china.huawei.com (7.185.36.243) by
- dggpeml500024.china.huawei.com (7.185.36.10) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 12 Apr 2022 10:17:42 +0800
-Received: from linux-suspe12sp5.huawei.com (10.67.133.83) by
- dggpeml500017.china.huawei.com (7.185.36.243) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 12 Apr 2022 10:17:42 +0800
-From:   ChenJingwen <chenjingwen6@huawei.com>
-To:     <christophe.leroy@csgroup.eu>
-CC:     <chenjingwen6@huawei.com>, <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <mpe@ellerman.id.au>, <stable@vger.kernel.org>
-Subject: Re: [PATCH] [Rebased for 5.4] powerpc/kasan: Fix early region not updated correctly
-Date:   Tue, 12 Apr 2022 10:17:41 +0800
-Message-ID: <20220412021741.127386-1-chenjingwen6@huawei.com>
-X-Mailer: git-send-email 2.12.3
-In-Reply-To: <fc39c36ea92e03ed5eb218ddbe83b34361034d9d.1648915982.git.christophe.leroy@csgroup.eu>
-References: <fc39c36ea92e03ed5eb218ddbe83b34361034d9d.1648915982.git.christophe.leroy@csgroup.eu>
+        with ESMTP id S229593AbiDLFOg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 01:14:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A151B344D3
+        for <stable@vger.kernel.org>; Mon, 11 Apr 2022 22:12:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4432C617ED
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 05:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52158C385A6;
+        Tue, 12 Apr 2022 05:12:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1649740337;
+        bh=2Ld5jJGw1PTp6etetci6q4nHbD29mJ6Wlzif29xyTUs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zphAaCydtxTVuJT+cGNtr6OOpoZb1NLB7k1MgfnGC0zC5Qn4F8cR2o/vkG0PBFu8n
+         d1Khuw43auqxFvOo26oP6woMwdAsyD8pOydyLLe5/rTarRdexTPLaLsyLHwsD36VR5
+         NP5QBHKjLmKLpfPBsoJBVTfuDn2649ISyBKYBgNQ=
+Date:   Tue, 12 Apr 2022 07:12:15 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] io_uring: move read/write file prep state
+ into actual opcode" failed to apply to 5.15-stable tree
+Message-ID: <YlUKLyMirD242p1l@kroah.com>
+References: <164966306719476@kroah.com>
+ <7bc5956c-46f1-9411-7ba7-6bfd92b7323c@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.133.83]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpeml500017.china.huawei.com (7.185.36.243)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7bc5956c-46f1-9411-7ba7-6bfd92b7323c@kernel.dk>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> This is backport for 5.4
+On Mon, Apr 11, 2022 at 01:50:55PM -0600, Jens Axboe wrote:
+> On 4/11/22 1:44 AM, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.15-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > 
-> Upstream commit 5647a94a26e352beed61788b46e035d9d12664cd
+> For now, let's just drop this series otherwise marked for 5.15+ for
+> 5.15-stable and 5.16-stable. It would require further backporting, and
+> it isn't strictly necessary.
 
-Thank you for your rebase.
-I went on vacation and couldn't submit the code at that time
+Ok, thanks for letting me know.
+
+greg k-h
