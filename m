@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 396534FD0F5
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5214FD0E4
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350638AbiDLG4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:56:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48686 "EHLO
+        id S1350705AbiDLG4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351360AbiDLGx2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2C233E37;
-        Mon, 11 Apr 2022 23:40:21 -0700 (PDT)
+        with ESMTP id S1351381AbiDLGx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31BA613D2A;
+        Mon, 11 Apr 2022 23:40:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 847EFB81B29;
-        Tue, 12 Apr 2022 06:40:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE72FC385A6;
-        Tue, 12 Apr 2022 06:40:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF61B6066C;
+        Tue, 12 Apr 2022 06:40:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B868FC385A6;
+        Tue, 12 Apr 2022 06:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745619;
-        bh=F9F7EhekDQBqY9Ly3uMsfo/JcsfMNOiBxiAv/rQ5u0w=;
+        s=korg; t=1649745622;
+        bh=FMkKOxNXuSPaY8/85RCsgzknjKn0BHCPuz34Amk2MNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=krPb9T6L1bGxRv2OmVAMFYquQjMiHUe4r+aoH4OaZjL2IN5ve5Ex/jSCy6Y14OoF6
-         F6UMfy9vu+XfqIURxnzkLrArfGcvpbdaEhwLgkizirZ+avICk74H8IhVgI5fuCJv5O
-         yTA0B4+XJiiXwUbwWM8W+DRPMSb7ejCPE6qebFWo=
+        b=axnIpDXI4TE1DoegHKsYjzV7rQdORpEBhNkFJ1HWzdtU4VF1bhl0DQaalwyNapvMG
+         JFDoNIxK/bEy9FaT7TILi1hW+1JqxFKmab8mYX5Gq8Jmjn8rogOLFW7TdHeLYHoi2p
+         GQWTYjjTi9u3eXb2O3voQZVmy7il8plr4yzj2b6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Ilya Maximets <i.maximets@ovn.org>,
-        Aaron Conole <aconole@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org, syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 119/171] net: openvswitch: fix leak of nested actions
-Date:   Tue, 12 Apr 2022 08:30:10 +0200
-Message-Id: <20220412062931.327573285@linuxfoundation.org>
+Subject: [PATCH 5.10 120/171] rxrpc: fix a race in rxrpc_exit_net()
+Date:   Tue, 12 Apr 2022 08:30:11 +0200
+Message-Id: <20220412062931.357044045@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -57,180 +57,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Maximets <i.maximets@ovn.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 1f30fb9166d4f15a1aa19449b9da871fe0ed4796 ]
+[ Upstream commit 1946014ca3b19be9e485e780e862c375c6f98bad ]
 
-While parsing user-provided actions, openvswitch module may dynamically
-allocate memory and store pointers in the internal copy of the actions.
-So this memory has to be freed while destroying the actions.
+Current code can lead to the following race:
 
-Currently there are only two such actions: ct() and set().  However,
-there are many actions that can hold nested lists of actions and
-ovs_nla_free_flow_actions() just jumps over them leaking the memory.
+CPU0                                                 CPU1
 
-For example, removal of the flow with the following actions will lead
-to a leak of the memory allocated by nf_ct_tmpl_alloc():
+rxrpc_exit_net()
+                                                     rxrpc_peer_keepalive_worker()
+                                                       if (rxnet->live)
 
-  actions:clone(ct(commit),0)
+  rxnet->live = false;
+  del_timer_sync(&rxnet->peer_keepalive_timer);
 
-Non-freed set() action may also leak the 'dst' structure for the
-tunnel info including device references.
+                                                             timer_reduce(&rxnet->peer_keepalive_timer, jiffies + delay);
 
-Under certain conditions with a high rate of flow rotation that may
-cause significant memory leak problem (2MB per second in reporter's
-case).  The problem is also hard to mitigate, because the user doesn't
-have direct control over the datapath flows generated by OVS.
+  cancel_work_sync(&rxnet->peer_keepalive_work);
 
-Fix that by iterating over all the nested actions and freeing
-everything that needs to be freed recursively.
+rxrpc_exit_net() exits while peer_keepalive_timer is still armed,
+leading to use-after-free.
 
-New build time assertion should protect us from this problem if new
-actions will be added in the future.
+syzbot report was:
 
-Unfortunately, openvswitch module doesn't use NLA_F_NESTED, so all
-attributes has to be explicitly checked.  sample() and clone() actions
-are mixing extra attributes into the user-provided action list.  That
-prevents some code generalization too.
+ODEBUG: free active (active state 0) object type: timer_list hint: rxrpc_peer_keepalive_timeout+0x0/0xb0
+WARNING: CPU: 0 PID: 3660 at lib/debugobjects.c:505 debug_print_object+0x16e/0x250 lib/debugobjects.c:505
+Modules linked in:
+CPU: 0 PID: 3660 Comm: kworker/u4:6 Not tainted 5.17.0-syzkaller-13993-g88e6c0207623 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+RIP: 0010:debug_print_object+0x16e/0x250 lib/debugobjects.c:505
+Code: ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 af 00 00 00 48 8b 14 dd 00 1c 26 8a 4c 89 ee 48 c7 c7 00 10 26 8a e8 b1 e7 28 05 <0f> 0b 83 05 15 eb c5 09 01 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e c3
+RSP: 0018:ffffc9000353fb00 EFLAGS: 00010082
+RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
+RDX: ffff888029196140 RSI: ffffffff815efad8 RDI: fffff520006a7f52
+RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff815ea4ae R11: 0000000000000000 R12: ffffffff89ce23e0
+R13: ffffffff8a2614e0 R14: ffffffff816628c0 R15: dffffc0000000000
+FS:  0000000000000000(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fe1f2908924 CR3: 0000000043720000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __debug_check_no_obj_freed lib/debugobjects.c:992 [inline]
+ debug_check_no_obj_freed+0x301/0x420 lib/debugobjects.c:1023
+ kfree+0xd6/0x310 mm/slab.c:3809
+ ops_free_list.part.0+0x119/0x370 net/core/net_namespace.c:176
+ ops_free_list net/core/net_namespace.c:174 [inline]
+ cleanup_net+0x591/0xb00 net/core/net_namespace.c:598
+ process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+ worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+ kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:298
+ </TASK>
 
-Fixes: 34ae932a4036 ("openvswitch: Make tunnel set action attach a metadata dst")
-Link: https://mail.openvswitch.org/pipermail/ovs-dev/2022-March/392922.html
-Reported-by: Stéphane Graber <stgraber@ubuntu.com>
-Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
-Acked-by: Aaron Conole <aconole@redhat.com>
+Fixes: ace45bec6d77 ("rxrpc: Fix firewall route keepalive")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Marc Dionne <marc.dionne@auristor.com>
+Cc: linux-afs@lists.infradead.org
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/flow_netlink.c | 95 ++++++++++++++++++++++++++++++++--
- 1 file changed, 90 insertions(+), 5 deletions(-)
+ net/rxrpc/net_ns.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/openvswitch/flow_netlink.c b/net/openvswitch/flow_netlink.c
-index c41093540b2f..98a7e6f64ab0 100644
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -2288,6 +2288,62 @@ static struct sw_flow_actions *nla_alloc_flow_actions(int size)
- 	return sfa;
- }
+diff --git a/net/rxrpc/net_ns.c b/net/rxrpc/net_ns.c
+index 25bbc4cc8b13..f15d6942da45 100644
+--- a/net/rxrpc/net_ns.c
++++ b/net/rxrpc/net_ns.c
+@@ -113,8 +113,8 @@ static __net_exit void rxrpc_exit_net(struct net *net)
+ 	struct rxrpc_net *rxnet = rxrpc_net(net);
  
-+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len);
-+
-+static void ovs_nla_free_check_pkt_len_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a;
-+	int rem;
-+
-+	nla_for_each_nested(a, action, rem) {
-+		switch (nla_type(a)) {
-+		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL:
-+		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER:
-+			ovs_nla_free_nested_actions(nla_data(a), nla_len(a));
-+			break;
-+		}
-+	}
-+}
-+
-+static void ovs_nla_free_clone_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+	int rem = nla_len(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_CLONE_ATTR_EXEC:
-+		/* The real list of actions follows this attribute. */
-+		a = nla_next(a, &rem);
-+		ovs_nla_free_nested_actions(a, rem);
-+		break;
-+	}
-+}
-+
-+static void ovs_nla_free_dec_ttl_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_DEC_TTL_ATTR_ACTION:
-+		ovs_nla_free_nested_actions(nla_data(a), nla_len(a));
-+		break;
-+	}
-+}
-+
-+static void ovs_nla_free_sample_action(const struct nlattr *action)
-+{
-+	const struct nlattr *a = nla_data(action);
-+	int rem = nla_len(action);
-+
-+	switch (nla_type(a)) {
-+	case OVS_SAMPLE_ATTR_ARG:
-+		/* The real list of actions follows this attribute. */
-+		a = nla_next(a, &rem);
-+		ovs_nla_free_nested_actions(a, rem);
-+		break;
-+	}
-+}
-+
- static void ovs_nla_free_set_action(const struct nlattr *a)
- {
- 	const struct nlattr *ovs_key = nla_data(a);
-@@ -2301,25 +2357,54 @@ static void ovs_nla_free_set_action(const struct nlattr *a)
- 	}
- }
- 
--void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
-+static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len)
- {
- 	const struct nlattr *a;
- 	int rem;
- 
--	if (!sf_acts)
-+	/* Whenever new actions are added, the need to update this
-+	 * function should be considered.
-+	 */
-+	BUILD_BUG_ON(OVS_ACTION_ATTR_MAX != 23);
-+
-+	if (!actions)
- 		return;
- 
--	nla_for_each_attr(a, sf_acts->actions, sf_acts->actions_len, rem) {
-+	nla_for_each_attr(a, actions, len, rem) {
- 		switch (nla_type(a)) {
--		case OVS_ACTION_ATTR_SET:
--			ovs_nla_free_set_action(a);
-+		case OVS_ACTION_ATTR_CHECK_PKT_LEN:
-+			ovs_nla_free_check_pkt_len_action(a);
-+			break;
-+
-+		case OVS_ACTION_ATTR_CLONE:
-+			ovs_nla_free_clone_action(a);
- 			break;
-+
- 		case OVS_ACTION_ATTR_CT:
- 			ovs_ct_free_action(a);
- 			break;
-+
-+		case OVS_ACTION_ATTR_DEC_TTL:
-+			ovs_nla_free_dec_ttl_action(a);
-+			break;
-+
-+		case OVS_ACTION_ATTR_SAMPLE:
-+			ovs_nla_free_sample_action(a);
-+			break;
-+
-+		case OVS_ACTION_ATTR_SET:
-+			ovs_nla_free_set_action(a);
-+			break;
- 		}
- 	}
-+}
-+
-+void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
-+{
-+	if (!sf_acts)
-+		return;
- 
-+	ovs_nla_free_nested_actions(sf_acts->actions, sf_acts->actions_len);
- 	kfree(sf_acts);
- }
- 
+ 	rxnet->live = false;
+-	del_timer_sync(&rxnet->peer_keepalive_timer);
+ 	cancel_work_sync(&rxnet->peer_keepalive_work);
++	del_timer_sync(&rxnet->peer_keepalive_timer);
+ 	rxrpc_destroy_all_calls(rxnet);
+ 	rxrpc_destroy_all_connections(rxnet);
+ 	rxrpc_destroy_all_peers(rxnet);
 -- 
 2.35.1
 
