@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC2624FD546
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 544784FD84B
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377341AbiDLHtx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49154 "EHLO
+        id S235272AbiDLHhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:37:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358908AbiDLHmU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A0354686;
-        Tue, 12 Apr 2022 00:19:36 -0700 (PDT)
+        with ESMTP id S1353796AbiDLHZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A991565AF;
+        Tue, 12 Apr 2022 00:04:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5B99B81A8F;
-        Tue, 12 Apr 2022 07:19:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D4AC385AB;
-        Tue, 12 Apr 2022 07:19:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 466AF60B2B;
+        Tue, 12 Apr 2022 07:04:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5334EC385A6;
+        Tue, 12 Apr 2022 07:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747973;
-        bh=r7zwxBmSBYLoVuMUOCzhurkmYQox+oscdpkyavZfQGg=;
+        s=korg; t=1649747077;
+        bh=SzBItMyTsxEN8wbEy8s1evcdeOWaK+YL9Vm2ua8qJns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNOc7WgLFgNq3EgcrEqtlIMkukmu6vADF5ZkB7hvB/PLXMfJ5S0hgjDJtKIQGKzIY
-         slzsNBNI108D3QuSkV/ReIeAf1qVKT0qOnjcjzu9PhmpBLQNJ68YNNuf/22JwNxtry
-         /xi/70UHW0Zo+n+l1nFOgcvdfoGHDCyE0bvaUy/E=
+        b=j1lqx/8oacK8kPfemJ2/MvuXoe/TOb0a4ikoPR0puZyGDoLkOx9wWgtsFS37euSMl
+         YScmOGXZbwbTNX6bcByIS8XUohtJv2vYcbbbwZx8rmB2Jc9LxSkHr//Q3D6HKukqrG
+         0dd4zd+qxYxKpqXav2yC38is18b4YPE+HRb5Es4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+63d688f1d899c588fb71@syzkaller.appspotmail.com,
-        Guo Xuenan <guoxuenan@huawei.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Yann Collet <cyan@fb.com>, Chengyang Fan <cy.fan@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 272/343] lz4: fix LZ4_decompress_safe_partial read out of bound
-Date:   Tue, 12 Apr 2022 08:31:30 +0200
-Message-Id: <20220412062959.174661611@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.16 234/285] btrfs: avoid defragging extents whose next extents are not targets
+Date:   Tue, 12 Apr 2022 08:31:31 +0200
+Message-Id: <20220412062950.415220912@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,57 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Xuenan <guoxuenan@huawei.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit eafc0a02391b7b36617b36c97c4b5d6832cf5e24 upstream.
+commit 75a36a7d3ea904cef2e5b56af0c58cc60dcf947a upstream.
 
-When partialDecoding, it is EOF if we've either filled the output buffer
-or can't proceed with reading an offset for following match.
+[BUG]
+There is a report that autodefrag is defragging single sector, which
+is completely waste of IO, and no help for defragging:
 
-In some extreme corner cases when compressed data is suitably corrupted,
-UAF will occur.  As reported by KASAN [1], LZ4_decompress_safe_partial
-may lead to read out of bound problem during decoding.  lz4 upstream has
-fixed it [2] and this issue has been disscussed here [3] before.
+   btrfs-cleaner-808 defrag_one_locked_range: root=256 ino=651122 start=0 len=4096
 
-current decompression routine was ported from lz4 v1.8.3, bumping
-lib/lz4 to v1.9.+ is certainly a huge work to be done later, so, we'd
-better fix it first.
+[CAUSE]
+In defrag_collect_targets(), we check if the current range (A) can be merged
+with next one (B).
 
-[1] https://lore.kernel.org/all/000000000000830d1205cf7f0477@google.com/
-[2] https://github.com/lz4/lz4/commit/c5d6f8a8be3927c0bec91bcc58667a6cfad244ad#
-[3] https://lore.kernel.org/all/CC666AE8-4CA4-4951-B6FB-A2EFDE3AC03B@fb.com/
+If mergeable, we will add range A into target for defrag.
 
-Link: https://lkml.kernel.org/r/20211111105048.2006070-1-guoxuenan@huawei.com
-Reported-by: syzbot+63d688f1d899c588fb71@syzkaller.appspotmail.com
-Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
-Reviewed-by: Nick Terrell <terrelln@fb.com>
-Acked-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: Yann Collet <cyan@fb.com>
-Cc: Chengyang Fan <cy.fan@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+However there is a catch for autodefrag, when checking mergeability
+against range B, we intentionally pass 0 as @newer_than, hoping to get a
+higher chance to merge with the next extent.
+
+But in the next iteration, range B will looked up by defrag_lookup_extent(),
+with non-zero @newer_than.
+
+And if range B is not really newer, it will rejected directly, causing
+only range A being defragged, while we expect to defrag both range A and
+B.
+
+[FIX]
+Since the root cause is the difference in check condition of
+defrag_check_next_extent() and defrag_collect_targets(), we fix it by:
+
+1. Pass @newer_than to defrag_check_next_extent()
+2. Pass @extent_thresh to defrag_check_next_extent()
+
+This makes the check between defrag_collect_targets() and
+defrag_check_next_extent() more consistent.
+
+While there is still some minor difference, the remaining checks are
+focus on runtime flags like writeback/delalloc, which are mostly
+transient and safe to be checked only in defrag_collect_targets().
+
+Link: https://github.com/btrfs/linux/issues/423#issuecomment-1066981856
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/lz4/lz4_decompress.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/btrfs/ioctl.c |   20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/lib/lz4/lz4_decompress.c
-+++ b/lib/lz4/lz4_decompress.c
-@@ -271,8 +271,12 @@ static FORCE_INLINE int LZ4_decompress_g
- 			ip += length;
- 			op += length;
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -1189,7 +1189,7 @@ static u32 get_extent_max_capacity(const
+ }
  
--			/* Necessarily EOF, due to parsing restrictions */
--			if (!partialDecoding || (cpy == oend))
-+			/* Necessarily EOF when !partialDecoding.
-+			 * When partialDecoding, it is EOF if we've either
-+			 * filled the output buffer or
-+			 * can't proceed with reading an offset for following match.
-+			 */
-+			if (!partialDecoding || (cpy == oend) || (ip >= (iend - 2)))
- 				break;
- 		} else {
- 			/* may overwrite up to WILDCOPYLENGTH beyond cpy */
+ static bool defrag_check_next_extent(struct inode *inode, struct extent_map *em,
+-				     bool locked)
++				     u32 extent_thresh, u64 newer_than, bool locked)
+ {
+ 	struct extent_map *next;
+ 	bool ret = false;
+@@ -1199,11 +1199,12 @@ static bool defrag_check_next_extent(str
+ 		return false;
+ 
+ 	/*
+-	 * We want to check if the next extent can be merged with the current
+-	 * one, which can be an extent created in a past generation, so we pass
+-	 * a minimum generation of 0 to defrag_lookup_extent().
++	 * Here we need to pass @newer_then when checking the next extent, or
++	 * we will hit a case we mark current extent for defrag, but the next
++	 * one will not be a target.
++	 * This will just cause extra IO without really reducing the fragments.
+ 	 */
+-	next = defrag_lookup_extent(inode, em->start + em->len, 0, locked);
++	next = defrag_lookup_extent(inode, em->start + em->len, newer_than, locked);
+ 	/* No more em or hole */
+ 	if (!next || next->block_start >= EXTENT_MAP_LAST_BYTE)
+ 		goto out;
+@@ -1215,6 +1216,13 @@ static bool defrag_check_next_extent(str
+ 	 */
+ 	if (next->len >= get_extent_max_capacity(em))
+ 		goto out;
++	/* Skip older extent */
++	if (next->generation < newer_than)
++		goto out;
++	/* Also check extent size */
++	if (next->len >= extent_thresh)
++		goto out;
++
+ 	ret = true;
+ out:
+ 	free_extent_map(next);
+@@ -1420,7 +1428,7 @@ static int defrag_collect_targets(struct
+ 			goto next;
+ 
+ 		next_mergeable = defrag_check_next_extent(&inode->vfs_inode, em,
+-							  locked);
++						extent_thresh, newer_than, locked);
+ 		if (!next_mergeable) {
+ 			struct defrag_target_range *last;
+ 
 
 
