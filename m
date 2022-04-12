@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A95714FDAF3
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:54:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C094FDAAF
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351438AbiDLHWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:22:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57340 "EHLO
+        id S1353282AbiDLIDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:03:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352605AbiDLHOK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63C4360E9;
-        Mon, 11 Apr 2022 23:54:53 -0700 (PDT)
+        with ESMTP id S1356998AbiDLHjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4925E13D7E;
+        Tue, 12 Apr 2022 00:10:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0803B61531;
-        Tue, 12 Apr 2022 06:54:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14907C385A1;
-        Tue, 12 Apr 2022 06:54:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD48CB81B5D;
+        Tue, 12 Apr 2022 07:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E891C385A8;
+        Tue, 12 Apr 2022 07:10:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746491;
-        bh=bHYFwAi/4CgqN2Oci74XTTWZkAezltHmJ9/HHG7ePsE=;
+        s=korg; t=1649747440;
+        bh=X3zK7TOo5YU38lUQfqqw5eqP95X751iVUWcD1uQ09Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fd2qr5SUUsoNXxHkDahqqd7qTRvrFhhpLU67Lj96/WgyS6Jw7q6MlzdZumwqHe843
-         P91ekClwYqb/SjBzVZu7VjHh4F6FeprQoo6rz1YBEt8HM5CSeWF6QZcUvxmtGqT1vm
-         eLDopibomxEKZsbFbHe3giXAR9XZ+kMAbwTMk4mk=
+        b=DoPyGBgsGbM8uqL8BInylp+IoNIMKe6Zgmcs/txuirbflAZHPuv3CeFc2k7TwO3C4
+         T8mzr8wHIGCIH1N8lAZ8q3Qc9FePvSFUNumcDFhbD76622SMxtX5HogI7pSG8UgIt4
+         +vbtJV9oVeC5cPS4mpZS5IGUrCi6EtU8yFgxK7AI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Ruili Ji <ruili.ji@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 024/285] drm/amdkfd: svm range restore work deadlock when process exit
+        stable@vger.kernel.org, Ricardo Koller <ricarkol@google.com>,
+        Reiji Watanabe <reijiw@google.com>,
+        Andrew Jones <drjones@redhat.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 063/343] kvm: selftests: aarch64: fix the failure check in kvm_set_gsi_routing_irqchip_check
 Date:   Tue, 12 Apr 2022 08:28:01 +0200
-Message-Id: <20220412062944.377194677@linuxfoundation.org>
+Message-Id: <20220412062952.921289965@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,104 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Ricardo Koller <ricarkol@google.com>
 
-[ Upstream commit 6225bb3a88d22594aacea2485dc28ca12d596721 ]
+[ Upstream commit 5b7898648f02083012900e48d063e51ccbdad165 ]
 
-kfd_process_notifier_release flush svm_range_restore_work
-which calls svm_range_list_lock_and_flush_work to flush deferred_list
-work, but if deferred_list work mmput release the last user, it will
-call exit_mmap -> notifier_release, it is deadlock with below backtrace.
+kvm_set_gsi_routing_irqchip_check(expect_failure=true) is used to check
+the error code returned by the kernel when trying to setup an invalid
+gsi routing table. The ioctl fails if "pin >= KVM_IRQCHIP_NUM_PINS", so
+kvm_set_gsi_routing_irqchip_check() should test the error only when
+"intid >= KVM_IRQCHIP_NUM_PINS+32". The issue is that the test check is
+"intid >= KVM_IRQCHIP_NUM_PINS", so for a case like "intid =
+KVM_IRQCHIP_NUM_PINS" the test wrongly assumes that the kernel will
+return an error.  Fix this by using the right check.
 
-Move flush svm_range_restore_work to kfd_process_wq_release to avoid
-deadlock. Then svm_range_restore_work take task->mm ref to avoid mm is
-gone while validating and mapping ranges to GPU.
-
-Workqueue: events svm_range_deferred_list_work [amdgpu]
-Call Trace:
- wait_for_completion+0x94/0x100
- __flush_work+0x12a/0x1e0
- __cancel_work_timer+0x10e/0x190
- cancel_delayed_work_sync+0x13/0x20
- kfd_process_notifier_release+0x98/0x2a0 [amdgpu]
- __mmu_notifier_release+0x74/0x1f0
- exit_mmap+0x170/0x200
- mmput+0x5d/0x130
- svm_range_deferred_list_work+0x104/0x230 [amdgpu]
- process_one_work+0x220/0x3c0
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reported-by: Ruili Ji <ruili.ji@amd.com>
-Tested-by: Ruili Ji <ruili.ji@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Ricardo Koller <ricarkol@google.com>
+Reported-by: Reiji Watanabe <reijiw@google.com>
+Cc: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220127030858.3269036-4-ricarkol@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_process.c |  1 -
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c     | 15 +++++++++------
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ tools/testing/selftests/kvm/aarch64/vgic_irq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_process.c b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-index b993011cfa64..990228711108 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
-@@ -1150,7 +1150,6 @@ static void kfd_process_notifier_release(struct mmu_notifier *mn,
- 
- 	cancel_delayed_work_sync(&p->eviction_work);
- 	cancel_delayed_work_sync(&p->restore_work);
--	cancel_delayed_work_sync(&p->svms.restore_work);
- 
- 	mutex_lock(&p->mutex);
- 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-index ea1c5aaf659a..a1b0c6bda803 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -1589,13 +1589,14 @@ static void svm_range_restore_work(struct work_struct *work)
- 
- 	pr_debug("restore svm ranges\n");
- 
--	/* kfd_process_notifier_release destroys this worker thread. So during
--	 * the lifetime of this thread, kfd_process and mm will be valid.
--	 */
- 	p = container_of(svms, struct kfd_process, svms);
--	mm = p->mm;
--	if (!mm)
-+
-+	/* Keep mm reference when svm_range_validate_and_map ranges */
-+	mm = get_task_mm(p->lead_thread);
-+	if (!mm) {
-+		pr_debug("svms 0x%p process mm gone\n", svms);
- 		return;
-+	}
- 
- 	svm_range_list_lock_and_flush_work(svms, mm);
- 	mutex_lock(&svms->lock);
-@@ -1649,6 +1650,7 @@ static void svm_range_restore_work(struct work_struct *work)
- out_reschedule:
- 	mutex_unlock(&svms->lock);
- 	mmap_write_unlock(mm);
-+	mmput(mm);
- 
- 	/* If validation failed, reschedule another attempt */
- 	if (evicted_ranges) {
-@@ -2779,6 +2781,8 @@ void svm_range_list_fini(struct kfd_process *p)
- 
- 	pr_debug("pasid 0x%x svms 0x%p\n", p->pasid, &p->svms);
- 
-+	cancel_delayed_work_sync(&p->svms.restore_work);
-+
- 	/* Ensure list work is finished before process is destroyed */
- 	flush_work(&p->svms.deferred_list_work);
- 
-@@ -2789,7 +2793,6 @@ void svm_range_list_fini(struct kfd_process *p)
- 	atomic_inc(&p->svms.drain_pagefaults);
- 	svm_range_drain_retry_fault(&p->svms);
- 
--
- 	list_for_each_entry_safe(prange, next, &p->svms.list, list) {
- 		svm_range_unlink(prange);
- 		svm_range_remove_notifier(prange);
+diff --git a/tools/testing/selftests/kvm/aarch64/vgic_irq.c b/tools/testing/selftests/kvm/aarch64/vgic_irq.c
+index 7f3afee5cc00..48e43e24d240 100644
+--- a/tools/testing/selftests/kvm/aarch64/vgic_irq.c
++++ b/tools/testing/selftests/kvm/aarch64/vgic_irq.c
+@@ -573,8 +573,8 @@ static void kvm_set_gsi_routing_irqchip_check(struct kvm_vm *vm,
+ 		kvm_gsi_routing_write(vm, routing);
+ 	} else {
+ 		ret = _kvm_gsi_routing_write(vm, routing);
+-		/* The kernel only checks for KVM_IRQCHIP_NUM_PINS. */
+-		if (intid >= KVM_IRQCHIP_NUM_PINS)
++		/* The kernel only checks e->irqchip.pin >= KVM_IRQCHIP_NUM_PINS */
++		if (((uint64_t)intid + num - 1 - MIN_SPI) >= KVM_IRQCHIP_NUM_PINS)
+ 			TEST_ASSERT(ret != 0 && errno == EINVAL,
+ 				"Bad intid %u did not cause KVM_SET_GSI_ROUTING "
+ 				"error: rc: %i errno: %i", intid, ret, errno);
 -- 
 2.35.1
 
