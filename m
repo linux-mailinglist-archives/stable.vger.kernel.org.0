@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E0D4FD187
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE1A04FCF9B
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:33:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351360AbiDLG66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:58:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49008 "EHLO
+        id S1349022AbiDLGgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:36:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352475AbiDLGzw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:55:52 -0400
+        with ESMTP id S1348964AbiDLGfn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:35:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C18353B3E7;
-        Mon, 11 Apr 2022 23:45:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB01335A95;
+        Mon, 11 Apr 2022 23:33:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B933C60B2F;
-        Tue, 12 Apr 2022 06:45:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC33AC385A6;
-        Tue, 12 Apr 2022 06:45:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4715D618CF;
+        Tue, 12 Apr 2022 06:33:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58097C385BA;
+        Tue, 12 Apr 2022 06:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745942;
-        bh=ZqlXdUHFwKSPIS8dpBAWhiyXJFdqK6peU9QQ/0n3vBQ=;
+        s=korg; t=1649745205;
+        bh=wa3HglPOn+pWmvXrDu+LECZPyQQEW/ySEPI6ynEdRls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kWrLGpFTFLPqrG98Ke89SixDk68bDWGur6Jke3jCg9gPT1jRwO+Jxo69ZGe0OupV6
-         gnmRy87dRoX8ebsjx8jdiJNH8VZUqw96+UqlMdldAmyoClo8mptYEQfUiVDhAolpqv
-         MWcDevWQZF76DCOPnhUWTBunamkGcRzAWJig3YR0=
+        b=Nr+im0gIaKRgJljJtoE+1GA5f7JvJRnml4FiQpwXaWJ8thTLPG0UgiRjNslBkmUfQ
+         4MS7+g8MT/VW/jB+duixUj8mSPo/GvpMJxkk3JEgeq9P55tMeO2YWpUV/gdjdcxrcT
+         A+kUfYSqTXRNoZF2fPDjwl1ex6QVJy6do57wJcDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Yufen <wangyufen@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Venkateswara Naralasetty <quic_vnaralas@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/277] netlabel: fix out-of-bounds memory accesses
+Subject: [PATCH 5.10 016/171] ath11k: fix kernel panic during unload/load ath11k modules
 Date:   Tue, 12 Apr 2022 08:28:27 +0200
-Message-Id: <20220412062945.051586243@linuxfoundation.org>
+Message-Id: <20220412062928.354921194@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,68 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Venkateswara Naralasetty <quic_vnaralas@quicinc.com>
 
-[ Upstream commit f22881de730ebd472e15bcc2c0d1d46e36a87b9c ]
+[ Upstream commit 22b59cb965f79ee1accf83172441c9ca0ecb632a ]
 
-In calipso_map_cat_ntoh(), in the for loop, if the return value of
-netlbl_bitmap_walk() is equal to (net_clen_bits - 1), when
-netlbl_bitmap_walk() is called next time, out-of-bounds memory accesses
-of bitmap[byte_offset] occurs.
+Call netif_napi_del() from ath11k_ahb_free_ext_irq() to fix
+the following kernel panic when unload/load ath11k modules
+for few iterations.
 
-The bug was found during fuzzing. The following is the fuzzing report
- BUG: KASAN: slab-out-of-bounds in netlbl_bitmap_walk+0x3c/0xd0
- Read of size 1 at addr ffffff8107bf6f70 by task err_OH/252
+[  971.201365] Unable to handle kernel paging request at virtual address 6d97a208
+[  971.204227] pgd = 594c2919
+[  971.211478] [6d97a208] *pgd=00000000
+[  971.214120] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+[  971.412024] CPU: 2 PID: 4435 Comm: insmod Not tainted 5.4.89 #0
+[  971.434256] Hardware name: Generic DT based system
+[  971.440165] PC is at napi_by_id+0x10/0x40
+[  971.445019] LR is at netif_napi_add+0x160/0x1dc
 
- CPU: 7 PID: 252 Comm: err_OH Not tainted 5.17.0-rc7+ #17
- Hardware name: linux,dummy-virt (DT)
- Call trace:
-  dump_backtrace+0x21c/0x230
-  show_stack+0x1c/0x60
-  dump_stack_lvl+0x64/0x7c
-  print_address_description.constprop.0+0x70/0x2d0
-  __kasan_report+0x158/0x16c
-  kasan_report+0x74/0x120
-  __asan_load1+0x80/0xa0
-  netlbl_bitmap_walk+0x3c/0xd0
-  calipso_opt_getattr+0x1a8/0x230
-  calipso_sock_getattr+0x218/0x340
-  calipso_sock_getattr+0x44/0x60
-  netlbl_sock_getattr+0x44/0x80
-  selinux_netlbl_socket_setsockopt+0x138/0x170
-  selinux_socket_setsockopt+0x4c/0x60
-  security_socket_setsockopt+0x4c/0x90
-  __sys_setsockopt+0xbc/0x2b0
-  __arm64_sys_setsockopt+0x6c/0x84
-  invoke_syscall+0x64/0x190
-  el0_svc_common.constprop.0+0x88/0x200
-  do_el0_svc+0x88/0xa0
-  el0_svc+0x128/0x1b0
-  el0t_64_sync_handler+0x9c/0x120
-  el0t_64_sync+0x16c/0x170
+[  971.743127] (napi_by_id) from [<807d89a0>] (netif_napi_add+0x160/0x1dc)
+[  971.751295] (netif_napi_add) from [<7f1209ac>] (ath11k_ahb_config_irq+0xf8/0x414 [ath11k_ahb])
+[  971.759164] (ath11k_ahb_config_irq [ath11k_ahb]) from [<7f12135c>] (ath11k_ahb_probe+0x40c/0x51c [ath11k_ahb])
+[  971.768567] (ath11k_ahb_probe [ath11k_ahb]) from [<80666864>] (platform_drv_probe+0x48/0x94)
+[  971.779670] (platform_drv_probe) from [<80664718>] (really_probe+0x1c8/0x450)
+[  971.789389] (really_probe) from [<80664cc4>] (driver_probe_device+0x15c/0x1b8)
+[  971.797547] (driver_probe_device) from [<80664f60>] (device_driver_attach+0x44/0x60)
+[  971.805795] (device_driver_attach) from [<806650a0>] (__driver_attach+0x124/0x140)
+[  971.814822] (__driver_attach) from [<80662adc>] (bus_for_each_dev+0x58/0xa4)
+[  971.823328] (bus_for_each_dev) from [<80663a2c>] (bus_add_driver+0xf0/0x1e8)
+[  971.831662] (bus_add_driver) from [<806658a4>] (driver_register+0xa8/0xf0)
+[  971.839822] (driver_register) from [<8030269c>] (do_one_initcall+0x78/0x1ac)
+[  971.847638] (do_one_initcall) from [<80392524>] (do_init_module+0x54/0x200)
+[  971.855968] (do_init_module) from [<803945b0>] (load_module+0x1e30/0x1ffc)
+[  971.864126] (load_module) from [<803948b0>] (sys_init_module+0x134/0x17c)
+[  971.871852] (sys_init_module) from [<80301000>] (ret_fast_syscall+0x0/0x50)
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Acked-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.6.0.1-00760-QCAHKSWPL_SILICONZ-1
+
+Signed-off-by: Venkateswara Naralasetty <quic_vnaralas@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/1642583973-21599-1-git-send-email-quic_vnaralas@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlabel/netlabel_kapi.c | 2 ++
+ drivers/net/wireless/ath/ath11k/ahb.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index beb0e573266d..54c083003947 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -885,6 +885,8 @@ int netlbl_bitmap_walk(const unsigned char *bitmap, u32 bitmap_len,
- 	unsigned char bitmask;
- 	unsigned char byte;
+diff --git a/drivers/net/wireless/ath/ath11k/ahb.c b/drivers/net/wireless/ath/ath11k/ahb.c
+index 9ff6e6853314..190bc5712e96 100644
+--- a/drivers/net/wireless/ath/ath11k/ahb.c
++++ b/drivers/net/wireless/ath/ath11k/ahb.c
+@@ -366,6 +366,8 @@ static void ath11k_ahb_free_ext_irq(struct ath11k_base *ab)
  
-+	if (offset >= bitmap_len)
-+		return -1;
- 	byte_offset = offset / 8;
- 	byte = bitmap[byte_offset];
- 	bit_spot = offset;
+ 		for (j = 0; j < irq_grp->num_irq; j++)
+ 			free_irq(ab->irq_num[irq_grp->irqs[j]], irq_grp);
++
++		netif_napi_del(&irq_grp->napi);
+ 	}
+ }
+ 
 -- 
 2.35.1
 
