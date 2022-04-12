@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C47D4FD70E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B69F4FD66F
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354054AbiDLIKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:10:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45792 "EHLO
+        id S243867AbiDLHTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357666AbiDLHkg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78B163298C;
-        Tue, 12 Apr 2022 00:16:24 -0700 (PDT)
+        with ESMTP id S1351673AbiDLHMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F80329C90;
+        Mon, 11 Apr 2022 23:51:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1740361045;
-        Tue, 12 Apr 2022 07:16:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29486C385A1;
-        Tue, 12 Apr 2022 07:16:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE7D061045;
+        Tue, 12 Apr 2022 06:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5107C385A1;
+        Tue, 12 Apr 2022 06:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747783;
-        bh=/hvW6BrL+dD+5tDeRCEM3J4yR7J9VZvX5DWRVZsQhc8=;
+        s=korg; t=1649746271;
+        bh=kgyAKN1m9aJMO4JVySu9TeFT+7kmppQSS+h4qIqGn3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSXCX+2l2w3Sz0TkUPjtwGcIr22T+/e0puZGG3uNCzS4Q6lYt3f1DUHbzrcXuqBDA
-         yTbylQvwdtpD41hFH4HIg2o83SvtvMqqJqG3dyq69sRlu3kRZqVjgTLTL0R/jCJT/J
-         vrNNOVBTG2iwxbFL/AG4asKrfASA9TRAZkKhkg5k=
+        b=aL+DBi4na18C5cKUYTE2euaBa41AFZXMa5mupWKmRy+Q7nZTMK9OrLQ68HA5Rv1Yn
+         jz5TGf2VElmgBxGwcWlRIk/oN4ZFhYDGN7r6Chtpt0BkB4WZoCZAek6aEvn2kxek6Y
+         tFZAD45kRPua5eGlxwZjS86ikXQ+lEnCIic8DAcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 205/343] net/tls: fix slab-out-of-bounds bug in decrypt_internal
+        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 220/277] io_uring: implement compat handling for IORING_REGISTER_IOWQ_AFF
 Date:   Tue, 12 Apr 2022 08:30:23 +0200
-Message-Id: <20220412062957.268239136@linuxfoundation.org>
+Message-Id: <20220412062948.409395715@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Eugene Syromiatnikov <esyr@redhat.com>
 
-[ Upstream commit 9381fe8c849cfbe50245ac01fc077554f6eaa0e2 ]
+commit 0f5e4b83b37a96e3643951588ed7176b9b187c0a upstream.
 
-The memory size of tls_ctx->rx.iv for AES128-CCM is 12 setting in
-tls_set_sw_offload(). The return value of crypto_aead_ivsize()
-for "ccm(aes)" is 16. So memcpy() require 16 bytes from 12 bytes
-memory space will trigger slab-out-of-bounds bug as following:
+Similarly to the way it is done im mbind syscall.
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in decrypt_internal+0x385/0xc40 [tls]
-Read of size 16 at addr ffff888114e84e60 by task tls/10911
-
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0x5e/0x5db
- ? decrypt_internal+0x385/0xc40 [tls]
- kasan_report+0xab/0x120
- ? decrypt_internal+0x385/0xc40 [tls]
- kasan_check_range+0xf9/0x1e0
- memcpy+0x20/0x60
- decrypt_internal+0x385/0xc40 [tls]
- ? tls_get_rec+0x2e0/0x2e0 [tls]
- ? process_rx_list+0x1a5/0x420 [tls]
- ? tls_setup_from_iter.constprop.0+0x2e0/0x2e0 [tls]
- decrypt_skb_update+0x9d/0x400 [tls]
- tls_sw_recvmsg+0x3c8/0xb50 [tls]
-
-Allocated by task 10911:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0x81/0xa0
- tls_set_sw_offload+0x2eb/0xa20 [tls]
- tls_setsockopt+0x68c/0x700 [tls]
- __sys_setsockopt+0xfe/0x1b0
-
-Replace the crypto_aead_ivsize() with prot->iv_size + prot->salt_size
-when memcpy() iv value in TLS_1_3_VERSION scenario.
-
-Fixes: f295b3ae9f59 ("net/tls: Add support of AES128-CCM based ciphers")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # 5.14
+Fixes: fe76421d1da1dcdb ("io_uring: allow user configurable IO thread CPU affinity")
+Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_sw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index efc84845bb6b..75a699591383 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1495,7 +1495,7 @@ static int decrypt_internal(struct sock *sk, struct sk_buff *skb,
- 	if (prot->version == TLS_1_3_VERSION ||
- 	    prot->cipher_type == TLS_CIPHER_CHACHA20_POLY1305)
- 		memcpy(iv + iv_offset, tls_ctx->rx.iv,
--		       crypto_aead_ivsize(ctx->aead_recv));
-+		       prot->iv_size + prot->salt_size);
- 	else
- 		memcpy(iv + iv_offset, tls_ctx->rx.iv, prot->salt_size);
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -10683,7 +10683,15 @@ static int io_register_iowq_aff(struct i
+ 	if (len > cpumask_size())
+ 		len = cpumask_size();
  
--- 
-2.35.1
-
+-	if (copy_from_user(new_mask, arg, len)) {
++	if (in_compat_syscall()) {
++		ret = compat_get_bitmap(cpumask_bits(new_mask),
++					(const compat_ulong_t __user *)arg,
++					len * 8 /* CHAR_BIT */);
++	} else {
++		ret = copy_from_user(new_mask, arg, len);
++	}
++
++	if (ret) {
+ 		free_cpumask_var(new_mask);
+ 		return -EFAULT;
+ 	}
 
 
