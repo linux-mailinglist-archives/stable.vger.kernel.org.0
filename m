@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 346CB4FD14A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37924FD149
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351269AbiDLG6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1351263AbiDLG6D (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Apr 2022 02:58:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48856 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351562AbiDLGx6 (ORCPT
+        with ESMTP id S1351563AbiDLGx6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E54E18B02;
-        Mon, 11 Apr 2022 23:42:58 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A465518B0F;
+        Mon, 11 Apr 2022 23:43:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD79E60A69;
-        Tue, 12 Apr 2022 06:42:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD06C385A6;
-        Tue, 12 Apr 2022 06:42:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E365B818BD;
+        Tue, 12 Apr 2022 06:43:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B12AAC385A6;
+        Tue, 12 Apr 2022 06:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745777;
-        bh=Pq0Lx85OIdF1EYdRQEREh1JFbQn/IFSZu0yis79WFuQ=;
+        s=korg; t=1649745780;
+        bh=SaQ5DwnW2tp4Y5ik6tomkdrStt8HxRtHUUmO/NqTM4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0E3n+gto3PlLZn8Rr6i+s/33Kn7USvebc5lCIbfV//PDuMsLZCQ1FhhToq35m+BDO
-         wgrghJ7SPKSCLMqsjW5nOd1AFRSbt7sHu3/1n58b3dwJrohdUd5VXIaolOQtLRA1oa
-         aZYrhu3YlpMgEKPsRvGEtVvdbPOPOZmimcgnsPqA=
+        b=ypfeAQxBBZe4aDYm9foJkc9oDvOgM8A30pobAsBNRnu5penA6SbYOoq0vHn5KtBjj
+         30/cB7Xxg2lqbIwdN89ZS7eKjGqvsuvSJsD3jAVCYA9fW1FaSkbruMtRjweEnq1Ful
+         U5sqz1nY9TmBhMupZQy8xor4xUcWPNf4HiUjqXt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Abdul haleem <abdhalee@linux.vnet.ibm.com>,
+        Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 043/277] net: initialize init_net earlier
-Date:   Tue, 12 Apr 2022 08:27:26 +0200
-Message-Id: <20220412062943.296445488@linuxfoundation.org>
+Subject: [PATCH 5.15 044/277] powerpc: Set crashkernel offset to mid of RMA region
+Date:   Tue, 12 Apr 2022 08:27:27 +0200
+Message-Id: <20220412062943.325575963@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -54,150 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Sourabh Jain <sourabhjain@linux.ibm.com>
 
-[ Upstream commit 9c1be1935fb68b2413796cdc03d019b8cf35ab51 ]
+[ Upstream commit 7c5ed82b800d8615cdda00729e7b62e5899f0b13 ]
 
-While testing a patch that will follow later
-("net: add netns refcount tracker to struct nsproxy")
-I found that devtmpfs_init() was called before init_net
-was initialized.
+On large config LPARs (having 192 and more cores), Linux fails to boot
+due to insufficient memory in the first memblock. It is due to the
+memory reservation for the crash kernel which starts at 128MB offset of
+the first memblock. This memory reservation for the crash kernel doesn't
+leave enough space in the first memblock to accommodate other essential
+system resources.
 
-This is a bug, because devtmpfs_setup() calls
-ksys_unshare(CLONE_NEWNS);
+The crash kernel start address was set to 128MB offset by default to
+ensure that the crash kernel get some memory below the RMA region which
+is used to be of size 256MB. But given that the RMA region size can be
+512MB or more, setting the crash kernel offset to mid of RMA size will
+leave enough space for the kernel to allocate memory for other system
+resources.
 
-This has the effect of increasing init_net refcount,
-which will be later overwritten to 1, as part of setup_net(&init_net)
+Since the above crash kernel offset change is only applicable to the LPAR
+platform, the LPAR feature detection is pushed before the crash kernel
+reservation. The rest of LPAR specific initialization will still
+be done during pseries_probe_fw_features as usual.
 
-We had too many prior patches [1] trying to work around the root cause.
+This patch is dependent on changes to paca allocation for boot CPU. It
+expect boot CPU to discover 1T segment support which is introduced by
+the patch posted here:
+https://lists.ozlabs.org/pipermail/linuxppc-dev/2022-January/239175.html
 
-Really, make sure init_net is in BSS section, and that net_ns_init()
-is called earlier at boot time.
-
-Note that another patch ("vfs: add netns refcount tracker
-to struct fs_context") also will need net_ns_init() being called
-before vfs_caches_init()
-
-As a bonus, this patch saves around 4KB in .data section.
-
-[1]
-
-f8c46cb39079 ("netns: do not call pernet ops for not yet set up init_net namespace")
-b5082df8019a ("net: Initialise init_net.count to 1")
-734b65417b24 ("net: Statically initialize init_net.dev_base_head")
-
-v2: fixed a build error reported by kernel build bots (CONFIG_NET=n)
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Abdul haleem <abdhalee@linux.vnet.ibm.com>
+Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220204085601.107257-1-sourabhjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/net_namespace.h |  6 ++++++
- init/main.c                 |  2 ++
- net/core/dev.c              |  3 +--
- net/core/net_namespace.c    | 17 +++++------------
- 4 files changed, 14 insertions(+), 14 deletions(-)
+ arch/powerpc/kernel/rtas.c |  6 ++++++
+ arch/powerpc/kexec/core.c  | 15 +++++++++++----
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
-index bb5fa5914032..2ba326f9e004 100644
---- a/include/net/net_namespace.h
-+++ b/include/net/net_namespace.h
-@@ -479,4 +479,10 @@ static inline void fnhe_genid_bump(struct net *net)
- 	atomic_inc(&net->fnhe_genid);
- }
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index ff80bbad22a5..e18a725a8e5d 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -1235,6 +1235,12 @@ int __init early_init_dt_scan_rtas(unsigned long node,
+ 	entryp = of_get_flat_dt_prop(node, "linux,rtas-entry", NULL);
+ 	sizep  = of_get_flat_dt_prop(node, "rtas-size", NULL);
  
-+#ifdef CONFIG_NET
-+void net_ns_init(void);
-+#else
-+static inline void net_ns_init(void) {}
++#ifdef CONFIG_PPC64
++	/* need this feature to decide the crashkernel offset */
++	if (of_get_flat_dt_prop(node, "ibm,hypertas-functions", NULL))
++		powerpc_firmware_features |= FW_FEATURE_LPAR;
 +#endif
 +
- #endif /* __NET_NET_NAMESPACE_H */
-diff --git a/init/main.c b/init/main.c
-index bcd132d4e7bd..b340d990d77c 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -100,6 +100,7 @@
- #include <linux/kcsan.h>
- #include <linux/init_syscalls.h>
- #include <linux/stackdepot.h>
-+#include <net/net_namespace.h>
- 
- #include <asm/io.h>
- #include <asm/bugs.h>
-@@ -1122,6 +1123,7 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
- 	key_init();
- 	security_init();
- 	dbg_late_init();
-+	net_ns_init();
- 	vfs_caches_init();
- 	pagecache_init();
- 	signals_init();
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 33dc2a3ff7d7..804aba2228c2 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -11378,8 +11378,7 @@ static int __net_init netdev_init(struct net *net)
- 	BUILD_BUG_ON(GRO_HASH_BUCKETS >
- 		     8 * sizeof_field(struct napi_struct, gro_bitmask));
- 
--	if (net != &init_net)
--		INIT_LIST_HEAD(&net->dev_base_head);
-+	INIT_LIST_HEAD(&net->dev_base_head);
- 
- 	net->dev_name_head = netdev_create_hash();
- 	if (net->dev_name_head == NULL)
-diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
-index 9702d2b0d920..9745cb6fdf51 100644
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -44,13 +44,7 @@ EXPORT_SYMBOL_GPL(net_rwsem);
- static struct key_tag init_net_key_domain = { .usage = REFCOUNT_INIT(1) };
+ 	if (basep && entryp && sizep) {
+ 		rtas.base = *basep;
+ 		rtas.entry = *entryp;
+diff --git a/arch/powerpc/kexec/core.c b/arch/powerpc/kexec/core.c
+index 48525e8b5730..71b1bfdadd76 100644
+--- a/arch/powerpc/kexec/core.c
++++ b/arch/powerpc/kexec/core.c
+@@ -147,11 +147,18 @@ void __init reserve_crashkernel(void)
+ 	if (!crashk_res.start) {
+ #ifdef CONFIG_PPC64
+ 		/*
+-		 * On 64bit we split the RMO in half but cap it at half of
+-		 * a small SLB (128MB) since the crash kernel needs to place
+-		 * itself and some stacks to be in the first segment.
++		 * On the LPAR platform place the crash kernel to mid of
++		 * RMA size (512MB or more) to ensure the crash kernel
++		 * gets enough space to place itself and some stack to be
++		 * in the first segment. At the same time normal kernel
++		 * also get enough space to allocate memory for essential
++		 * system resource in the first segment. Keep the crash
++		 * kernel starts at 128MB offset on other platforms.
+ 		 */
+-		crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
++		if (firmware_has_feature(FW_FEATURE_LPAR))
++			crashk_res.start = ppc64_rma_size / 2;
++		else
++			crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
+ #else
+ 		crashk_res.start = KDUMP_KERNELBASE;
  #endif
- 
--struct net init_net = {
--	.ns.count	= REFCOUNT_INIT(1),
--	.dev_base_head	= LIST_HEAD_INIT(init_net.dev_base_head),
--#ifdef CONFIG_KEYS
--	.key_domain	= &init_net_key_domain,
--#endif
--};
-+struct net init_net;
- EXPORT_SYMBOL(init_net);
- 
- static bool init_net_initialized;
-@@ -1081,7 +1075,7 @@ static void rtnl_net_notifyid(struct net *net, int cmd, int id, u32 portid,
- 	rtnl_set_sk_err(net, RTNLGRP_NSID, err);
- }
- 
--static int __init net_ns_init(void)
-+void __init net_ns_init(void)
- {
- 	struct net_generic *ng;
- 
-@@ -1102,6 +1096,9 @@ static int __init net_ns_init(void)
- 
- 	rcu_assign_pointer(init_net.gen, ng);
- 
-+#ifdef CONFIG_KEYS
-+	init_net.key_domain = &init_net_key_domain;
-+#endif
- 	down_write(&pernet_ops_rwsem);
- 	if (setup_net(&init_net, &init_user_ns))
- 		panic("Could not setup the initial network namespace");
-@@ -1116,12 +1113,8 @@ static int __init net_ns_init(void)
- 		      RTNL_FLAG_DOIT_UNLOCKED);
- 	rtnl_register(PF_UNSPEC, RTM_GETNSID, rtnl_net_getid, rtnl_net_dumpid,
- 		      RTNL_FLAG_DOIT_UNLOCKED);
--
--	return 0;
- }
- 
--pure_initcall(net_ns_init);
--
- static void free_exit_list(struct pernet_operations *ops, struct list_head *net_exit_list)
- {
- 	ops_pre_exit_list(ops, net_exit_list);
 -- 
 2.35.1
 
