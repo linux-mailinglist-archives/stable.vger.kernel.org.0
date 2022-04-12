@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 851F34FD6B9
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A41514FDA97
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353295AbiDLIDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45782 "EHLO
+        id S1352189AbiDLHXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356897AbiDLHjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79354532C1;
-        Tue, 12 Apr 2022 00:10:21 -0700 (PDT)
+        with ESMTP id S1353617AbiDLHPu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:15:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 687BB3A724;
+        Mon, 11 Apr 2022 23:57:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8355B81B55;
-        Tue, 12 Apr 2022 07:10:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46844C385A5;
-        Tue, 12 Apr 2022 07:10:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C79EB60EEB;
+        Tue, 12 Apr 2022 06:57:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC5D4C385A1;
+        Tue, 12 Apr 2022 06:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747418;
-        bh=RUwbLHotjbX+UqZxx8hmxHOaCEpsBQyNX+ZzVXZ4Gls=;
+        s=korg; t=1649746630;
+        bh=nrsOPGqxxHc5zGk9m8VTGwzLfhtP518ODdSA1JttUR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ty+DWUsm7NbNwdAU0XROdA+WO8CYdw5FIczrDinBiKzR+k2w8GKpjlLPZztQLOZ06
-         MHCa8wQFdeTStubqKKBhTxGusOHldQxd/GuVt2hjzSy88JC6brPHjXYcAkAgjVh8sO
-         nslpecqJvkMkI5GNKZrVJgtUHl1y2vevz3AFjvYA=
+        b=prDZjNOTuHCYNSr1b+5QfTK6i0AreOjrpxwya1s7cygYVzrm/wvq0TPisCuv7mi6w
+         re7bLhK8qhDoUQBtFQbqOOceUnz5leLzQFI1OCEKNe87osZr8kclnWms3Al5BOdXYo
+         lL1RtZD9Be5zXsMUOvX5NkypFbBJjO04BJmqELa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Melissa Wen <mwen@igalia.com>,
+        Melissa Wen <melissa.srw@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 073/343] tcp: Dont acquire inet_listen_hashbucket::lock with disabled BH.
+Subject: [PATCH 5.16 034/285] drm/v3d: fix missing unlock
 Date:   Tue, 12 Apr 2022 08:28:11 +0200
-Message-Id: <20220412062953.208339537@linuxfoundation.org>
+Message-Id: <20220412062944.661150123@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,171 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Yongzhi Liu <lyz_cs@pku.edu.cn>
 
-[ Upstream commit 4f9bf2a2f5aacf988e6d5e56b961ba45c5a25248 ]
+[ Upstream commit e57c1a3bd5e8e0c7181f65ae55581f0236a8f284 ]
 
-Commit
-   9652dc2eb9e40 ("tcp: relax listening_hash operations")
+[why]
+Unlock is needed on the error handling path to prevent dead lock.
+v3d_submit_cl_ioctl and v3d_submit_csd_ioctl is missing unlock.
 
-removed the need to disable bottom half while acquiring
-listening_hash.lock. There are still two callers left which disable
-bottom half before the lock is acquired.
+[how]
+Fix this by changing goto target on the error handling path. So
+changing the goto to target an error handling path
+that includes drm_gem_unlock reservations.
 
-On PREEMPT_RT the softirqs are preemptible and local_bh_disable() acts
-as a lock to ensure that resources, that are protected by disabling
-bottom halves, remain protected.
-This leads to a circular locking dependency if the lock acquired with
-disabled bottom halves is also acquired with enabled bottom halves
-followed by disabling bottom halves. This is the reverse locking order.
-It has been observed with inet_listen_hashbucket::lock:
-
-local_bh_disable() + spin_lock(&ilb->lock):
-  inet_listen()
-    inet_csk_listen_start()
-      sk->sk_prot->hash() := inet_hash()
-	local_bh_disable()
-	__inet_hash()
-	  spin_lock(&ilb->lock);
-	    acquire(&ilb->lock);
-
-Reverse order: spin_lock(&ilb2->lock) + local_bh_disable():
-  tcp_seq_next()
-    listening_get_next()
-      spin_lock(&ilb2->lock);
-	acquire(&ilb2->lock);
-
-  tcp4_seq_show()
-    get_tcp4_sock()
-      sock_i_ino()
-	read_lock_bh(&sk->sk_callback_lock);
-	  acquire(softirq_ctrl)	// <---- whoops
-	  acquire(&sk->sk_callback_lock)
-
-Drop local_bh_disable() around __inet_hash() which acquires
-listening_hash->lock. Split inet_unhash() and acquire the
-listen_hashbucket lock without disabling bottom halves; the inet_ehash
-lock with disabled bottom halves.
-
-Reported-by: Mike Galbraith <efault@gmx.de>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Link: https://lkml.kernel.org/r/12d6f9879a97cd56c09fb53dee343cbb14f7f1f7.camel@gmx.de
-Link: https://lkml.kernel.org/r/X9CheYjuXWc75Spa@hirez.programming.kicks-ass.net
-Link: https://lore.kernel.org/r/YgQOebeZ10eNx1W6@linutronix.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
+Reviewed-by: Melissa Wen <mwen@igalia.com>
+Signed-off-by: Melissa Wen <melissa.srw@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1643377262-109975-1-git-send-email-lyz_cs@pku.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c  | 53 ++++++++++++++++++++++---------------
- net/ipv6/inet6_hashtables.c |  5 +---
- 2 files changed, 33 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/v3d/v3d_gem.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 30ab717ff1b8..17440840a791 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -637,7 +637,9 @@ int __inet_hash(struct sock *sk, struct sock *osk)
- 	int err = 0;
+diff --git a/drivers/gpu/drm/v3d/v3d_gem.c b/drivers/gpu/drm/v3d/v3d_gem.c
+index e47ae40a865a..91bdec3e0ef7 100644
+--- a/drivers/gpu/drm/v3d/v3d_gem.c
++++ b/drivers/gpu/drm/v3d/v3d_gem.c
+@@ -798,7 +798,7 @@ v3d_submit_cl_ioctl(struct drm_device *dev, void *data,
  
- 	if (sk->sk_state != TCP_LISTEN) {
-+		local_bh_disable();
- 		inet_ehash_nolisten(sk, osk, NULL);
-+		local_bh_enable();
- 		return 0;
+ 		if (!render->base.perfmon) {
+ 			ret = -ENOENT;
+-			goto fail;
++			goto fail_perfmon;
+ 		}
  	}
- 	WARN_ON(!sk_unhashed(sk));
-@@ -669,45 +671,54 @@ int inet_hash(struct sock *sk)
- {
- 	int err = 0;
  
--	if (sk->sk_state != TCP_CLOSE) {
--		local_bh_disable();
-+	if (sk->sk_state != TCP_CLOSE)
- 		err = __inet_hash(sk, NULL);
--		local_bh_enable();
--	}
+@@ -847,6 +847,7 @@ v3d_submit_cl_ioctl(struct drm_device *dev, void *data,
  
- 	return err;
- }
- EXPORT_SYMBOL_GPL(inet_hash);
- 
--void inet_unhash(struct sock *sk)
-+static void __inet_unhash(struct sock *sk, struct inet_listen_hashbucket *ilb)
- {
--	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
--	struct inet_listen_hashbucket *ilb = NULL;
--	spinlock_t *lock;
--
- 	if (sk_unhashed(sk))
- 		return;
- 
--	if (sk->sk_state == TCP_LISTEN) {
--		ilb = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
--		lock = &ilb->lock;
--	} else {
--		lock = inet_ehash_lockp(hashinfo, sk->sk_hash);
--	}
--	spin_lock_bh(lock);
--	if (sk_unhashed(sk))
--		goto unlock;
--
- 	if (rcu_access_pointer(sk->sk_reuseport_cb))
- 		reuseport_stop_listen_sock(sk);
- 	if (ilb) {
-+		struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
-+
- 		inet_unhash2(hashinfo, sk);
- 		ilb->count--;
+ fail_unreserve:
+ 	mutex_unlock(&v3d->sched_lock);
++fail_perfmon:
+ 	drm_gem_unlock_reservations(last_job->bo,
+ 				    last_job->bo_count, &acquire_ctx);
+ fail:
+@@ -1027,7 +1028,7 @@ v3d_submit_csd_ioctl(struct drm_device *dev, void *data,
+ 						     args->perfmon_id);
+ 		if (!job->base.perfmon) {
+ 			ret = -ENOENT;
+-			goto fail;
++			goto fail_perfmon;
+ 		}
  	}
- 	__sk_nulls_del_node_init_rcu(sk);
- 	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
--unlock:
--	spin_unlock_bh(lock);
-+}
-+
-+void inet_unhash(struct sock *sk)
-+{
-+	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
-+
-+	if (sk_unhashed(sk))
-+		return;
-+
-+	if (sk->sk_state == TCP_LISTEN) {
-+		struct inet_listen_hashbucket *ilb;
-+
-+		ilb = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
-+		/* Don't disable bottom halves while acquiring the lock to
-+		 * avoid circular locking dependency on PREEMPT_RT.
-+		 */
-+		spin_lock(&ilb->lock);
-+		__inet_unhash(sk, ilb);
-+		spin_unlock(&ilb->lock);
-+	} else {
-+		spinlock_t *lock = inet_ehash_lockp(hashinfo, sk->sk_hash);
-+
-+		spin_lock_bh(lock);
-+		__inet_unhash(sk, NULL);
-+		spin_unlock_bh(lock);
-+	}
- }
- EXPORT_SYMBOL_GPL(inet_unhash);
  
-diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
-index 4514444e96c8..4740afecf7c6 100644
---- a/net/ipv6/inet6_hashtables.c
-+++ b/net/ipv6/inet6_hashtables.c
-@@ -333,11 +333,8 @@ int inet6_hash(struct sock *sk)
- {
- 	int err = 0;
+@@ -1056,6 +1057,7 @@ v3d_submit_csd_ioctl(struct drm_device *dev, void *data,
  
--	if (sk->sk_state != TCP_CLOSE) {
--		local_bh_disable();
-+	if (sk->sk_state != TCP_CLOSE)
- 		err = __inet_hash(sk, NULL);
--		local_bh_enable();
--	}
- 
- 	return err;
- }
+ fail_unreserve:
+ 	mutex_unlock(&v3d->sched_lock);
++fail_perfmon:
+ 	drm_gem_unlock_reservations(clean_job->bo, clean_job->bo_count,
+ 				    &acquire_ctx);
+ fail:
 -- 
 2.35.1
 
