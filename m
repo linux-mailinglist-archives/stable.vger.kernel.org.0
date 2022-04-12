@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A574FD987
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:41:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4454FDA47
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352137AbiDLHXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:23:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45722 "EHLO
+        id S1353826AbiDLHqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:46:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353349AbiDLHPO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:15:14 -0400
+        with ESMTP id S1357104AbiDLHjr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1FF393C9;
-        Mon, 11 Apr 2022 23:56:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989DEDEA4;
+        Tue, 12 Apr 2022 00:12:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A23B6158E;
-        Tue, 12 Apr 2022 06:56:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CBE6C385A1;
-        Tue, 12 Apr 2022 06:56:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34EA56153F;
+        Tue, 12 Apr 2022 07:12:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 415B6C385A6;
+        Tue, 12 Apr 2022 07:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746612;
-        bh=en1lduSAZMJqlcpjsWnyj4N6Vi7Ju+gSq8fZkkkk1Wo=;
+        s=korg; t=1649747526;
+        bh=LiN4xAlbtOMQmCAMYa+oEGTr4Vv1YS5mZ2fgoK15uO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mvA+ndCvM/aY7FMCT83LDaPsm6diEgtmdvOUUrLfyCKpnRc/fBcCorZc3He3A8UBN
-         rrTALsAGrI9H0hCRkgQp30t5nN2ocELK7TQFqsLmJu24S2FhHfrC5DFepaQ+R3QV7H
-         aeD5VjmkYU+gl/Me4fL9LT1iTA1eSugYx53ZNDDg=
+        b=FD04ZgobCRENG1h0YSZ8DxEEIh42Ch/PugylS6e0nx0q5OQoq1SHDWgVZCGI+sZIO
+         4gvf4GbcoZz8T2bi1qS/GbHY150u5zURoSZKYY2ktW9LK8f4+eMiHZN+h2qT1PIjdx
+         l8+dQT2oss2r8eTkZk1Y/5+D0kjIDHL/j8FIpGQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <imagedong@tencent.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 031/285] bpf: Make dst_port field in struct bpf_sock 16-bit wide
+Subject: [PATCH 5.17 070/343] libbpf: Fix accessing the first syscall argument on arm64
 Date:   Tue, 12 Apr 2022 08:28:08 +0200
-Message-Id: <20220412062944.575866124@linuxfoundation.org>
+Message-Id: <20220412062953.123150338@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 4421a582718ab81608d8486734c18083b822390d ]
+[ Upstream commit fbca4a2f649730b67488a8b36140ce4d2cf13c63 ]
 
-Menglong Dong reports that the documentation for the dst_port field in
-struct bpf_sock is inaccurate and confusing. From the BPF program PoV, the
-field is a zero-padded 16-bit integer in network byte order. The value
-appears to the BPF user as if laid out in memory as so:
+On arm64, the first syscall argument should be accessed via orig_x0
+(see arch/arm64/include/asm/syscall.h). Currently regs[0] is used
+instead, leading to bpf_syscall_macro test failure.
 
-  offsetof(struct bpf_sock, dst_port) + 0  <port MSB>
-                                      + 8  <port LSB>
-                                      +16  0x00
-                                      +24  0x00
+orig_x0 cannot be added to struct user_pt_regs, since its layout is a
+part of the ABI. Therefore provide access to it only through
+PT_REGS_PARM1_CORE_SYSCALL() by using a struct pt_regs flavor.
 
-32-, 16-, and 8-bit wide loads from the field are all allowed, but only if
-the offset into the field is 0.
-
-32-bit wide loads from dst_port are especially confusing. The loaded value,
-after converting to host byte order with bpf_ntohl(dst_port), contains the
-port number in the upper 16-bits.
-
-Remove the confusion by splitting the field into two 16-bit fields. For
-backward compatibility, allow 32-bit wide loads from offsetof(struct
-bpf_sock, dst_port).
-
-While at it, allow loads 8-bit loads at offset [0] and [1] from dst_port.
-
-Reported-by: Menglong Dong <imagedong@tencent.com>
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/r/20220130115518.213259-2-jakub@cloudflare.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reported-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20220209021745.2215452-10-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/bpf.h |  3 ++-
- net/core/filter.c        | 10 +++++++++-
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ tools/lib/bpf/bpf_tracing.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
-index 2b3c3f83076c..61bbaf340a89 100644
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -5414,7 +5414,8 @@ struct bpf_sock {
- 	__u32 src_ip4;
- 	__u32 src_ip6[4];
- 	__u32 src_port;		/* host byte order */
--	__u32 dst_port;		/* network byte order */
-+	__be16 dst_port;	/* network byte order */
-+	__u16 :16;		/* zero padding */
- 	__u32 dst_ip4;
- 	__u32 dst_ip6[4];
- 	__u32 state;
-diff --git a/net/core/filter.c b/net/core/filter.c
-index d4cdf11656b3..4721ed65bcc5 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -7975,6 +7975,7 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
- 			      struct bpf_insn_access_aux *info)
- {
- 	const int size_default = sizeof(__u32);
-+	int field_size;
+diff --git a/tools/lib/bpf/bpf_tracing.h b/tools/lib/bpf/bpf_tracing.h
+index 41f5f3149875..bed07c35b8de 100644
+--- a/tools/lib/bpf/bpf_tracing.h
++++ b/tools/lib/bpf/bpf_tracing.h
+@@ -140,6 +140,10 @@
  
- 	if (off < 0 || off >= sizeof(struct bpf_sock))
- 		return false;
-@@ -7986,7 +7987,6 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
- 	case offsetof(struct bpf_sock, family):
- 	case offsetof(struct bpf_sock, type):
- 	case offsetof(struct bpf_sock, protocol):
--	case offsetof(struct bpf_sock, dst_port):
- 	case offsetof(struct bpf_sock, src_port):
- 	case offsetof(struct bpf_sock, rx_queue_mapping):
- 	case bpf_ctx_range(struct bpf_sock, src_ip4):
-@@ -7995,6 +7995,14 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
- 	case bpf_ctx_range_till(struct bpf_sock, dst_ip6[0], dst_ip6[3]):
- 		bpf_ctx_record_field_size(info, size_default);
- 		return bpf_ctx_narrow_access_ok(off, size, size_default);
-+	case bpf_ctx_range(struct bpf_sock, dst_port):
-+		field_size = size == size_default ?
-+			size_default : sizeof_field(struct bpf_sock, dst_port);
-+		bpf_ctx_record_field_size(info, field_size);
-+		return bpf_ctx_narrow_access_ok(off, size, field_size);
-+	case offsetofend(struct bpf_sock, dst_port) ...
-+	     offsetof(struct bpf_sock, dst_ip4) - 1:
-+		return false;
- 	}
+ #elif defined(bpf_target_arm64)
  
- 	return size == size_default;
++struct pt_regs___arm64 {
++	unsigned long orig_x0;
++};
++
+ /* arm64 provides struct user_pt_regs instead of struct pt_regs to userspace */
+ #define __PT_REGS_CAST(x) ((const struct user_pt_regs *)(x))
+ #define __PT_PARM1_REG regs[0]
+@@ -152,6 +156,8 @@
+ #define __PT_RC_REG regs[0]
+ #define __PT_SP_REG sp
+ #define __PT_IP_REG pc
++#define PT_REGS_PARM1_SYSCALL(x) ({ _Pragma("GCC error \"use PT_REGS_PARM1_CORE_SYSCALL() instead\""); 0l; })
++#define PT_REGS_PARM1_CORE_SYSCALL(x) BPF_CORE_READ((const struct pt_regs___arm64 *)(x), orig_x0)
+ 
+ #elif defined(bpf_target_mips)
+ 
 -- 
 2.35.1
 
