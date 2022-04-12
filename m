@@ -2,57 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17CFF4FD596
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 146834FD495
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356131AbiDLHe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:34:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43172 "EHLO
+        id S1354862AbiDLH55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:57:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355125AbiDLH1K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:27:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263A148332;
-        Tue, 12 Apr 2022 00:07:11 -0700 (PDT)
+        with ESMTP id S1359100AbiDLHmb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35EAE55483;
+        Tue, 12 Apr 2022 00:20:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 831A4B81B4D;
-        Tue, 12 Apr 2022 07:07:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFC52C385A8;
-        Tue, 12 Apr 2022 07:07:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA32E616B2;
+        Tue, 12 Apr 2022 07:20:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C504DC385A5;
+        Tue, 12 Apr 2022 07:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747228;
-        bh=sXplmjtci3GWzKPGj7qmndHKq1WQI2fvhmgLsZ33CEY=;
+        s=korg; t=1649748014;
+        bh=G4nXFvcr9Il+xgiyLJXTB2I4UFpbZB76hNekK2W5Qc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ya39TrhC7pOQ5dpmI0Ywg74BhsGI+zqKBPjvQh0+8MaElBhMIFRKoTzwDuoerDDoi
-         JeUrkx6Cmc1g8VrL7R4+hpJXxdCEyTq1XmSEqAj5F1gw7I8WTLOxDefkbKBi+S+9CB
-         oRHSoHA/2WN5pcGUDBBPU+ThFJH6QIrWDgX6fPzI=
+        b=bYK9HMLUjRlvwOgU9t1AZLRV0YLs1QLFmLxp0EYSCeVC8oi3a9Qr1arxN+2oe8eat
+         byeXMIempcqcHL5RRBEFtMWKWOjzdjnZYykSucMcp8B12YooES4WAqkNYUgsLN2Q5O
+         /U8Mrhy06wKp1MaxGvA6Qzbfo/5luI0QsIbcfmZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>,
-        Zack Rusin <zackr@vmware.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Helge Deller <deller@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
-        Zheyu Ma <zheyuma97@gmail.com>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Guenter Roeck <linux@roeck-us.net>,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH 5.16 249/285] fbdev: Fix unregistering of framebuffers without device
-Date:   Tue, 12 Apr 2022 08:31:46 +0200
-Message-Id: <20220412062950.845598901@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Enzo Matsumiya <ematsumiya@suse.de>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.17 289/343] cifs: force new session setup and tcon for dfs
+Date:   Tue, 12 Apr 2022 08:31:47 +0200
+Message-Id: <20220412062959.670188954@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,98 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit 0f525289ff0ddeb380813bd81e0f9bdaaa1c9078 upstream.
+commit fb39d30e227233498c8debe6a9fe3e7cf575c85f upstream.
 
-OF framebuffers do not have an underlying device in the Linux
-device hierarchy. Do a regular unregister call instead of hot
-unplugging such a non-existing device. Fixes a NULL dereference.
-An example error message on ppc64le is shown below.
+Do not reuse existing sessions and tcons in DFS failover as it might
+connect to different servers and shares.
 
-  BUG: Kernel NULL pointer dereference on read at 0x00000060
-  Faulting instruction address: 0xc00000000080dfa4
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-  [...]
-  CPU: 2 PID: 139 Comm: systemd-udevd Not tainted 5.17.0-ae085d7f9365 #1
-  NIP:  c00000000080dfa4 LR: c00000000080df9c CTR: c000000000797430
-  REGS: c000000004132fe0 TRAP: 0300   Not tainted  (5.17.0-ae085d7f9365)
-  MSR:  8000000002009033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 28228282  XER: 20000000
-  CFAR: c00000000000c80c DAR: 0000000000000060 DSISR: 40000000 IRQMASK: 0
-  GPR00: c00000000080df9c c000000004133280 c00000000169d200 0000000000000029
-  GPR04: 00000000ffffefff c000000004132f90 c000000004132f88 0000000000000000
-  GPR08: c0000000015658f8 c0000000015cd200 c0000000014f57d0 0000000048228283
-  GPR12: 0000000000000000 c00000003fffe300 0000000020000000 0000000000000000
-  GPR16: 0000000000000000 0000000113fc4a40 0000000000000005 0000000113fcfb80
-  GPR20: 000001000f7283b0 0000000000000000 c000000000e4a588 c000000000e4a5b0
-  GPR24: 0000000000000001 00000000000a0000 c008000000db0168 c0000000021f6ec0
-  GPR28: c0000000016d65a8 c000000004b36460 0000000000000000 c0000000016d64b0
-  NIP [c00000000080dfa4] do_remove_conflicting_framebuffers+0x184/0x1d0
-  [c000000004133280] [c00000000080df9c] do_remove_conflicting_framebuffers+0x17c/0x1d0 (unreliable)
-  [c000000004133350] [c00000000080e4d0] remove_conflicting_framebuffers+0x60/0x150
-  [c0000000041333a0] [c00000000080e6f4] remove_conflicting_pci_framebuffers+0x134/0x1b0
-  [c000000004133450] [c008000000e70438] drm_aperture_remove_conflicting_pci_framebuffers+0x90/0x100 [drm]
-  [c000000004133490] [c008000000da0ce4] bochs_pci_probe+0x6c/0xa64 [bochs]
-  [...]
-  [c000000004133db0] [c00000000002aaa0] system_call_exception+0x170/0x2d0
-  [c000000004133e10] [c00000000000c3cc] system_call_common+0xec/0x250
-
-The bug [1] was introduced by commit 27599aacbaef ("fbdev: Hot-unplug
-firmware fb devices on forced removal"). Most firmware framebuffers
-have an underlying platform device, which can be hot-unplugged
-before loading the native graphics driver. OF framebuffers do not
-(yet) have that device. Fix the code by unregistering the framebuffer
-as before without a hot unplug.
-
-Tested with 5.17 on qemu ppc64le emulation.
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Fixes: 27599aacbaef ("fbdev: Hot-unplug firmware fb devices on forced removal")
-Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-Cc: Zack Rusin <zackr@vmware.com>
-Cc: Javier Martinez Canillas <javierm@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: stable@vger.kernel.org # v5.11+
-Cc: Helge Deller <deller@gmx.de>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Zheyu Ma <zheyuma97@gmail.com>
-Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-fbdev@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Link: https://lore.kernel.org/all/YkHXO6LGHAN0p1pq@debian/ # [1]
-Link: https://patchwork.freedesktop.org/patch/msgid/20220404194402.29974-1-tzimmermann@suse.de
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Cc: stable@vger.kernel.org
+Reviewed-by: Enzo Matsumiya <ematsumiya@suse.de>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/cifs/connect.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1581,7 +1581,14 @@ static void do_remove_conflicting_frameb
- 			 * If it's not a platform device, at least print a warning. A
- 			 * fix would add code to remove the device from the system.
- 			 */
--			if (dev_is_platform(device)) {
-+			if (!device) {
-+				/* TODO: Represent each OF framebuffer as its own
-+				 * device in the device hierarchy. For now, offb
-+				 * doesn't have such a device, so unregister the
-+				 * framebuffer as before without warning.
-+				 */
-+				do_unregister_framebuffer(registered_fb[i]);
-+			} else if (dev_is_platform(device)) {
- 				registered_fb[i]->forced_out = true;
- 				platform_device_unregister(to_platform_device(device));
- 			} else {
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -453,9 +453,7 @@ static int reconnect_target_unlocked(str
+ 	return rc;
+ }
+ 
+-static int
+-reconnect_dfs_server(struct TCP_Server_Info *server,
+-		     bool mark_smb_session)
++static int reconnect_dfs_server(struct TCP_Server_Info *server)
+ {
+ 	int rc = 0;
+ 	const char *refpath = server->current_fullpath + 1;
+@@ -479,7 +477,12 @@ reconnect_dfs_server(struct TCP_Server_I
+ 	if (!cifs_tcp_ses_needs_reconnect(server, num_targets))
+ 		return 0;
+ 
+-	cifs_mark_tcp_ses_conns_for_reconnect(server, mark_smb_session);
++	/*
++	 * Unconditionally mark all sessions & tcons for reconnect as we might be connecting to a
++	 * different server or share during failover.  It could be improved by adding some logic to
++	 * only do that in case it connects to a different server or share, though.
++	 */
++	cifs_mark_tcp_ses_conns_for_reconnect(server, true);
+ 
+ 	cifs_abort_connection(server);
+ 
+@@ -537,7 +540,7 @@ int cifs_reconnect(struct TCP_Server_Inf
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
+ 
+-	return reconnect_dfs_server(server, mark_smb_session);
++	return reconnect_dfs_server(server);
+ }
+ #else
+ int cifs_reconnect(struct TCP_Server_Info *server, bool mark_smb_session)
 
 
