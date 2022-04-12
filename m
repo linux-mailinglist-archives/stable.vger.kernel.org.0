@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A634FD05C
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A94F4FD22A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350378AbiDLGpk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:45:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38938 "EHLO
+        id S232937AbiDLHJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:09:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350697AbiDLGnD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:43:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF25837BC1;
-        Mon, 11 Apr 2022 23:36:39 -0700 (PDT)
+        with ESMTP id S1352962AbiDLHGk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:06:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C32949275;
+        Mon, 11 Apr 2022 23:48:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59CFF61913;
-        Tue, 12 Apr 2022 06:36:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AAC3C385A1;
-        Tue, 12 Apr 2022 06:36:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E11FB81895;
+        Tue, 12 Apr 2022 06:48:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FCD2C385A1;
+        Tue, 12 Apr 2022 06:48:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745398;
-        bh=9iH+TYSLng1olS+8/NrATlV1zzzLo0pzEaOiCJ6UFaU=;
+        s=korg; t=1649746135;
+        bh=CFFPmTqDSL1l7fMi/IJ2pXxrUgADjKGYrYGmw+KJEjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddeyGXW/nWrptAZIqgUU5oZPtsIDz+gA91NQE+hhXEO+gjU51/Ex+yU0Q+LfY75T8
-         DLadbrnnkqGS+sV0+URgwfLiunGweIlYgXGJbObF5atL7uFsLpbmDDIMxayFOR/HaE
-         rHCfwlEGje6sux7D+bMHefZ5Orc1ZI4jOTKHGLrE=
+        b=b6KgdwelhC1q67Cn7patDFT+YXdk5jF4j7lGyAyspdFMkNEdpWJ2CxyvD99Lqj0eW
+         xnx778HCUyqVcMwvLhUN0M//SGbuQW7TdTsl1Ydgl7+VMP+SHsT/nvO9uliKmZLwS5
+         09kXjPkl2NiPd/GrAdaz0lTCSYmjsiotLhXj26+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
+        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 084/171] SUNRPC: remove scheduling boost for "SWAPPER" tasks.
+Subject: [PATCH 5.15 172/277] bnxt_en: reserve space inside receive page for skb_shared_info
 Date:   Tue, 12 Apr 2022 08:29:35 +0200
-Message-Id: <20220412062930.318964472@linuxfoundation.org>
+Message-Id: <20220412062947.016436698@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Andy Gospodarek <gospo@broadcom.com>
 
-[ Upstream commit a80a8461868905823609be97f91776a26befe839 ]
+[ Upstream commit facc173cf700e55b2ad249ecbd3a7537f7315691 ]
 
-Currently, tasks marked as "swapper" tasks get put to the front of
-non-priority rpc_queues, and are sorted earlier than non-swapper tasks on
-the transport's ->xmit_queue.
+Insufficient space was being reserved in the page used for packet
+reception, so the interface MTU could be set too large to still have
+room for the contents of the packet when doing XDP redirect.  This
+resulted in the following message when redirecting a packet between
+3520 and 3822 bytes with an MTU of 3822:
 
-This is pointless as currently *all* tasks for a mount that has swap
-enabled on *any* file are marked as "swapper" tasks.  So the net result
-is that the non-priority rpc_queues are reverse-ordered (LIFO).
+[311815.561880] XDP_WARN: xdp_update_frame_from_buff(line:200): Driver BUG: missing reserved tailroom
 
-This scheduling boost is not necessary to avoid deadlocks, and hurts
-fairness, so remove it.  If there were a need to expedite some requests,
-the tk_priority mechanism is a more appropriate tool.
-
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: f18c2b77b2e4 ("bnxt_en: optimized XDP_REDIRECT support")
+Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
+Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
+Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sched.c |  7 -------
- net/sunrpc/xprt.c  | 11 -----------
- 2 files changed, 18 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
-index 6e4d476c6324..f0f55fbd1375 100644
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -186,11 +186,6 @@ static void __rpc_add_wait_queue_priority(struct rpc_wait_queue *queue,
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+index 0aaaeecd67ea..e5874c829226 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -584,7 +584,8 @@ struct nqe_cn {
+ #define BNXT_MAX_MTU		9500
+ #define BNXT_MAX_PAGE_MODE_MTU	\
+ 	((unsigned int)PAGE_SIZE - VLAN_ETH_HLEN - NET_IP_ALIGN -	\
+-	 XDP_PACKET_HEADROOM)
++	 XDP_PACKET_HEADROOM - \
++	 SKB_DATA_ALIGN((unsigned int)sizeof(struct skb_shared_info)))
  
- /*
-  * Add new request to wait queue.
-- *
-- * Swapper tasks always get inserted at the head of the queue.
-- * This should avoid many nasty memory deadlocks and hopefully
-- * improve overall performance.
-- * Everyone else gets appended to the queue to ensure proper FIFO behavior.
-  */
- static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
- 		struct rpc_task *task,
-@@ -199,8 +194,6 @@ static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
- 	INIT_LIST_HEAD(&task->u.tk_wait.timer_list);
- 	if (RPC_IS_PRIORITY(queue))
- 		__rpc_add_wait_queue_priority(queue, task, queue_priority);
--	else if (RPC_IS_SWAPPER(task))
--		list_add(&task->u.tk_wait.list, &queue->tasks[0]);
- 	else
- 		list_add_tail(&task->u.tk_wait.list, &queue->tasks[0]);
- 	task->tk_waitqueue = queue;
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 441a8604c060..6bc225d64d23 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1306,17 +1306,6 @@ xprt_request_enqueue_transmit(struct rpc_task *task)
- 				INIT_LIST_HEAD(&req->rq_xmit2);
- 				goto out;
- 			}
--		} else if (RPC_IS_SWAPPER(task)) {
--			list_for_each_entry(pos, &xprt->xmit_queue, rq_xmit) {
--				if (pos->rq_cong || pos->rq_bytes_sent)
--					continue;
--				if (RPC_IS_SWAPPER(pos->rq_task))
--					continue;
--				/* Note: req is added _before_ pos */
--				list_add_tail(&req->rq_xmit, &pos->rq_xmit);
--				INIT_LIST_HEAD(&req->rq_xmit2);
--				goto out;
--			}
- 		} else if (!req->rq_seqno) {
- 			list_for_each_entry(pos, &xprt->xmit_queue, rq_xmit) {
- 				if (pos->rq_task->tk_owner != task->tk_owner)
+ #define BNXT_MIN_PKT_SIZE	52
+ 
 -- 
 2.35.1
 
