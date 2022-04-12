@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 409EE4FD594
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE3B4FD6E7
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353506AbiDLHdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:33:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
+        id S1345085AbiDLHU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:20:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353622AbiDLHZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C162656E;
-        Tue, 12 Apr 2022 00:02:07 -0700 (PDT)
+        with ESMTP id S1351690AbiDLHMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4DF15A18;
+        Mon, 11 Apr 2022 23:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 832D260B2B;
-        Tue, 12 Apr 2022 07:02:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EB1C385A6;
-        Tue, 12 Apr 2022 07:02:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38B5C6146F;
+        Tue, 12 Apr 2022 06:51:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44014C385A1;
+        Tue, 12 Apr 2022 06:51:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746927;
-        bh=CYdSPQWbDPzISEWdJ44T/uOqTRiv53C+ON7DnWkJjF0=;
+        s=korg; t=1649746303;
+        bh=MIJOt/rCjVZ1I/G8JnoYtBGZqGnfCfzujr8/xisSegw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lS/NMd5NCBUMU2PCWvsKbBSRufpjCFtkBo+IJPo1WLAiJ5xgARuopzpAIYeKoxlro
-         JagWZgsJnnBkm80jzvFIo2ZdLvWYY9Hyz1hmNMO7mWyTOVUaqn8CZ/VVenabAJ8I9N
-         AyYQbaKf0hV0AiFOJt13rpMnUp5QYcvttotxkD20=
+        b=hqZyjym/ECeHkbtYHhYSCvJls3XNxYOdj/GCseQ/4UNNwlcdQbqQS+yXfkFWSRfRi
+         +Z7qDAeZ8J/qyIfX51eQLmuW1r2PJX7RRplIFww1iwXUsDMsDtHWo7ngHXsNmE0J6u
+         /O8+VHIHQ4nlegyg2e0y1lD+VYtWg8QG/gV25E50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aharon Landau <aharonl@nvidia.com>,
-        Shay Drory <shayd@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 180/285] RDMA/mlx5: Add a missing update of cache->last_add
-Date:   Tue, 12 Apr 2022 08:30:37 +0200
-Message-Id: <20220412062948.861093980@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.15 235/277] perf: qcom_l2_pmu: fix an incorrect NULL check on list iterator
+Date:   Tue, 12 Apr 2022 08:30:38 +0200
+Message-Id: <20220412062948.845383567@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,38 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aharon Landau <aharonl@nvidia.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 1d735eeee63a0beb65180ca0224f239cc0c9f804 ]
+commit 2012a9e279013933885983cbe0a5fe828052563b upstream.
 
-Update cache->last_add when returning an MR to the cache so that the cache
-work won't remove it.
+The bug is here:
+	return cluster;
 
-Fixes: b9358bdbc713 ("RDMA/mlx5: Fix locking in MR cache work queue")
-Link: https://lore.kernel.org/r/c99f076fce4b44829d434936bbcd3b5fc4c95020.1649062436.git.leonro@nvidia.com
-Signed-off-by: Aharon Landau <aharonl@nvidia.com>
-Reviewed-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The list iterator value 'cluster' will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+is found.
+
+To fix the bug, return 'cluster' when found, otherwise return NULL.
+
+Cc: stable@vger.kernel.org
+Fixes: 21bdbb7102ed ("perf: add qcom l2 cache perf events driver")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220327055733.4070-1-xiam0nd.tong@gmail.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/mr.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/perf/qcom_l2_pmu.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
-index d3b2d02a4872..d40a1460ef97 100644
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -632,6 +632,7 @@ static void mlx5_mr_cache_free(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr)
+--- a/drivers/perf/qcom_l2_pmu.c
++++ b/drivers/perf/qcom_l2_pmu.c
+@@ -736,7 +736,7 @@ static struct cluster_pmu *l2_cache_asso
  {
- 	struct mlx5_cache_ent *ent = mr->cache_ent;
+ 	u64 mpidr;
+ 	int cpu_cluster_id;
+-	struct cluster_pmu *cluster = NULL;
++	struct cluster_pmu *cluster;
  
-+	WRITE_ONCE(dev->cache.last_add, jiffies);
- 	spin_lock_irq(&ent->lock);
- 	list_add_tail(&mr->list, &ent->head);
- 	ent->available_mrs++;
--- 
-2.35.1
-
+ 	/*
+ 	 * This assumes that the cluster_id is in MPIDR[aff1] for
+@@ -758,10 +758,10 @@ static struct cluster_pmu *l2_cache_asso
+ 			 cluster->cluster_id);
+ 		cpumask_set_cpu(cpu, &cluster->cluster_cpus);
+ 		*per_cpu_ptr(l2cache_pmu->pmu_cluster, cpu) = cluster;
+-		break;
++		return cluster;
+ 	}
+ 
+-	return cluster;
++	return NULL;
+ }
+ 
+ static int l2cache_pmu_online_cpu(unsigned int cpu, struct hlist_node *node)
 
 
