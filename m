@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 526D24FD471
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932694FD71E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:27:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354381AbiDLHsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
+        id S237085AbiDLHam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:30:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357326AbiDLHkA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:00 -0400
+        with ESMTP id S1353222AbiDLHZR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1568E24BDC;
-        Tue, 12 Apr 2022 00:15:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37FA4E393;
+        Tue, 12 Apr 2022 00:00:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 316C2B81B4F;
-        Tue, 12 Apr 2022 07:15:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80073C385A1;
-        Tue, 12 Apr 2022 07:15:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 394D8B81A8F;
+        Tue, 12 Apr 2022 07:00:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A540CC385A6;
+        Tue, 12 Apr 2022 07:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747713;
-        bh=PNElRQwnnCiWitiYMu5FSLHaLbWIvloVo8Zbif/ErFo=;
+        s=korg; t=1649746816;
+        bh=mNb1SKCYTL4DnFguMQR5NjP+fQNQ2HDagZRvTBOyfRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tpA7ZmBFoosmZIoKsA5tcA4SgH+f6AmK/iiCz9LsvY/kNfTURO/ibjgsR4ozqlKki
-         3+VIeO/b+rrxK0sG79V8boNbIV14EYjl2I9Oc1njZ2KZfbyJJDJHzFCG+YBkTAu3+M
-         K2xa+ub0L1w8V5RHDzWR3XSHEaEJ2PCVLN+xOKBc=
+        b=TUN1shseJ3o+2a5IEWHumv8W/n5p2501uKS47megrN3zD9KCo0m9RQ+VB32JkfCGp
+         yT88kuOKhrdZkWCtOim1RJuBYpfmMz2bp4zOnC0UHYOHVNuLgxzkTjA/zisrieMqOm
+         GT1kFSalRxFbBx8DSDfba49YpwV2+MEBa61Fh3Zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 178/343] SUNRPC: remove scheduling boost for "SWAPPER" tasks.
-Date:   Tue, 12 Apr 2022 08:29:56 +0200
-Message-Id: <20220412062956.503100409@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Amit Shah <amit@kernel.org>,
+        virtualization@lists.linux-foundation.org,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 140/285] virtio_console: eliminate anonymous module_init & module_exit
+Date:   Tue, 12 Apr 2022 08:29:57 +0200
+Message-Id: <20220412062947.709721342@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit a80a8461868905823609be97f91776a26befe839 ]
+[ Upstream commit fefb8a2a941338d871e2d83fbd65fbfa068857bd ]
 
-Currently, tasks marked as "swapper" tasks get put to the front of
-non-priority rpc_queues, and are sorted earlier than non-swapper tasks on
-the transport's ->xmit_queue.
+Eliminate anonymous module_init() and module_exit(), which can lead to
+confusion or ambiguity when reading System.map, crashes/oops/bugs,
+or an initcall_debug log.
 
-This is pointless as currently *all* tasks for a mount that has swap
-enabled on *any* file are marked as "swapper" tasks.  So the net result
-is that the non-priority rpc_queues are reverse-ordered (LIFO).
+Give each of these init and exit functions unique driver-specific
+names to eliminate the anonymous names.
 
-This scheduling boost is not necessary to avoid deadlocks, and hurts
-fairness, so remove it.  If there were a need to expedite some requests,
-the tk_priority mechanism is a more appropriate tool.
+Example 1: (System.map)
+ ffffffff832fc78c t init
+ ffffffff832fc79e t init
+ ffffffff832fc8f8 t init
 
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Example 2: (initcall_debug log)
+ calling  init+0x0/0x12 @ 1
+ initcall init+0x0/0x12 returned 0 after 15 usecs
+ calling  init+0x0/0x60 @ 1
+ initcall init+0x0/0x60 returned 0 after 2 usecs
+ calling  init+0x0/0x9a @ 1
+ initcall init+0x0/0x9a returned 0 after 74 usecs
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Amit Shah <amit@kernel.org>
+Cc: virtualization@lists.linux-foundation.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20220316192010.19001-3-rdunlap@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sched.c |  7 -------
- net/sunrpc/xprt.c  | 11 -----------
- 2 files changed, 18 deletions(-)
+ drivers/char/virtio_console.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
-index ae295844ac55..9020cedb7c95 100644
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -186,11 +186,6 @@ static void __rpc_add_wait_queue_priority(struct rpc_wait_queue *queue,
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index f864b17be7e3..35025f283bf6 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -2245,7 +2245,7 @@ static struct virtio_driver virtio_rproc_serial = {
+ 	.remove =	virtcons_remove,
+ };
  
- /*
-  * Add new request to wait queue.
-- *
-- * Swapper tasks always get inserted at the head of the queue.
-- * This should avoid many nasty memory deadlocks and hopefully
-- * improve overall performance.
-- * Everyone else gets appended to the queue to ensure proper FIFO behavior.
-  */
- static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
- 		struct rpc_task *task,
-@@ -199,8 +194,6 @@ static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
- 	INIT_LIST_HEAD(&task->u.tk_wait.timer_list);
- 	if (RPC_IS_PRIORITY(queue))
- 		__rpc_add_wait_queue_priority(queue, task, queue_priority);
--	else if (RPC_IS_SWAPPER(task))
--		list_add(&task->u.tk_wait.list, &queue->tasks[0]);
- 	else
- 		list_add_tail(&task->u.tk_wait.list, &queue->tasks[0]);
- 	task->tk_waitqueue = queue;
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 75acde97d748..b1bb466bbdda 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1354,17 +1354,6 @@ xprt_request_enqueue_transmit(struct rpc_task *task)
- 				INIT_LIST_HEAD(&req->rq_xmit2);
- 				goto out;
- 			}
--		} else if (RPC_IS_SWAPPER(task)) {
--			list_for_each_entry(pos, &xprt->xmit_queue, rq_xmit) {
--				if (pos->rq_cong || pos->rq_bytes_sent)
--					continue;
--				if (RPC_IS_SWAPPER(pos->rq_task))
--					continue;
--				/* Note: req is added _before_ pos */
--				list_add_tail(&req->rq_xmit, &pos->rq_xmit);
--				INIT_LIST_HEAD(&req->rq_xmit2);
--				goto out;
--			}
- 		} else if (!req->rq_seqno) {
- 			list_for_each_entry(pos, &xprt->xmit_queue, rq_xmit) {
- 				if (pos->rq_task->tk_owner != task->tk_owner)
+-static int __init init(void)
++static int __init virtio_console_init(void)
+ {
+ 	int err;
+ 
+@@ -2280,7 +2280,7 @@ static int __init init(void)
+ 	return err;
+ }
+ 
+-static void __exit fini(void)
++static void __exit virtio_console_fini(void)
+ {
+ 	reclaim_dma_bufs();
+ 
+@@ -2290,8 +2290,8 @@ static void __exit fini(void)
+ 	class_destroy(pdrvdata.class);
+ 	debugfs_remove_recursive(pdrvdata.debugfs_dir);
+ }
+-module_init(init);
+-module_exit(fini);
++module_init(virtio_console_init);
++module_exit(virtio_console_fini);
+ 
+ MODULE_DESCRIPTION("Virtio console driver");
+ MODULE_LICENSE("GPL");
 -- 
 2.35.1
 
