@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96E494FD874
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D6734FD5C4
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343883AbiDLHhe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42842 "EHLO
+        id S241573AbiDLH6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:58:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353742AbiDLHZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFBF388C;
-        Tue, 12 Apr 2022 00:04:15 -0700 (PDT)
+        with ESMTP id S1358787AbiDLHmM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3137E28E29;
+        Tue, 12 Apr 2022 00:19:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31DB8B81A8F;
-        Tue, 12 Apr 2022 07:04:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2D46C385A6;
-        Tue, 12 Apr 2022 07:04:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83845616E7;
+        Tue, 12 Apr 2022 07:19:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99C32C385A5;
+        Tue, 12 Apr 2022 07:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747053;
-        bh=xd+6zkjK1T71bZdK8lxeDi33yn7elOo0gA8j9wLhbsc=;
+        s=korg; t=1649747957;
+        bh=OTYaN9cEFJk3+s8Bk6TF+yOQ9yew98O3/jc7PDaRvlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbF+THV9ljcC3+mGDuScILWsJhVR9TODxK6lykfw8TPDzG666H+Wm5NwufpKp1+4A
-         y46uTl6rvWnvyoUg6NXMKJLh9fBfZVxhWoNcatm1KKV9ZDyjrLSBUvcPbf/UTrIkaD
-         9nfDfOkK1Gp4hhYMvFhyvgltiUz1ynrdQmWl3/g0=
+        b=n6PzGmdrXQmQSeF4T0Urojqwrfbg9c7q9WmiQ2tgviXKzbDf7UzpPxbAjftJ2L7Q0
+         2/kyWyBqTEmG88f4us7Rdh31pueqJYQKJAhusjiqsLowwuT7NzXkn9nhum2PUU36B2
+         Ww5NulnfXuqYYwitih5/gXIP3/zxHwMyLo35JHzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.16 226/285] io_uring: implement compat handling for IORING_REGISTER_IOWQ_AFF
-Date:   Tue, 12 Apr 2022 08:31:23 +0200
-Message-Id: <20220412062950.182021874@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Marcin Wojtas <mw@semihalf.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.17 266/343] Revert "mmc: sdhci-xenon: fix annoying 1.8V regulator warning"
+Date:   Tue, 12 Apr 2022 08:31:24 +0200
+Message-Id: <20220412062959.001178456@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Syromiatnikov <esyr@redhat.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 0f5e4b83b37a96e3643951588ed7176b9b187c0a upstream.
+commit 7e2646ed47542123168d43916b84b954532e5386 upstream.
 
-Similarly to the way it is done im mbind syscall.
+This reverts commit bb32e1987bc55ce1db400faf47d85891da3c9b9f.
 
-Cc: stable@vger.kernel.org # 5.14
-Fixes: fe76421d1da1dcdb ("io_uring: allow user configurable IO thread CPU affinity")
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Commit 1a3ed0dc3594 ("mmc: sdhci-xenon: fix 1.8v regulator stabilization")
+contains proper fix for the issue described in commit bb32e1987bc5 ("mmc:
+sdhci-xenon: fix annoying 1.8V regulator warning").
+
+Fixes: 8d876bf472db ("mmc: sdhci-xenon: wait 5ms after set 1.8V signal enable")
+Cc: stable@vger.kernel.org # 1a3ed0dc3594 ("mmc: sdhci-xenon: fix 1.8v regulator stabilization")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Marcin Wojtas <mw@semihalf.com>
+Link: https://lore.kernel.org/r/20220318141441.32329-1-pali@kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-xenon.c |   10 ----------
+ 1 file changed, 10 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -10799,7 +10799,15 @@ static __cold int io_register_iowq_aff(s
- 	if (len > cpumask_size())
- 		len = cpumask_size();
+--- a/drivers/mmc/host/sdhci-xenon.c
++++ b/drivers/mmc/host/sdhci-xenon.c
+@@ -241,16 +241,6 @@ static void xenon_voltage_switch(struct
+ {
+ 	/* Wait for 5ms after set 1.8V signal enable bit */
+ 	usleep_range(5000, 5500);
+-
+-	/*
+-	 * For some reason the controller's Host Control2 register reports
+-	 * the bit representing 1.8V signaling as 0 when read after it was
+-	 * written as 1. Subsequent read reports 1.
+-	 *
+-	 * Since this may cause some issues, do an empty read of the Host
+-	 * Control2 register here to circumvent this.
+-	 */
+-	sdhci_readw(host, SDHCI_HOST_CONTROL2);
+ }
  
--	if (copy_from_user(new_mask, arg, len)) {
-+	if (in_compat_syscall()) {
-+		ret = compat_get_bitmap(cpumask_bits(new_mask),
-+					(const compat_ulong_t __user *)arg,
-+					len * 8 /* CHAR_BIT */);
-+	} else {
-+		ret = copy_from_user(new_mask, arg, len);
-+	}
-+
-+	if (ret) {
- 		free_cpumask_var(new_mask);
- 		return -EFAULT;
- 	}
+ static unsigned int xenon_get_max_clock(struct sdhci_host *host)
 
 
