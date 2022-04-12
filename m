@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7ED4FD5B6
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F32C84FD666
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:21:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352153AbiDLHXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:23:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45944 "EHLO
+        id S1353617AbiDLHqm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:46:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353460AbiDLHPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:15:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 990E639815;
-        Mon, 11 Apr 2022 23:56:58 -0700 (PDT)
+        with ESMTP id S1357105AbiDLHjr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE065DEB4;
+        Tue, 12 Apr 2022 00:12:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0F86B81B43;
-        Tue, 12 Apr 2022 06:56:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 369C0C385A8;
-        Tue, 12 Apr 2022 06:56:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93ADBB81A8F;
+        Tue, 12 Apr 2022 07:12:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FC3C385A1;
+        Tue, 12 Apr 2022 07:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746615;
-        bh=CS2I9ncH29T565J8Zn6hf9xZSmGn45aldAFGwM5euAQ=;
+        s=korg; t=1649747532;
+        bh=RVCl0QueOUEdBG+WdafdDuCg8pAcvRppNDasLe0JeiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUveFP+BnptWxLf1BOgTjqNVZKHuYsFFUXbf5p0KnX1eqSLnZuM6m8vmlPb2nPSpk
-         gp+zggk9y5DHn53Fc6FQ+JH3Q2mQN/nfq/JQ43Lu6bemdz/d0Y91Ygp3iZCVqiKFtO
-         ODRVF2QbkQtP9uutNxTuCXsudXMpRMSVSM6bpylA=
+        b=I0aSQznAjyslXpfuDE0ybt9nm6oYgXMZa/ZAQCJd4aQv3k7rqn0lM6Ulx+su7C/wy
+         XPrOPuDswcL3AX0kUg5w7BTdfGhTppcfJ+2D/bnRkP6utik/pHg8YtePWw9YFhoOoI
+         pT8Is2NSr9vwegP/AVXDNP069FGt1mj040LjXf2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 067/285] dm: requeue IO if mapping table not yet available
+Subject: [PATCH 5.17 106/343] scsi: pm8001: Fix memory leak in pm8001_chip_fw_flash_update_req()
 Date:   Tue, 12 Apr 2022 08:28:44 +0200
-Message-Id: <20220412062945.603417875@linuxfoundation.org>
+Message-Id: <20220412062954.155454566@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit fa247089de9936a46e290d4724cb5f0b845600f5 ]
+[ Upstream commit f792a3629f4c4aa4c3703d66b43ce1edcc3ec09a ]
 
-Update both bio-based and request-based DM to requeue IO if the
-mapping table not available.
+In pm8001_chip_fw_flash_update_build(), if
+pm8001_chip_fw_flash_update_build() fails, the struct fw_control_ex
+allocated must be freed.
 
-This race of IO being submitted before the DM device ready is so
-narrow, yet possible for initial table load given that the DM device's
-request_queue is created prior, that it best to requeue IO to handle
-this unlikely case.
-
-Reported-by: Zhang Yi <yi.zhang@huawei.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lore.kernel.org/r/20220220031810.738362-23-damien.lemoal@opensource.wdc.com
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-rq.c |  7 ++++++-
- drivers/md/dm.c    | 11 +++--------
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
-index 579ab6183d4d..dffeb47a9efb 100644
---- a/drivers/md/dm-rq.c
-+++ b/drivers/md/dm-rq.c
-@@ -499,8 +499,13 @@ static blk_status_t dm_mq_queue_rq(struct blk_mq_hw_ctx *hctx,
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index ccc7f53ddbd6..27ead825c2bb 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -4880,8 +4880,10 @@ pm8001_chip_fw_flash_update_req(struct pm8001_hba_info *pm8001_ha,
+ 	ccb->ccb_tag = tag;
+ 	rc = pm8001_chip_fw_flash_update_build(pm8001_ha, &flash_update_info,
+ 		tag);
+-	if (rc)
++	if (rc) {
++		kfree(fw_control_context);
+ 		pm8001_tag_free(pm8001_ha, tag);
++	}
  
- 	if (unlikely(!ti)) {
- 		int srcu_idx;
--		struct dm_table *map = dm_get_live_table(md, &srcu_idx);
-+		struct dm_table *map;
- 
-+		map = dm_get_live_table(md, &srcu_idx);
-+		if (unlikely(!map)) {
-+			dm_put_live_table(md, srcu_idx);
-+			return BLK_STS_RESOURCE;
-+		}
- 		ti = dm_table_find_target(map, 0);
- 		dm_put_live_table(md, srcu_idx);
- 	}
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 5fd3660e07b5..af12c0accb59 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1587,15 +1587,10 @@ static void dm_submit_bio(struct bio *bio)
- 	struct dm_table *map;
- 
- 	map = dm_get_live_table(md, &srcu_idx);
--	if (unlikely(!map)) {
--		DMERR_LIMIT("%s: mapping table unavailable, erroring io",
--			    dm_device_name(md));
--		bio_io_error(bio);
--		goto out;
--	}
- 
--	/* If suspended, queue this IO for later */
--	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags))) {
-+	/* If suspended, or map not yet available, queue this IO for later */
-+	if (unlikely(test_bit(DMF_BLOCK_IO_FOR_SUSPEND, &md->flags)) ||
-+	    unlikely(!map)) {
- 		if (bio->bi_opf & REQ_NOWAIT)
- 			bio_wouldblock_error(bio);
- 		else if (bio->bi_opf & REQ_RAHEAD)
+ 	return rc;
+ }
 -- 
 2.35.1
 
