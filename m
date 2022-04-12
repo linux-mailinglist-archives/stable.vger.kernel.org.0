@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEEA44FD985
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:41:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E380F4FD970
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:40:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353840AbiDLHhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32818 "EHLO
+        id S237601AbiDLH7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:59:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353689AbiDLHZw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90081275E3;
-        Tue, 12 Apr 2022 00:03:47 -0700 (PDT)
+        with ESMTP id S1358685AbiDLHmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CF9C53A78;
+        Tue, 12 Apr 2022 00:18:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4069DB81B4E;
-        Tue, 12 Apr 2022 07:03:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A9AC385A6;
-        Tue, 12 Apr 2022 07:03:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D16A6177A;
+        Tue, 12 Apr 2022 07:18:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87581C385AB;
+        Tue, 12 Apr 2022 07:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747024;
-        bh=QhsvxtWGhK5wtgUU105j/Ut1BdLJxJR/yoBWlg8U0ts=;
+        s=korg; t=1649747926;
+        bh=5JSIA/Lvh8ph+aTBot7Q4dH+1Hwb/0nwpJ+yIcQqTJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TiaoUEBSkIPZs4W0+sdi0XngpxNaTD6u/ckF+ZuMhhaaM/eEKHheplFj6osOGmC87
-         moJJ8ZM+ExEhQifNy/MA7Dep30tXlCyaeMpC0NyiBnPN023dYtA2P28NU/nKJa1uCJ
-         oV9dGMCVCO6P0+i+s9K0ozRi36isrjqFodO5Dows=
+        b=XVxztg9UYQwNbyKZQcjFaGR+g73vGdwAGHcJC5JsPFTpREMVgczm9D/uRttYKjka5
+         f/BDD/VJagAxlj9d3ldjEeOOXS+OvGFR1R1J225rU+ydkW82TkTBQqvS5lxGvscXbs
+         nJA30ue/+NH/codpbk2can6FiNfTjlJdG9HMsmxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yann Gautier <yann.gautier@foss.st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.16 217/285] mmc: mmci: stm32: correctly check all elements of sg list
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 256/343] SUNRPC: Handle low memory situations in call_status()
 Date:   Tue, 12 Apr 2022 08:31:14 +0200
-Message-Id: <20220412062949.921671236@linuxfoundation.org>
+Message-Id: <20220412062958.716975511@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yann Gautier <yann.gautier@foss.st.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 0d319dd5a27183b75d984e3dc495248e59f99334 upstream.
+[ Upstream commit 9d82819d5b065348ce623f196bf601028e22ed00 ]
 
-Use sg and not data->sg when checking sg list elements. Else only the
-first element alignment is checked.
-The last element should be checked the same way, for_each_sg already set
-sg to sg_next(sg).
+We need to handle ENFILE, ENOBUFS, and ENOMEM, because
+xprt_wake_pending_tasks() can be called with any one of these due to
+socket creation failures.
 
-Fixes: 46b723dd867d ("mmc: mmci: add stm32 sdmmc variant")
-Cc: stable@vger.kernel.org
-Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
-Link: https://lore.kernel.org/r/20220317111944.116148-2-yann.gautier@foss.st.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b61d59fffd3e ("SUNRPC: xs_tcp_connect_worker{4,6}: merge common code")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmci_stm32_sdmmc.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/sunrpc/clnt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/mmc/host/mmci_stm32_sdmmc.c
-+++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
-@@ -62,8 +62,8 @@ static int sdmmc_idma_validate_data(stru
- 	 * excepted the last element which has no constraint on idmasize
- 	 */
- 	for_each_sg(data->sg, sg, data->sg_len - 1, i) {
--		if (!IS_ALIGNED(data->sg->offset, sizeof(u32)) ||
--		    !IS_ALIGNED(data->sg->length, SDMMC_IDMA_BURST)) {
-+		if (!IS_ALIGNED(sg->offset, sizeof(u32)) ||
-+		    !IS_ALIGNED(sg->length, SDMMC_IDMA_BURST)) {
- 			dev_err(mmc_dev(host->mmc),
- 				"unaligned scatterlist: ofst:%x length:%d\n",
- 				data->sg->offset, data->sg->length);
-@@ -71,7 +71,7 @@ static int sdmmc_idma_validate_data(stru
- 		}
- 	}
- 
--	if (!IS_ALIGNED(data->sg->offset, sizeof(u32))) {
-+	if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
- 		dev_err(mmc_dev(host->mmc),
- 			"unaligned last scatterlist: ofst:%x length:%d\n",
- 			data->sg->offset, data->sg->length);
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index bf1fd6caaf92..0222ad4523a9 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -2364,6 +2364,11 @@ call_status(struct rpc_task *task)
+ 	case -EPIPE:
+ 	case -EAGAIN:
+ 		break;
++	case -ENFILE:
++	case -ENOBUFS:
++	case -ENOMEM:
++		rpc_delay(task, HZ>>2);
++		break;
+ 	case -EIO:
+ 		/* shutdown or soft timeout */
+ 		goto out_exit;
+-- 
+2.35.1
+
 
 
