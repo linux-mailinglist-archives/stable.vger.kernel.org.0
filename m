@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 329A24FDA56
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 995334FD4C1
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352739AbiDLICv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45792 "EHLO
+        id S1351988AbiDLHXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357040AbiDLHjn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:43 -0400
+        with ESMTP id S1353049AbiDLHOr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F00417045;
-        Tue, 12 Apr 2022 00:10:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 898C2326FD;
+        Mon, 11 Apr 2022 23:55:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC8EF6103A;
-        Tue, 12 Apr 2022 07:10:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD78FC385A5;
-        Tue, 12 Apr 2022 07:10:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2372D61531;
+        Tue, 12 Apr 2022 06:55:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C776C385A1;
+        Tue, 12 Apr 2022 06:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747457;
-        bh=1eZQ2mG1B5Ze4BFKltM7j3jjf6Smhu+NEKul0MLnFVQ=;
+        s=korg; t=1649746554;
+        bh=AiekbiEOD7YNnfozgEkJd6jeEjAXBe/LDrKi7V9rpSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQOxHtpUbRwbKrf7QwI1bs+38NvWrgs0OzMKJqxvaAie2VMfgw9FRvzprVCZ5G466
-         fDnWVinTEFKy/EEXY7osfD0cU7ZHjUjeXzXNXJOFpylOiasVd2EuOWLStLCDu0tyLv
-         n20PGga6cb7V5k7JHsy69HG9NJsu3eOuqNGsoJn8=
+        b=MYKScya9GtBXzzGzp5C+7OPktjPn9Nl/JZ9/kkDJuBmlAyArbkMZp+efV+DqPGISd
+         TUN7MOcl9JdRxlC4WJKT/4CiBm7xyagH/ODcz50j32PQyuKxg1LWMkDQ29AJ4zaCMR
+         TgtMHv8r7l5FG+Tfeyyt58h9vluuqMvi+Tf4MBXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 086/343] usb: dwc3: pci: Set the swnode from inside dwc3_pci_quirks()
+        stable@vger.kernel.org, Zhou Guanghui <zhouguanghui1@huawei.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 047/285] iommu/arm-smmu-v3: fix event handling soft lockup
 Date:   Tue, 12 Apr 2022 08:28:24 +0200
-Message-Id: <20220412062953.589206078@linuxfoundation.org>
+Message-Id: <20220412062945.032760966@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Zhou Guanghui <zhouguanghui1@huawei.com>
 
-[ Upstream commit e285cb403994419e997749c9a52b9370884ae0c8 ]
+[ Upstream commit 30de2b541af98179780054836b48825fcfba4408 ]
 
-The quirk handling may need to set some different properties
-which means using a different swnode, move the setting of the swnode
-to inside dwc3_pci_quirks() so that the quirk handling can choose
-a different swnode.
+During event processing, events are read from the event queue one
+by one until the queue is empty.If the master device continuously
+requests address access at the same time and the SMMU generates
+events, the cyclic processing of the event takes a long time and
+softlockup warnings may be reported.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220213130524.18748-4-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arm-smmu-v3 arm-smmu-v3.34.auto: event 0x0a received:
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00007f220000280a
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x000010000000007e
+arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00000000034e8670
+watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [irq/268-arm-smm:247]
+Call trace:
+ _dev_info+0x7c/0xa0
+ arm_smmu_evtq_thread+0x1c0/0x230
+ irq_thread_fn+0x30/0x80
+ irq_thread+0x128/0x210
+ kthread+0x134/0x138
+ ret_from_fork+0x10/0x1c
+Kernel panic - not syncing: softlockup: hung tasks
+
+Fix this by calling cond_resched() after the event information is
+printed.
+
+Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
+Link: https://lore.kernel.org/r/20220119070754.26528-1-zhouguanghui1@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 06d0e88ec8af..4d9608cc55f7 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -185,7 +185,8 @@ static const struct software_node dwc3_pci_amd_mr_swnode = {
- 	.properties = dwc3_pci_mr_properties,
- };
+diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+index f5848b351b19..af00714c8056 100644
+--- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
++++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+@@ -1558,6 +1558,7 @@ static irqreturn_t arm_smmu_evtq_thread(int irq, void *dev)
+ 				dev_info(smmu->dev, "\t0x%016llx\n",
+ 					 (unsigned long long)evt[i]);
  
--static int dwc3_pci_quirks(struct dwc3_pci *dwc)
-+static int dwc3_pci_quirks(struct dwc3_pci *dwc,
-+			   const struct software_node *swnode)
- {
- 	struct pci_dev			*pdev = dwc->pci;
- 
-@@ -242,7 +243,7 @@ static int dwc3_pci_quirks(struct dwc3_pci *dwc)
++			cond_resched();
  		}
- 	}
  
--	return 0;
-+	return device_add_software_node(&dwc->dwc3->dev, swnode);
- }
- 
- #ifdef CONFIG_PM
-@@ -307,11 +308,7 @@ static int dwc3_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
- 	dwc->dwc3->dev.parent = dev;
- 	ACPI_COMPANION_SET(&dwc->dwc3->dev, ACPI_COMPANION(dev));
- 
--	ret = device_add_software_node(&dwc->dwc3->dev, (void *)id->driver_data);
--	if (ret < 0)
--		goto err;
--
--	ret = dwc3_pci_quirks(dwc);
-+	ret = dwc3_pci_quirks(dwc, (void *)id->driver_data);
- 	if (ret)
- 		goto err;
- 
+ 		/*
 -- 
 2.35.1
 
