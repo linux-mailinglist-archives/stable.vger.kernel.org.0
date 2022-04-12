@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 820FC4FD93A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:39:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33AC74FD864
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352604AbiDLHgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:36:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
+        id S1352520AbiDLHg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:36:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354132AbiDLH0F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F05D44A14;
-        Tue, 12 Apr 2022 00:05:59 -0700 (PDT)
+        with ESMTP id S1354168AbiDLH0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B050F45040;
+        Tue, 12 Apr 2022 00:06:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1AAF616B2;
-        Tue, 12 Apr 2022 07:05:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAF3CC385CA;
-        Tue, 12 Apr 2022 07:05:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E131B81B54;
+        Tue, 12 Apr 2022 07:06:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A627C36AEA;
+        Tue, 12 Apr 2022 07:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747158;
-        bh=2q29pr8mEm+erOMqO2aLbkxAV4h0guqZaTZONc0j35o=;
+        s=korg; t=1649747160;
+        bh=FN38w32qtUhnF2Zn1lD4Y4Ebgl+F/Fwi4fAlFKGu6+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E42xJuCbNWO2aLHVxvg91TuMFf2VcIK9T5elNhH3dFUK69xWnViIilAORcqnyYb0o
-         xh1AhmxUVaBlli1ZmUpKhfehSG0M/STzmZsyb+FEXoCigwxmVb8OvgALy+hYxYhlFJ
-         yZdoP7X7rsp6/K8DA2JJom1zPfEnxZdLA3PHq0O8=
+        b=OOvf/m88OnymkuFe/ClB6wGkrZtB90K6e4FOEyOfQrdSOXikMs3wBbjVgvhfOX4E+
+         grgw2BTCyVzB1tJrwBTrSzxgQ4sUa4HQMHyMxxjcRVs+oOvM/0cDJPHzjeptucvf9y
+         tG9VQI3afe2V2O6NNyyXyIpqbA7IkAbV9DXNXEoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Jakub Sitnicki <jakub@cloudflare.com>
-Subject: [PATCH 5.16 264/285] bpf: Make remote_port field in struct bpf_sk_lookup 16-bit wide
-Date:   Tue, 12 Apr 2022 08:32:01 +0200
-Message-Id: <20220412062951.279798638@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>
+Subject: [PATCH 5.16 265/285] selftests/bpf: Fix u8 narrow load checks for bpf_sk_lookup remote_port
+Date:   Tue, 12 Apr 2022 08:32:02 +0200
+Message-Id: <20220412062951.307801901@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -55,77 +57,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Sitnicki <jakub@cloudflare.com>
 
-commit 9a69e2b385f443f244a7e8b8bcafe5ccfb0866b4 upstream.
+commit 3c69611b8926f8e74fcf76bd97ae0e5dafbeb26a upstream.
 
-remote_port is another case of a BPF context field documented as a 32-bit
-value in network byte order for which the BPF context access converter
-generates a load of a zero-padded 16-bit integer in network byte order.
+In commit 9a69e2b385f4 ("bpf: Make remote_port field in struct
+bpf_sk_lookup 16-bit wide") ->remote_port field changed from __u32 to
+__be16.
 
-First such case was dst_port in bpf_sock which got addressed in commit
-4421a582718a ("bpf: Make dst_port field in struct bpf_sock 16-bit wide").
+However, narrow load tests which exercise 1-byte sized loads from
+offsetof(struct bpf_sk_lookup, remote_port) were not adopted to reflect the
+change.
 
-Loading 4-bytes from the remote_port offset and converting the value with
-bpf_ntohl() leads to surprising results, as the expected value is shifted
-by 16 bits.
+As a result, on little-endian we continue testing loads from addresses:
 
-Reduce the confusion by splitting the field in two - a 16-bit field holding
-a big-endian integer, and a 16-bit zero-padding anonymous field that
-follows it.
+ - (__u8 *)&ctx->remote_port + 3
+ - (__u8 *)&ctx->remote_port + 4
 
-Suggested-by: Alexei Starovoitov <ast@kernel.org>
+which map to the zero padding following the remote_port field, and don't
+break the tests because there is no observable change.
+
+While on big-endian, we observe breakage because tests expect to see zeros
+for values loaded from:
+
+ - (__u8 *)&ctx->remote_port - 1
+ - (__u8 *)&ctx->remote_port - 2
+
+Above addresses map to ->remote_ip6 field, which precedes ->remote_port,
+and are populated during the bpf_sk_lookup IPv6 tests.
+
+Unsurprisingly, on s390x we observe:
+
+  #136/38 sk_lookup/narrow access to ctx v4:OK
+  #136/39 sk_lookup/narrow access to ctx v6:FAIL
+
+Fix it by removing the checks for 1-byte loads from offsets outside of the
+->remote_port field.
+
+Fixes: 9a69e2b385f4 ("bpf: Make remote_port field in struct bpf_sk_lookup 16-bit wide")
+Suggested-by: Ilya Leoshkevich <iii@linux.ibm.com>
 Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220209184333.654927-2-jakub@cloudflare.com
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Link: https://lore.kernel.org/bpf/20220319183356.233666-3-jakub@cloudflare.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/bpf.h |    3 ++-
- net/bpf/test_run.c       |    4 ++--
- net/core/filter.c        |    3 ++-
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ tools/testing/selftests/bpf/progs/test_sk_lookup.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -6293,7 +6293,8 @@ struct bpf_sk_lookup {
- 	__u32 protocol;		/* IP protocol (IPPROTO_TCP, IPPROTO_UDP) */
- 	__u32 remote_ip4;	/* Network byte order */
- 	__u32 remote_ip6[4];	/* Network byte order */
--	__u32 remote_port;	/* Network byte order */
-+	__be16 remote_port;	/* Network byte order */
-+	__u16 :16;		/* Zero padding */
- 	__u32 local_ip4;	/* Network byte order */
- 	__u32 local_ip6[4];	/* Network byte order */
- 	__u32 local_port;	/* Host byte order */
---- a/net/bpf/test_run.c
-+++ b/net/bpf/test_run.c
-@@ -960,7 +960,7 @@ int bpf_prog_test_run_sk_lookup(struct b
- 	if (!range_is_zero(user_ctx, offsetofend(typeof(*user_ctx), local_port), sizeof(*user_ctx)))
- 		goto out;
+--- a/tools/testing/selftests/bpf/progs/test_sk_lookup.c
++++ b/tools/testing/selftests/bpf/progs/test_sk_lookup.c
+@@ -404,8 +404,7 @@ int ctx_narrow_access(struct bpf_sk_look
  
--	if (user_ctx->local_port > U16_MAX || user_ctx->remote_port > U16_MAX) {
-+	if (user_ctx->local_port > U16_MAX) {
- 		ret = -ERANGE;
- 		goto out;
- 	}
-@@ -968,7 +968,7 @@ int bpf_prog_test_run_sk_lookup(struct b
- 	ctx.family = (u16)user_ctx->family;
- 	ctx.protocol = (u16)user_ctx->protocol;
- 	ctx.dport = (u16)user_ctx->local_port;
--	ctx.sport = (__force __be16)user_ctx->remote_port;
-+	ctx.sport = user_ctx->remote_port;
- 
- 	switch (ctx.family) {
- 	case AF_INET:
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -10563,7 +10563,8 @@ static bool sk_lookup_is_valid_access(in
- 	case bpf_ctx_range(struct bpf_sk_lookup, local_ip4):
- 	case bpf_ctx_range_till(struct bpf_sk_lookup, remote_ip6[0], remote_ip6[3]):
- 	case bpf_ctx_range_till(struct bpf_sk_lookup, local_ip6[0], local_ip6[3]):
--	case bpf_ctx_range(struct bpf_sk_lookup, remote_port):
-+	case offsetof(struct bpf_sk_lookup, remote_port) ...
-+	     offsetof(struct bpf_sk_lookup, local_ip4) - 1:
- 	case bpf_ctx_range(struct bpf_sk_lookup, local_port):
- 		bpf_ctx_record_field_size(info, sizeof(__u32));
- 		return bpf_ctx_narrow_access_ok(off, size, sizeof(__u32));
+ 	/* Narrow loads from remote_port field. Expect SRC_PORT. */
+ 	if (LSB(ctx->remote_port, 0) != ((SRC_PORT >> 0) & 0xff) ||
+-	    LSB(ctx->remote_port, 1) != ((SRC_PORT >> 8) & 0xff) ||
+-	    LSB(ctx->remote_port, 2) != 0 || LSB(ctx->remote_port, 3) != 0)
++	    LSB(ctx->remote_port, 1) != ((SRC_PORT >> 8) & 0xff))
+ 		return SK_DROP;
+ 	if (LSW(ctx->remote_port, 0) != SRC_PORT)
+ 		return SK_DROP;
 
 
