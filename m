@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8511B4FD25E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A02444FD00E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237110AbiDLHJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:09:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47096 "EHLO
+        id S1350192AbiDLGlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:41:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352241AbiDLHFA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC284706F;
-        Mon, 11 Apr 2022 23:47:52 -0700 (PDT)
+        with ESMTP id S1350194AbiDLGk3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F42DEA1;
+        Mon, 11 Apr 2022 23:35:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 329076104B;
-        Tue, 12 Apr 2022 06:47:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4804DC385A8;
-        Tue, 12 Apr 2022 06:47:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CD976189D;
+        Tue, 12 Apr 2022 06:35:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31910C385A6;
+        Tue, 12 Apr 2022 06:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746071;
-        bh=uZLUZixzHuJ+y2EltJx4oW38IjsaGPvNR0HglMNKQBU=;
+        s=korg; t=1649745343;
+        bh=7T8T7g3yhMK11bdqzFhqBAGPuf3UWfMYCjRx/8VwosI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e8tYQ7G1sucgqTS3wgcLJK9n6QCHV3cBRE8HObToKmvXftQEgntBLxifnYULs8Z/I
-         cI70XJa+l8QYHIm3yftZsxZTD+Vo727Wikv7VvrM50B81yT8SW0TEYdV0YcNFqbjQY
-         zkyEtlZxpJZwc5B231tjlEUEWQbwKTp6nOaSVoHQ=
+        b=RAaP7+94rVYTRjezHU0JVlKmYv7Ii47IvRlsIzcozfSDyPXGTF+SdGqt+pTSs5CEm
+         nh2WO0q5KdUZFXATNDlLXe32KLEJV2mC+4l06ldr7t0wvO0y5K7EAXivi5fglCwD2y
+         r3XaqQEQfv7v/cT++0ZomqEZqoEokMqgQQc7tzzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Kevin Groeneveld <kgroeneveld@lenbrook.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 151/277] scsi: sr: Fix typo in CDROM(CLOSETRAY|EJECT) handling
+Subject: [PATCH 5.10 063/171] net: sfp: add 2500base-X quirk for Lantech SFP module
 Date:   Tue, 12 Apr 2022 08:29:14 +0200
-Message-Id: <20220412062946.407850086@linuxfoundation.org>
+Message-Id: <20220412062929.706805566@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Groeneveld <kgroeneveld@lenbrook.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit bc5519c18a32ce855bb51b9f5eceb77a9489d080 ]
+[ Upstream commit 00eec9fe4f3b9588b4bfa8ef9dd0aae96407d5d7 ]
 
-Commit 2e27f576abc6 ("scsi: scsi_ioctl: Call scsi_cmd_ioctl() from
-scsi_ioctl()") seems to have a typo as it is checking ret instead of cmd in
-the if statement checking for CDROMCLOSETRAY and CDROMEJECT.  This changes
-the behaviour of these ioctls as the cdrom_ioctl handling of these is more
-restrictive than the scsi_ioctl version.
+The Lantech 8330-262D-E module is 2500base-X capable, but it reports the
+nominal bitrate as 2500MBd instead of 3125MBd. Add a quirk for the
+module.
 
-Link: https://lore.kernel.org/r/20220323002242.21157-1-kgroeneveld@lenbrook.com
-Fixes: 2e27f576abc6 ("scsi: scsi_ioctl: Call scsi_cmd_ioctl() from scsi_ioctl()")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Kevin Groeneveld <kgroeneveld@lenbrook.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The following in an EEPROM dump of such a SFP with the serial number
+redacted:
+
+00: 03 04 07 00 00 00 01 20 40 0c 05 01 19 00 00 00    ???...? @????...
+10: 1e 0f 00 00 4c 61 6e 74 65 63 68 20 20 20 20 20    ??..Lantech
+20: 20 20 20 20 00 00 00 00 38 33 33 30 2d 32 36 32        ....8330-262
+30: 44 2d 45 20 20 20 20 20 56 31 2e 30 03 52 00 cb    D-E     V1.0?R.?
+40: 00 1a 00 00 46 43 XX XX XX XX XX XX XX XX XX XX    .?..FCXXXXXXXXXX
+50: 20 20 20 20 32 32 30 32 31 34 20 20 68 b0 01 98        220214  h???
+60: 45 58 54 52 45 4d 45 4c 59 20 43 4f 4d 50 41 54    EXTREMELY COMPAT
+70: 49 42 4c 45 20 20 20 20 20 20 20 20 20 20 20 20    IBLE
+
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20220312205014.4154907-1-michael@walle.cc
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/sfp-bus.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 973d6e079b02..652cd81d7775 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -579,7 +579,7 @@ static int sr_block_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
- 
- 	scsi_autopm_get_device(sdev);
- 
--	if (ret != CDROMCLOSETRAY && ret != CDROMEJECT) {
-+	if (cmd != CDROMCLOSETRAY && cmd != CDROMEJECT) {
- 		ret = cdrom_ioctl(&cd->cdi, bdev, mode, cmd, arg);
- 		if (ret != -ENOSYS)
- 			goto put;
+diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+index a05d8372669c..850915a37f4c 100644
+--- a/drivers/net/phy/sfp-bus.c
++++ b/drivers/net/phy/sfp-bus.c
+@@ -74,6 +74,12 @@ static const struct sfp_quirk sfp_quirks[] = {
+ 		.vendor = "HUAWEI",
+ 		.part = "MA5671A",
+ 		.modes = sfp_quirk_2500basex,
++	}, {
++		// Lantech 8330-262D-E can operate at 2500base-X, but
++		// incorrectly report 2500MBd NRZ in their EEPROM
++		.vendor = "Lantech",
++		.part = "8330-262D-E",
++		.modes = sfp_quirk_2500basex,
+ 	}, {
+ 		.vendor = "UBNT",
+ 		.part = "UF-INSTANT",
 -- 
 2.35.1
 
