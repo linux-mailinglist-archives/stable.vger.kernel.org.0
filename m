@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 772B84FD69D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECEF4FD46F
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230142AbiDLHTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:19:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57510 "EHLO
+        id S1346731AbiDLH7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:59:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351633AbiDLHMq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7142286CD;
-        Mon, 11 Apr 2022 23:50:51 -0700 (PDT)
+        with ESMTP id S1358414AbiDLHlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A4364B1F4;
+        Tue, 12 Apr 2022 00:17:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91B2FB81B35;
-        Tue, 12 Apr 2022 06:50:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F298EC385A1;
-        Tue, 12 Apr 2022 06:50:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF13E61045;
+        Tue, 12 Apr 2022 07:17:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D771DC385A1;
+        Tue, 12 Apr 2022 07:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746249;
-        bh=J1aS2TvbmzFAHejZI/i7umfoY7zFKn7+Ucs2BIKv+RA=;
+        s=korg; t=1649747877;
+        bh=USiyarqyIUBp0MdGUmQeLSlDjG55mww0+ltDe3KOv4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JvyCF1skvRGQ6WUk0yoNf2jd8qRfWUha1zDgZTZCKrN0DmbgOTFlUm/MVjbJjlV6w
-         ZTJtP95jDtsv95USjgkWSL5WoiFKiF0Z4cSioi3Qx4RooA2Gaezllz3Xz5NuYv/FN1
-         yiS2yVWY70IFB6MfoybzZGXFDCJ4SOn2WI78qSDc=
+        b=Kq2WtdtbIQf1DOvE7YPUeRZWY3YpiXUYSbo4TEk2NtpHlCHMWrpBIx6m+uo3gPZwQ
+         tyQ0TgdCwQJUTGZOGxNnqxwbPjjfNOAY5bG4egQeFz+re8ydMuD/GoDqT1w/k5yo0p
+         vZWJ7UiqoplSPTqcz5o1H+5YtgEYZzra9SzP2QM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Avri Altman <Avri.Altman@wdc.com>,
-        Michael Wu <michael@allwinnertech.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 213/277] mmc: core: Fixup support for writeback-cache for eMMC and SD
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 198/343] NFSv4: fix open failure with O_ACCMODE flag
 Date:   Tue, 12 Apr 2022 08:30:16 +0200
-Message-Id: <20220412062948.204655447@linuxfoundation.org>
+Message-Id: <20220412062957.070531019@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Wu <michael@allwinnertech.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-commit 08ebf903af57cda6d773f3dd1671b64f73b432b8 upstream.
+[ Upstream commit b243874f6f9568b2daf1a00e9222cacdc15e159c ]
 
-During the card initialization process, the mmc core checks whether the
-eMMC/SD card supports an internal writeback-cache and then enables it
-inside the card.
+open() with O_ACCMODE|O_DIRECT flags secondly will fail.
 
-Unfortunately, this isn't according to what the mmc core reports to the
-upper block layer. Instead, the writeback-cache support with REQ_FLUSH and
-REQ_FUA, are being enabled depending on whether the host supports the CMD23
-(MMC_CAP_CMD23) and whether an eMMC supports the reliable-write command.
+Reproducer:
+  1. mount -t nfs -o vers=4.2 $server_ip:/ /mnt/
+  2. fd = open("/mnt/file", O_ACCMODE|O_DIRECT|O_CREAT)
+  3. close(fd)
+  4. fd = open("/mnt/file", O_ACCMODE|O_DIRECT)
 
-This is wrong and it may also sound awkward. In fact, it's a remnant
-from when both eMMC/SD cards didn't have dedicated commands/support to
-control the internal writeback-cache. In other words, it was the best we
-could do at that point in time.
+Server nfsd4_decode_share_access() will fail with error nfserr_bad_xdr when
+client use incorrect share access mode of 0.
 
-To fix the problem, but also without breaking backwards compatibility,
-let's align the REQ_FLUSH support with whether the writeback-cache became
-successfully enabled - for both eMMC and SD cards.
+Fix this by using NFS4_SHARE_ACCESS_BOTH share access mode in client,
+just like firstly opening.
 
-Cc: stable@kernel.org
-Fixes: 881d1c25f765 ("mmc: core: Add cache control for eMMC4.5 device")
-Fixes: 130206a615a9 ("mmc: core: Add support for cache ctrl for SD cards")
-Depends-on: 97fce126e279 ("mmc: block: Issue a cache flush only when it's enabled")
-Reviewed-by: Avri Altman <Avri.Altman@wdc.com>
-Signed-off-by: Michael Wu <michael@allwinnertech.com>
-Link: https://lore.kernel.org/r/20220331073223.106415-1-michael@allwinnertech.com
-[Ulf: Re-wrote the commit message]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ce4ef7c0a8a05 ("NFS: Split out NFS v4 file operations")
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ fs/nfs/dir.c      | 10 ----------
+ fs/nfs/internal.h | 10 ++++++++++
+ fs/nfs/nfs4file.c |  6 ++++--
+ 3 files changed, 14 insertions(+), 12 deletions(-)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -2376,6 +2376,8 @@ static struct mmc_blk_data *mmc_blk_allo
- 	struct mmc_blk_data *md;
- 	int devidx, ret;
- 	char cap_str[10];
-+	bool cache_enabled = false;
-+	bool fua_enabled = false;
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index 75cb1cbe4cde..911bdb35eb08 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -1853,16 +1853,6 @@ const struct dentry_operations nfs4_dentry_operations = {
+ };
+ EXPORT_SYMBOL_GPL(nfs4_dentry_operations);
  
- 	devidx = ida_simple_get(&mmc_blk_ida, 0, max_devices, GFP_KERNEL);
- 	if (devidx < 0) {
-@@ -2457,13 +2459,17 @@ static struct mmc_blk_data *mmc_blk_allo
- 			md->flags |= MMC_BLK_CMD23;
- 	}
+-static fmode_t flags_to_mode(int flags)
+-{
+-	fmode_t res = (__force fmode_t)flags & FMODE_EXEC;
+-	if ((flags & O_ACCMODE) != O_WRONLY)
+-		res |= FMODE_READ;
+-	if ((flags & O_ACCMODE) != O_RDONLY)
+-		res |= FMODE_WRITE;
+-	return res;
+-}
+-
+ static struct nfs_open_context *create_nfs_open_context(struct dentry *dentry, int open_flags, struct file *filp)
+ {
+ 	return alloc_nfs_open_context(dentry, flags_to_mode(open_flags), filp);
+diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
+index db9f611e8efd..465e39ff018d 100644
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -42,6 +42,16 @@ static inline bool nfs_lookup_is_soft_revalidate(const struct dentry *dentry)
+ 	return true;
+ }
  
--	if (mmc_card_mmc(card) &&
--	    md->flags & MMC_BLK_CMD23 &&
-+	if (md->flags & MMC_BLK_CMD23 &&
- 	    ((card->ext_csd.rel_param & EXT_CSD_WR_REL_PARAM_EN) ||
- 	     card->ext_csd.rel_sectors)) {
- 		md->flags |= MMC_BLK_REL_WR;
--		blk_queue_write_cache(md->queue.queue, true, true);
-+		fua_enabled = true;
-+		cache_enabled = true;
- 	}
-+	if (mmc_cache_enabled(card->host))
-+		cache_enabled  = true;
++static inline fmode_t flags_to_mode(int flags)
++{
++	fmode_t res = (__force fmode_t)flags & FMODE_EXEC;
++	if ((flags & O_ACCMODE) != O_WRONLY)
++		res |= FMODE_READ;
++	if ((flags & O_ACCMODE) != O_RDONLY)
++		res |= FMODE_WRITE;
++	return res;
++}
 +
-+	blk_queue_write_cache(md->queue.queue, cache_enabled, fua_enabled);
+ /*
+  * Note: RFC 1813 doesn't limit the number of auth flavors that
+  * a server can return, so make something up.
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index c178db86a6e8..e34af48fb4f4 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -32,6 +32,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	struct dentry *parent = NULL;
+ 	struct inode *dir;
+ 	unsigned openflags = filp->f_flags;
++	fmode_t f_mode;
+ 	struct iattr attr;
+ 	int err;
  
- 	string_get_size((u64)size, 512, STRING_UNITS_2,
- 			cap_str, sizeof(cap_str));
+@@ -50,8 +51,9 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	if (err)
+ 		return err;
+ 
++	f_mode = filp->f_mode;
+ 	if ((openflags & O_ACCMODE) == 3)
+-		openflags--;
++		f_mode |= flags_to_mode(openflags);
+ 
+ 	/* We can't create new files here */
+ 	openflags &= ~(O_CREAT|O_EXCL);
+@@ -59,7 +61,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	parent = dget_parent(dentry);
+ 	dir = d_inode(parent);
+ 
+-	ctx = alloc_nfs_open_context(file_dentry(filp), filp->f_mode, filp);
++	ctx = alloc_nfs_open_context(file_dentry(filp), f_mode, filp);
+ 	err = PTR_ERR(ctx);
+ 	if (IS_ERR(ctx))
+ 		goto out;
+-- 
+2.35.1
+
 
 
