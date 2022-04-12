@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11DC84FCB26
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2754FCB36
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347189AbiDLBDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 21:03:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47392 "EHLO
+        id S1344156AbiDLBDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 21:03:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347031AbiDLA7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:59:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A6C3632D;
-        Mon, 11 Apr 2022 17:52:04 -0700 (PDT)
+        with ESMTP id S1347293AbiDLA7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:59:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E4331DFA;
+        Mon, 11 Apr 2022 17:52:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79126B819B4;
-        Tue, 12 Apr 2022 00:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DBFBC385A3;
-        Tue, 12 Apr 2022 00:52:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D43BB60B30;
+        Tue, 12 Apr 2022 00:52:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 391D6C385A9;
+        Tue, 12 Apr 2022 00:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724723;
-        bh=rHmNXuzeV8iJKUzH6+x3ln2ySZEFmVKkG1uO2fuHIks=;
+        s=k20201202; t=1649724726;
+        bh=h9/5KSj6OJA2aQ/9/6+/e4MfRq0HbHkAqRzBeWOfW0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aueGLSaY9rv/1FBqyu+xlDA1SNUAiMqt/g35BuiBx799SoQgTlyJWcQ9JGwE7a5G+
-         +CVO5j/OgkupSu1H7glGNOQUHyc9OeGD5po5IWGONezyfqXZJia7dat44pI8LRGHhP
-         vF/LJJbnoMkIKD65kx9mdtIXmlZq0L25H21sV74+xC8Pm/OzA4942KNs+h2qEe+kxT
-         hCVuMzZRZXwqASGw9kfWFPzmsviqLCjGr7ksbjAaOktSVdgGgI8niu9VjGigEspmjV
-         +hobGTboW1ap7zkCc0Q5fJrObFWFhPxlLYM+k1+K+2ZQvqQ3Ub4oEblfXN/L59bkfg
-         tobZdgAPGa0lw==
+        b=TRkCKf3H73zblppcaby7FNUMbFfA2tJ/qGzAfDxiBug32VOjqG8vQGdfTJHxIAp4N
+         IaVqSGCa32/8X3ukvX5DdV5cPnZ+Cdtx7fI9iPWCDDs0yBEGFJMwAehlLPzJpwwqo0
+         uCgwtQZW5nL7/FDdERoEoZbOdXuSlEgUhePrzDn/RlzNviim9HS2yzLruzyKGDWD6y
+         95se9cDkiVK7YlCVicj+Yaz5JoEOXB1IUqxO+nFuvxGhGFVzPbAgfzlfgNiQIY+Kl7
+         71x1Cbgyn9ePD+yoxdfU57pQW8No/W28HP143+8iOS5snnw6TYbz6QMYxqOLP4/StM
+         v6ZLKPLiFHjkg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Ruan <tingquan.ruan@cn.bosch.com>,
-        Mark Jonas <mark.jonas@de.bosch.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
-        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 08/12] gpu: ipu-v3: Fix dev_dbg frequency output
-Date:   Mon, 11 Apr 2022 20:51:41 -0400
-Message-Id: <20220412005148.351391-8-sashal@kernel.org>
+Cc:     Joey Gouly <joey.gouly@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        tabba@google.com, ardb@kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 09/12] arm64: alternatives: mark patch_alternative() as `noinstr`
+Date:   Mon, 11 Apr 2022 20:51:42 -0400
+Message-Id: <20220412005148.351391-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412005148.351391-1-sashal@kernel.org>
 References: <20220412005148.351391-1-sashal@kernel.org>
@@ -58,51 +59,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Ruan <tingquan.ruan@cn.bosch.com>
+From: Joey Gouly <joey.gouly@arm.com>
 
-[ Upstream commit 070a88fd4a03f921b73a2059e97d55faaa447dab ]
+[ Upstream commit a2c0b0fbe01419f8f5d1c0b9c581631f34ffce8b ]
 
-This commit corrects the printing of the IPU clock error percentage if
-it is between -0.1% to -0.9%. For example, if the pixel clock requested
-is 27.2 MHz but only 27.0 MHz can be achieved the deviation is -0.8%.
-But the fixed point math had a flaw and calculated error of 0.2%.
+The alternatives code must be `noinstr` such that it does not patch itself,
+as the cache invalidation is only performed after all the alternatives have
+been applied.
 
-Before:
-  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
-  IPU clock can give 27000000 with divider 10, error 0.2%
-  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
+Mark patch_alternative() as `noinstr`. Mark branch_insn_requires_update()
+and get_alt_insn() with `__always_inline` since they are both only called
+through patch_alternative().
 
-After:
-  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
-  IPU clock can give 27000000 with divider 10, error -0.8%
-  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
+Booting a kernel in QEMU TCG with KCSAN=y and ARM64_USE_LSE_ATOMICS=y caused
+a boot hang:
+[    0.241121] CPU: All CPU(s) started at EL2
 
-Signed-off-by: Leo Ruan <tingquan.ruan@cn.bosch.com>
-Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220207151411.5009-1-mark.jonas@de.bosch.com
+The alternatives code was patching the atomics in __tsan_read4() from LL/SC
+atomics to LSE atomics.
+
+The following fragment is using LL/SC atomics in the .text section:
+  | <__tsan_unaligned_read4+304>:     ldxr    x6, [x2]
+  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
+  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
+  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
+
+This LL/SC atomic sequence was to be replaced with LSE atomics. However since
+the alternatives code was instrumentable, __tsan_read4() was being called after
+only the first instruction was replaced, which led to the following code in memory:
+  | <__tsan_unaligned_read4+304>:     ldadd   x5, x6, [x2]
+  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
+  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
+  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
+
+This caused an infinite loop as the `stxr` instruction never completed successfully,
+so `w7` was always 0.
+
+Signed-off-by: Joey Gouly <joey.gouly@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220405104733.11476-1-joey.gouly@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/ipu-v3/ipu-di.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/alternative.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
-index d2f1bd9d3deb..c498dc7d8838 100644
---- a/drivers/gpu/ipu-v3/ipu-di.c
-+++ b/drivers/gpu/ipu-v3/ipu-di.c
-@@ -460,8 +460,9 @@ static void ipu_di_config_clock(struct ipu_di *di,
+diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
+index 0d345622bbba..3747c8d87bdb 100644
+--- a/arch/arm64/kernel/alternative.c
++++ b/arch/arm64/kernel/alternative.c
+@@ -42,7 +42,7 @@ struct alt_region {
+ /*
+  * Check if the target PC is within an alternative block.
+  */
+-static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
++static __always_inline bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+ {
+ 	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
+ 	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
+@@ -50,7 +50,7 @@ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
  
- 		error = rate / (sig->mode.pixelclock / 1000);
+ #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
  
--		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %d.%u%%\n",
--			rate, div, (signed)(error - 1000) / 10, error % 10);
-+		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %c%d.%d%%\n",
-+			rate, div, error < 1000 ? '-' : '+',
-+			abs(error - 1000) / 10, abs(error - 1000) % 10);
+-static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
++static __always_inline u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
+ {
+ 	u32 insn;
  
- 		/* Allow a 1% error */
- 		if (error < 1010 && error >= 990) {
+@@ -95,7 +95,7 @@ static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnp
+ 	return insn;
+ }
+ 
+-static void patch_alternative(struct alt_instr *alt,
++static noinstr void patch_alternative(struct alt_instr *alt,
+ 			      __le32 *origptr, __le32 *updptr, int nr_inst)
+ {
+ 	__le32 *replptr;
 -- 
 2.35.1
 
