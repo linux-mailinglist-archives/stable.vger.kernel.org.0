@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CE9B4FD6C8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF18C4FD93E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377367AbiDLHt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56428 "EHLO
+        id S233703AbiDLH56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:57:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358979AbiDLHmY (ORCPT
+        with ESMTP id S1358991AbiDLHmY (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AEBF54BD4;
-        Tue, 12 Apr 2022 00:19:48 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8199F275F0;
+        Tue, 12 Apr 2022 00:19:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A058A6153F;
-        Tue, 12 Apr 2022 07:19:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACE01C385A1;
-        Tue, 12 Apr 2022 07:19:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DEEFB81A8F;
+        Tue, 12 Apr 2022 07:19:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78966C385A1;
+        Tue, 12 Apr 2022 07:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747987;
-        bh=wYgE6jyFK7WGv03kxPI2/kG/+lpmU4aK7Xwji4y+v0Q=;
+        s=korg; t=1649747989;
+        bh=a4Wb71T+g9OBqgUU9cgQ7mHXv/YD80iOH6Z0MpXZCeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+oiCuwVC6aTR7K7E4LagEWbOS7+PLQoaJkE+b8h1bdP3kYw4bD9zVQTrOzV0o2mW
-         irC6cuLEmbWuCFI5NNJZHMLDfIgdgSBzxdcOwIzupyGCJsinVPqMJugG7tc4vEYJk1
-         2vleNNwyObOfk0EAuEvQruZNwjupnhaf8NTVkPPU=
+        b=CehFXo1OHCszJxl5Ts16y6j6NlTtJVGLK2hr/pBHptuLWpcagRUDdHFrVvL6eH6tw
+         Vj5sEg/Hm3dFD1ABaEejnpR+uyl5XLz8NT5x9PLmr+TZ+r4tSVQZu8WK7hizZbRSXQ
+         qnJmuHRXF/F5x6EDYQPrwRIlWXVmExjOn7PFAYJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 276/343] io_uring: dont check req->file in io_fsync_prep()
-Date:   Tue, 12 Apr 2022 08:31:34 +0200
-Message-Id: <20220412062959.289235162@linuxfoundation.org>
+Subject: [PATCH 5.17 277/343] io_uring: defer splice/tee file validity check until command issue
+Date:   Tue, 12 Apr 2022 08:31:35 +0200
+Message-Id: <20220412062959.318721633@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -54,30 +54,145 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit ec858afda857e361182ceafc3d2ba2b164b8e889 upstream.
+commit a3e4bc23d5470b2beb7cc42a86b6a3e75b704c15 upstream.
 
-This is a leftover from the really old days where we weren't able to
-track and error early if we need a file and it wasn't assigned. Kill
-the check.
+In preparation for not using the file at prep time, defer checking if this
+file refers to a valid io_uring instance until issue time.
+
+This also means we can get rid of the cleanup flag for splice and tee.
 
 Cc: stable@vger.kernel.org # v5.15+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    3 ---
- 1 file changed, 3 deletions(-)
+ fs/io_uring.c |   49 +++++++++++++++++++++----------------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4245,9 +4245,6 @@ static int io_fsync_prep(struct io_kiocb
- {
- 	struct io_ring_ctx *ctx = req->ctx;
+@@ -621,10 +621,10 @@ struct io_epoll {
  
--	if (!req->file)
--		return -EBADF;
+ struct io_splice {
+ 	struct file			*file_out;
+-	struct file			*file_in;
+ 	loff_t				off_out;
+ 	loff_t				off_in;
+ 	u64				len;
++	int				splice_fd_in;
+ 	unsigned int			flags;
+ };
+ 
+@@ -1551,14 +1551,6 @@ static void io_prep_async_work(struct io
+ 		if (def->unbound_nonreg_file)
+ 			req->work.flags |= IO_WQ_WORK_UNBOUND;
+ 	}
 -
- 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
+-	switch (req->opcode) {
+-	case IORING_OP_SPLICE:
+-	case IORING_OP_TEE:
+-		if (!S_ISREG(file_inode(req->splice.file_in)->i_mode))
+-			req->work.flags |= IO_WQ_WORK_UNBOUND;
+-		break;
+-	}
+ }
+ 
+ static void io_prep_async_link(struct io_kiocb *req)
+@@ -4144,18 +4136,11 @@ static int __io_splice_prep(struct io_ki
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
  		return -EINVAL;
- 	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
+ 
+-	sp->file_in = NULL;
+ 	sp->len = READ_ONCE(sqe->len);
+ 	sp->flags = READ_ONCE(sqe->splice_flags);
+-
+ 	if (unlikely(sp->flags & ~valid_flags))
+ 		return -EINVAL;
+-
+-	sp->file_in = io_file_get(req->ctx, req, READ_ONCE(sqe->splice_fd_in),
+-				  (sp->flags & SPLICE_F_FD_IN_FIXED));
+-	if (!sp->file_in)
+-		return -EBADF;
+-	req->flags |= REQ_F_NEED_CLEANUP;
++	sp->splice_fd_in = READ_ONCE(sqe->splice_fd_in);
+ 	return 0;
+ }
+ 
+@@ -4170,20 +4155,27 @@ static int io_tee_prep(struct io_kiocb *
+ static int io_tee(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_splice *sp = &req->splice;
+-	struct file *in = sp->file_in;
+ 	struct file *out = sp->file_out;
+ 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
++	struct file *in;
+ 	long ret = 0;
+ 
+ 	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
++
++	in = io_file_get(req->ctx, req, sp->splice_fd_in,
++				  (sp->flags & SPLICE_F_FD_IN_FIXED));
++	if (!in) {
++		ret = -EBADF;
++		goto done;
++	}
++
+ 	if (sp->len)
+ 		ret = do_tee(in, out, sp->len, flags);
+ 
+ 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
+ 		io_put_file(in);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
+-
++done:
+ 	if (ret != sp->len)
+ 		req_set_fail(req);
+ 	io_req_complete(req, ret);
+@@ -4202,15 +4194,22 @@ static int io_splice_prep(struct io_kioc
+ static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_splice *sp = &req->splice;
+-	struct file *in = sp->file_in;
+ 	struct file *out = sp->file_out;
+ 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
+ 	loff_t *poff_in, *poff_out;
++	struct file *in;
+ 	long ret = 0;
+ 
+ 	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
+ 
++	in = io_file_get(req->ctx, req, sp->splice_fd_in,
++				  (sp->flags & SPLICE_F_FD_IN_FIXED));
++	if (!in) {
++		ret = -EBADF;
++		goto done;
++	}
++
+ 	poff_in = (sp->off_in == -1) ? NULL : &sp->off_in;
+ 	poff_out = (sp->off_out == -1) ? NULL : &sp->off_out;
+ 
+@@ -4219,8 +4218,7 @@ static int io_splice(struct io_kiocb *re
+ 
+ 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
+ 		io_put_file(in);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
+-
++done:
+ 	if (ret != sp->len)
+ 		req_set_fail(req);
+ 	io_req_complete(req, ret);
+@@ -6686,11 +6684,6 @@ static void io_clean_op(struct io_kiocb
+ 			kfree(io->free_iov);
+ 			break;
+ 			}
+-		case IORING_OP_SPLICE:
+-		case IORING_OP_TEE:
+-			if (!(req->splice.flags & SPLICE_F_FD_IN_FIXED))
+-				io_put_file(req->splice.file_in);
+-			break;
+ 		case IORING_OP_OPENAT:
+ 		case IORING_OP_OPENAT2:
+ 			if (req->open.filename)
 
 
