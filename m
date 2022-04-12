@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79C554FD6CE
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C981A4FD8F3
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354006AbiDLHiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:38:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60928 "EHLO
+        id S1351566AbiDLHUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:20:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353651AbiDLHZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
+        with ESMTP id S1351779AbiDLHM4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56CB843EC5;
-        Tue, 12 Apr 2022 00:02:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C7ABFA;
+        Mon, 11 Apr 2022 23:52:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC8AE615B4;
-        Tue, 12 Apr 2022 07:02:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C97C385A6;
-        Tue, 12 Apr 2022 07:02:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5109961472;
+        Tue, 12 Apr 2022 06:52:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68025C385A1;
+        Tue, 12 Apr 2022 06:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746973;
-        bh=WxC4Ck1eDrzF3juXXdTjdPr+pCGCfmE7AGQzZwZ9QB4=;
+        s=korg; t=1649746347;
+        bh=UBKb1sZQqPKobZ0hpdVcRYe0cV7/W6X1LyH5t1+esJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I8vElABA6pPZQSviUxYPl4j2mcwG42hDtDTB36+cf6IhMVwhW31yJJP4QuwnDKA3h
-         20F2YkBkmLH4yOnqNhoQEcfu4JlkFBTj0D00P8xIH9Por3/HwJgFqaYHPrzjrNRziX
-         4cVW+gjL/mOhy0NJD2MOPu6aYWS2Za+SVykiaD0Q=
+        b=QL20hE4+USYC86pBYCNqxlMV4AuJqpTTnDlWGVD/XcAR82ogB9kjwjEPJNa9/vPtH
+         XIgMcKXbQXbJ6XA8dL4qEm4qfihwGLqCxzrGCVCcqqWM8WDTvrXc5l9FquqneXaeTS
+         zwqWTwC4IlhiraD47DgfcgF+vMFVs1E1+CBIVlZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 196/285] net: phy: mscc-miim: reject clause 45 register accesses
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 250/277] Revert "selftests: net: Add tls config dependency for tls selftests"
 Date:   Tue, 12 Apr 2022 08:30:53 +0200
-Message-Id: <20220412062949.318744997@linuxfoundation.org>
+Message-Id: <20220412062949.278284606@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 8d90991e5bf7fdb9f264f5f579d18969913054b7 ]
+commit 20695e9a9fd39103d1b0669470ae74030b7aa196 upstream.
 
-The driver doesn't support clause 45 register access yet, but doesn't
-check if the access is a c45 one either. This leads to spurious register
-reads and writes. Add the check.
+This reverts commit d9142e1cf3bbdaf21337767114ecab26fe702d47.
 
-Fixes: 542671fe4d86 ("net: phy: mscc-miim: Add MDIO driver")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The test is supposed to run cleanly with TLS is disabled,
+to test compatibility with TCP behavior. I can't repro
+the failure [1], the problem should be debugged rather
+than papered over.
+
+Link: https://lore.kernel.org/all/20220325161203.7000698c@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/ [1]
+Fixes: d9142e1cf3bb ("selftests: net: Add tls config dependency for tls selftests")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20220328212904.2685395-1-kuba@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/mdio/mdio-mscc-miim.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/testing/selftests/net/config |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/mdio/mdio-mscc-miim.c b/drivers/net/mdio/mdio-mscc-miim.c
-index 17f98f609ec8..5070ca2f2637 100644
---- a/drivers/net/mdio/mdio-mscc-miim.c
-+++ b/drivers/net/mdio/mdio-mscc-miim.c
-@@ -76,6 +76,9 @@ static int mscc_miim_read(struct mii_bus *bus, int mii_id, int regnum)
- 	u32 val;
- 	int ret;
- 
-+	if (regnum & MII_ADDR_C45)
-+		return -EOPNOTSUPP;
-+
- 	ret = mscc_miim_wait_pending(bus);
- 	if (ret)
- 		goto out;
-@@ -105,6 +108,9 @@ static int mscc_miim_write(struct mii_bus *bus, int mii_id,
- 	struct mscc_miim_dev *miim = bus->priv;
- 	int ret;
- 
-+	if (regnum & MII_ADDR_C45)
-+		return -EOPNOTSUPP;
-+
- 	ret = mscc_miim_wait_pending(bus);
- 	if (ret < 0)
- 		goto out;
--- 
-2.35.1
-
+--- a/tools/testing/selftests/net/config
++++ b/tools/testing/selftests/net/config
+@@ -43,5 +43,4 @@ CONFIG_NET_ACT_TUNNEL_KEY=m
+ CONFIG_NET_ACT_MIRRED=m
+ CONFIG_BAREUDP=m
+ CONFIG_IPV6_IOAM6_LWTUNNEL=y
+-CONFIG_TLS=m
+ CONFIG_CRYPTO_SM4=y
 
 
