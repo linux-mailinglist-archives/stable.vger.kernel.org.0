@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 231B04FD183
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D8B4FCFD7
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351257AbiDLG64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:58:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49024 "EHLO
+        id S1349418AbiDLGic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:38:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352463AbiDLGzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:55:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D533B03D;
-        Mon, 11 Apr 2022 23:45:39 -0700 (PDT)
+        with ESMTP id S1349957AbiDLGhf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:37:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCCFEDF04;
+        Mon, 11 Apr 2022 23:34:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D97B8B818C8;
-        Tue, 12 Apr 2022 06:45:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 306BAC385A1;
-        Tue, 12 Apr 2022 06:45:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2707BB81B43;
+        Tue, 12 Apr 2022 06:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE57C385A8;
+        Tue, 12 Apr 2022 06:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745936;
-        bh=TLeEnw5MXAmhw41VEY9V9prUO9fx9ipbikHBk+GaswI=;
+        s=korg; t=1649745247;
+        bh=j7+PE57817SN6CLK3LKWX7q4DCCMXFOu6vTMp8n/VT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HC/vskWUf95utzV7LU2AgdN44h8uW1QY8ywaWo3ndkOOImpBm9J/QV2eSzpnZ44oX
-         ulAQUeCao4vtphCo9lHRqqOSn+9rnciXYrKmsJwgLuwoaDulXEcRY2X4WnxT0N9a1u
-         rbLFhiG0hP7cKKDY8e/0p9cXM+e0Gju3MuMFY4D8=
+        b=ppaBrr0AE/bvo0NlfKImwH9tv1hiNWHZa0h0QrGYhJbTPl7sWZq/yySOCEfGefInl
+         ZwTMMhIYRQJhHgSqtKZK+z/gVAz+cjgIKkV6h24Bn2mDy0kPHcLVWbLCMAobOqpOAK
+         b/jPAPLueyo9ZjYGgMQelYoPKDs53ULlke+W/Czo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Shuklin <george.shuklin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Lotus Fenn <lotusf@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Like Xu <likexu@tencent.com>,
+        David Dunn <daviddunn@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/277] net: account alternate interface name memory
+Subject: [PATCH 5.10 006/171] KVM: x86/svm: Clear reserved bits written to PerfEvtSeln MSRs
 Date:   Tue, 12 Apr 2022 08:28:17 +0200
-Message-Id: <20220412062944.764241045@linuxfoundation.org>
+Message-Id: <20220412062928.064315245@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +57,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit 5d26cff5bdbebdf98ba48217c078ff102536f134 ]
+[ Upstream commit 9b026073db2f1ad0e4d8b61c83316c8497981037 ]
 
-George reports that altnames can eat up kernel memory.
-We should charge that memory appropriately.
+AMD EPYC CPUs never raise a #GP for a WRMSR to a PerfEvtSeln MSR. Some
+reserved bits are cleared, and some are not. Specifically, on
+Zen3/Milan, bits 19 and 42 are not cleared.
 
-Reported-by: George Shuklin <george.shuklin@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+When emulating such a WRMSR, KVM should not synthesize a #GP,
+regardless of which bits are set. However, undocumented bits should
+not be passed through to the hardware MSR. So, rather than checking
+for reserved bits and synthesizing a #GP, just clear the reserved
+bits.
+
+This may seem pedantic, but since KVM currently does not support the
+"Host/Guest Only" bits (41:40), it is necessary to clear these bits
+rather than synthesizing #GP, because some popular guests (e.g Linux)
+will set the "Host Only" bit even on CPUs that don't support
+EFER.SVME, and they don't expect a #GP.
+
+For example,
+
+root@Ubuntu1804:~# perf stat -e r26 -a sleep 1
+
+ Performance counter stats for 'system wide':
+
+                 0      r26
+
+       1.001070977 seconds time elapsed
+
+Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379957] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000130026) at rIP: 0xffffffff9b276a28 (native_write_msr+0x8/0x30)
+Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379958] Call Trace:
+Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379963]  amd_pmu_disable_event+0x27/0x90
+
+Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
+Reported-by: Lotus Fenn <lotusf@google.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Like Xu <likexu@tencent.com>
+Reviewed-by: David Dunn <daviddunn@google.com>
+Message-Id: <20220226234131.2167175-1-jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/svm/pmu.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 91d7a5a5a08d..a8c319dc224a 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -3637,7 +3637,7 @@ static int rtnl_alt_ifname(int cmd, struct net_device *dev, struct nlattr *attr,
- 	if (err)
- 		return err;
+diff --git a/arch/x86/kvm/svm/pmu.c b/arch/x86/kvm/svm/pmu.c
+index 4e7093bcb64b..0e9c2322d398 100644
+--- a/arch/x86/kvm/svm/pmu.c
++++ b/arch/x86/kvm/svm/pmu.c
+@@ -253,12 +253,10 @@ static int amd_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 	/* MSR_EVNTSELn */
+ 	pmc = get_gp_pmc_amd(pmu, msr, PMU_TYPE_EVNTSEL);
+ 	if (pmc) {
+-		if (data == pmc->eventsel)
+-			return 0;
+-		if (!(data & pmu->reserved_bits)) {
++		data &= ~pmu->reserved_bits;
++		if (data != pmc->eventsel)
+ 			reprogram_gp_counter(pmc, data);
+-			return 0;
+-		}
++		return 0;
+ 	}
  
--	alt_ifname = nla_strdup(attr, GFP_KERNEL);
-+	alt_ifname = nla_strdup(attr, GFP_KERNEL_ACCOUNT);
- 	if (!alt_ifname)
- 		return -ENOMEM;
- 
+ 	return 1;
 -- 
 2.35.1
 
