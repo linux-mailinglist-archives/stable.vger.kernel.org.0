@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F574FDB35
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB6E4FD824
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354031AbiDLIKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:10:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S235779AbiDLHTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:19:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357672AbiDLHkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 097A7FEA;
-        Tue, 12 Apr 2022 00:16:29 -0700 (PDT)
+        with ESMTP id S1351668AbiDLHMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE66E13CF2;
+        Mon, 11 Apr 2022 23:51:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3D47B81A8F;
-        Tue, 12 Apr 2022 07:16:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06F99C385A5;
-        Tue, 12 Apr 2022 07:16:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B48F61472;
+        Tue, 12 Apr 2022 06:51:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59AACC385A1;
+        Tue, 12 Apr 2022 06:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747786;
-        bh=7n1CUTwVxEhRYCfm68ufa+KXWYtqErl01OICdME7qFA=;
+        s=korg; t=1649746276;
+        bh=1fAADtwZr8mUN51KJvbjJw10IrVyo6zwcuvu2c/R9yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+vou0Wf3pqvGoELB6cdmWFqqpCShFUh0gkU9Xhc2sO7YqpifOFHcYZt1wgnnbyz6
-         6pjUimfGZnbmSWxmaGvFvRQ51ISmoIgy5Pvdr2bxs1FUm0+VGxw+7nVCHMXc9S3fei
-         4lw74+8YW1XZxX0FGjA6Twmi5laQ7sTTWq3bvLwo=
+        b=gfhNTI/uW3YNKiMPjVdgZOyB7nNSaZ1oeUce5cUMO7yvTqXPR+uzVzsP+OTUYTJyx
+         IWOAGG8cXaGWQOJZkz5J4wXFMkja9uP+g4uL4cWutMQnIQXw7ttXPVOmSWvvUTyal0
+         8E8RCjSlI8QGifQGBpO72yASuObK2NgMMyafloiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 206/343] vrf: fix packet sniffing for traffic originating from ip tunnels
-Date:   Tue, 12 Apr 2022 08:30:24 +0200
-Message-Id: <20220412062957.296361838@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 222/277] x86/pm: Save the MSR validity status at context setup
+Date:   Tue, 12 Apr 2022 08:30:25 +0200
+Message-Id: <20220412062948.469222309@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eyal Birger <eyal.birger@gmail.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit 012d69fbfcc739f846766c1da56ef8b493b803b5 ]
+commit 73924ec4d560257004d5b5116b22a3647661e364 upstream.
 
-in commit 048939088220
-("vrf: add mac header for tunneled packets when sniffer is attached")
-an Ethernet header was cooked for traffic originating from tunnel devices.
+The mechanism to save/restore MSRs during S3 suspend/resume checks for
+the MSR validity during suspend, and only restores the MSR if its a
+valid MSR.  This is not optimal, as an invalid MSR will unnecessarily
+throw an exception for every suspend cycle.  The more invalid MSRs,
+higher the impact will be.
 
-However, the header is added based on whether the mac_header is unset
-and ignores cases where the device doesn't expose a mac header to upper
-layers, such as in ip tunnels like ipip and gre.
+Check and save the MSR validity at setup.  This ensures that only valid
+MSRs that are guaranteed to not throw an exception will be attempted
+during suspend.
 
-Traffic originating from such devices still appears garbled when capturing
-on the vrf device.
-
-Fix by observing whether the original device exposes a header to upper
-layers, similar to the logic done in af_packet.
-
-In addition, skb->mac_len needs to be adjusted after adding the Ethernet
-header for the skb_push/pull() surrounding dev_queue_xmit_nit() to work
-on these packets.
-
-Fixes: 048939088220 ("vrf: add mac header for tunneled packets when sniffer is attached")
-Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7a9c2dd08ead ("x86/pm: Introduce quirk framework to save/restore extra MSR registers around suspend/resume")
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vrf.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ arch/x86/power/cpu.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index e0b1ab99a359..f37adcef4bef 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -1266,6 +1266,7 @@ static int vrf_prepare_mac_header(struct sk_buff *skb,
- 	eth = (struct ethhdr *)skb->data;
+--- a/arch/x86/power/cpu.c
++++ b/arch/x86/power/cpu.c
+@@ -40,7 +40,8 @@ static void msr_save_context(struct save
+ 	struct saved_msr *end = msr + ctxt->saved_msrs.num;
  
- 	skb_reset_mac_header(skb);
-+	skb_reset_mac_len(skb);
+ 	while (msr < end) {
+-		msr->valid = !rdmsrl_safe(msr->info.msr_no, &msr->info.reg.q);
++		if (msr->valid)
++			rdmsrl(msr->info.msr_no, msr->info.reg.q);
+ 		msr++;
+ 	}
+ }
+@@ -424,8 +425,10 @@ static int msr_build_context(const u32 *
+ 	}
  
- 	/* we set the ethernet destination and the source addresses to the
- 	 * address of the VRF device.
-@@ -1295,9 +1296,9 @@ static int vrf_prepare_mac_header(struct sk_buff *skb,
-  */
- static int vrf_add_mac_header_if_unset(struct sk_buff *skb,
- 				       struct net_device *vrf_dev,
--				       u16 proto)
-+				       u16 proto, struct net_device *orig_dev)
- {
--	if (skb_mac_header_was_set(skb))
-+	if (skb_mac_header_was_set(skb) && dev_has_header(orig_dev))
- 		return 0;
- 
- 	return vrf_prepare_mac_header(skb, vrf_dev, proto);
-@@ -1403,6 +1404,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
- 
- 	/* if packet is NDISC then keep the ingress interface */
- 	if (!is_ndisc) {
-+		struct net_device *orig_dev = skb->dev;
+ 	for (i = saved_msrs->num, j = 0; i < total_num; i++, j++) {
++		u64 dummy;
 +
- 		vrf_rx_stats(vrf_dev, skb->len);
- 		skb->dev = vrf_dev;
- 		skb->skb_iif = vrf_dev->ifindex;
-@@ -1411,7 +1414,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
- 			int err;
- 
- 			err = vrf_add_mac_header_if_unset(skb, vrf_dev,
--							  ETH_P_IPV6);
-+							  ETH_P_IPV6,
-+							  orig_dev);
- 			if (likely(!err)) {
- 				skb_push(skb, skb->mac_len);
- 				dev_queue_xmit_nit(skb, vrf_dev);
-@@ -1441,6 +1445,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
- static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
- 				  struct sk_buff *skb)
- {
-+	struct net_device *orig_dev = skb->dev;
-+
- 	skb->dev = vrf_dev;
- 	skb->skb_iif = vrf_dev->ifindex;
- 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
-@@ -1461,7 +1467,8 @@ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
- 	if (!list_empty(&vrf_dev->ptype_all)) {
- 		int err;
- 
--		err = vrf_add_mac_header_if_unset(skb, vrf_dev, ETH_P_IP);
-+		err = vrf_add_mac_header_if_unset(skb, vrf_dev, ETH_P_IP,
-+						  orig_dev);
- 		if (likely(!err)) {
- 			skb_push(skb, skb->mac_len);
- 			dev_queue_xmit_nit(skb, vrf_dev);
--- 
-2.35.1
-
+ 		msr_array[i].info.msr_no	= msr_id[j];
+-		msr_array[i].valid		= false;
++		msr_array[i].valid		= !rdmsrl_safe(msr_id[j], &dummy);
+ 		msr_array[i].info.reg.q		= 0;
+ 	}
+ 	saved_msrs->num   = total_num;
 
 
