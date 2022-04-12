@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8678C4FD472
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A99564FDA6C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:50:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355723AbiDLH3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:29:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45710 "EHLO
+        id S1354266AbiDLHvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:51:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353157AbiDLHOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 737BE37AA4;
-        Mon, 11 Apr 2022 23:56:38 -0700 (PDT)
+        with ESMTP id S1357091AbiDLHjq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8708A9FCB;
+        Tue, 12 Apr 2022 00:11:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F16FCB81B44;
-        Tue, 12 Apr 2022 06:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C090C385A1;
-        Tue, 12 Apr 2022 06:56:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2105361708;
+        Tue, 12 Apr 2022 07:11:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28D66C385A5;
+        Tue, 12 Apr 2022 07:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746595;
-        bh=sFmGLkUacBWBHi4zv6UXeP0p70b8wzsnAfwnEIHGy90=;
+        s=korg; t=1649747504;
+        bh=c07T1VKAgPFpXfFZqznD8JY4cifFxI9tOTKw0rt5/t0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqpzXyLV7f3Oy/VceWFRFDc5Z/fAHOJIDGT652YNKPN/B/BgsOnqk9kaqluYPMa+M
-         yl2l8CECZft4RZg1m1ySPCFPvFOCYNHhnIQZco/oQuvCITx+orJ5T+zFFHxEU3hpcE
-         JwtcjwdbvF1WIRMDo9amVhhUVJPygsG/pt4By8Mc=
+        b=HH+NpbekPY+JO82vVv+odCKfOwHuPGXZrBoY/kid8/r691Us9rTKoGoF/VAWHqPws
+         Tn8ALgGODsaxld+ipPRGyWRxfXlZ83H1v7De0Rz2An3OdhMuy6/PcwO94cLnZrE6G1
+         IiQS5e/sc5fLQb6nQu/YiI88T8FxeDryJAoTRKeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 061/285] iwlwifi: fix small doc mistake for iwl_fw_ini_addr_val
-Date:   Tue, 12 Apr 2022 08:28:38 +0200
-Message-Id: <20220412062945.431114402@linuxfoundation.org>
+Subject: [PATCH 5.17 101/343] scsi: pm8001: Fix pm80xx_pci_mem_copy() interface
+Date:   Tue, 12 Apr 2022 08:28:39 +0200
+Message-Id: <20220412062954.014428709@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 3009c797c4b3840495e8f48d8d07f48d2ddfed80 ]
+[ Upstream commit 3762d8f6edcdb03994c919f9487fd6d336c06561 ]
 
-There was a small copy and paste mistake in the doc declaration of
-iwl_fw_ini_addr_val.  Fix it.
+The declaration of the local variable destination1 in pm80xx_pci_mem_copy()
+as a pointer to a u32 results in the sparse warning:
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220205112029.aeec71c397b3.I0ba3234419eb8c8c7512a2ca531a6dbb55046cf7@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+warning: incorrect type in assignment (different base types)
+    expected unsigned int [usertype]
+    got restricted __le32 [usertype]
+
+Furthermore, the destination" argument of pm80xx_pci_mem_copy() is wrongly
+declared with the const attribute.
+
+Fix both problems by changing the type of the "destination" argument to
+"__le32 *" and use this argument directly inside the pm80xx_pci_mem_copy()
+function, thus removing the need for the destination1 local variable.
+
+Link: https://lore.kernel.org/r/20220220031810.738362-6-damien.lemoal@opensource.wdc.com
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h b/drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h
-index 3988f5fea33a..6b2a2828cb83 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h
-@@ -1,6 +1,6 @@
- /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
- /*
-- * Copyright (C) 2018-2021 Intel Corporation
-+ * Copyright (C) 2018-2022 Intel Corporation
-  */
- #ifndef __iwl_fw_dbg_tlv_h__
- #define __iwl_fw_dbg_tlv_h__
-@@ -244,11 +244,10 @@ struct iwl_fw_ini_hcmd_tlv {
- } __packed; /* FW_TLV_DEBUG_HCMD_API_S_VER_1 */
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 908dbac20b48..9a0d65ac0174 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -67,18 +67,16 @@ int pm80xx_bar4_shift(struct pm8001_hba_info *pm8001_ha, u32 shift_value)
+ }
  
- /**
--* struct iwl_fw_ini_conf_tlv - preset configuration TLV
-+* struct iwl_fw_ini_addr_val - Address and value to set it to
- *
- * @address: the base address
- * @value: value to set at address
--
- */
- struct iwl_fw_ini_addr_val {
- 	__le32 address;
+ static void pm80xx_pci_mem_copy(struct pm8001_hba_info  *pm8001_ha, u32 soffset,
+-				const void *destination,
++				__le32 *destination,
+ 				u32 dw_count, u32 bus_base_number)
+ {
+ 	u32 index, value, offset;
+-	u32 *destination1;
+-	destination1 = (u32 *)destination;
+ 
+-	for (index = 0; index < dw_count; index += 4, destination1++) {
++	for (index = 0; index < dw_count; index += 4, destination++) {
+ 		offset = (soffset + index);
+ 		if (offset < (64 * 1024)) {
+ 			value = pm8001_cr32(pm8001_ha, bus_base_number, offset);
+-			*destination1 =  cpu_to_le32(value);
++			*destination = cpu_to_le32(value);
+ 		}
+ 	}
+ 	return;
 -- 
 2.35.1
 
