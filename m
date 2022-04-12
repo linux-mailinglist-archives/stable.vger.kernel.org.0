@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 852524FD62F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:20:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D474FD96C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:40:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244084AbiDLH7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:59:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46344 "EHLO
+        id S235403AbiDLHVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:21:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358564AbiDLHlv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:51 -0400
+        with ESMTP id S1351807AbiDLHM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F210B4BBB6;
-        Tue, 12 Apr 2022 00:18:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B01B260D2;
+        Mon, 11 Apr 2022 23:53:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F39F61708;
-        Tue, 12 Apr 2022 07:18:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51F4AC385A5;
-        Tue, 12 Apr 2022 07:18:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 497426149D;
+        Tue, 12 Apr 2022 06:53:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F62AC385A1;
+        Tue, 12 Apr 2022 06:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747896;
-        bh=hoDrUOXChRUU6znUjkqcIZ+kWF9ROLrwh5I7FneBeKA=;
+        s=korg; t=1649746380;
+        bh=YbIKFM7y60MKoj8g2fObDLCsX6eNMh481mfKZ8yaewM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dR1OAuk7SCrnFI5lu+F3sCxldZI54oB3TnsLCrPiK1vtLLqzgbwKnClkerN4SVIUU
-         IIlUWO6wc1EJNdn2NnDsueOIHwV54GUmGfCh0dB4S2nKB/U1/VpQaIxElXm/ISgZ2l
-         KXUMaVoQCoSWLT68nGLD3BSdTMJxGgb6pVOmOCCE=
+        b=cwcG+jSg2/MfuoA7A3t2bwlk4/cSUl0OIvXGXLGT6OOSEFW5Fas/C32HyViU4SHWd
+         cuIBs2B/XnVk9xvlzTYoK0VA2+LzyKs+C3y8mhtrPr7/3dr5V4mEn8H/bFB312ROQP
+         FW5JNQLIjn0d31uO3Rejba6G7mr6FFK0Cpdyg/CU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 246/343] spi: bcm-qspi: fix MSPI only access with bcm_qspi_exec_mem_op()
+        stable@vger.kernel.org, Qiuhao Li <qiuhao@sysec.org>,
+        Gaoning Pan <pgn@zju.edu.cn>, Yongkang Jia <kangel@zju.edu.cn>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 261/277] KVM: avoid NULL pointer dereference in kvm_dirty_ring_push
 Date:   Tue, 12 Apr 2022 08:31:04 +0200
-Message-Id: <20220412062958.428975605@linuxfoundation.org>
+Message-Id: <20220412062949.597891763@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Dasu <kdasu.kdev@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-[ Upstream commit 2c7d1b281286c46049cd22b43435cecba560edde ]
+commit 5593473a1e6c743764b08e3b6071cb43b5cfa6c4 upstream.
 
-This fixes case where MSPI controller is used to access spi-nor
-flash and BSPI block is not present.
+kvm_vcpu_release() will call kvm_dirty_ring_free(), freeing
+ring->dirty_gfns and setting it to NULL.  Afterwards, it calls
+kvm_arch_vcpu_destroy().
 
-Fixes: 5f195ee7d830 ("spi: bcm-qspi: Implement the spi_mem interface")
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220328142442.7553-1-kdasu.kdev@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, if closing the file descriptor races with KVM_RUN in such away
+that vcpu->arch.st.preempted == 0, the following call stack leads to a
+NULL pointer dereference in kvm_dirty_run_push():
+
+ mark_page_dirty_in_slot+0x192/0x270 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3171
+ kvm_steal_time_set_preempted arch/x86/kvm/x86.c:4600 [inline]
+ kvm_arch_vcpu_put+0x34e/0x5b0 arch/x86/kvm/x86.c:4618
+ vcpu_put+0x1b/0x70 arch/x86/kvm/../../../virt/kvm/kvm_main.c:211
+ vmx_free_vcpu+0xcb/0x130 arch/x86/kvm/vmx/vmx.c:6985
+ kvm_arch_vcpu_destroy+0x76/0x290 arch/x86/kvm/x86.c:11219
+ kvm_vcpu_destroy arch/x86/kvm/../../../virt/kvm/kvm_main.c:441 [inline]
+
+The fix is to release the dirty page ring after kvm_arch_vcpu_destroy
+has run.
+
+Reported-by: Qiuhao Li <qiuhao@sysec.org>
+Reported-by: Gaoning Pan <pgn@zju.edu.cn>
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-bcm-qspi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ virt/kvm/kvm_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index 86c76211b3d3..cad2d55dcd3d 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -1205,7 +1205,7 @@ static int bcm_qspi_exec_mem_op(struct spi_mem *mem,
- 	addr = op->addr.val;
- 	len = op->data.nbytes;
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -431,8 +431,8 @@ static void kvm_vcpu_init(struct kvm_vcp
  
--	if (bcm_qspi_bspi_ver_three(qspi) == true) {
-+	if (has_bspi(qspi) && bcm_qspi_bspi_ver_three(qspi) == true) {
- 		/*
- 		 * The address coming into this function is a raw flash offset.
- 		 * But for BSPI <= V3, we need to convert it to a remapped BSPI
-@@ -1224,7 +1224,7 @@ static int bcm_qspi_exec_mem_op(struct spi_mem *mem,
- 	    len < 4)
- 		mspi_read = true;
+ void kvm_vcpu_destroy(struct kvm_vcpu *vcpu)
+ {
+-	kvm_dirty_ring_free(&vcpu->dirty_ring);
+ 	kvm_arch_vcpu_destroy(vcpu);
++	kvm_dirty_ring_free(&vcpu->dirty_ring);
  
--	if (mspi_read)
-+	if (!has_bspi(qspi) || mspi_read)
- 		return bcm_qspi_mspi_exec_mem_op(spi, op);
- 
- 	ret = bcm_qspi_bspi_set_mode(qspi, op, 0);
--- 
-2.35.1
-
+ 	/*
+ 	 * No need for rcu_read_lock as VCPU_RUN is the only place that changes
 
 
