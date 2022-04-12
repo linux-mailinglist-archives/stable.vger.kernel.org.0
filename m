@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C5B4FD269
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F3634FD04F
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:44:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351498AbiDLHLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:11:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57264 "EHLO
+        id S240481AbiDLGpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:45:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347734AbiDLHJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:09:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B8C49F05;
-        Mon, 11 Apr 2022 23:49:41 -0700 (PDT)
+        with ESMTP id S1351041AbiDLGny (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:43:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7699039167;
+        Mon, 11 Apr 2022 23:37:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECD60B81B4F;
-        Tue, 12 Apr 2022 06:49:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18F56C385A1;
-        Tue, 12 Apr 2022 06:49:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BC9B9618C8;
+        Tue, 12 Apr 2022 06:37:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD2A3C385A1;
+        Tue, 12 Apr 2022 06:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746176;
-        bh=WjGxQt0fZtqz5sruQ3SL1QiA5RD/rB1B2JDJhPiMpcM=;
+        s=korg; t=1649745434;
+        bh=atbR4RPy9yHB2eufZS3l49htdikvABO9wcWmNNaXj4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dasqoEJC/W7CsGLdETa1isA+vpS0Tmb1DRlzrFDjAI9adhWxFniKHz9GbiS03Za0F
-         Zn9MqI7ai35nPGJQPKv5DPF4ss+GAv4Ct3DF59Dv9av/aH47FTnEs82UWAYJMlkLRr
-         3+tboAtqyFjRqIVfvXX4I1jmMERW0VChHcmC24Dw=
+        b=sbPVmqEe8gpRhGZfBsN4W7Z8JA0xcLHavcGah5DhAH4bj2WLK8dC3Tf3peMpUkUl0
+         Xe14BC4Ph1gNyw1+rYHInDmYKy011SH1r5Cs/ZhqVCWarxIdPBCVBWSRKVTIecTxqr
+         Mzuef7GcCwYpAETcSdEvqSAxRjku6EenrDloCktE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Alice Michael <alice.michael@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 181/277] ice: Set txq_teid to ICE_INVAL_TEID on ring creation
-Date:   Tue, 12 Apr 2022 08:29:44 +0200
-Message-Id: <20220412062947.274054687@linuxfoundation.org>
+Subject: [PATCH 5.10 094/171] parisc: Fix CPU affinity for Lasi, WAX and Dino chips
+Date:   Tue, 12 Apr 2022 08:29:45 +0200
+Message-Id: <20220412062930.603434639@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,69 +53,230 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit ccfee1822042b87e5135d33cad8ea353e64612d2 ]
+[ Upstream commit 939fc856676c266c3bc347c1c1661872a3725c0f ]
 
-When VF is freshly created, but not brought up, ring->txq_teid
-value is by default set to 0.
-But 0 is a valid TEID. On some platforms the Root Node of
-Tx scheduler has a TEID = 0. This can cause issues as shown below.
+Add the missing logic to allow Lasi, WAX and Dino to set the
+CPU affinity. This fixes IRQ migration to other CPUs when a
+CPU is shutdown which currently holds the IRQs for one of those
+chips.
 
-The proper way is to set ring->txq_teid to ICE_INVAL_TEID (0xFFFFFFFF).
-
-Testing Hints:
-echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
-ip link set dev ens785f0v0 up
-ip link set dev ens785f0v0 down
-
-If we have freshly created VF and quickly turn it on and off, so there
-would be no time to reach VIRTCHNL_OP_CONFIG_VSI_QUEUES stage, then
-VIRTCHNL_OP_DISABLE_QUEUES stage will fail with error:
-[  639.531454] disable queue 89 failed 14
-[  639.532233] Failed to disable LAN Tx queues, error: ICE_ERR_AQ_ERROR
-[  639.533107] ice 0000:02:00.0: Failed to stop Tx ring 0 on VSI 5
-
-The reason for the fail is that we are trying to send AQ command to
-delete queue 89, which has never been created and receive an "invalid
-argument" error from firmware.
-
-As this queue has never been created, it's teid and ring->txq_teid
-have default value 0.
-ice_dis_vsi_txq has a check against non-existent queues:
-
-node = ice_sched_find_node_by_teid(pi->root, q_teids[i]);
-if (!node)
-	continue;
-
-But on some platforms the Root Node of Tx scheduler has a teid = 0.
-Hence, ice_sched_find_node_by_teid finds a node with teid = 0 (it is
-pi->root), and we go further to submit an erroneous request to firmware.
-
-Fixes: 37bb83901286 ("ice: Move common functions out of ice_main.c part 7/7")
-Signed-off-by: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Alice Michael <alice.michael@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lib.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/parisc/dino.c | 41 +++++++++++++++++++++++++++++++++--------
+ drivers/parisc/gsc.c  | 31 +++++++++++++++++++++++++++++++
+ drivers/parisc/gsc.h  |  1 +
+ drivers/parisc/lasi.c |  7 +++----
+ drivers/parisc/wax.c  |  7 +++----
+ 5 files changed, 71 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index a5fd29ffdebe..653996e8fd30 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -1306,6 +1306,7 @@ static int ice_vsi_alloc_rings(struct ice_vsi *vsi)
- 		ring->tx_tstamps = &pf->ptp.port.tx;
- 		ring->dev = dev;
- 		ring->count = vsi->num_tx_desc;
-+		ring->txq_teid = ICE_INVAL_TEID;
- 		WRITE_ONCE(vsi->tx_rings[i], ring);
+diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
+index 952a92504df6..e33036281327 100644
+--- a/drivers/parisc/dino.c
++++ b/drivers/parisc/dino.c
+@@ -142,9 +142,8 @@ struct dino_device
+ {
+ 	struct pci_hba_data	hba;	/* 'C' inheritance - must be first */
+ 	spinlock_t		dinosaur_pen;
+-	unsigned long		txn_addr; /* EIR addr to generate interrupt */ 
+-	u32			txn_data; /* EIR data assign to each dino */ 
+ 	u32 			imr;	  /* IRQ's which are enabled */ 
++	struct gsc_irq		gsc_irq;
+ 	int			global_irq[DINO_LOCAL_IRQS]; /* map IMR bit to global irq */
+ #ifdef DINO_DEBUG
+ 	unsigned int		dino_irr0; /* save most recent IRQ line stat */
+@@ -339,14 +338,43 @@ static void dino_unmask_irq(struct irq_data *d)
+ 	if (tmp & DINO_MASK_IRQ(local_irq)) {
+ 		DBG(KERN_WARNING "%s(): IRQ asserted! (ILR 0x%x)\n",
+ 				__func__, tmp);
+-		gsc_writel(dino_dev->txn_data, dino_dev->txn_addr);
++		gsc_writel(dino_dev->gsc_irq.txn_data, dino_dev->gsc_irq.txn_addr);
+ 	}
+ }
+ 
++#ifdef CONFIG_SMP
++static int dino_set_affinity_irq(struct irq_data *d, const struct cpumask *dest,
++				bool force)
++{
++	struct dino_device *dino_dev = irq_data_get_irq_chip_data(d);
++	struct cpumask tmask;
++	int cpu_irq;
++	u32 eim;
++
++	if (!cpumask_and(&tmask, dest, cpu_online_mask))
++		return -EINVAL;
++
++	cpu_irq = cpu_check_affinity(d, &tmask);
++	if (cpu_irq < 0)
++		return cpu_irq;
++
++	dino_dev->gsc_irq.txn_addr = txn_affinity_addr(d->irq, cpu_irq);
++	eim = ((u32) dino_dev->gsc_irq.txn_addr) | dino_dev->gsc_irq.txn_data;
++	__raw_writel(eim, dino_dev->hba.base_addr+DINO_IAR0);
++
++	irq_data_update_effective_affinity(d, &tmask);
++
++	return IRQ_SET_MASK_OK;
++}
++#endif
++
+ static struct irq_chip dino_interrupt_type = {
+ 	.name		= "GSC-PCI",
+ 	.irq_unmask	= dino_unmask_irq,
+ 	.irq_mask	= dino_mask_irq,
++#ifdef CONFIG_SMP
++	.irq_set_affinity = dino_set_affinity_irq,
++#endif
+ };
+ 
+ 
+@@ -806,7 +834,6 @@ static int __init dino_common_init(struct parisc_device *dev,
+ {
+ 	int status;
+ 	u32 eim;
+-	struct gsc_irq gsc_irq;
+ 	struct resource *res;
+ 
+ 	pcibios_register_hba(&dino_dev->hba);
+@@ -821,10 +848,8 @@ static int __init dino_common_init(struct parisc_device *dev,
+ 	**   still only has 11 IRQ input lines - just map some of them
+ 	**   to a different processor.
+ 	*/
+-	dev->irq = gsc_alloc_irq(&gsc_irq);
+-	dino_dev->txn_addr = gsc_irq.txn_addr;
+-	dino_dev->txn_data = gsc_irq.txn_data;
+-	eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
++	dev->irq = gsc_alloc_irq(&dino_dev->gsc_irq);
++	eim = ((u32) dino_dev->gsc_irq.txn_addr) | dino_dev->gsc_irq.txn_data;
+ 
+ 	/* 
+ 	** Dino needs a PA "IRQ" to get a processor's attention.
+diff --git a/drivers/parisc/gsc.c b/drivers/parisc/gsc.c
+index ed9371acf37e..ec175ae99873 100644
+--- a/drivers/parisc/gsc.c
++++ b/drivers/parisc/gsc.c
+@@ -135,10 +135,41 @@ static void gsc_asic_unmask_irq(struct irq_data *d)
+ 	 */
+ }
+ 
++#ifdef CONFIG_SMP
++static int gsc_set_affinity_irq(struct irq_data *d, const struct cpumask *dest,
++				bool force)
++{
++	struct gsc_asic *gsc_dev = irq_data_get_irq_chip_data(d);
++	struct cpumask tmask;
++	int cpu_irq;
++
++	if (!cpumask_and(&tmask, dest, cpu_online_mask))
++		return -EINVAL;
++
++	cpu_irq = cpu_check_affinity(d, &tmask);
++	if (cpu_irq < 0)
++		return cpu_irq;
++
++	gsc_dev->gsc_irq.txn_addr = txn_affinity_addr(d->irq, cpu_irq);
++	gsc_dev->eim = ((u32) gsc_dev->gsc_irq.txn_addr) | gsc_dev->gsc_irq.txn_data;
++
++	/* switch IRQ's for devices below LASI/WAX to other CPU */
++	gsc_writel(gsc_dev->eim, gsc_dev->hpa + OFFSET_IAR);
++
++	irq_data_update_effective_affinity(d, &tmask);
++
++	return IRQ_SET_MASK_OK;
++}
++#endif
++
++
+ static struct irq_chip gsc_asic_interrupt_type = {
+ 	.name		=	"GSC-ASIC",
+ 	.irq_unmask	=	gsc_asic_unmask_irq,
+ 	.irq_mask	=	gsc_asic_mask_irq,
++#ifdef CONFIG_SMP
++	.irq_set_affinity =	gsc_set_affinity_irq,
++#endif
+ };
+ 
+ int gsc_assign_irq(struct irq_chip *type, void *data)
+diff --git a/drivers/parisc/gsc.h b/drivers/parisc/gsc.h
+index 86abad3fa215..73cbd0bb1975 100644
+--- a/drivers/parisc/gsc.h
++++ b/drivers/parisc/gsc.h
+@@ -31,6 +31,7 @@ struct gsc_asic {
+ 	int version;
+ 	int type;
+ 	int eim;
++	struct gsc_irq gsc_irq;
+ 	int global_irq[32];
+ };
+ 
+diff --git a/drivers/parisc/lasi.c b/drivers/parisc/lasi.c
+index 4e4fd12c2112..6ef621adb63a 100644
+--- a/drivers/parisc/lasi.c
++++ b/drivers/parisc/lasi.c
+@@ -163,7 +163,6 @@ static int __init lasi_init_chip(struct parisc_device *dev)
+ {
+ 	extern void (*chassis_power_off)(void);
+ 	struct gsc_asic *lasi;
+-	struct gsc_irq gsc_irq;
+ 	int ret;
+ 
+ 	lasi = kzalloc(sizeof(*lasi), GFP_KERNEL);
+@@ -185,7 +184,7 @@ static int __init lasi_init_chip(struct parisc_device *dev)
+ 	lasi_init_irq(lasi);
+ 
+ 	/* the IRQ lasi should use */
+-	dev->irq = gsc_alloc_irq(&gsc_irq);
++	dev->irq = gsc_alloc_irq(&lasi->gsc_irq);
+ 	if (dev->irq < 0) {
+ 		printk(KERN_ERR "%s(): cannot get GSC irq\n",
+ 				__func__);
+@@ -193,9 +192,9 @@ static int __init lasi_init_chip(struct parisc_device *dev)
+ 		return -EBUSY;
  	}
  
+-	lasi->eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
++	lasi->eim = ((u32) lasi->gsc_irq.txn_addr) | lasi->gsc_irq.txn_data;
+ 
+-	ret = request_irq(gsc_irq.irq, gsc_asic_intr, 0, "lasi", lasi);
++	ret = request_irq(lasi->gsc_irq.irq, gsc_asic_intr, 0, "lasi", lasi);
+ 	if (ret < 0) {
+ 		kfree(lasi);
+ 		return ret;
+diff --git a/drivers/parisc/wax.c b/drivers/parisc/wax.c
+index 5b6df1516235..73a2b01f8d9c 100644
+--- a/drivers/parisc/wax.c
++++ b/drivers/parisc/wax.c
+@@ -68,7 +68,6 @@ static int __init wax_init_chip(struct parisc_device *dev)
+ {
+ 	struct gsc_asic *wax;
+ 	struct parisc_device *parent;
+-	struct gsc_irq gsc_irq;
+ 	int ret;
+ 
+ 	wax = kzalloc(sizeof(*wax), GFP_KERNEL);
+@@ -85,7 +84,7 @@ static int __init wax_init_chip(struct parisc_device *dev)
+ 	wax_init_irq(wax);
+ 
+ 	/* the IRQ wax should use */
+-	dev->irq = gsc_claim_irq(&gsc_irq, WAX_GSC_IRQ);
++	dev->irq = gsc_claim_irq(&wax->gsc_irq, WAX_GSC_IRQ);
+ 	if (dev->irq < 0) {
+ 		printk(KERN_ERR "%s(): cannot get GSC irq\n",
+ 				__func__);
+@@ -93,9 +92,9 @@ static int __init wax_init_chip(struct parisc_device *dev)
+ 		return -EBUSY;
+ 	}
+ 
+-	wax->eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
++	wax->eim = ((u32) wax->gsc_irq.txn_addr) | wax->gsc_irq.txn_data;
+ 
+-	ret = request_irq(gsc_irq.irq, gsc_asic_intr, 0, "wax", wax);
++	ret = request_irq(wax->gsc_irq.irq, gsc_asic_intr, 0, "wax", wax);
+ 	if (ret < 0) {
+ 		kfree(wax);
+ 		return ret;
 -- 
 2.35.1
 
