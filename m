@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A6E34FD8B2
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 707304FD94F
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377601AbiDLHuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:50:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57852 "EHLO
+        id S1377596AbiDLHum (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:50:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359413AbiDLHnB (ORCPT
+        with ESMTP id S1359414AbiDLHnB (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:43:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA2C2CE16;
-        Tue, 12 Apr 2022 00:23:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94317255AE;
+        Tue, 12 Apr 2022 00:23:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E418B81B13;
-        Tue, 12 Apr 2022 07:23:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D139AC385A5;
-        Tue, 12 Apr 2022 07:22:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F69BB81B13;
+        Tue, 12 Apr 2022 07:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A134DC385A1;
+        Tue, 12 Apr 2022 07:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748180;
-        bh=eMM8OKCs1XS4pP/lEvBAbkA9WBA3mZDUkQodzz0SW4Y=;
+        s=korg; t=1649748183;
+        bh=jdSrlme+ldB8gp5g95tgqulfRXTKB43uz9/V2NDGTck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SP1eip46TXekRyvJDQyOy/NR7EtRRpNjqo1hqP5v7FI+6+9dxPh3ceo1C4lvW+o5R
-         tMETEv+w0odddZCBx0H/YouejJVz7o4QIvIuK7LFBdzBimXyYI/QRFmv6bTIClER1/
-         BRBrpfKppaWihHrMyqRybmNETehx4j3PkHkPNjV4=
+        b=QEqfOneQftJvc6t7KHCzMdWGm5Cdhg/HPQNsnv64DwPj34k1M3sk7wEMxwqO3t1Sk
+         yNWL2FEGRgoU6jYPAiQIzWYNEUGO5tpD52ZZiz+DjGIqPrbD55lq7GVygtX1gW3qlM
+         uoNQCzjE6zyxNsDGUMhJQdgoEWw68cAA8fwJb/QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "Erhard F." <erhard_f@mailbox.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.17 328/343] Revert "powerpc: Set max_mapnr correctly"
-Date:   Tue, 12 Apr 2022 08:32:26 +0200
-Message-Id: <20220412063000.787106591@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH 5.17 329/343] x86/bug: Prevent shadowing in __WARN_FLAGS
+Date:   Tue, 12 Apr 2022 08:32:27 +0200
+Message-Id: <20220412063000.815412501@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -55,45 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit 1ff5c8e8c835e8a81c0868e3050c76563dd56a2c upstream.
+commit 9ce02f0fc68326dd1f87a0a3a4c6ae7fdd39e6f6 upstream.
 
-This reverts commit 602946ec2f90d5bd965857753880db29d2d9a1e9.
+The macro __WARN_FLAGS() uses a local variable named "f". This being a
+common name, there is a risk of shadowing other variables.
 
-If CONFIG_HIGHMEM is enabled, no highmem will be added with max_mapnr
-set to max_low_pfn, see mem_init():
+For example, GCC would yield:
 
-  for (pfn = highmem_mapnr; pfn < max_mapnr; ++pfn) {
-        ...
-        free_highmem_page();
-  }
+| In file included from ./include/linux/bug.h:5,
+|                  from ./include/linux/cpumask.h:14,
+|                  from ./arch/x86/include/asm/cpumask.h:5,
+|                  from ./arch/x86/include/asm/msr.h:11,
+|                  from ./arch/x86/include/asm/processor.h:22,
+|                  from ./arch/x86/include/asm/timex.h:5,
+|                  from ./include/linux/timex.h:65,
+|                  from ./include/linux/time32.h:13,
+|                  from ./include/linux/time.h:60,
+|                  from ./include/linux/stat.h:19,
+|                  from ./include/linux/module.h:13,
+|                  from virt/lib/irqbypass.mod.c:1:
+| ./include/linux/rcupdate.h: In function 'rcu_head_after_call_rcu':
+| ./arch/x86/include/asm/bug.h:80:21: warning: declaration of 'f' shadows a parameter [-Wshadow]
+|    80 |         __auto_type f = BUGFLAG_WARNING|(flags);                \
+|       |                     ^
+| ./include/asm-generic/bug.h:106:17: note: in expansion of macro '__WARN_FLAGS'
+|   106 |                 __WARN_FLAGS(BUGFLAG_ONCE |                     \
+|       |                 ^~~~~~~~~~~~
+| ./include/linux/rcupdate.h:1007:9: note: in expansion of macro 'WARN_ON_ONCE'
+|  1007 |         WARN_ON_ONCE(func != (rcu_callback_t)~0L);
+|       |         ^~~~~~~~~~~~
+| In file included from ./include/linux/rbtree.h:24,
+|                  from ./include/linux/mm_types.h:11,
+|                  from ./include/linux/buildid.h:5,
+|                  from ./include/linux/module.h:14,
+|                  from virt/lib/irqbypass.mod.c:1:
+| ./include/linux/rcupdate.h:1001:62: note: shadowed declaration is here
+|  1001 | rcu_head_after_call_rcu(struct rcu_head *rhp, rcu_callback_t f)
+|       |                                               ~~~~~~~~~~~~~~~^
 
-Now that virt_addr_valid() has been fixed in the previous commit, we can
-revert the change to max_mapnr.
+For reference, sparse also warns about it, c.f. [1].
 
-Fixes: 602946ec2f90 ("powerpc: Set max_mapnr correctly")
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Reported-by: Erhard F. <erhard_f@mailbox.org>
-[mpe: Update change log to reflect series reordering]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220406145802.538416-2-mpe@ellerman.id.au
+This patch renames the variable from f to __flags (with two underscore
+prefixes as suggested in the Linux kernel coding style [2]) in order
+to prevent collisions.
+
+[1] https://lore.kernel.org/all/CAFGhKbyifH1a+nAMCvWM88TK6fpNPdzFtUXPmRGnnQeePV+1sw@mail.gmail.com/
+
+[2] Linux kernel coding style, section 12) Macros, Enums and RTL,
+paragraph 5) namespace collisions when defining local variables in
+macros resembling functions
+https://www.kernel.org/doc/html/latest/process/coding-style.html#macros-enums-and-rtl
+
+Fixes: bfb1a7c91fb7 ("x86/bug: Merge annotate_reachable() into_BUG_FLAGS() asm")
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/20220324023742.106546-1-mailhol.vincent@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/mem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/bug.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -255,7 +255,7 @@ void __init mem_init(void)
- #endif
- 
- 	high_memory = (void *) __va(max_low_pfn * PAGE_SIZE);
--	set_max_mapnr(max_low_pfn);
-+	set_max_mapnr(max_pfn);
- 
- 	kasan_late_init();
+--- a/arch/x86/include/asm/bug.h
++++ b/arch/x86/include/asm/bug.h
+@@ -77,9 +77,9 @@ do {								\
+  */
+ #define __WARN_FLAGS(flags)					\
+ do {								\
+-	__auto_type f = BUGFLAG_WARNING|(flags);		\
++	__auto_type __flags = BUGFLAG_WARNING|(flags);		\
+ 	instrumentation_begin();				\
+-	_BUG_FLAGS(ASM_UD2, f, ASM_REACHABLE);			\
++	_BUG_FLAGS(ASM_UD2, __flags, ASM_REACHABLE);		\
+ 	instrumentation_end();					\
+ } while (0)
  
 
 
