@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F1944FD669
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1625B4FDAD0
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377506AbiDLHuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:50:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59716 "EHLO
+        id S1356063AbiDLHeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359261AbiDLHmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA4F2C114;
-        Tue, 12 Apr 2022 00:21:22 -0700 (PDT)
+        with ESMTP id S1354602AbiDLH02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3330146165;
+        Tue, 12 Apr 2022 00:06:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76229B81B58;
-        Tue, 12 Apr 2022 07:21:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4257C385A1;
-        Tue, 12 Apr 2022 07:21:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87D6061748;
+        Tue, 12 Apr 2022 07:06:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9452DC36B17;
+        Tue, 12 Apr 2022 07:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748080;
-        bh=RThewDuSSaDhfeV7W7Ch/9tNuzdmzLS9RuWbGQ+yvVI=;
+        s=korg; t=1649747181;
+        bh=ueCG/4U08Yns50W24hGz63YxADmJDJ9yGaJ7Tmf5doA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqXwXfHc+vOVy+4KFuRsAwMRy0ox25IWcDZsvNtYF0r0CtayzTkUc80Ujmz4ksu8e
-         pPoGK8Zaiqo7rC9HhNzGrPiW6+Y01rX37V9Pcz+zHZUWHfMsOOo7FOZz1/+ackeNSx
-         ebkDwPjbCmED903yNGhWGSM5bpVLjxIQR0XU1ooE=
+        b=Vf6mDUBv4y/EXeWR84J0o5eUSgQctwLgRbJjL6vnkeWUFgClk0wLrxoJlyV44YyTj
+         cJ9JKNdbKfUKuVG5de7av4ikR94RmDO4/XU+/xOrnMJzOqzB/1q6IbdNHcslIPe8Ut
+         usQuOptFU/oiBdIMs2EdAGw2NYw669fW7JENIzL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.17 311/343] drm/amdgpu: dont use BACO for reset in S3
+        stable@vger.kernel.org, Qiuhao Li <qiuhao@sysec.org>,
+        Gaoning Pan <pgn@zju.edu.cn>, Yongkang Jia <kangel@zju.edu.cn>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.16 272/285] KVM: avoid NULL pointer dereference in kvm_dirty_ring_push
 Date:   Tue, 12 Apr 2022 08:32:09 +0200
-Message-Id: <20220412063000.299598642@linuxfoundation.org>
+Message-Id: <20220412062951.507981108@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit ebc002e3ee78409c42156e62e4e27ad1d09c5a75 upstream.
+commit 5593473a1e6c743764b08e3b6071cb43b5cfa6c4 upstream.
 
-Seems to cause a reboots or hangs on some systems.
+kvm_vcpu_release() will call kvm_dirty_ring_free(), freeing
+ring->dirty_gfns and setting it to NULL.  Afterwards, it calls
+kvm_arch_vcpu_destroy().
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1924
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1953
-Fixes: daf8de0874ab5b ("drm/amdgpu: always reset the asic in suspend (v2)")
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+However, if closing the file descriptor races with KVM_RUN in such away
+that vcpu->arch.st.preempted == 0, the following call stack leads to a
+NULL pointer dereference in kvm_dirty_run_push():
+
+ mark_page_dirty_in_slot+0x192/0x270 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3171
+ kvm_steal_time_set_preempted arch/x86/kvm/x86.c:4600 [inline]
+ kvm_arch_vcpu_put+0x34e/0x5b0 arch/x86/kvm/x86.c:4618
+ vcpu_put+0x1b/0x70 arch/x86/kvm/../../../virt/kvm/kvm_main.c:211
+ vmx_free_vcpu+0xcb/0x130 arch/x86/kvm/vmx/vmx.c:6985
+ kvm_arch_vcpu_destroy+0x76/0x290 arch/x86/kvm/x86.c:11219
+ kvm_vcpu_destroy arch/x86/kvm/../../../virt/kvm/kvm_main.c:441 [inline]
+
+The fix is to release the dirty page ring after kvm_arch_vcpu_destroy
+has run.
+
+Reported-by: Qiuhao Li <qiuhao@sysec.org>
+Reported-by: Gaoning Pan <pgn@zju.edu.cn>
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
 Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/pm/amdgpu_dpm.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ virt/kvm/kvm_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/pm/amdgpu_dpm.c
-+++ b/drivers/gpu/drm/amd/pm/amdgpu_dpm.c
-@@ -1045,6 +1045,17 @@ bool amdgpu_dpm_is_baco_supported(struct
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -439,8 +439,8 @@ static void kvm_vcpu_init(struct kvm_vcp
  
- 	if (!pp_funcs || !pp_funcs->get_asic_baco_capability)
- 		return false;
-+	/* Don't use baco for reset in S3.
-+	 * This is a workaround for some platforms
-+	 * where entering BACO during suspend
-+	 * seems to cause reboots or hangs.
-+	 * This might be related to the fact that BACO controls
-+	 * power to the whole GPU including devices like audio and USB.
-+	 * Powering down/up everything may adversely affect these other
-+	 * devices.  Needs more investigation.
-+	 */
-+	if (adev->in_s3)
-+		return false;
+ void kvm_vcpu_destroy(struct kvm_vcpu *vcpu)
+ {
+-	kvm_dirty_ring_free(&vcpu->dirty_ring);
+ 	kvm_arch_vcpu_destroy(vcpu);
++	kvm_dirty_ring_free(&vcpu->dirty_ring);
  
- 	if (pp_funcs->get_asic_baco_capability(pp_handle, &baco_cap))
- 		return false;
+ 	/*
+ 	 * No need for rcu_read_lock as VCPU_RUN is the only place that changes
 
 
