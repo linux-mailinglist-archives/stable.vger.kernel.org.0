@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E0E4FCB22
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906A54FCB17
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347024AbiDLBDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 21:03:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
+        id S1345988AbiDLBDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 21:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345125AbiDLA62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:58:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C086D31501;
-        Mon, 11 Apr 2022 17:51:00 -0700 (PDT)
+        with ESMTP id S1345180AbiDLA63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:58:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1A3235A94;
+        Mon, 11 Apr 2022 17:51:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E17B60B2B;
-        Tue, 12 Apr 2022 00:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED33EC385A3;
-        Tue, 12 Apr 2022 00:50:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE272B819A7;
+        Tue, 12 Apr 2022 00:51:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB5E7C385A3;
+        Tue, 12 Apr 2022 00:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724659;
-        bh=nKmMu+KnxSgHmcBz+S9jEpKqr6ERgs4IgBTbiWUWDSE=;
+        s=k20201202; t=1649724664;
+        bh=kqCp4Kd1Dcil/DNJrkrnFjYds6a3mXSl6nnJmBPCzWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IzFYhUUiIZ0+K9pBMrlzBPQlTv0YijQY+wXsenwFY30MR7uCX0NlMF6RCQIjkb/gq
-         qS8HI8BKLYbG2lFBj2HuYGnKwr6z97Zdf/q8L54mlqSqV5n9UfHYoYBL9FvOxrMUIs
-         i1+iMDehOUbiovWMk56nf8sGtSUpdn6FBNpqw82BSZcM15tWTwxS+vBLfWI3ncX8lU
-         jzdd9AeMFkTSZkhC88LceexHT9pa7wFK1I0G5yb9ITME+1dE740Qzoy/so/lD8xfna
-         26DGZcKs5k2RkAMCmAMeFcqvn1OnqPxAp0/BY2lJ+uWcUDdMcs4a5Bls0f7U0jY6R7
-         JgklxQhN7yQQw==
+        b=fRQendN9B1E8LPmQhM3hZ13VdYxFA/G8FIrLLKkIwAULF2IIrvdB4bhCzsKCOjJzu
+         6JpTA2a51CV0/fun8aqZfyqNBIemHI3ZpGSjgOBiYRYOE/yyQnfXsAyH04feAglobM
+         4Eh6XozLbhE/3brKktYojK1q8ndHwyWkAiZj+IWTp4gIY4VY23NyfYWrSg0H9U59Tz
+         vvK5HQRNwfNYWkew1tdtzHGt7KAMXv4RaCLHGYiUHiuEIHvrTQcKBR82GDATkdigyG
+         jRMFWxZr7CScErr95d+bnqIFcgdGa1ZceV02OBeQoHUROkwRCwWO6rOlWaq5ilYx9A
+         2gpUFq3mx+DUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Leo (Hanghong) Ma" <hanghong.ma@amd.com>,
-        Chris Park <Chris.Park@amd.com>, Alex Hung <alex.hung@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
+Cc:     Tushar Patel <tushar.patel@amd.com>,
+        Felix Kuehling <felix.kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Krunoslav.Kovac@amd.com, Reza.Amini@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 03/21] drm/amd/display: Update VTEM Infopacket definition
-Date:   Mon, 11 Apr 2022 20:50:22 -0400
-Message-Id: <20220412005042.351105-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        Felix.Kuehling@amd.com, evan.quan@amd.com,
+        mario.limonciello@amd.com, andrey.grodzovsky@amd.com,
+        solomon.chiu@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 04/21] drm/amdkfd: Fix Incorrect VMIDs passed to HWS
+Date:   Mon, 11 Apr 2022 20:50:23 -0400
+Message-Id: <20220412005042.351105-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412005042.351105-1-sashal@kernel.org>
 References: <20220412005042.351105-1-sashal@kernel.org>
@@ -62,48 +62,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Leo (Hanghong) Ma" <hanghong.ma@amd.com>
+From: Tushar Patel <tushar.patel@amd.com>
 
-[ Upstream commit c9fbf6435162ed5fb7201d1d4adf6585c6a8c327 ]
+[ Upstream commit b7dfbd2e601f3fee545bc158feceba4f340fe7cf ]
 
-[Why & How]
-The latest HDMI SPEC has updated the VTEM packet structure,
-so change the VTEM Infopacket defined in the driver side to align
-with the SPEC.
+Compute-only GPUs have more than 8 VMIDs allocated to KFD. Fix
+this by passing correct number of VMIDs to HWS
 
-Reviewed-by: Chris Park <Chris.Park@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Leo (Hanghong) Ma <hanghong.ma@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+v2: squash in warning fix (Alex)
+
+Signed-off-by: Tushar Patel <tushar.patel@amd.com>
+Reviewed-by: Felix Kuehling <felix.kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/modules/info_packet/info_packet.c    | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |  2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c | 11 +++--------
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c b/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-index d885d642ed7f..537736713598 100644
---- a/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-+++ b/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-@@ -85,7 +85,8 @@
- //PB7 = MD0
- #define MASK_VTEM_MD0__VRR_EN         0x01
- #define MASK_VTEM_MD0__M_CONST        0x02
--#define MASK_VTEM_MD0__RESERVED2      0x0C
-+#define MASK_VTEM_MD0__QMS_EN         0x04
-+#define MASK_VTEM_MD0__RESERVED2      0x08
- #define MASK_VTEM_MD0__FVA_FACTOR_M1  0xF0
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index e8e172010416..ffd754713522 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -633,7 +633,7 @@ MODULE_PARM_DESC(sched_policy,
+  * Maximum number of processes that HWS can schedule concurrently. The maximum is the
+  * number of VMIDs assigned to the HWS, which is also the default.
+  */
+-int hws_max_conc_proc = 8;
++int hws_max_conc_proc = -1;
+ module_param(hws_max_conc_proc, int, 0444);
+ MODULE_PARM_DESC(hws_max_conc_proc,
+ 	"Max # processes HWS can execute concurrently when sched_policy=0 (0 = no concurrency, #VMIDs for KFD = Maximum(default))");
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index ad9483b9eea3..60ee1a832112 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -609,15 +609,10 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
+ 			- kfd->vm_info.first_vmid_kfd + 1;
  
- //MD1
-@@ -94,7 +95,7 @@
- //MD2
- #define MASK_VTEM_MD2__BASE_REFRESH_RATE_98  0x03
- #define MASK_VTEM_MD2__RB                    0x04
--#define MASK_VTEM_MD2__RESERVED3             0xF8
-+#define MASK_VTEM_MD2__NEXT_TFR              0xF8
+ 	/* Verify module parameters regarding mapped process number*/
+-	if ((hws_max_conc_proc < 0)
+-			|| (hws_max_conc_proc > kfd->vm_info.vmid_num_kfd)) {
+-		dev_err(kfd_device,
+-			"hws_max_conc_proc %d must be between 0 and %d, use %d instead\n",
+-			hws_max_conc_proc, kfd->vm_info.vmid_num_kfd,
+-			kfd->vm_info.vmid_num_kfd);
++	if (hws_max_conc_proc >= 0)
++		kfd->max_proc_per_quantum = min((u32)hws_max_conc_proc, kfd->vm_info.vmid_num_kfd);
++	else
+ 		kfd->max_proc_per_quantum = kfd->vm_info.vmid_num_kfd;
+-	} else
+-		kfd->max_proc_per_quantum = hws_max_conc_proc;
  
- //MD3
- #define MASK_VTEM_MD3__BASE_REFRESH_RATE_07  0xFF
+ 	/* Allocate global GWS that is shared by all KFD processes */
+ 	if (hws_gws_support && amdgpu_amdkfd_alloc_gws(kfd->kgd,
 -- 
 2.35.1
 
