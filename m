@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15ACC4FCFC6
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C0054FD238
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349624AbiDLGis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:38:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51060 "EHLO
+        id S234131AbiDLHBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:01:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349923AbiDLGhe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:37:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6FA7DEFD;
-        Mon, 11 Apr 2022 23:34:14 -0700 (PDT)
+        with ESMTP id S1348715AbiDLG7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:59:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D059326549;
+        Mon, 11 Apr 2022 23:46:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8260618EA;
-        Tue, 12 Apr 2022 06:34:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7C6FC385A8;
-        Tue, 12 Apr 2022 06:34:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1E4960A21;
+        Tue, 12 Apr 2022 06:46:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 039F9C385A1;
+        Tue, 12 Apr 2022 06:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745253;
-        bh=hlqg9P0tk9dzhD9oMocgyBmlvqdOFAOmODcn6fGLW5I=;
+        s=korg; t=1649745997;
+        bh=YgBs7SCqNKxfkEo9PqweIDQmp3ZWSfZhb89F6s7+12c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JAA7FehIHOOJSWVCXgansj4hqKewLtb5QCA0PX0HRC3VPKiiDrXAMvedhj/MrwIoW
-         Ujjg+Hf7dVHATOT44k1B56NcjAgR4KxR0J2NAAj+8pL7SpUDxHRh3A53tTvQwzT4Uh
-         E1JyOiyH0Sh/XwjqDw5k++/2rmzNF93i15PB2uNU=
+        b=yJ6dsgAaqiKxiK9ri83K3ZTrzpjO59gZrr47RLHtCXiyLy8T7Oyyh6OXq0j6lsORK
+         BucEE6ktEdGih8E0tWDgneeYg7qBtT0zz5jnJYqK99KL07UOhS92iYfSXJEKnAtb2l
+         D+Mmm6/3vl8E7EZYAl4pQ2vGBO70AJUcxIrbmvAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anisse Astier <anisse@astier.eu>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 008/171] drm: Add orientation quirk for GPD Win Max
+Subject: [PATCH 5.15 096/277] net/mlx5e: Remove overzealous validations in netlink EEPROM query
 Date:   Tue, 12 Apr 2022 08:28:19 +0200
-Message-Id: <20220412062928.122822700@linuxfoundation.org>
+Message-Id: <20220412062944.822075636@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anisse Astier <anisse@astier.eu>
+From: Gal Pressman <gal@nvidia.com>
 
-[ Upstream commit 0b464ca3e0dd3cec65f28bc6d396d82f19080f69 ]
+[ Upstream commit 970adfb76095fa719778d70a6b86030d2feb88dd ]
 
-Panel is 800x1280, but mounted on a laptop form factor, sideways.
+Unlike the legacy EEPROM callbacks, when using the netlink EEPROM query
+(get_module_eeprom_by_page) the driver should not try to validate the
+query parameters, but just perform the read requested by the userspace.
 
-Signed-off-by: Anisse Astier <anisse@astier.eu>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211229222200.53128-3-anisse@astier.eu
+Recent discussion in the mailing list:
+https://lore.kernel.org/netdev/20220120093051.70845141@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net/
+
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../net/ethernet/mellanox/mlx5/core/port.c    | 23 -------------------
+ 1 file changed, 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 448c2f2d803a..f5ab891731d0 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -166,6 +166,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MicroPC"),
- 		},
- 		.driver_data = (void *)&lcd720x1280_rightside_up,
-+	}, {	/* GPD Win Max */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "GPD"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "G1619-01"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/*
- 		 * GPD Pocket, note that the the DMI data is less generic then
- 		 * it seems, devices with a board-vendor of "AMI Corporation"
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/port.c b/drivers/net/ethernet/mellanox/mlx5/core/port.c
+index 7b16a1188aab..fd79860de723 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/port.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/port.c
+@@ -433,35 +433,12 @@ int mlx5_query_module_eeprom_by_page(struct mlx5_core_dev *dev,
+ 				     struct mlx5_module_eeprom_query_params *params,
+ 				     u8 *data)
+ {
+-	u8 module_id;
+ 	int err;
+ 
+ 	err = mlx5_query_module_num(dev, &params->module_number);
+ 	if (err)
+ 		return err;
+ 
+-	err = mlx5_query_module_id(dev, params->module_number, &module_id);
+-	if (err)
+-		return err;
+-
+-	switch (module_id) {
+-	case MLX5_MODULE_ID_SFP:
+-		if (params->page > 0)
+-			return -EINVAL;
+-		break;
+-	case MLX5_MODULE_ID_QSFP:
+-	case MLX5_MODULE_ID_QSFP28:
+-	case MLX5_MODULE_ID_QSFP_PLUS:
+-		if (params->page > 3)
+-			return -EINVAL;
+-		break;
+-	case MLX5_MODULE_ID_DSFP:
+-		break;
+-	default:
+-		mlx5_core_err(dev, "Module ID not recognized: 0x%x\n", module_id);
+-		return -EINVAL;
+-	}
+-
+ 	if (params->i2c_address != MLX5_I2C_ADDR_HIGH &&
+ 	    params->i2c_address != MLX5_I2C_ADDR_LOW) {
+ 		mlx5_core_err(dev, "I2C address not recognized: 0x%x\n", params->i2c_address);
 -- 
 2.35.1
 
