@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E22914FDB2C
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6941D4FD6AB
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234642AbiDLHTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57806 "EHLO
+        id S1353546AbiDLHd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:33:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351655AbiDLHMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161E015708;
-        Mon, 11 Apr 2022 23:51:00 -0700 (PDT)
+        with ESMTP id S1353673AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD1562613D;
+        Tue, 12 Apr 2022 00:03:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA985B81B35;
-        Tue, 12 Apr 2022 06:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 205DCC385A6;
-        Tue, 12 Apr 2022 06:50:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 688F9615BB;
+        Tue, 12 Apr 2022 07:03:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F704C385A8;
+        Tue, 12 Apr 2022 07:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746257;
-        bh=NwKPkCap+dw1eHh5siCsbaMYWMopuS5/YjbGJCk9bjU=;
+        s=korg; t=1649746986;
+        bh=KATIwZicvNr90IGaZXN1HDWS0h1x5A7R1dmMW/o73O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1O9yb8C1YvNloXmOLVOalZd+lTRVSQK1XSCK/4QyDryCQJbGmep5FQBh8EWEVu1i0
-         o2EAln0PRfau0+LJK2Mq07PhU2GE3s1tqsKimJCPwNvC6D1xjJiKuOUvptv2JFy/aT
-         BA1Lp9tNETWyc3MCbQqJVgJNQHqitbnIYYzq7QAI=
+        b=HKG0fF5EWbBoAyp1kBr/l3zaDltuC2XMDrgrdvb8/inOTzmS/bk9DaXkng1Y7hqBL
+         rMYDQ5q2uBIVTrUttVL5aHk8fFCdE0C5J5mt2rdiyR9Z68SGWWDjP2mPCiaprIucpd
+         qDfDSASdvr7ToBGBM1OEcyegVL0BclGffSqQyv1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6bde52d89cfdf9f61425@syzkaller.appspotmail.com,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 216/277] mmmremap.c: avoid pointless invalidate_range_start/end on mremap(old_size=0)
+        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 162/285] vrf: fix packet sniffing for traffic originating from ip tunnels
 Date:   Tue, 12 Apr 2022 08:30:19 +0200
-Message-Id: <20220412062948.291822180@linuxfoundation.org>
+Message-Id: <20220412062948.346283747@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-commit 01e67e04c28170c47700c2c226d732bbfedb1ad0 upstream.
+[ Upstream commit 012d69fbfcc739f846766c1da56ef8b493b803b5 ]
 
-If an mremap() syscall with old_size=0 ends up in move_page_tables(), it
-will call invalidate_range_start()/invalidate_range_end() unnecessarily,
-i.e.  with an empty range.
+in commit 048939088220
+("vrf: add mac header for tunneled packets when sniffer is attached")
+an Ethernet header was cooked for traffic originating from tunnel devices.
 
-This causes a WARN in KVM's mmu_notifier.  In the past, empty ranges
-have been diagnosed to be off-by-one bugs, hence the WARNing.  Given the
-low (so far) number of unique reports, the benefits of detecting more
-buggy callers seem to outweigh the cost of having to fix cases such as
-this one, where userspace is doing something silly.  In this particular
-case, an early return from move_page_tables() is enough to fix the
-issue.
+However, the header is added based on whether the mac_header is unset
+and ignores cases where the device doesn't expose a mac header to upper
+layers, such as in ip tunnels like ipip and gre.
 
-Link: https://lkml.kernel.org/r/20220329173155.172439-1-pbonzini@redhat.com
-Reported-by: syzbot+6bde52d89cfdf9f61425@syzkaller.appspotmail.com
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Sean Christopherson <seanjc@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Traffic originating from such devices still appears garbled when capturing
+on the vrf device.
+
+Fix by observing whether the original device exposes a header to upper
+layers, similar to the logic done in af_packet.
+
+In addition, skb->mac_len needs to be adjusted after adding the Ethernet
+header for the skb_push/pull() surrounding dev_queue_xmit_nit() to work
+on these packets.
+
+Fixes: 048939088220 ("vrf: add mac header for tunneled packets when sniffer is attached")
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mremap.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/vrf.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -486,6 +486,9 @@ unsigned long move_page_tables(struct vm
- 	pmd_t *old_pmd, *new_pmd;
- 	pud_t *old_pud, *new_pud;
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index b2242a082431..091dd7caf10c 100644
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -1265,6 +1265,7 @@ static int vrf_prepare_mac_header(struct sk_buff *skb,
+ 	eth = (struct ethhdr *)skb->data;
  
-+	if (!len)
-+		return 0;
+ 	skb_reset_mac_header(skb);
++	skb_reset_mac_len(skb);
+ 
+ 	/* we set the ethernet destination and the source addresses to the
+ 	 * address of the VRF device.
+@@ -1294,9 +1295,9 @@ static int vrf_prepare_mac_header(struct sk_buff *skb,
+  */
+ static int vrf_add_mac_header_if_unset(struct sk_buff *skb,
+ 				       struct net_device *vrf_dev,
+-				       u16 proto)
++				       u16 proto, struct net_device *orig_dev)
+ {
+-	if (skb_mac_header_was_set(skb))
++	if (skb_mac_header_was_set(skb) && dev_has_header(orig_dev))
+ 		return 0;
+ 
+ 	return vrf_prepare_mac_header(skb, vrf_dev, proto);
+@@ -1402,6 +1403,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ 
+ 	/* if packet is NDISC then keep the ingress interface */
+ 	if (!is_ndisc) {
++		struct net_device *orig_dev = skb->dev;
 +
- 	old_end = old_addr + len;
- 	flush_cache_range(vma, old_addr, old_end);
+ 		vrf_rx_stats(vrf_dev, skb->len);
+ 		skb->dev = vrf_dev;
+ 		skb->skb_iif = vrf_dev->ifindex;
+@@ -1410,7 +1413,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ 			int err;
  
+ 			err = vrf_add_mac_header_if_unset(skb, vrf_dev,
+-							  ETH_P_IPV6);
++							  ETH_P_IPV6,
++							  orig_dev);
+ 			if (likely(!err)) {
+ 				skb_push(skb, skb->mac_len);
+ 				dev_queue_xmit_nit(skb, vrf_dev);
+@@ -1440,6 +1444,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
+ 				  struct sk_buff *skb)
+ {
++	struct net_device *orig_dev = skb->dev;
++
+ 	skb->dev = vrf_dev;
+ 	skb->skb_iif = vrf_dev->ifindex;
+ 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
+@@ -1460,7 +1466,8 @@ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
+ 	if (!list_empty(&vrf_dev->ptype_all)) {
+ 		int err;
+ 
+-		err = vrf_add_mac_header_if_unset(skb, vrf_dev, ETH_P_IP);
++		err = vrf_add_mac_header_if_unset(skb, vrf_dev, ETH_P_IP,
++						  orig_dev);
+ 		if (likely(!err)) {
+ 			skb_push(skb, skb->mac_len);
+ 			dev_queue_xmit_nit(skb, vrf_dev);
+-- 
+2.35.1
+
 
 
