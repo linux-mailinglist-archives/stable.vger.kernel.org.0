@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF7AA4FD97D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:40:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 917644FD640
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347480AbiDLHUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:20:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57972 "EHLO
+        id S1344771AbiDLHcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:32:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351689AbiDLHMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA48C29830;
-        Mon, 11 Apr 2022 23:51:08 -0700 (PDT)
+        with ESMTP id S1353668AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6096026131;
+        Tue, 12 Apr 2022 00:03:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 36656CE1C09;
-        Tue, 12 Apr 2022 06:51:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F9D7C385A6;
-        Tue, 12 Apr 2022 06:51:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1830DB81B4F;
+        Tue, 12 Apr 2022 07:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60027C385A1;
+        Tue, 12 Apr 2022 07:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746265;
-        bh=LrO/NPznNV1aounXGisBxWbAil2ax0fJhHmdqmv6spY=;
+        s=korg; t=1649746997;
+        bh=KYvNWmvcufRGisxLQBRQSZB6gdJCISTyyTFtl1WR3T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTQWHqVxF+I24X1oef0toaMtwQ+WAX3vE25Eem6sT1Fy5atbD3kk7kbUCAaS0tHry
-         DA8+RaBOksS/2sa9XEdvgh5OxSSgQnzde0/dzm7HS1irya/82l/3HIoKC+jQLITpxt
-         +Bh+9JrAa8kSbgRaefp0PWhF3d8gO14am3wx+I8c=
+        b=XRIwjy1pecQ77zrWv3TWzhMo3EEC+KSSzKI9BirXS4nNwCY5P8YbyodCCbufM5vPT
+         35UKYaHIx1tz9fKI1vJTp5pXRWO094vw754DCoSu1pXUB62t2/Wu+vz4SBS1FSCwjV
+         ka+i8Hp+mGQfgm2U7DfZEp9AMzxdFO9FVGZB7VXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 219/277] io_uring: defer splice/tee file validity check until command issue
-Date:   Tue, 12 Apr 2022 08:30:22 +0200
-Message-Id: <20220412062948.379725655@linuxfoundation.org>
+        stable@vger.kernel.org, Matthew Rinaldi <mjrinal@g.clemson.edu>,
+        Matt Johnston <matt@codeconstruct.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 166/285] mctp: Use output netdev to allocate skb headroom
+Date:   Tue, 12 Apr 2022 08:30:23 +0200
+Message-Id: <20220412062948.461065145@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,147 +55,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Matt Johnston <matt@codeconstruct.com.au>
 
-commit a3e4bc23d5470b2beb7cc42a86b6a3e75b704c15 upstream.
+[ Upstream commit 4a9dda1c1da65beee994f0977a56a9a21c5db2a7 ]
 
-In preparation for not using the file at prep time, defer checking if this
-file refers to a valid io_uring instance until issue time.
+Previously the skb was allocated with headroom MCTP_HEADER_MAXLEN,
+but that isn't sufficient if we are using devs that are not MCTP
+specific.
 
-This also means we can get rid of the cleanup flag for splice and tee.
+This also adds a check that the smctp_halen provided to sendmsg for
+extended addressing is the correct size for the netdev.
 
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 833ef3b91de6 ("mctp: Populate socket implementation")
+Reported-by: Matthew Rinaldi <mjrinal@g.clemson.edu>
+Signed-off-by: Matt Johnston <matt@codeconstruct.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   49 +++++++++++++++++++++----------------------------
- 1 file changed, 21 insertions(+), 28 deletions(-)
+ include/net/mctp.h |  2 --
+ net/mctp/af_mctp.c | 46 +++++++++++++++++++++++++++++++++-------------
+ net/mctp/route.c   | 14 +++++++++++---
+ 3 files changed, 44 insertions(+), 18 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -623,10 +623,10 @@ struct io_epoll {
+diff --git a/include/net/mctp.h b/include/net/mctp.h
+index 7e35ec79b909..204ae3aebc0d 100644
+--- a/include/net/mctp.h
++++ b/include/net/mctp.h
+@@ -36,8 +36,6 @@ struct mctp_hdr {
+ #define MCTP_HDR_TAG_SHIFT	0
+ #define MCTP_HDR_TAG_MASK	GENMASK(2, 0)
  
- struct io_splice {
- 	struct file			*file_out;
--	struct file			*file_in;
- 	loff_t				off_out;
- 	loff_t				off_in;
- 	u64				len;
-+	int				splice_fd_in;
- 	unsigned int			flags;
- };
+-#define MCTP_HEADER_MAXLEN	4
+-
+ #define MCTP_INITIAL_DEFAULT_NET	1
  
-@@ -1452,14 +1452,6 @@ static void io_prep_async_work(struct io
- 		if (def->unbound_nonreg_file)
- 			req->work.flags |= IO_WQ_WORK_UNBOUND;
+ static inline bool mctp_address_ok(mctp_eid_t eid)
+diff --git a/net/mctp/af_mctp.c b/net/mctp/af_mctp.c
+index 871cf6266125..102851189bbf 100644
+--- a/net/mctp/af_mctp.c
++++ b/net/mctp/af_mctp.c
+@@ -90,13 +90,13 @@ static int mctp_bind(struct socket *sock, struct sockaddr *addr, int addrlen)
+ static int mctp_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ {
+ 	DECLARE_SOCKADDR(struct sockaddr_mctp *, addr, msg->msg_name);
+-	const int hlen = MCTP_HEADER_MAXLEN + sizeof(struct mctp_hdr);
+ 	int rc, addrlen = msg->msg_namelen;
+ 	struct sock *sk = sock->sk;
+ 	struct mctp_sock *msk = container_of(sk, struct mctp_sock, sk);
+ 	struct mctp_skb_cb *cb;
+ 	struct mctp_route *rt;
+-	struct sk_buff *skb;
++	struct sk_buff *skb = NULL;
++	int hlen;
+ 
+ 	if (addr) {
+ 		if (addrlen < sizeof(struct sockaddr_mctp))
+@@ -119,6 +119,34 @@ static int mctp_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 	if (addr->smctp_network == MCTP_NET_ANY)
+ 		addr->smctp_network = mctp_default_net(sock_net(sk));
+ 
++	/* direct addressing */
++	if (msk->addr_ext && addrlen >= sizeof(struct sockaddr_mctp_ext)) {
++		DECLARE_SOCKADDR(struct sockaddr_mctp_ext *,
++				 extaddr, msg->msg_name);
++		struct net_device *dev;
++
++		rc = -EINVAL;
++		rcu_read_lock();
++		dev = dev_get_by_index_rcu(sock_net(sk), extaddr->smctp_ifindex);
++		/* check for correct halen */
++		if (dev && extaddr->smctp_halen == dev->addr_len) {
++			hlen = LL_RESERVED_SPACE(dev) + sizeof(struct mctp_hdr);
++			rc = 0;
++		}
++		rcu_read_unlock();
++		if (rc)
++			goto err_free;
++		rt = NULL;
++	} else {
++		rt = mctp_route_lookup(sock_net(sk), addr->smctp_network,
++				       addr->smctp_addr.s_addr);
++		if (!rt) {
++			rc = -EHOSTUNREACH;
++			goto err_free;
++		}
++		hlen = LL_RESERVED_SPACE(rt->dev->dev) + sizeof(struct mctp_hdr);
++	}
++
+ 	skb = sock_alloc_send_skb(sk, hlen + 1 + len,
+ 				  msg->msg_flags & MSG_DONTWAIT, &rc);
+ 	if (!skb)
+@@ -137,8 +165,8 @@ static int mctp_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 	cb = __mctp_cb(skb);
+ 	cb->net = addr->smctp_network;
+ 
+-	/* direct addressing */
+-	if (msk->addr_ext && addrlen >= sizeof(struct sockaddr_mctp_ext)) {
++	if (!rt) {
++		/* fill extended address in cb */
+ 		DECLARE_SOCKADDR(struct sockaddr_mctp_ext *,
+ 				 extaddr, msg->msg_name);
+ 
+@@ -149,17 +177,9 @@ static int mctp_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 		}
+ 
+ 		cb->ifindex = extaddr->smctp_ifindex;
++		/* smctp_halen is checked above */
+ 		cb->halen = extaddr->smctp_halen;
+ 		memcpy(cb->haddr, extaddr->smctp_haddr, cb->halen);
+-
+-		rt = NULL;
+-	} else {
+-		rt = mctp_route_lookup(sock_net(sk), addr->smctp_network,
+-				       addr->smctp_addr.s_addr);
+-		if (!rt) {
+-			rc = -EHOSTUNREACH;
+-			goto err_free;
+-		}
  	}
--
--	switch (req->opcode) {
--	case IORING_OP_SPLICE:
--	case IORING_OP_TEE:
--		if (!S_ISREG(file_inode(req->splice.file_in)->i_mode))
--			req->work.flags |= IO_WQ_WORK_UNBOUND;
--		break;
--	}
- }
  
- static void io_prep_async_link(struct io_kiocb *req)
-@@ -4027,18 +4019,11 @@ static int __io_splice_prep(struct io_ki
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
+ 	rc = mctp_local_output(sk, rt, skb, addr->smctp_addr.s_addr,
+diff --git a/net/mctp/route.c b/net/mctp/route.c
+index d1e93b7f67d2..caa042ea777e 100644
+--- a/net/mctp/route.c
++++ b/net/mctp/route.c
+@@ -500,6 +500,11 @@ static int mctp_route_output(struct mctp_route *route, struct sk_buff *skb)
  
--	sp->file_in = NULL;
- 	sp->len = READ_ONCE(sqe->len);
- 	sp->flags = READ_ONCE(sqe->splice_flags);
--
- 	if (unlikely(sp->flags & ~valid_flags))
- 		return -EINVAL;
--
--	sp->file_in = io_file_get(req->ctx, req, READ_ONCE(sqe->splice_fd_in),
--				  (sp->flags & SPLICE_F_FD_IN_FIXED));
--	if (!sp->file_in)
--		return -EBADF;
--	req->flags |= REQ_F_NEED_CLEANUP;
-+	sp->splice_fd_in = READ_ONCE(sqe->splice_fd_in);
- 	return 0;
- }
- 
-@@ -4053,20 +4038,27 @@ static int io_tee_prep(struct io_kiocb *
- static int io_tee(struct io_kiocb *req, unsigned int issue_flags)
+ 	if (cb->ifindex) {
+ 		/* direct route; use the hwaddr we stashed in sendmsg */
++		if (cb->halen != skb->dev->addr_len) {
++			/* sanity check, sendmsg should have already caught this */
++			kfree_skb(skb);
++			return -EMSGSIZE;
++		}
+ 		daddr = cb->haddr;
+ 	} else {
+ 		/* If lookup fails let the device handle daddr==NULL */
+@@ -709,7 +714,7 @@ static int mctp_do_fragment_route(struct mctp_route *rt, struct sk_buff *skb,
  {
- 	struct io_splice *sp = &req->splice;
--	struct file *in = sp->file_in;
- 	struct file *out = sp->file_out;
- 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
-+	struct file *in;
- 	long ret = 0;
+ 	const unsigned int hlen = sizeof(struct mctp_hdr);
+ 	struct mctp_hdr *hdr, *hdr2;
+-	unsigned int pos, size;
++	unsigned int pos, size, headroom;
+ 	struct sk_buff *skb2;
+ 	int rc;
+ 	u8 seq;
+@@ -723,6 +728,9 @@ static int mctp_do_fragment_route(struct mctp_route *rt, struct sk_buff *skb,
+ 		return -EMSGSIZE;
+ 	}
  
- 	if (issue_flags & IO_URING_F_NONBLOCK)
- 		return -EAGAIN;
++	/* keep same headroom as the original skb */
++	headroom = skb_headroom(skb);
 +
-+	in = io_file_get(req->ctx, req, sp->splice_fd_in,
-+				  (sp->flags & SPLICE_F_FD_IN_FIXED));
-+	if (!in) {
-+		ret = -EBADF;
-+		goto done;
-+	}
-+
- 	if (sp->len)
- 		ret = do_tee(in, out, sp->len, flags);
+ 	/* we've got the header */
+ 	skb_pull(skb, hlen);
  
- 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
- 		io_put_file(in);
--	req->flags &= ~REQ_F_NEED_CLEANUP;
--
-+done:
- 	if (ret != sp->len)
- 		req_set_fail(req);
- 	io_req_complete(req, ret);
-@@ -4085,15 +4077,22 @@ static int io_splice_prep(struct io_kioc
- static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
- {
- 	struct io_splice *sp = &req->splice;
--	struct file *in = sp->file_in;
- 	struct file *out = sp->file_out;
- 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
- 	loff_t *poff_in, *poff_out;
-+	struct file *in;
- 	long ret = 0;
+@@ -730,7 +738,7 @@ static int mctp_do_fragment_route(struct mctp_route *rt, struct sk_buff *skb,
+ 		/* size of message payload */
+ 		size = min(mtu - hlen, skb->len - pos);
  
- 	if (issue_flags & IO_URING_F_NONBLOCK)
- 		return -EAGAIN;
- 
-+	in = io_file_get(req->ctx, req, sp->splice_fd_in,
-+				  (sp->flags & SPLICE_F_FD_IN_FIXED));
-+	if (!in) {
-+		ret = -EBADF;
-+		goto done;
-+	}
-+
- 	poff_in = (sp->off_in == -1) ? NULL : &sp->off_in;
- 	poff_out = (sp->off_out == -1) ? NULL : &sp->off_out;
- 
-@@ -4102,8 +4101,7 @@ static int io_splice(struct io_kiocb *re
- 
- 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
- 		io_put_file(in);
--	req->flags &= ~REQ_F_NEED_CLEANUP;
--
-+done:
- 	if (ret != sp->len)
- 		req_set_fail(req);
- 	io_req_complete(req, ret);
-@@ -6649,11 +6647,6 @@ static void io_clean_op(struct io_kiocb
- 			kfree(io->free_iov);
+-		skb2 = alloc_skb(MCTP_HEADER_MAXLEN + hlen + size, GFP_KERNEL);
++		skb2 = alloc_skb(headroom + hlen + size, GFP_KERNEL);
+ 		if (!skb2) {
+ 			rc = -ENOMEM;
  			break;
- 			}
--		case IORING_OP_SPLICE:
--		case IORING_OP_TEE:
--			if (!(req->splice.flags & SPLICE_F_FD_IN_FIXED))
--				io_put_file(req->splice.file_in);
--			break;
- 		case IORING_OP_OPENAT:
- 		case IORING_OP_OPENAT2:
- 			if (req->open.filename)
+@@ -746,7 +754,7 @@ static int mctp_do_fragment_route(struct mctp_route *rt, struct sk_buff *skb,
+ 			skb_set_owner_w(skb2, skb->sk);
+ 
+ 		/* establish packet */
+-		skb_reserve(skb2, MCTP_HEADER_MAXLEN);
++		skb_reserve(skb2, headroom);
+ 		skb_reset_network_header(skb2);
+ 		skb_put(skb2, hlen + size);
+ 		skb2->transport_header = skb2->network_header + hlen;
+-- 
+2.35.1
+
 
 
