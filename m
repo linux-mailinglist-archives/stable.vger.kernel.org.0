@@ -2,141 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8490F4FCEB8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 07:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBB204FCEBC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 07:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236896AbiDLFS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 01:18:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48168 "EHLO
+        id S243466AbiDLFSk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 01:18:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239534AbiDLFS1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 01:18:27 -0400
+        with ESMTP id S239534AbiDLFSf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 01:18:35 -0400
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10F1344D5;
-        Mon, 11 Apr 2022 22:16:10 -0700 (PDT)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23BLtMIk029741;
-        Tue, 12 Apr 2022 05:16:09 GMT
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B7D6344EF;
+        Mon, 11 Apr 2022 22:16:19 -0700 (PDT)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23C3I1iu008564;
+        Tue, 12 Apr 2022 05:16:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2021-07-09; bh=IEndfXy9jiOzWuwTkMw4OXx/3CbSemHQeUkLPmGuOhc=;
- b=XShKdXazBzc8whg4ha4eM7lV02CWXU19Y963VZhMBg9KsjQh3WHGqOHZDdzQKUVvPjlc
- xGdgoW+leg7PEFkp6HRnbpqFvFZQpyfLGF6g91x7ysW1uDE6oSpInKsj07Dfmv3sica1
- sZOZ68U4MO0aUMXSyoh6r8ZkD6ez0Bde6Ojhv9z6p1dXvZHVV93rSXWyMKJROUf3Y/kL
- CVYuZeoLNPwencUlGIyVn8llSRsSYhpu1iki8+UIu7svlA5vWt7occXIMgig1wpf4V/L
- qwji18jpJnjyiuI4OriSWEtwh0WJce7xcWyGLMVtTZTSZ9BdIKWdFbEVr+1Mot5RZCwN qA== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3fb0jd5g2d-1
+ s=corp-2021-07-09; bh=PTEA+N1XhqybQyFM2JLWgGwf4Cn2MWL8Z3+i5Yv4H5Y=;
+ b=yD4RONZahZaA0zjBQW5eGm4ZglR82KOum+hhM/lelZUDG63Yg+NLK2xQiK56MV/2xMtk
+ vHSjc8Dq3OvHB6BsIPm0vhj6TbFjDl1lRdfYRd8ihmc1nBZdmmsdq6vjWyHCpAvwStlv
+ Kt9lbR3DK69OQHn+3soKUgedugZSgj4s9fAo10G5VXQG23PDeoTvfrRRQm8mkyZz59vz
+ raviVowKS8ugjdCjK4usp1vTZVLAjbz0WJ9l6l6J0efyIyfI58U31/VQV2r5oEEvvdtc
+ Lsky/I+GYiLttaUwijDLGia6Ve9XBA+UFFZI52DWzg9xviiUVeGQCqJAPqnGPaetz0g/ Fw== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3fb0x2dmax-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Apr 2022 05:16:08 +0000
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 23C5BO6h006109;
-        Tue, 12 Apr 2022 05:16:08 GMT
-Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2170.outbound.protection.outlook.com [104.47.57.170])
-        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3fb0k2cks3-1
+        Tue, 12 Apr 2022 05:16:16 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 23C5BDFH028059;
+        Tue, 12 Apr 2022 05:16:15 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2168.outbound.protection.outlook.com [104.47.57.168])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3fb0k23uev-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 12 Apr 2022 05:16:07 +0000
+        Tue, 12 Apr 2022 05:16:15 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FRHfxAF+tcWTGm6Y6J/gkNoq/BPVQZj8XKZazC2ywEcSrxnKeUZ1otIMwyeJEwoc30rGwXYhlA2ibo1SjXVqynDzhe4/RYiHklg4S/dnA9bAIrQNV5caplqkx9bqIP3ZrqfA6RZWKHEWUwCElbAbCWg2j6KmyLFoS95SfbnA5BrMPB5DZyx9CNfZsIgW/i9vFDAh4GNOg9auBL5LNBkFfc6fMawE8qw1n985TBwXiZ1BNw2C3/aNlRYt1XErqDBEJ49nOPa8I/v9Kl8m9eMkA2Xi3Xpre0PrBViplNL0Bgeme7UKRCMFYFtkyRnRZkYhC/ksoIyY2VnOO+mteKk8pg==
+ b=WswKWWZXciq/VfMzj/gTfef2WFJcHBMkOI3AVRAR+Sc0XU+8ns8hUYiaShGHi702RtkEOW00KWC+89Kwfdb9H8tjwaucOycp/6iaex/JXblDzZRWqbzAzhOSWLnNrl1XMQA2xlh8vFwn2e5XUnzvGx+89ImsBCidBx+fTEGFlYI5zEPJy1Gb7hgqajXgTdpJgqFp58hnpkdHt2A4sl2YS9ftyKo33QP002eSAsvgoi+0Rozd0teS87RB30ARuXKI54AFs3wC5SrFuGVvrlSADPHcMwrhohFq5fVLQx+saYN5GBjddxWHLxM6P++M4sxb6rzWGyis2askSjop7ekaXQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IEndfXy9jiOzWuwTkMw4OXx/3CbSemHQeUkLPmGuOhc=;
- b=dxlIQmNzhmKDQZusaNFP7OihFI7VCUBZ5zuzXxANiFI8QRO0sXe3RC19y9slMKSHdWS0o0B89UlHxrzPLruAKFJ4WvZ6Y5B0O6yn+XRd6uOH3Ozai6ZoGtLXSgPUKy8mHuKPSiJ1stluYd20qsnuczkgxyaiAFRpB/2HpBtAhbW0q8zS+Uu2/phSGlAMQM8mW5tJFXRSvLQmaX0IbKGB1vj/gwMnyGDDGIb+4IUVMj+I9osPOiC6qdXx5zv248VO2aRm0yTeSQzQzxuZfGYu1rKd4bOHKs+gF2I37VGGFBUiP2PvIlUWlBRP/B496p2JvbW5gBhCK87MEktM2ogykA==
+ bh=PTEA+N1XhqybQyFM2JLWgGwf4Cn2MWL8Z3+i5Yv4H5Y=;
+ b=TDyq5Abx17L+GCv7kdyfC2ZbgLDN+/y4mUzC4QGZxi1CIV62bHvXaXZL/cjSGGq72Tipe4JI84DtZjLPjObiYb8M0WzJBsiyUNqq3mqtZzmi7FsokhxWHscJqpv+HXrjhrzDQT5PojYY0HyTPVWH2qRG/uYfQfkAMsxvfryg72OZbhVjXuWFApsh/LS1fYWcnHsheAgNi5cL2HGIbS/xujb+5YdiLN6KVsD6rXICoPnhU+kJWQX1HELog1FLLwgJI8c63ODxSwHt6HkzKOOSQgZxpuZ7MjkhrvuDe24v72av60WiHkh4lvaozTPgPWw09966mqzaOM9n3Lzt+1176w==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IEndfXy9jiOzWuwTkMw4OXx/3CbSemHQeUkLPmGuOhc=;
- b=esrrEdRWHqtISEb6/rFeTB6UPSN93ir7Q2ObLYFa/JH0DPKmPXC1LNoHgYo2kNCbWNZQgRkjzXtwg1tEfeCF7EFtv7D/J29hq8nGigicI8txm+E65Rqr97c/F27qZgpQ17ZaFb6+ns0yuVT7VCbvIclecevX5L4u7uTOATyXMrA=
+ bh=PTEA+N1XhqybQyFM2JLWgGwf4Cn2MWL8Z3+i5Yv4H5Y=;
+ b=L6umTRDfCGjMI8cYAnOppXTNx00Q1Wy1K3qu2lxuGU5TwuhWomDcI1u4+2HdHH40HPQs7EdfSchvvCvPzcfCCJKx35Eqf6aVFlL/JIzyTptQFnovbsunyQ5QJxI2Rki3WeaR84SjxRqI/hToxFkHWIbuSwtV2/fyx3wItjxMP+M=
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com (2603:10b6:510:148::10)
  by BN8PR10MB3329.namprd10.prod.outlook.com (2603:10b6:408:cd::23) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5144.29; Tue, 12 Apr
- 2022 05:16:06 +0000
+ 2022 05:16:13 +0000
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::d414:7654:e1b8:4306]) by PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::d414:7654:e1b8:4306%7]) with mapi id 15.20.5144.029; Tue, 12 Apr 2022
- 05:16:06 +0000
+ 05:16:13 +0000
 From:   Anand Jain <anand.jain@oracle.com>
 To:     stable@vger.kernel.org
 Cc:     linux-btrfs@vger.kernel.org,
         Andreas Gruenbacher <agruenba@redhat.com>,
         Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH v2 05/18 stable-5.15.y] gfs2: Clean up function may_grant
-Date:   Tue, 12 Apr 2022 13:15:02 +0800
-Message-Id: <e797c2f5fe230f1ae5c732cddbe98f06531a3483.1649733186.git.anand.jain@oracle.com>
+Subject: [PATCH v2 06/18 stable-5.15.y] gfs2: Move the inode glock locking to gfs2_file_buffered_write
+Date:   Tue, 12 Apr 2022 13:15:03 +0800
+Message-Id: <9ac0468803165f72cb1a30db282a13a2336e2739.1649733186.git.anand.jain@oracle.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <cover.1649733186.git.anand.jain@oracle.com>
 References: <cover.1649733186.git.anand.jain@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SI2PR02CA0030.apcprd02.prod.outlook.com
- (2603:1096:4:195::17) To PH0PR10MB5706.namprd10.prod.outlook.com
+X-ClientProxiedBy: SG2PR03CA0099.apcprd03.prod.outlook.com
+ (2603:1096:4:7c::27) To PH0PR10MB5706.namprd10.prod.outlook.com
  (2603:10b6:510:148::10)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: ecb785dd-e195-4358-501c-08da1c438bae
+X-MS-Office365-Filtering-Correlation-Id: c9450519-4571-4591-f8dd-08da1c439037
 X-MS-TrafficTypeDiagnostic: BN8PR10MB3329:EE_
-X-Microsoft-Antispam-PRVS: <BN8PR10MB3329595D84E49EDB454B6733E5ED9@BN8PR10MB3329.namprd10.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <BN8PR10MB332969FE70864A12541FB222E5ED9@BN8PR10MB3329.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: n/yaZ6A3hz5wZUiepIpVjwuy+cSuh0w9s2fuT2JMiD6tqp30GoV2Y2wFGazv3lnn578Plfnn4rHigRd516PAKOa0AolBN3EroP2VlcVmVbZ5JeJzQArpKCbYcNtnLBVpIXr591X+kX45wyIOsAvZCBIh3lJr8zWoqGNMHTbasu/7aNscd++SZsGWKws9uoqMnsB3E/SkfYYep/iApK090NG2RhmcR1gwMzV4QjVeWnXXB7595GsREXKg/kM6dCQ8jJz7Nvqx/XyI6cuXH47CUSmd65rBxRxalMR07Vl84mWVsiSvPnGKx5oSGrAMiT5jw+7FaBgotUKDJXW47Bx/0dSAvsaQWpGc9Q2IGX84BgipkTKAtw3yGoEN1SNw2bPB+Ry05T8VoPHbyTFuyC3KssunJt6fQUI0lDlkTnjS+hi0Ylkek3t3kj572uBp1Gm365nsaB4AtrotjaLgCLmQsrQ0cwATg0upG0F44INaWQPZpR0IHtdT/glCXpHVTQRQOeqI/xKlgAFeFbAlZmEiMrcPkX+urtBHRQTDcQYZPXOvfeaLPAb0xXO1l1Tn3GvpeQMZuD9P84pvCbjOZTFLiS0rXLRQjDbcCTAycv3h4/kA4QyoThy7vq0hTLLlxd5fXnfKcyctcucxZy+Chm0LOw==
+X-Microsoft-Antispam-Message-Info: wG5l4bSnjm+VgeNXHnWuV0ZHbLzIQAYhGxlk8SrFw6au9TKTQU5V5uorzihwMYMZzCZMF92urF6WKm6GVne3J7ZBz06BooLV/UkdadlX3mBOiue5yvd+jfVZ57AKC/TGK6zLC3G9mRgVOIqPXXhJmNCn/bzlQZhb3Rg9LVx27J99ozRCx1SvFxlxjw9U/2IctOJxqbY4jKTUdmu9jR2E/vw7/sEtsopmW2ktNe2m2MHln2ieBnFvkNIN8U+q4jZiqNAWcVOa+4sI/B5033dn9tCTM0qm1XOa/F5fhfCFo0NAs2UwBgjsJy1DwqG487D7XcwyqKjAUne2tkcX57ilXUsqNibjaJ3868UocRhxkHZ5vLbFUa60FspRU7g4VtYJMb2CQ2tZb+bTo9y6z1UUB8gyJpQKdYuI1xmR/qFYpW4Vb4mv2MaUUNET6Bkazk2/i3JjVO3NkAJXb7fPBPzpaBhgIkqFRY4Qeog7Ypn68Z3Jv55oYCbPblr0ekcmTqVhyeg8QZ2EMPshaE8ZQp/XMNpEREm/FdvK420hoggVeVhy0ItZS69QDlZSz0HqJWnujiSZFLwgZ1mtn9fJkTMvpQjpdNvSx4oNXvPb2pYQSwp4SEStLDlraTXI/O8oVRL69LB2YQlADML4i2qF6I7GXg==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(36756003)(6506007)(86362001)(38100700002)(54906003)(6916009)(316002)(6486002)(508600001)(6512007)(2906002)(6666004)(5660300002)(107886003)(2616005)(83380400001)(8676002)(66476007)(186003)(66946007)(66556008)(44832011)(8936002)(4326008);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?lxAk5Pb5JElDTRF2uFBPDqjx3I+SJI7tUz4TzqBWqN/pQhJTb2afrIQZB+e9?=
- =?us-ascii?Q?Dr2tGuKPQgO5uL2XGMM3Qn/WqMR5z+Iye2Oh18LxpRNVw3Q4VBZp5D4rlKP/?=
- =?us-ascii?Q?1RMOdLZM/Zbv5Oq6TjRuu8EXffgvsC5YxIzYyLeVvoc7BxrPg/KCTIW5CSFq?=
- =?us-ascii?Q?JD6Lq8+qJGYULqkMDFDGwZFyNail/lOefd0lHlDh67uKGlpAyhozU86MO7se?=
- =?us-ascii?Q?V9NteCCn3L6Cb700d0zpPXhqsNE7cSrjc4/1Ra0QolIbK9tUal03cBNfNwR3?=
- =?us-ascii?Q?feVjO4MdSagObOqUou+ZxSe4fNd00L4mXPgbYW5F/va2iKFgGpuK6nilt95e?=
- =?us-ascii?Q?1o8lckHCPMLf4zL4VMA8zHxIuQ1w0ZOsiW/CMoDz2p/0kCTCLpO4svfk77IY?=
- =?us-ascii?Q?WWi4PEQkT00T86BWH149V3phB4fh/jS4Bryiubles7YhflBgdF1TH9NHxrdO?=
- =?us-ascii?Q?pAVP/+RPT+MQTaPkhF9ZHdMAsiS7aJj/wAfNPcsd++De1bd69sE+85o/Rq+1?=
- =?us-ascii?Q?qxTDFmJS6iyb8GzH3nt0MRvt8yJfc/oatqQ/Zaj7Qn4//kyLmOug2ndeU6/y?=
- =?us-ascii?Q?gl+5KhnylcI0cLFCvhC31EiNh++k3JL+fFpHivHzmDWXVv/oDF6rZneJbJfC?=
- =?us-ascii?Q?DugeoxW77A7Bcxlh3OHkQ6GrmH+h5NGSbBf+3ba0NBRoSRuJWJJ33o0Td5p6?=
- =?us-ascii?Q?3Ntj0tfSWxXFJSJlKOkKmBOBk6DjgD1cKNLBQqn/hvvGHuvzQBoYkMEKbTgT?=
- =?us-ascii?Q?xhM6Ifk0Ae16nSDhZQYCtNVIvSvw7cRpybhA2mw5PcCksTQNfuRhHeOuACN4?=
- =?us-ascii?Q?/YDWL0I1iBLIDq7SdVjjhwehR60LqyYLrMG/dI6MlxlIgczuA0MHvfAl1WuP?=
- =?us-ascii?Q?bv4K/BSzZeAvOcgJnI7GdokXr7f9tZ7LTOWTLcvaeLHHS+n7OsdOTVvqskXK?=
- =?us-ascii?Q?Xe+fi0ci08g011l01wXHai0O3+dH0In7koKggtyOVwIGx2XBnFhwa6TMMrxz?=
- =?us-ascii?Q?HJEIjV2cAJUE97ZHX3EKmc2hlIATDh9biOGFHq2Tj5AXIKXWhJZWdW5BeL1O?=
- =?us-ascii?Q?YLi3Gtfn84EUYofSziwXYE4ZOTr4slwu5wwSKuhxSqvVopEyJTZa8MuAhYZ2?=
- =?us-ascii?Q?xHhb08qp5eLwSSPEDal9ZYvlJcccfxwD1hLA2h0aVVhM2IfBF7cVmFk82MuE?=
- =?us-ascii?Q?BZkZ+H3vCiPU8EUkjM1tE6G3+RPI/ZdKbXNeWyO3utC8VoHnzL185gdjDEPm?=
- =?us-ascii?Q?EKLfgyKbvaD0yKAsvrjql9p4kZ7wl4j0qR63zR6RecaDF8BgDrrslV3BTE62?=
- =?us-ascii?Q?3Obrw4GyyeZoktCOA6MeBFEx6vrPMJZZ+2GHKqjKSFFYFe+ZWfSaiKa/CBLE?=
- =?us-ascii?Q?Xcooep/4oZNsmE/lTw3RPw3mM2coL+YpU2pL34Yy18h9+WgijLHa8PV9moVA?=
- =?us-ascii?Q?zwVynPx4SmA+vvLxhVJHGSnwWHn8MHPia3wE5d8lKXtf1KFgSN0Py7J2YmeC?=
- =?us-ascii?Q?Cf/mPe5ADaoWb5t7RlwDIMkitgo864Dsn0mpNf68uonsbGGhCTbSVnvrhxur?=
- =?us-ascii?Q?nhm2jcku3mhG9ofP4NjA1OLJPgESivBFNS2Pet0mA3m5p12ImuusqYLAOTqH?=
- =?us-ascii?Q?EKnBbVZ7TUKWV6rrQVxGGUKx+ot1GigCT52zE2Hk/cj80Bllq+YQhdqd0Tn3?=
- =?us-ascii?Q?6iaw5R9XDGU+YmM8ez3Luc0t/hNaTJX9RIIQpc35DPgBT5m3CToYf+If2VpD?=
- =?us-ascii?Q?PSMNgOT4TmiFzNkSGafXcvHSWIPE+ZlLf7w/nVhEiP3sxH2lgJCM?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?RE9U1in9fMxv8CoyP0KLcfroxN8SJSDsrGxNTd/Q2VxxVWhfo88/0M8ongIi?=
+ =?us-ascii?Q?XigMJ/DBV2ER6RopInO14OxOVNSeSSVOsoi8BINAbWFPg7lm03vpDjSjUHjK?=
+ =?us-ascii?Q?wmCeb58w+roUJgQHqRMfxoTHMaOFhu3oPG/xRJ/dk2B07QJXYeL0uxiK8Xgo?=
+ =?us-ascii?Q?GiAAN3ZE2zQgtwp6QJaFRZEKgURzmDhF4MN7yjue3xyEcxASgg0v/9JOYbAR?=
+ =?us-ascii?Q?rigEYkWiPKHVyDt0q7CR2aC5agiIlBkqdBONP3ejTQItkLbkgXoJiZnFwD/6?=
+ =?us-ascii?Q?+c4hojqfj+JFMZObB3xHneNY/aBG3gt2zbDFxpvMMZ0ANpT0kh4a62LjyqEy?=
+ =?us-ascii?Q?5SaotrsdBYzTgPBbkrX2Yl2ZRRW7Exe7gj7KyMT3RZOCOsNyciANH7Um1RZL?=
+ =?us-ascii?Q?8MsA+5q7tl5DEnAR4gAuhU7KW/LzfznJGjUxhmf1Xw8X4lPJnz0ORiuROZoG?=
+ =?us-ascii?Q?FlpU3YjwAOxo8LpKeDCyAanyfrxWNaSbC53pdV3H2VrholZel1nBYjCWY61/?=
+ =?us-ascii?Q?cPH7hXtEbUblYURcETkscK3GYkQ4PONBf2L+1956yTAkfwhz1RgSiPJY/j4B?=
+ =?us-ascii?Q?fc1XWsFBE0s/ie1XKxp52WiD1g08ZXO5C68Y195caXoyrmPrz9B/Yc1qjRJl?=
+ =?us-ascii?Q?FBhmePAhj3ZhytqkaLhY11OKIdlwdsyDOm04ETjg8vyy0ekdpk+Pvt48MYa8?=
+ =?us-ascii?Q?evZ6WW1bUwNpWr/KtIuHMmRcmSoFoRh1SrSC5T1Hlkvc9cKIjoSG/Q3fI9Tq?=
+ =?us-ascii?Q?4zb6xBIt2vGfHRgIDxySgF0QsSYkI4Z4hQKfsVJJHQAFdukF/gyI1/veO/nd?=
+ =?us-ascii?Q?4uFpFBaBYUiHTX9PKOxPLR1dCEtaDDMn+2fimBbGnvGSAT97C4oXX9wrZTHW?=
+ =?us-ascii?Q?Cwm8L7ZC/k9D77x2WxTcVU1vJVEfJ2wARFVYB3rIpuCVWrlEhhWIwLDSHtgz?=
+ =?us-ascii?Q?z15DckdYmV05bUG6quG+scwjerMrQiI6WquI+b+L4w9qFMLbUe+TJX4aKNox?=
+ =?us-ascii?Q?wlAqCKCNG1EnFdtBzwdbRJTRoLOZvXJFiLWPHMGKjIb37YBt4G589Nz5dTk2?=
+ =?us-ascii?Q?MszkF3RpIUmOQPZcJF3k5lJQtr15xcNiXNCVHlWTgu/xp1nC+HceaaFs5Y46?=
+ =?us-ascii?Q?RhklrFOmZdlZjhERQBGIHlYw8gjGLK/G8UUb7+yOsT10V8B7C5N7YwPcNV9s?=
+ =?us-ascii?Q?ripm6dyJdDKKp04vCcrg65p+nOKzSTlERYNVmlqEpNP0QoKxs4ECw/yS8Ra2?=
+ =?us-ascii?Q?cYq8mMjDRCxGPFkWGcL76lRMh7g26ChwH1r+3IcPYCLZT8jVXL6F5XsQsEz2?=
+ =?us-ascii?Q?DBAjXHI4go9RfTYq175EQwQtNvkmPDEn5HHen3zvAk2czXiWvim+4hwaxrwr?=
+ =?us-ascii?Q?nV14mDG9zdjcYw8zS7Xsouc6XSJ8ZM19R3xQpJi7GP4A7ZpbDQy5jDfYZ2DF?=
+ =?us-ascii?Q?qRhmh7+epc1jPdIDJNxiz2MqM9AuAfpI0LMtstUc7xkPXiV9c9HqBBU4EPgn?=
+ =?us-ascii?Q?BW6lOHU0NSV8jU3xmtK2/NOdPEXHTiCoCG690UB7GntW1rmVYUsFUVxpc6xG?=
+ =?us-ascii?Q?oe25+ZfXGM0FtRWjOQkRMcWqLwgJEUa9rwbhZX2iHztyMwKvb/RotfCv3sdi?=
+ =?us-ascii?Q?poEppsUHr7DYLpxcJUO6kARoy3UUHZGEbsNp/m1Awn3MhphmQNj3tUjTKZ6i?=
+ =?us-ascii?Q?XlCY1JQKspEtmlL+4rCBuiGGzTtL87NV7cMOBdlQIBWf2bQaKRUJza2jZujm?=
+ =?us-ascii?Q?KJZQPeoxW4zbAuOBGNZWEzaD6k0lU1bwZJ0ItavuK01KeBEFXQ+i?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ecb785dd-e195-4358-501c-08da1c438bae
+X-MS-Exchange-CrossTenant-Network-Message-Id: c9450519-4571-4591-f8dd-08da1c439037
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5706.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2022 05:16:06.1001
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2022 05:16:13.7288
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: aiRUd47xagjMKsAqsowiUXLG9iI4+JwM3RMnYNUfQZKO/Vmt9D2OEKaeMZXzCmnFLjuwFkH1dBkNN3IKKV6eJw==
+X-MS-Exchange-CrossTenant-UserPrincipalName: D9PS7sfS5T0xp6c/B9gFGb2DERxoA1Bf+rVCEjhUUwqxV/hyG90WqudX4Fm6g9OF/6avbdaxqSstvnTAOr5UOg==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR10MB3329
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.425,18.0.858
  definitions=2022-04-12_01:2022-04-11,2022-04-12 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 malwarescore=0 bulkscore=0
- suspectscore=0 mlxlogscore=999 mlxscore=0 spamscore=0 phishscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0 mlxscore=0
+ bulkscore=0 phishscore=0 spamscore=0 mlxlogscore=999 suspectscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
  definitions=main-2204120023
-X-Proofpoint-ORIG-GUID: NtsUGfmi7VjbifBEkJMwUcgvMnjlb-cn
-X-Proofpoint-GUID: NtsUGfmi7VjbifBEkJMwUcgvMnjlb-cn
+X-Proofpoint-ORIG-GUID: LZf99VWcaIkq30uoOh92pyqr-0gWV5z3
+X-Proofpoint-GUID: LZf99VWcaIkq30uoOh92pyqr-0gWV5z3
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
@@ -149,198 +149,176 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 6144464937fe1e6135b13a30502a339d549bf093 upstream
+commit b924bdab7445946e2ed364a0e6e249d36f1f1158 upstream
 
-Pass the first current glock holder into function may_grant and
-deobfuscate the logic there.
+So far, for buffered writes, we were taking the inode glock in
+gfs2_iomap_begin and dropping it in gfs2_iomap_end with the intention of
+not holding the inode glock while iomap_write_actor faults in user
+pages.  It turns out that iomap_write_actor is called inside iomap_begin
+... iomap_end, so the user pages were still faulted in while holding the
+inode glock and the locking code in iomap_begin / iomap_end was
+completely pointless.
 
-While at it, switch from BUG_ON to GLOCK_BUG_ON in may_grant.  To make
-that build cleanly, de-constify the may_grant arguments.
-
-We're now using function find_first_holder in do_promote, so move the
-function's definition above do_promote.
+Move the locking into gfs2_file_buffered_write instead.  We'll take care
+of the potential deadlocks due to faulting in user pages while holding a
+glock in a subsequent patch.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Anand Jain <anand.jain@oracle.com>
 ---
- fs/gfs2/glock.c | 119 ++++++++++++++++++++++++++++--------------------
- 1 file changed, 69 insertions(+), 50 deletions(-)
+ fs/gfs2/bmap.c | 60 +-------------------------------------------------
+ fs/gfs2/file.c | 27 +++++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 59 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 02cd0ae98208..8f30ad956270 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -301,46 +301,59 @@ void gfs2_glock_put(struct gfs2_glock *gl)
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index bb9014ced702..fbdb7a30470a 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -961,46 +961,6 @@ static int __gfs2_iomap_get(struct inode *inode, loff_t pos, loff_t length,
+ 	goto out;
  }
  
- /**
-- * may_grant - check if its ok to grant a new lock
-+ * may_grant - check if it's ok to grant a new lock
-  * @gl: The glock
-+ * @current_gh: One of the current holders of @gl
-  * @gh: The lock request which we wish to grant
-  *
-- * Returns: true if its ok to grant the lock
-+ * With our current compatibility rules, if a glock has one or more active
-+ * holders (HIF_HOLDER flag set), any of those holders can be passed in as
-+ * @current_gh; they are all the same as far as compatibility with the new @gh
-+ * goes.
-+ *
-+ * Returns true if it's ok to grant the lock.
-  */
- 
--static inline int may_grant(const struct gfs2_glock *gl, const struct gfs2_holder *gh)
+-static int gfs2_write_lock(struct inode *inode)
 -{
--	const struct gfs2_holder *gh_head = list_first_entry(&gl->gl_holders, const struct gfs2_holder, gh_list);
-+static inline bool may_grant(struct gfs2_glock *gl,
-+			     struct gfs2_holder *current_gh,
-+			     struct gfs2_holder *gh)
-+{
-+	if (current_gh) {
-+		GLOCK_BUG_ON(gl, !test_bit(HIF_HOLDER, &current_gh->gh_iflags));
-+
-+		switch(current_gh->gh_state) {
-+		case LM_ST_EXCLUSIVE:
-+			/*
-+			 * Here we make a special exception to grant holders
-+			 * who agree to share the EX lock with other holders
-+			 * who also have the bit set. If the original holder
-+			 * has the LM_FLAG_NODE_SCOPE bit set, we grant more
-+			 * holders with the bit set.
-+			 */
-+			return gh->gh_state == LM_ST_EXCLUSIVE &&
-+			       (current_gh->gh_flags & LM_FLAG_NODE_SCOPE) &&
-+			       (gh->gh_flags & LM_FLAG_NODE_SCOPE);
- 
--	if (gh != gh_head) {
--		/**
--		 * Here we make a special exception to grant holders who agree
--		 * to share the EX lock with other holders who also have the
--		 * bit set. If the original holder has the LM_FLAG_NODE_SCOPE bit
--		 * is set, we grant more holders with the bit set.
--		 */
--		if (gh_head->gh_state == LM_ST_EXCLUSIVE &&
--		    (gh_head->gh_flags & LM_FLAG_NODE_SCOPE) &&
--		    gh->gh_state == LM_ST_EXCLUSIVE &&
--		    (gh->gh_flags & LM_FLAG_NODE_SCOPE))
--			return 1;
--		if ((gh->gh_state == LM_ST_EXCLUSIVE ||
--		     gh_head->gh_state == LM_ST_EXCLUSIVE))
--			return 0;
-+		case LM_ST_SHARED:
-+		case LM_ST_DEFERRED:
-+			return gh->gh_state == current_gh->gh_state;
-+
-+		default:
-+			return false;
-+		}
- 	}
-+
- 	if (gl->gl_state == gh->gh_state)
--		return 1;
-+		return true;
- 	if (gh->gh_flags & GL_EXACT)
--		return 0;
-+		return false;
- 	if (gl->gl_state == LM_ST_EXCLUSIVE) {
--		if (gh->gh_state == LM_ST_SHARED && gh_head->gh_state == LM_ST_SHARED)
--			return 1;
--		if (gh->gh_state == LM_ST_DEFERRED && gh_head->gh_state == LM_ST_DEFERRED)
--			return 1;
-+		return gh->gh_state == LM_ST_SHARED ||
-+		       gh->gh_state == LM_ST_DEFERRED;
- 	}
--	if (gl->gl_state != LM_ST_UNLOCKED && (gh->gh_flags & LM_FLAG_ANY))
--		return 1;
--	return 0;
-+	if (gh->gh_flags & LM_FLAG_ANY)
-+		return gl->gl_state != LM_ST_UNLOCKED;
-+	return false;
- }
- 
- static void gfs2_holder_wake(struct gfs2_holder *gh)
-@@ -380,6 +393,24 @@ static void do_error(struct gfs2_glock *gl, const int ret)
- 	}
- }
- 
-+/**
-+ * find_first_holder - find the first "holder" gh
-+ * @gl: the glock
-+ */
-+
-+static inline struct gfs2_holder *find_first_holder(const struct gfs2_glock *gl)
-+{
-+	struct gfs2_holder *gh;
-+
-+	if (!list_empty(&gl->gl_holders)) {
-+		gh = list_first_entry(&gl->gl_holders, struct gfs2_holder,
-+				      gh_list);
-+		if (test_bit(HIF_HOLDER, &gh->gh_iflags))
-+			return gh;
-+	}
-+	return NULL;
-+}
-+
- /**
-  * do_promote - promote as many requests as possible on the current queue
-  * @gl: The glock
-@@ -393,14 +424,15 @@ __releases(&gl->gl_lockref.lock)
- __acquires(&gl->gl_lockref.lock)
- {
- 	const struct gfs2_glock_operations *glops = gl->gl_ops;
--	struct gfs2_holder *gh, *tmp;
-+	struct gfs2_holder *gh, *tmp, *first_gh;
- 	int ret;
- 
- restart:
-+	first_gh = find_first_holder(gl);
- 	list_for_each_entry_safe(gh, tmp, &gl->gl_holders, gh_list) {
- 		if (test_bit(HIF_HOLDER, &gh->gh_iflags))
- 			continue;
--		if (may_grant(gl, gh)) {
-+		if (may_grant(gl, first_gh, gh)) {
- 			if (gh->gh_list.prev == &gl->gl_holders &&
- 			    glops->go_lock) {
- 				spin_unlock(&gl->gl_lockref.lock);
-@@ -722,23 +754,6 @@ __acquires(&gl->gl_lockref.lock)
- 	spin_lock(&gl->gl_lockref.lock);
- }
- 
--/**
-- * find_first_holder - find the first "holder" gh
-- * @gl: the glock
-- */
+-	struct gfs2_inode *ip = GFS2_I(inode);
+-	struct gfs2_sbd *sdp = GFS2_SB(inode);
+-	int error;
 -
--static inline struct gfs2_holder *find_first_holder(const struct gfs2_glock *gl)
--{
--	struct gfs2_holder *gh;
+-	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &ip->i_gh);
+-	error = gfs2_glock_nq(&ip->i_gh);
+-	if (error)
+-		goto out_uninit;
+-	if (&ip->i_inode == sdp->sd_rindex) {
+-		struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
 -
--	if (!list_empty(&gl->gl_holders)) {
--		gh = list_first_entry(&gl->gl_holders, struct gfs2_holder, gh_list);
--		if (test_bit(HIF_HOLDER, &gh->gh_iflags))
--			return gh;
+-		error = gfs2_glock_nq_init(m_ip->i_gl, LM_ST_EXCLUSIVE,
+-					   GL_NOCACHE, &m_ip->i_gh);
+-		if (error)
+-			goto out_unlock;
 -	}
--	return NULL;
+-	return 0;
+-
+-out_unlock:
+-	gfs2_glock_dq(&ip->i_gh);
+-out_uninit:
+-	gfs2_holder_uninit(&ip->i_gh);
+-	return error;
 -}
 -
- /**
-  * run_queue - do all outstanding tasks related to a glock
-  * @gl: The glock in question
-@@ -1354,8 +1369,12 @@ __acquires(&gl->gl_lockref.lock)
- 		GLOCK_BUG_ON(gl, true);
+-static void gfs2_write_unlock(struct inode *inode)
+-{
+-	struct gfs2_inode *ip = GFS2_I(inode);
+-	struct gfs2_sbd *sdp = GFS2_SB(inode);
+-
+-	if (&ip->i_inode == sdp->sd_rindex) {
+-		struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
+-
+-		gfs2_glock_dq_uninit(&m_ip->i_gh);
+-	}
+-	gfs2_glock_dq_uninit(&ip->i_gh);
+-}
+-
+ static int gfs2_iomap_page_prepare(struct inode *inode, loff_t pos,
+ 				   unsigned len)
+ {
+@@ -1118,11 +1078,6 @@ static int gfs2_iomap_begin_write(struct inode *inode, loff_t pos,
+ 	return ret;
+ }
  
- 	if (gh->gh_flags & (LM_FLAG_TRY | LM_FLAG_TRY_1CB)) {
--		if (test_bit(GLF_LOCK, &gl->gl_flags))
--			try_futile = !may_grant(gl, gh);
-+		if (test_bit(GLF_LOCK, &gl->gl_flags)) {
-+			struct gfs2_holder *first_gh;
-+
-+			first_gh = find_first_holder(gl);
-+			try_futile = !may_grant(gl, first_gh, gh);
-+		}
- 		if (test_bit(GLF_INVALIDATE_IN_PROGRESS, &gl->gl_flags))
- 			goto fail;
+-static inline bool gfs2_iomap_need_write_lock(unsigned flags)
+-{
+-	return (flags & IOMAP_WRITE) && !(flags & IOMAP_DIRECT);
+-}
+-
+ static int gfs2_iomap_begin(struct inode *inode, loff_t pos, loff_t length,
+ 			    unsigned flags, struct iomap *iomap,
+ 			    struct iomap *srcmap)
+@@ -1135,12 +1090,6 @@ static int gfs2_iomap_begin(struct inode *inode, loff_t pos, loff_t length,
+ 		iomap->flags |= IOMAP_F_BUFFER_HEAD;
+ 
+ 	trace_gfs2_iomap_start(ip, pos, length, flags);
+-	if (gfs2_iomap_need_write_lock(flags)) {
+-		ret = gfs2_write_lock(inode);
+-		if (ret)
+-			goto out;
+-	}
+-
+ 	ret = __gfs2_iomap_get(inode, pos, length, flags, iomap, &mp);
+ 	if (ret)
+ 		goto out_unlock;
+@@ -1168,10 +1117,7 @@ static int gfs2_iomap_begin(struct inode *inode, loff_t pos, loff_t length,
+ 	ret = gfs2_iomap_begin_write(inode, pos, length, flags, iomap, &mp);
+ 
+ out_unlock:
+-	if (ret && gfs2_iomap_need_write_lock(flags))
+-		gfs2_write_unlock(inode);
+ 	release_metapath(&mp);
+-out:
+ 	trace_gfs2_iomap_end(ip, iomap, ret);
+ 	return ret;
+ }
+@@ -1219,15 +1165,11 @@ static int gfs2_iomap_end(struct inode *inode, loff_t pos, loff_t length,
  	}
+ 
+ 	if (unlikely(!written))
+-		goto out_unlock;
++		return 0;
+ 
+ 	if (iomap->flags & IOMAP_F_SIZE_CHANGED)
+ 		mark_inode_dirty(inode);
+ 	set_bit(GLF_DIRTY, &ip->i_gl->gl_flags);
+-
+-out_unlock:
+-	if (gfs2_iomap_need_write_lock(flags))
+-		gfs2_write_unlock(inode);
+ 	return 0;
+ }
+ 
+diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
+index df5504214dd4..f652688716aa 100644
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -881,13 +881,40 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb, struct iov_iter *fro
+ {
+ 	struct file *file = iocb->ki_filp;
+ 	struct inode *inode = file_inode(file);
++	struct gfs2_inode *ip = GFS2_I(inode);
++	struct gfs2_sbd *sdp = GFS2_SB(inode);
+ 	ssize_t ret;
+ 
++	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &ip->i_gh);
++	ret = gfs2_glock_nq(&ip->i_gh);
++	if (ret)
++		goto out_uninit;
++
++	if (inode == sdp->sd_rindex) {
++		struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
++
++		ret = gfs2_glock_nq_init(m_ip->i_gl, LM_ST_EXCLUSIVE,
++					 GL_NOCACHE, &m_ip->i_gh);
++		if (ret)
++			goto out_unlock;
++	}
++
+ 	current->backing_dev_info = inode_to_bdi(inode);
+ 	ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
+ 	current->backing_dev_info = NULL;
+ 	if (ret > 0)
+ 		iocb->ki_pos += ret;
++
++	if (inode == sdp->sd_rindex) {
++		struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
++
++		gfs2_glock_dq_uninit(&m_ip->i_gh);
++	}
++
++out_unlock:
++	gfs2_glock_dq(&ip->i_gh);
++out_uninit:
++	gfs2_holder_uninit(&ip->i_gh);
+ 	return ret;
+ }
+ 
 -- 
 2.33.1
 
