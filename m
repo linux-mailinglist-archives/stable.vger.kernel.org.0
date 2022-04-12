@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E17314FCFBB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 849004FD1A8
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348763AbiDLGi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:38:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51800 "EHLO
+        id S1351036AbiDLG7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:59:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349343AbiDLGg4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:36:56 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90ED135AA9;
-        Mon, 11 Apr 2022 23:33:59 -0700 (PDT)
+        with ESMTP id S1352631AbiDLG4J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:56:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6233D2558A;
+        Mon, 11 Apr 2022 23:46:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E0D02CE1C09;
-        Tue, 12 Apr 2022 06:33:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 016DBC385AE;
-        Tue, 12 Apr 2022 06:33:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC948B81B58;
+        Tue, 12 Apr 2022 06:46:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4531BC385A1;
+        Tue, 12 Apr 2022 06:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745236;
-        bh=Yb0wFWbJfHyzzPvhxswgwD9zV7GMn5fuGUIWKit1ZHQ=;
+        s=korg; t=1649745975;
+        bh=+YTNds+8z0t2zHdYuIfAV4xXR8U6PjwOkzvV2rN7NGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bV3WmzDGq7j3NeA6Qd/akga8a3qUpj2rF1Sc3mP9Uw3cdVYXbNvXzx1cJAlKHuv8i
-         AjkdBLQHgu7HLtvxvzUjTvjaEcNRlIPpnZgeX+PExXOcSSZYtBVv4hAOdLUFqmerBs
-         AHGGM6UjAmJa1OlcSOn0pq/A+XNzU8otEjE7AJsU=
+        b=N/FdW5CVmoPDoZNgxBLEVNTnfbt+ormhKPWVd8b/74W7YHN6h3twDfbGqUZ506T1v
+         vBBoTe3Nmm5j/L31bgeKHMbCHf4gt7Iba3OnGUChgZSjbdaVyfbnQcgsjwc883P1l1
+         xylBAZVDWw/7uONv7fhSp74QdOGYsBD4b+i98C0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abdul haleem <abdhalee@linux.vnet.ibm.com>,
-        Sourabh Jain <sourabhjain@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 026/171] powerpc: Set crashkernel offset to mid of RMA region
-Date:   Tue, 12 Apr 2022 08:28:37 +0200
-Message-Id: <20220412062928.642250738@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Amjad Ouled-Ameur <aouledameur@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 115/277] phy: amlogic: meson8b-usb2: fix shared reset control use
+Date:   Tue, 12 Apr 2022 08:28:38 +0200
+Message-Id: <20220412062945.368352662@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +57,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sourabh Jain <sourabhjain@linux.ibm.com>
+From: Amjad Ouled-Ameur <aouledameur@baylibre.com>
 
-[ Upstream commit 7c5ed82b800d8615cdda00729e7b62e5899f0b13 ]
+[ Upstream commit 6f1dedf089ab1a4f03ea7aadc3c4a99885b4b4a0 ]
 
-On large config LPARs (having 192 and more cores), Linux fails to boot
-due to insufficient memory in the first memblock. It is due to the
-memory reservation for the crash kernel which starts at 128MB offset of
-the first memblock. This memory reservation for the crash kernel doesn't
-leave enough space in the first memblock to accommodate other essential
-system resources.
+Use reset_control_rearm() call if an error occurs in case
+phy_meson8b_usb2_power_on() fails after reset() has been called, or in
+case phy_meson8b_usb2_power_off() is called i.e the resource is no longer
+used and the reset line may be triggered again by other devices.
 
-The crash kernel start address was set to 128MB offset by default to
-ensure that the crash kernel get some memory below the RMA region which
-is used to be of size 256MB. But given that the RMA region size can be
-512MB or more, setting the crash kernel offset to mid of RMA size will
-leave enough space for the kernel to allocate memory for other system
-resources.
+reset_control_rearm() keeps use of triggered_count sane in the reset
+framework, use of reset_control_reset() on shared reset line should
+be balanced with reset_control_rearm().
 
-Since the above crash kernel offset change is only applicable to the LPAR
-platform, the LPAR feature detection is pushed before the crash kernel
-reservation. The rest of LPAR specific initialization will still
-be done during pseries_probe_fw_features as usual.
-
-This patch is dependent on changes to paca allocation for boot CPU. It
-expect boot CPU to discover 1T segment support which is introduced by
-the patch posted here:
-https://lists.ozlabs.org/pipermail/linuxppc-dev/2022-January/239175.html
-
-Reported-by: Abdul haleem <abdhalee@linux.vnet.ibm.com>
-Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220204085601.107257-1-sourabhjain@linux.ibm.com
+Signed-off-by: Amjad Ouled-Ameur <aouledameur@baylibre.com>
+Reported-by: Jerome Brunet <jbrunet@baylibre.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220111095255.176141-4-aouledameur@baylibre.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/rtas.c |  6 ++++++
- arch/powerpc/kexec/core.c  | 15 +++++++++++----
- 2 files changed, 17 insertions(+), 4 deletions(-)
+ drivers/phy/amlogic/phy-meson8b-usb2.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index cccb32cf0e08..cf421eb7f90d 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -1296,6 +1296,12 @@ int __init early_init_dt_scan_rtas(unsigned long node,
- 	entryp = of_get_flat_dt_prop(node, "linux,rtas-entry", NULL);
- 	sizep  = of_get_flat_dt_prop(node, "rtas-size", NULL);
+diff --git a/drivers/phy/amlogic/phy-meson8b-usb2.c b/drivers/phy/amlogic/phy-meson8b-usb2.c
+index 77e7e9b1428c..dd96763911b8 100644
+--- a/drivers/phy/amlogic/phy-meson8b-usb2.c
++++ b/drivers/phy/amlogic/phy-meson8b-usb2.c
+@@ -154,6 +154,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
+ 	ret = clk_prepare_enable(priv->clk_usb_general);
+ 	if (ret) {
+ 		dev_err(&phy->dev, "Failed to enable USB general clock\n");
++		reset_control_rearm(priv->reset);
+ 		return ret;
+ 	}
  
-+#ifdef CONFIG_PPC64
-+	/* need this feature to decide the crashkernel offset */
-+	if (of_get_flat_dt_prop(node, "ibm,hypertas-functions", NULL))
-+		powerpc_firmware_features |= FW_FEATURE_LPAR;
-+#endif
-+
- 	if (basep && entryp && sizep) {
- 		rtas.base = *basep;
- 		rtas.entry = *entryp;
-diff --git a/arch/powerpc/kexec/core.c b/arch/powerpc/kexec/core.c
-index 56da5eb2b923..80c79cb5010c 100644
---- a/arch/powerpc/kexec/core.c
-+++ b/arch/powerpc/kexec/core.c
-@@ -147,11 +147,18 @@ void __init reserve_crashkernel(void)
- 	if (!crashk_res.start) {
- #ifdef CONFIG_PPC64
- 		/*
--		 * On 64bit we split the RMO in half but cap it at half of
--		 * a small SLB (128MB) since the crash kernel needs to place
--		 * itself and some stacks to be in the first segment.
-+		 * On the LPAR platform place the crash kernel to mid of
-+		 * RMA size (512MB or more) to ensure the crash kernel
-+		 * gets enough space to place itself and some stack to be
-+		 * in the first segment. At the same time normal kernel
-+		 * also get enough space to allocate memory for essential
-+		 * system resource in the first segment. Keep the crash
-+		 * kernel starts at 128MB offset on other platforms.
- 		 */
--		crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
-+		if (firmware_has_feature(FW_FEATURE_LPAR))
-+			crashk_res.start = ppc64_rma_size / 2;
-+		else
-+			crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
- #else
- 		crashk_res.start = KDUMP_KERNELBASE;
- #endif
+@@ -161,6 +162,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
+ 	if (ret) {
+ 		dev_err(&phy->dev, "Failed to enable USB DDR clock\n");
+ 		clk_disable_unprepare(priv->clk_usb_general);
++		reset_control_rearm(priv->reset);
+ 		return ret;
+ 	}
+ 
+@@ -199,6 +201,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
+ 				dev_warn(&phy->dev, "USB ID detect failed!\n");
+ 				clk_disable_unprepare(priv->clk_usb);
+ 				clk_disable_unprepare(priv->clk_usb_general);
++				reset_control_rearm(priv->reset);
+ 				return -EINVAL;
+ 			}
+ 		}
+@@ -218,6 +221,7 @@ static int phy_meson8b_usb2_power_off(struct phy *phy)
+ 
+ 	clk_disable_unprepare(priv->clk_usb);
+ 	clk_disable_unprepare(priv->clk_usb_general);
++	reset_control_rearm(priv->reset);
+ 
+ 	/* power off the PHY by putting it into reset mode */
+ 	regmap_update_bits(priv->regmap, REG_CTRL, REG_CTRL_POWER_ON_RESET,
 -- 
 2.35.1
 
