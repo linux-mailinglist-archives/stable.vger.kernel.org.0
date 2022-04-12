@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 187FF4FD5EF
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:18:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 185A74FD50D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377634AbiDLHu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:50:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57702 "EHLO
+        id S1352614AbiDLHgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:36:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359382AbiDLHm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58AD42C67B;
-        Tue, 12 Apr 2022 00:21:54 -0700 (PDT)
+        with ESMTP id S1354120AbiDLH0F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FAF443D3;
+        Tue, 12 Apr 2022 00:05:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECAD2616B2;
-        Tue, 12 Apr 2022 07:21:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08E26C385A1;
-        Tue, 12 Apr 2022 07:21:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 525F860B65;
+        Tue, 12 Apr 2022 07:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EB7EC385A1;
+        Tue, 12 Apr 2022 07:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748113;
-        bh=BLL1ThT14rAdfe7KLHhuxZlKwl3O7IlydZEAE1URQJo=;
+        s=korg; t=1649747152;
+        bh=J+TnkjUnUJTPTjWdY0vnCLiIu4RAOPI2eSIf3Ml9EyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2wcWehQgyyspLRmIRcJuf0+cGzWQeYphntSVyllqwUpJuRWWSS7tjOm/WrK6WbMe
-         AGISHuTRRuBCybQ6hhi9gehlvmifpF/5CN1BE9K55BSATTschdsLqWEeNfCzMNSNK7
-         RbS5umIuwc8peFkcjy4znSXksUcJy9RIHASUHvQc=
+        b=WTGXDF779W1JkxqQXvkE5X0mKDkm/AeE4Nk58q9tiNT0MMLYmAiiq8X6Mw/yqVYbG
+         J5FW+Kupa9QuawAbR9qzmbPvLMB+M1i6PevfvkIOG0ZCH2BZQoLw2ujO4VPrskHLe6
+         QRaG2Pgpr+GewKJx7cOtiL20ZOktdyM9mzfdl6OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 284/343] btrfs: zoned: traverse devices under chunk_mutex in btrfs_can_activate_zone
+        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@kernel.org
+Subject: [PATCH 5.16 245/285] ata: sata_dwc_460ex: Fix crash due to OOB write
 Date:   Tue, 12 Apr 2022 08:31:42 +0200
-Message-Id: <20220412062959.521602308@linuxfoundation.org>
+Message-Id: <20220412062950.730976971@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,151 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit 0b9e66762aa0cda2a9c2d5542d64e04dac528fa6 upstream.
+commit 7aa8104a554713b685db729e66511b93d989dd6a upstream.
 
-btrfs_can_activate_zone() can be called with the device_list_mutex already
-held, which will lead to a deadlock:
+the driver uses libata's "tag" values from in various arrays.
+Since the mentioned patch bumped the ATA_TAG_INTERNAL to 32,
+the value of the SATA_DWC_QCMD_MAX needs to account for that.
 
-insert_dev_extents() // Takes device_list_mutex
-`-> insert_dev_extent()
- `-> btrfs_insert_empty_item()
-  `-> btrfs_insert_empty_items()
-   `-> btrfs_search_slot()
-    `-> btrfs_cow_block()
-     `-> __btrfs_cow_block()
-      `-> btrfs_alloc_tree_block()
-       `-> btrfs_reserve_extent()
-        `-> find_free_extent()
-         `-> find_free_extent_update_loop()
-          `-> can_allocate_chunk()
-           `-> btrfs_can_activate_zone() // Takes device_list_mutex again
+Otherwise ATA_TAG_INTERNAL usage cause similar crashes like
+this as reported by Tice Rex on the OpenWrt Forum and
+reproduced (with symbols) here:
 
-Instead of using the RCU on fs_devices->device_list we
-can use fs_devices->alloc_list, protected by the chunk_mutex to traverse
-the list of active devices.
+| BUG: Kernel NULL pointer dereference at 0x00000000
+| Faulting instruction address: 0xc03ed4b8
+| Oops: Kernel access of bad area, sig: 11 [#1]
+| BE PAGE_SIZE=4K PowerPC 44x Platform
+| CPU: 0 PID: 362 Comm: scsi_eh_1 Not tainted 5.4.163 #0
+| NIP:  c03ed4b8 LR: c03d27e8 CTR: c03ed36c
+| REGS: cfa59950 TRAP: 0300   Not tainted  (5.4.163)
+| MSR:  00021000 <CE,ME>  CR: 42000222  XER: 00000000
+| DEAR: 00000000 ESR: 00000000
+| GPR00: c03d27e8 cfa59a08 cfa55fe0 00000000 0fa46bc0 [...]
+| [..]
+| NIP [c03ed4b8] sata_dwc_qc_issue+0x14c/0x254
+| LR [c03d27e8] ata_qc_issue+0x1c8/0x2dc
+| Call Trace:
+| [cfa59a08] [c003f4e0] __cancel_work_timer+0x124/0x194 (unreliable)
+| [cfa59a78] [c03d27e8] ata_qc_issue+0x1c8/0x2dc
+| [cfa59a98] [c03d2b3c] ata_exec_internal_sg+0x240/0x524
+| [cfa59b08] [c03d2e98] ata_exec_internal+0x78/0xe0
+| [cfa59b58] [c03d30fc] ata_read_log_page.part.38+0x1dc/0x204
+| [cfa59bc8] [c03d324c] ata_identify_page_supported+0x68/0x130
+| [...]
 
-We are in the chunk allocation thread. The newer chunk allocation
-happens from the devices in the fs_device->alloc_list protected by the
-chunk_mutex.
+This is because sata_dwc_dma_xfer_complete() NULLs the
+dma_pending's next neighbour "chan" (a *dma_chan struct) in
+this '32' case right here (line ~735):
+> hsdevp->dma_pending[tag] = SATA_DWC_DMA_PENDING_NONE;
 
-  btrfs_create_chunk()
-    lockdep_assert_held(&info->chunk_mutex);
-    gather_device_info
-      list_for_each_entry(device, &fs_devices->alloc_list, dev_alloc_list)
+Then the next time, a dma gets issued; dma_dwc_xfer_setup() passes
+the NULL'd hsdevp->chan to the dmaengine_slave_config() which then
+causes the crash.
 
-Also, a device that reappears after the mount won't join the alloc_list
-yet and, it will be in the dev_list, which we don't want to consider in
-the context of the chunk alloc.
+With this patch, SATA_DWC_QCMD_MAX is now set to ATA_MAX_QUEUE + 1.
+This avoids the OOB. But please note, there was a worthwhile discussion
+on what ATA_TAG_INTERNAL and ATA_MAX_QUEUE is. And why there should not
+be a "fake" 33 command-long queue size.
 
-  [15.166572] WARNING: possible recursive locking detected
-  [15.167117] 5.17.0-rc6-dennis #79 Not tainted
-  [15.167487] --------------------------------------------
-  [15.167733] kworker/u8:3/146 is trying to acquire lock:
-  [15.167733] ffff888102962ee0 (&fs_devs->device_list_mutex){+.+.}-{3:3}, at: find_free_extent+0x15a/0x14f0 [btrfs]
-  [15.167733]
-  [15.167733] but task is already holding lock:
-  [15.167733] ffff888102962ee0 (&fs_devs->device_list_mutex){+.+.}-{3:3}, at: btrfs_create_pending_block_groups+0x20a/0x560 [btrfs]
-  [15.167733]
-  [15.167733] other info that might help us debug this:
-  [15.167733]  Possible unsafe locking scenario:
-  [15.167733]
-  [15.171834]        CPU0
-  [15.171834]        ----
-  [15.171834]   lock(&fs_devs->device_list_mutex);
-  [15.171834]   lock(&fs_devs->device_list_mutex);
-  [15.171834]
-  [15.171834]  *** DEADLOCK ***
-  [15.171834]
-  [15.171834]  May be due to missing lock nesting notation
-  [15.171834]
-  [15.171834] 5 locks held by kworker/u8:3/146:
-  [15.171834]  #0: ffff888100050938 ((wq_completion)events_unbound){+.+.}-{0:0}, at: process_one_work+0x1c3/0x5a0
-  [15.171834]  #1: ffffc9000067be80 ((work_completion)(&fs_info->async_data_reclaim_work)){+.+.}-{0:0}, at: process_one_work+0x1c3/0x5a0
-  [15.176244]  #2: ffff88810521e620 (sb_internal){.+.+}-{0:0}, at: flush_space+0x335/0x600 [btrfs]
-  [15.176244]  #3: ffff888102962ee0 (&fs_devs->device_list_mutex){+.+.}-{3:3}, at: btrfs_create_pending_block_groups+0x20a/0x560 [btrfs]
-  [15.176244]  #4: ffff8881152e4b78 (btrfs-dev-00){++++}-{3:3}, at: __btrfs_tree_lock+0x27/0x130 [btrfs]
-  [15.179641]
-  [15.179641] stack backtrace:
-  [15.179641] CPU: 1 PID: 146 Comm: kworker/u8:3 Not tainted 5.17.0-rc6-dennis #79
-  [15.179641] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
-  [15.179641] Workqueue: events_unbound btrfs_async_reclaim_data_space [btrfs]
-  [15.179641] Call Trace:
-  [15.179641]  <TASK>
-  [15.179641]  dump_stack_lvl+0x45/0x59
-  [15.179641]  __lock_acquire.cold+0x217/0x2b2
-  [15.179641]  lock_acquire+0xbf/0x2b0
-  [15.183838]  ? find_free_extent+0x15a/0x14f0 [btrfs]
-  [15.183838]  __mutex_lock+0x8e/0x970
-  [15.183838]  ? find_free_extent+0x15a/0x14f0 [btrfs]
-  [15.183838]  ? find_free_extent+0x15a/0x14f0 [btrfs]
-  [15.183838]  ? lock_is_held_type+0xd7/0x130
-  [15.183838]  ? find_free_extent+0x15a/0x14f0 [btrfs]
-  [15.183838]  find_free_extent+0x15a/0x14f0 [btrfs]
-  [15.183838]  ? _raw_spin_unlock+0x24/0x40
-  [15.183838]  ? btrfs_get_alloc_profile+0x106/0x230 [btrfs]
-  [15.187601]  btrfs_reserve_extent+0x131/0x260 [btrfs]
-  [15.187601]  btrfs_alloc_tree_block+0xb5/0x3b0 [btrfs]
-  [15.187601]  __btrfs_cow_block+0x138/0x600 [btrfs]
-  [15.187601]  btrfs_cow_block+0x10f/0x230 [btrfs]
-  [15.187601]  btrfs_search_slot+0x55f/0xbc0 [btrfs]
-  [15.187601]  ? lock_is_held_type+0xd7/0x130
-  [15.187601]  btrfs_insert_empty_items+0x2d/0x60 [btrfs]
-  [15.187601]  btrfs_create_pending_block_groups+0x2b3/0x560 [btrfs]
-  [15.187601]  __btrfs_end_transaction+0x36/0x2a0 [btrfs]
-  [15.192037]  flush_space+0x374/0x600 [btrfs]
-  [15.192037]  ? find_held_lock+0x2b/0x80
-  [15.192037]  ? btrfs_async_reclaim_data_space+0x49/0x180 [btrfs]
-  [15.192037]  ? lock_release+0x131/0x2b0
-  [15.192037]  btrfs_async_reclaim_data_space+0x70/0x180 [btrfs]
-  [15.192037]  process_one_work+0x24c/0x5a0
-  [15.192037]  worker_thread+0x4a/0x3d0
+Ideally, the dw driver should account for the ATA_TAG_INTERNAL.
+In Damien Le Moal's words: "... having looked at the driver, it
+is a bigger change than just faking a 33rd "tag" that is in fact
+not a command tag at all."
 
-Fixes: a85f05e59bc1 ("btrfs: zoned: avoid chunk allocation if active block group has enough space")
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 28361c403683c ("libata: add extra internal command")
+Cc: stable@kernel.org # 4.18+
+BugLink: https://github.com/openwrt/openwrt/issues/9505
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/zoned.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/ata/sata_dwc_460ex.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -1927,18 +1927,19 @@ int btrfs_zone_finish(struct btrfs_block
+--- a/drivers/ata/sata_dwc_460ex.c
++++ b/drivers/ata/sata_dwc_460ex.c
+@@ -145,7 +145,11 @@ struct sata_dwc_device {
+ #endif
+ };
  
- bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices, u64 flags)
- {
-+	struct btrfs_fs_info *fs_info = fs_devices->fs_info;
- 	struct btrfs_device *device;
- 	bool ret = false;
+-#define SATA_DWC_QCMD_MAX	32
++/*
++ * Allow one extra special slot for commands and DMA management
++ * to account for libata internal commands.
++ */
++#define SATA_DWC_QCMD_MAX	(ATA_MAX_QUEUE + 1)
  
--	if (!btrfs_is_zoned(fs_devices->fs_info))
-+	if (!btrfs_is_zoned(fs_info))
- 		return true;
- 
- 	/* Non-single profiles are not supported yet */
- 	ASSERT((flags & BTRFS_BLOCK_GROUP_PROFILE_MASK) == 0);
- 
- 	/* Check if there is a device with active zones left */
--	mutex_lock(&fs_devices->device_list_mutex);
--	list_for_each_entry(device, &fs_devices->devices, dev_list) {
-+	mutex_lock(&fs_info->chunk_mutex);
-+	list_for_each_entry(device, &fs_devices->alloc_list, dev_alloc_list) {
- 		struct btrfs_zoned_device_info *zinfo = device->zone_info;
- 
- 		if (!device->bdev)
-@@ -1950,7 +1951,7 @@ bool btrfs_can_activate_zone(struct btrf
- 			break;
- 		}
- 	}
--	mutex_unlock(&fs_devices->device_list_mutex);
-+	mutex_unlock(&fs_info->chunk_mutex);
- 
- 	return ret;
- }
+ struct sata_dwc_device_port {
+ 	struct sata_dwc_device	*hsdev;
 
 
