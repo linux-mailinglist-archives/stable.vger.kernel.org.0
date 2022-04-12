@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A124FD99E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 195164FD759
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:28:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353972AbiDLHiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:38:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60936 "EHLO
+        id S1377288AbiDLHti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:49:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353657AbiDLHZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB73626ADE;
-        Tue, 12 Apr 2022 00:02:59 -0700 (PDT)
+        with ESMTP id S1358497AbiDLHlp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83CA24BB92;
+        Tue, 12 Apr 2022 00:18:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C75A60B65;
-        Tue, 12 Apr 2022 07:02:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42204C385A6;
-        Tue, 12 Apr 2022 07:02:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94E576177A;
+        Tue, 12 Apr 2022 07:18:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A86FBC385A5;
+        Tue, 12 Apr 2022 07:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746978;
-        bh=c9H0xarlSK5BkS/J8jrXSzFkHfywxLYBfSAVlHGdtAY=;
+        s=korg; t=1649747891;
+        bh=tbmWW+UuZEJ29EBeqQNY5NmyN2MROCfhNUsR8kpVb/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rxRj8S082UFAC0S6yI1mUe0iSklmzUBnzP8yWmOIEf5oyYVm2s1YMp46u0EXCRcfB
-         qNQuoYexweCP2mWF/o4Fd21pwwq6h3zZr0BPoQPFeBNyelzB1KC0SEQHRM5JBURxKl
-         piTuavp+MIqK7Boh1JyIXrJo7Lo5A8Y8lkxb+CRU=
+        b=WE7nVrQHRQYsnv1kIIGlphN95wJBE40cLnR85hxSuv1JfCwGO1g8GJyYTST3MI1eQ
+         tM2EyHq0Y30vvxiR9SJ6UPQCvDGExTrabwpHCivQNU/QCmHNTT3NTAzjWeKtpso8KW
+         1OAPCMmyJWq+3tFmgvvpaS3f4ZmjvDoiMiv8PUNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jamie Bainbridge <jamie.bainbridge@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Shwetha Nagaraju <shwetha.nagaraju@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 197/285] qede: confirm skb is allocated before using
+Subject: [PATCH 5.17 236/343] ice: synchronize_rcu() when terminating rings
 Date:   Tue, 12 Apr 2022 08:30:54 +0200
-Message-Id: <20220412062949.347714322@linuxfoundation.org>
+Message-Id: <20220412062958.146591774@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamie Bainbridge <jamie.bainbridge@gmail.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 4e910dbe36508654a896d5735b318c0b88172570 ]
+[ Upstream commit f9124c68f05ffdb87a47e3ea6d5fae9dad7cb6eb ]
 
-qede_build_skb() assumes build_skb() always works and goes straight
-to skb_reserve(). However, build_skb() can fail under memory pressure.
-This results in a kernel panic because the skb to reserve is NULL.
+Unfortunately, the ice driver doesn't respect the RCU critical section that
+XSK wakeup is surrounded with. To fix this, add synchronize_rcu() calls to
+paths that destroy resources that might be in use.
 
-Add a check in case build_skb() failed to allocate and return NULL.
+This was addressed in other AF_XDP ZC enabled drivers, for reference see
+for example commit b3873a5be757 ("net/i40e: Fix concurrency issues
+between config flow and XSK")
 
-The NULL return is handled correctly in callers to qede_build_skb().
-
-Fixes: 8a8633978b842 ("qede: Add build_skb() support.")
-Signed-off-by: Jamie Bainbridge <jamie.bainbridge@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: efc2214b6047 ("ice: Add support for XDP")
+Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Shwetha Nagaraju <shwetha.nagaraju@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_fp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/ice/ice.h      | 2 +-
+ drivers/net/ethernet/intel/ice/ice_main.c | 4 +++-
+ drivers/net/ethernet/intel/ice/ice_xsk.c  | 4 +++-
+ 3 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_fp.c b/drivers/net/ethernet/qlogic/qede/qede_fp.c
-index 999abcfe3310..17f895250e04 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
-@@ -747,6 +747,9 @@ qede_build_skb(struct qede_rx_queue *rxq,
- 	buf = page_address(bd->data) + bd->page_offset;
- 	skb = build_skb(buf, rxq->rx_buf_seg_size);
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index 2f60230d332a..9c04a71a9fca 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -674,7 +674,7 @@ static inline struct ice_pf *ice_netdev_to_pf(struct net_device *netdev)
  
-+	if (unlikely(!skb))
-+		return NULL;
-+
- 	skb_reserve(skb, pad);
- 	skb_put(skb, len);
+ static inline bool ice_is_xdp_ena_vsi(struct ice_vsi *vsi)
+ {
+-	return !!vsi->xdp_prog;
++	return !!READ_ONCE(vsi->xdp_prog);
+ }
+ 
+ static inline void ice_set_ring_xdp(struct ice_tx_ring *ring)
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 92e0fe9316b9..5229bce1a4ab 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2742,8 +2742,10 @@ int ice_destroy_xdp_rings(struct ice_vsi *vsi)
+ 
+ 	ice_for_each_xdp_txq(vsi, i)
+ 		if (vsi->xdp_rings[i]) {
+-			if (vsi->xdp_rings[i]->desc)
++			if (vsi->xdp_rings[i]->desc) {
++				synchronize_rcu();
+ 				ice_free_tx_ring(vsi->xdp_rings[i]);
++			}
+ 			kfree_rcu(vsi->xdp_rings[i], rcu);
+ 			vsi->xdp_rings[i] = NULL;
+ 		}
+diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
+index feb874bde171..f95560c7387e 100644
+--- a/drivers/net/ethernet/intel/ice/ice_xsk.c
++++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
+@@ -41,8 +41,10 @@ static void ice_qp_reset_stats(struct ice_vsi *vsi, u16 q_idx)
+ static void ice_qp_clean_rings(struct ice_vsi *vsi, u16 q_idx)
+ {
+ 	ice_clean_tx_ring(vsi->tx_rings[q_idx]);
+-	if (ice_is_xdp_ena_vsi(vsi))
++	if (ice_is_xdp_ena_vsi(vsi)) {
++		synchronize_rcu();
+ 		ice_clean_tx_ring(vsi->xdp_rings[q_idx]);
++	}
+ 	ice_clean_rx_ring(vsi->rx_rings[q_idx]);
+ }
  
 -- 
 2.35.1
