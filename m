@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B0D4FDAC8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B93274FD7B6
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346023AbiDLHvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50108 "EHLO
+        id S1347651AbiDLH2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357184AbiDLHjv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88FE613F9A;
-        Tue, 12 Apr 2022 00:13:32 -0700 (PDT)
+        with ESMTP id S1354245AbiDLHRS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AA054B871;
+        Mon, 11 Apr 2022 23:58:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 235606153F;
-        Tue, 12 Apr 2022 07:13:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 302A2C385A5;
-        Tue, 12 Apr 2022 07:13:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DE18B81B4E;
+        Tue, 12 Apr 2022 06:58:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B67C7C385A1;
+        Tue, 12 Apr 2022 06:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747611;
-        bh=Ueb/n5/degKcP/u90rkPTK409N1+OCvbJpRbir3mBN4=;
+        s=korg; t=1649746714;
+        bh=q1OjChVOmJ4PFhnv9P1M0DRZBGbms2XZZgVzpV0gAW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nd6hfCDYiPKQ2D/MEtcn1oXcKUlU0+xa0e4s0yQQTsYXxwBshk2awAwX68gTEX8A+
-         UxgoyZklI4ohAYf5SuqqslTERo7XnGNmD5/jETmAurZ/FlVm56gi3mHYXt6TrHF81r
-         /jwx3DMxK7UgrgEy4stji0aMZKGqki52PH1NOr24=
+        b=YBbk2967DXPw5RdH3e0DPwonq4RPQk4aXdihTHCKGa5TIA2atbasxgntsfHRXGy7W
+         YIOh3vzyiF+dTF2pBmMNEuQW6OLMnuTiB+3OZy5KZinIUhiCmuG5Nzex/k4e/p02hp
+         mafOP+X5+VGQ/Zu2eQwn+iH2ghYPSclDxsbiwTnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Deren Wu <deren.wu@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 141/343] net: sfp: add 2500base-X quirk for Lantech SFP module
-Date:   Tue, 12 Apr 2022 08:29:19 +0200
-Message-Id: <20220412062955.455501564@linuxfoundation.org>
+Subject: [PATCH 5.16 103/285] mt76: fix monitor mode crash with sdio driver
+Date:   Tue, 12 Apr 2022 08:29:20 +0200
+Message-Id: <20220412062946.638370406@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit 00eec9fe4f3b9588b4bfa8ef9dd0aae96407d5d7 ]
+[ Upstream commit 123bc712b1de0805f9d683687e17b1ec2aba0b68 ]
 
-The Lantech 8330-262D-E module is 2500base-X capable, but it reports the
-nominal bitrate as 2500MBd instead of 3125MBd. Add a quirk for the
-module.
+mt7921s driver may receive frames with fragment buffers. If there is a
+CTS packet received in monitor mode, the payload is 10 bytes only and
+need 6 bytes header padding after RXD buffer. However, only RXD in the
+first linear buffer, if we pull buffer size RXD-size+6 bytes with
+skb_pull(), that would trigger "BUG_ON(skb->len < skb->data_len)" in
+__skb_pull().
 
-The following in an EEPROM dump of such a SFP with the serial number
-redacted:
+To avoid the nonlinear buffer issue, enlarge the RXD size from 128 to
+256 to make sure all MCU operation in linear buffer.
 
-00: 03 04 07 00 00 00 01 20 40 0c 05 01 19 00 00 00    ???...? @????...
-10: 1e 0f 00 00 4c 61 6e 74 65 63 68 20 20 20 20 20    ??..Lantech
-20: 20 20 20 20 00 00 00 00 38 33 33 30 2d 32 36 32        ....8330-262
-30: 44 2d 45 20 20 20 20 20 56 31 2e 30 03 52 00 cb    D-E     V1.0?R.?
-40: 00 1a 00 00 46 43 XX XX XX XX XX XX XX XX XX XX    .?..FCXXXXXXXXXX
-50: 20 20 20 20 32 32 30 32 31 34 20 20 68 b0 01 98        220214  h???
-60: 45 58 54 52 45 4d 45 4c 59 20 43 4f 4d 50 41 54    EXTREMELY COMPAT
-70: 49 42 4c 45 20 20 20 20 20 20 20 20 20 20 20 20    IBLE
+[   52.007562] kernel BUG at include/linux/skbuff.h:2313!
+[   52.007578] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[   52.007987] pc : skb_pull+0x48/0x4c
+[   52.008015] lr : mt7921_queue_rx_skb+0x494/0x890 [mt7921_common]
+[   52.008361] Call trace:
+[   52.008377]  skb_pull+0x48/0x4c
+[   52.008400]  mt76s_net_worker+0x134/0x1b0 [mt76_sdio 35339a92c6eb7d4bbcc806a1d22f56365565135c]
+[   52.008431]  __mt76_worker_fn+0xe8/0x170 [mt76 ef716597d11a77150bc07e3fdd68eeb0f9b56917]
+[   52.008449]  kthread+0x148/0x3ac
+[   52.008466]  ret_from_fork+0x10/0x30
 
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20220312205014.4154907-1-michael@walle.cc
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/sfp-bus.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt76.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
-index c1512c9925a6..15aa5ac1ff49 100644
---- a/drivers/net/phy/sfp-bus.c
-+++ b/drivers/net/phy/sfp-bus.c
-@@ -74,6 +74,12 @@ static const struct sfp_quirk sfp_quirks[] = {
- 		.vendor = "HUAWEI",
- 		.part = "MA5671A",
- 		.modes = sfp_quirk_2500basex,
-+	}, {
-+		// Lantech 8330-262D-E can operate at 2500base-X, but
-+		// incorrectly report 2500MBd NRZ in their EEPROM
-+		.vendor = "Lantech",
-+		.part = "8330-262D-E",
-+		.modes = sfp_quirk_2500basex,
- 	}, {
- 		.vendor = "UBNT",
- 		.part = "UF-INSTANT",
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index e2da720a91b6..f740a8ba164d 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -19,7 +19,7 @@
+ 
+ #define MT_MCU_RING_SIZE	32
+ #define MT_RX_BUF_SIZE		2048
+-#define MT_SKB_HEAD_LEN		128
++#define MT_SKB_HEAD_LEN		256
+ 
+ #define MT_MAX_NON_AQL_PKT	16
+ #define MT_TXQ_FREE_THR		32
 -- 
 2.35.1
 
