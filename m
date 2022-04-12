@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C21E4FCFBD
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:36:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 865A84FD21D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349673AbiDLGiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:38:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50998 "EHLO
+        id S1351227AbiDLHKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:10:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350554AbiDLGiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:38:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BA917E26;
-        Mon, 11 Apr 2022 23:34:53 -0700 (PDT)
+        with ESMTP id S1351637AbiDLHDm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:03:42 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F94145046;
+        Mon, 11 Apr 2022 23:47:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1116DB81B3B;
-        Tue, 12 Apr 2022 06:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C875C385A1;
-        Tue, 12 Apr 2022 06:34:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B742DCE1C02;
+        Tue, 12 Apr 2022 06:47:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE776C385A6;
+        Tue, 12 Apr 2022 06:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745290;
-        bh=1Y+jWBsFsxPIvqeoXYYzHzM+nAiT96cu7eEOn+LWTpA=;
+        s=korg; t=1649746033;
+        bh=dR1eDUy14Q8+3Bj84+YnRadS3mZCumZoB4jHrCCtm4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVhb5Z/3zgAmvYgPxDIaRtZYH321tgRs9VutqHontK4othUukUga0uVoL2c4OUf9V
-         I715/oVsD4pCZEq7pI44C/0qEjKJ9s0r/DxNsa/FXlfSl7wYh3hqUNQ/v9s16gojS8
-         WrBJOs+uwNQSua2/3yjD9Fb58H5wvKgTSP9lIUS8=
+        b=LI7PIt88JEKSadPx9nGlJ9l20G++Unc6+pqyRxY56zFt89hXEv/sNSnA9ih3N/S2W
+         lnwzvzqonwVdgDSVh1I+6oFgHfxC19y1X4aw7pbD9zQzqE6BDelYEViQnKuLvetHGA
+         wQxo6uScvJbjfUg5R8h0c5Bsq7YNax21zw02wJvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Juergen E. Fischer" <fischer@norbit.de>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/171] scsi: aha152x: Fix aha152x_setup() __setup handler return value
+        stable@vger.kernel.org, Thomas Abraham <thomas.abraham@linaro.org>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Hyeonkook Kim <hk619.kim@samsung.com>,
+        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 134/277] serial: samsung_tty: do not unlock port->lock for uart_write_wakeup()
 Date:   Tue, 12 Apr 2022 08:28:57 +0200
-Message-Id: <20220412062929.220503548@linuxfoundation.org>
+Message-Id: <20220412062945.914558379@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit cc8294ec4738d25e2bb2d71f7d82a9bf7f4a157b ]
+[ Upstream commit 988c7c00691008ea1daaa1235680a0da49dab4e8 ]
 
-__setup() handlers should return 1 if the command line option is handled
-and 0 if not (or maybe never return 0; doing so just pollutes init's
-environment with strings that are not init arguments/parameters).
+The commit c15c3747ee32 (serial: samsung: fix potential soft lockup
+during uart write) added an unlock of port->lock before
+uart_write_wakeup() and a lock after it. It was always problematic to
+write data from tty_ldisc_ops::write_wakeup and it was even documented
+that way. We fixed the line disciplines to conform to this recently.
+So if there is still a missed one, we should fix them instead of this
+workaround.
 
-Return 1 from aha152x_setup() to indicate that the boot option has been
-handled.
+On the top of that, s3c24xx_serial_tx_dma_complete() in this driver
+still holds the port->lock while calling uart_write_wakeup().
 
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Link: https://lore.kernel.org/r/20220223000623.5920-1-rdunlap@infradead.org
-Cc: "Juergen E. Fischer" <fischer@norbit.de>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+So revert the wrap added by the commit above.
+
+Cc: Thomas Abraham <thomas.abraham@linaro.org>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Hyeonkook Kim <hk619.kim@samsung.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220308115153.4225-1-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aha152x.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/tty/serial/samsung_tty.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/aha152x.c b/drivers/scsi/aha152x.c
-index d8e19afa7a14..c6607c4686bb 100644
---- a/drivers/scsi/aha152x.c
-+++ b/drivers/scsi/aha152x.c
-@@ -3367,13 +3367,11 @@ static int __init aha152x_setup(char *str)
- 	setup[setup_count].synchronous = ints[0] >= 6 ? ints[6] : 1;
- 	setup[setup_count].delay       = ints[0] >= 7 ? ints[7] : DELAY_DEFAULT;
- 	setup[setup_count].ext_trans   = ints[0] >= 8 ? ints[8] : 0;
--	if (ints[0] > 8) {                                                /*}*/
-+	if (ints[0] > 8)
- 		printk(KERN_NOTICE "aha152x: usage: aha152x=<IOBASE>[,<IRQ>[,<SCSI ID>"
- 		       "[,<RECONNECT>[,<PARITY>[,<SYNCHRONOUS>[,<DELAY>[,<EXT_TRANS>]]]]]]]\n");
--	} else {
-+	else
- 		setup_count++;
--		return 0;
+diff --git a/drivers/tty/serial/samsung_tty.c b/drivers/tty/serial/samsung_tty.c
+index e2f49863e9c2..319533b3c32a 100644
+--- a/drivers/tty/serial/samsung_tty.c
++++ b/drivers/tty/serial/samsung_tty.c
+@@ -922,11 +922,8 @@ static void s3c24xx_serial_tx_chars(struct s3c24xx_uart_port *ourport)
+ 		return;
+ 	}
+ 
+-	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS) {
+-		spin_unlock(&port->lock);
++	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
+ 		uart_write_wakeup(port);
+-		spin_lock(&port->lock);
 -	}
  
- 	return 1;
- }
+ 	if (uart_circ_empty(xmit))
+ 		s3c24xx_serial_stop_tx(port);
 -- 
 2.35.1
 
