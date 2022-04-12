@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01BD24FD82D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D62884FDA40
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:49:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237916AbiDLHV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:21:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57442 "EHLO
+        id S1345256AbiDLH7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:59:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351800AbiDLHM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD845F7E;
-        Mon, 11 Apr 2022 23:52:59 -0700 (PDT)
+        with ESMTP id S1358553AbiDLHlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CE04BFDD;
+        Tue, 12 Apr 2022 00:18:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0CD26149D;
-        Tue, 12 Apr 2022 06:52:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F70C385A6;
-        Tue, 12 Apr 2022 06:52:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70BAB61045;
+        Tue, 12 Apr 2022 07:18:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E18FC385A5;
+        Tue, 12 Apr 2022 07:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746378;
-        bh=QaNOR5RKZom6VvVT+7/5NSchd1phah1uvn1QBNxVMAE=;
+        s=korg; t=1649747893;
+        bh=i5BIcfcYpCg3Y6S5c7jozCvKFHpDHhIAbFcbVRIPcpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i5XxdwfjqhKMQ++99tfk0YSQQbScKSYFmGBYWhHQvDy/EwLMK4cPwddZxhZer+ufK
-         ktHhlJ18FF8NKxwuEIj46WYaNJd1jIpl8hnPSHp3N8OsPcS0De6oOoeEBSQmG1vIFG
-         1Q5mDji+ha1rD9EhsQPenDsUVeJLfYq73NeOsw6Y=
+        b=PYVG8/PoYWR9JcoIMrktga0c+dagPQEgVYGEUBKww25+QKzXGve8PMr+uem0QzonA
+         NzGHU8YxdiYhMhkPAADVirSA6O5AN/UY40mQyt2OBz7bDL6mylDZDmtfu0HZYxJB+8
+         AyMhwDwiqGSoCJ7FEy+ArZhz1+2QVFLgAK3Jf/EA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 260/277] dmaengine: Revert "dmaengine: shdma: Fix runtime PM imbalance on error"
+        stable@vger.kernel.org,
+        Jamie Bainbridge <jamie.bainbridge@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 245/343] qede: confirm skb is allocated before using
 Date:   Tue, 12 Apr 2022 08:31:03 +0200
-Message-Id: <20220412062949.569617322@linuxfoundation.org>
+Message-Id: <20220412062958.400945692@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Jamie Bainbridge <jamie.bainbridge@gmail.com>
 
-commit d143f939a95696d38ff800ada14402fa50ebbd6c upstream.
+[ Upstream commit 4e910dbe36508654a896d5735b318c0b88172570 ]
 
-This reverts commit 455896c53d5b ("dmaengine: shdma: Fix runtime PM
-imbalance on error") as the patch wrongly reduced the count on error and
-did not bail out. So drop the count by reverting the patch .
+qede_build_skb() assumes build_skb() always works and goes straight
+to skb_reserve(). However, build_skb() can fail under memory pressure.
+This results in a kernel panic because the skb to reserve is NULL.
 
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add a check in case build_skb() failed to allocate and return NULL.
+
+The NULL return is handled correctly in callers to qede_build_skb().
+
+Fixes: 8a8633978b842 ("qede: Add build_skb() support.")
+Signed-off-by: Jamie Bainbridge <jamie.bainbridge@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/shdma-base.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/qlogic/qede/qede_fp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/dma/sh/shdma-base.c
-+++ b/drivers/dma/sh/shdma-base.c
-@@ -115,10 +115,8 @@ static dma_cookie_t shdma_tx_submit(stru
- 		ret = pm_runtime_get(schan->dev);
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_fp.c b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+index b242000a77fd..b7cc36589f59 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+@@ -748,6 +748,9 @@ qede_build_skb(struct qede_rx_queue *rxq,
+ 	buf = page_address(bd->data) + bd->page_offset;
+ 	skb = build_skb(buf, rxq->rx_buf_seg_size);
  
- 		spin_unlock_irq(&schan->chan_lock);
--		if (ret < 0) {
-+		if (ret < 0)
- 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
--			pm_runtime_put(schan->dev);
--		}
++	if (unlikely(!skb))
++		return NULL;
++
+ 	skb_reserve(skb, pad);
+ 	skb_put(skb, len);
  
- 		pm_runtime_barrier(schan->dev);
- 
+-- 
+2.35.1
+
 
 
