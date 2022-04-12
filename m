@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E86B04FD23E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 321854FD185
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351272AbiDLHKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:10:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46800 "EHLO
+        id S237964AbiDLG65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:58:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352034AbiDLHEh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:04:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2988346643;
-        Mon, 11 Apr 2022 23:47:35 -0700 (PDT)
+        with ESMTP id S1352474AbiDLGzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:55:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37F093B3DB;
+        Mon, 11 Apr 2022 23:45:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93B17B81B4D;
-        Tue, 12 Apr 2022 06:47:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 039E4C385A6;
-        Tue, 12 Apr 2022 06:47:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC628B818BD;
+        Tue, 12 Apr 2022 06:45:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0ABF4C385A1;
+        Tue, 12 Apr 2022 06:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746052;
-        bh=9aloBAvuQW9BWEeqqO0/yJOFs3ZVMAqDDEPDsIg2J5Q=;
+        s=korg; t=1649745939;
+        bh=V8vgsRr3fQDz1xt+xFEVNrILEov2rb/lBYNY+bveKK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5WDwVsCfVXzXHC1K0OKEQAmdk1AJeWDlXK+3VsZc5Gr2uM0I8eGm06Ufqgd7bl/L
-         bc1lg6SRzkFNTkYWog8aonIuf1cS7YkCwwxOmO0hXJxkpMJUAvi01UVC52XgUnmkmo
-         CKUY94G81oKKGcHxLvkpWIyGnI+DSdE0qmm3oby0=
+        b=pyMchaPak1tHgGzjPzcHTJb7oGKwK8Mn5coH+7Fz+pIBt59dumFJ5UxaEPa2OTNcA
+         dMMORYDr7/7YIJ1IIzQjIsAAO59byWsQqRAZ6OxH8D58chfJLWAkdNHPRrW3YYE+U3
+         JqKLVPzFenEN1pBDeKUZck0jpOmN1HULMzlL20DE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <soenke.huster@eknoes.de>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Karel Rericha <karel@maxtel.cz>,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Eyal Birger <eyal.birger@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 102/277] Bluetooth: Fix use after free in hci_send_acl
-Date:   Tue, 12 Apr 2022 08:28:25 +0200
-Message-Id: <20220412062944.993512005@linuxfoundation.org>
+Subject: [PATCH 5.15 103/277] netfilter: conntrack: revisit gc autotuning
+Date:   Tue, 12 Apr 2022 08:28:26 +0200
+Message-Id: <20220412062945.022473799@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -56,128 +57,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit f63d24baff787e13b723d86fe036f84bdbc35045 ]
+[ Upstream commit 2cfadb761d3d0219412fd8150faea60c7e863833 ]
 
-This fixes the following trace caused by receiving
-HCI_EV_DISCONN_PHY_LINK_COMPLETE which does call hci_conn_del without
-first checking if conn->type is in fact AMP_LINK and in case it is
-do properly cleanup upper layers with hci_disconn_cfm:
+as of commit 4608fdfc07e1
+("netfilter: conntrack: collect all entries in one cycle")
+conntrack gc was changed to run every 2 minutes.
 
- ==================================================================
-    BUG: KASAN: use-after-free in hci_send_acl+0xaba/0xc50
-    Read of size 8 at addr ffff88800e404818 by task bluetoothd/142
+On systems where conntrack hash table is set to large value, most evictions
+happen from gc worker rather than the packet path due to hash table
+distribution.
 
-    CPU: 0 PID: 142 Comm: bluetoothd Not tainted
-    5.17.0-rc5-00006-gda4022eeac1a #7
-    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-    rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-    Call Trace:
-     <TASK>
-     dump_stack_lvl+0x45/0x59
-     print_address_description.constprop.0+0x1f/0x150
-     kasan_report.cold+0x7f/0x11b
-     hci_send_acl+0xaba/0xc50
-     l2cap_do_send+0x23f/0x3d0
-     l2cap_chan_send+0xc06/0x2cc0
-     l2cap_sock_sendmsg+0x201/0x2b0
-     sock_sendmsg+0xdc/0x110
-     sock_write_iter+0x20f/0x370
-     do_iter_readv_writev+0x343/0x690
-     do_iter_write+0x132/0x640
-     vfs_writev+0x198/0x570
-     do_writev+0x202/0x280
-     do_syscall_64+0x38/0x90
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-    RSP: 002b:00007ffce8a099b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000014
-    Code: 0f 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 f3
-    0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 14 00 00 00 0f 05
-    <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
-    RDX: 0000000000000001 RSI: 00007ffce8a099e0 RDI: 0000000000000015
-    RAX: ffffffffffffffda RBX: 00007ffce8a099e0 RCX: 00007f788fc3cf77
-    R10: 00007ffce8af7080 R11: 0000000000000246 R12: 000055e4ccf75580
-    RBP: 0000000000000015 R08: 0000000000000002 R09: 0000000000000001
-    </TASK>
-    R13: 000055e4ccf754a0 R14: 000055e4ccf75cd0 R15: 000055e4ccf4a6b0
+This causes netlink event overflows when events are collected.
 
-    Allocated by task 45:
-        kasan_save_stack+0x1e/0x40
-        __kasan_kmalloc+0x81/0xa0
-        hci_chan_create+0x9a/0x2f0
-        l2cap_conn_add.part.0+0x1a/0xdc0
-        l2cap_connect_cfm+0x236/0x1000
-        le_conn_complete_evt+0x15a7/0x1db0
-        hci_le_conn_complete_evt+0x226/0x2c0
-        hci_le_meta_evt+0x247/0x450
-        hci_event_packet+0x61b/0xe90
-        hci_rx_work+0x4d5/0xc50
-        process_one_work+0x8fb/0x15a0
-        worker_thread+0x576/0x1240
-        kthread+0x29d/0x340
-        ret_from_fork+0x1f/0x30
+This change collects average expiry of scanned entries and
+reschedules to the average remaining value, within 1 to 60 second interval.
 
-    Freed by task 45:
-        kasan_save_stack+0x1e/0x40
-        kasan_set_track+0x21/0x30
-        kasan_set_free_info+0x20/0x30
-        __kasan_slab_free+0xfb/0x130
-        kfree+0xac/0x350
-        hci_conn_cleanup+0x101/0x6a0
-        hci_conn_del+0x27e/0x6c0
-        hci_disconn_phylink_complete_evt+0xe0/0x120
-        hci_event_packet+0x812/0xe90
-        hci_rx_work+0x4d5/0xc50
-        process_one_work+0x8fb/0x15a0
-        worker_thread+0x576/0x1240
-        kthread+0x29d/0x340
-        ret_from_fork+0x1f/0x30
+To avoid event overflows, reschedule after each bucket and add a
+limit for both run time and number of evictions per run.
 
-    The buggy address belongs to the object at ffff88800c0f0500
-    The buggy address is located 24 bytes inside of
-    which belongs to the cache kmalloc-128 of size 128
-    The buggy address belongs to the page:
-    128-byte region [ffff88800c0f0500, ffff88800c0f0580)
-    flags: 0x100000000000200(slab|node=0|zone=1)
-    page:00000000fe45cd86 refcount:1 mapcount:0
-    mapping:0000000000000000 index:0x0 pfn:0xc0f0
-    raw: 0000000000000000 0000000080100010 00000001ffffffff
-    0000000000000000
-    raw: 0100000000000200 ffffea00003a2c80 dead000000000004
-    ffff8880078418c0
-    page dumped because: kasan: bad access detected
-    ffff88800c0f0400: 00 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc
-    Memory state around the buggy address:
-    >ffff88800c0f0500: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-    ffff88800c0f0480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-    ffff88800c0f0580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                                ^
-    ==================================================================
-    ffff88800c0f0600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+If more entries have to be evicted, reschedule and restart 1 jiffy
+into the future.
 
-Reported-by: Sönke Huster <soenke.huster@eknoes.de>
-Tested-by: Sönke Huster <soenke.huster@eknoes.de>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: Karel Rericha <karel@maxtel.cz>
+Cc: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Cc: Eyal Birger <eyal.birger@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_core.c | 85 ++++++++++++++++++++++++-------
+ 1 file changed, 68 insertions(+), 17 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 868a22df3285..e984a8b4b914 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5153,8 +5153,9 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
- 	hci_dev_lock(hdev);
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 917e708a4561..3a98a1316307 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -66,6 +66,8 @@ EXPORT_SYMBOL_GPL(nf_conntrack_hash);
+ struct conntrack_gc_work {
+ 	struct delayed_work	dwork;
+ 	u32			next_bucket;
++	u32			avg_timeout;
++	u32			start_time;
+ 	bool			exiting;
+ 	bool			early_drop;
+ };
+@@ -77,8 +79,19 @@ static __read_mostly bool nf_conntrack_locks_all;
+ /* serialize hash resizes and nf_ct_iterate_cleanup */
+ static DEFINE_MUTEX(nf_conntrack_mutex);
  
- 	hcon = hci_conn_hash_lookup_handle(hdev, ev->phy_handle);
--	if (hcon) {
-+	if (hcon && hcon->type == AMP_LINK) {
- 		hcon->state = BT_CLOSED;
-+		hci_disconn_cfm(hcon, ev->reason);
- 		hci_conn_del(hcon);
- 	}
+-#define GC_SCAN_INTERVAL	(120u * HZ)
++#define GC_SCAN_INTERVAL_MAX	(60ul * HZ)
++#define GC_SCAN_INTERVAL_MIN	(1ul * HZ)
++
++/* clamp timeouts to this value (TCP unacked) */
++#define GC_SCAN_INTERVAL_CLAMP	(300ul * HZ)
++
++/* large initial bias so that we don't scan often just because we have
++ * three entries with a 1s timeout.
++ */
++#define GC_SCAN_INTERVAL_INIT	INT_MAX
++
+ #define GC_SCAN_MAX_DURATION	msecs_to_jiffies(10)
++#define GC_SCAN_EXPIRED_MAX	(64000u / HZ)
+ 
+ #define MIN_CHAINLEN	8u
+ #define MAX_CHAINLEN	(32u - MIN_CHAINLEN)
+@@ -1420,16 +1433,28 @@ static bool gc_worker_can_early_drop(const struct nf_conn *ct)
+ 
+ static void gc_worker(struct work_struct *work)
+ {
+-	unsigned long end_time = jiffies + GC_SCAN_MAX_DURATION;
+ 	unsigned int i, hashsz, nf_conntrack_max95 = 0;
+-	unsigned long next_run = GC_SCAN_INTERVAL;
++	u32 end_time, start_time = nfct_time_stamp;
+ 	struct conntrack_gc_work *gc_work;
++	unsigned int expired_count = 0;
++	unsigned long next_run;
++	s32 delta_time;
++
+ 	gc_work = container_of(work, struct conntrack_gc_work, dwork.work);
+ 
+ 	i = gc_work->next_bucket;
+ 	if (gc_work->early_drop)
+ 		nf_conntrack_max95 = nf_conntrack_max / 100u * 95u;
+ 
++	if (i == 0) {
++		gc_work->avg_timeout = GC_SCAN_INTERVAL_INIT;
++		gc_work->start_time = start_time;
++	}
++
++	next_run = gc_work->avg_timeout;
++
++	end_time = start_time + GC_SCAN_MAX_DURATION;
++
+ 	do {
+ 		struct nf_conntrack_tuple_hash *h;
+ 		struct hlist_nulls_head *ct_hash;
+@@ -1446,6 +1471,7 @@ static void gc_worker(struct work_struct *work)
+ 
+ 		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
+ 			struct nf_conntrack_net *cnet;
++			unsigned long expires;
+ 			struct net *net;
+ 
+ 			tmp = nf_ct_tuplehash_to_ctrack(h);
+@@ -1455,11 +1481,29 @@ static void gc_worker(struct work_struct *work)
+ 				continue;
+ 			}
+ 
++			if (expired_count > GC_SCAN_EXPIRED_MAX) {
++				rcu_read_unlock();
++
++				gc_work->next_bucket = i;
++				gc_work->avg_timeout = next_run;
++
++				delta_time = nfct_time_stamp - gc_work->start_time;
++
++				/* re-sched immediately if total cycle time is exceeded */
++				next_run = delta_time < (s32)GC_SCAN_INTERVAL_MAX;
++				goto early_exit;
++			}
++
+ 			if (nf_ct_is_expired(tmp)) {
+ 				nf_ct_gc_expired(tmp);
++				expired_count++;
+ 				continue;
+ 			}
+ 
++			expires = clamp(nf_ct_expires(tmp), GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_CLAMP);
++			next_run += expires;
++			next_run /= 2u;
++
+ 			if (nf_conntrack_max95 == 0 || gc_worker_skip_ct(tmp))
+ 				continue;
+ 
+@@ -1477,8 +1521,10 @@ static void gc_worker(struct work_struct *work)
+ 				continue;
+ 			}
+ 
+-			if (gc_worker_can_early_drop(tmp))
++			if (gc_worker_can_early_drop(tmp)) {
+ 				nf_ct_kill(tmp);
++				expired_count++;
++			}
+ 
+ 			nf_ct_put(tmp);
+ 		}
+@@ -1491,33 +1537,38 @@ static void gc_worker(struct work_struct *work)
+ 		cond_resched();
+ 		i++;
+ 
+-		if (time_after(jiffies, end_time) && i < hashsz) {
++		delta_time = nfct_time_stamp - end_time;
++		if (delta_time > 0 && i < hashsz) {
++			gc_work->avg_timeout = next_run;
+ 			gc_work->next_bucket = i;
+ 			next_run = 0;
+-			break;
++			goto early_exit;
+ 		}
+ 	} while (i < hashsz);
+ 
++	gc_work->next_bucket = 0;
++
++	next_run = clamp(next_run, GC_SCAN_INTERVAL_MIN, GC_SCAN_INTERVAL_MAX);
++
++	delta_time = max_t(s32, nfct_time_stamp - gc_work->start_time, 1);
++	if (next_run > (unsigned long)delta_time)
++		next_run -= delta_time;
++	else
++		next_run = 1;
++
++early_exit:
+ 	if (gc_work->exiting)
+ 		return;
+ 
+-	/*
+-	 * Eviction will normally happen from the packet path, and not
+-	 * from this gc worker.
+-	 *
+-	 * This worker is only here to reap expired entries when system went
+-	 * idle after a busy period.
+-	 */
+-	if (next_run) {
++	if (next_run)
+ 		gc_work->early_drop = false;
+-		gc_work->next_bucket = 0;
+-	}
++
+ 	queue_delayed_work(system_power_efficient_wq, &gc_work->dwork, next_run);
+ }
+ 
+ static void conntrack_gc_work_init(struct conntrack_gc_work *gc_work)
+ {
+-	INIT_DEFERRABLE_WORK(&gc_work->dwork, gc_worker);
++	INIT_DELAYED_WORK(&gc_work->dwork, gc_worker);
+ 	gc_work->exiting = false;
+ }
  
 -- 
 2.35.1
