@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C61A4FD09F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F145B4FD0AF
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233846AbiDLGsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:48:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57716 "EHLO
+        id S234162AbiDLGsk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:48:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350880AbiDLGsP (ORCPT
+        with ESMTP id S1350875AbiDLGsP (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:48:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7342825590;
-        Mon, 11 Apr 2022 23:39:27 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DFC25585;
+        Mon, 11 Apr 2022 23:39:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E44A6618E5;
-        Tue, 12 Apr 2022 06:39:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3B25C385A6;
-        Tue, 12 Apr 2022 06:39:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF190618DC;
+        Tue, 12 Apr 2022 06:39:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBE36C385A1;
+        Tue, 12 Apr 2022 06:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745566;
-        bh=mf2NLqva9CQqRbe6y11r4Nlep89LmSHIKg7NaLD3ZPc=;
+        s=korg; t=1649745569;
+        bh=596DBPnwHs2YqO+iTvAQw1ZottEYdxgsk57woNRTF7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PmOJpN6vCqzYcOjyN2risae2USVOHo0VkH4tcprFYSeOqr5ZS0E+3+aTMIqskdbWq
-         UOKFg/x8hDHPeBY+AGQryDkhWZlASYDDwAVTa5CKFXRep2EaqUQ6Eh21i9ba0nf1cp
-         PnUAxAxfHmf5JTmlveLNUPui9j8b+QqbibtS7R6U=
+        b=NA2zMNMSys+VeIeeJM/qlQeQqwPuOd3i8yl1qnesX4AaFzgVUiHhP6uJKv71CKTsm
+         2vFNoipSFL3ihq4Y1n4ozkDWc4/Wy0ngurS6sYMS3bg0X5krHwWffi5RqG5/2I3YIE
+         RKfN5iePaE9wnZjDIMRpmbJjN3q0HzdJTsg2bg3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Michal Hocko <mhocko@suse.com>,
-        KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
-        Mel Gorman <mgorman@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 140/171] mm/mempolicy: fix mpol_new leak in shared_policy_replace
-Date:   Tue, 12 Apr 2022 08:30:31 +0200
-Message-Id: <20220412062931.939727781@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 141/171] io_uring: fix race between timeout flush and removal
+Date:   Tue, 12 Apr 2022 08:30:32 +0200
+Message-Id: <20220412062931.969405079@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -57,51 +52,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 4ad099559b00ac01c3726e5c95dc3108ef47d03e upstream.
+commit e677edbcabee849bfdd43f1602bccbecf736a646 upstream.
 
-If mpol_new is allocated but not used in restart loop, mpol_new will be
-freed via mpol_put before returning to the caller.  But refcnt is not
-initialized yet, so mpol_put could not do the right things and might
-leak the unused mpol_new.  This would happen if mempolicy was updated on
-the shared shmem file while the sp->lock has been dropped during the
-memory allocation.
+io_flush_timeouts() assumes the timeout isn't in progress of triggering
+or being removed/canceled, so it unconditionally removes it from the
+timeout list and attempts to cancel it.
 
-This issue could be triggered easily with the below code snippet if
-there are many processes doing the below work at the same time:
+Leave it on the list and let the normal timeout cancelation take care
+of it.
 
-  shmid = shmget((key_t)5566, 1024 * PAGE_SIZE, 0666|IPC_CREAT);
-  shm = shmat(shmid, 0, 0);
-  loop many times {
-    mbind(shm, 1024 * PAGE_SIZE, MPOL_LOCAL, mask, maxnode, 0);
-    mbind(shm + 128 * PAGE_SIZE, 128 * PAGE_SIZE, MPOL_DEFAULT, mask,
-          maxnode, 0);
-  }
-
-Link: https://lkml.kernel.org/r/20220329111416.27954-1-linmiaohe@huawei.com
-Fixes: 42288fe366c4 ("mm: mempolicy: Convert shared_policy mutex to spinlock")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: <stable@vger.kernel.org>	[3.8]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org # 5.5+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mempolicy.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/io_uring.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -2636,6 +2636,7 @@ alloc_new:
- 	mpol_new = kmem_cache_alloc(policy_cache, GFP_KERNEL);
- 	if (!mpol_new)
- 		goto err_out;
-+	atomic_set(&mpol_new->refcnt, 1);
- 	goto restart;
- }
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1556,6 +1556,7 @@ static void __io_queue_deferred(struct i
  
+ static void io_flush_timeouts(struct io_ring_ctx *ctx)
+ {
++	struct io_kiocb *req, *tmp;
+ 	u32 seq;
+ 
+ 	if (list_empty(&ctx->timeout_list))
+@@ -1563,10 +1564,8 @@ static void io_flush_timeouts(struct io_
+ 
+ 	seq = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
+ 
+-	do {
++	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
+ 		u32 events_needed, events_got;
+-		struct io_kiocb *req = list_first_entry(&ctx->timeout_list,
+-						struct io_kiocb, timeout.list);
+ 
+ 		if (io_is_timeout_noseq(req))
+ 			break;
+@@ -1583,9 +1582,8 @@ static void io_flush_timeouts(struct io_
+ 		if (events_got < events_needed)
+ 			break;
+ 
+-		list_del_init(&req->timeout.list);
+ 		io_kill_timeout(req, 0);
+-	} while (!list_empty(&ctx->timeout_list));
++	}
+ 
+ 	ctx->cq_last_tm_flush = seq;
+ }
+@@ -5639,6 +5637,7 @@ static int io_timeout_prep(struct io_kio
+ 	else
+ 		data->mode = HRTIMER_MODE_REL;
+ 
++	INIT_LIST_HEAD(&req->timeout.list);
+ 	hrtimer_init(&data->timer, CLOCK_MONOTONIC, data->mode);
+ 	return 0;
+ }
+@@ -6282,12 +6281,12 @@ static enum hrtimer_restart io_link_time
+ 	if (!list_empty(&req->link_list)) {
+ 		prev = list_entry(req->link_list.prev, struct io_kiocb,
+ 				  link_list);
+-		if (refcount_inc_not_zero(&prev->refs))
+-			list_del_init(&req->link_list);
+-		else
++		list_del_init(&req->link_list);
++		if (!refcount_inc_not_zero(&prev->refs))
+ 			prev = NULL;
+ 	}
+ 
++	list_del(&req->timeout.list);
+ 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+ 
+ 	if (prev) {
 
 
