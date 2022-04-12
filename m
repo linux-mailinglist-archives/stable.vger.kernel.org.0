@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C57FF4FCFC2
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:36:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29D054FD1E1
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349430AbiDLGic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:38:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51456 "EHLO
+        id S236753AbiDLHIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:08:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350025AbiDLGhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:37:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E782B101CD;
-        Mon, 11 Apr 2022 23:34:18 -0700 (PDT)
+        with ESMTP id S1351474AbiDLHD3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:03:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E3DF4476E;
+        Mon, 11 Apr 2022 23:47:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87400B81B3B;
-        Tue, 12 Apr 2022 06:34:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6468C385A6;
-        Tue, 12 Apr 2022 06:34:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0CAD6B81B35;
+        Tue, 12 Apr 2022 06:47:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 429A8C385A1;
+        Tue, 12 Apr 2022 06:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745256;
-        bh=R9mjCXueA1qBXKoLhaHdg7MAgOdRuTR951goVImsFDM=;
+        s=korg; t=1649746027;
+        bh=FxnJlWvCMiH6AOU1ai6/50N28XVk8ZHLjBB2BHX3AgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F68BCWo28oHT8VQtU1faT44bkAjbmivQg5buIge/fHqWDB8Ust/7rUICaJAALq2aT
-         lTUCjzEo1oVjfOcLl/+1seT+d2g/q2zmSC5s4IEOMg94mPnR0fidnMFyWpNgt1kev+
-         DCiTyJTMElLLVetEQcFyNkSomUCr1IjQhiL2xIDA=
+        b=cN7CXKfGfRvE7RrE/RXez/bXAqtWJJpdyhubsG0yMvFoEsRalXt+vi9J97mM4oThP
+         yWUv0BTf9g5AbbmFnOeuGK/n/9gmdSdhlA/cC0tSAxyOup76K8VrBso1yDbGVoiH1g
+         HbSo0kyW2XY7upEkaxwCapMJ4no0EWOWdSVbc3rA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/171] ath5k: fix OOB in ath5k_eeprom_read_pcal_info_5111
+Subject: [PATCH 5.15 097/277] net: sfp: add 2500base-X quirk for Lantech SFP module
 Date:   Tue, 12 Apr 2022 08:28:20 +0200
-Message-Id: <20220412062928.152347430@linuxfoundation.org>
+Message-Id: <20220412062944.850415606@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,85 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 564d4eceb97eaf381dd6ef6470b06377bb50c95a ]
+[ Upstream commit 00eec9fe4f3b9588b4bfa8ef9dd0aae96407d5d7 ]
 
-The bug was found during fuzzing. Stacktrace locates it in
-ath5k_eeprom_convert_pcal_info_5111.
-When none of the curve is selected in the loop, idx can go
-up to AR5K_EEPROM_N_PD_CURVES. The line makes pd out of bound.
-pd = &chinfo[pier].pd_curves[idx];
+The Lantech 8330-262D-E module is 2500base-X capable, but it reports the
+nominal bitrate as 2500MBd instead of 3125MBd. Add a quirk for the
+module.
 
-There are many OOB writes using pd later in the code. So I
-added a sanity check for idx. Checks for other loops involving
-AR5K_EEPROM_N_PD_CURVES are not needed as the loop index is not
-used outside the loops.
+The following in an EEPROM dump of such a SFP with the serial number
+redacted:
 
-The patch is NOT tested with real device.
+00: 03 04 07 00 00 00 01 20 40 0c 05 01 19 00 00 00    ???...? @????...
+10: 1e 0f 00 00 4c 61 6e 74 65 63 68 20 20 20 20 20    ??..Lantech
+20: 20 20 20 20 00 00 00 00 38 33 33 30 2d 32 36 32        ....8330-262
+30: 44 2d 45 20 20 20 20 20 56 31 2e 30 03 52 00 cb    D-E     V1.0?R.?
+40: 00 1a 00 00 46 43 XX XX XX XX XX XX XX XX XX XX    .?..FCXXXXXXXXXX
+50: 20 20 20 20 32 32 30 32 31 34 20 20 68 b0 01 98        220214  h???
+60: 45 58 54 52 45 4d 45 4c 59 20 43 4f 4d 50 41 54    EXTREMELY COMPAT
+70: 49 42 4c 45 20 20 20 20 20 20 20 20 20 20 20 20    IBLE
 
-The following is the fuzzing report
-
-BUG: KASAN: slab-out-of-bounds in ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
-Write of size 1 at addr ffff8880174a4d60 by task modprobe/214
-
-CPU: 0 PID: 214 Comm: modprobe Not tainted 5.6.0 #1
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- __kasan_report.cold+0x37/0x7c
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- kasan_report+0xe/0x20
- ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? ath5k_pci_eeprom_read+0x228/0x3c0 [ath5k]
- ath5k_eeprom_init+0x2513/0x6290 [ath5k]
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? usleep_range+0xb8/0x100
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_read_pcal_info_2413+0x2f20/0x2f20 [ath5k]
- ath5k_hw_init+0xb60/0x1970 [ath5k]
- ath5k_init_ah+0x6fe/0x2530 [ath5k]
- ? kasprintf+0xa6/0xe0
- ? ath5k_stop+0x140/0x140 [ath5k]
- ? _dev_notice+0xf6/0xf6
- ? apic_timer_interrupt+0xa/0x20
- ath5k_pci_probe.cold+0x29a/0x3d6 [ath5k]
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- ? mutex_lock+0x89/0xd0
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- local_pci_probe+0xd3/0x160
- pci_device_probe+0x23f/0x3e0
- ? pci_device_remove+0x280/0x280
- ? pci_device_remove+0x280/0x280
- really_probe+0x209/0x5d0
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/YckvDdj3mtCkDRIt@a-10-27-26-18.dynapool.vpn.nyu.edu
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20220312205014.4154907-1-michael@walle.cc
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath5k/eeprom.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/phy/sfp-bus.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath5k/eeprom.c b/drivers/net/wireless/ath/ath5k/eeprom.c
-index 1fbc2c19848f..d444b3d70ba2 100644
---- a/drivers/net/wireless/ath/ath5k/eeprom.c
-+++ b/drivers/net/wireless/ath/ath5k/eeprom.c
-@@ -746,6 +746,9 @@ ath5k_eeprom_convert_pcal_info_5111(struct ath5k_hw *ah, int mode,
- 			}
- 		}
- 
-+		if (idx == AR5K_EEPROM_N_PD_CURVES)
-+			goto err_out;
-+
- 		ee->ee_pd_gains[mode] = 1;
- 
- 		pd = &chinfo[pier].pd_curves[idx];
+diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+index ef2c6a09eb0f..4369d6249e7b 100644
+--- a/drivers/net/phy/sfp-bus.c
++++ b/drivers/net/phy/sfp-bus.c
+@@ -74,6 +74,12 @@ static const struct sfp_quirk sfp_quirks[] = {
+ 		.vendor = "HUAWEI",
+ 		.part = "MA5671A",
+ 		.modes = sfp_quirk_2500basex,
++	}, {
++		// Lantech 8330-262D-E can operate at 2500base-X, but
++		// incorrectly report 2500MBd NRZ in their EEPROM
++		.vendor = "Lantech",
++		.part = "8330-262D-E",
++		.modes = sfp_quirk_2500basex,
+ 	}, {
+ 		.vendor = "UBNT",
+ 		.part = "UF-INSTANT",
 -- 
 2.35.1
 
