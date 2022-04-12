@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED944FD8F2
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26FE84FD8FC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377045AbiDLHrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:47:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43932 "EHLO
+        id S1352034AbiDLH2Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357214AbiDLHjw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:52 -0400
+        with ESMTP id S1354323AbiDLHRb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 721581571B;
-        Tue, 12 Apr 2022 00:13:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25D144BBBE;
+        Mon, 11 Apr 2022 23:58:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 194ACB81B46;
-        Tue, 12 Apr 2022 07:13:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B102C385A5;
-        Tue, 12 Apr 2022 07:13:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0FFCB81B35;
+        Tue, 12 Apr 2022 06:58:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 194D3C385A1;
+        Tue, 12 Apr 2022 06:58:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747627;
-        bh=ljsjBHnVqmoW3KTJKR7AJNY4q6I3EsUNpYuZ6eKN6FU=;
+        s=korg; t=1649746728;
+        bh=ZqlXdUHFwKSPIS8dpBAWhiyXJFdqK6peU9QQ/0n3vBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcPpoDGYzukfKFH3eWz6BsOVxGqVe6TUAOxIHYY0GIQ+AxMkdqqTUBKVCG3J2uax4
-         DpIpyXPuVQ5MEwRqgqQl5l+L50u9jCcVYxG3vA17IC0N4VC+vkebjxH2Cx4yVY+v1g
-         FmlTfay+zbFgvXKe/iqrYmEjTfTAGnUDPheqI5YQ=
+        b=tEbtllaCCMoH+9U9k2hJXPLOXU+7IQ0l4f22FcUG4O6GN4naqScoSpBK3J33JmHWW
+         qG7ODndQc0K4towFbzA5U2EtcXPNwMVgcJO1iyPsjGNMP2Ck1QCYUvelc/FLXp/cCF
+         fA8XIKtu0NOaDw5huaZvetiE2wlaVPUU0mTTNfPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Emmanuel Grumbach <Emmanuel.grumbach@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 146/343] iwlwifi: mei: fix building iwlmei
-Date:   Tue, 12 Apr 2022 08:29:24 +0200
-Message-Id: <20220412062955.595930684@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Yufen <wangyufen@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 108/285] netlabel: fix out-of-bounds memory accesses
+Date:   Tue, 12 Apr 2022 08:29:25 +0200
+Message-Id: <20220412062946.782236138@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 066291bec0c55315e568ead501bebdefcb8453d2 ]
+[ Upstream commit f22881de730ebd472e15bcc2c0d1d46e36a87b9c ]
 
-Building iwlmei without CONFIG_CFG80211 causes a link-time warning:
+In calipso_map_cat_ntoh(), in the for loop, if the return value of
+netlbl_bitmap_walk() is equal to (net_clen_bits - 1), when
+netlbl_bitmap_walk() is called next time, out-of-bounds memory accesses
+of bitmap[byte_offset] occurs.
 
-ld.lld: error: undefined symbol: ieee80211_hdrlen
->>> referenced by net.c
->>>               net/wireless/intel/iwlwifi/mei/net.o:(iwl_mei_tx_copy_to_csme) in archive drivers/built-in.a
+The bug was found during fuzzing. The following is the fuzzing report
+ BUG: KASAN: slab-out-of-bounds in netlbl_bitmap_walk+0x3c/0xd0
+ Read of size 1 at addr ffffff8107bf6f70 by task err_OH/252
 
-Add an explicit dependency to avoid this. In theory it should not
-be needed here, but it also seems pointless to allow IWLMEI
-for configurations without CFG80211.
+ CPU: 7 PID: 252 Comm: err_OH Not tainted 5.17.0-rc7+ #17
+ Hardware name: linux,dummy-virt (DT)
+ Call trace:
+  dump_backtrace+0x21c/0x230
+  show_stack+0x1c/0x60
+  dump_stack_lvl+0x64/0x7c
+  print_address_description.constprop.0+0x70/0x2d0
+  __kasan_report+0x158/0x16c
+  kasan_report+0x74/0x120
+  __asan_load1+0x80/0xa0
+  netlbl_bitmap_walk+0x3c/0xd0
+  calipso_opt_getattr+0x1a8/0x230
+  calipso_sock_getattr+0x218/0x340
+  calipso_sock_getattr+0x44/0x60
+  netlbl_sock_getattr+0x44/0x80
+  selinux_netlbl_socket_setsockopt+0x138/0x170
+  selinux_socket_setsockopt+0x4c/0x60
+  security_socket_setsockopt+0x4c/0x90
+  __sys_setsockopt+0xbc/0x2b0
+  __arm64_sys_setsockopt+0x6c/0x84
+  invoke_syscall+0x64/0x190
+  el0_svc_common.constprop.0+0x88/0x200
+  do_el0_svc+0x88/0xa0
+  el0_svc+0x128/0x1b0
+  el0t_64_sync_handler+0x9c/0x120
+  el0t_64_sync+0x16c/0x170
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Emmanuel Grumbach <Emmanuel.grumbach@intel.com>
-Acked-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220316183617.1470631-1-arnd@kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ net/netlabel/netlabel_kapi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/Kconfig b/drivers/net/wireless/intel/iwlwifi/Kconfig
-index 85e704283755..a647a406b87b 100644
---- a/drivers/net/wireless/intel/iwlwifi/Kconfig
-+++ b/drivers/net/wireless/intel/iwlwifi/Kconfig
-@@ -139,6 +139,7 @@ config IWLMEI
- 	tristate "Intel Management Engine communication over WLAN"
- 	depends on INTEL_MEI
- 	depends on PM
-+	depends on CFG80211
- 	help
- 	  Enables the iwlmei kernel module.
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index beb0e573266d..54c083003947 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -885,6 +885,8 @@ int netlbl_bitmap_walk(const unsigned char *bitmap, u32 bitmap_len,
+ 	unsigned char bitmask;
+ 	unsigned char byte;
  
++	if (offset >= bitmap_len)
++		return -1;
+ 	byte_offset = offset / 8;
+ 	byte = bitmap[byte_offset];
+ 	bit_spot = offset;
 -- 
 2.35.1
 
