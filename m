@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F18654FD09A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 385BE4FD0B5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350555AbiDLGsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:48:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58028 "EHLO
+        id S1349974AbiDLGuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:50:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350923AbiDLGsS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:48:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8936D255A2;
-        Mon, 11 Apr 2022 23:39:23 -0700 (PDT)
+        with ESMTP id S1349989AbiDLGsi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:48:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D8226131;
+        Mon, 11 Apr 2022 23:39:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F106B81B4E;
-        Tue, 12 Apr 2022 06:39:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DBADC385B8;
-        Tue, 12 Apr 2022 06:39:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C04C0B81B51;
+        Tue, 12 Apr 2022 06:39:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3816CC385A6;
+        Tue, 12 Apr 2022 06:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745560;
-        bh=r7zwxBmSBYLoVuMUOCzhurkmYQox+oscdpkyavZfQGg=;
+        s=korg; t=1649745563;
+        bh=Z9j1K/1X50RjsQ38uUw45U8tNynepeVJoyteu79dlTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TqH6kctUNbU+StCq+MMlVTNb98yVSJbcLBVBKHRUFA33bkOMzwS7Z/Qt/cBelD3qw
-         WNkLykLsaq620wLjoylUCtXj0qqhvWVV7chtbgPycleTIrsdhmaw68OKuFEk3KqBWx
-         jmQFR6+uBQ/4ij6MNWhNJD+KCrgOzfa+mrvp/S8I=
+        b=p4/+OBrxGpn0vF2j3Zu24i7MqvYjbyaGqvhFEta5j6FQDieZr1Am0jJdsuZGE7coV
+         20nxVQIbZRXV1nJ1SMvYwQ4lgjYO1LGqiefbCwe7u1FH0GAE93+2tCjS+vxMi5bB4G
+         maoxFc/XbnXAPx7V/meDN6XLtRrypb/UL4Be89N4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+63d688f1d899c588fb71@syzkaller.appspotmail.com,
-        Guo Xuenan <guoxuenan@huawei.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Yann Collet <cyan@fb.com>, Chengyang Fan <cy.fan@huawei.com>,
+        syzbot+6bde52d89cfdf9f61425@syzkaller.appspotmail.com,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 138/171] lz4: fix LZ4_decompress_safe_partial read out of bound
-Date:   Tue, 12 Apr 2022 08:30:29 +0200
-Message-Id: <20220412062931.880396133@linuxfoundation.org>
+Subject: [PATCH 5.10 139/171] mmmremap.c: avoid pointless invalidate_range_start/end on mremap(old_size=0)
+Date:   Tue, 12 Apr 2022 08:30:30 +0200
+Message-Id: <20220412062931.910534268@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -59,57 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Xuenan <guoxuenan@huawei.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit eafc0a02391b7b36617b36c97c4b5d6832cf5e24 upstream.
+commit 01e67e04c28170c47700c2c226d732bbfedb1ad0 upstream.
 
-When partialDecoding, it is EOF if we've either filled the output buffer
-or can't proceed with reading an offset for following match.
+If an mremap() syscall with old_size=0 ends up in move_page_tables(), it
+will call invalidate_range_start()/invalidate_range_end() unnecessarily,
+i.e.  with an empty range.
 
-In some extreme corner cases when compressed data is suitably corrupted,
-UAF will occur.  As reported by KASAN [1], LZ4_decompress_safe_partial
-may lead to read out of bound problem during decoding.  lz4 upstream has
-fixed it [2] and this issue has been disscussed here [3] before.
+This causes a WARN in KVM's mmu_notifier.  In the past, empty ranges
+have been diagnosed to be off-by-one bugs, hence the WARNing.  Given the
+low (so far) number of unique reports, the benefits of detecting more
+buggy callers seem to outweigh the cost of having to fix cases such as
+this one, where userspace is doing something silly.  In this particular
+case, an early return from move_page_tables() is enough to fix the
+issue.
 
-current decompression routine was ported from lz4 v1.8.3, bumping
-lib/lz4 to v1.9.+ is certainly a huge work to be done later, so, we'd
-better fix it first.
-
-[1] https://lore.kernel.org/all/000000000000830d1205cf7f0477@google.com/
-[2] https://github.com/lz4/lz4/commit/c5d6f8a8be3927c0bec91bcc58667a6cfad244ad#
-[3] https://lore.kernel.org/all/CC666AE8-4CA4-4951-B6FB-A2EFDE3AC03B@fb.com/
-
-Link: https://lkml.kernel.org/r/20211111105048.2006070-1-guoxuenan@huawei.com
-Reported-by: syzbot+63d688f1d899c588fb71@syzkaller.appspotmail.com
-Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
-Reviewed-by: Nick Terrell <terrelln@fb.com>
-Acked-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: Yann Collet <cyan@fb.com>
-Cc: Chengyang Fan <cy.fan@huawei.com>
+Link: https://lkml.kernel.org/r/20220329173155.172439-1-pbonzini@redhat.com
+Reported-by: syzbot+6bde52d89cfdf9f61425@syzkaller.appspotmail.com
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/lz4/lz4_decompress.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ mm/mremap.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/lib/lz4/lz4_decompress.c
-+++ b/lib/lz4/lz4_decompress.c
-@@ -271,8 +271,12 @@ static FORCE_INLINE int LZ4_decompress_g
- 			ip += length;
- 			op += length;
+--- a/mm/mremap.c
++++ b/mm/mremap.c
+@@ -260,6 +260,9 @@ unsigned long move_page_tables(struct vm
+ 	struct mmu_notifier_range range;
+ 	pmd_t *old_pmd, *new_pmd;
  
--			/* Necessarily EOF, due to parsing restrictions */
--			if (!partialDecoding || (cpy == oend))
-+			/* Necessarily EOF when !partialDecoding.
-+			 * When partialDecoding, it is EOF if we've either
-+			 * filled the output buffer or
-+			 * can't proceed with reading an offset for following match.
-+			 */
-+			if (!partialDecoding || (cpy == oend) || (ip >= (iend - 2)))
- 				break;
- 		} else {
- 			/* may overwrite up to WILDCOPYLENGTH beyond cpy */
++	if (!len)
++		return 0;
++
+ 	old_end = old_addr + len;
+ 	flush_cache_range(vma, old_addr, old_end);
+ 
 
 
