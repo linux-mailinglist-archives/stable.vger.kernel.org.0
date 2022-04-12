@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 849004FD1A8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:58:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 232EC4FD03C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351036AbiDLG7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:59:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48572 "EHLO
+        id S236570AbiDLGpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:45:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352631AbiDLG4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:56:09 -0400
+        with ESMTP id S233269AbiDLGmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:42:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6233D2558A;
-        Mon, 11 Apr 2022 23:46:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8646317E28;
+        Mon, 11 Apr 2022 23:36:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC948B81B58;
-        Tue, 12 Apr 2022 06:46:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4531BC385A1;
-        Tue, 12 Apr 2022 06:46:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21CDEB81B41;
+        Tue, 12 Apr 2022 06:36:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CFCEC385A6;
+        Tue, 12 Apr 2022 06:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745975;
-        bh=+YTNds+8z0t2zHdYuIfAV4xXR8U6PjwOkzvV2rN7NGI=;
+        s=korg; t=1649745381;
+        bh=h6heFhVXDtbOcbAa04Vmbo7xUjcXq9qwC/VUUP9Pslo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/FdW5CVmoPDoZNgxBLEVNTnfbt+ormhKPWVd8b/74W7YHN6h3twDfbGqUZ506T1v
-         vBBoTe3Nmm5j/L31bgeKHMbCHf4gt7Iba3OnGUChgZSjbdaVyfbnQcgsjwc883P1l1
-         xylBAZVDWw/7uONv7fhSp74QdOGYsBD4b+i98C0Q=
+        b=hXck/GTheWCP6jSm5i0Fm+pjV+F308jWHG2aNs9ODnaWiMjND57C0Y/9zzcbvs38f
+         b/4pn8LCJhvy/NIFCm53p2XJZFAaG0Rz+Wjs5T9FUnfGVsPhnVzDK2gxJ+65prpxIT
+         dpCo/JJR6+dbe3ZVua+BakRUwovwWCuJLbX97Fw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Amjad Ouled-Ameur <aouledameur@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/277] phy: amlogic: meson8b-usb2: fix shared reset control use
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <Alexander.Deucher@amd.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 027/171] drm/amdgpu: Fix recursive locking warning
 Date:   Tue, 12 Apr 2022 08:28:38 +0200
-Message-Id: <20220412062945.368352662@linuxfoundation.org>
+Message-Id: <20220412062928.671099594@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,66 +58,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amjad Ouled-Ameur <aouledameur@baylibre.com>
+From: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
 
-[ Upstream commit 6f1dedf089ab1a4f03ea7aadc3c4a99885b4b4a0 ]
+[ Upstream commit 447c7997b62a5115ba4da846dcdee4fc12298a6a ]
 
-Use reset_control_rearm() call if an error occurs in case
-phy_meson8b_usb2_power_on() fails after reset() has been called, or in
-case phy_meson8b_usb2_power_off() is called i.e the resource is no longer
-used and the reset line may be triggered again by other devices.
+Noticed the below warning while running a pytorch workload on vega10
+GPUs. Change to trylock to avoid conflicts with already held reservation
+locks.
 
-reset_control_rearm() keeps use of triggered_count sane in the reset
-framework, use of reset_control_reset() on shared reset line should
-be balanced with reset_control_rearm().
+[  +0.000003] WARNING: possible recursive locking detected
+[  +0.000003] 5.13.0-kfd-rajneesh #1030 Not tainted
+[  +0.000004] --------------------------------------------
+[  +0.000002] python/4822 is trying to acquire lock:
+[  +0.000004] ffff932cd9a259f8 (reservation_ww_class_mutex){+.+.}-{3:3},
+at: amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000203]
+              but task is already holding lock:
+[  +0.000003] ffff932cbb7181f8 (reservation_ww_class_mutex){+.+.}-{3:3},
+at: ttm_eu_reserve_buffers+0x270/0x470 [ttm]
+[  +0.000017]
+              other info that might help us debug this:
+[  +0.000002]  Possible unsafe locking scenario:
 
-Signed-off-by: Amjad Ouled-Ameur <aouledameur@baylibre.com>
-Reported-by: Jerome Brunet <jbrunet@baylibre.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220111095255.176141-4-aouledameur@baylibre.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[  +0.000003]        CPU0
+[  +0.000002]        ----
+[  +0.000002]   lock(reservation_ww_class_mutex);
+[  +0.000004]   lock(reservation_ww_class_mutex);
+[  +0.000003]
+               *** DEADLOCK ***
+
+[  +0.000002]  May be due to missing lock nesting notation
+
+[  +0.000003] 7 locks held by python/4822:
+[  +0.000003]  #0: ffff932c4ac028d0 (&process->mutex){+.+.}-{3:3}, at:
+kfd_ioctl_map_memory_to_gpu+0x10b/0x320 [amdgpu]
+[  +0.000232]  #1: ffff932c55e830a8 (&info->lock#2){+.+.}-{3:3}, at:
+amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x64/0xf60 [amdgpu]
+[  +0.000241]  #2: ffff932cc45b5e68 (&(*mem)->lock){+.+.}-{3:3}, at:
+amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0xdf/0xf60 [amdgpu]
+[  +0.000236]  #3: ffffb2b35606fd28
+(reservation_ww_class_acquire){+.+.}-{0:0}, at:
+amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x232/0xf60 [amdgpu]
+[  +0.000235]  #4: ffff932cbb7181f8
+(reservation_ww_class_mutex){+.+.}-{3:3}, at:
+ttm_eu_reserve_buffers+0x270/0x470 [ttm]
+[  +0.000015]  #5: ffffffffc045f700 (*(sspp++)){....}-{0:0}, at:
+drm_dev_enter+0x5/0xa0 [drm]
+[  +0.000038]  #6: ffff932c52da7078 (&vm->eviction_lock){+.+.}-{3:3},
+at: amdgpu_vm_bo_update_mapping+0xd5/0x4f0 [amdgpu]
+[  +0.000195]
+              stack backtrace:
+[  +0.000003] CPU: 11 PID: 4822 Comm: python Not tainted
+5.13.0-kfd-rajneesh #1030
+[  +0.000005] Hardware name: GIGABYTE MZ01-CE0-00/MZ01-CE0-00, BIOS F02
+08/29/2018
+[  +0.000003] Call Trace:
+[  +0.000003]  dump_stack+0x6d/0x89
+[  +0.000010]  __lock_acquire+0xb93/0x1a90
+[  +0.000009]  lock_acquire+0x25d/0x2d0
+[  +0.000005]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000184]  ? lock_is_held_type+0xa2/0x110
+[  +0.000006]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000184]  __ww_mutex_lock.constprop.17+0xca/0x1060
+[  +0.000007]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000183]  ? lock_release+0x13f/0x270
+[  +0.000005]  ? lock_is_held_type+0xa2/0x110
+[  +0.000006]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000183]  amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000185]  ttm_bo_release+0x4c6/0x580 [ttm]
+[  +0.000010]  amdgpu_bo_unref+0x1a/0x30 [amdgpu]
+[  +0.000183]  amdgpu_vm_free_table+0x76/0xa0 [amdgpu]
+[  +0.000189]  amdgpu_vm_free_pts+0xb8/0xf0 [amdgpu]
+[  +0.000189]  amdgpu_vm_update_ptes+0x411/0x770 [amdgpu]
+[  +0.000191]  amdgpu_vm_bo_update_mapping+0x324/0x4f0 [amdgpu]
+[  +0.000191]  amdgpu_vm_bo_update+0x251/0x610 [amdgpu]
+[  +0.000191]  update_gpuvm_pte+0xcc/0x290 [amdgpu]
+[  +0.000229]  ? amdgpu_vm_bo_map+0xd7/0x130 [amdgpu]
+[  +0.000190]  amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x912/0xf60
+[amdgpu]
+[  +0.000234]  kfd_ioctl_map_memory_to_gpu+0x182/0x320 [amdgpu]
+[  +0.000218]  kfd_ioctl+0x2b9/0x600 [amdgpu]
+[  +0.000216]  ? kfd_ioctl_unmap_memory_from_gpu+0x270/0x270 [amdgpu]
+[  +0.000216]  ? lock_release+0x13f/0x270
+[  +0.000006]  ? __fget_files+0x107/0x1e0
+[  +0.000007]  __x64_sys_ioctl+0x8b/0xd0
+[  +0.000007]  do_syscall_64+0x36/0x70
+[  +0.000004]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  +0.000007] RIP: 0033:0x7fbff90a7317
+[  +0.000004] Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00
+48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f
+05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
+[  +0.000005] RSP: 002b:00007fbe301fe648 EFLAGS: 00000246 ORIG_RAX:
+0000000000000010
+[  +0.000006] RAX: ffffffffffffffda RBX: 00007fbcc402d820 RCX:
+00007fbff90a7317
+[  +0.000003] RDX: 00007fbe301fe690 RSI: 00000000c0184b18 RDI:
+0000000000000004
+[  +0.000003] RBP: 00007fbe301fe690 R08: 0000000000000000 R09:
+00007fbcc402d880
+[  +0.000003] R10: 0000000002001000 R11: 0000000000000246 R12:
+00000000c0184b18
+[  +0.000003] R13: 0000000000000004 R14: 00007fbf689593a0 R15:
+00007fbcc402d820
+
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: Alex Deucher <Alexander.Deucher@amd.com>
+
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/amlogic/phy-meson8b-usb2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/amlogic/phy-meson8b-usb2.c b/drivers/phy/amlogic/phy-meson8b-usb2.c
-index 77e7e9b1428c..dd96763911b8 100644
---- a/drivers/phy/amlogic/phy-meson8b-usb2.c
-+++ b/drivers/phy/amlogic/phy-meson8b-usb2.c
-@@ -154,6 +154,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 	ret = clk_prepare_enable(priv->clk_usb_general);
- 	if (ret) {
- 		dev_err(&phy->dev, "Failed to enable USB general clock\n");
-+		reset_control_rearm(priv->reset);
- 		return ret;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+index ad9863b84f1f..f615ecc06a22 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -1338,7 +1338,8 @@ void amdgpu_bo_release_notify(struct ttm_buffer_object *bo)
+ 	    !(abo->flags & AMDGPU_GEM_CREATE_VRAM_WIPE_ON_RELEASE))
+ 		return;
  
-@@ -161,6 +162,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 	if (ret) {
- 		dev_err(&phy->dev, "Failed to enable USB DDR clock\n");
- 		clk_disable_unprepare(priv->clk_usb_general);
-+		reset_control_rearm(priv->reset);
- 		return ret;
- 	}
+-	dma_resv_lock(bo->base.resv, NULL);
++	if (WARN_ON_ONCE(!dma_resv_trylock(bo->base.resv)))
++		return;
  
-@@ -199,6 +201,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 				dev_warn(&phy->dev, "USB ID detect failed!\n");
- 				clk_disable_unprepare(priv->clk_usb);
- 				clk_disable_unprepare(priv->clk_usb_general);
-+				reset_control_rearm(priv->reset);
- 				return -EINVAL;
- 			}
- 		}
-@@ -218,6 +221,7 @@ static int phy_meson8b_usb2_power_off(struct phy *phy)
- 
- 	clk_disable_unprepare(priv->clk_usb);
- 	clk_disable_unprepare(priv->clk_usb_general);
-+	reset_control_rearm(priv->reset);
- 
- 	/* power off the PHY by putting it into reset mode */
- 	regmap_update_bits(priv->regmap, REG_CTRL, REG_CTRL_POWER_ON_RESET,
+ 	r = amdgpu_fill_buffer(abo, AMDGPU_POISON, bo->base.resv, &fence);
+ 	if (!WARN_ON(r)) {
 -- 
 2.35.1
 
