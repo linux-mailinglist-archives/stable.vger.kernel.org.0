@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EE24FD55A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C7C84FD55C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355847AbiDLH32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:29:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58492 "EHLO
+        id S1353098AbiDLH2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242334AbiDLHWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:22:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D5752C13B;
-        Mon, 11 Apr 2022 23:59:45 -0700 (PDT)
+        with ESMTP id S1351665AbiDLHMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28ACF29C8E;
+        Mon, 11 Apr 2022 23:51:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AB5560B65;
-        Tue, 12 Apr 2022 06:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26B12C385A8;
-        Tue, 12 Apr 2022 06:59:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA655B81B35;
+        Tue, 12 Apr 2022 06:51:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BE87C385A1;
+        Tue, 12 Apr 2022 06:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746784;
-        bh=ucfA2C2SWIQgzh8yu0sdw5aNdUWtqQHKO/aIHM0aMUo=;
+        s=korg; t=1649746268;
+        bh=AGBVQlLxtLHQ/cD9D4vrrkSGguPmRNtPfuPJC9dpciY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFwyjwR9IVH2Ptit6GoNWZlJZHEbJjaKgcnPwOOKGP86AtQ4s3if/ZukIeXPGmJ8l
-         Jgd7g4GmoHTAuS2s4nfzV1g0MBXtBLtVGZVAJTFxE0OsnqUVqj3/aYCN98kzhXq1YM
-         t71hweJ4zAOdOHRGofqAz3kUig0WcjVkK52/Kx8E=
+        b=BYYJ2kNQ60I6cRUFFr9zG7b94vG7gNnEfCGIW0MJEofBSfJs3p3z4B6oJWew+LH/r
+         CBh5jnckKFGQghjvzIN54Z9lJBCGzbF9sUEebB+/5ud4s28yg6by9IKDNNxq3suW7/
+         maYwVklI19kgU/uhL6ZF9GmgCmhn8UkyBq9nLEtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
-        Dongli Zhang <dongli.zhang@oracle.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Shwetha Nagaraju <shwetha.nagaraju@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 130/285] xen: delay xen_hvm_init_time_ops() if kdump is boot on vcpu>=32
+Subject: [PATCH 5.15 184/277] ice: synchronize_rcu() when terminating rings
 Date:   Tue, 12 Apr 2022 08:29:47 +0200
-Message-Id: <20220412062947.417506603@linuxfoundation.org>
+Message-Id: <20220412062947.360941932@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,121 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit eed05744322da07dd7e419432dcedf3c2e017179 ]
+[ Upstream commit f9124c68f05ffdb87a47e3ea6d5fae9dad7cb6eb ]
 
-The sched_clock() can be used very early since commit 857baa87b642
-("sched/clock: Enable sched clock early"). In addition, with commit
-38669ba205d1 ("x86/xen/time: Output xen sched_clock time from 0"), kdump
-kernel in Xen HVM guest may panic at very early stage when accessing
-&__this_cpu_read(xen_vcpu)->time as in below:
+Unfortunately, the ice driver doesn't respect the RCU critical section that
+XSK wakeup is surrounded with. To fix this, add synchronize_rcu() calls to
+paths that destroy resources that might be in use.
 
-setup_arch()
- -> init_hypervisor_platform()
-     -> x86_init.hyper.init_platform = xen_hvm_guest_init()
-         -> xen_hvm_init_time_ops()
-             -> xen_clocksource_read()
-                 -> src = &__this_cpu_read(xen_vcpu)->time;
+This was addressed in other AF_XDP ZC enabled drivers, for reference see
+for example commit b3873a5be757 ("net/i40e: Fix concurrency issues
+between config flow and XSK")
 
-This is because Xen HVM supports at most MAX_VIRT_CPUS=32 'vcpu_info'
-embedded inside 'shared_info' during early stage until xen_vcpu_setup() is
-used to allocate/relocate 'vcpu_info' for boot cpu at arbitrary address.
-
-However, when Xen HVM guest panic on vcpu >= 32, since
-xen_vcpu_info_reset(0) would set per_cpu(xen_vcpu, cpu) = NULL when
-vcpu >= 32, xen_clocksource_read() on vcpu >= 32 would panic.
-
-This patch calls xen_hvm_init_time_ops() again later in
-xen_hvm_smp_prepare_boot_cpu() after the 'vcpu_info' for boot vcpu is
-registered when the boot vcpu is >= 32.
-
-This issue can be reproduced on purpose via below command at the guest
-side when kdump/kexec is enabled:
-
-"taskset -c 33 echo c > /proc/sysrq-trigger"
-
-The bugfix for PVM is not implemented due to the lack of testing
-environment.
-
-[boris: xen_hvm_init_time_ops() returns on errors instead of jumping to end]
-
-Cc: Joe Jin <joe.jin@oracle.com>
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20220302164032.14569-3-dongli.zhang@oracle.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: efc2214b6047 ("ice: Add support for XDP")
+Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Shwetha Nagaraju <shwetha.nagaraju@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/smp_hvm.c |  6 ++++++
- arch/x86/xen/time.c    | 24 +++++++++++++++++++++++-
- 2 files changed, 29 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice.h      | 2 +-
+ drivers/net/ethernet/intel/ice/ice_main.c | 4 +++-
+ drivers/net/ethernet/intel/ice/ice_xsk.c  | 4 +++-
+ 3 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/xen/smp_hvm.c b/arch/x86/xen/smp_hvm.c
-index 6ff3c887e0b9..b70afdff419c 100644
---- a/arch/x86/xen/smp_hvm.c
-+++ b/arch/x86/xen/smp_hvm.c
-@@ -19,6 +19,12 @@ static void __init xen_hvm_smp_prepare_boot_cpu(void)
- 	 */
- 	xen_vcpu_setup(0);
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index 7e5daede3a2e..df65bb494695 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -552,7 +552,7 @@ static inline struct ice_pf *ice_netdev_to_pf(struct net_device *netdev)
  
-+	/*
-+	 * Called again in case the kernel boots on vcpu >= MAX_VIRT_CPUS.
-+	 * Refer to comments in xen_hvm_init_time_ops().
-+	 */
-+	xen_hvm_init_time_ops();
-+
- 	/*
- 	 * The alternative logic (which patches the unlock/lock) runs before
- 	 * the smp bootup up code is activated. Hence we need to set this up
-diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
-index d9c945ee1100..9ef0a5cca96e 100644
---- a/arch/x86/xen/time.c
-+++ b/arch/x86/xen/time.c
-@@ -558,6 +558,11 @@ static void xen_hvm_setup_cpu_clockevents(void)
- 
- void __init xen_hvm_init_time_ops(void)
+ static inline bool ice_is_xdp_ena_vsi(struct ice_vsi *vsi)
  {
-+	static bool hvm_time_initialized;
-+
-+	if (hvm_time_initialized)
-+		return;
-+
- 	/*
- 	 * vector callback is needed otherwise we cannot receive interrupts
- 	 * on cpu > 0 and at this point we don't know how many cpus are
-@@ -567,7 +572,22 @@ void __init xen_hvm_init_time_ops(void)
- 		return;
- 
- 	if (!xen_feature(XENFEAT_hvm_safe_pvclock)) {
--		pr_info("Xen doesn't support pvclock on HVM, disable pv timer");
-+		pr_info_once("Xen doesn't support pvclock on HVM, disable pv timer");
-+		return;
-+	}
-+
-+	/*
-+	 * Only MAX_VIRT_CPUS 'vcpu_info' are embedded inside 'shared_info'.
-+	 * The __this_cpu_read(xen_vcpu) is still NULL when Xen HVM guest
-+	 * boots on vcpu >= MAX_VIRT_CPUS (e.g., kexec), To access
-+	 * __this_cpu_read(xen_vcpu) via xen_clocksource_read() will panic.
-+	 *
-+	 * The xen_hvm_init_time_ops() should be called again later after
-+	 * __this_cpu_read(xen_vcpu) is available.
-+	 */
-+	if (!__this_cpu_read(xen_vcpu)) {
-+		pr_info("Delay xen_init_time_common() as kernel is running on vcpu=%d\n",
-+			xen_vcpu_nr(0));
- 		return;
- 	}
- 
-@@ -577,6 +597,8 @@ void __init xen_hvm_init_time_ops(void)
- 	x86_cpuinit.setup_percpu_clockev = xen_hvm_setup_cpu_clockevents;
- 
- 	x86_platform.set_wallclock = xen_set_wallclock;
-+
-+	hvm_time_initialized = true;
+-	return !!vsi->xdp_prog;
++	return !!READ_ONCE(vsi->xdp_prog);
  }
- #endif
+ 
+ static inline void ice_set_ring_xdp(struct ice_ring *ring)
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 7f68132b8a1f..f330bd0acf9f 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2612,8 +2612,10 @@ int ice_destroy_xdp_rings(struct ice_vsi *vsi)
+ 
+ 	for (i = 0; i < vsi->num_xdp_txq; i++)
+ 		if (vsi->xdp_rings[i]) {
+-			if (vsi->xdp_rings[i]->desc)
++			if (vsi->xdp_rings[i]->desc) {
++				synchronize_rcu();
+ 				ice_free_tx_ring(vsi->xdp_rings[i]);
++			}
+ 			kfree_rcu(vsi->xdp_rings[i], rcu);
+ 			vsi->xdp_rings[i] = NULL;
+ 		}
+diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
+index 37c7dc6b44a9..03ba08fdcee8 100644
+--- a/drivers/net/ethernet/intel/ice/ice_xsk.c
++++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
+@@ -36,8 +36,10 @@ static void ice_qp_reset_stats(struct ice_vsi *vsi, u16 q_idx)
+ static void ice_qp_clean_rings(struct ice_vsi *vsi, u16 q_idx)
+ {
+ 	ice_clean_tx_ring(vsi->tx_rings[q_idx]);
+-	if (ice_is_xdp_ena_vsi(vsi))
++	if (ice_is_xdp_ena_vsi(vsi)) {
++		synchronize_rcu();
+ 		ice_clean_tx_ring(vsi->xdp_rings[q_idx]);
++	}
+ 	ice_clean_rx_ring(vsi->rx_rings[q_idx]);
+ }
  
 -- 
 2.35.1
