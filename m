@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D5844FDB28
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C260E4FD73B
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354063AbiDLHq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:46:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49120 "EHLO
+        id S244257AbiDLH2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357176AbiDLHjv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D948913F77;
-        Tue, 12 Apr 2022 00:13:29 -0700 (PDT)
+        with ESMTP id S1354212AbiDLHRO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BA0142A23;
+        Mon, 11 Apr 2022 23:58:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7455861708;
-        Tue, 12 Apr 2022 07:13:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FDFBC385A5;
-        Tue, 12 Apr 2022 07:13:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1F1960EEB;
+        Tue, 12 Apr 2022 06:58:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9FDBC385A6;
+        Tue, 12 Apr 2022 06:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747608;
-        bh=9xQ3uX4h9l1REPAIIrIh96bR7xnygsUSU5H1Cu9F32g=;
+        s=korg; t=1649746711;
+        bh=k6MVIFARZQ6g50RBnCIzx3cvvXS7ccTygWy55DHgzXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FKCsTg5k+KAleHqAC7ViVP+z9u1P1tyXhi9KVoKQGq+XFtN/1aJe/ho5XN22uD8hx
-         UOw4zzsNY2LQYhYQdZrcYSMZOMPfooXYcqLBUb5RSZNAtvypy1tr1pSdRLfaRWup6O
-         NvZohir7O8Y+3f2v00DtoouwoAqde7W7ycn82qrQ=
+        b=pnK+f3L4bN5G+LTXo+qyV/zq3dk2b3XUpejoBG7QWIOHanFxL0lOP/jfR5NcMN5NR
+         teELknBkItHXWJirGGAIFT0CVAKFhkYzbUU5eNgw7vcRhw9aagC3YVajs9mgKHiEoa
+         WQx6RqCptH7OoiTeKtiPM+Fn6Kr3sVWkTtnLxMds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jorge Lopez <jorge.lopez2@hp.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 140/343] platform/x86: hp-wmi: Fix 0x05 error code reported by several WMI calls
-Date:   Tue, 12 Apr 2022 08:29:18 +0200
-Message-Id: <20220412062955.426856975@linuxfoundation.org>
+Subject: [PATCH 5.16 102/285] usb: dwc3: omap: fix "unbalanced disables for smps10_out1" on omap5evm
+Date:   Tue, 12 Apr 2022 08:29:19 +0200
+Message-Id: <20220412062946.608759415@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,150 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Lopez <jorge.lopez2@hp.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit be9d73e64957bbd31ee9a0d11adc0f720974c558 ]
+[ Upstream commit ac01df343e5a6c6bcead2ed421af1fde30f73e7e ]
 
-Several WMI queries leverage hp_wmi_read_int function to read their
-data. hp_wmi_read_int function was corrected in a previous patch.
-Now, this function invokes hp_wmi_perform_query with input parameter
-of size zero and the output buffer of size 4.
+Usually, the vbus_regulator (smps10 on omap5evm) boots up disabled.
 
-WMI commands calling hp_wmi_perform_query with input buffer size value
-of zero are listed below.
+Hence calling regulator_disable() indirectly through dwc3_omap_set_mailbox()
+during probe leads to:
 
-HPWMI_DISPLAY_QUERY
-HPWMI_HDDTEMP_QUERY
-HPWMI_ALS_QUERY
-HPWMI_HARDWARE_QUERY
-HPWMI_WIRELESS_QUERY
-HPWMI_BIOS_QUERY
-HPWMI_FEATURE_QUERY
-HPWMI_HOTKEY_QUERY
-HPWMI_FEATURE2_QUERY
-HPWMI_WIRELESS2_QUERY
-HPWMI_POSTCODEERROR_QUERY
-HPWMI_THERMAL_PROFILE_QUERY
-HPWMI_FAN_SPEED_MAX_GET_QUERY
+[   10.332764] WARNING: CPU: 0 PID: 1628 at drivers/regulator/core.c:2853 _regulator_disable+0x40/0x164
+[   10.351919] unbalanced disables for smps10_out1
+[   10.361298] Modules linked in: dwc3_omap(+) clk_twl6040 at24 gpio_twl6040 palmas_gpadc palmas_pwrbutton
+industrialio snd_soc_omap_mcbsp(+) snd_soc_ti_sdma display_connector ti_tpd12s015 drm leds_gpio
+drm_panel_orientation_quirks ip_tables x_tables ipv6 autofs4
+[   10.387818] CPU: 0 PID: 1628 Comm: systemd-udevd Not tainted 5.17.0-rc1-letux-lpae+ #8139
+[   10.405129] Hardware name: Generic OMAP5 (Flattened Device Tree)
+[   10.411455]  unwind_backtrace from show_stack+0x10/0x14
+[   10.416970]  show_stack from dump_stack_lvl+0x40/0x4c
+[   10.422313]  dump_stack_lvl from __warn+0xb8/0x170
+[   10.427377]  __warn from warn_slowpath_fmt+0x70/0x9c
+[   10.432595]  warn_slowpath_fmt from _regulator_disable+0x40/0x164
+[   10.439037]  _regulator_disable from regulator_disable+0x30/0x64
+[   10.445382]  regulator_disable from dwc3_omap_set_mailbox+0x8c/0xf0 [dwc3_omap]
+[   10.453116]  dwc3_omap_set_mailbox [dwc3_omap] from dwc3_omap_probe+0x2b8/0x394 [dwc3_omap]
+[   10.467021]  dwc3_omap_probe [dwc3_omap] from platform_probe+0x58/0xa8
+[   10.481762]  platform_probe from really_probe+0x168/0x2fc
+[   10.481782]  really_probe from __driver_probe_device+0xc4/0xd8
+[   10.481782]  __driver_probe_device from driver_probe_device+0x24/0xa4
+[   10.503762]  driver_probe_device from __driver_attach+0xc4/0xd8
+[   10.510018]  __driver_attach from bus_for_each_dev+0x64/0xa0
+[   10.516001]  bus_for_each_dev from bus_add_driver+0x148/0x1a4
+[   10.524880]  bus_add_driver from driver_register+0xb4/0xf8
+[   10.530678]  driver_register from do_one_initcall+0x90/0x1c4
+[   10.536661]  do_one_initcall from do_init_module+0x4c/0x200
+[   10.536683]  do_init_module from load_module+0x13dc/0x1910
+[   10.551159]  load_module from sys_finit_module+0xc8/0xd8
+[   10.561319]  sys_finit_module from __sys_trace_return+0x0/0x18
+[   10.561336] Exception stack(0xc344bfa8 to 0xc344bff0)
+[   10.561341] bfa0:                   b6fb5778 b6fab8d8 00000007 b6ecfbb8 00000000 b6ed0398
+[   10.561341] bfc0: b6fb5778 b6fab8d8 855c0500 0000017b 00020000 b6f9a3cc 00000000 b6fb5778
+[   10.595500] bfe0: bede18f8 bede18e8 b6ec9aeb b6dda1c2
+[   10.601345] ---[ end trace 0000000000000000 ]---
 
-Invoking those WMI commands with an input buffer size greater
-than zero will cause error 0x05 to be returned.
+Fix this unnecessary warning by checking if the regulator is enabled.
 
-All WMI commands executed by the driver were reviewed and changes
-were made to ensure the expected input and output buffer size match
-the WMI specification.
-
-Changes were validated on a HP ZBook Workstation notebook,
-HP EliteBook x360, and HP EliteBook 850 G8.  Additional
-validation was included in the test process to ensure no other
-commands were incorrectly handled.
-
-Signed-off-by: Jorge Lopez <jorge.lopez2@hp.com>
-Link: https://lore.kernel.org/r/20220310210853.28367-4-jorge.lopez2@hp.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Link: https://lore.kernel.org/r/af3b750dc2265d875deaabcf5f80098c9645da45.1646744616.git.hns@goldelico.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/hp-wmi.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/usb/dwc3/dwc3-omap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/hp-wmi.c b/drivers/platform/x86/hp-wmi.c
-index f822ef6eb93c..88f0bfd6ecf1 100644
---- a/drivers/platform/x86/hp-wmi.c
-+++ b/drivers/platform/x86/hp-wmi.c
-@@ -330,7 +330,7 @@ static int hp_wmi_get_fan_speed(int fan)
- 	char fan_data[4] = { fan, 0, 0, 0 };
+diff --git a/drivers/usb/dwc3/dwc3-omap.c b/drivers/usb/dwc3/dwc3-omap.c
+index e196673f5c64..efaf0db595f4 100644
+--- a/drivers/usb/dwc3/dwc3-omap.c
++++ b/drivers/usb/dwc3/dwc3-omap.c
+@@ -242,7 +242,7 @@ static void dwc3_omap_set_mailbox(struct dwc3_omap *omap,
+ 		break;
  
- 	int ret = hp_wmi_perform_query(HPWMI_FAN_SPEED_GET_QUERY, HPWMI_GM,
--				       &fan_data, sizeof(fan_data),
-+				       &fan_data, sizeof(char),
- 				       sizeof(fan_data));
- 
- 	if (ret != 0)
-@@ -399,7 +399,7 @@ static int omen_thermal_profile_set(int mode)
- 		return -EINVAL;
- 
- 	ret = hp_wmi_perform_query(HPWMI_SET_PERFORMANCE_MODE, HPWMI_GM,
--				   &buffer, sizeof(buffer), sizeof(buffer));
-+				   &buffer, sizeof(buffer), 0);
- 
- 	if (ret)
- 		return ret < 0 ? ret : -EINVAL;
-@@ -436,7 +436,7 @@ static int hp_wmi_fan_speed_max_set(int enabled)
- 	int ret;
- 
- 	ret = hp_wmi_perform_query(HPWMI_FAN_SPEED_MAX_SET_QUERY, HPWMI_GM,
--				   &enabled, sizeof(enabled), sizeof(enabled));
-+				   &enabled, sizeof(enabled), 0);
- 
- 	if (ret)
- 		return ret < 0 ? ret : -EINVAL;
-@@ -449,7 +449,7 @@ static int hp_wmi_fan_speed_max_get(void)
- 	int val = 0, ret;
- 
- 	ret = hp_wmi_perform_query(HPWMI_FAN_SPEED_MAX_GET_QUERY, HPWMI_GM,
--				   &val, sizeof(val), sizeof(val));
-+				   &val, 0, sizeof(val));
- 
- 	if (ret)
- 		return ret < 0 ? ret : -EINVAL;
-@@ -461,7 +461,7 @@ static int __init hp_wmi_bios_2008_later(void)
- {
- 	int state = 0;
- 	int ret = hp_wmi_perform_query(HPWMI_FEATURE_QUERY, HPWMI_READ, &state,
--				       sizeof(state), sizeof(state));
-+				       0, sizeof(state));
- 	if (!ret)
- 		return 1;
- 
-@@ -472,7 +472,7 @@ static int __init hp_wmi_bios_2009_later(void)
- {
- 	u8 state[128];
- 	int ret = hp_wmi_perform_query(HPWMI_FEATURE2_QUERY, HPWMI_READ, &state,
--				       sizeof(state), sizeof(state));
-+				       0, sizeof(state));
- 	if (!ret)
- 		return 1;
- 
-@@ -550,7 +550,7 @@ static int hp_wmi_rfkill2_refresh(void)
- 	int err, i;
- 
- 	err = hp_wmi_perform_query(HPWMI_WIRELESS2_QUERY, HPWMI_READ, &state,
--				   sizeof(state), sizeof(state));
-+				   0, sizeof(state));
- 	if (err)
- 		return err;
- 
-@@ -639,7 +639,7 @@ static ssize_t als_store(struct device *dev, struct device_attribute *attr,
- 		return ret;
- 
- 	ret = hp_wmi_perform_query(HPWMI_ALS_QUERY, HPWMI_WRITE, &tmp,
--				       sizeof(tmp), sizeof(tmp));
-+				       sizeof(tmp), 0);
- 	if (ret)
- 		return ret < 0 ? ret : -EINVAL;
- 
-@@ -660,9 +660,9 @@ static ssize_t postcode_store(struct device *dev, struct device_attribute *attr,
- 	if (clear == false)
- 		return -EINVAL;
- 
--	/* Clear the POST error code. It is kept until until cleared. */
-+	/* Clear the POST error code. It is kept until cleared. */
- 	ret = hp_wmi_perform_query(HPWMI_POSTCODEERROR_QUERY, HPWMI_WRITE, &tmp,
--				       sizeof(tmp), sizeof(tmp));
-+				       sizeof(tmp), 0);
- 	if (ret)
- 		return ret < 0 ? ret : -EINVAL;
- 
-@@ -952,7 +952,7 @@ static int __init hp_wmi_rfkill2_setup(struct platform_device *device)
- 	int err, i;
- 
- 	err = hp_wmi_perform_query(HPWMI_WIRELESS2_QUERY, HPWMI_READ, &state,
--				   sizeof(state), sizeof(state));
-+				   0, sizeof(state));
- 	if (err)
- 		return err < 0 ? err : -EINVAL;
- 
+ 	case OMAP_DWC3_ID_FLOAT:
+-		if (omap->vbus_reg)
++		if (omap->vbus_reg && regulator_is_enabled(omap->vbus_reg))
+ 			regulator_disable(omap->vbus_reg);
+ 		val = dwc3_omap_read_utmi_ctrl(omap);
+ 		val |= USBOTGSS_UTMI_OTG_CTRL_IDDIG;
 -- 
 2.35.1
 
