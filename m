@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D9554FD225
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F04014FCFC7
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344439AbiDLHJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:09:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60732 "EHLO
+        id S1349541AbiDLGij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:38:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235739AbiDLHAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:00:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03A7F4348F;
-        Mon, 11 Apr 2022 23:46:46 -0700 (PDT)
+        with ESMTP id S1350274AbiDLGhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:37:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D9CD13F9B;
+        Mon, 11 Apr 2022 23:34:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06DDC6109E;
-        Tue, 12 Apr 2022 06:46:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18843C385A1;
-        Tue, 12 Apr 2022 06:46:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97D6AB81B43;
+        Tue, 12 Apr 2022 06:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8299C385A1;
+        Tue, 12 Apr 2022 06:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746005;
-        bh=Rsjvxg+k8r2vza09ZjsYYA3qoPxRWtfGsNYwNg5EE+M=;
+        s=korg; t=1649745265;
+        bh=0Xvo/FYcifaVUfTs3/xwXHOJ7VYRQ1FCx50940HjPqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUwMALSouWxC+uhPDvQaJUMvETsSulSMKiINPPz8jZWtwFhOSUSBetSa6cegq1uJ4
-         ZjRHVKR+kHV+dLAnVozwDJrHusWu22KJXMkGRniA4T4eL57qbq55EyLJgzEx/jJ3y1
-         Q0GjQXoN9SvTXRy+/h3som7RVg1eU8wewgSion5s=
+        b=Sst5qVTl7aw/ph+DlTd3GG3IfrRUhX0ahBqRbZ1O3RokDFqZPxMlRCgzIL5oIC4rj
+         OFCgQLzkaKKBtlYHLbI5monpAaAjdpQyOjJpxQAjfSSH6rE7hDI9cj1a7qVXcrRqBi
+         J4pX7CfpWQKq43CLxn+Npe11xXA2jcy2BFhtwrdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Jordy Zomer <jordy@pwning.systems>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 125/277] clk: ti: Preserve node in ti_dt_clocks_register()
+Subject: [PATCH 5.10 037/171] dm ioctl: prevent potential spectre v1 gadget
 Date:   Tue, 12 Apr 2022 08:28:48 +0200
-Message-Id: <20220412062945.657969492@linuxfoundation.org>
+Message-Id: <20220412062928.961467864@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Jordy Zomer <jordy@jordyzomer.github.io>
 
-[ Upstream commit 80864594ff2ad002e2755daf97d46ff0c86faf1f ]
+[ Upstream commit cd9c88da171a62c4b0f1c70e50c75845969fbc18 ]
 
-In preparation for making use of the clock-output-names, we want to
-keep node around in ti_dt_clocks_register().
+It appears like cmd could be a Spectre v1 gadget as it's supplied by a
+user and used as an array index. Prevent the contents of kernel memory
+from being leaked to userspace via speculative execution by using
+array_index_nospec.
 
-This change should not needed as a fix currently.
-
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20220204071449.16762-3-tony@atomide.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Jordy Zomer <jordy@pwning.systems>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/clk.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/md/dm-ioctl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/clk/ti/clk.c b/drivers/clk/ti/clk.c
-index 3da33c786d77..29eafab4353e 100644
---- a/drivers/clk/ti/clk.c
-+++ b/drivers/clk/ti/clk.c
-@@ -131,7 +131,7 @@ int ti_clk_setup_ll_ops(struct ti_clk_ll_ops *ops)
- void __init ti_dt_clocks_register(struct ti_dt_clk oclks[])
- {
- 	struct ti_dt_clk *c;
--	struct device_node *node, *parent;
-+	struct device_node *node, *parent, *child;
- 	struct clk *clk;
- 	struct of_phandle_args clkspec;
- 	char buf[64];
-@@ -171,10 +171,13 @@ void __init ti_dt_clocks_register(struct ti_dt_clk oclks[])
- 		node = of_find_node_by_name(NULL, buf);
- 		if (num_args && compat_mode) {
- 			parent = node;
--			node = of_get_child_by_name(parent, "clock");
--			if (!node)
--				node = of_get_child_by_name(parent, "clk");
--			of_node_put(parent);
-+			child = of_get_child_by_name(parent, "clock");
-+			if (!child)
-+				child = of_get_child_by_name(parent, "clk");
-+			if (child) {
-+				of_node_put(parent);
-+				node = child;
-+			}
- 		}
+diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
+index 1ca65b434f1f..b839705654d4 100644
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -17,6 +17,7 @@
+ #include <linux/dm-ioctl.h>
+ #include <linux/hdreg.h>
+ #include <linux/compat.h>
++#include <linux/nospec.h>
  
- 		clkspec.np = node;
+ #include <linux/uaccess.h>
+ 
+@@ -1696,6 +1697,7 @@ static ioctl_fn lookup_ioctl(unsigned int cmd, int *ioctl_flags)
+ 	if (unlikely(cmd >= ARRAY_SIZE(_ioctls)))
+ 		return NULL;
+ 
++	cmd = array_index_nospec(cmd, ARRAY_SIZE(_ioctls));
+ 	*ioctl_flags = _ioctls[cmd].flags;
+ 	return _ioctls[cmd].fn;
+ }
 -- 
 2.35.1
 
