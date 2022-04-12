@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CAAD4FD6A5
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:24:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BDD4FD68C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235086AbiDLHvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50108 "EHLO
+        id S1353131AbiDLHhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:37:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359257AbiDLHmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B9072AC66;
-        Tue, 12 Apr 2022 00:21:10 -0700 (PDT)
+        with ESMTP id S1353886AbiDLHZ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC570FD09;
+        Tue, 12 Apr 2022 00:05:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA8B861045;
-        Tue, 12 Apr 2022 07:21:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1FDCC385A5;
-        Tue, 12 Apr 2022 07:21:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 808AAB81B4D;
+        Tue, 12 Apr 2022 07:05:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB0BAC385A6;
+        Tue, 12 Apr 2022 07:05:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748069;
-        bh=KXy/IacbeYaGiCa4DIP5MYCW5TZXiRuOhqsi9RysQGE=;
+        s=korg; t=1649747103;
+        bh=X/kxAdyy8ubxvC4P7+q/VVC5pIvWgQr+bpFFx6PiJI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e0TifdPgZ8AHsS6hhxzj+yGVVTtcX5IeFWWNnLebvXjDViZmcWeAhw8rX7+kjkUHm
-         mV7Xi9G4Utcj5im3gxsquNKz48Dj7csrjKCmsK/AvMhB7DkroL3vW19UIBYGp8n8sg
-         GOiZg9RrrtTMawZGrcX1hVC2RdgPXlB4Lwuz2MXE=
+        b=UcV2tNJtBcZH5FqP6BxKKs4//yempEflQFt2sDjvzlWh8VOruWzzmxGjfiKoMcwuG
+         Wq4/KvH/nJO/Jx/ofLVhhADiz6t2X4/zvM4YI/LdYPI2wIMFViVU8U9xyxfsJWjy2b
+         BF9ORBSFsq9yotvdmZ+0PHYm8ZvpE/aU7kyFCtSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Neelima Krishnan <neelima.krishnan@intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 281/343] x86/speculation: Restore speculation related MSRs during S3 resume
+        stable@vger.kernel.org, Adrian-Ken Rueegsegger <ken@codelabs.ch>,
+        Reto Buerki <reet@codelabs.ch>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.16 242/285] x86/msi: Fix msi message data shadow struct
 Date:   Tue, 12 Apr 2022 08:31:39 +0200
-Message-Id: <20220412062959.433777240@linuxfoundation.org>
+Message-Id: <20220412062950.647425068@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,60 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Reto Buerki <reet@codelabs.ch>
 
-commit e2a1256b17b16f9b9adf1b6fea56819e7b68e463 upstream.
+commit 59b18a1e65b7a2134814106d0860010e10babe18 upstream.
 
-After resuming from suspend-to-RAM, the MSRs that control CPU's
-speculative execution behavior are not being restored on the boot CPU.
+The x86 MSI message data is 32 bits in total and is either in
+compatibility or remappable format, see Intel Virtualization Technology
+for Directed I/O, section 5.1.2.
 
-These MSRs are used to mitigate speculative execution vulnerabilities.
-Not restoring them correctly may leave the CPU vulnerable.  Secondary
-CPU's MSRs are correctly being restored at S3 resume by
-identify_secondary_cpu().
-
-During S3 resume, restore these MSRs for boot CPU when restoring its
-processor state.
-
-Fixes: 772439717dbf ("x86/bugs/intel: Set proper CPU features and setup RDS")
-Reported-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Acked-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Fixes: 6285aa50736 ("x86/msi: Provide msi message shadow structs")
+Co-developed-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
+Signed-off-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
+Signed-off-by: Reto Buerki <reet@codelabs.ch>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20220407110647.67372-1-reet@codelabs.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/power/cpu.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/x86/include/asm/msi.h |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/arch/x86/power/cpu.c
-+++ b/arch/x86/power/cpu.c
-@@ -503,10 +503,24 @@ static int pm_cpu_check(const struct x86
- 	return ret;
- }
+--- a/arch/x86/include/asm/msi.h
++++ b/arch/x86/include/asm/msi.h
+@@ -12,14 +12,17 @@ int pci_msi_prepare(struct irq_domain *d
+ /* Structs and defines for the X86 specific MSI message format */
  
-+static void pm_save_spec_msr(void)
-+{
-+	u32 spec_msr_id[] = {
-+		MSR_IA32_SPEC_CTRL,
-+		MSR_IA32_TSX_CTRL,
-+		MSR_TSX_FORCE_ABORT,
-+		MSR_IA32_MCU_OPT_CTRL,
-+		MSR_AMD64_LS_CFG,
+ typedef struct x86_msi_data {
+-	u32	vector			:  8,
+-		delivery_mode		:  3,
+-		dest_mode_logical	:  1,
+-		reserved		:  2,
+-		active_low		:  1,
+-		is_level		:  1;
+-
+-	u32	dmar_subhandle;
++	union {
++		struct {
++			u32	vector			:  8,
++				delivery_mode		:  3,
++				dest_mode_logical	:  1,
++				reserved		:  2,
++				active_low		:  1,
++				is_level		:  1;
++		};
++		u32	dmar_subhandle;
 +	};
-+
-+	msr_build_context(spec_msr_id, ARRAY_SIZE(spec_msr_id));
-+}
-+
- static int pm_check_save_msr(void)
- {
- 	dmi_check_system(msr_save_dmi_table);
- 	pm_cpu_check(msr_save_cpu_table);
-+	pm_save_spec_msr();
+ } __attribute__ ((packed)) arch_msi_msg_data_t;
+ #define arch_msi_msg_data	x86_msi_data
  
- 	return 0;
- }
 
 
