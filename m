@@ -2,45 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 342384FDA51
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54CB74FD6B7
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354340AbiDLHwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:52:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
+        id S1351463AbiDLHUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:20:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358046AbiDLHlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9EB440926;
-        Tue, 12 Apr 2022 00:17:16 -0700 (PDT)
+        with ESMTP id S1351708AbiDLHMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B819DFC0;
+        Mon, 11 Apr 2022 23:51:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 458D861045;
-        Tue, 12 Apr 2022 07:17:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56389C385A1;
-        Tue, 12 Apr 2022 07:17:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 17837B81B47;
+        Tue, 12 Apr 2022 06:51:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32240C385A6;
+        Tue, 12 Apr 2022 06:51:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747835;
-        bh=+Rqdjfhvx2D/QpvUz9W69X9XBHp0o3qpRtra3UpwWus=;
+        s=korg; t=1649746311;
+        bh=sXplmjtci3GWzKPGj7qmndHKq1WQI2fvhmgLsZ33CEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aORHM98Obl6SCXJ36MDXLZW98vKzryGqzhz1c61fLXLZN2BnHodb0AtwoiHF2D2Hc
-         huTrPYwsAOvAXGzMJJ7vR/CbjrmfS20C3/X78kG1tLWnHfiHKS3L+n6Ywv2dNd7IhZ
-         TMQVcFMEZm30G01QdmTKHKGVCCW3Z5bydrptm/bo=
+        b=YFdQBXqG1wRcElC7ui6t+o7z/X2Y0e4XQGl1z/uPqXchEXQS13CV8h9tqq8zQ4Cmz
+         VSaq/D9spJ7TNN+XpYq8D1ydXfDz2BfZ56+j5H7BRjBgyosTN83AR+sPmmOR+Dcqyx
+         8s7tMxgUmkg43qFkOtSWJXdgpKvbi8k8EhoxjA/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 222/343] bnxt_en: Synchronize tx when xdp redirects happen on same ring
-Date:   Tue, 12 Apr 2022 08:30:40 +0200
-Message-Id: <20220412062957.747431461@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>,
+        Zack Rusin <zackr@vmware.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Helge Deller <deller@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
+        Zheyu Ma <zheyuma97@gmail.com>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH 5.15 238/277] fbdev: Fix unregistering of framebuffers without device
+Date:   Tue, 12 Apr 2022 08:30:41 +0200
+Message-Id: <20220412062948.931924795@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,113 +67,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavan Chebbi <pavan.chebbi@broadcom.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 4f81def272de17dc4bbd89ac38f49b2676c9b3d2 ]
+commit 0f525289ff0ddeb380813bd81e0f9bdaaa1c9078 upstream.
 
-If there are more CPUs than the number of TX XDP rings, multiple XDP
-redirects can select the same TX ring based on the CPU on which
-XDP redirect is called.  Add locking when needed and use static
-key to decide whether to take the lock.
+OF framebuffers do not have an underlying device in the Linux
+device hierarchy. Do a regular unregister call instead of hot
+unplugging such a non-existing device. Fixes a NULL dereference.
+An example error message on ppc64le is shown below.
 
-Fixes: f18c2b77b2e4 ("bnxt_en: optimized XDP_REDIRECT support")
-Signed-off-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  BUG: Kernel NULL pointer dereference on read at 0x00000060
+  Faulting instruction address: 0xc00000000080dfa4
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+  [...]
+  CPU: 2 PID: 139 Comm: systemd-udevd Not tainted 5.17.0-ae085d7f9365 #1
+  NIP:  c00000000080dfa4 LR: c00000000080df9c CTR: c000000000797430
+  REGS: c000000004132fe0 TRAP: 0300   Not tainted  (5.17.0-ae085d7f9365)
+  MSR:  8000000002009033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 28228282  XER: 20000000
+  CFAR: c00000000000c80c DAR: 0000000000000060 DSISR: 40000000 IRQMASK: 0
+  GPR00: c00000000080df9c c000000004133280 c00000000169d200 0000000000000029
+  GPR04: 00000000ffffefff c000000004132f90 c000000004132f88 0000000000000000
+  GPR08: c0000000015658f8 c0000000015cd200 c0000000014f57d0 0000000048228283
+  GPR12: 0000000000000000 c00000003fffe300 0000000020000000 0000000000000000
+  GPR16: 0000000000000000 0000000113fc4a40 0000000000000005 0000000113fcfb80
+  GPR20: 000001000f7283b0 0000000000000000 c000000000e4a588 c000000000e4a5b0
+  GPR24: 0000000000000001 00000000000a0000 c008000000db0168 c0000000021f6ec0
+  GPR28: c0000000016d65a8 c000000004b36460 0000000000000000 c0000000016d64b0
+  NIP [c00000000080dfa4] do_remove_conflicting_framebuffers+0x184/0x1d0
+  [c000000004133280] [c00000000080df9c] do_remove_conflicting_framebuffers+0x17c/0x1d0 (unreliable)
+  [c000000004133350] [c00000000080e4d0] remove_conflicting_framebuffers+0x60/0x150
+  [c0000000041333a0] [c00000000080e6f4] remove_conflicting_pci_framebuffers+0x134/0x1b0
+  [c000000004133450] [c008000000e70438] drm_aperture_remove_conflicting_pci_framebuffers+0x90/0x100 [drm]
+  [c000000004133490] [c008000000da0ce4] bochs_pci_probe+0x6c/0xa64 [bochs]
+  [...]
+  [c000000004133db0] [c00000000002aaa0] system_call_exception+0x170/0x2d0
+  [c000000004133e10] [c00000000000c3cc] system_call_common+0xec/0x250
+
+The bug [1] was introduced by commit 27599aacbaef ("fbdev: Hot-unplug
+firmware fb devices on forced removal"). Most firmware framebuffers
+have an underlying platform device, which can be hot-unplugged
+before loading the native graphics driver. OF framebuffers do not
+(yet) have that device. Fix the code by unregistering the framebuffer
+as before without a hot unplug.
+
+Tested with 5.17 on qemu ppc64le emulation.
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 27599aacbaef ("fbdev: Hot-unplug firmware fb devices on forced removal")
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+Cc: Zack Rusin <zackr@vmware.com>
+Cc: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: stable@vger.kernel.org # v5.11+
+Cc: Helge Deller <deller@gmx.de>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Zheyu Ma <zheyuma97@gmail.com>
+Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Cc: Zhen Lei <thunder.leizhen@huawei.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-fbdev@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Link: https://lore.kernel.org/all/YkHXO6LGHAN0p1pq@debian/ # [1]
+Link: https://patchwork.freedesktop.org/patch/msgid/20220404194402.29974-1-tzimmermann@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c     | 7 +++++++
- drivers/net/ethernet/broadcom/bnxt/bnxt.h     | 2 ++
- drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c | 8 ++++++++
- drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h | 2 ++
- 4 files changed, 19 insertions(+)
+ drivers/video/fbdev/core/fbmem.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index b1c98d1408b8..6af0ae1d0c46 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -3224,6 +3224,7 @@ static int bnxt_alloc_tx_rings(struct bnxt *bp)
- 		}
- 		qidx = bp->tc_to_qidx[j];
- 		ring->queue_id = bp->q_info[qidx].queue_id;
-+		spin_lock_init(&txr->xdp_tx_lock);
- 		if (i < bp->tx_nr_rings_xdp)
- 			continue;
- 		if (i % bp->tx_nr_rings_per_tc == (bp->tx_nr_rings_per_tc - 1))
-@@ -10294,6 +10295,12 @@ static int __bnxt_open_nic(struct bnxt *bp, bool irq_re_init, bool link_re_init)
- 	if (irq_re_init)
- 		udp_tunnel_nic_reset_ntf(bp->dev);
- 
-+	if (bp->tx_nr_rings_xdp < num_possible_cpus()) {
-+		if (!static_key_enabled(&bnxt_xdp_locking_key))
-+			static_branch_enable(&bnxt_xdp_locking_key);
-+	} else if (static_key_enabled(&bnxt_xdp_locking_key)) {
-+		static_branch_disable(&bnxt_xdp_locking_key);
-+	}
- 	set_bit(BNXT_STATE_OPEN, &bp->state);
- 	bnxt_enable_int(bp);
- 	/* Enable TX queues */
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index 666fc1e7a7d2..caf66a35d923 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -800,6 +800,8 @@ struct bnxt_tx_ring_info {
- 	u32			dev_state;
- 
- 	struct bnxt_ring_struct	tx_ring_struct;
-+	/* Synchronize simultaneous xdp_xmit on same ring */
-+	spinlock_t		xdp_tx_lock;
- };
- 
- #define BNXT_LEGACY_COAL_CMPL_PARAMS					\
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-index 52fad0fdeacf..c0541ff00ac8 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
-@@ -20,6 +20,8 @@
- #include "bnxt.h"
- #include "bnxt_xdp.h"
- 
-+DEFINE_STATIC_KEY_FALSE(bnxt_xdp_locking_key);
-+
- struct bnxt_sw_tx_bd *bnxt_xmit_bd(struct bnxt *bp,
- 				   struct bnxt_tx_ring_info *txr,
- 				   dma_addr_t mapping, u32 len)
-@@ -227,6 +229,9 @@ int bnxt_xdp_xmit(struct net_device *dev, int num_frames,
- 	ring = smp_processor_id() % bp->tx_nr_rings_xdp;
- 	txr = &bp->tx_ring[ring];
- 
-+	if (static_branch_unlikely(&bnxt_xdp_locking_key))
-+		spin_lock(&txr->xdp_tx_lock);
-+
- 	for (i = 0; i < num_frames; i++) {
- 		struct xdp_frame *xdp = frames[i];
- 
-@@ -250,6 +255,9 @@ int bnxt_xdp_xmit(struct net_device *dev, int num_frames,
- 		bnxt_db_write(bp, &txr->tx_db, txr->tx_prod);
- 	}
- 
-+	if (static_branch_unlikely(&bnxt_xdp_locking_key))
-+		spin_unlock(&txr->xdp_tx_lock);
-+
- 	return nxmit;
- }
- 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-index 0df40c3beb05..067bb5e821f5 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.h
-@@ -10,6 +10,8 @@
- #ifndef BNXT_XDP_H
- #define BNXT_XDP_H
- 
-+DECLARE_STATIC_KEY_FALSE(bnxt_xdp_locking_key);
-+
- struct bnxt_sw_tx_bd *bnxt_xmit_bd(struct bnxt *bp,
- 				   struct bnxt_tx_ring_info *txr,
- 				   dma_addr_t mapping, u32 len);
--- 
-2.35.1
-
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1581,7 +1581,14 @@ static void do_remove_conflicting_frameb
+ 			 * If it's not a platform device, at least print a warning. A
+ 			 * fix would add code to remove the device from the system.
+ 			 */
+-			if (dev_is_platform(device)) {
++			if (!device) {
++				/* TODO: Represent each OF framebuffer as its own
++				 * device in the device hierarchy. For now, offb
++				 * doesn't have such a device, so unregister the
++				 * framebuffer as before without warning.
++				 */
++				do_unregister_framebuffer(registered_fb[i]);
++			} else if (dev_is_platform(device)) {
+ 				registered_fb[i]->forced_out = true;
+ 				platform_device_unregister(to_platform_device(device));
+ 			} else {
 
 
