@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1380C4FD1A1
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3574FCFDB
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350987AbiDLG7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:59:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48942 "EHLO
+        id S1350648AbiDLGiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352548AbiDLG4A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:56:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E26822519;
-        Mon, 11 Apr 2022 23:46:01 -0700 (PDT)
+        with ESMTP id S1349222AbiDLGga (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:36:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77AEE36173;
+        Mon, 11 Apr 2022 23:33:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CA4CB81B43;
-        Tue, 12 Apr 2022 06:46:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CC2C385A1;
-        Tue, 12 Apr 2022 06:45:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0F62B81B41;
+        Tue, 12 Apr 2022 06:33:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 595E9C385A6;
+        Tue, 12 Apr 2022 06:33:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745958;
-        bh=eyF2VnUNxOloLVIPfKJn9iNPrihstZvyrnDzYF9Nnbs=;
+        s=korg; t=1649745227;
+        bh=Y57laqo09HMB6kgB7bj0/c0TOESGTg7lIYYGBdaRjlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnwJtzl7UpDNFxdK0ns58nNC8EykBLeQ82cFzRgw2h5CHCY5ePjROegkfO0Q1zIKi
-         GC9EtBRabrGKySU3U5/Y9nlp3g0JsdKaSy7d4nKxMUg3gP3dzhHktxYkfzV6JxHnRb
-         d+x8sTjAI8hK6dUg8gT66YUgPZXkx3ZGuZw6D6E4=
+        b=myyILqVt/rIvtwdVKJhKjl60xbIKNvYYnJY5TlHaNs4QWrhzE04S9s3ou/+c5Sadb
+         q1wv7wePlap9ees0e1+eGAxI7wkcIjGTCC2J7oKxKTIaN/3mMwyngdiegwNJ/4zTbv
+         JqYAPwV0O5kIGMdOSmWV+3tIEeaUI1QUtVIgsByc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
-        Robert Hancock <robert.hancock@calian.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 110/277] clk: si5341: fix reported clk_rate when output divider is 2
-Date:   Tue, 12 Apr 2022 08:28:33 +0200
-Message-Id: <20220412062945.223193810@linuxfoundation.org>
+Subject: [PATCH 5.10 023/171] cfg80211: dont add non transmitted BSS to 6GHz scanned channels
+Date:   Tue, 12 Apr 2022 08:28:34 +0200
+Message-Id: <20220412062928.555843881@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Wujek <dev_public@wujek.eu>
+From: Avraham Stern <avraham.stern@intel.com>
 
-[ Upstream commit 2a8b539433e111c4de364237627ef219d2f6350a ]
+[ Upstream commit 5666ee154f4696c011dfa8544aaf5591b6b87515 ]
 
-SI5341_OUT_CFG_RDIV_FORCE2 shall be checked first to distinguish whether
-a divider for a given output is set to 2 (SI5341_OUT_CFG_RDIV_FORCE2
-is set) or the output is disabled (SI5341_OUT_CFG_RDIV_FORCE2 not set,
-SI5341_OUT_R_REG is set 0).
-Before the change, divider set to 2 (SI5341_OUT_R_REG set to 0) was
-interpreted as output is disabled.
+When adding 6GHz channels to scan request based on reported
+co-located APs, don't add channels that have only APs with
+"non-transmitted" BSSes if they only match the wildcard SSID since
+they will be found by probing the "transmitted" BSS.
 
-Signed-off-by: Adam Wujek <dev_public@wujek.eu>
-Link: https://lore.kernel.org/r/20211203141125.2447520-1-dev_public@wujek.eu
-Reviewed-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Avraham Stern <avraham.stern@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20220202104617.f6ddf099f934.I231e55885d3644f292d00dfe0f42653269f2559e@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-si5341.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ net/wireless/scan.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
-index f7b41366666e..4de098b6b0d4 100644
---- a/drivers/clk/clk-si5341.c
-+++ b/drivers/clk/clk-si5341.c
-@@ -798,6 +798,15 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
- 	u32 r_divider;
- 	u8 r[3];
+diff --git a/net/wireless/scan.c b/net/wireless/scan.c
+index fd614a5a00b4..c1b2655682a8 100644
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -702,8 +702,12 @@ static bool cfg80211_find_ssid_match(struct cfg80211_colocated_ap *ap,
  
-+	err = regmap_read(output->data->regmap,
-+			SI5341_OUT_CONFIG(output), &val);
-+	if (err < 0)
-+		return err;
+ 	for (i = 0; i < request->n_ssids; i++) {
+ 		/* wildcard ssid in the scan request */
+-		if (!request->ssids[i].ssid_len)
++		if (!request->ssids[i].ssid_len) {
++			if (ap->multi_bss && !ap->transmitted_bssid)
++				continue;
 +
-+	/* If SI5341_OUT_CFG_RDIV_FORCE2 is set, r_divider is 2 */
-+	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
-+		return parent_rate / 2;
+ 			return true;
++		}
+ 
+ 		if (ap->ssid_len &&
+ 		    ap->ssid_len == request->ssids[i].ssid_len) {
+@@ -830,6 +834,9 @@ static int cfg80211_scan_6ghz(struct cfg80211_registered_device *rdev)
+ 		    !cfg80211_find_ssid_match(ap, request))
+ 			continue;
+ 
++		if (!request->n_ssids && ap->multi_bss && !ap->transmitted_bssid)
++			continue;
 +
- 	err = regmap_bulk_read(output->data->regmap,
- 			SI5341_OUT_R_REG(output), r, 3);
- 	if (err < 0)
-@@ -814,13 +823,6 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
- 	r_divider += 1;
- 	r_divider <<= 1;
- 
--	err = regmap_read(output->data->regmap,
--			SI5341_OUT_CONFIG(output), &val);
--	if (err < 0)
--		return err;
--
--	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
--		r_divider = 2;
- 
- 	return parent_rate / r_divider;
- }
+ 		cfg80211_scan_req_add_chan(request, chan, true);
+ 		memcpy(scan_6ghz_params->bssid, ap->bssid, ETH_ALEN);
+ 		scan_6ghz_params->short_ssid = ap->short_ssid;
 -- 
 2.35.1
 
