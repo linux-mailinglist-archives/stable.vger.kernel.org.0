@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B064FD688
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE2514FD73E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354385AbiDLHin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:38:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33674 "EHLO
+        id S1352102AbiDLIAR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:00:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353533AbiDLHZo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC23D42EFF;
-        Tue, 12 Apr 2022 00:01:06 -0700 (PDT)
+        with ESMTP id S1358021AbiDLHk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5463D49F;
+        Tue, 12 Apr 2022 00:17:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 592BA615B4;
-        Tue, 12 Apr 2022 07:01:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66825C385A1;
-        Tue, 12 Apr 2022 07:01:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E8D46183C;
+        Tue, 12 Apr 2022 07:17:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F83BC385AE;
+        Tue, 12 Apr 2022 07:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746865;
-        bh=hUN9yw1tKUHXlZHF50cIZfu/c6O6GRL/XpekaWNpOQM=;
+        s=korg; t=1649747833;
+        bh=kShmUKhk7LeU0JYZ+RZnv3yHp8XfKe090h2Ncf9GveQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oemTtePxwN2ddsEUQ3q4/cZW/GP7ZcCRkcYdoBJsZt2O4YYyYz34DM1DIhfYTVTwK
-         O+Xytdw6DB8GlHZJe/G5uvNBHJyiL/iq2+FSzZxowIjokZ8M9P/Mseq/GYoNJ62OvW
-         U6qt5Z/OPRQ0xasRBoc3EDSGXufZ2OzeyOnRnwJQ=
+        b=RQ/0G5VyVOHwbSKw9TXBgiSQa/sNRKbj7iS2GN0x39s9rTYCO0maf/7n1jfIJDsK3
+         Cng8jI39fM82Fl7ZmBFvHzhzVrGg/6y4npVZn346cNUwp2hJ4hXzbXBXYvXXRy7VGY
+         SvX+bSA8PacUAZZXllBiYCMhu5aWWYqTqFBTOs18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Kevin Groeneveld <kgroeneveld@lenbrook.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 156/285] scsi: sr: Fix typo in CDROM(CLOSETRAY|EJECT) handling
+        stable@vger.kernel.org,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 195/343] Drivers: hv: vmbus: Fix potential crash on module unload
 Date:   Tue, 12 Apr 2022 08:30:13 +0200
-Message-Id: <20220412062948.173744187@linuxfoundation.org>
+Message-Id: <20220412062956.986128622@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Groeneveld <kgroeneveld@lenbrook.com>
+From: Guilherme G. Piccoli <gpiccoli@igalia.com>
 
-[ Upstream commit bc5519c18a32ce855bb51b9f5eceb77a9489d080 ]
+[ Upstream commit 792f232d57ff28bbd5f9c4abe0466b23d5879dc8 ]
 
-Commit 2e27f576abc6 ("scsi: scsi_ioctl: Call scsi_cmd_ioctl() from
-scsi_ioctl()") seems to have a typo as it is checking ret instead of cmd in
-the if statement checking for CDROMCLOSETRAY and CDROMEJECT.  This changes
-the behaviour of these ioctls as the cdrom_ioctl handling of these is more
-restrictive than the scsi_ioctl version.
+The vmbus driver relies on the panic notifier infrastructure to perform
+some operations when a panic event is detected. Since vmbus can be built
+as module, it is required that the driver handles both registering and
+unregistering such panic notifier callback.
 
-Link: https://lore.kernel.org/r/20220323002242.21157-1-kgroeneveld@lenbrook.com
-Fixes: 2e27f576abc6 ("scsi: scsi_ioctl: Call scsi_cmd_ioctl() from scsi_ioctl()")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Kevin Groeneveld <kgroeneveld@lenbrook.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+After commit 74347a99e73a ("x86/Hyper-V: Unload vmbus channel in hv panic callback")
+though, the panic notifier registration is done unconditionally in the module
+initialization routine whereas the unregistering procedure is conditionally
+guarded and executes only if HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE capability
+is set.
+
+This patch fixes that by unconditionally unregistering the panic notifier
+in the module's exit routine as well.
+
+Fixes: 74347a99e73a ("x86/Hyper-V: Unload vmbus channel in hv panic callback")
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220315203535.682306-1-gpiccoli@igalia.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hv/vmbus_drv.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index f5a2eed54345..9f683fed8f2c 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -579,7 +579,7 @@ static int sr_block_ioctl(struct block_device *bdev, fmode_t mode, unsigned cmd,
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 0a05e10ab36c..4bea1dfa41cd 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -2781,10 +2781,15 @@ static void __exit vmbus_exit(void)
+ 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
+ 		kmsg_dump_unregister(&hv_kmsg_dumper);
+ 		unregister_die_notifier(&hyperv_die_block);
+-		atomic_notifier_chain_unregister(&panic_notifier_list,
+-						 &hyperv_panic_block);
+ 	}
  
- 	scsi_autopm_get_device(sdev);
- 
--	if (ret != CDROMCLOSETRAY && ret != CDROMEJECT) {
-+	if (cmd != CDROMCLOSETRAY && cmd != CDROMEJECT) {
- 		ret = cdrom_ioctl(&cd->cdi, bdev, mode, cmd, arg);
- 		if (ret != -ENOSYS)
- 			goto put;
++	/*
++	 * The panic notifier is always registered, hence we should
++	 * also unconditionally unregister it here as well.
++	 */
++	atomic_notifier_chain_unregister(&panic_notifier_list,
++					 &hyperv_panic_block);
++
+ 	free_page((unsigned long)hv_panic_page);
+ 	unregister_sysctl_table(hv_ctl_table_hdr);
+ 	hv_ctl_table_hdr = NULL;
 -- 
 2.35.1
 
