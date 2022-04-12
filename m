@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6114E4FD06D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5135E4FD060
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241341AbiDLGqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44942 "EHLO
+        id S1350558AbiDLGqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:46:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351160AbiDLGoJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFDB939810;
-        Mon, 11 Apr 2022 23:37:36 -0700 (PDT)
+        with ESMTP id S1351164AbiDLGoK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3D939802;
+        Mon, 11 Apr 2022 23:37:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2D364CE1C0A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06EA761902;
+        Tue, 12 Apr 2022 06:37:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13CA8C385A1;
         Tue, 12 Apr 2022 06:37:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40602C385A8;
-        Tue, 12 Apr 2022 06:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745453;
-        bh=HhsWse4aJa2j35JND5dIW4AAU37/WjdA3YvpJ1bUwCI=;
+        s=korg; t=1649745456;
+        bh=xcEbyCMsLVo/1wSb+02SohARUT3LNZTwNJ3R8A644zE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7Drx1bWo+GTSUOQbgxbot0Utd42v1gW0s9E0AgZO9YWeArhfFpDKqrkO+vJS2P1Q
-         0uZVUblAutssEiIHDF6+x5MZ51IpNoC2pc4sWl28ucDRlNbte5NO6bJPJMsDuSdgGA
-         7pl++LtsCA9g8R8RhPdch94CuLBkpG62Q5vE18zk=
+        b=tGxhb5JBkWP2NqqzMWYxwg7THy0adsoKknfiTLWrF1wTODj8I1g48aPTsq2EA2F/H
+         Y6RI+z7e6TqI169GbQFelhFf5KpdmSWCHo1EyPucTPygMH87Gn4/OCPje2Ubqa25Xa
+         tWy+qM2qOk7TaiewgRTvRM8HbCNJWjtI3PXWnci8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyu Tao <tao.lyu@epfl.ch>,
-        ChenXiaoSong <chenxiaosong2@huawei.com>,
+        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 100/171] Revert "NFSv4: Handle the special Linux file open access mode"
-Date:   Tue, 12 Apr 2022 08:29:51 +0200
-Message-Id: <20220412062930.778099991@linuxfoundation.org>
+Subject: [PATCH 5.10 101/171] NFSv4: fix open failure with O_ACCMODE flag
+Date:   Tue, 12 Apr 2022 08:29:52 +0200
+Message-Id: <20220412062930.807813869@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -57,54 +56,106 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-[ Upstream commit ab0fc21bc7105b54bafd85bd8b82742f9e68898a ]
+[ Upstream commit b243874f6f9568b2daf1a00e9222cacdc15e159c ]
 
-This reverts commit 44942b4e457beda00981f616402a1a791e8c616e.
-
-After secondly opening a file with O_ACCMODE|O_DIRECT flags,
-nfs4_valid_open_stateid() will dereference NULL nfs4_state when lseek().
+open() with O_ACCMODE|O_DIRECT flags secondly will fail.
 
 Reproducer:
   1. mount -t nfs -o vers=4.2 $server_ip:/ /mnt/
   2. fd = open("/mnt/file", O_ACCMODE|O_DIRECT|O_CREAT)
   3. close(fd)
   4. fd = open("/mnt/file", O_ACCMODE|O_DIRECT)
-  5. lseek(fd)
 
-Reported-by: Lyu Tao <tao.lyu@epfl.ch>
+Server nfsd4_decode_share_access() will fail with error nfserr_bad_xdr when
+client use incorrect share access mode of 0.
+
+Fix this by using NFS4_SHARE_ACCESS_BOTH share access mode in client,
+just like firstly opening.
+
+Fixes: ce4ef7c0a8a05 ("NFS: Split out NFS v4 file operations")
 Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c    | 1 -
- fs/nfs/nfs4file.c | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ fs/nfs/dir.c      | 10 ----------
+ fs/nfs/internal.h | 10 ++++++++++
+ fs/nfs/nfs4file.c |  6 ++++--
+ 3 files changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index f27ecc2e490f..1adece1cff3e 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -1139,7 +1139,6 @@ int nfs_open(struct inode *inode, struct file *filp)
- 	nfs_fscache_open_file(inode, filp);
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(nfs_open);
+diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
+index 2ad56ff4752c..9f88ca7b2001 100644
+--- a/fs/nfs/dir.c
++++ b/fs/nfs/dir.c
+@@ -1628,16 +1628,6 @@ const struct dentry_operations nfs4_dentry_operations = {
+ };
+ EXPORT_SYMBOL_GPL(nfs4_dentry_operations);
  
+-static fmode_t flags_to_mode(int flags)
+-{
+-	fmode_t res = (__force fmode_t)flags & FMODE_EXEC;
+-	if ((flags & O_ACCMODE) != O_WRONLY)
+-		res |= FMODE_READ;
+-	if ((flags & O_ACCMODE) != O_RDONLY)
+-		res |= FMODE_WRITE;
+-	return res;
+-}
+-
+ static struct nfs_open_context *create_nfs_open_context(struct dentry *dentry, int open_flags, struct file *filp)
+ {
+ 	return alloc_nfs_open_context(dentry, flags_to_mode(open_flags), filp);
+diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
+index 7de38abb6566..7009a8dddd45 100644
+--- a/fs/nfs/internal.h
++++ b/fs/nfs/internal.h
+@@ -42,6 +42,16 @@ static inline bool nfs_lookup_is_soft_revalidate(const struct dentry *dentry)
+ 	return true;
+ }
+ 
++static inline fmode_t flags_to_mode(int flags)
++{
++	fmode_t res = (__force fmode_t)flags & FMODE_EXEC;
++	if ((flags & O_ACCMODE) != O_WRONLY)
++		res |= FMODE_READ;
++	if ((flags & O_ACCMODE) != O_RDONLY)
++		res |= FMODE_WRITE;
++	return res;
++}
++
  /*
-  * This function is called whenever some part of NFS notices that
+  * Note: RFC 1813 doesn't limit the number of auth flavors that
+  * a server can return, so make something up.
 diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index a1e5c6b85ded..7b13408a2d70 100644
+index 7b13408a2d70..9fdecd909049 100644
 --- a/fs/nfs/nfs4file.c
 +++ b/fs/nfs/nfs4file.c
-@@ -51,7 +51,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+@@ -32,6 +32,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	struct dentry *parent = NULL;
+ 	struct inode *dir;
+ 	unsigned openflags = filp->f_flags;
++	fmode_t f_mode;
+ 	struct iattr attr;
+ 	int err;
+ 
+@@ -50,8 +51,9 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	if (err)
  		return err;
  
++	f_mode = filp->f_mode;
  	if ((openflags & O_ACCMODE) == 3)
--		return nfs_open(inode, filp);
-+		openflags--;
+-		openflags--;
++		f_mode |= flags_to_mode(openflags);
  
  	/* We can't create new files here */
  	openflags &= ~(O_CREAT|O_EXCL);
+@@ -59,7 +61,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 	parent = dget_parent(dentry);
+ 	dir = d_inode(parent);
+ 
+-	ctx = alloc_nfs_open_context(file_dentry(filp), filp->f_mode, filp);
++	ctx = alloc_nfs_open_context(file_dentry(filp), f_mode, filp);
+ 	err = PTR_ERR(ctx);
+ 	if (IS_ERR(ctx))
+ 		goto out;
 -- 
 2.35.1
 
