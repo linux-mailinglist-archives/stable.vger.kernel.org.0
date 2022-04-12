@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F27BE4FCFAD
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1380C4FD1A1
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349687AbiDLGhD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:37:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51832 "EHLO
+        id S1350987AbiDLG7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:59:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349045AbiDLGgK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:36:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04A535DF9;
-        Mon, 11 Apr 2022 23:33:45 -0700 (PDT)
+        with ESMTP id S1352548AbiDLG4A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:56:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E26822519;
+        Mon, 11 Apr 2022 23:46:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5549C618D7;
-        Tue, 12 Apr 2022 06:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 657B2C385AC;
-        Tue, 12 Apr 2022 06:33:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CA4CB81B43;
+        Tue, 12 Apr 2022 06:46:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CC2C385A1;
+        Tue, 12 Apr 2022 06:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745224;
-        bh=18oziJyuzUeTt20flmArviFNZ5eWVn6ktBW2JfVQDvk=;
+        s=korg; t=1649745958;
+        bh=eyF2VnUNxOloLVIPfKJn9iNPrihstZvyrnDzYF9Nnbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T417zlTYkPOJnWFUIP97l/X8lzqobKPMqLmoaIp77YB2rK75zZiD7hFMc71EKQ6WB
-         V2+lafpfGp2UTUHoT+KLEu1rNIGJ2thy9Mrp30H7W0DaIwS9b3QzyNW4Uv4HwgKDlV
-         PVtx/a1Bv7nsWfXNgMRfc6AASYvkiVIRS2nOvRj8=
+        b=tnwJtzl7UpDNFxdK0ns58nNC8EykBLeQ82cFzRgw2h5CHCY5ePjROegkfO0Q1zIKi
+         GC9EtBRabrGKySU3U5/Y9nlp3g0JsdKaSy7d4nKxMUg3gP3dzhHktxYkfzV6JxHnRb
+         d+x8sTjAI8hK6dUg8gT66YUgPZXkx3ZGuZw6D6E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 022/171] mt76: dma: initialize skip_unmap in mt76_dma_rx_fill
+        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
+        Robert Hancock <robert.hancock@calian.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 110/277] clk: si5341: fix reported clk_rate when output divider is 2
 Date:   Tue, 12 Apr 2022 08:28:33 +0200
-Message-Id: <20220412062928.526753087@linuxfoundation.org>
+Message-Id: <20220412062945.223193810@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Adam Wujek <dev_public@wujek.eu>
 
-[ Upstream commit 577298ec55dfc8b9aece54520f0258c3f93a6573 ]
+[ Upstream commit 2a8b539433e111c4de364237627ef219d2f6350a ]
 
-Even if it is only a false-positive since skip_buf0/skip_buf1 are only
-used in mt76_dma_tx_cleanup_idx routine, initialize skip_unmap in
-mt76_dma_rx_fill in order to fix the following UBSAN report:
+SI5341_OUT_CFG_RDIV_FORCE2 shall be checked first to distinguish whether
+a divider for a given output is set to 2 (SI5341_OUT_CFG_RDIV_FORCE2
+is set) or the output is disabled (SI5341_OUT_CFG_RDIV_FORCE2 not set,
+SI5341_OUT_R_REG is set 0).
+Before the change, divider set to 2 (SI5341_OUT_R_REG set to 0) was
+interpreted as output is disabled.
 
-[   13.924906] UBSAN: invalid-load in linux-5.15.0/drivers/net/wireless/mediatek/mt76/dma.c:162:13
-[   13.924909] load of value 225 is not a valid value for type '_Bool'
-[   13.924912] CPU: 9 PID: 672 Comm: systemd-udevd Not tainted 5.15.0-18-generic #18-Ubuntu
-[   13.924914] Hardware name: LENOVO 21A0000CMX/21A0000CMX, BIOS R1MET43W (1.13 ) 11/05/2021
-[   13.924915] Call Trace:
-[   13.924917]  <TASK>
-[   13.924920]  show_stack+0x52/0x58
-[   13.924925]  dump_stack_lvl+0x4a/0x5f
-[   13.924931]  dump_stack+0x10/0x12
-[   13.924932]  ubsan_epilogue+0x9/0x45
-[   13.924934]  __ubsan_handle_load_invalid_value.cold+0x44/0x49
-[   13.924935]  ? __iommu_dma_map+0x84/0xf0
-[   13.924939]  mt76_dma_add_buf.constprop.0.cold+0x23/0x85 [mt76]
-[   13.924949]  mt76_dma_rx_fill.isra.0+0x102/0x1f0 [mt76]
-[   13.924954]  mt76_dma_init+0xc9/0x150 [mt76]
-[   13.924959]  ? mt7921_dma_enable+0x110/0x110 [mt7921e]
-[   13.924966]  mt7921_dma_init+0x1e3/0x260 [mt7921e]
-[   13.924970]  mt7921_register_device+0x29d/0x510 [mt7921e]
-[   13.924975]  mt7921_pci_probe.part.0+0x17f/0x1b0 [mt7921e]
-[   13.924980]  mt7921_pci_probe+0x43/0x60 [mt7921e]
-[   13.924984]  local_pci_probe+0x4b/0x90
-[   13.924987]  pci_device_probe+0x115/0x1f0
-[   13.924989]  really_probe+0x21e/0x420
-[   13.924992]  __driver_probe_device+0x115/0x190
-[   13.924994]  driver_probe_device+0x23/0xc0
-[   13.924996]  __driver_attach+0xbd/0x1d0
-[   13.924998]  ? __device_attach_driver+0x110/0x110
-[   13.924999]  bus_for_each_dev+0x7e/0xc0
-[   13.925001]  driver_attach+0x1e/0x20
-[   13.925003]  bus_add_driver+0x135/0x200
-[   13.925005]  driver_register+0x95/0xf0
-[   13.925008]  ? 0xffffffffc0766000
-[   13.925010]  __pci_register_driver+0x68/0x70
-[   13.925011]  mt7921_pci_driver_init+0x23/0x1000 [mt7921e]
-[   13.925015]  do_one_initcall+0x48/0x1d0
-[   13.925019]  ? kmem_cache_alloc_trace+0x19e/0x2e0
-[   13.925022]  do_init_module+0x62/0x280
-[   13.925025]  load_module+0xac9/0xbb0
-[   13.925027]  __do_sys_finit_module+0xbf/0x120
-[   13.925029]  __x64_sys_finit_module+0x18/0x20
-[   13.925030]  do_syscall_64+0x5c/0xc0
-[   13.925033]  ? do_syscall_64+0x69/0xc0
-[   13.925034]  ? sysvec_reschedule_ipi+0x78/0xe0
-[   13.925036]  ? asm_sysvec_reschedule_ipi+0xa/0x20
-[   13.925039]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   13.925040] RIP: 0033:0x7fbf2b90f94d
-[   13.925045] RSP: 002b:00007ffe2ec7e5d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-[   13.925047] RAX: ffffffffffffffda RBX: 000056106b0634e0 RCX: 00007fbf2b90f94d
-[   13.925048] RDX: 0000000000000000 RSI: 00007fbf2baa3441 RDI: 0000000000000013
-[   13.925049] RBP: 0000000000020000 R08: 0000000000000000 R09: 0000000000000002
-[   13.925050] R10: 0000000000000013 R11: 0000000000000246 R12: 00007fbf2baa3441
-[   13.925051] R13: 000056106b062620 R14: 000056106b0610c0 R15: 000056106b0640d0
-[   13.925053]  </TASK>
-
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Adam Wujek <dev_public@wujek.eu>
+Link: https://lore.kernel.org/r/20211203141125.2447520-1-dev_public@wujek.eu
+Reviewed-by: Robert Hancock <robert.hancock@calian.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/dma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/clk-si5341.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index 0fdfead45c77..f01b455783b2 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -455,6 +455,7 @@ mt76_dma_rx_fill(struct mt76_dev *dev, struct mt76_queue *q)
+diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
+index f7b41366666e..4de098b6b0d4 100644
+--- a/drivers/clk/clk-si5341.c
++++ b/drivers/clk/clk-si5341.c
+@@ -798,6 +798,15 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
+ 	u32 r_divider;
+ 	u8 r[3];
  
- 		qbuf.addr = addr + offset;
- 		qbuf.len = len - offset;
-+		qbuf.skip_unmap = false;
- 		mt76_dma_add_buf(dev, q, &qbuf, 1, 0, buf, NULL);
- 		frames++;
- 	}
++	err = regmap_read(output->data->regmap,
++			SI5341_OUT_CONFIG(output), &val);
++	if (err < 0)
++		return err;
++
++	/* If SI5341_OUT_CFG_RDIV_FORCE2 is set, r_divider is 2 */
++	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
++		return parent_rate / 2;
++
+ 	err = regmap_bulk_read(output->data->regmap,
+ 			SI5341_OUT_R_REG(output), r, 3);
+ 	if (err < 0)
+@@ -814,13 +823,6 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
+ 	r_divider += 1;
+ 	r_divider <<= 1;
+ 
+-	err = regmap_read(output->data->regmap,
+-			SI5341_OUT_CONFIG(output), &val);
+-	if (err < 0)
+-		return err;
+-
+-	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
+-		r_divider = 2;
+ 
+ 	return parent_rate / r_divider;
+ }
 -- 
 2.35.1
 
