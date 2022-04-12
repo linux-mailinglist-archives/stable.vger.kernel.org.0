@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C70244FCA82
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:51:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D574FCA72
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:51:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244942AbiDLAyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 20:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45994 "EHLO
+        id S245142AbiDLAx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 20:53:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343685AbiDLAxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:53:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210A533E39;
+        with ESMTP id S1343652AbiDLAxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:53:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A00C33E38;
         Mon, 11 Apr 2022 17:48:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D140EB819B4;
-        Tue, 12 Apr 2022 00:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A8DCC385A4;
-        Tue, 12 Apr 2022 00:48:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8004617E7;
+        Tue, 12 Apr 2022 00:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF9BDC385AA;
+        Tue, 12 Apr 2022 00:48:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724487;
-        bh=EcZIn9B50ER/b5XM1sUKQIjm37ZI2VynoYO5vl94STY=;
+        s=k20201202; t=1649724489;
+        bh=9WpKRmzPIMz90Vitck4aKghxMNPz4j5Xq4Pusf3jXaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqUW2iD/lk4Xz+5Nv+rFTwjWbxCeG0vyJTbjIZb20doHAafJ5C/pGhEJkqMy6Ew9D
-         ICv+a2NqKJq3XL5b4ophSo1XY5VFfU+iY1V9ALNykksm9fnMQbMTK89nJxJSkthBs2
-         Fc8geCPcqh825u3OkB9HrFZ0NtkV+CJhxkhPVGl3F0n2YpZaxzmrgc+R2U4WPsy0Dd
-         a03l4ROk01JOuailK2+ozYab4oBsFJTWtm7q5HciyyN7q1W3YPzCBGr+40xbrWk3Tk
-         YLA5NJInADtu/iZ8Nhk+9zyOZdQ7NOx9EX3akpVGJwaE0ojBAspkeTuGWzLBlo0fij
-         q8U7pDp0CgDmA==
+        b=nx0EiLq+GGDnJhc6GjqygV5RL/N0Mbeq5USKY7DVDu7XfpUkdd2IEQbiMDVnBKMZF
+         rAvFsJ1fQ5DogUqEO+0vgg/VAyDfxbFQCOUbHR6juHv1JKhtZLvZUG+rm8ZUhPA6uO
+         D5zJwajyyuwfBJqdlQXaNqmXS/VW8Ao1cvKzJUn0glhO74f798e40EeI8GshKmUVIA
+         1BHIZCAQKoZejJAuhwAtizQUP3WTMrkLpgcqJgkXoSfD9Ie7ecB9BHxpNQVrhBPFuo
+         mUkIrla+0Bb6JKmnZ5tzPvW8vNEnd8PBiUbofa+BHKOpsc0xArV2s3MY0+bc0BaPHV
+         12nzx6zu77aPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Chiu <andy.chiu@sifive.com>,
-        Greentime Hu <greentime.hu@sifive.com>,
-        Robert Hancock <robert.hancock@calian.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        pabeni@redhat.com, michal.simek@xilinx.com, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 24/41] net: axienet: setup mdio unconditionally
-Date:   Mon, 11 Apr 2022 20:46:36 -0400
-Message-Id: <20220412004656.350101-24-sashal@kernel.org>
+Cc:     Boqun Feng <boqun.feng@gmail.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
+        decui@microsoft.com, linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 25/41] Drivers: hv: balloon: Disable balloon and hot-add accordingly
+Date:   Mon, 11 Apr 2022 20:46:37 -0400
+Message-Id: <20220412004656.350101-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004656.350101-1-sashal@kernel.org>
 References: <20220412004656.350101-1-sashal@kernel.org>
@@ -62,53 +58,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Chiu <andy.chiu@sifive.com>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit d1c4f93e3f0a023024a6f022a61528c06cf1daa9 ]
+[ Upstream commit be5802795cf8d0b881745fa9ba7790293b382280 ]
 
-The call to axienet_mdio_setup should not depend on whether "phy-node"
-pressents on the DT. Besides, since `lp->phy_node` is used if PHY is in
-SGMII or 100Base-X modes, move it into the if statement. And the next patch
-will remove `lp->phy_node` from driver's private structure and do an
-of_node_put on it right away after use since it is not used elsewhere.
+Currently there are known potential issues for balloon and hot-add on
+ARM64:
 
-Signed-off-by: Andy Chiu <andy.chiu@sifive.com>
-Reviewed-by: Greentime Hu <greentime.hu@sifive.com>
-Reviewed-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+*	Unballoon requests from Hyper-V should only unballoon ranges
+	that are guest page size aligned, otherwise guests cannot handle
+	because it's impossible to partially free a page. This is a
+	problem when guest page size > 4096 bytes.
+
+*	Memory hot-add requests from Hyper-V should provide the NUMA
+	node id of the added ranges or ARM64 should have a functional
+	memory_add_physaddr_to_nid(), otherwise the node id is missing
+	for add_memory().
+
+These issues require discussions on design and implementation. In the
+meanwhile, post_status() is working and essential to guest monitoring.
+Therefore instead of disabling the entire hv_balloon driver, the
+ballooning (when page size > 4096 bytes) and hot-add are disabled
+accordingly for now. Once the issues are fixed, they can be re-enable in
+these cases.
+
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20220325023212.1570049-3-boqun.feng@gmail.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/hv/hv_balloon.c | 36 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 34 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index 80637ffcca93..fbbbcfe0e891 100644
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -2127,15 +2127,14 @@ static int axienet_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto cleanup_clk;
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 439f99b8b5de..3cf334c46c31 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -1653,6 +1653,38 @@ static void disable_page_reporting(void)
+ 	}
+ }
  
--	lp->phy_node = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
--	if (lp->phy_node) {
--		ret = axienet_mdio_setup(lp);
--		if (ret)
--			dev_warn(&pdev->dev,
--				 "error registering MDIO bus: %d\n", ret);
--	}
-+	ret = axienet_mdio_setup(lp);
-+	if (ret)
-+		dev_warn(&pdev->dev,
-+			 "error registering MDIO bus: %d\n", ret);
++static int ballooning_enabled(void)
++{
++	/*
++	 * Disable ballooning if the page size is not 4k (HV_HYP_PAGE_SIZE),
++	 * since currently it's unclear to us whether an unballoon request can
++	 * make sure all page ranges are guest page size aligned.
++	 */
++	if (PAGE_SIZE != HV_HYP_PAGE_SIZE) {
++		pr_info("Ballooning disabled because page size is not 4096 bytes\n");
++		return 0;
++	}
 +
- 	if (lp->phy_mode == PHY_INTERFACE_MODE_SGMII ||
- 	    lp->phy_mode == PHY_INTERFACE_MODE_1000BASEX) {
-+		lp->phy_node = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
- 		if (!lp->phy_node) {
- 			dev_err(&pdev->dev, "phy-handle required for 1000BaseX/SGMII\n");
- 			ret = -EINVAL;
++	return 1;
++}
++
++static int hot_add_enabled(void)
++{
++	/*
++	 * Disable hot add on ARM64, because we currently rely on
++	 * memory_add_physaddr_to_nid() to get a node id of a hot add range,
++	 * however ARM64's memory_add_physaddr_to_nid() always return 0 and
++	 * DM_MEM_HOT_ADD_REQUEST doesn't have the NUMA node information for
++	 * add_memory().
++	 */
++	if (IS_ENABLED(CONFIG_ARM64)) {
++		pr_info("Memory hot add disabled on ARM64\n");
++		return 0;
++	}
++
++	return 1;
++}
++
+ static int balloon_connect_vsp(struct hv_device *dev)
+ {
+ 	struct dm_version_request version_req;
+@@ -1724,8 +1756,8 @@ static int balloon_connect_vsp(struct hv_device *dev)
+ 	 * currently still requires the bits to be set, so we have to add code
+ 	 * to fail the host's hot-add and balloon up/down requests, if any.
+ 	 */
+-	cap_msg.caps.cap_bits.balloon = 1;
+-	cap_msg.caps.cap_bits.hot_add = 1;
++	cap_msg.caps.cap_bits.balloon = ballooning_enabled();
++	cap_msg.caps.cap_bits.hot_add = hot_add_enabled();
+ 
+ 	/*
+ 	 * Specify our alignment requirements as it relates
 -- 
 2.35.1
 
