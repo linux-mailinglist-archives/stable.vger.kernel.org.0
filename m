@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA4414FD6DA
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7B6B4FDB18
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345604AbiDLHve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48710 "EHLO
+        id S1352308AbiDLHXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357158AbiDLHjt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91A6713D7C;
-        Tue, 12 Apr 2022 00:13:02 -0700 (PDT)
+        with ESMTP id S1354023AbiDLHQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:16:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85EF147062;
+        Mon, 11 Apr 2022 23:58:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EE2761701;
-        Tue, 12 Apr 2022 07:13:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 159B8C385A8;
-        Tue, 12 Apr 2022 07:13:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2DAAEB81B50;
+        Tue, 12 Apr 2022 06:58:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 821B6C385AB;
+        Tue, 12 Apr 2022 06:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747581;
+        s=korg; t=1649746679;
         bh=RYJBN0sO+bxatsg4SRUBwH/bmw/chcpuG9tRlvPBoEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P38ypWuhZtBmWoG2El1136yqbLU7dvwkODBfp7KKfgydYm/67ZYgLqOZfh+WJAeso
-         1JSLfsHlK97jYFVUYpRtls4wSGYVKH5LeVb3rVS6PapI2W0Q6Nr4ETHTJuhvFBBVhH
-         lkRCXtgdi/jNhVGjyLn/1ARuThn0EBot8UXzKuns=
+        b=E7FmUR3rZHZQaiQlRIOAj8FODSRcZ1mrDFne8d5YNL7y7fFYIEVD5TLs1FgUluZ3K
+         q3PyZnrpzCXlSn5X8eMMBSjZWx3XcJXCC2Yq1XQ8spb4jiLGMQfgttEA4A29BJ7Pd3
+         DEc8m8tcQ/Vs7gGNHaHf+msHapo50hy9u9LVnNr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jianglei Nie <niejianglei2021@163.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 131/343] scsi: libfc: Fix use after free in fc_exch_abts_resp()
+Subject: [PATCH 5.16 092/285] scsi: libfc: Fix use after free in fc_exch_abts_resp()
 Date:   Tue, 12 Apr 2022 08:29:09 +0200
-Message-Id: <20220412062955.165334337@linuxfoundation.org>
+Message-Id: <20220412062946.318816638@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
