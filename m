@@ -2,66 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A70304FE814
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 20:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09294FE897
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 21:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244910AbiDLSgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 14:36:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47932 "EHLO
+        id S1352890AbiDLT1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 15:27:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231543AbiDLSgN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 14:36:13 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E17314EA12
-        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 11:33:54 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id c12so2252121plr.6
-        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 11:33:54 -0700 (PDT)
+        with ESMTP id S1356816AbiDLT1o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 15:27:44 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA3C25C5F
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 12:25:25 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id b15so18356963pfm.5
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 12:25:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=tIORrv+/2LRk4nx6ozs3wWj/aKmJXy1Yh96OLl5WUNE=;
-        b=T/14KOgusZu9tE7Blvj716S2MXYnWYGVXdWWFu+K6ZQDeNHFwkMMIHNUFluS3bodzj
-         /tNQdZvWhxuJ0PLZ+WAjbo9t4/nnirzb7Ha22W5twpHPDukCX+a7chuh2iMg/+hoCCnq
-         EvOCgHo5h9VByatHhCI8kqXmIR668+T8d9bj4=
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=mYhX4cxvNPixKiX8/O3wLDCe+0alwiuzYnrIU9ZEA4g=;
+        b=WcXC5z9iBD0s8lqEIkWuMQZUWfBIEmGdOcTDJqsddJGTc3xoDzEDte6mLkWCIDPq6H
+         YHQuTi2jz+pLaZ8K0n3h+80UsslQCJcbZCL49vv/iIQRc4MzeoUTN57u4Pk6Dtk8H9Wc
+         KDCu2a04jyUl6dKyGyJfhQgPSJPUaOxmhiyGeDPKKJPcJHNUlNymuti54JQo6/NDczvO
+         vbVuQ9W77Cy/v2QPjgtsQEF4MpP2tX3f+bHSl/ir7fHiWkRxbpG2V2V744Rx+xNFpwjR
+         XZUkPMYcqusEKPz9Uy9mX9juzRrR5tQ+Q4qiBB8T1Gj6Sx2YQ1W9au99vcD3HFtSTAwh
+         8rqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=tIORrv+/2LRk4nx6ozs3wWj/aKmJXy1Yh96OLl5WUNE=;
-        b=caDC7LWN7DDT/hWiN1sqd3u35DZVqSpSFbyrBgyD95DGaXUjJ+yF2N4/4niJdTEZU1
-         oiXnWFobzGVArXQ8ZzT9DA4DSzJ7lfN2Vv3hcEWruWdDLRlQo0Ppj9Sv0ui1GKshnkbE
-         0BvhDrzUAdF9H8MCnMvzIUeEts/xFgQjRSvqg3wehQ0VqOcH/R785fykTWGFZAHQTEB7
-         JzNuY+Aos+cnO0ejJsN+JcIqDv0gO9R3QC3TkHR5S4EUBl2iMvjdehk0CcFbPHDuDlm4
-         pHmET97kKGtWxpjjKdFUBtGdMS6R+HJTqzdNXbSyg16k0yGdv/9aMrgUVevzn5rb/vo4
-         BrJg==
-X-Gm-Message-State: AOAM533sQC7n9udcSFOUuHAxnfPvkY4UIeBPIJB5AV33Y2rWQ8zta4Qt
-        VuoLkaKecd0zO1LpGkg89zCz0A==
-X-Google-Smtp-Source: ABdhPJwqcoomSOwjtJV29/CjOi1tnfkh4AfcHk1QUOr0hmpLGP9VH5eKPVzKPHi8RM6bXgAHa+o/9Q==
-X-Received: by 2002:a17:903:2284:b0:154:3b97:8156 with SMTP id b4-20020a170903228400b001543b978156mr39323752plh.95.1649788434440;
-        Tue, 12 Apr 2022 11:33:54 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id j18-20020a633c12000000b0038204629cc9sm3597529pga.10.2022.04.12.11.33.54
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=mYhX4cxvNPixKiX8/O3wLDCe+0alwiuzYnrIU9ZEA4g=;
+        b=bFgIm9NGokPxCgmHv8C2zT8Kf2Bd6Ih4USTuWYidxmxXCzhpmQRCakIw9sTSHMekqN
+         GB06C38fSSYKUxOpaWphTfXNMIWELpNjhqXAmGgJ6VEqBdG975GVcfFwJZoS1Mr3SzKB
+         Ip2XHxfAz//Iyr/7eJNmnT2U/MA4p5ObMXlg2MMebWkWSMv8007yRhPXbJvwfnww157c
+         4DNzQhawgoskzEmy/8coPsxtvhdNTILQxbtXJGsbTZWzCTTUZZTCWW1gHlS/Ps+Z3PE+
+         qm8U/9cX2Tr1/m3GzMHMRtJVNA4EdBOGQyaPteMvKIkKF7Om2dxqkRb6zD1AiuoXUPoa
+         yTEQ==
+X-Gm-Message-State: AOAM532dyh2b1fqYTmY/QXu74dxCeGN3Rj3U5W8KvhI25q7170MH6OY3
+        GVChYgJf708Zo0TBIES1NJOfcg==
+X-Google-Smtp-Source: ABdhPJzeMv6SyUCfIBcUkGwkpHGFXVQVcRPNb1is3QYfwJwv0AwJdiiTP5oX9DldB+gEsO0E0yWlUQ==
+X-Received: by 2002:a05:6a00:15ca:b0:505:bf6f:2b48 with SMTP id o10-20020a056a0015ca00b00505bf6f2b48mr12169006pfu.64.1649791524446;
+        Tue, 12 Apr 2022 12:25:24 -0700 (PDT)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id k10-20020a056a00168a00b004f7e2a550ccsm38925670pfc.78.2022.04.12.12.25.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Apr 2022 11:33:54 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     linux-kernel@vger.kernel.org,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        PaX Team <pageexec@freemail.hu>,
-        linux-hardening@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v4] gcc-plugins: latent_entropy: use /dev/urandom
-Date:   Tue, 12 Apr 2022 11:32:48 -0700
-Message-Id: <164978836579.3579300.2356881730976056198.b4-ty@chromium.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220405222815.21155-1-Jason@zx2c4.com>
-References: <CAHmME9pV4SdoSyMq4kax3w3Vu1nPxjO3faCZKq8d0RDo8t731g@mail.gmail.com> <20220405222815.21155-1-Jason@zx2c4.com>
+        Tue, 12 Apr 2022 12:25:24 -0700 (PDT)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     cgroups@vger.kernel.org
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+Subject: [PATCH] cgroup: don't queue css_release_work if one already pending
+Date:   Tue, 12 Apr 2022 12:24:59 -0700
+Message-Id: <20220412192459.227740-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,25 +79,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 6 Apr 2022 00:28:15 +0200, Jason A. Donenfeld wrote:
-> While the latent entropy plugin mostly doesn't derive entropy from
-> get_random_const() for measuring the call graph, when __latent_entropy is
-> applied to a constant, then it's initialized statically to output from
-> get_random_const(). In that case, this data is derived from a 64-bit
-> seed, which means a buffer of 512 bits doesn't really have that amount
-> of compile-time entropy.
-> 
-> [...]
+Syzbot found a corrupted list bug scenario that can be triggered from
+cgroup css_create(). The reproduces writes to cgroup.subtree_control
+file, which invokes cgroup_apply_control_enable(), css_create(), and
+css_populate_dir(), which then randomly fails with a fault injected -ENOMEM.
+In such scenario the css_create() error path rcu enqueues css_free_rwork_fn
+work for an css->refcnt initialized with css_release() destructor,
+and there is a chance that the css_release() function will be invoked
+for a cgroup_subsys_state, for which a destroy_work has already been
+queued via css_create() error path. This causes a list_add corruption
+as can be seen in the syzkaller report [1].
+This can be avoided by adding a check to css_release() that checks
+if it has already been enqueued.
 
-Applied to for-v5.18/hardening, thanks!
+[1] https://syzkaller.appspot.com/bug?id=e26e54d6eac9d9fb50b221ec3e4627b327465dbd
 
-I dropped the version number change, added a pointer to the GCC bug
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105171, and noted the
-rationale for the buffer size. I'll get this sent to Linus shortly.
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Zefan Li <lizefan.x@bytedance.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: <cgroups@vger.kernel.org>
+Cc: <netdev@vger.kernel.org>
+Cc: <bpf@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 
-[1/1] gcc-plugins: latent_entropy: use /dev/urandom
-      https://git.kernel.org/kees/c/c40160f2998c
+Reported-by: syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+Fixes: 8f36aaec9c92 ("cgroup: Use rcu_work instead of explicit rcu and work item")
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+ kernel/cgroup/cgroup.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index adb820e98f24..9ae2de29f8c9 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -5210,8 +5210,11 @@ static void css_release(struct percpu_ref *ref)
+ 	struct cgroup_subsys_state *css =
+ 		container_of(ref, struct cgroup_subsys_state, refcnt);
+ 
+-	INIT_WORK(&css->destroy_work, css_release_work_fn);
+-	queue_work(cgroup_destroy_wq, &css->destroy_work);
++	if (!test_and_set_bit(WORK_STRUCT_PENDING_BIT,
++			      work_data_bits(&css->destroy_work))) {
++		INIT_WORK(&css->destroy_work, css_release_work_fn);
++		queue_work(cgroup_destroy_wq, &css->destroy_work);
++	}
+ }
+ 
+ static void init_and_link_css(struct cgroup_subsys_state *css,
 -- 
-Kees Cook
-
+2.35.1
