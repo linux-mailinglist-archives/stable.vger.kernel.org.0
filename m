@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF11E4FCACC
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:54:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D144FCACF
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244999AbiDLA4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 20:56:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59898 "EHLO
+        id S244702AbiDLA4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 20:56:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343526AbiDLAzt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:55:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A1A51DA49;
-        Mon, 11 Apr 2022 17:49:19 -0700 (PDT)
+        with ESMTP id S1343574AbiDLAz6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:55:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DDFA20BE9;
+        Mon, 11 Apr 2022 17:49:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE376617FB;
-        Tue, 12 Apr 2022 00:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F10D7C385A3;
-        Tue, 12 Apr 2022 00:49:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 171A8612A8;
+        Tue, 12 Apr 2022 00:49:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85054C385A3;
+        Tue, 12 Apr 2022 00:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724558;
-        bh=x2XT2LhA0V8ntU79yMIwn8Lz1NtA66WsDke6W8W6bBU=;
+        s=k20201202; t=1649724564;
+        bh=w7aXpuwOrzhppGfZ0NAyhIFazOsTIW/sc7x6w0mpvO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/bcz0LA9nBTeMyfWJNCnAa8gfxM+vroXE0CHTTCTl3S4jLVCggdKBXp28nhRO/4w
-         44AZcfU83IlKSyn/if84XJYeXi41RFDMdkqmBjMgejOnu0eXS8gHkkjerjKlIfVhPx
-         d9AHIg34zCVV9D8WLYB9nfwAFuHLsZ0+CL92c1UDdnqot0haJywrQnetwF2EpDIHDl
-         bNaef6EKcdfR62a4hQ3A9mWqa9H95qPc1DbIM6pvVsNDP+NJfRcDa5IdA4BtZLNBOP
-         4LjG4AKVVU1mQO4Px4Km5/xuLrVi+GOIPbFybzCUjuGT7tlu95ZCLVEZC7niay/tA8
-         8lFsIgBlo8p6g==
+        b=sbZi6wSO054UbIYStQaMjEtv6pSpjTUTPhc5BtI+PU+53KA5R73RGr38z1Y+4Fqnk
+         zHWyWqHB8JaweYbOrSlwK3yHVclF8Fj7wLf8UDDuwVxoi74zsD+UHnxQrKzzgcwdhp
+         EGicGQ2XZTkBSeKEx3TDjGw3ugcyD+6V3DdXPbvSCiLZXfVrMPWmLtyNoh7/5qmKCJ
+         rHg+BTHXF3r9Fnlw20Wya4Rut/f/9plkk8baAsKtwt+DmCkEok63372fxPHLenuLW8
+         vCq0pzw9i5RHipgrw6jjVGGkazM51+1wp3KVP+12C22qo3H+AEzomreitObCLxbtAR
+         sYEly7bDVdC4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charlene Liu <Charlene.Liu@amd.com>,
-        Alvin Lee <Alvin.Lee2@amd.com>, Aric Cyr <Aric.Cyr@amd.com>,
+Cc:     Chiawen Huang <chiawen.huang@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
         Alex Hung <alex.hung@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, Jun.Lei@amd.com, aric.cyr@amd.com,
-        Jimmy.Kizito@amd.com, wenjing.liu@amd.com,
-        nicholas.kazlauskas@amd.com, mario.kleiner.de@gmail.com,
-        Dmytro.Laktyushkin@amd.com, Jerry.Zuo@amd.com,
-        meenakshikumar.somasundaram@amd.com, eric.bernstein@amd.com,
-        Martin.Leung@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 04/30] drm/amd/display: fix audio format not updated after edid updated
-Date:   Mon, 11 Apr 2022 20:48:38 -0400
-Message-Id: <20220412004906.350678-4-sashal@kernel.org>
+        daniel@ffwll.ch, nicholas.kazlauskas@amd.com, Wayne.Lin@amd.com,
+        Jun.Lei@amd.com, meenakshikumar.somasundaram@amd.com,
+        michael.strauss@amd.com, Martin.Leung@amd.com,
+        Jimmy.Kizito@amd.com, Eric.Yang2@amd.com, lee.jones@linaro.org,
+        wenjing.liu@amd.com, roy.chan@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 05/30] drm/amd/display: FEC check in timing validation
+Date:   Mon, 11 Apr 2022 20:48:39 -0400
+Message-Id: <20220412004906.350678-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004906.350678-1-sashal@kernel.org>
 References: <20220412004906.350678-1-sashal@kernel.org>
@@ -68,40 +67,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charlene Liu <Charlene.Liu@amd.com>
+From: Chiawen Huang <chiawen.huang@amd.com>
 
-[ Upstream commit 5e8a71cf13bc9184fee915b2220be71b4c6cac74 ]
+[ Upstream commit 7d56a154e22ffb3613fdebf83ec34d5225a22993 ]
 
-[why]
-for the case edid change only changed audio format.
-driver still need to update stream.
+[Why]
+disable/enable leads FEC mismatch between hw/sw FEC state.
 
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+[How]
+check FEC status to fastboot on/off.
+
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
 Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Charlene Liu <Charlene.Liu@amd.com>
+Signed-off-by: Chiawen Huang <chiawen.huang@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 5f4cdb05c4db..a21f1141fbb0 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1698,8 +1698,8 @@ bool dc_is_stream_unchanged(
- 	if (old_stream->ignore_msa_timing_param != stream->ignore_msa_timing_param)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 93f5229c303e..ac5323596c65 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -1173,6 +1173,10 @@ bool dc_validate_seamless_boot_timing(const struct dc *dc,
+ 	if (!link->link_enc->funcs->is_dig_enabled(link->link_enc))
  		return false;
  
--	// Only Have Audio left to check whether it is same or not. This is a corner case for Tiled sinks
--	if (old_stream->audio_info.mode_count != stream->audio_info.mode_count)
-+	/*compare audio info*/
-+	if (memcmp(&old_stream->audio_info, &stream->audio_info, sizeof(stream->audio_info)) != 0)
- 		return false;
++	/* Check for FEC status*/
++	if (link->link_enc->funcs->fec_is_active(link->link_enc))
++		return false;
++
+ 	enc_inst = link->link_enc->funcs->get_dig_frontend(link->link_enc);
  
- 	return true;
+ 	if (enc_inst == ENGINE_ID_UNKNOWN)
 -- 
 2.35.1
 
