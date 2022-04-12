@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 374194FD755
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 734624FD726
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353871AbiDLHh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60496 "EHLO
+        id S1353676AbiDLIJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:09:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353665AbiDLHZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3CC2655E;
-        Tue, 12 Apr 2022 00:02:51 -0700 (PDT)
+        with ESMTP id S1358378AbiDLHla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BC24991C;
+        Tue, 12 Apr 2022 00:17:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35B0561045;
-        Tue, 12 Apr 2022 07:02:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48291C385A6;
-        Tue, 12 Apr 2022 07:02:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF5A1B81B58;
+        Tue, 12 Apr 2022 07:17:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5352AC385A5;
+        Tue, 12 Apr 2022 07:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746970;
-        bh=DI2OLZuJYTJKh/eDk6ZeULcIY4vdi2GMVgMYgoJDwpU=;
+        s=korg; t=1649747871;
+        bh=dgM8Q+aXLKtjfC1k5I0vZOUMijAJe+ijlT5S4O9WlF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K4sGY7Dm2+vJvmLDudQtA9oT3JVapoGS83jD5uF5rK6X7AiyeVAIUklBsUypJklmO
-         UDClYYUQUmbOjZRwo8zj6rEVZ8vPnYfrjeqUkNwX/g27GSfD/VNls1670z8XdMaFfa
-         S+XbVQjdqzCyw5RJEpGk9IENNWUMgetbQbsiLNtk=
+        b=eOhnmg1DiuQZ9agv9/lsGViJByEtOYSCUsvhqEQjyfPsmTaAcCHQjzXG1Ei3GBY1E
+         ZxArLu55zlOLKYDd+R1sM1QhfIXfaBz0rDACoWui0U8071LhAC0G/Hn/TehuDnxXSa
+         DIpidGG6iiVoEoinysc78v2a1NInv6P51VFfSLRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Habets <habetsm.xilinx@gmail.com>,
-        Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Alice Michael <alice.michael@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 195/285] net: sfc: fix using uninitialized xdp tx_queue
+Subject: [PATCH 5.17 234/343] ice: Do not skip not enabled queues in ice_vc_dis_qs_msg
 Date:   Tue, 12 Apr 2022 08:30:52 +0200
-Message-Id: <20220412062949.290196039@linuxfoundation.org>
+Message-Id: <20220412062958.089838285@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +58,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
 
-[ Upstream commit fb5833d81e4333294add35d3ac7f7f52a7bf107f ]
+[ Upstream commit 05ef6813b234db3196f083b91db3963f040b65bb ]
 
-In some cases, xdp tx_queue can get used before initialization.
-1. interface up/down
-2. ring buffer size change
+Disable check for queue being enabled in ice_vc_dis_qs_msg, because
+there could be a case when queues were created, but were not enabled.
+We still need to delete those queues.
 
-When CPU cores are lower than maximum number of channels of sfc driver,
-it creates new channels only for XDP.
+Normal workflow for VF looks like:
+Enable path:
+VIRTCHNL_OP_ADD_ETH_ADDR (opcode 10)
+VIRTCHNL_OP_CONFIG_VSI_QUEUES (opcode 6)
+VIRTCHNL_OP_ENABLE_QUEUES (opcode 8)
 
-When an interface is up or ring buffer size is changed, all channels
-are initialized.
-But xdp channels are always initialized later.
-So, the below scenario is possible.
-Packets are received to rx queue of normal channels and it is acted
-XDP_TX and tx_queue of xdp channels get used.
-But these tx_queues are not initialized yet.
-If so, TX DMA or queue error occurs.
+Disable path:
+VIRTCHNL_OP_DISABLE_QUEUES (opcode 9)
+VIRTCHNL_OP_DEL_ETH_ADDR (opcode 11)
 
-In order to avoid this problem.
-1. initializes xdp tx_queues earlier than other rx_queue in
-efx_start_channels().
-2. checks whether tx_queue is initialized or not in efx_xdp_tx_buffers().
+The issue appears only in stress conditions when VF is enabled and
+disabled very fast.
+Eventually there will be a case, when queues are created by
+VIRTCHNL_OP_CONFIG_VSI_QUEUES, but are not enabled by
+VIRTCHNL_OP_ENABLE_QUEUES.
+In turn, these queues are not deleted by VIRTCHNL_OP_DISABLE_QUEUES,
+because there is a check whether queues are enabled in
+ice_vc_dis_qs_msg.
 
-Splat looks like:
-   sfc 0000:08:00.1 enp8s0f1np1: TX queue 10 spurious TX completion id 250
-   sfc 0000:08:00.1 enp8s0f1np1: resetting (RECOVER_OR_ALL)
-   sfc 0000:08:00.1 enp8s0f1np1: MC command 0x80 inlen 100 failed rc=-22
-   (raw=22) arg=789
-   sfc 0000:08:00.1 enp8s0f1np1: has been disabled
+When we bring up the VF again, we will see the "Failed to set LAN Tx queue
+context" error during VIRTCHNL_OP_CONFIG_VSI_QUEUES step. This
+happens because old 16 queues were not deleted and VF requests to create
+16 more, but ice_sched_get_free_qparent in ice_ena_vsi_txq would fail to
+find a parent node for first newly requested queue (because all nodes
+are allocated to 16 old queues).
 
-Fixes: f28100cb9c96 ("sfc: fix lack of XDP TX queues - error XDP TX failed (-22)")
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Testing Hints:
+
+Just enable and disable VF fast enough, so it would be disabled before
+reaching VIRTCHNL_OP_ENABLE_QUEUES.
+
+while true; do
+        ip link set dev ens785f0v0 up
+        sleep 0.065 # adjust delay value for you machine
+        ip link set dev ens785f0v0 down
+done
+
+Fixes: 77ca27c41705 ("ice: add support for virtchnl_queue_select.[tx|rx]_queues bitmap")
+Signed-off-by: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Alice Michael <alice.michael@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/efx_channels.c | 2 +-
- drivers/net/ethernet/sfc/tx.c           | 3 +++
- drivers/net/ethernet/sfc/tx_common.c    | 2 ++
- 3 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
-index 4753c0c5af10..1f8cfd806008 100644
---- a/drivers/net/ethernet/sfc/efx_channels.c
-+++ b/drivers/net/ethernet/sfc/efx_channels.c
-@@ -1123,7 +1123,7 @@ void efx_start_channels(struct efx_nic *efx)
- 	struct efx_rx_queue *rx_queue;
- 	struct efx_channel *channel;
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+index 1be3cd4b2bef..2bee8f10ad89 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -3351,9 +3351,9 @@ static int ice_vc_dis_qs_msg(struct ice_vf *vf, u8 *msg)
+ 				goto error_param;
+ 			}
  
--	efx_for_each_channel(channel, efx) {
-+	efx_for_each_channel_rev(channel, efx) {
- 		efx_for_each_channel_tx_queue(tx_queue, channel) {
- 			efx_init_tx_queue(tx_queue);
- 			atomic_inc(&efx->active_queues);
-diff --git a/drivers/net/ethernet/sfc/tx.c b/drivers/net/ethernet/sfc/tx.c
-index d16e031e95f4..6983799e1c05 100644
---- a/drivers/net/ethernet/sfc/tx.c
-+++ b/drivers/net/ethernet/sfc/tx.c
-@@ -443,6 +443,9 @@ int efx_xdp_tx_buffers(struct efx_nic *efx, int n, struct xdp_frame **xdpfs,
- 	if (unlikely(!tx_queue))
- 		return -EINVAL;
+-			/* Skip queue if not enabled */
+ 			if (!test_bit(vf_q_id, vf->txq_ena))
+-				continue;
++				dev_dbg(ice_pf_to_dev(vsi->back), "Queue %u on VSI %u is not enabled, but stopping it anyway\n",
++					vf_q_id, vsi->vsi_num);
  
-+	if (!tx_queue->initialised)
-+		return -EINVAL;
-+
- 	if (efx->xdp_txq_queues_mode != EFX_XDP_TX_QUEUES_DEDICATED)
- 		HARD_TX_LOCK(efx->net_dev, tx_queue->core_txq, cpu);
- 
-diff --git a/drivers/net/ethernet/sfc/tx_common.c b/drivers/net/ethernet/sfc/tx_common.c
-index d530cde2b864..9bc8281b7f5b 100644
---- a/drivers/net/ethernet/sfc/tx_common.c
-+++ b/drivers/net/ethernet/sfc/tx_common.c
-@@ -101,6 +101,8 @@ void efx_fini_tx_queue(struct efx_tx_queue *tx_queue)
- 	netif_dbg(tx_queue->efx, drv, tx_queue->efx->net_dev,
- 		  "shutting down TX queue %d\n", tx_queue->queue);
- 
-+	tx_queue->initialised = false;
-+
- 	if (!tx_queue->buffer)
- 		return;
+ 			ice_fill_txq_meta(vsi, ring, &txq_meta);
  
 -- 
 2.35.1
