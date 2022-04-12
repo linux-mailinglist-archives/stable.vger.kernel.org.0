@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 365F14FD5BE
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C40F14FD595
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355706AbiDLH3C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:29:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45884 "EHLO
+        id S1353062AbiDLHqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:46:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352956AbiDLHOl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BAB232076;
-        Mon, 11 Apr 2022 23:55:30 -0700 (PDT)
+        with ESMTP id S1356941AbiDLHjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E1B82716D;
+        Tue, 12 Apr 2022 00:10:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AE0B61531;
-        Tue, 12 Apr 2022 06:55:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19EA0C385A6;
-        Tue, 12 Apr 2022 06:55:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06EA361531;
+        Tue, 12 Apr 2022 07:10:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FCAEC385A5;
+        Tue, 12 Apr 2022 07:10:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746529;
-        bh=ZlLDchbIbSnAE1sVs9zu688bMteVPT8JnbgzYlKLtSo=;
+        s=korg; t=1649747432;
+        bh=F6q0NgFn3EUSCj5ij3cTfIIF72wNVw0Hn/8yaYM1iPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NscTc7RHtYx4WRpa50dKLjz/NT0UIfM+shrUCYUi5Q8yrRGs2YCZvuiNp7n8VUIfl
-         PKkdWyL9cyxIFhKZnDZZ9vAhQYlT6LVUP1rsWRJuZlP0AlgIIiJRh6NoH9auh/RIQ9
-         RQCkXonx2w0WrBQeyDQ1TOc0oSXf55iTJqv3nCZ0=
+        b=TVU1Q0rJpDTgv5xkAP9Ujx75k3Hec0+qb6cw4mogXpIH3ulZwTxftaQtP+/R/cIc4
+         N1NTyJd20h/GCqyYOMjnyUAgymTTw6WPlySoMMnEKHgICPs4lzr0UbhNJW5dc1uXno
+         TvPwM1ZylwwC/vzG6waS/T/xTxX3PBRonRqt2Vz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Delyan Kratunov <delyank@fb.com>,
-        Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 039/285] libbpf: Fix build issue with llvm-readelf
+Subject: [PATCH 5.17 078/343] powerpc/set_memory: Avoid spinlock recursion in change_page_attr()
 Date:   Tue, 12 Apr 2022 08:28:16 +0200
-Message-Id: <20220412062944.804118711@linuxfoundation.org>
+Message-Id: <20220412062953.351886212@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,93 +55,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 0908a66ad1124c1634c33847ac662106f7f2c198 ]
+[ Upstream commit a4c182ecf33584b9b2d1aa9dad073014a504c01f ]
 
-There are cases where clang compiler is packaged in a way
-readelf is a symbolic link to llvm-readelf. In such cases,
-llvm-readelf will be used instead of default binutils readelf,
-and the following error will appear during libbpf build:
+Commit 1f9ad21c3b38 ("powerpc/mm: Implement set_memory() routines")
+included a spin_lock() to change_page_attr() in order to
+safely perform the three step operations. But then
+commit 9f7853d7609d ("powerpc/mm: Fix set_memory_*() against
+concurrent accesses") modify it to use pte_update() and do
+the operation safely against concurrent access.
 
-#  Warning: Num of global symbols in
-#   /home/yhs/work/bpf-next/tools/testing/selftests/bpf/tools/build/libbpf/sharedobjs/libbpf-in.o (367)
-#   does NOT match with num of versioned symbols in
-#   /home/yhs/work/bpf-next/tools/testing/selftests/bpf/tools/build/libbpf/libbpf.so libbpf.map (383).
-#   Please make sure all LIBBPF_API symbols are versioned in libbpf.map.
-#  --- /home/yhs/work/bpf-next/tools/testing/selftests/bpf/tools/build/libbpf/libbpf_global_syms.tmp ...
-#  +++ /home/yhs/work/bpf-next/tools/testing/selftests/bpf/tools/build/libbpf/libbpf_versioned_syms.tmp ...
-#  @@ -324,6 +324,22 @@
-#   btf__str_by_offset
-#   btf__type_by_id
-#   btf__type_cnt
-#  +LIBBPF_0.0.1
-#  +LIBBPF_0.0.2
-#  +LIBBPF_0.0.3
-#  +LIBBPF_0.0.4
-#  +LIBBPF_0.0.5
-#  +LIBBPF_0.0.6
-#  +LIBBPF_0.0.7
-#  +LIBBPF_0.0.8
-#  +LIBBPF_0.0.9
-#  +LIBBPF_0.1.0
-#  +LIBBPF_0.2.0
-#  +LIBBPF_0.3.0
-#  +LIBBPF_0.4.0
-#  +LIBBPF_0.5.0
-#  +LIBBPF_0.6.0
-#  +LIBBPF_0.7.0
-#   libbpf_attach_type_by_name
-#   libbpf_find_kernel_btf
-#   libbpf_find_vmlinux_btf_id
-#  make[2]: *** [Makefile:184: check_abi] Error 1
-#  make[1]: *** [Makefile:140: all] Error 2
+In the meantime, Maxime reported some spinlock recursion.
 
-The above failure is due to different printouts for some ABS
-versioned symbols. For example, with the same libbpf.so,
-  $ /bin/readelf --dyn-syms --wide tools/lib/bpf/libbpf.so | grep "LIBBPF" | grep ABS
-     134: 0000000000000000     0 OBJECT  GLOBAL DEFAULT  ABS LIBBPF_0.5.0
-     202: 0000000000000000     0 OBJECT  GLOBAL DEFAULT  ABS LIBBPF_0.6.0
-     ...
-  $ /opt/llvm/bin/readelf --dyn-syms --wide tools/lib/bpf/libbpf.so | grep "LIBBPF" | grep ABS
-     134: 0000000000000000     0 OBJECT  GLOBAL DEFAULT   ABS LIBBPF_0.5.0@@LIBBPF_0.5.0
-     202: 0000000000000000     0 OBJECT  GLOBAL DEFAULT   ABS LIBBPF_0.6.0@@LIBBPF_0.6.0
-     ...
-The binutils readelf doesn't print out the symbol LIBBPF_* version and llvm-readelf does.
-Such a difference caused libbpf build failure with llvm-readelf.
+[   15.351649] BUG: spinlock recursion on CPU#0, kworker/0:2/217
+[   15.357540]  lock: init_mm+0x3c/0x420, .magic: dead4ead, .owner: kworker/0:2/217, .owner_cpu: 0
+[   15.366563] CPU: 0 PID: 217 Comm: kworker/0:2 Not tainted 5.15.0+ #523
+[   15.373350] Workqueue: events do_free_init
+[   15.377615] Call Trace:
+[   15.380232] [e4105ac0] [800946a4] do_raw_spin_lock+0xf8/0x120 (unreliable)
+[   15.387340] [e4105ae0] [8001f4ec] change_page_attr+0x40/0x1d4
+[   15.393413] [e4105b10] [801424e0] __apply_to_page_range+0x164/0x310
+[   15.400009] [e4105b60] [80169620] free_pcp_prepare+0x1e4/0x4a0
+[   15.406045] [e4105ba0] [8016c5a0] free_unref_page+0x40/0x2b8
+[   15.411979] [e4105be0] [8018724c] kasan_depopulate_vmalloc_pte+0x6c/0x94
+[   15.418989] [e4105c00] [801424e0] __apply_to_page_range+0x164/0x310
+[   15.425451] [e4105c50] [80187834] kasan_release_vmalloc+0xbc/0x134
+[   15.431898] [e4105c70] [8015f7a8] __purge_vmap_area_lazy+0x4e4/0xdd8
+[   15.438560] [e4105d30] [80160d10] _vm_unmap_aliases.part.0+0x17c/0x24c
+[   15.445283] [e4105d60] [801642d0] __vunmap+0x2f0/0x5c8
+[   15.450684] [e4105db0] [800e32d0] do_free_init+0x68/0x94
+[   15.456181] [e4105dd0] [8005d094] process_one_work+0x4bc/0x7b8
+[   15.462283] [e4105e90] [8005d614] worker_thread+0x284/0x6e8
+[   15.468227] [e4105f00] [8006aaec] kthread+0x1f0/0x210
+[   15.473489] [e4105f40] [80017148] ret_from_kernel_thread+0x14/0x1c
 
-The proposed fix filters out all ABS symbols as they are not part of the comparison.
-This works for both binutils readelf and llvm-readelf.
+Remove the read / modify / write sequence to make the operation atomic
+and remove the spin_lock() in change_page_attr().
 
-Reported-by: Delyan Kratunov <delyank@fb.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220204214355.502108-1-yhs@fb.com
+To do the operation atomically, we can't use pte modification helpers
+anymore. Because all platforms have different combination of bits, it
+is not easy to use those bits directly. But all have the
+_PAGE_KERNEL_{RO/ROX/RW/RWX} set of flags. All we need it to compare
+two sets to know which bits are set or cleared.
+
+For instance, by comparing _PAGE_KERNEL_ROX and _PAGE_KERNEL_RO you
+know which bit gets cleared and which bit get set when changing exec
+permission.
+
+Reported-by: Maxime Bizon <mbizon@freebox.fr>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/all/20211212112152.GA27070@sakura/
+Link: https://lore.kernel.org/r/43c3c76a1175ae6dc1a3d3b5c3f7ecb48f683eea.1640344012.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/Makefile |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/mm/pageattr.c | 32 +++++++++++++-------------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
 
---- a/tools/lib/bpf/Makefile
-+++ b/tools/lib/bpf/Makefile
-@@ -129,7 +129,7 @@ GLOBAL_SYM_COUNT = $(shell readelf -s --
- 			   sort -u | wc -l)
- VERSIONED_SYM_COUNT = $(shell readelf --dyn-syms --wide $(OUTPUT)libbpf.so | \
- 			      sed 's/\[.*\]//' | \
--			      awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}' | \
-+			      awk '/GLOBAL/ && /DEFAULT/ && !/UND|ABS/ {print $$NF}' | \
- 			      grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 | sort -u | wc -l)
+diff --git a/arch/powerpc/mm/pageattr.c b/arch/powerpc/mm/pageattr.c
+index 3bb9d168e3b3..85753e32a4de 100644
+--- a/arch/powerpc/mm/pageattr.c
++++ b/arch/powerpc/mm/pageattr.c
+@@ -15,12 +15,14 @@
+ #include <asm/pgtable.h>
  
- CMD_TARGETS = $(LIB_TARGET) $(PC_FILE)
-@@ -192,7 +192,7 @@ check_abi: $(OUTPUT)libbpf.so $(VERSION_
- 		    sort -u > $(OUTPUT)libbpf_global_syms.tmp;		 \
- 		readelf --dyn-syms --wide $(OUTPUT)libbpf.so |		 \
- 		    sed 's/\[.*\]//' |					 \
--		    awk '/GLOBAL/ && /DEFAULT/ && !/UND/ {print $$NF}'|  \
-+		    awk '/GLOBAL/ && /DEFAULT/ && !/UND|ABS/ {print $$NF}'|  \
- 		    grep -Eo '[^ ]+@LIBBPF_' | cut -d@ -f1 |		 \
- 		    sort -u > $(OUTPUT)libbpf_versioned_syms.tmp; 	 \
- 		diff -u $(OUTPUT)libbpf_global_syms.tmp			 \
+ 
++static pte_basic_t pte_update_delta(pte_t *ptep, unsigned long addr,
++				    unsigned long old, unsigned long new)
++{
++	return pte_update(&init_mm, addr, ptep, old & ~new, new & ~old, 0);
++}
++
+ /*
+- * Updates the attributes of a page in three steps:
+- *
+- * 1. take the page_table_lock
+- * 2. install the new entry with the updated attributes
+- * 3. flush the TLB
++ * Updates the attributes of a page atomically.
+  *
+  * This sequence is safe against concurrent updates, and also allows updating the
+  * attributes of a page currently being executed or accessed.
+@@ -28,25 +30,21 @@
+ static int change_page_attr(pte_t *ptep, unsigned long addr, void *data)
+ {
+ 	long action = (long)data;
+-	pte_t pte;
+ 
+-	spin_lock(&init_mm.page_table_lock);
+-
+-	pte = ptep_get(ptep);
+-
+-	/* modify the PTE bits as desired, then apply */
++	/* modify the PTE bits as desired */
+ 	switch (action) {
+ 	case SET_MEMORY_RO:
+-		pte = pte_wrprotect(pte);
++		/* Don't clear DIRTY bit */
++		pte_update_delta(ptep, addr, _PAGE_KERNEL_RW & ~_PAGE_DIRTY, _PAGE_KERNEL_RO);
+ 		break;
+ 	case SET_MEMORY_RW:
+-		pte = pte_mkwrite(pte_mkdirty(pte));
++		pte_update_delta(ptep, addr, _PAGE_KERNEL_RO, _PAGE_KERNEL_RW);
+ 		break;
+ 	case SET_MEMORY_NX:
+-		pte = pte_exprotect(pte);
++		pte_update_delta(ptep, addr, _PAGE_KERNEL_ROX, _PAGE_KERNEL_RO);
+ 		break;
+ 	case SET_MEMORY_X:
+-		pte = pte_mkexec(pte);
++		pte_update_delta(ptep, addr, _PAGE_KERNEL_RO, _PAGE_KERNEL_ROX);
+ 		break;
+ 	case SET_MEMORY_NP:
+ 		pte_update(&init_mm, addr, ptep, _PAGE_PRESENT, 0, 0);
+@@ -59,16 +57,12 @@ static int change_page_attr(pte_t *ptep, unsigned long addr, void *data)
+ 		break;
+ 	}
+ 
+-	pte_update(&init_mm, addr, ptep, ~0UL, pte_val(pte), 0);
+-
+ 	/* See ptesync comment in radix__set_pte_at() */
+ 	if (radix_enabled())
+ 		asm volatile("ptesync": : :"memory");
+ 
+ 	flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
+ 
+-	spin_unlock(&init_mm.page_table_lock);
+-
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
+
 
 
