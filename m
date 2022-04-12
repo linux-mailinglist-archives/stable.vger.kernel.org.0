@@ -2,250 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F98E4FE42F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 16:52:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 613004FE44D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 17:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234520AbiDLOy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 10:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51666 "EHLO
+        id S240667AbiDLPFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 11:05:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229755AbiDLOy6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 10:54:58 -0400
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1BE54EA08;
-        Tue, 12 Apr 2022 07:52:40 -0700 (PDT)
-Received: from in01.mta.xmission.com ([166.70.13.51]:42280)
-        by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1neHsk-007MRw-6s; Tue, 12 Apr 2022 08:52:38 -0600
-Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:43398 helo=email.froward.int.ebiederm.org.xmission.com)
-        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1neHsi-0098PU-V8; Tue, 12 Apr 2022 08:52:37 -0600
-From:   "Eric W. Biederman" <ebiederm@xmission.com>
-To:     Niklas Cassel <Niklas.Cassel@wdc.com>
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Kees Cook <keescook@chromium.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Mike Frysinger <vapier@gentoo.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>
-References: <20220412100338.437308-1-niklas.cassel@wdc.com>
-        <9437ce7f-0553-3688-5695-69add6b2971c@opensource.wdc.com>
-        <YlVv2Z5y9qhzu7X9@x1-carbon>
-Date:   Tue, 12 Apr 2022 09:52:13 -0500
-In-Reply-To: <YlVv2Z5y9qhzu7X9@x1-carbon> (Niklas Cassel's message of "Tue, 12
-        Apr 2022 12:26:03 +0000")
-Message-ID: <878rsatkv6.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+        with ESMTP id S239083AbiDLPFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 11:05:13 -0400
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C08853B72
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 08:02:54 -0700 (PDT)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-2ebebe631ccso119792267b3.4
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 08:02:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LIbAv5l0ZDXFk0gGIWaCaLe3jbR9/lI410ENmUvMqQM=;
+        b=kqj7qkJtL52OMGGmJXvu1R3jZsA6PdEDUae03GdOxaXFOJEtGO+7NTCEKbsuU5Q34R
+         rzPMBK9/ZwZD9yftgLkTROTmNn+/sBaar5THDESNfmrFMQJMz0X9ngst5zUE4YvJVYi6
+         NZ8VXVcQDFoYY//Jj/YXjqSxeROU0d7ullSZU4vrad54yHL2pzsX2GPeLVK/tdDbGkn0
+         fTqrCVLQM1S95I4QeK4JAQIwE1br/bo46rTBbyJmtrSIc3u5rpL/XZyX0wkiVwCGPL/T
+         lB0IWS6+TrtCKhBwlBvI2KNcHMu4SAEJCt4gZ9jbTHDl4SMFnm5BV/L5jrWXcxuSp7Ec
+         tzVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LIbAv5l0ZDXFk0gGIWaCaLe3jbR9/lI410ENmUvMqQM=;
+        b=DmvKqVQY6AKiSTWXm1aKn2l6zfCITo0VTicUfC+4e3T968kHUTVRlo2pAWJ5mFKEW+
+         OTSMiTv7VoiRpdot/CyM7ZDshSy3fyGuRYdPW8J6G/2fgCiXZSziBwXNTV+URUFzqtNZ
+         gncez9W4/Q8/UjHOHbUCAxIK6zvZ5UTU/OMTl72Wq/DSRPeEVs+aOHU7mD0MfZ5h4U9y
+         Aq1+uJKjWpV6FBdMjU5h76KfO72wfShHd/HdRpKowbqD735NBkaKJtPq6rnJ2IPBhW8v
+         kH87jBQE0D2IO2aR707aAEMBGlTl8nj1CzmyO2wVKJw0YvTBUDgWSHi+kKas417L1lIM
+         uqLQ==
+X-Gm-Message-State: AOAM531dNeFyFb//19NV3KC/XrQOTuw7kZZshXO9o5w6TNMhMfpnUPcM
+        BHgJXCPiDpglGsv/516NjlnQj0IHLCzkis/uLKa29A==
+X-Google-Smtp-Source: ABdhPJzhfSOvSjw+lOkAS14qwaHBIyYhHdoZcI0eRgLT+Oq6elsNJ0n3LPb6oFnFFgQ75oSoy4zjNkaN2iTGbdlHfkI=
+X-Received: by 2002:a81:4e58:0:b0:2eb:5da0:e706 with SMTP id
+ c85-20020a814e58000000b002eb5da0e706mr30458489ywb.412.1649775773341; Tue, 12
+ Apr 2022 08:02:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1neHsi-0098PU-V8;;;mid=<878rsatkv6.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+Bet/PxatGaqnfgOKcuhb9h08XezFlLak=
-X-SA-Exim-Connect-IP: 68.227.174.4
-X-SA-Exim-Mail-From: ebiederm@xmission.com
+References: <20220412062942.022903016@linuxfoundation.org> <CA+G9fYseyeNoxQwEWtiiU8dLs_1coNa+sdV-1nqoif6tER_46Q@mail.gmail.com>
+In-Reply-To: <CA+G9fYseyeNoxQwEWtiiU8dLs_1coNa+sdV-1nqoif6tER_46Q@mail.gmail.com>
+From:   Marco Elver <elver@google.com>
+Date:   Tue, 12 Apr 2022 17:02:17 +0200
+Message-ID: <CANpmjNP4-jG=kW8FoQpmt4X64en5G=Gd-3zaBebPL7xDFFOHmA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/277] 5.15.34-rc1 review
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com, Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        kasan-dev <kasan-dev@googlegroups.com>,
+        linux-mm <linux-mm@kvack.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
-X-Spam-Virus: No
-X-Spam-DCC: XMission; sa03 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Niklas Cassel <Niklas.Cassel@wdc.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 656 ms - load_scoreonly_sql: 0.02 (0.0%),
-        signal_user_changed: 3.8 (0.6%), b_tie_ro: 2.6 (0.4%), parse: 0.74
-        (0.1%), extract_message_metadata: 13 (2.0%), get_uri_detail_list: 3.3
-        (0.5%), tests_pri_-1000: 10 (1.6%), tests_pri_-950: 1.00 (0.2%),
-        tests_pri_-900: 0.80 (0.1%), tests_pri_-90: 157 (23.9%), check_bayes:
-        152 (23.1%), b_tokenize: 11 (1.6%), b_tok_get_all: 14 (2.1%),
-        b_comp_prob: 2.4 (0.4%), b_tok_touch_all: 122 (18.6%), b_finish: 0.62
-        (0.1%), tests_pri_0: 459 (70.0%), check_dkim_signature: 0.58 (0.1%),
-        check_dkim_adsp: 6 (0.8%), poll_dns_idle: 0.03 (0.0%), tests_pri_10:
-        1.71 (0.3%), tests_pri_500: 6 (0.9%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH] binfmt_flat: do not stop relocating GOT entries
- prematurely
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Niklas Cassel <Niklas.Cassel@wdc.com> writes:
-
-> On Tue, Apr 12, 2022 at 08:40:27PM +0900, Damien Le Moal wrote:
->> On 4/12/22 19:03, Niklas Cassel wrote:
->> > bFLT binaries are usually created using elf2flt.
->> > 
->> > The linker script used by elf2flt has defined the .data section like the
->> > following for the last 19 years:
->> > 
->> > .data : {
->> > 	_sdata = . ;
->> > 	__data_start = . ;
->> > 	data_start = . ;
->> > 	*(.got.plt)
->> > 	*(.got)
->> > 	FILL(0) ;
->> > 	. = ALIGN(0x20) ;
->> > 	LONG(-1)
->> > 	. = ALIGN(0x20) ;
->> > 	...
->> > }
->> > 
->> > It places the .got.plt input section before the .got input section.
->> > The same is true for the default linker script (ld --verbose) on most
->> > architectures except x86/x86-64.
->> > 
->> > The binfmt_flat loader should relocate all GOT entries until it encounters
->> > a -1 (the LONG(-1) in the linker script).
->> > 
->> > The problem is that the .got.plt input section starts with a GOTPLT header
->> > that has the first word (two u32 entries for 64-bit archs) set to -1.
->> > See e.g. the binutils implementation for architectures [1] [2] [3] [4].
->> > 
->> > This causes the binfmt_flat loader to stop relocating GOT entries
->> > prematurely and thus causes the application to crash when running.
->> > 
->> > Fix this by ignoring -1 in the first two u32 entries in the .data section.
->> > 
->> > A -1 will only be ignored for the first two entries for bFLT binaries with
->> > FLAT_FLAG_GOTPIC set, which is unconditionally set by elf2flt if the
->> > supplied ELF binary had the symbol _GLOBAL_OFFSET_TABLE_ defined, therefore
->> > ELF binaries without a .got input section should remain unaffected.
->> > 
->> > Tested on RISC-V Canaan Kendryte K210 and RISC-V QEMU nommu_virt_defconfig.
->> > 
->> > [1] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-riscv.c;hb=binutils-2_38#l3275
->> > [2] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfxx-tilegx.c;hb=binutils-2_38#l4023
->> > [3] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elf32-tilepro.c;hb=binutils-2_38#l3633
->> > [4] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-loongarch.c;hb=binutils-2_38#l2978
->> > 
->> > Cc: <stable@vger.kernel.org>
->> > Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
->> > ---
->> > RISC-V elf2flt patches are still not merged, they can be found here:
->> > https://github.com/floatious/elf2flt/tree/riscv
->> > 
->> > buildroot branch for k210 nommu (including this patch and elf2flt patches):
->> > https://github.com/floatious/buildroot/tree/k210-v14
->> > 
->> >  fs/binfmt_flat.c | 11 ++++++++++-
->> >  1 file changed, 10 insertions(+), 1 deletion(-)
->> > 
->> > diff --git a/fs/binfmt_flat.c b/fs/binfmt_flat.c
->> > index 626898150011..b80009e6392e 100644
->> > --- a/fs/binfmt_flat.c
->> > +++ b/fs/binfmt_flat.c
->> > @@ -793,8 +793,17 @@ static int load_flat_file(struct linux_binprm *bprm,
->> >  			u32 addr, rp_val;
->> >  			if (get_user(rp_val, rp))
->> >  				return -EFAULT;
->> > -			if (rp_val == 0xffffffff)
->> > +			/*
->> > +			 * The first word in the GOTPLT header is -1 on certain
->> > +			 * architechtures. (On 64-bit, that is two u32 entries.)
->> > +			 * Ignore these entries, so that we stop relocating GOT
->> > +			 * entries first when we encounter the -1 after the GOT.
->> > +			 */
->> 
->> 		/*
->> 		 * The first word in the GOTPLT header is -1 on certain
->> 		 * architectures (on 64-bit, that is two u32 entries).
->> 		 * Ignore these entries so that we stop relocating GOT
->> 		 * entries when we encounter the first -1 entry after
->> 		 * the GOTPLT header.
->> 		 */
+On Tue, 12 Apr 2022 at 16:16, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
 >
-> Sure, I can update the comment when I send a v2.
+> On Tue, 12 Apr 2022 at 12:11, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.15.34 release.
+> > There are 277 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 14 Apr 2022 06:28:59 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.34-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 >
->> 
->> > +			if (rp_val == 0xffffffff) {
->> > +				if (rp - (u32 __user *)datapos < 2)
->> > +					continue;
->> 
->> Would it be safer to check that the following rp_val is also -1 ? Also,
->> does this work with 32-bits arch ? Shouldn't the "< 2" be "< 1" for
->> 32-bits arch ?
 >
-> I think that checking that the previous entry is also -1 will not work,
-> as it will just be a single entry for 32-bit.
-> And I don't see the need to complicate this logic by having a 64-bit
-> and a 32-bit version of the check.
-
-Handling 64bit in this binfmt_flat appears wrong.  The code is
-aggressively 32bit, and in at least some places does not have fields
-large enough to handle a 64bit address.  I expect it would take
-a significant rewrite to support 64bit.
-
-
-I think it would be better all-around if instead of applying the
-adjustment in the loop, there was a test before the loop.
-
-Something like:
-
-static inline u32 __user *skip_got_header(u32 __user *rp)
-{
-	if (IS_ENABLED(CONFIG_RISCV)) {
-	        /* RISCV has a 2 word GOT PLT header */
-		u32 rp_val;
-		if (get_user(rp_val, rp) == 0) {
-        		if (rp_val == 0xffffffff)
-                		rp += 2;
-		}
-        }
-	return rp;
-}
-
-....
-
-	if (flags & FLAT_FLAG_GOTPIC) {
-		rp = skip_got_header((u32 * __user) datapos);
-		for (; ; rp++) {
-			u32 addr, rp_val;
-			if (get_user(rp_val, rp))
-				return -EFAULT;
-			if (rp_val == 0xffffffff)
-				break;
-			if (rp_val) {
-
-
-Alternately if nothing in the binary uses the header it would probably
-be a good idea for elf2flt to simply remove the header.
-
-> The whole GOT (.got.plt + .got) will be more than two words anyway, if
-> there is a GOT (i.e. if flag FLAT_FLAG_GOTPIC is set in the bFLT binary),
-> so the "end of GOT"/LONG(-1) will always come way after these first two
-> entries anyway.
+> On linux stable-rc 5.15 x86 and i386 builds failed due to below error [1]
+> with config [2].
 >
-> Another reason why I don't fancy a 64-bit and 32-bit version is because
-> some architectures might be 64-bit, but I assume that they can be running
-> a 32-bit userland. (And in comparison with the ELF header that tells if
-> the binary is 32-bit or 64-bit, I don't see something similar in the bFLT
-> header.)
+> The finding is when kunit config is enabled the builds pass.
+> CONFIG_KUNIT=y
+>
+> But with CONFIG_KUNIT not set the builds failed.
+>
+> x86_64-linux-gnu-ld: mm/kfence/core.o: in function `__kfence_alloc':
+> core.c:(.text+0x901): undefined reference to `filter_irq_stacks'
+> make[1]: *** [/builds/linux/Makefile:1183: vmlinux] Error 1
+>
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>
+> I see these three commits, I will bisect and get back to you
+>
+> 2f222c87ceb4 kfence: limit currently covered allocations when pool nearly full
+> e25487912879 kfence: move saving stack trace of allocations into
+> __kfence_alloc()
+> d99355395380 kfence: count unexpectedly skipped allocations
 
-Looking at the references you have given the only active architecture
-supporting this header is riscv.  So I think it would be good
-documentation to have the functionality conditional upon RISCV.
+My guess is that this commit is missing:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f39f21b3ddc7fc0f87eb6dc75ddc81b5bbfb7672
 
-There is the very strange thing I see happening in the code.
-Looking at the ordinary relocation code it appears that if
-FLAT_FLAG_GOTPIC is set that first the address to relocate
-is computed, then the address to relocate is read converted
-from big endian to native endian (little endian on riscv?)
-adjusted and written back.
-
-Does elf2flt really change all of these values to big-endian on
-little-endian platforms?
-
-
-Eric
+Thanks,
+-- Marco
