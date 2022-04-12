@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 077AA4FD597
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACAAB4FD92B
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354019AbiDLHsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45788 "EHLO
+        id S1351574AbiDLHUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:20:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357340AbiDLHkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8875324F30;
-        Tue, 12 Apr 2022 00:15:34 -0700 (PDT)
+        with ESMTP id S240912AbiDLHMO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6FA128985;
+        Mon, 11 Apr 2022 23:50:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2601161708;
-        Tue, 12 Apr 2022 07:15:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F0B8C385A5;
-        Tue, 12 Apr 2022 07:15:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FE39B81B4D;
+        Tue, 12 Apr 2022 06:50:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB201C385A6;
+        Tue, 12 Apr 2022 06:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747733;
-        bh=c+omZP6b97ce8PuNMw7NgKdL3P/XKwm+AoC4Zyoc8Sc=;
+        s=korg; t=1649746210;
+        bh=oYrzifBdOmeUMo7V+VlgUhjuhY3Vb/678e/gZ/SW9kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUnL05mh28+3tbdpNgCksYQeNHUM9+RFIcXeHCAyrulRFuM/gn6w2NhsneEERo2At
-         D9xcHli4+7fMDGO3AAquH0CVxTKXf9OHopivJ5IQPLZU6fFD/rhIYj71UxWfcQ8A7m
-         TMHnBLDZt4KGmmw8QpkQW80XqbOawwH88D6xCiMU=
+        b=uJ5VU4GFeOIus+j4qDRms+Crqhaw4uTcC51bxrWaRtoEDB9Bd12ZnqPOMVGJQY/BR
+         pcdUjwrJTpGqENuhlNgTeSJx636k9nrdyCSkiy6dwn322umwgHsfrP0ANlZuiTmfQA
+         FlypXg2NzgPbaBPsE/sdILfE66OeQew5p4z8Ar/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 185/343] jfs: prevent NULL deref in diFree
+Subject: [PATCH 5.15 200/277] SUNRPC: Handle low memory situations in call_status()
 Date:   Tue, 12 Apr 2022 08:30:03 +0200
-Message-Id: <20220412062956.701501170@linuxfoundation.org>
+Message-Id: <20220412062947.826851212@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit a53046291020ec41e09181396c1e829287b48d47 ]
+[ Upstream commit 9d82819d5b065348ce623f196bf601028e22ed00 ]
 
-Add validation check for JFS_IP(ipimap)->i_imap to prevent a NULL deref
-in diFree since diFree uses it without do any validations.
-When function jfs_mount calls diMount to initialize fileset inode
-allocation map, it can fail and JFS_IP(ipimap)->i_imap won't be
-initialized. Then it calls diFreeSpecial to close fileset inode allocation
-map inode and it will flow into jfs_evict_inode. Function jfs_evict_inode
-just validates JFS_SBI(inode->i_sb)->ipimap, then calls diFree. diFree use
-JFS_IP(ipimap)->i_imap directly, then it will cause a NULL deref.
+We need to handle ENFILE, ENOBUFS, and ENOMEM, because
+xprt_wake_pending_tasks() can be called with any one of these due to
+socket creation failures.
 
-Reported-by: TCS Robot <tcs_robot@tencent.com>
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Fixes: b61d59fffd3e ("SUNRPC: xs_tcp_connect_worker{4,6}: merge common code")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sunrpc/clnt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/jfs/inode.c b/fs/jfs/inode.c
-index 57ab424c05ff..072821b50ab9 100644
---- a/fs/jfs/inode.c
-+++ b/fs/jfs/inode.c
-@@ -146,12 +146,13 @@ void jfs_evict_inode(struct inode *inode)
- 		dquot_initialize(inode);
- 
- 		if (JFS_IP(inode)->fileset == FILESYSTEM_I) {
-+			struct inode *ipimap = JFS_SBI(inode->i_sb)->ipimap;
- 			truncate_inode_pages_final(&inode->i_data);
- 
- 			if (test_cflag(COMMIT_Freewmap, inode))
- 				jfs_free_zero_link(inode);
- 
--			if (JFS_SBI(inode->i_sb)->ipimap)
-+			if (ipimap && JFS_IP(ipimap)->i_imap)
- 				diFree(inode);
- 
- 			/*
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index 9a183c254c84..3286add1a958 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -2369,6 +2369,11 @@ call_status(struct rpc_task *task)
+ 	case -EPIPE:
+ 	case -EAGAIN:
+ 		break;
++	case -ENFILE:
++	case -ENOBUFS:
++	case -ENOMEM:
++		rpc_delay(task, HZ>>2);
++		break;
+ 	case -EIO:
+ 		/* shutdown or soft timeout */
+ 		goto out_exit;
 -- 
 2.35.1
 
