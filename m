@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EF794FD137
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B2944FD139
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351138AbiDLG5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:57:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48240 "EHLO
+        id S1351143AbiDLG5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351531AbiDLGx4 (ORCPT
+        with ESMTP id S1351535AbiDLGx4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A59718387;
-        Mon, 11 Apr 2022 23:42:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD6E9183A2;
+        Mon, 11 Apr 2022 23:42:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E800960A21;
-        Tue, 12 Apr 2022 06:42:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0532DC385A1;
-        Tue, 12 Apr 2022 06:42:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5774360A69;
+        Tue, 12 Apr 2022 06:42:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6873CC385A8;
+        Tue, 12 Apr 2022 06:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745725;
-        bh=JvSe6qd/aeCcCXWxn+jTMfHHyqDEt0Hri2pC+EUXSBk=;
+        s=korg; t=1649745730;
+        bh=Y4PFYmdYR2WjNP0fkjHUgXF9wtFrae+g7GdxMfughyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKufedrtfNTyp2KTKnLldgQzoxULWkvdf7V99I3he6lz/2ktTjrfxbQrCW+CdQXZz
-         iY/EPTN1iup+CXmGwjeaTDvYQLLGWPZxBUEzbUt8WKyFpWI84HoNb0SUrEu5ClzkLD
-         wU25jTrlrq84ki8MxtslWfe0q60DMiOvcf1OSjAI=
+        b=bDZG1PZNA78VaiuwOhWTNnqY2cpUaD98g83N1m9zkPq6fPuIK03ESqiS5I37xP2LD
+         rQk/wKOYsgF997svT/wXg1XynUEl5/Pft0vLBPb4Mw62jYrlCdLVb3DPzn395C1/MO
+         E0nA+N4h7EIw9rEXSgLzj6Q5+76Em0kotvZNxSLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Maxim Kochetkov <fido_max@inbox.ru>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/277] drm/amdkfd: Dont take process mutex for svm ioctls
-Date:   Tue, 12 Apr 2022 08:27:09 +0200
-Message-Id: <20220412062942.798478161@linuxfoundation.org>
+Subject: [PATCH 5.15 027/277] powerpc: dts: t104xrdb: fix phy type for FMAN 4/5
+Date:   Tue, 12 Apr 2022 08:27:10 +0200
+Message-Id: <20220412062942.827447186@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -55,53 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-[ Upstream commit ac7c48c0cce00d03b3c95fddcccb0a45257e33e3 ]
+[ Upstream commit 17846485dff91acce1ad47b508b633dffc32e838 ]
 
-SVM ioctls take proper svms->lock to handle race conditions, don't need
-take process mutex to serialize ioctls. This also fixes circular locking
-warning:
+T1040RDB has two RTL8211E-VB phys which requires setting
+of internal delays for correct work.
 
-WARNING: possible circular locking dependency detected
+Changing the phy-connection-type property to `rgmii-id`
+will fix this issue.
 
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock((work_completion)(&svms->deferred_list_work));
-                                lock(&process->mutex);
-                     lock((work_completion)(&svms->deferred_list_work));
-   lock(&process->mutex);
-
-   *** DEADLOCK ***
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211230151123.1258321-1-bigunclemax@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/powerpc/boot/dts/fsl/t104xrdb.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-index 86afd37b098d..6688129df240 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-@@ -1807,13 +1807,9 @@ static int kfd_ioctl_svm(struct file *filep, struct kfd_process *p, void *data)
- 	if (!args->start_addr || !args->size)
- 		return -EINVAL;
+diff --git a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
+index 099a598c74c0..bfe1ed5be337 100644
+--- a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
++++ b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
+@@ -139,12 +139,12 @@
+ 		fman@400000 {
+ 			ethernet@e6000 {
+ 				phy-handle = <&phy_rgmii_0>;
+-				phy-connection-type = "rgmii";
++				phy-connection-type = "rgmii-id";
+ 			};
  
--	mutex_lock(&p->mutex);
--
- 	r = svm_ioctl(p, args->op, args->start_addr, args->size, args->nattr,
- 		      args->attrs);
+ 			ethernet@e8000 {
+ 				phy-handle = <&phy_rgmii_1>;
+-				phy-connection-type = "rgmii";
++				phy-connection-type = "rgmii-id";
+ 			};
  
--	mutex_unlock(&p->mutex);
--
- 	return r;
- }
- #else
+ 			mdio0: mdio@fc000 {
 -- 
 2.35.1
 
