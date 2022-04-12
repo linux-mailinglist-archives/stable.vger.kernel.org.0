@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 244CE4FDAB7
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C854FD5DB
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:15:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351810AbiDLHgL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:36:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43112 "EHLO
+        id S1377525AbiDLHuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:50:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354812AbiDLH0q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854BC4705D;
-        Tue, 12 Apr 2022 00:06:41 -0700 (PDT)
+        with ESMTP id S1359292AbiDLHmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7FAA2CC89;
+        Tue, 12 Apr 2022 00:21:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 643AA616BF;
-        Tue, 12 Apr 2022 07:06:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 740F8C385A6;
-        Tue, 12 Apr 2022 07:06:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40FB26177C;
+        Tue, 12 Apr 2022 07:21:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD3BC385A5;
+        Tue, 12 Apr 2022 07:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747200;
-        bh=jdSrlme+ldB8gp5g95tgqulfRXTKB43uz9/V2NDGTck=;
+        s=korg; t=1649748096;
+        bh=ScQ0rtqc2sYsCyzqgZl710MjEEg7+tnFQD+SEYvELSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aouW95+RvvvonF+iYDVrLYEC1hfOTFkA59+SOExMEW85wgxSnavx7nnLoJkYBk+2g
-         87cZ3niyXN+eTtrin+x8ip/9pUcg3bAkVy60OA0yHHEAHn27ZKFlxFfHD0qcZDvkuL
-         pD9nAPK+wirHRBK3kVmskl5qFqHAHt73S+Dfbn1M=
+        b=f+ZPoPbcRwsA10Tg3/J1cdl+eFb5PoO4Qesa9tiz709kDbU1dOCnSrLvlDk6SfMIz
+         JBsRF9e1Vwjqu+PgYSWANNwilQcGyYx6LKc6RKWtai8ecBU/KZvMCBaE5ZXTFDLioB
+         Jz00wWS8HmsV6xbsX2UOIb8hct+cm+G3a7gxIYgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH 5.16 278/285] x86/bug: Prevent shadowing in __WARN_FLAGS
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Jakub Sitnicki <jakub@cloudflare.com>
+Subject: [PATCH 5.17 317/343] bpf: Make remote_port field in struct bpf_sk_lookup 16-bit wide
 Date:   Tue, 12 Apr 2022 08:32:15 +0200
-Message-Id: <20220412062951.677686561@linuxfoundation.org>
+Message-Id: <20220412063000.471614898@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +53,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-commit 9ce02f0fc68326dd1f87a0a3a4c6ae7fdd39e6f6 upstream.
+commit 9a69e2b385f443f244a7e8b8bcafe5ccfb0866b4 upstream.
 
-The macro __WARN_FLAGS() uses a local variable named "f". This being a
-common name, there is a risk of shadowing other variables.
+remote_port is another case of a BPF context field documented as a 32-bit
+value in network byte order for which the BPF context access converter
+generates a load of a zero-padded 16-bit integer in network byte order.
 
-For example, GCC would yield:
+First such case was dst_port in bpf_sock which got addressed in commit
+4421a582718a ("bpf: Make dst_port field in struct bpf_sock 16-bit wide").
 
-| In file included from ./include/linux/bug.h:5,
-|                  from ./include/linux/cpumask.h:14,
-|                  from ./arch/x86/include/asm/cpumask.h:5,
-|                  from ./arch/x86/include/asm/msr.h:11,
-|                  from ./arch/x86/include/asm/processor.h:22,
-|                  from ./arch/x86/include/asm/timex.h:5,
-|                  from ./include/linux/timex.h:65,
-|                  from ./include/linux/time32.h:13,
-|                  from ./include/linux/time.h:60,
-|                  from ./include/linux/stat.h:19,
-|                  from ./include/linux/module.h:13,
-|                  from virt/lib/irqbypass.mod.c:1:
-| ./include/linux/rcupdate.h: In function 'rcu_head_after_call_rcu':
-| ./arch/x86/include/asm/bug.h:80:21: warning: declaration of 'f' shadows a parameter [-Wshadow]
-|    80 |         __auto_type f = BUGFLAG_WARNING|(flags);                \
-|       |                     ^
-| ./include/asm-generic/bug.h:106:17: note: in expansion of macro '__WARN_FLAGS'
-|   106 |                 __WARN_FLAGS(BUGFLAG_ONCE |                     \
-|       |                 ^~~~~~~~~~~~
-| ./include/linux/rcupdate.h:1007:9: note: in expansion of macro 'WARN_ON_ONCE'
-|  1007 |         WARN_ON_ONCE(func != (rcu_callback_t)~0L);
-|       |         ^~~~~~~~~~~~
-| In file included from ./include/linux/rbtree.h:24,
-|                  from ./include/linux/mm_types.h:11,
-|                  from ./include/linux/buildid.h:5,
-|                  from ./include/linux/module.h:14,
-|                  from virt/lib/irqbypass.mod.c:1:
-| ./include/linux/rcupdate.h:1001:62: note: shadowed declaration is here
-|  1001 | rcu_head_after_call_rcu(struct rcu_head *rhp, rcu_callback_t f)
-|       |                                               ~~~~~~~~~~~~~~~^
+Loading 4-bytes from the remote_port offset and converting the value with
+bpf_ntohl() leads to surprising results, as the expected value is shifted
+by 16 bits.
 
-For reference, sparse also warns about it, c.f. [1].
+Reduce the confusion by splitting the field in two - a 16-bit field holding
+a big-endian integer, and a 16-bit zero-padding anonymous field that
+follows it.
 
-This patch renames the variable from f to __flags (with two underscore
-prefixes as suggested in the Linux kernel coding style [2]) in order
-to prevent collisions.
-
-[1] https://lore.kernel.org/all/CAFGhKbyifH1a+nAMCvWM88TK6fpNPdzFtUXPmRGnnQeePV+1sw@mail.gmail.com/
-
-[2] Linux kernel coding style, section 12) Macros, Enums and RTL,
-paragraph 5) namespace collisions when defining local variables in
-macros resembling functions
-https://www.kernel.org/doc/html/latest/process/coding-style.html#macros-enums-and-rtl
-
-Fixes: bfb1a7c91fb7 ("x86/bug: Merge annotate_reachable() into_BUG_FLAGS() asm")
-Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lkml.kernel.org/r/20220324023742.106546-1-mailhol.vincent@wanadoo.fr
+Suggested-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20220209184333.654927-2-jakub@cloudflare.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/bug.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/uapi/linux/bpf.h |    3 ++-
+ net/bpf/test_run.c       |    4 ++--
+ net/core/filter.c        |    3 ++-
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
---- a/arch/x86/include/asm/bug.h
-+++ b/arch/x86/include/asm/bug.h
-@@ -77,9 +77,9 @@ do {								\
-  */
- #define __WARN_FLAGS(flags)					\
- do {								\
--	__auto_type f = BUGFLAG_WARNING|(flags);		\
-+	__auto_type __flags = BUGFLAG_WARNING|(flags);		\
- 	instrumentation_begin();				\
--	_BUG_FLAGS(ASM_UD2, f, ASM_REACHABLE);			\
-+	_BUG_FLAGS(ASM_UD2, __flags, ASM_REACHABLE);		\
- 	instrumentation_end();					\
- } while (0)
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -6379,7 +6379,8 @@ struct bpf_sk_lookup {
+ 	__u32 protocol;		/* IP protocol (IPPROTO_TCP, IPPROTO_UDP) */
+ 	__u32 remote_ip4;	/* Network byte order */
+ 	__u32 remote_ip6[4];	/* Network byte order */
+-	__u32 remote_port;	/* Network byte order */
++	__be16 remote_port;	/* Network byte order */
++	__u16 :16;		/* Zero padding */
+ 	__u32 local_ip4;	/* Network byte order */
+ 	__u32 local_ip6[4];	/* Network byte order */
+ 	__u32 local_port;	/* Host byte order */
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -960,7 +960,7 @@ int bpf_prog_test_run_sk_lookup(struct b
+ 	if (!range_is_zero(user_ctx, offsetofend(typeof(*user_ctx), local_port), sizeof(*user_ctx)))
+ 		goto out;
  
+-	if (user_ctx->local_port > U16_MAX || user_ctx->remote_port > U16_MAX) {
++	if (user_ctx->local_port > U16_MAX) {
+ 		ret = -ERANGE;
+ 		goto out;
+ 	}
+@@ -968,7 +968,7 @@ int bpf_prog_test_run_sk_lookup(struct b
+ 	ctx.family = (u16)user_ctx->family;
+ 	ctx.protocol = (u16)user_ctx->protocol;
+ 	ctx.dport = (u16)user_ctx->local_port;
+-	ctx.sport = (__force __be16)user_ctx->remote_port;
++	ctx.sport = user_ctx->remote_port;
+ 
+ 	switch (ctx.family) {
+ 	case AF_INET:
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -10621,7 +10621,8 @@ static bool sk_lookup_is_valid_access(in
+ 	case bpf_ctx_range(struct bpf_sk_lookup, local_ip4):
+ 	case bpf_ctx_range_till(struct bpf_sk_lookup, remote_ip6[0], remote_ip6[3]):
+ 	case bpf_ctx_range_till(struct bpf_sk_lookup, local_ip6[0], local_ip6[3]):
+-	case bpf_ctx_range(struct bpf_sk_lookup, remote_port):
++	case offsetof(struct bpf_sk_lookup, remote_port) ...
++	     offsetof(struct bpf_sk_lookup, local_ip4) - 1:
+ 	case bpf_ctx_range(struct bpf_sk_lookup, local_port):
+ 	case bpf_ctx_range(struct bpf_sk_lookup, ingress_ifindex):
+ 		bpf_ctx_record_field_size(info, sizeof(__u32));
 
 
