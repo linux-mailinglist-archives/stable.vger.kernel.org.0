@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBD44FD8E8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8678C4FD472
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235664AbiDLHvO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49156 "EHLO
+        id S1355723AbiDLH3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:29:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357085AbiDLHjq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09E609FC6;
-        Tue, 12 Apr 2022 00:11:40 -0700 (PDT)
+        with ESMTP id S1353157AbiDLHOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 737BE37AA4;
+        Mon, 11 Apr 2022 23:56:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9713661701;
-        Tue, 12 Apr 2022 07:11:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07EDC385A1;
-        Tue, 12 Apr 2022 07:11:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F16FCB81B44;
+        Tue, 12 Apr 2022 06:56:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C090C385A1;
+        Tue, 12 Apr 2022 06:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747499;
-        bh=nCTmKaY5tqg5mpxtTmdTE1Ti9amTVIWQFxjrQKhEUwU=;
+        s=korg; t=1649746595;
+        bh=sFmGLkUacBWBHi4zv6UXeP0p70b8wzsnAfwnEIHGy90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4utKWVgxiYg1YbpfDs8CFjrw3Wb2XYsC574rSNb6oO0GoiF7gJLrkxY15nvU0VOj
-         CALwaGmOAbi+dPasWlZoT4ZU41J4JGq03bQPQ3Z6xhpHA1HwDLnNrWOY0c43mf6toi
-         jvEWQTkUX5Uv5KuFADrv3SRaqOLMLzV3fMNLaD+Y=
+        b=CqpzXyLV7f3Oy/VceWFRFDc5Z/fAHOJIDGT652YNKPN/B/BgsOnqk9kaqluYPMa+M
+         yl2l8CECZft4RZg1m1ySPCFPvFOCYNHhnIQZco/oQuvCITx+orJ5T+zFFHxEU3hpcE
+         JwtcjwdbvF1WIRMDo9amVhhUVJPygsG/pt4By8Mc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 100/343] vfio/pci: Stub vfio_pci_vga_rw when !CONFIG_VFIO_PCI_VGA
+Subject: [PATCH 5.16 061/285] iwlwifi: fix small doc mistake for iwl_fw_ini_addr_val
 Date:   Tue, 12 Apr 2022 08:28:38 +0200
-Message-Id: <20220412062953.986525765@linuxfoundation.org>
+Message-Id: <20220412062945.431114402@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit 6e031ec0e5a2dda53e12e0d2a7e9b15b47a3c502 ]
+[ Upstream commit 3009c797c4b3840495e8f48d8d07f48d2ddfed80 ]
 
-Resolve build errors reported against UML build for undefined
-ioport_map() and ioport_unmap() functions.  Without this config
-option a device cannot have vfio_pci_core_device.has_vga set,
-so the existing function would always return -EINVAL anyway.
+There was a small copy and paste mistake in the doc declaration of
+iwl_fw_ini_addr_val.  Fix it.
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20220123125737.2658758-1-geert@linux-m68k.org
-Link: https://lore.kernel.org/r/164306582968.3758255.15192949639574660648.stgit@omen
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20220205112029.aeec71c397b3.I0ba3234419eb8c8c7512a2ca531a6dbb55046cf7@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_rdwr.c | 2 ++
- include/linux/vfio_pci_core.h    | 9 +++++++++
- 2 files changed, 11 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-index 57d3b2cbbd8e..82ac1569deb0 100644
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -288,6 +288,7 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 	return done;
- }
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h b/drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h
+index 3988f5fea33a..6b2a2828cb83 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/api/dbg-tlv.h
+@@ -1,6 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+ /*
+- * Copyright (C) 2018-2021 Intel Corporation
++ * Copyright (C) 2018-2022 Intel Corporation
+  */
+ #ifndef __iwl_fw_dbg_tlv_h__
+ #define __iwl_fw_dbg_tlv_h__
+@@ -244,11 +244,10 @@ struct iwl_fw_ini_hcmd_tlv {
+ } __packed; /* FW_TLV_DEBUG_HCMD_API_S_VER_1 */
  
-+#ifdef CONFIG_VFIO_PCI_VGA
- ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			       size_t count, loff_t *ppos, bool iswrite)
- {
-@@ -355,6 +356,7 @@ ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 
- 	return done;
- }
-+#endif
- 
- static void vfio_pci_ioeventfd_do_write(struct vfio_pci_ioeventfd *ioeventfd,
- 					bool test_mem)
-diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-index ef9a44b6cf5d..ae6f4838ab75 100644
---- a/include/linux/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -159,8 +159,17 @@ extern ssize_t vfio_pci_config_rw(struct vfio_pci_core_device *vdev,
- extern ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			       size_t count, loff_t *ppos, bool iswrite);
- 
-+#ifdef CONFIG_VFIO_PCI_VGA
- extern ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			       size_t count, loff_t *ppos, bool iswrite);
-+#else
-+static inline ssize_t vfio_pci_vga_rw(struct vfio_pci_core_device *vdev,
-+				      char __user *buf, size_t count,
-+				      loff_t *ppos, bool iswrite)
-+{
-+	return -EINVAL;
-+}
-+#endif
- 
- extern long vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
- 			       uint64_t data, int count, int fd);
+ /**
+-* struct iwl_fw_ini_conf_tlv - preset configuration TLV
++* struct iwl_fw_ini_addr_val - Address and value to set it to
+ *
+ * @address: the base address
+ * @value: value to set at address
+-
+ */
+ struct iwl_fw_ini_addr_val {
+ 	__le32 address;
 -- 
 2.35.1
 
