@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 343184FDA68
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:50:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB97B4FD5C3
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234595AbiDLHo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59308 "EHLO
+        id S240173AbiDLHTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:19:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352545AbiDLHYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:24:12 -0400
+        with ESMTP id S1351677AbiDLHMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68AF74CD41;
-        Tue, 12 Apr 2022 00:00:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E253013D2A;
+        Mon, 11 Apr 2022 23:51:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEA55B81B4D;
-        Tue, 12 Apr 2022 06:59:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A737C385A1;
-        Tue, 12 Apr 2022 06:59:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9936BB81B43;
+        Tue, 12 Apr 2022 06:51:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF6A7C385A8;
+        Tue, 12 Apr 2022 06:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746798;
-        bh=PNElRQwnnCiWitiYMu5FSLHaLbWIvloVo8Zbif/ErFo=;
+        s=korg; t=1649746287;
+        bh=cK5XG9/wD9csGt9BDkyE+vq4CVXvZjL5MTLufJbB8FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1L3T4F54jQf+CictMOu3im5kTYoZgvNgkjQmFG6w7k8IQDhdO3vbFBeXTq/OWyao
-         rJ67LmE4XTv/ZsdiPSbXiK1F7Ura7xIwMbjiMXXQIDqh/jexg2YwbFe9B6duZ781WB
-         lojT06Jy7iHr9AIiFkRFSFIWimbm9cyyJjgwp4Og=
+        b=wTL5LoG/4T4AfprZb72OgIq6TNBWJklQauom7k8Ti3cYjXF30ghy+FbWQd0pra7Qn
+         +2Hm7+apHOsVH4D70nZ/gb05FC4WL/imkQLQMFEBtWx7e/u8SSLUZBwpxLo2ZFcCil
+         FjteB09xFvcQHBonSExAcmoj8HLGSQ4MCZ0rta+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
+        Ilya Maximets <i.maximets@ovn.org>,
+        Aaron Conole <aconole@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 134/285] SUNRPC: remove scheduling boost for "SWAPPER" tasks.
+Subject: [PATCH 5.15 188/277] net: openvswitch: fix leak of nested actions
 Date:   Tue, 12 Apr 2022 08:29:51 +0200
-Message-Id: <20220412062947.534320876@linuxfoundation.org>
+Message-Id: <20220412062947.477735964@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +57,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Ilya Maximets <i.maximets@ovn.org>
 
-[ Upstream commit a80a8461868905823609be97f91776a26befe839 ]
+[ Upstream commit 1f30fb9166d4f15a1aa19449b9da871fe0ed4796 ]
 
-Currently, tasks marked as "swapper" tasks get put to the front of
-non-priority rpc_queues, and are sorted earlier than non-swapper tasks on
-the transport's ->xmit_queue.
+While parsing user-provided actions, openvswitch module may dynamically
+allocate memory and store pointers in the internal copy of the actions.
+So this memory has to be freed while destroying the actions.
 
-This is pointless as currently *all* tasks for a mount that has swap
-enabled on *any* file are marked as "swapper" tasks.  So the net result
-is that the non-priority rpc_queues are reverse-ordered (LIFO).
+Currently there are only two such actions: ct() and set().  However,
+there are many actions that can hold nested lists of actions and
+ovs_nla_free_flow_actions() just jumps over them leaking the memory.
 
-This scheduling boost is not necessary to avoid deadlocks, and hurts
-fairness, so remove it.  If there were a need to expedite some requests,
-the tk_priority mechanism is a more appropriate tool.
+For example, removal of the flow with the following actions will lead
+to a leak of the memory allocated by nf_ct_tmpl_alloc():
 
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+  actions:clone(ct(commit),0)
+
+Non-freed set() action may also leak the 'dst' structure for the
+tunnel info including device references.
+
+Under certain conditions with a high rate of flow rotation that may
+cause significant memory leak problem (2MB per second in reporter's
+case).  The problem is also hard to mitigate, because the user doesn't
+have direct control over the datapath flows generated by OVS.
+
+Fix that by iterating over all the nested actions and freeing
+everything that needs to be freed recursively.
+
+New build time assertion should protect us from this problem if new
+actions will be added in the future.
+
+Unfortunately, openvswitch module doesn't use NLA_F_NESTED, so all
+attributes has to be explicitly checked.  sample() and clone() actions
+are mixing extra attributes into the user-provided action list.  That
+prevents some code generalization too.
+
+Fixes: 34ae932a4036 ("openvswitch: Make tunnel set action attach a metadata dst")
+Link: https://mail.openvswitch.org/pipermail/ovs-dev/2022-March/392922.html
+Reported-by: Stéphane Graber <stgraber@ubuntu.com>
+Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
+Acked-by: Aaron Conole <aconole@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sched.c |  7 -------
- net/sunrpc/xprt.c  | 11 -----------
- 2 files changed, 18 deletions(-)
+ net/openvswitch/flow_netlink.c | 95 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 90 insertions(+), 5 deletions(-)
 
-diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
-index ae295844ac55..9020cedb7c95 100644
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -186,11 +186,6 @@ static void __rpc_add_wait_queue_priority(struct rpc_wait_queue *queue,
+diff --git a/net/openvswitch/flow_netlink.c b/net/openvswitch/flow_netlink.c
+index 2679007f8aeb..c591b923016a 100644
+--- a/net/openvswitch/flow_netlink.c
++++ b/net/openvswitch/flow_netlink.c
+@@ -2288,6 +2288,62 @@ static struct sw_flow_actions *nla_alloc_flow_actions(int size)
+ 	return sfa;
+ }
  
- /*
-  * Add new request to wait queue.
-- *
-- * Swapper tasks always get inserted at the head of the queue.
-- * This should avoid many nasty memory deadlocks and hopefully
-- * improve overall performance.
-- * Everyone else gets appended to the queue to ensure proper FIFO behavior.
-  */
- static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
- 		struct rpc_task *task,
-@@ -199,8 +194,6 @@ static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
- 	INIT_LIST_HEAD(&task->u.tk_wait.timer_list);
- 	if (RPC_IS_PRIORITY(queue))
- 		__rpc_add_wait_queue_priority(queue, task, queue_priority);
--	else if (RPC_IS_SWAPPER(task))
--		list_add(&task->u.tk_wait.list, &queue->tasks[0]);
- 	else
- 		list_add_tail(&task->u.tk_wait.list, &queue->tasks[0]);
- 	task->tk_waitqueue = queue;
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 75acde97d748..b1bb466bbdda 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1354,17 +1354,6 @@ xprt_request_enqueue_transmit(struct rpc_task *task)
- 				INIT_LIST_HEAD(&req->rq_xmit2);
- 				goto out;
- 			}
--		} else if (RPC_IS_SWAPPER(task)) {
--			list_for_each_entry(pos, &xprt->xmit_queue, rq_xmit) {
--				if (pos->rq_cong || pos->rq_bytes_sent)
--					continue;
--				if (RPC_IS_SWAPPER(pos->rq_task))
--					continue;
--				/* Note: req is added _before_ pos */
--				list_add_tail(&req->rq_xmit, &pos->rq_xmit);
--				INIT_LIST_HEAD(&req->rq_xmit2);
--				goto out;
--			}
- 		} else if (!req->rq_seqno) {
- 			list_for_each_entry(pos, &xprt->xmit_queue, rq_xmit) {
- 				if (pos->rq_task->tk_owner != task->tk_owner)
++static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len);
++
++static void ovs_nla_free_check_pkt_len_action(const struct nlattr *action)
++{
++	const struct nlattr *a;
++	int rem;
++
++	nla_for_each_nested(a, action, rem) {
++		switch (nla_type(a)) {
++		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_LESS_EQUAL:
++		case OVS_CHECK_PKT_LEN_ATTR_ACTIONS_IF_GREATER:
++			ovs_nla_free_nested_actions(nla_data(a), nla_len(a));
++			break;
++		}
++	}
++}
++
++static void ovs_nla_free_clone_action(const struct nlattr *action)
++{
++	const struct nlattr *a = nla_data(action);
++	int rem = nla_len(action);
++
++	switch (nla_type(a)) {
++	case OVS_CLONE_ATTR_EXEC:
++		/* The real list of actions follows this attribute. */
++		a = nla_next(a, &rem);
++		ovs_nla_free_nested_actions(a, rem);
++		break;
++	}
++}
++
++static void ovs_nla_free_dec_ttl_action(const struct nlattr *action)
++{
++	const struct nlattr *a = nla_data(action);
++
++	switch (nla_type(a)) {
++	case OVS_DEC_TTL_ATTR_ACTION:
++		ovs_nla_free_nested_actions(nla_data(a), nla_len(a));
++		break;
++	}
++}
++
++static void ovs_nla_free_sample_action(const struct nlattr *action)
++{
++	const struct nlattr *a = nla_data(action);
++	int rem = nla_len(action);
++
++	switch (nla_type(a)) {
++	case OVS_SAMPLE_ATTR_ARG:
++		/* The real list of actions follows this attribute. */
++		a = nla_next(a, &rem);
++		ovs_nla_free_nested_actions(a, rem);
++		break;
++	}
++}
++
+ static void ovs_nla_free_set_action(const struct nlattr *a)
+ {
+ 	const struct nlattr *ovs_key = nla_data(a);
+@@ -2301,25 +2357,54 @@ static void ovs_nla_free_set_action(const struct nlattr *a)
+ 	}
+ }
+ 
+-void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
++static void ovs_nla_free_nested_actions(const struct nlattr *actions, int len)
+ {
+ 	const struct nlattr *a;
+ 	int rem;
+ 
+-	if (!sf_acts)
++	/* Whenever new actions are added, the need to update this
++	 * function should be considered.
++	 */
++	BUILD_BUG_ON(OVS_ACTION_ATTR_MAX != 23);
++
++	if (!actions)
+ 		return;
+ 
+-	nla_for_each_attr(a, sf_acts->actions, sf_acts->actions_len, rem) {
++	nla_for_each_attr(a, actions, len, rem) {
+ 		switch (nla_type(a)) {
+-		case OVS_ACTION_ATTR_SET:
+-			ovs_nla_free_set_action(a);
++		case OVS_ACTION_ATTR_CHECK_PKT_LEN:
++			ovs_nla_free_check_pkt_len_action(a);
++			break;
++
++		case OVS_ACTION_ATTR_CLONE:
++			ovs_nla_free_clone_action(a);
+ 			break;
++
+ 		case OVS_ACTION_ATTR_CT:
+ 			ovs_ct_free_action(a);
+ 			break;
++
++		case OVS_ACTION_ATTR_DEC_TTL:
++			ovs_nla_free_dec_ttl_action(a);
++			break;
++
++		case OVS_ACTION_ATTR_SAMPLE:
++			ovs_nla_free_sample_action(a);
++			break;
++
++		case OVS_ACTION_ATTR_SET:
++			ovs_nla_free_set_action(a);
++			break;
+ 		}
+ 	}
++}
++
++void ovs_nla_free_flow_actions(struct sw_flow_actions *sf_acts)
++{
++	if (!sf_acts)
++		return;
+ 
++	ovs_nla_free_nested_actions(sf_acts->actions, sf_acts->actions_len);
+ 	kfree(sf_acts);
+ }
+ 
 -- 
 2.35.1
 
