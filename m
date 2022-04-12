@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DEDF4FD720
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:27:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C6D14FD5A2
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350455AbiDLIBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:01:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45788 "EHLO
+        id S1351125AbiDLHTK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:19:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357662AbiDLHkg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:36 -0400
+        with ESMTP id S1351661AbiDLHMr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E53326F2;
-        Tue, 12 Apr 2022 00:16:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F98B2982C;
+        Mon, 11 Apr 2022 23:51:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56290B81B60;
-        Tue, 12 Apr 2022 07:16:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDF57C385A5;
-        Tue, 12 Apr 2022 07:16:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 210D6B81B43;
+        Tue, 12 Apr 2022 06:51:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CC15C385A6;
+        Tue, 12 Apr 2022 06:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747778;
-        bh=WxPLjrKQ8eRD1EGKTuVP56FWs6l0pz+Qv7AArwyle8Q=;
+        s=korg; t=1649746262;
+        bh=ZHKV8U6IfPcXIEtDMDsnl9NA2kGDXwtGA+jMYqc6pGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uo9R4QbcQkB8lJWmW/1cxnCAG6JjpVS7jAUNIbNOTNvTkXdxXNBAd6wqgrpaSS8T4
-         mL91MMml+evxQCmy6W3YYp9RVNIhvl1bH3I39uT0jYcZnq+6vCx8yUokwXwr/mi8Zx
-         ItSuDXoMIWbjWq7kphBG7rzJoS+9LuGwDbNxhJEE=
+        b=ZYcQ+oBJkvvnfiv0pDAKt6BaF4WvbL7kMLFMVK2oZBrBhWjPwRelXt7KX8mavJ26X
+         nbu3s91oPS6DAZG6Vs6e3/P8/rBTq6mq3tGamOX6mVqLN161fbxx1s4cTUmfpPGnWD
+         lWo7lDOCK+n9B0QZatdpJZNOvWzw87CXQnLHiHTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>, Eli Cohen <elic@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 203/343] vdpa: mlx5: prevent cvq work from hogging CPU
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 218/277] io_uring: dont check req->file in io_fsync_prep()
 Date:   Tue, 12 Apr 2022 08:30:21 +0200
-Message-Id: <20220412062957.212295308@linuxfoundation.org>
+Message-Id: <20220412062948.349863228@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 55ebf0d60e3cc6c9e8593399e185842c00e12f36 ]
+commit ec858afda857e361182ceafc3d2ba2b164b8e889 upstream.
 
-A userspace triggerable infinite loop could happen in
-mlx5_cvq_kick_handler() if userspace keeps sending a huge amount of
-cvq requests.
+This is a leftover from the really old days where we weren't able to
+track and error early if we need a file and it wasn't assigned. Kill
+the check.
 
-Fixing this by introducing a quota and re-queue the work if we're out
-of the budget (currently the implicit budget is one) . While at it,
-using a per device work struct to avoid on demand memory allocation
-for cvq.
-
-Fixes: 5262912ef3cfc ("vdpa/mlx5: Add support for control VQ and MAC setting")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20220329042109.4029-1-jasowang@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Eli Cohen <elic@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # v5.15+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ fs/io_uring.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 9fe1071a9644..1b5de3af1a62 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -163,6 +163,7 @@ struct mlx5_vdpa_net {
- 	u32 cur_num_vqs;
- 	struct notifier_block nb;
- 	struct vdpa_callback config_cb;
-+	struct mlx5_vdpa_wq_ent cvq_ent;
- };
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4128,9 +4128,6 @@ static int io_fsync_prep(struct io_kiocb
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
  
- static void free_resources(struct mlx5_vdpa_net *ndev);
-@@ -1616,10 +1617,10 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
- 	ndev = to_mlx5_vdpa_ndev(mvdev);
- 	cvq = &mvdev->cvq;
- 	if (!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
--		goto out;
-+		return;
- 
- 	if (!cvq->ready)
--		goto out;
-+		return;
- 
- 	while (true) {
- 		err = vringh_getdesc_iotlb(&cvq->vring, &cvq->riov, &cvq->wiov, &cvq->head,
-@@ -1653,9 +1654,10 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
- 
- 		if (vringh_need_notify_iotlb(&cvq->vring))
- 			vringh_notify(&cvq->vring);
-+
-+		queue_work(mvdev->wq, &wqent->work);
-+		break;
- 	}
--out:
--	kfree(wqent);
- }
- 
- static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
-@@ -1663,7 +1665,6 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
- 	struct mlx5_vdpa_virtqueue *mvq;
--	struct mlx5_vdpa_wq_ent *wqent;
- 
- 	if (!is_index_valid(mvdev, idx))
- 		return;
-@@ -1672,13 +1673,7 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
- 		if (!mvdev->wq || !mvdev->cvq.ready)
- 			return;
- 
--		wqent = kzalloc(sizeof(*wqent), GFP_ATOMIC);
--		if (!wqent)
--			return;
+-	if (!req->file)
+-		return -EBADF;
 -
--		wqent->mvdev = mvdev;
--		INIT_WORK(&wqent->work, mlx5_cvq_kick_handler);
--		queue_work(mvdev->wq, &wqent->work);
-+		queue_work(mvdev->wq, &ndev->cvq_ent.work);
- 		return;
- 	}
- 
-@@ -2668,6 +2663,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
- 	if (err)
- 		goto err_mr;
- 
-+	ndev->cvq_ent.mvdev = mvdev;
-+	INIT_WORK(&ndev->cvq_ent.work, mlx5_cvq_kick_handler);
- 	mvdev->wq = create_singlethread_workqueue("mlx5_vdpa_wq");
- 	if (!mvdev->wq) {
- 		err = -ENOMEM;
--- 
-2.35.1
-
+ 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+ 	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
 
 
