@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 556254FD847
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 547974FD600
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:18:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347443AbiDLHht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60926 "EHLO
+        id S1349770AbiDLIBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:01:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353667AbiDLHZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
+        with ESMTP id S1357639AbiDLHke (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8549626AEB;
-        Tue, 12 Apr 2022 00:03:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E4331500;
+        Tue, 12 Apr 2022 00:16:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2106960B65;
-        Tue, 12 Apr 2022 07:03:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C440C385A6;
-        Tue, 12 Apr 2022 07:03:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E11C6171C;
+        Tue, 12 Apr 2022 07:16:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1763FC385A1;
+        Tue, 12 Apr 2022 07:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746989;
-        bh=B7KE0Bwe2HzZ6ljezbk4G1JK+oI+ZuzUzmoWONuuw8g=;
+        s=korg; t=1649747775;
+        bh=Ur7rnRKD7I0yAumOWBGWGZkPPf4CPiK8FlaCdTnTWQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGNZPbD2xdXFRhvKIRrvAVjvH3z8c8Y/0Q249/C+18gyLfSUbY81WXDspzqRKSmWS
-         iUDP1zAav+rGHwta7iCb2GbLCwnO3s7/0z/ymT557eGb6q+yZOzsehtzqJEl8JHWmJ
-         tCKRkAWASGVKjhMRoouPTMR3TYHSzgud7GRRHJ/g=
+        b=n5jeOfxN+rYqIsg9N8mJXJiIAprso5Q8rNj8/kRll8ORoHVlRG0zKBITzXkG+pT2W
+         WcTNxkS97YX9sImvlZ347unsZxeRNxViINlIIY9e9M2aNFhkQx4bEcq1kkmilrmJLg
+         +pDQBqO8G14g74rgf8Ifvbkyyb9BkJZfp4W6PaFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Duyck <alexanderduyck@fb.com>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Yunsheng Lin <linyunsheng@huawei.com>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 163/285] skbuff: fix coalescing for page_pool fragment recycling
+Subject: [PATCH 5.17 202/343] scsi: zorro7xx: Fix a resource leak in zorro7xx_remove_one()
 Date:   Tue, 12 Apr 2022 08:30:20 +0200
-Message-Id: <20220412062948.374730117@linuxfoundation.org>
+Message-Id: <20220412062957.183725721@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,135 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1effe8ca4e34c34cdd9318436a4232dcb582ebf4 ]
+[ Upstream commit 16ed828b872d12ccba8f07bcc446ae89ba662f9c ]
 
-Fix a use-after-free when using page_pool with page fragments. We
-encountered this problem during normal RX in the hns3 driver:
+The error handling path of the probe releases a resource that is not freed
+in the remove function. In some cases, a ioremap() must be undone.
 
-(1) Initially we have three descriptors in the RX queue. The first one
-    allocates PAGE1 through page_pool, and the other two allocate one
-    half of PAGE2 each. Page references look like this:
+Add the missing iounmap() call in the remove function.
 
-                RX_BD1 _______ PAGE1
-                RX_BD2 _______ PAGE2
-                RX_BD3 _________/
-
-(2) Handle RX on the first descriptor. Allocate SKB1, eventually added
-    to the receive queue by tcp_queue_rcv().
-
-(3) Handle RX on the second descriptor. Allocate SKB2 and pass it to
-    netif_receive_skb():
-
-    netif_receive_skb(SKB2)
-      ip_rcv(SKB2)
-        SKB3 = skb_clone(SKB2)
-
-    SKB2 and SKB3 share a reference to PAGE2 through
-    skb_shinfo()->dataref. The other ref to PAGE2 is still held by
-    RX_BD3:
-
-                      SKB2 ---+- PAGE2
-                      SKB3 __/   /
-                RX_BD3 _________/
-
- (3b) Now while handling TCP, coalesce SKB3 with SKB1:
-
-      tcp_v4_rcv(SKB3)
-        tcp_try_coalesce(to=SKB1, from=SKB3)    // succeeds
-        kfree_skb_partial(SKB3)
-          skb_release_data(SKB3)                // drops one dataref
-
-                      SKB1 _____ PAGE1
-                           \____
-                      SKB2 _____ PAGE2
-                                 /
-                RX_BD3 _________/
-
-    In skb_try_coalesce(), __skb_frag_ref() takes a page reference to
-    PAGE2, where it should instead have increased the page_pool frag
-    reference, pp_frag_count. Without coalescing, when releasing both
-    SKB2 and SKB3, a single reference to PAGE2 would be dropped. Now
-    when releasing SKB1 and SKB2, two references to PAGE2 will be
-    dropped, resulting in underflow.
-
- (3c) Drop SKB2:
-
-      af_packet_rcv(SKB2)
-        consume_skb(SKB2)
-          skb_release_data(SKB2)                // drops second dataref
-            page_pool_return_skb_page(PAGE2)    // drops one pp_frag_count
-
-                      SKB1 _____ PAGE1
-                           \____
-                                 PAGE2
-                                 /
-                RX_BD3 _________/
-
-(4) Userspace calls recvmsg()
-    Copies SKB1 and releases it. Since SKB3 was coalesced with SKB1, we
-    release the SKB3 page as well:
-
-    tcp_eat_recv_skb(SKB1)
-      skb_release_data(SKB1)
-        page_pool_return_skb_page(PAGE1)
-        page_pool_return_skb_page(PAGE2)        // drops second pp_frag_count
-
-(5) PAGE2 is freed, but the third RX descriptor was still using it!
-    In our case this causes IOMMU faults, but it would silently corrupt
-    memory if the IOMMU was disabled.
-
-Change the logic that checks whether pp_recycle SKBs can be coalesced.
-We still reject differing pp_recycle between 'from' and 'to' SKBs, but
-in order to avoid the situation described above, we also reject
-coalescing when both 'from' and 'to' are pp_recycled and 'from' is
-cloned.
-
-The new logic allows coalescing a cloned pp_recycle SKB into a page
-refcounted one, because in this case the release (4) will drop the right
-reference, the one taken by skb_try_coalesce().
-
-Fixes: 53e0961da1c7 ("page_pool: add frag page recycling support in page pool")
-Suggested-by: Alexander Duyck <alexanderduyck@fb.com>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Yunsheng Lin <linyunsheng@huawei.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/247066a3104d25f9a05de8b3270fc3c848763bcc.1647673264.git.christophe.jaillet@wanadoo.fr
+Fixes: 45804fbb00ee ("[SCSI] 53c700: Amiga Zorro NCR53c710 SCSI")
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/scsi/zorro7xx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index fdd804120600..001152c8def9 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5369,11 +5369,18 @@ bool skb_try_coalesce(struct sk_buff *to, struct sk_buff *from,
- 	if (skb_cloned(to))
- 		return false;
+diff --git a/drivers/scsi/zorro7xx.c b/drivers/scsi/zorro7xx.c
+index 27b9e2baab1a..7acf9193a9e8 100644
+--- a/drivers/scsi/zorro7xx.c
++++ b/drivers/scsi/zorro7xx.c
+@@ -159,6 +159,8 @@ static void zorro7xx_remove_one(struct zorro_dev *z)
+ 	scsi_remove_host(host);
  
--	/* The page pool signature of struct page will eventually figure out
--	 * which pages can be recycled or not but for now let's prohibit slab
--	 * allocated and page_pool allocated SKBs from being coalesced.
-+	/* In general, avoid mixing slab allocated and page_pool allocated
-+	 * pages within the same SKB. However when @to is not pp_recycle and
-+	 * @from is cloned, we can transition frag pages from page_pool to
-+	 * reference counted.
-+	 *
-+	 * On the other hand, don't allow coalescing two pp_recycle SKBs if
-+	 * @from is cloned, in case the SKB is using page_pool fragment
-+	 * references (PP_FLAG_PAGE_FRAG). Since we only take full page
-+	 * references for cloned SKBs at the moment that would result in
-+	 * inconsistent reference counts.
- 	 */
--	if (to->pp_recycle != from->pp_recycle)
-+	if (to->pp_recycle != (from->pp_recycle && !skb_cloned(from)))
- 		return false;
- 
- 	if (len <= skb_tailroom(to)) {
+ 	NCR_700_release(host);
++	if (host->base > 0x01000000)
++		iounmap(hostdata->base);
+ 	kfree(hostdata);
+ 	free_irq(host->irq, host);
+ 	zorro_release_device(z);
 -- 
 2.35.1
 
