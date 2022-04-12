@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F9B04FD068
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F233F4FD220
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350589AbiDLGqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40400 "EHLO
+        id S232496AbiDLHJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:09:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351531AbiDLGpA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:45:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76A7F3B022;
-        Mon, 11 Apr 2022 23:38:32 -0700 (PDT)
+        with ESMTP id S1352547AbiDLHFl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E727347AF9;
+        Mon, 11 Apr 2022 23:48:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F75261904;
-        Tue, 12 Apr 2022 06:38:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E9B5C385A6;
-        Tue, 12 Apr 2022 06:38:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F22B2B81B4F;
+        Tue, 12 Apr 2022 06:48:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F9D2C385B8;
+        Tue, 12 Apr 2022 06:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745511;
-        bh=KnJr3+StVYDOWXUCvFCg6bty8dIei47NyGGaIszR3Dw=;
+        s=korg; t=1649746093;
+        bh=hvax7q1OiKH162ZRoc+OYNZtPQZj/OJtoAfxF2UYPKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toFNDZIW4g5ZeBWmPtb5zrq9lmv7sXTCzgKgWpnSq4u6TTq3Bg0T/o+mKmRy42I/q
-         SGoZaB/enmvUvQb5iBoclDVeCsVX7llQupM9UMFGmVVA4au6QUDJvDcCr2hTABs3dy
-         +BSbeDjZkxKWt0Xch48WmYuB7hzOZBNu+D2gs1QI=
+        b=ZKJHnrHvpa9Jolc5C2OSuKeZ7meXodoCEo7sw/+t+IdE8V8OG4KHmShLQFRHmagjt
+         fS95gbCS3DovN2ragJYfevFoWEOFbH2vEH81sQzOic9k/xzS3Mbd2N9hxTX6FyJiVD
+         LMgCTO+spfuOzXDMl69A42U6hEaD5jZTRVDdQSK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Ziyang Xuan <william.xuanziyang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/171] init/main.c: return 1 from handled __setup() functions
+Subject: [PATCH 5.15 158/277] net/tls: fix slab-out-of-bounds bug in decrypt_internal
 Date:   Tue, 12 Apr 2022 08:29:21 +0200
-Message-Id: <20220412062929.909764367@linuxfoundation.org>
+Message-Id: <20220412062946.611575422@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,55 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Ziyang Xuan <william.xuanziyang@huawei.com>
 
-[ Upstream commit f9a40b0890658330c83c95511f9d6b396610defc ]
+[ Upstream commit 9381fe8c849cfbe50245ac01fc077554f6eaa0e2 ]
 
-initcall_blacklist() should return 1 to indicate that it handled its
-cmdline arguments.
+The memory size of tls_ctx->rx.iv for AES128-CCM is 12 setting in
+tls_set_sw_offload(). The return value of crypto_aead_ivsize()
+for "ccm(aes)" is 16. So memcpy() require 16 bytes from 12 bytes
+memory space will trigger slab-out-of-bounds bug as following:
 
-set_debug_rodata() should return 1 to indicate that it handled its
-cmdline arguments.  Print a warning if the option string is invalid.
+==================================================================
+BUG: KASAN: slab-out-of-bounds in decrypt_internal+0x385/0xc40 [tls]
+Read of size 16 at addr ffff888114e84e60 by task tls/10911
 
-This prevents these strings from being added to the 'init' program's
-environment as they are not init arguments/parameters.
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x34/0x44
+ print_report.cold+0x5e/0x5db
+ ? decrypt_internal+0x385/0xc40 [tls]
+ kasan_report+0xab/0x120
+ ? decrypt_internal+0x385/0xc40 [tls]
+ kasan_check_range+0xf9/0x1e0
+ memcpy+0x20/0x60
+ decrypt_internal+0x385/0xc40 [tls]
+ ? tls_get_rec+0x2e0/0x2e0 [tls]
+ ? process_rx_list+0x1a5/0x420 [tls]
+ ? tls_setup_from_iter.constprop.0+0x2e0/0x2e0 [tls]
+ decrypt_skb_update+0x9d/0x400 [tls]
+ tls_sw_recvmsg+0x3c8/0xb50 [tls]
 
-Link: https://lkml.kernel.org/r/20220221050901.23985-1-rdunlap@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Allocated by task 10911:
+ kasan_save_stack+0x1e/0x40
+ __kasan_kmalloc+0x81/0xa0
+ tls_set_sw_offload+0x2eb/0xa20 [tls]
+ tls_setsockopt+0x68c/0x700 [tls]
+ __sys_setsockopt+0xfe/0x1b0
+
+Replace the crypto_aead_ivsize() with prot->iv_size + prot->salt_size
+when memcpy() iv value in TLS_1_3_VERSION scenario.
+
+Fixes: f295b3ae9f59 ("net/tls: Add support of AES128-CCM based ciphers")
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/tls/tls_sw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/init/main.c b/init/main.c
-index 4fe58ed4aca7..3526eaec7508 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1104,7 +1104,7 @@ static int __init initcall_blacklist(char *str)
- 		}
- 	} while (str_entry);
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index bd96ec26f4f9..794ef3b3d7d4 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1483,7 +1483,7 @@ static int decrypt_internal(struct sock *sk, struct sk_buff *skb,
+ 	if (prot->version == TLS_1_3_VERSION ||
+ 	    prot->cipher_type == TLS_CIPHER_CHACHA20_POLY1305)
+ 		memcpy(iv + iv_offset, tls_ctx->rx.iv,
+-		       crypto_aead_ivsize(ctx->aead_recv));
++		       prot->iv_size + prot->salt_size);
+ 	else
+ 		memcpy(iv + iv_offset, tls_ctx->rx.iv, prot->salt_size);
  
--	return 0;
-+	return 1;
- }
- 
- static bool __init_or_module initcall_blacklisted(initcall_t fn)
-@@ -1367,7 +1367,9 @@ static noinline void __init kernel_init_freeable(void);
- bool rodata_enabled __ro_after_init = true;
- static int __init set_debug_rodata(char *str)
- {
--	return strtobool(str, &rodata_enabled);
-+	if (strtobool(str, &rodata_enabled))
-+		pr_warn("Invalid option string for rodata: '%s'\n", str);
-+	return 1;
- }
- __setup("rodata=", set_debug_rodata);
- #endif
 -- 
 2.35.1
 
