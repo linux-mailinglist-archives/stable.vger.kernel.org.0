@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3574FCFDB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 644CA4FD1A2
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350648AbiDLGiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:38:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52712 "EHLO
+        id S1350997AbiDLG7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:59:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349222AbiDLGga (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:36:30 -0400
+        with ESMTP id S1352569AbiDLG4C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:56:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77AEE36173;
-        Mon, 11 Apr 2022 23:33:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF4E2459E;
+        Mon, 11 Apr 2022 23:46:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0F62B81B41;
-        Tue, 12 Apr 2022 06:33:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 595E9C385A6;
-        Tue, 12 Apr 2022 06:33:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F32CDB81B35;
+        Tue, 12 Apr 2022 06:46:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B66DC385A1;
+        Tue, 12 Apr 2022 06:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745227;
-        bh=Y57laqo09HMB6kgB7bj0/c0TOESGTg7lIYYGBdaRjlY=;
+        s=korg; t=1649745961;
+        bh=4TWGRJv8HlUR+1x0f+DXKIMrlw7QUer9TgpIaFSYZkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myyILqVt/rIvtwdVKJhKjl60xbIKNvYYnJY5TlHaNs4QWrhzE04S9s3ou/+c5Sadb
-         q1wv7wePlap9ees0e1+eGAxI7wkcIjGTCC2J7oKxKTIaN/3mMwyngdiegwNJ/4zTbv
-         JqYAPwV0O5kIGMdOSmWV+3tIEeaUI1QUtVIgsByc=
+        b=Hp+0OzTtWRPhOfku0cEfTNsvKGI3R+iKUC9H+xo0AMc/K5KhHR8TUjcZ42+afik76
+         XOhFhsD8hoCEBi/7Ii4JrW255jXJPCTRpOXGw8gpomempqhmor+waGWcuGWwvkUS0N
+         iZk744zC5+SqMdl6rh+YLMGJ0XxuhxyQYdL3FLoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/171] cfg80211: dont add non transmitted BSS to 6GHz scanned channels
+Subject: [PATCH 5.15 111/277] staging: vchiq_arm: Avoid NULL ptr deref in vchiq_dump_platform_instances
 Date:   Tue, 12 Apr 2022 08:28:34 +0200
-Message-Id: <20220412062928.555843881@linuxfoundation.org>
+Message-Id: <20220412062945.252364034@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 5666ee154f4696c011dfa8544aaf5591b6b87515 ]
+[ Upstream commit aa899e686d442c63d50f4d369cc02dbbf0941cb0 ]
 
-When adding 6GHz channels to scan request based on reported
-co-located APs, don't add channels that have only APs with
-"non-transmitted" BSSes if they only match the wildcard SSID since
-they will be found by probing the "transmitted" BSS.
+vchiq_get_state() can return a NULL pointer. So handle this cases and
+avoid a NULL pointer derefence in vchiq_dump_platform_instances.
 
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220202104617.f6ddf099f934.I231e55885d3644f292d00dfe0f42653269f2559e@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/1642968143-19281-17-git-send-email-stefan.wahren@i2se.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/scan.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/wireless/scan.c b/net/wireless/scan.c
-index fd614a5a00b4..c1b2655682a8 100644
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -702,8 +702,12 @@ static bool cfg80211_find_ssid_match(struct cfg80211_colocated_ap *ap,
+diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+index ea9a53bdb417..099359fc0115 100644
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+@@ -1189,6 +1189,9 @@ int vchiq_dump_platform_instances(void *dump_context)
+ 	int len;
+ 	int i;
  
- 	for (i = 0; i < request->n_ssids; i++) {
- 		/* wildcard ssid in the scan request */
--		if (!request->ssids[i].ssid_len)
-+		if (!request->ssids[i].ssid_len) {
-+			if (ap->multi_bss && !ap->transmitted_bssid)
-+				continue;
++	if (!state)
++		return -ENOTCONN;
 +
- 			return true;
-+		}
- 
- 		if (ap->ssid_len &&
- 		    ap->ssid_len == request->ssids[i].ssid_len) {
-@@ -830,6 +834,9 @@ static int cfg80211_scan_6ghz(struct cfg80211_registered_device *rdev)
- 		    !cfg80211_find_ssid_match(ap, request))
- 			continue;
- 
-+		if (!request->n_ssids && ap->multi_bss && !ap->transmitted_bssid)
-+			continue;
-+
- 		cfg80211_scan_req_add_chan(request, chan, true);
- 		memcpy(scan_6ghz_params->bssid, ap->bssid, ETH_ALEN);
- 		scan_6ghz_params->short_ssid = ap->short_ssid;
+ 	/*
+ 	 * There is no list of instances, so instead scan all services,
+ 	 * marking those that have been dumped.
 -- 
 2.35.1
 
