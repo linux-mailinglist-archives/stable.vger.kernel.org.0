@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FDED4FDB31
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BB04FD585
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353237AbiDLIDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:03:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45794 "EHLO
+        id S1351991AbiDLHXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357024AbiDLHjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:42 -0400
+        with ESMTP id S1353042AbiDLHOq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C2B2532C2;
-        Tue, 12 Apr 2022 00:10:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3995326F8;
+        Mon, 11 Apr 2022 23:55:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26196B81A8F;
-        Tue, 12 Apr 2022 07:10:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F876C385A5;
-        Tue, 12 Apr 2022 07:10:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4AFABB81B47;
+        Tue, 12 Apr 2022 06:55:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9374CC385A1;
+        Tue, 12 Apr 2022 06:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747451;
-        bh=6x8yKFGa5U5mRxTV0zTicniMpUeHjVzDeMdNkP+EaOU=;
+        s=korg; t=1649746549;
+        bh=G5HzDmpTK5B5BsDc7TocjU19nK3HJljZop0AW9Jw7UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RVfwNrioM9CGtgBjd5b5SXATmKSh4pVd7W1VH+JUZGf9T5l+sKtUC13D9hzd25WcQ
-         vHfnxgncKWjm/5Ymx4B4khcxAdLgG0j86Zzq7jpSWC7++VwxcZZ/VPrBxYi5O0aWgo
-         nZRqgyenqddK7ISQvMkZ4sWeNlpS08nQk8hlFEmY=
+        b=v+HGPJO8K4AgeZcMBpMP9TFR4udCr84Q3F1rmfcYeLMRdkdgJ+A1GSgmEXxwxOONg
+         MRXzm3N7mRF5suwpHNH/2PEEcuGaC9lBUzN5ECm0trvfPxereLLrOlpOUcBowLsV0B
+         unljpOO9gXzoWR5fLSGycVON0KPtJf2g5ydAzXvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 084/343] HID: apple: Report Magic Keyboard 2021 battery over USB
-Date:   Tue, 12 Apr 2022 08:28:22 +0200
-Message-Id: <20220412062953.524501912@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 046/285] PCI: aardvark: Fix support for MSI interrupts
+Date:   Tue, 12 Apr 2022 08:28:23 +0200
+Message-Id: <20220412062945.004536344@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 8ae5c16c9d421d43f32f66d2308031f1bd3f9336 ]
+[ Upstream commit b0b0b8b897f8e12b2368e868bd7cdc5742d5c5a9 ]
 
-Like the Apple Magic Keyboard 2015, when connected over USB, the 2021
-version registers 2 different interfaces. One of them is used to report
-the battery level.
+Aardvark hardware supports Multi-MSI and MSI_FLAG_MULTI_PCI_MSI is already
+set for the MSI chip. But when allocating MSI interrupt numbers for
+Multi-MSI, the numbers need to be properly aligned, otherwise endpoint
+devices send MSI interrupt with incorrect numbers.
 
-However, unlike when connected over Bluetooth, the battery level is not
-reported automatically and it is required to fetch it manually.
+Fix this issue by using function bitmap_find_free_region() instead of
+bitmap_find_next_zero_area().
 
-Add the APPLE_RDESC_BATTERY quirk to fix the battery report descriptor
-and manually fetch the battery level.
+To ensure that aligned MSI interrupt numbers are used by endpoint devices,
+we cannot use Linux virtual irq numbers (as they are random and not
+properly aligned). Instead we need to use the aligned hwirq numbers.
 
-Tested with the ANSI, ISO and JIS variants of the keyboard.
+This change fixes receiving MSI interrupts on Armada 3720 boards and
+allows using NVMe disks which use Multi-MSI feature with 3 interrupts.
 
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Without this NVMe disks freeze booting as linux nvme-core.c is waiting
+60s for an interrupt.
+
+Link: https://lore.kernel.org/r/20220110015018.26359-4-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 7dc89dc6b0f0..18de4ccb0fb2 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -748,7 +748,7 @@ static const struct hid_device_id apple_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021),
--		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index a924564fdbbc..6277b3f3031a 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -1179,7 +1179,7 @@ static void advk_msi_irq_compose_msi_msg(struct irq_data *data,
+ 
+ 	msg->address_lo = lower_32_bits(msi_msg);
+ 	msg->address_hi = upper_32_bits(msi_msg);
+-	msg->data = data->irq;
++	msg->data = data->hwirq;
+ }
+ 
+ static int advk_msi_set_affinity(struct irq_data *irq_data,
+@@ -1196,15 +1196,11 @@ static int advk_msi_irq_domain_alloc(struct irq_domain *domain,
+ 	int hwirq, i;
+ 
+ 	mutex_lock(&pcie->msi_used_lock);
+-	hwirq = bitmap_find_next_zero_area(pcie->msi_used, MSI_IRQ_NUM,
+-					   0, nr_irqs, 0);
+-	if (hwirq >= MSI_IRQ_NUM) {
+-		mutex_unlock(&pcie->msi_used_lock);
+-		return -ENOSPC;
+-	}
+-
+-	bitmap_set(pcie->msi_used, hwirq, nr_irqs);
++	hwirq = bitmap_find_free_region(pcie->msi_used, MSI_IRQ_NUM,
++					order_base_2(nr_irqs));
+ 	mutex_unlock(&pcie->msi_used_lock);
++	if (hwirq < 0)
++		return -ENOSPC;
+ 
+ 	for (i = 0; i < nr_irqs; i++)
+ 		irq_domain_set_info(domain, virq + i, hwirq + i,
+@@ -1222,7 +1218,7 @@ static void advk_msi_irq_domain_free(struct irq_domain *domain,
+ 	struct advk_pcie *pcie = domain->host_data;
+ 
+ 	mutex_lock(&pcie->msi_used_lock);
+-	bitmap_clear(pcie->msi_used, d->hwirq, nr_irqs);
++	bitmap_release_region(pcie->msi_used, d->hwirq, order_base_2(nr_irqs));
+ 	mutex_unlock(&pcie->msi_used_lock);
+ }
+ 
 -- 
 2.35.1
 
