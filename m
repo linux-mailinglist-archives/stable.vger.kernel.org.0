@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E08E64FD057
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFD914FD230
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350586AbiDLGqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40048 "EHLO
+        id S230504AbiDLHIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:08:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351517AbiDLGo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D075E3B016;
-        Mon, 11 Apr 2022 23:38:29 -0700 (PDT)
+        with ESMTP id S1352780AbiDLHF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445A827B22;
+        Mon, 11 Apr 2022 23:48:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 648DD61890;
-        Tue, 12 Apr 2022 06:38:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 710DDC385AA;
-        Tue, 12 Apr 2022 06:38:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C42B660A21;
+        Tue, 12 Apr 2022 06:48:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D10A6C385A6;
+        Tue, 12 Apr 2022 06:48:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745508;
-        bh=dS4Ec1ETEUy0L3oe3+/4Q2mGmFJR4XF03TO6xAu2qz0=;
+        s=korg; t=1649746124;
+        bh=QglxR7xqTgao+Mu3n8Nk9NbuD0NuJMjSZJ6+4whERrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTiNRc37DLdsN8eLaSs78h0avpvhrNT/C7M8pI9QlOYqtNYQV97KH4/a8773UIqau
-         PC6e4tKIFKIXSvPjb8FdeDDbBzhg64VYyGJFuTZADP9iWUtcqVrEF9NDz8cs4Lvrp+
-         zeHuLtOcv3FUPCQK3W0goCJRFVVVU+CY1sJSvv8A=
+        b=souES1R19WgJdTr+PgpTcMhSnUZsmoM8S+U59rkQFuy6bCGVKyk32yX0f13MH8bmq
+         XV6RjIgQ2UqtxgSX+BCD8ByhorrxTsQL1OcQrkIwD69YI0QGBDpt9Kgd0gj7wf/LSs
+         86JQiRbMGDTECSTCTRuKU61LGKRJPoK0zoj/6zOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
-        Dongli Zhang <dongli.zhang@oracle.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 079/171] xen: delay xen_hvm_init_time_ops() if kdump is boot on vcpu>=32
-Date:   Tue, 12 Apr 2022 08:29:30 +0200
-Message-Id: <20220412062930.171908307@linuxfoundation.org>
+Subject: [PATCH 5.15 168/277] regulator: rtq2134: Fix missing active_discharge_on setting
+Date:   Tue, 12 Apr 2022 08:29:31 +0200
+Message-Id: <20220412062946.899149569@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,122 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit eed05744322da07dd7e419432dcedf3c2e017179 ]
+[ Upstream commit 17049bf9de55a42ee96fd34520aff8a484677675 ]
 
-The sched_clock() can be used very early since commit 857baa87b642
-("sched/clock: Enable sched clock early"). In addition, with commit
-38669ba205d1 ("x86/xen/time: Output xen sched_clock time from 0"), kdump
-kernel in Xen HVM guest may panic at very early stage when accessing
-&__this_cpu_read(xen_vcpu)->time as in below:
+The active_discharge_on setting was missed, so output discharge resistor
+is always disabled. Fix it.
 
-setup_arch()
- -> init_hypervisor_platform()
-     -> x86_init.hyper.init_platform = xen_hvm_guest_init()
-         -> xen_hvm_init_time_ops()
-             -> xen_clocksource_read()
-                 -> src = &__this_cpu_read(xen_vcpu)->time;
-
-This is because Xen HVM supports at most MAX_VIRT_CPUS=32 'vcpu_info'
-embedded inside 'shared_info' during early stage until xen_vcpu_setup() is
-used to allocate/relocate 'vcpu_info' for boot cpu at arbitrary address.
-
-However, when Xen HVM guest panic on vcpu >= 32, since
-xen_vcpu_info_reset(0) would set per_cpu(xen_vcpu, cpu) = NULL when
-vcpu >= 32, xen_clocksource_read() on vcpu >= 32 would panic.
-
-This patch calls xen_hvm_init_time_ops() again later in
-xen_hvm_smp_prepare_boot_cpu() after the 'vcpu_info' for boot vcpu is
-registered when the boot vcpu is >= 32.
-
-This issue can be reproduced on purpose via below command at the guest
-side when kdump/kexec is enabled:
-
-"taskset -c 33 echo c > /proc/sysrq-trigger"
-
-The bugfix for PVM is not implemented due to the lack of testing
-environment.
-
-[boris: xen_hvm_init_time_ops() returns on errors instead of jumping to end]
-
-Cc: Joe Jin <joe.jin@oracle.com>
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20220302164032.14569-3-dongli.zhang@oracle.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 0555d41497de ("regulator: rtq2134: Add support for Richtek RTQ2134 SubPMIC")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20220404022514.449231-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/smp_hvm.c |  6 ++++++
- arch/x86/xen/time.c    | 24 +++++++++++++++++++++++-
- 2 files changed, 29 insertions(+), 1 deletion(-)
+ drivers/regulator/rtq2134-regulator.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/xen/smp_hvm.c b/arch/x86/xen/smp_hvm.c
-index 6ff3c887e0b9..b70afdff419c 100644
---- a/arch/x86/xen/smp_hvm.c
-+++ b/arch/x86/xen/smp_hvm.c
-@@ -19,6 +19,12 @@ static void __init xen_hvm_smp_prepare_boot_cpu(void)
- 	 */
- 	xen_vcpu_setup(0);
- 
-+	/*
-+	 * Called again in case the kernel boots on vcpu >= MAX_VIRT_CPUS.
-+	 * Refer to comments in xen_hvm_init_time_ops().
-+	 */
-+	xen_hvm_init_time_ops();
-+
- 	/*
- 	 * The alternative logic (which patches the unlock/lock) runs before
- 	 * the smp bootup up code is activated. Hence we need to set this up
-diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
-index 91f5b330dcc6..8183d17e1cf1 100644
---- a/arch/x86/xen/time.c
-+++ b/arch/x86/xen/time.c
-@@ -556,6 +556,11 @@ static void xen_hvm_setup_cpu_clockevents(void)
- 
- void __init xen_hvm_init_time_ops(void)
- {
-+	static bool hvm_time_initialized;
-+
-+	if (hvm_time_initialized)
-+		return;
-+
- 	/*
- 	 * vector callback is needed otherwise we cannot receive interrupts
- 	 * on cpu > 0 and at this point we don't know how many cpus are
-@@ -565,7 +570,22 @@ void __init xen_hvm_init_time_ops(void)
- 		return;
- 
- 	if (!xen_feature(XENFEAT_hvm_safe_pvclock)) {
--		pr_info("Xen doesn't support pvclock on HVM, disable pv timer");
-+		pr_info_once("Xen doesn't support pvclock on HVM, disable pv timer");
-+		return;
-+	}
-+
-+	/*
-+	 * Only MAX_VIRT_CPUS 'vcpu_info' are embedded inside 'shared_info'.
-+	 * The __this_cpu_read(xen_vcpu) is still NULL when Xen HVM guest
-+	 * boots on vcpu >= MAX_VIRT_CPUS (e.g., kexec), To access
-+	 * __this_cpu_read(xen_vcpu) via xen_clocksource_read() will panic.
-+	 *
-+	 * The xen_hvm_init_time_ops() should be called again later after
-+	 * __this_cpu_read(xen_vcpu) is available.
-+	 */
-+	if (!__this_cpu_read(xen_vcpu)) {
-+		pr_info("Delay xen_init_time_common() as kernel is running on vcpu=%d\n",
-+			xen_vcpu_nr(0));
- 		return;
- 	}
- 
-@@ -577,6 +597,8 @@ void __init xen_hvm_init_time_ops(void)
- 	x86_platform.calibrate_tsc = xen_tsc_khz;
- 	x86_platform.get_wallclock = xen_get_wallclock;
- 	x86_platform.set_wallclock = xen_set_wallclock;
-+
-+	hvm_time_initialized = true;
- }
- #endif
- 
+diff --git a/drivers/regulator/rtq2134-regulator.c b/drivers/regulator/rtq2134-regulator.c
+index f21e3f8b21f2..8e13dea354a2 100644
+--- a/drivers/regulator/rtq2134-regulator.c
++++ b/drivers/regulator/rtq2134-regulator.c
+@@ -285,6 +285,7 @@ static const unsigned int rtq2134_buck_ramp_delay_table[] = {
+ 		.enable_mask = RTQ2134_VOUTEN_MASK, \
+ 		.active_discharge_reg = RTQ2134_REG_BUCK##_id##_CFG0, \
+ 		.active_discharge_mask = RTQ2134_ACTDISCHG_MASK, \
++		.active_discharge_on = RTQ2134_ACTDISCHG_MASK, \
+ 		.ramp_reg = RTQ2134_REG_BUCK##_id##_RSPCFG, \
+ 		.ramp_mask = RTQ2134_RSPUP_MASK, \
+ 		.ramp_delay_table = rtq2134_buck_ramp_delay_table, \
 -- 
 2.35.1
 
