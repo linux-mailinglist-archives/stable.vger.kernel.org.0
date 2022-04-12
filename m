@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E59A4FD896
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C1E4FD8B3
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354573AbiDLHsz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44852 "EHLO
+        id S1354337AbiDLHim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:38:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357613AbiDLHkc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDF6C31DC2;
-        Tue, 12 Apr 2022 00:16:13 -0700 (PDT)
+        with ESMTP id S1353521AbiDLHZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C482434BB;
+        Tue, 12 Apr 2022 00:01:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 299C46176E;
-        Tue, 12 Apr 2022 07:16:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A65EC385A1;
-        Tue, 12 Apr 2022 07:16:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CDFA615BB;
+        Tue, 12 Apr 2022 07:01:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF32FC385A6;
+        Tue, 12 Apr 2022 07:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747772;
-        bh=vSEirDE08DDshdO7veGpX3SMni+/P5RvHskaZiqXZ6o=;
+        s=korg; t=1649746860;
+        bh=Zygt8MRYFsVO8DaTiGJs09gQRp/2MWgpUr27wSNwVnU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJSN30QrFuICAXt+O/AsjFzOvoEhCt/iLyxtsziA+f7juTArQnfAisXza1wBjhJs0
-         NOCOVf1nhAciz9m1j0hZx0BgSzKXPFuv6tJqKIdBTkTZHVP/7y2dLeU7fIaKtsPtk3
-         pTZhdp7nE72YB2dATKK1JJatV0qWaeIfk11c5J4I=
+        b=qzCQaHEDH+AFOt2Fx6Z/bhANomXE9DtBXZ5np4/dGN4waMnon4g5CVezGpjK/66cg
+         +zeN4m3LyKY8pT7CB/NC96ru9lNaQD6+p3zl6I9jr/xL49Pf/ZIHO5wqBw/TtLKqfP
+         w+fZ0eSmQlDA1KtnwkcFHNMRyL9QvNXS1Gslqn10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Lyu Tao <tao.lyu@epfl.ch>,
+        ChenXiaoSong <chenxiaosong2@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 193/343] drm/amdgpu: fix off by one in amdgpu_gfx_kiq_acquire()
+Subject: [PATCH 5.16 154/285] Revert "NFSv4: Handle the special Linux file open access mode"
 Date:   Tue, 12 Apr 2022 08:30:11 +0200
-Message-Id: <20220412062956.928663949@linuxfoundation.org>
+Message-Id: <20220412062948.117828131@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-[ Upstream commit 1647b54ed55d4d48c7199d439f8834626576cbe9 ]
+[ Upstream commit ab0fc21bc7105b54bafd85bd8b82742f9e68898a ]
 
-This post-op should be a pre-op so that we do not pass -1 as the bit
-number to test_bit().  The current code will loop downwards from 63 to
--1.  After changing to a pre-op, it loops from 63 to 0.
+This reverts commit 44942b4e457beda00981f616402a1a791e8c616e.
 
-Fixes: 71c37505e7ea ("drm/amdgpu/gfx: move more common KIQ code to amdgpu_gfx.c")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+After secondly opening a file with O_ACCMODE|O_DIRECT flags,
+nfs4_valid_open_stateid() will dereference NULL nfs4_state when lseek().
+
+Reproducer:
+  1. mount -t nfs -o vers=4.2 $server_ip:/ /mnt/
+  2. fd = open("/mnt/file", O_ACCMODE|O_DIRECT|O_CREAT)
+  3. close(fd)
+  4. fd = open("/mnt/file", O_ACCMODE|O_DIRECT)
+  5. lseek(fd)
+
+Reported-by: Lyu Tao <tao.lyu@epfl.ch>
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/inode.c    | 1 -
+ fs/nfs/nfs4file.c | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
-index 1916ec84dd71..e7845df6cad2 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
-@@ -266,7 +266,7 @@ static int amdgpu_gfx_kiq_acquire(struct amdgpu_device *adev,
- 		    * adev->gfx.mec.num_pipe_per_mec
- 		    * adev->gfx.mec.num_queue_per_pipe;
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index a09d3ff627c2..4da8a4a7bad7 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -1180,7 +1180,6 @@ int nfs_open(struct inode *inode, struct file *filp)
+ 	nfs_fscache_open_file(inode, filp);
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(nfs_open);
  
--	while (queue_bit-- >= 0) {
-+	while (--queue_bit >= 0) {
- 		if (test_bit(queue_bit, adev->gfx.mec.queue_bitmap))
- 			continue;
+ /*
+  * This function is called whenever some part of NFS notices that
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index e79ae4cbc395..c178db86a6e8 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -51,7 +51,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+ 		return err;
  
+ 	if ((openflags & O_ACCMODE) == 3)
+-		return nfs_open(inode, filp);
++		openflags--;
+ 
+ 	/* We can't create new files here */
+ 	openflags &= ~(O_CREAT|O_EXCL);
 -- 
 2.35.1
 
