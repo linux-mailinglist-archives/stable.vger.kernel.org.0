@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C30C4FD9B2
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:44:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97DF04FD932
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377307AbiDLHtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45810 "EHLO
+        id S1344162AbiDLHcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:32:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358637AbiDLHmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:01 -0400
+        with ESMTP id S1353677AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F04F53704;
-        Tue, 12 Apr 2022 00:18:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA0E426AE3;
+        Tue, 12 Apr 2022 00:03:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1A2CB81B66;
-        Tue, 12 Apr 2022 07:18:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41D6AC385A1;
-        Tue, 12 Apr 2022 07:18:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A69B3B81A8F;
+        Tue, 12 Apr 2022 07:03:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1467C385A8;
+        Tue, 12 Apr 2022 07:03:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747910;
-        bh=osjarx+aiGxIzXmnAxBf/CsL3YFC+xZ9Y+B6Ql7gG4o=;
+        s=korg; t=1649747011;
+        bh=8Vq4tCwQN/t2nUnt+x188nmWSw9x8VrD9CrYBjvJx5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sM5F4KhbWPC3JycjozRgsEYjo9Ylh3GvRTGgJH6Xsqqdb0Q0spHw8tQ60sl+uF+Z1
-         ZHMV3f3RiNn3a3NXTGU7bI7Ke0+PM58U1bYnPJuWlpQdsIVw1kBJ0tbFHkdC+FStW+
-         QaqcJhcfbWDaupcppEIWbPDA4S1lwO7FpMWFJD9g=
+        b=bp1c0jLIUa6rgN5o9G9o1t/TZArjHwnXFKIR2U7rk021JCxqkbmH7opiaoKTKU9AU
+         pP2AncTyn262LTr3s9/lXqiAZNpfQvViMMGGQYb4OA3quBH4YPIeFhcDV7LSpkuw0+
+         chmKewEl8zbV6Eo84J25SG+hNtSlSNloS+ptOlZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 251/343] scsi: sd: sd_read_cpr() requires VPD pages
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Chanho Park <chanho61.park@samsung.com>
+Subject: [PATCH 5.16 212/285] arm64: Add part number for Arm Cortex-A78AE
 Date:   Tue, 12 Apr 2022 08:31:09 +0200
-Message-Id: <20220412062958.571302292@linuxfoundation.org>
+Message-Id: <20220412062949.777086289@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,47 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin K. Petersen <martin.petersen@oracle.com>
+From: Chanho Park <chanho61.park@samsung.com>
 
-[ Upstream commit 1700714b1ff252b634db21186db4d91e7e006043 ]
+commit 83bea32ac7ed37bbda58733de61fc9369513f9f9 upstream.
 
-As such it should be called inside the scsi_device_supports_vpd()
-conditional.
+Add the MIDR part number info for the Arm Cortex-A78AE[1] and add it to
+spectre-BHB affected list[2].
 
-Link: https://lore.kernel.org/r/20220302053559.32147-13-martin.petersen@oracle.com
-Fixes: e815d36548f0 ("scsi: sd: add concurrent positioning ranges support")
-Cc: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1]: https://developer.arm.com/Processors/Cortex-A78AE
+[2]: https://developer.arm.com/Arm%20Security%20Center/Spectre-BHB
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20220407091128.8700-1-chanho61.park@samsung.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/sd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/cputype.h |    2 ++
+ arch/arm64/kernel/proton-pack.c  |    1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 66056806159a..8b5d2a4076c2 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -3320,6 +3320,7 @@ static int sd_revalidate_disk(struct gendisk *disk)
- 			sd_read_block_limits(sdkp);
- 			sd_read_block_characteristics(sdkp);
- 			sd_zbc_read_zones(sdkp, buffer);
-+			sd_read_cpr(sdkp);
- 		}
- 
- 		sd_print_capacity(sdkp, old_capacity);
-@@ -3329,7 +3330,6 @@ static int sd_revalidate_disk(struct gendisk *disk)
- 		sd_read_app_tag_own(sdkp, buffer);
- 		sd_read_write_same(sdkp, buffer);
- 		sd_read_security(sdkp, buffer);
--		sd_read_cpr(sdkp);
- 	}
- 
- 	/*
--- 
-2.35.1
-
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -75,6 +75,7 @@
+ #define ARM_CPU_PART_CORTEX_A77		0xD0D
+ #define ARM_CPU_PART_NEOVERSE_V1	0xD40
+ #define ARM_CPU_PART_CORTEX_A78		0xD41
++#define ARM_CPU_PART_CORTEX_A78AE	0xD42
+ #define ARM_CPU_PART_CORTEX_X1		0xD44
+ #define ARM_CPU_PART_CORTEX_A510	0xD46
+ #define ARM_CPU_PART_CORTEX_A710	0xD47
+@@ -123,6 +124,7 @@
+ #define MIDR_CORTEX_A77	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A77)
+ #define MIDR_NEOVERSE_V1	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_V1)
+ #define MIDR_CORTEX_A78	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A78)
++#define MIDR_CORTEX_A78AE	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A78AE)
+ #define MIDR_CORTEX_X1	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_X1)
+ #define MIDR_CORTEX_A510 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A510)
+ #define MIDR_CORTEX_A710 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A710)
+--- a/arch/arm64/kernel/proton-pack.c
++++ b/arch/arm64/kernel/proton-pack.c
+@@ -853,6 +853,7 @@ u8 spectre_bhb_loop_affected(int scope)
+ 	if (scope == SCOPE_LOCAL_CPU) {
+ 		static const struct midr_range spectre_bhb_k32_list[] = {
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78),
++			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78AE),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78C),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_X1),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A710),
 
 
