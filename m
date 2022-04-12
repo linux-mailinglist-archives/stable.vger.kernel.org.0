@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1424FD3AA
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D7544FD42A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243253AbiDLHhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
+        id S1353820AbiDLHhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:37:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353694AbiDLHZw (ORCPT
+        with ESMTP id S1353715AbiDLHZw (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B36C427B3B;
-        Tue, 12 Apr 2022 00:03:48 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897B4E80;
+        Tue, 12 Apr 2022 00:04:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D6BF60B2B;
-        Tue, 12 Apr 2022 07:03:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57815C385A1;
-        Tue, 12 Apr 2022 07:03:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29CEE60B65;
+        Tue, 12 Apr 2022 07:04:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3038AC385A1;
+        Tue, 12 Apr 2022 07:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747027;
-        bh=6iOz0h+rSag54oCMMWfVDb4JSipqbiqWgKKLZ5sy698=;
+        s=korg; t=1649747044;
+        bh=fvIHxnnFvwmIhSD9YWqBPMFEOBPHcD8Axfxa+wT9Qgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fo2rGmEelyqGtkao5laJLy35HaZRbKHe7JpeKyL6b1lhNh5K5nrivhG2M3f8ZpBPn
-         nJamLr0YxNd4yeNPItam5+slZykRuwCmLqpm23Xzx1s8KpnI2T162KtfgiwqXDRGCF
-         7uaTU95JnrTLLSggAPNiOB0c/8kJId4dVVxS7FgU=
+        b=xZQz4gWGOexgtYZsqsuye/c2nrnOBPdV6MUYkeztifpju9f1R/imNRghv1rCgqfBA
+         r9IRpphGi2i6ShHHBcrJyx7UXFeOsik2qBQoFHjoUBLpxQTeBciZ147u89DUlCdLxF
+         F5T+ED+/OmHZPD5qysM2phU2ryM4v20sme0uaV6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.16 218/285] mmc: renesas_sdhi: dont overwrite TAP settings when HS400 tuning is complete
-Date:   Tue, 12 Apr 2022 08:31:15 +0200
-Message-Id: <20220412062949.949915916@linuxfoundation.org>
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Michal Hocko <mhocko@suse.com>,
+        KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.16 223/285] mm/mempolicy: fix mpol_new leak in shared_policy_replace
+Date:   Tue, 12 Apr 2022 08:31:20 +0200
+Message-Id: <20220412062950.093125745@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -55,41 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-commit 03e59b1e2f56245163b14c69e0a830c24b1a3a47 upstream.
+commit 4ad099559b00ac01c3726e5c95dc3108ef47d03e upstream.
 
-When HS400 tuning is complete and HS400 is going to be activated, we
-have to keep the current number of TAPs and should not overwrite them
-with a hardcoded value. This was probably a copy&paste mistake when
-upporting HS400 support from the BSP.
+If mpol_new is allocated but not used in restart loop, mpol_new will be
+freed via mpol_put before returning to the caller.  But refcnt is not
+initialized yet, so mpol_put could not do the right things and might
+leak the unused mpol_new.  This would happen if mempolicy was updated on
+the shared shmem file while the sp->lock has been dropped during the
+memory allocation.
 
-Fixes: 26eb2607fa28 ("mmc: renesas_sdhi: add eMMC HS400 mode support")
-Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220404114902.12175-1-wsa+renesas@sang-engineering.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+This issue could be triggered easily with the below code snippet if
+there are many processes doing the below work at the same time:
+
+  shmid = shmget((key_t)5566, 1024 * PAGE_SIZE, 0666|IPC_CREAT);
+  shm = shmat(shmid, 0, 0);
+  loop many times {
+    mbind(shm, 1024 * PAGE_SIZE, MPOL_LOCAL, mask, maxnode, 0);
+    mbind(shm + 128 * PAGE_SIZE, 128 * PAGE_SIZE, MPOL_DEFAULT, mask,
+          maxnode, 0);
+  }
+
+Link: https://lkml.kernel.org/r/20220329111416.27954-1-linmiaohe@huawei.com
+Fixes: 42288fe366c4 ("mm: mempolicy: Convert shared_policy mutex to spinlock")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: <stable@vger.kernel.org>	[3.8]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/renesas_sdhi_core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/mempolicy.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -382,10 +382,10 @@ static void renesas_sdhi_hs400_complete(
- 			SH_MOBILE_SDHI_SCC_TMPPORT2_HS400OSEL) |
- 			sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_TMPPORT2));
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2653,6 +2653,7 @@ alloc_new:
+ 	mpol_new = kmem_cache_alloc(policy_cache, GFP_KERNEL);
+ 	if (!mpol_new)
+ 		goto err_out;
++	atomic_set(&mpol_new->refcnt, 1);
+ 	goto restart;
+ }
  
--	/* Set the sampling clock selection range of HS400 mode */
- 	sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_DTCNTL,
- 		       SH_MOBILE_SDHI_SCC_DTCNTL_TAPEN |
--		       0x4 << SH_MOBILE_SDHI_SCC_DTCNTL_TAPNUM_SHIFT);
-+		       sd_scc_read32(host, priv,
-+				     SH_MOBILE_SDHI_SCC_DTCNTL));
- 
- 	/* Avoid bad TAP */
- 	if (bad_taps & BIT(priv->tap_set)) {
 
 
