@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2EF4FD70B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EBF94FD502
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377017AbiDLHrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:47:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45784 "EHLO
+        id S1354568AbiDLHsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:48:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357218AbiDLHjx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:53 -0400
+        with ESMTP id S1357598AbiDLHkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E33015724;
-        Tue, 12 Apr 2022 00:13:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBFF3135D;
+        Tue, 12 Apr 2022 00:16:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2868D61701;
-        Tue, 12 Apr 2022 07:13:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A2CC385A5;
-        Tue, 12 Apr 2022 07:13:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C7F161045;
+        Tue, 12 Apr 2022 07:16:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7508CC385A5;
+        Tue, 12 Apr 2022 07:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747630;
-        bh=dZarbFzJ2SmFz2NpPCeU+jku5aUbzpxIrwl8F+N21Ik=;
+        s=korg; t=1649747769;
+        bh=F+WfjaRIYyl7shRSoxYdmAXqg25fnMoFXFUXEBvboDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDbNBKLqPqgNe2TKsG0Q1p5wi83fAvfFfr5QKlmmOVRgevvYnfr5/9KoFjx3971Hu
-         vpnUPcuAIa91MLvQP5scDVyBH1EFoewz2Z0VkWsKxr2yX1G41eq22ut+H2ELofYL/D
-         z5ymB0UP4F/cp0fvXDI2e1jPrgbwg7uAa3YQ4YeM=
+        b=mMvhLI1GcnMOOBKKnFEymDYfqo+zWaGE/PghvlBpbx4/RNOU1XcsK443XLAPZO1zE
+         spHbS/9ZpF0xFBHEnDdu1ZtqjnAWvrfB+7ZDhqFbpPAewMU3aTQUbXuQgLCqGuDgei
+         s8tHxBi6n++Tji9pMKXBMk8EAPpjnQDL/ywoBUZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <soenke.huster@eknoes.de>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 147/343] MIPS: ingenic: correct unit node address
-Date:   Tue, 12 Apr 2022 08:29:25 +0200
-Message-Id: <20220412062955.624518273@linuxfoundation.org>
+Subject: [PATCH 5.17 148/343] Bluetooth: Fix use after free in hci_send_acl
+Date:   Tue, 12 Apr 2022 08:29:26 +0200
+Message-Id: <20220412062955.652398797@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -56,35 +56,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 8931ddd8d6a55fcefb20f44a38ba42bb746f0b62 ]
+[ Upstream commit f63d24baff787e13b723d86fe036f84bdbc35045 ]
 
-Unit node addresses should not have leading 0x:
+This fixes the following trace caused by receiving
+HCI_EV_DISCONN_PHY_LINK_COMPLETE which does call hci_conn_del without
+first checking if conn->type is in fact AMP_LINK and in case it is
+do properly cleanup upper layers with hci_disconn_cfm:
 
-  Warning (unit_address_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name should not have leading "0x"
+ ==================================================================
+    BUG: KASAN: use-after-free in hci_send_acl+0xaba/0xc50
+    Read of size 8 at addr ffff88800e404818 by task bluetoothd/142
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+    CPU: 0 PID: 142 Comm: bluetoothd Not tainted
+    5.17.0-rc5-00006-gda4022eeac1a #7
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+    rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+    Call Trace:
+     <TASK>
+     dump_stack_lvl+0x45/0x59
+     print_address_description.constprop.0+0x1f/0x150
+     kasan_report.cold+0x7f/0x11b
+     hci_send_acl+0xaba/0xc50
+     l2cap_do_send+0x23f/0x3d0
+     l2cap_chan_send+0xc06/0x2cc0
+     l2cap_sock_sendmsg+0x201/0x2b0
+     sock_sendmsg+0xdc/0x110
+     sock_write_iter+0x20f/0x370
+     do_iter_readv_writev+0x343/0x690
+     do_iter_write+0x132/0x640
+     vfs_writev+0x198/0x570
+     do_writev+0x202/0x280
+     do_syscall_64+0x38/0x90
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
+    RSP: 002b:00007ffce8a099b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000014
+    Code: 0f 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 f3
+    0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 14 00 00 00 0f 05
+    <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
+    RDX: 0000000000000001 RSI: 00007ffce8a099e0 RDI: 0000000000000015
+    RAX: ffffffffffffffda RBX: 00007ffce8a099e0 RCX: 00007f788fc3cf77
+    R10: 00007ffce8af7080 R11: 0000000000000246 R12: 000055e4ccf75580
+    RBP: 0000000000000015 R08: 0000000000000002 R09: 0000000000000001
+    </TASK>
+    R13: 000055e4ccf754a0 R14: 000055e4ccf75cd0 R15: 000055e4ccf4a6b0
+
+    Allocated by task 45:
+        kasan_save_stack+0x1e/0x40
+        __kasan_kmalloc+0x81/0xa0
+        hci_chan_create+0x9a/0x2f0
+        l2cap_conn_add.part.0+0x1a/0xdc0
+        l2cap_connect_cfm+0x236/0x1000
+        le_conn_complete_evt+0x15a7/0x1db0
+        hci_le_conn_complete_evt+0x226/0x2c0
+        hci_le_meta_evt+0x247/0x450
+        hci_event_packet+0x61b/0xe90
+        hci_rx_work+0x4d5/0xc50
+        process_one_work+0x8fb/0x15a0
+        worker_thread+0x576/0x1240
+        kthread+0x29d/0x340
+        ret_from_fork+0x1f/0x30
+
+    Freed by task 45:
+        kasan_save_stack+0x1e/0x40
+        kasan_set_track+0x21/0x30
+        kasan_set_free_info+0x20/0x30
+        __kasan_slab_free+0xfb/0x130
+        kfree+0xac/0x350
+        hci_conn_cleanup+0x101/0x6a0
+        hci_conn_del+0x27e/0x6c0
+        hci_disconn_phylink_complete_evt+0xe0/0x120
+        hci_event_packet+0x812/0xe90
+        hci_rx_work+0x4d5/0xc50
+        process_one_work+0x8fb/0x15a0
+        worker_thread+0x576/0x1240
+        kthread+0x29d/0x340
+        ret_from_fork+0x1f/0x30
+
+    The buggy address belongs to the object at ffff88800c0f0500
+    The buggy address is located 24 bytes inside of
+    which belongs to the cache kmalloc-128 of size 128
+    The buggy address belongs to the page:
+    128-byte region [ffff88800c0f0500, ffff88800c0f0580)
+    flags: 0x100000000000200(slab|node=0|zone=1)
+    page:00000000fe45cd86 refcount:1 mapcount:0
+    mapping:0000000000000000 index:0x0 pfn:0xc0f0
+    raw: 0000000000000000 0000000080100010 00000001ffffffff
+    0000000000000000
+    raw: 0100000000000200 ffffea00003a2c80 dead000000000004
+    ffff8880078418c0
+    page dumped because: kasan: bad access detected
+    ffff88800c0f0400: 00 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc
+    Memory state around the buggy address:
+    >ffff88800c0f0500: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+    ffff88800c0f0480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+    ffff88800c0f0580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                                ^
+    ==================================================================
+    ffff88800c0f0600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+
+Reported-by: Sönke Huster <soenke.huster@eknoes.de>
+Tested-by: Sönke Huster <soenke.huster@eknoes.de>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/dts/ingenic/jz4780.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_event.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/boot/dts/ingenic/jz4780.dtsi b/arch/mips/boot/dts/ingenic/jz4780.dtsi
-index 3f9ea47a10cd..b998301f179c 100644
---- a/arch/mips/boot/dts/ingenic/jz4780.dtsi
-+++ b/arch/mips/boot/dts/ingenic/jz4780.dtsi
-@@ -510,7 +510,7 @@
- 			#address-cells = <1>;
- 			#size-cells = <1>;
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 63b925921c87..d984777c9b58 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5453,8 +5453,9 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev, void *data,
+ 	hci_dev_lock(hdev);
  
--			eth0_addr: eth-mac-addr@0x22 {
-+			eth0_addr: eth-mac-addr@22 {
- 				reg = <0x22 0x6>;
- 			};
- 		};
+ 	hcon = hci_conn_hash_lookup_handle(hdev, ev->phy_handle);
+-	if (hcon) {
++	if (hcon && hcon->type == AMP_LINK) {
+ 		hcon->state = BT_CLOSED;
++		hci_disconn_cfm(hcon, ev->reason);
+ 		hci_conn_del(hcon);
+ 	}
+ 
 -- 
 2.35.1
 
