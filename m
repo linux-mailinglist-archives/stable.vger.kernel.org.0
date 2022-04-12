@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B9F84FDA69
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72F034FDABC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237413AbiDLHsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49156 "EHLO
+        id S1352196AbiDLH2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357293AbiDLHj4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA9F1E3D4;
-        Tue, 12 Apr 2022 00:14:42 -0700 (PDT)
+        with ESMTP id S1354358AbiDLHRh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9BAC26C;
+        Mon, 11 Apr 2022 23:59:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EDB3B81B62;
-        Tue, 12 Apr 2022 07:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0577AC385A1;
-        Tue, 12 Apr 2022 07:14:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 879EEB81B35;
+        Tue, 12 Apr 2022 06:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 017E1C385A1;
+        Tue, 12 Apr 2022 06:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747680;
-        bh=ZqlXdUHFwKSPIS8dpBAWhiyXJFdqK6peU9QQ/0n3vBQ=;
+        s=korg; t=1649746739;
+        bh=WRt7HnKTXNE8SO5Nu5oTjmtD7PiNouryP/oWaHn/zvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iweCU7X67mX5vijQ1xv3ga5c6XANO0ldz1B6DCsal14ipc3uOWzYPOGRZ4M7jThxA
-         d2xYV/zG6QPsLCzX2ytzM4IpHR4R6mwtlA83fiFskGeQdbV1IVLtpy4zafs22J8BzS
-         WK7gWysLD6K400BUQppZFQDEdFiw+1wrPUJWBqlk=
+        b=VpocLXV6chCON2pDJbmQ2cgJ+cwE0kqfyrCXdlI0K234kGXTWWmbn4zfLH4WcvCgv
+         /MihvTWWc1dONT5NXLZlHTdnQABJIuLcjxHIxaT/kJPvs3mvaCjnjpFLh0gv7IkHxu
+         sL7PqFH6L+/RjqCltVt6ShknUT1tiAar3hucGtaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Yufen <wangyufen@huawei.com>,
-        Paul Moore <paul@paul-moore.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Feng Tang <feng.tang@intel.com>, Guo Ren <guoren@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 150/343] netlabel: fix out-of-bounds memory accesses
+Subject: [PATCH 5.16 111/285] lib/Kconfig.debug: add ARCH dependency for FUNCTION_ALIGN option
 Date:   Tue, 12 Apr 2022 08:29:28 +0200
-Message-Id: <20220412062955.708919528@linuxfoundation.org>
+Message-Id: <20220412062946.869153703@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,68 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Feng Tang <feng.tang@intel.com>
 
-[ Upstream commit f22881de730ebd472e15bcc2c0d1d46e36a87b9c ]
+[ Upstream commit 1bf18da62106225dbc47aab41efee2aeb99caccd ]
 
-In calipso_map_cat_ntoh(), in the for loop, if the return value of
-netlbl_bitmap_walk() is equal to (net_clen_bits - 1), when
-netlbl_bitmap_walk() is called next time, out-of-bounds memory accesses
-of bitmap[byte_offset] occurs.
+0Day robots reported there is compiling issue for 'csky' ARCH when
+CONFIG_DEBUG_FORCE_DATA_SECTION_ALIGNED is enabled [1]:
 
-The bug was found during fuzzing. The following is the fuzzing report
- BUG: KASAN: slab-out-of-bounds in netlbl_bitmap_walk+0x3c/0xd0
- Read of size 1 at addr ffffff8107bf6f70 by task err_OH/252
+All errors (new ones prefixed by >>):
 
- CPU: 7 PID: 252 Comm: err_OH Not tainted 5.17.0-rc7+ #17
- Hardware name: linux,dummy-virt (DT)
- Call trace:
-  dump_backtrace+0x21c/0x230
-  show_stack+0x1c/0x60
-  dump_stack_lvl+0x64/0x7c
-  print_address_description.constprop.0+0x70/0x2d0
-  __kasan_report+0x158/0x16c
-  kasan_report+0x74/0x120
-  __asan_load1+0x80/0xa0
-  netlbl_bitmap_walk+0x3c/0xd0
-  calipso_opt_getattr+0x1a8/0x230
-  calipso_sock_getattr+0x218/0x340
-  calipso_sock_getattr+0x44/0x60
-  netlbl_sock_getattr+0x44/0x80
-  selinux_netlbl_socket_setsockopt+0x138/0x170
-  selinux_socket_setsockopt+0x4c/0x60
-  security_socket_setsockopt+0x4c/0x90
-  __sys_setsockopt+0xbc/0x2b0
-  __arm64_sys_setsockopt+0x6c/0x84
-  invoke_syscall+0x64/0x190
-  el0_svc_common.constprop.0+0x88/0x200
-  do_el0_svc+0x88/0xa0
-  el0_svc+0x128/0x1b0
-  el0t_64_sync_handler+0x9c/0x120
-  el0t_64_sync+0x16c/0x170
+   {standard input}: Assembler messages:
+>> {standard input}:2277: Error: pcrel offset for branch to .LS000B too far (0x3c)
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Acked-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Which was discussed in [2].  And as there is no solution for csky yet, add
+some dependency for this config to limit it to several ARCHs which have no
+compiling issue so far.
+
+[1]. https://lore.kernel.org/lkml/202202271612.W32UJAj2-lkp@intel.com/
+[2]. https://www.spinics.net/lists/linux-kbuild/msg30298.html
+
+Link: https://lkml.kernel.org/r/20220304021100.GN4548@shbuild999.sh.intel.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Feng Tang <feng.tang@intel.com>
+Cc: Guo Ren <guoren@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlabel/netlabel_kapi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ lib/Kconfig.debug | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index beb0e573266d..54c083003947 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -885,6 +885,8 @@ int netlbl_bitmap_walk(const unsigned char *bitmap, u32 bitmap_len,
- 	unsigned char bitmask;
- 	unsigned char byte;
+diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+index 5e14e32056ad..166e67b98506 100644
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -416,7 +416,8 @@ config SECTION_MISMATCH_WARN_ONLY
+ 	  If unsure, say Y.
  
-+	if (offset >= bitmap_len)
-+		return -1;
- 	byte_offset = offset / 8;
- 	byte = bitmap[byte_offset];
- 	bit_spot = offset;
+ config DEBUG_FORCE_FUNCTION_ALIGN_64B
+-	bool "Force all function address 64B aligned" if EXPERT
++	bool "Force all function address 64B aligned"
++	depends on EXPERT && (X86_64 || ARM64 || PPC32 || PPC64 || ARC)
+ 	help
+ 	  There are cases that a commit from one domain changes the function
+ 	  address alignment of other domains, and cause magic performance
 -- 
 2.35.1
 
