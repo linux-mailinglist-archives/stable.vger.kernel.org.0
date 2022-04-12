@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C314FD676
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F1E4FD7B4
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240176AbiDLHpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:45:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42924 "EHLO
+        id S1377446AbiDLHuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:50:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353839AbiDLHZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B6A0DF00;
-        Tue, 12 Apr 2022 00:04:53 -0700 (PDT)
+        with ESMTP id S1359073AbiDLHm3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA35A5521E;
+        Tue, 12 Apr 2022 00:20:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17BE060B65;
-        Tue, 12 Apr 2022 07:04:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5CBC385A1;
-        Tue, 12 Apr 2022 07:04:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4420361045;
+        Tue, 12 Apr 2022 07:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58DADC385A1;
+        Tue, 12 Apr 2022 07:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747092;
-        bh=U2/FILndl4co+BlYvc00C3mSRpRj6SmZahSvs4PQbsE=;
+        s=korg; t=1649748008;
+        bh=q7WSODLypYIykGAg6QQO4egcUuD69gEgMfjespz19u8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/E5R/U1r0oIyybkED+RzMUjYAl3WpautWoX/MqSL5Ua2tnM4HFl/iNRPxpqbB7px
-         7cxYNTdSk4FIF/u9VvfFQJr+6H3Mv40qXBErT0IhbtM+SMINguueUfqHFEROMESOh5
-         R36FQGIZcJenUN+p94lWYVArGbINek1nBPn2H7cE=
+        b=HUbyBLQY0LuB+NqoDQmxGHuWoIFX9e1pmknJNclGZi00x9VP1jrq9WwGSYEolB6Qw
+         zbDy+K1nADMeD/YPKVZcZnN7VP6oXU4Mof2rfBVHxpreIb03VZ3be2+IBppWrN2Bp/
+         pMFGGPUjVlBLMzKvsHjYdsw61g2E7b9ZXbMCtc/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Douglas Miller <doug.miller@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.16 239/285] RDMA/hfi1: Fix use-after-free bug for mm struct
-Date:   Tue, 12 Apr 2022 08:31:36 +0200
-Message-Id: <20220412062950.560954610@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 279/343] io_uring: fix race between timeout flush and removal
+Date:   Tue, 12 Apr 2022 08:31:37 +0200
+Message-Id: <20220412062959.376033708@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Miller <doug.miller@cornelisnetworks.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 2bbac98d0930e8161b1957dc0ec99de39ade1b3c upstream.
+commit e677edbcabee849bfdd43f1602bccbecf736a646 upstream.
 
-Under certain conditions, such as MPI_Abort, the hfi1 cleanup code may
-represent the last reference held on the task mm.
-hfi1_mmu_rb_unregister() then drops the last reference and the mm is freed
-before the final use in hfi1_release_user_pages().  A new task may
-allocate the mm structure while it is still being used, resulting in
-problems. One manifestation is corruption of the mmap_sem counter leading
-to a hang in down_write().  Another is corruption of an mm struct that is
-in use by another task.
+io_flush_timeouts() assumes the timeout isn't in progress of triggering
+or being removed/canceled, so it unconditionally removes it from the
+timeout list and attempts to cancel it.
 
-Fixes: 3d2a9d642512 ("IB/hfi1: Ensure correct mm is used at all times")
-Link: https://lore.kernel.org/r/20220408133523.122165.72975.stgit@awfm-01.cornelisnetworks.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Leave it on the list and let the normal timeout cancelation take care
+of it.
+
+Cc: stable@vger.kernel.org # 5.5+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/mmu_rb.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/io_uring.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/infiniband/hw/hfi1/mmu_rb.c
-+++ b/drivers/infiniband/hw/hfi1/mmu_rb.c
-@@ -80,6 +80,9 @@ void hfi1_mmu_rb_unregister(struct mmu_r
- 	unsigned long flags;
- 	struct list_head del_list;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1644,12 +1644,11 @@ static __cold void io_flush_timeouts(str
+ 	__must_hold(&ctx->completion_lock)
+ {
+ 	u32 seq = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
++	struct io_kiocb *req, *tmp;
  
-+	/* Prevent freeing of mm until we are completely finished. */
-+	mmgrab(handler->mn.mm);
-+
- 	/* Unregister first so we don't get any more notifications. */
- 	mmu_notifier_unregister(&handler->mn, handler->mn.mm);
+ 	spin_lock_irq(&ctx->timeout_lock);
+-	while (!list_empty(&ctx->timeout_list)) {
++	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
+ 		u32 events_needed, events_got;
+-		struct io_kiocb *req = list_first_entry(&ctx->timeout_list,
+-						struct io_kiocb, timeout.list);
  
-@@ -102,6 +105,9 @@ void hfi1_mmu_rb_unregister(struct mmu_r
+ 		if (io_is_timeout_noseq(req))
+ 			break;
+@@ -1666,7 +1665,6 @@ static __cold void io_flush_timeouts(str
+ 		if (events_got < events_needed)
+ 			break;
  
- 	do_remove(handler, &del_list);
+-		list_del_init(&req->timeout.list);
+ 		io_kill_timeout(req, 0);
+ 	}
+ 	ctx->cq_last_tm_flush = seq;
+@@ -6276,6 +6274,7 @@ static int io_timeout_prep(struct io_kio
+ 	if (data->ts.tv_sec < 0 || data->ts.tv_nsec < 0)
+ 		return -EINVAL;
  
-+	/* Now the mm may be freed. */
-+	mmdrop(handler->mn.mm);
-+
- 	kfree(handler);
- }
++	INIT_LIST_HEAD(&req->timeout.list);
+ 	data->mode = io_translate_timeout_mode(flags);
+ 	hrtimer_init(&data->timer, io_timeout_get_clock(data), data->mode);
  
 
 
