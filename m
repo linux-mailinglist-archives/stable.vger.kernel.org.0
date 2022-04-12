@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A6654FD6DB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5241D4FD862
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352721AbiDLICA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45794 "EHLO
+        id S1352374AbiDLH2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357119AbiDLHjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84E75E03E;
-        Tue, 12 Apr 2022 00:12:17 -0700 (PDT)
+        with ESMTP id S1354412AbiDLHRs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E603F3B;
+        Mon, 11 Apr 2022 23:59:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4741BB81A8F;
-        Tue, 12 Apr 2022 07:12:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6AE6C385A1;
-        Tue, 12 Apr 2022 07:12:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F24A260B65;
+        Tue, 12 Apr 2022 06:59:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09BFEC385A6;
+        Tue, 12 Apr 2022 06:59:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747535;
-        bh=hazLm5am94HK3azxAnqRUzpau4Gl8Ss7OCk2MIw4hFM=;
+        s=korg; t=1649746753;
+        bh=tmEE+pyRjDT2jGqbNnr6K+v8REGxCFuRTWqdVSe9e6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQxbFfIX3VKxEFVkh3+q2PVXqzdsC9/HFyQwQsRvOt0fVU+p5Ny3hkZ3oNcNQGIR8
-         JyrLaNCts3IP9qXltIEpyhe+29JpkuyL7yxLS/PkN/3nDa+QCReFHqy72m+Jh+B4wL
-         u9OsUo9C39z64OtcLZwWwTXNLhwrtKOxxte9leFc=
+        b=bwlVFoVBXGz1seMq1/8b02A7P7LjbL9Z3Mze1NP8MCGErgK3OrinvyZa9YtQ1g6P3
+         dxjCTjNkANS3xTjQbEQOZ+panm3qBh2RCiDSpb6XkaSWOn4mvxK7VbC6WfGkcIylJS
+         E31dfArbkXYml1ibXZQqRqqUcMbjtCwS+zTtppeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        Qi Liu <liuqi115@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 115/343] scsi: hisi_sas: Limit users changing debugfs BIST count value
-Date:   Tue, 12 Apr 2022 08:28:53 +0200
-Message-Id: <20220412062954.709854729@linuxfoundation.org>
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 077/285] mt76: mt7615: Fix assigning negative values to unsigned variable
+Date:   Tue, 12 Apr 2022 08:28:54 +0200
+Message-Id: <20220412062945.887831267@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,93 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 286ce4c65fbdf5eb9d4d5f4e4997c4e32bf1b073 ]
+[ Upstream commit 9273ffcc9a11942bd586bb42584337ef3962b692 ]
 
-Add a file operation for "cnt" file under bist directory, so users can only
-read "cnt" or clear "cnt" to zero, but cannot randomly modify.
+Smatch reports the following:
+drivers/net/wireless/mediatek/mt76/mt7615/mac.c:1865
+mt7615_mac_adjust_sensitivity() warn: assigning (-110) to unsigned
+variable 'def_th'
+drivers/net/wireless/mediatek/mt76/mt7615/mac.c:1865
+mt7615_mac_adjust_sensitivity() warn: assigning (-98) to unsigned
+variable 'def_th'
 
-Link: https://lore.kernel.org/r/1645703489-87194-6-git-send-email-john.garry@huawei.com
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Qi Liu <liuqi115@huawei.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 52 +++++++++++++++++++++++++-
- 1 file changed, 50 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index 104ef772b512..52089538e9de 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -3976,6 +3976,54 @@ static const struct file_operations debugfs_bist_phy_v3_hw_fops = {
- 	.owner = THIS_MODULE,
- };
- 
-+static ssize_t debugfs_bist_cnt_v3_hw_write(struct file *filp,
-+					const char __user *buf,
-+					size_t count, loff_t *ppos)
-+{
-+	struct seq_file *m = filp->private_data;
-+	struct hisi_hba *hisi_hba = m->private;
-+	unsigned int cnt;
-+	int val;
-+
-+	if (hisi_hba->debugfs_bist_enable)
-+		return -EPERM;
-+
-+	val = kstrtouint_from_user(buf, count, 0, &cnt);
-+	if (val)
-+		return val;
-+
-+	if (cnt)
-+		return -EINVAL;
-+
-+	hisi_hba->debugfs_bist_cnt = 0;
-+	return count;
-+}
-+
-+static int debugfs_bist_cnt_v3_hw_show(struct seq_file *s, void *p)
-+{
-+	struct hisi_hba *hisi_hba = s->private;
-+
-+	seq_printf(s, "%u\n", hisi_hba->debugfs_bist_cnt);
-+
-+	return 0;
-+}
-+
-+static int debugfs_bist_cnt_v3_hw_open(struct inode *inode,
-+					  struct file *filp)
-+{
-+	return single_open(filp, debugfs_bist_cnt_v3_hw_show,
-+			   inode->i_private);
-+}
-+
-+static const struct file_operations debugfs_bist_cnt_v3_hw_ops = {
-+	.open = debugfs_bist_cnt_v3_hw_open,
-+	.read = seq_read,
-+	.write = debugfs_bist_cnt_v3_hw_write,
-+	.llseek = seq_lseek,
-+	.release = single_release,
-+	.owner = THIS_MODULE,
-+};
-+
- static const struct {
- 	int		value;
- 	char		*name;
-@@ -4613,8 +4661,8 @@ static void debugfs_bist_init_v3_hw(struct hisi_hba *hisi_hba)
- 	debugfs_create_file("phy_id", 0600, hisi_hba->debugfs_bist_dentry,
- 			    hisi_hba, &debugfs_bist_phy_v3_hw_fops);
- 
--	debugfs_create_u32("cnt", 0600, hisi_hba->debugfs_bist_dentry,
--			   &hisi_hba->debugfs_bist_cnt);
-+	debugfs_create_file("cnt", 0600, hisi_hba->debugfs_bist_dentry,
-+			    hisi_hba, &debugfs_bist_cnt_v3_hw_ops);
- 
- 	debugfs_create_file("loopback_mode", 0600,
- 			    hisi_hba->debugfs_bist_dentry,
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+index ed8f7bc18977..f8f3c1db488c 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -1732,7 +1732,7 @@ mt7615_mac_adjust_sensitivity(struct mt7615_phy *phy,
+ 	struct mt7615_dev *dev = phy->dev;
+ 	int false_cca = ofdm ? phy->false_cca_ofdm : phy->false_cca_cck;
+ 	bool ext_phy = phy != &dev->phy;
+-	u16 def_th = ofdm ? -98 : -110;
++	s16 def_th = ofdm ? -98 : -110;
+ 	bool update = false;
+ 	s8 *sensitivity;
+ 	int signal;
 -- 
 2.35.1
 
