@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EBEB4FD26A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E9774FD064
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346765AbiDLHLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:11:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57426 "EHLO
+        id S232833AbiDLGqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:46:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350057AbiDLHJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:09:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7AD49F96;
-        Mon, 11 Apr 2022 23:49:42 -0700 (PDT)
+        with ESMTP id S1351180AbiDLGoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D66B39830;
+        Mon, 11 Apr 2022 23:37:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89DF3B81B51;
-        Tue, 12 Apr 2022 06:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F02D0C385A8;
-        Tue, 12 Apr 2022 06:49:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E49E961902;
+        Tue, 12 Apr 2022 06:37:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED668C385A1;
+        Tue, 12 Apr 2022 06:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746179;
-        bh=DI2OLZuJYTJKh/eDk6ZeULcIY4vdi2GMVgMYgoJDwpU=;
+        s=korg; t=1649745459;
+        bh=Ur7rnRKD7I0yAumOWBGWGZkPPf4CPiK8FlaCdTnTWQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJ886k7Df4QD0IVNAZHcBdGR88DZW9LrWn2TdQVPxDbuRcC7JxIxe/rBHtv8R/RbZ
-         NFWoEo+Ph4gFlFPII7TJmFjHAfk3qyE+2Xv7G9E/5WAV1lUKL3siSIf4r7XCDT+F2P
-         jVs8Me6aDSndnj0xbfZw5fH/RmiFXfRBeAFrpoYw=
+        b=kofISyJlfKaddVDd1GKP2sPnWzoI/7VF2c4xhhLY0zFkrpRvoEUwCTDD5LB3sH3rM
+         qI8zSuXzmefpFstbZibeePGBgDYlYIFAQ/aVcZK/vMqLKI2FLJyJhy/xTt8alXXHve
+         UYq2m+P/LDFd+Sa866BAPurQlhtHAPqfNlEh/q2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Habets <habetsm.xilinx@gmail.com>,
-        Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 190/277] net: sfc: fix using uninitialized xdp tx_queue
+Subject: [PATCH 5.10 102/171] scsi: zorro7xx: Fix a resource leak in zorro7xx_remove_one()
 Date:   Tue, 12 Apr 2022 08:29:53 +0200
-Message-Id: <20220412062947.534897741@linuxfoundation.org>
+Message-Id: <20220412062930.835918660@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,89 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit fb5833d81e4333294add35d3ac7f7f52a7bf107f ]
+[ Upstream commit 16ed828b872d12ccba8f07bcc446ae89ba662f9c ]
 
-In some cases, xdp tx_queue can get used before initialization.
-1. interface up/down
-2. ring buffer size change
+The error handling path of the probe releases a resource that is not freed
+in the remove function. In some cases, a ioremap() must be undone.
 
-When CPU cores are lower than maximum number of channels of sfc driver,
-it creates new channels only for XDP.
+Add the missing iounmap() call in the remove function.
 
-When an interface is up or ring buffer size is changed, all channels
-are initialized.
-But xdp channels are always initialized later.
-So, the below scenario is possible.
-Packets are received to rx queue of normal channels and it is acted
-XDP_TX and tx_queue of xdp channels get used.
-But these tx_queues are not initialized yet.
-If so, TX DMA or queue error occurs.
-
-In order to avoid this problem.
-1. initializes xdp tx_queues earlier than other rx_queue in
-efx_start_channels().
-2. checks whether tx_queue is initialized or not in efx_xdp_tx_buffers().
-
-Splat looks like:
-   sfc 0000:08:00.1 enp8s0f1np1: TX queue 10 spurious TX completion id 250
-   sfc 0000:08:00.1 enp8s0f1np1: resetting (RECOVER_OR_ALL)
-   sfc 0000:08:00.1 enp8s0f1np1: MC command 0x80 inlen 100 failed rc=-22
-   (raw=22) arg=789
-   sfc 0000:08:00.1 enp8s0f1np1: has been disabled
-
-Fixes: f28100cb9c96 ("sfc: fix lack of XDP TX queues - error XDP TX failed (-22)")
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/247066a3104d25f9a05de8b3270fc3c848763bcc.1647673264.git.christophe.jaillet@wanadoo.fr
+Fixes: 45804fbb00ee ("[SCSI] 53c700: Amiga Zorro NCR53c710 SCSI")
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/efx_channels.c | 2 +-
- drivers/net/ethernet/sfc/tx.c           | 3 +++
- drivers/net/ethernet/sfc/tx_common.c    | 2 ++
- 3 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/scsi/zorro7xx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
-index 4753c0c5af10..1f8cfd806008 100644
---- a/drivers/net/ethernet/sfc/efx_channels.c
-+++ b/drivers/net/ethernet/sfc/efx_channels.c
-@@ -1123,7 +1123,7 @@ void efx_start_channels(struct efx_nic *efx)
- 	struct efx_rx_queue *rx_queue;
- 	struct efx_channel *channel;
+diff --git a/drivers/scsi/zorro7xx.c b/drivers/scsi/zorro7xx.c
+index 27b9e2baab1a..7acf9193a9e8 100644
+--- a/drivers/scsi/zorro7xx.c
++++ b/drivers/scsi/zorro7xx.c
+@@ -159,6 +159,8 @@ static void zorro7xx_remove_one(struct zorro_dev *z)
+ 	scsi_remove_host(host);
  
--	efx_for_each_channel(channel, efx) {
-+	efx_for_each_channel_rev(channel, efx) {
- 		efx_for_each_channel_tx_queue(tx_queue, channel) {
- 			efx_init_tx_queue(tx_queue);
- 			atomic_inc(&efx->active_queues);
-diff --git a/drivers/net/ethernet/sfc/tx.c b/drivers/net/ethernet/sfc/tx.c
-index d16e031e95f4..6983799e1c05 100644
---- a/drivers/net/ethernet/sfc/tx.c
-+++ b/drivers/net/ethernet/sfc/tx.c
-@@ -443,6 +443,9 @@ int efx_xdp_tx_buffers(struct efx_nic *efx, int n, struct xdp_frame **xdpfs,
- 	if (unlikely(!tx_queue))
- 		return -EINVAL;
- 
-+	if (!tx_queue->initialised)
-+		return -EINVAL;
-+
- 	if (efx->xdp_txq_queues_mode != EFX_XDP_TX_QUEUES_DEDICATED)
- 		HARD_TX_LOCK(efx->net_dev, tx_queue->core_txq, cpu);
- 
-diff --git a/drivers/net/ethernet/sfc/tx_common.c b/drivers/net/ethernet/sfc/tx_common.c
-index d530cde2b864..9bc8281b7f5b 100644
---- a/drivers/net/ethernet/sfc/tx_common.c
-+++ b/drivers/net/ethernet/sfc/tx_common.c
-@@ -101,6 +101,8 @@ void efx_fini_tx_queue(struct efx_tx_queue *tx_queue)
- 	netif_dbg(tx_queue->efx, drv, tx_queue->efx->net_dev,
- 		  "shutting down TX queue %d\n", tx_queue->queue);
- 
-+	tx_queue->initialised = false;
-+
- 	if (!tx_queue->buffer)
- 		return;
- 
+ 	NCR_700_release(host);
++	if (host->base > 0x01000000)
++		iounmap(hostdata->base);
+ 	kfree(hostdata);
+ 	free_irq(host->irq, host);
+ 	zorro_release_device(z);
 -- 
 2.35.1
 
