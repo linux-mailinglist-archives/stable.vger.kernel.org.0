@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0852F4FD830
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A95714FDAF3
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351526AbiDLHWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:22:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57384 "EHLO
+        id S1351438AbiDLHWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:22:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352587AbiDLHOJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5E9F2E0BE;
-        Mon, 11 Apr 2022 23:54:51 -0700 (PDT)
+        with ESMTP id S1352605AbiDLHOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63C4360E9;
+        Mon, 11 Apr 2022 23:54:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FF26B81B47;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0803B61531;
+        Tue, 12 Apr 2022 06:54:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14907C385A1;
         Tue, 12 Apr 2022 06:54:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5941BC385A6;
-        Tue, 12 Apr 2022 06:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746488;
-        bh=IXY3m/Vsk0pN/xR56n8JlJlq6WlGZzaF811G+aG5+RY=;
+        s=korg; t=1649746491;
+        bh=bHYFwAi/4CgqN2Oci74XTTWZkAezltHmJ9/HHG7ePsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q0b0A/pXwAQY2WfbY4ynkzrcAlRPDa2DemqRs44/vuVCJmDR0d1KtryHnPYdbWjx8
-         z9F5oERsABi3huXACvrqW0idntRO8abByoxC/S6i0zH9YZCJpEq5QtdqsXRmYDz02k
-         gF6NX8C55afZkCIodFqOPhGE8SHt1x5ZsXA/MQi4=
+        b=fd2qr5SUUsoNXxHkDahqqd7qTRvrFhhpLU67Lj96/WgyS6Jw7q6MlzdZumwqHe843
+         P91ekClwYqb/SjBzVZu7VjHh4F6FeprQoo6rz1YBEt8HM5CSeWF6QZcUvxmtGqT1vm
+         eLDopibomxEKZsbFbHe3giXAR9XZ+kMAbwTMk4mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Felix Kuehling <Felix.Kuehling@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 023/285] drm/amdkfd: Ensure mm remain valid in svm deferred_list work
-Date:   Tue, 12 Apr 2022 08:28:00 +0200
-Message-Id: <20220412062944.348720367@linuxfoundation.org>
+Subject: [PATCH 5.16 024/285] drm/amdkfd: svm range restore work deadlock when process exit
+Date:   Tue, 12 Apr 2022 08:28:01 +0200
+Message-Id: <20220412062944.377194677@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -58,137 +58,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Philip Yang <Philip.Yang@amd.com>
 
-[ Upstream commit 367c9b0f1b8750a704070e7ae85234d591290434 ]
+[ Upstream commit 6225bb3a88d22594aacea2485dc28ca12d596721 ]
 
-svm_deferred_list work should continue to handle deferred_range_list
-which maybe split to child range to avoid child range leak, and remove
-ranges mmu interval notifier to avoid mm mm_count leak. So taking mm
-reference when adding range to deferred list, to ensure mm is valid in
-the scheduled deferred_list_work, and drop the mm referrence after range
-is handled.
+kfd_process_notifier_release flush svm_range_restore_work
+which calls svm_range_list_lock_and_flush_work to flush deferred_list
+work, but if deferred_list work mmput release the last user, it will
+call exit_mmap -> notifier_release, it is deadlock with below backtrace.
+
+Move flush svm_range_restore_work to kfd_process_wq_release to avoid
+deadlock. Then svm_range_restore_work take task->mm ref to avoid mm is
+gone while validating and mapping ranges to GPU.
+
+Workqueue: events svm_range_deferred_list_work [amdgpu]
+Call Trace:
+ wait_for_completion+0x94/0x100
+ __flush_work+0x12a/0x1e0
+ __cancel_work_timer+0x10e/0x190
+ cancel_delayed_work_sync+0x13/0x20
+ kfd_process_notifier_release+0x98/0x2a0 [amdgpu]
+ __mmu_notifier_release+0x74/0x1f0
+ exit_mmap+0x170/0x200
+ mmput+0x5d/0x130
+ svm_range_deferred_list_work+0x104/0x230 [amdgpu]
+ process_one_work+0x220/0x3c0
 
 Signed-off-by: Philip Yang <Philip.Yang@amd.com>
 Reported-by: Ruili Ji <ruili.ji@amd.com>
+Tested-by: Ruili Ji <ruili.ji@amd.com>
 Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 62 ++++++++++++++++------------
- 1 file changed, 36 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_process.c |  1 -
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c     | 15 +++++++++------
+ 2 files changed, 9 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_process.c b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
+index b993011cfa64..990228711108 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_process.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_process.c
+@@ -1150,7 +1150,6 @@ static void kfd_process_notifier_release(struct mmu_notifier *mn,
+ 
+ 	cancel_delayed_work_sync(&p->eviction_work);
+ 	cancel_delayed_work_sync(&p->restore_work);
+-	cancel_delayed_work_sync(&p->svms.restore_work);
+ 
+ 	mutex_lock(&p->mutex);
+ 
 diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-index c0b8f4ff80b8..ea1c5aaf659a 100644
+index ea1c5aaf659a..a1b0c6bda803 100644
 --- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
 +++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
-@@ -1926,10 +1926,9 @@ svm_range_update_notifier_and_interval_tree(struct mm_struct *mm,
- }
+@@ -1589,13 +1589,14 @@ static void svm_range_restore_work(struct work_struct *work)
  
- static void
--svm_range_handle_list_op(struct svm_range_list *svms, struct svm_range *prange)
-+svm_range_handle_list_op(struct svm_range_list *svms, struct svm_range *prange,
-+			 struct mm_struct *mm)
- {
--	struct mm_struct *mm = prange->work_item.mm;
--
- 	switch (prange->work_item.op) {
- 	case SVM_OP_NULL:
- 		pr_debug("NULL OP 0x%p prange 0x%p [0x%lx 0x%lx]\n",
-@@ -2013,34 +2012,41 @@ static void svm_range_deferred_list_work(struct work_struct *work)
- 	pr_debug("enter svms 0x%p\n", svms);
+ 	pr_debug("restore svm ranges\n");
  
- 	p = container_of(svms, struct kfd_process, svms);
--	/* Avoid mm is gone when inserting mmu notifier */
--	mm = get_task_mm(p->lead_thread);
--	if (!mm) {
--		pr_debug("svms 0x%p process mm gone\n", svms);
--		return;
--	}
--retry:
--	mmap_write_lock(mm);
--
--	/* Checking for the need to drain retry faults must be inside
--	 * mmap write lock to serialize with munmap notifiers.
+-	/* kfd_process_notifier_release destroys this worker thread. So during
+-	 * the lifetime of this thread, kfd_process and mm will be valid.
 -	 */
--	if (unlikely(atomic_read(&svms->drain_pagefaults))) {
--		mmap_write_unlock(mm);
--		svm_range_drain_retry_fault(svms);
--		goto retry;
--	}
- 
- 	spin_lock(&svms->deferred_list_lock);
- 	while (!list_empty(&svms->deferred_range_list)) {
- 		prange = list_first_entry(&svms->deferred_range_list,
- 					  struct svm_range, deferred_list);
--		list_del_init(&prange->deferred_list);
- 		spin_unlock(&svms->deferred_list_lock);
- 
- 		pr_debug("prange 0x%p [0x%lx 0x%lx] op %d\n", prange,
- 			 prange->start, prange->last, prange->work_item.op);
- 
-+		mm = prange->work_item.mm;
-+retry:
-+		mmap_write_lock(mm);
+ 	p = container_of(svms, struct kfd_process, svms);
+-	mm = p->mm;
+-	if (!mm)
 +
-+		/* Checking for the need to drain retry faults must be inside
-+		 * mmap write lock to serialize with munmap notifiers.
-+		 */
-+		if (unlikely(atomic_read(&svms->drain_pagefaults))) {
-+			mmap_write_unlock(mm);
-+			svm_range_drain_retry_fault(svms);
-+			goto retry;
-+		}
-+
-+		/* Remove from deferred_list must be inside mmap write lock, for
-+		 * two race cases:
-+		 * 1. unmap_from_cpu may change work_item.op and add the range
-+		 *    to deferred_list again, cause use after free bug.
-+		 * 2. svm_range_list_lock_and_flush_work may hold mmap write
-+		 *    lock and continue because deferred_list is empty, but
-+		 *    deferred_list work is actually waiting for mmap lock.
-+		 */
-+		spin_lock(&svms->deferred_list_lock);
-+		list_del_init(&prange->deferred_list);
-+		spin_unlock(&svms->deferred_list_lock);
-+
- 		mutex_lock(&svms->lock);
- 		mutex_lock(&prange->migrate_mutex);
- 		while (!list_empty(&prange->child_list)) {
-@@ -2051,19 +2057,20 @@ static void svm_range_deferred_list_work(struct work_struct *work)
- 			pr_debug("child prange 0x%p op %d\n", pchild,
- 				 pchild->work_item.op);
- 			list_del_init(&pchild->child_list);
--			svm_range_handle_list_op(svms, pchild);
-+			svm_range_handle_list_op(svms, pchild, mm);
- 		}
- 		mutex_unlock(&prange->migrate_mutex);
++	/* Keep mm reference when svm_range_validate_and_map ranges */
++	mm = get_task_mm(p->lead_thread);
++	if (!mm) {
++		pr_debug("svms 0x%p process mm gone\n", svms);
+ 		return;
++	}
  
--		svm_range_handle_list_op(svms, prange);
-+		svm_range_handle_list_op(svms, prange, mm);
- 		mutex_unlock(&svms->lock);
-+		mmap_write_unlock(mm);
-+
-+		/* Pairs with mmget in svm_range_add_list_work */
-+		mmput(mm);
+ 	svm_range_list_lock_and_flush_work(svms, mm);
+ 	mutex_lock(&svms->lock);
+@@ -1649,6 +1650,7 @@ static void svm_range_restore_work(struct work_struct *work)
+ out_reschedule:
+ 	mutex_unlock(&svms->lock);
+ 	mmap_write_unlock(mm);
++	mmput(mm);
  
- 		spin_lock(&svms->deferred_list_lock);
- 	}
- 	spin_unlock(&svms->deferred_list_lock);
+ 	/* If validation failed, reschedule another attempt */
+ 	if (evicted_ranges) {
+@@ -2779,6 +2781,8 @@ void svm_range_list_fini(struct kfd_process *p)
+ 
+ 	pr_debug("pasid 0x%x svms 0x%p\n", p->pasid, &p->svms);
+ 
++	cancel_delayed_work_sync(&p->svms.restore_work);
++
+ 	/* Ensure list work is finished before process is destroyed */
+ 	flush_work(&p->svms.deferred_list_work);
+ 
+@@ -2789,7 +2793,6 @@ void svm_range_list_fini(struct kfd_process *p)
+ 	atomic_inc(&p->svms.drain_pagefaults);
+ 	svm_range_drain_retry_fault(&p->svms);
+ 
 -
--	mmap_write_unlock(mm);
--	mmput(mm);
- 	pr_debug("exit svms 0x%p\n", svms);
- }
- 
-@@ -2081,6 +2088,9 @@ svm_range_add_list_work(struct svm_range_list *svms, struct svm_range *prange,
- 			prange->work_item.op = op;
- 	} else {
- 		prange->work_item.op = op;
-+
-+		/* Pairs with mmput in deferred_list_work */
-+		mmget(mm);
- 		prange->work_item.mm = mm;
- 		list_add_tail(&prange->deferred_list,
- 			      &prange->svms->deferred_range_list);
+ 	list_for_each_entry_safe(prange, next, &p->svms.list, list) {
+ 		svm_range_unlink(prange);
+ 		svm_range_remove_notifier(prange);
 -- 
 2.35.1
 
