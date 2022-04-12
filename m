@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A44D4FD917
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:39:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 621514FD66C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236588AbiDLHa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:30:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42848 "EHLO
+        id S1351970AbiDLIBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:01:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353382AbiDLHZ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:26 -0400
+        with ESMTP id S1357560AbiDLHk3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B86664EA10;
-        Tue, 12 Apr 2022 00:00:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E00AA30F56;
+        Tue, 12 Apr 2022 00:16:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BE0A615BB;
-        Tue, 12 Apr 2022 07:00:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7D2DC385A8;
-        Tue, 12 Apr 2022 07:00:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8841E6171C;
+        Tue, 12 Apr 2022 07:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FA03C385A5;
+        Tue, 12 Apr 2022 07:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746827;
-        bh=2kkz2HUea5hGrLe3sIdjMljDa9VPFb9vQcDZSKUWuuM=;
+        s=korg; t=1649747764;
+        bh=eyF2VnUNxOloLVIPfKJn9iNPrihstZvyrnDzYF9Nnbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkhJXI98ZD6v4v/OVCJlq6VW/I7u2vAVNqYZ/9NQFI1IXAfiSNqI5bCONhxECQCo/
-         kjRvD2Bq1cn9nccmcbnLWUPzFuNhK+//JRdjXwq9dB1F4FAWkJbDBOKP7Fp0hP9FTO
-         RZOzDT3icuh9dndn1F2FPrdFX5C+YND9lTyz9qJU=
+        b=kgTYtzIAxKPqIcFQl6DUfmlVKJXggtV5k/2LscdUpTunzMEyEoYW+F88x2SD0dGpv
+         GJScbZq8hrcUzE2BM/7UqyQr2LLkLMPdAIhXFp/ngMgpkaMcu+x/OzdnCC6ZjJJgju
+         12ld9jyzwXSvFTvdNDkg+x0zCnFiGXFa9/28GeKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Saenz Julienne <nsaenz@kernel.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
+        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
+        Robert Hancock <robert.hancock@calian.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 117/285] staging: vchiq_core: handle NULL result of find_service_by_handle
+Subject: [PATCH 5.17 156/343] clk: si5341: fix reported clk_rate when output divider is 2
 Date:   Tue, 12 Apr 2022 08:29:34 +0200
-Message-Id: <20220412062947.043429848@linuxfoundation.org>
+Message-Id: <20220412062955.878980290@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Adam Wujek <dev_public@wujek.eu>
 
-[ Upstream commit ca225857faf237234d2fffe5d1919467dfadd822 ]
+[ Upstream commit 2a8b539433e111c4de364237627ef219d2f6350a ]
 
-In case of an invalid handle the function find_servive_by_handle
-returns NULL. So take care of this and avoid a NULL pointer dereference.
+SI5341_OUT_CFG_RDIV_FORCE2 shall be checked first to distinguish whether
+a divider for a given output is set to 2 (SI5341_OUT_CFG_RDIV_FORCE2
+is set) or the output is disabled (SI5341_OUT_CFG_RDIV_FORCE2 not set,
+SI5341_OUT_R_REG is set 0).
+Before the change, divider set to 2 (SI5341_OUT_R_REG set to 0) was
+interpreted as output is disabled.
 
-Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/1642968143-19281-18-git-send-email-stefan.wahren@i2se.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Adam Wujek <dev_public@wujek.eu>
+Link: https://lore.kernel.org/r/20211203141125.2447520-1-dev_public@wujek.eu
+Reviewed-by: Robert Hancock <robert.hancock@calian.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/vc04_services/interface/vchiq_arm/vchiq_core.c  | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/clk/clk-si5341.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
-index 7fe20d4b7ba2..b7295236671c 100644
---- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
-+++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
-@@ -2306,6 +2306,9 @@ void vchiq_msg_queue_push(unsigned int handle, struct vchiq_header *header)
- 	struct vchiq_service *service = find_service_by_handle(handle);
- 	int pos;
+diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
+index f7b41366666e..4de098b6b0d4 100644
+--- a/drivers/clk/clk-si5341.c
++++ b/drivers/clk/clk-si5341.c
+@@ -798,6 +798,15 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
+ 	u32 r_divider;
+ 	u8 r[3];
  
-+	if (!service)
-+		return;
++	err = regmap_read(output->data->regmap,
++			SI5341_OUT_CONFIG(output), &val);
++	if (err < 0)
++		return err;
 +
- 	while (service->msg_queue_write == service->msg_queue_read +
- 		VCHIQ_MAX_SLOTS) {
- 		if (wait_for_completion_interruptible(&service->msg_queue_pop))
-@@ -2326,6 +2329,9 @@ struct vchiq_header *vchiq_msg_hold(unsigned int handle)
- 	struct vchiq_header *header;
- 	int pos;
- 
-+	if (!service)
-+		return NULL;
++	/* If SI5341_OUT_CFG_RDIV_FORCE2 is set, r_divider is 2 */
++	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
++		return parent_rate / 2;
 +
- 	if (service->msg_queue_write == service->msg_queue_read)
- 		return NULL;
+ 	err = regmap_bulk_read(output->data->regmap,
+ 			SI5341_OUT_R_REG(output), r, 3);
+ 	if (err < 0)
+@@ -814,13 +823,6 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
+ 	r_divider += 1;
+ 	r_divider <<= 1;
  
+-	err = regmap_read(output->data->regmap,
+-			SI5341_OUT_CONFIG(output), &val);
+-	if (err < 0)
+-		return err;
+-
+-	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
+-		r_divider = 2;
+ 
+ 	return parent_rate / r_divider;
+ }
 -- 
 2.35.1
 
