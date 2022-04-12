@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 472F04FD8CF
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C58694FDAA6
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354053AbiDLHiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:38:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42860 "EHLO
+        id S1353964AbiDLHiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:38:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353629AbiDLHZv (ORCPT
+        with ESMTP id S1353663AbiDLHZv (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C0A8275CE;
-        Tue, 12 Apr 2022 00:02:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B67101CD;
+        Tue, 12 Apr 2022 00:02:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27E7760B2B;
-        Tue, 12 Apr 2022 07:02:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D77C385A6;
-        Tue, 12 Apr 2022 07:02:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C3C060B2B;
+        Tue, 12 Apr 2022 07:02:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 192F7C385A1;
+        Tue, 12 Apr 2022 07:02:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746948;
-        bh=grJa2ne9FHgi7+nNGnQAS5AEexdyOk8kKBkr39mXyzQ=;
+        s=korg; t=1649746951;
+        bh=P5oe+skgLWvoDbICVA7b7VYiDxRu9pm182ay6xBK57o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6nAuSyy/DdBXoDYi4Z/B5gOLhGzRT5QpBhKF2ETRZoiBoquWk+UMhUblBXvuMTvN
-         jRZHEKREu+ZA87CVWIy8gsytkdcYK7wcqDeAEPJnCwWICGxsseFDERoPZsIjKa/+Ty
-         xcDtVTpv8Ke1YkERbJzsXWa7odMBdSIAkSUtW2zw=
+        b=H5gR3UD0EDc1DTMANx61C11Xb2rbUH/Wp+ekdoEUXFVWhPLUD4sTn5oc9LDzMApUw
+         r6t9DGWuYZ7ueXveKHCKDYsJoeiUARBX3+Gz7czd8in25kIdOzSnkyuwjPR3xROYAu
+         H42+XdYXdFi757fmYdHj3V4COyl9NUq9DJzIec4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pudak, Filip" <Filip.Pudak@windriver.com>,
-        "Xiao, Jiguang" <Jiguang.Xiao@windriver.com>,
-        David Ahern <dsahern@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, Pudak@vger.kernel.org,
-        Xiao@vger.kernel.org
-Subject: [PATCH 5.16 187/285] ipv6: Fix stats accounting in ip6_pkt_drop
-Date:   Tue, 12 Apr 2022 08:30:44 +0200
-Message-Id: <20220412062949.060522893@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Shwetha Nagaraju <shwetha.nagaraju@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 188/285] ice: synchronize_rcu() when terminating rings
+Date:   Tue, 12 Apr 2022 08:30:45 +0200
+Message-Id: <20220412062949.089148220@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -57,38 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 1158f79f82d437093aeed87d57df0548bdd68146 ]
+[ Upstream commit f9124c68f05ffdb87a47e3ea6d5fae9dad7cb6eb ]
 
-VRF devices are the loopbacks for VRFs, and a loopback can not be
-assigned to a VRF. Accordingly, the condition in ip6_pkt_drop should
-be '||' not '&&'.
+Unfortunately, the ice driver doesn't respect the RCU critical section that
+XSK wakeup is surrounded with. To fix this, add synchronize_rcu() calls to
+paths that destroy resources that might be in use.
 
-Fixes: 1d3fd8a10bed ("vrf: Use orig netdev to count Ip6InNoRoutes and a fresh route lookup when sending dest unreach")
-Reported-by: Pudak, Filip <Filip.Pudak@windriver.com>
-Reported-by: Xiao, Jiguang <Jiguang.Xiao@windriver.com>
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220404150908.2937-1-dsahern@kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+This was addressed in other AF_XDP ZC enabled drivers, for reference see
+for example commit b3873a5be757 ("net/i40e: Fix concurrency issues
+between config flow and XSK")
+
+Fixes: efc2214b6047 ("ice: Add support for XDP")
+Fixes: 2d4238f55697 ("ice: Add support for AF_XDP")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Shwetha Nagaraju <shwetha.nagaraju@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/route.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice.h      | 2 +-
+ drivers/net/ethernet/intel/ice/ice_main.c | 4 +++-
+ drivers/net/ethernet/intel/ice/ice_xsk.c  | 4 +++-
+ 3 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 75f916b7460c..cac0d65ed124 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -4509,7 +4509,7 @@ static int ip6_pkt_drop(struct sk_buff *skb, u8 code, int ipstats_mib_noroutes)
- 	struct inet6_dev *idev;
- 	int type;
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index a47471586047..446373623f47 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -671,7 +671,7 @@ static inline struct ice_pf *ice_netdev_to_pf(struct net_device *netdev)
  
--	if (netif_is_l3_master(skb->dev) &&
-+	if (netif_is_l3_master(skb->dev) ||
- 	    dst->dev == net->loopback_dev)
- 		idev = __in6_dev_get_safely(dev_get_by_index_rcu(net, IP6CB(skb)->iif));
- 	else
+ static inline bool ice_is_xdp_ena_vsi(struct ice_vsi *vsi)
+ {
+-	return !!vsi->xdp_prog;
++	return !!READ_ONCE(vsi->xdp_prog);
+ }
+ 
+ static inline void ice_set_ring_xdp(struct ice_tx_ring *ring)
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 523877c2f8b6..cd2fb24c3005 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2724,8 +2724,10 @@ int ice_destroy_xdp_rings(struct ice_vsi *vsi)
+ 
+ 	ice_for_each_xdp_txq(vsi, i)
+ 		if (vsi->xdp_rings[i]) {
+-			if (vsi->xdp_rings[i]->desc)
++			if (vsi->xdp_rings[i]->desc) {
++				synchronize_rcu();
+ 				ice_free_tx_ring(vsi->xdp_rings[i]);
++			}
+ 			kfree_rcu(vsi->xdp_rings[i], rcu);
+ 			vsi->xdp_rings[i] = NULL;
+ 		}
+diff --git a/drivers/net/ethernet/intel/ice/ice_xsk.c b/drivers/net/ethernet/intel/ice/ice_xsk.c
+index ac97cf3c5804..dfef1e75469d 100644
+--- a/drivers/net/ethernet/intel/ice/ice_xsk.c
++++ b/drivers/net/ethernet/intel/ice/ice_xsk.c
+@@ -41,8 +41,10 @@ static void ice_qp_reset_stats(struct ice_vsi *vsi, u16 q_idx)
+ static void ice_qp_clean_rings(struct ice_vsi *vsi, u16 q_idx)
+ {
+ 	ice_clean_tx_ring(vsi->tx_rings[q_idx]);
+-	if (ice_is_xdp_ena_vsi(vsi))
++	if (ice_is_xdp_ena_vsi(vsi)) {
++		synchronize_rcu();
+ 		ice_clean_tx_ring(vsi->xdp_rings[q_idx]);
++	}
+ 	ice_clean_rx_ring(vsi->rx_rings[q_idx]);
+ }
+ 
 -- 
 2.35.1
 
