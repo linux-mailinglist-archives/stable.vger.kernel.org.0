@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F3634FD04F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 303294FD049
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240481AbiDLGpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1350541AbiDLGpw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Apr 2022 02:45:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43098 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351041AbiDLGny (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:43:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7699039167;
-        Mon, 11 Apr 2022 23:37:15 -0700 (PDT)
+        with ESMTP id S1351085AbiDLGn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:43:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD25D393DB;
+        Mon, 11 Apr 2022 23:37:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC9B9618C8;
-        Tue, 12 Apr 2022 06:37:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD2A3C385A1;
-        Tue, 12 Apr 2022 06:37:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62BF9B81B43;
+        Tue, 12 Apr 2022 06:37:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B50D2C385A6;
+        Tue, 12 Apr 2022 06:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745434;
-        bh=atbR4RPy9yHB2eufZS3l49htdikvABO9wcWmNNaXj4g=;
+        s=korg; t=1649745437;
+        bh=mR2O/g+rjFObtLuc8qXfsCZ+aho+SVwU90zDb6t0Px0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbPVmqEe8gpRhGZfBsN4W7Z8JA0xcLHavcGah5DhAH4bj2WLK8dC3Tf3peMpUkUl0
-         Xe14BC4Ph1gNyw1+rYHInDmYKy011SH1r5Cs/ZhqVCWarxIdPBCVBWSRKVTIecTxqr
-         Mzuef7GcCwYpAETcSdEvqSAxRjku6EenrDloCktE=
+        b=dZg5o6Ppr1coTi5fkWBbbvD2xbIIQnKIaUhpdXY7RNo3JD0yHziXN0Xnq7RFtS2V5
+         oHeME7ZADzk+I9PvfjTsShLLpBWnBD9TSiHrSIbIKMPJTKtJC7zniVkT2NiJ+WzU30
+         ZAhzcGXVU2/+wpQ2BmrjjcR9aSLWIjHrqBCeSX9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 094/171] parisc: Fix CPU affinity for Lasi, WAX and Dino chips
-Date:   Tue, 12 Apr 2022 08:29:45 +0200
-Message-Id: <20220412062930.603434639@linuxfoundation.org>
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 095/171] parisc: Fix patch code locking and flushing
+Date:   Tue, 12 Apr 2022 08:29:46 +0200
+Message-Id: <20220412062930.633266177@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -53,230 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit 939fc856676c266c3bc347c1c1661872a3725c0f ]
+[ Upstream commit a9fe7fa7d874a536e0540469f314772c054a0323 ]
 
-Add the missing logic to allow Lasi, WAX and Dino to set the
-CPU affinity. This fixes IRQ migration to other CPUs when a
-CPU is shutdown which currently holds the IRQs for one of those
-chips.
+This change fixes the following:
 
+1) The flags variable is not initialized. Always use raw_spin_lock_irqsave
+and raw_spin_unlock_irqrestore to serialize patching.
+
+2) flush_kernel_vmap_range is primarily intended for DMA flushes. Since
+__patch_text_multiple is often called with interrupts disabled, it is
+better to directly call flush_kernel_dcache_range_asm and
+flush_kernel_icache_range_asm. This avoids an extra call.
+
+3) The final call to flush_icache_range is unnecessary.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parisc/dino.c | 41 +++++++++++++++++++++++++++++++++--------
- drivers/parisc/gsc.c  | 31 +++++++++++++++++++++++++++++++
- drivers/parisc/gsc.h  |  1 +
- drivers/parisc/lasi.c |  7 +++----
- drivers/parisc/wax.c  |  7 +++----
- 5 files changed, 71 insertions(+), 16 deletions(-)
+ arch/parisc/kernel/patch.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
-index 952a92504df6..e33036281327 100644
---- a/drivers/parisc/dino.c
-+++ b/drivers/parisc/dino.c
-@@ -142,9 +142,8 @@ struct dino_device
+diff --git a/arch/parisc/kernel/patch.c b/arch/parisc/kernel/patch.c
+index 80a0ab372802..e59574f65e64 100644
+--- a/arch/parisc/kernel/patch.c
++++ b/arch/parisc/kernel/patch.c
+@@ -40,10 +40,7 @@ static void __kprobes *patch_map(void *addr, int fixmap, unsigned long *flags,
+ 
+ 	*need_unmap = 1;
+ 	set_fixmap(fixmap, page_to_phys(page));
+-	if (flags)
+-		raw_spin_lock_irqsave(&patch_lock, *flags);
+-	else
+-		__acquire(&patch_lock);
++	raw_spin_lock_irqsave(&patch_lock, *flags);
+ 
+ 	return (void *) (__fix_to_virt(fixmap) + (uintaddr & ~PAGE_MASK));
+ }
+@@ -52,10 +49,7 @@ static void __kprobes patch_unmap(int fixmap, unsigned long *flags)
  {
- 	struct pci_hba_data	hba;	/* 'C' inheritance - must be first */
- 	spinlock_t		dinosaur_pen;
--	unsigned long		txn_addr; /* EIR addr to generate interrupt */ 
--	u32			txn_data; /* EIR data assign to each dino */ 
- 	u32 			imr;	  /* IRQ's which are enabled */ 
-+	struct gsc_irq		gsc_irq;
- 	int			global_irq[DINO_LOCAL_IRQS]; /* map IMR bit to global irq */
- #ifdef DINO_DEBUG
- 	unsigned int		dino_irr0; /* save most recent IRQ line stat */
-@@ -339,14 +338,43 @@ static void dino_unmask_irq(struct irq_data *d)
- 	if (tmp & DINO_MASK_IRQ(local_irq)) {
- 		DBG(KERN_WARNING "%s(): IRQ asserted! (ILR 0x%x)\n",
- 				__func__, tmp);
--		gsc_writel(dino_dev->txn_data, dino_dev->txn_addr);
-+		gsc_writel(dino_dev->gsc_irq.txn_data, dino_dev->gsc_irq.txn_addr);
- 	}
+ 	clear_fixmap(fixmap);
+ 
+-	if (flags)
+-		raw_spin_unlock_irqrestore(&patch_lock, *flags);
+-	else
+-		__release(&patch_lock);
++	raw_spin_unlock_irqrestore(&patch_lock, *flags);
  }
  
-+#ifdef CONFIG_SMP
-+static int dino_set_affinity_irq(struct irq_data *d, const struct cpumask *dest,
-+				bool force)
-+{
-+	struct dino_device *dino_dev = irq_data_get_irq_chip_data(d);
-+	struct cpumask tmask;
-+	int cpu_irq;
-+	u32 eim;
-+
-+	if (!cpumask_and(&tmask, dest, cpu_online_mask))
-+		return -EINVAL;
-+
-+	cpu_irq = cpu_check_affinity(d, &tmask);
-+	if (cpu_irq < 0)
-+		return cpu_irq;
-+
-+	dino_dev->gsc_irq.txn_addr = txn_affinity_addr(d->irq, cpu_irq);
-+	eim = ((u32) dino_dev->gsc_irq.txn_addr) | dino_dev->gsc_irq.txn_data;
-+	__raw_writel(eim, dino_dev->hba.base_addr+DINO_IAR0);
-+
-+	irq_data_update_effective_affinity(d, &tmask);
-+
-+	return IRQ_SET_MASK_OK;
-+}
-+#endif
-+
- static struct irq_chip dino_interrupt_type = {
- 	.name		= "GSC-PCI",
- 	.irq_unmask	= dino_unmask_irq,
- 	.irq_mask	= dino_mask_irq,
-+#ifdef CONFIG_SMP
-+	.irq_set_affinity = dino_set_affinity_irq,
-+#endif
- };
+ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+@@ -67,8 +61,9 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 	int mapped;
  
+ 	/* Make sure we don't have any aliases in cache */
+-	flush_kernel_vmap_range(addr, len);
+-	flush_icache_range(start, end);
++	flush_kernel_dcache_range_asm(start, end);
++	flush_kernel_icache_range_asm(start, end);
++	flush_tlb_kernel_range(start, end);
  
-@@ -806,7 +834,6 @@ static int __init dino_common_init(struct parisc_device *dev,
- {
- 	int status;
- 	u32 eim;
--	struct gsc_irq gsc_irq;
- 	struct resource *res;
+ 	p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags, &mapped);
  
- 	pcibios_register_hba(&dino_dev->hba);
-@@ -821,10 +848,8 @@ static int __init dino_common_init(struct parisc_device *dev,
- 	**   still only has 11 IRQ input lines - just map some of them
- 	**   to a different processor.
- 	*/
--	dev->irq = gsc_alloc_irq(&gsc_irq);
--	dino_dev->txn_addr = gsc_irq.txn_addr;
--	dino_dev->txn_data = gsc_irq.txn_data;
--	eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
-+	dev->irq = gsc_alloc_irq(&dino_dev->gsc_irq);
-+	eim = ((u32) dino_dev->gsc_irq.txn_addr) | dino_dev->gsc_irq.txn_data;
+@@ -81,8 +76,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 			 * We're crossing a page boundary, so
+ 			 * need to remap
+ 			 */
+-			flush_kernel_vmap_range((void *)fixmap,
+-						(p-fixmap) * sizeof(*p));
++			flush_kernel_dcache_range_asm((unsigned long)fixmap,
++						      (unsigned long)p);
++			flush_tlb_kernel_range((unsigned long)fixmap,
++					       (unsigned long)p);
+ 			if (mapped)
+ 				patch_unmap(FIX_TEXT_POKE0, &flags);
+ 			p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags,
+@@ -90,10 +87,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 		}
+ 	}
  
- 	/* 
- 	** Dino needs a PA "IRQ" to get a processor's attention.
-diff --git a/drivers/parisc/gsc.c b/drivers/parisc/gsc.c
-index ed9371acf37e..ec175ae99873 100644
---- a/drivers/parisc/gsc.c
-+++ b/drivers/parisc/gsc.c
-@@ -135,10 +135,41 @@ static void gsc_asic_unmask_irq(struct irq_data *d)
- 	 */
+-	flush_kernel_vmap_range((void *)fixmap, (p-fixmap) * sizeof(*p));
++	flush_kernel_dcache_range_asm((unsigned long)fixmap, (unsigned long)p);
++	flush_tlb_kernel_range((unsigned long)fixmap, (unsigned long)p);
+ 	if (mapped)
+ 		patch_unmap(FIX_TEXT_POKE0, &flags);
+-	flush_icache_range(start, end);
  }
  
-+#ifdef CONFIG_SMP
-+static int gsc_set_affinity_irq(struct irq_data *d, const struct cpumask *dest,
-+				bool force)
-+{
-+	struct gsc_asic *gsc_dev = irq_data_get_irq_chip_data(d);
-+	struct cpumask tmask;
-+	int cpu_irq;
-+
-+	if (!cpumask_and(&tmask, dest, cpu_online_mask))
-+		return -EINVAL;
-+
-+	cpu_irq = cpu_check_affinity(d, &tmask);
-+	if (cpu_irq < 0)
-+		return cpu_irq;
-+
-+	gsc_dev->gsc_irq.txn_addr = txn_affinity_addr(d->irq, cpu_irq);
-+	gsc_dev->eim = ((u32) gsc_dev->gsc_irq.txn_addr) | gsc_dev->gsc_irq.txn_data;
-+
-+	/* switch IRQ's for devices below LASI/WAX to other CPU */
-+	gsc_writel(gsc_dev->eim, gsc_dev->hpa + OFFSET_IAR);
-+
-+	irq_data_update_effective_affinity(d, &tmask);
-+
-+	return IRQ_SET_MASK_OK;
-+}
-+#endif
-+
-+
- static struct irq_chip gsc_asic_interrupt_type = {
- 	.name		=	"GSC-ASIC",
- 	.irq_unmask	=	gsc_asic_unmask_irq,
- 	.irq_mask	=	gsc_asic_mask_irq,
-+#ifdef CONFIG_SMP
-+	.irq_set_affinity =	gsc_set_affinity_irq,
-+#endif
- };
- 
- int gsc_assign_irq(struct irq_chip *type, void *data)
-diff --git a/drivers/parisc/gsc.h b/drivers/parisc/gsc.h
-index 86abad3fa215..73cbd0bb1975 100644
---- a/drivers/parisc/gsc.h
-+++ b/drivers/parisc/gsc.h
-@@ -31,6 +31,7 @@ struct gsc_asic {
- 	int version;
- 	int type;
- 	int eim;
-+	struct gsc_irq gsc_irq;
- 	int global_irq[32];
- };
- 
-diff --git a/drivers/parisc/lasi.c b/drivers/parisc/lasi.c
-index 4e4fd12c2112..6ef621adb63a 100644
---- a/drivers/parisc/lasi.c
-+++ b/drivers/parisc/lasi.c
-@@ -163,7 +163,6 @@ static int __init lasi_init_chip(struct parisc_device *dev)
- {
- 	extern void (*chassis_power_off)(void);
- 	struct gsc_asic *lasi;
--	struct gsc_irq gsc_irq;
- 	int ret;
- 
- 	lasi = kzalloc(sizeof(*lasi), GFP_KERNEL);
-@@ -185,7 +184,7 @@ static int __init lasi_init_chip(struct parisc_device *dev)
- 	lasi_init_irq(lasi);
- 
- 	/* the IRQ lasi should use */
--	dev->irq = gsc_alloc_irq(&gsc_irq);
-+	dev->irq = gsc_alloc_irq(&lasi->gsc_irq);
- 	if (dev->irq < 0) {
- 		printk(KERN_ERR "%s(): cannot get GSC irq\n",
- 				__func__);
-@@ -193,9 +192,9 @@ static int __init lasi_init_chip(struct parisc_device *dev)
- 		return -EBUSY;
- 	}
- 
--	lasi->eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
-+	lasi->eim = ((u32) lasi->gsc_irq.txn_addr) | lasi->gsc_irq.txn_data;
- 
--	ret = request_irq(gsc_irq.irq, gsc_asic_intr, 0, "lasi", lasi);
-+	ret = request_irq(lasi->gsc_irq.irq, gsc_asic_intr, 0, "lasi", lasi);
- 	if (ret < 0) {
- 		kfree(lasi);
- 		return ret;
-diff --git a/drivers/parisc/wax.c b/drivers/parisc/wax.c
-index 5b6df1516235..73a2b01f8d9c 100644
---- a/drivers/parisc/wax.c
-+++ b/drivers/parisc/wax.c
-@@ -68,7 +68,6 @@ static int __init wax_init_chip(struct parisc_device *dev)
- {
- 	struct gsc_asic *wax;
- 	struct parisc_device *parent;
--	struct gsc_irq gsc_irq;
- 	int ret;
- 
- 	wax = kzalloc(sizeof(*wax), GFP_KERNEL);
-@@ -85,7 +84,7 @@ static int __init wax_init_chip(struct parisc_device *dev)
- 	wax_init_irq(wax);
- 
- 	/* the IRQ wax should use */
--	dev->irq = gsc_claim_irq(&gsc_irq, WAX_GSC_IRQ);
-+	dev->irq = gsc_claim_irq(&wax->gsc_irq, WAX_GSC_IRQ);
- 	if (dev->irq < 0) {
- 		printk(KERN_ERR "%s(): cannot get GSC irq\n",
- 				__func__);
-@@ -93,9 +92,9 @@ static int __init wax_init_chip(struct parisc_device *dev)
- 		return -EBUSY;
- 	}
- 
--	wax->eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
-+	wax->eim = ((u32) wax->gsc_irq.txn_addr) | wax->gsc_irq.txn_data;
- 
--	ret = request_irq(gsc_irq.irq, gsc_asic_intr, 0, "wax", wax);
-+	ret = request_irq(wax->gsc_irq.irq, gsc_asic_intr, 0, "wax", wax);
- 	if (ret < 0) {
- 		kfree(wax);
- 		return ret;
+ void __kprobes __patch_text(void *addr, u32 insn)
 -- 
 2.35.1
 
