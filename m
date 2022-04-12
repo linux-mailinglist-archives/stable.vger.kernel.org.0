@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44CB04FDB09
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38A4D4FDB16
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377218AbiDLHtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45796 "EHLO
+        id S244127AbiDLHVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:21:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357675AbiDLHkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:37 -0400
+        with ESMTP id S1351845AbiDLHNA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661D237A19;
-        Tue, 12 Apr 2022 00:16:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6DB22A;
+        Mon, 11 Apr 2022 23:53:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AF94B81B4F;
-        Tue, 12 Apr 2022 07:16:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71421C385A5;
-        Tue, 12 Apr 2022 07:16:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B74ADB81B46;
+        Tue, 12 Apr 2022 06:53:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11194C385A6;
+        Tue, 12 Apr 2022 06:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747791;
-        bh=VZVvP87MYgzbE+UjduvwsVvKXx0jKM82k2v4eWM5gAM=;
+        s=korg; t=1649746411;
+        bh=KXy/IacbeYaGiCa4DIP5MYCW5TZXiRuOhqsi9RysQGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8uVWziAO6Thcmz0Thlu8gWgjxnfL0SoEyztoOYoBfn+MlEa61DmEEjpQ3S8uDtOv
-         yekPOexG0IWYloGpZo9Lalrdv+OaAewpOOZt7p63Skel7sn+NPjIRK27dBjnhtoTtk
-         7GBzpnoo8p3ShY6P+I2PSkJQz39bBYUA0zuvRJ4A=
+        b=kFYusc94Inyto0ytku9u5EUZaZKEscxWLw3yFszQFk4RMfrcXLw5u0SpZyXATT04a
+         qH2ukOylsa59t7n5Tt2h6uT/m/na7kb4MF29J6ZWC1KeF02F4ah/aEiLmImSKDieCl
+         UUmx2s88TPrVbpzMEjMb9dryGzwl6AFeQyuG7cHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 208/343] Revert "net: dsa: stop updating master MTU from master.c"
+        Neelima Krishnan <neelima.krishnan@intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 223/277] x86/speculation: Restore speculation related MSRs during S3 resume
 Date:   Tue, 12 Apr 2022 08:30:26 +0200
-Message-Id: <20220412062957.353260366@linuxfoundation.org>
+Message-Id: <20220412062948.498025226@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,88 +57,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit 066dfc4290406b1b0b014ae3267d4266a344efd1 ]
+commit e2a1256b17b16f9b9adf1b6fea56819e7b68e463 upstream.
 
-This reverts commit a1ff94c2973c43bc1e2677ac63ebb15b1d1ff846.
+After resuming from suspend-to-RAM, the MSRs that control CPU's
+speculative execution behavior are not being restored on the boot CPU.
 
-Switch drivers that don't implement ->port_change_mtu() will cause the
-DSA master to remain with an MTU of 1500, since we've deleted the other
-code path. In turn, this causes a regression for those systems, where
-MTU-sized traffic can no longer be terminated.
+These MSRs are used to mitigate speculative execution vulnerabilities.
+Not restoring them correctly may leave the CPU vulnerable.  Secondary
+CPU's MSRs are correctly being restored at S3 resume by
+identify_secondary_cpu().
 
-Revert the change taking into account the fact that rtnl_lock() is now
-taken top-level from the callers of dsa_master_setup() and
-dsa_master_teardown(). Also add a comment in order for it to be
-absolutely clear why it is still needed.
+During S3 resume, restore these MSRs for boot CPU when restoring its
+processor state.
 
-Fixes: a1ff94c2973c ("net: dsa: stop updating master MTU from master.c")
-Reported-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Tested-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 772439717dbf ("x86/bugs/intel: Set proper CPU features and setup RDS")
+Reported-by: Neelima Krishnan <neelima.krishnan@intel.com>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
+Acked-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/master.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ arch/x86/power/cpu.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/net/dsa/master.c b/net/dsa/master.c
-index 880f910b23a9..10b51ffbb6f4 100644
---- a/net/dsa/master.c
-+++ b/net/dsa/master.c
-@@ -337,11 +337,24 @@ static const struct attribute_group dsa_group = {
+--- a/arch/x86/power/cpu.c
++++ b/arch/x86/power/cpu.c
+@@ -503,10 +503,24 @@ static int pm_cpu_check(const struct x86
+ 	return ret;
+ }
  
- static struct lock_class_key dsa_master_addr_list_lock_key;
- 
-+static void dsa_master_reset_mtu(struct net_device *dev)
++static void pm_save_spec_msr(void)
 +{
-+	int err;
++	u32 spec_msr_id[] = {
++		MSR_IA32_SPEC_CTRL,
++		MSR_IA32_TSX_CTRL,
++		MSR_TSX_FORCE_ABORT,
++		MSR_IA32_MCU_OPT_CTRL,
++		MSR_AMD64_LS_CFG,
++	};
 +
-+	err = dev_set_mtu(dev, ETH_DATA_LEN);
-+	if (err)
-+		netdev_dbg(dev,
-+			   "Unable to reset MTU to exclude DSA overheads\n");
++	msr_build_context(spec_msr_id, ARRAY_SIZE(spec_msr_id));
 +}
 +
- int dsa_master_setup(struct net_device *dev, struct dsa_port *cpu_dp)
+ static int pm_check_save_msr(void)
  {
-+	const struct dsa_device_ops *tag_ops = cpu_dp->tag_ops;
- 	struct dsa_switch *ds = cpu_dp->ds;
- 	struct device_link *consumer_link;
--	int ret;
-+	int mtu, ret;
-+
-+	mtu = ETH_DATA_LEN + dsa_tag_protocol_overhead(tag_ops);
+ 	dmi_check_system(msr_save_dmi_table);
+ 	pm_cpu_check(msr_save_cpu_table);
++	pm_save_spec_msr();
  
- 	/* The DSA master must use SET_NETDEV_DEV for this to work. */
- 	consumer_link = device_link_add(ds->dev, dev->dev.parent,
-@@ -351,6 +364,15 @@ int dsa_master_setup(struct net_device *dev, struct dsa_port *cpu_dp)
- 			   "Failed to create a device link to DSA switch %s\n",
- 			   dev_name(ds->dev));
- 
-+	/* The switch driver may not implement ->port_change_mtu(), case in
-+	 * which dsa_slave_change_mtu() will not update the master MTU either,
-+	 * so we need to do that here.
-+	 */
-+	ret = dev_set_mtu(dev, mtu);
-+	if (ret)
-+		netdev_warn(dev, "error %d setting MTU to %d to include DSA overhead\n",
-+			    ret, mtu);
-+
- 	/* If we use a tagging format that doesn't have an ethertype
- 	 * field, make sure that all packets from this point on get
- 	 * sent to the tag format's receive function.
-@@ -388,6 +410,7 @@ void dsa_master_teardown(struct net_device *dev)
- 	sysfs_remove_group(&dev->dev.kobj, &dsa_group);
- 	dsa_netdev_ops_set(dev, NULL);
- 	dsa_master_ethtool_teardown(dev);
-+	dsa_master_reset_mtu(dev);
- 	dsa_master_set_promiscuity(dev, -1);
- 
- 	dev->dsa_ptr = NULL;
--- 
-2.35.1
-
+ 	return 0;
+ }
 
 
