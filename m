@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDFFB4FD3AD
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08C0B4FD3BC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351528AbiDLHUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:20:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57338 "EHLO
+        id S1377431AbiDLHuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:50:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351773AbiDLHMz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 831E0BEA;
-        Mon, 11 Apr 2022 23:52:27 -0700 (PDT)
+        with ESMTP id S1359053AbiDLHm1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 472F254FA5;
+        Tue, 12 Apr 2022 00:20:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4442AB81B4D;
-        Tue, 12 Apr 2022 06:52:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A891FC385AA;
-        Tue, 12 Apr 2022 06:52:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A80A86171C;
+        Tue, 12 Apr 2022 07:20:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD9F4C385A1;
+        Tue, 12 Apr 2022 07:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746345;
-        bh=NfeNvJW7Ua+DZevPzPJ9NzsiwccHYeffGmFmilqXX3c=;
+        s=korg; t=1649748006;
+        bh=et5H9Lo/I7eEZHEtzI0oQ2lysaJnffjyER3MhMUSTHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+SUpXzlXeQt4rgjp81NpP9fDrKyGOUkSjV8eaIrezXIWWlI/dnZpEmTkI4MulUg7
-         34dtCjHCmmIpZhICjVx/xNqVtFeDVSk6Af5tD6NHCaeCEzu/2tKVndcDpStUkWIcVy
-         UY7gqTRs8ptodZvUPQggMDMQIl8/VeD/tgbOlo5c=
+        b=HDdc2IoS9SMR5WIONiSqTEqfwmwGUgxGeuWWm4I3qtV/bGKP4z1P3N9a86KZwIsi/
+         cCs+xyBHqdKWicWV3a337fcsl4AdEqu7qjK2SZDphnLfoF4SpXW1DayH7rYXPDV+nN
+         LiZMRUiZlXeh6JxVcTPrFSsNOCxYBxJZZJ+iIqwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Dust Li <dust.li@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 249/277] net/smc: send directly on setting TCP_NODELAY
-Date:   Tue, 12 Apr 2022 08:30:52 +0200
-Message-Id: <20220412062949.248838414@linuxfoundation.org>
+        stable@vger.kernel.org, "Pudak, Filip" <Filip.Pudak@windriver.com>,
+        "Xiao, Jiguang" <Jiguang.Xiao@windriver.com>,
+        David Ahern <dsahern@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, Pudak@vger.kernel.org,
+        Xiao@vger.kernel.org
+Subject: [PATCH 5.17 235/343] ipv6: Fix stats accounting in ip6_pkt_drop
+Date:   Tue, 12 Apr 2022 08:30:53 +0200
+Message-Id: <20220412062958.118107935@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dust Li <dust.li@linux.alibaba.com>
+From: David Ahern <dsahern@kernel.org>
 
-commit b70a5cc045197aad9c159042621baf3c015f6cc7 upstream.
+[ Upstream commit 1158f79f82d437093aeed87d57df0548bdd68146 ]
 
-In commit ea785a1a573b("net/smc: Send directly when
-TCP_CORK is cleared"), we don't use delayed work
-to implement cork.
+VRF devices are the loopbacks for VRFs, and a loopback can not be
+assigned to a VRF. Accordingly, the condition in ip6_pkt_drop should
+be '||' not '&&'.
 
-This patch use the same algorithm, removes the
-delayed work when setting TCP_NODELAY and send
-directly in setsockopt(). This also makes the
-TCP_NODELAY the same as TCP.
-
-Cc: Tony Lu <tonylu@linux.alibaba.com>
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1d3fd8a10bed ("vrf: Use orig netdev to count Ip6InNoRoutes and a fresh route lookup when sending dest unreach")
+Reported-by: Pudak, Filip <Filip.Pudak@windriver.com>
+Reported-by: Xiao, Jiguang <Jiguang.Xiao@windriver.com>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220404150908.2937-1-dsahern@kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv6/route.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -2419,8 +2419,8 @@ static int smc_setsockopt(struct socket
- 		    sk->sk_state != SMC_CLOSED) {
- 			if (val) {
- 				SMC_STAT_INC(smc, ndly_cnt);
--				mod_delayed_work(smc->conn.lgr->tx_wq,
--						 &smc->conn.tx_work, 0);
-+				smc_tx_pending(&smc->conn);
-+				cancel_delayed_work(&smc->conn.tx_work);
- 			}
- 		}
- 		break;
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index ea1cf414a92e..da1bf48e7937 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -4495,7 +4495,7 @@ static int ip6_pkt_drop(struct sk_buff *skb, u8 code, int ipstats_mib_noroutes)
+ 	struct inet6_dev *idev;
+ 	int type;
+ 
+-	if (netif_is_l3_master(skb->dev) &&
++	if (netif_is_l3_master(skb->dev) ||
+ 	    dst->dev == net->loopback_dev)
+ 		idev = __in6_dev_get_safely(dev_get_by_index_rcu(net, IP6CB(skb)->iif));
+ 	else
+-- 
+2.35.1
+
 
 
