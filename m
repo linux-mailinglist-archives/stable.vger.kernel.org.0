@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 294B54FD019
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:40:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20E4F4FD206
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232690AbiDLGlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:41:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51146 "EHLO
+        id S1351223AbiDLHKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:10:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350233AbiDLGka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E54E9DFF5;
-        Mon, 11 Apr 2022 23:35:52 -0700 (PDT)
+        with ESMTP id S1352313AbiDLHFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1C02473AC;
+        Mon, 11 Apr 2022 23:48:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 821A86189D;
-        Tue, 12 Apr 2022 06:35:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3F3C385A6;
-        Tue, 12 Apr 2022 06:35:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FDCF60A21;
+        Tue, 12 Apr 2022 06:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1975C385A6;
+        Tue, 12 Apr 2022 06:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745351;
-        bh=/fyNU2jQ0GY/xEUeQvAY0GkNqnk3cCoC8vzyPTWdNLA=;
+        s=korg; t=1649746080;
+        bh=5c7qbwUg4dhWQv9ZheJcLAo+7noBOw8SDyf2a6K/Dws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XSTQebteFUx9SlegEUjMgR3PjXQfqOINu7tvbrtSke+CCNtc9YOxZiaDqn+K8I3pz
-         S9sDhyr3P5diKtRSOgFSoKUNPB72f0blXGhN9WZlbVdEAZo3uCTt6dnywb0Crq+dUD
-         joXdaS2iW7FiX3TJWSfj41GiqHuPuL+ykURimZs4=
+        b=k3/rxo10Es0i6JtjuROMkO7YdX+y3JgwXchohxgJcq2Aop9JkntNk/tvYjaJ+WwYA
+         EH2ANXZR5+iX0tjekHC7mb6EZsOJt5OI5taNs/p4yfCLM+3b+mT4gfDMENDNBL49vW
+         gpt+olEEtlhLeNkcPKo9p4t4u0n80061RCsiu7Rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/171] MIPS: ingenic: correct unit node address
+Subject: [PATCH 5.15 154/277] vdpa/mlx5: Rename control VQ workqueue to vdpa wq
 Date:   Tue, 12 Apr 2022 08:29:17 +0200
-Message-Id: <20220412062929.793018435@linuxfoundation.org>
+Message-Id: <20220412062946.496512297@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit 8931ddd8d6a55fcefb20f44a38ba42bb746f0b62 ]
+[ Upstream commit 218bdd20e56cab41a68481bc10c551ae3e0a24fb ]
 
-Unit node addresses should not have leading 0x:
+A subesequent patch will use the same workqueue for executing other
+work not related to control VQ. Rename the workqueue and the work queue
+entry used to convey information to the workqueue.
 
-  Warning (unit_address_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name should not have leading "0x"
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20210909123635.30884-3-elic@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/dts/ingenic/jz4780.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h | 2 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/boot/dts/ingenic/jz4780.dtsi b/arch/mips/boot/dts/ingenic/jz4780.dtsi
-index dfb5a7e1bb21..830e5dd3550e 100644
---- a/arch/mips/boot/dts/ingenic/jz4780.dtsi
-+++ b/arch/mips/boot/dts/ingenic/jz4780.dtsi
-@@ -429,7 +429,7 @@
- 			#address-cells = <1>;
- 			#size-cells = <1>;
+diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+index 01a848adf590..81dc3d88d3dd 100644
+--- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
++++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+@@ -63,7 +63,7 @@ struct mlx5_control_vq {
+ 	unsigned short head;
+ };
  
--			eth0_addr: eth-mac-addr@0x22 {
-+			eth0_addr: eth-mac-addr@22 {
- 				reg = <0x22 0x6>;
- 			};
- 		};
+-struct mlx5_ctrl_wq_ent {
++struct mlx5_vdpa_wq_ent {
+ 	struct work_struct work;
+ 	struct mlx5_vdpa_dev *mvdev;
+ };
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index f77a611f592f..f769e2dc6d26 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1573,14 +1573,14 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
+ {
+ 	virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
+ 	struct virtio_net_ctrl_hdr ctrl;
+-	struct mlx5_ctrl_wq_ent *wqent;
++	struct mlx5_vdpa_wq_ent *wqent;
+ 	struct mlx5_vdpa_dev *mvdev;
+ 	struct mlx5_control_vq *cvq;
+ 	struct mlx5_vdpa_net *ndev;
+ 	size_t read, write;
+ 	int err;
+ 
+-	wqent = container_of(work, struct mlx5_ctrl_wq_ent, work);
++	wqent = container_of(work, struct mlx5_vdpa_wq_ent, work);
+ 	mvdev = wqent->mvdev;
+ 	ndev = to_mlx5_vdpa_ndev(mvdev);
+ 	cvq = &mvdev->cvq;
+@@ -1632,7 +1632,7 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
+ 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+ 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+ 	struct mlx5_vdpa_virtqueue *mvq;
+-	struct mlx5_ctrl_wq_ent *wqent;
++	struct mlx5_vdpa_wq_ent *wqent;
+ 
+ 	if (!is_index_valid(mvdev, idx))
+ 		return;
+@@ -2502,7 +2502,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name)
+ 	if (err)
+ 		goto err_mr;
+ 
+-	mvdev->wq = create_singlethread_workqueue("mlx5_vdpa_ctrl_wq");
++	mvdev->wq = create_singlethread_workqueue("mlx5_vdpa_wq");
+ 	if (!mvdev->wq) {
+ 		err = -ENOMEM;
+ 		goto err_res2;
 -- 
 2.35.1
 
