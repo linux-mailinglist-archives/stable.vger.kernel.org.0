@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD86E4FD0B7
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6B834FD0CE
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:49:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350644AbiDLGuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:50:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58248 "EHLO
+        id S239628AbiDLGwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:52:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350641AbiDLGsy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:48:54 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A4827B08;
-        Mon, 11 Apr 2022 23:39:43 -0700 (PDT)
+        with ESMTP id S1350624AbiDLGuF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:50:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4066D27CEB;
+        Mon, 11 Apr 2022 23:39:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E6692CE1C0A;
-        Tue, 12 Apr 2022 06:39:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A92CC385A6;
-        Tue, 12 Apr 2022 06:39:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38476B81B40;
+        Tue, 12 Apr 2022 06:39:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A88FEC385AC;
+        Tue, 12 Apr 2022 06:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745580;
-        bh=3fNIY7gj5O8iP3OpJo6RDD0wS09r6SQuyal2PHvLmwU=;
+        s=korg; t=1649745583;
+        bh=o/sM6v6M4Sew2tuYep2bzHUM3679jckNvT+mDdQpves=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YnDPz1bB2AOJUykW8HSK4hem29pbehvkRDqRLs//39rAFikEeTRkaJGOLyfPXZnIk
-         MheCvfTLDSKZnnQ2Fd+tO5//BjQJkb9p2LrwZCkH9PDkAJGqv3IAwH6dXFGfK5OLFH
-         H96KiakNuIm2r7raS/B/hw5x+4vMmM4GkHFkb33Q=
+        b=Sk1EyDF1OnV9ZF+dMEeFvIBvdTGo8Sv6H+OJfIkmrGrlc72zkavj9myGIzrJorCmP
+         yLmQU+/YLa1pRaQSDV1rvtZRZ5EZ8qtk4pUmS2UgoRkzMfhGt7Uydw9HqodaaAti45
+         bB6NDe5HIblppB5KPie0++qBz9OO5tXvtMySkTXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Ethan Lien <ethanlien@synology.com>,
+        stable@vger.kernel.org, Robbie Ko <robbieko@synology.com>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        Kaiwen Hu <kevinhu@synology.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 144/171] btrfs: fix qgroup reserve overflow the qgroup limit
-Date:   Tue, 12 Apr 2022 08:30:35 +0200
-Message-Id: <20220412062932.057649062@linuxfoundation.org>
+Subject: [PATCH 5.10 145/171] btrfs: prevent subvol with swapfile from being deleted
+Date:   Tue, 12 Apr 2022 08:30:36 +0200
+Message-Id: <20220412062932.087459050@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -54,90 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ethan Lien <ethanlien@synology.com>
+From: Kaiwen Hu <kevinhu@synology.com>
 
-commit b642b52d0b50f4d398cb4293f64992d0eed2e2ce upstream.
+commit 60021bd754c6ca0addc6817994f20290a321d8d6 upstream.
 
-We use extent_changeset->bytes_changed in qgroup_reserve_data() to record
-how many bytes we set for EXTENT_QGROUP_RESERVED state. Currently the
-bytes_changed is set as "unsigned int", and it will overflow if we try to
-fallocate a range larger than 4GiB. The result is we reserve less bytes
-and eventually break the qgroup limit.
+A subvolume with an active swapfile must not be deleted otherwise it
+would not be possible to deactivate it.
 
-Unlike regular buffered/direct write, which we use one changeset for
-each ordered extent, which can never be larger than 256M.  For
-fallocate, we use one changeset for the whole range, thus it no longer
-respects the 256M per extent limit, and caused the problem.
+After the subvolume is deleted, we cannot swapoff the swapfile in this
+deleted subvolume because the path is unreachable.  The swapfile is
+still active and holding references, the filesystem cannot be unmounted.
 
-The following example test script reproduces the problem:
+The test looks like this:
 
-  $ cat qgroup-overflow.sh
-  #!/bin/bash
+  mkfs.btrfs -f $dev > /dev/null
+  mount $dev $mnt
 
-  DEV=/dev/sdj
-  MNT=/mnt/sdj
+  btrfs sub create $mnt/subvol
+  touch $mnt/subvol/swapfile
+  chmod 600 $mnt/subvol/swapfile
+  chattr +C $mnt/subvol/swapfile
+  dd if=/dev/zero of=$mnt/subvol/swapfile bs=1K count=4096
+  mkswap $mnt/subvol/swapfile
+  swapon $mnt/subvol/swapfile
 
-  mkfs.btrfs -f $DEV
-  mount $DEV $MNT
+  btrfs sub delete $mnt/subvol
+  swapoff $mnt/subvol/swapfile  # failed: No such file or directory
+  swapoff --all
 
-  # Set qgroup limit to 2GiB.
-  btrfs quota enable $MNT
-  btrfs qgroup limit 2G $MNT
+  unmount $mnt                  # target is busy.
 
-  # Try to fallocate a 3GiB file. This should fail.
-  echo
-  echo "Try to fallocate a 3GiB file..."
-  fallocate -l 3G $MNT/3G.file
+To prevent above issue, we simply check that whether the subvolume
+contains any active swapfile, and stop the deleting process.  This
+behavior is like snapshot ioctl dealing with a swapfile.
 
-  # Try to fallocate a 5GiB file.
-  echo
-  echo "Try to fallocate a 5GiB file..."
-  fallocate -l 5G $MNT/5G.file
-
-  # See we break the qgroup limit.
-  echo
-  sync
-  btrfs qgroup show -r $MNT
-
-  umount $MNT
-
-When running the test:
-
-  $ ./qgroup-overflow.sh
-  (...)
-
-  Try to fallocate a 3GiB file...
-  fallocate: fallocate failed: Disk quota exceeded
-
-  Try to fallocate a 5GiB file...
-
-  qgroupid         rfer         excl     max_rfer
-  --------         ----         ----     --------
-  0/5           5.00GiB      5.00GiB      2.00GiB
-
-Since we have no control of how bytes_changed is used, it's better to
-set it to u64.
-
-CC: stable@vger.kernel.org # 4.14+
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Robbie Ko <robbieko@synology.com>
 Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Ethan Lien <ethanlien@synology.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Kaiwen Hu <kevinhu@synology.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/inode.c |   24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/extent_io.h
-+++ b/fs/btrfs/extent_io.h
-@@ -121,7 +121,7 @@ struct extent_buffer {
-  */
- struct extent_changeset {
- 	/* How many bytes are set/cleared in this operation */
--	unsigned int bytes_changed;
-+	u64 bytes_changed;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -4023,6 +4023,13 @@ int btrfs_delete_subvolume(struct inode
+ 			   dest->root_key.objectid);
+ 		return -EPERM;
+ 	}
++	if (atomic_read(&dest->nr_swapfiles)) {
++		spin_unlock(&dest->root_item_lock);
++		btrfs_warn(fs_info,
++			   "attempt to delete subvolume %llu with active swapfile",
++			   root->root_key.objectid);
++		return -EPERM;
++	}
+ 	root_flags = btrfs_root_flags(&dest->root_item);
+ 	btrfs_set_root_flags(&dest->root_item,
+ 			     root_flags | BTRFS_ROOT_SUBVOL_DEAD);
+@@ -10215,8 +10222,23 @@ static int btrfs_swap_activate(struct sw
+ 	 * set. We use this counter to prevent snapshots. We must increment it
+ 	 * before walking the extents because we don't want a concurrent
+ 	 * snapshot to run after we've already checked the extents.
+-	 */
++	 *
++	 * It is possible that subvolume is marked for deletion but still not
++	 * removed yet. To prevent this race, we check the root status before
++	 * activating the swapfile.
++	 */
++	spin_lock(&root->root_item_lock);
++	if (btrfs_root_dead(root)) {
++		spin_unlock(&root->root_item_lock);
++
++		btrfs_exclop_finish(fs_info);
++		btrfs_warn(fs_info,
++		"cannot activate swapfile because subvolume %llu is being deleted",
++			root->root_key.objectid);
++		return -EPERM;
++	}
+ 	atomic_inc(&root->nr_swapfiles);
++	spin_unlock(&root->root_item_lock);
  
- 	/* Changed ranges */
- 	struct ulist range_changed;
+ 	isize = ALIGN_DOWN(inode->i_size, fs_info->sectorsize);
+ 
 
 
