@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7BD4FD100
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 337B44FD102
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230021AbiDLG4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:56:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48494 "EHLO
+        id S1350722AbiDLG4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:56:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351446AbiDLGxh (ORCPT
+        with ESMTP id S1351447AbiDLGxh (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84EA53DA48;
-        Mon, 11 Apr 2022 23:40:44 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9666537A02;
+        Mon, 11 Apr 2022 23:40:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F3EBB81B29;
-        Tue, 12 Apr 2022 06:40:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80B43C385A6;
-        Tue, 12 Apr 2022 06:40:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3269D6066C;
+        Tue, 12 Apr 2022 06:40:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44291C385A6;
+        Tue, 12 Apr 2022 06:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745641;
-        bh=oDImVcA9cfPt7E/z+vtoCCvZwDU3/Nit5GS/d6jmwkg=;
+        s=korg; t=1649745644;
+        bh=y2DNNVBx5SWbbmfK9tHTVRVLPLpPxg3WP4QUXKjhOXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+o/iUxBf/zyiA1NSu7553Z+g9BEM58UBnEyI1I5EVGNwD7e3LKsaTmal7Yx7fbYZ
-         Jb9gDHgkOVcA3wPmlTYagxTr0eWIX2GCvtw1dwH0JqDrWA+hsurWSnHLVjitVSK6yk
-         GbtX9ciUVV7rzmbqCi5ULJ8BnxJ6YqLIfikUS/tk=
+        b=EqbbaiRzD8qoEXKHrRVwj3VpsCU+Vs8Oq8WVJvCTD709NNGM7H/4apnogzE3SlRN9
+         zxA68/V+2dPRx6RnabbPkIDQ8aIzxcFPGqzyJjy4SndxCK1bMX32u8jceVW5aI8c7c
+         Map+xl580hXTgvlzpC8R9jeTkkd1ErnJrYNy31UM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Wei Liu <wei.liu@kernel.org>
-Subject: [PATCH 5.10 168/171] Drivers: hv: vmbus: Replace smp_store_mb() with virt_store_mb()
-Date:   Tue, 12 Apr 2022 08:30:59 +0200
-Message-Id: <20220412062932.761365844@linuxfoundation.org>
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.10 169/171] irqchip/gic, gic-v3: Prevent GSI to SGI translations
+Date:   Tue, 12 Apr 2022 08:31:00 +0200
+Message-Id: <20220412062932.790182051@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -54,49 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-commit eaa03d34535872d29004cb5cf77dc9dec1ba9a25 upstream.
+commit 544808f7e21cb9ccdb8f3aa7de594c05b1419061 upstream.
 
-Following the recommendation in Documentation/memory-barriers.txt for
-virtual machine guests.
+At the moment the GIC IRQ domain translation routine happily converts
+ACPI table GSI numbers below 16 to GIC SGIs (Software Generated
+Interrupts aka IPIs). On the Devicetree side we explicitly forbid this
+translation, actually the function will never return HWIRQs below 16 when
+using a DT based domain translation.
 
-Fixes: 8b6a877c060ed ("Drivers: hv: vmbus: Replace the per-CPU channel lists with a global array of channels")
-Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Link: https://lore.kernel.org/r/20220328154457.100872-1-parri.andrea@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+We expect SGIs to be handled in the first part of the function, and any
+further occurrence should be treated as a firmware bug, so add a check
+and print to report this explicitly and avoid lengthy debug sessions.
+
+Fixes: 64b499d8df40 ("irqchip/gic-v3: Configure SGIs as standard interrupts")
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220404110842.2882446-1-andre.przywara@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hv/channel_mgmt.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/irqchip/irq-gic-v3.c |    6 ++++++
+ drivers/irqchip/irq-gic.c    |    6 ++++++
+ 2 files changed, 12 insertions(+)
 
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -350,7 +350,7 @@ void vmbus_channel_map_relid(struct vmbu
- 	 * execute:
- 	 *
- 	 *  (a) In the "normal (i.e., not resuming from hibernation)" path,
--	 *      the full barrier in smp_store_mb() guarantees that the store
-+	 *      the full barrier in virt_store_mb() guarantees that the store
- 	 *      is propagated to all CPUs before the add_channel_work work
- 	 *      is queued.  In turn, add_channel_work is queued before the
- 	 *      channel's ring buffer is allocated/initialized and the
-@@ -362,14 +362,14 @@ void vmbus_channel_map_relid(struct vmbu
- 	 *      recv_int_page before retrieving the channel pointer from the
- 	 *      array of channels.
- 	 *
--	 *  (b) In the "resuming from hibernation" path, the smp_store_mb()
-+	 *  (b) In the "resuming from hibernation" path, the virt_store_mb()
- 	 *      guarantees that the store is propagated to all CPUs before
- 	 *      the VMBus connection is marked as ready for the resume event
- 	 *      (cf. check_ready_for_resume_event()).  The interrupt handler
- 	 *      of the VMBus driver and vmbus_chan_sched() can not run before
- 	 *      vmbus_bus_resume() has completed execution (cf. resume_noirq).
- 	 */
--	smp_store_mb(
-+	virt_store_mb(
- 		vmbus_connection.channels[channel->offermsg.child_relid],
- 		channel);
- }
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -1467,6 +1467,12 @@ static int gic_irq_domain_translate(stru
+ 		if(fwspec->param_count != 2)
+ 			return -EINVAL;
+ 
++		if (fwspec->param[0] < 16) {
++			pr_err(FW_BUG "Illegal GSI%d translation request\n",
++			       fwspec->param[0]);
++			return -EINVAL;
++		}
++
+ 		*hwirq = fwspec->param[0];
+ 		*type = fwspec->param[1];
+ 
+--- a/drivers/irqchip/irq-gic.c
++++ b/drivers/irqchip/irq-gic.c
+@@ -1094,6 +1094,12 @@ static int gic_irq_domain_translate(stru
+ 		if(fwspec->param_count != 2)
+ 			return -EINVAL;
+ 
++		if (fwspec->param[0] < 16) {
++			pr_err(FW_BUG "Illegal GSI%d translation request\n",
++			       fwspec->param[0]);
++			return -EINVAL;
++		}
++
+ 		*hwirq = fwspec->param[0];
+ 		*type = fwspec->param[1];
+ 
 
 
