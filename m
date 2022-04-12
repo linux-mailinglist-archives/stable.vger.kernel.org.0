@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE194FD465
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 352474FD6C7
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353353AbiDLHds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42618 "EHLO
+        id S1354560AbiDLHsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:48:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353561AbiDLHZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BEFA25EA7;
-        Tue, 12 Apr 2022 00:01:25 -0700 (PDT)
+        with ESMTP id S1357529AbiDLHk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1E452ED4B;
+        Tue, 12 Apr 2022 00:15:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C794DB81B35;
-        Tue, 12 Apr 2022 07:01:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA59C385A6;
-        Tue, 12 Apr 2022 07:01:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 083286171C;
+        Tue, 12 Apr 2022 07:15:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D303C385A1;
+        Tue, 12 Apr 2022 07:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746882;
-        bh=eyF2VnUNxOloLVIPfKJn9iNPrihstZvyrnDzYF9Nnbs=;
+        s=korg; t=1649747758;
+        bh=WXPNMbKHeZmu5I4cLSUJ3+i9FCuDQHO/zys4GIzz3F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZsdwr8np/GYYJO4uQ9f2DJZ6t+pfD+AoCMijirN94XG7gL+w+cISNmAL3UgBl54s
-         VYpYSmYjjx5RJEKkAqoXl8z+taqbLKBDx02mSKiLTPyb8ycK0FNTAEZy4CLuLhePOk
-         SVAWet6tcFtRzoLQz/elHGeQXNAwWyHWKLGLsJqE=
+        b=iWxTdCDdliCiydxzSRpbpw803YXFZGimimn7OsPUQHv6v7MHvd4vYu0gVZl96CpRv
+         V4OqhzEJMXK+LANBMMKgsNRugzS09bS/AvmXo6Fns4Bo7Qc6JMvxdA/E0NPplCD1SK
+         hFdula2Zv7pqp8AggRqlbXz7X7Uqy2ZEA1k5+ZOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
-        Robert Hancock <robert.hancock@calian.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 114/285] clk: si5341: fix reported clk_rate when output divider is 2
-Date:   Tue, 12 Apr 2022 08:29:31 +0200
-Message-Id: <20220412062946.956613334@linuxfoundation.org>
+Subject: [PATCH 5.17 154/343] init/main.c: return 1 from handled __setup() functions
+Date:   Tue, 12 Apr 2022 08:29:32 +0200
+Message-Id: <20220412062955.822813285@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Wujek <dev_public@wujek.eu>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 2a8b539433e111c4de364237627ef219d2f6350a ]
+[ Upstream commit f9a40b0890658330c83c95511f9d6b396610defc ]
 
-SI5341_OUT_CFG_RDIV_FORCE2 shall be checked first to distinguish whether
-a divider for a given output is set to 2 (SI5341_OUT_CFG_RDIV_FORCE2
-is set) or the output is disabled (SI5341_OUT_CFG_RDIV_FORCE2 not set,
-SI5341_OUT_R_REG is set 0).
-Before the change, divider set to 2 (SI5341_OUT_R_REG set to 0) was
-interpreted as output is disabled.
+initcall_blacklist() should return 1 to indicate that it handled its
+cmdline arguments.
 
-Signed-off-by: Adam Wujek <dev_public@wujek.eu>
-Link: https://lore.kernel.org/r/20211203141125.2447520-1-dev_public@wujek.eu
-Reviewed-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+set_debug_rodata() should return 1 to indicate that it handled its
+cmdline arguments.  Print a warning if the option string is invalid.
+
+This prevents these strings from being added to the 'init' program's
+environment as they are not init arguments/parameters.
+
+Link: https://lkml.kernel.org/r/20220221050901.23985-1-rdunlap@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-si5341.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ init/main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
-index f7b41366666e..4de098b6b0d4 100644
---- a/drivers/clk/clk-si5341.c
-+++ b/drivers/clk/clk-si5341.c
-@@ -798,6 +798,15 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
- 	u32 r_divider;
- 	u8 r[3];
+diff --git a/init/main.c b/init/main.c
+index ada50f5a15e4..9a5097b2251a 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1192,7 +1192,7 @@ static int __init initcall_blacklist(char *str)
+ 		}
+ 	} while (str_entry);
  
-+	err = regmap_read(output->data->regmap,
-+			SI5341_OUT_CONFIG(output), &val);
-+	if (err < 0)
-+		return err;
-+
-+	/* If SI5341_OUT_CFG_RDIV_FORCE2 is set, r_divider is 2 */
-+	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
-+		return parent_rate / 2;
-+
- 	err = regmap_bulk_read(output->data->regmap,
- 			SI5341_OUT_R_REG(output), r, 3);
- 	if (err < 0)
-@@ -814,13 +823,6 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
- 	r_divider += 1;
- 	r_divider <<= 1;
- 
--	err = regmap_read(output->data->regmap,
--			SI5341_OUT_CONFIG(output), &val);
--	if (err < 0)
--		return err;
--
--	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
--		r_divider = 2;
- 
- 	return parent_rate / r_divider;
+-	return 0;
++	return 1;
  }
+ 
+ static bool __init_or_module initcall_blacklisted(initcall_t fn)
+@@ -1454,7 +1454,9 @@ static noinline void __init kernel_init_freeable(void);
+ bool rodata_enabled __ro_after_init = true;
+ static int __init set_debug_rodata(char *str)
+ {
+-	return strtobool(str, &rodata_enabled);
++	if (strtobool(str, &rodata_enabled))
++		pr_warn("Invalid option string for rodata: '%s'\n", str);
++	return 1;
+ }
+ __setup("rodata=", set_debug_rodata);
+ #endif
 -- 
 2.35.1
 
