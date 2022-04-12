@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 724994FD636
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4DB34FD7AD
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:30:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351583AbiDLHUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:20:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57430 "EHLO
+        id S1353615AbiDLHeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:34:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351795AbiDLHM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C050C10EB;
-        Mon, 11 Apr 2022 23:52:49 -0700 (PDT)
+        with ESMTP id S1353705AbiDLHZw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C35F2610F;
+        Tue, 12 Apr 2022 00:03:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63D10B81B35;
-        Tue, 12 Apr 2022 06:52:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88289C385A6;
-        Tue, 12 Apr 2022 06:52:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAB2860B2B;
+        Tue, 12 Apr 2022 07:03:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F259EC385A1;
+        Tue, 12 Apr 2022 07:03:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746367;
-        bh=SoCb/hdLcNc5aCFlOmgnS1sQDkhgqCLKwaaJREOg48A=;
+        s=korg; t=1649747033;
+        bh=d99ktAmACl+jsTaV4QjDI+M78GFyfOHnTePoKIlYgB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMn3qxhoRsYtMFBjpJ6vC1uACkJeIkaPKm0KICmXff3kP9h/NgEo2in6yDjGK8qq7
-         nz222yjWEr23LLV+UmdhCyw7EuI0Hfo1F4/QxnUaU8CGBGR53UYXO6+zujVieHMbXc
-         LZH4PUui8/t3zOTejuYUa+gQ8+U0uB6ZN3JnuBmc=
+        b=QKjfjtsyHBX444m/ki5ioFlubnKoFfaL1O3fMTExUztCKs6kWzY7q1+BD9TZ9q5jP
+         pvavxb5Zx1BPcRULnAw9I/mKV+mAtpC8H6cxtzy2MpbDufPwAQ7Oaccdtlijyij4kx
+         LtJRx/TNLmQTHZ+FpmH0w/lQM0Nt9IFVelQCew8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Fangrui Song <maskray@google.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        John Keeping <john@metanate.com>, Leo Yan <leo.yan@linaro.org>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 256/277] perf build: Dont use -ffat-lto-objects in the python feature test when building with clang-13
+        stable@vger.kernel.org, Daejun Park <daejun7.park@samsung.com>,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 202/285] scsi: ufs: ufshpb: Fix a NULL check on list iterator
 Date:   Tue, 12 Apr 2022 08:30:59 +0200
-Message-Id: <20220412062949.449788404@linuxfoundation.org>
+Message-Id: <20220412062949.490739902@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,61 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 3a8a0475861a443f02e3a9b57d044fe2a0a99291 upstream.
+[ Upstream commit bfb7789bcbd901caead43861461bc8f334c90d3b ]
 
-Using -ffat-lto-objects in the python feature test when building with
-clang-13 results in:
+The list iterator is always non-NULL so the check 'if (!rgn)' is always
+false and the dev_err() is never called. Move the check outside the loop
+and determine if 'victim_rgn' is NULL, to fix this bug.
 
-  clang-13: error: optimization flag '-ffat-lto-objects' is not supported [-Werror,-Wignored-optimization-argument]
-  error: command '/usr/sbin/clang' failed with exit code 1
-  cp: cannot stat '/tmp/build/perf/python_ext_build/lib/perf*.so': No such file or directory
-  make[2]: *** [Makefile.perf:639: /tmp/build/perf/python/perf.so] Error 1
-
-Noticed when building on a docker.io/library/archlinux:base container.
-
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Fangrui Song <maskray@google.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Keeping <john@metanate.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220320150733.21824-1-xiam0nd.tong@gmail.com
+Fixes: 4b5f49079c52 ("scsi: ufs: ufshpb: L2P map management for HPB read")
+Reviewed-by: Daejun Park <daejun7.park@samsung.com>
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/Makefile.config |    3 +++
- tools/perf/util/setup.py   |    2 ++
- 2 files changed, 5 insertions(+)
+ drivers/scsi/ufs/ufshpb.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -270,6 +270,9 @@ ifdef PYTHON_CONFIG
-   PYTHON_EMBED_LIBADD := $(call grep-libs,$(PYTHON_EMBED_LDOPTS)) -lutil
-   PYTHON_EMBED_CCOPTS := $(shell $(PYTHON_CONFIG_SQ) --includes 2>/dev/null)
-   FLAGS_PYTHON_EMBED := $(PYTHON_EMBED_CCOPTS) $(PYTHON_EMBED_LDOPTS)
-+  ifeq ($(CC_NO_CLANG), 0)
-+    PYTHON_EMBED_CCOPTS := $(filter-out -ffat-lto-objects, $(PYTHON_EMBED_CCOPTS))
-+  endif
- endif
+diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
+index ded5ba9b1466..54c3b8f34c0a 100644
+--- a/drivers/scsi/ufs/ufshpb.c
++++ b/drivers/scsi/ufs/ufshpb.c
+@@ -870,12 +870,6 @@ static struct ufshpb_region *ufshpb_victim_lru_info(struct ufshpb_lu *hpb)
+ 	struct ufshpb_region *rgn, *victim_rgn = NULL;
  
- FEATURE_CHECK_CFLAGS-libpython := $(PYTHON_EMBED_CCOPTS)
---- a/tools/perf/util/setup.py
-+++ b/tools/perf/util/setup.py
-@@ -23,6 +23,8 @@ if cc_is_clang:
-             vars[var] = sub("-fstack-protector-strong", "", vars[var])
-         if not clang_has_option("-fno-semantic-interposition"):
-             vars[var] = sub("-fno-semantic-interposition", "", vars[var])
-+        if not clang_has_option("-ffat-lto-objects"):
-+            vars[var] = sub("-ffat-lto-objects", "", vars[var])
+ 	list_for_each_entry(rgn, &lru_info->lh_lru_rgn, list_lru_rgn) {
+-		if (!rgn) {
+-			dev_err(&hpb->sdev_ufs_lu->sdev_dev,
+-				"%s: no region allocated\n",
+-				__func__);
+-			return NULL;
+-		}
+ 		if (ufshpb_check_srgns_issue_state(hpb, rgn))
+ 			continue;
  
- from distutils.core import setup, Extension
+@@ -891,6 +885,11 @@ static struct ufshpb_region *ufshpb_victim_lru_info(struct ufshpb_lu *hpb)
+ 		break;
+ 	}
  
++	if (!victim_rgn)
++		dev_err(&hpb->sdev_ufs_lu->sdev_dev,
++			"%s: no region allocated\n",
++			__func__);
++
+ 	return victim_rgn;
+ }
+ 
+-- 
+2.35.1
+
 
 
