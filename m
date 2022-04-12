@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E194FD425
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B824FD416
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352221AbiDLHXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46030 "EHLO
+        id S1352280AbiDLHXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353826AbiDLHQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:16:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A6F4198A;
-        Mon, 11 Apr 2022 23:57:36 -0700 (PDT)
+        with ESMTP id S1353951AbiDLHQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:16:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A14B3424A6;
+        Mon, 11 Apr 2022 23:57:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B5F36106D;
-        Tue, 12 Apr 2022 06:57:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DC58C385A1;
-        Tue, 12 Apr 2022 06:57:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 321DAB81B35;
+        Tue, 12 Apr 2022 06:57:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4FDDC385A1;
+        Tue, 12 Apr 2022 06:57:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746655;
-        bh=1GkKwk1Smn0Ic42DW/lQRAsZetroUsxjDHj4KIJeJ40=;
+        s=korg; t=1649746669;
+        bh=aABrg2qXOHwWj9zhs2YvoI7o2oQfRonePBbJJ9XmXCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5mCEQCIcs4m3WSKjf0yUqWvAJDHt2kkDoYvDTw1zeQaB1sMiQdISbA6jtJtPnfe1
-         /dLL9vxKpbvv4jZuPuyQIBn0/kNMedyfN6jd+CiVu+zgVKEZ5V58euiWoSxkqMEoB+
-         spE4moOKQMEs80pxktnBJztBbeKDLWDyfEzptacQ=
+        b=aLcRtBPKUGAkKMS9e9QH2TjLN28qzTYB/ZjQCaSCYwcxgkbD7yABuob/gu5XwCu4e
+         8USIze0A4NILre04n2pvRXbVoZHMNB8QHVmWzErnkA4QeDJpdXpeaG7QXGN6wML+L4
+         03Hd7JHK8skuBWy8JnT5BUaqD55cEGp8qJFo5taE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Harold Huang <baymaxhuang@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 084/285] tuntap: add sanity checks about msg_controllen in sendmsg
-Date:   Tue, 12 Apr 2022 08:29:01 +0200
-Message-Id: <20220412062946.089179753@linuxfoundation.org>
+Subject: [PATCH 5.16 089/285] MIPS: fix fortify panic when copying asm exception handlers
+Date:   Tue, 12 Apr 2022 08:29:06 +0200
+Message-Id: <20220412062946.231665606@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -56,69 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harold Huang <baymaxhuang@gmail.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-[ Upstream commit 74a335a07a17d131b9263bfdbdcb5e40673ca9ca ]
+[ Upstream commit d17b66417308996e7e64b270a3c7f3c1fbd4cfc8 ]
 
-In patch [1], tun_msg_ctl was added to allow pass batched xdp buffers to
-tun_sendmsg. Although we donot use msg_controllen in this path, we should
-check msg_controllen to make sure the caller pass a valid msg_ctl.
+With KCFLAGS="-O3", I was able to trigger a fortify-source
+memcpy() overflow panic on set_vi_srs_handler().
+Although O3 level is not supported in the mainline, under some
+conditions that may've happened with any optimization settings,
+it's just a matter of inlining luck. The panic itself is correct,
+more precisely, 50/50 false-positive and not at the same time.
+>From the one side, no real overflow happens. Exception handler
+defined in asm just gets copied to some reserved places in the
+memory.
+But the reason behind is that C code refers to that exception
+handler declares it as `char`, i.e. something of 1 byte length.
+It's obvious that the asm function itself is way more than 1 byte,
+so fortify logics thought we are going to past the symbol declared.
+The standard way to refer to asm symbols from C code which is not
+supposed to be called from C is to declare them as
+`extern const u8[]`. This is fully correct from any point of view,
+as any code itself is just a bunch of bytes (including 0 as it is
+for syms like _stext/_etext/etc.), and the exact size is not known
+at the moment of compilation.
+Adjust the type of the except_vec_vi_*() and related variables.
+Make set_handler() take `const` as a second argument to avoid
+cast-away warnings and give a little more room for optimization.
 
-[1]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fe8dd45bb7556246c6b76277b1ba4296c91c2505
-
-Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Harold Huang <baymaxhuang@gmail.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20220303022441.383865-1-baymaxhuang@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/tap.c   | 3 ++-
- drivers/net/tun.c   | 3 ++-
- drivers/vhost/net.c | 1 +
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/setup.h |  2 +-
+ arch/mips/kernel/traps.c      | 22 +++++++++++-----------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/tap.c b/drivers/net/tap.c
-index 8e3a28ba6b28..ba2ef5437e16 100644
---- a/drivers/net/tap.c
-+++ b/drivers/net/tap.c
-@@ -1198,7 +1198,8 @@ static int tap_sendmsg(struct socket *sock, struct msghdr *m,
- 	struct xdp_buff *xdp;
- 	int i;
+diff --git a/arch/mips/include/asm/setup.h b/arch/mips/include/asm/setup.h
+index bb36a400203d..8c56b862fd9c 100644
+--- a/arch/mips/include/asm/setup.h
++++ b/arch/mips/include/asm/setup.h
+@@ -16,7 +16,7 @@ static inline void setup_8250_early_printk_port(unsigned long base,
+ 	unsigned int reg_shift, unsigned int timeout) {}
+ #endif
  
--	if (ctl && (ctl->type == TUN_MSG_PTR)) {
-+	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
-+	    ctl && ctl->type == TUN_MSG_PTR) {
- 		for (i = 0; i < ctl->num; i++) {
- 			xdp = &((struct xdp_buff *)ctl->ptr)[i];
- 			tap_get_user_xdp(q, xdp);
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 45a67e72a02c..02de8d998bfa 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -2489,7 +2489,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
- 	if (!tun)
- 		return -EBADFD;
+-extern void set_handler(unsigned long offset, void *addr, unsigned long len);
++void set_handler(unsigned long offset, const void *addr, unsigned long len);
+ extern void set_uncached_handler(unsigned long offset, void *addr, unsigned long len);
  
--	if (ctl && (ctl->type == TUN_MSG_PTR)) {
-+	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
-+	    ctl && ctl->type == TUN_MSG_PTR) {
- 		struct tun_page tpage;
- 		int n = ctl->num;
- 		int flush = 0;
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 28ef323882fb..792ab5f23647 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -473,6 +473,7 @@ static void vhost_tx_batch(struct vhost_net *net,
- 		goto signal_used;
+ typedef void (*vi_handler_t)(void);
+diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
+index d26b0fb8ea06..b9b31b13062d 100644
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -2091,19 +2091,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
+ 		 * If no shadow set is selected then use the default handler
+ 		 * that does normal register saving and standard interrupt exit
+ 		 */
+-		extern char except_vec_vi, except_vec_vi_lui;
+-		extern char except_vec_vi_ori, except_vec_vi_end;
+-		extern char rollback_except_vec_vi;
+-		char *vec_start = using_rollback_handler() ?
+-			&rollback_except_vec_vi : &except_vec_vi;
++		extern const u8 except_vec_vi[], except_vec_vi_lui[];
++		extern const u8 except_vec_vi_ori[], except_vec_vi_end[];
++		extern const u8 rollback_except_vec_vi[];
++		const u8 *vec_start = using_rollback_handler() ?
++				      rollback_except_vec_vi : except_vec_vi;
+ #if defined(CONFIG_CPU_MICROMIPS) || defined(CONFIG_CPU_BIG_ENDIAN)
+-		const int lui_offset = &except_vec_vi_lui - vec_start + 2;
+-		const int ori_offset = &except_vec_vi_ori - vec_start + 2;
++		const int lui_offset = except_vec_vi_lui - vec_start + 2;
++		const int ori_offset = except_vec_vi_ori - vec_start + 2;
+ #else
+-		const int lui_offset = &except_vec_vi_lui - vec_start;
+-		const int ori_offset = &except_vec_vi_ori - vec_start;
++		const int lui_offset = except_vec_vi_lui - vec_start;
++		const int ori_offset = except_vec_vi_ori - vec_start;
+ #endif
+-		const int handler_len = &except_vec_vi_end - vec_start;
++		const int handler_len = except_vec_vi_end - vec_start;
  
- 	msghdr->msg_control = &ctl;
-+	msghdr->msg_controllen = sizeof(ctl);
- 	err = sock->ops->sendmsg(sock, msghdr, 0);
- 	if (unlikely(err < 0)) {
- 		vq_err(&nvq->vq, "Fail to batch sending packets\n");
+ 		if (handler_len > VECTORSPACING) {
+ 			/*
+@@ -2311,7 +2311,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
+ }
+ 
+ /* Install CPU exception handler */
+-void set_handler(unsigned long offset, void *addr, unsigned long size)
++void set_handler(unsigned long offset, const void *addr, unsigned long size)
+ {
+ #ifdef CONFIG_CPU_MICROMIPS
+ 	memcpy((void *)(ebase + offset), ((unsigned char *)addr - 1), size);
 -- 
 2.35.1
 
