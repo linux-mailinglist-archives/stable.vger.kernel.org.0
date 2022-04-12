@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5135E4FD060
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBEB4FD26A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350558AbiDLGqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44938 "EHLO
+        id S1346765AbiDLHLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:11:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351164AbiDLGoK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3D939802;
-        Mon, 11 Apr 2022 23:37:37 -0700 (PDT)
+        with ESMTP id S1350057AbiDLHJP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:09:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7AD49F96;
+        Mon, 11 Apr 2022 23:49:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06EA761902;
-        Tue, 12 Apr 2022 06:37:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13CA8C385A1;
-        Tue, 12 Apr 2022 06:37:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89DF3B81B51;
+        Tue, 12 Apr 2022 06:49:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F02D0C385A8;
+        Tue, 12 Apr 2022 06:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745456;
-        bh=xcEbyCMsLVo/1wSb+02SohARUT3LNZTwNJ3R8A644zE=;
+        s=korg; t=1649746179;
+        bh=DI2OLZuJYTJKh/eDk6ZeULcIY4vdi2GMVgMYgoJDwpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGxhb5JBkWP2NqqzMWYxwg7THy0adsoKknfiTLWrF1wTODj8I1g48aPTsq2EA2F/H
-         Y6RI+z7e6TqI169GbQFelhFf5KpdmSWCHo1EyPucTPygMH87Gn4/OCPje2Ubqa25Xa
-         tWy+qM2qOk7TaiewgRTvRM8HbCNJWjtI3PXWnci8=
+        b=sJ886k7Df4QD0IVNAZHcBdGR88DZW9LrWn2TdQVPxDbuRcC7JxIxe/rBHtv8R/RbZ
+         NFWoEo+Ph4gFlFPII7TJmFjHAfk3qyE+2Xv7G9E/5WAV1lUKL3siSIf4r7XCDT+F2P
+         jVs8Me6aDSndnj0xbfZw5fH/RmiFXfRBeAFrpoYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Martin Habets <habetsm.xilinx@gmail.com>,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 101/171] NFSv4: fix open failure with O_ACCMODE flag
-Date:   Tue, 12 Apr 2022 08:29:52 +0200
-Message-Id: <20220412062930.807813869@linuxfoundation.org>
+Subject: [PATCH 5.15 190/277] net: sfc: fix using uninitialized xdp tx_queue
+Date:   Tue, 12 Apr 2022 08:29:53 +0200
+Message-Id: <20220412062947.534897741@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,108 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit b243874f6f9568b2daf1a00e9222cacdc15e159c ]
+[ Upstream commit fb5833d81e4333294add35d3ac7f7f52a7bf107f ]
 
-open() with O_ACCMODE|O_DIRECT flags secondly will fail.
+In some cases, xdp tx_queue can get used before initialization.
+1. interface up/down
+2. ring buffer size change
 
-Reproducer:
-  1. mount -t nfs -o vers=4.2 $server_ip:/ /mnt/
-  2. fd = open("/mnt/file", O_ACCMODE|O_DIRECT|O_CREAT)
-  3. close(fd)
-  4. fd = open("/mnt/file", O_ACCMODE|O_DIRECT)
+When CPU cores are lower than maximum number of channels of sfc driver,
+it creates new channels only for XDP.
 
-Server nfsd4_decode_share_access() will fail with error nfserr_bad_xdr when
-client use incorrect share access mode of 0.
+When an interface is up or ring buffer size is changed, all channels
+are initialized.
+But xdp channels are always initialized later.
+So, the below scenario is possible.
+Packets are received to rx queue of normal channels and it is acted
+XDP_TX and tx_queue of xdp channels get used.
+But these tx_queues are not initialized yet.
+If so, TX DMA or queue error occurs.
 
-Fix this by using NFS4_SHARE_ACCESS_BOTH share access mode in client,
-just like firstly opening.
+In order to avoid this problem.
+1. initializes xdp tx_queues earlier than other rx_queue in
+efx_start_channels().
+2. checks whether tx_queue is initialized or not in efx_xdp_tx_buffers().
 
-Fixes: ce4ef7c0a8a05 ("NFS: Split out NFS v4 file operations")
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Splat looks like:
+   sfc 0000:08:00.1 enp8s0f1np1: TX queue 10 spurious TX completion id 250
+   sfc 0000:08:00.1 enp8s0f1np1: resetting (RECOVER_OR_ALL)
+   sfc 0000:08:00.1 enp8s0f1np1: MC command 0x80 inlen 100 failed rc=-22
+   (raw=22) arg=789
+   sfc 0000:08:00.1 enp8s0f1np1: has been disabled
+
+Fixes: f28100cb9c96 ("sfc: fix lack of XDP TX queues - error XDP TX failed (-22)")
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/dir.c      | 10 ----------
- fs/nfs/internal.h | 10 ++++++++++
- fs/nfs/nfs4file.c |  6 ++++--
- 3 files changed, 14 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/sfc/efx_channels.c | 2 +-
+ drivers/net/ethernet/sfc/tx.c           | 3 +++
+ drivers/net/ethernet/sfc/tx_common.c    | 2 ++
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 2ad56ff4752c..9f88ca7b2001 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -1628,16 +1628,6 @@ const struct dentry_operations nfs4_dentry_operations = {
- };
- EXPORT_SYMBOL_GPL(nfs4_dentry_operations);
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index 4753c0c5af10..1f8cfd806008 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -1123,7 +1123,7 @@ void efx_start_channels(struct efx_nic *efx)
+ 	struct efx_rx_queue *rx_queue;
+ 	struct efx_channel *channel;
  
--static fmode_t flags_to_mode(int flags)
--{
--	fmode_t res = (__force fmode_t)flags & FMODE_EXEC;
--	if ((flags & O_ACCMODE) != O_WRONLY)
--		res |= FMODE_READ;
--	if ((flags & O_ACCMODE) != O_RDONLY)
--		res |= FMODE_WRITE;
--	return res;
--}
--
- static struct nfs_open_context *create_nfs_open_context(struct dentry *dentry, int open_flags, struct file *filp)
- {
- 	return alloc_nfs_open_context(dentry, flags_to_mode(open_flags), filp);
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index 7de38abb6566..7009a8dddd45 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -42,6 +42,16 @@ static inline bool nfs_lookup_is_soft_revalidate(const struct dentry *dentry)
- 	return true;
- }
+-	efx_for_each_channel(channel, efx) {
++	efx_for_each_channel_rev(channel, efx) {
+ 		efx_for_each_channel_tx_queue(tx_queue, channel) {
+ 			efx_init_tx_queue(tx_queue);
+ 			atomic_inc(&efx->active_queues);
+diff --git a/drivers/net/ethernet/sfc/tx.c b/drivers/net/ethernet/sfc/tx.c
+index d16e031e95f4..6983799e1c05 100644
+--- a/drivers/net/ethernet/sfc/tx.c
++++ b/drivers/net/ethernet/sfc/tx.c
+@@ -443,6 +443,9 @@ int efx_xdp_tx_buffers(struct efx_nic *efx, int n, struct xdp_frame **xdpfs,
+ 	if (unlikely(!tx_queue))
+ 		return -EINVAL;
  
-+static inline fmode_t flags_to_mode(int flags)
-+{
-+	fmode_t res = (__force fmode_t)flags & FMODE_EXEC;
-+	if ((flags & O_ACCMODE) != O_WRONLY)
-+		res |= FMODE_READ;
-+	if ((flags & O_ACCMODE) != O_RDONLY)
-+		res |= FMODE_WRITE;
-+	return res;
-+}
++	if (!tx_queue->initialised)
++		return -EINVAL;
 +
- /*
-  * Note: RFC 1813 doesn't limit the number of auth flavors that
-  * a server can return, so make something up.
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 7b13408a2d70..9fdecd909049 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -32,6 +32,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
- 	struct dentry *parent = NULL;
- 	struct inode *dir;
- 	unsigned openflags = filp->f_flags;
-+	fmode_t f_mode;
- 	struct iattr attr;
- 	int err;
+ 	if (efx->xdp_txq_queues_mode != EFX_XDP_TX_QUEUES_DEDICATED)
+ 		HARD_TX_LOCK(efx->net_dev, tx_queue->core_txq, cpu);
  
-@@ -50,8 +51,9 @@ nfs4_file_open(struct inode *inode, struct file *filp)
- 	if (err)
- 		return err;
+diff --git a/drivers/net/ethernet/sfc/tx_common.c b/drivers/net/ethernet/sfc/tx_common.c
+index d530cde2b864..9bc8281b7f5b 100644
+--- a/drivers/net/ethernet/sfc/tx_common.c
++++ b/drivers/net/ethernet/sfc/tx_common.c
+@@ -101,6 +101,8 @@ void efx_fini_tx_queue(struct efx_tx_queue *tx_queue)
+ 	netif_dbg(tx_queue->efx, drv, tx_queue->efx->net_dev,
+ 		  "shutting down TX queue %d\n", tx_queue->queue);
  
-+	f_mode = filp->f_mode;
- 	if ((openflags & O_ACCMODE) == 3)
--		openflags--;
-+		f_mode |= flags_to_mode(openflags);
++	tx_queue->initialised = false;
++
+ 	if (!tx_queue->buffer)
+ 		return;
  
- 	/* We can't create new files here */
- 	openflags &= ~(O_CREAT|O_EXCL);
-@@ -59,7 +61,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
- 	parent = dget_parent(dentry);
- 	dir = d_inode(parent);
- 
--	ctx = alloc_nfs_open_context(file_dentry(filp), filp->f_mode, filp);
-+	ctx = alloc_nfs_open_context(file_dentry(filp), f_mode, filp);
- 	err = PTR_ERR(ctx);
- 	if (IS_ERR(ctx))
- 		goto out;
 -- 
 2.35.1
 
