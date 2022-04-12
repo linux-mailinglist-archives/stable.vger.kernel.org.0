@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5054C4FD18B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A09214FD19E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229563AbiDLG7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:59:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48832 "EHLO
+        id S242622AbiDLG7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:59:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352521AbiDLGz4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:55:56 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B0241338;
-        Mon, 11 Apr 2022 23:45:56 -0700 (PDT)
+        with ESMTP id S1352540AbiDLG4A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:56:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92A7D41625;
+        Mon, 11 Apr 2022 23:45:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A1CFACE1ACD;
-        Tue, 12 Apr 2022 06:45:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC333C385A6;
-        Tue, 12 Apr 2022 06:45:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EBA6B81B35;
+        Tue, 12 Apr 2022 06:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DCEBC385A1;
+        Tue, 12 Apr 2022 06:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745953;
-        bh=Ww2ABR0jOGrcCjgf8sorN85jiVKs8UFZOAl4vYtrdS4=;
+        s=korg; t=1649745956;
+        bh=FuKjtPKoVK7gpsVJPs78/XrHFLnI2blZAVO9LBmv2XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qricHDCIG43rCW8avnYIVZ5Sp7FXiMmpchTJT+NMmr/7lAL6QbMoUG6kHsnaAUIuZ
-         4sj6H+olH1PiscU2hKqfhtw0L7tUz70fHizFOv7oQ6v8NDXdxsmPgoyq6QI66Fr/Mc
-         ldh1l2nSZFvxkwS+GLNYsmjOlVX6mdqTIVbyPK4s=
+        b=NSfois/ts4zSRHKFdo89nhLmwJIBJvjcqpi19SeqKnpQDM+PC8UQ6BKrLozhsIgv8
+         BpuzaLSl69788xFgNi3rLHyitUp+IlKPaNOC/WDtiS/Ads4qDjKnjugGgYx7Zp1iLV
+         whNsfvm5Y5pySlMzUPRiCQ50AVSUB1AbcTX84tZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org, Qinghua Jin <qhjin.dev@gmail.com>,
+        Colin Ian King <colin.king@intel.com>,
+        Jan Kara <jack@suse.cz>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 108/277] init/main.c: return 1 from handled __setup() functions
-Date:   Tue, 12 Apr 2022 08:28:31 +0200
-Message-Id: <20220412062945.165453049@linuxfoundation.org>
+Subject: [PATCH 5.15 109/277] minix: fix bug when opening a file with O_DIRECT
+Date:   Tue, 12 Apr 2022 08:28:32 +0200
+Message-Id: <20220412062945.194200276@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -57,55 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Qinghua Jin <qhjin.dev@gmail.com>
 
-[ Upstream commit f9a40b0890658330c83c95511f9d6b396610defc ]
+[ Upstream commit 9ce3c0d26c42d279b6c378a03cd6a61d828f19ca ]
 
-initcall_blacklist() should return 1 to indicate that it handled its
-cmdline arguments.
+Testcase:
+1. create a minix file system and mount it
+2. open a file on the file system with O_RDWR|O_CREAT|O_TRUNC|O_DIRECT
+3. open fails with -EINVAL but leaves an empty file behind. All other
+   open() failures don't leave the failed open files behind.
 
-set_debug_rodata() should return 1 to indicate that it handled its
-cmdline arguments.  Print a warning if the option string is invalid.
+It is hard to check the direct_IO op before creating the inode.  Just as
+ext4 and btrfs do, this patch will resolve the issue by allowing to
+create the file with O_DIRECT but returning error when writing the file.
 
-This prevents these strings from being added to the 'init' program's
-environment as they are not init arguments/parameters.
-
-Link: https://lkml.kernel.org/r/20220221050901.23985-1-rdunlap@infradead.org
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20220107133626.413379-1-qhjin.dev@gmail.com
+Signed-off-by: Qinghua Jin <qhjin.dev@gmail.com>
+Reported-by: Colin Ian King <colin.king@intel.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/minix/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/init/main.c b/init/main.c
-index b340d990d77c..06b98350ebd2 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1198,7 +1198,7 @@ static int __init initcall_blacklist(char *str)
- 		}
- 	} while (str_entry);
+diff --git a/fs/minix/inode.c b/fs/minix/inode.c
+index a71f1cf894b9..d4bd94234ef7 100644
+--- a/fs/minix/inode.c
++++ b/fs/minix/inode.c
+@@ -447,7 +447,8 @@ static const struct address_space_operations minix_aops = {
+ 	.writepage = minix_writepage,
+ 	.write_begin = minix_write_begin,
+ 	.write_end = generic_write_end,
+-	.bmap = minix_bmap
++	.bmap = minix_bmap,
++	.direct_IO = noop_direct_IO
+ };
  
--	return 0;
-+	return 1;
- }
- 
- static bool __init_or_module initcall_blacklisted(initcall_t fn)
-@@ -1460,7 +1460,9 @@ static noinline void __init kernel_init_freeable(void);
- bool rodata_enabled __ro_after_init = true;
- static int __init set_debug_rodata(char *str)
- {
--	return strtobool(str, &rodata_enabled);
-+	if (strtobool(str, &rodata_enabled))
-+		pr_warn("Invalid option string for rodata: '%s'\n", str);
-+	return 1;
- }
- __setup("rodata=", set_debug_rodata);
- #endif
+ static const struct inode_operations minix_symlink_inode_operations = {
 -- 
 2.35.1
 
