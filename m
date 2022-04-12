@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C7C84FCF8D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC2244FCFA3
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348884AbiDLGf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:35:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50660 "EHLO
+        id S1349335AbiDLGgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:36:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348898AbiDLGfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:35:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 194D535864;
-        Mon, 11 Apr 2022 23:33:09 -0700 (PDT)
+        with ESMTP id S1349108AbiDLGgI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:36:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B7035DE2;
+        Mon, 11 Apr 2022 23:33:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94E8CB81B41;
-        Tue, 12 Apr 2022 06:33:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A09D5C385A6;
-        Tue, 12 Apr 2022 06:33:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44671618DC;
+        Tue, 12 Apr 2022 06:33:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54C65C385A6;
+        Tue, 12 Apr 2022 06:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745186;
-        bh=L2IsNl0bmms7Q59edkGIyCctQprb8/wC5LLuVDxZR3o=;
+        s=korg; t=1649745216;
+        bh=b4QnvRsKEKn1wn//dgDzAOcbGkrbaHGztOICLGZamFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fwUDimW77uCuf+kTIXmaGs5s/I++d1ZhBkAp9Krur5FyAkX1LEeMKmSRWQQ7EPbA+
-         zNX6sYMkHTD69sffbvLBd+tBWqA1C4Gf8FLfT5+5hpiUpeGIFEzWH5kUZsBfza+IQW
-         WxohcZ+5jDVY6OZjR4yhBNTz6hEgvEmMMn8wOSEQ=
+        b=tx3mrBSqj8/45chf7Rv6ItPE93TkMrI0Ha3lMhPVjqqgXFRW/6xT5JFTJs6tNFyJg
+         htv6H1hVQcCzq4Z2+k+YqpeHsnGghJOEJcBfu7HwcJHZm0tw2oHy5ujUuiRwbcVc1I
+         Sy7K6gqzwbeohJErDJXJ8W+cFqcEk8/L+oMA5Xek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 001/171] ubifs: Rectify space amount budget for mkdir/tmpfile operations
-Date:   Tue, 12 Apr 2022 08:28:12 +0200
-Message-Id: <20220412062927.915976662@linuxfoundation.org>
+Subject: [PATCH 5.10 002/171] gfs2: Check for active reservation in gfs2_release
+Date:   Tue, 12 Apr 2022 08:28:13 +0200
+Message-Id: <20220412062927.946485133@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,69 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit a6dab6607d4681d227905d5198710b575dbdb519 ]
+[ Upstream commit 0ec9b9ea4f83303bfd8f052a3d8b2bd179b002e1 ]
 
-UBIFS should make sure the flash has enough space to store dirty (Data
-that is newer than disk) data (in memory), space budget is exactly
-designed to do that. If space budget calculates less data than we need,
-'make_reservation()' will do more work(return -ENOSPC if no free space
-lelf, sometimes we can see "cannot reserve xxx bytes in jhead xxx, error
--28" in ubifs error messages) with ubifs inodes locked, which may effect
-other syscalls.
+In gfs2_release, check if the inode has an active reservation to avoid
+unnecessary lock taking.
 
-A simple way to decide how much space do we need when make a budget:
-See how much space is needed by 'make_reservation()' in ubifs_jnl_xxx()
-function according to corresponding operation.
-
-It's better to report ENOSPC in ubifs_budget_space(), as early as we can.
-
-Fixes: 474b93704f32163 ("ubifs: Implement O_TMPFILE")
-Fixes: 1e51764a3c2ac05 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ fs/gfs2/file.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 5daffd46369d..9257ee893bdb 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -353,15 +353,18 @@ static int do_tmpfile(struct inode *dir, struct dentry *dentry,
- {
- 	struct inode *inode;
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
- 	struct ubifs_inode *ui, *dir_ui = ubifs_inode(dir);
- 	int err, instantiated = 0;
- 	struct fscrypt_name nm;
+diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
+index cfd9d03f604f..59318b1eaa60 100644
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -716,10 +716,10 @@ static int gfs2_release(struct inode *inode, struct file *file)
+ 	kfree(file->private_data);
+ 	file->private_data = NULL;
  
- 	/*
--	 * Budget request settings: new dirty inode, new direntry,
--	 * budget for dirtied inode will be released via writeback.
-+	 * Budget request settings: new inode, new direntry, changing the
-+	 * parent directory inode.
-+	 * Allocate budget separately for new dirtied inode, the budget will
-+	 * be released via writeback.
- 	 */
+-	if (file->f_mode & FMODE_WRITE) {
++	if (gfs2_rs_active(&ip->i_res))
+ 		gfs2_rs_delete(ip, &inode->i_writecount);
++	if (file->f_mode & FMODE_WRITE)
+ 		gfs2_qa_put(ip);
+-	}
+ 	return 0;
+ }
  
- 	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
-@@ -949,7 +952,8 @@ static int ubifs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
- 	struct ubifs_inode *dir_ui = ubifs_inode(dir);
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
- 	int err, sz_change;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1 };
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct fscrypt_name nm;
- 
- 	/*
 -- 
 2.35.1
 
