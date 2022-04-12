@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C054FDAB6
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44CB04FDB09
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240442AbiDLHbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:31:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42686 "EHLO
+        id S1377218AbiDLHtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:49:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353565AbiDLHZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:46 -0400
+        with ESMTP id S1357675AbiDLHkh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D64443496;
-        Tue, 12 Apr 2022 00:01:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661D237A19;
+        Tue, 12 Apr 2022 00:16:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35C20B81B4E;
-        Tue, 12 Apr 2022 07:01:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 897FDC385A1;
-        Tue, 12 Apr 2022 07:01:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AF94B81B4F;
+        Tue, 12 Apr 2022 07:16:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71421C385A5;
+        Tue, 12 Apr 2022 07:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746890;
-        bh=vkPmgKey2lf/3Sf8BVlNeaFbqFAGzmVNLtpEoE4dmDk=;
+        s=korg; t=1649747791;
+        bh=VZVvP87MYgzbE+UjduvwsVvKXx0jKM82k2v4eWM5gAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ly+rYHM0LzKca9IbpSnLBfQ6n9qC22KLJD5dkoGTulqSUGXRFuEBfJ4Kw/n+rMCdk
-         HcVP2rl1fGY2wIOGe6sit6FAxV6OKqXPSgZ/i0hbgBH2SabnW6UekIo3TwZI5w6H0Z
-         elaJ99DtETin9aLLYs9sd+rrX3dV7uhVbou/pZbE=
+        b=w8uVWziAO6Thcmz0Thlu8gWgjxnfL0SoEyztoOYoBfn+MlEa61DmEEjpQ3S8uDtOv
+         yekPOexG0IWYloGpZo9Lalrdv+OaAewpOOZt7p63Skel7sn+NPjIRK27dBjnhtoTtk
+         7GBzpnoo8p3ShY6P+I2PSkJQz39bBYUA0zuvRJ4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 168/285] net: stmmac: Fix unset max_speed difference between DT and non-DT platforms
-Date:   Tue, 12 Apr 2022 08:30:25 +0200
-Message-Id: <20220412062948.519258794@linuxfoundation.org>
+Subject: [PATCH 5.17 208/343] Revert "net: dsa: stop updating master MTU from master.c"
+Date:   Tue, 12 Apr 2022 08:30:26 +0200
+Message-Id: <20220412062957.353260366@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit c21cabb0fd0b54b8b54235fc1ecfe1195a23bcb2 ]
+[ Upstream commit 066dfc4290406b1b0b014ae3267d4266a344efd1 ]
 
-In commit 9cbadf094d9d ("net: stmmac: support max-speed device tree
-property"), when DT platforms don't set "max-speed", max_speed is set to
--1; for non-DT platforms, it stays the default 0.
+This reverts commit a1ff94c2973c43bc1e2677ac63ebb15b1d1ff846.
 
-Prior to commit eeef2f6b9f6e ("net: stmmac: Start adding phylink support"),
-the check for a valid max_speed setting was to check if it was greater
-than zero. This commit got it right, but subsequent patches just checked
-for non-zero, which is incorrect for DT platforms.
+Switch drivers that don't implement ->port_change_mtu() will cause the
+DSA master to remain with an MTU of 1500, since we've deleted the other
+code path. In turn, this causes a regression for those systems, where
+MTU-sized traffic can no longer be terminated.
 
-In commit 92c3807b9ac3 ("net: stmmac: convert to phylink_get_linkmodes()")
-the conversion switched completely to checking for non-zero value as a
-valid value, which caused 1000base-T to stop getting advertised by
-default.
+Revert the change taking into account the fact that rtnl_lock() is now
+taken top-level from the callers of dsa_master_setup() and
+dsa_master_teardown(). Also add a comment in order for it to be
+absolutely clear why it is still needed.
 
-Instead of trying to fix all the checks, simply leave max_speed alone if
-DT property parsing fails.
-
-Fixes: 9cbadf094d9d ("net: stmmac: support max-speed device tree property")
-Fixes: 92c3807b9ac3 ("net: stmmac: convert to phylink_get_linkmodes()")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220331184832.16316-1-wens@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: a1ff94c2973c ("net: dsa: stop updating master MTU from master.c")
+Reported-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Tested-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/dsa/master.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 5d29f336315b..11e1055e8260 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -431,8 +431,7 @@ stmmac_probe_config_dt(struct platform_device *pdev, u8 *mac)
- 	plat->phylink_node = np;
+diff --git a/net/dsa/master.c b/net/dsa/master.c
+index 880f910b23a9..10b51ffbb6f4 100644
+--- a/net/dsa/master.c
++++ b/net/dsa/master.c
+@@ -337,11 +337,24 @@ static const struct attribute_group dsa_group = {
  
- 	/* Get max speed of operation from device tree */
--	if (of_property_read_u32(np, "max-speed", &plat->max_speed))
--		plat->max_speed = -1;
-+	of_property_read_u32(np, "max-speed", &plat->max_speed);
+ static struct lock_class_key dsa_master_addr_list_lock_key;
  
- 	plat->bus_id = of_alias_get_id(np, "ethernet");
- 	if (plat->bus_id < 0)
++static void dsa_master_reset_mtu(struct net_device *dev)
++{
++	int err;
++
++	err = dev_set_mtu(dev, ETH_DATA_LEN);
++	if (err)
++		netdev_dbg(dev,
++			   "Unable to reset MTU to exclude DSA overheads\n");
++}
++
+ int dsa_master_setup(struct net_device *dev, struct dsa_port *cpu_dp)
+ {
++	const struct dsa_device_ops *tag_ops = cpu_dp->tag_ops;
+ 	struct dsa_switch *ds = cpu_dp->ds;
+ 	struct device_link *consumer_link;
+-	int ret;
++	int mtu, ret;
++
++	mtu = ETH_DATA_LEN + dsa_tag_protocol_overhead(tag_ops);
+ 
+ 	/* The DSA master must use SET_NETDEV_DEV for this to work. */
+ 	consumer_link = device_link_add(ds->dev, dev->dev.parent,
+@@ -351,6 +364,15 @@ int dsa_master_setup(struct net_device *dev, struct dsa_port *cpu_dp)
+ 			   "Failed to create a device link to DSA switch %s\n",
+ 			   dev_name(ds->dev));
+ 
++	/* The switch driver may not implement ->port_change_mtu(), case in
++	 * which dsa_slave_change_mtu() will not update the master MTU either,
++	 * so we need to do that here.
++	 */
++	ret = dev_set_mtu(dev, mtu);
++	if (ret)
++		netdev_warn(dev, "error %d setting MTU to %d to include DSA overhead\n",
++			    ret, mtu);
++
+ 	/* If we use a tagging format that doesn't have an ethertype
+ 	 * field, make sure that all packets from this point on get
+ 	 * sent to the tag format's receive function.
+@@ -388,6 +410,7 @@ void dsa_master_teardown(struct net_device *dev)
+ 	sysfs_remove_group(&dev->dev.kobj, &dsa_group);
+ 	dsa_netdev_ops_set(dev, NULL);
+ 	dsa_master_ethtool_teardown(dev);
++	dsa_master_reset_mtu(dev);
+ 	dsa_master_set_promiscuity(dev, -1);
+ 
+ 	dev->dsa_ptr = NULL;
 -- 
 2.35.1
 
