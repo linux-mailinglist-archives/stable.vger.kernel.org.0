@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABB524FDA02
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D53D4FD9F5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377237AbiDLHtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48762 "EHLO
+        id S1351396AbiDLHUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:20:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358022AbiDLHk7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02D0F3BF9A;
-        Tue, 12 Apr 2022 00:17:13 -0700 (PDT)
+        with ESMTP id S1351696AbiDLHMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52DAC15A30;
+        Mon, 11 Apr 2022 23:51:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88C0AB81B7A;
-        Tue, 12 Apr 2022 07:17:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D73D9C385A1;
-        Tue, 12 Apr 2022 07:17:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1EC56146F;
+        Tue, 12 Apr 2022 06:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0303C385A1;
+        Tue, 12 Apr 2022 06:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747830;
-        bh=YiaJDBbTcuhQHMi1q1uJq5SwFO2vcgROG+bHHXW7V2Y=;
+        s=korg; t=1649746306;
+        bh=TtMFs0H5NU5r4p+2u4nzwSmLe/Zr4CUSnystOjjsI00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FqJXmaFn5dC+1lSvJ6jRreHKZH2z8ixED2mwcADmcAb+zjGQ/RnExgH4WRfKA8leT
-         hi0sHLbPjBUc3njjv4mStMwdMDuvlepvhymCbixvMV/ONDNyc3lAxf8Qj4w1sSmjB9
-         AYiWmFgPyLOYZ7iiYp+2pvKNU+pL82WLSo+lUxHo=
+        b=Fkm23S0TsXgpmCsaJHJNMsISfj8s5TcySbXcCKQ8l9uw+YVHJf2mxzYmqTil42KW5
+         QaZmDPpwH7knTvtLyaZeZ3n8T1cOhNGGtjd8zwJqL8v6J3fP+/9QWzcINP1L92Cg5R
+         alOgflK1iHJGnlXb3Ep2t1O/IXxaB7YOyaudsTLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Auld <pauld@redhat.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 221/343] arch/arm64: Fix topology initialization for core scheduling
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 5.15 236/277] perf/core: Inherit event_caps
 Date:   Tue, 12 Apr 2022 08:30:39 +0200
-Message-Id: <20220412062957.719266199@linuxfoundation.org>
+Message-Id: <20220412062948.874087725@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit 5524cbb1bfcdff0cad0aaa9f94e6092002a07259 ]
+commit e3265a4386428d3d157d9565bb520aabff8b4bf0 upstream.
 
-Arm64 systems rely on store_cpu_topology() to call update_siblings_masks()
-to transfer the toplogy to the various cpu masks. This needs to be done
-before the call to notify_cpu_starting() which tells the scheduler about
-each cpu found, otherwise the core scheduling data structures are setup
-in a way that does not match the actual topology.
+It was reported that some perf event setup can make fork failed on
+ARM64.  It was the case of a group of mixed hw and sw events and it
+failed in perf_event_init_task() due to armpmu_event_init().
 
-With smt_mask not setup correctly we bail on `cpumask_weight(smt_mask) == 1`
-for !leaders in:
+The ARM PMU code checks if all the events in a group belong to the
+same PMU except for software events.  But it didn't set the event_caps
+of inherited events and no longer identify them as software events.
+Therefore the test failed in a child process.
 
- notify_cpu_starting()
-   cpuhp_invoke_callback_range()
-     sched_cpu_starting()
-       sched_core_cpu_starting()
+A simple reproducer is:
 
-which leads to rq->core not being correctly set for !leader-rq's.
+  $ perf stat -e '{cycles,cs,instructions}' perf bench sched messaging
+  # Running 'sched/messaging' benchmark:
+  perf: fork(): Invalid argument
 
-Without this change stress-ng (which enables core scheduling in its prctl
-tests in newer versions -- i.e. with PR_SCHED_CORE support) causes a warning
-and then a crash (trimmed for legibility):
+The perf stat was fine but the perf bench failed in fork().  Let's
+inherit the event caps from the parent.
 
-[ 1853.805168] ------------[ cut here ]------------
-[ 1853.809784] task_rq(b)->core != rq->core
-[ 1853.809792] WARNING: CPU: 117 PID: 0 at kernel/sched/fair.c:11102 cfs_prio_less+0x1b4/0x1c4
-...
-[ 1854.015210] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
-...
-[ 1854.231256] Call trace:
-[ 1854.233689]  pick_next_task+0x3dc/0x81c
-[ 1854.237512]  __schedule+0x10c/0x4cc
-[ 1854.240988]  schedule_idle+0x34/0x54
-
-Fixes: 9edeaea1bc45 ("sched: Core-wide rq->lock")
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lore.kernel.org/r/20220331153926.25742-1-pauld@redhat.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20220328200112.457740-1-namhyung@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/smp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/events/core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index 27df5c1e6baa..3b46041f2b97 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -234,6 +234,7 @@ asmlinkage notrace void secondary_start_kernel(void)
- 	 * Log the CPU info before it is marked online and might get read.
- 	 */
- 	cpuinfo_store_cpu();
-+	store_cpu_topology(cpu);
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -11596,6 +11596,9 @@ perf_event_alloc(struct perf_event_attr
  
- 	/*
- 	 * Enable GIC and timers.
-@@ -242,7 +243,6 @@ asmlinkage notrace void secondary_start_kernel(void)
+ 	event->state		= PERF_EVENT_STATE_INACTIVE;
  
- 	ipi_setup(cpu);
++	if (parent_event)
++		event->event_caps = parent_event->event_caps;
++
+ 	if (event->attr.sigtrap)
+ 		atomic_set(&event->event_limit, 1);
  
--	store_cpu_topology(cpu);
- 	numa_add_cpu(cpu);
- 
- 	/*
--- 
-2.35.1
-
 
 
