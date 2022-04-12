@@ -2,106 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B2894FD427
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACEC14FD3E5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377297AbiDLHtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49116 "EHLO
+        id S233754AbiDLHVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:21:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358598AbiDLHlw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F06153702;
-        Tue, 12 Apr 2022 00:18:24 -0700 (PDT)
+        with ESMTP id S1351889AbiDLHND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59F79114D;
+        Mon, 11 Apr 2022 23:54:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78F8BB81B4F;
-        Tue, 12 Apr 2022 07:18:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E24EFC385A1;
-        Tue, 12 Apr 2022 07:18:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3632B81B4E;
+        Tue, 12 Apr 2022 06:54:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46415C385A6;
+        Tue, 12 Apr 2022 06:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747902;
-        bh=SpYTWM87dLN5pE3JWM5u1XNsO9uj74qw3Rk8zGXWkc4=;
+        s=korg; t=1649746444;
+        bh=UG8E96NmWmyT1eR57RezFnkCYzgTjNbUM2DsOBIh/tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6uSb+IaQwXDmG8eg3PLUTDyQZF7VV+3U3AHSPKdjXWqsSP4ghOQXHAEbtzg5sQpe
-         RwfvYxxhFfiZ7KeLuo8zZlMNw4lp6gQ2ojupLD/ZbQfjg3JnMeII5HRsYNd9qJUfsQ
-         539b/AhT+UZvUbRq5XXT6MGGf+CF1KhRrXhuTyak=
+        b=U/F7PE9BIk28pi7Ptmi/Z9+ebvUMGVUHYae9JXcjV5YozWditT7HroxkEkZFWP+bp
+         8Hg5nCqGww1JTcKnprB83hlDTmISBuD9KaKL0mmLdBLLzeT9CoT6MYcZ7FV8F7lESU
+         ExfK7pM9RwcVZKYqRVztVNjfi9Uaz7UXjr8eh1Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
-        Eric Yang <Eric.Yang2@amd.com>, Alex Hung <alex.hung@amd.com>,
-        Roman Li <Roman.Li@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 248/343] drm/amd/display: Remove redundant dsc power gating from init_hw
-Date:   Tue, 12 Apr 2022 08:31:06 +0200
-Message-Id: <20220412062958.485919743@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.15 266/277] selftests: cgroup: Test open-time cgroup namespace usage for migration checks
+Date:   Tue, 12 Apr 2022 08:31:09 +0200
+Message-Id: <20220412062949.741881644@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,TVD_SUBJ_WIPE_DEBT,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <Roman.Li@amd.com>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 95707203407c4cf0b7e520a99d6f46d8aed4b57f ]
+commit bf35a7879f1dfb0d050fe779168bcf25c7de66f5 upstream.
 
-[Why]
-DSC Power down code has been moved from dcn31_init_hw into init_pipes()
-Need to remove it from dcn10_init_hw() as well to avoid duplicated action
-on dcn1.x/2.x
+When a task is writing to an fd opened by a different task, the perm check
+should use the cgroup namespace of the latter task. Add a test for it.
 
-[How]
-Remove DSC power down code from dcn10_init_hw()
-
-Fixes: 8fa6f4c5715c ("drm/amd/display: fixed the DSC power off sequence during Driver PnP")
-
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Roman Li <Roman.Li@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 7 -------
- 1 file changed, 7 deletions(-)
+ tools/testing/selftests/cgroup/test_core.c |   97 +++++++++++++++++++++++++++++
+ 1 file changed, 97 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index 636e2d90ff93..2cefdd96d0cb 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -1493,13 +1493,6 @@ void dcn10_init_hw(struct dc *dc)
- 			link->link_status.link_active = true;
- 	}
+--- a/tools/testing/selftests/cgroup/test_core.c
++++ b/tools/testing/selftests/cgroup/test_core.c
+@@ -1,11 +1,14 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
  
--	/* Power gate DSCs */
--	if (!is_optimized_init_done) {
--		for (i = 0; i < res_pool->res_cap->num_dsc; i++)
--			if (hws->funcs.dsc_pg_control != NULL)
--				hws->funcs.dsc_pg_control(hws, res_pool->dscs[i]->inst, false);
--	}
--
- 	/* we want to turn off all dp displays before doing detection */
- 	if (dc->config.power_down_display_on_boot)
- 		dc_link_blank_all_dp_displays(dc);
--- 
-2.35.1
-
++#define _GNU_SOURCE
+ #include <linux/limits.h>
++#include <linux/sched.h>
+ #include <sys/types.h>
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+ #include <unistd.h>
+ #include <fcntl.h>
++#include <sched.h>
+ #include <stdio.h>
+ #include <errno.h>
+ #include <signal.h>
+@@ -741,6 +744,99 @@ cleanup:
+ 	return ret;
+ }
+ 
++struct lesser_ns_open_thread_arg {
++	const char	*path;
++	int		fd;
++	int		err;
++};
++
++static int lesser_ns_open_thread_fn(void *arg)
++{
++	struct lesser_ns_open_thread_arg *targ = arg;
++
++	targ->fd = open(targ->path, O_RDWR);
++	targ->err = errno;
++	return 0;
++}
++
++/*
++ * cgroup migration permission check should be performed based on the cgroup
++ * namespace at the time of open instead of write.
++ */
++static int test_cgcore_lesser_ns_open(const char *root)
++{
++	static char stack[65536];
++	const uid_t test_euid = 65534;	/* usually nobody, any !root is fine */
++	int ret = KSFT_FAIL;
++	char *cg_test_a = NULL, *cg_test_b = NULL;
++	char *cg_test_a_procs = NULL, *cg_test_b_procs = NULL;
++	int cg_test_b_procs_fd = -1;
++	struct lesser_ns_open_thread_arg targ = { .fd = -1 };
++	pid_t pid;
++	int status;
++
++	cg_test_a = cg_name(root, "cg_test_a");
++	cg_test_b = cg_name(root, "cg_test_b");
++
++	if (!cg_test_a || !cg_test_b)
++		goto cleanup;
++
++	cg_test_a_procs = cg_name(cg_test_a, "cgroup.procs");
++	cg_test_b_procs = cg_name(cg_test_b, "cgroup.procs");
++
++	if (!cg_test_a_procs || !cg_test_b_procs)
++		goto cleanup;
++
++	if (cg_create(cg_test_a) || cg_create(cg_test_b))
++		goto cleanup;
++
++	if (cg_enter_current(cg_test_b))
++		goto cleanup;
++
++	if (chown(cg_test_a_procs, test_euid, -1) ||
++	    chown(cg_test_b_procs, test_euid, -1))
++		goto cleanup;
++
++	targ.path = cg_test_b_procs;
++	pid = clone(lesser_ns_open_thread_fn, stack + sizeof(stack),
++		    CLONE_NEWCGROUP | CLONE_FILES | CLONE_VM | SIGCHLD,
++		    &targ);
++	if (pid < 0)
++		goto cleanup;
++
++	if (waitpid(pid, &status, 0) < 0)
++		goto cleanup;
++
++	if (!WIFEXITED(status))
++		goto cleanup;
++
++	cg_test_b_procs_fd = targ.fd;
++	if (cg_test_b_procs_fd < 0)
++		goto cleanup;
++
++	if (cg_enter_current(cg_test_a))
++		goto cleanup;
++
++	if ((status = write(cg_test_b_procs_fd, "0", 1)) >= 0 || errno != ENOENT)
++		goto cleanup;
++
++	ret = KSFT_PASS;
++
++cleanup:
++	cg_enter_current(root);
++	if (cg_test_b_procs_fd >= 0)
++		close(cg_test_b_procs_fd);
++	if (cg_test_b)
++		cg_destroy(cg_test_b);
++	if (cg_test_a)
++		cg_destroy(cg_test_a);
++	free(cg_test_b_procs);
++	free(cg_test_a_procs);
++	free(cg_test_b);
++	free(cg_test_a);
++	return ret;
++}
++
+ #define T(x) { x, #x }
+ struct corecg_test {
+ 	int (*fn)(const char *root);
+@@ -757,6 +853,7 @@ struct corecg_test {
+ 	T(test_cgcore_thread_migration),
+ 	T(test_cgcore_destroy),
+ 	T(test_cgcore_lesser_euid_open),
++	T(test_cgcore_lesser_ns_open),
+ };
+ #undef T
+ 
 
 
