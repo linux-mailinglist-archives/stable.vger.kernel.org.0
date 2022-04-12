@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C17A4FD37A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D53284FD37F
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356602AbiDLIK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49164 "EHLO
+        id S1353567AbiDLIJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:09:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353953AbiDLHiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:38:01 -0400
+        with ESMTP id S1356664AbiDLHjL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B59517FB;
-        Tue, 12 Apr 2022 00:09:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 918A9527D6;
+        Tue, 12 Apr 2022 00:09:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28762B81B58;
-        Tue, 12 Apr 2022 07:09:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EA20C385A5;
-        Tue, 12 Apr 2022 07:09:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15BAAB81B5E;
+        Tue, 12 Apr 2022 07:09:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E520C385B8;
+        Tue, 12 Apr 2022 07:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747382;
-        bh=P+yUphLekVSunkS4tg37Dl51JfFmmML9Ddy2YUNFXgg=;
+        s=korg; t=1649747396;
+        bh=CWMqiwxtlvgKbd+NivmB/OV5GOd11UOQAsCVPwOiIpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVSbDotQ2ZQGegzHkqIf6/5qmcyeOu9wdKSeM8V1OF70F5ttKbBemoGjZ6Ca+4le+
-         PqDARmzG0zXQ1DBOA0Zb8+ViZOvCtR4KzRnDgXG00CVHRsL4YSY6XX5e8lfExaDVMu
-         mudkRonCJVVjyrVl06v7zmGkT8sDkXtTAxAAngm4=
+        b=fBkE0I0Mfgs7EsLoBXx9+XgopXKusHMedbEWzw3Et2p7Zyn5mprdwPlj7Nmx4Hr7I
+         MUUx47IgD0vIEgpA2DaQXHL82+4Yo1LXBgb/+WGSrfPcPqSHnVtYqoSgZnb/pkBrTU
+         UdZAg/07axexTsQF+1hnH3IsoCZr5W4WGMmwlwwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Anthony Koo <Anthony.Koo@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Wayne Chang <waynec@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 022/343] drm/amd/display: Use PSR version selected during set_psr_caps
-Date:   Tue, 12 Apr 2022 08:27:20 +0200
-Message-Id: <20220412062951.745001905@linuxfoundation.org>
+Subject: [PATCH 5.17 024/343] usb: gadget: tegra-xudc: Fix control endpoints definitions
+Date:   Tue, 12 Apr 2022 08:27:22 +0200
+Message-Id: <20220412062951.801989962@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -57,49 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Wayne Chang <waynec@nvidia.com>
 
-[ Upstream commit b80ddeb29d9df449f875f0b6f5de08d7537c02b8 ]
+[ Upstream commit 7bd42fb95eb4f98495ccadf467ad15124208ec49 ]
 
-[Why]
-If the DPCD caps specifies a PSR version newer than PSR_VERSION_1 then
-we fallback to using PSR_VERSION_1 in amdgpu_dm_set_psr_caps.
+According to the Tegra Technical Reference Manual, the seq_num
+field of control endpoint is not [31:24] but [31:27]. Bit 24
+is reserved and bit 26 is splitxstate.
 
-This gets overriden with the raw DPCD value in amdgpu_dm_link_setup_psr,
-which can result in DMCUB hanging if we pass in an unsupported PSR
-version number.
+The change fixes the wrong control endpoint's definitions.
 
-[How]
-Fix the hang by using link->psr_settings.psr_version directly during
-amdgpu_dm_link_setup_psr.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Wayne Chang <waynec@nvidia.com>
+Link: https://lore.kernel.org/r/20220107091349.149798-1-waynec@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/udc/tegra-xudc.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
-index c510638b4f99..a009fc654ac9 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
-@@ -149,10 +149,8 @@ bool amdgpu_dm_link_setup_psr(struct dc_stream_state *stream)
+diff --git a/drivers/usb/gadget/udc/tegra-xudc.c b/drivers/usb/gadget/udc/tegra-xudc.c
+index 716d9ab2d2ff..be76f891b9c5 100644
+--- a/drivers/usb/gadget/udc/tegra-xudc.c
++++ b/drivers/usb/gadget/udc/tegra-xudc.c
+@@ -272,8 +272,10 @@ BUILD_EP_CONTEXT_RW(deq_hi, deq_hi, 0, 0xffffffff)
+ BUILD_EP_CONTEXT_RW(avg_trb_len, tx_info, 0, 0xffff)
+ BUILD_EP_CONTEXT_RW(max_esit_payload, tx_info, 16, 0xffff)
+ BUILD_EP_CONTEXT_RW(edtla, rsvd[0], 0, 0xffffff)
+-BUILD_EP_CONTEXT_RW(seq_num, rsvd[0], 24, 0xff)
++BUILD_EP_CONTEXT_RW(rsvd, rsvd[0], 24, 0x1)
+ BUILD_EP_CONTEXT_RW(partial_td, rsvd[0], 25, 0x1)
++BUILD_EP_CONTEXT_RW(splitxstate, rsvd[0], 26, 0x1)
++BUILD_EP_CONTEXT_RW(seq_num, rsvd[0], 27, 0x1f)
+ BUILD_EP_CONTEXT_RW(cerrcnt, rsvd[1], 18, 0x3)
+ BUILD_EP_CONTEXT_RW(data_offset, rsvd[2], 0, 0x1ffff)
+ BUILD_EP_CONTEXT_RW(numtrbs, rsvd[2], 22, 0x1f)
+@@ -1554,6 +1556,9 @@ static int __tegra_xudc_ep_set_halt(struct tegra_xudc_ep *ep, bool halt)
+ 		ep_reload(xudc, ep->index);
  
- 	link = stream->link;
+ 		ep_ctx_write_state(ep->context, EP_STATE_RUNNING);
++		ep_ctx_write_rsvd(ep->context, 0);
++		ep_ctx_write_partial_td(ep->context, 0);
++		ep_ctx_write_splitxstate(ep->context, 0);
+ 		ep_ctx_write_seq_num(ep->context, 0);
  
--	psr_config.psr_version = link->dpcd_caps.psr_caps.psr_version;
--
--	if (psr_config.psr_version > 0) {
--		psr_config.psr_exit_link_training_required = 0x1;
-+	if (link->psr_settings.psr_version != DC_PSR_VERSION_UNSUPPORTED) {
-+		psr_config.psr_version = link->psr_settings.psr_version;
- 		psr_config.psr_frame_capture_indication_req = 0;
- 		psr_config.psr_rfb_setup_time = 0x37;
- 		psr_config.psr_sdp_transmit_line_num_deadline = 0x20;
+ 		ep_reload(xudc, ep->index);
+@@ -2809,7 +2814,10 @@ static void tegra_xudc_reset(struct tegra_xudc *xudc)
+ 	xudc->setup_seq_num = 0;
+ 	xudc->queued_setup_packet = false;
+ 
+-	ep_ctx_write_seq_num(ep0->context, xudc->setup_seq_num);
++	ep_ctx_write_rsvd(ep0->context, 0);
++	ep_ctx_write_partial_td(ep0->context, 0);
++	ep_ctx_write_splitxstate(ep0->context, 0);
++	ep_ctx_write_seq_num(ep0->context, 0);
+ 
+ 	deq_ptr = trb_virt_to_phys(ep0, &ep0->transfer_ring[ep0->deq_ptr]);
+ 
 -- 
 2.35.1
 
