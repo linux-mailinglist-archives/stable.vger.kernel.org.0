@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 064374FD651
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:21:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3944FD9A3
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235391AbiDLHTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:19:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57498 "EHLO
+        id S1377274AbiDLHte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:49:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351642AbiDLHMq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D71C28E3D;
-        Mon, 11 Apr 2022 23:50:54 -0700 (PDT)
+        with ESMTP id S1358424AbiDLHlh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7B14B41C;
+        Tue, 12 Apr 2022 00:18:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F323B81B43;
-        Tue, 12 Apr 2022 06:50:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91CF6C385A6;
-        Tue, 12 Apr 2022 06:50:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E9176153F;
+        Tue, 12 Apr 2022 07:18:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9B05C385A1;
+        Tue, 12 Apr 2022 07:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746252;
-        bh=r7zwxBmSBYLoVuMUOCzhurkmYQox+oscdpkyavZfQGg=;
+        s=korg; t=1649747880;
+        bh=n5yPUWkMd95tE3x0rxoJM9innYGchDcsor/IkUmA+mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NFb8Y9tgG4Dylb0+2rEzyvmD+9rylPFDTUPil+FrcFNd9wU/kyI4F7mJm5X8OEbPL
-         63HRjebR87jSBM+T2Sdgj3JcgqLBen6W19QqkA5bINnIPYWhpmgxAE6KouwEKdyK6Z
-         qA6vFTCBaL6nKWQrLfNRZ3SP/Dlq3pxK/W5tZDLA=
+        b=nrKBVr6nnSDMcl+bCMnvmpE9dxuribOg9sd+D7+RojZjcO4ULYo2Xzj/sSv1qtSnY
+         8zV8ZuIZGm447D41/s2AbsNkrL/8I8PKl2dsTlhoqGRfq0T8IdBptPGbaJ3sOXWmsK
+         89AcW1XBBG8TkJSaJyC1ffYD2XkprscaEIVAepJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+63d688f1d899c588fb71@syzkaller.appspotmail.com,
-        Guo Xuenan <guoxuenan@huawei.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Yann Collet <cyan@fb.com>, Chengyang Fan <cy.fan@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 214/277] lz4: fix LZ4_decompress_safe_partial read out of bound
+        stable@vger.kernel.org, Changhui Zhong <czhong@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Tomas Henzl <thenzl@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 199/343] scsi: core: scsi_logging: Fix a BUG
 Date:   Tue, 12 Apr 2022 08:30:17 +0200
-Message-Id: <20220412062948.233488492@linuxfoundation.org>
+Message-Id: <20220412062957.099091906@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,57 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Xuenan <guoxuenan@huawei.com>
+From: Tomas Henzl <thenzl@redhat.com>
 
-commit eafc0a02391b7b36617b36c97c4b5d6832cf5e24 upstream.
+[ Upstream commit f06aa52cb2723ec67e92df463827b800d6c477d1 ]
 
-When partialDecoding, it is EOF if we've either filled the output buffer
-or can't proceed with reading an offset for following match.
+The request_queue may be NULL in a request, for example when it comes from
+scsi_ioctl_reset(). Check it before use.
 
-In some extreme corner cases when compressed data is suitably corrupted,
-UAF will occur.  As reported by KASAN [1], LZ4_decompress_safe_partial
-may lead to read out of bound problem during decoding.  lz4 upstream has
-fixed it [2] and this issue has been disscussed here [3] before.
-
-current decompression routine was ported from lz4 v1.8.3, bumping
-lib/lz4 to v1.9.+ is certainly a huge work to be done later, so, we'd
-better fix it first.
-
-[1] https://lore.kernel.org/all/000000000000830d1205cf7f0477@google.com/
-[2] https://github.com/lz4/lz4/commit/c5d6f8a8be3927c0bec91bcc58667a6cfad244ad#
-[3] https://lore.kernel.org/all/CC666AE8-4CA4-4951-B6FB-A2EFDE3AC03B@fb.com/
-
-Link: https://lkml.kernel.org/r/20211111105048.2006070-1-guoxuenan@huawei.com
-Reported-by: syzbot+63d688f1d899c588fb71@syzkaller.appspotmail.com
-Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
-Reviewed-by: Nick Terrell <terrelln@fb.com>
-Acked-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Cc: Yann Collet <cyan@fb.com>
-Cc: Chengyang Fan <cy.fan@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f3fa33acca9f ("block: remove the ->rq_disk field in struct request")
+Link: https://lore.kernel.org/r/20220324134603.28463-1-thenzl@redhat.com
+Reported-by: Changhui Zhong <czhong@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/lz4/lz4_decompress.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_logging.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/lib/lz4/lz4_decompress.c
-+++ b/lib/lz4/lz4_decompress.c
-@@ -271,8 +271,12 @@ static FORCE_INLINE int LZ4_decompress_g
- 			ip += length;
- 			op += length;
+diff --git a/drivers/scsi/scsi_logging.c b/drivers/scsi/scsi_logging.c
+index 1f8f80b2dbfc..a9f8de5e9639 100644
+--- a/drivers/scsi/scsi_logging.c
++++ b/drivers/scsi/scsi_logging.c
+@@ -30,7 +30,7 @@ static inline const char *scmd_name(const struct scsi_cmnd *scmd)
+ {
+ 	struct request *rq = scsi_cmd_to_rq((struct scsi_cmnd *)scmd);
  
--			/* Necessarily EOF, due to parsing restrictions */
--			if (!partialDecoding || (cpy == oend))
-+			/* Necessarily EOF when !partialDecoding.
-+			 * When partialDecoding, it is EOF if we've either
-+			 * filled the output buffer or
-+			 * can't proceed with reading an offset for following match.
-+			 */
-+			if (!partialDecoding || (cpy == oend) || (ip >= (iend - 2)))
- 				break;
- 		} else {
- 			/* may overwrite up to WILDCOPYLENGTH beyond cpy */
+-	if (!rq->q->disk)
++	if (!rq->q || !rq->q->disk)
+ 		return NULL;
+ 	return rq->q->disk->disk_name;
+ }
+-- 
+2.35.1
+
 
 
