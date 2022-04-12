@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF324FD74E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9DDD4FD9E5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352502AbiDLH2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:28:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57446 "EHLO
+        id S1377265AbiDLHt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:49:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351623AbiDLHMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D012513D57;
-        Mon, 11 Apr 2022 23:50:44 -0700 (PDT)
+        with ESMTP id S1358312AbiDLHlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A93B45AF0;
+        Tue, 12 Apr 2022 00:17:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E7146103A;
-        Tue, 12 Apr 2022 06:50:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 838C2C385A1;
-        Tue, 12 Apr 2022 06:50:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F01FD616B2;
+        Tue, 12 Apr 2022 07:17:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03A45C385A5;
+        Tue, 12 Apr 2022 07:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746243;
-        bh=QhsvxtWGhK5wtgUU105j/Ut1BdLJxJR/yoBWlg8U0ts=;
+        s=korg; t=1649747863;
+        bh=elrvW3bnbgmA8t2/Ex3dnVBXPkdDaZXV0P4AvBUOFSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t83h1Jsxkb6IQUqlHJ8emFD92GLklLZ1y//WLU8bUYLzTFvqbQcNIyN+WVNW+gCl2
-         S0x0djpsmTXQP6coIiQJLVqS6njK8F1DByvEiFCLe+l9WJT+Dxdm1hZHJfFZaciEda
-         ffkt7nElHpqXakW2GlEcLIEBvBjQ4ilw4AcWVu3Q=
+        b=csHy5PLqwFSR3rp75KDz5UWKpxODg8a4zWdrtUV0UnClCYbAeRFBGnUL6BPGYUaSH
+         sfmZbY3Y0n9wGmUoZbWnE8zEcShWPCtIl2A+UUO7bCTt/Eez3/Alnq0IhOA6WE+txp
+         cbg4Neu4NhJvRzf4VhFnUNkkCGsydZ/tjTFNsfJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yann Gautier <yann.gautier@foss.st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 211/277] mmc: mmci: stm32: correctly check all elements of sg list
+        stable@vger.kernel.org, Jeremy Sowden <jeremy@azazel.net>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 196/343] netfilter: bitwise: fix reduce comparisons
 Date:   Tue, 12 Apr 2022 08:30:14 +0200
-Message-Id: <20220412062948.147725878@linuxfoundation.org>
+Message-Id: <20220412062957.013993867@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yann Gautier <yann.gautier@foss.st.com>
+From: Jeremy Sowden <jeremy@azazel.net>
 
-commit 0d319dd5a27183b75d984e3dc495248e59f99334 upstream.
+[ Upstream commit 31818213170caa51d116eb5dc1167b88523b4fe1 ]
 
-Use sg and not data->sg when checking sg list elements. Else only the
-first element alignment is checked.
-The last element should be checked the same way, for_each_sg already set
-sg to sg_next(sg).
+The `nft_bitwise_reduce` and `nft_bitwise_fast_reduce` functions should
+compare the bitwise operation in `expr` with the tracked operation
+associated with the destination register of `expr`.  However, instead of
+being called on `expr` and `track->regs[priv->dreg].selector`,
+`nft_expr_priv` is called on `expr` twice, so both reduce functions
+return true even when the operations differ.
 
-Fixes: 46b723dd867d ("mmc: mmci: add stm32 sdmmc variant")
-Cc: stable@vger.kernel.org
-Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
-Link: https://lore.kernel.org/r/20220317111944.116148-2-yann.gautier@foss.st.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: be5650f8f47e ("netfilter: nft_bitwise: track register operations")
+Signed-off-by: Jeremy Sowden <jeremy@azazel.net>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmci_stm32_sdmmc.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/netfilter/nft_bitwise.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/mmci_stm32_sdmmc.c
-+++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
-@@ -62,8 +62,8 @@ static int sdmmc_idma_validate_data(stru
- 	 * excepted the last element which has no constraint on idmasize
- 	 */
- 	for_each_sg(data->sg, sg, data->sg_len - 1, i) {
--		if (!IS_ALIGNED(data->sg->offset, sizeof(u32)) ||
--		    !IS_ALIGNED(data->sg->length, SDMMC_IDMA_BURST)) {
-+		if (!IS_ALIGNED(sg->offset, sizeof(u32)) ||
-+		    !IS_ALIGNED(sg->length, SDMMC_IDMA_BURST)) {
- 			dev_err(mmc_dev(host->mmc),
- 				"unaligned scatterlist: ofst:%x length:%d\n",
- 				data->sg->offset, data->sg->length);
-@@ -71,7 +71,7 @@ static int sdmmc_idma_validate_data(stru
- 		}
- 	}
+diff --git a/net/netfilter/nft_bitwise.c b/net/netfilter/nft_bitwise.c
+index 7b727d3ebf9d..04bd2f89afe8 100644
+--- a/net/netfilter/nft_bitwise.c
++++ b/net/netfilter/nft_bitwise.c
+@@ -287,7 +287,7 @@ static bool nft_bitwise_reduce(struct nft_regs_track *track,
+ 	if (!track->regs[priv->sreg].selector)
+ 		return false;
  
--	if (!IS_ALIGNED(data->sg->offset, sizeof(u32))) {
-+	if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
- 		dev_err(mmc_dev(host->mmc),
- 			"unaligned last scatterlist: ofst:%x length:%d\n",
- 			data->sg->offset, data->sg->length);
+-	bitwise = nft_expr_priv(expr);
++	bitwise = nft_expr_priv(track->regs[priv->dreg].selector);
+ 	if (track->regs[priv->sreg].selector == track->regs[priv->dreg].selector &&
+ 	    track->regs[priv->dreg].bitwise &&
+ 	    track->regs[priv->dreg].bitwise->ops == expr->ops &&
+@@ -434,7 +434,7 @@ static bool nft_bitwise_fast_reduce(struct nft_regs_track *track,
+ 	if (!track->regs[priv->sreg].selector)
+ 		return false;
+ 
+-	bitwise = nft_expr_priv(expr);
++	bitwise = nft_expr_priv(track->regs[priv->dreg].selector);
+ 	if (track->regs[priv->sreg].selector == track->regs[priv->dreg].selector &&
+ 	    track->regs[priv->dreg].bitwise &&
+ 	    track->regs[priv->dreg].bitwise->ops == expr->ops &&
+-- 
+2.35.1
+
 
 
