@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9774FD064
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09B74FD26C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232833AbiDLGqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
+        id S237435AbiDLHLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:11:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351180AbiDLGoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D66B39830;
-        Mon, 11 Apr 2022 23:37:40 -0700 (PDT)
+        with ESMTP id S1351081AbiDLHJQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:09:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4BD027FC7;
+        Mon, 11 Apr 2022 23:49:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E49E961902;
-        Tue, 12 Apr 2022 06:37:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED668C385A1;
-        Tue, 12 Apr 2022 06:37:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4908DB81B4D;
+        Tue, 12 Apr 2022 06:49:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B15B4C385A6;
+        Tue, 12 Apr 2022 06:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745459;
-        bh=Ur7rnRKD7I0yAumOWBGWGZkPPf4CPiK8FlaCdTnTWQw=;
+        s=korg; t=1649746182;
+        bh=WxC4Ck1eDrzF3juXXdTjdPr+pCGCfmE7AGQzZwZ9QB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kofISyJlfKaddVDd1GKP2sPnWzoI/7VF2c4xhhLY0zFkrpRvoEUwCTDD5LB3sH3rM
-         qI8zSuXzmefpFstbZibeePGBgDYlYIFAQ/aVcZK/vMqLKI2FLJyJhy/xTt8alXXHve
-         UYq2m+P/LDFd+Sa866BAPurQlhtHAPqfNlEh/q2E=
+        b=ImLKbX7bpN45qsTBu2YBTBRAHhBi6FzVyuTT62Mu86f2G8Pp0JOTrmWND1FTmU4XC
+         0IoKf8cPCMBR4iNOfzfhiReDSuZLwSvw04nJeYHznIaToe9nupNTpPicUUY59PyAlI
+         w86QNJus+MU+HVVf/2KG7OUUsEeabsR3Xcr+M4JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 102/171] scsi: zorro7xx: Fix a resource leak in zorro7xx_remove_one()
-Date:   Tue, 12 Apr 2022 08:29:53 +0200
-Message-Id: <20220412062930.835918660@linuxfoundation.org>
+Subject: [PATCH 5.15 191/277] net: phy: mscc-miim: reject clause 45 register accesses
+Date:   Tue, 12 Apr 2022 08:29:54 +0200
+Message-Id: <20220412062947.564502710@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 16ed828b872d12ccba8f07bcc446ae89ba662f9c ]
+[ Upstream commit 8d90991e5bf7fdb9f264f5f579d18969913054b7 ]
 
-The error handling path of the probe releases a resource that is not freed
-in the remove function. In some cases, a ioremap() must be undone.
+The driver doesn't support clause 45 register access yet, but doesn't
+check if the access is a c45 one either. This leads to spurious register
+reads and writes. Add the check.
 
-Add the missing iounmap() call in the remove function.
-
-Link: https://lore.kernel.org/r/247066a3104d25f9a05de8b3270fc3c848763bcc.1647673264.git.christophe.jaillet@wanadoo.fr
-Fixes: 45804fbb00ee ("[SCSI] 53c700: Amiga Zorro NCR53c710 SCSI")
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 542671fe4d86 ("net: phy: mscc-miim: Add MDIO driver")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/zorro7xx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/mdio/mdio-mscc-miim.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/scsi/zorro7xx.c b/drivers/scsi/zorro7xx.c
-index 27b9e2baab1a..7acf9193a9e8 100644
---- a/drivers/scsi/zorro7xx.c
-+++ b/drivers/scsi/zorro7xx.c
-@@ -159,6 +159,8 @@ static void zorro7xx_remove_one(struct zorro_dev *z)
- 	scsi_remove_host(host);
+diff --git a/drivers/net/mdio/mdio-mscc-miim.c b/drivers/net/mdio/mdio-mscc-miim.c
+index 17f98f609ec8..5070ca2f2637 100644
+--- a/drivers/net/mdio/mdio-mscc-miim.c
++++ b/drivers/net/mdio/mdio-mscc-miim.c
+@@ -76,6 +76,9 @@ static int mscc_miim_read(struct mii_bus *bus, int mii_id, int regnum)
+ 	u32 val;
+ 	int ret;
  
- 	NCR_700_release(host);
-+	if (host->base > 0x01000000)
-+		iounmap(hostdata->base);
- 	kfree(hostdata);
- 	free_irq(host->irq, host);
- 	zorro_release_device(z);
++	if (regnum & MII_ADDR_C45)
++		return -EOPNOTSUPP;
++
+ 	ret = mscc_miim_wait_pending(bus);
+ 	if (ret)
+ 		goto out;
+@@ -105,6 +108,9 @@ static int mscc_miim_write(struct mii_bus *bus, int mii_id,
+ 	struct mscc_miim_dev *miim = bus->priv;
+ 	int ret;
+ 
++	if (regnum & MII_ADDR_C45)
++		return -EOPNOTSUPP;
++
+ 	ret = mscc_miim_wait_pending(bus);
+ 	if (ret < 0)
+ 		goto out;
 -- 
 2.35.1
 
