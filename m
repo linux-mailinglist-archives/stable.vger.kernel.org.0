@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 130394FD450
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:02:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32A9B4FD9FA
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237550AbiDLHaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:30:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32804 "EHLO
+        id S1354379AbiDLIKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:10:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353297AbiDLHZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:19 -0400
+        with ESMTP id S1357336AbiDLHkB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52404E3A1;
-        Tue, 12 Apr 2022 00:00:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA2924BF0;
+        Tue, 12 Apr 2022 00:15:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 470B5615A4;
-        Tue, 12 Apr 2022 07:00:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC71C385A1;
-        Tue, 12 Apr 2022 07:00:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDD406171C;
+        Tue, 12 Apr 2022 07:15:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB194C385A5;
+        Tue, 12 Apr 2022 07:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746821;
-        bh=Rgi61zWahsZeOyCJSHtZu+TLZbL+bDSAlW85br4uN5Q=;
+        s=korg; t=1649747722;
+        bh=qT4rRxjdgHvgFLUUTFXORG38wBgzvPAGzYgrVrQ2Wyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dg0hzlEneC9fU7kMQNCraJrbW1X3MRFqPO8Inf5aE7QABZnw11eeABXOUTvraR1UG
-         iDkeXkhBIh3yQDDnoYoYwCs7OBlAvDE+JJVoQJXsHhAfK1e9eLv1Tdad0xIsQ+HjwN
-         n62G8SJI/nW5M14CIQIzsA78GmkjUSZiU8o9+/2o=
+        b=hrfjhwQzA6okcF8z3XuWj23M/JJlN9idMKWkPSepyFVzLKjSyMRwSTny/qdwr6CRc
+         zLVWGR84cn/WyWz3/0GRwuy0YuHEfTB/I6gfAUeZUip1l5MIYvWihxfU0VKLUEUZgL
+         cz5GpYyyGbpzQqICVMWA+pA9EuDjy3/J2/th8buU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 142/285] SUNRPC: Fix socket waits for write buffer space
+Subject: [PATCH 5.17 181/343] x86: Annotate call_on_stack()
 Date:   Tue, 12 Apr 2022 08:29:59 +0200
-Message-Id: <20220412062947.768562175@linuxfoundation.org>
+Message-Id: <20220412062956.587738563@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,126 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 7496b59f588dd52886fdbac7633608097543a0a5 ]
+[ Upstream commit be0075951fde739f14ee2b659e2fd6e2499c46c0 ]
 
-The socket layer requires that we use the socket lock to protect changes
-to the sock->sk_write_pending field and others.
+vmlinux.o: warning: objtool: page_fault_oops()+0x13c: unreachable instruction
 
-Reported-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+0000 000000000005b460 <page_fault_oops>:
+...
+0128    5b588:  49 89 23                mov    %rsp,(%r11)
+012b    5b58b:  4c 89 dc                mov    %r11,%rsp
+012e    5b58e:  4c 89 f2                mov    %r14,%rdx
+0131    5b591:  48 89 ee                mov    %rbp,%rsi
+0134    5b594:  4c 89 e7                mov    %r12,%rdi
+0137    5b597:  e8 00 00 00 00          call   5b59c <page_fault_oops+0x13c>    5b598: R_X86_64_PLT32   handle_stack_overflow-0x4
+013c    5b59c:  5c                      pop    %rsp
+
+vmlinux.o: warning: objtool: sysvec_reboot()+0x6d: unreachable instruction
+
+0000 00000000000033f0 <sysvec_reboot>:
+...
+005d     344d:  4c 89 dc                mov    %r11,%rsp
+0060     3450:  e8 00 00 00 00          call   3455 <sysvec_reboot+0x65>        3451: R_X86_64_PLT32    irq_enter_rcu-0x4
+0065     3455:  48 89 ef                mov    %rbp,%rdi
+0068     3458:  e8 00 00 00 00          call   345d <sysvec_reboot+0x6d>        3459: R_X86_64_PC32     .text+0x47d0c
+006d     345d:  e8 00 00 00 00          call   3462 <sysvec_reboot+0x72>        345e: R_X86_64_PLT32    irq_exit_rcu-0x4
+0072     3462:  5c                      pop    %rsp
+
+Both cases are due to a call_on_stack() calling a __noreturn function.
+Since that's an inline asm, GCC can't do anything about the
+instructions after the CALL. Therefore put in an explicit
+ASM_REACHABLE annotation to make sure objtool and gcc are consistently
+confused about control flow.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/20220308154319.468805622@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtsock.c | 54 +++++++++++++++++++++++++++++++------------
- 1 file changed, 39 insertions(+), 15 deletions(-)
+ arch/x86/include/asm/irq_stack.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 37d961c1a5c9..aaba1d8cf552 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -763,12 +763,12 @@ xs_stream_start_connect(struct sock_xprt *transport)
- /**
-  * xs_nospace - handle transmit was incomplete
-  * @req: pointer to RPC request
-+ * @transport: pointer to struct sock_xprt
-  *
-  */
--static int xs_nospace(struct rpc_rqst *req)
-+static int xs_nospace(struct rpc_rqst *req, struct sock_xprt *transport)
- {
--	struct rpc_xprt *xprt = req->rq_xprt;
--	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
-+	struct rpc_xprt *xprt = &transport->xprt;
- 	struct sock *sk = transport->inet;
- 	int ret = -EAGAIN;
- 
-@@ -779,25 +779,49 @@ static int xs_nospace(struct rpc_rqst *req)
- 
- 	/* Don't race with disconnect */
- 	if (xprt_connected(xprt)) {
-+		struct socket_wq *wq;
-+
-+		rcu_read_lock();
-+		wq = rcu_dereference(sk->sk_wq);
-+		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
-+		rcu_read_unlock();
-+
- 		/* wait for more buffer space */
-+		set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
- 		sk->sk_write_pending++;
- 		xprt_wait_for_buffer_space(xprt);
- 	} else
- 		ret = -ENOTCONN;
- 
- 	spin_unlock(&xprt->transport_lock);
-+	return ret;
-+}
- 
--	/* Race breaker in case memory is freed before above code is called */
--	if (ret == -EAGAIN) {
--		struct socket_wq *wq;
-+static int xs_sock_nospace(struct rpc_rqst *req)
-+{
-+	struct sock_xprt *transport =
-+		container_of(req->rq_xprt, struct sock_xprt, xprt);
-+	struct sock *sk = transport->inet;
-+	int ret = -EAGAIN;
- 
--		rcu_read_lock();
--		wq = rcu_dereference(sk->sk_wq);
--		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
--		rcu_read_unlock();
-+	lock_sock(sk);
-+	if (!sock_writeable(sk))
-+		ret = xs_nospace(req, transport);
-+	release_sock(sk);
-+	return ret;
-+}
- 
--		sk->sk_write_space(sk);
--	}
-+static int xs_stream_nospace(struct rpc_rqst *req)
-+{
-+	struct sock_xprt *transport =
-+		container_of(req->rq_xprt, struct sock_xprt, xprt);
-+	struct sock *sk = transport->inet;
-+	int ret = -EAGAIN;
-+
-+	lock_sock(sk);
-+	if (!sk_stream_memory_free(sk))
-+		ret = xs_nospace(req, transport);
-+	release_sock(sk);
- 	return ret;
+diff --git a/arch/x86/include/asm/irq_stack.h b/arch/x86/include/asm/irq_stack.h
+index ae9d40f6c706..05af249d6bec 100644
+--- a/arch/x86/include/asm/irq_stack.h
++++ b/arch/x86/include/asm/irq_stack.h
+@@ -99,7 +99,8 @@
  }
  
-@@ -887,7 +911,7 @@ static int xs_local_send_request(struct rpc_rqst *req)
- 	case -ENOBUFS:
- 		break;
- 	case -EAGAIN:
--		status = xs_nospace(req);
-+		status = xs_stream_nospace(req);
- 		break;
- 	default:
- 		dprintk("RPC:       sendmsg returned unrecognized error %d\n",
-@@ -963,7 +987,7 @@ static int xs_udp_send_request(struct rpc_rqst *req)
- 		/* Should we call xs_close() here? */
- 		break;
- 	case -EAGAIN:
--		status = xs_nospace(req);
-+		status = xs_sock_nospace(req);
- 		break;
- 	case -ENETUNREACH:
- 	case -ENOBUFS:
-@@ -1083,7 +1107,7 @@ static int xs_tcp_send_request(struct rpc_rqst *req)
- 		/* Should we call xs_close() here? */
- 		break;
- 	case -EAGAIN:
--		status = xs_nospace(req);
-+		status = xs_stream_nospace(req);
- 		break;
- 	case -ECONNRESET:
- 	case -ECONNREFUSED:
+ #define ASM_CALL_ARG0							\
+-	"call %P[__func]				\n"
++	"call %P[__func]				\n"		\
++	ASM_REACHABLE
+ 
+ #define ASM_CALL_ARG1							\
+ 	"movq	%[arg1], %%rdi				\n"		\
 -- 
 2.35.1
 
