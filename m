@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5594E4FD3F3
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 649724FD423
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377222AbiDLHtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49160 "EHLO
+        id S235617AbiDLHbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:31:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357825AbiDLHkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E47EB39825;
-        Tue, 12 Apr 2022 00:16:58 -0700 (PDT)
+        with ESMTP id S1353620AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F3726541;
+        Tue, 12 Apr 2022 00:02:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 707FAB81B4F;
-        Tue, 12 Apr 2022 07:16:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2B24C385A5;
-        Tue, 12 Apr 2022 07:16:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4B2C615B4;
+        Tue, 12 Apr 2022 07:02:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4CD8C385A1;
+        Tue, 12 Apr 2022 07:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747816;
-        bh=gd8iSxgW8PBNOLgAnqpE0vsod2iKWP2nUWete6C1iPY=;
+        s=korg; t=1649746924;
+        bh=ZQJTxnWwxn1l0rfByrfBEHx7Ho3mbw7y5PfeVOo104Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F4xRpSp5ocd3Cytdl3ARFLq60N3PCYEu7tZk91LaQv7HKwP/QayebN3X2g+dZzmiQ
-         tIA2UdbIhcov4VEJm8X840LTHkL49mqD/Wed9A1eHLVe/14eCgUeNGYwJ1CWzQ6X5N
-         EnUVPMYOyWuuiXfEQkK1RRIn+oSw/3sx3n8nxclU=
+        b=d8qjJp4wkexOM0JQZCEJU0b4JrbOzUKGa0OZISePMyUsf2bAW8F/9+qxrXycrzrn/
+         yybwpeAW6rdthv5iExXTwcDjfEQ7fCThUpk11UFBlfH05tS56xPZRE24dmHDYdPrkF
+         hCvcz/tfco4LzVKNC6O7yO9zi9Du0AYvc1k3Dr/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Aharon Landau <aharonl@nvidia.com>,
+        Shay Drory <shayd@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 216/343] drm/imx: Fix memory leak in imx_pd_connector_get_modes
-Date:   Tue, 12 Apr 2022 08:30:34 +0200
-Message-Id: <20220412062957.578295261@linuxfoundation.org>
+Subject: [PATCH 5.16 179/285] RDMA/mlx5: Dont remove cache MRs when a delay is needed
+Date:   Tue, 12 Apr 2022 08:30:36 +0200
+Message-Id: <20220412062948.832760271@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Aharon Landau <aharonl@nvidia.com>
 
-[ Upstream commit bce81feb03a20fca7bbdd1c4af16b4e9d5c0e1d3 ]
+[ Upstream commit 84c2362fb65d69c721fec0974556378cbb36a62b ]
 
-Avoid leaking the display mode variable if of_get_drm_display_mode
-fails.
+Don't remove MRs from the cache if need to delay the removal.
 
-Fixes: 76ecd9c9fb24 ("drm/imx: parallel-display: check return code from of_get_drm_display_mode()")
-Addresses-Coverity-ID: 1443943 ("Resource leak")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220108165230.44610-1-jose.exposito89@gmail.com
+Fixes: b9358bdbc713 ("RDMA/mlx5: Fix locking in MR cache work queue")
+Link: https://lore.kernel.org/r/c3087a90ff362c8796c7eaa2715128743ce36722.1649062436.git.leonro@nvidia.com
+Signed-off-by: Aharon Landau <aharonl@nvidia.com>
+Reviewed-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/parallel-display.c | 4 +++-
+ drivers/infiniband/hw/mlx5/mr.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/imx/parallel-display.c b/drivers/gpu/drm/imx/parallel-display.c
-index 06cb1a59b9bc..63ba2ad84679 100644
---- a/drivers/gpu/drm/imx/parallel-display.c
-+++ b/drivers/gpu/drm/imx/parallel-display.c
-@@ -75,8 +75,10 @@ static int imx_pd_connector_get_modes(struct drm_connector *connector)
- 		ret = of_get_drm_display_mode(np, &imxpd->mode,
- 					      &imxpd->bus_flags,
- 					      OF_USE_NATIVE_MODE);
--		if (ret)
-+		if (ret) {
-+			drm_mode_destroy(connector->dev, mode);
- 			return ret;
+diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
+index 2910d7833313..d3b2d02a4872 100644
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -541,8 +541,10 @@ static void __cache_work_func(struct mlx5_cache_ent *ent)
+ 		spin_lock_irq(&ent->lock);
+ 		if (ent->disabled)
+ 			goto out;
+-		if (need_delay)
++		if (need_delay) {
+ 			queue_delayed_work(cache->wq, &ent->dwork, 300 * HZ);
++			goto out;
 +		}
- 
- 		drm_mode_copy(mode, &imxpd->mode);
- 		mode->type |= DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
+ 		remove_cache_mr_locked(ent);
+ 		queue_adjust_cache_locked(ent);
+ 	}
 -- 
 2.35.1
 
