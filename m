@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19BAA4FD093
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5466B4FD0A0
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229699AbiDLGs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:48:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44938 "EHLO
+        id S1350105AbiDLGsi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:48:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350429AbiDLGpk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:45:40 -0400
+        with ESMTP id S231807AbiDLGqE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:46:04 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC4DFFD17;
-        Mon, 11 Apr 2022 23:39:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E697186EA;
+        Mon, 11 Apr 2022 23:39:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F636B81B4A;
-        Tue, 12 Apr 2022 06:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB144C385A1;
-        Tue, 12 Apr 2022 06:39:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25BC2B81B49;
+        Tue, 12 Apr 2022 06:39:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D35AC385A1;
+        Tue, 12 Apr 2022 06:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745547;
-        bh=wYo+gFcW6YEWMBxADo3fn9rhGvO3HbHRnUEEkVALwhY=;
+        s=korg; t=1649745549;
+        bh=ycNbP5gI6Zk4pCC5a1+xamVVZvXItqec6nhaQNdutQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ls4FRstplMKyuVYrvBoNrgQYw8y/vFbDNMP9a/hh0ismKTsek07Cqq2i1oN1BIGIi
-         XVgzaPsaS6Mu1O64FegkaAFUjDaNgsq5QI9hUPYCYEmjLaZOjC94dXnvtE1GXUpRUy
-         CQFKv2d2h8oqP1AXrD9hriFeKVo/e4zw+f64Zf0Q=
+        b=GRCZrGKlhLs6O+rVVFI2fFR8RNJuf68qZ6SCFjnR7+CtnEJyLV58jWj3fOxKtgFj2
+         NmqJq/vyFZiYveQoZ5g2EFuq+VcYO+ABNNemyFD8iLxAf/92dv/iGVLP0WhP8sZYEH
+         2sE6BJk+EWh9acGvQOyLA+ixIGb4qPRr5T6CjH9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        Denis Nikitin <denik@chromium.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 133/171] perf session: Remap buf if there is no space for event
-Date:   Tue, 12 Apr 2022 08:30:24 +0200
-Message-Id: <20220412062931.733159919@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Chanho Park <chanho61.park@samsung.com>
+Subject: [PATCH 5.10 134/171] arm64: Add part number for Arm Cortex-A78AE
+Date:   Tue, 12 Apr 2022 08:30:25 +0200
+Message-Id: <20220412062931.763362863@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -59,78 +56,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Nikitin <denik@chromium.org>
+From: Chanho Park <chanho61.park@samsung.com>
 
-[ Upstream commit bc21e74d4775f883ae1f542c1f1dc7205b15d925 ]
+commit 83bea32ac7ed37bbda58733de61fc9369513f9f9 upstream.
 
-If a perf event doesn't fit into remaining buffer space return NULL to
-remap buf and fetch the event again.
+Add the MIDR part number info for the Arm Cortex-A78AE[1] and add it to
+spectre-BHB affected list[2].
 
-Keep the logic to error out on inadequate input from fuzzing.
+[1]: https://developer.arm.com/Processors/Cortex-A78AE
+[2]: https://developer.arm.com/Arm%20Security%20Center/Spectre-BHB
 
-This fixes perf failing on ChromeOS (with 32b userspace):
-
-  $ perf report -v -i perf.data
-  ...
-  prefetch_event: head=0x1fffff8 event->header_size=0x30, mmap_size=0x2000000: fuzzed or compressed perf.data?
-  Error:
-  failed to process sample
-
-Fixes: 57fc032ad643ffd0 ("perf session: Avoid infinite loop when seeing invalid header.size")
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Denis Nikitin <denik@chromium.org>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20220330031130.2152327-1-denik@chromium.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Signed-off-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20220407091128.8700-1-chanho61.park@samsung.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/session.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/cputype.h |    2 ++
+ arch/arm64/kernel/proton-pack.c  |    1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 9dddec19a494..354e1e04a266 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -2056,6 +2056,7 @@ prefetch_event(char *buf, u64 head, size_t mmap_size,
- 	       bool needs_swap, union perf_event *error)
- {
- 	union perf_event *event;
-+	u16 event_size;
- 
- 	/*
- 	 * Ensure we have enough space remaining to read
-@@ -2068,15 +2069,23 @@ prefetch_event(char *buf, u64 head, size_t mmap_size,
- 	if (needs_swap)
- 		perf_event_header__bswap(&event->header);
- 
--	if (head + event->header.size <= mmap_size)
-+	event_size = event->header.size;
-+	if (head + event_size <= mmap_size)
- 		return event;
- 
- 	/* We're not fetching the event so swap back again */
- 	if (needs_swap)
- 		perf_event_header__bswap(&event->header);
- 
--	pr_debug("%s: head=%#" PRIx64 " event->header_size=%#x, mmap_size=%#zx:"
--		 " fuzzed or compressed perf.data?\n",__func__, head, event->header.size, mmap_size);
-+	/* Check if the event fits into the next mmapped buf. */
-+	if (event_size <= mmap_size - head % page_size) {
-+		/* Remap buf and fetch again. */
-+		return NULL;
-+	}
-+
-+	/* Invalid input. Event size should never exceed mmap_size. */
-+	pr_debug("%s: head=%#" PRIx64 " event->header.size=%#x, mmap_size=%#zx:"
-+		 " fuzzed or compressed perf.data?\n", __func__, head, event_size, mmap_size);
- 
- 	return error;
- }
--- 
-2.35.1
-
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -75,6 +75,7 @@
+ #define ARM_CPU_PART_CORTEX_A77		0xD0D
+ #define ARM_CPU_PART_NEOVERSE_V1	0xD40
+ #define ARM_CPU_PART_CORTEX_A78		0xD41
++#define ARM_CPU_PART_CORTEX_A78AE	0xD42
+ #define ARM_CPU_PART_CORTEX_X1		0xD44
+ #define ARM_CPU_PART_CORTEX_A510	0xD46
+ #define ARM_CPU_PART_CORTEX_A710	0xD47
+@@ -123,6 +124,7 @@
+ #define MIDR_CORTEX_A77	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A77)
+ #define MIDR_NEOVERSE_V1	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_V1)
+ #define MIDR_CORTEX_A78	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A78)
++#define MIDR_CORTEX_A78AE	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A78AE)
+ #define MIDR_CORTEX_X1	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_X1)
+ #define MIDR_CORTEX_A510 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A510)
+ #define MIDR_CORTEX_A710 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A710)
+--- a/arch/arm64/kernel/proton-pack.c
++++ b/arch/arm64/kernel/proton-pack.c
+@@ -861,6 +861,7 @@ u8 spectre_bhb_loop_affected(int scope)
+ 	if (scope == SCOPE_LOCAL_CPU) {
+ 		static const struct midr_range spectre_bhb_k32_list[] = {
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78),
++			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78AE),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78C),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_X1),
+ 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A710),
 
 
