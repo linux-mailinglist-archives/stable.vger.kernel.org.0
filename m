@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7454FD593
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8262D4FD5C2
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351802AbiDLHgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:36:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44290 "EHLO
+        id S1352886AbiDLHda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:33:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354857AbiDLH0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:54 -0400
+        with ESMTP id S1354889AbiDLH05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 391FA47384;
-        Tue, 12 Apr 2022 00:06:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 126F4473A7;
+        Tue, 12 Apr 2022 00:06:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DDD6146F;
-        Tue, 12 Apr 2022 07:06:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1EFC385A6;
-        Tue, 12 Apr 2022 07:06:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 80E28616DC;
+        Tue, 12 Apr 2022 07:06:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9029DC385AC;
+        Tue, 12 Apr 2022 07:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747206;
-        bh=9VK7Q9d8kUXkXOYxC5DYC7ucjglVOtJGawK4c7nKiDA=;
+        s=korg; t=1649747209;
+        bh=ntbeJfFcUf36LtQuxnH6guNMinHbq9Rd/OpBJmA0IJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F43f+qRBYxl7s2JwFmOszL1eurK6nXct+5AkDg/zY5ZJIhvXv3Ier9mF0JbPUCVgP
-         f0TALr1TTQHxsUMkYkmbPLOGMAhX2PURKgfab1FUv46i32rS4C4V/P7nGJretUD/Eu
-         BL5zAp1c3Fog8TSYv5BZHzyARGstukvbp8swSRjc=
+        b=SpSq9+vG6f3NH9SCT8X4kb095Scn8IavoVN54Ug7ggZrax6RlfVMFrVQ3WDVV6uK/
+         TK8DliI8lXubBNrEx8zsLVoL+gXIWDsWC/AYoSkSUD2+zmBkir6lJTYP0CAhfuvzGH
+         g7BEAiYhxpPG+MxL46CdOT1OMF9MyA4oaRq5wsaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: [PATCH 5.16 280/285] x86,static_call: Fix __static_call_return0 for i386
-Date:   Tue, 12 Apr 2022 08:32:17 +0200
-Message-Id: <20220412062951.734171923@linuxfoundation.org>
+        stable@vger.kernel.org, Jingyi Wang <wangjingyi11@huawei.com>,
+        Nianyao Tang <tangnianyao@huawei.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.16 281/285] irqchip/gic-v4: Wait for GICR_VPENDBASER.Dirty to clear before descheduling
+Date:   Tue, 12 Apr 2022 08:32:18 +0200
+Message-Id: <20220412062951.762096947@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -53,54 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 1cd5f059d956e6f614ba6666ecdbcf95db05d5f5 upstream.
+commit af27e41612ec7e5b4783f589b753a7c31a37aac8 upstream.
 
-Paolo reported that the instruction sequence that is used to replace:
+The way KVM drives GICv4.{0,1} is as follows:
+- vcpu_load() makes the VPE resident, instructing the RD to start
+  scanning for interrupts
+- just before entering the guest, we check that the RD has finished
+  scanning and that we can start running the vcpu
+- on preemption, we deschedule the VPE by making it invalid on
+  the RD
 
-    call __static_call_return0
+However, we are preemptible between the first two steps. If it so
+happens *and* that the RD was still scanning, we nonetheless write
+to the GICR_VPENDBASER register while Dirty is set, and bad things
+happen (we're in UNPRED land).
 
-namely:
+This affects both the 4.0 and 4.1 implementations.
 
-    66 66 48 31 c0	data16 data16 xor %rax,%rax
+Make sure Dirty is cleared before performing the deschedule,
+meaning that its_clear_vpend_valid() becomes a sort of full VPE
+residency barrier.
 
-decodes to something else on i386, namely:
-
-    66 66 48		data16 dec %ax
-    31 c0		xor    %eax,%eax
-
-Which is a nonsensical sequence that happens to have the same outcome.
-*However* an important distinction is that it consists of 2
-instructions which is a problem when the thing needs to be overwriten
-with a regular call instruction again.
-
-As such, replace the instruction with something that decodes the same
-on both i386 and x86_64.
-
-Fixes: 3f2a8fc4b15d ("static_call/x86: Add __static_call_return0()")
-Reported-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220318204419.GT8939@worktop.programming.kicks-ass.net
+Reported-by: Jingyi Wang <wangjingyi11@huawei.com>
+Tested-by: Nianyao Tang <tangnianyao@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Fixes: 57e3cebd022f ("KVM: arm64: Delay the polling of the GICR_VPENDBASER.Dirty bit")
+Link: https://lore.kernel.org/r/4aae10ba-b39a-5f84-754b-69c2eb0a2c03@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/static_call.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/irqchip/irq-gic-v3-its.c |   28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kernel/static_call.c
-+++ b/arch/x86/kernel/static_call.c
-@@ -12,10 +12,9 @@ enum insn_type {
- };
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -3007,18 +3007,12 @@ static int __init allocate_lpi_tables(vo
+ 	return 0;
+ }
  
- /*
-- * data16 data16 xorq %rax, %rax - a single 5 byte instruction that clears %rax
-- * The REX.W cancels the effect of any data16.
-+ * cs cs cs xorl %eax, %eax - a single 5 byte instruction that clears %[er]ax
-  */
--static const u8 xor5rax[] = { 0x66, 0x66, 0x48, 0x31, 0xc0 };
-+static const u8 xor5rax[] = { 0x2e, 0x2e, 0x2e, 0x31, 0xc0 };
- 
- static void __ref __static_call_transform(void *insn, enum insn_type type, void *func)
+-static u64 its_clear_vpend_valid(void __iomem *vlpi_base, u64 clr, u64 set)
++static u64 read_vpend_dirty_clear(void __iomem *vlpi_base)
  {
+ 	u32 count = 1000000;	/* 1s! */
+ 	bool clean;
+ 	u64 val;
+ 
+-	val = gicr_read_vpendbaser(vlpi_base + GICR_VPENDBASER);
+-	val &= ~GICR_VPENDBASER_Valid;
+-	val &= ~clr;
+-	val |= set;
+-	gicr_write_vpendbaser(val, vlpi_base + GICR_VPENDBASER);
+-
+ 	do {
+ 		val = gicr_read_vpendbaser(vlpi_base + GICR_VPENDBASER);
+ 		clean = !(val & GICR_VPENDBASER_Dirty);
+@@ -3029,10 +3023,26 @@ static u64 its_clear_vpend_valid(void __
+ 		}
+ 	} while (!clean && count);
+ 
+-	if (unlikely(val & GICR_VPENDBASER_Dirty)) {
++	if (unlikely(!clean))
+ 		pr_err_ratelimited("ITS virtual pending table not cleaning\n");
++
++	return val;
++}
++
++static u64 its_clear_vpend_valid(void __iomem *vlpi_base, u64 clr, u64 set)
++{
++	u64 val;
++
++	/* Make sure we wait until the RD is done with the initial scan */
++	val = read_vpend_dirty_clear(vlpi_base);
++	val &= ~GICR_VPENDBASER_Valid;
++	val &= ~clr;
++	val |= set;
++	gicr_write_vpendbaser(val, vlpi_base + GICR_VPENDBASER);
++
++	val = read_vpend_dirty_clear(vlpi_base);
++	if (unlikely(val & GICR_VPENDBASER_Dirty))
+ 		val |= GICR_VPENDBASER_PendingLast;
+-	}
+ 
+ 	return val;
+ }
 
 
