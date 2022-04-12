@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE3B4FD6E7
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ECCB4FD8A0
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345085AbiDLHU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:20:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57076 "EHLO
+        id S1377234AbiDLHtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351690AbiDLHMv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D4DF15A18;
-        Mon, 11 Apr 2022 23:51:44 -0700 (PDT)
+        with ESMTP id S1357957AbiDLHk4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB93E3B023;
+        Tue, 12 Apr 2022 00:17:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38B5C6146F;
-        Tue, 12 Apr 2022 06:51:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44014C385A1;
-        Tue, 12 Apr 2022 06:51:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F37F6171C;
+        Tue, 12 Apr 2022 07:17:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EAC4C385A1;
+        Tue, 12 Apr 2022 07:17:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746303;
-        bh=MIJOt/rCjVZ1I/G8JnoYtBGZqGnfCfzujr8/xisSegw=;
+        s=korg; t=1649747827;
+        bh=LBlGdq6vz+9VNDx+bAUfEJCL60i/v7PjWpnupljX3dY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqZyjym/ECeHkbtYHhYSCvJls3XNxYOdj/GCseQ/4UNNwlcdQbqQS+yXfkFWSRfRi
-         +Z7qDAeZ8J/qyIfX51eQLmuW1r2PJX7RRplIFww1iwXUsDMsDtHWo7ngHXsNmE0J6u
-         /O8+VHIHQ4nlegyg2e0y1lD+VYtWg8QG/gV25E50=
+        b=YsvDVCX2/SN5A6ScWd1L/Km9b1SnzQplGLlcW/T1CzmEjBUuvnfbwfFuYkXv7Ee1U
+         GRRd2HGjZYu5/19Z63K6Q4oPw6o1vw90ZvaeuLPR3lQHlrJ08MgH07dVQtsRLToHMs
+         +2yZdNpjVyuc0tK+3vfNtgMyzSItfe3tqIBAeVjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.15 235/277] perf: qcom_l2_pmu: fix an incorrect NULL check on list iterator
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 220/343] regulator: atc260x: Fix missing active_discharge_on setting
 Date:   Tue, 12 Apr 2022 08:30:38 +0200
-Message-Id: <20220412062948.845383567@linuxfoundation.org>
+Message-Id: <20220412062957.690976788@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-commit 2012a9e279013933885983cbe0a5fe828052563b upstream.
+[ Upstream commit 2316f0fc0ad2aa87a568ceaf3d76be983ee555c3 ]
 
-The bug is here:
-	return cluster;
+Without active_discharge_on setting, the SWITCH1 discharge enable control
+is always disabled. Fix it.
 
-The list iterator value 'cluster' will *always* be set and non-NULL
-by list_for_each_entry(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element
-is found.
-
-To fix the bug, return 'cluster' when found, otherwise return NULL.
-
-Cc: stable@vger.kernel.org
-Fixes: 21bdbb7102ed ("perf: add qcom l2 cache perf events driver")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220327055733.4070-1-xiam0nd.tong@gmail.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3b15ccac161a ("regulator: Add regulator driver for ATC260x PMICs")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20220403132235.123727-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/qcom_l2_pmu.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/regulator/atc260x-regulator.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/perf/qcom_l2_pmu.c
-+++ b/drivers/perf/qcom_l2_pmu.c
-@@ -736,7 +736,7 @@ static struct cluster_pmu *l2_cache_asso
- {
- 	u64 mpidr;
- 	int cpu_cluster_id;
--	struct cluster_pmu *cluster = NULL;
-+	struct cluster_pmu *cluster;
- 
- 	/*
- 	 * This assumes that the cluster_id is in MPIDR[aff1] for
-@@ -758,10 +758,10 @@ static struct cluster_pmu *l2_cache_asso
- 			 cluster->cluster_id);
- 		cpumask_set_cpu(cpu, &cluster->cluster_cpus);
- 		*per_cpu_ptr(l2cache_pmu->pmu_cluster, cpu) = cluster;
--		break;
-+		return cluster;
- 	}
- 
--	return cluster;
-+	return NULL;
+diff --git a/drivers/regulator/atc260x-regulator.c b/drivers/regulator/atc260x-regulator.c
+index 05147d2c3842..485e58b264c0 100644
+--- a/drivers/regulator/atc260x-regulator.c
++++ b/drivers/regulator/atc260x-regulator.c
+@@ -292,6 +292,7 @@ enum atc2603c_reg_ids {
+ 	.bypass_mask = BIT(5), \
+ 	.active_discharge_reg = ATC2603C_PMU_SWITCH_CTL, \
+ 	.active_discharge_mask = BIT(1), \
++	.active_discharge_on = BIT(1), \
+ 	.owner = THIS_MODULE, \
  }
  
- static int l2cache_pmu_online_cpu(unsigned int cpu, struct hlist_node *node)
+-- 
+2.35.1
+
 
 
