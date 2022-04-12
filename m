@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 566094FD789
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B15A04FD49E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348891AbiDLHpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:45:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35326 "EHLO
+        id S1349800AbiDLHWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:22:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356388AbiDLHfZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:35:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B927D5131D;
-        Tue, 12 Apr 2022 00:09:26 -0700 (PDT)
+        with ESMTP id S1352132AbiDLHNb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1CA113F81;
+        Mon, 11 Apr 2022 23:54:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04DBEB81B5D;
-        Tue, 12 Apr 2022 07:09:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 576B8C385A5;
-        Tue, 12 Apr 2022 07:09:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80EE9B81B44;
+        Tue, 12 Apr 2022 06:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF99AC385A6;
+        Tue, 12 Apr 2022 06:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747363;
-        bh=VVkldtKKzVFjq87XcXUHMuOaGul0Zrdrv27o1u0BB7I=;
+        s=korg; t=1649746458;
+        bh=smfjITSV1YHK4/bfAMDR+H6NLc2WvBO/3LmrqMnJXJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqU7WWCp1b4g3PADaizDXE24t7gHrut7xQY7GkEfNOWiMwstr81+HhpZfCiYCkMUm
-         sRtZNc9JZ9silF0iepHOpB+/J88dngCzlNGmil7xBtrWVBNrj3/Pr28Ps/PATLIMIb
-         /de5V5EFqj+zHEyLFBS5crWFKBj8E3Ug4NqkIw0w=
+        b=obQeLNhxdi1AFudI0JEsnNC5KOYc3reMPI+B668mwQ40MV7Fz5urdcVxUFBsSn8s5
+         a1iosBQWZW49mIlqGHFvsFzDPK7qeuvhcrOMeJ3ljRmusCCH2t/spDhV1KN75NlsW/
+         iQ2sHjrxSVIjJKan4nXbjNp8pGr+oFcscOPbtlyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Philipp Zabel <philipp.zabel@gmail.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 051/343] cfg80211: dont add non transmitted BSS to 6GHz scanned channels
-Date:   Tue, 12 Apr 2022 08:27:49 +0200
-Message-Id: <20220412062952.579111880@linuxfoundation.org>
+Subject: [PATCH 5.16 013/285] drm/edid: improve non-desktop quirk logging
+Date:   Tue, 12 Apr 2022 08:27:50 +0200
+Message-Id: <20220412062944.060255199@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit 5666ee154f4696c011dfa8544aaf5591b6b87515 ]
+[ Upstream commit ce99534e978d4a36787dbe5e5c57749d12e6bf4a ]
 
-When adding 6GHz channels to scan request based on reported
-co-located APs, don't add channels that have only APs with
-"non-transmitted" BSSes if they only match the wildcard SSID since
-they will be found by probing the "transmitted" BSS.
+Improve non-desktop quirk logging if the EDID indicates non-desktop. If
+both are set, note about redundant quirk. If there's no quirk but the
+EDID indicates non-desktop, don't log non-desktop is set to 0.
 
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220202104617.f6ddf099f934.I231e55885d3644f292d00dfe0f42653269f2559e@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Cc: Philipp Zabel <philipp.zabel@gmail.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
+Tested-by: Philipp Zabel <philipp.zabel@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211228101051.317989-1-jani.nikula@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/scan.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_edid.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/net/wireless/scan.c b/net/wireless/scan.c
-index b888522f133b..b2fdac96bab0 100644
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -700,8 +700,12 @@ static bool cfg80211_find_ssid_match(struct cfg80211_colocated_ap *ap,
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index a71b82668a98..83e5c115e754 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5325,17 +5325,13 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 	info->width_mm = edid->width_cm * 10;
+ 	info->height_mm = edid->height_cm * 10;
  
- 	for (i = 0; i < request->n_ssids; i++) {
- 		/* wildcard ssid in the scan request */
--		if (!request->ssids[i].ssid_len)
-+		if (!request->ssids[i].ssid_len) {
-+			if (ap->multi_bss && !ap->transmitted_bssid)
-+				continue;
+-	info->non_desktop = !!(quirks & EDID_QUIRK_NON_DESKTOP);
+-
+ 	drm_get_monitor_range(connector, edid);
+ 
+-	DRM_DEBUG_KMS("non_desktop set to %d\n", info->non_desktop);
+-
+ 	if (edid->revision < 3)
+-		return quirks;
++		goto out;
+ 
+ 	if (!(edid->input & DRM_EDID_INPUT_DIGITAL))
+-		return quirks;
++		goto out;
+ 
+ 	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
+ 	drm_parse_cea_ext(connector, edid);
+@@ -5356,7 +5352,7 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 
+ 	/* Only defined for 1.4 with digital displays */
+ 	if (edid->revision < 4)
+-		return quirks;
++		goto out;
+ 
+ 	switch (edid->input & DRM_EDID_DIGITAL_DEPTH_MASK) {
+ 	case DRM_EDID_DIGITAL_DEPTH_6:
+@@ -5393,6 +5389,13 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 
+ 	drm_update_mso(connector, edid);
+ 
++out:
++	if (quirks & EDID_QUIRK_NON_DESKTOP) {
++		drm_dbg_kms(connector->dev, "Non-desktop display%s\n",
++			    info->non_desktop ? " (redundant quirk)" : "");
++		info->non_desktop = true;
++	}
 +
- 			return true;
-+		}
+ 	return quirks;
+ }
  
- 		if (ap->ssid_len &&
- 		    ap->ssid_len == request->ssids[i].ssid_len) {
-@@ -827,6 +831,9 @@ static int cfg80211_scan_6ghz(struct cfg80211_registered_device *rdev)
- 		    !cfg80211_find_ssid_match(ap, request))
- 			continue;
- 
-+		if (!request->n_ssids && ap->multi_bss && !ap->transmitted_bssid)
-+			continue;
-+
- 		cfg80211_scan_req_add_chan(request, chan, true);
- 		memcpy(scan_6ghz_params->bssid, ap->bssid, ETH_ALEN);
- 		scan_6ghz_params->short_ssid = ap->short_ssid;
 -- 
 2.35.1
 
