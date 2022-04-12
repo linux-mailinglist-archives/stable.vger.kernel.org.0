@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1FC14FCF8E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 287754FD224
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348912AbiDLGf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:35:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50666 "EHLO
+        id S235533AbiDLHIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:08:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241763AbiDLGf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:35:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088FC35858;
-        Mon, 11 Apr 2022 23:33:10 -0700 (PDT)
+        with ESMTP id S1351831AbiDLHEU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:04:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BE745AC3;
+        Mon, 11 Apr 2022 23:47:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98381618D7;
-        Tue, 12 Apr 2022 06:33:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8375BC385A6;
-        Tue, 12 Apr 2022 06:33:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60EFAB81B46;
+        Tue, 12 Apr 2022 06:47:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF9D8C385A6;
+        Tue, 12 Apr 2022 06:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745189;
-        bh=MCyYZQw6KStw0Jpkxs3MbckMqzNi+JQ/V2a2FGDIaZc=;
+        s=korg; t=1649746044;
+        bh=qRuj/mfnS/iQi/FDT0ADAYKbCm1QtWc2AioP8aaz6jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zkh0zXa/7l8rFNlF9mZ5xpEABnBPFVx2JySI/zaDRfa31mpAUM92UsxpOYF6l8UZi
-         C0RCV4zlGcEVVSifQqGi6F0n3tOwxgRKDGxhUvNQXGVqq9DyvOaF/i+jXc4uE0M/Il
-         z9gHeBmCNVtQfzX92uoTvda9DfQKKw4pkOW82mBo=
+        b=KW/4tfWOZGDc9l3vUXTCLKdNbLsNjYIKjZ6krSBDssKC3TecGid0QFzTCQnp30vGy
+         XOJkzTOn9tpEyWhPfk3ipt3p6fcBMGHB+CzAIuiHa8kFY+P3CaEh5aatBePr8j2llk
+         MUwp9roFiNEpnc36JvwcWn7vP+k6k46g1LucYDlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aric Cyr <Aric.Cyr@amd.com>,
-        Wayne Lin <wayne.lin@amd.com>, Dale Zhao <dale.zhao@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Deren Wu <deren.wu@mediatek.com>, Felix Fietkau <nbd@nbd.name>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/171] drm/amd/display: Add signal type check when verify stream backends same
-Date:   Tue, 12 Apr 2022 08:28:21 +0200
-Message-Id: <20220412062928.180645831@linuxfoundation.org>
+Subject: [PATCH 5.15 099/277] mt76: fix monitor mode crash with sdio driver
+Date:   Tue, 12 Apr 2022 08:28:22 +0200
+Message-Id: <20220412062944.906802798@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dale Zhao <dale.zhao@amd.com>
+From: Deren Wu <deren.wu@mediatek.com>
 
-[ Upstream commit 047db281c026de5971cedb5bb486aa29bd16a39d ]
+[ Upstream commit 123bc712b1de0805f9d683687e17b1ec2aba0b68 ]
 
-[Why]
-For allow eDP hot-plug feature, the stream signal may change to VIRTUAL
-when plug-out and back to eDP when plug-in. OS will still setPathMode
-with same timing for each plugging, but eDP gets no stream update as we
-don't check signal type changing back as keeping it VIRTUAL. It's also
-unsafe for future cases that stream signal is switched with same timing.
+mt7921s driver may receive frames with fragment buffers. If there is a
+CTS packet received in monitor mode, the payload is 10 bytes only and
+need 6 bytes header padding after RXD buffer. However, only RXD in the
+first linear buffer, if we pull buffer size RXD-size+6 bytes with
+skb_pull(), that would trigger "BUG_ON(skb->len < skb->data_len)" in
+__skb_pull().
 
-[How]
-Check stream signal type change include previous HDMI signal case.
+To avoid the nonlinear buffer issue, enlarge the RXD size from 128 to
+256 to make sure all MCU operation in linear buffer.
 
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Wayne Lin <wayne.lin@amd.com>
-Signed-off-by: Dale Zhao <dale.zhao@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+[   52.007562] kernel BUG at include/linux/skbuff.h:2313!
+[   52.007578] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[   52.007987] pc : skb_pull+0x48/0x4c
+[   52.008015] lr : mt7921_queue_rx_skb+0x494/0x890 [mt7921_common]
+[   52.008361] Call trace:
+[   52.008377]  skb_pull+0x48/0x4c
+[   52.008400]  mt76s_net_worker+0x134/0x1b0 [mt76_sdio 35339a92c6eb7d4bbcc806a1d22f56365565135c]
+[   52.008431]  __mt76_worker_fn+0xe8/0x170 [mt76 ef716597d11a77150bc07e3fdd68eeb0f9b56917]
+[   52.008449]  kthread+0x148/0x3ac
+[   52.008466]  ret_from_fork+0x10/0x30
+
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/mediatek/mt76/mt76.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 5f4cdb05c4db..5c5ccbad9658 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1674,6 +1674,9 @@ static bool are_stream_backends_same(
- 	if (is_timing_changed(stream_a, stream_b))
- 		return false;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76.h b/drivers/net/wireless/mediatek/mt76/mt76.h
+index 4d01fd85283d..6e4d69715927 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76.h
+@@ -19,7 +19,7 @@
  
-+	if (stream_a->signal != stream_b->signal)
-+		return false;
-+
- 	if (stream_a->dpms_off != stream_b->dpms_off)
- 		return false;
+ #define MT_MCU_RING_SIZE	32
+ #define MT_RX_BUF_SIZE		2048
+-#define MT_SKB_HEAD_LEN		128
++#define MT_SKB_HEAD_LEN		256
  
+ #define MT_MAX_NON_AQL_PKT	16
+ #define MT_TXQ_FREE_THR		32
 -- 
 2.35.1
 
