@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC1974FD618
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C3244FD609
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:19:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354036AbiDLHsc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45798 "EHLO
+        id S1356517AbiDLHiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:38:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357339AbiDLHkD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:03 -0400
+        with ESMTP id S1353469AbiDLHZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F2C24F02;
-        Tue, 12 Apr 2022 00:15:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2FC9434A5;
+        Tue, 12 Apr 2022 00:00:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BB87B81B60;
-        Tue, 12 Apr 2022 07:15:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B999C385A1;
-        Tue, 12 Apr 2022 07:15:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BA79B81B4E;
+        Tue, 12 Apr 2022 07:00:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93E42C385A1;
+        Tue, 12 Apr 2022 07:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747728;
-        bh=C4yne+Z/DojZktf5UC6PByQdHGZAAL1WTE7lxkx6L+s=;
+        s=korg; t=1649746833;
+        bh=33wyTYRMCt/vjpaH5MwKGMEAkzb4U7cqLtDy9m2wrOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HChuQOXm9etAdKds5CFRHLyZFERwpNNpkOORWqDMIxHmzFRS4VXUGYIq9EkCmNMa2
-         CxuHOl5hDJ54uMz+MkeDal+/jqioHnmsX5igbKPndM45UQfx7iQ4ffy1NNmmnszfd8
-         Cj17qL1NZUYZtPQp8o6bbXe08HpGWeT0UWRGyVFU=
+        b=cCcnfB5nQCZMdoR4nID66NIraJbWZFyIYI1aTxDgH5CbbK/wUSvSfOpsiDn3pJ5TV
+         ReEYc8KAi7zcCpYPbFDnG65WOKKGdYUjFkyol8cRl2s6/48X9OdpU7asy7Q6NthyrK
+         yx3ucev0HgR2LqYtQTYoLOCUVjwxjbsE8sNjedR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Abraham <thomas.abraham@linaro.org>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        Hyeonkook Kim <hk619.kim@samsung.com>,
-        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 183/343] serial: samsung_tty: do not unlock port->lock for uart_write_wakeup()
-Date:   Tue, 12 Apr 2022 08:30:01 +0200
-Message-Id: <20220412062956.642836447@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 145/285] selftests: net: Add tls config dependency for tls selftests
+Date:   Tue, 12 Apr 2022 08:30:02 +0200
+Message-Id: <20220412062947.853545144@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +56,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Naresh Kamboju <naresh.kamboju@linaro.org>
 
-[ Upstream commit 988c7c00691008ea1daaa1235680a0da49dab4e8 ]
+[ Upstream commit d9142e1cf3bbdaf21337767114ecab26fe702d47 ]
 
-The commit c15c3747ee32 (serial: samsung: fix potential soft lockup
-during uart write) added an unlock of port->lock before
-uart_write_wakeup() and a lock after it. It was always problematic to
-write data from tty_ldisc_ops::write_wakeup and it was even documented
-that way. We fixed the line disciplines to conform to this recently.
-So if there is still a missed one, we should fix them instead of this
-workaround.
+selftest net tls test cases need TLS=m without this the test hangs.
+Enabling config TLS solves this problem and runs to complete.
+  - CONFIG_TLS=m
 
-On the top of that, s3c24xx_serial_tx_dma_complete() in this driver
-still holds the port->lock while calling uart_write_wakeup().
-
-So revert the wrap added by the commit above.
-
-Cc: Thomas Abraham <thomas.abraham@linaro.org>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Hyeonkook Kim <hk619.kim@samsung.com>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220308115153.4225-1-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Signed-off-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/samsung_tty.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ tools/testing/selftests/net/config | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/samsung_tty.c b/drivers/tty/serial/samsung_tty.c
-index d002a4e48ed9..0d94a7cb275e 100644
---- a/drivers/tty/serial/samsung_tty.c
-+++ b/drivers/tty/serial/samsung_tty.c
-@@ -921,11 +921,8 @@ static void s3c24xx_serial_tx_chars(struct s3c24xx_uart_port *ourport)
- 		return;
- 	}
- 
--	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS) {
--		spin_unlock(&port->lock);
-+	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
- 		uart_write_wakeup(port);
--		spin_lock(&port->lock);
--	}
- 
- 	if (uart_circ_empty(xmit))
- 		s3c24xx_serial_stop_tx(port);
+diff --git a/tools/testing/selftests/net/config b/tools/testing/selftests/net/config
+index ead7963b9bf0..cecb921a0dbf 100644
+--- a/tools/testing/selftests/net/config
++++ b/tools/testing/selftests/net/config
+@@ -43,5 +43,6 @@ CONFIG_NET_ACT_TUNNEL_KEY=m
+ CONFIG_NET_ACT_MIRRED=m
+ CONFIG_BAREUDP=m
+ CONFIG_IPV6_IOAM6_LWTUNNEL=y
++CONFIG_TLS=m
+ CONFIG_CRYPTO_SM4=y
+ CONFIG_AMT=m
 -- 
 2.35.1
 
