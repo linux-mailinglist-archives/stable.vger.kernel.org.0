@@ -2,48 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6FDE4FCA0B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 745004FCA17
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244220AbiDLAvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 20:51:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44444 "EHLO
+        id S244416AbiDLAvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 20:51:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244281AbiDLAuv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:50:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C10AC30569;
-        Mon, 11 Apr 2022 17:47:02 -0700 (PDT)
+        with ESMTP id S244392AbiDLAuy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:50:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB1930F51;
+        Mon, 11 Apr 2022 17:47:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 301C2617DA;
-        Tue, 12 Apr 2022 00:47:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDEBAC385A4;
-        Tue, 12 Apr 2022 00:47:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F1EE617E9;
+        Tue, 12 Apr 2022 00:47:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DC6AC385A4;
+        Tue, 12 Apr 2022 00:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724421;
-        bh=rmjgKGSl6FAX7UG+a6UyWoOzWwQbxpreIb5n5T+/TgU=;
+        s=k20201202; t=1649724425;
+        bh=Ya7afj+D7KNw3CZW5DvBGMDCxih98osk7a0l9Chxy6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSi3oXRst6VHTH8Qu7kH0UXIPeDiiGLpr+Oy6IEDO/4XJLmoaqwXs5qUlpuUapnVj
-         4ByxOa44T7XFzn/rk0zhv7Qwh7ksTq08Eg70v1mMNlDeUA0hZODvh7rnMCKXTKsZCa
-         Rdsldy54DTxT+DYMrZn9AQv0YELa8YigVAhqCqMC28MhTt53tEl9Fi0edijbnFSx+D
-         +gBxsYsBuIzfUtyDU78J8tvVSuFUec5sQj+8WBNcKNcZn6iV377ZViL8k2yuov7MfL
-         UzEcXBh6Lh6K0hYOMrB6DPSNj9/kJQ1TvKGojtC8Dvt9sv9149VR19wEgz1mVrabz4
-         sUlUUYmrBdRvw==
+        b=DV+O8Irp9YF2IgjeaGxbv4JANpP/Lx5MZBNEEfYkloazEvJWfrS1XP1BORKe42KJ1
+         hodtfXpaz4mN6tieHD4BXEogJRBgGd59uabQ4wML8NM4F6dQqQAm1giaAIoGKbTPVU
+         r8ZSy2k7KHcGlLvb5mlvHEdUjHyDtvBPsAlbK6sHEMGTOTSV8Ky9EnhrMPXnqBNL2J
+         6D2itHh5qbzrszvr4zu3iPHJvXhctzARaaCHxrQF35CD71E05yL+zZtiHeBIR/rR7M
+         +Ici/YAE5wc0JC5mZ/jMnHnrDqdkv/97bIKksXgCCO+Ow4hXT8T+bHnxVPn2nU6bJC
+         7KO8p+QRDAU6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 03/41] btrfs: do not warn for free space inode in cow_file_range
-Date:   Mon, 11 Apr 2022 20:46:15 -0400
-Message-Id: <20220412004656.350101-3-sashal@kernel.org>
+Cc:     Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, Xinhui.Pan@amd.com,
+        airlied@linux.ie, daniel@ffwll.ch, tao.zhou1@amd.com,
+        YiPeng.Chai@amd.com, Hawking.Zhang@amd.com, john.clements@amd.com,
+        victor.skvortsov@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 04/41] drm/amdgpu: conduct a proper cleanup of PDB bo
+Date:   Mon, 11 Apr 2022 20:46:16 -0400
+Message-Id: <20220412004656.350101-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004656.350101-1-sashal@kernel.org>
 References: <20220412004656.350101-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,43 +62,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Guchun Chen <guchun.chen@amd.com>
 
-[ Upstream commit a7d16d9a07bbcb7dcd5214a1bea75c808830bc0d ]
+[ Upstream commit 2d505453f38e18d42ba7d5428aaa17aaa7752c65 ]
 
-This is a long time leftover from when I originally added the free space
-inode, the point was to catch cases where we weren't honoring the NOCOW
-flag.  However there exists a race with relocation, if we allocate our
-free space inode in a block group that is about to be relocated, we
-could trigger the COW path before the relocation has the opportunity to
-find the extents and delete the free space cache.  In production where
-we have auto-relocation enabled we're seeing this WARN_ON_ONCE() around
-5k times in a 2 week period, so not super common but enough that it's at
-the top of our metrics.
+Use amdgpu_bo_free_kernel instead of amdgpu_bo_unref to
+perform a proper cleanup of PDB bo.
 
-We're properly handling the error here, and with us phasing out v1 space
-cache anyway just drop the WARN_ON_ONCE.
+v2: update subject to be more accurate
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 58053b5f0ce1..f270729a325d 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -1075,7 +1075,6 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
- 	int ret = 0;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+index c67e21244342..6dc16ccf6c81 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+@@ -1652,7 +1652,7 @@ static int gmc_v9_0_sw_fini(void *handle)
+ 	amdgpu_gem_force_release(adev);
+ 	amdgpu_vm_manager_fini(adev);
+ 	amdgpu_gart_table_vram_free(adev);
+-	amdgpu_bo_unref(&adev->gmc.pdb0_bo);
++	amdgpu_bo_free_kernel(&adev->gmc.pdb0_bo, NULL, &adev->gmc.ptr_pdb0);
+ 	amdgpu_bo_fini(adev);
  
- 	if (btrfs_is_free_space_inode(inode)) {
--		WARN_ON_ONCE(1);
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
+ 	return 0;
 -- 
 2.35.1
 
