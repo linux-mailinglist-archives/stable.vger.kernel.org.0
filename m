@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BFF44FD60E
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:19:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C314FD676
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:21:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377541AbiDLHuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:50:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57774 "EHLO
+        id S240176AbiDLHpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:45:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359389AbiDLHnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:43:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE5C2C679;
-        Tue, 12 Apr 2022 00:22:07 -0700 (PDT)
+        with ESMTP id S1353839AbiDLHZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B6A0DF00;
+        Tue, 12 Apr 2022 00:04:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3685B81B58;
-        Tue, 12 Apr 2022 07:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B07AC385A1;
-        Tue, 12 Apr 2022 07:22:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 17BE060B65;
+        Tue, 12 Apr 2022 07:04:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5CBC385A1;
+        Tue, 12 Apr 2022 07:04:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748124;
-        bh=6XkHVmwmwN5hcX4U9xQPmanqLhUuQjq9xg1RnT15PKQ=;
+        s=korg; t=1649747092;
+        bh=U2/FILndl4co+BlYvc00C3mSRpRj6SmZahSvs4PQbsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjfuMFyLb+/f8L4REeERkHGUvcqG+yYCp1tdbiUEfomH9kv4+RUUn4AlW+LQ+g6XX
-         Fvt4JG8FKMMKDXYub8zLx07OBoxkQfot9hBpbHoPc+a8lOVZlGfpnzZtP66VVf+DbQ
-         mcnOsuOYYpjEV4xW2pe9Wrbfn57OETt5Mm8wwxg8=
+        b=V/E5R/U1r0oIyybkED+RzMUjYAl3WpautWoX/MqSL5Ua2tnM4HFl/iNRPxpqbB7px
+         7cxYNTdSk4FIF/u9VvfFQJr+6H3Mv40qXBErT0IhbtM+SMINguueUfqHFEROMESOh5
+         R36FQGIZcJenUN+p94lWYVArGbINek1nBPn2H7cE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 278/343] io_uring: implement compat handling for IORING_REGISTER_IOWQ_AFF
+        stable@vger.kernel.org,
+        Douglas Miller <doug.miller@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.16 239/285] RDMA/hfi1: Fix use-after-free bug for mm struct
 Date:   Tue, 12 Apr 2022 08:31:36 +0200
-Message-Id: <20220412062959.347659588@linuxfoundation.org>
+Message-Id: <20220412062950.560954610@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugene Syromiatnikov <esyr@redhat.com>
+From: Douglas Miller <doug.miller@cornelisnetworks.com>
 
-commit 0f5e4b83b37a96e3643951588ed7176b9b187c0a upstream.
+commit 2bbac98d0930e8161b1957dc0ec99de39ade1b3c upstream.
 
-Similarly to the way it is done im mbind syscall.
+Under certain conditions, such as MPI_Abort, the hfi1 cleanup code may
+represent the last reference held on the task mm.
+hfi1_mmu_rb_unregister() then drops the last reference and the mm is freed
+before the final use in hfi1_release_user_pages().  A new task may
+allocate the mm structure while it is still being used, resulting in
+problems. One manifestation is corruption of the mmap_sem counter leading
+to a hang in down_write().  Another is corruption of an mm struct that is
+in use by another task.
 
-Cc: stable@vger.kernel.org # 5.14
-Fixes: fe76421d1da1dcdb ("io_uring: allow user configurable IO thread CPU affinity")
-Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 3d2a9d642512 ("IB/hfi1: Ensure correct mm is used at all times")
+Link: https://lore.kernel.org/r/20220408133523.122165.72975.stgit@awfm-01.cornelisnetworks.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/mmu_rb.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -10860,7 +10860,15 @@ static __cold int io_register_iowq_aff(s
- 	if (len > cpumask_size())
- 		len = cpumask_size();
+--- a/drivers/infiniband/hw/hfi1/mmu_rb.c
++++ b/drivers/infiniband/hw/hfi1/mmu_rb.c
+@@ -80,6 +80,9 @@ void hfi1_mmu_rb_unregister(struct mmu_r
+ 	unsigned long flags;
+ 	struct list_head del_list;
  
--	if (copy_from_user(new_mask, arg, len)) {
-+	if (in_compat_syscall()) {
-+		ret = compat_get_bitmap(cpumask_bits(new_mask),
-+					(const compat_ulong_t __user *)arg,
-+					len * 8 /* CHAR_BIT */);
-+	} else {
-+		ret = copy_from_user(new_mask, arg, len);
-+	}
++	/* Prevent freeing of mm until we are completely finished. */
++	mmgrab(handler->mn.mm);
 +
-+	if (ret) {
- 		free_cpumask_var(new_mask);
- 		return -EFAULT;
- 	}
+ 	/* Unregister first so we don't get any more notifications. */
+ 	mmu_notifier_unregister(&handler->mn, handler->mn.mm);
+ 
+@@ -102,6 +105,9 @@ void hfi1_mmu_rb_unregister(struct mmu_r
+ 
+ 	do_remove(handler, &del_list);
+ 
++	/* Now the mm may be freed. */
++	mmdrop(handler->mn.mm);
++
+ 	kfree(handler);
+ }
+ 
 
 
