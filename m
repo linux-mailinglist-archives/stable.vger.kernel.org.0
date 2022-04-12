@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C52C74FDB2F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8964FD4E6
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353927AbiDLHqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:46:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47846 "EHLO
+        id S231350AbiDLH2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357163AbiDLHju (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBC8D13E36;
-        Tue, 12 Apr 2022 00:13:18 -0700 (PDT)
+        with ESMTP id S1354122AbiDLHRD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9834D4B42A;
+        Mon, 11 Apr 2022 23:58:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8858261708;
-        Tue, 12 Apr 2022 07:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94933C385A5;
-        Tue, 12 Apr 2022 07:13:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1019FB81B49;
+        Tue, 12 Apr 2022 06:58:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B92FC385A8;
+        Tue, 12 Apr 2022 06:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747597;
-        bh=1rVLR/bONBr0cUtCgca2ph/k+Es2uGQyvcanGGCrC9s=;
+        s=korg; t=1649746697;
+        bh=YgBs7SCqNKxfkEo9PqweIDQmp3ZWSfZhb89F6s7+12c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AdD842gg1o/pyEOqLSky0xn/tsvfZuGoDj+k6FkQiq3Sb1ptdMWhcAPVNYjRMoO1P
-         lsQMbXL/FD2aww/H5afu11h2hE//vqNcB3V0+L5hVqllbJ7YRtUbRuIdWRY87437C4
-         nZSkDj0LQIoNHozMdRi/3vRkHK70TgrxKRaiR2Yo=
+        b=ipayGuo5GZWTCtDw8Hx60AyxKu2KHHYITf9NmnzdhOP5/lfz2to3Xwh3hTZrzgqtK
+         P11WfknbcPHhAuBHP0ajDBDLNamO2OqEfuSsHUXQjp8R0KzPhvAYBnK8ywm4W52sHr
+         ymxLWeZcJ7BT1fKAzR4UoxRNqgM3J0QulGnAVjm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Shuklin <george.shuklin@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 136/343] net: account alternate interface name memory
-Date:   Tue, 12 Apr 2022 08:29:14 +0200
-Message-Id: <20220412062955.313243456@linuxfoundation.org>
+Subject: [PATCH 5.16 098/285] net/mlx5e: Remove overzealous validations in netlink EEPROM query
+Date:   Tue, 12 Apr 2022 08:29:15 +0200
+Message-Id: <20220412062946.493988457@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Gal Pressman <gal@nvidia.com>
 
-[ Upstream commit 5d26cff5bdbebdf98ba48217c078ff102536f134 ]
+[ Upstream commit 970adfb76095fa719778d70a6b86030d2feb88dd ]
 
-George reports that altnames can eat up kernel memory.
-We should charge that memory appropriately.
+Unlike the legacy EEPROM callbacks, when using the netlink EEPROM query
+(get_module_eeprom_by_page) the driver should not try to validate the
+query parameters, but just perform the read requested by the userspace.
 
-Reported-by: George Shuklin <george.shuklin@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Recent discussion in the mailing list:
+https://lore.kernel.org/netdev/20220120093051.70845141@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net/
+
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/mellanox/mlx5/core/port.c    | 23 -------------------
+ 1 file changed, 23 deletions(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 2fb8eb6791e8..9c9ad3d4b766 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -3658,7 +3658,7 @@ static int rtnl_alt_ifname(int cmd, struct net_device *dev, struct nlattr *attr,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/port.c b/drivers/net/ethernet/mellanox/mlx5/core/port.c
+index 7b16a1188aab..fd79860de723 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/port.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/port.c
+@@ -433,35 +433,12 @@ int mlx5_query_module_eeprom_by_page(struct mlx5_core_dev *dev,
+ 				     struct mlx5_module_eeprom_query_params *params,
+ 				     u8 *data)
+ {
+-	u8 module_id;
+ 	int err;
+ 
+ 	err = mlx5_query_module_num(dev, &params->module_number);
  	if (err)
  		return err;
  
--	alt_ifname = nla_strdup(attr, GFP_KERNEL);
-+	alt_ifname = nla_strdup(attr, GFP_KERNEL_ACCOUNT);
- 	if (!alt_ifname)
- 		return -ENOMEM;
- 
+-	err = mlx5_query_module_id(dev, params->module_number, &module_id);
+-	if (err)
+-		return err;
+-
+-	switch (module_id) {
+-	case MLX5_MODULE_ID_SFP:
+-		if (params->page > 0)
+-			return -EINVAL;
+-		break;
+-	case MLX5_MODULE_ID_QSFP:
+-	case MLX5_MODULE_ID_QSFP28:
+-	case MLX5_MODULE_ID_QSFP_PLUS:
+-		if (params->page > 3)
+-			return -EINVAL;
+-		break;
+-	case MLX5_MODULE_ID_DSFP:
+-		break;
+-	default:
+-		mlx5_core_err(dev, "Module ID not recognized: 0x%x\n", module_id);
+-		return -EINVAL;
+-	}
+-
+ 	if (params->i2c_address != MLX5_I2C_ADDR_HIGH &&
+ 	    params->i2c_address != MLX5_I2C_ADDR_LOW) {
+ 		mlx5_core_err(dev, "I2C address not recognized: 0x%x\n", params->i2c_address);
 -- 
 2.35.1
 
