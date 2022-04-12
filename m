@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E6504FD54D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 851F34FD6B9
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355735AbiDLH3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:29:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45762 "EHLO
+        id S1353295AbiDLIDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353638AbiDLHPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:15:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B48643AA6D;
-        Mon, 11 Apr 2022 23:57:12 -0700 (PDT)
+        with ESMTP id S1356897AbiDLHjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79354532C1;
+        Tue, 12 Apr 2022 00:10:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BCD060B65;
-        Tue, 12 Apr 2022 06:57:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A347C385A6;
-        Tue, 12 Apr 2022 06:57:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8355B81B55;
+        Tue, 12 Apr 2022 07:10:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46844C385A5;
+        Tue, 12 Apr 2022 07:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746627;
-        bh=Uk4DEgvhNDTwAFIByDqxexwDe71PxJf/2uwKWnaCEWw=;
+        s=korg; t=1649747418;
+        bh=RUwbLHotjbX+UqZxx8hmxHOaCEpsBQyNX+ZzVXZ4Gls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVQpHkblRcInproM69MprEGWP5LLLwwh2ata8xBEVA6JdMnQ58pdN+/WlSWcA522K
-         PYAmaPFTw/krkBQzr4HATxlPG7Q3HEkLslF6oFgEl/zVRAAAQ9fQwgjFDfSviuYadJ
-         46Rz7p+Vybt+MvKkPXk5U1byQJK99Ct2czMFEuNU=
+        b=ty+DWUsm7NbNwdAU0XROdA+WO8CYdw5FIczrDinBiKzR+k2w8GKpjlLPZztQLOZ06
+         MHCa8wQFdeTStubqKKBhTxGusOHldQxd/GuVt2hjzSy88JC6brPHjXYcAkAgjVh8sO
+         nslpecqJvkMkI5GNKZrVJgtUHl1y2vevz3AFjvYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Yang Guang <yang.guang5@zte.com.cn>,
-        David Yang <davidcomponentone@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 033/285] scsi: bfa: Replace snprintf() with sysfs_emit()
-Date:   Tue, 12 Apr 2022 08:28:10 +0200
-Message-Id: <20220412062944.632725383@linuxfoundation.org>
+Subject: [PATCH 5.17 073/343] tcp: Dont acquire inet_listen_hashbucket::lock with disabled BH.
+Date:   Tue, 12 Apr 2022 08:28:11 +0200
+Message-Id: <20220412062953.208339537@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,167 +55,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Guang <yang.guang5@zte.com.cn>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit 2245ea91fd3a04cafbe2f54911432a8657528c3b ]
+[ Upstream commit 4f9bf2a2f5aacf988e6d5e56b961ba45c5a25248 ]
 
-coccinelle report:
-./drivers/scsi/bfa/bfad_attr.c:908:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:860:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:888:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:853:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:808:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:728:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:822:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:927:9-17:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:900:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:874:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:714:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:839:8-16:
-WARNING: use scnprintf or sprintf
+Commit
+   9652dc2eb9e40 ("tcp: relax listening_hash operations")
 
-Use sysfs_emit() instead of scnprintf() or sprintf().
+removed the need to disable bottom half while acquiring
+listening_hash.lock. There are still two callers left which disable
+bottom half before the lock is acquired.
 
-Link: https://lore.kernel.org/r/def83ff75faec64ba592b867a8499b1367bae303.1643181468.git.yang.guang5@zte.com.cn
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
-Signed-off-by: David Yang <davidcomponentone@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+On PREEMPT_RT the softirqs are preemptible and local_bh_disable() acts
+as a lock to ensure that resources, that are protected by disabling
+bottom halves, remain protected.
+This leads to a circular locking dependency if the lock acquired with
+disabled bottom halves is also acquired with enabled bottom halves
+followed by disabling bottom halves. This is the reverse locking order.
+It has been observed with inet_listen_hashbucket::lock:
+
+local_bh_disable() + spin_lock(&ilb->lock):
+  inet_listen()
+    inet_csk_listen_start()
+      sk->sk_prot->hash() := inet_hash()
+	local_bh_disable()
+	__inet_hash()
+	  spin_lock(&ilb->lock);
+	    acquire(&ilb->lock);
+
+Reverse order: spin_lock(&ilb2->lock) + local_bh_disable():
+  tcp_seq_next()
+    listening_get_next()
+      spin_lock(&ilb2->lock);
+	acquire(&ilb2->lock);
+
+  tcp4_seq_show()
+    get_tcp4_sock()
+      sock_i_ino()
+	read_lock_bh(&sk->sk_callback_lock);
+	  acquire(softirq_ctrl)	// <---- whoops
+	  acquire(&sk->sk_callback_lock)
+
+Drop local_bh_disable() around __inet_hash() which acquires
+listening_hash->lock. Split inet_unhash() and acquire the
+listen_hashbucket lock without disabling bottom halves; the inet_ehash
+lock with disabled bottom halves.
+
+Reported-by: Mike Galbraith <efault@gmx.de>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lkml.kernel.org/r/12d6f9879a97cd56c09fb53dee343cbb14f7f1f7.camel@gmx.de
+Link: https://lkml.kernel.org/r/X9CheYjuXWc75Spa@hirez.programming.kicks-ass.net
+Link: https://lore.kernel.org/r/YgQOebeZ10eNx1W6@linutronix.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/bfa/bfad_attr.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ net/ipv4/inet_hashtables.c  | 53 ++++++++++++++++++++++---------------
+ net/ipv6/inet6_hashtables.c |  5 +---
+ 2 files changed, 33 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/scsi/bfa/bfad_attr.c b/drivers/scsi/bfa/bfad_attr.c
-index c8b947c16069..0254e610ea8f 100644
---- a/drivers/scsi/bfa/bfad_attr.c
-+++ b/drivers/scsi/bfa/bfad_attr.c
-@@ -711,7 +711,7 @@ bfad_im_serial_num_show(struct device *dev, struct device_attribute *attr,
- 	char serial_num[BFA_ADAPTER_SERIAL_NUM_LEN];
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 30ab717ff1b8..17440840a791 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -637,7 +637,9 @@ int __inet_hash(struct sock *sk, struct sock *osk)
+ 	int err = 0;
  
- 	bfa_get_adapter_serial_num(&bfad->bfa, serial_num);
--	return snprintf(buf, PAGE_SIZE, "%s\n", serial_num);
-+	return sysfs_emit(buf, "%s\n", serial_num);
- }
- 
- static ssize_t
-@@ -725,7 +725,7 @@ bfad_im_model_show(struct device *dev, struct device_attribute *attr,
- 	char model[BFA_ADAPTER_MODEL_NAME_LEN];
- 
- 	bfa_get_adapter_model(&bfad->bfa, model);
--	return snprintf(buf, PAGE_SIZE, "%s\n", model);
-+	return sysfs_emit(buf, "%s\n", model);
- }
- 
- static ssize_t
-@@ -805,7 +805,7 @@ bfad_im_model_desc_show(struct device *dev, struct device_attribute *attr,
- 		snprintf(model_descr, BFA_ADAPTER_MODEL_DESCR_LEN,
- 			"Invalid Model");
- 
--	return snprintf(buf, PAGE_SIZE, "%s\n", model_descr);
-+	return sysfs_emit(buf, "%s\n", model_descr);
- }
- 
- static ssize_t
-@@ -819,7 +819,7 @@ bfad_im_node_name_show(struct device *dev, struct device_attribute *attr,
- 	u64        nwwn;
- 
- 	nwwn = bfa_fcs_lport_get_nwwn(port->fcs_port);
--	return snprintf(buf, PAGE_SIZE, "0x%llx\n", cpu_to_be64(nwwn));
-+	return sysfs_emit(buf, "0x%llx\n", cpu_to_be64(nwwn));
- }
- 
- static ssize_t
-@@ -836,7 +836,7 @@ bfad_im_symbolic_name_show(struct device *dev, struct device_attribute *attr,
- 	bfa_fcs_lport_get_attr(&bfad->bfa_fcs.fabric.bport, &port_attr);
- 	strlcpy(symname, port_attr.port_cfg.sym_name.symname,
- 			BFA_SYMNAME_MAXLEN);
--	return snprintf(buf, PAGE_SIZE, "%s\n", symname);
-+	return sysfs_emit(buf, "%s\n", symname);
- }
- 
- static ssize_t
-@@ -850,14 +850,14 @@ bfad_im_hw_version_show(struct device *dev, struct device_attribute *attr,
- 	char hw_ver[BFA_VERSION_LEN];
- 
- 	bfa_get_pci_chip_rev(&bfad->bfa, hw_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", hw_ver);
-+	return sysfs_emit(buf, "%s\n", hw_ver);
- }
- 
- static ssize_t
- bfad_im_drv_version_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
+ 	if (sk->sk_state != TCP_LISTEN) {
++		local_bh_disable();
+ 		inet_ehash_nolisten(sk, osk, NULL);
++		local_bh_enable();
+ 		return 0;
+ 	}
+ 	WARN_ON(!sk_unhashed(sk));
+@@ -669,45 +671,54 @@ int inet_hash(struct sock *sk)
  {
--	return snprintf(buf, PAGE_SIZE, "%s\n", BFAD_DRIVER_VERSION);
-+	return sysfs_emit(buf, "%s\n", BFAD_DRIVER_VERSION);
+ 	int err = 0;
+ 
+-	if (sk->sk_state != TCP_CLOSE) {
+-		local_bh_disable();
++	if (sk->sk_state != TCP_CLOSE)
+ 		err = __inet_hash(sk, NULL);
+-		local_bh_enable();
+-	}
+ 
+ 	return err;
  }
+ EXPORT_SYMBOL_GPL(inet_hash);
  
- static ssize_t
-@@ -871,7 +871,7 @@ bfad_im_optionrom_version_show(struct device *dev,
- 	char optrom_ver[BFA_VERSION_LEN];
- 
- 	bfa_get_adapter_optrom_ver(&bfad->bfa, optrom_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", optrom_ver);
-+	return sysfs_emit(buf, "%s\n", optrom_ver);
- }
- 
- static ssize_t
-@@ -885,7 +885,7 @@ bfad_im_fw_version_show(struct device *dev, struct device_attribute *attr,
- 	char fw_ver[BFA_VERSION_LEN];
- 
- 	bfa_get_adapter_fw_ver(&bfad->bfa, fw_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", fw_ver);
-+	return sysfs_emit(buf, "%s\n", fw_ver);
- }
- 
- static ssize_t
-@@ -897,7 +897,7 @@ bfad_im_num_of_ports_show(struct device *dev, struct device_attribute *attr,
- 			(struct bfad_im_port_s *) shost->hostdata[0];
- 	struct bfad_s *bfad = im_port->bfad;
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n",
-+	return sysfs_emit(buf, "%d\n",
- 			bfa_get_nports(&bfad->bfa));
- }
- 
-@@ -905,7 +905,7 @@ static ssize_t
- bfad_im_drv_name_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
+-void inet_unhash(struct sock *sk)
++static void __inet_unhash(struct sock *sk, struct inet_listen_hashbucket *ilb)
  {
--	return snprintf(buf, PAGE_SIZE, "%s\n", BFAD_DRIVER_NAME);
-+	return sysfs_emit(buf, "%s\n", BFAD_DRIVER_NAME);
+-	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
+-	struct inet_listen_hashbucket *ilb = NULL;
+-	spinlock_t *lock;
+-
+ 	if (sk_unhashed(sk))
+ 		return;
+ 
+-	if (sk->sk_state == TCP_LISTEN) {
+-		ilb = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
+-		lock = &ilb->lock;
+-	} else {
+-		lock = inet_ehash_lockp(hashinfo, sk->sk_hash);
+-	}
+-	spin_lock_bh(lock);
+-	if (sk_unhashed(sk))
+-		goto unlock;
+-
+ 	if (rcu_access_pointer(sk->sk_reuseport_cb))
+ 		reuseport_stop_listen_sock(sk);
+ 	if (ilb) {
++		struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
++
+ 		inet_unhash2(hashinfo, sk);
+ 		ilb->count--;
+ 	}
+ 	__sk_nulls_del_node_init_rcu(sk);
+ 	sock_prot_inuse_add(sock_net(sk), sk->sk_prot, -1);
+-unlock:
+-	spin_unlock_bh(lock);
++}
++
++void inet_unhash(struct sock *sk)
++{
++	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
++
++	if (sk_unhashed(sk))
++		return;
++
++	if (sk->sk_state == TCP_LISTEN) {
++		struct inet_listen_hashbucket *ilb;
++
++		ilb = &hashinfo->listening_hash[inet_sk_listen_hashfn(sk)];
++		/* Don't disable bottom halves while acquiring the lock to
++		 * avoid circular locking dependency on PREEMPT_RT.
++		 */
++		spin_lock(&ilb->lock);
++		__inet_unhash(sk, ilb);
++		spin_unlock(&ilb->lock);
++	} else {
++		spinlock_t *lock = inet_ehash_lockp(hashinfo, sk->sk_hash);
++
++		spin_lock_bh(lock);
++		__inet_unhash(sk, NULL);
++		spin_unlock_bh(lock);
++	}
  }
+ EXPORT_SYMBOL_GPL(inet_unhash);
  
- static ssize_t
-@@ -924,14 +924,14 @@ bfad_im_num_of_discovered_ports_show(struct device *dev,
- 	rports = kcalloc(nrports, sizeof(struct bfa_rport_qualifier_s),
- 			 GFP_ATOMIC);
- 	if (rports == NULL)
--		return snprintf(buf, PAGE_SIZE, "Failed\n");
-+		return sysfs_emit(buf, "Failed\n");
+diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
+index 4514444e96c8..4740afecf7c6 100644
+--- a/net/ipv6/inet6_hashtables.c
++++ b/net/ipv6/inet6_hashtables.c
+@@ -333,11 +333,8 @@ int inet6_hash(struct sock *sk)
+ {
+ 	int err = 0;
  
- 	spin_lock_irqsave(&bfad->bfad_lock, flags);
- 	bfa_fcs_lport_get_rport_quals(port->fcs_port, rports, &nrports);
- 	spin_unlock_irqrestore(&bfad->bfad_lock, flags);
- 	kfree(rports);
+-	if (sk->sk_state != TCP_CLOSE) {
+-		local_bh_disable();
++	if (sk->sk_state != TCP_CLOSE)
+ 		err = __inet_hash(sk, NULL);
+-		local_bh_enable();
+-	}
  
--	return snprintf(buf, PAGE_SIZE, "%d\n", nrports);
-+	return sysfs_emit(buf, "%d\n", nrports);
+ 	return err;
  }
- 
- static          DEVICE_ATTR(serial_number, S_IRUGO,
 -- 
 2.35.1
 
