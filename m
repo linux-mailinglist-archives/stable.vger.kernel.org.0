@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACEC14FD3E5
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F074FD3DF
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233754AbiDLHVx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:21:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
+        id S1351685AbiDLHVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:21:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351889AbiDLHND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59F79114D;
-        Mon, 11 Apr 2022 23:54:07 -0700 (PDT)
+        with ESMTP id S1351860AbiDLHNB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FF56E04;
+        Mon, 11 Apr 2022 23:53:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3632B81B4E;
-        Tue, 12 Apr 2022 06:54:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46415C385A6;
-        Tue, 12 Apr 2022 06:54:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B31E4B81B43;
+        Tue, 12 Apr 2022 06:53:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14E1DC385A1;
+        Tue, 12 Apr 2022 06:53:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746444;
-        bh=UG8E96NmWmyT1eR57RezFnkCYzgTjNbUM2DsOBIh/tU=;
+        s=korg; t=1649746425;
+        bh=jdSrlme+ldB8gp5g95tgqulfRXTKB43uz9/V2NDGTck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/F7PE9BIk28pi7Ptmi/Z9+ebvUMGVUHYae9JXcjV5YozWditT7HroxkEkZFWP+bp
-         8Hg5nCqGww1JTcKnprB83hlDTmISBuD9KaKL0mmLdBLLzeT9CoT6MYcZ7FV8F7lESU
-         ExfK7pM9RwcVZKYqRVztVNjfi9Uaz7UXjr8eh1Ow=
+        b=NHcuyZIjDF385c0FsLIrLMqnMvKGtjduTPrH6WsGAyh/JhbFP/3CITd4O6e6iDnJ1
+         xkUjG80K7D+p58RXg145hGfyg1lhYbZf0gYqWyeBTntR+msM+wNw+GAPIbuivNuNUg
+         RRlH2fz/lH+r2ab2930tRC+7IxNWcaQ2o01X3QQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.15 266/277] selftests: cgroup: Test open-time cgroup namespace usage for migration checks
-Date:   Tue, 12 Apr 2022 08:31:09 +0200
-Message-Id: <20220412062949.741881644@linuxfoundation.org>
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH 5.15 269/277] x86/bug: Prevent shadowing in __WARN_FLAGS
+Date:   Tue, 12 Apr 2022 08:31:12 +0200
+Message-Id: <20220412062949.827938666@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -55,145 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-commit bf35a7879f1dfb0d050fe779168bcf25c7de66f5 upstream.
+commit 9ce02f0fc68326dd1f87a0a3a4c6ae7fdd39e6f6 upstream.
 
-When a task is writing to an fd opened by a different task, the perm check
-should use the cgroup namespace of the latter task. Add a test for it.
+The macro __WARN_FLAGS() uses a local variable named "f". This being a
+common name, there is a risk of shadowing other variables.
 
-Tested-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+For example, GCC would yield:
+
+| In file included from ./include/linux/bug.h:5,
+|                  from ./include/linux/cpumask.h:14,
+|                  from ./arch/x86/include/asm/cpumask.h:5,
+|                  from ./arch/x86/include/asm/msr.h:11,
+|                  from ./arch/x86/include/asm/processor.h:22,
+|                  from ./arch/x86/include/asm/timex.h:5,
+|                  from ./include/linux/timex.h:65,
+|                  from ./include/linux/time32.h:13,
+|                  from ./include/linux/time.h:60,
+|                  from ./include/linux/stat.h:19,
+|                  from ./include/linux/module.h:13,
+|                  from virt/lib/irqbypass.mod.c:1:
+| ./include/linux/rcupdate.h: In function 'rcu_head_after_call_rcu':
+| ./arch/x86/include/asm/bug.h:80:21: warning: declaration of 'f' shadows a parameter [-Wshadow]
+|    80 |         __auto_type f = BUGFLAG_WARNING|(flags);                \
+|       |                     ^
+| ./include/asm-generic/bug.h:106:17: note: in expansion of macro '__WARN_FLAGS'
+|   106 |                 __WARN_FLAGS(BUGFLAG_ONCE |                     \
+|       |                 ^~~~~~~~~~~~
+| ./include/linux/rcupdate.h:1007:9: note: in expansion of macro 'WARN_ON_ONCE'
+|  1007 |         WARN_ON_ONCE(func != (rcu_callback_t)~0L);
+|       |         ^~~~~~~~~~~~
+| In file included from ./include/linux/rbtree.h:24,
+|                  from ./include/linux/mm_types.h:11,
+|                  from ./include/linux/buildid.h:5,
+|                  from ./include/linux/module.h:14,
+|                  from virt/lib/irqbypass.mod.c:1:
+| ./include/linux/rcupdate.h:1001:62: note: shadowed declaration is here
+|  1001 | rcu_head_after_call_rcu(struct rcu_head *rhp, rcu_callback_t f)
+|       |                                               ~~~~~~~~~~~~~~~^
+
+For reference, sparse also warns about it, c.f. [1].
+
+This patch renames the variable from f to __flags (with two underscore
+prefixes as suggested in the Linux kernel coding style [2]) in order
+to prevent collisions.
+
+[1] https://lore.kernel.org/all/CAFGhKbyifH1a+nAMCvWM88TK6fpNPdzFtUXPmRGnnQeePV+1sw@mail.gmail.com/
+
+[2] Linux kernel coding style, section 12) Macros, Enums and RTL,
+paragraph 5) namespace collisions when defining local variables in
+macros resembling functions
+https://www.kernel.org/doc/html/latest/process/coding-style.html#macros-enums-and-rtl
+
+Fixes: bfb1a7c91fb7 ("x86/bug: Merge annotate_reachable() into_BUG_FLAGS() asm")
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/20220324023742.106546-1-mailhol.vincent@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/cgroup/test_core.c |   97 +++++++++++++++++++++++++++++
- 1 file changed, 97 insertions(+)
+ arch/x86/include/asm/bug.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/cgroup/test_core.c
-+++ b/tools/testing/selftests/cgroup/test_core.c
-@@ -1,11 +1,14 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- 
-+#define _GNU_SOURCE
- #include <linux/limits.h>
-+#include <linux/sched.h>
- #include <sys/types.h>
- #include <sys/mman.h>
- #include <sys/wait.h>
- #include <unistd.h>
- #include <fcntl.h>
-+#include <sched.h>
- #include <stdio.h>
- #include <errno.h>
- #include <signal.h>
-@@ -741,6 +744,99 @@ cleanup:
- 	return ret;
- }
- 
-+struct lesser_ns_open_thread_arg {
-+	const char	*path;
-+	int		fd;
-+	int		err;
-+};
-+
-+static int lesser_ns_open_thread_fn(void *arg)
-+{
-+	struct lesser_ns_open_thread_arg *targ = arg;
-+
-+	targ->fd = open(targ->path, O_RDWR);
-+	targ->err = errno;
-+	return 0;
-+}
-+
-+/*
-+ * cgroup migration permission check should be performed based on the cgroup
-+ * namespace at the time of open instead of write.
-+ */
-+static int test_cgcore_lesser_ns_open(const char *root)
-+{
-+	static char stack[65536];
-+	const uid_t test_euid = 65534;	/* usually nobody, any !root is fine */
-+	int ret = KSFT_FAIL;
-+	char *cg_test_a = NULL, *cg_test_b = NULL;
-+	char *cg_test_a_procs = NULL, *cg_test_b_procs = NULL;
-+	int cg_test_b_procs_fd = -1;
-+	struct lesser_ns_open_thread_arg targ = { .fd = -1 };
-+	pid_t pid;
-+	int status;
-+
-+	cg_test_a = cg_name(root, "cg_test_a");
-+	cg_test_b = cg_name(root, "cg_test_b");
-+
-+	if (!cg_test_a || !cg_test_b)
-+		goto cleanup;
-+
-+	cg_test_a_procs = cg_name(cg_test_a, "cgroup.procs");
-+	cg_test_b_procs = cg_name(cg_test_b, "cgroup.procs");
-+
-+	if (!cg_test_a_procs || !cg_test_b_procs)
-+		goto cleanup;
-+
-+	if (cg_create(cg_test_a) || cg_create(cg_test_b))
-+		goto cleanup;
-+
-+	if (cg_enter_current(cg_test_b))
-+		goto cleanup;
-+
-+	if (chown(cg_test_a_procs, test_euid, -1) ||
-+	    chown(cg_test_b_procs, test_euid, -1))
-+		goto cleanup;
-+
-+	targ.path = cg_test_b_procs;
-+	pid = clone(lesser_ns_open_thread_fn, stack + sizeof(stack),
-+		    CLONE_NEWCGROUP | CLONE_FILES | CLONE_VM | SIGCHLD,
-+		    &targ);
-+	if (pid < 0)
-+		goto cleanup;
-+
-+	if (waitpid(pid, &status, 0) < 0)
-+		goto cleanup;
-+
-+	if (!WIFEXITED(status))
-+		goto cleanup;
-+
-+	cg_test_b_procs_fd = targ.fd;
-+	if (cg_test_b_procs_fd < 0)
-+		goto cleanup;
-+
-+	if (cg_enter_current(cg_test_a))
-+		goto cleanup;
-+
-+	if ((status = write(cg_test_b_procs_fd, "0", 1)) >= 0 || errno != ENOENT)
-+		goto cleanup;
-+
-+	ret = KSFT_PASS;
-+
-+cleanup:
-+	cg_enter_current(root);
-+	if (cg_test_b_procs_fd >= 0)
-+		close(cg_test_b_procs_fd);
-+	if (cg_test_b)
-+		cg_destroy(cg_test_b);
-+	if (cg_test_a)
-+		cg_destroy(cg_test_a);
-+	free(cg_test_b_procs);
-+	free(cg_test_a_procs);
-+	free(cg_test_b);
-+	free(cg_test_a);
-+	return ret;
-+}
-+
- #define T(x) { x, #x }
- struct corecg_test {
- 	int (*fn)(const char *root);
-@@ -757,6 +853,7 @@ struct corecg_test {
- 	T(test_cgcore_thread_migration),
- 	T(test_cgcore_destroy),
- 	T(test_cgcore_lesser_euid_open),
-+	T(test_cgcore_lesser_ns_open),
- };
- #undef T
+--- a/arch/x86/include/asm/bug.h
++++ b/arch/x86/include/asm/bug.h
+@@ -77,9 +77,9 @@ do {								\
+  */
+ #define __WARN_FLAGS(flags)					\
+ do {								\
+-	__auto_type f = BUGFLAG_WARNING|(flags);		\
++	__auto_type __flags = BUGFLAG_WARNING|(flags);		\
+ 	instrumentation_begin();				\
+-	_BUG_FLAGS(ASM_UD2, f, ASM_REACHABLE);			\
++	_BUG_FLAGS(ASM_UD2, __flags, ASM_REACHABLE);		\
+ 	instrumentation_end();					\
+ } while (0)
  
 
 
