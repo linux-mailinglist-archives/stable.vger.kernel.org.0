@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E334B4FD039
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 644744FD03A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351630AbiDLGp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:45:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38010 "EHLO
+        id S234636AbiDLGpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:45:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234045AbiDLGlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:41:08 -0400
+        with ESMTP id S1349876AbiDLGlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:41:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF0715721;
-        Mon, 11 Apr 2022 23:36:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5A4167C0;
+        Mon, 11 Apr 2022 23:36:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0D9661904;
-        Tue, 12 Apr 2022 06:36:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6431C385A8;
-        Tue, 12 Apr 2022 06:36:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F0C2618C8;
+        Tue, 12 Apr 2022 06:36:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC806C385A6;
+        Tue, 12 Apr 2022 06:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745374;
-        bh=kG613ITA0rlCXv5UM6fjdDsUYUOzfekdDiHldNCJFA4=;
+        s=korg; t=1649745379;
+        bh=QY4kv2XVS0BxmcE/hGWOj2tDEp7EWkcYggDdRGYPwjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxm2PG+t7e4ab8HLY5shALpTfOX50R7lLWn0vWgwVZzkcHRXNWRGykaZ28jHeXNCV
-         gDAbk5RRX0LQ3k5f/L7Mxf5GxMzW8COYPIWtQKpaYo1Pr9H/GNPCliD3YPUgaKZiBO
-         MQXuVnRMwOQVNsNuCnPxSylpKq62NZ2+8JarF/Vw=
+        b=Wv+BmlxBCmLxzr55QwqCkl42foEFcT0vSMdlIzubjtpz3nffyvfPAKzwTjM5NGiFT
+         q8ikz3FN2cCE7yRLYQPooFoLthGfYZuPazidZai63Ty0ZGqb8U0XhTq1nzMuaRGWYN
+         ICUmUqDAey0l7TauTX5mCiRT/qm7m209WQDFgh/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/171] iwlwifi: mvm: Correctly set fragmented EBS
-Date:   Tue, 12 Apr 2022 08:28:46 +0200
-Message-Id: <20220412062928.903412605@linuxfoundation.org>
+Subject: [PATCH 5.10 036/171] ipv4: Invalidate neighbour for broadcast address upon address addition
+Date:   Tue, 12 Apr 2022 08:28:47 +0200
+Message-Id: <20220412062928.931730716@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -54,40 +55,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilan Peer <ilan.peer@intel.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit d8d4dd26b9e0469baf5017f0544d852fd4e3fb6d ]
+[ Upstream commit 0c51e12e218f20b7d976158fdc18019627326f7a ]
 
-Currently, fragmented EBS was set for a channel only if the 'hb_type'
-was set to fragmented or balanced scan. However, 'hb_type' is set only
-in case of CDB, and thus fragmented EBS is never set for a channel for
-non-CDB devices. Fix it.
+In case user space sends a packet destined to a broadcast address when a
+matching broadcast route is not configured, the kernel will create a
+unicast neighbour entry that will never be resolved [1].
 
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220204122220.a6165ac9b9d5.I654eafa62fd647030ae6d4f07f32c96c3171decb@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+When the broadcast route is configured, the unicast neighbour entry will
+not be invalidated and continue to linger, resulting in packets being
+dropped.
+
+Solve this by invalidating unresolved neighbour entries for broadcast
+addresses after routes for these addresses are internally configured by
+the kernel. This allows the kernel to create a broadcast neighbour entry
+following the next route lookup.
+
+Another possible solution that is more generic but also more complex is
+to have the ARP code register a listener to the FIB notification chain
+and invalidate matching neighbour entries upon the addition of broadcast
+routes.
+
+It is also possible to wave off the issue as a user space problem, but
+it seems a bit excessive to expect user space to be that intimately
+familiar with the inner workings of the FIB/neighbour kernel code.
+
+[1] https://lore.kernel.org/netdev/55a04a8f-56f3-f73c-2aea-2195923f09d1@huawei.com/
+
+Reported-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Tested-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/scan.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/net/arp.h       | 1 +
+ net/ipv4/arp.c          | 9 +++++++--
+ net/ipv4/fib_frontend.c | 5 ++++-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-index 46255d2c555b..17b992526694 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-@@ -1706,7 +1706,10 @@ static u8 iwl_mvm_scan_umac_chan_flags_v2(struct iwl_mvm *mvm,
- 			IWL_SCAN_CHANNEL_FLAG_CACHE_ADD;
+diff --git a/include/net/arp.h b/include/net/arp.h
+index 4950191f6b2b..4a23a97195f3 100644
+--- a/include/net/arp.h
++++ b/include/net/arp.h
+@@ -71,6 +71,7 @@ void arp_send(int type, int ptype, __be32 dest_ip,
+ 	      const unsigned char *src_hw, const unsigned char *th);
+ int arp_mc_map(__be32 addr, u8 *haddr, struct net_device *dev, int dir);
+ void arp_ifdown(struct net_device *dev);
++int arp_invalidate(struct net_device *dev, __be32 ip, bool force);
  
- 	/* set fragmented ebs for fragmented scan on HB channels */
--	if (iwl_mvm_is_scan_fragmented(params->hb_type))
-+	if ((!iwl_mvm_is_cdb_supported(mvm) &&
-+	     iwl_mvm_is_scan_fragmented(params->type)) ||
-+	    (iwl_mvm_is_cdb_supported(mvm) &&
-+	     iwl_mvm_is_scan_fragmented(params->hb_type)))
- 		flags |= IWL_SCAN_CHANNEL_FLAG_EBS_FRAG;
+ struct sk_buff *arp_create(int type, int ptype, __be32 dest_ip,
+ 			   struct net_device *dev, __be32 src_ip,
+diff --git a/net/ipv4/arp.c b/net/ipv4/arp.c
+index 922dd73e5740..83a47998c4b1 100644
+--- a/net/ipv4/arp.c
++++ b/net/ipv4/arp.c
+@@ -1116,13 +1116,18 @@ static int arp_req_get(struct arpreq *r, struct net_device *dev)
+ 	return err;
+ }
  
- 	return flags;
+-static int arp_invalidate(struct net_device *dev, __be32 ip)
++int arp_invalidate(struct net_device *dev, __be32 ip, bool force)
+ {
+ 	struct neighbour *neigh = neigh_lookup(&arp_tbl, &ip, dev);
+ 	int err = -ENXIO;
+ 	struct neigh_table *tbl = &arp_tbl;
+ 
+ 	if (neigh) {
++		if ((neigh->nud_state & NUD_VALID) && !force) {
++			neigh_release(neigh);
++			return 0;
++		}
++
+ 		if (neigh->nud_state & ~NUD_NOARP)
+ 			err = neigh_update(neigh, NULL, NUD_FAILED,
+ 					   NEIGH_UPDATE_F_OVERRIDE|
+@@ -1169,7 +1174,7 @@ static int arp_req_delete(struct net *net, struct arpreq *r,
+ 		if (!dev)
+ 			return -EINVAL;
+ 	}
+-	return arp_invalidate(dev, ip);
++	return arp_invalidate(dev, ip, true);
+ }
+ 
+ /*
+diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
+index 917ea953dfad..0df4594b49c7 100644
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -1112,9 +1112,11 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
+ 		return;
+ 
+ 	/* Add broadcast address, if it is explicitly assigned. */
+-	if (ifa->ifa_broadcast && ifa->ifa_broadcast != htonl(0xFFFFFFFF))
++	if (ifa->ifa_broadcast && ifa->ifa_broadcast != htonl(0xFFFFFFFF)) {
+ 		fib_magic(RTM_NEWROUTE, RTN_BROADCAST, ifa->ifa_broadcast, 32,
+ 			  prim, 0);
++		arp_invalidate(dev, ifa->ifa_broadcast, false);
++	}
+ 
+ 	if (!ipv4_is_zeronet(prefix) && !(ifa->ifa_flags & IFA_F_SECONDARY) &&
+ 	    (prefix != addr || ifa->ifa_prefixlen < 32)) {
+@@ -1130,6 +1132,7 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
+ 				  prim, 0);
+ 			fib_magic(RTM_NEWROUTE, RTN_BROADCAST, prefix | ~mask,
+ 				  32, prim, 0);
++			arp_invalidate(dev, prefix | ~mask, false);
+ 		}
+ 	}
+ }
 -- 
 2.35.1
 
