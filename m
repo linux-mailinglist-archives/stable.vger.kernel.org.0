@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B98C64FD6D0
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CDD94FDB1C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242810AbiDLHhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56588 "EHLO
+        id S239958AbiDLHWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:22:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352633AbiDLHd1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:33:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20CC5506E8;
-        Tue, 12 Apr 2022 00:08:49 -0700 (PDT)
+        with ESMTP id S1351929AbiDLHNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC195F99;
+        Mon, 11 Apr 2022 23:54:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B01D6616A9;
-        Tue, 12 Apr 2022 07:08:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1583C385A8;
-        Tue, 12 Apr 2022 07:08:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F46AB81B44;
+        Tue, 12 Apr 2022 06:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 078EEC385A8;
+        Tue, 12 Apr 2022 06:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747328;
-        bh=JgppqWRUyXdsicdWdBjhfW92wG3rlJRV4xebFgNWe6k=;
+        s=korg; t=1649746447;
+        bh=j+rku0b+Icgd7VM9KfTkDjJB1stnzRIZQZl4d330c/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0x7iKe6+m02OVgGSGA7gQiPeNiJj/f2KHteYCcDi5vBk1wf9jCZNsD4fj8RiS+tu
-         ACkZvzMryQDXyo/j5TjbE/+N+og47ak4oQ6JXPCpAHIPYoKMDsPiT0eFmSMNd/ByyG
-         iD7FMRfS7DL/+Q3KRrtVjvcJRLAl7vTCDbZOZ9GM=
+        b=apTHhR1H3xEZfXRDJfVPBB9GxW8i7Avy3l5gMG5RtIeOkqjtE4sZXzMXpiWsOK5We
+         bZtHaXN5tRayrWP9TZZF8be/rbFrIkTcwL9eAYBdzg1LeuwMy8mzqDkGgwSoz2qXah
+         zcESfTG6LUJn8Yy2tnWJpRnTVPt1WdxXb2dKJHO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 039/343] ath11k: pci: fix crash on suspend if board file is not found
-Date:   Tue, 12 Apr 2022 08:27:37 +0200
-Message-Id: <20220412062952.235086999@linuxfoundation.org>
+Subject: [PATCH 5.16 001/285] lib/logic_iomem: correct fallback config references
+Date:   Tue, 12 Apr 2022 08:27:38 +0200
+Message-Id: <20220412062943.716483290@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,92 +57,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalle Valo <quic_kvalo@quicinc.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit b4f4c56459a5c744f7f066b9fc2b54ea995030c5 ]
+[ Upstream commit 2a6852cb8ff0c8c1363cac648d68489343813212 ]
 
-Mario reported that the kernel was crashing on suspend if ath11k was not able
-to find a board file:
+Due to some renaming, we ended up with the "indirect iomem"
+naming in Kconfig, following INDIRECT_PIO. However, clearly
+I missed following through on that in the ifdefs, but so far
+INDIRECT_IOMEM_FALLBACK isn't used by any architecture.
 
-[  473.693286] PM: Suspending system (s2idle)
-[  473.693291] printk: Suspending console(s) (use no_console_suspend to debug)
-[  474.407787] BUG: unable to handle page fault for address: 0000000000002070
-[  474.407791] #PF: supervisor read access in kernel mode
-[  474.407794] #PF: error_code(0x0000) - not-present page
-[  474.407798] PGD 0 P4D 0
-[  474.407801] Oops: 0000 [#1] PREEMPT SMP NOPTI
-[  474.407805] CPU: 2 PID: 2350 Comm: kworker/u32:14 Tainted: G        W         5.16.0 #248
-[...]
-[  474.407868] Call Trace:
-[  474.407870]  <TASK>
-[  474.407874]  ? _raw_spin_lock_irqsave+0x2a/0x60
-[  474.407882]  ? lock_timer_base+0x72/0xa0
-[  474.407889]  ? _raw_spin_unlock_irqrestore+0x29/0x3d
-[  474.407892]  ? try_to_del_timer_sync+0x54/0x80
-[  474.407896]  ath11k_dp_rx_pktlog_stop+0x49/0xc0 [ath11k]
-[  474.407912]  ath11k_core_suspend+0x34/0x130 [ath11k]
-[  474.407923]  ath11k_pci_pm_suspend+0x1b/0x50 [ath11k_pci]
-[  474.407928]  pci_pm_suspend+0x7e/0x170
-[  474.407935]  ? pci_pm_freeze+0xc0/0xc0
-[  474.407939]  dpm_run_callback+0x4e/0x150
-[  474.407947]  __device_suspend+0x148/0x4c0
-[  474.407951]  async_suspend+0x20/0x90
-dmesg-efi-164255130401001:
-Oops#1 Part1
-[  474.407955]  async_run_entry_fn+0x33/0x120
-[  474.407959]  process_one_work+0x220/0x3f0
-[  474.407966]  worker_thread+0x4a/0x3d0
-[  474.407971]  kthread+0x17a/0x1a0
-[  474.407975]  ? process_one_work+0x3f0/0x3f0
-[  474.407979]  ? set_kthread_struct+0x40/0x40
-[  474.407983]  ret_from_fork+0x22/0x30
-[  474.407991]  </TASK>
-
-The issue here is that board file loading happens after ath11k_pci_probe()
-succesfully returns (ath11k initialisation happends asynchronously) and the
-suspend handler is still enabled, of course failing as ath11k is not properly
-initialised. Fix this by checking ATH11K_FLAG_QMI_FAIL during both suspend and
-resume.
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03003-QCAHSPSWPL_V1_V2_SILICONZ_LITE-2
-
-Reported-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215504
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220127090117.2024-1-kvalo@kernel.org
+Reported-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Fixes: ca2e334232b6 ("lib: add iomem emulation (logic_iomem)")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/pci.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ lib/logic_iomem.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/pci.c b/drivers/net/wireless/ath/ath11k/pci.c
-index de71ad594f34..903758751c99 100644
---- a/drivers/net/wireless/ath/ath11k/pci.c
-+++ b/drivers/net/wireless/ath/ath11k/pci.c
-@@ -1571,6 +1571,11 @@ static __maybe_unused int ath11k_pci_pm_suspend(struct device *dev)
- 	struct ath11k_base *ab = dev_get_drvdata(dev);
- 	int ret;
+diff --git a/lib/logic_iomem.c b/lib/logic_iomem.c
+index 549b22d4bcde..e7ea9b28d8db 100644
+--- a/lib/logic_iomem.c
++++ b/lib/logic_iomem.c
+@@ -68,7 +68,7 @@ int logic_iomem_add_region(struct resource *resource,
+ }
+ EXPORT_SYMBOL(logic_iomem_add_region);
  
-+	if (test_bit(ATH11K_FLAG_QMI_FAIL, &ab->dev_flags)) {
-+		ath11k_dbg(ab, ATH11K_DBG_BOOT, "boot skipping pci suspend as qmi is not initialised\n");
-+		return 0;
-+	}
-+
- 	ret = ath11k_core_suspend(ab);
- 	if (ret)
- 		ath11k_warn(ab, "failed to suspend core: %d\n", ret);
-@@ -1583,6 +1588,11 @@ static __maybe_unused int ath11k_pci_pm_resume(struct device *dev)
- 	struct ath11k_base *ab = dev_get_drvdata(dev);
- 	int ret;
+-#ifndef CONFIG_LOGIC_IOMEM_FALLBACK
++#ifndef CONFIG_INDIRECT_IOMEM_FALLBACK
+ static void __iomem *real_ioremap(phys_addr_t offset, size_t size)
+ {
+ 	WARN(1, "invalid ioremap(0x%llx, 0x%zx)\n",
+@@ -81,7 +81,7 @@ static void real_iounmap(void __iomem *addr)
+ 	WARN(1, "invalid iounmap for addr 0x%llx\n",
+ 	     (unsigned long long)(uintptr_t __force)addr);
+ }
+-#endif /* CONFIG_LOGIC_IOMEM_FALLBACK */
++#endif /* CONFIG_INDIRECT_IOMEM_FALLBACK */
  
-+	if (test_bit(ATH11K_FLAG_QMI_FAIL, &ab->dev_flags)) {
-+		ath11k_dbg(ab, ATH11K_DBG_BOOT, "boot skipping pci resume as qmi is not initialised\n");
-+		return 0;
-+	}
-+
- 	ret = ath11k_core_resume(ab);
- 	if (ret)
- 		ath11k_warn(ab, "failed to resume core: %d\n", ret);
+ void __iomem *ioremap(phys_addr_t offset, size_t size)
+ {
+@@ -168,7 +168,7 @@ void iounmap(void __iomem *addr)
+ }
+ EXPORT_SYMBOL(iounmap);
+ 
+-#ifndef CONFIG_LOGIC_IOMEM_FALLBACK
++#ifndef CONFIG_INDIRECT_IOMEM_FALLBACK
+ #define MAKE_FALLBACK(op, sz) 						\
+ static u##sz real_raw_read ## op(const volatile void __iomem *addr)	\
+ {									\
+@@ -213,7 +213,7 @@ static void real_memcpy_toio(volatile void __iomem *addr, const void *buffer,
+ 	WARN(1, "Invalid memcpy_toio at address 0x%llx\n",
+ 	     (unsigned long long)(uintptr_t __force)addr);
+ }
+-#endif /* CONFIG_LOGIC_IOMEM_FALLBACK */
++#endif /* CONFIG_INDIRECT_IOMEM_FALLBACK */
+ 
+ #define MAKE_OP(op, sz) 						\
+ u##sz __raw_read ## op(const volatile void __iomem *addr)		\
 -- 
 2.35.1
 
