@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 449F54FD888
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EEF84FD52D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354821AbiDLH5y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:57:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49156 "EHLO
+        id S1351389AbiDLHdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:33:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359185AbiDLHmk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C36F554A1;
-        Tue, 12 Apr 2022 00:20:23 -0700 (PDT)
+        with ESMTP id S1354054AbiDLH0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3D5A16589;
+        Tue, 12 Apr 2022 00:05:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDFFD61045;
-        Tue, 12 Apr 2022 07:20:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7DB8C385A5;
-        Tue, 12 Apr 2022 07:20:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 545E4B81B51;
+        Tue, 12 Apr 2022 07:05:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4A34C385A6;
+        Tue, 12 Apr 2022 07:05:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748022;
-        bh=U2/FILndl4co+BlYvc00C3mSRpRj6SmZahSvs4PQbsE=;
+        s=korg; t=1649747125;
+        bh=K13Fcmd4pjZ4VFRVTHDJAb+fVTQ92rUnm6te9GXG10M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zCmE1VjWh8ZSjvlyNgtKa7EIKWoZY1vhdMyO0uGYU6bewvbaMFPrNQvZQQfYDiw4A
-         GCMEJwfKVDLg985EjXCYO5YtBPTjdynkoKgNGWZrQIU+omzfuO9Px+cFMWjbJvqGXl
-         HE0GlVQT6jBVgPhaqi7eivw9RSgV4V8eCHe8hKvI=
+        b=SCIsJ5DLuh0C4DEhD0uZNHq0xXDIvSaqNSEvnkZakognbi8eag2r5BtLoB6+S5vEZ
+         Ivf0NZWS1yzTjbzPamWPDzu20+mwuvjGZOZFqyxmmDcFdWZHAFPb3gCIsYJdOlklb8
+         jGriCBcw86qrY0SSIqOB/jPnrRMZruvS+M7VLKeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Douglas Miller <doug.miller@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.17 292/343] RDMA/hfi1: Fix use-after-free bug for mm struct
+        stable@vger.kernel.org, Benjamin Marty <info@benjaminmarty.ch>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 253/285] drm/amdgpu/display: change pipe policy for DCN 2.1
 Date:   Tue, 12 Apr 2022 08:31:50 +0200
-Message-Id: <20220412062959.756103757@linuxfoundation.org>
+Message-Id: <20220412062950.962957758@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Miller <doug.miller@cornelisnetworks.com>
+From: Benjamin Marty <info@benjaminmarty.ch>
 
-commit 2bbac98d0930e8161b1957dc0ec99de39ade1b3c upstream.
+commit 879791ad8bf3dc5453061cad74776a617b6e3319 upstream.
 
-Under certain conditions, such as MPI_Abort, the hfi1 cleanup code may
-represent the last reference held on the task mm.
-hfi1_mmu_rb_unregister() then drops the last reference and the mm is freed
-before the final use in hfi1_release_user_pages().  A new task may
-allocate the mm structure while it is still being used, resulting in
-problems. One manifestation is corruption of the mmap_sem counter leading
-to a hang in down_write().  Another is corruption of an mm struct that is
-in use by another task.
+Fixes crash on MST Hub disconnect.
 
-Fixes: 3d2a9d642512 ("IB/hfi1: Ensure correct mm is used at all times")
-Link: https://lore.kernel.org/r/20220408133523.122165.72975.stgit@awfm-01.cornelisnetworks.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1849
+Fixes: ee2698cf79cc ("drm/amd/display: Changed pipe split policy to allow for multi-display pipe split")
+Signed-off-by: Benjamin Marty <info@benjaminmarty.ch>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/mmu_rb.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/hfi1/mmu_rb.c
-+++ b/drivers/infiniband/hw/hfi1/mmu_rb.c
-@@ -80,6 +80,9 @@ void hfi1_mmu_rb_unregister(struct mmu_r
- 	unsigned long flags;
- 	struct list_head del_list;
- 
-+	/* Prevent freeing of mm until we are completely finished. */
-+	mmgrab(handler->mn.mm);
-+
- 	/* Unregister first so we don't get any more notifications. */
- 	mmu_notifier_unregister(&handler->mn, handler->mn.mm);
- 
-@@ -102,6 +105,9 @@ void hfi1_mmu_rb_unregister(struct mmu_r
- 
- 	do_remove(handler, &del_list);
- 
-+	/* Now the mm may be freed. */
-+	mmdrop(handler->mn.mm);
-+
- 	kfree(handler);
- }
- 
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -874,7 +874,7 @@ static const struct dc_debug_options deb
+ 		.clock_trace = true,
+ 		.disable_pplib_clock_request = true,
+ 		.min_disp_clk_khz = 100000,
+-		.pipe_split_policy = MPC_SPLIT_DYNAMIC,
++		.pipe_split_policy = MPC_SPLIT_AVOID_MULT_DISP,
+ 		.force_single_disp_pipe_split = false,
+ 		.disable_dcc = DCC_ENABLE,
+ 		.vsr_support = true,
 
 
