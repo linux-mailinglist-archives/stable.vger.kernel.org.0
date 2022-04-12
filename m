@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 687A34FD5EA
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96E494FD874
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243313AbiDLH63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:58:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
+        id S1343883AbiDLHhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:37:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358786AbiDLHmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DFD525EBF;
-        Tue, 12 Apr 2022 00:19:16 -0700 (PDT)
+        with ESMTP id S1353742AbiDLHZx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFBF388C;
+        Tue, 12 Apr 2022 00:04:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9862FB81B4F;
-        Tue, 12 Apr 2022 07:19:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D70E3C385A1;
-        Tue, 12 Apr 2022 07:19:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31DB8B81A8F;
+        Tue, 12 Apr 2022 07:04:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2D46C385A6;
+        Tue, 12 Apr 2022 07:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747954;
-        bh=XAj7FCfm0M/jy4rFK9gDsnIs+X5IJ8/MZGnWY/bFg0Q=;
+        s=korg; t=1649747053;
+        bh=xd+6zkjK1T71bZdK8lxeDi33yn7elOo0gA8j9wLhbsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maE+O00AmceMTC6XkjLveanuFUAztSEqmBbczZfPFWN5ujI2X87PsHtZ19UzAbp7b
-         1x49EFqlCTfjiXSGLTKda0BgdFaNLmdXP3qgQtKFHADiMoRFc26SI/X839oKbdlENl
-         /Jr1TpqhdFDfVEIqVTZJJ96bBp3uPs+Zmtsj6HzI=
+        b=zbF+THV9ljcC3+mGDuScILWsJhVR9TODxK6lykfw8TPDzG666H+Wm5NwufpKp1+4A
+         y46uTl6rvWnvyoUg6NXMKJLh9fBfZVxhWoNcatm1KKV9ZDyjrLSBUvcPbf/UTrIkaD
+         9nfDfOkK1Gp4hhYMvFhyvgltiUz1ynrdQmWl3/g0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.17 265/343] scsi: ufs: ufs-pci: Add support for Intel MTL
+        stable@vger.kernel.org, Eugene Syromiatnikov <esyr@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.16 226/285] io_uring: implement compat handling for IORING_REGISTER_IOWQ_AFF
 Date:   Tue, 12 Apr 2022 08:31:23 +0200
-Message-Id: <20220412062958.972479689@linuxfoundation.org>
+Message-Id: <20220412062950.182021874@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Eugene Syromiatnikov <esyr@redhat.com>
 
-commit 4049f7acef3eb37c1ea0df45f3ffc29404f4e708 upstream.
+commit 0f5e4b83b37a96e3643951588ed7176b9b187c0a upstream.
 
-Add PCI ID and callbacks to support Intel Meteor Lake (MTL).
+Similarly to the way it is done im mbind syscall.
 
-Link: https://lore.kernel.org/r/20220404055038.2208051-1-adrian.hunter@intel.com
-Cc: stable@vger.kernel.org # v5.15+
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: stable@vger.kernel.org # 5.14
+Fixes: fe76421d1da1dcdb ("io_uring: allow user configurable IO thread CPU affinity")
+Signed-off-by: Eugene Syromiatnikov <esyr@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd-pci.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ fs/io_uring.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/ufs/ufshcd-pci.c
-+++ b/drivers/scsi/ufs/ufshcd-pci.c
-@@ -428,6 +428,12 @@ static int ufs_intel_adl_init(struct ufs
- 	return ufs_intel_common_init(hba);
- }
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -10799,7 +10799,15 @@ static __cold int io_register_iowq_aff(s
+ 	if (len > cpumask_size())
+ 		len = cpumask_size();
  
-+static int ufs_intel_mtl_init(struct ufs_hba *hba)
-+{
-+	hba->caps |= UFSHCD_CAP_CRYPTO | UFSHCD_CAP_WB_EN;
-+	return ufs_intel_common_init(hba);
-+}
+-	if (copy_from_user(new_mask, arg, len)) {
++	if (in_compat_syscall()) {
++		ret = compat_get_bitmap(cpumask_bits(new_mask),
++					(const compat_ulong_t __user *)arg,
++					len * 8 /* CHAR_BIT */);
++	} else {
++		ret = copy_from_user(new_mask, arg, len);
++	}
 +
- static struct ufs_hba_variant_ops ufs_intel_cnl_hba_vops = {
- 	.name                   = "intel-pci",
- 	.init			= ufs_intel_common_init,
-@@ -465,6 +471,16 @@ static struct ufs_hba_variant_ops ufs_in
- 	.device_reset		= ufs_intel_device_reset,
- };
- 
-+static struct ufs_hba_variant_ops ufs_intel_mtl_hba_vops = {
-+	.name                   = "intel-pci",
-+	.init			= ufs_intel_mtl_init,
-+	.exit			= ufs_intel_common_exit,
-+	.hce_enable_notify	= ufs_intel_hce_enable_notify,
-+	.link_startup_notify	= ufs_intel_link_startup_notify,
-+	.resume			= ufs_intel_resume,
-+	.device_reset		= ufs_intel_device_reset,
-+};
-+
- #ifdef CONFIG_PM_SLEEP
- static int ufshcd_pci_restore(struct device *dev)
- {
-@@ -579,6 +595,7 @@ static const struct pci_device_id ufshcd
- 	{ PCI_VDEVICE(INTEL, 0x98FA), (kernel_ulong_t)&ufs_intel_lkf_hba_vops },
- 	{ PCI_VDEVICE(INTEL, 0x51FF), (kernel_ulong_t)&ufs_intel_adl_hba_vops },
- 	{ PCI_VDEVICE(INTEL, 0x54FF), (kernel_ulong_t)&ufs_intel_adl_hba_vops },
-+	{ PCI_VDEVICE(INTEL, 0x7E47), (kernel_ulong_t)&ufs_intel_mtl_hba_vops },
- 	{ }	/* terminate list */
- };
- 
++	if (ret) {
+ 		free_cpumask_var(new_mask);
+ 		return -EFAULT;
+ 	}
 
 
