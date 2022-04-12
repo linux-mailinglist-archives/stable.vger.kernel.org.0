@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EC0E4FD7F9
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C310C4FD9FC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233002AbiDLHpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:45:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60936 "EHLO
+        id S1377416AbiDLHuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:50:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353837AbiDLHZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A62A3DFB1;
-        Tue, 12 Apr 2022 00:04:56 -0700 (PDT)
+        with ESMTP id S1359045AbiDLHm1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 523F254FA0;
+        Tue, 12 Apr 2022 00:20:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C45ED615F7;
-        Tue, 12 Apr 2022 07:04:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0257C385A6;
-        Tue, 12 Apr 2022 07:04:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09D03B81B58;
+        Tue, 12 Apr 2022 07:20:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 713AEC385A5;
+        Tue, 12 Apr 2022 07:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747095;
-        bh=cnXwJ97Cba/E918Cg+ZUQi7hwZ3FSzjW0SqXit5SWR0=;
+        s=korg; t=1649748000;
+        bh=kHqtdHTc+UnjdaXRk1UmTLDPTA4ePYi3R842LXAyw8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WhdZznv7ttSTw9qvU1CLGfcPa633wbrhnz9y1j7eZkr0w0eMdbUC1RVa6XMDD5yzd
-         IL4oVsJ3UZNoKpUYszRuibhPSGbMGvuPqZYekAPO0fpIoek14hM1iVXHTVIt5bBa3E
-         ml9KI1ahBOlHo21a3Km+NeolgWdEyDGBvc954cd8=
+        b=HR3niHiidBvSkCu/00XMQ0FqtPYD17pAlPBah2luinT+hby43ozDixUgQT5En6xjV
+         D6j78qObaFsyD+EuKD35BAELQfUSDHdFyzMLqMT52v3VhTwR0gPnWvPo6kibGSH6XM
+         mXb5oB4G9YMTMX7Zm3VUWUL6ozjlMz0Ge71mP/DA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 204/285] io_uring: dont touch scm_fp_list after queueing skb
+        stable@vger.kernel.org, Martin Habets <habetsm.xilinx@gmail.com>,
+        Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 243/343] net: sfc: fix using uninitialized xdp tx_queue
 Date:   Tue, 12 Apr 2022 08:31:01 +0200
-Message-Id: <20220412062949.547475301@linuxfoundation.org>
+Message-Id: <20220412062958.344893398@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit a07211e3001435fe8591b992464cd8d5e3c98c5a ]
+[ Upstream commit fb5833d81e4333294add35d3ac7f7f52a7bf107f ]
 
-It's safer to not touch scm_fp_list after we queued an skb to which it
-was assigned, there might be races lurking if we screw subtle sync
-guarantees on the io_uring side.
+In some cases, xdp tx_queue can get used before initialization.
+1. interface up/down
+2. ring buffer size change
 
-Fixes: 6b06314c47e14 ("io_uring: add file set registration")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+When CPU cores are lower than maximum number of channels of sfc driver,
+it creates new channels only for XDP.
+
+When an interface is up or ring buffer size is changed, all channels
+are initialized.
+But xdp channels are always initialized later.
+So, the below scenario is possible.
+Packets are received to rx queue of normal channels and it is acted
+XDP_TX and tx_queue of xdp channels get used.
+But these tx_queues are not initialized yet.
+If so, TX DMA or queue error occurs.
+
+In order to avoid this problem.
+1. initializes xdp tx_queues earlier than other rx_queue in
+efx_start_channels().
+2. checks whether tx_queue is initialized or not in efx_xdp_tx_buffers().
+
+Splat looks like:
+   sfc 0000:08:00.1 enp8s0f1np1: TX queue 10 spurious TX completion id 250
+   sfc 0000:08:00.1 enp8s0f1np1: resetting (RECOVER_OR_ALL)
+   sfc 0000:08:00.1 enp8s0f1np1: MC command 0x80 inlen 100 failed rc=-22
+   (raw=22) arg=789
+   sfc 0000:08:00.1 enp8s0f1np1: has been disabled
+
+Fixes: f28100cb9c96 ("sfc: fix lack of XDP TX queues - error XDP TX failed (-22)")
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/sfc/efx_channels.c | 2 +-
+ drivers/net/ethernet/sfc/tx.c           | 3 +++
+ drivers/net/ethernet/sfc/tx_common.c    | 2 ++
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c744b9910d9e..d4db0b911896 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8176,8 +8176,12 @@ static int __io_sqe_files_scm(struct io_ring_ctx *ctx, int nr, int offset)
- 		refcount_add(skb->truesize, &sk->sk_wmem_alloc);
- 		skb_queue_head(&sk->sk_receive_queue, skb);
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index 5e587cb853b9..40bfd0ad7d05 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -1118,7 +1118,7 @@ void efx_start_channels(struct efx_nic *efx)
+ 	struct efx_rx_queue *rx_queue;
+ 	struct efx_channel *channel;
  
--		for (i = 0; i < nr_files; i++)
--			fput(fpl->fp[i]);
-+		for (i = 0; i < nr; i++) {
-+			struct file *file = io_file_from_index(ctx, i + offset);
+-	efx_for_each_channel(channel, efx) {
++	efx_for_each_channel_rev(channel, efx) {
+ 		efx_for_each_channel_tx_queue(tx_queue, channel) {
+ 			efx_init_tx_queue(tx_queue);
+ 			atomic_inc(&efx->active_queues);
+diff --git a/drivers/net/ethernet/sfc/tx.c b/drivers/net/ethernet/sfc/tx.c
+index d16e031e95f4..6983799e1c05 100644
+--- a/drivers/net/ethernet/sfc/tx.c
++++ b/drivers/net/ethernet/sfc/tx.c
+@@ -443,6 +443,9 @@ int efx_xdp_tx_buffers(struct efx_nic *efx, int n, struct xdp_frame **xdpfs,
+ 	if (unlikely(!tx_queue))
+ 		return -EINVAL;
+ 
++	if (!tx_queue->initialised)
++		return -EINVAL;
 +
-+			if (file)
-+				fput(file);
-+		}
- 	} else {
- 		kfree_skb(skb);
- 		free_uid(fpl->user);
+ 	if (efx->xdp_txq_queues_mode != EFX_XDP_TX_QUEUES_DEDICATED)
+ 		HARD_TX_LOCK(efx->net_dev, tx_queue->core_txq, cpu);
+ 
+diff --git a/drivers/net/ethernet/sfc/tx_common.c b/drivers/net/ethernet/sfc/tx_common.c
+index d530cde2b864..9bc8281b7f5b 100644
+--- a/drivers/net/ethernet/sfc/tx_common.c
++++ b/drivers/net/ethernet/sfc/tx_common.c
+@@ -101,6 +101,8 @@ void efx_fini_tx_queue(struct efx_tx_queue *tx_queue)
+ 	netif_dbg(tx_queue->efx, drv, tx_queue->efx->net_dev,
+ 		  "shutting down TX queue %d\n", tx_queue->queue);
+ 
++	tx_queue->initialised = false;
++
+ 	if (!tx_queue->buffer)
+ 		return;
+ 
 -- 
 2.35.1
 
