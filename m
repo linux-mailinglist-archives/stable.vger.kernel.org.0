@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BD84FD0AE
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0194FD09C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350198AbiDLGsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:48:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58222 "EHLO
+        id S1348193AbiDLGse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:48:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350708AbiDLGrl (ORCPT
+        with ESMTP id S1350709AbiDLGrl (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:47:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42BE0237F9;
-        Mon, 11 Apr 2022 23:39:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464D424947;
+        Mon, 11 Apr 2022 23:39:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD513B81B43;
-        Tue, 12 Apr 2022 06:39:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FD90C385A6;
-        Tue, 12 Apr 2022 06:39:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA53AB81B29;
+        Tue, 12 Apr 2022 06:39:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE88C385A1;
+        Tue, 12 Apr 2022 06:39:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745552;
-        bh=ED29oVwmGILc3qdqHpfbnrBwyK1VacqLAme/FXeIgdg=;
+        s=korg; t=1649745555;
+        bh=QhsvxtWGhK5wtgUU105j/Ut1BdLJxJR/yoBWlg8U0ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuX20wWvPWC3iLXN2ICgngK05z/fgmY6I+RL2u/ym/h5sqz7dFxe7ZfF3Mzet0JIs
-         pzvd4lxBiQKZ7RF9Ze21Oq2ip+hRlH8sTmmb5ZtWqIGSqJFExzo8BmcAIEcoqVMftX
-         3Pk7cVCfSmFXkujhl3MAnRd8QlN98KL31ELNb2Jg=
+        b=Fw8gNdjdJhuTiy33vv2V8ZpBxlEr2ZsS7jJajGTw4x23fhHtCW7my7pr719sjvs9r
+         vibLlQl5yR3qVyCAzAPbSlocT9zmnQ1f167PElDJIs3QTFGtdXRahPGLR4QGTcf056
+         k0a5DuFqBKL8KuZJCkqMxcvtHQTehfkX9pTD8eWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Marcin Wojtas <mw@semihalf.com>,
+        stable@vger.kernel.org, Yann Gautier <yann.gautier@foss.st.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 135/171] Revert "mmc: sdhci-xenon: fix annoying 1.8V regulator warning"
-Date:   Tue, 12 Apr 2022 08:30:26 +0200
-Message-Id: <20220412062931.792036281@linuxfoundation.org>
+Subject: [PATCH 5.10 136/171] mmc: mmci: stm32: correctly check all elements of sg list
+Date:   Tue, 12 Apr 2022 08:30:27 +0200
+Message-Id: <20220412062931.822488453@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -56,46 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Yann Gautier <yann.gautier@foss.st.com>
 
-commit 7e2646ed47542123168d43916b84b954532e5386 upstream.
+commit 0d319dd5a27183b75d984e3dc495248e59f99334 upstream.
 
-This reverts commit bb32e1987bc55ce1db400faf47d85891da3c9b9f.
+Use sg and not data->sg when checking sg list elements. Else only the
+first element alignment is checked.
+The last element should be checked the same way, for_each_sg already set
+sg to sg_next(sg).
 
-Commit 1a3ed0dc3594 ("mmc: sdhci-xenon: fix 1.8v regulator stabilization")
-contains proper fix for the issue described in commit bb32e1987bc5 ("mmc:
-sdhci-xenon: fix annoying 1.8V regulator warning").
-
-Fixes: 8d876bf472db ("mmc: sdhci-xenon: wait 5ms after set 1.8V signal enable")
-Cc: stable@vger.kernel.org # 1a3ed0dc3594 ("mmc: sdhci-xenon: fix 1.8v regulator stabilization")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Marcin Wojtas <mw@semihalf.com>
-Link: https://lore.kernel.org/r/20220318141441.32329-1-pali@kernel.org
+Fixes: 46b723dd867d ("mmc: mmci: add stm32 sdmmc variant")
+Cc: stable@vger.kernel.org
+Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+Link: https://lore.kernel.org/r/20220317111944.116148-2-yann.gautier@foss.st.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-xenon.c |   10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/mmc/host/mmci_stm32_sdmmc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/sdhci-xenon.c
-+++ b/drivers/mmc/host/sdhci-xenon.c
-@@ -240,16 +240,6 @@ static void xenon_voltage_switch(struct
- {
- 	/* Wait for 5ms after set 1.8V signal enable bit */
- 	usleep_range(5000, 5500);
--
--	/*
--	 * For some reason the controller's Host Control2 register reports
--	 * the bit representing 1.8V signaling as 0 when read after it was
--	 * written as 1. Subsequent read reports 1.
--	 *
--	 * Since this may cause some issues, do an empty read of the Host
--	 * Control2 register here to circumvent this.
--	 */
--	sdhci_readw(host, SDHCI_HOST_CONTROL2);
- }
+--- a/drivers/mmc/host/mmci_stm32_sdmmc.c
++++ b/drivers/mmc/host/mmci_stm32_sdmmc.c
+@@ -62,8 +62,8 @@ static int sdmmc_idma_validate_data(stru
+ 	 * excepted the last element which has no constraint on idmasize
+ 	 */
+ 	for_each_sg(data->sg, sg, data->sg_len - 1, i) {
+-		if (!IS_ALIGNED(data->sg->offset, sizeof(u32)) ||
+-		    !IS_ALIGNED(data->sg->length, SDMMC_IDMA_BURST)) {
++		if (!IS_ALIGNED(sg->offset, sizeof(u32)) ||
++		    !IS_ALIGNED(sg->length, SDMMC_IDMA_BURST)) {
+ 			dev_err(mmc_dev(host->mmc),
+ 				"unaligned scatterlist: ofst:%x length:%d\n",
+ 				data->sg->offset, data->sg->length);
+@@ -71,7 +71,7 @@ static int sdmmc_idma_validate_data(stru
+ 		}
+ 	}
  
- static const struct sdhci_ops sdhci_xenon_ops = {
+-	if (!IS_ALIGNED(data->sg->offset, sizeof(u32))) {
++	if (!IS_ALIGNED(sg->offset, sizeof(u32))) {
+ 		dev_err(mmc_dev(host->mmc),
+ 			"unaligned last scatterlist: ofst:%x length:%d\n",
+ 			data->sg->offset, data->sg->length);
 
 
