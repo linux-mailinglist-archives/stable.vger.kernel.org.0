@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C43194FCAFB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:01:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4054FCB15
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344516AbiDLBCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 21:02:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34708 "EHLO
+        id S1345645AbiDLBDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 21:03:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345056AbiDLA61 (ORCPT
+        with ESMTP id S1345071AbiDLA61 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:58:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC2D2C662;
-        Mon, 11 Apr 2022 17:50:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088C62F036;
+        Mon, 11 Apr 2022 17:50:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B563B819B4;
-        Tue, 12 Apr 2022 00:50:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0621FC385A3;
-        Tue, 12 Apr 2022 00:50:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B79F1B815C8;
+        Tue, 12 Apr 2022 00:50:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC67C385A3;
+        Tue, 12 Apr 2022 00:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724628;
-        bh=Uu7VIrb7ME9y2Ns26nkZF0NerK26h//hTrPsKXDKuPU=;
+        s=k20201202; t=1649724632;
+        bh=N/9Rui6mpSwGeDNpe/xTbHy8TO3O88n/9VixNIN9aiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBMGq/RxgDlU3XU8j7AFoCyZkQtYAXd26wHSKcJ5btJX+q/AgenCD5bgpmpfN/Sg4
-         YBzo/n1OO0btMGvk/DXkIr20+QksKKMIW5WG5ESB2by5UDLWkm9VMOV7opMi+Tz8jv
-         EPp+SgwrfWyi6AEPAvtvRN6B29zNs09mbpHBHzkXKbBWfoPIbAqqXskizqrpuIykCZ
-         udQ9RaxkGanLAQPzsjt4KOqRUZBRld+OQvS/3dxu7x3NFailwdJb3eaQP/1cGYPCyX
-         t1kGVkqejV2Rscg86roBoHCZLwy85L9fcYPP8hOa8Mt03+TrSefPaIkLjucRD4Y9K3
-         kjaK/2skAIZLg==
+        b=BQsEWYAKkoQzd8XbijsLFdOdvakTZiHTachPTLc2GTjV+eX5tBdXTNCaqH6tBDG2L
+         2aHppI74GHl02hJCuXZMKgYjYOJwoWePDg/+3XN2GXU0a8pgB7uf1PTLuRXcyh6cbf
+         WIaqkyjpej3VtyIvEY2P71dOdQaAZ87fhp/rsBKqXs7WRnRWvof/nAKEPbYgZY+pAu
+         d79WpveRA07YxeRgMz+tetzqSBZWtCJmPq/k1df4D02+13QhjmB8GQ+avLJ5OMfH+e
+         bnREdECDgO5BOegEcSSvj/3Ypjo44x8DaUSwovybyKLo2nsIAlTxmSm42nzcMTmCYn
+         UCXbVwDY4o/Lw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chandrakanth patil <chandrakanth.patil@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, kashyap.desai@broadcom.com,
-        sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
-        jejb@linux.ibm.com, megaraidlinux.pdl@broadcom.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 27/30] scsi: megaraid_sas: Target with invalid LUN ID is deleted during scan
-Date:   Mon, 11 Apr 2022 20:49:01 -0400
-Message-Id: <20220412004906.350678-27-sashal@kernel.org>
+Cc:     Duoming Zhou <duoming@zju.edu.cn>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        pabeni@redhat.com, gregkh@linuxfoundation.org, mkl@pengutronix.de,
+        dmitry.torokhov@gmail.com, arnd@arndb.de, bigeasy@linutronix.de,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 28/30] drivers: net: slip: fix NPD bug in sl_tx_timeout()
+Date:   Mon, 11 Apr 2022 20:49:02 -0400
+Message-Id: <20220412004906.350678-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004906.350678-1-sashal@kernel.org>
 References: <20220412004906.350678-1-sashal@kernel.org>
@@ -59,66 +60,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandrakanth patil <chandrakanth.patil@broadcom.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 56495f295d8e021f77d065b890fc0100e3f9f6d8 ]
+[ Upstream commit ec4eb8a86ade4d22633e1da2a7d85a846b7d1798 ]
 
-The megaraid_sas driver supports single LUN for RAID devices. That is LUN
-0. All other LUNs are unsupported. When a device scan on a logical target
-with invalid LUN number is invoked through sysfs, that target ends up
-getting removed.
+When a slip driver is detaching, the slip_close() will act to
+cleanup necessary resources and sl->tty is set to NULL in
+slip_close(). Meanwhile, the packet we transmit is blocked,
+sl_tx_timeout() will be called. Although slip_close() and
+sl_tx_timeout() use sl->lock to synchronize, we don`t judge
+whether sl->tty equals to NULL in sl_tx_timeout() and the
+null pointer dereference bug will happen.
 
-Add LUN ID validation in the slave destroy function to avoid the target
-deletion.
+   (Thread 1)                 |      (Thread 2)
+                              | slip_close()
+                              |   spin_lock_bh(&sl->lock)
+                              |   ...
+...                           |   sl->tty = NULL //(1)
+sl_tx_timeout()               |   spin_unlock_bh(&sl->lock)
+  spin_lock(&sl->lock);       |
+  ...                         |   ...
+  tty_chars_in_buffer(sl->tty)|
+    if (tty->ops->..) //(2)   |
+    ...                       |   synchronize_rcu()
 
-Link: https://lore.kernel.org/r/20220324094711.48833-1-chandrakanth.patil@broadcom.com
-Signed-off-by: Chandrakanth patil <chandrakanth.patil@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+We set NULL to sl->tty in position (1) and dereference sl->tty
+in position (2).
+
+This patch adds check in sl_tx_timeout(). If sl->tty equals to
+NULL, sl_tx_timeout() will goto out.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20220405132206.55291-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas.h      | 3 +++
- drivers/scsi/megaraid/megaraid_sas_base.c | 7 +++++++
- 2 files changed, 10 insertions(+)
+ drivers/net/slip/slip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
-index 6b8ec57e8bdf..c088a848776e 100644
---- a/drivers/scsi/megaraid/megaraid_sas.h
-+++ b/drivers/scsi/megaraid/megaraid_sas.h
-@@ -2554,6 +2554,9 @@ struct megasas_instance_template {
- #define MEGASAS_IS_LOGICAL(sdev)					\
- 	((sdev->channel < MEGASAS_MAX_PD_CHANNELS) ? 0 : 1)
+diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
+index f81fb0b13a94..369bd30fed35 100644
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -468,7 +468,7 @@ static void sl_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ 	spin_lock(&sl->lock);
  
-+#define MEGASAS_IS_LUN_VALID(sdev)					\
-+	(((sdev)->lun == 0) ? 1 : 0)
-+
- #define MEGASAS_DEV_INDEX(scp)						\
- 	(((scp->device->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +	\
- 	scp->device->id)
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 1a70cc995c28..84a2e9292fd0 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -2111,6 +2111,9 @@ static int megasas_slave_alloc(struct scsi_device *sdev)
- 			goto scan_target;
- 		}
- 		return -ENXIO;
-+	} else if (!MEGASAS_IS_LUN_VALID(sdev)) {
-+		sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
-+		return -ENXIO;
- 	}
+ 	if (netif_queue_stopped(dev)) {
+-		if (!netif_running(dev))
++		if (!netif_running(dev) || !sl->tty)
+ 			goto out;
  
- scan_target:
-@@ -2141,6 +2144,10 @@ static void megasas_slave_destroy(struct scsi_device *sdev)
- 	instance = megasas_lookup_instance(sdev->host->host_no);
- 
- 	if (MEGASAS_IS_LOGICAL(sdev)) {
-+		if (!MEGASAS_IS_LUN_VALID(sdev)) {
-+			sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
-+			return;
-+		}
- 		ld_tgt_id = MEGASAS_TARGET_ID(sdev);
- 		instance->ld_tgtid_status[ld_tgt_id] = LD_TARGET_ID_DELETED;
- 		if (megasas_dbg_lvl & LD_PD_DEBUG)
+ 		/* May be we must check transmitter timeout here ?
 -- 
 2.35.1
 
