@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C34054FD439
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F074FD5F4
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:18:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353848AbiDLHhq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42896 "EHLO
+        id S1345457AbiDLH6g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:58:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353662AbiDLHZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
+        with ESMTP id S1358769AbiDLHmL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DFB426556;
-        Tue, 12 Apr 2022 00:03:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02FB812ADB;
+        Tue, 12 Apr 2022 00:19:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37BCAB81A8F;
-        Tue, 12 Apr 2022 07:03:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2165C385A6;
-        Tue, 12 Apr 2022 07:03:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B7BBB81B62;
+        Tue, 12 Apr 2022 07:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0592CC385A1;
+        Tue, 12 Apr 2022 07:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746984;
-        bh=KHFsq8wZ2P38ItB/RXTkdpAFMizLOaRAzGCqGF354EY=;
+        s=korg; t=1649747951;
+        bh=xQWayGB+6f6hpATCzHMRRQ/8HztQFzBaPi4TXBjj1bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wq8VHYpDI9/RUjAtvZbIUhVAk4e/Wc6jpj/nu/ua34nUIlinVw0zzzJlHz0qAOTYQ
-         HbUfLAZpTbAn85oNMBjaT0FlNvyXL10ipWt1uPtwqFDBt1Bem+44hkZ/cgYyG0ionR
-         rZpouK4Fql0JAOkRdVEzcrnxvhU5grtrrgPU4vxM=
+        b=mV40kF5JrxJ39W8b0qg3mp0BK0/wQLUo02iXEuPFxlioswdT/jIZzo2Njk9dxx8vR
+         MnI6XQW5JjSVhltKwzVX6TifCd1LrBftUB/y2FxsxqxNvxWkQhGkM1taCNvLjC2CEO
+         yssuOQ8TX/8KXcdE0WzdXycAxiEdVCGlAo6nrOMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Arthur Fabre <afabre@cloudflare.com>,
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Shwetha Nagaraju <shwetha.nagaraju@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 199/285] bpf: Support dual-stack sockets in bpf_tcp_check_syncookie
+Subject: [PATCH 5.17 238/343] ice: clear cmd_type_offset_bsz for TX rings
 Date:   Tue, 12 Apr 2022 08:30:56 +0200
-Message-Id: <20220412062949.404804259@linuxfoundation.org>
+Message-Id: <20220412062958.203119397@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,84 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-[ Upstream commit 2e8702cc0cfa1080f29fd64003c00a3e24ac38de ]
+[ Upstream commit e19778e6c911691856447c3bf9617f00b3e1347f ]
 
-bpf_tcp_gen_syncookie looks at the IP version in the IP header and
-validates the address family of the socket. It supports IPv4 packets in
-AF_INET6 dual-stack sockets.
+Currently when XDP rings are created, each descriptor gets its DD bit
+set, which turns out to be the wrong approach as it can lead to a
+situation where more descriptors get cleaned than it was supposed to,
+e.g. when AF_XDP busy poll is run with a large batch size. In this
+situation, the driver would request for more buffers than it is able to
+handle.
 
-On the other hand, bpf_tcp_check_syncookie looks only at the address
-family of the socket, ignoring the real IP version in headers, and
-validates only the packet size. This implementation has some drawbacks:
+Fix this by not setting the DD bits in ice_xdp_alloc_setup_rings(). They
+should be initialized to zero instead.
 
-1. Packets are not validated properly, allowing a BPF program to trick
-   bpf_tcp_check_syncookie into handling an IPv6 packet on an IPv4
-   socket.
-
-2. Dual-stack sockets fail the checks on IPv4 packets. IPv4 clients end
-   up receiving a SYNACK with the cookie, but the following ACK gets
-   dropped.
-
-This patch fixes these issues by changing the checks in
-bpf_tcp_check_syncookie to match the ones in bpf_tcp_gen_syncookie. IP
-version from the header is taken into account, and it is validated
-properly with address family.
-
-Fixes: 399040847084 ("bpf: add helper to check for a valid SYN cookie")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Acked-by: Arthur Fabre <afabre@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20220406124113.2795730-1-maximmi@nvidia.com
+Fixes: 9610bd988df9 ("ice: optimize XDP_TX workloads")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Shwetha Nagaraju <shwetha.nagaraju@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 4721ed65bcc5..590790c63fa3 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -6719,24 +6719,33 @@ BPF_CALL_5(bpf_tcp_check_syncookie, struct sock *, sk, void *, iph, u32, iph_len
- 	if (!th->ack || th->rst || th->syn)
- 		return -ENOENT;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 5229bce1a4ab..db2e02e673a7 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2546,7 +2546,7 @@ static int ice_xdp_alloc_setup_rings(struct ice_vsi *vsi)
+ 		spin_lock_init(&xdp_ring->tx_lock);
+ 		for (j = 0; j < xdp_ring->count; j++) {
+ 			tx_desc = ICE_TX_DESC(xdp_ring, j);
+-			tx_desc->cmd_type_offset_bsz = cpu_to_le64(ICE_TX_DESC_DTYPE_DESC_DONE);
++			tx_desc->cmd_type_offset_bsz = 0;
+ 		}
+ 	}
  
-+	if (unlikely(iph_len < sizeof(struct iphdr)))
-+		return -EINVAL;
-+
- 	if (tcp_synq_no_recent_overflow(sk))
- 		return -ENOENT;
- 
- 	cookie = ntohl(th->ack_seq) - 1;
- 
--	switch (sk->sk_family) {
--	case AF_INET:
--		if (unlikely(iph_len < sizeof(struct iphdr)))
-+	/* Both struct iphdr and struct ipv6hdr have the version field at the
-+	 * same offset so we can cast to the shorter header (struct iphdr).
-+	 */
-+	switch (((struct iphdr *)iph)->version) {
-+	case 4:
-+		if (sk->sk_family == AF_INET6 && ipv6_only_sock(sk))
- 			return -EINVAL;
- 
- 		ret = __cookie_v4_check((struct iphdr *)iph, th, cookie);
- 		break;
- 
- #if IS_BUILTIN(CONFIG_IPV6)
--	case AF_INET6:
-+	case 6:
- 		if (unlikely(iph_len < sizeof(struct ipv6hdr)))
- 			return -EINVAL;
- 
-+		if (sk->sk_family != AF_INET6)
-+			return -EINVAL;
-+
- 		ret = __cookie_v6_check((struct ipv6hdr *)iph, th, cookie);
- 		break;
- #endif /* CONFIG_IPV6 */
 -- 
 2.35.1
 
