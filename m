@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 995324FD6C5
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 608044FD876
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355668AbiDLH2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:28:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57518 "EHLO
+        id S1352966AbiDLHgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:36:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351809AbiDLHM7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E2466148;
-        Mon, 11 Apr 2022 23:53:06 -0700 (PDT)
+        with ESMTP id S1353960AbiDLHZ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 968E312AE3;
+        Tue, 12 Apr 2022 00:05:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1DF2B81B46;
-        Tue, 12 Apr 2022 06:53:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24BE6C385A1;
-        Tue, 12 Apr 2022 06:53:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 489A2B81B4E;
+        Tue, 12 Apr 2022 07:05:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2BD0C385A6;
+        Tue, 12 Apr 2022 07:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746383;
-        bh=ZD/EFkcltEj3oRNOMofn0Fu5/aRgslFsdd0GlSSGkgg=;
+        s=korg; t=1649747114;
+        bh=FBesncHoP0Ov3S83wnwhUVjLgMn3giE2KDvtaHZAkXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftoK2I7nzEgNoTytn+PnimK8FG2RUzLadaB5q+DIqcvjdBtGfF5NpOeMjpiPBobZa
-         gHc5S74zPx1QB3lStcwx90rJWn8t8LoBnWIyi8p5H8DKJexHqeh1RQgmDzGW+N88E8
-         va45biPefMAYIHoQBnlJFPJ6md3wD7mzq+ulRzGE=
+        b=v0PHlsK5yZJdJNbumCurIr8+3gBEFWImVh5VJ0rj38uT7rjStRT6CtmWlxsVlktza
+         OlNpZG5zbV1AEQIwZ3n9pCBDZVZzccWV/wjeL3uAZ1C5FWKGKphwbXDCFHP4l87Y6W
+         nrxqc8MJwGF6QoD8RM3haH+8lxzLErmEKhBFoE54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, amirtz@nvidia.com,
-        Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 5.15 262/277] Revert "net/mlx5: Accept devlink user input after driver initialization complete"
+        stable@vger.kernel.org, Drew Fustini <dfustini@baylibre.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Suman Anna <s-anna@ti.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Tony Lindgren <tony@atomide.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 208/285] iommu/omap: Fix regression in probe for NULL pointer dereference
 Date:   Tue, 12 Apr 2022 08:31:05 +0200
-Message-Id: <20220412062949.626572910@linuxfoundation.org>
+Message-Id: <20220412062949.662554328@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,123 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: dann frazier <dann.frazier@canonical.com>
+From: Tony Lindgren <tony@atomide.com>
 
-This reverts commit 9cc25e8529d567e08da98d11f092b21449763144 which is
-commit 64ea2d0e7263b67d8efc93fa1baace041ed36d1e upstream.
+[ Upstream commit 71ff461c3f41f6465434b9e980c01782763e7ad8 ]
 
-This patch was shown to introduce a regression:
+Commit 3f6634d997db ("iommu: Use right way to retrieve iommu_ops") started
+triggering a NULL pointer dereference for some omap variants:
 
-  # devlink dev param show pci/0000:24:00.0 name flow_steering_mode
-  pci/0000:24:00.0:
-    name flow_steering_mode type driver-specific
-      values:
+__iommu_probe_device from probe_iommu_group+0x2c/0x38
+probe_iommu_group from bus_for_each_dev+0x74/0xbc
+bus_for_each_dev from bus_iommu_probe+0x34/0x2e8
+bus_iommu_probe from bus_set_iommu+0x80/0xc8
+bus_set_iommu from omap_iommu_init+0x88/0xcc
+omap_iommu_init from do_one_initcall+0x44/0x24
 
-  (flow steering mode description is missing beneath "values:")
+This is caused by omap iommu probe returning 0 instead of ERR_PTR(-ENODEV)
+as noted by Jason Gunthorpe <jgg@ziepe.ca>.
 
-  # devlink dev param set pci/0000:24:00.0 name flow_steering_mode value smfs cmode runtime
-  Segmentation fault (core dumped)
+Looks like the regression already happened with an earlier commit
+6785eb9105e3 ("iommu/omap: Convert to probe/release_device() call-backs")
+that changed the function return type and missed converting one place.
 
-  and also with upstream iproute
-  # ./iproute2/devlink/devlink dev param set pci/0000:24:00.0 name flow_steering_mode value smfs cmode runtime
-  Configuration mode not supported
-
-Note: Instead of reverting, we could instead also backport commit cf530217408e
-("devlink: Notify users when objects are accessible"). However, that makes
-changes to core devlink code that I'm not sure are suitable for a stable
-backport.
-
-Cc: Leon Romanovsky <leonro@nvidia.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Sasha Levin <sashal@kernel.org>
-Signed-off-by: dann frazier <dann.frazier@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Drew Fustini <dfustini@baylibre.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Suman Anna <s-anna@ti.com>
+Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
+Fixes: 6785eb9105e3 ("iommu/omap: Convert to probe/release_device() call-backs")
+Fixes: 3f6634d997db ("iommu: Use right way to retrieve iommu_ops")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Drew Fustini <dfustini@baylibre.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/r/20220331062301.24269-1-tony@atomide.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/devlink.c       |   12 ++++++++++--
- drivers/net/ethernet/mellanox/mlx5/core/main.c          |    2 --
- drivers/net/ethernet/mellanox/mlx5/core/sf/dev/driver.c |    2 --
- 3 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/iommu/omap-iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-@@ -793,11 +793,14 @@ int mlx5_devlink_register(struct devlink
- {
- 	int err;
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index 91749654fd49..be60f6f3a265 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -1661,7 +1661,7 @@ static struct iommu_device *omap_iommu_probe_device(struct device *dev)
+ 	num_iommus = of_property_count_elems_of_size(dev->of_node, "iommus",
+ 						     sizeof(phandle));
+ 	if (num_iommus < 0)
+-		return 0;
++		return ERR_PTR(-ENODEV);
  
--	err = devlink_params_register(devlink, mlx5_devlink_params,
--				      ARRAY_SIZE(mlx5_devlink_params));
-+	err = devlink_register(devlink);
- 	if (err)
- 		return err;
- 
-+	err = devlink_params_register(devlink, mlx5_devlink_params,
-+				      ARRAY_SIZE(mlx5_devlink_params));
-+	if (err)
-+		goto params_reg_err;
- 	mlx5_devlink_set_params_init_values(devlink);
- 
- 	err = mlx5_devlink_auxdev_params_register(devlink);
-@@ -808,6 +811,7 @@ int mlx5_devlink_register(struct devlink
- 	if (err)
- 		goto traps_reg_err;
- 
-+	devlink_params_publish(devlink);
- 	return 0;
- 
- traps_reg_err:
-@@ -815,13 +819,17 @@ traps_reg_err:
- auxdev_reg_err:
- 	devlink_params_unregister(devlink, mlx5_devlink_params,
- 				  ARRAY_SIZE(mlx5_devlink_params));
-+params_reg_err:
-+	devlink_unregister(devlink);
- 	return err;
- }
- 
- void mlx5_devlink_unregister(struct devlink *devlink)
- {
-+	devlink_params_unpublish(devlink);
- 	mlx5_devlink_traps_unregister(devlink);
- 	mlx5_devlink_auxdev_params_unregister(devlink);
- 	devlink_params_unregister(devlink, mlx5_devlink_params,
- 				  ARRAY_SIZE(mlx5_devlink_params));
-+	devlink_unregister(devlink);
- }
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1541,7 +1541,6 @@ static int probe_one(struct pci_dev *pde
- 		dev_err(&pdev->dev, "mlx5_crdump_enable failed with error code %d\n", err);
- 
- 	pci_save_state(pdev);
--	devlink_register(devlink);
- 	if (!mlx5_core_is_mp_slave(dev))
- 		devlink_reload_enable(devlink);
- 	return 0;
-@@ -1564,7 +1563,6 @@ static void remove_one(struct pci_dev *p
- 	struct devlink *devlink = priv_to_devlink(dev);
- 
- 	devlink_reload_disable(devlink);
--	devlink_unregister(devlink);
- 	mlx5_crdump_disable(dev);
- 	mlx5_drain_health_wq(dev);
- 	mlx5_uninit_one(dev);
---- a/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/driver.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/sf/dev/driver.c
-@@ -46,7 +46,6 @@ static int mlx5_sf_dev_probe(struct auxi
- 		mlx5_core_warn(mdev, "mlx5_init_one err=%d\n", err);
- 		goto init_one_err;
- 	}
--	devlink_register(devlink);
- 	devlink_reload_enable(devlink);
- 	return 0;
- 
-@@ -66,7 +65,6 @@ static void mlx5_sf_dev_remove(struct au
- 
- 	devlink = priv_to_devlink(sf_dev->mdev);
- 	devlink_reload_disable(devlink);
--	devlink_unregister(devlink);
- 	mlx5_uninit_one(sf_dev->mdev);
- 	iounmap(sf_dev->mdev->iseg);
- 	mlx5_mdev_uninit(sf_dev->mdev);
+ 	arch_data = kcalloc(num_iommus + 1, sizeof(*arch_data), GFP_KERNEL);
+ 	if (!arch_data)
+-- 
+2.35.1
+
 
 
