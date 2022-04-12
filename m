@@ -2,236 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1F14FE033
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 14:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B104FE07D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 14:39:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230330AbiDLMdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 08:33:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59342 "EHLO
+        id S1346418AbiDLMkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 08:40:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353042AbiDLMcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 08:32:36 -0400
-Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672264C411;
-        Tue, 12 Apr 2022 04:49:23 -0700 (PDT)
+        with ESMTP id S1350691AbiDLMhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 08:37:06 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB44A2C664
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 04:57:02 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id a21so2373028pfv.10
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 04:57:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
-  t=1649764166; x=1681300166;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=iJzP2kpL8zGPLz32hzxkQayaP42vKyZ45PBnqipnpCE=;
-  b=cpaiD5j6rFnHL+rR8hA0OtJZiGkSS6R++JOf6/jpLKo1X6XzpudT5xsd
-   2cIp6qfGae80et0Rj/h7zy0SLlZGzogzw03344oP4qFdwKZUIf8Cgx4jX
-   XXipoZYL0W3Fv25DJio5IehE/qyxSa7FjIcssuHDpjBgFM6hBXepJRSrz
-   n8eCiwEsFzCIwdkg1WxAlGH6IHMZl36ZMYFR4E1NAzrLGMFi2Yzc0qLdk
-   FO7UyC4iISENfd4PWYPZqLKPOkaxem5ul0IccnKAp0WBH2r+OPMAMtc+w
-   rqYJb5Fweq3f2tmoGKN51WVCdnSTBWKYbDzoI7tvURPSR06Wj/BKfPGjD
-   w==;
-X-IronPort-AV: E=Sophos;i="5.90,253,1643670000"; 
-   d="scan'208";a="23248996"
-Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
-  by mx1-pgp.tq-group.com with ESMTP; 12 Apr 2022 13:49:22 +0200
-Received: from mx1.tq-group.com ([192.168.6.7])
-  by tq-pgp-pr1.tq-net.de (PGP Universal service);
-  Tue, 12 Apr 2022 13:49:22 +0200
-X-PGP-Universal: processed;
-        by tq-pgp-pr1.tq-net.de on Tue, 12 Apr 2022 13:49:22 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
-  t=1649764162; x=1681300162;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=iJzP2kpL8zGPLz32hzxkQayaP42vKyZ45PBnqipnpCE=;
-  b=Khv6Lt6xLJ4pQNnNJ8M8WFOm8zgBUnjY0eige6Ml3HfNzp/+YN/VdRQj
-   mIB3O0w8GnUVt9fBndMZuGFLK31mjBBQM2o2e7igYkYCTDK9wpZa6RS7R
-   aJ64TbyoHfqbw0+uSQdx2gBkOPq6hF4DA2obbqcbBfCoZSxHOGsVldMLs
-   DgpkMBsch0WqYNQs9xZxzLXO16IlhyibE2tqRM1kvwXTmc5U3a3Mzvr6z
-   jz0GU9yMD9QSWIsbVT4bX4WxpsulPWli9KBe7q12UdtF4dD6og6likAsV
-   /5mVgTCrn6Uvd9wEQWWYyeuzKsBGhdEjNvmu3O/JzgHF3Pc7pcovkSPy/
-   w==;
-X-IronPort-AV: E=Sophos;i="5.90,253,1643670000"; 
-   d="scan'208";a="23248995"
-Received: from vtuxmail01.tq-net.de ([10.115.0.20])
-  by mx1.tq-group.com with ESMTP; 12 Apr 2022 13:49:22 +0200
-Received: from schifferm-ubuntu (SCHIFFERM-M2.tq-net.de [10.121.49.14])
-        by vtuxmail01.tq-net.de (Postfix) with ESMTPA id 94B8C280070;
-        Tue, 12 Apr 2022 13:49:21 +0200 (CEST)
-Message-ID: <d618fc184f162b1da8d75729b5939bed52308040.camel@ew.tq-group.com>
-Subject: Re: [PATCH AUTOSEL 5.17 34/49] spi: cadence-quadspi: fix protocol
- setup for non-1-1-X operations
-From:   Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        Pratyush Yadav <p.yadav@ti.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Date:   Tue, 12 Apr 2022 13:49:19 +0200
-In-Reply-To: <20220412004411.349427-34-sashal@kernel.org>
-References: <20220412004411.349427-1-sashal@kernel.org>
-         <20220412004411.349427-34-sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ohNoPODnjy+t9Kh1qYbEk7s8/0TKTu0YDlbun0iJa1E=;
+        b=WTm6L7XP3YrJ8+0ypWe9YOgYScW02s06x35/fAJvVHyVrnNX9T0TraqTSeVs2IYFad
+         n7x8wWSpPow4PrZvpA8CbaWteoJVW7+ah6X3XN6nHfsxISMXtVwjJx7KTwNceF9aHSj9
+         HD/fjbLPNprcpNUQ6yAnKzdhAbFB84KwfxNCw3nbYmtDw+YDhqr5JzwTNlOHgjLYkHpJ
+         lnyaAljNP3px9H1PuX61XbD6NRIE5sflBMMGGES51KX4xkxeqTyjSGKturGbPAECuKtC
+         awOqC1//bdJkTqwBnNDj5yyvdJPl1bGGaNAHjPQn7LopxwV/uXN3HSJrAfDM86P/RByW
+         GXNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ohNoPODnjy+t9Kh1qYbEk7s8/0TKTu0YDlbun0iJa1E=;
+        b=pce4aSFATGV/cfQwGTZO8HG+IW1oIgRZt93Gl8ldCkd7j0YI4E5tyJMCaJSIyiJQVH
+         z2rasjt07+KR2zGMSGFQSQ6n2ACy5OCODtZadthDbVXV8Elptrj3N3VBuZO6Inf5Cfvg
+         O6allqRcHjc4S1IFNLSYcxgb8bBN/DPHQOL+hr+b2GDwCAta0Ig/ZBZGWBGGGabV1k0z
+         x6Fuz1Jg4eZCCx8gEw5i45POhUmeBpUTvX4W9NVBjf2pnh2B8GUrdK37Gm2ZlY9vx0gW
+         7WVpPs+E4wcbZR+WxZY8MqEfAdjMxv6Old+DLwxcpGkOavA5ZLiNmPvgQF/SHBYv7+50
+         zChg==
+X-Gm-Message-State: AOAM531MgB/TlWN/GF3mcks2wWpmDBKGx5GrrDXHOyRmKE4HQftBjo7R
+        38ivAU7g3+qc3XNX1RKjKgANrDGcxUlufwCa
+X-Google-Smtp-Source: ABdhPJwV832MC0u+n8+6eEHaOF+M3ZLwi8WkGjOGTXNFr8jR4hx7i97TIQDniLQ8j7waw3/tuimkHQ==
+X-Received: by 2002:a63:4a55:0:b0:399:5a4d:8606 with SMTP id j21-20020a634a55000000b003995a4d8606mr30143326pgl.19.1649764622329;
+        Tue, 12 Apr 2022 04:57:02 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id mn18-20020a17090b189200b001cac1781bb4sm2755924pjb.35.2022.04.12.04.57.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Apr 2022 04:57:01 -0700 (PDT)
+Message-ID: <6255690d.1c69fb81.4a670.6fd1@mx.google.com>
+Date:   Tue, 12 Apr 2022 04:57:01 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.110-171-g3f868052db86
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 132 runs,
+ 1 regressions (v5.10.110-171-g3f868052db86)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Mark,
+stable-rc/queue/5.10 baseline: 132 runs, 1 regressions (v5.10.110-171-g3f86=
+8052db86)
 
-what's your plan regarding this patch and the other patch I sent [1]? I
-think there has been some confusion regarding which solution we want to
-backport to stable kernels (well, at least I'm confused...)
+Regressions Summary
+-------------------
 
-I'm fine with this patch getting backported, but in that case [1]
-doesn't make sense anymore (in fact I expected this patch to be dropped
-for now when I submitted [1], due to Pratyush Yadav's concerns).
-
-Regards,
-Matthias
-
-
-[1] https://patchwork.kernel.org/project/spi-devel-general/patch/20220406132832.199777-1-matthias.schiffer@ew.tq-group.com/
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.110-171-g3f868052db86/plan/baseline/
 
-On Mon, 2022-04-11 at 20:43 -0400, Sasha Levin wrote:
-> From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-> 
-> [ Upstream commit 97e4827d775faa9a32b5e1a97959c69dd77d17a3 ]
-> 
-> cqspi_set_protocol() only set the data width, but ignored the command
-> and address width (except for 8-8-8 DTR ops), leading to corruption
-> of
-> all transfers using 1-X-X or X-X-X ops. Fix by setting the other two
-> widths as well.
-> 
-> While we're at it, simplify the code a bit by replacing the
-> CQSPI_INST_TYPE_* constants with ilog2().
-> 
-> Tested on a TI AM64x with a Macronix MX25U51245G QSPI flash with 1-4-
-> 4
-> read and write operations.
-> 
-> Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-> Link: 
-> https://lore.kernel.org/r/20220331110819.133392-1-matthias.schiffer@ew.tq-group.com
-> Signed-off-by: Mark Brown <broonie@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/spi/spi-cadence-quadspi.c | 46 ++++++++---------------------
-> --
->  1 file changed, 12 insertions(+), 34 deletions(-)
-> 
-> diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-
-> cadence-quadspi.c
-> index b808c94641fa..75f356041138 100644
-> --- a/drivers/spi/spi-cadence-quadspi.c
-> +++ b/drivers/spi/spi-cadence-quadspi.c
-> @@ -19,6 +19,7 @@
->  #include <linux/iopoll.h>
->  #include <linux/jiffies.h>
->  #include <linux/kernel.h>
-> +#include <linux/log2.h>
->  #include <linux/module.h>
->  #include <linux/of_device.h>
->  #include <linux/of.h>
-> @@ -102,12 +103,6 @@ struct cqspi_driver_platdata {
->  #define CQSPI_TIMEOUT_MS			500
->  #define CQSPI_READ_TIMEOUT_MS			10
->  
-> -/* Instruction type */
-> -#define CQSPI_INST_TYPE_SINGLE			0
-> -#define CQSPI_INST_TYPE_DUAL			1
-> -#define CQSPI_INST_TYPE_QUAD			2
-> -#define CQSPI_INST_TYPE_OCTAL			3
-> -
->  #define CQSPI_DUMMY_CLKS_PER_BYTE		8
->  #define CQSPI_DUMMY_BYTES_MAX			4
->  #define CQSPI_DUMMY_CLKS_MAX			31
-> @@ -376,10 +371,6 @@ static unsigned int cqspi_calc_dummy(const
-> struct spi_mem_op *op, bool dtr)
->  static int cqspi_set_protocol(struct cqspi_flash_pdata *f_pdata,
->  			      const struct spi_mem_op *op)
->  {
-> -	f_pdata->inst_width = CQSPI_INST_TYPE_SINGLE;
-> -	f_pdata->addr_width = CQSPI_INST_TYPE_SINGLE;
-> -	f_pdata->data_width = CQSPI_INST_TYPE_SINGLE;
-> -
->  	/*
->  	 * For an op to be DTR, cmd phase along with every other non-
-> empty
->  	 * phase should have dtr field set to 1. If an op phase has
-> zero
-> @@ -389,32 +380,23 @@ static int cqspi_set_protocol(struct
-> cqspi_flash_pdata *f_pdata,
->  		       (!op->addr.nbytes || op->addr.dtr) &&
->  		       (!op->data.nbytes || op->data.dtr);
->  
-> -	switch (op->data.buswidth) {
-> -	case 0:
-> -		break;
-> -	case 1:
-> -		f_pdata->data_width = CQSPI_INST_TYPE_SINGLE;
-> -		break;
-> -	case 2:
-> -		f_pdata->data_width = CQSPI_INST_TYPE_DUAL;
-> -		break;
-> -	case 4:
-> -		f_pdata->data_width = CQSPI_INST_TYPE_QUAD;
-> -		break;
-> -	case 8:
-> -		f_pdata->data_width = CQSPI_INST_TYPE_OCTAL;
-> -		break;
-> -	default:
-> -		return -EINVAL;
-> -	}
-> +	f_pdata->inst_width = 0;
-> +	if (op->cmd.buswidth)
-> +		f_pdata->inst_width = ilog2(op->cmd.buswidth);
-> +
-> +	f_pdata->addr_width = 0;
-> +	if (op->addr.buswidth)
-> +		f_pdata->addr_width = ilog2(op->addr.buswidth);
-> +
-> +	f_pdata->data_width = 0;
-> +	if (op->data.buswidth)
-> +		f_pdata->data_width = ilog2(op->data.buswidth);
->  
->  	/* Right now we only support 8-8-8 DTR mode. */
->  	if (f_pdata->dtr) {
->  		switch (op->cmd.buswidth) {
->  		case 0:
-> -			break;
->  		case 8:
-> -			f_pdata->inst_width = CQSPI_INST_TYPE_OCTAL;
->  			break;
->  		default:
->  			return -EINVAL;
-> @@ -422,9 +404,7 @@ static int cqspi_set_protocol(struct
-> cqspi_flash_pdata *f_pdata,
->  
->  		switch (op->addr.buswidth) {
->  		case 0:
-> -			break;
->  		case 8:
-> -			f_pdata->addr_width = CQSPI_INST_TYPE_OCTAL;
->  			break;
->  		default:
->  			return -EINVAL;
-> @@ -432,9 +412,7 @@ static int cqspi_set_protocol(struct
-> cqspi_flash_pdata *f_pdata,
->  
->  		switch (op->data.buswidth) {
->  		case 0:
-> -			break;
->  		case 8:
-> -			f_pdata->data_width = CQSPI_INST_TYPE_OCTAL;
->  			break;
->  		default:
->  			return -EINVAL;
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.110-171-g3f868052db86
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      3f868052db86f68d42741cfd3e018b7fe74d7b9d =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62553ccc7de0d15b35ae0695
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.110=
+-171-g3f868052db86/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.110=
+-171-g3f868052db86/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62553ccd7de0d15b35ae06b7
+        failing since 35 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
+ fail: v5.10.103-105-gf074cce6ae0d)
+
+    2022-04-12T08:47:59.466361  /lava-6071388/1/../bin/lava-test-case
+    2022-04-12T08:47:59.477285  <8>[   34.277193] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
