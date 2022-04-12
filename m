@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50BF34FD247
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5771E4FD014
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:40:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241100AbiDLHIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:08:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46920 "EHLO
+        id S238382AbiDLGlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:41:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352427AbiDLHFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:21 -0400
+        with ESMTP id S1349045AbiDLGkc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA54947565;
-        Mon, 11 Apr 2022 23:48:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2459E0EB;
+        Mon, 11 Apr 2022 23:36:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC5A2B81895;
-        Tue, 12 Apr 2022 06:48:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1813CC385A6;
-        Tue, 12 Apr 2022 06:48:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AD12B81B29;
+        Tue, 12 Apr 2022 06:36:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5A84C385A6;
+        Tue, 12 Apr 2022 06:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746085;
-        bh=BVYcaTV1snQDrmACIfMqtGMXouZ/GYOWE4RDXjIc6NA=;
+        s=korg; t=1649745360;
+        bh=GYkMMH33gop5fdJ0SczhyS7N+fbjH7M69y+vrEGQO+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TVNtrAkXIASgm9RLpCOpNDONl8AjJuZmnMW6h6JLTnO4GiJloy6reGhGtGqFH8hFY
-         kwD7Cn9L4j4XD59+6EYu5vHLeWMiCsPjUorPwgo0FvcNQ2j8GvL6b4C7hrZB04DpQt
-         F0t31Z6sStBzXBhZ6k9zEEA/TG7o7k0OC67Cnczs=
+        b=TqKIPpJi+w8KIgEjPT7rF9d9fot61evQP0Oc2V9e9T8z6NAVX7FAC8B74a39ygmaA
+         CuNz+h8sI3RbWAUqz7jcty+T53mhaDDt1zpA1Q6fUIGGkv6zsJ6gVIZ0sIQT3afmTO
+         awApIc4siWjLH4lHRMEK5IiPjhGf7x7nK3U5VmsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>, Eli Cohen <elic@nvidia.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Yufen <wangyufen@huawei.com>,
+        Paul Moore <paul@paul-moore.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 156/277] vdpa: mlx5: prevent cvq work from hogging CPU
+Subject: [PATCH 5.10 068/171] netlabel: fix out-of-bounds memory accesses
 Date:   Tue, 12 Apr 2022 08:29:19 +0200
-Message-Id: <20220412062946.554547066@linuxfoundation.org>
+Message-Id: <20220412062929.851142253@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Wang <jasowang@redhat.com>
+From: Wang Yufen <wangyufen@huawei.com>
 
-[ Upstream commit 55ebf0d60e3cc6c9e8593399e185842c00e12f36 ]
+[ Upstream commit f22881de730ebd472e15bcc2c0d1d46e36a87b9c ]
 
-A userspace triggerable infinite loop could happen in
-mlx5_cvq_kick_handler() if userspace keeps sending a huge amount of
-cvq requests.
+In calipso_map_cat_ntoh(), in the for loop, if the return value of
+netlbl_bitmap_walk() is equal to (net_clen_bits - 1), when
+netlbl_bitmap_walk() is called next time, out-of-bounds memory accesses
+of bitmap[byte_offset] occurs.
 
-Fixing this by introducing a quota and re-queue the work if we're out
-of the budget (currently the implicit budget is one) . While at it,
-using a per device work struct to avoid on demand memory allocation
-for cvq.
+The bug was found during fuzzing. The following is the fuzzing report
+ BUG: KASAN: slab-out-of-bounds in netlbl_bitmap_walk+0x3c/0xd0
+ Read of size 1 at addr ffffff8107bf6f70 by task err_OH/252
 
-Fixes: 5262912ef3cfc ("vdpa/mlx5: Add support for control VQ and MAC setting")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20220329042109.4029-1-jasowang@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Eli Cohen <elic@nvidia.com>
+ CPU: 7 PID: 252 Comm: err_OH Not tainted 5.17.0-rc7+ #17
+ Hardware name: linux,dummy-virt (DT)
+ Call trace:
+  dump_backtrace+0x21c/0x230
+  show_stack+0x1c/0x60
+  dump_stack_lvl+0x64/0x7c
+  print_address_description.constprop.0+0x70/0x2d0
+  __kasan_report+0x158/0x16c
+  kasan_report+0x74/0x120
+  __asan_load1+0x80/0xa0
+  netlbl_bitmap_walk+0x3c/0xd0
+  calipso_opt_getattr+0x1a8/0x230
+  calipso_sock_getattr+0x218/0x340
+  calipso_sock_getattr+0x44/0x60
+  netlbl_sock_getattr+0x44/0x80
+  selinux_netlbl_socket_setsockopt+0x138/0x170
+  selinux_socket_setsockopt+0x4c/0x60
+  security_socket_setsockopt+0x4c/0x90
+  __sys_setsockopt+0xbc/0x2b0
+  __arm64_sys_setsockopt+0x6c/0x84
+  invoke_syscall+0x64/0x190
+  el0_svc_common.constprop.0+0x88/0x200
+  do_el0_svc+0x88/0xa0
+  el0_svc+0x128/0x1b0
+  el0t_64_sync_handler+0x9c/0x120
+  el0t_64_sync+0x16c/0x170
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Yufen <wangyufen@huawei.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ net/netlabel/netlabel_kapi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 92a2484c8596..e4258f40dcd7 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -163,6 +163,7 @@ struct mlx5_vdpa_net {
- 	u32 cur_num_vqs;
- 	struct notifier_block nb;
- 	struct vdpa_callback config_cb;
-+	struct mlx5_vdpa_wq_ent cvq_ent;
- };
+diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+index 5e1239cef000..91b35b7c80d8 100644
+--- a/net/netlabel/netlabel_kapi.c
++++ b/net/netlabel/netlabel_kapi.c
+@@ -885,6 +885,8 @@ int netlbl_bitmap_walk(const unsigned char *bitmap, u32 bitmap_len,
+ 	unsigned char bitmask;
+ 	unsigned char byte;
  
- static void free_resources(struct mlx5_vdpa_net *ndev);
-@@ -1587,10 +1588,10 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
- 	ndev = to_mlx5_vdpa_ndev(mvdev);
- 	cvq = &mvdev->cvq;
- 	if (!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
--		goto out;
-+		return;
- 
- 	if (!cvq->ready)
--		goto out;
-+		return;
- 
- 	while (true) {
- 		err = vringh_getdesc_iotlb(&cvq->vring, &cvq->riov, &cvq->wiov, &cvq->head,
-@@ -1624,9 +1625,10 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
- 
- 		if (vringh_need_notify_iotlb(&cvq->vring))
- 			vringh_notify(&cvq->vring);
-+
-+		queue_work(mvdev->wq, &wqent->work);
-+		break;
- 	}
--out:
--	kfree(wqent);
- }
- 
- static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
-@@ -1634,7 +1636,6 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
- 	struct mlx5_vdpa_virtqueue *mvq;
--	struct mlx5_vdpa_wq_ent *wqent;
- 
- 	if (!is_index_valid(mvdev, idx))
- 		return;
-@@ -1643,13 +1644,7 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
- 		if (!mvdev->cvq.ready)
- 			return;
- 
--		wqent = kzalloc(sizeof(*wqent), GFP_ATOMIC);
--		if (!wqent)
--			return;
--
--		wqent->mvdev = mvdev;
--		INIT_WORK(&wqent->work, mlx5_cvq_kick_handler);
--		queue_work(mvdev->wq, &wqent->work);
-+		queue_work(mvdev->wq, &ndev->cvq_ent.work);
- 		return;
- 	}
- 
-@@ -2588,6 +2583,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name)
- 	if (err)
- 		goto err_mr;
- 
-+	ndev->cvq_ent.mvdev = mvdev;
-+	INIT_WORK(&ndev->cvq_ent.work, mlx5_cvq_kick_handler);
- 	mvdev->wq = create_singlethread_workqueue("mlx5_vdpa_wq");
- 	if (!mvdev->wq) {
- 		err = -ENOMEM;
++	if (offset >= bitmap_len)
++		return -1;
+ 	byte_offset = offset / 8;
+ 	byte = bitmap[byte_offset];
+ 	bit_spot = offset;
 -- 
 2.35.1
 
