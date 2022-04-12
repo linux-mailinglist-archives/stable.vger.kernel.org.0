@@ -2,208 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8884FE001
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 14:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1F14FE033
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 14:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352957AbiDLMad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 08:30:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
+        id S230330AbiDLMdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 08:33:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354306AbiDLM22 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 08:28:28 -0400
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 992A83CFC1
-        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 04:40:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1649763635; x=1681299635;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=CEPm7umbMupxMebiwkuP+fJcBJ3QXrLrjof4l//fGl0=;
-  b=FMdQycSxtdsHMrVM5Cu5rq/lQmYXdzumeZleO3GEjYF4gWTvYndBGsXv
-   LsL/xsdz0hDpHIMqnuXiqIMqgVOrqihM3Ca/cUp/TSEJbpdZeK4v4UK1C
-   78Dka2J3p5rUldC8OFvbrbAWSgRgP4YoRszmUGNroy0OXqw5zudmU8lN2
-   SdNGND8fGNOdJSQ3jxUUt3lS+1F0W6jN3lEKAQqnPh0LIKrf3K15PE5N1
-   hZlpcGorGYsRxk6uhNciirYkwXKAqNMj4Vh2OuhX1pGMU8sU2OkWHVJzv
-   Zg4oGp64yPELna5uH6n2eLjdGjoIpxBRrfXsgPbr6uTUxqxFA/R4kRUeQ
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.90,253,1643644800"; 
-   d="scan'208";a="196589482"
-Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 12 Apr 2022 19:40:33 +0800
-IronPort-SDR: BhsyOYhEyPfvjpMO4tLTIdEXvWxUTcqYoeL9QOuvMehMO07Ac+/Fj1T+fk8Yg9aH/Dm1Z0mLoL
- wK2ZgeDJiLVT7mqsuiC0QmLSeJxhETrRhozjq2q79bn/upwdQYY2lJUmWjjiqLpY+vUKL9zPBu
- 7cnB+6dTZCI0+GauXpFJT8r0xJibf4gK0j7ULsd7uLWFqw1faIs+CEWc8vp0ssDsqHt8t1g2QU
- QLkF33VyX6mSYrdSaUkX+Jch16AKGjYrBGC4pIyyqKtO4qRo26hbWAW52LD7YCHfuuEN7FGM5G
- uqxZZsaFq7NpeEtxXcj6qGPV
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 12 Apr 2022 04:11:02 -0700
-IronPort-SDR: Nt+3OYD7lwuLSq1zPj56pZz5qdHk900mwOr5o6717qj9c8Hlv2MXXWs4ffHg5vWCix5eg9MZkL
- 9WaHN06G/Jw1mWWbwak0Zp67E51hgb4uVDPqNY6r3qZMf7yDZQ3MAQVWjVCuPuWZTnxyvMjbuT
- HhNS/TFrhuL2mIq+DfAXFPTUjLra7wWLDUiYP/JPax7XHFIFBh2VlJfQeh94llpdtawO4Zo/fz
- aNIRN/SDLC5bRGa6gQU5DKeoYYpAsHl6r5/Ty//h8RnNGtm7zBGRdJe5hhVVAC2PRUqQsCfefj
- vYg=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 12 Apr 2022 04:40:33 -0700
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4Kd3gj1g7Qz1SHwl
-        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 04:40:33 -0700 (PDT)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1649763632; x=1652355633; bh=CEPm7umbMupxMebiwkuP+fJcBJ3QXrLrjof
-        4l//fGl0=; b=fbTJuKJ2G6ifUiTVRB0Gqz01yuz/MaUDxVzmOeh081w3SYPXoCw
-        4p6fCoi10IHVoQWk+tK6s7h3A/KKrQAVewEMxbbMQmjllSZMhJQMhOZgF8ioacUz
-        hDugNqCVwqLFeppGyNL5w4Mv9DJmkkES/iZULgu6noSnuccDNQr1f1YWHVzg8GaX
-        VbPILCPUaH8fO5Nze8eHanRDgjpxr4zwN8piLgdjr3vQ/E2cmHOyoJj6FcXBkTYz
-        XOt2Gx+DZKkEWFgpkOQixoIyiZM6IyD4mH243seXfD7ROL13IMTenV2V/0wuHzbw
-        f04CG5NxXqGRs4ckFqgasa5kGKgFRNQNshQ==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id ssbpdxrNMxHL for <stable@vger.kernel.org>;
-        Tue, 12 Apr 2022 04:40:32 -0700 (PDT)
-Received: from [10.225.163.9] (unknown [10.225.163.9])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4Kd3gd37GCz1Rvlx;
-        Tue, 12 Apr 2022 04:40:29 -0700 (PDT)
-Message-ID: <9437ce7f-0553-3688-5695-69add6b2971c@opensource.wdc.com>
-Date:   Tue, 12 Apr 2022 20:40:27 +0900
+        with ESMTP id S1353042AbiDLMcg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 08:32:36 -0400
+Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 672264C411;
+        Tue, 12 Apr 2022 04:49:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1649764166; x=1681300166;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=iJzP2kpL8zGPLz32hzxkQayaP42vKyZ45PBnqipnpCE=;
+  b=cpaiD5j6rFnHL+rR8hA0OtJZiGkSS6R++JOf6/jpLKo1X6XzpudT5xsd
+   2cIp6qfGae80et0Rj/h7zy0SLlZGzogzw03344oP4qFdwKZUIf8Cgx4jX
+   XXipoZYL0W3Fv25DJio5IehE/qyxSa7FjIcssuHDpjBgFM6hBXepJRSrz
+   n8eCiwEsFzCIwdkg1WxAlGH6IHMZl36ZMYFR4E1NAzrLGMFi2Yzc0qLdk
+   FO7UyC4iISENfd4PWYPZqLKPOkaxem5ul0IccnKAp0WBH2r+OPMAMtc+w
+   rqYJb5Fweq3f2tmoGKN51WVCdnSTBWKYbDzoI7tvURPSR06Wj/BKfPGjD
+   w==;
+X-IronPort-AV: E=Sophos;i="5.90,253,1643670000"; 
+   d="scan'208";a="23248996"
+Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
+  by mx1-pgp.tq-group.com with ESMTP; 12 Apr 2022 13:49:22 +0200
+Received: from mx1.tq-group.com ([192.168.6.7])
+  by tq-pgp-pr1.tq-net.de (PGP Universal service);
+  Tue, 12 Apr 2022 13:49:22 +0200
+X-PGP-Universal: processed;
+        by tq-pgp-pr1.tq-net.de on Tue, 12 Apr 2022 13:49:22 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1649764162; x=1681300162;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=iJzP2kpL8zGPLz32hzxkQayaP42vKyZ45PBnqipnpCE=;
+  b=Khv6Lt6xLJ4pQNnNJ8M8WFOm8zgBUnjY0eige6Ml3HfNzp/+YN/VdRQj
+   mIB3O0w8GnUVt9fBndMZuGFLK31mjBBQM2o2e7igYkYCTDK9wpZa6RS7R
+   aJ64TbyoHfqbw0+uSQdx2gBkOPq6hF4DA2obbqcbBfCoZSxHOGsVldMLs
+   DgpkMBsch0WqYNQs9xZxzLXO16IlhyibE2tqRM1kvwXTmc5U3a3Mzvr6z
+   jz0GU9yMD9QSWIsbVT4bX4WxpsulPWli9KBe7q12UdtF4dD6og6likAsV
+   /5mVgTCrn6Uvd9wEQWWYyeuzKsBGhdEjNvmu3O/JzgHF3Pc7pcovkSPy/
+   w==;
+X-IronPort-AV: E=Sophos;i="5.90,253,1643670000"; 
+   d="scan'208";a="23248995"
+Received: from vtuxmail01.tq-net.de ([10.115.0.20])
+  by mx1.tq-group.com with ESMTP; 12 Apr 2022 13:49:22 +0200
+Received: from schifferm-ubuntu (SCHIFFERM-M2.tq-net.de [10.121.49.14])
+        by vtuxmail01.tq-net.de (Postfix) with ESMTPA id 94B8C280070;
+        Tue, 12 Apr 2022 13:49:21 +0200 (CEST)
+Message-ID: <d618fc184f162b1da8d75729b5939bed52308040.camel@ew.tq-group.com>
+Subject: Re: [PATCH AUTOSEL 5.17 34/49] spi: cadence-quadspi: fix protocol
+ setup for non-1-1-X operations
+From:   Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        Pratyush Yadav <p.yadav@ti.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Date:   Tue, 12 Apr 2022 13:49:19 +0200
+In-Reply-To: <20220412004411.349427-34-sashal@kernel.org>
+References: <20220412004411.349427-1-sashal@kernel.org>
+         <20220412004411.349427-34-sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5-0ubuntu1 
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH] binfmt_flat: do not stop relocating GOT entries
- prematurely
-Content-Language: en-US
-To:     Niklas Cassel <niklas.cassel@wdc.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>
-Cc:     Greg Ungerer <gerg@linux-m68k.org>,
-        Mike Frysinger <vapier@gentoo.org>, stable@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        linux-riscv@lists.infradead.org
-References: <20220412100338.437308-1-niklas.cassel@wdc.com>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <20220412100338.437308-1-niklas.cassel@wdc.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/12/22 19:03, Niklas Cassel wrote:
-> bFLT binaries are usually created using elf2flt.
+Hi Mark,
+
+what's your plan regarding this patch and the other patch I sent [1]? I
+think there has been some confusion regarding which solution we want to
+backport to stable kernels (well, at least I'm confused...)
+
+I'm fine with this patch getting backported, but in that case [1]
+doesn't make sense anymore (in fact I expected this patch to be dropped
+for now when I submitted [1], due to Pratyush Yadav's concerns).
+
+Regards,
+Matthias
+
+
+[1] https://patchwork.kernel.org/project/spi-devel-general/patch/20220406132832.199777-1-matthias.schiffer@ew.tq-group.com/
+
+
+
+On Mon, 2022-04-11 at 20:43 -0400, Sasha Levin wrote:
+> From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 > 
-> The linker script used by elf2flt has defined the .data section like the
-> following for the last 19 years:
+> [ Upstream commit 97e4827d775faa9a32b5e1a97959c69dd77d17a3 ]
 > 
-> .data : {
-> 	_sdata = . ;
-> 	__data_start = . ;
-> 	data_start = . ;
-> 	*(.got.plt)
-> 	*(.got)
-> 	FILL(0) ;
-> 	. = ALIGN(0x20) ;
-> 	LONG(-1)
-> 	. = ALIGN(0x20) ;
-> 	...
-> }
+> cqspi_set_protocol() only set the data width, but ignored the command
+> and address width (except for 8-8-8 DTR ops), leading to corruption
+> of
+> all transfers using 1-X-X or X-X-X ops. Fix by setting the other two
+> widths as well.
 > 
-> It places the .got.plt input section before the .got input section.
-> The same is true for the default linker script (ld --verbose) on most
-> architectures except x86/x86-64.
+> While we're at it, simplify the code a bit by replacing the
+> CQSPI_INST_TYPE_* constants with ilog2().
 > 
-> The binfmt_flat loader should relocate all GOT entries until it encounters
-> a -1 (the LONG(-1) in the linker script).
+> Tested on a TI AM64x with a Macronix MX25U51245G QSPI flash with 1-4-
+> 4
+> read and write operations.
 > 
-> The problem is that the .got.plt input section starts with a GOTPLT header
-> that has the first word (two u32 entries for 64-bit archs) set to -1.
-> See e.g. the binutils implementation for architectures [1] [2] [3] [4].
-> 
-> This causes the binfmt_flat loader to stop relocating GOT entries
-> prematurely and thus causes the application to crash when running.
-> 
-> Fix this by ignoring -1 in the first two u32 entries in the .data section.
-> 
-> A -1 will only be ignored for the first two entries for bFLT binaries with
-> FLAT_FLAG_GOTPIC set, which is unconditionally set by elf2flt if the
-> supplied ELF binary had the symbol _GLOBAL_OFFSET_TABLE_ defined, therefore
-> ELF binaries without a .got input section should remain unaffected.
-> 
-> Tested on RISC-V Canaan Kendryte K210 and RISC-V QEMU nommu_virt_defconfig.
-> 
-> [1] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-riscv.c;hb=binutils-2_38#l3275
-> [2] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfxx-tilegx.c;hb=binutils-2_38#l4023
-> [3] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elf32-tilepro.c;hb=binutils-2_38#l3633
-> [4] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-loongarch.c;hb=binutils-2_38#l2978
-> 
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+> Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> Link: 
+> https://lore.kernel.org/r/20220331110819.133392-1-matthias.schiffer@ew.tq-group.com
+> Signed-off-by: Mark Brown <broonie@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
-> RISC-V elf2flt patches are still not merged, they can be found here:
-> https://github.com/floatious/elf2flt/tree/riscv
+>  drivers/spi/spi-cadence-quadspi.c | 46 ++++++++---------------------
+> --
+>  1 file changed, 12 insertions(+), 34 deletions(-)
 > 
-> buildroot branch for k210 nommu (including this patch and elf2flt patches):
-> https://github.com/floatious/buildroot/tree/k210-v14
-> 
->  fs/binfmt_flat.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
-> 
-> diff --git a/fs/binfmt_flat.c b/fs/binfmt_flat.c
-> index 626898150011..b80009e6392e 100644
-> --- a/fs/binfmt_flat.c
-> +++ b/fs/binfmt_flat.c
-> @@ -793,8 +793,17 @@ static int load_flat_file(struct linux_binprm *bprm,
->  			u32 addr, rp_val;
->  			if (get_user(rp_val, rp))
->  				return -EFAULT;
-> -			if (rp_val == 0xffffffff)
-> +			/*
-> +			 * The first word in the GOTPLT header is -1 on certain
-> +			 * architechtures. (On 64-bit, that is two u32 entries.)
-> +			 * Ignore these entries, so that we stop relocating GOT
-> +			 * entries first when we encounter the -1 after the GOT.
-> +			 */
+> diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-
+> cadence-quadspi.c
+> index b808c94641fa..75f356041138 100644
+> --- a/drivers/spi/spi-cadence-quadspi.c
+> +++ b/drivers/spi/spi-cadence-quadspi.c
+> @@ -19,6 +19,7 @@
+>  #include <linux/iopoll.h>
+>  #include <linux/jiffies.h>
+>  #include <linux/kernel.h>
+> +#include <linux/log2.h>
+>  #include <linux/module.h>
+>  #include <linux/of_device.h>
+>  #include <linux/of.h>
+> @@ -102,12 +103,6 @@ struct cqspi_driver_platdata {
+>  #define CQSPI_TIMEOUT_MS			500
+>  #define CQSPI_READ_TIMEOUT_MS			10
+>  
+> -/* Instruction type */
+> -#define CQSPI_INST_TYPE_SINGLE			0
+> -#define CQSPI_INST_TYPE_DUAL			1
+> -#define CQSPI_INST_TYPE_QUAD			2
+> -#define CQSPI_INST_TYPE_OCTAL			3
+> -
+>  #define CQSPI_DUMMY_CLKS_PER_BYTE		8
+>  #define CQSPI_DUMMY_BYTES_MAX			4
+>  #define CQSPI_DUMMY_CLKS_MAX			31
+> @@ -376,10 +371,6 @@ static unsigned int cqspi_calc_dummy(const
+> struct spi_mem_op *op, bool dtr)
+>  static int cqspi_set_protocol(struct cqspi_flash_pdata *f_pdata,
+>  			      const struct spi_mem_op *op)
+>  {
+> -	f_pdata->inst_width = CQSPI_INST_TYPE_SINGLE;
+> -	f_pdata->addr_width = CQSPI_INST_TYPE_SINGLE;
+> -	f_pdata->data_width = CQSPI_INST_TYPE_SINGLE;
+> -
+>  	/*
+>  	 * For an op to be DTR, cmd phase along with every other non-
+> empty
+>  	 * phase should have dtr field set to 1. If an op phase has
+> zero
+> @@ -389,32 +380,23 @@ static int cqspi_set_protocol(struct
+> cqspi_flash_pdata *f_pdata,
+>  		       (!op->addr.nbytes || op->addr.dtr) &&
+>  		       (!op->data.nbytes || op->data.dtr);
+>  
+> -	switch (op->data.buswidth) {
+> -	case 0:
+> -		break;
+> -	case 1:
+> -		f_pdata->data_width = CQSPI_INST_TYPE_SINGLE;
+> -		break;
+> -	case 2:
+> -		f_pdata->data_width = CQSPI_INST_TYPE_DUAL;
+> -		break;
+> -	case 4:
+> -		f_pdata->data_width = CQSPI_INST_TYPE_QUAD;
+> -		break;
+> -	case 8:
+> -		f_pdata->data_width = CQSPI_INST_TYPE_OCTAL;
+> -		break;
+> -	default:
+> -		return -EINVAL;
+> -	}
+> +	f_pdata->inst_width = 0;
+> +	if (op->cmd.buswidth)
+> +		f_pdata->inst_width = ilog2(op->cmd.buswidth);
+> +
+> +	f_pdata->addr_width = 0;
+> +	if (op->addr.buswidth)
+> +		f_pdata->addr_width = ilog2(op->addr.buswidth);
+> +
+> +	f_pdata->data_width = 0;
+> +	if (op->data.buswidth)
+> +		f_pdata->data_width = ilog2(op->data.buswidth);
+>  
+>  	/* Right now we only support 8-8-8 DTR mode. */
+>  	if (f_pdata->dtr) {
+>  		switch (op->cmd.buswidth) {
+>  		case 0:
+> -			break;
+>  		case 8:
+> -			f_pdata->inst_width = CQSPI_INST_TYPE_OCTAL;
+>  			break;
+>  		default:
+>  			return -EINVAL;
+> @@ -422,9 +404,7 @@ static int cqspi_set_protocol(struct
+> cqspi_flash_pdata *f_pdata,
+>  
+>  		switch (op->addr.buswidth) {
+>  		case 0:
+> -			break;
+>  		case 8:
+> -			f_pdata->addr_width = CQSPI_INST_TYPE_OCTAL;
+>  			break;
+>  		default:
+>  			return -EINVAL;
+> @@ -432,9 +412,7 @@ static int cqspi_set_protocol(struct
+> cqspi_flash_pdata *f_pdata,
+>  
+>  		switch (op->data.buswidth) {
+>  		case 0:
+> -			break;
+>  		case 8:
+> -			f_pdata->data_width = CQSPI_INST_TYPE_OCTAL;
+>  			break;
+>  		default:
+>  			return -EINVAL;
 
-		/*
-		 * The first word in the GOTPLT header is -1 on certain
-		 * architectures (on 64-bit, that is two u32 entries).
-		 * Ignore these entries so that we stop relocating GOT
-		 * entries when we encounter the first -1 entry after
-		 * the GOTPLT header.
-		 */
-
-> +			if (rp_val == 0xffffffff) {
-> +				if (rp - (u32 __user *)datapos < 2)
-> +					continue;
-
-Would it be safer to check that the following rp_val is also -1 ? Also,
-does this work with 32-bits arch ? Shouldn't the "< 2" be "< 1" for
-32-bits arch ?
-
->  				break;
-> +			}
->  			if (rp_val) {
->  				addr = calc_reloc(rp_val, libinfo, id, 0);
->  				if (addr == RELOC_FAILED) {
-
-
--- 
-Damien Le Moal
-Western Digital Research
