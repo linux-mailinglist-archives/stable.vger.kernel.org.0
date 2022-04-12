@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A51A54FDAE0
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE314FDA3A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377644AbiDLHvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58090 "EHLO
+        id S1356066AbiDLHeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:34:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359380AbiDLHm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B30E2A730;
-        Tue, 12 Apr 2022 00:21:50 -0700 (PDT)
+        with ESMTP id S1354930AbiDLH07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611F333366;
+        Tue, 12 Apr 2022 00:06:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26737B81B60;
-        Tue, 12 Apr 2022 07:21:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64F16C385A6;
-        Tue, 12 Apr 2022 07:21:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DF59B81B4D;
+        Tue, 12 Apr 2022 07:06:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59ECAC385A6;
+        Tue, 12 Apr 2022 07:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748107;
-        bh=AFo/Mnp4TK7EQk+OXOU2Nugko/dhcA5zUh+CtpDVwZw=;
+        s=korg; t=1649747211;
+        bh=ggHIMVDOir28eivHT7Q6oJ4r5wNBVY9vag4cZI+7UJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTsD3e8nlDjc/7ZMiEY3WMCFmG2vhCu5fNRlNLT6+c7RFUQo86SjEIt2qrerp+WIS
-         aJYF/A8GhFzFGjJcvyqDb4dskMCPv68hWbBDMZM9wENC5+rxGDs8gU/VAHvDTDzh7O
-         XjrWgxsBwZfAxeWeSIKV8sksGjn8AUy+qHnKHYsw=
+        b=VTk6p+J8d2SNhFISsbVOdVz4suweul/hz1hAPqqWGq5DruKSmw+A0MSUO4U1N/eQL
+         jpi5sB02x0JExQ2r2fMgkCDthf9N66gZAjGs5/TxthDmW73uQOJTXR0O/x3uc17oey
+         fQEBsL1l+Jm/hJ6KasClYyzWOOva4/RMV4PpzhgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Fangrui Song <maskray@google.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        John Keeping <john@metanate.com>, Leo Yan <leo.yan@linaro.org>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.17 320/343] perf build: Dont use -ffat-lto-objects in the python feature test when building with clang-13
-Date:   Tue, 12 Apr 2022 08:32:18 +0200
-Message-Id: <20220412063000.557370892@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.16 282/285] powerpc/64: Fix build failure with allyesconfig in book3s_64_entry.S
+Date:   Tue, 12 Apr 2022 08:32:19 +0200
+Message-Id: <20220412062951.790686635@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,61 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 3a8a0475861a443f02e3a9b57d044fe2a0a99291 upstream.
+commit af41d2866f7d75bbb38d487f6ec7770425d70e45 upstream.
 
-Using -ffat-lto-objects in the python feature test when building with
-clang-13 results in:
+Using conditional branches between two files is hasardous,
+they may get linked too far from each other.
 
-  clang-13: error: optimization flag '-ffat-lto-objects' is not supported [-Werror,-Wignored-optimization-argument]
-  error: command '/usr/sbin/clang' failed with exit code 1
-  cp: cannot stat '/tmp/build/perf/python_ext_build/lib/perf*.so': No such file or directory
-  make[2]: *** [Makefile.perf:639: /tmp/build/perf/python/perf.so] Error 1
+  arch/powerpc/kvm/book3s_64_entry.o:(.text+0x3ec): relocation truncated
+  to fit: R_PPC64_REL14 (stub) against symbol `system_reset_common'
+  defined in .text section in arch/powerpc/kernel/head_64.o
 
-Noticed when building on a docker.io/library/archlinux:base container.
+Reorganise the code to use non conditional branches.
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Fangrui Song <maskray@google.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Keeping <john@metanate.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Sedat Dilek <sedat.dilek@gmail.com>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 89d35b239101 ("KVM: PPC: Book3S HV P9: Implement the rest of the P9 path in C")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Avoid odd-looking bne ., use named local labels]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/89cf27bf43ee07a0b2879b9e8e2f5cd6386a3645.1648366338.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/Makefile.config |    3 +++
- tools/perf/util/setup.py   |    2 ++
- 2 files changed, 5 insertions(+)
+ arch/powerpc/kvm/book3s_64_entry.S |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -272,6 +272,9 @@ ifdef PYTHON_CONFIG
-   PYTHON_EMBED_LIBADD := $(call grep-libs,$(PYTHON_EMBED_LDOPTS)) -lutil
-   PYTHON_EMBED_CCOPTS := $(shell $(PYTHON_CONFIG_SQ) --includes 2>/dev/null)
-   FLAGS_PYTHON_EMBED := $(PYTHON_EMBED_CCOPTS) $(PYTHON_EMBED_LDOPTS)
-+  ifeq ($(CC_NO_CLANG), 0)
-+    PYTHON_EMBED_CCOPTS := $(filter-out -ffat-lto-objects, $(PYTHON_EMBED_CCOPTS))
-+  endif
- endif
+--- a/arch/powerpc/kvm/book3s_64_entry.S
++++ b/arch/powerpc/kvm/book3s_64_entry.S
+@@ -407,10 +407,16 @@ END_FTR_SECTION_IFSET(CPU_FTR_DAWR1)
+ 	 */
+ 	ld	r10,HSTATE_SCRATCH0(r13)
+ 	cmpwi	r10,BOOK3S_INTERRUPT_MACHINE_CHECK
+-	beq	machine_check_common
++	beq	.Lcall_machine_check_common
  
- FEATURE_CHECK_CFLAGS-libpython := $(PYTHON_EMBED_CCOPTS)
---- a/tools/perf/util/setup.py
-+++ b/tools/perf/util/setup.py
-@@ -23,6 +23,8 @@ if cc_is_clang:
-             vars[var] = sub("-fstack-protector-strong", "", vars[var])
-         if not clang_has_option("-fno-semantic-interposition"):
-             vars[var] = sub("-fno-semantic-interposition", "", vars[var])
-+        if not clang_has_option("-ffat-lto-objects"):
-+            vars[var] = sub("-ffat-lto-objects", "", vars[var])
+ 	cmpwi	r10,BOOK3S_INTERRUPT_SYSTEM_RESET
+-	beq	system_reset_common
++	beq	.Lcall_system_reset_common
  
- from distutils.core import setup, Extension
- 
+ 	b	.
++
++.Lcall_machine_check_common:
++	b	machine_check_common
++
++.Lcall_system_reset_common:
++	b	system_reset_common
+ #endif
 
 
