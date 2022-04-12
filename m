@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B109B4FD1AB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4E64FD011
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351064AbiDLG7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:59:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48430 "EHLO
+        id S1349884AbiDLGls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:41:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351076AbiDLG5V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:57:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1990941FA9;
-        Mon, 11 Apr 2022 23:46:24 -0700 (PDT)
+        with ESMTP id S1350223AbiDLGka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F17A7E00E;
+        Mon, 11 Apr 2022 23:35:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33FA560A21;
-        Tue, 12 Apr 2022 06:46:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BC0BC385AA;
-        Tue, 12 Apr 2022 06:46:23 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5C137CE1C07;
+        Tue, 12 Apr 2022 06:35:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70949C385A1;
+        Tue, 12 Apr 2022 06:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745983;
-        bh=kUn2qAPqnhLi5OlFTb3kcm5yBG9tINbEWnBPKsnb0Rs=;
+        s=korg; t=1649745354;
+        bh=vor/x1Vk1slMCoHK3RHKNRK1cOTcYKMhZ/n9UA+fCvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSkghQfFuDZbZCk3SD6S6TU8dg/tMUhidIi5/hyXq2uNa6R9Py/QsWAKOzZZW8nOH
-         WaoHKdHxXpCtOhLKJceob7qR4i/i0vljMkmZaHACEheHCCaLUQRZorJDZhzhn8mKzm
-         Rd0zPyNfdIJeBBYpHPiKWKwdmN9B/t3mu3Xoxa48=
+        b=EfGMu227U37v8+868ibft4XlGA0SD1CiAHjRtdRCw7lAeCQk/ehgMR6Q1ya61Tch0
+         QGSZrnuAaRYVAmjPTGOoDCqAvjKPQOXDLeYkftfAqTLlUf0wB/STNb9LXswRXF1R8Z
+         jfGQ2nrxLc8WulQHgSUzcrF37YdShferF69q/6s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 118/277] opp: Expose of-nodes name in debugfs
-Date:   Tue, 12 Apr 2022 08:28:41 +0200
-Message-Id: <20220412062945.455813343@linuxfoundation.org>
+Subject: [PATCH 5.10 031/171] PCI: endpoint: Fix alignment fault error in copy tests
+Date:   Tue, 12 Apr 2022 08:28:42 +0200
+Message-Id: <20220412062928.785712693@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
 
-[ Upstream commit 021dbecabc93b1610b5db989d52a94e0c6671136 ]
+[ Upstream commit 829cc0e2ea2d61fb6c54bc3f8a17f86c56e11864 ]
 
-It is difficult to find which OPPs are active at the moment, specially
-if there are multiple OPPs with same frequency available in the device
-tree (controlled by supported hardware feature).
+The copy test uses the memcpy() to copy data between IO memory spaces.
+This can trigger an alignment fault error (pasted the error logs below)
+because memcpy() may use unaligned accesses on a mapped memory that is
+just IO, which does not support unaligned memory accesses.
 
-Expose name of the DT node to find out the exact OPP.
+Fix it by using the correct memcpy API to copy from/to IO memory.
 
-While at it, also expose level field.
+Alignment fault error logs:
+   Unable to handle kernel paging request at virtual address ffff8000101cd3c1
+   Mem abort info:
+     ESR = 0x96000021
+     EC = 0x25: DABT (current EL), IL = 32 bits
+     SET = 0, FnV = 0
+     EA = 0, S1PTW = 0
+     FSC = 0x21: alignment fault
+   Data abort info:
+     ISV = 0, ISS = 0x00000021
+     CM = 0, WnR = 0
+   swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000081773000
+   [ffff8000101cd3c1] pgd=1000000082410003, p4d=1000000082410003, pud=1000000082411003, pmd=1000000082412003, pte=0068004000001f13
+   Internal error: Oops: 96000021 [#1] PREEMPT SMP
+   Modules linked in:
+   CPU: 0 PID: 6 Comm: kworker/0:0H Not tainted 5.15.0-rc1-next-20210914-dirty #2
+   Hardware name: LS1012A RDB Board (DT)
+   Workqueue: kpcitest pci_epf_test_cmd_handler
+   pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+   pc : __memcpy+0x168/0x230
+   lr : pci_epf_test_cmd_handler+0x6f0/0xa68
+   sp : ffff80001003bce0
+   x29: ffff80001003bce0 x28: ffff800010135000 x27: ffff8000101e5000
+   x26: ffff8000101cd000 x25: ffff6cda941cf6c8 x24: 0000000000000000
+   x23: ffff6cda863f2000 x22: ffff6cda9096c800 x21: ffff800010135000
+   x20: ffff6cda941cf680 x19: ffffaf39fd999000 x18: 0000000000000000
+   x17: 0000000000000000 x16: 0000000000000000 x15: ffffaf39fd2b6000
+   x14: 0000000000000000 x13: 15f5c8fa2f984d57 x12: 604d132b60275454
+   x11: 065cee5e5fb428b6 x10: aae662eb17d0cf3e x9 : 1d97c9a1b4ddef37
+   x8 : 7541b65edebf928c x7 : e71937c4fc595de0 x6 : b8a0e09562430d1c
+   x5 : ffff8000101e5401 x4 : ffff8000101cd401 x3 : ffff8000101e5380
+   x2 : fffffffffffffff1 x1 : ffff8000101cd3c0 x0 : ffff8000101e5000
+   Call trace:
+    __memcpy+0x168/0x230
+    process_one_work+0x1ec/0x370
+    worker_thread+0x44/0x478
+    kthread+0x154/0x160
+    ret_from_fork+0x10/0x20
+   Code: a984346c a9c4342c f1010042 54fffee8 (a97c3c8e)
+   ---[ end trace 568c28c7b6336335 ]---
 
-Reported-by: Leo Yan <leo.yan@linaro.org>
-Tested-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20211217094708.28678-1-Zhiqiang.Hou@nxp.com
+Signed-off-by: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/debugfs.c | 5 +++++
- drivers/opp/opp.h     | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/pci/endpoint/functions/pci-epf-test.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/opp/debugfs.c b/drivers/opp/debugfs.c
-index 596c185b5dda..b5f2f9f39392 100644
---- a/drivers/opp/debugfs.c
-+++ b/drivers/opp/debugfs.c
-@@ -10,6 +10,7 @@
- #include <linux/debugfs.h>
- #include <linux/device.h>
- #include <linux/err.h>
-+#include <linux/of.h>
- #include <linux/init.h>
- #include <linux/limits.h>
- #include <linux/slab.h>
-@@ -131,9 +132,13 @@ void opp_debug_create_one(struct dev_pm_opp *opp, struct opp_table *opp_table)
- 	debugfs_create_bool("suspend", S_IRUGO, d, &opp->suspend);
- 	debugfs_create_u32("performance_state", S_IRUGO, d, &opp->pstate);
- 	debugfs_create_ulong("rate_hz", S_IRUGO, d, &opp->rate);
-+	debugfs_create_u32("level", S_IRUGO, d, &opp->level);
- 	debugfs_create_ulong("clock_latency_ns", S_IRUGO, d,
- 			     &opp->clock_latency_ns);
- 
-+	opp->of_name = of_node_full_name(opp->np);
-+	debugfs_create_str("of_name", S_IRUGO, d, (char **)&opp->of_name);
+diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
+index d41570715dc7..b861840e867c 100644
+--- a/drivers/pci/endpoint/functions/pci-epf-test.c
++++ b/drivers/pci/endpoint/functions/pci-epf-test.c
+@@ -285,7 +285,17 @@ static int pci_epf_test_copy(struct pci_epf_test *epf_test)
+ 		if (ret)
+ 			dev_err(dev, "Data transfer failed\n");
+ 	} else {
+-		memcpy(dst_addr, src_addr, reg->size);
++		void *buf;
 +
- 	opp_debug_create_supplies(opp, opp_table, d);
- 	opp_debug_create_bw(opp, opp_table, d);
- 
-diff --git a/drivers/opp/opp.h b/drivers/opp/opp.h
-index 407c3bfe51d9..45e3a55239a1 100644
---- a/drivers/opp/opp.h
-+++ b/drivers/opp/opp.h
-@@ -96,6 +96,7 @@ struct dev_pm_opp {
- 
- #ifdef CONFIG_DEBUG_FS
- 	struct dentry *dentry;
-+	const char *of_name;
- #endif
- };
- 
++		buf = kzalloc(reg->size, GFP_KERNEL);
++		if (!buf) {
++			ret = -ENOMEM;
++			goto err_map_addr;
++		}
++
++		memcpy_fromio(buf, src_addr, reg->size);
++		memcpy_toio(dst_addr, buf, reg->size);
++		kfree(buf);
+ 	}
+ 	ktime_get_ts64(&end);
+ 	pci_epf_test_print_rate("COPY", reg->size, &start, &end, use_dma);
 -- 
 2.35.1
 
