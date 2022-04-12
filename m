@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EE314FDA3A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:49:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4B2E4FD9B5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:44:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356066AbiDLHeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:34:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43172 "EHLO
+        id S1377631AbiDLHu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:50:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354930AbiDLH07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611F333366;
-        Tue, 12 Apr 2022 00:06:54 -0700 (PDT)
+        with ESMTP id S1359390AbiDLHnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:43:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C07E2CCA3;
+        Tue, 12 Apr 2022 00:22:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DF59B81B4D;
-        Tue, 12 Apr 2022 07:06:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59ECAC385A6;
-        Tue, 12 Apr 2022 07:06:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 082EE616B2;
+        Tue, 12 Apr 2022 07:22:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFD0EC385A5;
+        Tue, 12 Apr 2022 07:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747211;
-        bh=ggHIMVDOir28eivHT7Q6oJ4r5wNBVY9vag4cZI+7UJs=;
+        s=korg; t=1649748127;
+        bh=JvIBDuRe0Vxz8C/p506SDPFuQzkiuVtuNyy6EPw/+RA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTk6p+J8d2SNhFISsbVOdVz4suweul/hz1hAPqqWGq5DruKSmw+A0MSUO4U1N/eQL
-         jpi5sB02x0JExQ2r2fMgkCDthf9N66gZAjGs5/TxthDmW73uQOJTXR0O/x3uc17oey
-         fQEBsL1l+Jm/hJ6KasClYyzWOOva4/RMV4PpzhgY=
+        b=V3YpFm48tsHK3wPfsrlCD3G7zyt1x1FJ9maxaM18de42cY9BXfj3Em9swcodVz+Tz
+         ZMWL5ao1HiLxg6Mm+W9Ixnkg85t3mNydDCDSN62u+eJJRYx/+2NOSvL+7PZvyt/Xxp
+         IHVVw8NkD/hpVZHhYZu4WO0Jvz8zF7x7GFuYU0FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.16 282/285] powerpc/64: Fix build failure with allyesconfig in book3s_64_entry.S
-Date:   Tue, 12 Apr 2022 08:32:19 +0200
-Message-Id: <20220412062951.790686635@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Fangrui Song <maskray@google.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        John Keeping <john@metanate.com>, Leo Yan <leo.yan@linaro.org>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>
+Subject: [PATCH 5.17 322/343] tools build: Filter out options and warnings not supported by clang
+Date:   Tue, 12 Apr 2022 08:32:20 +0200
+Message-Id: <20220412063000.614654949@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +62,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit af41d2866f7d75bbb38d487f6ec7770425d70e45 upstream.
+commit 41caff459a5b956b3e23ba9ca759dd0629ad3dda upstream.
 
-Using conditional branches between two files is hasardous,
-they may get linked too far from each other.
+These make the feature check fail when using clang, so remove them just
+like is done in tools/perf/Makefile.config to build perf itself.
 
-  arch/powerpc/kvm/book3s_64_entry.o:(.text+0x3ec): relocation truncated
-  to fit: R_PPC64_REL14 (stub) against symbol `system_reset_common'
-  defined in .text section in arch/powerpc/kernel/head_64.o
+Adding -Wno-compound-token-split-by-macro to tools/perf/Makefile.config
+when building with clang is also necessary to avoid these warnings
+turned into errors (-Werror):
 
-Reorganise the code to use non conditional branches.
+    CC      /tmp/build/perf/util/scripting-engines/trace-event-perl.o
+  In file included from util/scripting-engines/trace-event-perl.c:35:
+  In file included from /usr/lib64/perl5/CORE/perl.h:4085:
+  In file included from /usr/lib64/perl5/CORE/hv.h:659:
+  In file included from /usr/lib64/perl5/CORE/hv_func.h:34:
+  In file included from /usr/lib64/perl5/CORE/sbox32_hash.h:4:
+  /usr/lib64/perl5/CORE/zaphod32_hash.h:150:5: error: '(' and '{' tokens introducing statement expression appear in different macro expansion contexts [-Werror,-Wcompound-token-split-by-macro]
+      ZAPHOD32_SCRAMBLE32(state[0],0x9fade23b);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  /usr/lib64/perl5/CORE/zaphod32_hash.h:80:38: note: expanded from macro 'ZAPHOD32_SCRAMBLE32'
+  #define ZAPHOD32_SCRAMBLE32(v,prime) STMT_START {  \
+                                       ^~~~~~~~~~
+  /usr/lib64/perl5/CORE/perl.h:737:29: note: expanded from macro 'STMT_START'
+  #   define STMT_START   (void)( /* gcc supports "({ STATEMENTS; })" */
+                                ^
+  /usr/lib64/perl5/CORE/zaphod32_hash.h:150:5: note: '{' token is here
+      ZAPHOD32_SCRAMBLE32(state[0],0x9fade23b);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  /usr/lib64/perl5/CORE/zaphod32_hash.h:80:49: note: expanded from macro 'ZAPHOD32_SCRAMBLE32'
+  #define ZAPHOD32_SCRAMBLE32(v,prime) STMT_START {  \
+                                                  ^
+  /usr/lib64/perl5/CORE/zaphod32_hash.h:150:5: error: '}' and ')' tokens terminating statement expression appear in different macro expansion contexts [-Werror,-Wcompound-token-split-by-macro]
+      ZAPHOD32_SCRAMBLE32(state[0],0x9fade23b);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  /usr/lib64/perl5/CORE/zaphod32_hash.h:87:41: note: expanded from macro 'ZAPHOD32_SCRAMBLE32'
+      v ^= (v>>23);                       \
+                                          ^
+  /usr/lib64/perl5/CORE/zaphod32_hash.h:150:5: note: ')' token is here
+      ZAPHOD32_SCRAMBLE32(state[0],0x9fade23b);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  /usr/lib64/perl5/CORE/zaphod32_hash.h:88:3: note: expanded from macro 'ZAPHOD32_SCRAMBLE32'
+  } STMT_END
+    ^~~~~~~~
+  /usr/lib64/perl5/CORE/perl.h:738:21: note: expanded from macro 'STMT_END'
+  #   define STMT_END     )
+                          ^
 
-Fixes: 89d35b239101 ("KVM: PPC: Book3S HV P9: Implement the rest of the P9 path in C")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Avoid odd-looking bne ., use named local labels]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/89cf27bf43ee07a0b2879b9e8e2f5cd6386a3645.1648366338.git.christophe.leroy@csgroup.eu
+Please refer to the discussion on the Link: tag below, where Nathan
+clarifies the situation:
+
+<quote>
+acme> And then get to the problems at the end of this message, which seem
+acme> similar to the problem described here:
+acme>
+acme> From  Nathan Chancellor <>
+acme> Subject	[PATCH] mwifiex: Remove unnecessary braces from HostCmd_SET_SEQ_NO_BSS_INFO
+acme>
+acme> https://lkml.org/lkml/2020/9/1/135
+acme>
+acme> So perhaps in this case its better to disable that
+acme> -Werror,-Wcompound-token-split-by-macro when building with clang?
+
+Yes, I think that is probably the best solution. As far as I can tell,
+at least in this file and context, the warning appears harmless, as the
+"create a GNU C statement expression from two different macros" is very
+much intentional, based on the presence of PERL_USE_GCC_BRACE_GROUPS.
+The warning is fixed in upstream Perl by just avoiding creating GNU C
+statement expressions using STMT_START and STMT_END:
+
+  https://github.com/Perl/perl5/issues/18780
+  https://github.com/Perl/perl5/pull/18984
+
+If I am reading the source code correctly, an alternative to disabling
+the warning would be specifying -DPERL_GCC_BRACE_GROUPS_FORBIDDEN but it
+seems like that might end up impacting more than just this site,
+according to the issue discussion above.
+</quote>
+
+Based-on-a-patch-by: Sedat Dilek <sedat.dilek@gmail.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com> # Debian/Selfmade LLVM-14 (x86-64)
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Fangrui Song <maskray@google.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: John Keeping <john@metanate.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Link: http://lore.kernel.org/lkml/YkxWcYzph5pC1EK8@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_64_entry.S |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ tools/build/feature/Makefile |    7 +++++++
+ tools/perf/Makefile.config   |    3 +++
+ 2 files changed, 10 insertions(+)
 
---- a/arch/powerpc/kvm/book3s_64_entry.S
-+++ b/arch/powerpc/kvm/book3s_64_entry.S
-@@ -407,10 +407,16 @@ END_FTR_SECTION_IFSET(CPU_FTR_DAWR1)
- 	 */
- 	ld	r10,HSTATE_SCRATCH0(r13)
- 	cmpwi	r10,BOOK3S_INTERRUPT_MACHINE_CHECK
--	beq	machine_check_common
-+	beq	.Lcall_machine_check_common
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -220,6 +220,13 @@ PERL_EMBED_LIBADD = $(call grep-libs,$(P
+ PERL_EMBED_CCOPTS = `perl -MExtUtils::Embed -e ccopts 2>/dev/null`
+ FLAGS_PERL_EMBED=$(PERL_EMBED_CCOPTS) $(PERL_EMBED_LDOPTS)
  
- 	cmpwi	r10,BOOK3S_INTERRUPT_SYSTEM_RESET
--	beq	system_reset_common
-+	beq	.Lcall_system_reset_common
++ifeq ($(CC_NO_CLANG), 0)
++  PERL_EMBED_LDOPTS := $(filter-out -specs=%,$(PERL_EMBED_LDOPTS))
++  PERL_EMBED_CCOPTS := $(filter-out -flto=auto -ffat-lto-objects, $(PERL_EMBED_CCOPTS))
++  PERL_EMBED_CCOPTS := $(filter-out -specs=%,$(PERL_EMBED_CCOPTS))
++  FLAGS_PERL_EMBED += -Wno-compound-token-split-by-macro
++endif
++
+ $(OUTPUT)test-libperl.bin:
+ 	$(BUILD) $(FLAGS_PERL_EMBED)
  
- 	b	.
-+
-+.Lcall_machine_check_common:
-+	b	machine_check_common
-+
-+.Lcall_system_reset_common:
-+	b	system_reset_common
- #endif
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -793,6 +793,9 @@ else
+     LDFLAGS += $(PERL_EMBED_LDFLAGS)
+     EXTLIBS += $(PERL_EMBED_LIBADD)
+     CFLAGS += -DHAVE_LIBPERL_SUPPORT
++    ifeq ($(CC_NO_CLANG), 0)
++      CFLAGS += -Wno-compound-token-split-by-macro
++    endif
+     $(call detected,CONFIG_LIBPERL)
+   endif
+ endif
 
 
