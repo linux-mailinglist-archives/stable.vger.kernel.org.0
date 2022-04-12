@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A3F4FDA5D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68A9A4FD743
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:28:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351447AbiDLHUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:20:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58552 "EHLO
+        id S1351210AbiDLHb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:31:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351720AbiDLHMw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4CF5165AB;
-        Mon, 11 Apr 2022 23:51:59 -0700 (PDT)
+        with ESMTP id S1353628AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD4425EB6;
+        Tue, 12 Apr 2022 00:02:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84715B81B46;
-        Tue, 12 Apr 2022 06:51:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC2B7C385A8;
-        Tue, 12 Apr 2022 06:51:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B09DB60B2B;
+        Tue, 12 Apr 2022 07:02:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7A18C385A6;
+        Tue, 12 Apr 2022 07:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746317;
-        bh=a0yLX0T6TEa0bit/jXiRG3kadDajY2XPRPzgFSSAFEE=;
+        s=korg; t=1649746943;
+        bh=0IsMixcYoYir+0I2ktsvoJUilZLmNIeGvWPRRfGijNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KayfRNynVsRafNeJeAJjo7+VAXCoMm7ah1mfL8Lhq3ZlJC1SO/uCUy44CxVxADTip
-         Hzr9L/WPkj42EvmxdUhHEjp7QzUTahKzAcB6REUW+xdzKHrnZEsUNe+tiWZnQakzZE
-         kBsDvZafOtjwKUWd0hjfpF/vDI9l3mi7adioJ288=
+        b=mZA2gYS3AnN5qZjlyBhd8dIanLrCUdG7BhMo2EGghTevnPNna6+xIQDjc/QZGzM+d
+         H404MHFx7W0kOyTQmVb4Y9QLkZqJbl90yHzvV6haWfsxVm8u28EjAbBnH4MkAaPIfu
+         jwnFrFIao167E6yhA+WfDyBeOFOosUczWq2KHIXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.15 240/277] SUNRPC: Prevent immediate close+reconnect
+        Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Alice Michael <alice.michael@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 186/285] ice: Do not skip not enabled queues in ice_vc_dis_qs_msg
 Date:   Tue, 12 Apr 2022 08:30:43 +0200
-Message-Id: <20220412062948.990253262@linuxfoundation.org>
+Message-Id: <20220412062949.031574197@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +58,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
 
-commit 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06 upstream.
+[ Upstream commit 05ef6813b234db3196f083b91db3963f040b65bb ]
 
-If we have already set up the socket and are waiting for it to connect,
-then don't immediately close and retry.
+Disable check for queue being enabled in ice_vc_dis_qs_msg, because
+there could be a case when queues were created, but were not enabled.
+We still need to delete those queues.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Normal workflow for VF looks like:
+Enable path:
+VIRTCHNL_OP_ADD_ETH_ADDR (opcode 10)
+VIRTCHNL_OP_CONFIG_VSI_QUEUES (opcode 6)
+VIRTCHNL_OP_ENABLE_QUEUES (opcode 8)
+
+Disable path:
+VIRTCHNL_OP_DISABLE_QUEUES (opcode 9)
+VIRTCHNL_OP_DEL_ETH_ADDR (opcode 11)
+
+The issue appears only in stress conditions when VF is enabled and
+disabled very fast.
+Eventually there will be a case, when queues are created by
+VIRTCHNL_OP_CONFIG_VSI_QUEUES, but are not enabled by
+VIRTCHNL_OP_ENABLE_QUEUES.
+In turn, these queues are not deleted by VIRTCHNL_OP_DISABLE_QUEUES,
+because there is a check whether queues are enabled in
+ice_vc_dis_qs_msg.
+
+When we bring up the VF again, we will see the "Failed to set LAN Tx queue
+context" error during VIRTCHNL_OP_CONFIG_VSI_QUEUES step. This
+happens because old 16 queues were not deleted and VF requests to create
+16 more, but ice_sched_get_free_qparent in ice_ena_vsi_txq would fail to
+find a parent node for first newly requested queue (because all nodes
+are allocated to 16 old queues).
+
+Testing Hints:
+
+Just enable and disable VF fast enough, so it would be disabled before
+reaching VIRTCHNL_OP_ENABLE_QUEUES.
+
+while true; do
+        ip link set dev ens785f0v0 up
+        sleep 0.065 # adjust delay value for you machine
+        ip link set dev ens785f0v0 down
+done
+
+Fixes: 77ca27c41705 ("ice: add support for virtchnl_queue_select.[tx|rx]_queues bitmap")
+Signed-off-by: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Alice Michael <alice.michael@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprt.c     |    3 ++-
- net/sunrpc/xprtsock.c |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -767,7 +767,8 @@ EXPORT_SYMBOL_GPL(xprt_disconnect_done);
-  */
- static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
- {
--	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+	if (test_and_set_bit(XPRT_CLOSE_WAIT, &xprt->state))
-+		return;
- 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
- 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
- 	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2365,7 +2365,7 @@ static void xs_connect(struct rpc_xprt *
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+index e17813fb71a1..91182a6bc137 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -3383,9 +3383,9 @@ static int ice_vc_dis_qs_msg(struct ice_vf *vf, u8 *msg)
+ 				goto error_param;
+ 			}
  
- 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
+-			/* Skip queue if not enabled */
+ 			if (!test_bit(vf_q_id, vf->txq_ena))
+-				continue;
++				dev_dbg(ice_pf_to_dev(vsi->back), "Queue %u on VSI %u is not enabled, but stopping it anyway\n",
++					vf_q_id, vsi->vsi_num);
  
--	if (transport->sock != NULL) {
-+	if (transport->sock != NULL && !xprt_connecting(xprt)) {
- 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
- 				"seconds\n",
- 				xprt, xprt->reestablish_timeout / HZ);
+ 			ice_fill_txq_meta(vsi, ring, &txq_meta);
+ 
+-- 
+2.35.1
+
 
 
