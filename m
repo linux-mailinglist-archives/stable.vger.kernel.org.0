@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B39A24FCFF6
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:38:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94D784FD268
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349967AbiDLGk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:40:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51864 "EHLO
+        id S1348145AbiDLHLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:11:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349974AbiDLGjh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:39:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 193CB1DA66;
-        Mon, 11 Apr 2022 23:35:14 -0700 (PDT)
+        with ESMTP id S1346202AbiDLHJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:09:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5D4E49C9C;
+        Mon, 11 Apr 2022 23:49:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D583618CF;
-        Tue, 12 Apr 2022 06:35:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A972AC385A1;
-        Tue, 12 Apr 2022 06:35:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7AF98CE1BE8;
+        Tue, 12 Apr 2022 06:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B07CC385B7;
+        Tue, 12 Apr 2022 06:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745313;
-        bh=q5WX2t/zqVNLbyFm61nHFdNhUX0OLGyezCCoWBiH+uY=;
+        s=korg; t=1649746160;
+        bh=mR2O/g+rjFObtLuc8qXfsCZ+aho+SVwU90zDb6t0Px0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6i081oYWvP3dhn15/LE1J1IBIfAeDDNcAMdDCauVFO24mV1NpAk6w4JpGOCIr9j9
-         UOgd1QaAaQ+W68/uQrOTgG//EdweWQFCmVvRgwz5rd+5OBfoyxeZ7LGmv+M0dtOqoa
-         bhiax1A1b4sffpI3ltAYgfwxsQV3FM0BBHeuBNfQ=
+        b=s/h724lc7VhHEEUfvGBEclx75jTHmiOzCif+M7KUEntakEcr7+MUhKP8SH9dPZa+v
+         KtoYREBYd6I3e+mW8k41fs9qVfa3+kI+whIOSRFQ6uXN2amF5+kT1ix2W3+SmLueZf
+         jqQgheDWByRp2moRaF+pbshehp6Nn7mVcGLgN8ZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        "Minghao Chi (CGEL ZTE)" <chi.minghao@zte.com.cn>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/171] Bluetooth: use memset avoid memory leaks
-Date:   Tue, 12 Apr 2022 08:29:04 +0200
-Message-Id: <20220412062929.417640687@linuxfoundation.org>
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 142/277] parisc: Fix patch code locking and flushing
+Date:   Tue, 12 Apr 2022 08:29:05 +0200
+Message-Id: <20220412062946.143865129@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,33 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minghao Chi (CGEL ZTE) <chi.minghao@zte.com.cn>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit d3715b2333e9a21692ba16ef8645eda584a9515d ]
+[ Upstream commit a9fe7fa7d874a536e0540469f314772c054a0323 ]
 
-Use memset to initialize structs to prevent memory leaks
-in l2cap_ecred_connect
+This change fixes the following:
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi (CGEL ZTE) <chi.minghao@zte.com.cn>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+1) The flags variable is not initialized. Always use raw_spin_lock_irqsave
+and raw_spin_unlock_irqrestore to serialize patching.
+
+2) flush_kernel_vmap_range is primarily intended for DMA flushes. Since
+__patch_text_multiple is often called with interrupts disabled, it is
+better to directly call flush_kernel_dcache_range_asm and
+flush_kernel_icache_range_asm. This avoids an extra call.
+
+3) The final call to flush_icache_range is unnecessary.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/kernel/patch.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 0ddbc415ce15..012c1a0abda8 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -1438,6 +1438,7 @@ static void l2cap_ecred_connect(struct l2cap_chan *chan)
+diff --git a/arch/parisc/kernel/patch.c b/arch/parisc/kernel/patch.c
+index 80a0ab372802..e59574f65e64 100644
+--- a/arch/parisc/kernel/patch.c
++++ b/arch/parisc/kernel/patch.c
+@@ -40,10 +40,7 @@ static void __kprobes *patch_map(void *addr, int fixmap, unsigned long *flags,
  
- 	l2cap_ecred_init(chan, 0);
+ 	*need_unmap = 1;
+ 	set_fixmap(fixmap, page_to_phys(page));
+-	if (flags)
+-		raw_spin_lock_irqsave(&patch_lock, *flags);
+-	else
+-		__acquire(&patch_lock);
++	raw_spin_lock_irqsave(&patch_lock, *flags);
  
-+	memset(&data, 0, sizeof(data));
- 	data.pdu.req.psm     = chan->psm;
- 	data.pdu.req.mtu     = cpu_to_le16(chan->imtu);
- 	data.pdu.req.mps     = cpu_to_le16(chan->mps);
+ 	return (void *) (__fix_to_virt(fixmap) + (uintaddr & ~PAGE_MASK));
+ }
+@@ -52,10 +49,7 @@ static void __kprobes patch_unmap(int fixmap, unsigned long *flags)
+ {
+ 	clear_fixmap(fixmap);
+ 
+-	if (flags)
+-		raw_spin_unlock_irqrestore(&patch_lock, *flags);
+-	else
+-		__release(&patch_lock);
++	raw_spin_unlock_irqrestore(&patch_lock, *flags);
+ }
+ 
+ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+@@ -67,8 +61,9 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 	int mapped;
+ 
+ 	/* Make sure we don't have any aliases in cache */
+-	flush_kernel_vmap_range(addr, len);
+-	flush_icache_range(start, end);
++	flush_kernel_dcache_range_asm(start, end);
++	flush_kernel_icache_range_asm(start, end);
++	flush_tlb_kernel_range(start, end);
+ 
+ 	p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags, &mapped);
+ 
+@@ -81,8 +76,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 			 * We're crossing a page boundary, so
+ 			 * need to remap
+ 			 */
+-			flush_kernel_vmap_range((void *)fixmap,
+-						(p-fixmap) * sizeof(*p));
++			flush_kernel_dcache_range_asm((unsigned long)fixmap,
++						      (unsigned long)p);
++			flush_tlb_kernel_range((unsigned long)fixmap,
++					       (unsigned long)p);
+ 			if (mapped)
+ 				patch_unmap(FIX_TEXT_POKE0, &flags);
+ 			p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags,
+@@ -90,10 +87,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 		}
+ 	}
+ 
+-	flush_kernel_vmap_range((void *)fixmap, (p-fixmap) * sizeof(*p));
++	flush_kernel_dcache_range_asm((unsigned long)fixmap, (unsigned long)p);
++	flush_tlb_kernel_range((unsigned long)fixmap, (unsigned long)p);
+ 	if (mapped)
+ 		patch_unmap(FIX_TEXT_POKE0, &flags);
+-	flush_icache_range(start, end);
+ }
+ 
+ void __kprobes __patch_text(void *addr, u32 insn)
 -- 
 2.35.1
 
