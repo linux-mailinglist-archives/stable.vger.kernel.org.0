@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2887D4FD380
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE774FD3E4
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352478AbiDLHgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:36:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44288 "EHLO
+        id S1352681AbiDLHgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:36:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355801AbiDLH3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:29:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF0D4F9EF;
-        Tue, 12 Apr 2022 00:08:21 -0700 (PDT)
+        with ESMTP id S1345177AbiDLHbX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:31:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE86150058;
+        Tue, 12 Apr 2022 00:08:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 566B7616E3;
-        Tue, 12 Apr 2022 07:08:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68861C385A1;
-        Tue, 12 Apr 2022 07:08:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47248B81B4E;
+        Tue, 12 Apr 2022 07:08:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3A1BC385B7;
+        Tue, 12 Apr 2022 07:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747300;
-        bh=Me+BbeK8TrKlngWFOxZmgxcvmrkuXu2Fd9tMqyMU6Vc=;
+        s=korg; t=1649747309;
+        bh=h1/zFxNl/9AODl5mu6g3Vx4iIcbiKVoR2kXvfkVY7UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8x0AJugTPnB/HS95WhbGJO86qaRJx6ZNNFWlxj7wd1YOA4PLVXORmrCiUeTnwOQd
-         iU8P3+CDaV8MYxWmopNYcvaJsWbY6yFGFjREG5/G8VUkDWmhhacJJ4z3yH51WbQf7y
-         cAxvJo6lH7GGnt1D2wfFiUci1OYhmN+VOqX8yQJg=
+        b=ql95LVOiyFF2/zHywtuAjRI5hKez0WuxzvkSpVlZsaWbKO1Q8PrynGrt18cd/kxiS
+         Ek8XTf0nPDuH9pUpTe1XkWg2wYOafxCf696CapApNIPKSO1bndvDz75QsA4h5AAGa1
+         /tHwrkjoEqGkLQ1Iu0y7TlZFJcTCrPpH2BthYafY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philip Yang <Philip.Yang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Yang Wang <kevinyang.wang@amd.com>,
+        "Tianci.Yin" <tianci.yin@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 030/343] drm/amdkfd: Dont take process mutex for svm ioctls
-Date:   Tue, 12 Apr 2022 08:27:28 +0200
-Message-Id: <20220412062951.975802742@linuxfoundation.org>
+Subject: [PATCH 5.17 033/343] drm/amdgpu: Fix an error message in rmmod
+Date:   Tue, 12 Apr 2022 08:27:31 +0200
+Message-Id: <20220412062952.062299541@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -55,53 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philip Yang <Philip.Yang@amd.com>
+From: Tianci.Yin <tianci.yin@amd.com>
 
-[ Upstream commit ac7c48c0cce00d03b3c95fddcccb0a45257e33e3 ]
+[ Upstream commit 7270e8957eb9aacf5914605d04865f3829a14bce ]
 
-SVM ioctls take proper svms->lock to handle race conditions, don't need
-take process mutex to serialize ioctls. This also fixes circular locking
-warning:
+[why]
+In rmmod procedure, kfd sends cp a dequeue request, but the
+request does not get response, then an error message "cp
+queue pipe 4 queue 0 preemption failed" printed.
 
-WARNING: possible circular locking dependency detected
+[how]
+Performing kfd suspending after disabling gfxoff can fix it.
 
-  Possible unsafe locking scenario:
-
-        CPU0                    CPU1
-        ----                    ----
-   lock((work_completion)(&svms->deferred_list_work));
-                                lock(&process->mutex);
-                     lock((work_completion)(&svms->deferred_list_work));
-   lock(&process->mutex);
-
-   *** DEADLOCK ***
-
-Signed-off-by: Philip Yang <Philip.Yang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Yang Wang <kevinyang.wang@amd.com>
+Signed-off-by: Tianci.Yin <tianci.yin@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-index 337953af7c2f..70122978bdd0 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-@@ -1846,13 +1846,9 @@ static int kfd_ioctl_svm(struct file *filep, struct kfd_process *p, void *data)
- 	if (!args->start_addr || !args->size)
- 		return -EINVAL;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index f18c698137a6..b87dca6d09fa 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2723,11 +2723,11 @@ static int amdgpu_device_ip_fini_early(struct amdgpu_device *adev)
+ 		}
+ 	}
  
--	mutex_lock(&p->mutex);
+-	amdgpu_amdkfd_suspend(adev, false);
 -
- 	r = svm_ioctl(p, args->op, args->start_addr, args->size, args->nattr,
- 		      args->attrs);
+ 	amdgpu_device_set_pg_state(adev, AMD_PG_STATE_UNGATE);
+ 	amdgpu_device_set_cg_state(adev, AMD_CG_STATE_UNGATE);
  
--	mutex_unlock(&p->mutex);
--
- 	return r;
- }
- #else
++	amdgpu_amdkfd_suspend(adev, false);
++
+ 	/* Workaroud for ASICs need to disable SMC first */
+ 	amdgpu_device_smu_fini_early(adev);
+ 
 -- 
 2.35.1
 
