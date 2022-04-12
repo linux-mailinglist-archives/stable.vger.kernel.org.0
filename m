@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 034EC4FD46B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F194FD516
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377038AbiDLHrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:47:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45798 "EHLO
+        id S1352336AbiDLH2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357231AbiDLHjx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F5E5B01;
-        Tue, 12 Apr 2022 00:14:05 -0700 (PDT)
+        with ESMTP id S1354401AbiDLHRq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347D7E47;
+        Mon, 11 Apr 2022 23:59:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 142A061708;
-        Tue, 12 Apr 2022 07:14:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23150C385A5;
-        Tue, 12 Apr 2022 07:14:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7DF6B81A8F;
+        Tue, 12 Apr 2022 06:59:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 098CEC385A1;
+        Tue, 12 Apr 2022 06:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747644;
-        bh=AC/lpISE/nCmGE6hGsO4RLyENvs+xPM1kkPjSbokyfQ=;
+        s=korg; t=1649746750;
+        bh=V16sdjrQ3Xk+an7cuedzBos7XNkFk0cmeNRCfE4Tdoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsfM2dqMOO4SRo64Uc8Ew7UblAr8/qdRhCDDF7Buw8qtGv3MgUDP7+hDUYg79yGA9
-         ke0LSz1ua4al1hR40LJyyj/R0eunh8BneleQd8jKKoDH92AdDcX8Cxb+eLcxCY47be
-         4/ieCHlYZL0RjxX60QtSk4YSZEEQrJFzT286w4Rg=
+        b=Ey1E8evDyNzmhnIXp0I3iWLDJLP09FXwNxUHTpSpgRSPs74WqACZm37S/uUhePhCP
+         hKEhbUq4MO/3VbIH0OVzihQY/MS9dxKhwbpQRyZh/IqPlnCj0VleroyvP39iu6/qEq
+         zchY75DAseTmUiRJqwYfj7p/HtUghfvc3dqAVjBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qi Liu <liuqi115@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Laurent Dufour <ldufour@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 114/343] scsi: hisi_sas: Free irq vectors in order for v3 HW
-Date:   Tue, 12 Apr 2022 08:28:52 +0200
-Message-Id: <20220412062954.681531539@linuxfoundation.org>
+Subject: [PATCH 5.16 076/285] powerpc/64s/hash: Make hash faults work in NMI context
+Date:   Tue, 12 Apr 2022 08:28:53 +0200
+Message-Id: <20220412062945.859720664@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,107 +56,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qi Liu <liuqi115@huawei.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 554fb72ee34f4732c7f694f56c3c6e67790352a0 ]
+[ Upstream commit 8b91cee5eadd2021f55e6775f2d50bd56d00c217 ]
 
-If the driver probe fails to request the channel IRQ or fatal IRQ, the
-driver will free the IRQ vectors before freeing the IRQs in free_irq(),
-and this will cause a kernel BUG like this:
+Hash faults are not resoved in NMI context, instead causing the access
+to fail. This is done because perf interrupts can get backtraces
+including walking the user stack, and taking a hash fault on those could
+deadlock on the HPTE lock if the perf interrupt hits while the same HPTE
+lock is being held by the hash fault code. The user-access for the stack
+walking will notice the access failed and deal with that in the perf
+code.
 
-------------[ cut here ]------------
-kernel BUG at drivers/pci/msi.c:369!
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-Call trace:
-   free_msi_irqs+0x118/0x13c
-   pci_disable_msi+0xfc/0x120
-   pci_free_irq_vectors+0x24/0x3c
-   hisi_sas_v3_probe+0x360/0x9d0 [hisi_sas_v3_hw]
-   local_pci_probe+0x44/0xb0
-   work_for_cpu_fn+0x20/0x34
-   process_one_work+0x1d0/0x340
-   worker_thread+0x2e0/0x460
-   kthread+0x180/0x190
-   ret_from_fork+0x10/0x20
----[ end trace b88990335b610c11 ]---
+The reason to allow perf interrupts in is to better profile hash faults.
 
-So we use devm_add_action() to control the order in which we free the
-vectors.
+The problem with this is any hash fault on a kernel access that happens
+in NMI context will crash, because kernel accesses must not fail.
 
-Link: https://lore.kernel.org/r/1645703489-87194-4-git-send-email-john.garry@huawei.com
-Signed-off-by: Qi Liu <liuqi115@huawei.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Hard lockups, system reset, machine checks that access vmalloc space
+including modules and including stack backtracing and symbol lookup in
+modules, per-cpu data, etc could all run into this problem.
+
+Fix this by disallowing perf interrupts in the hash fault code (the
+direct hash fault is covered by MSR[EE]=0 so the PMI disable just needs
+to extend to the preload case). This simplifies the tricky logic in hash
+faults and perf, at the cost of reduced profiling of hash faults.
+
+perf can still latch addresses when interrupts are disabled, it just
+won't get the stack trace at that point, so it would still find hot
+spots, just sometimes with confusing stack chains.
+
+An alternative could be to allow perf interrupts here but always do the
+slowpath stack walk if we are in nmi context, but that slows down all
+perf interrupt stack walking on hash though and it does not remove as
+much tricky code.
+
+Reported-by: Laurent Dufour <ldufour@linux.ibm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Tested-by: Laurent Dufour <ldufour@linux.ibm.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220204035348.545435-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ arch/powerpc/include/asm/interrupt.h  |  2 +-
+ arch/powerpc/mm/book3s64/hash_utils.c | 54 ++++-----------------------
+ arch/powerpc/perf/callchain.h         |  9 +----
+ arch/powerpc/perf/callchain_64.c      | 27 --------------
+ 4 files changed, 10 insertions(+), 82 deletions(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index 70173389f6eb..104ef772b512 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -2398,17 +2398,25 @@ static irqreturn_t cq_interrupt_v3_hw(int irq_no, void *p)
- 	return IRQ_WAKE_THREAD;
- }
+diff --git a/arch/powerpc/include/asm/interrupt.h b/arch/powerpc/include/asm/interrupt.h
+index a1d238255f07..a07960066b5f 100644
+--- a/arch/powerpc/include/asm/interrupt.h
++++ b/arch/powerpc/include/asm/interrupt.h
+@@ -567,7 +567,7 @@ DECLARE_INTERRUPT_HANDLER_RAW(do_slb_fault);
+ DECLARE_INTERRUPT_HANDLER(do_bad_slb_fault);
  
-+static void hisi_sas_v3_free_vectors(void *data)
-+{
-+	struct pci_dev *pdev = data;
-+
-+	pci_free_irq_vectors(pdev);
-+}
-+
- static int interrupt_preinit_v3_hw(struct hisi_hba *hisi_hba)
+ /* hash_utils.c */
+-DECLARE_INTERRUPT_HANDLER_RAW(do_hash_fault);
++DECLARE_INTERRUPT_HANDLER(do_hash_fault);
+ 
+ /* fault.c */
+ DECLARE_INTERRUPT_HANDLER(do_page_fault);
+diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
+index cfd45245d009..f77fd4428db3 100644
+--- a/arch/powerpc/mm/book3s64/hash_utils.c
++++ b/arch/powerpc/mm/book3s64/hash_utils.c
+@@ -1522,8 +1522,7 @@ int hash_page(unsigned long ea, unsigned long access, unsigned long trap,
+ }
+ EXPORT_SYMBOL_GPL(hash_page);
+ 
+-DECLARE_INTERRUPT_HANDLER(__do_hash_fault);
+-DEFINE_INTERRUPT_HANDLER(__do_hash_fault)
++DEFINE_INTERRUPT_HANDLER(do_hash_fault)
  {
- 	int vectors;
- 	int max_msi = HISI_SAS_MSI_COUNT_V3_HW, min_msi;
- 	struct Scsi_Host *shost = hisi_hba->shost;
-+	struct pci_dev *pdev = hisi_hba->pci_dev;
- 	struct irq_affinity desc = {
- 		.pre_vectors = BASE_VECTORS_V3_HW,
- 	};
- 
- 	min_msi = MIN_AFFINE_VECTORS_V3_HW;
--	vectors = pci_alloc_irq_vectors_affinity(hisi_hba->pci_dev,
-+	vectors = pci_alloc_irq_vectors_affinity(pdev,
- 						 min_msi, max_msi,
- 						 PCI_IRQ_MSI |
- 						 PCI_IRQ_AFFINITY,
-@@ -2420,6 +2428,7 @@ static int interrupt_preinit_v3_hw(struct hisi_hba *hisi_hba)
- 	hisi_hba->cq_nvecs = vectors - BASE_VECTORS_V3_HW;
- 	shost->nr_hw_queues = hisi_hba->cq_nvecs;
- 
-+	devm_add_action(&pdev->dev, hisi_sas_v3_free_vectors, pdev);
- 	return 0;
- }
- 
-@@ -4769,7 +4778,7 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 
- 	rc = scsi_add_host(shost, dev);
- 	if (rc)
--		goto err_out_free_irq_vectors;
-+		goto err_out_debugfs;
- 
- 	rc = sas_register_ha(sha);
- 	if (rc)
-@@ -4800,8 +4809,6 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	sas_unregister_ha(sha);
- err_out_register_ha:
- 	scsi_remove_host(shost);
--err_out_free_irq_vectors:
--	pci_free_irq_vectors(pdev);
- err_out_debugfs:
- 	debugfs_exit_v3_hw(hisi_hba);
- err_out_ha:
-@@ -4825,7 +4832,6 @@ hisi_sas_v3_destroy_irqs(struct pci_dev *pdev, struct hisi_hba *hisi_hba)
- 
- 		devm_free_irq(&pdev->dev, pci_irq_vector(pdev, nr), cq);
+ 	unsigned long ea = regs->dar;
+ 	unsigned long dsisr = regs->dsisr;
+@@ -1582,35 +1581,6 @@ DEFINE_INTERRUPT_HANDLER(__do_hash_fault)
  	}
--	pci_free_irq_vectors(pdev);
  }
  
- static void hisi_sas_v3_remove(struct pci_dev *pdev)
+-/*
+- * The _RAW interrupt entry checks for the in_nmi() case before
+- * running the full handler.
+- */
+-DEFINE_INTERRUPT_HANDLER_RAW(do_hash_fault)
+-{
+-	/*
+-	 * If we are in an "NMI" (e.g., an interrupt when soft-disabled), then
+-	 * don't call hash_page, just fail the fault. This is required to
+-	 * prevent re-entrancy problems in the hash code, namely perf
+-	 * interrupts hitting while something holds H_PAGE_BUSY, and taking a
+-	 * hash fault. See the comment in hash_preload().
+-	 *
+-	 * We come here as a result of a DSI at a point where we don't want
+-	 * to call hash_page, such as when we are accessing memory (possibly
+-	 * user memory) inside a PMU interrupt that occurred while interrupts
+-	 * were soft-disabled.  We want to invoke the exception handler for
+-	 * the access, or panic if there isn't a handler.
+-	 */
+-	if (unlikely(in_nmi())) {
+-		do_bad_page_fault_segv(regs);
+-		return 0;
+-	}
+-
+-	__do_hash_fault(regs);
+-
+-	return 0;
+-}
+-
+ #ifdef CONFIG_PPC_MM_SLICES
+ static bool should_hash_preload(struct mm_struct *mm, unsigned long ea)
+ {
+@@ -1677,26 +1647,18 @@ static void hash_preload(struct mm_struct *mm, pte_t *ptep, unsigned long ea,
+ #endif /* CONFIG_PPC_64K_PAGES */
+ 
+ 	/*
+-	 * __hash_page_* must run with interrupts off, as it sets the
+-	 * H_PAGE_BUSY bit. It's possible for perf interrupts to hit at any
+-	 * time and may take a hash fault reading the user stack, see
+-	 * read_user_stack_slow() in the powerpc/perf code.
+-	 *
+-	 * If that takes a hash fault on the same page as we lock here, it
+-	 * will bail out when seeing H_PAGE_BUSY set, and retry the access
+-	 * leading to an infinite loop.
++	 * __hash_page_* must run with interrupts off, including PMI interrupts
++	 * off, as it sets the H_PAGE_BUSY bit.
+ 	 *
+-	 * Disabling interrupts here does not prevent perf interrupts, but it
+-	 * will prevent them taking hash faults (see the NMI test in
+-	 * do_hash_page), then read_user_stack's copy_from_user_nofault will
+-	 * fail and perf will fall back to read_user_stack_slow(), which
+-	 * walks the Linux page tables.
++	 * It's otherwise possible for perf interrupts to hit at any time and
++	 * may take a hash fault reading the user stack, which could take a
++	 * hash miss and deadlock on the same H_PAGE_BUSY bit.
+ 	 *
+ 	 * Interrupts must also be off for the duration of the
+ 	 * mm_is_thread_local test and update, to prevent preempt running the
+ 	 * mm on another CPU (XXX: this may be racy vs kthread_use_mm).
+ 	 */
+-	local_irq_save(flags);
++	powerpc_local_irq_pmu_save(flags);
+ 
+ 	/* Is that local to this CPU ? */
+ 	if (mm_is_thread_local(mm))
+@@ -1721,7 +1683,7 @@ static void hash_preload(struct mm_struct *mm, pte_t *ptep, unsigned long ea,
+ 				   mm_ctx_user_psize(&mm->context),
+ 				   pte_val(*ptep));
+ 
+-	local_irq_restore(flags);
++	powerpc_local_irq_pmu_restore(flags);
+ }
+ 
+ /*
+diff --git a/arch/powerpc/perf/callchain.h b/arch/powerpc/perf/callchain.h
+index d6fa6e25234f..19a8d051ddf1 100644
+--- a/arch/powerpc/perf/callchain.h
++++ b/arch/powerpc/perf/callchain.h
+@@ -2,7 +2,6 @@
+ #ifndef _POWERPC_PERF_CALLCHAIN_H
+ #define _POWERPC_PERF_CALLCHAIN_H
+ 
+-int read_user_stack_slow(const void __user *ptr, void *buf, int nb);
+ void perf_callchain_user_64(struct perf_callchain_entry_ctx *entry,
+ 			    struct pt_regs *regs);
+ void perf_callchain_user_32(struct perf_callchain_entry_ctx *entry,
+@@ -26,17 +25,11 @@ static inline int __read_user_stack(const void __user *ptr, void *ret,
+ 				    size_t size)
+ {
+ 	unsigned long addr = (unsigned long)ptr;
+-	int rc;
+ 
+ 	if (addr > TASK_SIZE - size || (addr & (size - 1)))
+ 		return -EFAULT;
+ 
+-	rc = copy_from_user_nofault(ret, ptr, size);
+-
+-	if (IS_ENABLED(CONFIG_PPC64) && !radix_enabled() && rc)
+-		return read_user_stack_slow(ptr, ret, size);
+-
+-	return rc;
++	return copy_from_user_nofault(ret, ptr, size);
+ }
+ 
+ #endif /* _POWERPC_PERF_CALLCHAIN_H */
+diff --git a/arch/powerpc/perf/callchain_64.c b/arch/powerpc/perf/callchain_64.c
+index 8d0df4226328..488e8a21a11e 100644
+--- a/arch/powerpc/perf/callchain_64.c
++++ b/arch/powerpc/perf/callchain_64.c
+@@ -18,33 +18,6 @@
+ 
+ #include "callchain.h"
+ 
+-/*
+- * On 64-bit we don't want to invoke hash_page on user addresses from
+- * interrupt context, so if the access faults, we read the page tables
+- * to find which page (if any) is mapped and access it directly. Radix
+- * has no need for this so it doesn't use read_user_stack_slow.
+- */
+-int read_user_stack_slow(const void __user *ptr, void *buf, int nb)
+-{
+-
+-	unsigned long addr = (unsigned long) ptr;
+-	unsigned long offset;
+-	struct page *page;
+-	void *kaddr;
+-
+-	if (get_user_page_fast_only(addr, FOLL_WRITE, &page)) {
+-		kaddr = page_address(page);
+-
+-		/* align address to page boundary */
+-		offset = addr & ~PAGE_MASK;
+-
+-		memcpy(buf, kaddr + offset, nb);
+-		put_page(page);
+-		return 0;
+-	}
+-	return -EFAULT;
+-}
+-
+ static int read_user_stack_64(const unsigned long __user *ptr, unsigned long *ret)
+ {
+ 	return __read_user_stack(ptr, ret, sizeof(*ret));
 -- 
 2.35.1
 
