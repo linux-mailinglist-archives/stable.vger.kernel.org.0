@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4004FD181
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02FA04FD182
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350957AbiDLG6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:58:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47912 "EHLO
+        id S1351129AbiDLG6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:58:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352141AbiDLGzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:55:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F86D393C6;
-        Mon, 11 Apr 2022 23:45:00 -0700 (PDT)
+        with ESMTP id S1352164AbiDLGzM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:55:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E63393FB;
+        Mon, 11 Apr 2022 23:45:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C0A6ECE1C0A;
-        Tue, 12 Apr 2022 06:44:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF33AC385A1;
-        Tue, 12 Apr 2022 06:44:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57D4BB81B35;
+        Tue, 12 Apr 2022 06:45:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B72ECC385A1;
+        Tue, 12 Apr 2022 06:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745897;
-        bh=Nq4PFmOn6Y0TxJ4NhDk0XkoQCdlfSaGTmCaEbHTGe/8=;
+        s=korg; t=1649745900;
+        bh=mIXU9xcjRo5XYdo9MwkN4nZRgUu7LvTyJ9bQR2Brt14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OucAgQPm02OFvip5UGCgEeB/h5fsSVXgY4Ym/ClrictWg+gxyDnlv7979gB97ty1e
-         pCdO3vCaImL2ZUEHBnIgUwi6BKmC8r4KyK7FbZz1B2oCNrPtpewi5UTFMhqYAgXBf0
-         liZXlbSb5BhC2l7+EGz6Gv5qq8+oynEJGO4kl2Yo=
+        b=FC0N5CztFGgGG/a/GhfDwWsvVOaK6z4R5/ZCfy1Hg2EnJUgcxAm04rFRAiybQpYXp
+         tFNjXch1Aa5hvpBxL9PgJi7cQE9l1TZ6jfvXY78EmuqgO1MprpaedJzYRjSweYXhXR
+         Qg0cYOCMPA5P0X4wIP2orvzRbPpWqbvbZOye9jEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 086/277] MIPS: fix fortify panic when copying asm exception handlers
-Date:   Tue, 12 Apr 2022 08:28:09 +0200
-Message-Id: <20220412062944.536324914@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.15 087/277] powerpc/code-patching: Pre-map patch area
+Date:   Tue, 12 Apr 2022 08:28:10 +0200
+Message-Id: <20220412062944.564653245@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -54,97 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit d17b66417308996e7e64b270a3c7f3c1fbd4cfc8 ]
+[ Upstream commit 591b4b268435f00d2f0b81f786c2c7bd5ef66416 ]
 
-With KCFLAGS="-O3", I was able to trigger a fortify-source
-memcpy() overflow panic on set_vi_srs_handler().
-Although O3 level is not supported in the mainline, under some
-conditions that may've happened with any optimization settings,
-it's just a matter of inlining luck. The panic itself is correct,
-more precisely, 50/50 false-positive and not at the same time.
->From the one side, no real overflow happens. Exception handler
-defined in asm just gets copied to some reserved places in the
-memory.
-But the reason behind is that C code refers to that exception
-handler declares it as `char`, i.e. something of 1 byte length.
-It's obvious that the asm function itself is way more than 1 byte,
-so fortify logics thought we are going to past the symbol declared.
-The standard way to refer to asm symbols from C code which is not
-supposed to be called from C is to declare them as
-`extern const u8[]`. This is fully correct from any point of view,
-as any code itself is just a bunch of bytes (including 0 as it is
-for syms like _stext/_etext/etc.), and the exact size is not known
-at the moment of compilation.
-Adjust the type of the except_vec_vi_*() and related variables.
-Make set_handler() take `const` as a second argument to avoid
-cast-away warnings and give a little more room for optimization.
+Paul reported a warning with DEBUG_ATOMIC_SLEEP=y:
 
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+  BUG: sleeping function called from invalid context at include/linux/sched/mm.h:256
+  in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
+  preempt_count: 0, expected: 0
+  ...
+  Call Trace:
+    dump_stack_lvl+0xa0/0xec (unreliable)
+    __might_resched+0x2f4/0x310
+    kmem_cache_alloc+0x220/0x4b0
+    __pud_alloc+0x74/0x1d0
+    hash__map_kernel_page+0x2cc/0x390
+    do_patch_instruction+0x134/0x4a0
+    arch_jump_label_transform+0x64/0x78
+    __jump_label_update+0x148/0x180
+    static_key_enable_cpuslocked+0xd0/0x120
+    static_key_enable+0x30/0x50
+    check_kvm_guest+0x60/0x88
+    pSeries_smp_probe+0x54/0xb0
+    smp_prepare_cpus+0x3e0/0x430
+    kernel_init_freeable+0x20c/0x43c
+    kernel_init+0x30/0x1a0
+    ret_from_kernel_thread+0x5c/0x64
+
+Peter pointed out that this is because do_patch_instruction() has
+disabled interrupts, but then map_patch_area() calls map_kernel_page()
+then hash__map_kernel_page() which does a sleeping memory allocation.
+
+We only see the warning in KVM guests with SMT enabled, which is not
+particularly common, or on other platforms if CONFIG_KPROBES is
+disabled, also not common. The reason we don't see it in most
+configurations is that another path that happens to have interrupts
+enabled has allocated the required page tables for us, eg. there's a
+path in kprobes init that does that. That's just pure luck though.
+
+As Christophe suggested, the simplest solution is to do a dummy
+map/unmap when we initialise the patching, so that any required page
+table levels are pre-allocated before the first call to
+do_patch_instruction(). This works because the unmap doesn't free any
+page tables that were allocated by the map, it just clears the PTE,
+leaving the page table levels there for the next map.
+
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Debugged-by: Peter Zijlstra <peterz@infradead.org>
+Suggested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220223015821.473097-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/setup.h |  2 +-
- arch/mips/kernel/traps.c      | 22 +++++++++++-----------
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ arch/powerpc/lib/code-patching.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/arch/mips/include/asm/setup.h b/arch/mips/include/asm/setup.h
-index bb36a400203d..8c56b862fd9c 100644
---- a/arch/mips/include/asm/setup.h
-+++ b/arch/mips/include/asm/setup.h
-@@ -16,7 +16,7 @@ static inline void setup_8250_early_printk_port(unsigned long base,
- 	unsigned int reg_shift, unsigned int timeout) {}
- #endif
+diff --git a/arch/powerpc/lib/code-patching.c b/arch/powerpc/lib/code-patching.c
+index c5ed98823835..b76b31196be1 100644
+--- a/arch/powerpc/lib/code-patching.c
++++ b/arch/powerpc/lib/code-patching.c
+@@ -47,9 +47,14 @@ int raw_patch_instruction(u32 *addr, struct ppc_inst instr)
+ #ifdef CONFIG_STRICT_KERNEL_RWX
+ static DEFINE_PER_CPU(struct vm_struct *, text_poke_area);
  
--extern void set_handler(unsigned long offset, void *addr, unsigned long len);
-+void set_handler(unsigned long offset, const void *addr, unsigned long len);
- extern void set_uncached_handler(unsigned long offset, void *addr, unsigned long len);
- 
- typedef void (*vi_handler_t)(void);
-diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
-index 6f07362de5ce..edd93430b954 100644
---- a/arch/mips/kernel/traps.c
-+++ b/arch/mips/kernel/traps.c
-@@ -2085,19 +2085,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
- 		 * If no shadow set is selected then use the default handler
- 		 * that does normal register saving and standard interrupt exit
- 		 */
--		extern char except_vec_vi, except_vec_vi_lui;
--		extern char except_vec_vi_ori, except_vec_vi_end;
--		extern char rollback_except_vec_vi;
--		char *vec_start = using_rollback_handler() ?
--			&rollback_except_vec_vi : &except_vec_vi;
-+		extern const u8 except_vec_vi[], except_vec_vi_lui[];
-+		extern const u8 except_vec_vi_ori[], except_vec_vi_end[];
-+		extern const u8 rollback_except_vec_vi[];
-+		const u8 *vec_start = using_rollback_handler() ?
-+				      rollback_except_vec_vi : except_vec_vi;
- #if defined(CONFIG_CPU_MICROMIPS) || defined(CONFIG_CPU_BIG_ENDIAN)
--		const int lui_offset = &except_vec_vi_lui - vec_start + 2;
--		const int ori_offset = &except_vec_vi_ori - vec_start + 2;
-+		const int lui_offset = except_vec_vi_lui - vec_start + 2;
-+		const int ori_offset = except_vec_vi_ori - vec_start + 2;
- #else
--		const int lui_offset = &except_vec_vi_lui - vec_start;
--		const int ori_offset = &except_vec_vi_ori - vec_start;
-+		const int lui_offset = except_vec_vi_lui - vec_start;
-+		const int ori_offset = except_vec_vi_ori - vec_start;
- #endif
--		const int handler_len = &except_vec_vi_end - vec_start;
-+		const int handler_len = except_vec_vi_end - vec_start;
- 
- 		if (handler_len > VECTORSPACING) {
- 			/*
-@@ -2305,7 +2305,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
- }
- 
- /* Install CPU exception handler */
--void set_handler(unsigned long offset, void *addr, unsigned long size)
-+void set_handler(unsigned long offset, const void *addr, unsigned long size)
++static int map_patch_area(void *addr, unsigned long text_poke_addr);
++static void unmap_patch_area(unsigned long addr);
++
+ static int text_area_cpu_up(unsigned int cpu)
  {
- #ifdef CONFIG_CPU_MICROMIPS
- 	memcpy((void *)(ebase + offset), ((unsigned char *)addr - 1), size);
+ 	struct vm_struct *area;
++	unsigned long addr;
++	int err;
+ 
+ 	area = get_vm_area(PAGE_SIZE, VM_ALLOC);
+ 	if (!area) {
+@@ -57,6 +62,15 @@ static int text_area_cpu_up(unsigned int cpu)
+ 			cpu);
+ 		return -1;
+ 	}
++
++	// Map/unmap the area to ensure all page tables are pre-allocated
++	addr = (unsigned long)area->addr;
++	err = map_patch_area(empty_zero_page, addr);
++	if (err)
++		return err;
++
++	unmap_patch_area(addr);
++
+ 	this_cpu_write(text_poke_area, area);
+ 
+ 	return 0;
 -- 
 2.35.1
 
