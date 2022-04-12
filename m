@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E27A14FD5B8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7971D4FD6DE
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245308AbiDLHpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:45:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54060 "EHLO
+        id S1351751AbiDLHWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:22:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356181AbiDLHek (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:34:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6317C2BC9;
-        Tue, 12 Apr 2022 00:09:07 -0700 (PDT)
+        with ESMTP id S1352825AbiDLHOa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8046EE0EB;
+        Mon, 11 Apr 2022 23:55:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5CF3B81B50;
-        Tue, 12 Apr 2022 07:09:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20982C385A1;
-        Tue, 12 Apr 2022 07:09:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94D0E61451;
+        Tue, 12 Apr 2022 06:55:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A47ADC385B6;
+        Tue, 12 Apr 2022 06:55:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747344;
-        bh=Kis1m7DCiAim8AJzs0Ba0MT9e/Dm3ojhWqjSSvMIge8=;
+        s=korg; t=1649746510;
+        bh=dlwLqBXYP8OkZ069bvbEEpvkzus7DEWuXsJub3j4qr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cosjB9MYnHXM0EOYYlwdBnWgAG6uAhrSlBINC88iEXnV6W/Ic6qpGtQvuKFrcRQJ+
-         I6/xUgQDaGuS6GmL8s5dDaa2J5AJh2AGe7wGpiWFyjMjSiy9usrjwxrYmgaVZgqkKh
-         ZWJDDURzbbQ6K31M6ODRoWFpMxwgB8c4BslMKhf0=
+        b=hm3P3445RuM/VSD1+/gJVxcHDZ301ro/DbqbPpw8FcJ20t0CRdJ9Kw51TOzHG9oSZ
+         /ZFFlQBmJZlTo81cZrTdgYeyi5UL+gt6PTtvL/yq7XcoQln2WjEdDIjfiOjjmTo9ni
+         pNXjPrnAaLPWzHtqpfJoUKrDflrPGRItTYIS/sIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Yang Guang <yang.guang5@zte.com.cn>,
-        David Yang <davidcomponentone@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ravi Bangoria <ravi.bangoria@amd.com>,
+        Jim Mattson <jmattson@google.com>,
+        Like Xu <likexu@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 045/343] scsi: bfa: Replace snprintf() with sysfs_emit()
-Date:   Tue, 12 Apr 2022 08:27:43 +0200
-Message-Id: <20220412062952.407996838@linuxfoundation.org>
+Subject: [PATCH 5.16 007/285] KVM: x86/pmu: Fix and isolate TSX-specific performance event logic
+Date:   Tue, 12 Apr 2022 08:27:44 +0200
+Message-Id: <20220412062943.886304721@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,167 +56,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Guang <yang.guang5@zte.com.cn>
+From: Like Xu <likexu@tencent.com>
 
-[ Upstream commit 2245ea91fd3a04cafbe2f54911432a8657528c3b ]
+[ Upstream commit e644896f5106aa3f6d7e8c7adf2e4dc0fce53555 ]
 
-coccinelle report:
-./drivers/scsi/bfa/bfad_attr.c:908:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:860:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:888:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:853:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:808:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:728:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:822:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:927:9-17:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:900:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:874:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:714:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:839:8-16:
-WARNING: use scnprintf or sprintf
+HSW_IN_TX* bits are used in generic code which are not supported on
+AMD. Worse, these bits overlap with AMD EventSelect[11:8] and hence
+using HSW_IN_TX* bits unconditionally in generic code is resulting in
+unintentional pmu behavior on AMD. For example, if EventSelect[11:8]
+is 0x2, pmc_reprogram_counter() wrongly assumes that
+HSW_IN_TX_CHECKPOINTED is set and thus forces sampling period to be 0.
 
-Use sysfs_emit() instead of scnprintf() or sprintf().
+Also per the SDM, both bits 32 and 33 "may only be set if the processor
+supports HLE or RTM" and for "IN_TXCP (bit 33): this bit may only be set
+for IA32_PERFEVTSEL2."
 
-Link: https://lore.kernel.org/r/def83ff75faec64ba592b867a8499b1367bae303.1643181468.git.yang.guang5@zte.com.cn
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
-Signed-off-by: David Yang <davidcomponentone@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Opportunistically eliminate code redundancy, because if the HSW_IN_TX*
+bit is set in pmc->eventsel, it is already set in attr.config.
+
+Reported-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Reported-by: Jim Mattson <jmattson@google.com>
+Fixes: 103af0a98788 ("perf, kvm: Support the in_tx/in_tx_cp modifiers in KVM arch perfmon emulation v5")
+Co-developed-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Like Xu <likexu@tencent.com>
+Message-Id: <20220309084257.88931-1-likexu@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/bfa/bfad_attr.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ arch/x86/kvm/pmu.c           | 15 +++++----------
+ arch/x86/kvm/vmx/pmu_intel.c | 13 ++++++++++---
+ 2 files changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/scsi/bfa/bfad_attr.c b/drivers/scsi/bfa/bfad_attr.c
-index f46989bd083c..5a85401e9e2d 100644
---- a/drivers/scsi/bfa/bfad_attr.c
-+++ b/drivers/scsi/bfa/bfad_attr.c
-@@ -711,7 +711,7 @@ bfad_im_serial_num_show(struct device *dev, struct device_attribute *attr,
- 	char serial_num[BFA_ADAPTER_SERIAL_NUM_LEN];
+diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
+index 255ef63a4354..227b06dd1fea 100644
+--- a/arch/x86/kvm/pmu.c
++++ b/arch/x86/kvm/pmu.c
+@@ -96,8 +96,7 @@ static void kvm_perf_overflow_intr(struct perf_event *perf_event,
  
- 	bfa_get_adapter_serial_num(&bfad->bfa, serial_num);
--	return snprintf(buf, PAGE_SIZE, "%s\n", serial_num);
-+	return sysfs_emit(buf, "%s\n", serial_num);
- }
- 
- static ssize_t
-@@ -725,7 +725,7 @@ bfad_im_model_show(struct device *dev, struct device_attribute *attr,
- 	char model[BFA_ADAPTER_MODEL_NAME_LEN];
- 
- 	bfa_get_adapter_model(&bfad->bfa, model);
--	return snprintf(buf, PAGE_SIZE, "%s\n", model);
-+	return sysfs_emit(buf, "%s\n", model);
- }
- 
- static ssize_t
-@@ -805,7 +805,7 @@ bfad_im_model_desc_show(struct device *dev, struct device_attribute *attr,
- 		snprintf(model_descr, BFA_ADAPTER_MODEL_DESCR_LEN,
- 			"Invalid Model");
- 
--	return snprintf(buf, PAGE_SIZE, "%s\n", model_descr);
-+	return sysfs_emit(buf, "%s\n", model_descr);
- }
- 
- static ssize_t
-@@ -819,7 +819,7 @@ bfad_im_node_name_show(struct device *dev, struct device_attribute *attr,
- 	u64        nwwn;
- 
- 	nwwn = bfa_fcs_lport_get_nwwn(port->fcs_port);
--	return snprintf(buf, PAGE_SIZE, "0x%llx\n", cpu_to_be64(nwwn));
-+	return sysfs_emit(buf, "0x%llx\n", cpu_to_be64(nwwn));
- }
- 
- static ssize_t
-@@ -836,7 +836,7 @@ bfad_im_symbolic_name_show(struct device *dev, struct device_attribute *attr,
- 	bfa_fcs_lport_get_attr(&bfad->bfa_fcs.fabric.bport, &port_attr);
- 	strlcpy(symname, port_attr.port_cfg.sym_name.symname,
- 			BFA_SYMNAME_MAXLEN);
--	return snprintf(buf, PAGE_SIZE, "%s\n", symname);
-+	return sysfs_emit(buf, "%s\n", symname);
- }
- 
- static ssize_t
-@@ -850,14 +850,14 @@ bfad_im_hw_version_show(struct device *dev, struct device_attribute *attr,
- 	char hw_ver[BFA_VERSION_LEN];
- 
- 	bfa_get_pci_chip_rev(&bfad->bfa, hw_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", hw_ver);
-+	return sysfs_emit(buf, "%s\n", hw_ver);
- }
- 
- static ssize_t
- bfad_im_drv_version_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
+ static void pmc_reprogram_counter(struct kvm_pmc *pmc, u32 type,
+ 				  u64 config, bool exclude_user,
+-				  bool exclude_kernel, bool intr,
+-				  bool in_tx, bool in_tx_cp)
++				  bool exclude_kernel, bool intr)
  {
--	return snprintf(buf, PAGE_SIZE, "%s\n", BFAD_DRIVER_VERSION);
-+	return sysfs_emit(buf, "%s\n", BFAD_DRIVER_VERSION);
+ 	struct perf_event *event;
+ 	struct perf_event_attr attr = {
+@@ -113,16 +112,14 @@ static void pmc_reprogram_counter(struct kvm_pmc *pmc, u32 type,
+ 
+ 	attr.sample_period = get_sample_period(pmc, pmc->counter);
+ 
+-	if (in_tx)
+-		attr.config |= HSW_IN_TX;
+-	if (in_tx_cp) {
++	if ((attr.config & HSW_IN_TX_CHECKPOINTED) &&
++	    guest_cpuid_is_intel(pmc->vcpu)) {
+ 		/*
+ 		 * HSW_IN_TX_CHECKPOINTED is not supported with nonzero
+ 		 * period. Just clear the sample period so at least
+ 		 * allocating the counter doesn't fail.
+ 		 */
+ 		attr.sample_period = 0;
+-		attr.config |= HSW_IN_TX_CHECKPOINTED;
+ 	}
+ 
+ 	event = perf_event_create_kernel_counter(&attr, -1, current,
+@@ -229,9 +226,7 @@ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
+ 	pmc_reprogram_counter(pmc, type, config,
+ 			      !(eventsel & ARCH_PERFMON_EVENTSEL_USR),
+ 			      !(eventsel & ARCH_PERFMON_EVENTSEL_OS),
+-			      eventsel & ARCH_PERFMON_EVENTSEL_INT,
+-			      (eventsel & HSW_IN_TX),
+-			      (eventsel & HSW_IN_TX_CHECKPOINTED));
++			      eventsel & ARCH_PERFMON_EVENTSEL_INT);
  }
+ EXPORT_SYMBOL_GPL(reprogram_gp_counter);
  
- static ssize_t
-@@ -871,7 +871,7 @@ bfad_im_optionrom_version_show(struct device *dev,
- 	char optrom_ver[BFA_VERSION_LEN];
- 
- 	bfa_get_adapter_optrom_ver(&bfad->bfa, optrom_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", optrom_ver);
-+	return sysfs_emit(buf, "%s\n", optrom_ver);
+@@ -267,7 +262,7 @@ void reprogram_fixed_counter(struct kvm_pmc *pmc, u8 ctrl, int idx)
+ 			      kvm_x86_ops.pmu_ops->find_fixed_event(idx),
+ 			      !(en_field & 0x2), /* exclude user */
+ 			      !(en_field & 0x1), /* exclude kernel */
+-			      pmi, false, false);
++			      pmi);
  }
+ EXPORT_SYMBOL_GPL(reprogram_fixed_counter);
  
- static ssize_t
-@@ -885,7 +885,7 @@ bfad_im_fw_version_show(struct device *dev, struct device_attribute *attr,
- 	char fw_ver[BFA_VERSION_LEN];
+diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
+index 9e380a939c72..ee2452215e93 100644
+--- a/arch/x86/kvm/vmx/pmu_intel.c
++++ b/arch/x86/kvm/vmx/pmu_intel.c
+@@ -395,6 +395,7 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 	struct kvm_pmc *pmc;
+ 	u32 msr = msr_info->index;
+ 	u64 data = msr_info->data;
++	u64 reserved_bits;
  
- 	bfa_get_adapter_fw_ver(&bfad->bfa, fw_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", fw_ver);
-+	return sysfs_emit(buf, "%s\n", fw_ver);
- }
+ 	switch (msr) {
+ 	case MSR_CORE_PERF_FIXED_CTR_CTRL:
+@@ -449,7 +450,11 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		} else if ((pmc = get_gp_pmc(pmu, msr, MSR_P6_EVNTSEL0))) {
+ 			if (data == pmc->eventsel)
+ 				return 0;
+-			if (!(data & pmu->reserved_bits)) {
++			reserved_bits = pmu->reserved_bits;
++			if ((pmc->idx == 2) &&
++			    (pmu->raw_event_mask & HSW_IN_TX_CHECKPOINTED))
++				reserved_bits ^= HSW_IN_TX_CHECKPOINTED;
++			if (!(data & reserved_bits)) {
+ 				reprogram_gp_counter(pmc, data);
+ 				return 0;
+ 			}
+@@ -523,8 +528,10 @@ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
+ 	entry = kvm_find_cpuid_entry(vcpu, 7, 0);
+ 	if (entry &&
+ 	    (boot_cpu_has(X86_FEATURE_HLE) || boot_cpu_has(X86_FEATURE_RTM)) &&
+-	    (entry->ebx & (X86_FEATURE_HLE|X86_FEATURE_RTM)))
+-		pmu->reserved_bits ^= HSW_IN_TX|HSW_IN_TX_CHECKPOINTED;
++	    (entry->ebx & (X86_FEATURE_HLE|X86_FEATURE_RTM))) {
++		pmu->reserved_bits ^= HSW_IN_TX;
++		pmu->raw_event_mask |= (HSW_IN_TX|HSW_IN_TX_CHECKPOINTED);
++	}
  
- static ssize_t
-@@ -897,7 +897,7 @@ bfad_im_num_of_ports_show(struct device *dev, struct device_attribute *attr,
- 			(struct bfad_im_port_s *) shost->hostdata[0];
- 	struct bfad_s *bfad = im_port->bfad;
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n",
-+	return sysfs_emit(buf, "%d\n",
- 			bfa_get_nports(&bfad->bfa));
- }
- 
-@@ -905,7 +905,7 @@ static ssize_t
- bfad_im_drv_name_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
- {
--	return snprintf(buf, PAGE_SIZE, "%s\n", BFAD_DRIVER_NAME);
-+	return sysfs_emit(buf, "%s\n", BFAD_DRIVER_NAME);
- }
- 
- static ssize_t
-@@ -924,14 +924,14 @@ bfad_im_num_of_discovered_ports_show(struct device *dev,
- 	rports = kcalloc(nrports, sizeof(struct bfa_rport_qualifier_s),
- 			 GFP_ATOMIC);
- 	if (rports == NULL)
--		return snprintf(buf, PAGE_SIZE, "Failed\n");
-+		return sysfs_emit(buf, "Failed\n");
- 
- 	spin_lock_irqsave(&bfad->bfad_lock, flags);
- 	bfa_fcs_lport_get_rport_quals(port->fcs_port, rports, &nrports);
- 	spin_unlock_irqrestore(&bfad->bfad_lock, flags);
- 	kfree(rports);
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", nrports);
-+	return sysfs_emit(buf, "%d\n", nrports);
- }
- 
- static          DEVICE_ATTR(serial_number, S_IRUGO,
+ 	bitmap_set(pmu->all_valid_pmc_idx,
+ 		0, pmu->nr_arch_gp_counters);
 -- 
 2.35.1
 
