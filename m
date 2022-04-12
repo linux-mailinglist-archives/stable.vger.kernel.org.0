@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D79EA4FD115
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE0884FD10D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351029AbiDLG5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:57:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48624 "EHLO
+        id S1351011AbiDLG5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:57:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351457AbiDLGxk (ORCPT
+        with ESMTP id S1351462AbiDLGxk (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0485F3FBF5;
-        Mon, 11 Apr 2022 23:41:01 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32CF03FD89;
+        Mon, 11 Apr 2022 23:41:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0089B818C8;
-        Tue, 12 Apr 2022 06:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDEEDC385A6;
-        Tue, 12 Apr 2022 06:40:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3E9960A6A;
+        Tue, 12 Apr 2022 06:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CCFBC385A6;
+        Tue, 12 Apr 2022 06:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745658;
-        bh=DbW/wf8OevNXBSLug74Z5bRsiyjkLn//vz/Chq+D7Mw=;
+        s=korg; t=1649745661;
+        bh=xD81+Rr8cJDb3Xf3pXhS9TlxXt3tbEQ3dRJHQ1ihxVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ast7xRsnadrgJszdy2DAj0hojVEB2Ua/5UIXtML/Ja9etl78GNkEcDgIORsqisKMO
-         kgz+nDmrISWcHYZJtVSeFbcfVxQTeTe1uv9/6GY9txIpPnI3G0vNMUZmR9RCkhAk66
-         F251PsbEZwWG76d7HfBK4vl7eyY9GD/jHAeugn1c=
+        b=bZNeMkTydWwBChEbLZF7J35P8xoDjzpJ4/LkEB53njZ0xPkK6bCTd2FhUk1tBnIFY
+         6jgGPBSWsAGDGqZlZK3t8DMo2oJwmQSbFQCajsLZza/uIA0sHChrxGT0Y1xu7cw6YF
+         Yc3RK0Pj/Oz369sKDdQCHmgEPB2ZlXXojUv1LluA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Marco Elver <elver@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Hugh Dickins <hughd@google.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        "Kirill A . Shutemov" <kirill@shutemov.name>,
+        Matthew Wilcox <willy@infradead.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Yang Shi <shy828301@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: [PATCH 5.10 160/171] ubsan: remove CONFIG_UBSAN_OBJECT_SIZE
-Date:   Tue, 12 Apr 2022 08:30:51 +0200
-Message-Id: <20220412062932.528214929@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 161/171] mm: dont skip swap entry even if zap_details specified
+Date:   Tue, 12 Apr 2022 08:30:52 +0200
+Message-Id: <20220412062932.557154134@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -64,76 +63,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Peter Xu <peterx@redhat.com>
 
-commit 69d0db01e210e07fe915e5da91b54a867cda040f upstream.
+commit 5abfd71d936a8aefd9f9ccd299dea7a164a5d455 upstream.
 
-The object-size sanitizer is redundant to -Warray-bounds, and
-inappropriately performs its checks at run-time when all information
-needed for the evaluation is available at compile-time, making it quite
-difficult to use:
+Patch series "mm: Rework zap ptes on swap entries", v5.
 
-  https://bugzilla.kernel.org/show_bug.cgi?id=214861
+Patch 1 should fix a long standing bug for zap_pte_range() on
+zap_details usage.  The risk is we could have some swap entries skipped
+while we should have zapped them.
 
-With -Warray-bounds almost enabled globally, it doesn't make sense to
-keep this around.
+Migration entries are not the major concern because file backed memory
+always zap in the pattern that "first time without page lock, then
+re-zap with page lock" hence the 2nd zap will always make sure all
+migration entries are already recovered.
 
-Link: https://lkml.kernel.org/r/20211203235346.110809-1-keescook@chromium.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Marco Elver <elver@google.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Michal Marek <michal.lkml@markovi.net>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Arnd Bergmann <arnd@arndb.de>
+However there can be issues with real swap entries got skipped
+errornoously.  There's a reproducer provided in commit message of patch
+1 for that.
+
+Patch 2-4 are cleanups that are based on patch 1.  After the whole
+patchset applied, we should have a very clean view of zap_pte_range().
+
+Only patch 1 needs to be backported to stable if necessary.
+
+This patch (of 4):
+
+The "details" pointer shouldn't be the token to decide whether we should
+skip swap entries.
+
+For example, when the callers specified details->zap_mapping==NULL, it
+means the user wants to zap all the pages (including COWed pages), then
+we need to look into swap entries because there can be private COWed
+pages that was swapped out.
+
+Skipping some swap entries when details is non-NULL may lead to wrongly
+leaving some of the swap entries while we should have zapped them.
+
+A reproducer of the problem:
+
+===8<===
+        #define _GNU_SOURCE         /* See feature_test_macros(7) */
+        #include <stdio.h>
+        #include <assert.h>
+        #include <unistd.h>
+        #include <sys/mman.h>
+        #include <sys/types.h>
+
+        int page_size;
+        int shmem_fd;
+        char *buffer;
+
+        void main(void)
+        {
+                int ret;
+                char val;
+
+                page_size = getpagesize();
+                shmem_fd = memfd_create("test", 0);
+                assert(shmem_fd >= 0);
+
+                ret = ftruncate(shmem_fd, page_size * 2);
+                assert(ret == 0);
+
+                buffer = mmap(NULL, page_size * 2, PROT_READ | PROT_WRITE,
+                                MAP_PRIVATE, shmem_fd, 0);
+                assert(buffer != MAP_FAILED);
+
+                /* Write private page, swap it out */
+                buffer[page_size] = 1;
+                madvise(buffer, page_size * 2, MADV_PAGEOUT);
+
+                /* This should drop private buffer[page_size] already */
+                ret = ftruncate(shmem_fd, page_size);
+                assert(ret == 0);
+                /* Recover the size */
+                ret = ftruncate(shmem_fd, page_size * 2);
+                assert(ret == 0);
+
+                /* Re-read the data, it should be all zero */
+                val = buffer[page_size];
+                if (val == 0)
+                        printf("Good\n");
+                else
+                        printf("BUG\n");
+        }
+===8<===
+
+We don't need to touch up the pmd path, because pmd never had a issue with
+swap entries.  For example, shmem pmd migration will always be split into
+pte level, and same to swapping on anonymous.
+
+Add another helper should_zap_cows() so that we can also check whether we
+should zap private mappings when there's no page pointer specified.
+
+This patch drops that trick, so we handle swap ptes coherently.  Meanwhile
+we should do the same check upon migration entry, hwpoison entry and
+genuine swap entries too.
+
+To be explicit, we should still remember to keep the private entries if
+even_cows==false, and always zap them when even_cows==true.
+
+The issue seems to exist starting from the initial commit of git.
+
+[peterx@redhat.com: comment tweaks]
+  Link: https://lkml.kernel.org/r/20220217060746.71256-2-peterx@redhat.com
+
+Link: https://lkml.kernel.org/r/20220217060746.71256-1-peterx@redhat.com
+Link: https://lkml.kernel.org/r/20220216094810.60572-1-peterx@redhat.com
+Link: https://lkml.kernel.org/r/20220216094810.60572-2-peterx@redhat.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/test_ubsan.c       |   11 -----------
- scripts/Makefile.ubsan |    1 -
- 2 files changed, 12 deletions(-)
+ mm/memory.c |   25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
---- a/lib/test_ubsan.c
-+++ b/lib/test_ubsan.c
-@@ -89,16 +89,6 @@ static void test_ubsan_misaligned_access
- 	*ptr = val;
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -1204,6 +1204,17 @@ copy_page_range(struct vm_area_struct *d
+ 	return ret;
  }
  
--static void test_ubsan_object_size_mismatch(void)
--{
--	/* "((aligned(8)))" helps this not into be misaligned for ptr-access. */
--	volatile int val __aligned(8) = 4;
--	volatile long long *ptr, val2;
--
--	ptr = (long long *)&val;
--	val2 = *ptr;
--}
--
- static const test_ubsan_fp test_ubsan_array[] = {
- 	test_ubsan_add_overflow,
- 	test_ubsan_sub_overflow,
-@@ -110,7 +100,6 @@ static const test_ubsan_fp test_ubsan_ar
- 	test_ubsan_load_invalid_value,
- 	//test_ubsan_null_ptr_deref, /* exclude it because there is a crash */
- 	test_ubsan_misaligned_access,
--	test_ubsan_object_size_mismatch,
- };
++/* Whether we should zap all COWed (private) pages too */
++static inline bool should_zap_cows(struct zap_details *details)
++{
++	/* By default, zap all pages */
++	if (!details)
++		return true;
++
++	/* Or, we zap COWed pages only if the caller wants to */
++	return !details->check_mapping;
++}
++
+ static unsigned long zap_pte_range(struct mmu_gather *tlb,
+ 				struct vm_area_struct *vma, pmd_t *pmd,
+ 				unsigned long addr, unsigned long end,
+@@ -1295,16 +1306,18 @@ again:
+ 			continue;
+ 		}
  
- static int __init test_ubsan_init(void)
---- a/scripts/Makefile.ubsan
-+++ b/scripts/Makefile.ubsan
-@@ -23,7 +23,6 @@ ifdef CONFIG_UBSAN_MISC
-       CFLAGS_UBSAN += $(call cc-option, -fsanitize=integer-divide-by-zero)
-       CFLAGS_UBSAN += $(call cc-option, -fsanitize=unreachable)
-       CFLAGS_UBSAN += $(call cc-option, -fsanitize=signed-integer-overflow)
--      CFLAGS_UBSAN += $(call cc-option, -fsanitize=object-size)
-       CFLAGS_UBSAN += $(call cc-option, -fsanitize=bool)
-       CFLAGS_UBSAN += $(call cc-option, -fsanitize=enum)
- endif
+-		/* If details->check_mapping, we leave swap entries. */
+-		if (unlikely(details))
+-			continue;
+-
+-		if (!non_swap_entry(entry))
++		if (!non_swap_entry(entry)) {
++			/* Genuine swap entry, hence a private anon page */
++			if (!should_zap_cows(details))
++				continue;
+ 			rss[MM_SWAPENTS]--;
+-		else if (is_migration_entry(entry)) {
++		} else if (is_migration_entry(entry)) {
+ 			struct page *page;
+ 
+ 			page = migration_entry_to_page(entry);
++			if (details && details->check_mapping &&
++			    details->check_mapping != page_rmapping(page))
++				continue;
+ 			rss[mm_counter(page)]--;
+ 		}
+ 		if (unlikely(!free_swap_and_cache(entry)))
 
 
