@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6404FD973
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84D5A4FD48A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:04:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352044AbiDLIBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:01:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
+        id S239514AbiDLHpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:45:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357448AbiDLHkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086C32B277;
-        Tue, 12 Apr 2022 00:15:52 -0700 (PDT)
+        with ESMTP id S1353499AbiDLHZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72377434A7;
+        Tue, 12 Apr 2022 00:00:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6754CB81B66;
-        Tue, 12 Apr 2022 07:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF005C385A5;
-        Tue, 12 Apr 2022 07:15:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E07D960B2B;
+        Tue, 12 Apr 2022 07:00:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F25CFC385A1;
+        Tue, 12 Apr 2022 07:00:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747750;
-        bh=atbR4RPy9yHB2eufZS3l49htdikvABO9wcWmNNaXj4g=;
+        s=korg; t=1649746849;
+        bh=nPLzPo/W56YZK/GGNpaRlRiMxvPuMvqwPhfW/qv0P84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHI01Iq3W6z+JXidPBqCWQEBOHYM5bAxB6aB825ANTcbgPCWOIQ4q2R6syuf6SKk1
-         CQbHZ0joUeZ5bxgTiFi3wJL8ZlmVFunMkJjHA0+c6gfG5WaBg5jOjBh0BiNidV/cmz
-         7TeiJibwsDl/L0OTQkYjX1tRbm4PfX2Geq19YwpE=
+        b=prWG9uZwSaGmMb8BTr4zr4fxdw0zcw3D/WvZw6rl2Ff+frl7hVI5Pt9AdAi5dLECF
+         7u+6bhLIDrX6LDI4t5rZ4yJkXSclU2H2Kex+tf6OnuA67bmLE9150U5oE03JCw94V/
+         HGF/MOBEW3HNuZKIhRsn0KSaKSBans0MahPRfRak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 190/343] parisc: Fix CPU affinity for Lasi, WAX and Dino chips
+Subject: [PATCH 5.16 151/285] rtc: mc146818-lib: fix RTC presence check
 Date:   Tue, 12 Apr 2022 08:30:08 +0200
-Message-Id: <20220412062956.843352201@linuxfoundation.org>
+Message-Id: <20220412062948.031579230@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,230 +57,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Mateusz Jończyk <mat.jonczyk@o2.pl>
 
-[ Upstream commit 939fc856676c266c3bc347c1c1661872a3725c0f ]
+[ Upstream commit ea6fa4961aab8f90a8aa03575a98b4bda368d4b6 ]
 
-Add the missing logic to allow Lasi, WAX and Dino to set the
-CPU affinity. This fixes IRQ migration to other CPUs when a
-CPU is shutdown which currently holds the IRQs for one of those
-chips.
+To prevent an infinite loop in mc146818_get_time(),
+commit 211e5db19d15 ("rtc: mc146818: Detect and handle broken RTCs")
+added a check for RTC availability. Together with a later fix, it
+checked if bit 6 in register 0x0d is cleared.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+This, however, caused a false negative on a motherboard with an AMD
+SB710 southbridge; according to the specification [1], bit 6 of register
+0x0d of this chipset is a scratchbit. This caused a regression in Linux
+5.11 - the RTC was determined broken by the kernel and not used by
+rtc-cmos.c [3]. This problem was also reported in Fedora [4].
+
+As a better alternative, check whether the UIP ("Update-in-progress")
+bit is set for longer then 10ms. If that is the case, then apparently
+the RTC is either absent (and all register reads return 0xff) or broken.
+Also limit the number of loop iterations in mc146818_get_time() to 10 to
+prevent an infinite loop there.
+
+The functions mc146818_get_time() and mc146818_does_rtc_work() will be
+refactored later in this patch series, in order to fix a separate
+problem with reading / setting the RTC alarm time. This is done so to
+avoid a confusion about what is being fixed when.
+
+In a previous approach to this problem, I implemented a check whether
+the RTC_HOURS register contains a value <= 24. This, however, sometimes
+did not work correctly on my Intel Kaby Lake laptop. According to
+Intel's documentation [2], "the time and date RAM locations (0-9) are
+disconnected from the external bus" during the update cycle so reading
+this register without checking the UIP bit is incorrect.
+
+[1] AMD SB700/710/750 Register Reference Guide, page 308,
+https://developer.amd.com/wordpress/media/2012/10/43009_sb7xx_rrg_pub_1.00.pdf
+
+[2] 7th Generation Intel ® Processor Family I/O for U/Y Platforms [...] Datasheet
+Volume 1 of 2, page 209
+Intel's Document Number: 334658-006,
+https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/7th-and-8th-gen-core-family-mobile-u-y-processor-lines-i-o-datasheet-vol-1.pdf
+
+[3] Functions in arch/x86/kernel/rtc.c apparently were using it.
+
+[4] https://bugzilla.redhat.com/show_bug.cgi?id=1936688
+
+Fixes: 211e5db19d15 ("rtc: mc146818: Detect and handle broken RTCs")
+Fixes: ebb22a059436 ("rtc: mc146818: Dont test for bit 0-5 in Register D")
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20211210200131.153887-5-mat.jonczyk@o2.pl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parisc/dino.c | 41 +++++++++++++++++++++++++++++++++--------
- drivers/parisc/gsc.c  | 31 +++++++++++++++++++++++++++++++
- drivers/parisc/gsc.h  |  1 +
- drivers/parisc/lasi.c |  7 +++----
- drivers/parisc/wax.c  |  7 +++----
- 5 files changed, 71 insertions(+), 16 deletions(-)
+ drivers/rtc/rtc-cmos.c         | 10 ++++------
+ drivers/rtc/rtc-mc146818-lib.c | 34 ++++++++++++++++++++++++++++++----
+ include/linux/mc146818rtc.h    |  1 +
+ 3 files changed, 35 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/parisc/dino.c b/drivers/parisc/dino.c
-index 952a92504df6..e33036281327 100644
---- a/drivers/parisc/dino.c
-+++ b/drivers/parisc/dino.c
-@@ -142,9 +142,8 @@ struct dino_device
- {
- 	struct pci_hba_data	hba;	/* 'C' inheritance - must be first */
- 	spinlock_t		dinosaur_pen;
--	unsigned long		txn_addr; /* EIR addr to generate interrupt */ 
--	u32			txn_data; /* EIR data assign to each dino */ 
- 	u32 			imr;	  /* IRQ's which are enabled */ 
-+	struct gsc_irq		gsc_irq;
- 	int			global_irq[DINO_LOCAL_IRQS]; /* map IMR bit to global irq */
- #ifdef DINO_DEBUG
- 	unsigned int		dino_irr0; /* save most recent IRQ line stat */
-@@ -339,14 +338,43 @@ static void dino_unmask_irq(struct irq_data *d)
- 	if (tmp & DINO_MASK_IRQ(local_irq)) {
- 		DBG(KERN_WARNING "%s(): IRQ asserted! (ILR 0x%x)\n",
- 				__func__, tmp);
--		gsc_writel(dino_dev->txn_data, dino_dev->txn_addr);
-+		gsc_writel(dino_dev->gsc_irq.txn_data, dino_dev->gsc_irq.txn_addr);
- 	}
- }
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index d0f58cca5c20..b90a603d6b12 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -800,16 +800,14 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
  
-+#ifdef CONFIG_SMP
-+static int dino_set_affinity_irq(struct irq_data *d, const struct cpumask *dest,
-+				bool force)
+ 	rename_region(ports, dev_name(&cmos_rtc.rtc->dev));
+ 
+-	spin_lock_irq(&rtc_lock);
+-
+-	/* Ensure that the RTC is accessible. Bit 6 must be 0! */
+-	if ((CMOS_READ(RTC_VALID) & 0x40) != 0) {
+-		spin_unlock_irq(&rtc_lock);
+-		dev_warn(dev, "not accessible\n");
++	if (!mc146818_does_rtc_work()) {
++		dev_warn(dev, "broken or not accessible\n");
+ 		retval = -ENXIO;
+ 		goto cleanup1;
+ 	}
+ 
++	spin_lock_irq(&rtc_lock);
++
+ 	if (!(flags & CMOS_RTC_FLAGS_NOFREQ)) {
+ 		/* force periodic irq to CMOS reset default of 1024Hz;
+ 		 *
+diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
+index 97e3cebb4da9..70137566981e 100644
+--- a/drivers/rtc/rtc-mc146818-lib.c
++++ b/drivers/rtc/rtc-mc146818-lib.c
+@@ -8,10 +8,36 @@
+ #include <linux/acpi.h>
+ #endif
+ 
++/*
++ * If the UIP (Update-in-progress) bit of the RTC is set for more then
++ * 10ms, the RTC is apparently broken or not present.
++ */
++bool mc146818_does_rtc_work(void)
 +{
-+	struct dino_device *dino_dev = irq_data_get_irq_chip_data(d);
-+	struct cpumask tmask;
-+	int cpu_irq;
-+	u32 eim;
++	int i;
++	unsigned char val;
++	unsigned long flags;
 +
-+	if (!cpumask_and(&tmask, dest, cpu_online_mask))
-+		return -EINVAL;
++	for (i = 0; i < 10; i++) {
++		spin_lock_irqsave(&rtc_lock, flags);
++		val = CMOS_READ(RTC_FREQ_SELECT);
++		spin_unlock_irqrestore(&rtc_lock, flags);
 +
-+	cpu_irq = cpu_check_affinity(d, &tmask);
-+	if (cpu_irq < 0)
-+		return cpu_irq;
++		if ((val & RTC_UIP) == 0)
++			return true;
 +
-+	dino_dev->gsc_irq.txn_addr = txn_affinity_addr(d->irq, cpu_irq);
-+	eim = ((u32) dino_dev->gsc_irq.txn_addr) | dino_dev->gsc_irq.txn_data;
-+	__raw_writel(eim, dino_dev->hba.base_addr+DINO_IAR0);
++		mdelay(1);
++	}
 +
-+	irq_data_update_effective_affinity(d, &tmask);
-+
-+	return IRQ_SET_MASK_OK;
++	return false;
 +}
-+#endif
++EXPORT_SYMBOL_GPL(mc146818_does_rtc_work);
 +
- static struct irq_chip dino_interrupt_type = {
- 	.name		= "GSC-PCI",
- 	.irq_unmask	= dino_unmask_irq,
- 	.irq_mask	= dino_mask_irq,
-+#ifdef CONFIG_SMP
-+	.irq_set_affinity = dino_set_affinity_irq,
-+#endif
- };
- 
- 
-@@ -806,7 +834,6 @@ static int __init dino_common_init(struct parisc_device *dev,
+ unsigned int mc146818_get_time(struct rtc_time *time)
  {
- 	int status;
- 	u32 eim;
--	struct gsc_irq gsc_irq;
- 	struct resource *res;
+ 	unsigned char ctrl;
+ 	unsigned long flags;
++	unsigned int iter_count = 0;
+ 	unsigned char century = 0;
+ 	bool retry;
  
- 	pcibios_register_hba(&dino_dev->hba);
-@@ -821,10 +848,8 @@ static int __init dino_common_init(struct parisc_device *dev,
- 	**   still only has 11 IRQ input lines - just map some of them
- 	**   to a different processor.
- 	*/
--	dev->irq = gsc_alloc_irq(&gsc_irq);
--	dino_dev->txn_addr = gsc_irq.txn_addr;
--	dino_dev->txn_data = gsc_irq.txn_data;
--	eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
-+	dev->irq = gsc_alloc_irq(&dino_dev->gsc_irq);
-+	eim = ((u32) dino_dev->gsc_irq.txn_addr) | dino_dev->gsc_irq.txn_data;
+@@ -20,13 +46,13 @@ unsigned int mc146818_get_time(struct rtc_time *time)
+ #endif
  
- 	/* 
- 	** Dino needs a PA "IRQ" to get a processor's attention.
-diff --git a/drivers/parisc/gsc.c b/drivers/parisc/gsc.c
-index ed9371acf37e..ec175ae99873 100644
---- a/drivers/parisc/gsc.c
-+++ b/drivers/parisc/gsc.c
-@@ -135,10 +135,41 @@ static void gsc_asic_unmask_irq(struct irq_data *d)
- 	 */
- }
- 
-+#ifdef CONFIG_SMP
-+static int gsc_set_affinity_irq(struct irq_data *d, const struct cpumask *dest,
-+				bool force)
-+{
-+	struct gsc_asic *gsc_dev = irq_data_get_irq_chip_data(d);
-+	struct cpumask tmask;
-+	int cpu_irq;
-+
-+	if (!cpumask_and(&tmask, dest, cpu_online_mask))
-+		return -EINVAL;
-+
-+	cpu_irq = cpu_check_affinity(d, &tmask);
-+	if (cpu_irq < 0)
-+		return cpu_irq;
-+
-+	gsc_dev->gsc_irq.txn_addr = txn_affinity_addr(d->irq, cpu_irq);
-+	gsc_dev->eim = ((u32) gsc_dev->gsc_irq.txn_addr) | gsc_dev->gsc_irq.txn_data;
-+
-+	/* switch IRQ's for devices below LASI/WAX to other CPU */
-+	gsc_writel(gsc_dev->eim, gsc_dev->hpa + OFFSET_IAR);
-+
-+	irq_data_update_effective_affinity(d, &tmask);
-+
-+	return IRQ_SET_MASK_OK;
-+}
-+#endif
-+
-+
- static struct irq_chip gsc_asic_interrupt_type = {
- 	.name		=	"GSC-ASIC",
- 	.irq_unmask	=	gsc_asic_unmask_irq,
- 	.irq_mask	=	gsc_asic_mask_irq,
-+#ifdef CONFIG_SMP
-+	.irq_set_affinity =	gsc_set_affinity_irq,
-+#endif
- };
- 
- int gsc_assign_irq(struct irq_chip *type, void *data)
-diff --git a/drivers/parisc/gsc.h b/drivers/parisc/gsc.h
-index 86abad3fa215..73cbd0bb1975 100644
---- a/drivers/parisc/gsc.h
-+++ b/drivers/parisc/gsc.h
-@@ -31,6 +31,7 @@ struct gsc_asic {
- 	int version;
- 	int type;
- 	int eim;
-+	struct gsc_irq gsc_irq;
- 	int global_irq[32];
- };
- 
-diff --git a/drivers/parisc/lasi.c b/drivers/parisc/lasi.c
-index 4e4fd12c2112..6ef621adb63a 100644
---- a/drivers/parisc/lasi.c
-+++ b/drivers/parisc/lasi.c
-@@ -163,7 +163,6 @@ static int __init lasi_init_chip(struct parisc_device *dev)
- {
- 	extern void (*chassis_power_off)(void);
- 	struct gsc_asic *lasi;
--	struct gsc_irq gsc_irq;
- 	int ret;
- 
- 	lasi = kzalloc(sizeof(*lasi), GFP_KERNEL);
-@@ -185,7 +184,7 @@ static int __init lasi_init_chip(struct parisc_device *dev)
- 	lasi_init_irq(lasi);
- 
- 	/* the IRQ lasi should use */
--	dev->irq = gsc_alloc_irq(&gsc_irq);
-+	dev->irq = gsc_alloc_irq(&lasi->gsc_irq);
- 	if (dev->irq < 0) {
- 		printk(KERN_ERR "%s(): cannot get GSC irq\n",
- 				__func__);
-@@ -193,9 +192,9 @@ static int __init lasi_init_chip(struct parisc_device *dev)
- 		return -EBUSY;
+ again:
+-	spin_lock_irqsave(&rtc_lock, flags);
+-	/* Ensure that the RTC is accessible. Bit 6 must be 0! */
+-	if (WARN_ON_ONCE((CMOS_READ(RTC_VALID) & 0x40) != 0)) {
+-		spin_unlock_irqrestore(&rtc_lock, flags);
++	if (iter_count > 10) {
+ 		memset(time, 0, sizeof(*time));
+ 		return -EIO;
  	}
++	iter_count++;
++
++	spin_lock_irqsave(&rtc_lock, flags);
  
--	lasi->eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
-+	lasi->eim = ((u32) lasi->gsc_irq.txn_addr) | lasi->gsc_irq.txn_data;
+ 	/*
+ 	 * Check whether there is an update in progress during which the
+diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
+index 0661af17a758..69c80c4325bf 100644
+--- a/include/linux/mc146818rtc.h
++++ b/include/linux/mc146818rtc.h
+@@ -123,6 +123,7 @@ struct cmos_rtc_board_info {
+ #define RTC_IO_EXTENT_USED      RTC_IO_EXTENT
+ #endif /* ARCH_RTC_LOCATION */
  
--	ret = request_irq(gsc_irq.irq, gsc_asic_intr, 0, "lasi", lasi);
-+	ret = request_irq(lasi->gsc_irq.irq, gsc_asic_intr, 0, "lasi", lasi);
- 	if (ret < 0) {
- 		kfree(lasi);
- 		return ret;
-diff --git a/drivers/parisc/wax.c b/drivers/parisc/wax.c
-index 5b6df1516235..73a2b01f8d9c 100644
---- a/drivers/parisc/wax.c
-+++ b/drivers/parisc/wax.c
-@@ -68,7 +68,6 @@ static int __init wax_init_chip(struct parisc_device *dev)
- {
- 	struct gsc_asic *wax;
- 	struct parisc_device *parent;
--	struct gsc_irq gsc_irq;
- 	int ret;
++bool mc146818_does_rtc_work(void);
+ unsigned int mc146818_get_time(struct rtc_time *time);
+ int mc146818_set_time(struct rtc_time *time);
  
- 	wax = kzalloc(sizeof(*wax), GFP_KERNEL);
-@@ -85,7 +84,7 @@ static int __init wax_init_chip(struct parisc_device *dev)
- 	wax_init_irq(wax);
- 
- 	/* the IRQ wax should use */
--	dev->irq = gsc_claim_irq(&gsc_irq, WAX_GSC_IRQ);
-+	dev->irq = gsc_claim_irq(&wax->gsc_irq, WAX_GSC_IRQ);
- 	if (dev->irq < 0) {
- 		printk(KERN_ERR "%s(): cannot get GSC irq\n",
- 				__func__);
-@@ -93,9 +92,9 @@ static int __init wax_init_chip(struct parisc_device *dev)
- 		return -EBUSY;
- 	}
- 
--	wax->eim = ((u32) gsc_irq.txn_addr) | gsc_irq.txn_data;
-+	wax->eim = ((u32) wax->gsc_irq.txn_addr) | wax->gsc_irq.txn_data;
- 
--	ret = request_irq(gsc_irq.irq, gsc_asic_intr, 0, "wax", wax);
-+	ret = request_irq(wax->gsc_irq.irq, gsc_asic_intr, 0, "wax", wax);
- 	if (ret < 0) {
- 		kfree(wax);
- 		return ret;
 -- 
 2.35.1
 
