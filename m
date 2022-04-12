@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 517DA4FD8AE
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24C944FD9D8
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241653AbiDLHVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:21:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56596 "EHLO
+        id S1377333AbiDLHtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:49:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351856AbiDLHNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEB9ED46;
-        Mon, 11 Apr 2022 23:53:42 -0700 (PDT)
+        with ESMTP id S1358746AbiDLHmK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A97EBFA;
+        Tue, 12 Apr 2022 00:19:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DB66B81B47;
-        Tue, 12 Apr 2022 06:53:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD045C385A1;
-        Tue, 12 Apr 2022 06:53:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C75E06178D;
+        Tue, 12 Apr 2022 07:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D498EC385A1;
+        Tue, 12 Apr 2022 07:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746420;
-        bh=yACMg3K5W5/I6pA+flBzd9n3DRtIlF1HetQbnpP/24s=;
+        s=korg; t=1649747943;
+        bh=2jdeLQ93hezcJuVqD+oM3RT2cCSavnSxmemMyJ13KnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0RIirf/AbI7/mxqKX6lQ1ECLdiz4PXGNMcBFn07EAbYpucKEVkKyIsmr14cl/0HF
-         04AsHAOPRoyXhhUxPoG8pminbNJDoRDsqE4iMvGVktWrPoPQr3ZMK2VXZrkbkdLbSr
-         W5k6Nj8vDC1bH0OyFN3nWUzPHStVUGMYTUcvkvtM=
+        b=iNPNGVDs2yoVXn0CKd2i7FAWoBZGtCcc4un/fBqWmKDy8mkW1NkjfXHPjxXc5uuZv
+         Z9ABW76gISixNGaA/+mewUJ1LyGkED6n+yqoGcTxXJSJTB8bFFTBVbOzDXDtwqCHaW
+         9XJmDCWSjTV1h5D0u/UK/ZfmWtafkY9ioXMc4poI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 277/277] powerpc: Fix virt_addr_valid() for 64-bit Book3E & 32-bit
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Denis Nikitin <denik@chromium.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 262/343] perf session: Remap buf if there is no space for event
 Date:   Tue, 12 Apr 2022 08:31:20 +0200
-Message-Id: <20220412062950.057689842@linuxfoundation.org>
+Message-Id: <20220412062958.886965492@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +59,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Denis Nikitin <denik@chromium.org>
 
-commit ffa0b64e3be58519ae472ea29a1a1ad681e32f48 upstream.
+[ Upstream commit bc21e74d4775f883ae1f542c1f1dc7205b15d925 ]
 
-mpe: On 64-bit Book3E vmalloc space starts at 0x8000000000000000.
+If a perf event doesn't fit into remaining buffer space return NULL to
+remap buf and fetch the event again.
 
-Because of the way __pa() works we have:
-  __pa(0x8000000000000000) == 0, and therefore
-  virt_to_pfn(0x8000000000000000) == 0, and therefore
-  virt_addr_valid(0x8000000000000000) == true
+Keep the logic to error out on inadequate input from fuzzing.
 
-Which is wrong, virt_addr_valid() should be false for vmalloc space.
-In fact all vmalloc addresses that alias with a valid PFN will return
-true from virt_addr_valid(). That can cause bugs with hardened usercopy
-as described below by Kefeng Wang:
+This fixes perf failing on ChromeOS (with 32b userspace):
 
-  When running ethtool eth0 on 64-bit Book3E, a BUG occurred:
+  $ perf report -v -i perf.data
+  ...
+  prefetch_event: head=0x1fffff8 event->header_size=0x30, mmap_size=0x2000000: fuzzed or compressed perf.data?
+  Error:
+  failed to process sample
 
-    usercopy: Kernel memory exposure attempt detected from SLUB object not in SLUB page?! (offset 0, size 1048)!
-    kernel BUG at mm/usercopy.c:99
-    ...
-    usercopy_abort+0x64/0xa0 (unreliable)
-    __check_heap_object+0x168/0x190
-    __check_object_size+0x1a0/0x200
-    dev_ethtool+0x2494/0x2b20
-    dev_ioctl+0x5d0/0x770
-    sock_do_ioctl+0xf0/0x1d0
-    sock_ioctl+0x3ec/0x5a0
-    __se_sys_ioctl+0xf0/0x160
-    system_call_exception+0xfc/0x1f0
-    system_call_common+0xf8/0x200
-
-  The code shows below,
-
-    data = vzalloc(array_size(gstrings.len, ETH_GSTRING_LEN));
-    copy_to_user(useraddr, data, gstrings.len * ETH_GSTRING_LEN))
-
-  The data is alloced by vmalloc(), virt_addr_valid(ptr) will return true
-  on 64-bit Book3E, which leads to the panic.
-
-  As commit 4dd7554a6456 ("powerpc/64: Add VIRTUAL_BUG_ON checks for __va
-  and __pa addresses") does, make sure the virt addr above PAGE_OFFSET in
-  the virt_addr_valid() for 64-bit, also add upper limit check to make
-  sure the virt is below high_memory.
-
-  Meanwhile, for 32-bit PAGE_OFFSET is the virtual address of the start
-  of lowmem, high_memory is the upper low virtual address, the check is
-  suitable for 32-bit, this will fix the issue mentioned in commit
-  602946ec2f90 ("powerpc: Set max_mapnr correctly") too.
-
-On 32-bit there is a similar problem with high memory, that was fixed in
-commit 602946ec2f90 ("powerpc: Set max_mapnr correctly"), but that
-commit breaks highmem and needs to be reverted.
-
-We can't easily fix __pa(), we have code that relies on its current
-behaviour. So for now add extra checks to virt_addr_valid().
-
-For 64-bit Book3S the extra checks are not necessary, the combination of
-virt_to_pfn() and pfn_valid() should yield the correct result, but they
-are harmless.
-
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Add additional change log detail]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220406145802.538416-1-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 57fc032ad643ffd0 ("perf session: Avoid infinite loop when seeing invalid header.size")
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Denis Nikitin <denik@chromium.org>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/r/20220330031130.2152327-1-denik@chromium.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/page.h |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ tools/perf/util/session.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/include/asm/page.h
-+++ b/arch/powerpc/include/asm/page.h
-@@ -132,7 +132,11 @@ static inline bool pfn_valid(unsigned lo
- #define virt_to_page(kaddr)	pfn_to_page(virt_to_pfn(kaddr))
- #define pfn_to_kaddr(pfn)	__va((pfn) << PAGE_SHIFT)
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index 498b05708db5..245dc70d1882 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -2084,6 +2084,7 @@ prefetch_event(char *buf, u64 head, size_t mmap_size,
+ 	       bool needs_swap, union perf_event *error)
+ {
+ 	union perf_event *event;
++	u16 event_size;
  
--#define virt_addr_valid(kaddr)	pfn_valid(virt_to_pfn(kaddr))
-+#define virt_addr_valid(vaddr)	({					\
-+	unsigned long _addr = (unsigned long)vaddr;			\
-+	_addr >= PAGE_OFFSET && _addr < (unsigned long)high_memory &&	\
-+	pfn_valid(virt_to_pfn(_addr));					\
-+})
+ 	/*
+ 	 * Ensure we have enough space remaining to read
+@@ -2096,15 +2097,23 @@ prefetch_event(char *buf, u64 head, size_t mmap_size,
+ 	if (needs_swap)
+ 		perf_event_header__bswap(&event->header);
  
- /*
-  * On Book-E parts we need __va to parse the device tree and we can't
+-	if (head + event->header.size <= mmap_size)
++	event_size = event->header.size;
++	if (head + event_size <= mmap_size)
+ 		return event;
+ 
+ 	/* We're not fetching the event so swap back again */
+ 	if (needs_swap)
+ 		perf_event_header__bswap(&event->header);
+ 
+-	pr_debug("%s: head=%#" PRIx64 " event->header_size=%#x, mmap_size=%#zx:"
+-		 " fuzzed or compressed perf.data?\n",__func__, head, event->header.size, mmap_size);
++	/* Check if the event fits into the next mmapped buf. */
++	if (event_size <= mmap_size - head % page_size) {
++		/* Remap buf and fetch again. */
++		return NULL;
++	}
++
++	/* Invalid input. Event size should never exceed mmap_size. */
++	pr_debug("%s: head=%#" PRIx64 " event->header.size=%#x, mmap_size=%#zx:"
++		 " fuzzed or compressed perf.data?\n", __func__, head, event_size, mmap_size);
+ 
+ 	return error;
+ }
+-- 
+2.35.1
+
 
 
