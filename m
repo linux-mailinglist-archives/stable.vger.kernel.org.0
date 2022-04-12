@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E8D64FD8C5
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1498F4FD486
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229666AbiDLHwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:52:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48314 "EHLO
+        id S1351467AbiDLHUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:20:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358100AbiDLHlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB4D64162F;
-        Tue, 12 Apr 2022 00:17:20 -0700 (PDT)
+        with ESMTP id S1351715AbiDLHMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3752216585;
+        Mon, 11 Apr 2022 23:51:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9AD19B81B7E;
-        Tue, 12 Apr 2022 07:17:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E64C385A1;
-        Tue, 12 Apr 2022 07:17:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC302B81B47;
+        Tue, 12 Apr 2022 06:51:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C96BC385A1;
+        Tue, 12 Apr 2022 06:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747838;
-        bh=9jJuB3Zce2Jl47f62to42/4RdDjyuYNV/4T3aDnM2II=;
+        s=korg; t=1649746314;
+        bh=l46cSs6DjSOBqAacpO48W9M8+IBy8zm1uWvxKy7t0Bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3yQ3u0w0205/kkcwBqvEFpK3vrF0TtPIJDO7A7nFsYU3tDVREOpo16SX7NjAqEox
-         KooBtideqGxzapsmsbK5Y68a6gZiqTr/YowJ9GrLJCrP8lBiJGPLg1MgIszzPzAc4A
-         SmimwwSOMzcaWK4iV7HXFp46GnbEwXUUVmHFhUrg=
+        b=b9MBWCoggNFOVwDf34ALpe5exgxU8Ol/nmg4U2tGmHrYuhOXFYZz9jyV+08fErNPo
+         Kl9a9dAhlK3eLaTHsZ1MNM76WrevyESYXeZgc98xlxfNsv87vGbJpTv1UYSjU+Q9Xj
+         4Hcve47DPR5bYKq84UZYrH1yuWJNrn1v9Eh+TILU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 223/343] bnxt_en: reserve space inside receive page for skb_shared_info
-Date:   Tue, 12 Apr 2022 08:30:41 +0200
-Message-Id: <20220412062957.775806540@linuxfoundation.org>
+        stable@vger.kernel.org, Shirish S <shirish.s@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 239/277] amd/display: set backlight only if required
+Date:   Tue, 12 Apr 2022 08:30:42 +0200
+Message-Id: <20220412062948.962324739@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Gospodarek <gospo@broadcom.com>
+From: Shirish S <shirish.s@amd.com>
 
-[ Upstream commit facc173cf700e55b2ad249ecbd3a7537f7315691 ]
+commit 4052287a75eb3fc0f487fcc5f768a38bede455c8 upstream.
 
-Insufficient space was being reserved in the page used for packet
-reception, so the interface MTU could be set too large to still have
-room for the contents of the packet when doing XDP redirect.  This
-resulted in the following message when redirecting a packet between
-3520 and 3822 bytes with an MTU of 3822:
+[Why]
+comparing pwm bl values (coverted) with user brightness(converted)
+levels in commit_tail leads to continuous setting of backlight via dmub
+as they don't to match.
+This leads overdrive in queuing of commands to DMCU that sometimes lead
+to depending on load on DMCU fw:
 
-[311815.561880] XDP_WARN: xdp_update_frame_from_buff(line:200): Driver BUG: missing reserved tailroom
+"[drm:dc_dmub_srv_wait_idle] *ERROR* Error waiting for DMUB idle: status=3"
 
-Fixes: f18c2b77b2e4 ("bnxt_en: optimized XDP_REDIRECT support")
-Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[How]
+Store last successfully set backlight value and compare with it instead
+of pwm reads which is not what we should compare with.
+
+Signed-off-by: Shirish S <shirish.s@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    7 ++++---
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h |    6 ++++++
+ 2 files changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index caf66a35d923..d57bff46b587 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -593,7 +593,8 @@ struct nqe_cn {
- #define BNXT_MAX_MTU		9500
- #define BNXT_MAX_PAGE_MODE_MTU	\
- 	((unsigned int)PAGE_SIZE - VLAN_ETH_HLEN - NET_IP_ALIGN -	\
--	 XDP_PACKET_HEADROOM)
-+	 XDP_PACKET_HEADROOM - \
-+	 SKB_DATA_ALIGN((unsigned int)sizeof(struct skb_shared_info)))
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -3522,7 +3522,7 @@ static u32 convert_brightness_to_user(co
+ 				 max - min);
+ }
  
- #define BNXT_MIN_PKT_SIZE	52
+-static int amdgpu_dm_backlight_set_level(struct amdgpu_display_manager *dm,
++static void amdgpu_dm_backlight_set_level(struct amdgpu_display_manager *dm,
+ 					 int bl_idx,
+ 					 u32 user_brightness)
+ {
+@@ -3550,7 +3550,8 @@ static int amdgpu_dm_backlight_set_level
+ 			DRM_DEBUG("DM: Failed to update backlight on eDP[%d]\n", bl_idx);
+ 	}
  
--- 
-2.35.1
-
+-	return rc ? 0 : 1;
++	if (rc)
++		dm->actual_brightness[bl_idx] = user_brightness;
+ }
+ 
+ static int amdgpu_dm_backlight_update_status(struct backlight_device *bd)
+@@ -9316,7 +9317,7 @@ static void amdgpu_dm_atomic_commit_tail
+ 	/* restore the backlight level */
+ 	for (i = 0; i < dm->num_of_edps; i++) {
+ 		if (dm->backlight_dev[i] &&
+-		    (amdgpu_dm_backlight_get_level(dm, i) != dm->brightness[i]))
++		    (dm->actual_brightness[i] != dm->brightness[i]))
+ 			amdgpu_dm_backlight_set_level(dm, i, dm->brightness[i]);
+ 	}
+ #endif
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
+@@ -446,6 +446,12 @@ struct amdgpu_display_manager {
+ 	 * cached backlight values.
+ 	 */
+ 	u32 brightness[AMDGPU_DM_MAX_NUM_EDP];
++	/**
++	 * @actual_brightness:
++	 *
++	 * last successfully applied backlight values.
++	 */
++	u32 actual_brightness[AMDGPU_DM_MAX_NUM_EDP];
+ };
+ 
+ enum dsc_clock_force_state {
 
 
