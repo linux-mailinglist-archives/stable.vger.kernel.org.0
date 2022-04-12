@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 42E994FD1E3
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B517B4FCFF3
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:38:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236706AbiDLHJD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:09:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46948 "EHLO
+        id S1349279AbiDLGkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352438AbiDLHFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:21 -0400
+        with ESMTP id S1349644AbiDLGiv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:38:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F76B4757D;
-        Mon, 11 Apr 2022 23:48:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691A9193D3;
+        Mon, 11 Apr 2022 23:35:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B83A760A21;
-        Tue, 12 Apr 2022 06:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C451CC385A1;
-        Tue, 12 Apr 2022 06:48:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3B3C61890;
+        Tue, 12 Apr 2022 06:35:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D22AC385A1;
+        Tue, 12 Apr 2022 06:35:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746088;
-        bh=c20VdvzvhFiupQWkJezZWMas+iElTSBytPEo9wRQr4M=;
+        s=korg; t=1649745307;
+        bh=U7nZE4xAKGgGeU3wUhmEHb2wRx7I3QHOWJo/nkIfck4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NP2kBN0XjeJvaOZUI+zyVOTpBUwZdd8ZVodbmMQuduIoV02aNbW+Qdx5D2xrUrDj4
-         WQwaYEKgrQX1QNBk61KYFA5BIN3AslbYnmiUpZYCuYIyH4djIb50XN1HotJfNKcdTu
-         ZVbpZmPZbmsrLasrf6Byvu81Y6RAPLj08ERRRUDs=
+        b=wrBC0NMUof4kk0LNo5+qL9Lc5qLOn0B7CZVzwcvRF3AtcpHkWtjAvUz3kbMvixDuv
+         sYJ5h9I1gRd46TJkO4va0Juytp2pLHMgL4gpgagT+Rji3wR2F4uAQSeHOPCKOF/Y+O
+         lQ5MLriGyALkdYIZA5H5uOG3FHM93C0/vsbrdibs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Harold Huang <baymaxhuang@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 139/277] NFS: Avoid writeback threads getting stuck in mempool_alloc()
+Subject: [PATCH 5.10 051/171] tuntap: add sanity checks about msg_controllen in sendmsg
 Date:   Tue, 12 Apr 2022 08:29:02 +0200
-Message-Id: <20220412062946.057895796@linuxfoundation.org>
+Message-Id: <20220412062929.360936837@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Harold Huang <baymaxhuang@gmail.com>
 
-[ Upstream commit 0bae835b63c53f86cdc524f5962e39409585b22c ]
+[ Upstream commit 74a335a07a17d131b9263bfdbdcb5e40673ca9ca ]
 
-In a low memory situation, allow the NFS writeback code to fail without
-getting stuck in infinite loops in mempool_alloc().
+In patch [1], tun_msg_ctl was added to allow pass batched xdp buffers to
+tun_sendmsg. Although we donot use msg_controllen in this path, we should
+check msg_controllen to make sure the caller pass a valid msg_ctl.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fe8dd45bb7556246c6b76277b1ba4296c91c2505
+
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Harold Huang <baymaxhuang@gmail.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20220303022441.383865-1-baymaxhuang@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pagelist.c | 10 +++++-----
- fs/nfs/write.c    | 10 ++++++++--
- 2 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/tap.c   | 3 ++-
+ drivers/net/tun.c   | 3 ++-
+ drivers/vhost/net.c | 1 +
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index b1130dc200d2..f2fe23e6c51f 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -90,10 +90,10 @@ void nfs_set_pgio_error(struct nfs_pgio_header *hdr, int error, loff_t pos)
- 	}
- }
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index f549d3a8e59c..8f7bb15206e9 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -1202,7 +1202,8 @@ static int tap_sendmsg(struct socket *sock, struct msghdr *m,
+ 	struct xdp_buff *xdp;
+ 	int i;
  
--static inline struct nfs_page *
--nfs_page_alloc(void)
-+static inline struct nfs_page *nfs_page_alloc(void)
- {
--	struct nfs_page	*p = kmem_cache_zalloc(nfs_page_cachep, GFP_KERNEL);
-+	struct nfs_page *p =
-+		kmem_cache_zalloc(nfs_page_cachep, nfs_io_gfp_mask());
- 	if (p)
- 		INIT_LIST_HEAD(&p->wb_list);
- 	return p;
-@@ -901,7 +901,7 @@ int nfs_generic_pgio(struct nfs_pageio_descriptor *desc,
- 	struct nfs_commit_info cinfo;
- 	struct nfs_page_array *pg_array = &hdr->page_array;
- 	unsigned int pagecount, pageused;
--	gfp_t gfp_flags = GFP_KERNEL;
-+	gfp_t gfp_flags = nfs_io_gfp_mask();
+-	if (ctl && (ctl->type == TUN_MSG_PTR)) {
++	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
++	    ctl && ctl->type == TUN_MSG_PTR) {
+ 		for (i = 0; i < ctl->num; i++) {
+ 			xdp = &((struct xdp_buff *)ctl->ptr)[i];
+ 			tap_get_user_xdp(q, xdp);
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index ffbc7eda95ee..55ce141c93c7 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -2499,7 +2499,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ 	if (!tun)
+ 		return -EBADFD;
  
- 	pagecount = nfs_page_array_len(mirror->pg_base, mirror->pg_count);
- 	pg_array->npages = pagecount;
-@@ -988,7 +988,7 @@ nfs_pageio_alloc_mirrors(struct nfs_pageio_descriptor *desc,
- 	desc->pg_mirrors_dynamic = NULL;
- 	if (mirror_count == 1)
- 		return desc->pg_mirrors_static;
--	ret = kmalloc_array(mirror_count, sizeof(*ret), GFP_KERNEL);
-+	ret = kmalloc_array(mirror_count, sizeof(*ret), nfs_io_gfp_mask());
- 	if (ret != NULL) {
- 		for (i = 0; i < mirror_count; i++)
- 			nfs_pageio_mirror_init(&ret[i], desc->pg_bsize);
-diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index a296e504e4aa..d21b25511499 100644
---- a/fs/nfs/write.c
-+++ b/fs/nfs/write.c
-@@ -94,9 +94,15 @@ EXPORT_SYMBOL_GPL(nfs_commit_free);
+-	if (ctl && (ctl->type == TUN_MSG_PTR)) {
++	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
++	    ctl && ctl->type == TUN_MSG_PTR) {
+ 		struct tun_page tpage;
+ 		int n = ctl->num;
+ 		int flush = 0;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index da02c3e96e7b..e303f6f073d2 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -472,6 +472,7 @@ static void vhost_tx_batch(struct vhost_net *net,
+ 		goto signal_used;
  
- static struct nfs_pgio_header *nfs_writehdr_alloc(void)
- {
--	struct nfs_pgio_header *p = mempool_alloc(nfs_wdata_mempool, GFP_KERNEL);
-+	struct nfs_pgio_header *p;
- 
--	memset(p, 0, sizeof(*p));
-+	p = kmem_cache_zalloc(nfs_wdata_cachep, nfs_io_gfp_mask());
-+	if (!p) {
-+		p = mempool_alloc(nfs_wdata_mempool, GFP_NOWAIT);
-+		if (!p)
-+			return NULL;
-+		memset(p, 0, sizeof(*p));
-+	}
- 	p->rw_mode = FMODE_WRITE;
- 	return p;
- }
+ 	msghdr->msg_control = &ctl;
++	msghdr->msg_controllen = sizeof(ctl);
+ 	err = sock->ops->sendmsg(sock, msghdr, 0);
+ 	if (unlikely(err < 0)) {
+ 		vq_err(&nvq->vq, "Fail to batch sending packets\n");
 -- 
 2.35.1
 
