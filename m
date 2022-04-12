@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6250E4FC9DB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD014FC99D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242990AbiDLAsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 20:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38940 "EHLO
+        id S242759AbiDLAsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 20:48:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242902AbiDLArc (ORCPT
+        with ESMTP id S242900AbiDLArc (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:47:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5BC016580;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC53015FFE;
         Mon, 11 Apr 2022 17:45:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5C424CE0EA2;
-        Tue, 12 Apr 2022 00:45:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1593CC385B0;
-        Tue, 12 Apr 2022 00:45:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40ACF612A8;
+        Tue, 12 Apr 2022 00:45:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51593C385AB;
+        Tue, 12 Apr 2022 00:45:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724313;
-        bh=yVc9gM0GvyeesUHCUbbJse0kel0eC1dgwpszLaGwkxs=;
+        s=k20201202; t=1649724315;
+        bh=4rQkhM+RJN5qC5mkIJ7o7Iyrqs+aVLeQY8i7Xhtec2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lG+g4f4ctRpq2GBUw6FfKDTcpQCaqlbZWLPX0I1b2bCxOKbLpHmn7H447E+xlmQ1R
-         eRFbmQIaCo52GlFNLl5/eLCIUYiOv/Or9qvt1A8UmGNeBk+Lhbe9IRsuuzqyWiN9si
-         Y6ZBnnui6V3zjfZP830i503/vOsyjUUdT4aAYgWt1iKnD4dwPRabS/ZmXvM1y+gOGx
-         UcGVFzWvdE/bp334q1Z8NhF6qJ8O8OoP1qfDZ3qkOK0w59Z7VLYBp5iRaTDPHxwYLh
-         mt8l59eXnljZW6kHTVRmr4HvdsosIdy33HEsV6C+kdgpNSjd+hfArzmra0BhfXlBbE
-         el2FYsKtAPL/w==
+        b=f5QQCdmppk+wPWBOzK8O8MckjlkiNXiQHB+JEmPjWlehqXqVGvYE6kk/tb73b9wnq
+         4LFvB42NqzKeqPAhOlqc1xPuM3EllsK1akt25UrKbYTW3gRqtm+hgNMhAnIBOpOvmb
+         QXZZt/J2q1W6m8AAAQM92hK6t/lS09aOn5J2ie5kiWCETZ93mxAZ4qHyMaLmX8bo0l
+         huMkgcty7slcjjWr7THir9OQAh2iBH4ODdPdaqbTyjEkYswF1RAGct8igQ1bA2dMb3
+         0PdIixHx2U8tpEeLEW9X6H7QEQWGuJV6pERnl5zcrxKRTXCqG3jXcu4mO4Rlfp1AzP
+         HjPd+uFp/ngjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Michael Kelley <mikelley@microsoft.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
+        Andrea Parri <parri.andrea@gmail.com>,
         Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
         kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
-        decui@microsoft.com, lorenzo.pieralisi@arm.com,
-        bhelgaas@google.com, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 15/49] PCI: hv: Propagate coherence from VMbus device to PCI device
-Date:   Mon, 11 Apr 2022 20:43:33 -0400
-Message-Id: <20220412004411.349427-15-sashal@kernel.org>
+        decui@microsoft.com, linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 16/49] Drivers: hv: vmbus: Prevent load re-ordering when reading ring buffer
+Date:   Mon, 11 Apr 2022 20:43:34 -0400
+Message-Id: <20220412004411.349427-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004411.349427-1-sashal@kernel.org>
 References: <20220412004411.349427-1-sashal@kernel.org>
@@ -63,50 +60,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit 8d21732475c637c7efcdb91dc927a4c594e97898 ]
+[ Upstream commit b6cae15b5710c8097aad26a2e5e752c323ee5348 ]
 
-PCI pass-thru devices in a Hyper-V VM are represented as a VMBus
-device and as a PCI device.  The coherence of the VMbus device is
-set based on the VMbus node in ACPI, but the PCI device has no
-ACPI node and defaults to not hardware coherent.  This results
-in extra software coherence management overhead on ARM64 when
-devices are hardware coherent.
+When reading a packet from a host-to-guest ring buffer, there is no
+memory barrier between reading the write index (to see if there is
+a packet to read) and reading the contents of the packet. The Hyper-V
+host uses store-release when updating the write index to ensure that
+writes of the packet data are completed first. On the guest side,
+the processor can reorder and read the packet data before the write
+index, and sometimes get stale packet data. Getting such stale packet
+data has been observed in a reproducible case in a VM on ARM64.
 
-Fix this by setting up the PCI host bus so that normal
-PCI mechanisms will propagate the coherence of the VMbus
-device to the PCI device. There's no effect on x86/x64 where
-devices are always hardware coherent.
+Fix this by using virt_load_acquire() to read the write index,
+ensuring that reads of the packet data cannot be reordered
+before it. Preventing such reordering is logically correct, and
+with this change, getting stale data can no longer be reproduced.
 
 Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Acked-by: Boqun Feng <boqun.feng@gmail.com>
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/1648138492-2191-3-git-send-email-mikelley@microsoft.com
+Reviewed-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Link: https://lore.kernel.org/r/1648394710-33480-1-git-send-email-mikelley@microsoft.com
 Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/hv/ring_buffer.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index ae0bc2fee4ca..88b3b56d0522 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -3404,6 +3404,15 @@ static int hv_pci_probe(struct hv_device *hdev,
- 	hbus->bridge->domain_nr = dom;
- #ifdef CONFIG_X86
- 	hbus->sysdata.domain = dom;
-+#elif defined(CONFIG_ARM64)
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 71efacb90965..3d215d9dec43 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -439,7 +439,16 @@ int hv_ringbuffer_read(struct vmbus_channel *channel,
+ static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info *rbi)
+ {
+ 	u32 priv_read_loc = rbi->priv_read_index;
+-	u32 write_loc = READ_ONCE(rbi->ring_buffer->write_index);
++	u32 write_loc;
++
 +	/*
-+	 * Set the PCI bus parent to be the corresponding VMbus
-+	 * device. Then the VMbus device will be assigned as the
-+	 * ACPI companion in pcibios_root_bridge_prepare() and
-+	 * pci_dma_configure() will propagate device coherence
-+	 * information to devices created on the bus.
++	 * The Hyper-V host writes the packet data, then uses
++	 * store_release() to update the write_index.  Use load_acquire()
++	 * here to prevent loads of the packet data from being re-ordered
++	 * before the read of the write_index and potentially getting
++	 * stale data.
 +	 */
-+	hbus->sysdata.parent = hdev->device.parent;
- #endif
++	write_loc = virt_load_acquire(&rbi->ring_buffer->write_index);
  
- 	hbus->hdev = hdev;
+ 	if (write_loc >= priv_read_loc)
+ 		return write_loc - priv_read_loc;
 -- 
 2.35.1
 
