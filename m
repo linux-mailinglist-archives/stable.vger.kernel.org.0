@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 268934FC995
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 493624FC990
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:45:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242527AbiDLAsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 20:48:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41916 "EHLO
+        id S242397AbiDLAsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 20:48:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243429AbiDLArz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:47:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFF11CFF4;
-        Mon, 11 Apr 2022 17:45:39 -0700 (PDT)
+        with ESMTP id S243446AbiDLAr4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:47:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDFC31E3ED;
+        Mon, 11 Apr 2022 17:45:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AEE7EB819B4;
-        Tue, 12 Apr 2022 00:45:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE837C385AC;
-        Tue, 12 Apr 2022 00:45:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A987612A8;
+        Tue, 12 Apr 2022 00:45:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88462C385A9;
+        Tue, 12 Apr 2022 00:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724336;
-        bh=trBNC8YuPBKlcPxoBGVpvrmOv8vIPeg+n7tKXJ1+6Gs=;
+        s=k20201202; t=1649724339;
+        bh=WX8SUB5uw2THr7n8LMX3BwGIz8LUCa60mm8HUIvICWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bi0wmgXQhUjQlpV3tRAtY8C749xb5JpfSF7rctUw4i5i14/HPcNhfbEB4ZfAEFQUw
-         1D7tTQ7XaUQByjrIvUsi2rQT+/+Wf4EgPEtfOUMnNAoTgLaa9sZtncwhf1o+OQkJKg
-         MKygcl/YOeA5paVlUI/L7IznXlVPZ7Op6N4ksa8FZXNA5WVFzHgT+cwJoB9eSF/4k9
-         cCgUVhW2WsWxgtr1atfnn0mwqPTYksRLocQ9xogtV4nd5QuJJgt0tNzeXkQ3a71bwc
-         KSMCyETpZo7S2NFC068bxxr9KPxuGV4wz5i7+oVfayJ+1Dn82BQ1AmzPLy8Vj6gFJY
-         wUfRCO6NXPO/g==
+        b=SRgK5GSgA57PAqXc1hMqKxDKMeiBdRcou5IFy14Hcinq3we2tu/3X3ZNxG66q/gXs
+         zp4F3YITN//icU73x64I+dfmorEbJRWl3h4IbtLcmFGlyhgftoWvLcxmBmdRFiMPVD
+         eXGFTjQMGW7Xw2rYlZHUmy9XX3TdzU4B0lrO+COvVB+EYOCWiOdEg/hLazHtB73bEa
+         Sgb51hkK385vI9IIMWhmWz9u3h8t19K455YwxkdjHli5bdbZPU+fWoOC7z2U+lDVv9
+         zseskGjq5ilh1w64xeOw4eE6GwvJ1uwt6fSfZGZ4vtoPHktk6LN1je6Hah7bXCIKnR
+         OC21gxzLYN+Zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jbaron@akamai.com,
-        mpe@ellerman.id.au, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.17 27/49] static_call: Properly initialise DEFINE_STATIC_CALL_RET0()
-Date:   Mon, 11 Apr 2022 20:43:45 -0400
-Message-Id: <20220412004411.349427-27-sashal@kernel.org>
+Cc:     Joey Gouly <joey.gouly@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        ardb@kernel.org, tabba@google.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.17 28/49] arm64: alternatives: mark patch_alternative() as `noinstr`
+Date:   Mon, 11 Apr 2022 20:43:46 -0400
+Message-Id: <20220412004411.349427-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004411.349427-1-sashal@kernel.org>
 References: <20220412004411.349427-1-sashal@kernel.org>
@@ -60,127 +59,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Joey Gouly <joey.gouly@arm.com>
 
-[ Upstream commit 5517d500829c683a358a8de04ecb2e28af629ae5 ]
+[ Upstream commit a2c0b0fbe01419f8f5d1c0b9c581631f34ffce8b ]
 
-When a static call is updated with __static_call_return0() as target,
-arch_static_call_transform() set it to use an optimised set of
-instructions which are meant to lay in the same cacheline.
+The alternatives code must be `noinstr` such that it does not patch itself,
+as the cache invalidation is only performed after all the alternatives have
+been applied.
 
-But when initialising a static call with DEFINE_STATIC_CALL_RET0(),
-we get a branch to the real __static_call_return0() function instead
-of getting the optimised setup:
+Mark patch_alternative() as `noinstr`. Mark branch_insn_requires_update()
+and get_alt_insn() with `__always_inline` since they are both only called
+through patch_alternative().
 
-	c00d8120 <__SCT__perf_snapshot_branch_stack>:
-	c00d8120:	4b ff ff f4 	b       c00d8114 <__static_call_return0>
-	c00d8124:	3d 80 c0 0e 	lis     r12,-16370
-	c00d8128:	81 8c 81 3c 	lwz     r12,-32452(r12)
-	c00d812c:	7d 89 03 a6 	mtctr   r12
-	c00d8130:	4e 80 04 20 	bctr
-	c00d8134:	38 60 00 00 	li      r3,0
-	c00d8138:	4e 80 00 20 	blr
-	c00d813c:	00 00 00 00 	.long 0x0
+Booting a kernel in QEMU TCG with KCSAN=y and ARM64_USE_LSE_ATOMICS=y caused
+a boot hang:
+[    0.241121] CPU: All CPU(s) started at EL2
 
-Add ARCH_DEFINE_STATIC_CALL_RET0_TRAMP() defined by each architecture
-to setup the optimised configuration, and rework
-DEFINE_STATIC_CALL_RET0() to call it:
+The alternatives code was patching the atomics in __tsan_read4() from LL/SC
+atomics to LSE atomics.
 
-	c00d8120 <__SCT__perf_snapshot_branch_stack>:
-	c00d8120:	48 00 00 14 	b       c00d8134 <__SCT__perf_snapshot_branch_stack+0x14>
-	c00d8124:	3d 80 c0 0e 	lis     r12,-16370
-	c00d8128:	81 8c 81 3c 	lwz     r12,-32452(r12)
-	c00d812c:	7d 89 03 a6 	mtctr   r12
-	c00d8130:	4e 80 04 20 	bctr
-	c00d8134:	38 60 00 00 	li      r3,0
-	c00d8138:	4e 80 00 20 	blr
-	c00d813c:	00 00 00 00 	.long 0x0
+The following fragment is using LL/SC atomics in the .text section:
+  | <__tsan_unaligned_read4+304>:     ldxr    x6, [x2]
+  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
+  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
+  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/1e0a61a88f52a460f62a58ffc2a5f847d1f7d9d8.1647253456.git.christophe.leroy@csgroup.eu
+This LL/SC atomic sequence was to be replaced with LSE atomics. However since
+the alternatives code was instrumentable, __tsan_read4() was being called after
+only the first instruction was replaced, which led to the following code in memory:
+  | <__tsan_unaligned_read4+304>:     ldadd   x5, x6, [x2]
+  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
+  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
+  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
+
+This caused an infinite loop as the `stxr` instruction never completed successfully,
+so `w7` was always 0.
+
+Signed-off-by: Joey Gouly <joey.gouly@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220405104733.11476-1-joey.gouly@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/static_call.h |  1 +
- arch/x86/include/asm/static_call.h     |  2 ++
- include/linux/static_call.h            | 20 +++++++++++++++++---
- 3 files changed, 20 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/alternative.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/static_call.h b/arch/powerpc/include/asm/static_call.h
-index 0a0bc79bd1fa..de1018cc522b 100644
---- a/arch/powerpc/include/asm/static_call.h
-+++ b/arch/powerpc/include/asm/static_call.h
-@@ -24,5 +24,6 @@
- 
- #define ARCH_DEFINE_STATIC_CALL_TRAMP(name, func)	__PPC_SCT(name, "b " #func)
- #define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)	__PPC_SCT(name, "blr")
-+#define ARCH_DEFINE_STATIC_CALL_RET0_TRAMP(name)	__PPC_SCT(name, "b .+20")
- 
- #endif /* _ASM_POWERPC_STATIC_CALL_H */
-diff --git a/arch/x86/include/asm/static_call.h b/arch/x86/include/asm/static_call.h
-index ed4f8bb6c2d9..2455d721503e 100644
---- a/arch/x86/include/asm/static_call.h
-+++ b/arch/x86/include/asm/static_call.h
-@@ -38,6 +38,8 @@
- #define ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)			\
- 	__ARCH_DEFINE_STATIC_CALL_TRAMP(name, "ret; int3; nop; nop; nop")
- 
-+#define ARCH_DEFINE_STATIC_CALL_RET0_TRAMP(name)			\
-+	ARCH_DEFINE_STATIC_CALL_TRAMP(name, __static_call_return0)
- 
- #define ARCH_ADD_TRAMP_KEY(name)					\
- 	asm(".pushsection .static_call_tramp_key, \"a\"		\n"	\
-diff --git a/include/linux/static_call.h b/include/linux/static_call.h
-index 3e56a9751c06..e2d70435988c 100644
---- a/include/linux/static_call.h
-+++ b/include/linux/static_call.h
-@@ -196,6 +196,14 @@ extern long __static_call_return0(void);
- 	};								\
- 	ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)
- 
-+#define DEFINE_STATIC_CALL_RET0(name, _func)				\
-+	DECLARE_STATIC_CALL(name, _func);				\
-+	struct static_call_key STATIC_CALL_KEY(name) = {		\
-+		.func = __static_call_return0,				\
-+		.type = 1,						\
-+	};								\
-+	ARCH_DEFINE_STATIC_CALL_RET0_TRAMP(name)
-+
- #define static_call_cond(name)	(void)__static_call(name)
- 
- #define EXPORT_STATIC_CALL(name)					\
-@@ -231,6 +239,12 @@ static inline int static_call_init(void) { return 0; }
- 	};								\
- 	ARCH_DEFINE_STATIC_CALL_NULL_TRAMP(name)
- 
-+#define DEFINE_STATIC_CALL_RET0(name, _func)				\
-+	DECLARE_STATIC_CALL(name, _func);				\
-+	struct static_call_key STATIC_CALL_KEY(name) = {		\
-+		.func = __static_call_return0,				\
-+	};								\
-+	ARCH_DEFINE_STATIC_CALL_RET0_TRAMP(name)
- 
- #define static_call_cond(name)	(void)__static_call(name)
- 
-@@ -287,6 +301,9 @@ static inline long __static_call_return0(void)
- 		.func = NULL,						\
- 	}
- 
-+#define DEFINE_STATIC_CALL_RET0(name, _func)				\
-+	__DEFINE_STATIC_CALL(name, _func, __static_call_return0)
-+
- static inline void __static_call_nop(void) { }
- 
+diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
+index 3fb79b76e9d9..7bbf5104b7b7 100644
+--- a/arch/arm64/kernel/alternative.c
++++ b/arch/arm64/kernel/alternative.c
+@@ -42,7 +42,7 @@ bool alternative_is_applied(u16 cpufeature)
  /*
-@@ -330,7 +347,4 @@ static inline int static_call_text_reserved(void *start, void *end)
- #define DEFINE_STATIC_CALL(name, _func)					\
- 	__DEFINE_STATIC_CALL(name, _func, _func)
+  * Check if the target PC is within an alternative block.
+  */
+-static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
++static __always_inline bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+ {
+ 	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
+ 	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
+@@ -50,7 +50,7 @@ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
  
--#define DEFINE_STATIC_CALL_RET0(name, _func)				\
--	__DEFINE_STATIC_CALL(name, _func, __static_call_return0)
--
- #endif /* _LINUX_STATIC_CALL_H */
+ #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
+ 
+-static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
++static __always_inline u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
+ {
+ 	u32 insn;
+ 
+@@ -95,7 +95,7 @@ static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnp
+ 	return insn;
+ }
+ 
+-static void patch_alternative(struct alt_instr *alt,
++static noinstr void patch_alternative(struct alt_instr *alt,
+ 			      __le32 *origptr, __le32 *updptr, int nr_inst)
+ {
+ 	__le32 *replptr;
 -- 
 2.35.1
 
