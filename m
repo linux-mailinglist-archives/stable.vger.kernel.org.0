@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B4D14FD419
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E194FD425
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351676AbiDLHsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
+        id S1352221AbiDLHXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357129AbiDLHjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E8FE0EB;
-        Tue, 12 Apr 2022 00:12:33 -0700 (PDT)
+        with ESMTP id S1353826AbiDLHQM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:16:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A6F4198A;
+        Mon, 11 Apr 2022 23:57:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DC5DB81B4F;
-        Tue, 12 Apr 2022 07:12:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4465C385A1;
-        Tue, 12 Apr 2022 07:12:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B5F36106D;
+        Tue, 12 Apr 2022 06:57:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DC58C385A1;
+        Tue, 12 Apr 2022 06:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747551;
-        bh=eM3zSXnaKtt3m9HyT5kgK2aDOmYWDuK0rx7nb8xNlD0=;
+        s=korg; t=1649746655;
+        bh=1GkKwk1Smn0Ic42DW/lQRAsZetroUsxjDHj4KIJeJ40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMCc+9ahUQKpMS05STeAz763vj2PWQ1YlrSEb4dBgf1//tFI/x1umKtNFyHHy06pQ
-         4KBX6C7F7aZe9/PfcW/Z7QY99LRMrKHPr2DNzA53pQf/S/d22XpSiZ/SFBL7IFuqEE
-         ZgSJOwzT29Lp7rIRUHsYbY+rQWGSxnlhq2fVwb+8=
+        b=a5mCEQCIcs4m3WSKjf0yUqWvAJDHt2kkDoYvDTw1zeQaB1sMiQdISbA6jtJtPnfe1
+         /dLL9vxKpbvv4jZuPuyQIBn0/kNMedyfN6jd+CiVu+zgVKEZ5V58euiWoSxkqMEoB+
+         spE4moOKQMEs80pxktnBJztBbeKDLWDyfEzptacQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Harold Huang <baymaxhuang@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 121/343] tuntap: add sanity checks about msg_controllen in sendmsg
-Date:   Tue, 12 Apr 2022 08:28:59 +0200
-Message-Id: <20220412062954.878973078@linuxfoundation.org>
+Subject: [PATCH 5.16 084/285] tuntap: add sanity checks about msg_controllen in sendmsg
+Date:   Tue, 12 Apr 2022 08:29:01 +0200
+Message-Id: <20220412062946.089179753@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -94,7 +94,7 @@ index 8e3a28ba6b28..ba2ef5437e16 100644
  			xdp = &((struct xdp_buff *)ctl->ptr)[i];
  			tap_get_user_xdp(q, xdp);
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index fed85447701a..de999e0fedbc 100644
+index 45a67e72a02c..02de8d998bfa 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
 @@ -2489,7 +2489,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
