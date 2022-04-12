@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 122C54FD1DB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0DD24FD1E9
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242575AbiDLHI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:08:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60708 "EHLO
+        id S231258AbiDLHI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:08:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351441AbiDLHD1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:03:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC89D4474A;
-        Mon, 11 Apr 2022 23:47:07 -0700 (PDT)
+        with ESMTP id S1351490AbiDLHDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:03:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C57644773;
+        Mon, 11 Apr 2022 23:47:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32B13B81B4A;
-        Tue, 12 Apr 2022 06:47:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75577C385A8;
-        Tue, 12 Apr 2022 06:47:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFD226140D;
+        Tue, 12 Apr 2022 06:47:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B185C385B8;
+        Tue, 12 Apr 2022 06:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746024;
-        bh=YKg+E1rgLLe/atlLYBLJei1HwcSZ8NIm+I9CGwB5kAM=;
+        s=korg; t=1649746030;
+        bh=/LdLn56K79WT1DjgPInoA/ynOA9lvBAWGr9XbM7Cibg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHs6Cn8Ysah9N1JiNYYQQG18GNRfjHi6LI2XQXig5HQ1cYkPwP5UOI0WGd/jYeqy0
-         rkiAfjBJFT7gSHxQPitnvTdFGhmdS/+oW6Ey4TfMKv+7yHJIb/brJFAiWQj2c1QKCC
-         Ofuzn+WZGSskhOtlsWTmImoQQ451j3ZL+ZmrSwdk=
+        b=QnMdnWxx2wvfo3+/ZkA8902erSL3mjqwVTwVPv1xy6HHOw2O54Y/0tz8FPnOg9+ir
+         zayNpXKNWgeUcgbOzRcCrcV6ybTMcymr6uRqHvqGWOtRFMNuUtFYY8cph/G1hWMj6z
+         RlrwEUDcYnPQH1LQBTHHnVysTBed8KOX44AMpW4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 132/277] x86: Annotate call_on_stack()
-Date:   Tue, 12 Apr 2022 08:28:55 +0200
-Message-Id: <20220412062945.857488242@linuxfoundation.org>
+Subject: [PATCH 5.15 133/277] x86/Kconfig: Do not allow CONFIG_X86_X32_ABI=y with llvm-objcopy
+Date:   Tue, 12 Apr 2022 08:28:56 +0200
+Message-Id: <20220412062945.885995232@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -55,61 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit be0075951fde739f14ee2b659e2fd6e2499c46c0 ]
+[ Upstream commit aaeed6ecc1253ce1463fa1aca0b70a4ccbc9fa75 ]
 
-vmlinux.o: warning: objtool: page_fault_oops()+0x13c: unreachable instruction
+There are two outstanding issues with CONFIG_X86_X32_ABI and
+llvm-objcopy, with similar root causes:
 
-0000 000000000005b460 <page_fault_oops>:
-...
-0128    5b588:  49 89 23                mov    %rsp,(%r11)
-012b    5b58b:  4c 89 dc                mov    %r11,%rsp
-012e    5b58e:  4c 89 f2                mov    %r14,%rdx
-0131    5b591:  48 89 ee                mov    %rbp,%rsi
-0134    5b594:  4c 89 e7                mov    %r12,%rdi
-0137    5b597:  e8 00 00 00 00          call   5b59c <page_fault_oops+0x13c>    5b598: R_X86_64_PLT32   handle_stack_overflow-0x4
-013c    5b59c:  5c                      pop    %rsp
+1. llvm-objcopy does not properly convert .note.gnu.property when going
+   from x86_64 to x86_x32, resulting in a corrupted section when
+   linking:
 
-vmlinux.o: warning: objtool: sysvec_reboot()+0x6d: unreachable instruction
+   https://github.com/ClangBuiltLinux/linux/issues/1141
 
-0000 00000000000033f0 <sysvec_reboot>:
-...
-005d     344d:  4c 89 dc                mov    %r11,%rsp
-0060     3450:  e8 00 00 00 00          call   3455 <sysvec_reboot+0x65>        3451: R_X86_64_PLT32    irq_enter_rcu-0x4
-0065     3455:  48 89 ef                mov    %rbp,%rdi
-0068     3458:  e8 00 00 00 00          call   345d <sysvec_reboot+0x6d>        3459: R_X86_64_PC32     .text+0x47d0c
-006d     345d:  e8 00 00 00 00          call   3462 <sysvec_reboot+0x72>        345e: R_X86_64_PLT32    irq_exit_rcu-0x4
-0072     3462:  5c                      pop    %rsp
+2. llvm-objcopy produces corrupted compressed debug sections when going
+   from x86_64 to x86_x32, also resulting in an error when linking:
 
-Both cases are due to a call_on_stack() calling a __noreturn function.
-Since that's an inline asm, GCC can't do anything about the
-instructions after the CALL. Therefore put in an explicit
-ASM_REACHABLE annotation to make sure objtool and gcc are consistently
-confused about control flow.
+   https://github.com/ClangBuiltLinux/linux/issues/514
 
+After commit 41c5ef31ad71 ("x86/ibt: Base IBT bits"), the
+.note.gnu.property section is always generated when
+CONFIG_X86_KERNEL_IBT is enabled, which causes the first issue to become
+visible with an allmodconfig build:
+
+  ld.lld: error: arch/x86/entry/vdso/vclock_gettime-x32.o:(.note.gnu.property+0x1c): program property is too short
+
+To avoid this error, do not allow CONFIG_X86_X32_ABI to be selected when
+using llvm-objcopy. If the two issues ever get fixed in llvm-objcopy,
+this can be turned into a feature check.
+
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/20220308154319.468805622@infradead.org
+Link: https://lore.kernel.org/r/20220314194842.3452-3-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/irq_stack.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/Kconfig | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/x86/include/asm/irq_stack.h b/arch/x86/include/asm/irq_stack.h
-index 8d55bd11848c..e087cd7837c3 100644
---- a/arch/x86/include/asm/irq_stack.h
-+++ b/arch/x86/include/asm/irq_stack.h
-@@ -99,7 +99,8 @@
- }
- 
- #define ASM_CALL_ARG0							\
--	"call %P[__func]				\n"
-+	"call %P[__func]				\n"		\
-+	ASM_REACHABLE
- 
- #define ASM_CALL_ARG1							\
- 	"movq	%[arg1], %%rdi				\n"		\
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 1f96809606ac..819f8c2e2c67 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2798,6 +2798,11 @@ config IA32_AOUT
+ config X86_X32
+ 	bool "x32 ABI for 64-bit mode"
+ 	depends on X86_64
++	# llvm-objcopy does not convert x86_64 .note.gnu.property or
++	# compressed debug sections to x86_x32 properly:
++	# https://github.com/ClangBuiltLinux/linux/issues/514
++	# https://github.com/ClangBuiltLinux/linux/issues/1141
++	depends on $(success,$(OBJCOPY) --version | head -n1 | grep -qv llvm)
+ 	help
+ 	  Include code to run binaries for the x32 native 32-bit ABI
+ 	  for 64-bit processors.  An x32 process gets access to the
 -- 
 2.35.1
 
