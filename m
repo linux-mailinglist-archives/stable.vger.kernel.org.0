@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C3B4FD0F0
+	by mail.lfdr.de (Postfix) with ESMTP id C2F624FD0F1
 	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350585AbiDLG4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:56:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
+        id S1350592AbiDLG4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:56:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351257AbiDLGxQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7B852FE56;
-        Mon, 11 Apr 2022 23:40:13 -0700 (PDT)
+        with ESMTP id S1351300AbiDLGxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 096213056A;
+        Mon, 11 Apr 2022 23:40:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5704B81B29;
-        Tue, 12 Apr 2022 06:40:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA6CCC385A6;
-        Tue, 12 Apr 2022 06:40:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75C63B818C8;
+        Tue, 12 Apr 2022 06:40:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F1CC385A6;
+        Tue, 12 Apr 2022 06:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745610;
-        bh=sXMl2ZYE8rt5NfFeBPGIcHAYJuUylPNTH8SOiNKZ7n8=;
+        s=korg; t=1649745613;
+        bh=esj8rPlEImg7oy3hYs/Ujs6q3bXrl8nGwJwMX09IwHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=co0f5NxJYrfor9fzZvdB5gWN2wZcgqXXdWdxdwIJquzUH170m70FQqrKg6KJeIH1i
-         INvlrU5F9cUxib7UxRu4nk0VuGCaxcLDjl9Wad+OPH7qoL4UeNtIrxgItZvKFiI8eT
-         +7uTUIlDKnlMuGWMQgyrMCYrNPSRdbxkMMlGi/J4=
+        b=My/PT3NZICrtaYCIccSev5hTu6/4LCbGPZZQ7/IZOsxcm4iL/XSWYNcAdk+AYEb1U
+         uy3XN8mZ4PyZQqU7FUEhs4fdBLml/nLhjvV4btlTs2/KZLOgz0QWD7PvpSV0DGGh6h
+         K0YIdOkq8lntRyweF4dk0DAH2dHyeIX8Qh3gvA1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        "Pan, Xinhui" <Xinhui.Pan@amd.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.10 154/171] drm/amdkfd: Create file descriptor after client is added to smi_clients list
-Date:   Tue, 12 Apr 2022 08:30:45 +0200
-Message-Id: <20220412062932.350937910@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Fangrui Song <maskray@google.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        John Keeping <john@metanate.com>, Leo Yan <leo.yan@linaro.org>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 155/171] perf build: Dont use -ffat-lto-objects in the python feature test when building with clang-13
+Date:   Tue, 12 Apr 2022 08:30:46 +0200
+Message-Id: <20220412062932.381281752@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -58,70 +62,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-commit e79a2398e1b2d47060474dca291542368183bc0f upstream.
+commit 3a8a0475861a443f02e3a9b57d044fe2a0a99291 upstream.
 
-This ensures userspace cannot prematurely clean-up the client before
-it is fully initialised which has been proven to cause issues in the
-past.
+Using -ffat-lto-objects in the python feature test when building with
+clang-13 results in:
 
-Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: amd-gfx@lists.freedesktop.org
-Cc: dri-devel@lists.freedesktop.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+  clang-13: error: optimization flag '-ffat-lto-objects' is not supported [-Werror,-Wignored-optimization-argument]
+  error: command '/usr/sbin/clang' failed with exit code 1
+  cp: cannot stat '/tmp/build/perf/python_ext_build/lib/perf*.so': No such file or directory
+  make[2]: *** [Makefile.perf:639: /tmp/build/perf/python/perf.so] Error 1
+
+Noticed when building on a docker.io/library/archlinux:base container.
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Fangrui Song <maskray@google.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: John Keeping <john@metanate.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Sedat Dilek <sedat.dilek@gmail.com>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_smi_events.c |   24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ tools/perf/Makefile.config |    3 +++
+ tools/perf/util/setup.py   |    2 ++
+ 2 files changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdkfd/kfd_smi_events.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_smi_events.c
-@@ -270,15 +270,6 @@ int kfd_smi_event_open(struct kfd_dev *d
- 		return ret;
- 	}
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -255,6 +255,9 @@ ifdef PYTHON_CONFIG
+   PYTHON_EMBED_LIBADD := $(call grep-libs,$(PYTHON_EMBED_LDOPTS)) -lutil
+   PYTHON_EMBED_CCOPTS := $(shell $(PYTHON_CONFIG_SQ) --includes 2>/dev/null)
+   FLAGS_PYTHON_EMBED := $(PYTHON_EMBED_CCOPTS) $(PYTHON_EMBED_LDOPTS)
++  ifeq ($(CC_NO_CLANG), 0)
++    PYTHON_EMBED_CCOPTS := $(filter-out -ffat-lto-objects, $(PYTHON_EMBED_CCOPTS))
++  endif
+ endif
  
--	ret = anon_inode_getfd(kfd_smi_name, &kfd_smi_ev_fops, (void *)client,
--			       O_RDWR);
--	if (ret < 0) {
--		kfifo_free(&client->fifo);
--		kfree(client);
--		return ret;
--	}
--	*fd = ret;
--
- 	init_waitqueue_head(&client->wait_queue);
- 	spin_lock_init(&client->lock);
- 	client->events = 0;
-@@ -288,5 +279,20 @@ int kfd_smi_event_open(struct kfd_dev *d
- 	list_add_rcu(&client->list, &dev->smi_clients);
- 	spin_unlock(&dev->smi_lock);
+ FEATURE_CHECK_CFLAGS-libpython := $(PYTHON_EMBED_CCOPTS)
+--- a/tools/perf/util/setup.py
++++ b/tools/perf/util/setup.py
+@@ -23,6 +23,8 @@ if cc_is_clang:
+             vars[var] = sub("-fstack-protector-strong", "", vars[var])
+         if not clang_has_option("-fno-semantic-interposition"):
+             vars[var] = sub("-fno-semantic-interposition", "", vars[var])
++        if not clang_has_option("-ffat-lto-objects"):
++            vars[var] = sub("-ffat-lto-objects", "", vars[var])
  
-+	ret = anon_inode_getfd(kfd_smi_name, &kfd_smi_ev_fops, (void *)client,
-+			       O_RDWR);
-+	if (ret < 0) {
-+		spin_lock(&dev->smi_lock);
-+		list_del_rcu(&client->list);
-+		spin_unlock(&dev->smi_lock);
-+
-+		synchronize_rcu();
-+
-+		kfifo_free(&client->fifo);
-+		kfree(client);
-+		return ret;
-+	}
-+	*fd = ret;
-+
- 	return 0;
- }
+ from distutils.core import setup, Extension
+ 
 
 
