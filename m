@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20E4F4FD206
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4AB34FD015
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:40:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351223AbiDLHKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:10:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46932 "EHLO
+        id S1349117AbiDLGlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352313AbiDLHFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1C02473AC;
-        Mon, 11 Apr 2022 23:48:00 -0700 (PDT)
+        with ESMTP id S1350225AbiDLGka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039A1E0D4;
+        Mon, 11 Apr 2022 23:36:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FDCF60A21;
-        Tue, 12 Apr 2022 06:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1975C385A6;
-        Tue, 12 Apr 2022 06:47:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3245B81B43;
+        Tue, 12 Apr 2022 06:35:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 247C7C385A6;
+        Tue, 12 Apr 2022 06:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746080;
-        bh=5c7qbwUg4dhWQv9ZheJcLAo+7noBOw8SDyf2a6K/Dws=;
+        s=korg; t=1649745357;
+        bh=N7qrOswOI0oft7LDrgjufG8iQ7F7hdHB+O1heCf1yAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3/rxo10Es0i6JtjuROMkO7YdX+y3JgwXchohxgJcq2Aop9JkntNk/tvYjaJ+WwYA
-         EH2ANXZR5+iX0tjekHC7mb6EZsOJt5OI5taNs/p4yfCLM+3b+mT4gfDMENDNBL49vW
-         gpt+olEEtlhLeNkcPKo9p4t4u0n80061RCsiu7Rk=
+        b=UFILbaNwZRqigFeyn+zGX6TjYJP0U0Ujg3P/oaqsPHAZYUOf7J6jglQPspEeexLv0
+         XxAPdtMzbNS17Lhj0Q1jAQKUhvjVki0aSczcTR51WfZTb9Ggd+nY4B0FHA21OLhapk
+         1vrWx3Cqd9AhoIv4kCVjPEkPTexb6kYl7K+jPTKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?S=C3=B6nke=20Huster?= <soenke.huster@eknoes.de>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 154/277] vdpa/mlx5: Rename control VQ workqueue to vdpa wq
-Date:   Tue, 12 Apr 2022 08:29:17 +0200
-Message-Id: <20220412062946.496512297@linuxfoundation.org>
+Subject: [PATCH 5.10 067/171] Bluetooth: Fix use after free in hci_send_acl
+Date:   Tue, 12 Apr 2022 08:29:18 +0200
+Message-Id: <20220412062929.821443635@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +56,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 218bdd20e56cab41a68481bc10c551ae3e0a24fb ]
+[ Upstream commit f63d24baff787e13b723d86fe036f84bdbc35045 ]
 
-A subesequent patch will use the same workqueue for executing other
-work not related to control VQ. Rename the workqueue and the work queue
-entry used to convey information to the workqueue.
+This fixes the following trace caused by receiving
+HCI_EV_DISCONN_PHY_LINK_COMPLETE which does call hci_conn_del without
+first checking if conn->type is in fact AMP_LINK and in case it is
+do properly cleanup upper layers with hci_disconn_cfm:
 
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20210909123635.30884-3-elic@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+ ==================================================================
+    BUG: KASAN: use-after-free in hci_send_acl+0xaba/0xc50
+    Read of size 8 at addr ffff88800e404818 by task bluetoothd/142
+
+    CPU: 0 PID: 142 Comm: bluetoothd Not tainted
+    5.17.0-rc5-00006-gda4022eeac1a #7
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+    rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+    Call Trace:
+     <TASK>
+     dump_stack_lvl+0x45/0x59
+     print_address_description.constprop.0+0x1f/0x150
+     kasan_report.cold+0x7f/0x11b
+     hci_send_acl+0xaba/0xc50
+     l2cap_do_send+0x23f/0x3d0
+     l2cap_chan_send+0xc06/0x2cc0
+     l2cap_sock_sendmsg+0x201/0x2b0
+     sock_sendmsg+0xdc/0x110
+     sock_write_iter+0x20f/0x370
+     do_iter_readv_writev+0x343/0x690
+     do_iter_write+0x132/0x640
+     vfs_writev+0x198/0x570
+     do_writev+0x202/0x280
+     do_syscall_64+0x38/0x90
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
+    RSP: 002b:00007ffce8a099b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000014
+    Code: 0f 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 f3
+    0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 14 00 00 00 0f 05
+    <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
+    RDX: 0000000000000001 RSI: 00007ffce8a099e0 RDI: 0000000000000015
+    RAX: ffffffffffffffda RBX: 00007ffce8a099e0 RCX: 00007f788fc3cf77
+    R10: 00007ffce8af7080 R11: 0000000000000246 R12: 000055e4ccf75580
+    RBP: 0000000000000015 R08: 0000000000000002 R09: 0000000000000001
+    </TASK>
+    R13: 000055e4ccf754a0 R14: 000055e4ccf75cd0 R15: 000055e4ccf4a6b0
+
+    Allocated by task 45:
+        kasan_save_stack+0x1e/0x40
+        __kasan_kmalloc+0x81/0xa0
+        hci_chan_create+0x9a/0x2f0
+        l2cap_conn_add.part.0+0x1a/0xdc0
+        l2cap_connect_cfm+0x236/0x1000
+        le_conn_complete_evt+0x15a7/0x1db0
+        hci_le_conn_complete_evt+0x226/0x2c0
+        hci_le_meta_evt+0x247/0x450
+        hci_event_packet+0x61b/0xe90
+        hci_rx_work+0x4d5/0xc50
+        process_one_work+0x8fb/0x15a0
+        worker_thread+0x576/0x1240
+        kthread+0x29d/0x340
+        ret_from_fork+0x1f/0x30
+
+    Freed by task 45:
+        kasan_save_stack+0x1e/0x40
+        kasan_set_track+0x21/0x30
+        kasan_set_free_info+0x20/0x30
+        __kasan_slab_free+0xfb/0x130
+        kfree+0xac/0x350
+        hci_conn_cleanup+0x101/0x6a0
+        hci_conn_del+0x27e/0x6c0
+        hci_disconn_phylink_complete_evt+0xe0/0x120
+        hci_event_packet+0x812/0xe90
+        hci_rx_work+0x4d5/0xc50
+        process_one_work+0x8fb/0x15a0
+        worker_thread+0x576/0x1240
+        kthread+0x29d/0x340
+        ret_from_fork+0x1f/0x30
+
+    The buggy address belongs to the object at ffff88800c0f0500
+    The buggy address is located 24 bytes inside of
+    which belongs to the cache kmalloc-128 of size 128
+    The buggy address belongs to the page:
+    128-byte region [ffff88800c0f0500, ffff88800c0f0580)
+    flags: 0x100000000000200(slab|node=0|zone=1)
+    page:00000000fe45cd86 refcount:1 mapcount:0
+    mapping:0000000000000000 index:0x0 pfn:0xc0f0
+    raw: 0000000000000000 0000000080100010 00000001ffffffff
+    0000000000000000
+    raw: 0100000000000200 ffffea00003a2c80 dead000000000004
+    ffff8880078418c0
+    page dumped because: kasan: bad access detected
+    ffff88800c0f0400: 00 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc
+    Memory state around the buggy address:
+    >ffff88800c0f0500: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+    ffff88800c0f0480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+    ffff88800c0f0580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                                ^
+    ==================================================================
+    ffff88800c0f0600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+
+Reported-by: Sönke Huster <soenke.huster@eknoes.de>
+Tested-by: Sönke Huster <soenke.huster@eknoes.de>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/core/mlx5_vdpa.h | 2 +-
- drivers/vdpa/mlx5/net/mlx5_vnet.c  | 8 ++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ net/bluetooth/hci_event.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-index 01a848adf590..81dc3d88d3dd 100644
---- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-+++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-@@ -63,7 +63,7 @@ struct mlx5_control_vq {
- 	unsigned short head;
- };
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 72b4127360c7..e926e80d9731 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5061,8 +5061,9 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
+ 	hci_dev_lock(hdev);
  
--struct mlx5_ctrl_wq_ent {
-+struct mlx5_vdpa_wq_ent {
- 	struct work_struct work;
- 	struct mlx5_vdpa_dev *mvdev;
- };
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index f77a611f592f..f769e2dc6d26 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1573,14 +1573,14 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
- {
- 	virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
- 	struct virtio_net_ctrl_hdr ctrl;
--	struct mlx5_ctrl_wq_ent *wqent;
-+	struct mlx5_vdpa_wq_ent *wqent;
- 	struct mlx5_vdpa_dev *mvdev;
- 	struct mlx5_control_vq *cvq;
- 	struct mlx5_vdpa_net *ndev;
- 	size_t read, write;
- 	int err;
+ 	hcon = hci_conn_hash_lookup_handle(hdev, ev->phy_handle);
+-	if (hcon) {
++	if (hcon && hcon->type == AMP_LINK) {
+ 		hcon->state = BT_CLOSED;
++		hci_disconn_cfm(hcon, ev->reason);
+ 		hci_conn_del(hcon);
+ 	}
  
--	wqent = container_of(work, struct mlx5_ctrl_wq_ent, work);
-+	wqent = container_of(work, struct mlx5_vdpa_wq_ent, work);
- 	mvdev = wqent->mvdev;
- 	ndev = to_mlx5_vdpa_ndev(mvdev);
- 	cvq = &mvdev->cvq;
-@@ -1632,7 +1632,7 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
- 	struct mlx5_vdpa_virtqueue *mvq;
--	struct mlx5_ctrl_wq_ent *wqent;
-+	struct mlx5_vdpa_wq_ent *wqent;
- 
- 	if (!is_index_valid(mvdev, idx))
- 		return;
-@@ -2502,7 +2502,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name)
- 	if (err)
- 		goto err_mr;
- 
--	mvdev->wq = create_singlethread_workqueue("mlx5_vdpa_ctrl_wq");
-+	mvdev->wq = create_singlethread_workqueue("mlx5_vdpa_wq");
- 	if (!mvdev->wq) {
- 		err = -ENOMEM;
- 		goto err_res2;
 -- 
 2.35.1
 
