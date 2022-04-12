@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA2C64FD248
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7796A4FD04A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348095AbiDLHJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46864 "EHLO
+        id S1350582AbiDLGqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:46:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352679AbiDLHFv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8444839A;
-        Mon, 11 Apr 2022 23:48:31 -0700 (PDT)
+        with ESMTP id S1351481AbiDLGo4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6433AA7B;
+        Mon, 11 Apr 2022 23:38:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CDD6361045;
-        Tue, 12 Apr 2022 06:48:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE4BFC385A6;
-        Tue, 12 Apr 2022 06:48:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87AE2B818C8;
+        Tue, 12 Apr 2022 06:38:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E40F2C385A1;
+        Tue, 12 Apr 2022 06:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746110;
-        bh=vkPmgKey2lf/3Sf8BVlNeaFbqFAGzmVNLtpEoE4dmDk=;
+        s=korg; t=1649745503;
+        bh=u+U5VkDgvKYLLZki/AQqHBw1Vp9+XfAo+5qJ6Dk/VdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oanRH7qzOYPTYZSkJ1otacWgDfCo1vgau2u0LvZ/wvJptzIoFjQ+rk9az/aDw65Pz
-         H8GpcYgvOhVXMK/nfb6+pipgW88Gu33CMFJQMs/IUZRFEn3F8DlTqBagh5dhmv2YRe
-         i3msm1rRpWidf9yNbVNdwkAmTG5OkWYilcfcQ8Cg=
+        b=cCbjDPsd8C/JcuVeKAve62/LVof0LXZa4Uw8M+tUVp9loQUdSw3jhtXzlsPcdPtnZ
+         BKTaomvFTk1RyENH3rTiAkzlIpAGB9kdZ0oZKWX1FMc0BWlWHxH+mvAnG96NXBVFFr
+         vfH+VLLx3ZSqhml0FP909mRlIsP4oB5Z6SzUPBTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 164/277] net: stmmac: Fix unset max_speed difference between DT and non-DT platforms
-Date:   Tue, 12 Apr 2022 08:29:27 +0200
-Message-Id: <20220412062946.784520400@linuxfoundation.org>
+Subject: [PATCH 5.10 077/171] NFSv4.2: fix reference count leaks in _nfs42_proc_copy_notify()
+Date:   Tue, 12 Apr 2022 08:29:28 +0200
+Message-Id: <20220412062930.114869680@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit c21cabb0fd0b54b8b54235fc1ecfe1195a23bcb2 ]
+[ Upstream commit b7f114edd54326f730a754547e7cfb197b5bc132 ]
 
-In commit 9cbadf094d9d ("net: stmmac: support max-speed device tree
-property"), when DT platforms don't set "max-speed", max_speed is set to
--1; for non-DT platforms, it stays the default 0.
+[You don't often get email from xiongx18@fudan.edu.cn. Learn why this is important at http://aka.ms/LearnAboutSenderIdentification.]
 
-Prior to commit eeef2f6b9f6e ("net: stmmac: Start adding phylink support"),
-the check for a valid max_speed setting was to check if it was greater
-than zero. This commit got it right, but subsequent patches just checked
-for non-zero, which is incorrect for DT platforms.
+The reference counting issue happens in two error paths in the
+function _nfs42_proc_copy_notify(). In both error paths, the function
+simply returns the error code and forgets to balance the refcount of
+object `ctx`, bumped by get_nfs_open_context() earlier, which may
+cause refcount leaks.
 
-In commit 92c3807b9ac3 ("net: stmmac: convert to phylink_get_linkmodes()")
-the conversion switched completely to checking for non-zero value as a
-valid value, which caused 1000base-T to stop getting advertised by
-default.
+Fix it by balancing refcount of the `ctx` object before the function
+returns in both error paths.
 
-Instead of trying to fix all the checks, simply leave max_speed alone if
-DT property parsing fails.
-
-Fixes: 9cbadf094d9d ("net: stmmac: support max-speed device tree property")
-Fixes: 92c3807b9ac3 ("net: stmmac: convert to phylink_get_linkmodes()")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220331184832.16316-1-wens@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/nfs/nfs42proc.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-index 5d29f336315b..11e1055e8260 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -431,8 +431,7 @@ stmmac_probe_config_dt(struct platform_device *pdev, u8 *mac)
- 	plat->phylink_node = np;
+diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
+index 2587b1b8e2ef..dad32b171e67 100644
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -567,8 +567,10 @@ static int _nfs42_proc_copy_notify(struct file *src, struct file *dst,
  
- 	/* Get max speed of operation from device tree */
--	if (of_property_read_u32(np, "max-speed", &plat->max_speed))
--		plat->max_speed = -1;
-+	of_property_read_u32(np, "max-speed", &plat->max_speed);
+ 	ctx = get_nfs_open_context(nfs_file_open_context(src));
+ 	l_ctx = nfs_get_lock_context(ctx);
+-	if (IS_ERR(l_ctx))
+-		return PTR_ERR(l_ctx);
++	if (IS_ERR(l_ctx)) {
++		status = PTR_ERR(l_ctx);
++		goto out;
++	}
  
- 	plat->bus_id = of_alias_get_id(np, "ethernet");
- 	if (plat->bus_id < 0)
+ 	status = nfs4_set_rw_stateid(&args->cna_src_stateid, ctx, l_ctx,
+ 				     FMODE_READ);
+@@ -576,7 +578,7 @@ static int _nfs42_proc_copy_notify(struct file *src, struct file *dst,
+ 	if (status) {
+ 		if (status == -EAGAIN)
+ 			status = -NFS4ERR_BAD_STATEID;
+-		return status;
++		goto out;
+ 	}
+ 
+ 	status = nfs4_call_sync(src_server->client, src_server, &msg,
+@@ -584,6 +586,7 @@ static int _nfs42_proc_copy_notify(struct file *src, struct file *dst,
+ 	if (status == -ENOTSUPP)
+ 		src_server->caps &= ~NFS_CAP_COPY_NOTIFY;
+ 
++out:
+ 	put_nfs_open_context(nfs_file_open_context(src));
+ 	return status;
+ }
 -- 
 2.35.1
 
