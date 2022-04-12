@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F164FCB12
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5B494FCAE9
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345149AbiDLBC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 21:02:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34780 "EHLO
+        id S245591AbiDLBCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 21:02:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345230AbiDLA6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:58:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6102F2ED7D;
-        Mon, 11 Apr 2022 17:51:23 -0700 (PDT)
+        with ESMTP id S1345256AbiDLA6b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:58:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A2A2FE76;
+        Mon, 11 Apr 2022 17:51:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F02B860B45;
-        Tue, 12 Apr 2022 00:51:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13434C385AB;
-        Tue, 12 Apr 2022 00:51:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B2C4B815C8;
+        Tue, 12 Apr 2022 00:51:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE46AC385A4;
+        Tue, 12 Apr 2022 00:51:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724682;
-        bh=VyEcuoF2F0p7x6N4J1cOYrfyEqF00/9kbCYzkjxnbf4=;
+        s=k20201202; t=1649724685;
+        bh=Wlepa6YIr2hY5FeD4yQs2YIwB5qn8KB5kc30quQBXrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hV+gdNgeZcsqLLNgvdprGqaiU54ZQitaVJGHqLEYXchH/LM++OKhch0oDytV181H7
-         L4GGxRUYLbF/e2yKNiPflgOXcqzcW1gm4WbFOnrTTnSuOhSVB/VNCX3hmhRt31Az1Z
-         QEH5GpJz7cDntAzJqFiwi31nbmitpAJxOoyXSM5un2af7xchnahchERMnsV5OLv5nT
-         2pSevTIsRewqQmyM6ETiKkXwEzl8chdOtN7t128pgYEhtwWbSERqT+0GhFSuhyIIbk
-         DTVxbCh0KDWhdfStC5FGwuML9Hqgph3LesTqdEWZT8MmAYiBNMPJ51Omj1yzeyPQ0B
-         5tD6XmbmjLZ0g==
+        b=sp29ux/f+ByKrw1tqDZig35b/jNAf7dvxrjR0vgnNbRRvi6Jzov75lNCyGz+AoS0y
+         RehVpAV8dtxLFIcnOQVtufvZ4W5MCV9kYsIjfTSwsuLquYPIXYhFYQNrbsA7l2e3r9
+         9e9RaZDsMypH+IB5cfxxFKLvOrIMpLe18Yl8bLfqQdbLKUW+LsQALm0Eig2U/kBr3x
+         u5DJWrW7d+Xcivsk8kKsvDP/CmKEuueGd7v6Rmm4Md6vEsS2E4MV8wC/HvnS8kRDig
+         +k0Xs1bQ6mVKDzaygkW8qUgMZ1D7ENll/GLIJv5RQdGM2WGin+vJmz2PYMHVDkc8KN
+         lzjd4bGmBrSIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Steve Capper <steve.capper@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
-        linux-arch@vger.kernel.org, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.4 14/21] tlb: hugetlb: Add more sizes to tlb_remove_huge_tlb_entry
-Date:   Mon, 11 Apr 2022 20:50:33 -0400
-Message-Id: <20220412005042.351105-14-sashal@kernel.org>
+Cc:     Marcin Kozlowski <marcinguy@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        pabeni@redhat.com, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 15/21] net: usb: aqc111: Fix out-of-bounds accesses in RX fixup
+Date:   Mon, 11 Apr 2022 20:50:34 -0400
+Message-Id: <20220412005042.351105-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412005042.351105-1-sashal@kernel.org>
 References: <20220412005042.351105-1-sashal@kernel.org>
@@ -61,63 +58,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Capper <steve.capper@arm.com>
+From: Marcin Kozlowski <marcinguy@gmail.com>
 
-[ Upstream commit 697a1d44af8ba0477ee729e632f4ade37999249a ]
+[ Upstream commit afb8e246527536848b9b4025b40e613edf776a9d ]
 
-tlb_remove_huge_tlb_entry only considers PMD_SIZE and PUD_SIZE when
-updating the mmu_gather structure.
+aqc111_rx_fixup() contains several out-of-bounds accesses that can be
+triggered by a malicious (or defective) USB device, in particular:
 
-Unfortunately on arm64 there are two additional huge page sizes that
-need to be covered: CONT_PTE_SIZE and CONT_PMD_SIZE. Where an end-user
-attempts to employ contiguous huge pages, a VM_BUG_ON can be experienced
-due to the fact that the tlb structure hasn't been correctly updated by
-the relevant tlb_flush_p.._range() call from tlb_remove_huge_tlb_entry.
+ - The metadata array (desc_offset..desc_offset+2*pkt_count) can be out of bounds,
+   causing OOB reads and (on big-endian systems) OOB endianness flips.
+ - A packet can overlap the metadata array, causing a later OOB
+   endianness flip to corrupt data used by a cloned SKB that has already
+   been handed off into the network stack.
+ - A packet SKB can be constructed whose tail is far beyond its end,
+   causing out-of-bounds heap data to be considered part of the SKB's
+   data.
 
-This patch adds inequality logic to the generic implementation of
-tlb_remove_huge_tlb_entry s.t. CONT_PTE_SIZE and CONT_PMD_SIZE are
-effectively covered on arm64. Also, as well as ptes, pmds and puds;
-p4ds are now considered too.
+Found doing variant analysis. Tested it with another driver (ax88179_178a), since
+I don't have a aqc111 device to test it, but the code looks very similar.
 
-Reported-by: David Hildenbrand <david@redhat.com>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/linux-mm/811c5c8e-b3a2-85d2-049c-717f17c3a03a@redhat.com/
-Signed-off-by: Steve Capper <steve.capper@arm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220330112543.863-1-steve.capper@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marcin Kozlowski <marcinguy@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/tlb.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/usb/aqc111.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 46294ef620ff..268674c1d568 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -547,10 +547,14 @@ static inline void tlb_flush_p4d_range(struct mmu_gather *tlb,
- #define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)	\
- 	do {							\
- 		unsigned long _sz = huge_page_size(h);		\
--		if (_sz == PMD_SIZE)				\
--			tlb_flush_pmd_range(tlb, address, _sz);	\
--		else if (_sz == PUD_SIZE)			\
-+		if (_sz >= P4D_SIZE)				\
-+			tlb_flush_p4d_range(tlb, address, _sz);	\
-+		else if (_sz >= PUD_SIZE)			\
- 			tlb_flush_pud_range(tlb, address, _sz);	\
-+		else if (_sz >= PMD_SIZE)			\
-+			tlb_flush_pmd_range(tlb, address, _sz);	\
-+		else						\
-+			tlb_flush_pte_range(tlb, address, _sz);	\
- 		__tlb_remove_tlb_entry(tlb, ptep, address);	\
- 	} while (0)
+diff --git a/drivers/net/usb/aqc111.c b/drivers/net/usb/aqc111.c
+index 7e44110746dd..68912e266826 100644
+--- a/drivers/net/usb/aqc111.c
++++ b/drivers/net/usb/aqc111.c
+@@ -1102,10 +1102,15 @@ static int aqc111_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 	if (start_of_descs != desc_offset)
+ 		goto err;
+ 
+-	/* self check desc_offset from header*/
+-	if (desc_offset >= skb_len)
++	/* self check desc_offset from header and make sure that the
++	 * bounds of the metadata array are inside the SKB
++	 */
++	if (pkt_count * 2 + desc_offset >= skb_len)
+ 		goto err;
+ 
++	/* Packets must not overlap the metadata array */
++	skb_trim(skb, desc_offset);
++
+ 	if (pkt_count == 0)
+ 		goto err;
  
 -- 
 2.35.1
