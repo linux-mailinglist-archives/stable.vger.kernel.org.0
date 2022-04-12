@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C0054FD238
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C57FF4FCFC2
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234131AbiDLHBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:01:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58290 "EHLO
+        id S1349430AbiDLGic (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:38:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348715AbiDLG7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:59:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D059326549;
-        Mon, 11 Apr 2022 23:46:38 -0700 (PDT)
+        with ESMTP id S1350025AbiDLGhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:37:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E782B101CD;
+        Mon, 11 Apr 2022 23:34:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1E4960A21;
-        Tue, 12 Apr 2022 06:46:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 039F9C385A1;
-        Tue, 12 Apr 2022 06:46:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 87400B81B3B;
+        Tue, 12 Apr 2022 06:34:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6468C385A6;
+        Tue, 12 Apr 2022 06:34:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745997;
-        bh=YgBs7SCqNKxfkEo9PqweIDQmp3ZWSfZhb89F6s7+12c=;
+        s=korg; t=1649745256;
+        bh=R9mjCXueA1qBXKoLhaHdg7MAgOdRuTR951goVImsFDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJ6dsgAaqiKxiK9ri83K3ZTrzpjO59gZrr47RLHtCXiyLy8T7Oyyh6OXq0j6lsORK
-         BucEE6ktEdGih8E0tWDgneeYg7qBtT0zz5jnJYqK99KL07UOhS92iYfSXJEKnAtb2l
-         D+Mmm6/3vl8E7EZYAl4pQ2vGBO70AJUcxIrbmvAU=
+        b=F68BCWo28oHT8VQtU1faT44bkAjbmivQg5buIge/fHqWDB8Ust/7rUICaJAALq2aT
+         lTUCjzEo1oVjfOcLl/+1seT+d2g/q2zmSC5s4IEOMg94mPnR0fidnMFyWpNgt1kev+
+         DCiTyJTMElLLVetEQcFyNkSomUCr1IjQhiL2xIDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
+        Zekun Shen <bruceshenzk@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/277] net/mlx5e: Remove overzealous validations in netlink EEPROM query
-Date:   Tue, 12 Apr 2022 08:28:19 +0200
-Message-Id: <20220412062944.822075636@linuxfoundation.org>
+Subject: [PATCH 5.10 009/171] ath5k: fix OOB in ath5k_eeprom_read_pcal_info_5111
+Date:   Tue, 12 Apr 2022 08:28:20 +0200
+Message-Id: <20220412062928.152347430@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gal Pressman <gal@nvidia.com>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit 970adfb76095fa719778d70a6b86030d2feb88dd ]
+[ Upstream commit 564d4eceb97eaf381dd6ef6470b06377bb50c95a ]
 
-Unlike the legacy EEPROM callbacks, when using the netlink EEPROM query
-(get_module_eeprom_by_page) the driver should not try to validate the
-query parameters, but just perform the read requested by the userspace.
+The bug was found during fuzzing. Stacktrace locates it in
+ath5k_eeprom_convert_pcal_info_5111.
+When none of the curve is selected in the loop, idx can go
+up to AR5K_EEPROM_N_PD_CURVES. The line makes pd out of bound.
+pd = &chinfo[pier].pd_curves[idx];
 
-Recent discussion in the mailing list:
-https://lore.kernel.org/netdev/20220120093051.70845141@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net/
+There are many OOB writes using pd later in the code. So I
+added a sanity check for idx. Checks for other loops involving
+AR5K_EEPROM_N_PD_CURVES are not needed as the loop index is not
+used outside the loops.
 
-Signed-off-by: Gal Pressman <gal@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+The patch is NOT tested with real device.
+
+The following is the fuzzing report
+
+BUG: KASAN: slab-out-of-bounds in ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+Write of size 1 at addr ffff8880174a4d60 by task modprobe/214
+
+CPU: 0 PID: 214 Comm: modprobe Not tainted 5.6.0 #1
+Call Trace:
+ dump_stack+0x76/0xa0
+ print_address_description.constprop.0+0x16/0x200
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ __kasan_report.cold+0x37/0x7c
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ kasan_report+0xe/0x20
+ ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ ? apic_timer_interrupt+0xa/0x20
+ ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
+ ? ath5k_pci_eeprom_read+0x228/0x3c0 [ath5k]
+ ath5k_eeprom_init+0x2513/0x6290 [ath5k]
+ ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
+ ? usleep_range+0xb8/0x100
+ ? apic_timer_interrupt+0xa/0x20
+ ? ath5k_eeprom_read_pcal_info_2413+0x2f20/0x2f20 [ath5k]
+ ath5k_hw_init+0xb60/0x1970 [ath5k]
+ ath5k_init_ah+0x6fe/0x2530 [ath5k]
+ ? kasprintf+0xa6/0xe0
+ ? ath5k_stop+0x140/0x140 [ath5k]
+ ? _dev_notice+0xf6/0xf6
+ ? apic_timer_interrupt+0xa/0x20
+ ath5k_pci_probe.cold+0x29a/0x3d6 [ath5k]
+ ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
+ ? mutex_lock+0x89/0xd0
+ ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
+ local_pci_probe+0xd3/0x160
+ pci_device_probe+0x23f/0x3e0
+ ? pci_device_remove+0x280/0x280
+ ? pci_device_remove+0x280/0x280
+ really_probe+0x209/0x5d0
+
+Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/YckvDdj3mtCkDRIt@a-10-27-26-18.dynapool.vpn.nyu.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/port.c    | 23 -------------------
- 1 file changed, 23 deletions(-)
+ drivers/net/wireless/ath/ath5k/eeprom.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/port.c b/drivers/net/ethernet/mellanox/mlx5/core/port.c
-index 7b16a1188aab..fd79860de723 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/port.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/port.c
-@@ -433,35 +433,12 @@ int mlx5_query_module_eeprom_by_page(struct mlx5_core_dev *dev,
- 				     struct mlx5_module_eeprom_query_params *params,
- 				     u8 *data)
- {
--	u8 module_id;
- 	int err;
+diff --git a/drivers/net/wireless/ath/ath5k/eeprom.c b/drivers/net/wireless/ath/ath5k/eeprom.c
+index 1fbc2c19848f..d444b3d70ba2 100644
+--- a/drivers/net/wireless/ath/ath5k/eeprom.c
++++ b/drivers/net/wireless/ath/ath5k/eeprom.c
+@@ -746,6 +746,9 @@ ath5k_eeprom_convert_pcal_info_5111(struct ath5k_hw *ah, int mode,
+ 			}
+ 		}
  
- 	err = mlx5_query_module_num(dev, &params->module_number);
- 	if (err)
- 		return err;
++		if (idx == AR5K_EEPROM_N_PD_CURVES)
++			goto err_out;
++
+ 		ee->ee_pd_gains[mode] = 1;
  
--	err = mlx5_query_module_id(dev, params->module_number, &module_id);
--	if (err)
--		return err;
--
--	switch (module_id) {
--	case MLX5_MODULE_ID_SFP:
--		if (params->page > 0)
--			return -EINVAL;
--		break;
--	case MLX5_MODULE_ID_QSFP:
--	case MLX5_MODULE_ID_QSFP28:
--	case MLX5_MODULE_ID_QSFP_PLUS:
--		if (params->page > 3)
--			return -EINVAL;
--		break;
--	case MLX5_MODULE_ID_DSFP:
--		break;
--	default:
--		mlx5_core_err(dev, "Module ID not recognized: 0x%x\n", module_id);
--		return -EINVAL;
--	}
--
- 	if (params->i2c_address != MLX5_I2C_ADDR_HIGH &&
- 	    params->i2c_address != MLX5_I2C_ADDR_LOW) {
- 		mlx5_core_err(dev, "I2C address not recognized: 0x%x\n", params->i2c_address);
+ 		pd = &chinfo[pier].pd_curves[idx];
 -- 
 2.35.1
 
