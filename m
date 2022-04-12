@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB304FDB3D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 169104FD9FD
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:47:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377654AbiDLHvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57654 "EHLO
+        id S1354937AbiDLHeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359243AbiDLHmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:52 -0400
+        with ESMTP id S1354103AbiDLH0D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D3F55767;
-        Tue, 12 Apr 2022 00:20:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F1931ADB3;
+        Tue, 12 Apr 2022 00:05:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 92B56B81B4F;
-        Tue, 12 Apr 2022 07:20:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1028FC385A5;
-        Tue, 12 Apr 2022 07:20:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0D14B81A8F;
+        Tue, 12 Apr 2022 07:05:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37D5AC385A1;
+        Tue, 12 Apr 2022 07:05:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748041;
-        bh=qcBC7Iq+XgCMXLfN9mia0xFHlV/zufTYp/o7RMd+NvE=;
+        s=korg; t=1649747141;
+        bh=YqH2uWEzBP0AykzB1czDFbzQoBm9Rmcb8KMg9FN416s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUBBCn9vVOv6PF6XttnjuGuXN4KDrXSkABpJQUZwVTCXHesAXJQYHx1HrdvFjgmTO
-         qPQMYdom0TQQpYHYNQrcY72TyxAZEY+k2cM6+EuGJbB1FgpTnoMAcvkoX74TC6DdI5
-         /y3t1mXNc+24mqxGXAeJARsqDEsrjR5Rqnxr77AI=
+        b=SuzZdn87BZtf4aiW1XqOP4D26cMYMXUalmrLGbnUG4QTH2MQS3BAbsWbAAw1uf6o4
+         1MTmlt/8D0gLDR1JweinQsM589Smpj2pcGaLq2rbUxtr8nDX6YRHgD1JbmwBUFk+pY
+         9rhXJ1U3olZR0NZY5Q4lit94MpMHI9Cy+Ju35ttc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        stable@kernel.org
-Subject: [PATCH 5.17 298/343] ata: sata_dwc_460ex: Fix crash due to OOB write
+        stable@vger.kernel.org, Felix Fu <foyjog@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.16 259/285] SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()
 Date:   Tue, 12 Apr 2022 08:31:56 +0200
-Message-Id: <20220412062959.925837292@linuxfoundation.org>
+Message-Id: <20220412062951.136328432@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +54,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 7aa8104a554713b685db729e66511b93d989dd6a upstream.
+commit f00432063db1a0db484e85193eccc6845435b80e upstream.
 
-the driver uses libata's "tag" values from in various arrays.
-Since the mentioned patch bumped the ATA_TAG_INTERNAL to 32,
-the value of the SATA_DWC_QCMD_MAX needs to account for that.
+We must ensure that all sockets are closed before we call xprt_free()
+and release the reference to the net namespace. The problem is that
+calling fput() will defer closing the socket until delayed_fput() gets
+called.
+Let's fix the situation by allowing rpciod and the transport teardown
+code (which runs on the system wq) to call __fput_sync(), and directly
+close the socket.
 
-Otherwise ATA_TAG_INTERNAL usage cause similar crashes like
-this as reported by Tice Rex on the OpenWrt Forum and
-reproduced (with symbols) here:
-
-| BUG: Kernel NULL pointer dereference at 0x00000000
-| Faulting instruction address: 0xc03ed4b8
-| Oops: Kernel access of bad area, sig: 11 [#1]
-| BE PAGE_SIZE=4K PowerPC 44x Platform
-| CPU: 0 PID: 362 Comm: scsi_eh_1 Not tainted 5.4.163 #0
-| NIP:  c03ed4b8 LR: c03d27e8 CTR: c03ed36c
-| REGS: cfa59950 TRAP: 0300   Not tainted  (5.4.163)
-| MSR:  00021000 <CE,ME>  CR: 42000222  XER: 00000000
-| DEAR: 00000000 ESR: 00000000
-| GPR00: c03d27e8 cfa59a08 cfa55fe0 00000000 0fa46bc0 [...]
-| [..]
-| NIP [c03ed4b8] sata_dwc_qc_issue+0x14c/0x254
-| LR [c03d27e8] ata_qc_issue+0x1c8/0x2dc
-| Call Trace:
-| [cfa59a08] [c003f4e0] __cancel_work_timer+0x124/0x194 (unreliable)
-| [cfa59a78] [c03d27e8] ata_qc_issue+0x1c8/0x2dc
-| [cfa59a98] [c03d2b3c] ata_exec_internal_sg+0x240/0x524
-| [cfa59b08] [c03d2e98] ata_exec_internal+0x78/0xe0
-| [cfa59b58] [c03d30fc] ata_read_log_page.part.38+0x1dc/0x204
-| [cfa59bc8] [c03d324c] ata_identify_page_supported+0x68/0x130
-| [...]
-
-This is because sata_dwc_dma_xfer_complete() NULLs the
-dma_pending's next neighbour "chan" (a *dma_chan struct) in
-this '32' case right here (line ~735):
-> hsdevp->dma_pending[tag] = SATA_DWC_DMA_PENDING_NONE;
-
-Then the next time, a dma gets issued; dma_dwc_xfer_setup() passes
-the NULL'd hsdevp->chan to the dmaengine_slave_config() which then
-causes the crash.
-
-With this patch, SATA_DWC_QCMD_MAX is now set to ATA_MAX_QUEUE + 1.
-This avoids the OOB. But please note, there was a worthwhile discussion
-on what ATA_TAG_INTERNAL and ATA_MAX_QUEUE is. And why there should not
-be a "fake" 33 command-long queue size.
-
-Ideally, the dw driver should account for the ATA_TAG_INTERNAL.
-In Damien Le Moal's words: "... having looked at the driver, it
-is a bigger change than just faking a 33rd "tag" that is in fact
-not a command tag at all."
-
-Fixes: 28361c403683c ("libata: add extra internal command")
-Cc: stable@kernel.org # 4.18+
-BugLink: https://github.com/openwrt/openwrt/issues/9505
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reported-by: Felix Fu <foyjog@gmail.com>
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: a73881c96d73 ("SUNRPC: Fix an Oops in udp_poll()")
+Cc: stable@vger.kernel.org # 5.1.x: 3be232f11a3c: SUNRPC: Prevent immediate close+reconnect
+Cc: stable@vger.kernel.org # 5.1.x: 89f42494f92f: SUNRPC: Don't call connect() more than once on a TCP socket
+Cc: stable@vger.kernel.org # 5.1.x
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/sata_dwc_460ex.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/file_table.c               |    1 +
+ include/trace/events/sunrpc.h |    1 -
+ net/sunrpc/xprt.c             |    7 +------
+ net/sunrpc/xprtsock.c         |   16 +++++++++++++---
+ 4 files changed, 15 insertions(+), 10 deletions(-)
 
---- a/drivers/ata/sata_dwc_460ex.c
-+++ b/drivers/ata/sata_dwc_460ex.c
-@@ -137,7 +137,11 @@ struct sata_dwc_device {
- #endif
- };
+--- a/fs/file_table.c
++++ b/fs/file_table.c
+@@ -375,6 +375,7 @@ void __fput_sync(struct file *file)
+ }
  
--#define SATA_DWC_QCMD_MAX	32
-+/*
-+ * Allow one extra special slot for commands and DMA management
-+ * to account for libata internal commands.
-+ */
-+#define SATA_DWC_QCMD_MAX	(ATA_MAX_QUEUE + 1)
+ EXPORT_SYMBOL(fput);
++EXPORT_SYMBOL(__fput_sync);
  
- struct sata_dwc_device_port {
- 	struct sata_dwc_device	*hsdev;
+ void __init files_init(void)
+ {
+--- a/include/trace/events/sunrpc.h
++++ b/include/trace/events/sunrpc.h
+@@ -993,7 +993,6 @@ DEFINE_RPC_XPRT_LIFETIME_EVENT(connect);
+ DEFINE_RPC_XPRT_LIFETIME_EVENT(disconnect_auto);
+ DEFINE_RPC_XPRT_LIFETIME_EVENT(disconnect_done);
+ DEFINE_RPC_XPRT_LIFETIME_EVENT(disconnect_force);
+-DEFINE_RPC_XPRT_LIFETIME_EVENT(disconnect_cleanup);
+ DEFINE_RPC_XPRT_LIFETIME_EVENT(destroy);
+ 
+ DECLARE_EVENT_CLASS(rpc_xprt_event,
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -929,12 +929,7 @@ void xprt_connect(struct rpc_task *task)
+ 	if (!xprt_lock_write(xprt, task))
+ 		return;
+ 
+-	if (test_and_clear_bit(XPRT_CLOSE_WAIT, &xprt->state)) {
+-		trace_xprt_disconnect_cleanup(xprt);
+-		xprt->ops->close(xprt);
+-	}
+-
+-	if (!xprt_connected(xprt)) {
++	if (!xprt_connected(xprt) && !test_bit(XPRT_CLOSE_WAIT, &xprt->state)) {
+ 		task->tk_rqstp->rq_connect_cookie = xprt->connect_cookie;
+ 		rpc_sleep_on_timeout(&xprt->pending, task, NULL,
+ 				xprt_request_timeout(task->tk_rqstp));
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -880,7 +880,7 @@ static int xs_local_send_request(struct
+ 
+ 	/* Close the stream if the previous transmission was incomplete */
+ 	if (xs_send_request_was_aborted(transport, req)) {
+-		xs_close(xprt);
++		xprt_force_disconnect(xprt);
+ 		return -ENOTCONN;
+ 	}
+ 
+@@ -918,7 +918,7 @@ static int xs_local_send_request(struct
+ 			-status);
+ 		fallthrough;
+ 	case -EPIPE:
+-		xs_close(xprt);
++		xprt_force_disconnect(xprt);
+ 		status = -ENOTCONN;
+ 	}
+ 
+@@ -1203,6 +1203,16 @@ static void xs_reset_transport(struct so
+ 
+ 	if (sk == NULL)
+ 		return;
++	/*
++	 * Make sure we're calling this in a context from which it is safe
++	 * to call __fput_sync(). In practice that means rpciod and the
++	 * system workqueue.
++	 */
++	if (!(current->flags & PF_WQ_WORKER)) {
++		WARN_ON_ONCE(1);
++		set_bit(XPRT_CLOSE_WAIT, &xprt->state);
++		return;
++	}
+ 
+ 	if (atomic_read(&transport->xprt.swapper))
+ 		sk_clear_memalloc(sk);
+@@ -1226,7 +1236,7 @@ static void xs_reset_transport(struct so
+ 	mutex_unlock(&transport->recv_mutex);
+ 
+ 	trace_rpc_socket_close(xprt, sock);
+-	fput(filp);
++	__fput_sync(filp);
+ 
+ 	xprt_disconnect_done(xprt);
+ }
 
 
