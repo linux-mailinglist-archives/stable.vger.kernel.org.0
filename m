@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C60F64FD41A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 854714FD3F2
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377344AbiDLHty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45780 "EHLO
+        id S1350737AbiDLH5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:57:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358894AbiDLHmT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58B59546A2;
-        Tue, 12 Apr 2022 00:19:31 -0700 (PDT)
+        with ESMTP id S1359242AbiDLHmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A4695576E;
+        Tue, 12 Apr 2022 00:20:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41E196153F;
-        Tue, 12 Apr 2022 07:19:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BDA0C385A5;
-        Tue, 12 Apr 2022 07:19:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 594B261045;
+        Tue, 12 Apr 2022 07:20:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68938C385A5;
+        Tue, 12 Apr 2022 07:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747970;
-        bh=GCdtRzbsd0giU9kuDnboH1OnpD7l/gKMxIAu4hzgLeM=;
+        s=korg; t=1649748038;
+        bh=1fAADtwZr8mUN51KJvbjJw10IrVyo6zwcuvu2c/R9yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EznmDd6V5AJQ6tGCZBRFpohhkoiy+w41PgDgKefef1QJoJBwdJVgqc++1ih+dFSRC
-         Gj5G8KmhFLHtGoHyrF/7/o4bCLPybEasHTUTQyFqPa2CYzRNPi8K6FU7pDiyg8xiFA
-         7eNEAOYyPmG69SwqQEIJI3BLNOI3y7sU/UGluHJ4=
+        b=B0G8LGzA9vytDRXkP9gkAHQO702qgKRawGcNogQw88zHS9hn1Q7XFh9kMeMLiHjdV
+         nqBmA7zPxoiOe7Fqc67ZJpl2fB2ehKz2bi39oJx2F3UffXra0Zyv5pGq1upJCHQcA1
+         jtJi74Cp0NaIkSddDKCQHlz+yjtpN62nFV4VW1lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Avri Altman <Avri.Altman@wdc.com>,
-        Michael Wu <michael@allwinnertech.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.17 271/343] mmc: core: Fixup support for writeback-cache for eMMC and SD
-Date:   Tue, 12 Apr 2022 08:31:29 +0200
-Message-Id: <20220412062959.145752165@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 280/343] x86/pm: Save the MSR validity status at context setup
+Date:   Tue, 12 Apr 2022 08:31:38 +0200
+Message-Id: <20220412062959.405582569@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -55,73 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Wu <michael@allwinnertech.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 08ebf903af57cda6d773f3dd1671b64f73b432b8 upstream.
+commit 73924ec4d560257004d5b5116b22a3647661e364 upstream.
 
-During the card initialization process, the mmc core checks whether the
-eMMC/SD card supports an internal writeback-cache and then enables it
-inside the card.
+The mechanism to save/restore MSRs during S3 suspend/resume checks for
+the MSR validity during suspend, and only restores the MSR if its a
+valid MSR.  This is not optimal, as an invalid MSR will unnecessarily
+throw an exception for every suspend cycle.  The more invalid MSRs,
+higher the impact will be.
 
-Unfortunately, this isn't according to what the mmc core reports to the
-upper block layer. Instead, the writeback-cache support with REQ_FLUSH and
-REQ_FUA, are being enabled depending on whether the host supports the CMD23
-(MMC_CAP_CMD23) and whether an eMMC supports the reliable-write command.
+Check and save the MSR validity at setup.  This ensures that only valid
+MSRs that are guaranteed to not throw an exception will be attempted
+during suspend.
 
-This is wrong and it may also sound awkward. In fact, it's a remnant
-from when both eMMC/SD cards didn't have dedicated commands/support to
-control the internal writeback-cache. In other words, it was the best we
-could do at that point in time.
-
-To fix the problem, but also without breaking backwards compatibility,
-let's align the REQ_FLUSH support with whether the writeback-cache became
-successfully enabled - for both eMMC and SD cards.
-
-Cc: stable@kernel.org
-Fixes: 881d1c25f765 ("mmc: core: Add cache control for eMMC4.5 device")
-Fixes: 130206a615a9 ("mmc: core: Add support for cache ctrl for SD cards")
-Depends-on: 97fce126e279 ("mmc: block: Issue a cache flush only when it's enabled")
-Reviewed-by: Avri Altman <Avri.Altman@wdc.com>
-Signed-off-by: Michael Wu <michael@allwinnertech.com>
-Link: https://lore.kernel.org/r/20220331073223.106415-1-michael@allwinnertech.com
-[Ulf: Re-wrote the commit message]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 7a9c2dd08ead ("x86/pm: Introduce quirk framework to save/restore extra MSR registers around suspend/resume")
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/block.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/x86/power/cpu.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -2382,6 +2382,8 @@ static struct mmc_blk_data *mmc_blk_allo
- 	struct mmc_blk_data *md;
- 	int devidx, ret;
- 	char cap_str[10];
-+	bool cache_enabled = false;
-+	bool fua_enabled = false;
+--- a/arch/x86/power/cpu.c
++++ b/arch/x86/power/cpu.c
+@@ -40,7 +40,8 @@ static void msr_save_context(struct save
+ 	struct saved_msr *end = msr + ctxt->saved_msrs.num;
  
- 	devidx = ida_simple_get(&mmc_blk_ida, 0, max_devices, GFP_KERNEL);
- 	if (devidx < 0) {
-@@ -2461,13 +2463,17 @@ static struct mmc_blk_data *mmc_blk_allo
- 			md->flags |= MMC_BLK_CMD23;
+ 	while (msr < end) {
+-		msr->valid = !rdmsrl_safe(msr->info.msr_no, &msr->info.reg.q);
++		if (msr->valid)
++			rdmsrl(msr->info.msr_no, msr->info.reg.q);
+ 		msr++;
+ 	}
+ }
+@@ -424,8 +425,10 @@ static int msr_build_context(const u32 *
  	}
  
--	if (mmc_card_mmc(card) &&
--	    md->flags & MMC_BLK_CMD23 &&
-+	if (md->flags & MMC_BLK_CMD23 &&
- 	    ((card->ext_csd.rel_param & EXT_CSD_WR_REL_PARAM_EN) ||
- 	     card->ext_csd.rel_sectors)) {
- 		md->flags |= MMC_BLK_REL_WR;
--		blk_queue_write_cache(md->queue.queue, true, true);
-+		fua_enabled = true;
-+		cache_enabled = true;
- 	}
-+	if (mmc_cache_enabled(card->host))
-+		cache_enabled  = true;
+ 	for (i = saved_msrs->num, j = 0; i < total_num; i++, j++) {
++		u64 dummy;
 +
-+	blk_queue_write_cache(md->queue.queue, cache_enabled, fua_enabled);
- 
- 	string_get_size((u64)size, 512, STRING_UNITS_2,
- 			cap_str, sizeof(cap_str));
+ 		msr_array[i].info.msr_no	= msr_id[j];
+-		msr_array[i].valid		= false;
++		msr_array[i].valid		= !rdmsrl_safe(msr_id[j], &dummy);
+ 		msr_array[i].info.reg.q		= 0;
+ 	}
+ 	saved_msrs->num   = total_num;
 
 
