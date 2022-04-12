@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB424FD5DF
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E0074FD5F1
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355871AbiDLH3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:29:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32808 "EHLO
+        id S1344630AbiDLHp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:45:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351976AbiDLHXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:23:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A07582CE35;
-        Mon, 11 Apr 2022 23:59:51 -0700 (PDT)
+        with ESMTP id S1352385AbiDLHX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:23:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD61749C94;
+        Mon, 11 Apr 2022 23:59:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE151615B9;
-        Tue, 12 Apr 2022 06:59:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB481C385A1;
-        Tue, 12 Apr 2022 06:59:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3BF0DB81B4F;
+        Tue, 12 Apr 2022 06:59:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C152C385A1;
+        Tue, 12 Apr 2022 06:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746790;
-        bh=JyGYJOthK6nmcElE9g3HqhMrgYpXY4Choqn2XsHK3f8=;
+        s=korg; t=1649746792;
+        bh=AbrsBm56ExWgKrY6ihV1qtgPDJhwjQAJjiPmD0okSmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/TYlGwqn2DnVRvXie1TSvwnC0n3W36HR/WZ0Y46zWKJxy0hRH9RuBIDja3vAoejS
-         dktueQ1c5U/eaFmMy9KLDrRrCzccGg/7FUmvpKRvXc1qsEGsA1W0H0+4Dj74kHd+im
-         BzyoOKbd1oezSJ4Pk2CendsqB0WMYrtvlPgOpha4=
+        b=yAH4BVsszc88HVE4raVApWaaZsZgQvW6ftqoYY+AdUt1vdHxnmRax6lkA45e84ggL
+         XlmUJ4yLI9x6RXzXlxP7i6gZpjrV6D8uDWQsrx9pFk1pP7uVS+hjeC/SvsNtOLlGmR
+         T4OKfNBUQy1KHlLIv5tOutxTicpdxs3sV8FXXPYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 132/285] clk: Enforce that disjoints limits are invalid
-Date:   Tue, 12 Apr 2022 08:29:49 +0200
-Message-Id: <20220412062947.476367506@linuxfoundation.org>
+Subject: [PATCH 5.16 133/285] SUNRPC/xprt: async tasks mustnt block waiting for memory
+Date:   Tue, 12 Apr 2022 08:29:50 +0200
+Message-Id: <20220412062947.504783605@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -54,100 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 10c46f2ea914202482d19cf80dcc9c321c9ff59b ]
+[ Upstream commit a721035477fb5fb8abc738fbe410b07c12af3dc5 ]
 
-If we were to have two users of the same clock, doing something like:
+When memory is short, new worker threads cannot be created and we depend
+on the minimum one rpciod thread to be able to handle everything.  So it
+must not block waiting for memory.
 
-clk_set_rate_range(user1, 1000, 2000);
-clk_set_rate_range(user2, 3000, 4000);
+xprt_dynamic_alloc_slot can block indefinitely.  This can tie up all
+workqueue threads and NFS can deadlock.  So when called from a
+workqueue, set __GFP_NORETRY.
 
-The second call would fail with -EINVAL, preventing from getting in a
-situation where we end up with impossible limits.
+The rdma alloc_slot already does not block.  However it sets the error
+to -EAGAIN suggesting this will trigger a sleep.  It does not.  As we
+can see in call_reserveresult(), only -ENOMEM causes a sleep.  -EAGAIN
+causes immediate retry.
 
-However, this is never explicitly checked against and enforced, and
-works by relying on an undocumented behaviour of clk_set_rate().
-
-Indeed, on the first clk_set_rate_range will make sure the current clock
-rate is within the new range, so it will be between 1000 and 2000Hz. On
-the second clk_set_rate_range(), it will consider (rightfully), that our
-current clock is outside of the 3000-4000Hz range, and will call
-clk_core_set_rate_nolock() to set it to 3000Hz.
-
-clk_core_set_rate_nolock() will then call clk_calc_new_rates() that will
-eventually check that our rate 3000Hz rate is outside the min 3000Hz max
-2000Hz range, will bail out, the error will propagate and we'll
-eventually return -EINVAL.
-
-This solely relies on the fact that clk_calc_new_rates(), and in
-particular clk_core_determine_round_nolock(), won't modify the new rate
-allowing the error to be reported. That assumption won't be true for all
-drivers, and most importantly we'll break that assumption in a later
-patch.
-
-It can also be argued that we shouldn't even reach the point where we're
-calling clk_core_set_rate_nolock().
-
-Let's make an explicit check for disjoints range before we're doing
-anything.
-
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220225143534.405820-4-maxime@cerno.tech
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ net/sunrpc/xprt.c               | 5 ++++-
+ net/sunrpc/xprtrdma/transport.c | 2 +-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index 2c5db2df9d42..aaf2793ef638 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -631,6 +631,24 @@ static void clk_core_get_boundaries(struct clk_core *core,
- 		*max_rate = min(*max_rate, clk_user->max_rate);
- }
- 
-+static bool clk_core_check_boundaries(struct clk_core *core,
-+				      unsigned long min_rate,
-+				      unsigned long max_rate)
-+{
-+	struct clk *user;
-+
-+	lockdep_assert_held(&prepare_lock);
-+
-+	if (min_rate > core->max_rate || max_rate < core->min_rate)
-+		return false;
-+
-+	hlist_for_each_entry(user, &core->clks, clks_node)
-+		if (min_rate > user->max_rate || max_rate < user->min_rate)
-+			return false;
-+
-+	return true;
-+}
-+
- void clk_hw_set_rate_range(struct clk_hw *hw, unsigned long min_rate,
- 			   unsigned long max_rate)
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index 396a74974f60..75acde97d748 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1690,12 +1690,15 @@ static bool xprt_throttle_congested(struct rpc_xprt *xprt, struct rpc_task *task
+ static struct rpc_rqst *xprt_dynamic_alloc_slot(struct rpc_xprt *xprt)
  {
-@@ -2347,6 +2365,11 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
- 	clk->min_rate = min;
- 	clk->max_rate = max;
+ 	struct rpc_rqst *req = ERR_PTR(-EAGAIN);
++	gfp_t gfp_mask = GFP_KERNEL;
  
-+	if (!clk_core_check_boundaries(clk->core, min, max)) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
- 	rate = clk_core_get_rate_nolock(clk->core);
- 	if (rate < min || rate > max) {
- 		/*
-@@ -2375,6 +2398,7 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
- 		}
- 	}
+ 	if (xprt->num_reqs >= xprt->max_reqs)
+ 		goto out;
+ 	++xprt->num_reqs;
+ 	spin_unlock(&xprt->reserve_lock);
+-	req = kzalloc(sizeof(struct rpc_rqst), GFP_NOFS);
++	if (current->flags & PF_WQ_WORKER)
++		gfp_mask |= __GFP_NORETRY | __GFP_NOWARN;
++	req = kzalloc(sizeof(*req), gfp_mask);
+ 	spin_lock(&xprt->reserve_lock);
+ 	if (req != NULL)
+ 		goto out;
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 6268af7e0310..256b06a92391 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -525,7 +525,7 @@ xprt_rdma_alloc_slot(struct rpc_xprt *xprt, struct rpc_task *task)
+ 	return;
  
-+out:
- 	if (clk->exclusive_count)
- 		clk_core_rate_protect(clk->core);
+ out_sleep:
+-	task->tk_status = -EAGAIN;
++	task->tk_status = -ENOMEM;
+ 	xprt_add_backlog(xprt, task);
+ }
  
 -- 
 2.35.1
