@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55C1C4FD388
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE1C4FD397
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352343AbiDLHgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:36:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43154 "EHLO
+        id S1352991AbiDLHqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:46:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355510AbiDLH1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:27:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44BB74EA2A;
-        Tue, 12 Apr 2022 00:07:46 -0700 (PDT)
+        with ESMTP id S1356750AbiDLHjS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422D352B12;
+        Tue, 12 Apr 2022 00:10:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E780B81B51;
-        Tue, 12 Apr 2022 07:07:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B0EC385A6;
-        Tue, 12 Apr 2022 07:07:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73991616B2;
+        Tue, 12 Apr 2022 07:10:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84DFBC385A5;
+        Tue, 12 Apr 2022 07:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747261;
-        bh=89MrKhqbU4iUBu1mBVmX/Pf+qMpToYtQOMbN23scytw=;
+        s=korg; t=1649747407;
+        bh=smfjITSV1YHK4/bfAMDR+H6NLc2WvBO/3LmrqMnJXJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0ZmSGPE7Zv0/nt/N2gSgcEQGBJbK9dlpbdDaIiMBXsC9c55hwZnd4epHNUEXstB7
-         5mPGkulCAiQdbbnJwTTHddlyxHyjIv6qCdjf3Y8eSeUbWHK1HoBlaEgeaWwTCzxtHm
-         kvIZWxGCQ17fUnVuKgGYglFNzr/Iz7lR9lIzdLB4=
+        b=bbSTray6srJJXYmltFOYyt55lObJ/qypjDtiR2R5nLxIrbtKz6uGE9ElSkXdNEp2Z
+         9G46+ZKdrypFxf3VlEDWeIjKQuW32/U5phcUw0EpwUKft96aqlex3ZXWSmrFI4PLYK
+         Fz1LvSFZDC6ys4y4TIx5kl2e7zuT6K2ypVgsKP9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Huang <jinhuieric.huang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
+        stable@vger.kernel.org, Philipp Zabel <philipp.zabel@gmail.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 016/343] drm/amdkfd: enable heavy-weight TLB flush on Arcturus
-Date:   Tue, 12 Apr 2022 08:27:14 +0200
-Message-Id: <20220412062951.573763904@linuxfoundation.org>
+Subject: [PATCH 5.17 018/343] drm/edid: improve non-desktop quirk logging
+Date:   Tue, 12 Apr 2022 08:27:16 +0200
+Message-Id: <20220412062951.631036259@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -55,75 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Huang <jinhuieric.huang@amd.com>
+From: Jani Nikula <jani.nikula@intel.com>
 
-[ Upstream commit f61c40c0757a79bcf744314df606c2bc8ae6a729 ]
+[ Upstream commit ce99534e978d4a36787dbe5e5c57749d12e6bf4a ]
 
-SDMA FW fixes the hang issue for adding heavy-weight TLB
-flush on Arcturus, so we can enable it.
+Improve non-desktop quirk logging if the EDID indicates non-desktop. If
+both are set, note about redundant quirk. If there's no quirk but the
+EDID indicates non-desktop, don't log non-desktop is set to 0.
 
-Signed-off-by: Eric Huang <jinhuieric.huang@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Philipp Zabel <philipp.zabel@gmail.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
+Tested-by: Philipp Zabel <philipp.zabel@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211228101051.317989-1-jani.nikula@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c |  6 ------
- drivers/gpu/drm/amd/amdkfd/kfd_chardev.c         | 10 ++++++++--
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/drm_edid.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index f9bab963a948..5df387c4d7fb 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1813,12 +1813,6 @@ int amdgpu_amdkfd_gpuvm_map_memory_to_gpu(
- 				true);
- 	ret = unreserve_bo_and_vms(&ctx, false, false);
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index a71b82668a98..83e5c115e754 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5325,17 +5325,13 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 	info->width_mm = edid->width_cm * 10;
+ 	info->height_mm = edid->height_cm * 10;
  
--	/* Only apply no TLB flush on Aldebaran to
--	 * workaround regressions on other Asics.
--	 */
--	if (table_freed && (adev->asic_type != CHIP_ALDEBARAN))
--		*table_freed = true;
+-	info->non_desktop = !!(quirks & EDID_QUIRK_NON_DESKTOP);
 -
- 	goto out;
+ 	drm_get_monitor_range(connector, edid);
  
- out_unreserve:
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-index 4bfc0c8ab764..337953af7c2f 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_chardev.c
-@@ -1416,6 +1416,12 @@ static int kfd_ioctl_free_memory_of_gpu(struct file *filep,
- 	return ret;
+-	DRM_DEBUG_KMS("non_desktop set to %d\n", info->non_desktop);
+-
+ 	if (edid->revision < 3)
+-		return quirks;
++		goto out;
+ 
+ 	if (!(edid->input & DRM_EDID_INPUT_DIGITAL))
+-		return quirks;
++		goto out;
+ 
+ 	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
+ 	drm_parse_cea_ext(connector, edid);
+@@ -5356,7 +5352,7 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 
+ 	/* Only defined for 1.4 with digital displays */
+ 	if (edid->revision < 4)
+-		return quirks;
++		goto out;
+ 
+ 	switch (edid->input & DRM_EDID_DIGITAL_DEPTH_MASK) {
+ 	case DRM_EDID_DIGITAL_DEPTH_6:
+@@ -5393,6 +5389,13 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
+ 
+ 	drm_update_mso(connector, edid);
+ 
++out:
++	if (quirks & EDID_QUIRK_NON_DESKTOP) {
++		drm_dbg_kms(connector->dev, "Non-desktop display%s\n",
++			    info->non_desktop ? " (redundant quirk)" : "");
++		info->non_desktop = true;
++	}
++
+ 	return quirks;
  }
  
-+static bool kfd_flush_tlb_after_unmap(struct kfd_dev *dev) {
-+	return KFD_GC_VERSION(dev) == IP_VERSION(9, 4, 2) ||
-+	       (KFD_GC_VERSION(dev) == IP_VERSION(9, 4, 1) &&
-+	        dev->adev->sdma.instance[0].fw_version >= 18);
-+}
-+
- static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
- 					struct kfd_process *p, void *data)
- {
-@@ -1503,7 +1509,7 @@ static int kfd_ioctl_map_memory_to_gpu(struct file *filep,
- 	}
- 
- 	/* Flush TLBs after waiting for the page table updates to complete */
--	if (table_freed) {
-+	if (table_freed || !kfd_flush_tlb_after_unmap(dev)) {
- 		for (i = 0; i < args->n_devices; i++) {
- 			peer = kfd_device_by_id(devices_arr[i]);
- 			if (WARN_ON_ONCE(!peer))
-@@ -1603,7 +1609,7 @@ static int kfd_ioctl_unmap_memory_from_gpu(struct file *filep,
- 	}
- 	mutex_unlock(&p->mutex);
- 
--	if (KFD_GC_VERSION(dev) == IP_VERSION(9, 4, 2)) {
-+	if (kfd_flush_tlb_after_unmap(dev)) {
- 		err = amdgpu_amdkfd_gpuvm_sync_memory(dev->adev,
- 				(struct kgd_mem *) mem, true);
- 		if (err) {
 -- 
 2.35.1
 
