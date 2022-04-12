@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D12B14FD4F9
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01BD24FD82D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352193AbiDLHhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43074 "EHLO
+        id S237916AbiDLHV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:21:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353885AbiDLHZ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F677101DF;
-        Tue, 12 Apr 2022 00:05:08 -0700 (PDT)
+        with ESMTP id S1351800AbiDLHM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD845F7E;
+        Mon, 11 Apr 2022 23:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43377B81B4E;
-        Tue, 12 Apr 2022 07:05:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD26C385A6;
-        Tue, 12 Apr 2022 07:05:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0CD26149D;
+        Tue, 12 Apr 2022 06:52:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3F70C385A6;
+        Tue, 12 Apr 2022 06:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747106;
-        bh=9vXVE7hBRTZaQD7r+RaOOhVUqQdP69FtVpG2CWo9kbo=;
+        s=korg; t=1649746378;
+        bh=QaNOR5RKZom6VvVT+7/5NSchd1phah1uvn1QBNxVMAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jewLxgZI/kOuNuSZCw8Sy//Y5fnbCGgGHLtNEcBBYr8R3ecPZ9GhSqsknffUyFwXX
-         aIQsrdxE1f7QJYyPaWPC9qUViWppCQB/i1UiHyx0TEkcY4lMVmEpSevDkfkN4zN4BZ
-         dInpNn8s0duSfLbFL/FTtBIOYCEHWwLOXCa1YStw=
+        b=i5XxdwfjqhKMQ++99tfk0YSQQbScKSYFmGBYWhHQvDy/EwLMK4cPwddZxhZer+ufK
+         ktHhlJ18FF8NKxwuEIj46WYaNJd1jIpl8hnPSHp3N8OsPcS0De6oOoeEBSQmG1vIFG
+         1Q5mDji+ha1rD9EhsQPenDsUVeJLfYq73NeOsw6Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 205/285] SUNRPC: Handle ENOMEM in call_transmit_status()
-Date:   Tue, 12 Apr 2022 08:31:02 +0200
-Message-Id: <20220412062949.576620725@linuxfoundation.org>
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 260/277] dmaengine: Revert "dmaengine: shdma: Fix runtime PM imbalance on error"
+Date:   Tue, 12 Apr 2022 08:31:03 +0200
+Message-Id: <20220412062949.569617322@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit d3c15033b240767d0287f1c4a529cbbe2d5ded8a ]
+commit d143f939a95696d38ff800ada14402fa50ebbd6c upstream.
 
-Both call_transmit() and call_bc_transmit() can now return ENOMEM, so
-let's make sure that we handle the errors gracefully.
+This reverts commit 455896c53d5b ("dmaengine: shdma: Fix runtime PM
+imbalance on error") as the patch wrongly reduced the count on error and
+did not bail out. So drop the count by reverting the patch .
 
-Fixes: 0472e4766049 ("SUNRPC: Convert socket page send code to use iov_iter()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/clnt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/dma/sh/shdma-base.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index b36d235d2d6d..bf1fd6caaf92 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2197,6 +2197,7 @@ call_transmit_status(struct rpc_task *task)
- 		 * socket just returned a connection error,
- 		 * then hold onto the transport lock.
- 		 */
-+	case -ENOMEM:
- 	case -ENOBUFS:
- 		rpc_delay(task, HZ>>2);
- 		fallthrough;
-@@ -2280,6 +2281,7 @@ call_bc_transmit_status(struct rpc_task *task)
- 	case -ENOTCONN:
- 	case -EPIPE:
- 		break;
-+	case -ENOMEM:
- 	case -ENOBUFS:
- 		rpc_delay(task, HZ>>2);
- 		fallthrough;
--- 
-2.35.1
-
+--- a/drivers/dma/sh/shdma-base.c
++++ b/drivers/dma/sh/shdma-base.c
+@@ -115,10 +115,8 @@ static dma_cookie_t shdma_tx_submit(stru
+ 		ret = pm_runtime_get(schan->dev);
+ 
+ 		spin_unlock_irq(&schan->chan_lock);
+-		if (ret < 0) {
++		if (ret < 0)
+ 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
+-			pm_runtime_put(schan->dev);
+-		}
+ 
+ 		pm_runtime_barrier(schan->dev);
+ 
 
 
