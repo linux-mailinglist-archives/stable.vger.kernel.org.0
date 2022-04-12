@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC614FDAF6
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:54:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88EE24FD55A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352962AbiDLH2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57440 "EHLO
+        id S1355847AbiDLH32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:29:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351617AbiDLHMs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 409ED11C13;
-        Mon, 11 Apr 2022 23:50:39 -0700 (PDT)
+        with ESMTP id S242334AbiDLHWD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:22:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D5752C13B;
+        Mon, 11 Apr 2022 23:59:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4684614AD;
-        Tue, 12 Apr 2022 06:50:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4502C385A1;
-        Tue, 12 Apr 2022 06:50:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AB5560B65;
+        Tue, 12 Apr 2022 06:59:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26B12C385A8;
+        Tue, 12 Apr 2022 06:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746238;
-        bh=cfbxvSeSy5I+mpC8I9GSA3K1byPd/JZby9OSQekDQxs=;
+        s=korg; t=1649746784;
+        bh=ucfA2C2SWIQgzh8yu0sdw5aNdUWtqQHKO/aIHM0aMUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQ+YdxD6sjJ6sWzmc5ZagMJhu7I4wGaK2WCSI+NqLfiTJn5vtfnKSB6+Hf7DCnW4X
-         DSa8hfhUChuEB8EW1danS5FP/y87TeUza1Cd9fbzLulGlFVeRSM0ZjYFWU19ORulM6
-         olWPaxuco9FEt6o5Za+g+bESa896Oc3688rXcno0=
+        b=DFwyjwR9IVH2Ptit6GoNWZlJZHEbJjaKgcnPwOOKGP86AtQ4s3if/ZukIeXPGmJ8l
+         Jgd7g4GmoHTAuS2s4nfzV1g0MBXtBLtVGZVAJTFxE0OsnqUVqj3/aYCN98kzhXq1YM
+         t71hweJ4zAOdOHRGofqAz3kUig0WcjVkK52/Kx8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pudak, Filip" <Filip.Pudak@windriver.com>,
-        "Xiao, Jiguang" <Jiguang.Xiao@windriver.com>,
-        David Ahern <dsahern@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, Pudak@vger.kernel.org,
-        Xiao@vger.kernel.org
-Subject: [PATCH 5.15 183/277] ipv6: Fix stats accounting in ip6_pkt_drop
-Date:   Tue, 12 Apr 2022 08:29:46 +0200
-Message-Id: <20220412062947.331978667@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 130/285] xen: delay xen_hvm_init_time_ops() if kdump is boot on vcpu>=32
+Date:   Tue, 12 Apr 2022 08:29:47 +0200
+Message-Id: <20220412062947.417506603@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,38 +55,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit 1158f79f82d437093aeed87d57df0548bdd68146 ]
+[ Upstream commit eed05744322da07dd7e419432dcedf3c2e017179 ]
 
-VRF devices are the loopbacks for VRFs, and a loopback can not be
-assigned to a VRF. Accordingly, the condition in ip6_pkt_drop should
-be '||' not '&&'.
+The sched_clock() can be used very early since commit 857baa87b642
+("sched/clock: Enable sched clock early"). In addition, with commit
+38669ba205d1 ("x86/xen/time: Output xen sched_clock time from 0"), kdump
+kernel in Xen HVM guest may panic at very early stage when accessing
+&__this_cpu_read(xen_vcpu)->time as in below:
 
-Fixes: 1d3fd8a10bed ("vrf: Use orig netdev to count Ip6InNoRoutes and a fresh route lookup when sending dest unreach")
-Reported-by: Pudak, Filip <Filip.Pudak@windriver.com>
-Reported-by: Xiao, Jiguang <Jiguang.Xiao@windriver.com>
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220404150908.2937-1-dsahern@kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+setup_arch()
+ -> init_hypervisor_platform()
+     -> x86_init.hyper.init_platform = xen_hvm_guest_init()
+         -> xen_hvm_init_time_ops()
+             -> xen_clocksource_read()
+                 -> src = &__this_cpu_read(xen_vcpu)->time;
+
+This is because Xen HVM supports at most MAX_VIRT_CPUS=32 'vcpu_info'
+embedded inside 'shared_info' during early stage until xen_vcpu_setup() is
+used to allocate/relocate 'vcpu_info' for boot cpu at arbitrary address.
+
+However, when Xen HVM guest panic on vcpu >= 32, since
+xen_vcpu_info_reset(0) would set per_cpu(xen_vcpu, cpu) = NULL when
+vcpu >= 32, xen_clocksource_read() on vcpu >= 32 would panic.
+
+This patch calls xen_hvm_init_time_ops() again later in
+xen_hvm_smp_prepare_boot_cpu() after the 'vcpu_info' for boot vcpu is
+registered when the boot vcpu is >= 32.
+
+This issue can be reproduced on purpose via below command at the guest
+side when kdump/kexec is enabled:
+
+"taskset -c 33 echo c > /proc/sysrq-trigger"
+
+The bugfix for PVM is not implemented due to the lack of testing
+environment.
+
+[boris: xen_hvm_init_time_ops() returns on errors instead of jumping to end]
+
+Cc: Joe Jin <joe.jin@oracle.com>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20220302164032.14569-3-dongli.zhang@oracle.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/route.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/xen/smp_hvm.c |  6 ++++++
+ arch/x86/xen/time.c    | 24 +++++++++++++++++++++++-
+ 2 files changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index e0766bdf20e7..6b269595efaa 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -4509,7 +4509,7 @@ static int ip6_pkt_drop(struct sk_buff *skb, u8 code, int ipstats_mib_noroutes)
- 	struct inet6_dev *idev;
- 	int type;
+diff --git a/arch/x86/xen/smp_hvm.c b/arch/x86/xen/smp_hvm.c
+index 6ff3c887e0b9..b70afdff419c 100644
+--- a/arch/x86/xen/smp_hvm.c
++++ b/arch/x86/xen/smp_hvm.c
+@@ -19,6 +19,12 @@ static void __init xen_hvm_smp_prepare_boot_cpu(void)
+ 	 */
+ 	xen_vcpu_setup(0);
  
--	if (netif_is_l3_master(skb->dev) &&
-+	if (netif_is_l3_master(skb->dev) ||
- 	    dst->dev == net->loopback_dev)
- 		idev = __in6_dev_get_safely(dev_get_by_index_rcu(net, IP6CB(skb)->iif));
- 	else
++	/*
++	 * Called again in case the kernel boots on vcpu >= MAX_VIRT_CPUS.
++	 * Refer to comments in xen_hvm_init_time_ops().
++	 */
++	xen_hvm_init_time_ops();
++
+ 	/*
+ 	 * The alternative logic (which patches the unlock/lock) runs before
+ 	 * the smp bootup up code is activated. Hence we need to set this up
+diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
+index d9c945ee1100..9ef0a5cca96e 100644
+--- a/arch/x86/xen/time.c
++++ b/arch/x86/xen/time.c
+@@ -558,6 +558,11 @@ static void xen_hvm_setup_cpu_clockevents(void)
+ 
+ void __init xen_hvm_init_time_ops(void)
+ {
++	static bool hvm_time_initialized;
++
++	if (hvm_time_initialized)
++		return;
++
+ 	/*
+ 	 * vector callback is needed otherwise we cannot receive interrupts
+ 	 * on cpu > 0 and at this point we don't know how many cpus are
+@@ -567,7 +572,22 @@ void __init xen_hvm_init_time_ops(void)
+ 		return;
+ 
+ 	if (!xen_feature(XENFEAT_hvm_safe_pvclock)) {
+-		pr_info("Xen doesn't support pvclock on HVM, disable pv timer");
++		pr_info_once("Xen doesn't support pvclock on HVM, disable pv timer");
++		return;
++	}
++
++	/*
++	 * Only MAX_VIRT_CPUS 'vcpu_info' are embedded inside 'shared_info'.
++	 * The __this_cpu_read(xen_vcpu) is still NULL when Xen HVM guest
++	 * boots on vcpu >= MAX_VIRT_CPUS (e.g., kexec), To access
++	 * __this_cpu_read(xen_vcpu) via xen_clocksource_read() will panic.
++	 *
++	 * The xen_hvm_init_time_ops() should be called again later after
++	 * __this_cpu_read(xen_vcpu) is available.
++	 */
++	if (!__this_cpu_read(xen_vcpu)) {
++		pr_info("Delay xen_init_time_common() as kernel is running on vcpu=%d\n",
++			xen_vcpu_nr(0));
+ 		return;
+ 	}
+ 
+@@ -577,6 +597,8 @@ void __init xen_hvm_init_time_ops(void)
+ 	x86_cpuinit.setup_percpu_clockev = xen_hvm_setup_cpu_clockevents;
+ 
+ 	x86_platform.set_wallclock = xen_set_wallclock;
++
++	hvm_time_initialized = true;
+ }
+ #endif
+ 
 -- 
 2.35.1
 
