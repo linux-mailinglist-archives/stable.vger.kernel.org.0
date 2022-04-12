@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F32C84FD666
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4244FD4C8
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353617AbiDLHqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
+        id S1377111AbiDLHrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:47:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357105AbiDLHjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE065DEB4;
-        Tue, 12 Apr 2022 00:12:14 -0700 (PDT)
+        with ESMTP id S1357136AbiDLHjs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D76A11C09;
+        Tue, 12 Apr 2022 00:12:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93ADBB81A8F;
-        Tue, 12 Apr 2022 07:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FC3C385A1;
-        Tue, 12 Apr 2022 07:12:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC22461708;
+        Tue, 12 Apr 2022 07:12:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD9B4C385A1;
+        Tue, 12 Apr 2022 07:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747532;
-        bh=RVCl0QueOUEdBG+WdafdDuCg8pAcvRppNDasLe0JeiI=;
+        s=korg; t=1649747562;
+        bh=5Ngrx2Q19iM3tFer9YqiG47OUVg8drZR6c8HQGUFLDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I0aSQznAjyslXpfuDE0ybt9nm6oYgXMZa/ZAQCJd4aQv3k7rqn0lM6Ulx+su7C/wy
-         XPrOPuDswcL3AX0kUg5w7BTdfGhTppcfJ+2D/bnRkP6utik/pHg8YtePWw9YFhoOoI
-         pT8Is2NSr9vwegP/AVXDNP069FGt1mj040LjXf2w=
+        b=woHvrvt0nfWVH2yd0xLGzR0ZvUPNuPqBkSsJhoxBiTEL+IVzCQcoASjJgq+bZPDVf
+         nX4GvVOuoK/uCDFx4EOAa4EHfyti8sVS7zlM4aZ7WNtwnWXALEuqo6b7dec7cWgamD
+         2tIq6PvB4LJlfiS7ubuwZL+oW+vcu250xTnm6BqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 106/343] scsi: pm8001: Fix memory leak in pm8001_chip_fw_flash_update_req()
-Date:   Tue, 12 Apr 2022 08:28:44 +0200
-Message-Id: <20220412062954.155454566@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 107/343] mt76: mt7915: fix injected MPDU transmission to not use HW A-MSDU
+Date:   Tue, 12 Apr 2022 08:28:45 +0200
+Message-Id: <20220412062954.183179970@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -55,39 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 
-[ Upstream commit f792a3629f4c4aa4c3703d66b43ce1edcc3ec09a ]
+[ Upstream commit 28225a6ef80ebf46c46e5fbd5b1ee231a0b2b5b7 ]
 
-In pm8001_chip_fw_flash_update_build(), if
-pm8001_chip_fw_flash_update_build() fails, the struct fw_control_ex
-allocated must be freed.
+Before, the hardware would be allowed to transmit injected 802.11 MPDUs
+as A-MSDU. This resulted in corrupted frames being transmitted. Now,
+injected MPDUs are transmitted as-is, without A-MSDU.
 
-Link: https://lore.kernel.org/r/20220220031810.738362-23-damien.lemoal@opensource.wdc.com
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The fix was verified with frame injection on MT7915 hardware, both with
+and without the injected frame being encrypted.
+
+If the hardware cannot do A-MSDU aggregation on MPDUs, this problem
+would also be present in the TX path where mac80211 does the 802.11
+encapsulation. However, I have not observed any such problem when
+disabling IEEE80211_HW_SUPPORTS_TX_ENCAP_OFFLOAD to force that mode.
+Therefore this fix is isolated to injected frames only.
+
+The same A-MSDU logic is also present in the mt7921 driver, so it is
+likely that this fix should be applied there too. I do not have access
+to mt7921 hardware so I have not been able to test that.
+
+Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index ccc7f53ddbd6..27ead825c2bb 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -4880,8 +4880,10 @@ pm8001_chip_fw_flash_update_req(struct pm8001_hba_info *pm8001_ha,
- 	ccb->ccb_tag = tag;
- 	rc = pm8001_chip_fw_flash_update_build(pm8001_ha, &flash_update_info,
- 		tag);
--	if (rc)
-+	if (rc) {
-+		kfree(fw_control_context);
- 		pm8001_tag_free(pm8001_ha, tag);
-+	}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index db267642924d..e4c300aa1526 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -1085,6 +1085,7 @@ mt7915_mac_write_txwi_80211(struct mt7915_dev *dev, __le32 *txwi,
+ 		val = MT_TXD3_SN_VALID |
+ 		      FIELD_PREP(MT_TXD3_SEQ, IEEE80211_SEQ_TO_SN(seqno));
+ 		txwi[3] |= cpu_to_le32(val);
++		txwi[7] &= ~cpu_to_le32(MT_TXD7_HW_AMSDU);
+ 	}
  
- 	return rc;
- }
+ 	val = FIELD_PREP(MT_TXD7_TYPE, fc_type) |
 -- 
 2.35.1
 
