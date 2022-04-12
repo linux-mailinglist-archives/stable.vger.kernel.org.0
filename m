@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 544784FD84B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B5264FD6A4
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235272AbiDLHhW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:37:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42874 "EHLO
+        id S240031AbiDLH6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:58:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353796AbiDLHZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A991565AF;
-        Tue, 12 Apr 2022 00:04:38 -0700 (PDT)
+        with ESMTP id S1358938AbiDLHmV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFDB054696;
+        Tue, 12 Apr 2022 00:19:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 466AF60B2B;
-        Tue, 12 Apr 2022 07:04:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5334EC385A6;
-        Tue, 12 Apr 2022 07:04:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8592BB81B4F;
+        Tue, 12 Apr 2022 07:19:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0140FC385A5;
+        Tue, 12 Apr 2022 07:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747077;
-        bh=SzBItMyTsxEN8wbEy8s1evcdeOWaK+YL9Vm2ua8qJns=;
+        s=korg; t=1649747976;
+        bh=ZE0SPjc+O4SDdCybQMxqSDYtYnTmByEmCyRM9DcJuWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j1lqx/8oacK8kPfemJ2/MvuXoe/TOb0a4ikoPR0puZyGDoLkOx9wWgtsFS37euSMl
-         YScmOGXZbwbTNX6bcByIS8XUohtJv2vYcbbbwZx8rmB2Jc9LxSkHr//Q3D6HKukqrG
-         0dd4zd+qxYxKpqXav2yC38is18b4YPE+HRb5Es4o=
+        b=dBxFlkbPwoz8x5q5N0nCfcCCxd5uDv0rlV2Emhq2xm1uVz/SPXi+XSauHgiyrLyGs
+         Q7/ZR35uAkDOMxDBqjk8VDi6PyXnFeubHWb7+BX3daSsuYXHVRwbUpev44cbvoF4B/
+         ndfIIYTyFaL2IlCSQkyROBxWQYraeHzHPwCJ7iPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 234/285] btrfs: avoid defragging extents whose next extents are not targets
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 273/343] highmem: fix checks in __kmap_local_sched_{in,out}
 Date:   Tue, 12 Apr 2022 08:31:31 +0200
-Message-Id: <20220412062950.415220912@linuxfoundation.org>
+Message-Id: <20220412062959.202802193@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +56,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 75a36a7d3ea904cef2e5b56af0c58cc60dcf947a upstream.
+commit 66f133ceab7456c789f70a242991ed1b27ba1c3d upstream.
 
-[BUG]
-There is a report that autodefrag is defragging single sector, which
-is completely waste of IO, and no help for defragging:
+When CONFIG_DEBUG_KMAP_LOCAL is enabled __kmap_local_sched_{in,out} check
+that even slots in the tsk->kmap_ctrl.pteval are unmapped.  The slots are
+initialized with 0 value, but the check is done with pte_none.  0 pte
+however does not necessarily mean that pte_none will return true.  e.g.
+on xtensa it returns false, resulting in the following runtime warnings:
 
-   btrfs-cleaner-808 defrag_one_locked_range: root=256 ino=651122 start=0 len=4096
+ WARNING: CPU: 0 PID: 101 at mm/highmem.c:627 __kmap_local_sched_out+0x51/0x108
+ CPU: 0 PID: 101 Comm: touch Not tainted 5.17.0-rc7-00010-gd3a1cdde80d2-dirty #13
+ Call Trace:
+   dump_stack+0xc/0x40
+   __warn+0x8f/0x174
+   warn_slowpath_fmt+0x48/0xac
+   __kmap_local_sched_out+0x51/0x108
+   __schedule+0x71a/0x9c4
+   preempt_schedule_irq+0xa0/0xe0
+   common_exception_return+0x5c/0x93
+   do_wp_page+0x30e/0x330
+   handle_mm_fault+0xa70/0xc3c
+   do_page_fault+0x1d8/0x3c4
+   common_exception+0x7f/0x7f
 
-[CAUSE]
-In defrag_collect_targets(), we check if the current range (A) can be merged
-with next one (B).
+ WARNING: CPU: 0 PID: 101 at mm/highmem.c:664 __kmap_local_sched_in+0x50/0xe0
+ CPU: 0 PID: 101 Comm: touch Tainted: G        W         5.17.0-rc7-00010-gd3a1cdde80d2-dirty #13
+ Call Trace:
+   dump_stack+0xc/0x40
+   __warn+0x8f/0x174
+   warn_slowpath_fmt+0x48/0xac
+   __kmap_local_sched_in+0x50/0xe0
+   finish_task_switch$isra$0+0x1ce/0x2f8
+   __schedule+0x86e/0x9c4
+   preempt_schedule_irq+0xa0/0xe0
+   common_exception_return+0x5c/0x93
+   do_wp_page+0x30e/0x330
+   handle_mm_fault+0xa70/0xc3c
+   do_page_fault+0x1d8/0x3c4
+   common_exception+0x7f/0x7f
 
-If mergeable, we will add range A into target for defrag.
+Fix it by replacing !pte_none(pteval) with pte_val(pteval) != 0.
 
-However there is a catch for autodefrag, when checking mergeability
-against range B, we intentionally pass 0 as @newer_than, hoping to get a
-higher chance to merge with the next extent.
-
-But in the next iteration, range B will looked up by defrag_lookup_extent(),
-with non-zero @newer_than.
-
-And if range B is not really newer, it will rejected directly, causing
-only range A being defragged, while we expect to defrag both range A and
-B.
-
-[FIX]
-Since the root cause is the difference in check condition of
-defrag_check_next_extent() and defrag_collect_targets(), we fix it by:
-
-1. Pass @newer_than to defrag_check_next_extent()
-2. Pass @extent_thresh to defrag_check_next_extent()
-
-This makes the check between defrag_collect_targets() and
-defrag_check_next_extent() more consistent.
-
-While there is still some minor difference, the remaining checks are
-focus on runtime flags like writeback/delalloc, which are mostly
-transient and safe to be checked only in defrag_collect_targets().
-
-Link: https://github.com/btrfs/linux/issues/423#issuecomment-1066981856
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lkml.kernel.org/r/20220403235159.3498065-1-jcmvbkbc@gmail.com
+Fixes: 5fbda3ecd14a ("sched: highmem: Store local kmaps in task struct")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ioctl.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ mm/highmem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1189,7 +1189,7 @@ static u32 get_extent_max_capacity(const
- }
+--- a/mm/highmem.c
++++ b/mm/highmem.c
+@@ -624,7 +624,7 @@ void __kmap_local_sched_out(void)
  
- static bool defrag_check_next_extent(struct inode *inode, struct extent_map *em,
--				     bool locked)
-+				     u32 extent_thresh, u64 newer_than, bool locked)
- {
- 	struct extent_map *next;
- 	bool ret = false;
-@@ -1199,11 +1199,12 @@ static bool defrag_check_next_extent(str
- 		return false;
+ 		/* With debug all even slots are unmapped and act as guard */
+ 		if (IS_ENABLED(CONFIG_DEBUG_KMAP_LOCAL) && !(i & 0x01)) {
+-			WARN_ON_ONCE(!pte_none(pteval));
++			WARN_ON_ONCE(pte_val(pteval) != 0);
+ 			continue;
+ 		}
+ 		if (WARN_ON_ONCE(pte_none(pteval)))
+@@ -661,7 +661,7 @@ void __kmap_local_sched_in(void)
  
- 	/*
--	 * We want to check if the next extent can be merged with the current
--	 * one, which can be an extent created in a past generation, so we pass
--	 * a minimum generation of 0 to defrag_lookup_extent().
-+	 * Here we need to pass @newer_then when checking the next extent, or
-+	 * we will hit a case we mark current extent for defrag, but the next
-+	 * one will not be a target.
-+	 * This will just cause extra IO without really reducing the fragments.
- 	 */
--	next = defrag_lookup_extent(inode, em->start + em->len, 0, locked);
-+	next = defrag_lookup_extent(inode, em->start + em->len, newer_than, locked);
- 	/* No more em or hole */
- 	if (!next || next->block_start >= EXTENT_MAP_LAST_BYTE)
- 		goto out;
-@@ -1215,6 +1216,13 @@ static bool defrag_check_next_extent(str
- 	 */
- 	if (next->len >= get_extent_max_capacity(em))
- 		goto out;
-+	/* Skip older extent */
-+	if (next->generation < newer_than)
-+		goto out;
-+	/* Also check extent size */
-+	if (next->len >= extent_thresh)
-+		goto out;
-+
- 	ret = true;
- out:
- 	free_extent_map(next);
-@@ -1420,7 +1428,7 @@ static int defrag_collect_targets(struct
- 			goto next;
- 
- 		next_mergeable = defrag_check_next_extent(&inode->vfs_inode, em,
--							  locked);
-+						extent_thresh, newer_than, locked);
- 		if (!next_mergeable) {
- 			struct defrag_target_range *last;
- 
+ 		/* With debug all even slots are unmapped and act as guard */
+ 		if (IS_ENABLED(CONFIG_DEBUG_KMAP_LOCAL) && !(i & 0x01)) {
+-			WARN_ON_ONCE(!pte_none(pteval));
++			WARN_ON_ONCE(pte_val(pteval) != 0);
+ 			continue;
+ 		}
+ 		if (WARN_ON_ONCE(pte_none(pteval)))
 
 
