@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFE1C4FD397
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C17A4FD37A
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352991AbiDLHqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:46:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48712 "EHLO
+        id S1356602AbiDLIK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:10:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356750AbiDLHjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 422D352B12;
-        Tue, 12 Apr 2022 00:10:08 -0700 (PDT)
+        with ESMTP id S1353953AbiDLHiB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:38:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B59517FB;
+        Tue, 12 Apr 2022 00:09:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73991616B2;
-        Tue, 12 Apr 2022 07:10:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84DFBC385A5;
-        Tue, 12 Apr 2022 07:10:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28762B81B58;
+        Tue, 12 Apr 2022 07:09:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EA20C385A5;
+        Tue, 12 Apr 2022 07:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747407;
-        bh=smfjITSV1YHK4/bfAMDR+H6NLc2WvBO/3LmrqMnJXJ4=;
+        s=korg; t=1649747382;
+        bh=P+yUphLekVSunkS4tg37Dl51JfFmmML9Ddy2YUNFXgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bbSTray6srJJXYmltFOYyt55lObJ/qypjDtiR2R5nLxIrbtKz6uGE9ElSkXdNEp2Z
-         9G46+ZKdrypFxf3VlEDWeIjKQuW32/U5phcUw0EpwUKft96aqlex3ZXWSmrFI4PLYK
-         Fz1LvSFZDC6ys4y4TIx5kl2e7zuT6K2ypVgsKP9k=
+        b=EVSbDotQ2ZQGegzHkqIf6/5qmcyeOu9wdKSeM8V1OF70F5ttKbBemoGjZ6Ca+4le+
+         PqDARmzG0zXQ1DBOA0Zb8+ViZOvCtR4KzRnDgXG00CVHRsL4YSY6XX5e8lfExaDVMu
+         mudkRonCJVVjyrVl06v7zmGkT8sDkXtTAxAAngm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <philipp.zabel@gmail.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 018/343] drm/edid: improve non-desktop quirk logging
-Date:   Tue, 12 Apr 2022 08:27:16 +0200
-Message-Id: <20220412062951.631036259@linuxfoundation.org>
+Subject: [PATCH 5.17 022/343] drm/amd/display: Use PSR version selected during set_psr_caps
+Date:   Tue, 12 Apr 2022 08:27:20 +0200
+Message-Id: <20220412062951.745001905@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -54,71 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-[ Upstream commit ce99534e978d4a36787dbe5e5c57749d12e6bf4a ]
+[ Upstream commit b80ddeb29d9df449f875f0b6f5de08d7537c02b8 ]
 
-Improve non-desktop quirk logging if the EDID indicates non-desktop. If
-both are set, note about redundant quirk. If there's no quirk but the
-EDID indicates non-desktop, don't log non-desktop is set to 0.
+[Why]
+If the DPCD caps specifies a PSR version newer than PSR_VERSION_1 then
+we fallback to using PSR_VERSION_1 in amdgpu_dm_set_psr_caps.
 
-Cc: Philipp Zabel <philipp.zabel@gmail.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Reviewed-by: Philipp Zabel <philipp.zabel@gmail.com>
-Tested-by: Philipp Zabel <philipp.zabel@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211228101051.317989-1-jani.nikula@intel.com
+This gets overriden with the raw DPCD value in amdgpu_dm_link_setup_psr,
+which can result in DMCUB hanging if we pass in an unsupported PSR
+version number.
+
+[How]
+Fix the hang by using link->psr_settings.psr_version directly during
+amdgpu_dm_link_setup_psr.
+
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index a71b82668a98..83e5c115e754 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -5325,17 +5325,13 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
- 	info->width_mm = edid->width_cm * 10;
- 	info->height_mm = edid->height_cm * 10;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
+index c510638b4f99..a009fc654ac9 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_psr.c
+@@ -149,10 +149,8 @@ bool amdgpu_dm_link_setup_psr(struct dc_stream_state *stream)
  
--	info->non_desktop = !!(quirks & EDID_QUIRK_NON_DESKTOP);
+ 	link = stream->link;
+ 
+-	psr_config.psr_version = link->dpcd_caps.psr_caps.psr_version;
 -
- 	drm_get_monitor_range(connector, edid);
- 
--	DRM_DEBUG_KMS("non_desktop set to %d\n", info->non_desktop);
--
- 	if (edid->revision < 3)
--		return quirks;
-+		goto out;
- 
- 	if (!(edid->input & DRM_EDID_INPUT_DIGITAL))
--		return quirks;
-+		goto out;
- 
- 	info->color_formats |= DRM_COLOR_FORMAT_RGB444;
- 	drm_parse_cea_ext(connector, edid);
-@@ -5356,7 +5352,7 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
- 
- 	/* Only defined for 1.4 with digital displays */
- 	if (edid->revision < 4)
--		return quirks;
-+		goto out;
- 
- 	switch (edid->input & DRM_EDID_DIGITAL_DEPTH_MASK) {
- 	case DRM_EDID_DIGITAL_DEPTH_6:
-@@ -5393,6 +5389,13 @@ u32 drm_add_display_info(struct drm_connector *connector, const struct edid *edi
- 
- 	drm_update_mso(connector, edid);
- 
-+out:
-+	if (quirks & EDID_QUIRK_NON_DESKTOP) {
-+		drm_dbg_kms(connector->dev, "Non-desktop display%s\n",
-+			    info->non_desktop ? " (redundant quirk)" : "");
-+		info->non_desktop = true;
-+	}
-+
- 	return quirks;
- }
- 
+-	if (psr_config.psr_version > 0) {
+-		psr_config.psr_exit_link_training_required = 0x1;
++	if (link->psr_settings.psr_version != DC_PSR_VERSION_UNSUPPORTED) {
++		psr_config.psr_version = link->psr_settings.psr_version;
+ 		psr_config.psr_frame_capture_indication_req = 0;
+ 		psr_config.psr_rfb_setup_time = 0x37;
+ 		psr_config.psr_sdp_transmit_line_num_deadline = 0x20;
 -- 
 2.35.1
 
