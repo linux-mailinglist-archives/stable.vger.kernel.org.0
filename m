@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46DE14FD8CB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8834F4FD8CD
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345828AbiDLHpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:45:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56616 "EHLO
+        id S1351876AbiDLHWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:22:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356334AbiDLHfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:35:17 -0400
+        with ESMTP id S1352903AbiDLHOg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:36 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61FDD4DF45;
-        Tue, 12 Apr 2022 00:09:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E125B31928;
+        Mon, 11 Apr 2022 23:55:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35118B81B4D;
-        Tue, 12 Apr 2022 07:09:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0C36C385A6;
-        Tue, 12 Apr 2022 07:09:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2323B81B35;
+        Tue, 12 Apr 2022 06:55:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14C17C385A6;
+        Tue, 12 Apr 2022 06:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747350;
-        bh=gRNOeKX3UpDJ2UTk1snAD3IFc3HXFcB2VDj/JDji+rc=;
+        s=korg; t=1649746515;
+        bh=/uKbheoXCqGmE+l6GjoWxiFv0SNKT75bIlepXGZFYGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mbrg81fbksp2emUIROrhMOLhf9K+WdRPKnmIUbJ88jJ95lT0D9YdKT/3HAukUdZ3t
-         xo4mXbXZ69CM36Hsoe5hIGwi3NDycTT5u2tLsdvbHOr7TZtD8FzcNf39H2/be2tncK
-         QErjUlWFgFp9RlbzaJ1zQLKBNshKbF4MZJG4YJoU=
+        b=0bhuGt3LcBQnd9vEz8F5aHEY7k5U9QCtQThuq6dkCm1EHWwjUPHcGgQlyT5BJCW8J
+         /W9s2DQtMAoh+ndCHGvSwXDtwXB+DoqBE4OBTaBSHyUhtQ7wL1sBKp2HZkiQlMc74K
+         GMu/kGkp75ll0FCP+1e2OtKJ/LCGY0QoIMjDgxIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Boger <boger@wirenboard.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Anisse Astier <anisse@astier.eu>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 047/343] power: supply: axp20x_battery: properly report current when discharging
-Date:   Tue, 12 Apr 2022 08:27:45 +0200
-Message-Id: <20220412062952.465740359@linuxfoundation.org>
+Subject: [PATCH 5.16 009/285] drm: Add orientation quirk for GPD Win Max
+Date:   Tue, 12 Apr 2022 08:27:46 +0200
+Message-Id: <20220412062943.945074073@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Boger <boger@wirenboard.com>
+From: Anisse Astier <anisse@astier.eu>
 
-[ Upstream commit d4f408cdcd26921c1268cb8dcbe8ffb6faf837f3 ]
+[ Upstream commit 0b464ca3e0dd3cec65f28bc6d396d82f19080f69 ]
 
-As stated in [1], negative current values are used for discharging
-batteries.
+Panel is 800x1280, but mounted on a laptop form factor, sideways.
 
-AXP PMICs internally have two different ADC channels for shunt current
-measurement: one used during charging and one during discharging.
-The values reported by these ADCs are unsigned.
-While the driver properly selects ADC channel to get the data from,
-it doesn't apply negative sign when reporting discharging current.
-
-[1] Documentation/ABI/testing/sysfs-class-power
-
-Signed-off-by: Evgeny Boger <boger@wirenboard.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Anisse Astier <anisse@astier.eu>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211229222200.53128-3-anisse@astier.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp20x_battery.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/power/supply/axp20x_battery.c b/drivers/power/supply/axp20x_battery.c
-index 5d197141f476..9106077c0dbb 100644
---- a/drivers/power/supply/axp20x_battery.c
-+++ b/drivers/power/supply/axp20x_battery.c
-@@ -186,7 +186,6 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
- 				   union power_supply_propval *val)
- {
- 	struct axp20x_batt_ps *axp20x_batt = power_supply_get_drvdata(psy);
--	struct iio_channel *chan;
- 	int ret = 0, reg, val1;
- 
- 	switch (psp) {
-@@ -266,12 +265,12 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
- 		if (ret)
- 			return ret;
- 
--		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING)
--			chan = axp20x_batt->batt_chrg_i;
--		else
--			chan = axp20x_batt->batt_dischrg_i;
--
--		ret = iio_read_channel_processed(chan, &val->intval);
-+		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING) {
-+			ret = iio_read_channel_processed(axp20x_batt->batt_chrg_i, &val->intval);
-+		} else {
-+			ret = iio_read_channel_processed(axp20x_batt->batt_dischrg_i, &val1);
-+			val->intval = -val1;
-+		}
- 		if (ret)
- 			return ret;
- 
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index b910978d3e48..4e853acfd1e8 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -180,6 +180,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MicroPC"),
+ 		},
+ 		.driver_data = (void *)&lcd720x1280_rightside_up,
++	}, {	/* GPD Win Max */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "GPD"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "G1619-01"),
++		},
++		.driver_data = (void *)&lcd800x1280_rightside_up,
+ 	}, {	/*
+ 		 * GPD Pocket, note that the the DMI data is less generic then
+ 		 * it seems, devices with a board-vendor of "AMI Corporation"
 -- 
 2.35.1
 
