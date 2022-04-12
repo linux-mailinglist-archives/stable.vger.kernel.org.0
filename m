@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EAF24FDB4D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41E7E4FD6D5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244215AbiDLIJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:09:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49162 "EHLO
+        id S1355687AbiDLH27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353948AbiDLHiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:38:01 -0400
+        with ESMTP id S1352327AbiDLHNt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D044A3FA;
-        Tue, 12 Apr 2022 00:09:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 463ED1CFC3;
+        Mon, 11 Apr 2022 23:54:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65040B81895;
-        Tue, 12 Apr 2022 07:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3023C385A5;
-        Tue, 12 Apr 2022 07:09:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B9BDB81B47;
+        Tue, 12 Apr 2022 06:54:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97803C385A1;
+        Tue, 12 Apr 2022 06:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747380;
-        bh=7wBqRQkm8iDz7yZUpQFEIepvC8UX5wh7fIbjx6WS1j8=;
+        s=korg; t=1649746475;
+        bh=r87p0gAl0psPBghiE0BCtzVxgcqDSlyjIthS9cyDlkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3RedlXJwCFMlVKitQf1Acecbgx/pxoKcDcEMLcM4bJFYD/sL3FlmP1vOSCt9ebgg
-         az/DjBgNvUxcGsssSDOuTjR3mWdV/II8gR42if5ZjcnC1CxumJZJVrSEJSo0rbnsUP
-         zkUHQupl69jnTvIJ9jJHpbz86fy0cHu16+4yAMQ4=
+        b=KfXNJxPyZL8hnow+CvyjUDGb3I8x+8POwtK/sbPOTJU/JfDjlVvJk4u1KfykZ5/ue
+         9mk5Ufqs8mx4a+Haev1P7OBvasv2v3MhpP52WIP3ejcHRhURwPmldz36DW/sJ6/RHY
+         F/bt6WpLdGo+toSJa9ZwpwZiFct5GyUHUcHT0ycs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <Alexander.Deucher@amd.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Pawel Laszczak <pawell@cadence.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 057/343] drm/amdgpu: Fix recursive locking warning
-Date:   Tue, 12 Apr 2022 08:27:55 +0200
-Message-Id: <20220412062952.750524080@linuxfoundation.org>
+Subject: [PATCH 5.16 019/285] usb: cdnsp: fix cdnsp_decode_trb function to properly handle ret value
+Date:   Tue, 12 Apr 2022 08:27:56 +0200
+Message-Id: <20220412062944.231784747@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,136 +54,390 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+From: Pawel Laszczak <pawell@cadence.com>
 
-[ Upstream commit 447c7997b62a5115ba4da846dcdee4fc12298a6a ]
+[ Upstream commit 03db9289b5ab59437e42a111a34545a7cedb5190 ]
 
-Noticed the below warning while running a pytorch workload on vega10
-GPUs. Change to trylock to avoid conflicts with already held reservation
-locks.
+Variable ret in function cdnsp_decode_trb is initialized but not
+used. To fix this compiler warning patch adds checking whether the
+data buffer has not been overflowed.
 
-[  +0.000003] WARNING: possible recursive locking detected
-[  +0.000003] 5.13.0-kfd-rajneesh #1030 Not tainted
-[  +0.000004] --------------------------------------------
-[  +0.000002] python/4822 is trying to acquire lock:
-[  +0.000004] ffff932cd9a259f8 (reservation_ww_class_mutex){+.+.}-{3:3},
-at: amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000203]
-              but task is already holding lock:
-[  +0.000003] ffff932cbb7181f8 (reservation_ww_class_mutex){+.+.}-{3:3},
-at: ttm_eu_reserve_buffers+0x270/0x470 [ttm]
-[  +0.000017]
-              other info that might help us debug this:
-[  +0.000002]  Possible unsafe locking scenario:
-
-[  +0.000003]        CPU0
-[  +0.000002]        ----
-[  +0.000002]   lock(reservation_ww_class_mutex);
-[  +0.000004]   lock(reservation_ww_class_mutex);
-[  +0.000003]
-               *** DEADLOCK ***
-
-[  +0.000002]  May be due to missing lock nesting notation
-
-[  +0.000003] 7 locks held by python/4822:
-[  +0.000003]  #0: ffff932c4ac028d0 (&process->mutex){+.+.}-{3:3}, at:
-kfd_ioctl_map_memory_to_gpu+0x10b/0x320 [amdgpu]
-[  +0.000232]  #1: ffff932c55e830a8 (&info->lock#2){+.+.}-{3:3}, at:
-amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x64/0xf60 [amdgpu]
-[  +0.000241]  #2: ffff932cc45b5e68 (&(*mem)->lock){+.+.}-{3:3}, at:
-amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0xdf/0xf60 [amdgpu]
-[  +0.000236]  #3: ffffb2b35606fd28
-(reservation_ww_class_acquire){+.+.}-{0:0}, at:
-amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x232/0xf60 [amdgpu]
-[  +0.000235]  #4: ffff932cbb7181f8
-(reservation_ww_class_mutex){+.+.}-{3:3}, at:
-ttm_eu_reserve_buffers+0x270/0x470 [ttm]
-[  +0.000015]  #5: ffffffffc045f700 (*(sspp++)){....}-{0:0}, at:
-drm_dev_enter+0x5/0xa0 [drm]
-[  +0.000038]  #6: ffff932c52da7078 (&vm->eviction_lock){+.+.}-{3:3},
-at: amdgpu_vm_bo_update_mapping+0xd5/0x4f0 [amdgpu]
-[  +0.000195]
-              stack backtrace:
-[  +0.000003] CPU: 11 PID: 4822 Comm: python Not tainted
-5.13.0-kfd-rajneesh #1030
-[  +0.000005] Hardware name: GIGABYTE MZ01-CE0-00/MZ01-CE0-00, BIOS F02
-08/29/2018
-[  +0.000003] Call Trace:
-[  +0.000003]  dump_stack+0x6d/0x89
-[  +0.000010]  __lock_acquire+0xb93/0x1a90
-[  +0.000009]  lock_acquire+0x25d/0x2d0
-[  +0.000005]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000184]  ? lock_is_held_type+0xa2/0x110
-[  +0.000006]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000184]  __ww_mutex_lock.constprop.17+0xca/0x1060
-[  +0.000007]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000183]  ? lock_release+0x13f/0x270
-[  +0.000005]  ? lock_is_held_type+0xa2/0x110
-[  +0.000006]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000183]  amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
-[  +0.000185]  ttm_bo_release+0x4c6/0x580 [ttm]
-[  +0.000010]  amdgpu_bo_unref+0x1a/0x30 [amdgpu]
-[  +0.000183]  amdgpu_vm_free_table+0x76/0xa0 [amdgpu]
-[  +0.000189]  amdgpu_vm_free_pts+0xb8/0xf0 [amdgpu]
-[  +0.000189]  amdgpu_vm_update_ptes+0x411/0x770 [amdgpu]
-[  +0.000191]  amdgpu_vm_bo_update_mapping+0x324/0x4f0 [amdgpu]
-[  +0.000191]  amdgpu_vm_bo_update+0x251/0x610 [amdgpu]
-[  +0.000191]  update_gpuvm_pte+0xcc/0x290 [amdgpu]
-[  +0.000229]  ? amdgpu_vm_bo_map+0xd7/0x130 [amdgpu]
-[  +0.000190]  amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x912/0xf60
-[amdgpu]
-[  +0.000234]  kfd_ioctl_map_memory_to_gpu+0x182/0x320 [amdgpu]
-[  +0.000218]  kfd_ioctl+0x2b9/0x600 [amdgpu]
-[  +0.000216]  ? kfd_ioctl_unmap_memory_from_gpu+0x270/0x270 [amdgpu]
-[  +0.000216]  ? lock_release+0x13f/0x270
-[  +0.000006]  ? __fget_files+0x107/0x1e0
-[  +0.000007]  __x64_sys_ioctl+0x8b/0xd0
-[  +0.000007]  do_syscall_64+0x36/0x70
-[  +0.000004]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  +0.000007] RIP: 0033:0x7fbff90a7317
-[  +0.000004] Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00
-48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f
-05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
-[  +0.000005] RSP: 002b:00007fbe301fe648 EFLAGS: 00000246 ORIG_RAX:
-0000000000000010
-[  +0.000006] RAX: ffffffffffffffda RBX: 00007fbcc402d820 RCX:
-00007fbff90a7317
-[  +0.000003] RDX: 00007fbe301fe690 RSI: 00000000c0184b18 RDI:
-0000000000000004
-[  +0.000003] RBP: 00007fbe301fe690 R08: 0000000000000000 R09:
-00007fbcc402d880
-[  +0.000003] R10: 0000000002001000 R11: 0000000000000246 R12:
-00000000c0184b18
-[  +0.000003] R13: 0000000000000004 R14: 00007fbf689593a0 R15:
-00007fbcc402d820
-
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-Cc: Alex Deucher <Alexander.Deucher@amd.com>
-
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20220112053237.14309-1-pawell@gli-login.cadence.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/cdns3/cdnsp-debug.h | 305 ++++++++++++++++----------------
+ 1 file changed, 154 insertions(+), 151 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-index 5661b82d84d4..dda53fe30975 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
-@@ -1303,7 +1303,8 @@ void amdgpu_bo_release_notify(struct ttm_buffer_object *bo)
- 	    !(abo->flags & AMDGPU_GEM_CREATE_VRAM_WIPE_ON_RELEASE))
- 		return;
+diff --git a/drivers/usb/cdns3/cdnsp-debug.h b/drivers/usb/cdns3/cdnsp-debug.h
+index a8776df2d4e0..f0ca865cce2a 100644
+--- a/drivers/usb/cdns3/cdnsp-debug.h
++++ b/drivers/usb/cdns3/cdnsp-debug.h
+@@ -182,208 +182,211 @@ static inline const char *cdnsp_decode_trb(char *str, size_t size, u32 field0,
+ 	int ep_id = TRB_TO_EP_INDEX(field3) - 1;
+ 	int type = TRB_FIELD_TO_TYPE(field3);
+ 	unsigned int ep_num;
+-	int ret = 0;
++	int ret;
+ 	u32 temp;
  
--	dma_resv_lock(bo->base.resv, NULL);
-+	if (WARN_ON_ONCE(!dma_resv_trylock(bo->base.resv)))
-+		return;
+ 	ep_num = DIV_ROUND_UP(ep_id, 2);
  
- 	r = amdgpu_fill_buffer(abo, AMDGPU_POISON, bo->base.resv, &fence);
- 	if (!WARN_ON(r)) {
+ 	switch (type) {
+ 	case TRB_LINK:
+-		ret += snprintf(str, size,
+-				"LINK %08x%08x intr %ld type '%s' flags %c:%c:%c:%c",
+-				field1, field0, GET_INTR_TARGET(field2),
+-				cdnsp_trb_type_string(type),
+-				field3 & TRB_IOC ? 'I' : 'i',
+-				field3 & TRB_CHAIN ? 'C' : 'c',
+-				field3 & TRB_TC ? 'T' : 't',
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "LINK %08x%08x intr %ld type '%s' flags %c:%c:%c:%c",
++			       field1, field0, GET_INTR_TARGET(field2),
++			       cdnsp_trb_type_string(type),
++			       field3 & TRB_IOC ? 'I' : 'i',
++			       field3 & TRB_CHAIN ? 'C' : 'c',
++			       field3 & TRB_TC ? 'T' : 't',
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_TRANSFER:
+ 	case TRB_COMPLETION:
+ 	case TRB_PORT_STATUS:
+ 	case TRB_HC_EVENT:
+-		ret += snprintf(str, size,
+-				"ep%d%s(%d) type '%s' TRB %08x%08x status '%s'"
+-				" len %ld slot %ld flags %c:%c",
+-				ep_num, ep_id % 2 ? "out" : "in",
+-				TRB_TO_EP_INDEX(field3),
+-				cdnsp_trb_type_string(type), field1, field0,
+-				cdnsp_trb_comp_code_string(GET_COMP_CODE(field2)),
+-				EVENT_TRB_LEN(field2), TRB_TO_SLOT_ID(field3),
+-				field3 & EVENT_DATA ? 'E' : 'e',
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "ep%d%s(%d) type '%s' TRB %08x%08x status '%s'"
++			       " len %ld slot %ld flags %c:%c",
++			       ep_num, ep_id % 2 ? "out" : "in",
++			       TRB_TO_EP_INDEX(field3),
++			       cdnsp_trb_type_string(type), field1, field0,
++			       cdnsp_trb_comp_code_string(GET_COMP_CODE(field2)),
++			       EVENT_TRB_LEN(field2), TRB_TO_SLOT_ID(field3),
++			       field3 & EVENT_DATA ? 'E' : 'e',
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_MFINDEX_WRAP:
+-		ret += snprintf(str, size, "%s: flags %c",
+-				cdnsp_trb_type_string(type),
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size, "%s: flags %c",
++			       cdnsp_trb_type_string(type),
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_SETUP:
+-		ret += snprintf(str, size,
+-				"type '%s' bRequestType %02x bRequest %02x "
+-				"wValue %02x%02x wIndex %02x%02x wLength %d "
+-				"length %ld TD size %ld intr %ld Setup ID %ld "
+-				"flags %c:%c:%c",
+-				cdnsp_trb_type_string(type),
+-				field0 & 0xff,
+-				(field0 & 0xff00) >> 8,
+-				(field0 & 0xff000000) >> 24,
+-				(field0 & 0xff0000) >> 16,
+-				(field1 & 0xff00) >> 8,
+-				field1 & 0xff,
+-				(field1 & 0xff000000) >> 16 |
+-				(field1 & 0xff0000) >> 16,
+-				TRB_LEN(field2), GET_TD_SIZE(field2),
+-				GET_INTR_TARGET(field2),
+-				TRB_SETUPID_TO_TYPE(field3),
+-				field3 & TRB_IDT ? 'D' : 'd',
+-				field3 & TRB_IOC ? 'I' : 'i',
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "type '%s' bRequestType %02x bRequest %02x "
++			       "wValue %02x%02x wIndex %02x%02x wLength %d "
++			       "length %ld TD size %ld intr %ld Setup ID %ld "
++			       "flags %c:%c:%c",
++			       cdnsp_trb_type_string(type),
++			       field0 & 0xff,
++			       (field0 & 0xff00) >> 8,
++			       (field0 & 0xff000000) >> 24,
++			       (field0 & 0xff0000) >> 16,
++			       (field1 & 0xff00) >> 8,
++			       field1 & 0xff,
++			       (field1 & 0xff000000) >> 16 |
++			       (field1 & 0xff0000) >> 16,
++			       TRB_LEN(field2), GET_TD_SIZE(field2),
++			       GET_INTR_TARGET(field2),
++			       TRB_SETUPID_TO_TYPE(field3),
++			       field3 & TRB_IDT ? 'D' : 'd',
++			       field3 & TRB_IOC ? 'I' : 'i',
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_DATA:
+-		ret += snprintf(str, size,
+-				"type '%s' Buffer %08x%08x length %ld TD size %ld "
+-				"intr %ld flags %c:%c:%c:%c:%c:%c:%c",
+-				cdnsp_trb_type_string(type),
+-				field1, field0, TRB_LEN(field2),
+-				GET_TD_SIZE(field2),
+-				GET_INTR_TARGET(field2),
+-				field3 & TRB_IDT ? 'D' : 'i',
+-				field3 & TRB_IOC ? 'I' : 'i',
+-				field3 & TRB_CHAIN ? 'C' : 'c',
+-				field3 & TRB_NO_SNOOP ? 'S' : 's',
+-				field3 & TRB_ISP ? 'I' : 'i',
+-				field3 & TRB_ENT ? 'E' : 'e',
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "type '%s' Buffer %08x%08x length %ld TD size %ld "
++			       "intr %ld flags %c:%c:%c:%c:%c:%c:%c",
++			       cdnsp_trb_type_string(type),
++			       field1, field0, TRB_LEN(field2),
++			       GET_TD_SIZE(field2),
++			       GET_INTR_TARGET(field2),
++			       field3 & TRB_IDT ? 'D' : 'i',
++			       field3 & TRB_IOC ? 'I' : 'i',
++			       field3 & TRB_CHAIN ? 'C' : 'c',
++			       field3 & TRB_NO_SNOOP ? 'S' : 's',
++			       field3 & TRB_ISP ? 'I' : 'i',
++			       field3 & TRB_ENT ? 'E' : 'e',
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_STATUS:
+-		ret += snprintf(str, size,
+-				"Buffer %08x%08x length %ld TD size %ld intr"
+-				"%ld type '%s' flags %c:%c:%c:%c",
+-				field1, field0, TRB_LEN(field2),
+-				GET_TD_SIZE(field2),
+-				GET_INTR_TARGET(field2),
+-				cdnsp_trb_type_string(type),
+-				field3 & TRB_IOC ? 'I' : 'i',
+-				field3 & TRB_CHAIN ? 'C' : 'c',
+-				field3 & TRB_ENT ? 'E' : 'e',
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "Buffer %08x%08x length %ld TD size %ld intr"
++			       "%ld type '%s' flags %c:%c:%c:%c",
++			       field1, field0, TRB_LEN(field2),
++			       GET_TD_SIZE(field2),
++			       GET_INTR_TARGET(field2),
++			       cdnsp_trb_type_string(type),
++			       field3 & TRB_IOC ? 'I' : 'i',
++			       field3 & TRB_CHAIN ? 'C' : 'c',
++			       field3 & TRB_ENT ? 'E' : 'e',
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_NORMAL:
+ 	case TRB_ISOC:
+ 	case TRB_EVENT_DATA:
+ 	case TRB_TR_NOOP:
+-		ret += snprintf(str, size,
+-				"type '%s' Buffer %08x%08x length %ld "
+-				"TD size %ld intr %ld "
+-				"flags %c:%c:%c:%c:%c:%c:%c:%c:%c",
+-				cdnsp_trb_type_string(type),
+-				field1, field0, TRB_LEN(field2),
+-				GET_TD_SIZE(field2),
+-				GET_INTR_TARGET(field2),
+-				field3 & TRB_BEI ? 'B' : 'b',
+-				field3 & TRB_IDT ? 'T' : 't',
+-				field3 & TRB_IOC ? 'I' : 'i',
+-				field3 & TRB_CHAIN ? 'C' : 'c',
+-				field3 & TRB_NO_SNOOP ? 'S' : 's',
+-				field3 & TRB_ISP ? 'I' : 'i',
+-				field3 & TRB_ENT ? 'E' : 'e',
+-				field3 & TRB_CYCLE ? 'C' : 'c',
+-				!(field3 & TRB_EVENT_INVALIDATE) ? 'V' : 'v');
++		ret = snprintf(str, size,
++			       "type '%s' Buffer %08x%08x length %ld "
++			       "TD size %ld intr %ld "
++			       "flags %c:%c:%c:%c:%c:%c:%c:%c:%c",
++			       cdnsp_trb_type_string(type),
++			       field1, field0, TRB_LEN(field2),
++			       GET_TD_SIZE(field2),
++			       GET_INTR_TARGET(field2),
++			       field3 & TRB_BEI ? 'B' : 'b',
++			       field3 & TRB_IDT ? 'T' : 't',
++			       field3 & TRB_IOC ? 'I' : 'i',
++			       field3 & TRB_CHAIN ? 'C' : 'c',
++			       field3 & TRB_NO_SNOOP ? 'S' : 's',
++			       field3 & TRB_ISP ? 'I' : 'i',
++			       field3 & TRB_ENT ? 'E' : 'e',
++			       field3 & TRB_CYCLE ? 'C' : 'c',
++			       !(field3 & TRB_EVENT_INVALIDATE) ? 'V' : 'v');
+ 		break;
+ 	case TRB_CMD_NOOP:
+ 	case TRB_ENABLE_SLOT:
+-		ret += snprintf(str, size, "%s: flags %c",
+-				cdnsp_trb_type_string(type),
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size, "%s: flags %c",
++			       cdnsp_trb_type_string(type),
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_DISABLE_SLOT:
+-		ret += snprintf(str, size, "%s: slot %ld flags %c",
+-				cdnsp_trb_type_string(type),
+-				TRB_TO_SLOT_ID(field3),
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size, "%s: slot %ld flags %c",
++			       cdnsp_trb_type_string(type),
++			       TRB_TO_SLOT_ID(field3),
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_ADDR_DEV:
+-		ret += snprintf(str, size,
+-				"%s: ctx %08x%08x slot %ld flags %c:%c",
+-				cdnsp_trb_type_string(type), field1, field0,
+-				TRB_TO_SLOT_ID(field3),
+-				field3 & TRB_BSR ? 'B' : 'b',
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "%s: ctx %08x%08x slot %ld flags %c:%c",
++			       cdnsp_trb_type_string(type), field1, field0,
++			       TRB_TO_SLOT_ID(field3),
++			       field3 & TRB_BSR ? 'B' : 'b',
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_CONFIG_EP:
+-		ret += snprintf(str, size,
+-				"%s: ctx %08x%08x slot %ld flags %c:%c",
+-				cdnsp_trb_type_string(type), field1, field0,
+-				TRB_TO_SLOT_ID(field3),
+-				field3 & TRB_DC ? 'D' : 'd',
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "%s: ctx %08x%08x slot %ld flags %c:%c",
++			       cdnsp_trb_type_string(type), field1, field0,
++			       TRB_TO_SLOT_ID(field3),
++			       field3 & TRB_DC ? 'D' : 'd',
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_EVAL_CONTEXT:
+-		ret += snprintf(str, size,
+-				"%s: ctx %08x%08x slot %ld flags %c",
+-				cdnsp_trb_type_string(type), field1, field0,
+-				TRB_TO_SLOT_ID(field3),
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "%s: ctx %08x%08x slot %ld flags %c",
++			       cdnsp_trb_type_string(type), field1, field0,
++			       TRB_TO_SLOT_ID(field3),
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_RESET_EP:
+ 	case TRB_HALT_ENDPOINT:
+ 	case TRB_FLUSH_ENDPOINT:
+-		ret += snprintf(str, size,
+-				"%s: ep%d%s(%d) ctx %08x%08x slot %ld flags %c",
+-				cdnsp_trb_type_string(type),
+-				ep_num, ep_id % 2 ? "out" : "in",
+-				TRB_TO_EP_INDEX(field3), field1, field0,
+-				TRB_TO_SLOT_ID(field3),
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "%s: ep%d%s(%d) ctx %08x%08x slot %ld flags %c",
++			       cdnsp_trb_type_string(type),
++			       ep_num, ep_id % 2 ? "out" : "in",
++			       TRB_TO_EP_INDEX(field3), field1, field0,
++			       TRB_TO_SLOT_ID(field3),
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_STOP_RING:
+-		ret += snprintf(str, size,
+-				"%s: ep%d%s(%d) slot %ld sp %d flags %c",
+-				cdnsp_trb_type_string(type),
+-				ep_num, ep_id % 2 ? "out" : "in",
+-				TRB_TO_EP_INDEX(field3),
+-				TRB_TO_SLOT_ID(field3),
+-				TRB_TO_SUSPEND_PORT(field3),
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "%s: ep%d%s(%d) slot %ld sp %d flags %c",
++			       cdnsp_trb_type_string(type),
++			       ep_num, ep_id % 2 ? "out" : "in",
++			       TRB_TO_EP_INDEX(field3),
++			       TRB_TO_SLOT_ID(field3),
++			       TRB_TO_SUSPEND_PORT(field3),
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_SET_DEQ:
+-		ret += snprintf(str, size,
+-				"%s: ep%d%s(%d) deq %08x%08x stream %ld slot %ld  flags %c",
+-				cdnsp_trb_type_string(type),
+-				ep_num, ep_id % 2 ? "out" : "in",
+-				TRB_TO_EP_INDEX(field3), field1, field0,
+-				TRB_TO_STREAM_ID(field2),
+-				TRB_TO_SLOT_ID(field3),
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size,
++			       "%s: ep%d%s(%d) deq %08x%08x stream %ld slot %ld  flags %c",
++			       cdnsp_trb_type_string(type),
++			       ep_num, ep_id % 2 ? "out" : "in",
++			       TRB_TO_EP_INDEX(field3), field1, field0,
++			       TRB_TO_STREAM_ID(field2),
++			       TRB_TO_SLOT_ID(field3),
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_RESET_DEV:
+-		ret += snprintf(str, size, "%s: slot %ld flags %c",
+-				cdnsp_trb_type_string(type),
+-				TRB_TO_SLOT_ID(field3),
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		ret = snprintf(str, size, "%s: slot %ld flags %c",
++			       cdnsp_trb_type_string(type),
++			       TRB_TO_SLOT_ID(field3),
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_ENDPOINT_NRDY:
+-		temp  = TRB_TO_HOST_STREAM(field2);
+-
+-		ret += snprintf(str, size,
+-				"%s: ep%d%s(%d) H_SID %x%s%s D_SID %lx flags %c:%c",
+-				cdnsp_trb_type_string(type),
+-				ep_num, ep_id % 2 ? "out" : "in",
+-				TRB_TO_EP_INDEX(field3), temp,
+-				temp == STREAM_PRIME_ACK ? "(PRIME)" : "",
+-				temp == STREAM_REJECTED ? "(REJECTED)" : "",
+-				TRB_TO_DEV_STREAM(field0),
+-				field3 & TRB_STAT ? 'S' : 's',
+-				field3 & TRB_CYCLE ? 'C' : 'c');
++		temp = TRB_TO_HOST_STREAM(field2);
++
++		ret = snprintf(str, size,
++			       "%s: ep%d%s(%d) H_SID %x%s%s D_SID %lx flags %c:%c",
++			       cdnsp_trb_type_string(type),
++			       ep_num, ep_id % 2 ? "out" : "in",
++			       TRB_TO_EP_INDEX(field3), temp,
++			       temp == STREAM_PRIME_ACK ? "(PRIME)" : "",
++			       temp == STREAM_REJECTED ? "(REJECTED)" : "",
++			       TRB_TO_DEV_STREAM(field0),
++			       field3 & TRB_STAT ? 'S' : 's',
++			       field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	default:
+-		ret += snprintf(str, size,
+-				"type '%s' -> raw %08x %08x %08x %08x",
+-				cdnsp_trb_type_string(type),
+-				field0, field1, field2, field3);
++		ret = snprintf(str, size,
++			       "type '%s' -> raw %08x %08x %08x %08x",
++			       cdnsp_trb_type_string(type),
++			       field0, field1, field2, field3);
+ 	}
+ 
++	if (ret >= size)
++		pr_info("CDNSP: buffer overflowed.\n");
++
+ 	return str;
+ }
+ 
 -- 
 2.35.1
 
