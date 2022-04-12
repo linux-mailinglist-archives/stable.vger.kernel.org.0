@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2FA54FD0CB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E55DC4FD0F4
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344403AbiDLGv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:51:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56962 "EHLO
+        id S1352655AbiDLG4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350622AbiDLGuB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:50:01 -0400
+        with ESMTP id S1347425AbiDLGus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:50:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 481E727FC0;
-        Mon, 11 Apr 2022 23:39:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B619427CDF;
+        Mon, 11 Apr 2022 23:39:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B896190F;
-        Tue, 12 Apr 2022 06:39:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 532ACC385A6;
-        Tue, 12 Apr 2022 06:39:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1A8261934;
+        Tue, 12 Apr 2022 06:39:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2F33C385A6;
+        Tue, 12 Apr 2022 06:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745585;
-        bh=qsZjfaQcoRbYBuV94RqYSlkBkdUUs3Q0MwOcMmvUwyU=;
+        s=korg; t=1649745588;
+        bh=zMthQcqcurJOT0VhkFqazanAra0ELtMsbnBsGwwMJRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XzrzDEBIc4aZpUoHUdG1meciKArlZWb9KxlVXNs+bxTRE19UaIgnlzU+OjZ+U4cyU
-         D2lVkksZsg2N8BOp4fn9uamdNy6J2Zb823CVTYikQaTouVEh6T9a+tuaIx6BW/ODVN
-         Ikk8Jt/ud3hNME95bZtSGI8IH6DQza+y4CikZ1YY=
+        b=Oc9zTcn5YShFwPLkdLLJYI7q9mUsx3tKOQ1PyRhrOyDjv47HnS2+yaxj49ZpFzYq+
+         JfpaF1yLuhbFUSRlO5+rt7yOB/SQU6W583ONfxCjnX+/GOH/jGZCxP8LM4sfmGK6c4
+         uaVF/HboBUSVcbukiOM1mkXVfGLM/vQYLFu+/ol0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 146/171] arm64: patch_text: Fixup last cpu should be master
-Date:   Tue, 12 Apr 2022 08:30:37 +0200
-Message-Id: <20220412062932.116608274@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Douglas Miller <doug.miller@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.10 147/171] RDMA/hfi1: Fix use-after-free bug for mm struct
+Date:   Tue, 12 Apr 2022 08:30:38 +0200
+Message-Id: <20220412062932.145134191@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -56,42 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Douglas Miller <doug.miller@cornelisnetworks.com>
 
-commit 31a099dbd91e69fcab55eef4be15ed7a8c984918 upstream.
+commit 2bbac98d0930e8161b1957dc0ec99de39ade1b3c upstream.
 
-These patch_text implementations are using stop_machine_cpuslocked
-infrastructure with atomic cpu_count. The original idea: When the
-master CPU patch_text, the others should wait for it. But current
-implementation is using the first CPU as master, which couldn't
-guarantee the remaining CPUs are waiting. This patch changes the
-last CPU as the master to solve the potential risk.
+Under certain conditions, such as MPI_Abort, the hfi1 cleanup code may
+represent the last reference held on the task mm.
+hfi1_mmu_rb_unregister() then drops the last reference and the mm is freed
+before the final use in hfi1_release_user_pages().  A new task may
+allocate the mm structure while it is still being used, resulting in
+problems. One manifestation is corruption of the mmap_sem counter leading
+to a hang in down_write().  Another is corruption of an mm struct that is
+in use by another task.
 
-Fixes: ae16480785de ("arm64: introduce interfaces to hotpatch kernel and module code")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: 3d2a9d642512 ("IB/hfi1: Ensure correct mm is used at all times")
+Link: https://lore.kernel.org/r/20220408133523.122165.72975.stgit@awfm-01.cornelisnetworks.com
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220407073323.743224-2-guoren@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Douglas Miller <doug.miller@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/insn.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hfi1/mmu_rb.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm64/kernel/insn.c
-+++ b/arch/arm64/kernel/insn.c
-@@ -216,8 +216,8 @@ static int __kprobes aarch64_insn_patch_
- 	int i, ret = 0;
- 	struct aarch64_insn_patch *pp = arg;
+--- a/drivers/infiniband/hw/hfi1/mmu_rb.c
++++ b/drivers/infiniband/hw/hfi1/mmu_rb.c
+@@ -121,6 +121,9 @@ void hfi1_mmu_rb_unregister(struct mmu_r
+ 	unsigned long flags;
+ 	struct list_head del_list;
  
--	/* The first CPU becomes master */
--	if (atomic_inc_return(&pp->cpu_count) == 1) {
-+	/* The last CPU becomes master */
-+	if (atomic_inc_return(&pp->cpu_count) == num_online_cpus()) {
- 		for (i = 0; ret == 0 && i < pp->insn_cnt; i++)
- 			ret = aarch64_insn_patch_text_nosync(pp->text_addrs[i],
- 							     pp->new_insns[i]);
++	/* Prevent freeing of mm until we are completely finished. */
++	mmgrab(handler->mn.mm);
++
+ 	/* Unregister first so we don't get any more notifications. */
+ 	mmu_notifier_unregister(&handler->mn, handler->mn.mm);
+ 
+@@ -143,6 +146,9 @@ void hfi1_mmu_rb_unregister(struct mmu_r
+ 
+ 	do_remove(handler, &del_list);
+ 
++	/* Now the mm may be freed. */
++	mmdrop(handler->mn.mm);
++
+ 	kfree(handler);
+ }
+ 
 
 
