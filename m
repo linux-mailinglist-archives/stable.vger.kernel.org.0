@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 380814FD38D
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E13E64FD405
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347932AbiDLHph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:45:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56904 "EHLO
+        id S1347314AbiDLHWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:22:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356333AbiDLHfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:35:17 -0400
+        with ESMTP id S1352018AbiDLHNW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F11E50E0C;
-        Tue, 12 Apr 2022 00:09:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E1A99FD4;
+        Mon, 11 Apr 2022 23:54:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9133B81B50;
-        Tue, 12 Apr 2022 07:09:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E65BC385A6;
-        Tue, 12 Apr 2022 07:09:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B2ABB81B4D;
+        Tue, 12 Apr 2022 06:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 748A4C385A1;
+        Tue, 12 Apr 2022 06:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747355;
-        bh=PavfG5KJ6cWoEDDVC5lfDN5ZmM9XXHm3w/O0k/krWlg=;
+        s=korg; t=1649746452;
+        bh=kDDGygRINDXqTjulUUeLtAnpzFNVL1I+uWo06BFjg2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfNyjZYQp6oopjpH8Uel+YHE4IDXf8Rhphgm0Za6bhC5ZOrshx+i0oyf0dyNl6uxK
-         7RDsG6An401VbtnbPsI5AaHwDU5DHutXb1dn4LgeFrWk429keGI2k0dgECAtRRbVn8
-         /cVVdcVJovbUl1eNXBYjQGSqGMZOsDGgs/vg9fDA=
+        b=nVVbRt8oLhXnxQPaArGgKdaaOVmdN0Enq3A1Hs7TbGXC7O/y2D0Vw/ECCF5nA9idv
+         z865pm9qztxKzMllwu4FOQxZ9te1e+kefGxMCABogadz/T2ReA2/Mh9usj6sVrNHGM
+         ELcSQMnUZHMBuVBRk+E0d2idifsYzrlJvJJCYkBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 048/343] mt76: mt7921: fix crash when startup fails.
-Date:   Tue, 12 Apr 2022 08:27:46 +0200
-Message-Id: <20220412062952.493639313@linuxfoundation.org>
+        stable@vger.kernel.org, Aric Cyr <Aric.Cyr@amd.com>,
+        Wayne Lin <wayne.lin@amd.com>, Dale Zhao <dale.zhao@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 011/285] drm/amd/display: Add signal type check when verify stream backends same
+Date:   Tue, 12 Apr 2022 08:27:48 +0200
+Message-Id: <20220412062944.003103762@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Greear <greearb@candelatech.com>
+From: Dale Zhao <dale.zhao@amd.com>
 
-[ Upstream commit 827e7799c61b978fbc2cc9dac66cb62401b2b3f0 ]
+[ Upstream commit 047db281c026de5971cedb5bb486aa29bd16a39d ]
 
-If the nic fails to start, it is possible that the
-reset_work has already been scheduled.  Ensure the
-work item is canceled so we do not have use-after-free
-crash in case cleanup is called before the work item
-is executed.
+[Why]
+For allow eDP hot-plug feature, the stream signal may change to VIRTUAL
+when plug-out and back to eDP when plug-in. OS will still setPathMode
+with same timing for each plugging, but eDP gets no stream update as we
+don't check signal type changing back as keeping it VIRTUAL. It's also
+unsafe for future cases that stream signal is switched with same timing.
 
-This fixes crash on my x86_64 apu2 when mt7921k radio
-fails to work.  Radio still fails, but OS does not
-crash.
+[How]
+Check stream signal type change include previous HDMI signal case.
 
-Signed-off-by: Ben Greear <greearb@candelatech.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Wayne Lin <wayne.lin@amd.com>
+Signed-off-by: Dale Zhao <dale.zhao@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-index 7a8d2596c226..4abb7a6e775a 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-@@ -273,6 +273,7 @@ static void mt7921_stop(struct ieee80211_hw *hw)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+index 6b066ceab412..3aa2040d2475 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+@@ -1640,6 +1640,9 @@ static bool are_stream_backends_same(
+ 	if (is_timing_changed(stream_a, stream_b))
+ 		return false;
  
- 	cancel_delayed_work_sync(&dev->pm.ps_work);
- 	cancel_work_sync(&dev->pm.wake_work);
-+	cancel_work_sync(&dev->reset_work);
- 	mt76_connac_free_pending_tx_skbs(&dev->pm, NULL);
++	if (stream_a->signal != stream_b->signal)
++		return false;
++
+ 	if (stream_a->dpms_off != stream_b->dpms_off)
+ 		return false;
  
- 	mt7921_mutex_acquire(dev);
 -- 
 2.35.1
 
