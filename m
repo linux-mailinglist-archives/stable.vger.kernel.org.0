@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B714FCB2C
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA5C4FCB1D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 03:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347507AbiDLBDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 21:03:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
+        id S1346729AbiDLBDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 21:03:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346432AbiDLA64 (ORCPT
+        with ESMTP id S1346502AbiDLA64 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:58:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17242340F7;
-        Mon, 11 Apr 2022 17:51:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F74735DCF;
+        Mon, 11 Apr 2022 17:51:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE8ABB819D5;
-        Tue, 12 Apr 2022 00:51:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32E03C385AA;
-        Tue, 12 Apr 2022 00:51:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B55CB81996;
+        Tue, 12 Apr 2022 00:51:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF49DC385AE;
+        Tue, 12 Apr 2022 00:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724714;
-        bh=h7wCG4XjaYle+ieR3ESj44+7lHbRR0+fYce5PBuCF8I=;
+        s=k20201202; t=1649724715;
+        bh=o7YxnEC1EUE/sxcXqD6+pc915/hcy+Zkz6Z/qMlcCKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVa45DlrAIOIvYUfhnq2rpVcrzz3VudfY4QjjXSklUkcibRu73H3sx6ukSuBndNvy
-         LYFZYkn2kzqSoADGOdkzi4UyJwxyZmAJavhUcZisDCUMmgCng3M7nbTA1OXgroDue4
-         CHp1y6YXqnpbSJPW8R/aYoLuYKZpojlbpCmRfn3EkBEEpjysIWQgnK48hXxn0oD09I
-         teXZL+tWL7TY9s9qNdxM0RcAhFrpHT3tbIrUWaPvwLpORjx9+XxdyphKWhM5KZ7Qd5
-         80H9ppzwUvLCgAY7IZ3Q6GN3LNZ2+vGyBqk3URx1TgPD7XVndFTvm4MwrSYAppO0YM
-         FmV1Bi0tnzxKA==
+        b=lhibbUhZE2MSHclzSKo8wcM783cXuUKrIoSpb3hIwMK0OjoxrYXDEHA07oRN0xl/E
+         lZ0Pnaobc28r8lF6jdbqifvjXV/OF/E+XZhN/j7MK/pmypvDUUUq3RnpIVrtPDd+yo
+         cOLb1NMPD5OBnhR/kixPQpp/6O75ZkIY1VRT6OI5EY340MWXAlJZ9qrgiEWGiKWKa+
+         ZoLXseyM9UN4DsoooPg2v4Mog+166i/LOTQGV2X6Cr48sKNh8iqtC9caCKXkxnaVzL
+         EMFJrWT7oLys5oaBjS0BUOiyXwcYGrhN8kIek7WM0woRwnnGUU8ycaOQArSzFWdiqM
+         uprzlfu3vw3Ig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Kelley <mikelley@microsoft.com>,
-        Andrea Parri <parri.andrea@gmail.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kys@microsoft.com, haiyangz@microsoft.com, sthemmin@microsoft.com,
-        decui@microsoft.com, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 03/12] Drivers: hv: vmbus: Prevent load re-ordering when reading ring buffer
-Date:   Mon, 11 Apr 2022 20:51:36 -0400
-Message-Id: <20220412005148.351391-3-sashal@kernel.org>
+Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        Bodo Stroesser <bostroesser@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 04/12] scsi: target: tcmu: Fix possible page UAF
+Date:   Mon, 11 Apr 2022 20:51:37 -0400
+Message-Id: <20220412005148.351391-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412005148.351391-1-sashal@kernel.org>
 References: <20220412005148.351391-1-sashal@kernel.org>
@@ -58,55 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 
-[ Upstream commit b6cae15b5710c8097aad26a2e5e752c323ee5348 ]
+[ Upstream commit a6968f7a367f128d120447360734344d5a3d5336 ]
 
-When reading a packet from a host-to-guest ring buffer, there is no
-memory barrier between reading the write index (to see if there is
-a packet to read) and reading the contents of the packet. The Hyper-V
-host uses store-release when updating the write index to ensure that
-writes of the packet data are completed first. On the guest side,
-the processor can reorder and read the packet data before the write
-index, and sometimes get stale packet data. Getting such stale packet
-data has been observed in a reproducible case in a VM on ARM64.
+tcmu_try_get_data_page() looks up pages under cmdr_lock, but it does not
+take refcount properly and just returns page pointer. When
+tcmu_try_get_data_page() returns, the returned page may have been freed by
+tcmu_blocks_release().
 
-Fix this by using virt_load_acquire() to read the write index,
-ensuring that reads of the packet data cannot be reordered
-before it. Preventing such reordering is logically correct, and
-with this change, getting stale data can no longer be reproduced.
+We need to get_page() under cmdr_lock to avoid concurrent
+tcmu_blocks_release().
 
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Link: https://lore.kernel.org/r/1648394710-33480-1-git-send-email-mikelley@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lore.kernel.org/r/20220311132206.24515-1-xiaoguang.wang@linux.alibaba.com
+Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
+Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/ring_buffer.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/target/target_core_user.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
-index 6cb45f256107..d97b30af9e03 100644
---- a/drivers/hv/ring_buffer.c
-+++ b/drivers/hv/ring_buffer.c
-@@ -365,7 +365,16 @@ int hv_ringbuffer_read(struct vmbus_channel *channel,
- static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info *rbi)
- {
- 	u32 priv_read_loc = rbi->priv_read_index;
--	u32 write_loc = READ_ONCE(rbi->ring_buffer->write_index);
-+	u32 write_loc;
-+
-+	/*
-+	 * The Hyper-V host writes the packet data, then uses
-+	 * store_release() to update the write_index.  Use load_acquire()
-+	 * here to prevent loads of the packet data from being re-ordered
-+	 * before the read of the write_index and potentially getting
-+	 * stale data.
-+	 */
-+	write_loc = virt_load_acquire(&rbi->ring_buffer->write_index);
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index dd7307375504..f29d600357f3 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -1499,6 +1499,7 @@ static struct page *tcmu_try_get_block_page(struct tcmu_dev *udev, uint32_t dbi)
+ 	mutex_lock(&udev->cmdr_lock);
+ 	page = tcmu_get_block_page(udev, dbi);
+ 	if (likely(page)) {
++		get_page(page);
+ 		mutex_unlock(&udev->cmdr_lock);
+ 		return page;
+ 	}
+@@ -1537,6 +1538,7 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
+ 		/* For the vmalloc()ed cmd area pages */
+ 		addr = (void *)(unsigned long)info->mem[mi].addr + offset;
+ 		page = vmalloc_to_page(addr);
++		get_page(page);
+ 	} else {
+ 		uint32_t dbi;
  
- 	if (write_loc >= priv_read_loc)
- 		return write_loc - priv_read_loc;
+@@ -1547,7 +1549,6 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
+ 			return VM_FAULT_SIGBUS;
+ 	}
+ 
+-	get_page(page);
+ 	vmf->page = page;
+ 	return 0;
+ }
 -- 
 2.35.1
 
