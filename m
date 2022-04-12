@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE014FD1F8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F8984FD00C
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351209AbiDLHJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:09:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46894 "EHLO
+        id S241704AbiDLGlg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:41:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352184AbiDLHE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:04:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 083044704E;
-        Mon, 11 Apr 2022 23:47:47 -0700 (PDT)
+        with ESMTP id S245566AbiDLGkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D591A377D4;
+        Mon, 11 Apr 2022 23:35:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0CB561093;
-        Tue, 12 Apr 2022 06:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE8E6C385A6;
-        Tue, 12 Apr 2022 06:47:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7474F61890;
+        Tue, 12 Apr 2022 06:35:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E50EC385A1;
+        Tue, 12 Apr 2022 06:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746066;
-        bh=dXjkIaPMsz25SAGwMF4E8qaFYuUq0/Vrn7edkh+R0UU=;
+        s=korg; t=1649745337;
+        bh=ebqmPI9QBsvnd/i0AlzmYA6z6zPq8pJ2MHIxdXg4m8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SETMTuAMv7b2nSLZcq9yVH5DuD7zgFfiLtD957XPNaKcxC/taFDbAAmIxDBShHmun
-         Sem/58fBoqnWcv4ZiFGNpwYhGfRdUPNF8q8NvWP1Pz6syYoFXazP3IW9A19GysOrZB
-         t8zrjDeDYKGToUMjwnnUVpepGhnWVEiuL1HtVz4o=
+        b=xHPwnmlfPNT/e/33mJXmn2AKC4/xpIdypBOtlrBtlRWJm79HrjZNzzssgYDZweV33
+         8m/z/s8a6STDNcqht7i1c0hSBFp6YIB9XcCel3q1pyyPgmvfTjV4Byh9WarilzkiCk
+         jAWOWUc1cEqleF8d8abGwr9/eo3B1JzxJlte/VIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyu Tao <tao.lyu@epfl.ch>,
-        ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, George Shuklin <george.shuklin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 149/277] Revert "NFSv4: Handle the special Linux file open access mode"
+Subject: [PATCH 5.10 061/171] net: account alternate interface name memory
 Date:   Tue, 12 Apr 2022 08:29:12 +0200
-Message-Id: <20220412062946.348799645@linuxfoundation.org>
+Message-Id: <20220412062929.648234642@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
+References: <20220412062927.870347203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit ab0fc21bc7105b54bafd85bd8b82742f9e68898a ]
+[ Upstream commit 5d26cff5bdbebdf98ba48217c078ff102536f134 ]
 
-This reverts commit 44942b4e457beda00981f616402a1a791e8c616e.
+George reports that altnames can eat up kernel memory.
+We should charge that memory appropriately.
 
-After secondly opening a file with O_ACCMODE|O_DIRECT flags,
-nfs4_valid_open_stateid() will dereference NULL nfs4_state when lseek().
-
-Reproducer:
-  1. mount -t nfs -o vers=4.2 $server_ip:/ /mnt/
-  2. fd = open("/mnt/file", O_ACCMODE|O_DIRECT|O_CREAT)
-  3. close(fd)
-  4. fd = open("/mnt/file", O_ACCMODE|O_DIRECT)
-  5. lseek(fd)
-
-Reported-by: Lyu Tao <tao.lyu@epfl.ch>
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reported-by: George Shuklin <george.shuklin@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c    | 1 -
- fs/nfs/nfs4file.c | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ net/core/rtnetlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 410f87bc48cc..f4f75db7a825 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -1167,7 +1167,6 @@ int nfs_open(struct inode *inode, struct file *filp)
- 	nfs_fscache_open_file(inode, filp);
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(nfs_open);
- 
- /*
-  * This function is called whenever some part of NFS notices that
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index c91565227ea2..8f35b5e13e93 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -51,7 +51,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 9ff6d4160dab..77b3d9cc08a1 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3632,7 +3632,7 @@ static int rtnl_alt_ifname(int cmd, struct net_device *dev, struct nlattr *attr,
+ 	if (err)
  		return err;
  
- 	if ((openflags & O_ACCMODE) == 3)
--		return nfs_open(inode, filp);
-+		openflags--;
+-	alt_ifname = nla_strdup(attr, GFP_KERNEL);
++	alt_ifname = nla_strdup(attr, GFP_KERNEL_ACCOUNT);
+ 	if (!alt_ifname)
+ 		return -ENOMEM;
  
- 	/* We can't create new files here */
- 	openflags &= ~(O_CREAT|O_EXCL);
 -- 
 2.35.1
 
