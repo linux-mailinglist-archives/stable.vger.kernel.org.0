@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A64614FD066
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61B774FD077
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347491AbiDLGqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:46:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40364 "EHLO
+        id S1350561AbiDLGqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:46:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351196AbiDLGoQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:16 -0400
+        with ESMTP id S1351207AbiDLGoS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:44:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2F539B9A;
-        Mon, 11 Apr 2022 23:37:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C43839BB0;
+        Mon, 11 Apr 2022 23:37:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD48761904;
-        Tue, 12 Apr 2022 06:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E0DC385A1;
-        Tue, 12 Apr 2022 06:37:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88C3A61901;
+        Tue, 12 Apr 2022 06:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4D7C385A8;
+        Tue, 12 Apr 2022 06:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745462;
-        bh=vKBYKGaQKA2xk0Eqcv7VFNeZNrWMwqYCL8Pjo+kMaJg=;
+        s=korg; t=1649745465;
+        bh=iHKTBHpLkmOnqKTXj5ViXxiSV2k9ofOSUz70d3ZLPuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJ7ft4/Mbm69rKc47Qf7LJ4bEye9Pd3NHr1xyTX8g8zJnthLcJ3UQwENP0CaiEQkw
-         lEdHErwOJLufk5WZ6n7pRCI+PEdCCVsY2yPhs5wCNBsVx+u2e4YEuVC/b+i+i0UTyr
-         SOQGLgTEQlcKdycE5MTvx02GpbQtRmYjLfgVEZkE=
+        b=oFdCctzGQTNii+5/6Aarhs0SuyV6/hzygY1QFfLPfgeoTgrK3bnuryWfvCv1Lolr9
+         6c4dFvVQYbKqZygY0pNTZsVcS4qrAyNxq4V8YWXcuwaRkj5vj3gtbqwDmqMzt2Avk/
+         bMdff8MVoPg9JI9hr+N/TwyO2zRuSbO06/Fff3ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Alice Michael <alice.michael@intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 103/171] net/tls: fix slab-out-of-bounds bug in decrypt_internal
-Date:   Tue, 12 Apr 2022 08:29:54 +0200
-Message-Id: <20220412062930.863963273@linuxfoundation.org>
+Subject: [PATCH 5.10 104/171] ice: Clear default forwarding VSI during VSI release
+Date:   Tue, 12 Apr 2022 08:29:55 +0200
+Message-Id: <20220412062930.892634569@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -56,67 +57,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Ivan Vecera <ivecera@redhat.com>
 
-[ Upstream commit 9381fe8c849cfbe50245ac01fc077554f6eaa0e2 ]
+[ Upstream commit bd8c624c0cd59de0032752ba3001c107bba97f7b ]
 
-The memory size of tls_ctx->rx.iv for AES128-CCM is 12 setting in
-tls_set_sw_offload(). The return value of crypto_aead_ivsize()
-for "ccm(aes)" is 16. So memcpy() require 16 bytes from 12 bytes
-memory space will trigger slab-out-of-bounds bug as following:
+VSI is set as default forwarding one when promisc mode is set for
+PF interface, when PF is switched to switchdev mode or when VF
+driver asks to enable allmulticast or promisc mode for the VF
+interface (when vf-true-promisc-support priv flag is off).
+The third case is buggy because in that case VSI associated with
+VF remains as default one after VF removal.
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in decrypt_internal+0x385/0xc40 [tls]
-Read of size 16 at addr ffff888114e84e60 by task tls/10911
+Reproducer:
+1. Create VF
+   echo 1 > sys/class/net/ens7f0/device/sriov_numvfs
+2. Enable allmulticast or promisc mode on VF
+   ip link set ens7f0v0 allmulticast on
+   ip link set ens7f0v0 promisc on
+3. Delete VF
+   echo 0 > sys/class/net/ens7f0/device/sriov_numvfs
+4. Try to enable promisc mode on PF
+   ip link set ens7f0 promisc on
 
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0x5e/0x5db
- ? decrypt_internal+0x385/0xc40 [tls]
- kasan_report+0xab/0x120
- ? decrypt_internal+0x385/0xc40 [tls]
- kasan_check_range+0xf9/0x1e0
- memcpy+0x20/0x60
- decrypt_internal+0x385/0xc40 [tls]
- ? tls_get_rec+0x2e0/0x2e0 [tls]
- ? process_rx_list+0x1a5/0x420 [tls]
- ? tls_setup_from_iter.constprop.0+0x2e0/0x2e0 [tls]
- decrypt_skb_update+0x9d/0x400 [tls]
- tls_sw_recvmsg+0x3c8/0xb50 [tls]
+Although it looks that promisc mode on PF is enabled the opposite
+is true because ice_vsi_sync_fltr() responsible for IFF_PROMISC
+handling first checks if any other VSI is set as default forwarding
+one and if so the function does not do anything. At this point
+it is not possible to enable promisc mode on PF without re-probe
+device.
 
-Allocated by task 10911:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0x81/0xa0
- tls_set_sw_offload+0x2eb/0xa20 [tls]
- tls_setsockopt+0x68c/0x700 [tls]
- __sys_setsockopt+0xfe/0x1b0
+To resolve the issue this patch clear default forwarding VSI
+during ice_vsi_release() when the VSI to be released is the default
+one.
 
-Replace the crypto_aead_ivsize() with prot->iv_size + prot->salt_size
-when memcpy() iv value in TLS_1_3_VERSION scenario.
-
-Fixes: f295b3ae9f59 ("net/tls: Add support of AES128-CCM based ciphers")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 01b5e89aab49 ("ice: Add VF promiscuous support")
+Signed-off-by: Ivan Vecera <ivecera@redhat.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Alice Michael <alice.michael@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_lib.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index 8cd011ea9fbb..21f20c3cda97 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1483,7 +1483,7 @@ static int decrypt_internal(struct sock *sk, struct sk_buff *skb,
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index 52ac6cc08e83..ec475353b620 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -2667,6 +2667,8 @@ int ice_vsi_release(struct ice_vsi *vsi)
+ 		}
  	}
- 	if (prot->version == TLS_1_3_VERSION)
- 		memcpy(iv + iv_offset, tls_ctx->rx.iv,
--		       crypto_aead_ivsize(ctx->aead_recv));
-+		       prot->iv_size + prot->salt_size);
- 	else
- 		memcpy(iv + iv_offset, tls_ctx->rx.iv, prot->salt_size);
  
++	if (ice_is_vsi_dflt_vsi(pf->first_sw, vsi))
++		ice_clear_dflt_vsi(pf->first_sw);
+ 	ice_fltr_remove_all(vsi);
+ 	ice_rm_vsi_lan_cfg(vsi->port_info, vsi->idx);
+ 	ice_vsi_delete(vsi);
 -- 
 2.35.1
 
