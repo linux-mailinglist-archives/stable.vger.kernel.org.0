@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 644744FD03A
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23CC44FD216
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234636AbiDLGpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:45:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40342 "EHLO
+        id S239706AbiDLHJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:09:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349876AbiDLGlr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:41:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5A4167C0;
-        Mon, 11 Apr 2022 23:36:20 -0700 (PDT)
+        with ESMTP id S1351179AbiDLHAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:00:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 317FC433A8;
+        Mon, 11 Apr 2022 23:46:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F0C2618C8;
-        Tue, 12 Apr 2022 06:36:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC806C385A6;
-        Tue, 12 Apr 2022 06:36:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C4EF6112F;
+        Tue, 12 Apr 2022 06:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CE21C385A8;
+        Tue, 12 Apr 2022 06:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745379;
-        bh=QY4kv2XVS0BxmcE/hGWOj2tDEp7EWkcYggDdRGYPwjM=;
+        s=korg; t=1649746002;
+        bh=ucfA2C2SWIQgzh8yu0sdw5aNdUWtqQHKO/aIHM0aMUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wv+BmlxBCmLxzr55QwqCkl42foEFcT0vSMdlIzubjtpz3nffyvfPAKzwTjM5NGiFT
-         q8ikz3FN2cCE7yRLYQPooFoLthGfYZuPazidZai63Ty0ZGqb8U0XhTq1nzMuaRGWYN
-         ICUmUqDAey0l7TauTX5mCiRT/qm7m209WQDFgh/A=
+        b=p/zF2H6Ti4WmV9dfZ30qQoxcXuMoD38SPRGcnxpOLQ0ok9ppSRJaUjn+e2oP7d2Lu
+         DxzuLDQnwYrLf0M/M7S1hKIUzxBzCFAI5eD3Inj6YmMJhGDxSDgtLg42wsYaLsb6WY
+         VbhWGna4ke4BHV64JyiOzjsaM7oNbwT1AML9siX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Joe Jin <joe.jin@oracle.com>,
+        Dongli Zhang <dongli.zhang@oracle.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/171] ipv4: Invalidate neighbour for broadcast address upon address addition
+Subject: [PATCH 5.15 124/277] xen: delay xen_hvm_init_time_ops() if kdump is boot on vcpu>=32
 Date:   Tue, 12 Apr 2022 08:28:47 +0200
-Message-Id: <20220412062928.931730716@linuxfoundation.org>
+Message-Id: <20220412062945.629379873@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,115 +55,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-[ Upstream commit 0c51e12e218f20b7d976158fdc18019627326f7a ]
+[ Upstream commit eed05744322da07dd7e419432dcedf3c2e017179 ]
 
-In case user space sends a packet destined to a broadcast address when a
-matching broadcast route is not configured, the kernel will create a
-unicast neighbour entry that will never be resolved [1].
+The sched_clock() can be used very early since commit 857baa87b642
+("sched/clock: Enable sched clock early"). In addition, with commit
+38669ba205d1 ("x86/xen/time: Output xen sched_clock time from 0"), kdump
+kernel in Xen HVM guest may panic at very early stage when accessing
+&__this_cpu_read(xen_vcpu)->time as in below:
 
-When the broadcast route is configured, the unicast neighbour entry will
-not be invalidated and continue to linger, resulting in packets being
-dropped.
+setup_arch()
+ -> init_hypervisor_platform()
+     -> x86_init.hyper.init_platform = xen_hvm_guest_init()
+         -> xen_hvm_init_time_ops()
+             -> xen_clocksource_read()
+                 -> src = &__this_cpu_read(xen_vcpu)->time;
 
-Solve this by invalidating unresolved neighbour entries for broadcast
-addresses after routes for these addresses are internally configured by
-the kernel. This allows the kernel to create a broadcast neighbour entry
-following the next route lookup.
+This is because Xen HVM supports at most MAX_VIRT_CPUS=32 'vcpu_info'
+embedded inside 'shared_info' during early stage until xen_vcpu_setup() is
+used to allocate/relocate 'vcpu_info' for boot cpu at arbitrary address.
 
-Another possible solution that is more generic but also more complex is
-to have the ARP code register a listener to the FIB notification chain
-and invalidate matching neighbour entries upon the addition of broadcast
-routes.
+However, when Xen HVM guest panic on vcpu >= 32, since
+xen_vcpu_info_reset(0) would set per_cpu(xen_vcpu, cpu) = NULL when
+vcpu >= 32, xen_clocksource_read() on vcpu >= 32 would panic.
 
-It is also possible to wave off the issue as a user space problem, but
-it seems a bit excessive to expect user space to be that intimately
-familiar with the inner workings of the FIB/neighbour kernel code.
+This patch calls xen_hvm_init_time_ops() again later in
+xen_hvm_smp_prepare_boot_cpu() after the 'vcpu_info' for boot vcpu is
+registered when the boot vcpu is >= 32.
 
-[1] https://lore.kernel.org/netdev/55a04a8f-56f3-f73c-2aea-2195923f09d1@huawei.com/
+This issue can be reproduced on purpose via below command at the guest
+side when kdump/kexec is enabled:
 
-Reported-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+"taskset -c 33 echo c > /proc/sysrq-trigger"
+
+The bugfix for PVM is not implemented due to the lack of testing
+environment.
+
+[boris: xen_hvm_init_time_ops() returns on errors instead of jumping to end]
+
+Cc: Joe Jin <joe.jin@oracle.com>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/20220302164032.14569-3-dongli.zhang@oracle.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/arp.h       | 1 +
- net/ipv4/arp.c          | 9 +++++++--
- net/ipv4/fib_frontend.c | 5 ++++-
- 3 files changed, 12 insertions(+), 3 deletions(-)
+ arch/x86/xen/smp_hvm.c |  6 ++++++
+ arch/x86/xen/time.c    | 24 +++++++++++++++++++++++-
+ 2 files changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/arp.h b/include/net/arp.h
-index 4950191f6b2b..4a23a97195f3 100644
---- a/include/net/arp.h
-+++ b/include/net/arp.h
-@@ -71,6 +71,7 @@ void arp_send(int type, int ptype, __be32 dest_ip,
- 	      const unsigned char *src_hw, const unsigned char *th);
- int arp_mc_map(__be32 addr, u8 *haddr, struct net_device *dev, int dir);
- void arp_ifdown(struct net_device *dev);
-+int arp_invalidate(struct net_device *dev, __be32 ip, bool force);
+diff --git a/arch/x86/xen/smp_hvm.c b/arch/x86/xen/smp_hvm.c
+index 6ff3c887e0b9..b70afdff419c 100644
+--- a/arch/x86/xen/smp_hvm.c
++++ b/arch/x86/xen/smp_hvm.c
+@@ -19,6 +19,12 @@ static void __init xen_hvm_smp_prepare_boot_cpu(void)
+ 	 */
+ 	xen_vcpu_setup(0);
  
- struct sk_buff *arp_create(int type, int ptype, __be32 dest_ip,
- 			   struct net_device *dev, __be32 src_ip,
-diff --git a/net/ipv4/arp.c b/net/ipv4/arp.c
-index 922dd73e5740..83a47998c4b1 100644
---- a/net/ipv4/arp.c
-+++ b/net/ipv4/arp.c
-@@ -1116,13 +1116,18 @@ static int arp_req_get(struct arpreq *r, struct net_device *dev)
- 	return err;
- }
- 
--static int arp_invalidate(struct net_device *dev, __be32 ip)
-+int arp_invalidate(struct net_device *dev, __be32 ip, bool force)
- {
- 	struct neighbour *neigh = neigh_lookup(&arp_tbl, &ip, dev);
- 	int err = -ENXIO;
- 	struct neigh_table *tbl = &arp_tbl;
- 
- 	if (neigh) {
-+		if ((neigh->nud_state & NUD_VALID) && !force) {
-+			neigh_release(neigh);
-+			return 0;
-+		}
++	/*
++	 * Called again in case the kernel boots on vcpu >= MAX_VIRT_CPUS.
++	 * Refer to comments in xen_hvm_init_time_ops().
++	 */
++	xen_hvm_init_time_ops();
 +
- 		if (neigh->nud_state & ~NUD_NOARP)
- 			err = neigh_update(neigh, NULL, NUD_FAILED,
- 					   NEIGH_UPDATE_F_OVERRIDE|
-@@ -1169,7 +1174,7 @@ static int arp_req_delete(struct net *net, struct arpreq *r,
- 		if (!dev)
- 			return -EINVAL;
- 	}
--	return arp_invalidate(dev, ip);
-+	return arp_invalidate(dev, ip, true);
- }
+ 	/*
+ 	 * The alternative logic (which patches the unlock/lock) runs before
+ 	 * the smp bootup up code is activated. Hence we need to set this up
+diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
+index d9c945ee1100..9ef0a5cca96e 100644
+--- a/arch/x86/xen/time.c
++++ b/arch/x86/xen/time.c
+@@ -558,6 +558,11 @@ static void xen_hvm_setup_cpu_clockevents(void)
  
- /*
-diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
-index 917ea953dfad..0df4594b49c7 100644
---- a/net/ipv4/fib_frontend.c
-+++ b/net/ipv4/fib_frontend.c
-@@ -1112,9 +1112,11 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
+ void __init xen_hvm_init_time_ops(void)
+ {
++	static bool hvm_time_initialized;
++
++	if (hvm_time_initialized)
++		return;
++
+ 	/*
+ 	 * vector callback is needed otherwise we cannot receive interrupts
+ 	 * on cpu > 0 and at this point we don't know how many cpus are
+@@ -567,7 +572,22 @@ void __init xen_hvm_init_time_ops(void)
  		return;
  
- 	/* Add broadcast address, if it is explicitly assigned. */
--	if (ifa->ifa_broadcast && ifa->ifa_broadcast != htonl(0xFFFFFFFF))
-+	if (ifa->ifa_broadcast && ifa->ifa_broadcast != htonl(0xFFFFFFFF)) {
- 		fib_magic(RTM_NEWROUTE, RTN_BROADCAST, ifa->ifa_broadcast, 32,
- 			  prim, 0);
-+		arp_invalidate(dev, ifa->ifa_broadcast, false);
+ 	if (!xen_feature(XENFEAT_hvm_safe_pvclock)) {
+-		pr_info("Xen doesn't support pvclock on HVM, disable pv timer");
++		pr_info_once("Xen doesn't support pvclock on HVM, disable pv timer");
++		return;
 +	}
- 
- 	if (!ipv4_is_zeronet(prefix) && !(ifa->ifa_flags & IFA_F_SECONDARY) &&
- 	    (prefix != addr || ifa->ifa_prefixlen < 32)) {
-@@ -1130,6 +1132,7 @@ void fib_add_ifaddr(struct in_ifaddr *ifa)
- 				  prim, 0);
- 			fib_magic(RTM_NEWROUTE, RTN_BROADCAST, prefix | ~mask,
- 				  32, prim, 0);
-+			arp_invalidate(dev, prefix | ~mask, false);
- 		}
++
++	/*
++	 * Only MAX_VIRT_CPUS 'vcpu_info' are embedded inside 'shared_info'.
++	 * The __this_cpu_read(xen_vcpu) is still NULL when Xen HVM guest
++	 * boots on vcpu >= MAX_VIRT_CPUS (e.g., kexec), To access
++	 * __this_cpu_read(xen_vcpu) via xen_clocksource_read() will panic.
++	 *
++	 * The xen_hvm_init_time_ops() should be called again later after
++	 * __this_cpu_read(xen_vcpu) is available.
++	 */
++	if (!__this_cpu_read(xen_vcpu)) {
++		pr_info("Delay xen_init_time_common() as kernel is running on vcpu=%d\n",
++			xen_vcpu_nr(0));
+ 		return;
  	}
+ 
+@@ -577,6 +597,8 @@ void __init xen_hvm_init_time_ops(void)
+ 	x86_cpuinit.setup_percpu_clockev = xen_hvm_setup_cpu_clockevents;
+ 
+ 	x86_platform.set_wallclock = xen_set_wallclock;
++
++	hvm_time_initialized = true;
  }
+ #endif
+ 
 -- 
 2.35.1
 
