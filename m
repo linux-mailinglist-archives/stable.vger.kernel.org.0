@@ -2,140 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C91FD4FDDF6
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 13:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D097A4FDDF9
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 13:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345483AbiDLLZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 07:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43558 "EHLO
+        id S1351765AbiDLLob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 07:44:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347403AbiDLLYu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 07:24:50 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B81A9D4EA
-        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 03:05:34 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id o5-20020a17090ad20500b001ca8a1dc47aso2318459pju.1
-        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 03:05:34 -0700 (PDT)
+        with ESMTP id S1349823AbiDLLli (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 07:41:38 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EDED5047A
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 03:23:24 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id c7so27105208wrd.0
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 03:23:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=QoGYLz4ME16BWCDSIkT8YgpkP2N0wUCi7BxSq31pM6A=;
-        b=f8eCMf30rov4ZnWxRhNb4Qu/qacuu9WzumflGqlPdfCHGgAt3+zfzOL8VP/4Ic/sph
-         9sZbTSW7tUhYsgiGY1Adb9cwOhmO4bv4DapbPRrLwV/rzbGOYYqKzWZv5OBvniOG3qE7
-         3UK0tcYVW78btTkqpuyN0upLWIkVBW8nilGUIYTbDHK7WQg3CciSbNxocwKNeilkqYXP
-         fU2Qbln8vhkUdj9iBoWdev9y21qWt72xjHgSUq9OM6XNbH3+V2jrLb14nuq1ssFZZ3Pj
-         I3osBqKhKk5HILiVCNWyHwVIOX77IzUIke8fAoqi+bxKouB7WX5EZVDo8SMRBg99MgTk
-         pMqw==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=PWMqY36PdhLmPkOzVF3q3fwHeKiOtTKe2AjxmCLE4AM=;
+        b=rxPkFbXFz9aCNjSPQJCPwsRgNusOv6QOeU6kHeI7J2jLUpfCOO7NPqnM6zMHlWJPlf
+         c1flepjryToeCDaC4JFADEtJTlrVPVeJkLG4Un7QDQFozlTM4ojPUd7Qy7AV7Nnmg7VR
+         o6aMqa6PuHkNAywHEzkjenaw5mFQCqftxZVV7QphwAB4tIuB7lE+D/8nVP1xT8t/c2gE
+         S+UWahfMmnDhXFy8IAYIU+k/SBFRn8N1iRznqKcBa3s/5mKo4812cUFjYTQdXHQWZpks
+         t5jejttpdawk3BTjhZouX1n+M8NeHYQ2aaGiBC/i0pijXEDRINDJ3stJYWMU9svnI6xy
+         mNEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=QoGYLz4ME16BWCDSIkT8YgpkP2N0wUCi7BxSq31pM6A=;
-        b=gVZciSKkCkexp+6di25EOokR6wQIpsDJxL2DW/mnuGiF5V61VvPbbqIX6h5C1WioNx
-         w56PU0/pK6xPSE8Wv1zb21qPXAqKKk9ANEFMdBSOSAqnOvpeNwxpmxpyaWuyMg7MbOso
-         jU9L6V33jCdRNIHYSQyOJ64f6oW7sNnXTXau6lEtpEEVn3W8aVrb+F5x/Y17RoDUvlP4
-         LZumZf42EOiSVj/1MYPTE0gK/F2oettHmtarXWAdzTOoqn/QT7nj/wp/h9qNNwXtmx3E
-         ZHpmRWhQgICHMWy5oOlTOkTiHtzDy0FFBwNX2Rd8oRu3zDzFKKM+TaKIpV9u/Owv8J4w
-         KbWw==
-X-Gm-Message-State: AOAM533mX5Mpd6wEke4CX9CENGXfmMFcpiQM9Apwd8sk3+4iRjXK/Gjn
-        g3gva6FkrWm3i8jdOkQ/rts+3/EhyIpdpiEO
-X-Google-Smtp-Source: ABdhPJxr9uqEPS8vkVx/mHd97ezgWySpACaUWYF5OSHTSZ+kaU73i1JZ/+7d5xIOGUVGvkBAeV+r7w==
-X-Received: by 2002:a17:902:ec83:b0:154:7cee:7722 with SMTP id x3-20020a170902ec8300b001547cee7722mr36893224plg.96.1649757933762;
-        Tue, 12 Apr 2022 03:05:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i5-20020a17090a2a0500b001cba3ac9366sm2403009pjd.10.2022.04.12.03.05.32
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=PWMqY36PdhLmPkOzVF3q3fwHeKiOtTKe2AjxmCLE4AM=;
+        b=54y/WLlSvxyBK312ICzw/GcuAhu/QwxyayHNadZXUB0PEMXpYlKHwaZA/3D1XT9/S7
+         FvSwC97qs5jVCcmzZ7vEWQPI9D8a6lDz2AZvGXfH7COg1jVr5VqQOTtI8nPqJafw4Lv3
+         N0XgY67ZP9vLbnudsdKqJmj/ks2K+EQizmZngwjz4ySGJaMmPldUu9qYx+DqS7JoSwOr
+         +DpQ0+z0G3p84qbeVEYY8EKaFyCARgj5aiTNK7PUzMFoAUO9W1Y4flaLzccL0e0C2ky0
+         4V7IsjleG50jXrIqsdYFuQJ8lARLhV4M62XJhg4Qwlitav/o+sWP2M7q6GztUmv56cLj
+         jk/Q==
+X-Gm-Message-State: AOAM531+nfTLMtJAT7Adg8wNwt+sxow8UnNTos6fYGS+MqHt5Mrzu09Y
+        0kos4e27drAPmT1ijT8F7CnzOQ==
+X-Google-Smtp-Source: ABdhPJyU87YmXxLZxW7oXhFtjM8IEwsiPrNqUd6sNpFKh9QYGd776pDXXzthW10OfB72M9oSz7/6cw==
+X-Received: by 2002:adf:ff86:0:b0:207:a89b:f532 with SMTP id j6-20020adfff86000000b00207a89bf532mr6176553wrr.558.1649759002672;
+        Tue, 12 Apr 2022 03:23:22 -0700 (PDT)
+Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
+        by smtp.gmail.com with ESMTPSA id b1-20020a05600018a100b00207ab2305d5sm3803038wri.16.2022.04.12.03.23.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Apr 2022 03:05:33 -0700 (PDT)
-Message-ID: <62554eed.1c69fb81.c11e1.6868@mx.google.com>
-Date:   Tue, 12 Apr 2022 03:05:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 12 Apr 2022 03:23:22 -0700 (PDT)
+Date:   Tue, 12 Apr 2022 11:23:20 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     kernel test robot <oliver.sang@intel.com>,
+        0day robot <lkp@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>, lkp@lists.01.org,
+        stable@vger.kernel.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: Re: [nl80211]  584f2e43bb: hwsim.ap_country.fail
+Message-ID: <YlVTGIhTvzCsZhmO@google.com>
+References: <20220401105046.1952815-1-lee.jones@linaro.org>
+ <20220405091420.GD17553@xsang-OptiPlex-9020>
+ <YlP0A+PurZl39sUG@google.com>
+ <eb5873b4afeee8a7e183a9b1f2e6af461bf7f69f.camel@sipsolutions.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Kernel: v4.19.237-330-gbdfbd5df0daf
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 99 runs,
- 1 regressions (v4.19.237-330-gbdfbd5df0daf)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <eb5873b4afeee8a7e183a9b1f2e6af461bf7f69f.camel@sipsolutions.net>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 99 runs, 1 regressions (v4.19.237-330-gbdfbd=
-5df0daf)
+On Mon, 11 Apr 2022, Johannes Berg wrote:
 
-Regressions Summary
--------------------
+> On Mon, 2022-04-11 at 10:25 +0100, Lee Jones wrote:
+> > So what exactly happened here?  What does this failure tell us?
+> 
+> Probably nothing.
+> 
+> > Is the LKP test broken or did I overlook something in the kernel
+> > patch?
+> 
+> I think the test is just randomly fluking out.
+> 
+> > How does LKP make use of NL80211_ATTR_REG_ALPHA2?
+> > 
+> > I'm struggling to find any mention of 'hostapd.py' or 'ap_country' in
+> > LKP [0].  Are these benchmarks bespoke add-ons? 
+> > 
+> 
+> it's running the tests from hostap:
+> https://w1.fi/cgit/hostap/tree/tests/hwsim
+> 
+> Anyway, I think we'd better fix the issue like this:
+> 
+> -       [NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
+> +       /* allow 3 for NUL-termination, we used to declare this NLA_STRING */
+> +       [NL80211_ATTR_REG_ALPHA2] = NLA_POLICY_RANGE(NLA_BINARY, 2, 3),
+> 
+> 
+> What do you think?
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+I'm not entirely sure of the semantics, but so long as it ensures the
+user declares enough space to hold both Bytes of data, I'd be happy.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.237-330-gbdfbd5df0daf/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.237-330-gbdfbd5df0daf
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bdfbd5df0daf1748bef4501ce255ce594ee8d55f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62551de10e45c95be7ae0683
-
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--330-gbdfbd5df0daf/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--330-gbdfbd5df0daf/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62551de10e45c95be7ae06a5
-        failing since 36 days (last pass: v4.19.232-31-g5cf846953aa2, first=
- fail: v4.19.232-44-gfd65e02206f4)
-
-    2022-04-12T06:36:09.674067  <8>[   35.855659] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-12T06:36:10.685904  /lava-6070605/1/../bin/lava-test-case
-    2022-04-12T06:36:10.694128  <8>[   36.876328] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+-- 
+Lee Jones [李琼斯]
+Principal Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
