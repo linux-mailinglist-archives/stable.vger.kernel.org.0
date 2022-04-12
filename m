@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A47D4FCA71
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0562D4FCA73
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:51:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245096AbiDLAx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 20:53:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45934 "EHLO
+        id S245145AbiDLAx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 20:53:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343550AbiDLAxP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:53:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9239033E13;
-        Mon, 11 Apr 2022 17:48:06 -0700 (PDT)
+        with ESMTP id S1343634AbiDLAxR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:53:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F2AC33E33;
+        Mon, 11 Apr 2022 17:48:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20BB1B8186F;
-        Tue, 12 Apr 2022 00:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3D9C385A4;
-        Tue, 12 Apr 2022 00:48:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D578EB819CA;
+        Tue, 12 Apr 2022 00:48:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5271BC385AD;
+        Tue, 12 Apr 2022 00:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724483;
-        bh=WX8SUB5uw2THr7n8LMX3BwGIz8LUCa60mm8HUIvICWk=;
+        s=k20201202; t=1649724485;
+        bh=k0wSfYR0ig7xQ4rb/4er1kpUOZcttmdGmeX4lBcM9V8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyn5LRHoQzwV5Ntd3h0cOtfGRuyedgdQ/RZGEsoZhgERHx3noy8KpoVWUSsZUC/pd
-         oTIU2XFpYtatn/6uOK2JaLsSE8gzKC87thdXHmrVzS/qWQtoz5C4ptCvOjEAadaxqc
-         ri+OExBgtrHaQST0D6v2kCuioE2jrZNCHOmi2qW2saG6ttQ9pvNOFvP0GVxKzStsgM
-         8LP/hb/rOt+UnU1tIYptwp1CuqnXTraUzzwKNR+Ot7Vmrv1spnRQy0tkOa9FP3jKX3
-         E5uARDCliBUVE2Vs2ZrjaRzr/8AN2lS/qfOf0Z9cNd+tKXZ+QV1ppmycO6clmR+VSd
-         gHJZocvyEZ0mQ==
+        b=ItTCsFsiyZ2k0JnuP9Uf2V4En6eyXDOOi9DXodIw6R2PbOvovqeuwdcMoABuSliib
+         G7CXdvVzCWXysbW65+KBktd4M4wCfc0ijg5N43KqMownoqODN0xD6wRInbAkN23iuV
+         RZ3PvCCGpNp72ylVJ19KCaKq5uaDKTkD7GjJ3LwmLRAQ0yqzXQweibPyfUHIwxEY12
+         GZiZCyVzQmOI/ct8OyieV5LiALhS9/MHijWq+lpXPY+dnxNr3e2Mk9NprvB6KO3Z0z
+         iXM50tgH0gxlmKqD7RpkwsO1lmxrFegBz80u7czguuDygXpoxzYKOuO60JG8ntptb3
+         3iTeD8mpo7cvw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joey Gouly <joey.gouly@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
+Cc:     Steve Capper <steve.capper@arm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        ardb@kernel.org, tabba@google.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 22/41] arm64: alternatives: mark patch_alternative() as `noinstr`
-Date:   Mon, 11 Apr 2022 20:46:34 -0400
-Message-Id: <20220412004656.350101-22-sashal@kernel.org>
+        aneesh.kumar@linux.ibm.com, npiggin@gmail.com,
+        linux-arch@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.15 23/41] tlb: hugetlb: Add more sizes to tlb_remove_huge_tlb_entry
+Date:   Mon, 11 Apr 2022 20:46:35 -0400
+Message-Id: <20220412004656.350101-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004656.350101-1-sashal@kernel.org>
 References: <20220412004656.350101-1-sashal@kernel.org>
@@ -59,84 +61,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joey Gouly <joey.gouly@arm.com>
+From: Steve Capper <steve.capper@arm.com>
 
-[ Upstream commit a2c0b0fbe01419f8f5d1c0b9c581631f34ffce8b ]
+[ Upstream commit 697a1d44af8ba0477ee729e632f4ade37999249a ]
 
-The alternatives code must be `noinstr` such that it does not patch itself,
-as the cache invalidation is only performed after all the alternatives have
-been applied.
+tlb_remove_huge_tlb_entry only considers PMD_SIZE and PUD_SIZE when
+updating the mmu_gather structure.
 
-Mark patch_alternative() as `noinstr`. Mark branch_insn_requires_update()
-and get_alt_insn() with `__always_inline` since they are both only called
-through patch_alternative().
+Unfortunately on arm64 there are two additional huge page sizes that
+need to be covered: CONT_PTE_SIZE and CONT_PMD_SIZE. Where an end-user
+attempts to employ contiguous huge pages, a VM_BUG_ON can be experienced
+due to the fact that the tlb structure hasn't been correctly updated by
+the relevant tlb_flush_p.._range() call from tlb_remove_huge_tlb_entry.
 
-Booting a kernel in QEMU TCG with KCSAN=y and ARM64_USE_LSE_ATOMICS=y caused
-a boot hang:
-[    0.241121] CPU: All CPU(s) started at EL2
+This patch adds inequality logic to the generic implementation of
+tlb_remove_huge_tlb_entry s.t. CONT_PTE_SIZE and CONT_PMD_SIZE are
+effectively covered on arm64. Also, as well as ptes, pmds and puds;
+p4ds are now considered too.
 
-The alternatives code was patching the atomics in __tsan_read4() from LL/SC
-atomics to LSE atomics.
-
-The following fragment is using LL/SC atomics in the .text section:
-  | <__tsan_unaligned_read4+304>:     ldxr    x6, [x2]
-  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
-  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
-  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
-
-This LL/SC atomic sequence was to be replaced with LSE atomics. However since
-the alternatives code was instrumentable, __tsan_read4() was being called after
-only the first instruction was replaced, which led to the following code in memory:
-  | <__tsan_unaligned_read4+304>:     ldadd   x5, x6, [x2]
-  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
-  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
-  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
-
-This caused an infinite loop as the `stxr` instruction never completed successfully,
-so `w7` was always 0.
-
-Signed-off-by: Joey Gouly <joey.gouly@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
+Reported-by: David Hildenbrand <david@redhat.com>
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
 Cc: Catalin Marinas <catalin.marinas@arm.com>
 Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220405104733.11476-1-joey.gouly@arm.com
+Link: https://lore.kernel.org/linux-mm/811c5c8e-b3a2-85d2-049c-717f17c3a03a@redhat.com/
+Signed-off-by: Steve Capper <steve.capper@arm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220330112543.863-1-steve.capper@arm.com
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/alternative.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/asm-generic/tlb.h | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
-index 3fb79b76e9d9..7bbf5104b7b7 100644
---- a/arch/arm64/kernel/alternative.c
-+++ b/arch/arm64/kernel/alternative.c
-@@ -42,7 +42,7 @@ bool alternative_is_applied(u16 cpufeature)
- /*
-  * Check if the target PC is within an alternative block.
-  */
--static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
-+static __always_inline bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
- {
- 	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
- 	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
-@@ -50,7 +50,7 @@ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index 2c68a545ffa7..71942a1c642d 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -565,10 +565,14 @@ static inline void tlb_flush_p4d_range(struct mmu_gather *tlb,
+ #define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)	\
+ 	do {							\
+ 		unsigned long _sz = huge_page_size(h);		\
+-		if (_sz == PMD_SIZE)				\
+-			tlb_flush_pmd_range(tlb, address, _sz);	\
+-		else if (_sz == PUD_SIZE)			\
++		if (_sz >= P4D_SIZE)				\
++			tlb_flush_p4d_range(tlb, address, _sz);	\
++		else if (_sz >= PUD_SIZE)			\
+ 			tlb_flush_pud_range(tlb, address, _sz);	\
++		else if (_sz >= PMD_SIZE)			\
++			tlb_flush_pmd_range(tlb, address, _sz);	\
++		else						\
++			tlb_flush_pte_range(tlb, address, _sz);	\
+ 		__tlb_remove_tlb_entry(tlb, ptep, address);	\
+ 	} while (0)
  
- #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
- 
--static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
-+static __always_inline u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
- {
- 	u32 insn;
- 
-@@ -95,7 +95,7 @@ static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnp
- 	return insn;
- }
- 
--static void patch_alternative(struct alt_instr *alt,
-+static noinstr void patch_alternative(struct alt_instr *alt,
- 			      __le32 *origptr, __le32 *updptr, int nr_inst)
- {
- 	__le32 *replptr;
 -- 
 2.35.1
 
