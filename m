@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ECEF4FD46F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:03:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D56F84FD999
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346731AbiDLH7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:59:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52436 "EHLO
+        id S244054AbiDLHbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:31:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358414AbiDLHlf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:35 -0400
+        with ESMTP id S1353640AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A4364B1F4;
-        Tue, 12 Apr 2022 00:17:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBC6E43AF8;
+        Tue, 12 Apr 2022 00:02:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF13E61045;
-        Tue, 12 Apr 2022 07:17:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D771DC385A1;
-        Tue, 12 Apr 2022 07:17:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6665360B65;
+        Tue, 12 Apr 2022 07:02:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D08C385A6;
+        Tue, 12 Apr 2022 07:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747877;
-        bh=USiyarqyIUBp0MdGUmQeLSlDjG55mww0+ltDe3KOv4k=;
+        s=korg; t=1649746945;
+        bh=IaRjs1aeOCE7+O1JcJOwJrEinbPZ5nBwyJji1xzLWgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kq2WtdtbIQf1DOvE7YPUeRZWY3YpiXUYSbo4TEk2NtpHlCHMWrpBIx6m+uo3gPZwQ
-         tyQ0TgdCwQJUTGZOGxNnqxwbPjjfNOAY5bG4egQeFz+re8ydMuD/GoDqT1w/k5yo0p
-         vZWJ7UiqoplSPTqcz5o1H+5YtgEYZzra9SzP2QM8=
+        b=iCRie/kicRgtELx39CJz1xWm3IvoGgaIgm45fJjGlTk+0xNqOmLPjQbjfE0GWS7Tj
+         wVxQy6Q9OxIV+yK7TKtwTu+3pkXEJZ2RiM1ShnbcmvZc63BwRocULAHy9xKrQ1lE5l
+         ioaCNH6T7usxHav1UrbR2u84PXRtwQcXjBic7rHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ChenXiaoSong <chenxiaosong2@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 198/343] NFSv4: fix open failure with O_ACCMODE flag
-Date:   Tue, 12 Apr 2022 08:30:16 +0200
-Message-Id: <20220412062957.070531019@linuxfoundation.org>
+Subject: [PATCH 5.16 160/285] net: sfc: add missing xdp queue reinitialization
+Date:   Tue, 12 Apr 2022 08:30:17 +0200
+Message-Id: <20220412062948.289352160@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,108 +54,259 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit b243874f6f9568b2daf1a00e9222cacdc15e159c ]
+[ Upstream commit 059a47f1da93811d37533556d67e72f2261b1127 ]
 
-open() with O_ACCMODE|O_DIRECT flags secondly will fail.
+After rx/tx ring buffer size is changed, kernel panic occurs when
+it acts XDP_TX or XDP_REDIRECT.
 
-Reproducer:
-  1. mount -t nfs -o vers=4.2 $server_ip:/ /mnt/
-  2. fd = open("/mnt/file", O_ACCMODE|O_DIRECT|O_CREAT)
-  3. close(fd)
-  4. fd = open("/mnt/file", O_ACCMODE|O_DIRECT)
+When tx/rx ring buffer size is changed(ethtool -G), sfc driver
+reallocates and reinitializes rx and tx queues and their buffer
+(tx_queue->buffer).
+But it misses reinitializing xdp queues(efx->xdp_tx_queues).
+So, while it is acting XDP_TX or XDP_REDIRECT, it uses the uninitialized
+tx_queue->buffer.
 
-Server nfsd4_decode_share_access() will fail with error nfserr_bad_xdr when
-client use incorrect share access mode of 0.
+A new function efx_set_xdp_channels() is separated from efx_set_channels()
+to handle only xdp queues.
 
-Fix this by using NFS4_SHARE_ACCESS_BOTH share access mode in client,
-just like firstly opening.
+Splat looks like:
+   BUG: kernel NULL pointer dereference, address: 000000000000002a
+   #PF: supervisor write access in kernel mode
+   #PF: error_code(0x0002) - not-present page
+   PGD 0 P4D 0
+   Oops: 0002 [#4] PREEMPT SMP NOPTI
+   RIP: 0010:efx_tx_map_chunk+0x54/0x90 [sfc]
+   CPU: 2 PID: 0 Comm: swapper/2 Tainted: G      D           5.17.0+ #55 e8beeee8289528f11357029357cf
+   Code: 48 8b 8d a8 01 00 00 48 8d 14 52 4c 8d 2c d0 44 89 e0 48 85 c9 74 0e 44 89 e2 4c 89 f6 48 80
+   RSP: 0018:ffff92f121e45c60 EFLAGS: 00010297
+   RIP: 0010:efx_tx_map_chunk+0x54/0x90 [sfc]
+   RAX: 0000000000000040 RBX: ffff92ea506895c0 RCX: ffffffffc0330870
+   RDX: 0000000000000001 RSI: 00000001139b10ce RDI: ffff92ea506895c0
+   RBP: ffffffffc0358a80 R08: 00000001139b110d R09: 0000000000000000
+   R10: 0000000000000001 R11: ffff92ea414c0088 R12: 0000000000000040
+   R13: 0000000000000018 R14: 00000001139b10ce R15: ffff92ea506895c0
+   FS:  0000000000000000(0000) GS:ffff92f121ec0000(0000) knlGS:0000000000000000
+   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+   Code: 48 8b 8d a8 01 00 00 48 8d 14 52 4c 8d 2c d0 44 89 e0 48 85 c9 74 0e 44 89 e2 4c 89 f6 48 80
+   CR2: 000000000000002a CR3: 00000003e6810004 CR4: 00000000007706e0
+   RSP: 0018:ffff92f121e85c60 EFLAGS: 00010297
+   PKRU: 55555554
+   RAX: 0000000000000040 RBX: ffff92ea50689700 RCX: ffffffffc0330870
+   RDX: 0000000000000001 RSI: 00000001145a90ce RDI: ffff92ea50689700
+   RBP: ffffffffc0358a80 R08: 00000001145a910d R09: 0000000000000000
+   R10: 0000000000000001 R11: ffff92ea414c0088 R12: 0000000000000040
+   R13: 0000000000000018 R14: 00000001145a90ce R15: ffff92ea50689700
+   FS:  0000000000000000(0000) GS:ffff92f121e80000(0000) knlGS:0000000000000000
+   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+   CR2: 000000000000002a CR3: 00000003e6810005 CR4: 00000000007706e0
+   PKRU: 55555554
+   Call Trace:
+    <IRQ>
+    efx_xdp_tx_buffers+0x12b/0x3d0 [sfc 84c94b8e32d44d296c17e10a634d3ad454de4ba5]
+    __efx_rx_packet+0x5c3/0x930 [sfc 84c94b8e32d44d296c17e10a634d3ad454de4ba5]
+    efx_rx_packet+0x28c/0x2e0 [sfc 84c94b8e32d44d296c17e10a634d3ad454de4ba5]
+    efx_ef10_ev_process+0x5f8/0xf40 [sfc 84c94b8e32d44d296c17e10a634d3ad454de4ba5]
+    ? enqueue_task_fair+0x95/0x550
+    efx_poll+0xc4/0x360 [sfc 84c94b8e32d44d296c17e10a634d3ad454de4ba5]
 
-Fixes: ce4ef7c0a8a05 ("NFS: Split out NFS v4 file operations")
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 3990a8fffbda ("sfc: allocate channels for XDP tx queues")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/dir.c      | 10 ----------
- fs/nfs/internal.h | 10 ++++++++++
- fs/nfs/nfs4file.c |  6 ++++--
- 3 files changed, 14 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/sfc/efx_channels.c | 146 +++++++++++++-----------
+ 1 file changed, 81 insertions(+), 65 deletions(-)
 
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index 75cb1cbe4cde..911bdb35eb08 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -1853,16 +1853,6 @@ const struct dentry_operations nfs4_dentry_operations = {
- };
- EXPORT_SYMBOL_GPL(nfs4_dentry_operations);
- 
--static fmode_t flags_to_mode(int flags)
--{
--	fmode_t res = (__force fmode_t)flags & FMODE_EXEC;
--	if ((flags & O_ACCMODE) != O_WRONLY)
--		res |= FMODE_READ;
--	if ((flags & O_ACCMODE) != O_RDONLY)
--		res |= FMODE_WRITE;
--	return res;
--}
--
- static struct nfs_open_context *create_nfs_open_context(struct dentry *dentry, int open_flags, struct file *filp)
- {
- 	return alloc_nfs_open_context(dentry, flags_to_mode(open_flags), filp);
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index db9f611e8efd..465e39ff018d 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -42,6 +42,16 @@ static inline bool nfs_lookup_is_soft_revalidate(const struct dentry *dentry)
- 	return true;
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index 3dbea028b325..4753c0c5af10 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -763,6 +763,85 @@ void efx_remove_channels(struct efx_nic *efx)
+ 	kfree(efx->xdp_tx_queues);
  }
  
-+static inline fmode_t flags_to_mode(int flags)
++static int efx_set_xdp_tx_queue(struct efx_nic *efx, int xdp_queue_number,
++				struct efx_tx_queue *tx_queue)
 +{
-+	fmode_t res = (__force fmode_t)flags & FMODE_EXEC;
-+	if ((flags & O_ACCMODE) != O_WRONLY)
-+		res |= FMODE_READ;
-+	if ((flags & O_ACCMODE) != O_RDONLY)
-+		res |= FMODE_WRITE;
-+	return res;
++	if (xdp_queue_number >= efx->xdp_tx_queue_count)
++		return -EINVAL;
++
++	netif_dbg(efx, drv, efx->net_dev,
++		  "Channel %u TXQ %u is XDP %u, HW %u\n",
++		  tx_queue->channel->channel, tx_queue->label,
++		  xdp_queue_number, tx_queue->queue);
++	efx->xdp_tx_queues[xdp_queue_number] = tx_queue;
++	return 0;
 +}
 +
- /*
-  * Note: RFC 1813 doesn't limit the number of auth flavors that
-  * a server can return, so make something up.
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index c178db86a6e8..e34af48fb4f4 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -32,6 +32,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
- 	struct dentry *parent = NULL;
- 	struct inode *dir;
- 	unsigned openflags = filp->f_flags;
-+	fmode_t f_mode;
- 	struct iattr attr;
- 	int err;
++static void efx_set_xdp_channels(struct efx_nic *efx)
++{
++	struct efx_tx_queue *tx_queue;
++	struct efx_channel *channel;
++	unsigned int next_queue = 0;
++	int xdp_queue_number = 0;
++	int rc;
++
++	/* We need to mark which channels really have RX and TX
++	 * queues, and adjust the TX queue numbers if we have separate
++	 * RX-only and TX-only channels.
++	 */
++	efx_for_each_channel(channel, efx) {
++		if (channel->channel < efx->tx_channel_offset)
++			continue;
++
++		if (efx_channel_is_xdp_tx(channel)) {
++			efx_for_each_channel_tx_queue(tx_queue, channel) {
++				tx_queue->queue = next_queue++;
++				rc = efx_set_xdp_tx_queue(efx, xdp_queue_number,
++							  tx_queue);
++				if (rc == 0)
++					xdp_queue_number++;
++			}
++		} else {
++			efx_for_each_channel_tx_queue(tx_queue, channel) {
++				tx_queue->queue = next_queue++;
++				netif_dbg(efx, drv, efx->net_dev,
++					  "Channel %u TXQ %u is HW %u\n",
++					  channel->channel, tx_queue->label,
++					  tx_queue->queue);
++			}
++
++			/* If XDP is borrowing queues from net stack, it must
++			 * use the queue with no csum offload, which is the
++			 * first one of the channel
++			 * (note: tx_queue_by_type is not initialized yet)
++			 */
++			if (efx->xdp_txq_queues_mode ==
++			    EFX_XDP_TX_QUEUES_BORROWED) {
++				tx_queue = &channel->tx_queue[0];
++				rc = efx_set_xdp_tx_queue(efx, xdp_queue_number,
++							  tx_queue);
++				if (rc == 0)
++					xdp_queue_number++;
++			}
++		}
++	}
++	WARN_ON(efx->xdp_txq_queues_mode == EFX_XDP_TX_QUEUES_DEDICATED &&
++		xdp_queue_number != efx->xdp_tx_queue_count);
++	WARN_ON(efx->xdp_txq_queues_mode != EFX_XDP_TX_QUEUES_DEDICATED &&
++		xdp_queue_number > efx->xdp_tx_queue_count);
++
++	/* If we have more CPUs than assigned XDP TX queues, assign the already
++	 * existing queues to the exceeding CPUs
++	 */
++	next_queue = 0;
++	while (xdp_queue_number < efx->xdp_tx_queue_count) {
++		tx_queue = efx->xdp_tx_queues[next_queue++];
++		rc = efx_set_xdp_tx_queue(efx, xdp_queue_number, tx_queue);
++		if (rc == 0)
++			xdp_queue_number++;
++	}
++}
++
+ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ {
+ 	struct efx_channel *other_channel[EFX_MAX_CHANNELS], *channel;
+@@ -837,6 +916,7 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 		efx_init_napi_channel(efx->channel[i]);
+ 	}
  
-@@ -50,8 +51,9 @@ nfs4_file_open(struct inode *inode, struct file *filp)
- 	if (err)
- 		return err;
++	efx_set_xdp_channels(efx);
+ out:
+ 	/* Destroy unused channel structures */
+ 	for (i = 0; i < efx->n_channels; i++) {
+@@ -872,26 +952,9 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 	goto out;
+ }
  
-+	f_mode = filp->f_mode;
- 	if ((openflags & O_ACCMODE) == 3)
--		openflags--;
-+		f_mode |= flags_to_mode(openflags);
+-static inline int
+-efx_set_xdp_tx_queue(struct efx_nic *efx, int xdp_queue_number,
+-		     struct efx_tx_queue *tx_queue)
+-{
+-	if (xdp_queue_number >= efx->xdp_tx_queue_count)
+-		return -EINVAL;
+-
+-	netif_dbg(efx, drv, efx->net_dev, "Channel %u TXQ %u is XDP %u, HW %u\n",
+-		  tx_queue->channel->channel, tx_queue->label,
+-		  xdp_queue_number, tx_queue->queue);
+-	efx->xdp_tx_queues[xdp_queue_number] = tx_queue;
+-	return 0;
+-}
+-
+ int efx_set_channels(struct efx_nic *efx)
+ {
+-	struct efx_tx_queue *tx_queue;
+ 	struct efx_channel *channel;
+-	unsigned int next_queue = 0;
+-	int xdp_queue_number;
+ 	int rc;
  
- 	/* We can't create new files here */
- 	openflags &= ~(O_CREAT|O_EXCL);
-@@ -59,7 +61,7 @@ nfs4_file_open(struct inode *inode, struct file *filp)
- 	parent = dget_parent(dentry);
- 	dir = d_inode(parent);
+ 	efx->tx_channel_offset =
+@@ -909,61 +972,14 @@ int efx_set_channels(struct efx_nic *efx)
+ 			return -ENOMEM;
+ 	}
  
--	ctx = alloc_nfs_open_context(file_dentry(filp), filp->f_mode, filp);
-+	ctx = alloc_nfs_open_context(file_dentry(filp), f_mode, filp);
- 	err = PTR_ERR(ctx);
- 	if (IS_ERR(ctx))
- 		goto out;
+-	/* We need to mark which channels really have RX and TX
+-	 * queues, and adjust the TX queue numbers if we have separate
+-	 * RX-only and TX-only channels.
+-	 */
+-	xdp_queue_number = 0;
+ 	efx_for_each_channel(channel, efx) {
+ 		if (channel->channel < efx->n_rx_channels)
+ 			channel->rx_queue.core_index = channel->channel;
+ 		else
+ 			channel->rx_queue.core_index = -1;
+-
+-		if (channel->channel >= efx->tx_channel_offset) {
+-			if (efx_channel_is_xdp_tx(channel)) {
+-				efx_for_each_channel_tx_queue(tx_queue, channel) {
+-					tx_queue->queue = next_queue++;
+-					rc = efx_set_xdp_tx_queue(efx, xdp_queue_number, tx_queue);
+-					if (rc == 0)
+-						xdp_queue_number++;
+-				}
+-			} else {
+-				efx_for_each_channel_tx_queue(tx_queue, channel) {
+-					tx_queue->queue = next_queue++;
+-					netif_dbg(efx, drv, efx->net_dev, "Channel %u TXQ %u is HW %u\n",
+-						  channel->channel, tx_queue->label,
+-						  tx_queue->queue);
+-				}
+-
+-				/* If XDP is borrowing queues from net stack, it must use the queue
+-				 * with no csum offload, which is the first one of the channel
+-				 * (note: channel->tx_queue_by_type is not initialized yet)
+-				 */
+-				if (efx->xdp_txq_queues_mode == EFX_XDP_TX_QUEUES_BORROWED) {
+-					tx_queue = &channel->tx_queue[0];
+-					rc = efx_set_xdp_tx_queue(efx, xdp_queue_number, tx_queue);
+-					if (rc == 0)
+-						xdp_queue_number++;
+-				}
+-			}
+-		}
+ 	}
+-	WARN_ON(efx->xdp_txq_queues_mode == EFX_XDP_TX_QUEUES_DEDICATED &&
+-		xdp_queue_number != efx->xdp_tx_queue_count);
+-	WARN_ON(efx->xdp_txq_queues_mode != EFX_XDP_TX_QUEUES_DEDICATED &&
+-		xdp_queue_number > efx->xdp_tx_queue_count);
+ 
+-	/* If we have more CPUs than assigned XDP TX queues, assign the already
+-	 * existing queues to the exceeding CPUs
+-	 */
+-	next_queue = 0;
+-	while (xdp_queue_number < efx->xdp_tx_queue_count) {
+-		tx_queue = efx->xdp_tx_queues[next_queue++];
+-		rc = efx_set_xdp_tx_queue(efx, xdp_queue_number, tx_queue);
+-		if (rc == 0)
+-			xdp_queue_number++;
+-	}
++	efx_set_xdp_channels(efx);
+ 
+ 	rc = netif_set_real_num_tx_queues(efx->net_dev, efx->n_tx_channels);
+ 	if (rc)
 -- 
 2.35.1
 
