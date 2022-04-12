@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C981A4FD8F3
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A124FD99E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351566AbiDLHUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:20:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57336 "EHLO
+        id S1353972AbiDLHiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:38:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351779AbiDLHM4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:56 -0400
+        with ESMTP id S1353657AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C7ABFA;
-        Mon, 11 Apr 2022 23:52:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB73626ADE;
+        Tue, 12 Apr 2022 00:02:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5109961472;
-        Tue, 12 Apr 2022 06:52:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68025C385A1;
-        Tue, 12 Apr 2022 06:52:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C75A60B65;
+        Tue, 12 Apr 2022 07:02:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42204C385A6;
+        Tue, 12 Apr 2022 07:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746347;
-        bh=UBKb1sZQqPKobZ0hpdVcRYe0cV7/W6X1LyH5t1+esJc=;
+        s=korg; t=1649746978;
+        bh=c9H0xarlSK5BkS/J8jrXSzFkHfywxLYBfSAVlHGdtAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QL20hE4+USYC86pBYCNqxlMV4AuJqpTTnDlWGVD/XcAR82ogB9kjwjEPJNa9/vPtH
-         XIgMcKXbQXbJ6XA8dL4qEm4qfihwGLqCxzrGCVCcqqWM8WDTvrXc5l9FquqneXaeTS
-         zwqWTwC4IlhiraD47DgfcgF+vMFVs1E1+CBIVlZY=
+        b=rxRj8S082UFAC0S6yI1mUe0iSklmzUBnzP8yWmOIEf5oyYVm2s1YMp46u0EXCRcfB
+         qNQuoYexweCP2mWF/o4Fd21pwwq6h3zZr0BPoQPFeBNyelzB1KC0SEQHRM5JBURxKl
+         piTuavp+MIqK7Boh1JyIXrJo7Lo5A8Y8lkxb+CRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 250/277] Revert "selftests: net: Add tls config dependency for tls selftests"
-Date:   Tue, 12 Apr 2022 08:30:53 +0200
-Message-Id: <20220412062949.278284606@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jamie Bainbridge <jamie.bainbridge@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 197/285] qede: confirm skb is allocated before using
+Date:   Tue, 12 Apr 2022 08:30:54 +0200
+Message-Id: <20220412062949.347714322@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Jamie Bainbridge <jamie.bainbridge@gmail.com>
 
-commit 20695e9a9fd39103d1b0669470ae74030b7aa196 upstream.
+[ Upstream commit 4e910dbe36508654a896d5735b318c0b88172570 ]
 
-This reverts commit d9142e1cf3bbdaf21337767114ecab26fe702d47.
+qede_build_skb() assumes build_skb() always works and goes straight
+to skb_reserve(). However, build_skb() can fail under memory pressure.
+This results in a kernel panic because the skb to reserve is NULL.
 
-The test is supposed to run cleanly with TLS is disabled,
-to test compatibility with TCP behavior. I can't repro
-the failure [1], the problem should be debugged rather
-than papered over.
+Add a check in case build_skb() failed to allocate and return NULL.
 
-Link: https://lore.kernel.org/all/20220325161203.7000698c@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com/ [1]
-Fixes: d9142e1cf3bb ("selftests: net: Add tls config dependency for tls selftests")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Link: https://lore.kernel.org/r/20220328212904.2685395-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The NULL return is handled correctly in callers to qede_build_skb().
+
+Fixes: 8a8633978b842 ("qede: Add build_skb() support.")
+Signed-off-by: Jamie Bainbridge <jamie.bainbridge@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/config |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/qlogic/qede/qede_fp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/tools/testing/selftests/net/config
-+++ b/tools/testing/selftests/net/config
-@@ -43,5 +43,4 @@ CONFIG_NET_ACT_TUNNEL_KEY=m
- CONFIG_NET_ACT_MIRRED=m
- CONFIG_BAREUDP=m
- CONFIG_IPV6_IOAM6_LWTUNNEL=y
--CONFIG_TLS=m
- CONFIG_CRYPTO_SM4=y
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_fp.c b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+index 999abcfe3310..17f895250e04 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+@@ -747,6 +747,9 @@ qede_build_skb(struct qede_rx_queue *rxq,
+ 	buf = page_address(bd->data) + bd->page_offset;
+ 	skb = build_skb(buf, rxq->rx_buf_seg_size);
+ 
++	if (unlikely(!skb))
++		return NULL;
++
+ 	skb_reserve(skb, pad);
+ 	skb_put(skb, len);
+ 
+-- 
+2.35.1
+
 
 
