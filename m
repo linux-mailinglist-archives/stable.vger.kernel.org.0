@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 195854FD5E1
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:15:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBF94FDA9D
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238273AbiDLIA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:00:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46348 "EHLO
+        id S1352456AbiDLH2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357686AbiDLHki (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C40E61005;
-        Tue, 12 Apr 2022 00:16:43 -0700 (PDT)
+        with ESMTP id S1351676AbiDLHMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDAF213D4F;
+        Mon, 11 Apr 2022 23:50:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60F1261708;
-        Tue, 12 Apr 2022 07:16:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76605C385A1;
-        Tue, 12 Apr 2022 07:16:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 749CBB81B47;
+        Tue, 12 Apr 2022 06:50:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C25FAC385A6;
+        Tue, 12 Apr 2022 06:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747802;
-        bh=uyftIm97GOa/nPfrZIJfhPY3oen1ZSdn3fuNNPh3DfI=;
+        s=korg; t=1649746241;
+        bh=bWuNbO3Fbvl23uTLrLPtZAQFj3dcCqzwr4PEGeLC0wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnByObOy6iCWsCIdDckhld9DEvUZMKKgi9MpkbrOCxV8OkCBxoEFfdWknOzmwULkD
-         86RggxdyLik7XaUMeQJm0vrm8zTJbO6DZEKkZtwcSMNerC1B/B8Xhl/N1FEZ4y6E6K
-         8GewlxTtftJOlrkb/44L6TjznT5myvv+9SEpcIHk=
+        b=UPyJc1PqEPkpZh6XT42BBCc7wWiVf+Ndq9h45y5qxeafWeTuSG9dKIAeHJbebb1Kt
+         Erq5JuOIeoOC677M3MyJFIDlovDjkPto+H9LR2k/X+o2wEgRIgRrZJNZqXqm4fNb7w
+         cWgRi8CoPsxmIY0ScTS070Zw2O2IQYKA6b+FED4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 194/343] Drivers: hv: vmbus: Fix initialization of device object in vmbus_device_register()
-Date:   Tue, 12 Apr 2022 08:30:12 +0200
-Message-Id: <20220412062956.958068021@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 210/277] mmc: block: Check for errors after write on SPI
+Date:   Tue, 12 Apr 2022 08:30:13 +0200
+Message-Id: <20220412062948.119143130@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+From: Christian Löhle <CLoehle@hyperstone.com>
 
-[ Upstream commit 3a5469582c241abca22500f36a9cb8e9331969cf ]
+commit 5d435933376962b107bd76970912e7e80247dcc7 upstream.
 
-Initialize the device's dma_{mask,parms} pointers and the device's
-dma_mask value before invoking device_register().  Address the
-following trace with 5.17-rc7:
+Introduce a SEND_STATUS check for writes through SPI to not mark
+an unsuccessful write as successful.
 
-[   49.646839] WARNING: CPU: 0 PID: 189 at include/linux/dma-mapping.h:543
-	netvsc_probe+0x37a/0x3a0 [hv_netvsc]
-[   49.646928] Call Trace:
-[   49.646930]  <TASK>
-[   49.646935]  vmbus_probe+0x40/0x60 [hv_vmbus]
-[   49.646942]  really_probe+0x1ce/0x3b0
-[   49.646948]  __driver_probe_device+0x109/0x180
-[   49.646952]  driver_probe_device+0x23/0xa0
-[   49.646955]  __device_attach_driver+0x76/0xe0
-[   49.646958]  ? driver_allows_async_probing+0x50/0x50
-[   49.646961]  bus_for_each_drv+0x84/0xd0
-[   49.646964]  __device_attach+0xed/0x170
-[   49.646967]  device_initial_probe+0x13/0x20
-[   49.646970]  bus_probe_device+0x8f/0xa0
-[   49.646973]  device_add+0x41a/0x8e0
-[   49.646975]  ? hrtimer_init+0x28/0x80
-[   49.646981]  device_register+0x1b/0x20
-[   49.646983]  vmbus_device_register+0x5e/0xf0 [hv_vmbus]
-[   49.646991]  vmbus_add_channel_work+0x12d/0x190 [hv_vmbus]
-[   49.646999]  process_one_work+0x21d/0x3f0
-[   49.647002]  worker_thread+0x4a/0x3b0
-[   49.647005]  ? process_one_work+0x3f0/0x3f0
-[   49.647007]  kthread+0xff/0x130
-[   49.647011]  ? kthread_complete_and_exit+0x20/0x20
-[   49.647015]  ret_from_fork+0x22/0x30
-[   49.647020]  </TASK>
-[   49.647021] ---[ end trace 0000000000000000 ]---
+Since SPI SD/MMC does not have states, after a write, the card will
+just hold the line LOW until it is ready again. The driver marks the
+write therefore as completed as soon as it reads something other than
+all zeroes.
+The driver does not distinguish from a card no longer signalling busy
+and it being disconnected (and the line being pulled-up by the host).
+This lead to writes being marked as successful when disconnecting
+a busy card.
+Now the card is ensured to be still connected by an additional CMD13,
+just like non-SPI is ensured to go back to TRAN state.
 
-Fixes: 743b237c3a7b0 ("scsi: storvsc: Add Isolation VM support for storvsc driver")
-Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20220315141053.3223-1-parri.andrea@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While at it and since we already poll for the post-write status anyway,
+we might as well check for SPIs error bits (any of them).
+
+The disconnecting card problem is reproducable for me after continuous
+write activity and randomly disconnecting, around every 20-50 tries
+on SPI DS for some card.
+
+Fixes: 7213d175e3b6f ("MMC/SD card driver learns SPI")
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/76f6f5d2b35543bab3dfe438f268609c@hyperstone.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hv/vmbus_drv.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/mmc/core/block.c |   34 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 33 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 12a2b37e87f3..0a05e10ab36c 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -2097,6 +2097,10 @@ int vmbus_device_register(struct hv_device *child_device_obj)
- 	child_device_obj->device.parent = &hv_acpi_dev->dev;
- 	child_device_obj->device.release = vmbus_device_release;
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1880,6 +1880,31 @@ static inline bool mmc_blk_rq_error(stru
+ 	       brq->data.error || brq->cmd.resp[0] & CMD_ERRORS;
+ }
  
-+	child_device_obj->device.dma_parms = &child_device_obj->dma_parms;
-+	child_device_obj->device.dma_mask = &child_device_obj->dma_mask;
-+	dma_set_mask(&child_device_obj->device, DMA_BIT_MASK(64));
++static int mmc_spi_err_check(struct mmc_card *card)
++{
++	u32 status = 0;
++	int err;
 +
- 	/*
- 	 * Register with the LDM. This will kick off the driver/device
- 	 * binding...which will eventually call vmbus_match() and vmbus_probe()
-@@ -2122,9 +2126,6 @@ int vmbus_device_register(struct hv_device *child_device_obj)
- 	}
- 	hv_debug_add_dev_dir(child_device_obj);
++	/*
++	 * SPI does not have a TRAN state we have to wait on, instead the
++	 * card is ready again when it no longer holds the line LOW.
++	 * We still have to ensure two things here before we know the write
++	 * was successful:
++	 * 1. The card has not disconnected during busy and we actually read our
++	 * own pull-up, thinking it was still connected, so ensure it
++	 * still responds.
++	 * 2. Check for any error bits, in particular R1_SPI_IDLE to catch a
++	 * just reconnected card after being disconnected during busy.
++	 */
++	err = __mmc_send_status(card, &status, 0);
++	if (err)
++		return err;
++	/* All R1 and R2 bits of SPI are errors in our case */
++	if (status)
++		return -EIO;
++	return 0;
++}
++
+ static int mmc_blk_busy_cb(void *cb_data, bool *busy)
+ {
+ 	struct mmc_blk_busy_data *data = cb_data;
+@@ -1903,9 +1928,16 @@ static int mmc_blk_card_busy(struct mmc_
+ 	struct mmc_blk_busy_data cb_data;
+ 	int err;
  
--	child_device_obj->device.dma_parms = &child_device_obj->dma_parms;
--	child_device_obj->device.dma_mask = &child_device_obj->dma_mask;
--	dma_set_mask(&child_device_obj->device, DMA_BIT_MASK(64));
- 	return 0;
+-	if (mmc_host_is_spi(card->host) || rq_data_dir(req) == READ)
++	if (rq_data_dir(req) == READ)
+ 		return 0;
  
- err_kset_unregister:
--- 
-2.35.1
-
++	if (mmc_host_is_spi(card->host)) {
++		err = mmc_spi_err_check(card);
++		if (err)
++			mqrq->brq.data.bytes_xfered = 0;
++		return err;
++	}
++
+ 	cb_data.card = card;
+ 	cb_data.status = 0;
+ 	err = __mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, &mmc_blk_busy_cb,
 
 
