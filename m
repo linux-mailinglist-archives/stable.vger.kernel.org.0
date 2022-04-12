@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D59584FD018
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9B04FD068
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350096AbiDLGl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:41:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51142 "EHLO
+        id S1350589AbiDLGqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:46:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349222AbiDLGkc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E998BFD39;
-        Mon, 11 Apr 2022 23:36:03 -0700 (PDT)
+        with ESMTP id S1351531AbiDLGpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:45:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76A7F3B022;
+        Mon, 11 Apr 2022 23:38:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86690618FF;
-        Tue, 12 Apr 2022 06:36:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99F17C385A1;
-        Tue, 12 Apr 2022 06:36:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F75261904;
+        Tue, 12 Apr 2022 06:38:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E9B5C385A6;
+        Tue, 12 Apr 2022 06:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745363;
-        bh=DhUlxdcaj1L0+mbfwbwVVElEQhW8jwNGcb2RsgRP8Zo=;
+        s=korg; t=1649745511;
+        bh=KnJr3+StVYDOWXUCvFCg6bty8dIei47NyGGaIszR3Dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMKzJcfZ5LWv8fULP3/OMTquiCqhLzx79KOL78f1JpQDUyq9doKL+7NDjFp15cPeN
-         ZEz5r9G0pbd7TDuLCNKQm0yhSVaDlad40BcoleGKfz3jb8fMtISMri0/1fJVWLjSRM
-         ufunj5PdzuMawQO8FgQHUqQPUX65SQrYC+kecan4=
+        b=toFNDZIW4g5ZeBWmPtb5zrq9lmv7sXTCzgKgWpnSq4u6TTq3Bg0T/o+mKmRy42I/q
+         SGoZaB/enmvUvQb5iBoclDVeCsVX7llQupM9UMFGmVVA4au6QUDJvDcCr2hTABs3dy
+         +BSbeDjZkxKWt0Xch48WmYuB7hzOZBNu+D2gs1QI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/171] ceph: fix memory leak in ceph_readdir when note_last_dentry returns error
-Date:   Tue, 12 Apr 2022 08:29:20 +0200
-Message-Id: <20220412062929.880436025@linuxfoundation.org>
+Subject: [PATCH 5.10 070/171] init/main.c: return 1 from handled __setup() functions
+Date:   Tue, 12 Apr 2022 08:29:21 +0200
+Message-Id: <20220412062929.909764367@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -55,51 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit f639d9867eea647005dc824e0e24f39ffc50d4e4 ]
+[ Upstream commit f9a40b0890658330c83c95511f9d6b396610defc ]
 
-Reset the last_readdir at the same time, and add a comment explaining
-why we don't free last_readdir when dir_emit returns false.
+initcall_blacklist() should return 1 to indicate that it handled its
+cmdline arguments.
 
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+set_debug_rodata() should return 1 to indicate that it handled its
+cmdline arguments.  Print a warning if the option string is invalid.
+
+This prevents these strings from being added to the 'init' program's
+environment as they are not init arguments/parameters.
+
+Link: https://lkml.kernel.org/r/20220221050901.23985-1-rdunlap@infradead.org
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/dir.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ init/main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ceph/dir.c b/fs/ceph/dir.c
-index f63c1a090139..1fddb9cd3e88 100644
---- a/fs/ceph/dir.c
-+++ b/fs/ceph/dir.c
-@@ -478,8 +478,11 @@ static int ceph_readdir(struct file *file, struct dir_context *ctx)
- 					2 : (fpos_off(rde->offset) + 1);
- 			err = note_last_dentry(dfi, rde->name, rde->name_len,
- 					       next_offset);
--			if (err)
-+			if (err) {
-+				ceph_mdsc_put_request(dfi->last_readdir);
-+				dfi->last_readdir = NULL;
- 				return err;
-+			}
- 		} else if (req->r_reply_info.dir_end) {
- 			dfi->next_offset = 2;
- 			/* keep last name */
-@@ -520,6 +523,12 @@ static int ceph_readdir(struct file *file, struct dir_context *ctx)
- 		if (!dir_emit(ctx, rde->name, rde->name_len,
- 			      ceph_present_ino(inode->i_sb, le64_to_cpu(rde->inode.in->ino)),
- 			      le32_to_cpu(rde->inode.in->mode) >> 12)) {
-+			/*
-+			 * NOTE: Here no need to put the 'dfi->last_readdir',
-+			 * because when dir_emit stops us it's most likely
-+			 * doesn't have enough memory, etc. So for next readdir
-+			 * it will continue.
-+			 */
- 			dout("filldir stopping us...\n");
- 			return 0;
+diff --git a/init/main.c b/init/main.c
+index 4fe58ed4aca7..3526eaec7508 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1104,7 +1104,7 @@ static int __init initcall_blacklist(char *str)
  		}
+ 	} while (str_entry);
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ static bool __init_or_module initcall_blacklisted(initcall_t fn)
+@@ -1367,7 +1367,9 @@ static noinline void __init kernel_init_freeable(void);
+ bool rodata_enabled __ro_after_init = true;
+ static int __init set_debug_rodata(char *str)
+ {
+-	return strtobool(str, &rodata_enabled);
++	if (strtobool(str, &rodata_enabled))
++		pr_warn("Invalid option string for rodata: '%s'\n", str);
++	return 1;
+ }
+ __setup("rodata=", set_debug_rodata);
+ #endif
 -- 
 2.35.1
 
