@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F233F4FD220
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 080574FD1F1
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232496AbiDLHJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:09:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46868 "EHLO
+        id S1346981AbiDLHJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:09:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352547AbiDLHFl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E727347AF9;
-        Mon, 11 Apr 2022 23:48:16 -0700 (PDT)
+        with ESMTP id S1352560AbiDLHFm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:05:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FE9647AFF;
+        Mon, 11 Apr 2022 23:48:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F22B2B81B4F;
-        Tue, 12 Apr 2022 06:48:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F9D2C385B8;
-        Tue, 12 Apr 2022 06:48:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9F1B61045;
+        Tue, 12 Apr 2022 06:48:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAB91C385A8;
+        Tue, 12 Apr 2022 06:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746093;
-        bh=hvax7q1OiKH162ZRoc+OYNZtPQZj/OJtoAfxF2UYPKs=;
+        s=korg; t=1649746096;
+        bh=KATIwZicvNr90IGaZXN1HDWS0h1x5A7R1dmMW/o73O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKJHnrHvpa9Jolc5C2OSuKeZ7meXodoCEo7sw/+t+IdE8V8OG4KHmShLQFRHmagjt
-         fS95gbCS3DovN2ragJYfevFoWEOFbH2vEH81sQzOic9k/xzS3Mbd2N9hxTX6FyJiVD
-         LMgCTO+spfuOzXDMl69A42U6hEaD5jZTRVDdQSK4=
+        b=pKQygT9K93mEs8cF7/KIGf33y1TnIpafLcMDaHCuXupmimEkcXgHfhYS0eMmfl6Yd
+         4CNGK2ZxiKj1vu3bB1BhkMc6CSEOlw+e9Ny+Op66JmNRjTS1os29F8XFP6im3c2T5q
+         NIM4DklCEX+6yPBJ+6K/wi7IWY6IhoUo5fmx8anU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 158/277] net/tls: fix slab-out-of-bounds bug in decrypt_internal
-Date:   Tue, 12 Apr 2022 08:29:21 +0200
-Message-Id: <20220412062946.611575422@linuxfoundation.org>
+Subject: [PATCH 5.15 159/277] vrf: fix packet sniffing for traffic originating from ip tunnels
+Date:   Tue, 12 Apr 2022 08:29:22 +0200
+Message-Id: <20220412062946.640808096@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -56,67 +55,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-[ Upstream commit 9381fe8c849cfbe50245ac01fc077554f6eaa0e2 ]
+[ Upstream commit 012d69fbfcc739f846766c1da56ef8b493b803b5 ]
 
-The memory size of tls_ctx->rx.iv for AES128-CCM is 12 setting in
-tls_set_sw_offload(). The return value of crypto_aead_ivsize()
-for "ccm(aes)" is 16. So memcpy() require 16 bytes from 12 bytes
-memory space will trigger slab-out-of-bounds bug as following:
+in commit 048939088220
+("vrf: add mac header for tunneled packets when sniffer is attached")
+an Ethernet header was cooked for traffic originating from tunnel devices.
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in decrypt_internal+0x385/0xc40 [tls]
-Read of size 16 at addr ffff888114e84e60 by task tls/10911
+However, the header is added based on whether the mac_header is unset
+and ignores cases where the device doesn't expose a mac header to upper
+layers, such as in ip tunnels like ipip and gre.
 
-Call Trace:
- <TASK>
- dump_stack_lvl+0x34/0x44
- print_report.cold+0x5e/0x5db
- ? decrypt_internal+0x385/0xc40 [tls]
- kasan_report+0xab/0x120
- ? decrypt_internal+0x385/0xc40 [tls]
- kasan_check_range+0xf9/0x1e0
- memcpy+0x20/0x60
- decrypt_internal+0x385/0xc40 [tls]
- ? tls_get_rec+0x2e0/0x2e0 [tls]
- ? process_rx_list+0x1a5/0x420 [tls]
- ? tls_setup_from_iter.constprop.0+0x2e0/0x2e0 [tls]
- decrypt_skb_update+0x9d/0x400 [tls]
- tls_sw_recvmsg+0x3c8/0xb50 [tls]
+Traffic originating from such devices still appears garbled when capturing
+on the vrf device.
 
-Allocated by task 10911:
- kasan_save_stack+0x1e/0x40
- __kasan_kmalloc+0x81/0xa0
- tls_set_sw_offload+0x2eb/0xa20 [tls]
- tls_setsockopt+0x68c/0x700 [tls]
- __sys_setsockopt+0xfe/0x1b0
+Fix by observing whether the original device exposes a header to upper
+layers, similar to the logic done in af_packet.
 
-Replace the crypto_aead_ivsize() with prot->iv_size + prot->salt_size
-when memcpy() iv value in TLS_1_3_VERSION scenario.
+In addition, skb->mac_len needs to be adjusted after adding the Ethernet
+header for the skb_push/pull() surrounding dev_queue_xmit_nit() to work
+on these packets.
 
-Fixes: f295b3ae9f59 ("net/tls: Add support of AES128-CCM based ciphers")
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 048939088220 ("vrf: add mac header for tunneled packets when sniffer is attached")
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/vrf.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index bd96ec26f4f9..794ef3b3d7d4 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1483,7 +1483,7 @@ static int decrypt_internal(struct sock *sk, struct sk_buff *skb,
- 	if (prot->version == TLS_1_3_VERSION ||
- 	    prot->cipher_type == TLS_CIPHER_CHACHA20_POLY1305)
- 		memcpy(iv + iv_offset, tls_ctx->rx.iv,
--		       crypto_aead_ivsize(ctx->aead_recv));
-+		       prot->iv_size + prot->salt_size);
- 	else
- 		memcpy(iv + iv_offset, tls_ctx->rx.iv, prot->salt_size);
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index b2242a082431..091dd7caf10c 100644
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -1265,6 +1265,7 @@ static int vrf_prepare_mac_header(struct sk_buff *skb,
+ 	eth = (struct ethhdr *)skb->data;
  
+ 	skb_reset_mac_header(skb);
++	skb_reset_mac_len(skb);
+ 
+ 	/* we set the ethernet destination and the source addresses to the
+ 	 * address of the VRF device.
+@@ -1294,9 +1295,9 @@ static int vrf_prepare_mac_header(struct sk_buff *skb,
+  */
+ static int vrf_add_mac_header_if_unset(struct sk_buff *skb,
+ 				       struct net_device *vrf_dev,
+-				       u16 proto)
++				       u16 proto, struct net_device *orig_dev)
+ {
+-	if (skb_mac_header_was_set(skb))
++	if (skb_mac_header_was_set(skb) && dev_has_header(orig_dev))
+ 		return 0;
+ 
+ 	return vrf_prepare_mac_header(skb, vrf_dev, proto);
+@@ -1402,6 +1403,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ 
+ 	/* if packet is NDISC then keep the ingress interface */
+ 	if (!is_ndisc) {
++		struct net_device *orig_dev = skb->dev;
++
+ 		vrf_rx_stats(vrf_dev, skb->len);
+ 		skb->dev = vrf_dev;
+ 		skb->skb_iif = vrf_dev->ifindex;
+@@ -1410,7 +1413,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ 			int err;
+ 
+ 			err = vrf_add_mac_header_if_unset(skb, vrf_dev,
+-							  ETH_P_IPV6);
++							  ETH_P_IPV6,
++							  orig_dev);
+ 			if (likely(!err)) {
+ 				skb_push(skb, skb->mac_len);
+ 				dev_queue_xmit_nit(skb, vrf_dev);
+@@ -1440,6 +1444,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
+ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
+ 				  struct sk_buff *skb)
+ {
++	struct net_device *orig_dev = skb->dev;
++
+ 	skb->dev = vrf_dev;
+ 	skb->skb_iif = vrf_dev->ifindex;
+ 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
+@@ -1460,7 +1466,8 @@ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
+ 	if (!list_empty(&vrf_dev->ptype_all)) {
+ 		int err;
+ 
+-		err = vrf_add_mac_header_if_unset(skb, vrf_dev, ETH_P_IP);
++		err = vrf_add_mac_header_if_unset(skb, vrf_dev, ETH_P_IP,
++						  orig_dev);
+ 		if (likely(!err)) {
+ 			skb_push(skb, skb->mac_len);
+ 			dev_queue_xmit_nit(skb, vrf_dev);
 -- 
 2.35.1
 
