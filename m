@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB9B24FD7FD
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 715D04FD7B5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356531AbiDLHiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:38:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60928 "EHLO
+        id S1353075AbiDLHs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:48:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353474AbiDLHZn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:43 -0400
+        with ESMTP id S1357346AbiDLHkF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:40:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011A2434AA;
-        Tue, 12 Apr 2022 00:00:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C81AC24F3A;
+        Tue, 12 Apr 2022 00:15:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A978B81B35;
-        Tue, 12 Apr 2022 07:00:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C9F1C385A8;
-        Tue, 12 Apr 2022 07:00:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7C1BAB81B4F;
+        Tue, 12 Apr 2022 07:15:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0689C385A1;
+        Tue, 12 Apr 2022 07:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746838;
-        bh=mR2O/g+rjFObtLuc8qXfsCZ+aho+SVwU90zDb6t0Px0=;
+        s=korg; t=1649747736;
+        bh=s3jXKWdwkdVWvSsHAFTai9wLnPC5wzkPc8r960P/19I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbqoXxG45ZClwVuJjd/KGPUj5C+SllKpxLU2XAuuLR7LmeJMnDwoeEIpsfC9WJEy4
-         nHo8M48jFoR13xKYwWWg+N+ddQWWfDiqDGFW4cbUHdrYD8BgqEM76yeW3dZBdAZiEI
-         gjBHv0cS+XDXlvtzFP9l6TeRqQSVSr//gTnqzJPs=
+        b=prW3leIHQlF3jS3lohMucpe233Ub34yZEKsbKtyFOazoUtIFkXpFZUdglK/xozkx6
+         x/IN2C2se8If8FLCHO4sS86TH9YbR05Lkuw0L3OMkHYFPW7tOZKWc8TUhGOYrdgalx
+         uzfZ8+XHEf3JR9LclNcViNldXOqWdwiqIaH+kO98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 147/285] parisc: Fix patch code locking and flushing
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 186/343] SUNRPC: Fix socket waits for write buffer space
 Date:   Tue, 12 Apr 2022 08:30:04 +0200
-Message-Id: <20220412062947.912980153@linuxfoundation.org>
+Message-Id: <20220412062956.729801171@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +54,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit a9fe7fa7d874a536e0540469f314772c054a0323 ]
+[ Upstream commit 7496b59f588dd52886fdbac7633608097543a0a5 ]
 
-This change fixes the following:
+The socket layer requires that we use the socket lock to protect changes
+to the sock->sk_write_pending field and others.
 
-1) The flags variable is not initialized. Always use raw_spin_lock_irqsave
-and raw_spin_unlock_irqrestore to serialize patching.
-
-2) flush_kernel_vmap_range is primarily intended for DMA flushes. Since
-__patch_text_multiple is often called with interrupts disabled, it is
-better to directly call flush_kernel_dcache_range_asm and
-flush_kernel_icache_range_asm. This avoids an extra call.
-
-3) The final call to flush_icache_range is unnecessary.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/patch.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ net/sunrpc/xprtsock.c | 54 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 39 insertions(+), 15 deletions(-)
 
-diff --git a/arch/parisc/kernel/patch.c b/arch/parisc/kernel/patch.c
-index 80a0ab372802..e59574f65e64 100644
---- a/arch/parisc/kernel/patch.c
-+++ b/arch/parisc/kernel/patch.c
-@@ -40,10 +40,7 @@ static void __kprobes *patch_map(void *addr, int fixmap, unsigned long *flags,
- 
- 	*need_unmap = 1;
- 	set_fixmap(fixmap, page_to_phys(page));
--	if (flags)
--		raw_spin_lock_irqsave(&patch_lock, *flags);
--	else
--		__acquire(&patch_lock);
-+	raw_spin_lock_irqsave(&patch_lock, *flags);
- 
- 	return (void *) (__fix_to_virt(fixmap) + (uintaddr & ~PAGE_MASK));
- }
-@@ -52,10 +49,7 @@ static void __kprobes patch_unmap(int fixmap, unsigned long *flags)
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 11eab0f0333b..5eb05c2dd6d6 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -763,12 +763,12 @@ xs_stream_start_connect(struct sock_xprt *transport)
+ /**
+  * xs_nospace - handle transmit was incomplete
+  * @req: pointer to RPC request
++ * @transport: pointer to struct sock_xprt
+  *
+  */
+-static int xs_nospace(struct rpc_rqst *req)
++static int xs_nospace(struct rpc_rqst *req, struct sock_xprt *transport)
  {
- 	clear_fixmap(fixmap);
+-	struct rpc_xprt *xprt = req->rq_xprt;
+-	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
++	struct rpc_xprt *xprt = &transport->xprt;
+ 	struct sock *sk = transport->inet;
+ 	int ret = -EAGAIN;
  
--	if (flags)
--		raw_spin_unlock_irqrestore(&patch_lock, *flags);
--	else
--		__release(&patch_lock);
-+	raw_spin_unlock_irqrestore(&patch_lock, *flags);
+@@ -779,25 +779,49 @@ static int xs_nospace(struct rpc_rqst *req)
+ 
+ 	/* Don't race with disconnect */
+ 	if (xprt_connected(xprt)) {
++		struct socket_wq *wq;
++
++		rcu_read_lock();
++		wq = rcu_dereference(sk->sk_wq);
++		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
++		rcu_read_unlock();
++
+ 		/* wait for more buffer space */
++		set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+ 		sk->sk_write_pending++;
+ 		xprt_wait_for_buffer_space(xprt);
+ 	} else
+ 		ret = -ENOTCONN;
+ 
+ 	spin_unlock(&xprt->transport_lock);
++	return ret;
++}
+ 
+-	/* Race breaker in case memory is freed before above code is called */
+-	if (ret == -EAGAIN) {
+-		struct socket_wq *wq;
++static int xs_sock_nospace(struct rpc_rqst *req)
++{
++	struct sock_xprt *transport =
++		container_of(req->rq_xprt, struct sock_xprt, xprt);
++	struct sock *sk = transport->inet;
++	int ret = -EAGAIN;
+ 
+-		rcu_read_lock();
+-		wq = rcu_dereference(sk->sk_wq);
+-		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
+-		rcu_read_unlock();
++	lock_sock(sk);
++	if (!sock_writeable(sk))
++		ret = xs_nospace(req, transport);
++	release_sock(sk);
++	return ret;
++}
+ 
+-		sk->sk_write_space(sk);
+-	}
++static int xs_stream_nospace(struct rpc_rqst *req)
++{
++	struct sock_xprt *transport =
++		container_of(req->rq_xprt, struct sock_xprt, xprt);
++	struct sock *sk = transport->inet;
++	int ret = -EAGAIN;
++
++	lock_sock(sk);
++	if (!sk_stream_memory_free(sk))
++		ret = xs_nospace(req, transport);
++	release_sock(sk);
+ 	return ret;
  }
  
- void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
-@@ -67,8 +61,9 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 	int mapped;
- 
- 	/* Make sure we don't have any aliases in cache */
--	flush_kernel_vmap_range(addr, len);
--	flush_icache_range(start, end);
-+	flush_kernel_dcache_range_asm(start, end);
-+	flush_kernel_icache_range_asm(start, end);
-+	flush_tlb_kernel_range(start, end);
- 
- 	p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags, &mapped);
- 
-@@ -81,8 +76,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 			 * We're crossing a page boundary, so
- 			 * need to remap
- 			 */
--			flush_kernel_vmap_range((void *)fixmap,
--						(p-fixmap) * sizeof(*p));
-+			flush_kernel_dcache_range_asm((unsigned long)fixmap,
-+						      (unsigned long)p);
-+			flush_tlb_kernel_range((unsigned long)fixmap,
-+					       (unsigned long)p);
- 			if (mapped)
- 				patch_unmap(FIX_TEXT_POKE0, &flags);
- 			p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags,
-@@ -90,10 +87,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 		}
- 	}
- 
--	flush_kernel_vmap_range((void *)fixmap, (p-fixmap) * sizeof(*p));
-+	flush_kernel_dcache_range_asm((unsigned long)fixmap, (unsigned long)p);
-+	flush_tlb_kernel_range((unsigned long)fixmap, (unsigned long)p);
- 	if (mapped)
- 		patch_unmap(FIX_TEXT_POKE0, &flags);
--	flush_icache_range(start, end);
- }
- 
- void __kprobes __patch_text(void *addr, u32 insn)
+@@ -887,7 +911,7 @@ static int xs_local_send_request(struct rpc_rqst *req)
+ 	case -ENOBUFS:
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_stream_nospace(req);
+ 		break;
+ 	default:
+ 		dprintk("RPC:       sendmsg returned unrecognized error %d\n",
+@@ -963,7 +987,7 @@ static int xs_udp_send_request(struct rpc_rqst *req)
+ 		/* Should we call xs_close() here? */
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_sock_nospace(req);
+ 		break;
+ 	case -ENETUNREACH:
+ 	case -ENOBUFS:
+@@ -1083,7 +1107,7 @@ static int xs_tcp_send_request(struct rpc_rqst *req)
+ 		/* Should we call xs_close() here? */
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_stream_nospace(req);
+ 		break;
+ 	case -ECONNRESET:
+ 	case -ECONNREFUSED:
 -- 
 2.35.1
 
