@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AA154FCA23
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC6E44FCA18
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 02:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243772AbiDLAvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Apr 2022 20:51:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45102 "EHLO
+        id S244174AbiDLAvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Apr 2022 20:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244125AbiDLAuo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:50:44 -0400
+        with ESMTP id S244213AbiDLAup (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Apr 2022 20:50:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAA5031DED;
-        Mon, 11 Apr 2022 17:46:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD6C931DFA;
+        Mon, 11 Apr 2022 17:46:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67AFBB819B5;
-        Tue, 12 Apr 2022 00:46:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DBDEC385A4;
-        Tue, 12 Apr 2022 00:46:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67177B819C1;
+        Tue, 12 Apr 2022 00:46:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85ABCC385AB;
+        Tue, 12 Apr 2022 00:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649724411;
-        bh=ResghmII99n/SG65QwcSI9j5RgNFRUjFsjQqNkCWCW4=;
+        s=k20201202; t=1649724413;
+        bh=0w5fkYWRq9t9bwKn/65Gjp/8xhsgA6n0+Ym3YnpIS4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ctypd+poFqFg7rBujnj8wa7m73RImaS6Q1aXN1XI/l1DiMuaTU4oqzJpl+lEnUfYH
-         14MXe1blFfOZ5j2+ipXVHUJBv4tF3B2YEImUicYy7zIxRv21Jvxj5xRSTlS3oBsp53
-         F/6ywdf/6zVjAQGmnJD4B6us+sUJi1LGMXRLZS06RZTbn0uwauLw1YgkHtie56pwjm
-         YTmX3nKm07+tdMtdEa/54MU2Qk9aiyp+COObxEnH3ajfM6tr2KBKyzPp0xdBiFwq/k
-         L4v2kIi6glZIdkxIwTOIgzBr9lZF5/YcDDWdZSxJGgAd15510JoPWKZBn/myQFJczF
-         VWaE7ISpvLCaQ==
+        b=BBR5QgQ717gYhD6qL04QoH9T9SiBhM2VAAr79BsjMQlvB2Z4mSEK0ybwfYLhxbejj
+         cDFn/aez/NZXe1O67/etIBAIA+Sz0KxpCTLRn1qaHE6jiASeXNFKMLd5fPP92C4q2/
+         nC1IiqBsKXJLZf049aqQrJGKcnHPngHBmnubSElZPuG1rGP18ZTAD2VZWKtxTwE9up
+         qsKRIDFm9cGyo7sg6l2znly7SlSPUGam0eOkN33B3sdpuBLkItJZot2KlVwW273pOz
+         fzQV7oR37/5cubrP9LlxZS+T1JfrULOyeLyWAccDyl5bruHYCcLTa5+KWr166cObSa
+         cMAHZ+/vHTCxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chanho Park <chanho61.park@samsung.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
+Cc:     Borislav Petkov <bp@suse.de>, Frank Li <Frank.li@nxp.com>,
         Will Deacon <will@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Sasha Levin <sashal@kernel.org>, suzuki.poulose@arm.com,
-        anshuman.khandual@arm.com, lcherian@marvell.com,
-        rmk+kernel@armlinux.org.uk, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 48/49] arm64: Add part number for Arm Cortex-A78AE
-Date:   Mon, 11 Apr 2022 20:44:06 -0400
-Message-Id: <20220412004411.349427-48-sashal@kernel.org>
+        Mark Rutland <mark.rutland@arm.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.17 49/49] perf/imx_ddr: Fix undefined behavior due to shift overflowing the constant
+Date:   Mon, 11 Apr 2022 20:44:07 -0400
+Message-Id: <20220412004411.349427-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412004411.349427-1-sashal@kernel.org>
 References: <20220412004411.349427-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,61 +64,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chanho Park <chanho61.park@samsung.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 83bea32ac7ed37bbda58733de61fc9369513f9f9 ]
+[ Upstream commit d02b4dd84e1a90f7f1444d027c0289bf355b0d5a ]
 
-Add the MIDR part number info for the Arm Cortex-A78AE[1] and add it to
-spectre-BHB affected list[2].
+Fix:
 
-[1]: https://developer.arm.com/Processors/Cortex-A78AE
-[2]: https://developer.arm.com/Arm%20Security%20Center/Spectre-BHB
+  In file included from <command-line>:0:0:
+  In function ‘ddr_perf_counter_enable’,
+      inlined from ‘ddr_perf_irq_handler’ at drivers/perf/fsl_imx8_ddr_perf.c:651:2:
+  ././include/linux/compiler_types.h:352:38: error: call to ‘__compiletime_assert_729’ \
+	declared with attribute error: FIELD_PREP: mask is not constant
+    _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+...
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Frank Li <Frank.li@nxp.com>
 Cc: Will Deacon <will@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Signed-off-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20220407091128.8700-1-chanho61.park@samsung.com
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220405151517.29753-10-bp@alien8.de
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/cputype.h | 2 ++
- arch/arm64/kernel/proton-pack.c  | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/perf/fsl_imx8_ddr_perf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index bfbf0c4c7c5e..39f5c1672f48 100644
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -75,6 +75,7 @@
- #define ARM_CPU_PART_CORTEX_A77		0xD0D
- #define ARM_CPU_PART_NEOVERSE_V1	0xD40
- #define ARM_CPU_PART_CORTEX_A78		0xD41
-+#define ARM_CPU_PART_CORTEX_A78AE	0xD42
- #define ARM_CPU_PART_CORTEX_X1		0xD44
- #define ARM_CPU_PART_CORTEX_A510	0xD46
- #define ARM_CPU_PART_CORTEX_A710	0xD47
-@@ -123,6 +124,7 @@
- #define MIDR_CORTEX_A77	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A77)
- #define MIDR_NEOVERSE_V1	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_NEOVERSE_V1)
- #define MIDR_CORTEX_A78	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A78)
-+#define MIDR_CORTEX_A78AE	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A78AE)
- #define MIDR_CORTEX_X1	MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_X1)
- #define MIDR_CORTEX_A510 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A510)
- #define MIDR_CORTEX_A710 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A710)
-diff --git a/arch/arm64/kernel/proton-pack.c b/arch/arm64/kernel/proton-pack.c
-index 5777929d35bf..40be3a7c2c53 100644
---- a/arch/arm64/kernel/proton-pack.c
-+++ b/arch/arm64/kernel/proton-pack.c
-@@ -853,6 +853,7 @@ u8 spectre_bhb_loop_affected(int scope)
- 	if (scope == SCOPE_LOCAL_CPU) {
- 		static const struct midr_range spectre_bhb_k32_list[] = {
- 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78),
-+			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78AE),
- 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A78C),
- 			MIDR_ALL_VERSIONS(MIDR_CORTEX_X1),
- 			MIDR_ALL_VERSIONS(MIDR_CORTEX_A710),
+diff --git a/drivers/perf/fsl_imx8_ddr_perf.c b/drivers/perf/fsl_imx8_ddr_perf.c
+index 94ebc1ecace7..b1b2a55de77f 100644
+--- a/drivers/perf/fsl_imx8_ddr_perf.c
++++ b/drivers/perf/fsl_imx8_ddr_perf.c
+@@ -29,7 +29,7 @@
+ #define CNTL_OVER_MASK		0xFFFFFFFE
+ 
+ #define CNTL_CSV_SHIFT		24
+-#define CNTL_CSV_MASK		(0xFF << CNTL_CSV_SHIFT)
++#define CNTL_CSV_MASK		(0xFFU << CNTL_CSV_SHIFT)
+ 
+ #define EVENT_CYCLES_ID		0
+ #define EVENT_CYCLES_COUNTER	0
 -- 
 2.35.1
 
