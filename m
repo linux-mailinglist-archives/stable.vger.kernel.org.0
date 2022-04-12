@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E425D4FD70F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 258934FD5CF
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:15:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351627AbiDLHdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42870 "EHLO
+        id S1353757AbiDLHeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354111AbiDLH0D (ORCPT
+        with ESMTP id S1354112AbiDLH0D (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:26:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0305F2E9EA;
-        Tue, 12 Apr 2022 00:05:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D4337BE1;
+        Tue, 12 Apr 2022 00:05:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B01A2B81B4E;
-        Tue, 12 Apr 2022 07:05:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AA15C385A6;
-        Tue, 12 Apr 2022 07:05:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94505B81B4F;
+        Tue, 12 Apr 2022 07:05:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F89C385A1;
+        Tue, 12 Apr 2022 07:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747144;
-        bh=Smfi/ZN8i0dzhQnYNGCmXNvOH3W9oqoPSzPGo96g0v8=;
+        s=korg; t=1649747147;
+        bh=BGcNS4Cofk807Fee/aS4MB+5zhhGooOiqwxPm0+CL6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BvcsbUDzEv19iGTjPgS5HHKnVf929NoAp1lM87pOv3pto9Nrc6oFyFsSNdcJDcdxZ
-         76jgYnPnp4FncwAd531G1yBdivnTiKChEqmghJm3nGryluMeH/Ri8sb3/qQ7kOS8vn
-         PRQpBMrseDkYfmNIHXt/bZtvaE83cLWm4Eow1DkU=
+        b=ZN6INRJnGfs0yK7Qya4ACTlImg+IfVFxoJXW1han3M5qYMic0ahpHGGTbRwL1GsR5
+         HQ7M0B8XqcQJUFYuOLTJ3kk1KZZAGTofGVykPmDEEjfJheW9wGT1zYlNIPPY8xCLDU
+         3zOT6NiOv1CehVc2jR2AdHYSKv1s7I4qe610/sQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.16 260/285] KVM: SVM: Allow AVIC support on system w/ physical APIC ID > 255
-Date:   Tue, 12 Apr 2022 08:31:57 +0200
-Message-Id: <20220412062951.165772564@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Philip Yang <Philip.Yang@amd.com>,
+        Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 261/285] drm/amdkfd: Fix variable set but not used warning
+Date:   Tue, 12 Apr 2022 08:31:58 +0200
+Message-Id: <20220412062951.194185302@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
 References: <20220412062943.670770901@linuxfoundation.org>
@@ -55,69 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+From: Philip Yang <Philip.Yang@amd.com>
 
-commit 4a204f7895878363ca8211f50ec610408c8c70aa upstream.
+commit 90c44207cdd18091ac9aa7cab8a3e7b0ef00e847 upstream.
 
-Expand KVM's mask for the AVIC host physical ID to the full 12 bits defined
-by the architecture.  The number of bits consumed by hardware is model
-specific, e.g. early CPUs ignored bits 11:8, but there is no way for KVM
-to enumerate the "true" size.  So, KVM must allow using all bits, else it
-risks rejecting completely legal x2APIC IDs on newer CPUs.
+All warnings (new ones prefixed by >>):
 
-This means KVM relies on hardware to not assign x2APIC IDs that exceed the
-"true" width of the field, but presumably hardware is smart enough to tie
-the width to the max x2APIC ID.  KVM also relies on hardware to support at
-least 8 bits, as the legacy xAPIC ID is writable by software.  But, those
-assumptions are unavoidable due to the lack of any way to enumerate the
-"true" width.
+   drivers/gpu/drm/amd/amdgpu/../amdkfd/kfd_svm.c: In function
+'svm_range_deferred_list_work':
+>> drivers/gpu/drm/amd/amdgpu/../amdkfd/kfd_svm.c:2067:22: warning:
+variable 'p' set but not used [-Wunused-but-set-variable]
+    2067 |  struct kfd_process *p;
+         |
 
-Cc: stable@vger.kernel.org
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Fixes: 44a95dae1d22 ("KVM: x86: Detect and Initialize AVIC support")
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Message-Id: <20220211000851.185799-1-suravee.suthikulpanit@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[modified due to the conflict caused by the commit 391503528257 ("KVM:
-x86: SVM: move avic definitions from AMD's spec to svm.h")]
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Fixes: 367c9b0f1b8750 ("drm/amdkfd: Ensure mm remain valid in svm deferred_list work")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Philip Yang <Philip.Yang@amd.com>
+Reviewed-By: Harish Kasiviswanathan <Harish.Kasiviswanathan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/avic.c |    7 +------
- arch/x86/kvm/svm/svm.h  |    2 +-
- 2 files changed, 2 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/x86/kvm/svm/avic.c
-+++ b/arch/x86/kvm/svm/avic.c
-@@ -949,15 +949,10 @@ out:
- void avic_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- {
- 	u64 entry;
--	/* ID = 0xff (broadcast), ID > 0xff (reserved) */
- 	int h_physical_id = kvm_cpu_get_apicid(cpu);
- 	struct vcpu_svm *svm = to_svm(vcpu);
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+@@ -2008,13 +2008,10 @@ static void svm_range_deferred_list_work
+ 	struct svm_range_list *svms;
+ 	struct svm_range *prange;
+ 	struct mm_struct *mm;
+-	struct kfd_process *p;
  
--	/*
--	 * Since the host physical APIC id is 8 bits,
--	 * we can support host APIC ID upto 255.
--	 */
--	if (WARN_ON(h_physical_id > AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK))
-+	if (WARN_ON(h_physical_id & ~AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK))
- 		return;
+ 	svms = container_of(work, struct svm_range_list, deferred_list_work);
+ 	pr_debug("enter svms 0x%p\n", svms);
  
- 	entry = READ_ONCE(*(svm->avic_physical_id_cache));
---- a/arch/x86/kvm/svm/svm.h
-+++ b/arch/x86/kvm/svm/svm.h
-@@ -510,7 +510,7 @@ extern struct kvm_x86_nested_ops svm_nes
- #define AVIC_LOGICAL_ID_ENTRY_VALID_BIT			31
- #define AVIC_LOGICAL_ID_ENTRY_VALID_MASK		(1 << 31)
- 
--#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	(0xFFULL)
-+#define AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK	GENMASK_ULL(11, 0)
- #define AVIC_PHYSICAL_ID_ENTRY_BACKING_PAGE_MASK	(0xFFFFFFFFFFULL << 12)
- #define AVIC_PHYSICAL_ID_ENTRY_IS_RUNNING_MASK		(1ULL << 62)
- #define AVIC_PHYSICAL_ID_ENTRY_VALID_MASK		(1ULL << 63)
+-	p = container_of(svms, struct kfd_process, svms);
+-
+ 	spin_lock(&svms->deferred_list_lock);
+ 	while (!list_empty(&svms->deferred_range_list)) {
+ 		prange = list_first_entry(&svms->deferred_range_list,
 
 
