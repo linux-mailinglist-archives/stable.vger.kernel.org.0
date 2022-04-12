@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D4B4FD3A9
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 11:59:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A1014FD3D9
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353215AbiDLHqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:46:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46346 "EHLO
+        id S1351998AbiDLHXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357055AbiDLHjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6923EEBE;
-        Tue, 12 Apr 2022 00:11:10 -0700 (PDT)
+        with ESMTP id S1353069AbiDLHOs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:14:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD20525291;
+        Mon, 11 Apr 2022 23:56:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06D7A616B2;
-        Tue, 12 Apr 2022 07:11:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12171C385A5;
-        Tue, 12 Apr 2022 07:11:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84626B81B43;
+        Tue, 12 Apr 2022 06:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3CEC385A1;
+        Tue, 12 Apr 2022 06:56:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747469;
-        bh=zgITDaPiAeLIf6/TWaZY2wCzKCFRSQVmMhsZTlPKrso=;
+        s=korg; t=1649746571;
+        bh=g0S1xJM0BJ86DQH0IZzY6uj6KRFPYEHUsBoXY82RMEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zb05itzi60PoJFD3tjcR3EZil7eh3FY960Gw0/PsWTEywOMAvQHRUJIuFAYzTEHY5
-         0kVUar8JkalVWFNpENPJ0ZH4k04FdCG3C+5q05N0gQbgIyPDqAvHhjZ2TGxTANX4hL
-         qRC7TdGP+gBgxpka6lQsctIMeD9GYGfDqZbJOUC0=
+        b=nT5V/OaYrgKZ8qN8smnTC2Rx1RWODfjPS6FqlzAQekC9JL6RQN9G9bBiEucH2kDb8
+         Q5qBjuu+94kGb7ZDxcxJ40y8DnIr7TuKQBUR/1VLm2Yf1bZ/KzvR2ilzF9dr5ZJRU+
+         nKneX/8/xGDeDGXkMeyuWl5Iok6SCGC9884tCYII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 090/343] ipv6: annotate some data-races around sk->sk_prot
-Date:   Tue, 12 Apr 2022 08:28:28 +0200
-Message-Id: <20220412062953.705135357@linuxfoundation.org>
+Subject: [PATCH 5.16 053/285] scsi: mpi3mr: Fix reporting of actual data transfer size
+Date:   Tue, 12 Apr 2022 08:28:30 +0200
+Message-Id: <20220412062945.202371210@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,168 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
 
-[ Upstream commit 086d49058cd8471046ae9927524708820f5fd1c7 ]
+[ Upstream commit 9992246127246a27cc7184f05cce6f62ac48f84e ]
 
-IPv6 has this hack changing sk->sk_prot when an IPv6 socket
-is 'converted' to an IPv4 one with IPV6_ADDRFORM option.
+The driver is missing to set the residual size while completing an
+I/O. Ensure proper data transfer size is reported to the kernel on I/O
+completion based on the transfer length reported by the firmware.
 
-This operation is only performed for TCP and UDP, knowing
-their 'struct proto' for the two network families are populated
-in the same way, and can not disappear while a reader
-might use and dereference sk->sk_prot.
-
-If we think about it all reads of sk->sk_prot while
-either socket lock or RTNL is not acquired should be using READ_ONCE().
-
-Also note that other layers like MPTCP, XFRM, CHELSIO_TLS also
-write over sk->sk_prot.
-
-BUG: KCSAN: data-race in inet6_recvmsg / ipv6_setsockopt
-
-write to 0xffff8881386f7aa8 of 8 bytes by task 26932 on cpu 0:
- do_ipv6_setsockopt net/ipv6/ipv6_sockglue.c:492 [inline]
- ipv6_setsockopt+0x3758/0x3910 net/ipv6/ipv6_sockglue.c:1019
- udpv6_setsockopt+0x85/0x90 net/ipv6/udp.c:1649
- sock_common_setsockopt+0x5d/0x70 net/core/sock.c:3489
- __sys_setsockopt+0x209/0x2a0 net/socket.c:2180
- __do_sys_setsockopt net/socket.c:2191 [inline]
- __se_sys_setsockopt net/socket.c:2188 [inline]
- __x64_sys_setsockopt+0x62/0x70 net/socket.c:2188
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffff8881386f7aa8 of 8 bytes by task 26911 on cpu 1:
- inet6_recvmsg+0x7a/0x210 net/ipv6/af_inet6.c:659
- ____sys_recvmsg+0x16c/0x320
- ___sys_recvmsg net/socket.c:2674 [inline]
- do_recvmmsg+0x3f5/0xae0 net/socket.c:2768
- __sys_recvmmsg net/socket.c:2847 [inline]
- __do_sys_recvmmsg net/socket.c:2870 [inline]
- __se_sys_recvmmsg net/socket.c:2863 [inline]
- __x64_sys_recvmmsg+0xde/0x160 net/socket.c:2863
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0xffffffff85e0e980 -> 0xffffffff85e01580
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 26911 Comm: syz-executor.3 Not tainted 5.17.0-rc2-syzkaller-00316-g0457e5153e0e-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20220210095817.22828-7-sreekanth.reddy@broadcom.com
+Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/af_inet6.c      | 24 ++++++++++++++++++------
- net/ipv6/ipv6_sockglue.c |  6 ++++--
- 2 files changed, 22 insertions(+), 8 deletions(-)
+ drivers/scsi/mpi3mr/mpi3mr_os.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
-index 8fe7900f1949..7d7b7523d126 100644
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -441,11 +441,14 @@ int inet6_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
- {
- 	struct sock *sk = sock->sk;
- 	u32 flags = BIND_WITH_LOCK;
-+	const struct proto *prot;
- 	int err = 0;
- 
-+	/* IPV6_ADDRFORM can change sk->sk_prot under us. */
-+	prot = READ_ONCE(sk->sk_prot);
- 	/* If the socket has its own bind function then use it. */
--	if (sk->sk_prot->bind)
--		return sk->sk_prot->bind(sk, uaddr, addr_len);
-+	if (prot->bind)
-+		return prot->bind(sk, uaddr, addr_len);
- 
- 	if (addr_len < SIN6_LEN_RFC2133)
- 		return -EINVAL;
-@@ -555,6 +558,7 @@ int inet6_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
- 	void __user *argp = (void __user *)arg;
- 	struct sock *sk = sock->sk;
- 	struct net *net = sock_net(sk);
-+	const struct proto *prot;
- 
- 	switch (cmd) {
- 	case SIOCADDRT:
-@@ -572,9 +576,11 @@ int inet6_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
- 	case SIOCSIFDSTADDR:
- 		return addrconf_set_dstaddr(net, argp);
- 	default:
--		if (!sk->sk_prot->ioctl)
-+		/* IPV6_ADDRFORM can change sk->sk_prot under us. */
-+		prot = READ_ONCE(sk->sk_prot);
-+		if (!prot->ioctl)
- 			return -ENOIOCTLCMD;
--		return sk->sk_prot->ioctl(sk, cmd, arg);
-+		return prot->ioctl(sk, cmd, arg);
+diff --git a/drivers/scsi/mpi3mr/mpi3mr_os.c b/drivers/scsi/mpi3mr/mpi3mr_os.c
+index fe10f257b5a4..224a4155d9b4 100644
+--- a/drivers/scsi/mpi3mr/mpi3mr_os.c
++++ b/drivers/scsi/mpi3mr/mpi3mr_os.c
+@@ -2204,6 +2204,8 @@ void mpi3mr_process_op_reply_desc(struct mpi3mr_ioc *mrioc,
+ 		scmd->result = DID_OK << 16;
+ 		goto out_success;
  	}
- 	/*NOTREACHED*/
- 	return 0;
-@@ -636,11 +642,14 @@ INDIRECT_CALLABLE_DECLARE(int udpv6_sendmsg(struct sock *, struct msghdr *,
- int inet6_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
- {
- 	struct sock *sk = sock->sk;
-+	const struct proto *prot;
- 
- 	if (unlikely(inet_send_prepare(sk)))
- 		return -EAGAIN;
- 
--	return INDIRECT_CALL_2(sk->sk_prot->sendmsg, tcp_sendmsg, udpv6_sendmsg,
-+	/* IPV6_ADDRFORM can change sk->sk_prot under us. */
-+	prot = READ_ONCE(sk->sk_prot);
-+	return INDIRECT_CALL_2(prot->sendmsg, tcp_sendmsg, udpv6_sendmsg,
- 			       sk, msg, size);
- }
- 
-@@ -650,13 +659,16 @@ int inet6_recvmsg(struct socket *sock, struct msghdr *msg, size_t size,
- 		  int flags)
- {
- 	struct sock *sk = sock->sk;
-+	const struct proto *prot;
- 	int addr_len = 0;
- 	int err;
- 
- 	if (likely(!(flags & MSG_ERRQUEUE)))
- 		sock_rps_record_flow(sk);
- 
--	err = INDIRECT_CALL_2(sk->sk_prot->recvmsg, tcp_recvmsg, udpv6_recvmsg,
-+	/* IPV6_ADDRFORM can change sk->sk_prot under us. */
-+	prot = READ_ONCE(sk->sk_prot);
-+	err = INDIRECT_CALL_2(prot->recvmsg, tcp_recvmsg, udpv6_recvmsg,
- 			      sk, msg, size, flags & MSG_DONTWAIT,
- 			      flags & ~MSG_DONTWAIT, &addr_len);
- 	if (err >= 0)
-diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
-index a733803a710c..222f6bf220ba 100644
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -475,7 +475,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
- 				sock_prot_inuse_add(net, sk->sk_prot, -1);
- 				sock_prot_inuse_add(net, &tcp_prot, 1);
- 
--				sk->sk_prot = &tcp_prot;
-+				/* Paired with READ_ONCE(sk->sk_prot) in net/ipv6/af_inet6.c */
-+				WRITE_ONCE(sk->sk_prot, &tcp_prot);
- 				icsk->icsk_af_ops = &ipv4_specific;
- 				sk->sk_socket->ops = &inet_stream_ops;
- 				sk->sk_family = PF_INET;
-@@ -489,7 +490,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
- 				sock_prot_inuse_add(net, sk->sk_prot, -1);
- 				sock_prot_inuse_add(net, prot, 1);
- 
--				sk->sk_prot = prot;
-+				/* Paired with READ_ONCE(sk->sk_prot) in net/ipv6/af_inet6.c */
-+				WRITE_ONCE(sk->sk_prot, prot);
- 				sk->sk_socket->ops = &inet_dgram_ops;
- 				sk->sk_family = PF_INET;
- 			}
++
++	scsi_set_resid(scmd, scsi_bufflen(scmd) - xfer_count);
+ 	if (ioc_status == MPI3_IOCSTATUS_SCSI_DATA_UNDERRUN &&
+ 	    xfer_count == 0 && (scsi_status == MPI3_SCSI_STATUS_BUSY ||
+ 	    scsi_status == MPI3_SCSI_STATUS_RESERVATION_CONFLICT ||
 -- 
 2.35.1
 
