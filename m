@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F3AA4FD9D3
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9D94FDACF
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354466AbiDLHrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:47:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
+        id S1352055AbiDLH2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:28:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357220AbiDLHjx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA8B315A02;
-        Tue, 12 Apr 2022 00:13:59 -0700 (PDT)
+        with ESMTP id S1354343AbiDLHRf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:17:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A441F4BFC5;
+        Mon, 11 Apr 2022 23:58:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 851D36153F;
-        Tue, 12 Apr 2022 07:13:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C568C385A1;
-        Tue, 12 Apr 2022 07:13:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EF71B81B35;
+        Tue, 12 Apr 2022 06:58:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9595DC385A1;
+        Tue, 12 Apr 2022 06:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747639;
-        bh=VdfdafuRcjTS5UUKaCXYsrTgX5OBbE6LcxYACf3ZdkY=;
+        s=korg; t=1649746734;
+        bh=3535TF05XMwI7IlTt70GcFU3BoNH+1hFeZqaTcbTgZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PgzXWVfJBn62Y7bU96wH1/AAq4IZDR3x+Z4Zk5I8d5wgs99HRiKXiaz+Oce0981E9
-         TfsJFnURnLx3U9tfVQ7mbq1QE0VDryKeDgwGcQF5y1Dl0dl5Wx/U2yJdfZjL9JcWen
-         mp+QFZ/7UOHuGEfzlYi3XTw7PZyz4ktx/0jZ+R1A=
+        b=SFI9YTCciT8TUHhpuWV1gDtgx4+pjiGripmR+UHUev6KjKRtzjIpD4aiWNGHuI5Rh
+         kK5mIqgaTFir/PY4+2cGloArmS82Rh3GAeUDL9lopd0e1kSI/FHe/UKbBddWRWFDhl
+         rSvCLoayXKbWT7dPqqyWb26Epw0NRvj3mNSWE/Mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 112/343] power: supply: axp288_fuel_gauge: Use acpi_quirk_skip_acpi_ac_and_battery()
-Date:   Tue, 12 Apr 2022 08:28:50 +0200
-Message-Id: <20220412062954.625100457@linuxfoundation.org>
+Subject: [PATCH 5.16 074/285] scsi: pm8001: Fix memory leak in pm8001_chip_fw_flash_update_req()
+Date:   Tue, 12 Apr 2022 08:28:51 +0200
+Message-Id: <20220412062945.802805257@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,84 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit da365db704d290fb4dc4cdbd41f60b0ecec1cc03 ]
+[ Upstream commit f792a3629f4c4aa4c3703d66b43ce1edcc3ec09a ]
 
-Normally the native AXP288 fg/charger drivers are preferred but one some
-devices the ACPI drivers should be used instead.
+In pm8001_chip_fw_flash_update_build(), if
+pm8001_chip_fw_flash_update_build() fails, the struct fw_control_ex
+allocated must be freed.
 
-The ACPI battery/ac drivers use the acpi_quirk_skip_acpi_ac_and_battery()
-helper to determine if they should skip loading because native fuel-gauge/
-charger drivers like the AXP288 drivers will be used.
-
-The new acpi_quirk_skip_acpi_ac_and_battery() helper includes a list of
-exceptions for boards where the ACPI drivers should be used instead.
-
-Use this new helper to avoid loading on such boards. Note this requires
-adding a Kconfig dependency on ACPI, this is not a problem because ACPI
-should be enabled on all boards with an AXP288 PMIC anyways.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://lore.kernel.org/r/20220220031810.738362-23-damien.lemoal@opensource.wdc.com
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/Kconfig             |  2 +-
- drivers/power/supply/axp288_fuel_gauge.c | 14 ++++++++------
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
-index d7534f12e9ef..5e4a69352811 100644
---- a/drivers/power/supply/Kconfig
-+++ b/drivers/power/supply/Kconfig
-@@ -358,7 +358,7 @@ config AXP288_CHARGER
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index e447b714df2b..1a5338917a89 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -4907,8 +4907,10 @@ pm8001_chip_fw_flash_update_req(struct pm8001_hba_info *pm8001_ha,
+ 	ccb->ccb_tag = tag;
+ 	rc = pm8001_chip_fw_flash_update_build(pm8001_ha, &flash_update_info,
+ 		tag);
+-	if (rc)
++	if (rc) {
++		kfree(fw_control_context);
+ 		pm8001_tag_free(pm8001_ha, tag);
++	}
  
- config AXP288_FUEL_GAUGE
- 	tristate "X-Powers AXP288 Fuel Gauge"
--	depends on MFD_AXP20X && IIO && IOSF_MBI
-+	depends on MFD_AXP20X && IIO && IOSF_MBI && ACPI
- 	help
- 	  Say yes here to have support for X-Power power management IC (PMIC)
- 	  Fuel Gauge. The device provides battery statistics and status
-diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
-index c1da217fdb0e..ce8ffd0a41b5 100644
---- a/drivers/power/supply/axp288_fuel_gauge.c
-+++ b/drivers/power/supply/axp288_fuel_gauge.c
-@@ -9,6 +9,7 @@
-  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  */
- 
-+#include <linux/acpi.h>
- #include <linux/dmi.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
-@@ -560,12 +561,6 @@ static const struct dmi_system_id axp288_no_battery_list[] = {
- 			DMI_EXACT_MATCH(DMI_BIOS_VERSION, "1.000"),
- 		},
- 	},
--	{
--		/* ECS EF20EA */
--		.matches = {
--			DMI_MATCH(DMI_PRODUCT_NAME, "EF20EA"),
--		},
--	},
- 	{
- 		/* Intel Cherry Trail Compute Stick, Windows version */
- 		.matches = {
-@@ -624,6 +619,13 @@ static int axp288_fuel_gauge_probe(struct platform_device *pdev)
- 	};
- 	unsigned int val;
- 
-+	/*
-+	 * Normally the native AXP288 fg/charger drivers are preferred but
-+	 * on some devices the ACPI drivers should be used instead.
-+	 */
-+	if (!acpi_quirk_skip_acpi_ac_and_battery())
-+		return -ENODEV;
-+
- 	if (dmi_check_system(axp288_no_battery_list))
- 		return -ENODEV;
- 
+ 	return rc;
+ }
 -- 
 2.35.1
 
