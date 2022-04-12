@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEBA94FDB4B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4DC14FD634
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377647AbiDLHvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:51:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58126 "EHLO
+        id S1352402AbiDLHgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:36:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359386AbiDLHm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44EB2CC92;
-        Tue, 12 Apr 2022 00:22:01 -0700 (PDT)
+        with ESMTP id S1355096AbiDLH1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:27:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDA448305;
+        Tue, 12 Apr 2022 00:07:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BF19B81B60;
-        Tue, 12 Apr 2022 07:22:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA537C385A1;
-        Tue, 12 Apr 2022 07:21:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B96F616B2;
+        Tue, 12 Apr 2022 07:07:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23786C385A8;
+        Tue, 12 Apr 2022 07:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748119;
-        bh=oVLVH4dSiXl6ZrohuS/jFnrjBXXcyG7ewltwzTF8/vg=;
+        s=korg; t=1649747225;
+        bh=Jh0HxlaHDCPkrzXaR6A0TjXlWJhTiro1dmjnLAkCRbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4xkqMnbkuJZNxSwkicNWWjdhRWBPJseJrp3DOrT26MpLBDWM2y9Ax5BT2Tckphp6
-         +K3vOnkScPRtLz4A8Nkyfhe0SFVBo0VuNblf1WAKXRGACZ63o+THWAsDaiJHK52VVT
-         ZFu3c2yGmj53OSf9YnC3ai4HQmM3k7dYyPn6+RL4=
+        b=y5ZfqjvSXX2/VDfmP6lEupoM/U5CwsXlV7cbFtwDn/Q7EtpdlKrbntFmVerIzOy2R
+         LI/Plp/pp4g7CnVIx5HHdzj7QDsEddSElRQ7rlSmnJpOQ2wmOMRKmcZvclqrOHOk8E
+         HS/aEAKkT01hVudY6sMwOaR3QVfmZ78r/20PzwSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 286/343] btrfs: avoid defragging extents whose next extents are not targets
-Date:   Tue, 12 Apr 2022 08:31:44 +0200
-Message-Id: <20220412062959.581114826@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.16 248/285] irqchip/gic-v3: Fix GICR_CTLR.RWP polling
+Date:   Tue, 12 Apr 2022 08:31:45 +0200
+Message-Id: <20220412062950.816356188@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,107 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 75a36a7d3ea904cef2e5b56af0c58cc60dcf947a upstream.
+commit 0df6664531a12cdd8fc873f0cac0dcb40243d3e9 upstream.
 
-[BUG]
-There is a report that autodefrag is defragging single sector, which
-is completely waste of IO, and no help for defragging:
+It turns out that our polling of RWP is totally wrong when checking
+for it in the redistributors, as we test the *distributor* bit index,
+whereas it is a different bit number in the RDs... Oopsie boo.
 
-   btrfs-cleaner-808 defrag_one_locked_range: root=256 ino=651122 start=0 len=4096
+This is embarassing. Not only because it is wrong, but also because
+it took *8 years* to notice the blunder...
 
-[CAUSE]
-In defrag_collect_targets(), we check if the current range (A) can be merged
-with next one (B).
+Just fix the damn thing.
 
-If mergeable, we will add range A into target for defrag.
-
-However there is a catch for autodefrag, when checking mergeability
-against range B, we intentionally pass 0 as @newer_than, hoping to get a
-higher chance to merge with the next extent.
-
-But in the next iteration, range B will looked up by defrag_lookup_extent(),
-with non-zero @newer_than.
-
-And if range B is not really newer, it will rejected directly, causing
-only range A being defragged, while we expect to defrag both range A and
-B.
-
-[FIX]
-Since the root cause is the difference in check condition of
-defrag_check_next_extent() and defrag_collect_targets(), we fix it by:
-
-1. Pass @newer_than to defrag_check_next_extent()
-2. Pass @extent_thresh to defrag_check_next_extent()
-
-This makes the check between defrag_collect_targets() and
-defrag_check_next_extent() more consistent.
-
-While there is still some minor difference, the remaining checks are
-focus on runtime flags like writeback/delalloc, which are mostly
-transient and safe to be checked only in defrag_collect_targets().
-
-Link: https://github.com/btrfs/linux/issues/423#issuecomment-1066981856
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 021f653791ad ("irqchip: gic-v3: Initial support for GICv3")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/20220315165034.794482-2-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ioctl.c |   20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/irqchip/irq-gic-v3.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1215,7 +1215,7 @@ static u32 get_extent_max_capacity(const
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -206,11 +206,11 @@ static inline void __iomem *gic_dist_bas
+ 	}
  }
  
- static bool defrag_check_next_extent(struct inode *inode, struct extent_map *em,
--				     bool locked)
-+				     u32 extent_thresh, u64 newer_than, bool locked)
+-static void gic_do_wait_for_rwp(void __iomem *base)
++static void gic_do_wait_for_rwp(void __iomem *base, u32 bit)
  {
- 	struct extent_map *next;
- 	bool ret = false;
-@@ -1225,11 +1225,12 @@ static bool defrag_check_next_extent(str
- 		return false;
+ 	u32 count = 1000000;	/* 1s! */
  
- 	/*
--	 * We want to check if the next extent can be merged with the current
--	 * one, which can be an extent created in a past generation, so we pass
--	 * a minimum generation of 0 to defrag_lookup_extent().
-+	 * Here we need to pass @newer_then when checking the next extent, or
-+	 * we will hit a case we mark current extent for defrag, but the next
-+	 * one will not be a target.
-+	 * This will just cause extra IO without really reducing the fragments.
- 	 */
--	next = defrag_lookup_extent(inode, em->start + em->len, 0, locked);
-+	next = defrag_lookup_extent(inode, em->start + em->len, newer_than, locked);
- 	/* No more em or hole */
- 	if (!next || next->block_start >= EXTENT_MAP_LAST_BYTE)
- 		goto out;
-@@ -1241,6 +1242,13 @@ static bool defrag_check_next_extent(str
- 	 */
- 	if (next->len >= get_extent_max_capacity(em))
- 		goto out;
-+	/* Skip older extent */
-+	if (next->generation < newer_than)
-+		goto out;
-+	/* Also check extent size */
-+	if (next->len >= extent_thresh)
-+		goto out;
-+
- 	ret = true;
- out:
- 	free_extent_map(next);
-@@ -1446,7 +1454,7 @@ static int defrag_collect_targets(struct
- 			goto next;
+-	while (readl_relaxed(base + GICD_CTLR) & GICD_CTLR_RWP) {
++	while (readl_relaxed(base + GICD_CTLR) & bit) {
+ 		count--;
+ 		if (!count) {
+ 			pr_err_ratelimited("RWP timeout, gone fishing\n");
+@@ -224,13 +224,13 @@ static void gic_do_wait_for_rwp(void __i
+ /* Wait for completion of a distributor change */
+ static void gic_dist_wait_for_rwp(void)
+ {
+-	gic_do_wait_for_rwp(gic_data.dist_base);
++	gic_do_wait_for_rwp(gic_data.dist_base, GICD_CTLR_RWP);
+ }
  
- 		next_mergeable = defrag_check_next_extent(&inode->vfs_inode, em,
--							  locked);
-+						extent_thresh, newer_than, locked);
- 		if (!next_mergeable) {
- 			struct defrag_target_range *last;
+ /* Wait for completion of a redistributor change */
+ static void gic_redist_wait_for_rwp(void)
+ {
+-	gic_do_wait_for_rwp(gic_data_rdist_rd_base());
++	gic_do_wait_for_rwp(gic_data_rdist_rd_base(), GICR_CTLR_RWP);
+ }
  
+ #ifdef CONFIG_ARM64
 
 
