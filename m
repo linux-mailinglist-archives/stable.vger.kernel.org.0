@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F1E4FD7B4
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE9B4FD5BF
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:14:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377446AbiDLHuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:50:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52156 "EHLO
+        id S1350135AbiDLHhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:37:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359073AbiDLHm3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA35A5521E;
-        Tue, 12 Apr 2022 00:20:09 -0700 (PDT)
+        with ESMTP id S1353858AbiDLHZ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D44CFE013;
+        Tue, 12 Apr 2022 00:04:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4420361045;
-        Tue, 12 Apr 2022 07:20:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58DADC385A1;
-        Tue, 12 Apr 2022 07:20:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71A3360B2E;
+        Tue, 12 Apr 2022 07:04:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8722FC385A6;
+        Tue, 12 Apr 2022 07:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649748008;
-        bh=q7WSODLypYIykGAg6QQO4egcUuD69gEgMfjespz19u8=;
+        s=korg; t=1649747097;
+        bh=WNmc1U1T4VK9eOAieNnS6QYXaRY1fquINd9tlCqMHNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUbyBLQY0LuB+NqoDQmxGHuWoIFX9e1pmknJNclGZi00x9VP1jrq9WwGSYEolB6Qw
-         zbDy+K1nADMeD/YPKVZcZnN7VP6oXU4Mof2rfBVHxpreIb03VZ3be2+IBppWrN2Bp/
-         pMFGGPUjVlBLMzKvsHjYdsw61g2E7b9ZXbMCtc/A=
+        b=0SEp48skaw6qBI4sQ1YCRfeW6oC9IVq9zM0fSsmLH6LzNQQH5no6jyTaEH/myKSNy
+         EQ+ovNEmUCvH9EnlyfwRfASCULyYGdTmkic5QLqJaFWFmEGawt2kuPuaqQdyCPLH/f
+         WfuB93zey1An1vX/qs7PcSqKFuxr2ssetMIVlwu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 279/343] io_uring: fix race between timeout flush and removal
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.16 240/285] drbd: fix an invalid memory access caused by incorrect use of list iterator
 Date:   Tue, 12 Apr 2022 08:31:37 +0200
-Message-Id: <20220412062959.376033708@linuxfoundation.org>
+Message-Id: <20220412062950.589685667@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit e677edbcabee849bfdd43f1602bccbecf736a646 upstream.
+commit ae4d37b5df749926891583d42a6801b5da11e3c1 upstream.
 
-io_flush_timeouts() assumes the timeout isn't in progress of triggering
-or being removed/canceled, so it unconditionally removes it from the
-timeout list and attempts to cancel it.
+The bug is here:
+	idr_remove(&connection->peer_devices, vnr);
 
-Leave it on the list and let the normal timeout cancelation take care
-of it.
+If the previous for_each_connection() don't exit early (no goto hit
+inside the loop), the iterator 'connection' after the loop will be a
+bogus pointer to an invalid structure object containing the HEAD
+(&resource->connections). As a result, the use of 'connection' above
+will lead to a invalid memory access (including a possible invalid free
+as idr_remove could call free_layer).
 
-Cc: stable@vger.kernel.org # 5.5+
+The original intention should have been to remove all peer_devices,
+but the following lines have already done the work. So just remove
+this line and the unneeded label, to fix this bug.
+
+Cc: stable@vger.kernel.org
+Fixes: c06ece6ba6f1b ("drbd: Turn connection->volumes into connection->peer_devices")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Reviewed-by: Lars Ellenberg <lars.ellenberg@linbit.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/block/drbd/drbd_main.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1644,12 +1644,11 @@ static __cold void io_flush_timeouts(str
- 	__must_hold(&ctx->completion_lock)
- {
- 	u32 seq = ctx->cached_cq_tail - atomic_read(&ctx->cq_timeouts);
-+	struct io_kiocb *req, *tmp;
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -2791,12 +2791,12 @@ enum drbd_ret_code drbd_create_device(st
  
- 	spin_lock_irq(&ctx->timeout_lock);
--	while (!list_empty(&ctx->timeout_list)) {
-+	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
- 		u32 events_needed, events_got;
--		struct io_kiocb *req = list_first_entry(&ctx->timeout_list,
--						struct io_kiocb, timeout.list);
- 
- 		if (io_is_timeout_noseq(req))
- 			break;
-@@ -1666,7 +1665,6 @@ static __cold void io_flush_timeouts(str
- 		if (events_got < events_needed)
- 			break;
- 
--		list_del_init(&req->timeout.list);
- 		io_kill_timeout(req, 0);
+ 	if (init_submitter(device)) {
+ 		err = ERR_NOMEM;
+-		goto out_idr_remove_vol;
++		goto out_idr_remove_from_resource;
  	}
- 	ctx->cq_last_tm_flush = seq;
-@@ -6276,6 +6274,7 @@ static int io_timeout_prep(struct io_kio
- 	if (data->ts.tv_sec < 0 || data->ts.tv_nsec < 0)
- 		return -EINVAL;
  
-+	INIT_LIST_HEAD(&req->timeout.list);
- 	data->mode = io_translate_timeout_mode(flags);
- 	hrtimer_init(&data->timer, io_timeout_get_clock(data), data->mode);
+ 	err = add_disk(disk);
+ 	if (err)
+-		goto out_idr_remove_vol;
++		goto out_idr_remove_from_resource;
  
+ 	/* inherit the connection state */
+ 	device->state.conn = first_connection(resource)->cstate;
+@@ -2810,8 +2810,6 @@ enum drbd_ret_code drbd_create_device(st
+ 	drbd_debugfs_device_add(device);
+ 	return NO_ERROR;
+ 
+-out_idr_remove_vol:
+-	idr_remove(&connection->peer_devices, vnr);
+ out_idr_remove_from_resource:
+ 	for_each_connection(connection, resource) {
+ 		peer_device = idr_remove(&connection->peer_devices, vnr);
 
 
