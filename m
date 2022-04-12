@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9C64FCF95
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 138DA4FD244
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349017AbiDLGfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:35:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
+        id S240229AbiDLHIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:08:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348985AbiDLGfe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:35:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AEE835878;
-        Mon, 11 Apr 2022 23:33:17 -0700 (PDT)
+        with ESMTP id S1351836AbiDLHEU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:04:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5500D45ADC;
+        Mon, 11 Apr 2022 23:47:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D98CBB81B40;
-        Tue, 12 Apr 2022 06:33:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E358C385A1;
-        Tue, 12 Apr 2022 06:33:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E56160A6A;
+        Tue, 12 Apr 2022 06:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83966C385A1;
+        Tue, 12 Apr 2022 06:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745194;
-        bh=OtYW2G/ou48B5BPObHYy3wh4RhYt0cJWYuNUdrShSfs=;
+        s=korg; t=1649746046;
+        bh=X/XV6dqIM01stGb6muJgsi2Mox5PAsrFHhzqwvCyAKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRAD/X/bMmixr71G9o2OzTv3w9KsF9c0fmw8vWVtpNPfWRu1opxPig3p6Y+6TzWrc
-         Gb7t2LaJtylornKmQs/ABDogTLIc9gwcwx4E+l0D1QOQJL3Z0TDm4RhN92Ynz1BrIw
-         Amg9LmvC29JXBhjTmDZMpduuY5so5IRgjshEwXwY=
+        b=aedWuH1O7xzvI09iccHePxvCJJGRcjAmznJgwj3JDmxf66N4E5QZkcs3CkK/GiFmi
+         JMAEluMmY01+LqFa1pxwsvNtMGCCV2+U5NJq8drzlb3/5UQfFViDu86aqmOv6SX5lL
+         ZkdR3jIs+LfeQ8gyyzl8UrSncg712p20WFk9e2UA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Chang <waynec@nvidia.com>,
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 012/171] usb: gadget: tegra-xudc: Do not program SPARAM
+Subject: [PATCH 5.15 100/277] xtensa: fix DTC warning unit_address_format
 Date:   Tue, 12 Apr 2022 08:28:23 +0200
-Message-Id: <20220412062928.239453482@linuxfoundation.org>
+Message-Id: <20220412062944.936601266@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +53,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Chang <waynec@nvidia.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 62fb61580eb48fc890b7bc9fb5fd263367baeca8 ]
+[ Upstream commit e85d29ba4b24f68e7a78cb85c55e754362eeb2de ]
 
-According to the Tegra Technical Reference Manual, SPARAM
-is a read-only register and should not be programmed in
-the driver.
+DTC issues the following warnings when building xtfpga device trees:
 
-The change removes the wrong SPARAM usage.
+ /soc/flash@00000000/partition@0x0: unit name should not have leading "0x"
+ /soc/flash@00000000/partition@0x6000000: unit name should not have leading "0x"
+ /soc/flash@00000000/partition@0x6800000: unit name should not have leading "0x"
+ /soc/flash@00000000/partition@0x7fe0000: unit name should not have leading "0x"
 
-Signed-off-by: Wayne Chang <waynec@nvidia.com>
-Link: https://lore.kernel.org/r/20220107090443.149021-1-waynec@nvidia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Drop leading 0x from flash partition unit names.
+
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/tegra-xudc.c | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi | 8 ++++----
+ arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi  | 8 ++++----
+ arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi   | 4 ++--
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/tegra-xudc.c b/drivers/usb/gadget/udc/tegra-xudc.c
-index 57ee72fead45..1dd0d50c6b56 100644
---- a/drivers/usb/gadget/udc/tegra-xudc.c
-+++ b/drivers/usb/gadget/udc/tegra-xudc.c
-@@ -32,9 +32,6 @@
- #include <linux/workqueue.h>
- 
- /* XUSB_DEV registers */
--#define SPARAM 0x000
--#define  SPARAM_ERSTMAX_MASK GENMASK(20, 16)
--#define  SPARAM_ERSTMAX(x) (((x) << 16) & SPARAM_ERSTMAX_MASK)
- #define DB 0x004
- #define  DB_TARGET_MASK GENMASK(15, 8)
- #define  DB_TARGET(x) (((x) << 8) & DB_TARGET_MASK)
-@@ -3295,11 +3292,6 @@ static void tegra_xudc_init_event_ring(struct tegra_xudc *xudc)
- 	unsigned int i;
- 	u32 val;
- 
--	val = xudc_readl(xudc, SPARAM);
--	val &= ~(SPARAM_ERSTMAX_MASK);
--	val |= SPARAM_ERSTMAX(XUDC_NR_EVENT_RINGS);
--	xudc_writel(xudc, val, SPARAM);
--
- 	for (i = 0; i < ARRAY_SIZE(xudc->event_ring); i++) {
- 		memset(xudc->event_ring[i], 0, XUDC_EVENT_RING_SIZE *
- 		       sizeof(*xudc->event_ring[i]));
+diff --git a/arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi b/arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi
+index 9bf8bad1dd18..c33932568aa7 100644
+--- a/arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi
++++ b/arch/xtensa/boot/dts/xtfpga-flash-128m.dtsi
+@@ -8,19 +8,19 @@
+ 			reg = <0x00000000 0x08000000>;
+ 			bank-width = <2>;
+ 			device-width = <2>;
+-			partition@0x0 {
++			partition@0 {
+ 				label = "data";
+ 				reg = <0x00000000 0x06000000>;
+ 			};
+-			partition@0x6000000 {
++			partition@6000000 {
+ 				label = "boot loader area";
+ 				reg = <0x06000000 0x00800000>;
+ 			};
+-			partition@0x6800000 {
++			partition@6800000 {
+ 				label = "kernel image";
+ 				reg = <0x06800000 0x017e0000>;
+ 			};
+-			partition@0x7fe0000 {
++			partition@7fe0000 {
+ 				label = "boot environment";
+ 				reg = <0x07fe0000 0x00020000>;
+ 			};
+diff --git a/arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi b/arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi
+index 40c2f81f7cb6..7bde2ab2d6fb 100644
+--- a/arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi
++++ b/arch/xtensa/boot/dts/xtfpga-flash-16m.dtsi
+@@ -8,19 +8,19 @@
+ 			reg = <0x08000000 0x01000000>;
+ 			bank-width = <2>;
+ 			device-width = <2>;
+-			partition@0x0 {
++			partition@0 {
+ 				label = "boot loader area";
+ 				reg = <0x00000000 0x00400000>;
+ 			};
+-			partition@0x400000 {
++			partition@400000 {
+ 				label = "kernel image";
+ 				reg = <0x00400000 0x00600000>;
+ 			};
+-			partition@0xa00000 {
++			partition@a00000 {
+ 				label = "data";
+ 				reg = <0x00a00000 0x005e0000>;
+ 			};
+-			partition@0xfe0000 {
++			partition@fe0000 {
+ 				label = "boot environment";
+ 				reg = <0x00fe0000 0x00020000>;
+ 			};
+diff --git a/arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi b/arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi
+index fb8d3a9f33c2..0655b868749a 100644
+--- a/arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi
++++ b/arch/xtensa/boot/dts/xtfpga-flash-4m.dtsi
+@@ -8,11 +8,11 @@
+ 			reg = <0x08000000 0x00400000>;
+ 			bank-width = <2>;
+ 			device-width = <2>;
+-			partition@0x0 {
++			partition@0 {
+ 				label = "boot loader area";
+ 				reg = <0x00000000 0x003f0000>;
+ 			};
+-			partition@0x3f0000 {
++			partition@3f0000 {
+ 				label = "boot environment";
+ 				reg = <0x003f0000 0x00010000>;
+ 			};
 -- 
 2.35.1
 
