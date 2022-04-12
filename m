@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DE3D4FD515
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B164FD49F
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236849AbiDLHV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:21:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
+        id S1348482AbiDLHpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:45:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351958AbiDLHNN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7312660F7;
-        Mon, 11 Apr 2022 23:54:11 -0700 (PDT)
+        with ESMTP id S1356345AbiDLHfS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:35:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB88F50E2E;
+        Tue, 12 Apr 2022 00:09:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D26361472;
-        Tue, 12 Apr 2022 06:54:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF30BC385A6;
-        Tue, 12 Apr 2022 06:54:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B978616E3;
+        Tue, 12 Apr 2022 07:09:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A961EC385A5;
+        Tue, 12 Apr 2022 07:09:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746450;
-        bh=R9mjCXueA1qBXKoLhaHdg7MAgOdRuTR951goVImsFDM=;
+        s=korg; t=1649747361;
+        bh=ml72iPm2ujhvVrlOqTzu2cWjMgaiiwbonFftTOGfFDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KdPX1IaNR6c2fo26XDqVQTz3VB/gMdvY6QUK/qP3wsgjT03OoKl2X+HqNFzCp9e7E
-         nPjXPr86Qpt3elxdOSFS7R6Wb7c72FzZZWL1oT1z5fmWEnAmYAhQcl5pKXocFEI3vr
-         YhQsbiM4TUCgm/63ZWivuMEndUj7hrmSd/dsP/mI=
+        b=hlVC9e2XmEh927T042mUJOUbm5p/5D2pagEdHpCaJ9C5TJHcfFKebNEbykHc9qfys
+         bIfcMPcps75ZCC+heaUdX2gk+dmtce7GBEZMF/yu60qeHcD2KkhcFiLmJscn0sw0m9
+         5UMaCWGezafkDKIAXyFw1UQvYMhKQoRzOh5ERHO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org,
+        Witold Fijalkowski <witoldx.fijalkowski@intel.com>,
+        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 010/285] ath5k: fix OOB in ath5k_eeprom_read_pcal_info_5111
-Date:   Tue, 12 Apr 2022 08:27:47 +0200
-Message-Id: <20220412062943.974213318@linuxfoundation.org>
+Subject: [PATCH 5.17 050/343] i40e: Add sending commands in atomic context
+Date:   Tue, 12 Apr 2022 08:27:48 +0200
+Message-Id: <20220412062952.550900069@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,85 +57,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
 
-[ Upstream commit 564d4eceb97eaf381dd6ef6470b06377bb50c95a ]
+[ Upstream commit 59b3d7350ff35c939b8e173eb2eecac80a5ee046 ]
 
-The bug was found during fuzzing. Stacktrace locates it in
-ath5k_eeprom_convert_pcal_info_5111.
-When none of the curve is selected in the loop, idx can go
-up to AR5K_EEPROM_N_PD_CURVES. The line makes pd out of bound.
-pd = &chinfo[pier].pd_curves[idx];
+Change functions:
+- i40e_aq_add_macvlan
+- i40e_aq_remove_macvlan
+- i40e_aq_delete_element
+- i40e_aq_add_vsi
+- i40e_aq_update_vsi_params
+to explicitly use i40e_asq_send_command_atomic(..., true)
+instead of i40e_asq_send_command, as they use mutexes and do some
+work in an atomic context.
+Without this change setting vlan via netdev will fail with
+call trace cased by bug "BUG: scheduling while atomic".
 
-There are many OOB writes using pd later in the code. So I
-added a sanity check for idx. Checks for other loops involving
-AR5K_EEPROM_N_PD_CURVES are not needed as the loop index is not
-used outside the loops.
-
-The patch is NOT tested with real device.
-
-The following is the fuzzing report
-
-BUG: KASAN: slab-out-of-bounds in ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
-Write of size 1 at addr ffff8880174a4d60 by task modprobe/214
-
-CPU: 0 PID: 214 Comm: modprobe Not tainted 5.6.0 #1
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- __kasan_report.cold+0x37/0x7c
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- kasan_report+0xe/0x20
- ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? ath5k_pci_eeprom_read+0x228/0x3c0 [ath5k]
- ath5k_eeprom_init+0x2513/0x6290 [ath5k]
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? usleep_range+0xb8/0x100
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_read_pcal_info_2413+0x2f20/0x2f20 [ath5k]
- ath5k_hw_init+0xb60/0x1970 [ath5k]
- ath5k_init_ah+0x6fe/0x2530 [ath5k]
- ? kasprintf+0xa6/0xe0
- ? ath5k_stop+0x140/0x140 [ath5k]
- ? _dev_notice+0xf6/0xf6
- ? apic_timer_interrupt+0xa/0x20
- ath5k_pci_probe.cold+0x29a/0x3d6 [ath5k]
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- ? mutex_lock+0x89/0xd0
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- local_pci_probe+0xd3/0x160
- pci_device_probe+0x23f/0x3e0
- ? pci_device_remove+0x280/0x280
- ? pci_device_remove+0x280/0x280
- really_probe+0x209/0x5d0
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/YckvDdj3mtCkDRIt@a-10-27-26-18.dynapool.vpn.nyu.edu
+Signed-off-by: Witold Fijalkowski <witoldx.fijalkowski@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath5k/eeprom.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_common.c | 21 +++++++++++--------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath5k/eeprom.c b/drivers/net/wireless/ath/ath5k/eeprom.c
-index 1fbc2c19848f..d444b3d70ba2 100644
---- a/drivers/net/wireless/ath/ath5k/eeprom.c
-+++ b/drivers/net/wireless/ath/ath5k/eeprom.c
-@@ -746,6 +746,9 @@ ath5k_eeprom_convert_pcal_info_5111(struct ath5k_hw *ah, int mode,
- 			}
- 		}
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_common.c b/drivers/net/ethernet/intel/i40e/i40e_common.c
+index 9ddeb015eb7e..e830987a8c6d 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_common.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_common.c
+@@ -1899,8 +1899,9 @@ i40e_status i40e_aq_add_vsi(struct i40e_hw *hw,
  
-+		if (idx == AR5K_EEPROM_N_PD_CURVES)
-+			goto err_out;
-+
- 		ee->ee_pd_gains[mode] = 1;
+ 	desc.flags |= cpu_to_le16((u16)(I40E_AQ_FLAG_BUF | I40E_AQ_FLAG_RD));
  
- 		pd = &chinfo[pier].pd_curves[idx];
+-	status = i40e_asq_send_command(hw, &desc, &vsi_ctx->info,
+-				    sizeof(vsi_ctx->info), cmd_details);
++	status = i40e_asq_send_command_atomic(hw, &desc, &vsi_ctx->info,
++					      sizeof(vsi_ctx->info),
++					      cmd_details, true);
+ 
+ 	if (status)
+ 		goto aq_add_vsi_exit;
+@@ -2287,8 +2288,9 @@ i40e_status i40e_aq_update_vsi_params(struct i40e_hw *hw,
+ 
+ 	desc.flags |= cpu_to_le16((u16)(I40E_AQ_FLAG_BUF | I40E_AQ_FLAG_RD));
+ 
+-	status = i40e_asq_send_command(hw, &desc, &vsi_ctx->info,
+-				    sizeof(vsi_ctx->info), cmd_details);
++	status = i40e_asq_send_command_atomic(hw, &desc, &vsi_ctx->info,
++					      sizeof(vsi_ctx->info),
++					      cmd_details, true);
+ 
+ 	vsi_ctx->vsis_allocated = le16_to_cpu(resp->vsi_used);
+ 	vsi_ctx->vsis_unallocated = le16_to_cpu(resp->vsi_free);
+@@ -2673,8 +2675,8 @@ i40e_status i40e_aq_add_macvlan(struct i40e_hw *hw, u16 seid,
+ 	if (buf_size > I40E_AQ_LARGE_BUF)
+ 		desc.flags |= cpu_to_le16((u16)I40E_AQ_FLAG_LB);
+ 
+-	status = i40e_asq_send_command(hw, &desc, mv_list, buf_size,
+-				       cmd_details);
++	status = i40e_asq_send_command_atomic(hw, &desc, mv_list, buf_size,
++					      cmd_details, true);
+ 
+ 	return status;
+ }
+@@ -2715,8 +2717,8 @@ i40e_status i40e_aq_remove_macvlan(struct i40e_hw *hw, u16 seid,
+ 	if (buf_size > I40E_AQ_LARGE_BUF)
+ 		desc.flags |= cpu_to_le16((u16)I40E_AQ_FLAG_LB);
+ 
+-	status = i40e_asq_send_command(hw, &desc, mv_list, buf_size,
+-				       cmd_details);
++	status = i40e_asq_send_command_atomic(hw, &desc, mv_list, buf_size,
++					      cmd_details, true);
+ 
+ 	return status;
+ }
+@@ -3868,7 +3870,8 @@ i40e_status i40e_aq_delete_element(struct i40e_hw *hw, u16 seid,
+ 
+ 	cmd->seid = cpu_to_le16(seid);
+ 
+-	status = i40e_asq_send_command(hw, &desc, NULL, 0, cmd_details);
++	status = i40e_asq_send_command_atomic(hw, &desc, NULL, 0,
++					      cmd_details, true);
+ 
+ 	return status;
+ }
 -- 
 2.35.1
 
