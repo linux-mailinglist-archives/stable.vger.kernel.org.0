@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E41884FD1AC
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:58:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BA04FD1AD
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234090AbiDLG74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:59:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59164 "EHLO
+        id S243850AbiDLG75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:59:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351224AbiDLG56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:57:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 846F9427C2;
-        Mon, 11 Apr 2022 23:46:29 -0700 (PDT)
+        with ESMTP id S1351419AbiDLG6a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:58:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B35427ED;
+        Mon, 11 Apr 2022 23:46:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A87CB81B46;
-        Tue, 12 Apr 2022 06:46:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2A8C385A6;
-        Tue, 12 Apr 2022 06:46:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B3B3B81B49;
+        Tue, 12 Apr 2022 06:46:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEC20C385A1;
+        Tue, 12 Apr 2022 06:46:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745986;
-        bh=blzbmXLcpWyWEoRdYuaYSCqfl8++BoLBioFSyPVgcks=;
+        s=korg; t=1649745989;
+        bh=f5WP94l2ij7cAQc6yP2J2xfY3E3FBE12z8liPEMYcEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Go0t88O2qoKODbtbVHD6qttBWOhY7Xs8fmcApB/Fh4vHqv8YWjkcTsXCts2e2pr7n
-         xJt9CkOftwz9U93+9f2HQZC0yPJd14fvgLK162XciyvYi+7/a2/haLykMMyNuAkXQL
-         p3e0ZrenQOfyJYijozHQPE3tUzMaG0vOFx8qCaYg=
+        b=EJf5Xw1zkd/tqEH+3cRzzmE4f6y8VFb9ok9pmWHvt5GoVzxs31F8nkbiGOruwwChe
+         QiCYQAMx89L4gptiuS12ElgDo3+WtA7gTRZ3RYHFEi4Hx4Qt7EFRwwTLyctxvfD3A2
+         S/2z7det8ofuCWd41lrIbH1kEyHiqlfSNieVap9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
-        <jerome.pouiller@silabs.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Xiaoke Wang <xkernel.wang@foxmail.com>,
+        stable@vger.kernel.org, Lucas Denefle <lucas.denefle@converge.io>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 119/277] staging: wfx: fix an error handling in wfx_init_common()
-Date:   Tue, 12 Apr 2022 08:28:42 +0200
-Message-Id: <20220412062945.485141434@linuxfoundation.org>
+Subject: [PATCH 5.15 120/277] w1: w1_therm: fixes w1_seq for ds28ea00 sensors
+Date:   Tue, 12 Apr 2022 08:28:43 +0200
+Message-Id: <20220412062945.514037140@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -57,51 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Lucas Denefle <lucas.denefle@converge.io>
 
-[ Upstream commit 60f1d3c92dc1ef1026e5b917a329a7fa947da036 ]
+[ Upstream commit 41a92a89eee819298f805c40187ad8b02bb53426 ]
 
-One error handler of wfx_init_common() return without calling
-ieee80211_free_hw(hw), which may result in memory leak. And I add
-one err label to unify the error handler, which is useful for the
-subsequent changes.
+w1_seq was failing due to several devices responding to the
+CHAIN_DONE at the same time. Now properly selects the current
+device in the chain with MATCH_ROM. Also acknowledgment was
+read twice.
 
-Suggested-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Link: https://lore.kernel.org/r/tencent_24A24A3EFF61206ECCC4B94B1C5C1454E108@qq.com
+Signed-off-by: Lucas Denefle <lucas.denefle@converge.io>
+Link: https://lore.kernel.org/r/20220223113558.232750-1-lucas.denefle@converge.io
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wfx/main.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/w1/slaves/w1_therm.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/wfx/main.c b/drivers/staging/wfx/main.c
-index 4b9fdf99981b..9ff69c5e0ae9 100644
---- a/drivers/staging/wfx/main.c
-+++ b/drivers/staging/wfx/main.c
-@@ -309,7 +309,8 @@ struct wfx_dev *wfx_init_common(struct device *dev,
- 	wdev->pdata.gpio_wakeup = devm_gpiod_get_optional(dev, "wakeup",
- 							  GPIOD_OUT_LOW);
- 	if (IS_ERR(wdev->pdata.gpio_wakeup))
--		return NULL;
-+		goto err;
+diff --git a/drivers/w1/slaves/w1_therm.c b/drivers/w1/slaves/w1_therm.c
+index ca70c5f03206..9cbeeb4923ec 100644
+--- a/drivers/w1/slaves/w1_therm.c
++++ b/drivers/w1/slaves/w1_therm.c
+@@ -2090,16 +2090,20 @@ static ssize_t w1_seq_show(struct device *device,
+ 		if (sl->reg_num.id == reg_num->id)
+ 			seq = i;
+ 
++		if (w1_reset_bus(sl->master))
++			goto error;
 +
- 	if (wdev->pdata.gpio_wakeup)
- 		gpiod_set_consumer_name(wdev->pdata.gpio_wakeup, "wfx wakeup");
++		/* Put the device into chain DONE state */
++		w1_write_8(sl->master, W1_MATCH_ROM);
++		w1_write_block(sl->master, (u8 *)&rn, 8);
+ 		w1_write_8(sl->master, W1_42_CHAIN);
+ 		w1_write_8(sl->master, W1_42_CHAIN_DONE);
+ 		w1_write_8(sl->master, W1_42_CHAIN_DONE_INV);
+-		w1_read_block(sl->master, &ack, sizeof(ack));
  
-@@ -328,6 +329,10 @@ struct wfx_dev *wfx_init_common(struct device *dev,
- 		return NULL;
+ 		/* check for acknowledgment */
+ 		ack = w1_read_8(sl->master);
+ 		if (ack != W1_42_SUCCESS_CONFIRM_BYTE)
+ 			goto error;
+-
+ 	}
  
- 	return wdev;
-+
-+err:
-+	ieee80211_free_hw(hw);
-+	return NULL;
- }
- 
- int wfx_probe(struct wfx_dev *wdev)
+ 	/* Exit from CHAIN state */
 -- 
 2.35.1
 
