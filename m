@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8574FD193
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:57:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5309B4FD152
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242990AbiDLG7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:59:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
+        id S1351311AbiDLG6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:58:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351568AbiDLGx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:59 -0400
+        with ESMTP id S1351600AbiDLGyD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:54:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FF4D18B2F;
-        Mon, 11 Apr 2022 23:43:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B31331C93F;
+        Mon, 11 Apr 2022 23:43:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2F2E60A77;
-        Tue, 12 Apr 2022 06:43:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8C7C385A1;
-        Tue, 12 Apr 2022 06:43:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06BCB60A69;
+        Tue, 12 Apr 2022 06:43:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18D13C385A8;
+        Tue, 12 Apr 2022 06:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745788;
-        bh=fCbT5cPgi0qm1bVKA02uFEpXHPIrJ6j2CCR1fbxdDpY=;
+        s=korg; t=1649745799;
+        bh=/UJ5yLOjeuVhq3IYMjo1/56Qep39DC/8Dkp4b1VWymY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=onnyFflClAhPmMco+RE9NQbw0Nn8k3ezX2gjxoTB4jWUoUw1V54/wvZShoBdrPbL3
-         EhcOBq9wCb/VwoMiO80BO82j+qqbvQ6aKcQUxMF7feMvyrjNlCivpGlexNSjkIggD4
-         Cq4IJWNQVLByvInEV0SXFWpHjwJ512Z/g1ybTy1Q=
+        b=oAAxlna5RSdrWmcRD9pqEhEnXxJ96O/PrujF0LqJLPIWQ9exbGKtsMCgMLRzjo5UA
+         y1HyMmfOcIV5O4WUgcPfgV/RzC+auWry2ynkrxVKapEFPzBXqSKPtpl6Vsq//SUmUR
+         9RA/Lr7yzWAIxV/OewNZjsupH/3ExL6t03lOFIC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>, kvm@vger.kernel.org,
+        Peter Gonda <pgonda@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 011/277] KVM: x86/pmu: Use different raw event masks for AMD and Intel
-Date:   Tue, 12 Apr 2022 08:26:54 +0200
-Message-Id: <20220412062942.362373311@linuxfoundation.org>
+Subject: [PATCH 5.15 012/277] KVM: SVM: Fix kvm_cache_regs.h inclusions for is_guest_mode()
+Date:   Tue, 12 Apr 2022 08:26:55 +0200
+Message-Id: <20220412062942.391647864@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
 References: <20220412062942.022903016@linuxfoundation.org>
@@ -54,87 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Peter Gonda <pgonda@google.com>
 
-[ Upstream commit 95b065bf5c431c06c68056a03a5853b660640ecc ]
+[ Upstream commit 4a9e7b9ea252842bc8b14d495706ac6317fafd5d ]
 
-The third nybble of AMD's event select overlaps with Intel's IN_TX and
-IN_TXCP bits. Therefore, we can't use AMD64_RAW_EVENT_MASK on Intel
-platforms that support TSX.
+Include kvm_cache_regs.h to pick up the definition of is_guest_mode(),
+which is referenced by nested_svm_virtualize_tpr() in svm.h. Remove
+include from svm_onhpyerv.c which was done only because of lack of
+include in svm.h.
 
-Declare a raw_event_mask in the kvm_pmu structure, initialize it in
-the vendor-specific pmu_refresh() functions, and use that mask for
-PERF_TYPE_RAW configurations in reprogram_gp_counter().
-
-Fixes: 710c47651431 ("KVM: x86/pmu: Use AMD64_RAW_EVENT_MASK for PERF_TYPE_RAW")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Message-Id: <20220308012452.3468611-1-jmattson@google.com>
+Fixes: 883b0a91f41ab ("KVM: SVM: Move Nested SVM Implementation to nested.c")
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Peter Gonda <pgonda@google.com>
+Message-Id: <20220304161032.2270688-1-pgonda@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/kvm_host.h | 1 +
- arch/x86/kvm/pmu.c              | 3 ++-
- arch/x86/kvm/svm/pmu.c          | 1 +
- arch/x86/kvm/vmx/pmu_intel.c    | 1 +
- 4 files changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/svm.h          | 2 ++
+ arch/x86/kvm/svm/svm_onhyperv.c | 1 -
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 01759199d723..d9bb5cdb5db2 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -505,6 +505,7 @@ struct kvm_pmu {
- 	u64 global_ctrl_mask;
- 	u64 global_ovf_ctrl_mask;
- 	u64 reserved_bits;
-+	u64 raw_event_mask;
- 	u8 version;
- 	struct kvm_pmc gp_counters[INTEL_PMC_MAX_GENERIC];
- 	struct kvm_pmc fixed_counters[INTEL_PMC_MAX_FIXED];
-diff --git a/arch/x86/kvm/pmu.c b/arch/x86/kvm/pmu.c
-index f256f01056bd..44a5ab91a99d 100644
---- a/arch/x86/kvm/pmu.c
-+++ b/arch/x86/kvm/pmu.c
-@@ -178,6 +178,7 @@ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
- 	struct kvm *kvm = pmc->vcpu->kvm;
- 	struct kvm_pmu_event_filter *filter;
- 	int i;
-+	struct kvm_pmu *pmu = vcpu_to_pmu(pmc->vcpu);
- 	bool allow_event = true;
+diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
+index ff0855c03c91..a4c13e517487 100644
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -22,6 +22,8 @@
+ #include <asm/svm.h>
+ #include <asm/sev-common.h>
  
- 	if (eventsel & ARCH_PERFMON_EVENTSEL_PIN_CONTROL)
-@@ -217,7 +218,7 @@ void reprogram_gp_counter(struct kvm_pmc *pmc, u64 eventsel)
- 	}
++#include "kvm_cache_regs.h"
++
+ #define __sme_page_pa(x) __sme_set(page_to_pfn(x) << PAGE_SHIFT)
  
- 	if (type == PERF_TYPE_RAW)
--		config = eventsel & AMD64_RAW_EVENT_MASK;
-+		config = eventsel & pmu->raw_event_mask;
+ #define	IOPM_SIZE PAGE_SIZE * 3
+diff --git a/arch/x86/kvm/svm/svm_onhyperv.c b/arch/x86/kvm/svm/svm_onhyperv.c
+index 98aa981c04ec..8cdc62c74a96 100644
+--- a/arch/x86/kvm/svm/svm_onhyperv.c
++++ b/arch/x86/kvm/svm/svm_onhyperv.c
+@@ -4,7 +4,6 @@
+  */
  
- 	if (pmc->current_config == eventsel && pmc_resume_counter(pmc))
- 		return;
-diff --git a/arch/x86/kvm/svm/pmu.c b/arch/x86/kvm/svm/pmu.c
-index 06f8034f62e4..369164368819 100644
---- a/arch/x86/kvm/svm/pmu.c
-+++ b/arch/x86/kvm/svm/pmu.c
-@@ -283,6 +283,7 @@ static void amd_pmu_refresh(struct kvm_vcpu *vcpu)
+ #include <linux/kvm_host.h>
+-#include "kvm_cache_regs.h"
  
- 	pmu->counter_bitmask[KVM_PMC_GP] = ((u64)1 << 48) - 1;
- 	pmu->reserved_bits = 0xfffffff000280000ull;
-+	pmu->raw_event_mask = AMD64_RAW_EVENT_MASK;
- 	pmu->version = 1;
- 	/* not applicable to AMD; but clean them to prevent any fall out */
- 	pmu->counter_bitmask[KVM_PMC_FIXED] = 0;
-diff --git a/arch/x86/kvm/vmx/pmu_intel.c b/arch/x86/kvm/vmx/pmu_intel.c
-index 6427d95de01c..db1b88445acb 100644
---- a/arch/x86/kvm/vmx/pmu_intel.c
-+++ b/arch/x86/kvm/vmx/pmu_intel.c
-@@ -478,6 +478,7 @@ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
- 	pmu->counter_bitmask[KVM_PMC_FIXED] = 0;
- 	pmu->version = 0;
- 	pmu->reserved_bits = 0xffffffff00200000ull;
-+	pmu->raw_event_mask = X86_RAW_EVENT_MASK;
+ #include <asm/mshyperv.h>
  
- 	entry = kvm_find_cpuid_entry(vcpu, 0xa, 0);
- 	if (!entry)
 -- 
 2.35.1
 
