@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9534FD913
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:38:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B2C4FD98B
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351445AbiDLHUP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:20:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57354 "EHLO
+        id S1354314AbiDLHil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:38:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351555AbiDLHMp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D089428E29;
-        Mon, 11 Apr 2022 23:50:25 -0700 (PDT)
+        with ESMTP id S1353513AbiDLHZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8698542EE4;
+        Tue, 12 Apr 2022 00:00:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E81D76103A;
-        Tue, 12 Apr 2022 06:50:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04DD6C385A6;
-        Tue, 12 Apr 2022 06:50:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B06FB81B35;
+        Tue, 12 Apr 2022 07:00:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2768C385A6;
+        Tue, 12 Apr 2022 07:00:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746224;
-        bh=WGCz8dVvQY76yxRXtPlbmSDOtOsfSsjfNPBbXVdmjms=;
+        s=korg; t=1649746852;
+        bh=vSEirDE08DDshdO7veGpX3SMni+/P5RvHskaZiqXZ6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yg3Um/oK3YBQzN6JEc53KwqcxZGduR6eiY5e5HdW0GAiAJA/p5b+jy7S6ceyXycWR
-         iXGRdN+k6910ssj5umFs30Ic0BOwYhDjiF+R13VVIKS4X2R9sRI0cnszPADtAKtt8d
-         LjADWRt7v00JYj/Aruf0yV193Mln7rSNufIg/5Oo=
+        b=CdbeSHVTEU5SiwcyBoTowIC8T0Izi/S+vT/PT003QWbi1pOEERgXYIYcTWYMPsp8w
+         XC6UzfsckjLfCvCbv5xhi6/RlwPCZzS4u0Qj3WX/pt0YhMORWkET27EPAZ10Zvaw22
+         HAEnGYQqvCR7j5H5eXBwTwQyrfy6bbaWJqIhNMjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        Denis Nikitin <denik@chromium.org>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 205/277] perf session: Remap buf if there is no space for event
-Date:   Tue, 12 Apr 2022 08:30:08 +0200
-Message-Id: <20220412062947.973450972@linuxfoundation.org>
+Subject: [PATCH 5.16 152/285] drm/amdgpu: fix off by one in amdgpu_gfx_kiq_acquire()
+Date:   Tue, 12 Apr 2022 08:30:09 +0200
+Message-Id: <20220412062948.060922813@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,76 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Nikitin <denik@chromium.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit bc21e74d4775f883ae1f542c1f1dc7205b15d925 ]
+[ Upstream commit 1647b54ed55d4d48c7199d439f8834626576cbe9 ]
 
-If a perf event doesn't fit into remaining buffer space return NULL to
-remap buf and fetch the event again.
+This post-op should be a pre-op so that we do not pass -1 as the bit
+number to test_bit().  The current code will loop downwards from 63 to
+-1.  After changing to a pre-op, it loops from 63 to 0.
 
-Keep the logic to error out on inadequate input from fuzzing.
-
-This fixes perf failing on ChromeOS (with 32b userspace):
-
-  $ perf report -v -i perf.data
-  ...
-  prefetch_event: head=0x1fffff8 event->header_size=0x30, mmap_size=0x2000000: fuzzed or compressed perf.data?
-  Error:
-  failed to process sample
-
-Fixes: 57fc032ad643ffd0 ("perf session: Avoid infinite loop when seeing invalid header.size")
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Denis Nikitin <denik@chromium.org>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/r/20220330031130.2152327-1-denik@chromium.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 71c37505e7ea ("drm/amdgpu/gfx: move more common KIQ code to amdgpu_gfx.c")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/session.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
-index 352f16076e01..562e9b808027 100644
---- a/tools/perf/util/session.c
-+++ b/tools/perf/util/session.c
-@@ -2076,6 +2076,7 @@ prefetch_event(char *buf, u64 head, size_t mmap_size,
- 	       bool needs_swap, union perf_event *error)
- {
- 	union perf_event *event;
-+	u16 event_size;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+index 1916ec84dd71..e7845df6cad2 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+@@ -266,7 +266,7 @@ static int amdgpu_gfx_kiq_acquire(struct amdgpu_device *adev,
+ 		    * adev->gfx.mec.num_pipe_per_mec
+ 		    * adev->gfx.mec.num_queue_per_pipe;
  
- 	/*
- 	 * Ensure we have enough space remaining to read
-@@ -2088,15 +2089,23 @@ prefetch_event(char *buf, u64 head, size_t mmap_size,
- 	if (needs_swap)
- 		perf_event_header__bswap(&event->header);
+-	while (queue_bit-- >= 0) {
++	while (--queue_bit >= 0) {
+ 		if (test_bit(queue_bit, adev->gfx.mec.queue_bitmap))
+ 			continue;
  
--	if (head + event->header.size <= mmap_size)
-+	event_size = event->header.size;
-+	if (head + event_size <= mmap_size)
- 		return event;
- 
- 	/* We're not fetching the event so swap back again */
- 	if (needs_swap)
- 		perf_event_header__bswap(&event->header);
- 
--	pr_debug("%s: head=%#" PRIx64 " event->header_size=%#x, mmap_size=%#zx:"
--		 " fuzzed or compressed perf.data?\n",__func__, head, event->header.size, mmap_size);
-+	/* Check if the event fits into the next mmapped buf. */
-+	if (event_size <= mmap_size - head % page_size) {
-+		/* Remap buf and fetch again. */
-+		return NULL;
-+	}
-+
-+	/* Invalid input. Event size should never exceed mmap_size. */
-+	pr_debug("%s: head=%#" PRIx64 " event->header.size=%#x, mmap_size=%#zx:"
-+		 " fuzzed or compressed perf.data?\n", __func__, head, event_size, mmap_size);
- 
- 	return error;
- }
 -- 
 2.35.1
 
