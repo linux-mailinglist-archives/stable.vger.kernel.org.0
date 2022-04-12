@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA1454FD3F0
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4D14FD419
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:01:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242501AbiDLHsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S1351676AbiDLHsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:48:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357124AbiDLHjs (ORCPT
+        with ESMTP id S1357129AbiDLHjs (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7DEBE0C9;
-        Tue, 12 Apr 2022 00:12:26 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E8FE0EB;
+        Tue, 12 Apr 2022 00:12:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 531AD61701;
-        Tue, 12 Apr 2022 07:12:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66537C385A5;
-        Tue, 12 Apr 2022 07:12:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8DC5DB81B4F;
+        Tue, 12 Apr 2022 07:12:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4465C385A1;
+        Tue, 12 Apr 2022 07:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747545;
-        bh=pVMto6fjjwueK9ViwPV90DDETbSPUIeOI1EqV4D79rk=;
+        s=korg; t=1649747551;
+        bh=eM3zSXnaKtt3m9HyT5kgK2aDOmYWDuK0rx7nb8xNlD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPFvxgi3efw8Fm2ugpkp+DTVO9y8kxWe03UqOREfVtFJlnBZZMPIxcPKFSBkiO/0z
-         PCgaQdKsZnKV6hp1/ebPcw9I9MDm5zuW7g2jAC0UHgcaDXKq4bPgsrIv5akH/u5Kh+
-         qCLTMxNrYxCPLXeMWy37DWa+vvf3g0FeaKqCz/vk=
+        b=MMCc+9ahUQKpMS05STeAz763vj2PWQ1YlrSEb4dBgf1//tFI/x1umKtNFyHHy06pQ
+         4KBX6C7F7aZe9/PfcW/Z7QY99LRMrKHPr2DNzA53pQf/S/d22XpSiZ/SFBL7IFuqEE
+         ZgSJOwzT29Lp7rIRUHsYbY+rQWGSxnlhq2fVwb+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Leonardo=20M=C3=B6rlein?= <freifunk@irrelefant.net>,
-        Sven Eckelmann <sven@narfation.org>,
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Harold Huang <baymaxhuang@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 119/343] macvtap: advertise link netns via netlink
-Date:   Tue, 12 Apr 2022 08:28:57 +0200
-Message-Id: <20220412062954.823238910@linuxfoundation.org>
+Subject: [PATCH 5.17 121/343] tuntap: add sanity checks about msg_controllen in sendmsg
+Date:   Tue, 12 Apr 2022 08:28:59 +0200
+Message-Id: <20220412062954.878973078@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -56,63 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Harold Huang <baymaxhuang@gmail.com>
 
-[ Upstream commit a02192151b7dbf855084c38dca380d77c7658353 ]
+[ Upstream commit 74a335a07a17d131b9263bfdbdcb5e40673ca9ca ]
 
-Assign rtnl_link_ops->get_link_net() callback so that IFLA_LINK_NETNSID is
-added to rtnetlink messages. This fixes iproute2 which otherwise resolved
-the link interface to an interface in the wrong namespace.
+In patch [1], tun_msg_ctl was added to allow pass batched xdp buffers to
+tun_sendmsg. Although we donot use msg_controllen in this path, we should
+check msg_controllen to make sure the caller pass a valid msg_ctl.
 
-Test commands:
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fe8dd45bb7556246c6b76277b1ba4296c91c2505
 
-  ip netns add nst
-  ip link add dummy0 type dummy
-  ip link add link macvtap0 link dummy0 type macvtap
-  ip link set macvtap0 netns nst
-  ip -netns nst link show macvtap0
-
-Before:
-
-  10: macvtap0@gre0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 500
-      link/ether 5e:8f:ae:1d:60:50 brd ff:ff:ff:ff:ff:ff
-
-After:
-
-  10: macvtap0@if2: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 500
-      link/ether 5e:8f:ae:1d:60:50 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-
-Reported-by: Leonardo Mörlein <freifunk@irrelefant.net>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Link: https://lore.kernel.org/r/20220228003240.1337426-1-sven@narfation.org
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Harold Huang <baymaxhuang@gmail.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20220303022441.383865-1-baymaxhuang@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macvtap.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/tap.c   | 3 ++-
+ drivers/net/tun.c   | 3 ++-
+ drivers/vhost/net.c | 1 +
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
-index 6b12902a803f..cecf8c63096c 100644
---- a/drivers/net/macvtap.c
-+++ b/drivers/net/macvtap.c
-@@ -133,11 +133,17 @@ static void macvtap_setup(struct net_device *dev)
- 	dev->tx_queue_len = TUN_READQ_SIZE;
- }
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index 8e3a28ba6b28..ba2ef5437e16 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -1198,7 +1198,8 @@ static int tap_sendmsg(struct socket *sock, struct msghdr *m,
+ 	struct xdp_buff *xdp;
+ 	int i;
  
-+static struct net *macvtap_link_net(const struct net_device *dev)
-+{
-+	return dev_net(macvlan_dev_real_dev(dev));
-+}
-+
- static struct rtnl_link_ops macvtap_link_ops __read_mostly = {
- 	.kind		= "macvtap",
- 	.setup		= macvtap_setup,
- 	.newlink	= macvtap_newlink,
- 	.dellink	= macvtap_dellink,
-+	.get_link_net	= macvtap_link_net,
- 	.priv_size      = sizeof(struct macvtap_dev),
- };
+-	if (ctl && (ctl->type == TUN_MSG_PTR)) {
++	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
++	    ctl && ctl->type == TUN_MSG_PTR) {
+ 		for (i = 0; i < ctl->num; i++) {
+ 			xdp = &((struct xdp_buff *)ctl->ptr)[i];
+ 			tap_get_user_xdp(q, xdp);
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index fed85447701a..de999e0fedbc 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -2489,7 +2489,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ 	if (!tun)
+ 		return -EBADFD;
  
+-	if (ctl && (ctl->type == TUN_MSG_PTR)) {
++	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
++	    ctl && ctl->type == TUN_MSG_PTR) {
+ 		struct tun_page tpage;
+ 		int n = ctl->num;
+ 		int flush = 0;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 28ef323882fb..792ab5f23647 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -473,6 +473,7 @@ static void vhost_tx_batch(struct vhost_net *net,
+ 		goto signal_used;
+ 
+ 	msghdr->msg_control = &ctl;
++	msghdr->msg_controllen = sizeof(ctl);
+ 	err = sock->ops->sendmsg(sock, msghdr, 0);
+ 	if (unlikely(err < 0)) {
+ 		vq_err(&nvq->vq, "Fail to batch sending packets\n");
 -- 
 2.35.1
 
