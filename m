@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6084FD00B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 258F44FD005
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:39:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245329AbiDLGlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:41:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51704 "EHLO
+        id S240894AbiDLGlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:41:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350133AbiDLGkR (ORCPT
+        with ESMTP id S1350147AbiDLGkR (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:40:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B374B369CD;
-        Mon, 11 Apr 2022 23:35:27 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D34ABC01;
+        Mon, 11 Apr 2022 23:35:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E5146189D;
-        Tue, 12 Apr 2022 06:35:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BCE4C385A1;
-        Tue, 12 Apr 2022 06:35:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAC03B81B40;
+        Tue, 12 Apr 2022 06:35:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DEBCC385A6;
+        Tue, 12 Apr 2022 06:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745326;
-        bh=lvv8cnTI6BktFXnIitlRU47v3AeI21a/XvYefVF/WZc=;
+        s=korg; t=1649745329;
+        bh=L4AE/btcFbCZktUVXKI6UoJsesrXhv9p0ciRMSDqhhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dthP9/2rZD3YHQzu2UjhSeGHFSObnqtk+U6Upq/HtyBYl8irYs5ozp0rcc4b1UIzD
-         BqryUeNe6wwaOuGTohPJ1Rz4ELsK6ugyoBHQe32tYuuwuaBt6IwJn9t46r+hO7Yomq
-         aRcQZBd1UGUpNiUEMZxaQ53Ez0JypOeTNp6Y8dFI=
+        b=NWz1kmktIZCcch/fMgnmLxI3RFIs6mW6IaE24KtNd4q2k8qz5h22TX03OgIxaK4be
+         YGKUhQWVTw0lVrNOO6oDxFgjDeX5zKNhdMYpTsSeZnbDkby5M9MRVQJLjsVMqYkhTO
+         dlSHX7TTGZVA27fOCPh/O+H1Iyv8WkwjuKXOK18M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.10 057/171] powerpc/code-patching: Pre-map patch area
-Date:   Tue, 12 Apr 2022 08:29:08 +0200
-Message-Id: <20220412062929.532622482@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 058/171] powerpc/secvar: fix refcount leak in format_show()
+Date:   Tue, 12 Apr 2022 08:29:09 +0200
+Message-Id: <20220412062929.561534926@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -56,97 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 591b4b268435f00d2f0b81f786c2c7bd5ef66416 ]
+[ Upstream commit d601fd24e6964967f115f036a840f4f28488f63f ]
 
-Paul reported a warning with DEBUG_ATOMIC_SLEEP=y:
+Refcount leak will happen when format_show returns failure in multiple
+cases. Unified management of of_node_put can fix this problem.
 
-  BUG: sleeping function called from invalid context at include/linux/sched/mm.h:256
-  in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 1, name: swapper/0
-  preempt_count: 0, expected: 0
-  ...
-  Call Trace:
-    dump_stack_lvl+0xa0/0xec (unreliable)
-    __might_resched+0x2f4/0x310
-    kmem_cache_alloc+0x220/0x4b0
-    __pud_alloc+0x74/0x1d0
-    hash__map_kernel_page+0x2cc/0x390
-    do_patch_instruction+0x134/0x4a0
-    arch_jump_label_transform+0x64/0x78
-    __jump_label_update+0x148/0x180
-    static_key_enable_cpuslocked+0xd0/0x120
-    static_key_enable+0x30/0x50
-    check_kvm_guest+0x60/0x88
-    pSeries_smp_probe+0x54/0xb0
-    smp_prepare_cpus+0x3e0/0x430
-    kernel_init_freeable+0x20c/0x43c
-    kernel_init+0x30/0x1a0
-    ret_from_kernel_thread+0x5c/0x64
-
-Peter pointed out that this is because do_patch_instruction() has
-disabled interrupts, but then map_patch_area() calls map_kernel_page()
-then hash__map_kernel_page() which does a sleeping memory allocation.
-
-We only see the warning in KVM guests with SMT enabled, which is not
-particularly common, or on other platforms if CONFIG_KPROBES is
-disabled, also not common. The reason we don't see it in most
-configurations is that another path that happens to have interrupts
-enabled has allocated the required page tables for us, eg. there's a
-path in kprobes init that does that. That's just pure luck though.
-
-As Christophe suggested, the simplest solution is to do a dummy
-map/unmap when we initialise the patching, so that any required page
-table levels are pre-allocated before the first call to
-do_patch_instruction(). This works because the unmap doesn't free any
-page tables that were allocated by the map, it just clears the PTE,
-leaving the page table levels there for the next map.
-
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Debugged-by: Peter Zijlstra <peterz@infradead.org>
-Suggested-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220223015821.473097-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/r/20220302021959.10959-1-hbh25y@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/lib/code-patching.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/powerpc/kernel/secvar-sysfs.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/lib/code-patching.c b/arch/powerpc/lib/code-patching.c
-index a2e4f864b63d..4318aee65a39 100644
---- a/arch/powerpc/lib/code-patching.c
-+++ b/arch/powerpc/lib/code-patching.c
-@@ -43,9 +43,14 @@ int raw_patch_instruction(struct ppc_inst *addr, struct ppc_inst instr)
- #ifdef CONFIG_STRICT_KERNEL_RWX
- static DEFINE_PER_CPU(struct vm_struct *, text_poke_area);
+diff --git a/arch/powerpc/kernel/secvar-sysfs.c b/arch/powerpc/kernel/secvar-sysfs.c
+index a0a78aba2083..1ee4640a2641 100644
+--- a/arch/powerpc/kernel/secvar-sysfs.c
++++ b/arch/powerpc/kernel/secvar-sysfs.c
+@@ -26,15 +26,18 @@ static ssize_t format_show(struct kobject *kobj, struct kobj_attribute *attr,
+ 	const char *format;
  
-+static int map_patch_area(void *addr, unsigned long text_poke_addr);
-+static void unmap_patch_area(unsigned long addr);
-+
- static int text_area_cpu_up(unsigned int cpu)
- {
- 	struct vm_struct *area;
-+	unsigned long addr;
-+	int err;
+ 	node = of_find_compatible_node(NULL, NULL, "ibm,secvar-backend");
+-	if (!of_device_is_available(node))
+-		return -ENODEV;
++	if (!of_device_is_available(node)) {
++		rc = -ENODEV;
++		goto out;
++	}
  
- 	area = get_vm_area(PAGE_SIZE, VM_ALLOC);
- 	if (!area) {
-@@ -53,6 +58,15 @@ static int text_area_cpu_up(unsigned int cpu)
- 			cpu);
- 		return -1;
- 	}
-+
-+	// Map/unmap the area to ensure all page tables are pre-allocated
-+	addr = (unsigned long)area->addr;
-+	err = map_patch_area(empty_zero_page, addr);
-+	if (err)
-+		return err;
-+
-+	unmap_patch_area(addr);
-+
- 	this_cpu_write(text_poke_area, area);
+ 	rc = of_property_read_string(node, "format", &format);
+ 	if (rc)
+-		return rc;
++		goto out;
  
- 	return 0;
+ 	rc = sprintf(buf, "%s\n", format);
+ 
++out:
+ 	of_node_put(node);
+ 
+ 	return rc;
 -- 
 2.35.1
 
