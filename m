@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4594FD61B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A54034FD6BB
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243729AbiDLHsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49158 "EHLO
+        id S1356538AbiDLIKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:10:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357291AbiDLHj4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75D21EC4D;
-        Tue, 12 Apr 2022 00:14:51 -0700 (PDT)
+        with ESMTP id S1357310AbiDLHj6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3BA322BD7;
+        Tue, 12 Apr 2022 00:14:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5ACCB81B66;
-        Tue, 12 Apr 2022 07:14:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31419C385A1;
-        Tue, 12 Apr 2022 07:14:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 101D86171D;
+        Tue, 12 Apr 2022 07:14:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5CEC385A6;
+        Tue, 12 Apr 2022 07:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747688;
-        bh=qwVIw6WgvUFZD9gUIdScRL8b7hE6gR9eKQzdOTNlLwo=;
+        s=korg; t=1649747691;
+        bh=eb7nnM0s4xYIrHZ2PbOhZjzA+Mg+TlIe/T74eJ5JG9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VvGlGj2TWqum4ktSCpfEaSdhkmsj8u76Wh7c7sU7airEamzMq9zZhWgdujYjUcjfE
-         vBjY3TKaFcoSWEkDZ23fd/LfhJPMuV+unucnaWUzoU03R7GfbeO5LqBX0SGOtGJhmC
-         wuKWDbZvdKsodoMVrlumty4qu4CGHinvERqQjZYI=
+        b=rircHKnu1ZWbv5K3Ltmyy2rusdIg8i6jz8goSq9bL/rz+/Cx7FU0XJ7MqCtsPZjvi
+         Dl0ADT1hpJnunjZu+hAGSEz2VbslW2p7NqxWfGi3mDYcpo3TJrWVc5j8LKy4ALUXpi
+         g5rAmuZxVAga+KVEpOa6jKkjpV87gB9Uc1qhtOTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Ohad Sharabi <osharabi@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 170/343] NFSv4: Protect the state recovery thread against direct reclaim
-Date:   Tue, 12 Apr 2022 08:29:48 +0200
-Message-Id: <20220412062956.277072882@linuxfoundation.org>
+Subject: [PATCH 5.17 171/343] habanalabs: fix possible memory leak in MMU DR fini
+Date:   Tue, 12 Apr 2022 08:29:49 +0200
+Message-Id: <20220412062956.305151284@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -54,74 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Ohad Sharabi <osharabi@habana.ai>
 
-[ Upstream commit 3e17898aca293a24dae757a440a50aa63ca29671 ]
+[ Upstream commit eb85eec858c1a5c11d3a0bff403f6440b05b40dc ]
 
-If memory allocation triggers a direct reclaim from the state recovery
-thread, then we can deadlock. Use memalloc_nofs_save/restore to ensure
-that doesn't happen.
+This patch fixes what seems to be copy paste error.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+We will have a memory leak if the host-resident shadow is NULL (which
+will likely happen as the DR and HR are not dependent).
+
+Signed-off-by: Ohad Sharabi <osharabi@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/misc/habanalabs/common/mmu/mmu_v1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index f5a62c0d999b..0f4818627ef0 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -49,6 +49,7 @@
- #include <linux/workqueue.h>
- #include <linux/bitops.h>
- #include <linux/jiffies.h>
-+#include <linux/sched/mm.h>
- 
- #include <linux/sunrpc/clnt.h>
- 
-@@ -2560,9 +2561,17 @@ static void nfs4_layoutreturn_any_run(struct nfs_client *clp)
- 
- static void nfs4_state_manager(struct nfs_client *clp)
+diff --git a/drivers/misc/habanalabs/common/mmu/mmu_v1.c b/drivers/misc/habanalabs/common/mmu/mmu_v1.c
+index 6134b6ae7615..3cadef97817d 100644
+--- a/drivers/misc/habanalabs/common/mmu/mmu_v1.c
++++ b/drivers/misc/habanalabs/common/mmu/mmu_v1.c
+@@ -467,7 +467,7 @@ static void hl_mmu_v1_fini(struct hl_device *hdev)
  {
-+	unsigned int memflags;
- 	int status = 0;
- 	const char *section = "", *section_sep = "";
+ 	/* MMU H/W fini was already done in device hw_fini() */
  
-+	/*
-+	 * State recovery can deadlock if the direct reclaim code tries
-+	 * start NFS writeback. So ensure memory allocations are all
-+	 * GFP_NOFS.
-+	 */
-+	memflags = memalloc_nofs_save();
-+
- 	/* Ensure exclusive access to NFSv4 state */
- 	do {
- 		trace_nfs4_state_mgr(clp);
-@@ -2657,6 +2666,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 			clear_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state);
- 		}
+-	if (!ZERO_OR_NULL_PTR(hdev->mmu_priv.hr.mmu_shadow_hop0)) {
++	if (!ZERO_OR_NULL_PTR(hdev->mmu_priv.dr.mmu_shadow_hop0)) {
+ 		kvfree(hdev->mmu_priv.dr.mmu_shadow_hop0);
+ 		gen_pool_destroy(hdev->mmu_priv.dr.mmu_pgt_pool);
  
-+		memalloc_nofs_restore(memflags);
- 		nfs4_end_drain_session(clp);
- 		nfs4_clear_state_manager_bit(clp);
- 
-@@ -2674,6 +2684,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 			return;
- 		if (test_and_set_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state) != 0)
- 			return;
-+		memflags = memalloc_nofs_save();
- 	} while (refcount_read(&clp->cl_count) > 1 && !signalled());
- 	goto out_drain;
- 
-@@ -2686,6 +2697,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 			clp->cl_hostname, -status);
- 	ssleep(1);
- out_drain:
-+	memalloc_nofs_restore(memflags);
- 	nfs4_end_drain_session(clp);
- 	nfs4_clear_state_manager_bit(clp);
- }
 -- 
 2.35.1
 
