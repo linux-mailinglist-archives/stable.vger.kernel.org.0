@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 895354FD575
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:13:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 764094FD842
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345673AbiDLH6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:58:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46300 "EHLO
+        id S1345958AbiDLHcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:32:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358767AbiDLHmL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 935F82BF7;
-        Tue, 12 Apr 2022 00:19:11 -0700 (PDT)
+        with ESMTP id S1353730AbiDLHZx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772A12195;
+        Tue, 12 Apr 2022 00:04:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC523B81B66;
-        Tue, 12 Apr 2022 07:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A009C385A1;
-        Tue, 12 Apr 2022 07:19:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE43F60B2E;
+        Tue, 12 Apr 2022 07:04:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA35EC385A1;
+        Tue, 12 Apr 2022 07:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747948;
-        bh=yFy9U19sXHN41q82kKN50sXNb/tbKR+J5nGyLCB4Wqg=;
+        s=korg; t=1649747050;
+        bh=LvsIbZWiQq3EcdnIA0wcPyjQDT9TXZZOvdWMqNYjvRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFsLax5C7HOguhpTtemEzkpxqHZ3AULTNg9f7Nw+kFk5CT3474Lm0ZYPmRdXdMZMm
-         DzbR4GFUKQ4eBvRHp/MrSL3iGR/GMrfgcSos7pn0+iKgtBOXTGahj79U6bqc0XGYif
-         1mGTBZbJtD+X8XVtN1ZY3vyN994LqTsMIqqCdR6Y=
+        b=Y3ZiBnPwoUcDiwYx4Irvf3CD9gPLOLV4o1R3lwOpY123d+RePdbqef2Her40wSKAS
+         JfIoyH9KLlvA0Wq0dDqYx5oU2aKsPaL1rG0CRsc0q6VAbN8nuDejArxhzmrDxMqXlh
+         /nhy+yEBxaeulWiQvBSzLrmB1F6fHInVajx/R03k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.17 264/343] scsi: mpt3sas: Fix use after free in _scsih_expander_node_remove()
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.16 225/285] io_uring: defer splice/tee file validity check until command issue
 Date:   Tue, 12 Apr 2022 08:31:22 +0200
-Message-Id: <20220412062958.944329028@linuxfoundation.org>
+Message-Id: <20220412062950.152331915@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,97 +52,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 87d663d40801dffc99a5ad3b0188ad3e2b4d1557 upstream.
+commit a3e4bc23d5470b2beb7cc42a86b6a3e75b704c15 upstream.
 
-The function mpt3sas_transport_port_remove() called in
-_scsih_expander_node_remove() frees the port field of the sas_expander
-structure, leading to the following use-after-free splat from KASAN when
-the ioc_info() call following that function is executed (e.g. when doing
-rmmod of the driver module):
+In preparation for not using the file at prep time, defer checking if this
+file refers to a valid io_uring instance until issue time.
 
-[ 3479.371167] ==================================================================
-[ 3479.378496] BUG: KASAN: use-after-free in _scsih_expander_node_remove+0x710/0x750 [mpt3sas]
-[ 3479.386936] Read of size 1 at addr ffff8881c037691c by task rmmod/1531
-[ 3479.393524]
-[ 3479.395035] CPU: 18 PID: 1531 Comm: rmmod Not tainted 5.17.0-rc8+ #1436
-[ 3479.401712] Hardware name: Supermicro Super Server/H12SSL-NT, BIOS 2.1 06/02/2021
-[ 3479.409263] Call Trace:
-[ 3479.411743]  <TASK>
-[ 3479.413875]  dump_stack_lvl+0x45/0x59
-[ 3479.417582]  print_address_description.constprop.0+0x1f/0x120
-[ 3479.423389]  ? _scsih_expander_node_remove+0x710/0x750 [mpt3sas]
-[ 3479.429469]  kasan_report.cold+0x83/0xdf
-[ 3479.433438]  ? _scsih_expander_node_remove+0x710/0x750 [mpt3sas]
-[ 3479.439514]  _scsih_expander_node_remove+0x710/0x750 [mpt3sas]
-[ 3479.445411]  ? _raw_spin_unlock_irqrestore+0x2d/0x40
-[ 3479.452032]  scsih_remove+0x525/0xc90 [mpt3sas]
-[ 3479.458212]  ? mpt3sas_expander_remove+0x1d0/0x1d0 [mpt3sas]
-[ 3479.465529]  ? down_write+0xde/0x150
-[ 3479.470746]  ? up_write+0x14d/0x460
-[ 3479.475840]  ? kernfs_find_ns+0x137/0x310
-[ 3479.481438]  pci_device_remove+0x65/0x110
-[ 3479.487013]  __device_release_driver+0x316/0x680
-[ 3479.493180]  driver_detach+0x1ec/0x2d0
-[ 3479.498499]  bus_remove_driver+0xe7/0x2d0
-[ 3479.504081]  pci_unregister_driver+0x26/0x250
-[ 3479.510033]  _mpt3sas_exit+0x2b/0x6cf [mpt3sas]
-[ 3479.516144]  __x64_sys_delete_module+0x2fd/0x510
-[ 3479.522315]  ? free_module+0xaa0/0xaa0
-[ 3479.527593]  ? __cond_resched+0x1c/0x90
-[ 3479.532951]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
-[ 3479.539607]  ? syscall_enter_from_user_mode+0x21/0x70
-[ 3479.546161]  ? trace_hardirqs_on+0x1c/0x110
-[ 3479.551828]  do_syscall_64+0x35/0x80
-[ 3479.556884]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 3479.563402] RIP: 0033:0x7f1fc482483b
-...
-[ 3479.943087] ==================================================================
+This also means we can get rid of the cleanup flag for splice and tee.
 
-Fix this by introducing the local variable port_id to store the port ID
-value before executing mpt3sas_transport_port_remove(). This local variable
-is then used in the call to ioc_info() instead of dereferencing the freed
-port structure.
-
-Link: https://lore.kernel.org/r/20220322055702.95276-1-damien.lemoal@opensource.wdc.com
-Fixes: 7d310f241001 ("scsi: mpt3sas: Get device objects using sas_address & portID")
-Cc: stable@vger.kernel.org
-Acked-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: stable@vger.kernel.org # v5.15+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/io_uring.c |   49 +++++++++++++++++++++----------------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
 
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -11035,6 +11035,7 @@ _scsih_expander_node_remove(struct MPT3S
- {
- 	struct _sas_port *mpt3sas_port, *next;
- 	unsigned long flags;
-+	int port_id;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -619,10 +619,10 @@ struct io_epoll {
  
- 	/* remove sibling ports attached to this expander */
- 	list_for_each_entry_safe(mpt3sas_port, next,
-@@ -11055,6 +11056,8 @@ _scsih_expander_node_remove(struct MPT3S
- 			    mpt3sas_port->hba_port);
+ struct io_splice {
+ 	struct file			*file_out;
+-	struct file			*file_in;
+ 	loff_t				off_out;
+ 	loff_t				off_in;
+ 	u64				len;
++	int				splice_fd_in;
+ 	unsigned int			flags;
+ };
+ 
+@@ -1524,14 +1524,6 @@ static void io_prep_async_work(struct io
+ 		if (def->unbound_nonreg_file)
+ 			req->work.flags |= IO_WQ_WORK_UNBOUND;
  	}
+-
+-	switch (req->opcode) {
+-	case IORING_OP_SPLICE:
+-	case IORING_OP_TEE:
+-		if (!S_ISREG(file_inode(req->splice.file_in)->i_mode))
+-			req->work.flags |= IO_WQ_WORK_UNBOUND;
+-		break;
+-	}
+ }
  
-+	port_id = sas_expander->port->port_id;
+ static void io_prep_async_link(struct io_kiocb *req)
+@@ -4054,18 +4046,11 @@ static int __io_splice_prep(struct io_ki
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+ 
+-	sp->file_in = NULL;
+ 	sp->len = READ_ONCE(sqe->len);
+ 	sp->flags = READ_ONCE(sqe->splice_flags);
+-
+ 	if (unlikely(sp->flags & ~valid_flags))
+ 		return -EINVAL;
+-
+-	sp->file_in = io_file_get(req->ctx, req, READ_ONCE(sqe->splice_fd_in),
+-				  (sp->flags & SPLICE_F_FD_IN_FIXED));
+-	if (!sp->file_in)
+-		return -EBADF;
+-	req->flags |= REQ_F_NEED_CLEANUP;
++	sp->splice_fd_in = READ_ONCE(sqe->splice_fd_in);
+ 	return 0;
+ }
+ 
+@@ -4080,20 +4065,27 @@ static int io_tee_prep(struct io_kiocb *
+ static int io_tee(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_splice *sp = &req->splice;
+-	struct file *in = sp->file_in;
+ 	struct file *out = sp->file_out;
+ 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
++	struct file *in;
+ 	long ret = 0;
+ 
+ 	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
 +
- 	mpt3sas_transport_port_remove(ioc, sas_expander->sas_address,
- 	    sas_expander->sas_address_parent, sas_expander->port);
++	in = io_file_get(req->ctx, req, sp->splice_fd_in,
++				  (sp->flags & SPLICE_F_FD_IN_FIXED));
++	if (!in) {
++		ret = -EBADF;
++		goto done;
++	}
++
+ 	if (sp->len)
+ 		ret = do_tee(in, out, sp->len, flags);
  
-@@ -11062,7 +11065,7 @@ _scsih_expander_node_remove(struct MPT3S
- 	    "expander_remove: handle(0x%04x), sas_addr(0x%016llx), port:%d\n",
- 	    sas_expander->handle, (unsigned long long)
- 	    sas_expander->sas_address,
--	    sas_expander->port->port_id);
-+	    port_id);
+ 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
+ 		io_put_file(in);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
+-
++done:
+ 	if (ret != sp->len)
+ 		req_set_fail(req);
+ 	io_req_complete(req, ret);
+@@ -4112,15 +4104,22 @@ static int io_splice_prep(struct io_kioc
+ static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_splice *sp = &req->splice;
+-	struct file *in = sp->file_in;
+ 	struct file *out = sp->file_out;
+ 	unsigned int flags = sp->flags & ~SPLICE_F_FD_IN_FIXED;
+ 	loff_t *poff_in, *poff_out;
++	struct file *in;
+ 	long ret = 0;
  
- 	spin_lock_irqsave(&ioc->sas_node_lock, flags);
- 	list_del(&sas_expander->list);
+ 	if (issue_flags & IO_URING_F_NONBLOCK)
+ 		return -EAGAIN;
+ 
++	in = io_file_get(req->ctx, req, sp->splice_fd_in,
++				  (sp->flags & SPLICE_F_FD_IN_FIXED));
++	if (!in) {
++		ret = -EBADF;
++		goto done;
++	}
++
+ 	poff_in = (sp->off_in == -1) ? NULL : &sp->off_in;
+ 	poff_out = (sp->off_out == -1) ? NULL : &sp->off_out;
+ 
+@@ -4129,8 +4128,7 @@ static int io_splice(struct io_kiocb *re
+ 
+ 	if (!(sp->flags & SPLICE_F_FD_IN_FIXED))
+ 		io_put_file(in);
+-	req->flags &= ~REQ_F_NEED_CLEANUP;
+-
++done:
+ 	if (ret != sp->len)
+ 		req_set_fail(req);
+ 	io_req_complete(req, ret);
+@@ -6630,11 +6628,6 @@ static void io_clean_op(struct io_kiocb
+ 			kfree(io->free_iov);
+ 			break;
+ 			}
+-		case IORING_OP_SPLICE:
+-		case IORING_OP_TEE:
+-			if (!(req->splice.flags & SPLICE_F_FD_IN_FIXED))
+-				io_put_file(req->splice.file_in);
+-			break;
+ 		case IORING_OP_OPENAT:
+ 		case IORING_OP_OPENAT2:
+ 			if (req->open.filename)
 
 
