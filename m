@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A87484FD0ED
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E684FD04E
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350771AbiDLG4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
+        id S1350566AbiDLGqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351415AbiDLGxd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9E03BFAB;
-        Mon, 11 Apr 2022 23:40:33 -0700 (PDT)
+        with ESMTP id S1351539AbiDLGpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:45:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D2A3B035;
+        Mon, 11 Apr 2022 23:38:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2113B81B44;
-        Tue, 12 Apr 2022 06:40:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39892C385A6;
-        Tue, 12 Apr 2022 06:40:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE97E61890;
+        Tue, 12 Apr 2022 06:38:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C434DC385A6;
+        Tue, 12 Apr 2022 06:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745630;
-        bh=AY9XliJqhQHz3+D1GqTzQinJSnUeCbZ2PTPqsNyVaYY=;
+        s=korg; t=1649745514;
+        bh=OOlw0x4NVRnotJCqVeX5+WMTNgo3LHAq6KYyIG/gMbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GAfFSRviKqs4G5OOZYr3h6z/U1VjfmccWnq5MR9BRKeEq18fijW38Gz9iweRz5if9
-         0DS4FtMJFRjUkyHEGbrBextk3yxZVvVLyqjWzth3+nqfzebFUiMnnXUFOBOmpz2VhU
-         NaJSRqSL3AFmo8Sx6SVaQjXsU+koZmpFCOL2Xrvo=
+        b=tk/nXDnR6XLhhInj/n1VUVZaqpLbjqo2wjjCrFdG3ZafM6KfhlhVDf630ANWzXBl0
+         Q0gedXXk36lPy0p1l02J+dWkF4ZHQ8sD9Pf4XrP+Dlha6QIxyJifD+ZZv3nIMK1psl
+         oJbM1etLZ2rOe3C+k/SmBzVMqCU2gCM6dpbqRBNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org,
+        Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Alice Michael <alice.michael@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 113/171] dpaa2-ptp: Fix refcount leak in dpaa2_ptp_probe
-Date:   Tue, 12 Apr 2022 08:30:04 +0200
-Message-Id: <20220412062931.154811738@linuxfoundation.org>
+Subject: [PATCH 5.10 114/171] ice: Set txq_teid to ICE_INVAL_TEID on ring creation
+Date:   Tue, 12 Apr 2022 08:30:05 +0200
+Message-Id: <20220412062931.183622815@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -54,44 +59,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
 
-[ Upstream commit 2b04bd4f03bba021959ca339314f6739710f0954 ]
+[ Upstream commit ccfee1822042b87e5135d33cad8ea353e64612d2 ]
 
-This node pointer is returned by of_find_compatible_node() with
-refcount incremented. Calling of_node_put() to aovid the refcount leak.
+When VF is freshly created, but not brought up, ring->txq_teid
+value is by default set to 0.
+But 0 is a valid TEID. On some platforms the Root Node of
+Tx scheduler has a TEID = 0. This can cause issues as shown below.
 
-Fixes: d346c9e86d86 ("dpaa2-ptp: reuse ptp_qoriq driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220404125336.13427-1-linmq006@gmail.com
+The proper way is to set ring->txq_teid to ICE_INVAL_TEID (0xFFFFFFFF).
+
+Testing Hints:
+echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
+ip link set dev ens785f0v0 up
+ip link set dev ens785f0v0 down
+
+If we have freshly created VF and quickly turn it on and off, so there
+would be no time to reach VIRTCHNL_OP_CONFIG_VSI_QUEUES stage, then
+VIRTCHNL_OP_DISABLE_QUEUES stage will fail with error:
+[  639.531454] disable queue 89 failed 14
+[  639.532233] Failed to disable LAN Tx queues, error: ICE_ERR_AQ_ERROR
+[  639.533107] ice 0000:02:00.0: Failed to stop Tx ring 0 on VSI 5
+
+The reason for the fail is that we are trying to send AQ command to
+delete queue 89, which has never been created and receive an "invalid
+argument" error from firmware.
+
+As this queue has never been created, it's teid and ring->txq_teid
+have default value 0.
+ice_dis_vsi_txq has a check against non-existent queues:
+
+node = ice_sched_find_node_by_teid(pi->root, q_teids[i]);
+if (!node)
+	continue;
+
+But on some platforms the Root Node of Tx scheduler has a teid = 0.
+Hence, ice_sched_find_node_by_teid finds a node with teid = 0 (it is
+pi->root), and we go further to submit an erroneous request to firmware.
+
+Fixes: 37bb83901286 ("ice: Move common functions out of ice_main.c part 7/7")
+Signed-off-by: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
+Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Alice Michael <alice.michael@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-ptp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_lib.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-ptp.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-ptp.c
-index 32b5faa87bb8..208a3459f2e2 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-ptp.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-ptp.c
-@@ -168,7 +168,7 @@ static int dpaa2_ptp_probe(struct fsl_mc_device *mc_dev)
- 	base = of_iomap(node, 0);
- 	if (!base) {
- 		err = -ENOMEM;
--		goto err_close;
-+		goto err_put;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index ec475353b620..ea8d868c8f30 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -1265,6 +1265,7 @@ static int ice_vsi_alloc_rings(struct ice_vsi *vsi)
+ 		ring->vsi = vsi;
+ 		ring->dev = dev;
+ 		ring->count = vsi->num_tx_desc;
++		ring->txq_teid = ICE_INVAL_TEID;
+ 		WRITE_ONCE(vsi->tx_rings[i], ring);
  	}
  
- 	err = fsl_mc_allocate_irqs(mc_dev);
-@@ -212,6 +212,8 @@ static int dpaa2_ptp_probe(struct fsl_mc_device *mc_dev)
- 	fsl_mc_free_irqs(mc_dev);
- err_unmap:
- 	iounmap(base);
-+err_put:
-+	of_node_put(node);
- err_close:
- 	dprtc_close(mc_dev->mc_io, 0, mc_dev->mc_handle);
- err_free_mcp:
 -- 
 2.35.1
 
