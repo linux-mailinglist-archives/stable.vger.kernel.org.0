@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 488CE4FCFC3
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:37:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 122C54FD1DB
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 09:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236047AbiDLGiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:38:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51710 "EHLO
+        id S242575AbiDLHI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350534AbiDLGiI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:38:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB2A167F5;
-        Mon, 11 Apr 2022 23:34:46 -0700 (PDT)
+        with ESMTP id S1351441AbiDLHD1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:03:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC89D4474A;
+        Mon, 11 Apr 2022 23:47:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC88C618C8;
-        Tue, 12 Apr 2022 06:34:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED56C385A8;
-        Tue, 12 Apr 2022 06:34:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32B13B81B4A;
+        Tue, 12 Apr 2022 06:47:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75577C385A8;
+        Tue, 12 Apr 2022 06:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745285;
-        bh=9EP2H3FmaY9uDflc+OPb8r+3hcuSkuIj0pvJzZiloEw=;
+        s=korg; t=1649746024;
+        bh=YKg+E1rgLLe/atlLYBLJei1HwcSZ8NIm+I9CGwB5kAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3Ff7LNwQYmUh9CV25Vh1KQHIEhpu6hOBqSFU8Q4QDi4qTF7dplE7C3pvomxuyix0
-         XCpL//z5iZ9zSVKYElBv1nygEWlasCZ4QczGcheVh6oVg4Y1HeARUM3l34+nskZlir
-         UvjPyNPv4UeP9i9Fqk3SdBg/d/LwIN+f69I/dObM=
+        b=eHs6Cn8Ysah9N1JiNYYQQG18GNRfjHi6LI2XQXig5HQ1cYkPwP5UOI0WGd/jYeqy0
+         rkiAfjBJFT7gSHxQPitnvTdFGhmdS/+oW6Ey4TfMKv+7yHJIb/brJFAiWQj2c1QKCC
+         Ofuzn+WZGSskhOtlsWTmImoQQ451j3ZL+ZmrSwdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/171] scsi: pm8001: Fix memory leak in pm8001_chip_fw_flash_update_req()
+Subject: [PATCH 5.15 132/277] x86: Annotate call_on_stack()
 Date:   Tue, 12 Apr 2022 08:28:55 +0200
-Message-Id: <20220412062929.162009623@linuxfoundation.org>
+Message-Id: <20220412062945.857488242@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit f792a3629f4c4aa4c3703d66b43ce1edcc3ec09a ]
+[ Upstream commit be0075951fde739f14ee2b659e2fd6e2499c46c0 ]
 
-In pm8001_chip_fw_flash_update_build(), if
-pm8001_chip_fw_flash_update_build() fails, the struct fw_control_ex
-allocated must be freed.
+vmlinux.o: warning: objtool: page_fault_oops()+0x13c: unreachable instruction
 
-Link: https://lore.kernel.org/r/20220220031810.738362-23-damien.lemoal@opensource.wdc.com
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+0000 000000000005b460 <page_fault_oops>:
+...
+0128    5b588:  49 89 23                mov    %rsp,(%r11)
+012b    5b58b:  4c 89 dc                mov    %r11,%rsp
+012e    5b58e:  4c 89 f2                mov    %r14,%rdx
+0131    5b591:  48 89 ee                mov    %rbp,%rsi
+0134    5b594:  4c 89 e7                mov    %r12,%rdi
+0137    5b597:  e8 00 00 00 00          call   5b59c <page_fault_oops+0x13c>    5b598: R_X86_64_PLT32   handle_stack_overflow-0x4
+013c    5b59c:  5c                      pop    %rsp
+
+vmlinux.o: warning: objtool: sysvec_reboot()+0x6d: unreachable instruction
+
+0000 00000000000033f0 <sysvec_reboot>:
+...
+005d     344d:  4c 89 dc                mov    %r11,%rsp
+0060     3450:  e8 00 00 00 00          call   3455 <sysvec_reboot+0x65>        3451: R_X86_64_PLT32    irq_enter_rcu-0x4
+0065     3455:  48 89 ef                mov    %rbp,%rdi
+0068     3458:  e8 00 00 00 00          call   345d <sysvec_reboot+0x6d>        3459: R_X86_64_PC32     .text+0x47d0c
+006d     345d:  e8 00 00 00 00          call   3462 <sysvec_reboot+0x72>        345e: R_X86_64_PLT32    irq_exit_rcu-0x4
+0072     3462:  5c                      pop    %rsp
+
+Both cases are due to a call_on_stack() calling a __noreturn function.
+Since that's an inline asm, GCC can't do anything about the
+instructions after the CALL. Therefore put in an explicit
+ASM_REACHABLE annotation to make sure objtool and gcc are consistently
+confused about control flow.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/20220308154319.468805622@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/irq_stack.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index 397fce8de46c..da9fbe62a34d 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -4845,8 +4845,10 @@ pm8001_chip_fw_flash_update_req(struct pm8001_hba_info *pm8001_ha,
- 	ccb->ccb_tag = tag;
- 	rc = pm8001_chip_fw_flash_update_build(pm8001_ha, &flash_update_info,
- 		tag);
--	if (rc)
-+	if (rc) {
-+		kfree(fw_control_context);
- 		pm8001_tag_free(pm8001_ha, tag);
-+	}
- 
- 	return rc;
+diff --git a/arch/x86/include/asm/irq_stack.h b/arch/x86/include/asm/irq_stack.h
+index 8d55bd11848c..e087cd7837c3 100644
+--- a/arch/x86/include/asm/irq_stack.h
++++ b/arch/x86/include/asm/irq_stack.h
+@@ -99,7 +99,8 @@
  }
+ 
+ #define ASM_CALL_ARG0							\
+-	"call %P[__func]				\n"
++	"call %P[__func]				\n"		\
++	ASM_REACHABLE
+ 
+ #define ASM_CALL_ARG1							\
+ 	"movq	%[arg1], %%rdi				\n"		\
 -- 
 2.35.1
 
