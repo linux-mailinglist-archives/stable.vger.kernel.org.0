@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0379E4FD510
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:10:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9414FD4D2
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:09:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245366AbiDLHwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:52:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50170 "EHLO
+        id S242290AbiDLHh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:37:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358841AbiDLHmQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69B5F54187;
-        Tue, 12 Apr 2022 00:19:26 -0700 (PDT)
+        with ESMTP id S1353776AbiDLHZy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7001A63F4;
+        Tue, 12 Apr 2022 00:04:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD6EF616B2;
-        Tue, 12 Apr 2022 07:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB9CFC385AB;
-        Tue, 12 Apr 2022 07:19:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B62160B65;
+        Tue, 12 Apr 2022 07:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 150E5C385A1;
+        Tue, 12 Apr 2022 07:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747965;
-        bh=50NiPYZNS7W5h3kIdqJdXNGJ3ub+7+rCMrcv/3A7b9c=;
+        s=korg; t=1649747069;
+        bh=Sh3dOBmsLvqM/A9bPwyaG++I0BeeNMWpTYmy+3cxDe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DuVEBbmtKA6mbNoqJKRi5JzgZ6GyB4GXGYw4YE0f7ojbk3Spj0onVzJ0jmbIprvyW
-         b7ubUa3qUSxsrvm+qJamdlcCkTZBXqTl9mC6rn5LowxbWGNTM1G+DgZFB93fGC2Ezj
-         isMVJJkRN+/KA4yUNqsga9fm51GBz9XosH9NV33U=
+        b=qHL7ZgjARe3vRhot1Yn2jk+8EbQ5EEaRO8xrbETC2a8AB4bSo6aUgZnZD0JK3pUA6
+         0KsIqMGwm2hr8tDjDonrgGJ5/zEDjxrp8YNcxVd7Tmniui3Mbuz8Adj2Bsv6DEirCK
+         qnh8xDuFNX6ACFjZZO42QPtbBEKlJOGGu+ZI27Uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.17 269/343] mmc: renesas_sdhi: special 4tap settings only apply to HS400
-Date:   Tue, 12 Apr 2022 08:31:27 +0200
-Message-Id: <20220412062959.087272710@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Ethan Lien <ethanlien@synology.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.16 231/285] btrfs: fix qgroup reserve overflow the qgroup limit
+Date:   Tue, 12 Apr 2022 08:31:28 +0200
+Message-Id: <20220412062950.326873309@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Ethan Lien <ethanlien@synology.com>
 
-commit 46d4820f949a3030b19ee482c68a50b06dd27590 upstream.
+commit b642b52d0b50f4d398cb4293f64992d0eed2e2ce upstream.
 
-Previous documentation was vague, so we included SDR104 for slow SDnH
-clock settings. It turns out now, that it is only needed for HS400.
+We use extent_changeset->bytes_changed in qgroup_reserve_data() to record
+how many bytes we set for EXTENT_QGROUP_RESERVED state. Currently the
+bytes_changed is set as "unsigned int", and it will overflow if we try to
+fallocate a range larger than 4GiB. The result is we reserve less bytes
+and eventually break the qgroup limit.
 
-Fixes: bb6d3fa98a41 ("clk: renesas: rcar-gen3: Switch to new SD clock handling")
-Cc: stable@vger.kernel.org
-Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20220404100508.3209-1-wsa+renesas@sang-engineering.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Unlike regular buffered/direct write, which we use one changeset for
+each ordered extent, which can never be larger than 256M.  For
+fallocate, we use one changeset for the whole range, thus it no longer
+respects the 256M per extent limit, and caused the problem.
+
+The following example test script reproduces the problem:
+
+  $ cat qgroup-overflow.sh
+  #!/bin/bash
+
+  DEV=/dev/sdj
+  MNT=/mnt/sdj
+
+  mkfs.btrfs -f $DEV
+  mount $DEV $MNT
+
+  # Set qgroup limit to 2GiB.
+  btrfs quota enable $MNT
+  btrfs qgroup limit 2G $MNT
+
+  # Try to fallocate a 3GiB file. This should fail.
+  echo
+  echo "Try to fallocate a 3GiB file..."
+  fallocate -l 3G $MNT/3G.file
+
+  # Try to fallocate a 5GiB file.
+  echo
+  echo "Try to fallocate a 5GiB file..."
+  fallocate -l 5G $MNT/5G.file
+
+  # See we break the qgroup limit.
+  echo
+  sync
+  btrfs qgroup show -r $MNT
+
+  umount $MNT
+
+When running the test:
+
+  $ ./qgroup-overflow.sh
+  (...)
+
+  Try to fallocate a 3GiB file...
+  fallocate: fallocate failed: Disk quota exceeded
+
+  Try to fallocate a 5GiB file...
+
+  qgroupid         rfer         excl     max_rfer
+  --------         ----         ----     --------
+  0/5           5.00GiB      5.00GiB      2.00GiB
+
+Since we have no control of how bytes_changed is used, it's better to
+set it to u64.
+
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Ethan Lien <ethanlien@synology.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/renesas_sdhi_core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/extent_io.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/renesas_sdhi_core.c
-+++ b/drivers/mmc/host/renesas_sdhi_core.c
-@@ -144,9 +144,9 @@ static unsigned int renesas_sdhi_clk_upd
- 		return clk_get_rate(priv->clk);
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -118,7 +118,7 @@ struct btrfs_bio_ctrl {
+  */
+ struct extent_changeset {
+ 	/* How many bytes are set/cleared in this operation */
+-	unsigned int bytes_changed;
++	u64 bytes_changed;
  
- 	if (priv->clkh) {
-+		/* HS400 with 4TAP needs different clock settings */
- 		bool use_4tap = priv->quirks && priv->quirks->hs400_4taps;
--		bool need_slow_clkh = (host->mmc->ios.timing == MMC_TIMING_UHS_SDR104) ||
--				      (host->mmc->ios.timing == MMC_TIMING_MMC_HS400);
-+		bool need_slow_clkh = host->mmc->ios.timing == MMC_TIMING_MMC_HS400;
- 		clkh_shift = use_4tap && need_slow_clkh ? 1 : 2;
- 		ref_clk = priv->clkh;
- 	}
+ 	/* Changed ranges */
+ 	struct ulist range_changed;
 
 
