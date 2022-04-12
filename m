@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 109754FCF99
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9C64FCF95
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348987AbiDLGfj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:35:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50760 "EHLO
+        id S1349017AbiDLGfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:35:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348978AbiDLGfb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:35:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6166335858;
-        Mon, 11 Apr 2022 23:33:14 -0700 (PDT)
+        with ESMTP id S1348985AbiDLGfe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:35:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AEE835878;
+        Mon, 11 Apr 2022 23:33:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CC79B81B3B;
-        Tue, 12 Apr 2022 06:33:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E1D4C385A6;
-        Tue, 12 Apr 2022 06:33:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D98CBB81B40;
+        Tue, 12 Apr 2022 06:33:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E358C385A1;
+        Tue, 12 Apr 2022 06:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745191;
-        bh=qFmFGf9o9bbW/AnGcZ49lkynddSyvevlYfY1mkVnTio=;
+        s=korg; t=1649745194;
+        bh=OtYW2G/ou48B5BPObHYy3wh4RhYt0cJWYuNUdrShSfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVql+ot5tsWD1OqG/hCEBVJXQPv2ApqcxVH4ehCxKuQe8F87fe6bf+7BE0T432BHz
-         eN5xk0mQdKhML6GKl2Duovk7AjIHGqwGXI3SmlicB98HEAFpD/fck8m/t3yPlfOXMA
-         g/nW9Vo72szrswrxhL3yjpDnxglawY7FPIDu0/iM=
+        b=dRAD/X/bMmixr71G9o2OzTv3w9KsF9c0fmw8vWVtpNPfWRu1opxPig3p6Y+6TzWrc
+         Gb7t2LaJtylornKmQs/ABDogTLIc9gwcwx4E+l0D1QOQJL3Z0TDm4RhN92Ynz1BrIw
+         Amg9LmvC29JXBhjTmDZMpduuY5so5IRgjshEwXwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Wayne Chang <waynec@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 011/171] drm/amd/amdgpu/amdgpu_cs: fix refcount leak of a dma_fence obj
-Date:   Tue, 12 Apr 2022 08:28:22 +0200
-Message-Id: <20220412062928.209847133@linuxfoundation.org>
+Subject: [PATCH 5.10 012/171] usb: gadget: tegra-xudc: Do not program SPARAM
+Date:   Tue, 12 Apr 2022 08:28:23 +0200
+Message-Id: <20220412062928.239453482@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -57,41 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Wayne Chang <waynec@nvidia.com>
 
-[ Upstream commit dfced44f122c500004a48ecc8db516bb6a295a1b ]
+[ Upstream commit 62fb61580eb48fc890b7bc9fb5fd263367baeca8 ]
 
-This issue takes place in an error path in
-amdgpu_cs_fence_to_handle_ioctl(). When `info->in.what` falls into
-default case, the function simply returns -EINVAL, forgetting to
-decrement the reference count of a dma_fence obj, which is bumped
-earlier by amdgpu_cs_get_fence(). This may result in reference count
-leaks.
+According to the Tegra Technical Reference Manual, SPARAM
+is a read-only register and should not be programmed in
+the driver.
 
-Fix it by decreasing the refcount of specific object before returning
-the error code.
+The change removes the wrong SPARAM usage.
 
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Wayne Chang <waynec@nvidia.com>
+Link: https://lore.kernel.org/r/20220107090443.149021-1-waynec@nvidia.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/udc/tegra-xudc.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-index 12598a4b5c78..867fcee6b0d3 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
-@@ -1484,6 +1484,7 @@ int amdgpu_cs_fence_to_handle_ioctl(struct drm_device *dev, void *data,
- 		return 0;
+diff --git a/drivers/usb/gadget/udc/tegra-xudc.c b/drivers/usb/gadget/udc/tegra-xudc.c
+index 57ee72fead45..1dd0d50c6b56 100644
+--- a/drivers/usb/gadget/udc/tegra-xudc.c
++++ b/drivers/usb/gadget/udc/tegra-xudc.c
+@@ -32,9 +32,6 @@
+ #include <linux/workqueue.h>
  
- 	default:
-+		dma_fence_put(fence);
- 		return -EINVAL;
- 	}
- }
+ /* XUSB_DEV registers */
+-#define SPARAM 0x000
+-#define  SPARAM_ERSTMAX_MASK GENMASK(20, 16)
+-#define  SPARAM_ERSTMAX(x) (((x) << 16) & SPARAM_ERSTMAX_MASK)
+ #define DB 0x004
+ #define  DB_TARGET_MASK GENMASK(15, 8)
+ #define  DB_TARGET(x) (((x) << 8) & DB_TARGET_MASK)
+@@ -3295,11 +3292,6 @@ static void tegra_xudc_init_event_ring(struct tegra_xudc *xudc)
+ 	unsigned int i;
+ 	u32 val;
+ 
+-	val = xudc_readl(xudc, SPARAM);
+-	val &= ~(SPARAM_ERSTMAX_MASK);
+-	val |= SPARAM_ERSTMAX(XUDC_NR_EVENT_RINGS);
+-	xudc_writel(xudc, val, SPARAM);
+-
+ 	for (i = 0; i < ARRAY_SIZE(xudc->event_ring); i++) {
+ 		memset(xudc->event_ring[i], 0, XUDC_EVENT_RING_SIZE *
+ 		       sizeof(*xudc->event_ring[i]));
 -- 
 2.35.1
 
