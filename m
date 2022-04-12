@@ -2,49 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0768A4FD481
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:04:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC9894FD87B
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234890AbiDLHbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
+        id S1352417AbiDLIAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:00:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353625AbiDLHZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46B1E2716C;
-        Tue, 12 Apr 2022 00:02:21 -0700 (PDT)
+        with ESMTP id S1358106AbiDLHlF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187203BA5D;
+        Tue, 12 Apr 2022 00:17:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA9D2615B4;
-        Tue, 12 Apr 2022 07:02:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA4CAC385A1;
-        Tue, 12 Apr 2022 07:02:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 878516179E;
+        Tue, 12 Apr 2022 07:17:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A95FC385A1;
+        Tue, 12 Apr 2022 07:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746940;
-        bh=J8HwPpsqumg+1mHTdrOY+zzpUgTQ4iz9NwwZIOIHLhQ=;
+        s=korg; t=1649747841;
+        bh=O+IifnGMdoysyZqyVP0StvjROtzPsCC5zNF9Nr2ilEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UR5LUET6OVTwLNkRRKrLCQo9EE2jl8D2DdNEeOO2QQdDm+/kJLiYH+E36gyIdAJEC
-         Msrr9Otez8nmymkIplMw6oMi9aGUxtgVcVUPRb9MHhGcxGy4Q9mkgxnoKLu9d+MJyg
-         a529Ar/5xqfBcvReeLFvZbL/vB66GM0DsIPHX8zM=
+        b=Iv7NxVtiPCVyZQaDhaB7CU/ZnIuj7M0FK0F7sptRuTj/fsTL5+r0joVyQbL5Lv78o
+         wLy97tUdppMV0PqL9hoAa1FX04D8M0YoUEBP9GqS0ZyOFBB6O/kr0peSFsCWN4qZPi
+         G8YqO4o3vZbyH4h4zHWoWwC/jIfqkV8Rk6E1vxSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Alice Michael <alice.michael@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>,
+        Ray Jui <ray.jui@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 185/285] ice: Set txq_teid to ICE_INVAL_TEID on ring creation
+Subject: [PATCH 5.17 224/343] bnxt_en: Prevent XDP redirect from running when stopping TX queue
 Date:   Tue, 12 Apr 2022 08:30:42 +0200
-Message-Id: <20220412062949.003047728@linuxfoundation.org>
+Message-Id: <20220412062957.804621407@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
-References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,69 +57,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
+From: Ray Jui <ray.jui@broadcom.com>
 
-[ Upstream commit ccfee1822042b87e5135d33cad8ea353e64612d2 ]
+[ Upstream commit 27d4073f8d9af0340362554414f4961643a4f4de ]
 
-When VF is freshly created, but not brought up, ring->txq_teid
-value is by default set to 0.
-But 0 is a valid TEID. On some platforms the Root Node of
-Tx scheduler has a TEID = 0. This can cause issues as shown below.
+Add checks in the XDP redirect callback to prevent XDP from running when
+the TX ring is undergoing shutdown.
 
-The proper way is to set ring->txq_teid to ICE_INVAL_TEID (0xFFFFFFFF).
+Also remove redundant checks in the XDP redirect callback to validate the
+txr and the flag that indicates the ring supports XDP. The modulo
+arithmetic on 'tx_nr_rings_xdp' already guarantees the derived TX
+ring is an XDP ring.  txr is also guaranteed to be valid after checking
+BNXT_STATE_OPEN and within RCU grace period.
 
-Testing Hints:
-echo 1 > /sys/class/net/ens785f0/device/sriov_numvfs
-ip link set dev ens785f0v0 up
-ip link set dev ens785f0v0 down
-
-If we have freshly created VF and quickly turn it on and off, so there
-would be no time to reach VIRTCHNL_OP_CONFIG_VSI_QUEUES stage, then
-VIRTCHNL_OP_DISABLE_QUEUES stage will fail with error:
-[  639.531454] disable queue 89 failed 14
-[  639.532233] Failed to disable LAN Tx queues, error: ICE_ERR_AQ_ERROR
-[  639.533107] ice 0000:02:00.0: Failed to stop Tx ring 0 on VSI 5
-
-The reason for the fail is that we are trying to send AQ command to
-delete queue 89, which has never been created and receive an "invalid
-argument" error from firmware.
-
-As this queue has never been created, it's teid and ring->txq_teid
-have default value 0.
-ice_dis_vsi_txq has a check against non-existent queues:
-
-node = ice_sched_find_node_by_teid(pi->root, q_teids[i]);
-if (!node)
-	continue;
-
-But on some platforms the Root Node of Tx scheduler has a teid = 0.
-Hence, ice_sched_find_node_by_teid finds a node with teid = 0 (it is
-pi->root), and we go further to submit an erroneous request to firmware.
-
-Fixes: 37bb83901286 ("ice: Move common functions out of ice_main.c part 7/7")
-Signed-off-by: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Alice Michael <alice.michael@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: f18c2b77b2e4 ("bnxt_en: optimized XDP_REDIRECT support")
+Reviewed-by: Vladimir Olovyannikov <vladimir.olovyannikov@broadcom.com>
+Signed-off-by: Ray Jui <ray.jui@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lib.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index e39e299e79a4..a3514a5e067a 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -1409,6 +1409,7 @@ static int ice_vsi_alloc_rings(struct ice_vsi *vsi)
- 		ring->tx_tstamps = &pf->ptp.port.tx;
- 		ring->dev = dev;
- 		ring->count = vsi->num_tx_desc;
-+		ring->txq_teid = ICE_INVAL_TEID;
- 		WRITE_ONCE(vsi->tx_rings[i], ring);
- 	}
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
+index c0541ff00ac8..03b1d6c04504 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_xdp.c
+@@ -229,14 +229,16 @@ int bnxt_xdp_xmit(struct net_device *dev, int num_frames,
+ 	ring = smp_processor_id() % bp->tx_nr_rings_xdp;
+ 	txr = &bp->tx_ring[ring];
  
++	if (READ_ONCE(txr->dev_state) == BNXT_DEV_STATE_CLOSING)
++		return -EINVAL;
++
+ 	if (static_branch_unlikely(&bnxt_xdp_locking_key))
+ 		spin_lock(&txr->xdp_tx_lock);
+ 
+ 	for (i = 0; i < num_frames; i++) {
+ 		struct xdp_frame *xdp = frames[i];
+ 
+-		if (!txr || !bnxt_tx_avail(bp, txr) ||
+-		    !(bp->bnapi[ring]->flags & BNXT_NAPI_FLAG_XDP))
++		if (!bnxt_tx_avail(bp, txr))
+ 			break;
+ 
+ 		mapping = dma_map_single(&pdev->dev, xdp->data, xdp->len,
 -- 
 2.35.1
 
