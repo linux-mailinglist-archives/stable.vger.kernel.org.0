@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 920E34FD82F
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C43F4FDACC
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353331AbiDLIDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50438 "EHLO
+        id S1352180AbiDLHXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356884AbiDLHjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFCB4AE0A;
-        Tue, 12 Apr 2022 00:10:24 -0700 (PDT)
+        with ESMTP id S1353647AbiDLHPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:15:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CF9C39831;
+        Mon, 11 Apr 2022 23:57:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FB69B81A8F;
-        Tue, 12 Apr 2022 07:10:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF773C385A5;
-        Tue, 12 Apr 2022 07:10:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87A3D61571;
+        Tue, 12 Apr 2022 06:57:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 983EDC385A1;
+        Tue, 12 Apr 2022 06:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747421;
-        bh=JgWjmrDTOJos8NVOPw83gcBgwqQRunXW+dnqIQpg6OI=;
+        s=korg; t=1649746633;
+        bh=6WWeLjwM6nugWoViIV7BNPooOy6baoQmDnNITUB0e5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8LJirYkw9uiXAoxV/Dc38XYnqR8R0UcpsfVI8B0bYcB/pRm3lgxp8+kibPATwfDL
-         CWPxGDYfoCct4sbveLiowVDOuTJdxYafS27sYkgtIgbWeCE4czFFHM1KuhFu2lo0ke
-         wsJDCAcJDhs0t8OY2dF072r7WmQvNggVkICvKVN0=
+        b=FOizQfI8e60mEFBNufizWzt9a1PveQxqNnEu9Z1cJng7ZDu+syN0X0PM7vyvrj0XT
+         PVbVc8VC4Eqz00HbghfW90BZLCA4cvrFuMCbwFwNtC3ceYUhEVJY4KFuwxQtP0x7Iw
+         uShatyVRAeGrydYDe8Nq8/Q1HWlXj25hx2fker34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Evgeny Boger <boger@wirenboard.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 074/343] PCI: pciehp: Add Qualcomm quirk for Command Completed erratum
+Subject: [PATCH 5.16 035/285] power: supply: axp20x_battery: properly report current when discharging
 Date:   Tue, 12 Apr 2022 08:28:12 +0200
-Message-Id: <20220412062953.236867554@linuxfoundation.org>
+Message-Id: <20220412062944.689610381@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Evgeny Boger <boger@wirenboard.com>
 
-[ Upstream commit 9f72d4757cbe4d1ed669192f6d23817c9e437c4b ]
+[ Upstream commit d4f408cdcd26921c1268cb8dcbe8ffb6faf837f3 ]
 
-The Qualcomm PCI bridge device (Device ID 0x0110) found in chipsets such as
-SM8450 does not set the Command Completed bit unless writes to the Slot
-Command register change "Control" bits.
+As stated in [1], negative current values are used for discharging
+batteries.
 
-This results in timeouts like below:
+AXP PMICs internally have two different ADC channels for shunt current
+measurement: one used during charging and one during discharging.
+The values reported by these ADCs are unsigned.
+While the driver properly selects ADC channel to get the data from,
+it doesn't apply negative sign when reporting discharging current.
 
-  pcieport 0001:00:00.0: pciehp: Timeout on hotplug command 0x03c0 (issued 2020 msec ago)
+[1] Documentation/ABI/testing/sysfs-class-power
 
-Add the device to the Command Completed quirk to mark commands "completed"
-immediately unless they change the "Control" bits.
-
-Link: https://lore.kernel.org/r/20220210145003.135907-1-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Evgeny Boger <boger@wirenboard.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/power/supply/axp20x_battery.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
-index 85dce560831a..040ae076ec0e 100644
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -1086,6 +1086,8 @@ static void quirk_cmd_compl(struct pci_dev *pdev)
- }
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_INTEL, PCI_ANY_ID,
- 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
-+DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0110,
-+			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0400,
- 			      PCI_CLASS_BRIDGE_PCI, 8, quirk_cmd_compl);
- DECLARE_PCI_FIXUP_CLASS_EARLY(PCI_VENDOR_ID_QCOM, 0x0401,
+diff --git a/drivers/power/supply/axp20x_battery.c b/drivers/power/supply/axp20x_battery.c
+index 18a9db0df4b1..335e12cc5e2f 100644
+--- a/drivers/power/supply/axp20x_battery.c
++++ b/drivers/power/supply/axp20x_battery.c
+@@ -186,7 +186,6 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
+ 				   union power_supply_propval *val)
+ {
+ 	struct axp20x_batt_ps *axp20x_batt = power_supply_get_drvdata(psy);
+-	struct iio_channel *chan;
+ 	int ret = 0, reg, val1;
+ 
+ 	switch (psp) {
+@@ -266,12 +265,12 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
+ 		if (ret)
+ 			return ret;
+ 
+-		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING)
+-			chan = axp20x_batt->batt_chrg_i;
+-		else
+-			chan = axp20x_batt->batt_dischrg_i;
+-
+-		ret = iio_read_channel_processed(chan, &val->intval);
++		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING) {
++			ret = iio_read_channel_processed(axp20x_batt->batt_chrg_i, &val->intval);
++		} else {
++			ret = iio_read_channel_processed(axp20x_batt->batt_dischrg_i, &val1);
++			val->intval = -val1;
++		}
+ 		if (ret)
+ 			return ret;
+ 
 -- 
 2.35.1
 
