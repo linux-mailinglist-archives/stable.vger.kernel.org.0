@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE7E4FD574
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B29B24FD892
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377091AbiDLHrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:47:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46344 "EHLO
+        id S237909AbiDLHbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:31:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357257AbiDLHjy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EC2D657C;
-        Tue, 12 Apr 2022 00:14:25 -0700 (PDT)
+        with ESMTP id S1353550AbiDLHZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F5C26100;
+        Tue, 12 Apr 2022 00:01:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFDE96171D;
-        Tue, 12 Apr 2022 07:14:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9E28C385A1;
-        Tue, 12 Apr 2022 07:14:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28E4CB81B35;
+        Tue, 12 Apr 2022 07:01:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97799C385A6;
+        Tue, 12 Apr 2022 07:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747664;
-        bh=+YTNds+8z0t2zHdYuIfAV4xXR8U6PjwOkzvV2rN7NGI=;
+        s=korg; t=1649746880;
+        bh=kUn2qAPqnhLi5OlFTb3kcm5yBG9tINbEWnBPKsnb0Rs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2EOy1y7cIxiAeJnyBUU9ztV/jD5Dowz/7Ll5N6uS6DBKuv1IJ1pQmL1xMc/1gQ7c8
-         sK8v7YZ1BX8v7KlCV4HtyvQEMU2zw0kY3BwMSWOstcwyjmpjm35q/weq3YN7fBHbCX
-         NXgS/Aen1Qs6925oGkFPVNhznld0eRKFfKhkq5Cg=
+        b=fvD1R0xsGOFMGzCzY9MqOWkVKx8EclApREnhBeWbeZc5D/qLG36d+5Ojuybt7lmlA
+         kFEAiTOpZb9d8+TKvNkrihCFPeXEBLFKu1BMdhpFEJudACwP0B5ngeWZBNHTeEWxAh
+         cwX8h8eNu3f8jVMNR6knDVS/kAyfsMR4emxyFN4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amjad Ouled-Ameur <aouledameur@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 162/343] phy: amlogic: meson8b-usb2: fix shared reset control use
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 123/285] opp: Expose of-nodes name in debugfs
 Date:   Tue, 12 Apr 2022 08:29:40 +0200
-Message-Id: <20220412062956.050167011@linuxfoundation.org>
+Message-Id: <20220412062947.215634701@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,66 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amjad Ouled-Ameur <aouledameur@baylibre.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 6f1dedf089ab1a4f03ea7aadc3c4a99885b4b4a0 ]
+[ Upstream commit 021dbecabc93b1610b5db989d52a94e0c6671136 ]
 
-Use reset_control_rearm() call if an error occurs in case
-phy_meson8b_usb2_power_on() fails after reset() has been called, or in
-case phy_meson8b_usb2_power_off() is called i.e the resource is no longer
-used and the reset line may be triggered again by other devices.
+It is difficult to find which OPPs are active at the moment, specially
+if there are multiple OPPs with same frequency available in the device
+tree (controlled by supported hardware feature).
 
-reset_control_rearm() keeps use of triggered_count sane in the reset
-framework, use of reset_control_reset() on shared reset line should
-be balanced with reset_control_rearm().
+Expose name of the DT node to find out the exact OPP.
 
-Signed-off-by: Amjad Ouled-Ameur <aouledameur@baylibre.com>
-Reported-by: Jerome Brunet <jbrunet@baylibre.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220111095255.176141-4-aouledameur@baylibre.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+While at it, also expose level field.
+
+Reported-by: Leo Yan <leo.yan@linaro.org>
+Tested-by: Leo Yan <leo.yan@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/amlogic/phy-meson8b-usb2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/opp/debugfs.c | 5 +++++
+ drivers/opp/opp.h     | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/phy/amlogic/phy-meson8b-usb2.c b/drivers/phy/amlogic/phy-meson8b-usb2.c
-index 77e7e9b1428c..dd96763911b8 100644
---- a/drivers/phy/amlogic/phy-meson8b-usb2.c
-+++ b/drivers/phy/amlogic/phy-meson8b-usb2.c
-@@ -154,6 +154,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 	ret = clk_prepare_enable(priv->clk_usb_general);
- 	if (ret) {
- 		dev_err(&phy->dev, "Failed to enable USB general clock\n");
-+		reset_control_rearm(priv->reset);
- 		return ret;
- 	}
+diff --git a/drivers/opp/debugfs.c b/drivers/opp/debugfs.c
+index 596c185b5dda..b5f2f9f39392 100644
+--- a/drivers/opp/debugfs.c
++++ b/drivers/opp/debugfs.c
+@@ -10,6 +10,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
++#include <linux/of.h>
+ #include <linux/init.h>
+ #include <linux/limits.h>
+ #include <linux/slab.h>
+@@ -131,9 +132,13 @@ void opp_debug_create_one(struct dev_pm_opp *opp, struct opp_table *opp_table)
+ 	debugfs_create_bool("suspend", S_IRUGO, d, &opp->suspend);
+ 	debugfs_create_u32("performance_state", S_IRUGO, d, &opp->pstate);
+ 	debugfs_create_ulong("rate_hz", S_IRUGO, d, &opp->rate);
++	debugfs_create_u32("level", S_IRUGO, d, &opp->level);
+ 	debugfs_create_ulong("clock_latency_ns", S_IRUGO, d,
+ 			     &opp->clock_latency_ns);
  
-@@ -161,6 +162,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 	if (ret) {
- 		dev_err(&phy->dev, "Failed to enable USB DDR clock\n");
- 		clk_disable_unprepare(priv->clk_usb_general);
-+		reset_control_rearm(priv->reset);
- 		return ret;
- 	}
++	opp->of_name = of_node_full_name(opp->np);
++	debugfs_create_str("of_name", S_IRUGO, d, (char **)&opp->of_name);
++
+ 	opp_debug_create_supplies(opp, opp_table, d);
+ 	opp_debug_create_bw(opp, opp_table, d);
  
-@@ -199,6 +201,7 @@ static int phy_meson8b_usb2_power_on(struct phy *phy)
- 				dev_warn(&phy->dev, "USB ID detect failed!\n");
- 				clk_disable_unprepare(priv->clk_usb);
- 				clk_disable_unprepare(priv->clk_usb_general);
-+				reset_control_rearm(priv->reset);
- 				return -EINVAL;
- 			}
- 		}
-@@ -218,6 +221,7 @@ static int phy_meson8b_usb2_power_off(struct phy *phy)
+diff --git a/drivers/opp/opp.h b/drivers/opp/opp.h
+index 407c3bfe51d9..45e3a55239a1 100644
+--- a/drivers/opp/opp.h
++++ b/drivers/opp/opp.h
+@@ -96,6 +96,7 @@ struct dev_pm_opp {
  
- 	clk_disable_unprepare(priv->clk_usb);
- 	clk_disable_unprepare(priv->clk_usb_general);
-+	reset_control_rearm(priv->reset);
+ #ifdef CONFIG_DEBUG_FS
+ 	struct dentry *dentry;
++	const char *of_name;
+ #endif
+ };
  
- 	/* power off the PHY by putting it into reset mode */
- 	regmap_update_bits(priv->regmap, REG_CTRL, REG_CTRL_POWER_ON_RESET,
 -- 
 2.35.1
 
