@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA144FD07B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA37A4FD069
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229995AbiDLGpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:45:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42446 "EHLO
+        id S1350529AbiDLGpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:45:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351016AbiDLGnt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:43:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5C739143;
-        Mon, 11 Apr 2022 23:37:11 -0700 (PDT)
+        with ESMTP id S1351027AbiDLGnv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:43:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F202938783;
+        Mon, 11 Apr 2022 23:37:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD78FB81B29;
-        Tue, 12 Apr 2022 06:37:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F40C385A1;
-        Tue, 12 Apr 2022 06:37:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC046B81B46;
+        Tue, 12 Apr 2022 06:37:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11945C385A6;
+        Tue, 12 Apr 2022 06:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745428;
-        bh=X62b0Q0P9Zr7NPTCiTF1KoeFOQKbxwT1dnaBcNKvL9E=;
+        s=korg; t=1649745431;
+        bh=BFL7ivdBXp6i5bRDuaTWh+xhj4naoqFOswKoDjPtYV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYXSyS8o8Xs04s+gb6iqqgV2HwSt3sOjTwQWsnNtO3HLDK+Glq3g5oz7Y2q47Do6b
-         FGTHmPz3JZ+YgPcDRwrJExNUUf7kNcFK+oYXmbtDyPATp7tONsOi34twWkRXPJIlfe
-         +KGq8+kItYZNPB3IVElKFInGkSYVCrwP7oakLgNo=
+        b=AqwYTLaAOTN5Ztaxba8bgfUdhTrSL0S9oYrhgsvB0Dn6eSa8oYt9sdz3DuUlds9zE
+         Ghdpg1TkC3QCLYJMA9iQ30c5m1Gg/2xF6bFDc8go0AjtIcJZcYOhqt7RIe0YTTV7E+
+         R20zNc+fuOjDZ8JkimzVyB7kY4AFaDO7bZ5LazEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 092/171] NFS: nfsiod should not block forever in mempool_alloc()
-Date:   Tue, 12 Apr 2022 08:29:43 +0200
-Message-Id: <20220412062930.547500805@linuxfoundation.org>
+Subject: [PATCH 5.10 093/171] NFS: Avoid writeback threads getting stuck in mempool_alloc()
+Date:   Tue, 12 Apr 2022 08:29:44 +0200
+Message-Id: <20220412062930.575293698@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -56,131 +56,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 515dcdcd48736576c6f5c197814da6f81c60a21e ]
+[ Upstream commit 0bae835b63c53f86cdc524f5962e39409585b22c ]
 
-The concern is that since nfsiod is sometimes required to kick off a
-commit, it can get locked up waiting forever in mempool_alloc() instead
-of failing gracefully and leaving the commit until later.
-
-Try to allocate from the slab first, with GFP_KERNEL | __GFP_NORETRY,
-then fall back to a non-blocking attempt to allocate from the memory
-pool.
+In a low memory situation, allow the NFS writeback code to fail without
+getting stuck in infinite loops in mempool_alloc().
 
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/internal.h      |  7 +++++++
- fs/nfs/pnfs_nfs.c      |  8 ++++++--
- fs/nfs/write.c         | 24 +++++++++---------------
- include/linux/nfs_fs.h |  2 +-
- 4 files changed, 23 insertions(+), 18 deletions(-)
+ fs/nfs/pagelist.c | 10 +++++-----
+ fs/nfs/write.c    | 10 ++++++++--
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/fs/nfs/internal.h b/fs/nfs/internal.h
-index 98554dd18a71..7de38abb6566 100644
---- a/fs/nfs/internal.h
-+++ b/fs/nfs/internal.h
-@@ -578,6 +578,13 @@ nfs_write_match_verf(const struct nfs_writeverf *verf,
- 		!nfs_write_verifier_cmp(&req->wb_verf, &verf->verifier);
+diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
+index 98b9c1ed366e..17fef6eb490c 100644
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -90,10 +90,10 @@ void nfs_set_pgio_error(struct nfs_pgio_header *hdr, int error, loff_t pos)
+ 	}
  }
  
-+static inline gfp_t nfs_io_gfp_mask(void)
-+{
-+	if (current->flags & PF_WQ_WORKER)
-+		return GFP_KERNEL | __GFP_NORETRY | __GFP_NOWARN;
-+	return GFP_KERNEL;
-+}
-+
- /* unlink.c */
- extern struct rpc_task *
- nfs_async_rename(struct inode *old_dir, struct inode *new_dir,
-diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
-index 7b9d701bef01..a2ad8bb87e2d 100644
---- a/fs/nfs/pnfs_nfs.c
-+++ b/fs/nfs/pnfs_nfs.c
-@@ -419,7 +419,7 @@ static struct nfs_commit_data *
- pnfs_bucket_fetch_commitdata(struct pnfs_commit_bucket *bucket,
- 			     struct nfs_commit_info *cinfo)
+-static inline struct nfs_page *
+-nfs_page_alloc(void)
++static inline struct nfs_page *nfs_page_alloc(void)
  {
--	struct nfs_commit_data *data = nfs_commitdata_alloc(false);
-+	struct nfs_commit_data *data = nfs_commitdata_alloc();
+-	struct nfs_page	*p = kmem_cache_zalloc(nfs_page_cachep, GFP_KERNEL);
++	struct nfs_page *p =
++		kmem_cache_zalloc(nfs_page_cachep, nfs_io_gfp_mask());
+ 	if (p)
+ 		INIT_LIST_HEAD(&p->wb_list);
+ 	return p;
+@@ -901,7 +901,7 @@ int nfs_generic_pgio(struct nfs_pageio_descriptor *desc,
+ 	struct nfs_commit_info cinfo;
+ 	struct nfs_page_array *pg_array = &hdr->page_array;
+ 	unsigned int pagecount, pageused;
+-	gfp_t gfp_flags = GFP_KERNEL;
++	gfp_t gfp_flags = nfs_io_gfp_mask();
  
- 	if (!data)
- 		return NULL;
-@@ -515,7 +515,11 @@ pnfs_generic_commit_pagelist(struct inode *inode, struct list_head *mds_pages,
- 	unsigned int nreq = 0;
- 
- 	if (!list_empty(mds_pages)) {
--		data = nfs_commitdata_alloc(true);
-+		data = nfs_commitdata_alloc();
-+		if (!data) {
-+			nfs_retry_commit(mds_pages, NULL, cinfo, -1);
-+			return -ENOMEM;
-+		}
- 		data->ds_commit_index = -1;
- 		list_splice_init(mds_pages, &data->pages);
- 		list_add_tail(&data->list, &list);
+ 	pagecount = nfs_page_array_len(mirror->pg_base, mirror->pg_count);
+ 	pg_array->npages = pagecount;
+@@ -984,7 +984,7 @@ nfs_pageio_alloc_mirrors(struct nfs_pageio_descriptor *desc,
+ 	desc->pg_mirrors_dynamic = NULL;
+ 	if (mirror_count == 1)
+ 		return desc->pg_mirrors_static;
+-	ret = kmalloc_array(mirror_count, sizeof(*ret), GFP_KERNEL);
++	ret = kmalloc_array(mirror_count, sizeof(*ret), nfs_io_gfp_mask());
+ 	if (ret != NULL) {
+ 		for (i = 0; i < mirror_count; i++)
+ 			nfs_pageio_mirror_init(&ret[i], desc->pg_bsize);
 diff --git a/fs/nfs/write.c b/fs/nfs/write.c
-index cc926e69ee9b..a97eaf4e813c 100644
+index a97eaf4e813c..5d07799513a6 100644
 --- a/fs/nfs/write.c
 +++ b/fs/nfs/write.c
-@@ -70,27 +70,17 @@ static mempool_t *nfs_wdata_mempool;
- static struct kmem_cache *nfs_cdata_cachep;
- static mempool_t *nfs_commit_mempool;
+@@ -94,9 +94,15 @@ EXPORT_SYMBOL_GPL(nfs_commit_free);
  
--struct nfs_commit_data *nfs_commitdata_alloc(bool never_fail)
-+struct nfs_commit_data *nfs_commitdata_alloc(void)
+ static struct nfs_pgio_header *nfs_writehdr_alloc(void)
  {
- 	struct nfs_commit_data *p;
+-	struct nfs_pgio_header *p = mempool_alloc(nfs_wdata_mempool, GFP_KERNEL);
++	struct nfs_pgio_header *p;
  
--	if (never_fail)
--		p = mempool_alloc(nfs_commit_mempool, GFP_NOIO);
--	else {
--		/* It is OK to do some reclaim, not no safe to wait
--		 * for anything to be returned to the pool.
--		 * mempool_alloc() cannot handle that particular combination,
--		 * so we need two separate attempts.
--		 */
-+	p = kmem_cache_zalloc(nfs_cdata_cachep, nfs_io_gfp_mask());
-+	if (!p) {
- 		p = mempool_alloc(nfs_commit_mempool, GFP_NOWAIT);
--		if (!p)
--			p = kmem_cache_alloc(nfs_cdata_cachep, GFP_NOIO |
--					     __GFP_NOWARN | __GFP_NORETRY);
- 		if (!p)
- 			return NULL;
-+		memset(p, 0, sizeof(*p));
- 	}
--
 -	memset(p, 0, sizeof(*p));
- 	INIT_LIST_HEAD(&p->pages);
++	p = kmem_cache_zalloc(nfs_wdata_cachep, nfs_io_gfp_mask());
++	if (!p) {
++		p = mempool_alloc(nfs_wdata_mempool, GFP_NOWAIT);
++		if (!p)
++			return NULL;
++		memset(p, 0, sizeof(*p));
++	}
+ 	p->rw_mode = FMODE_WRITE;
  	return p;
  }
-@@ -1800,7 +1790,11 @@ nfs_commit_list(struct inode *inode, struct list_head *head, int how,
- 	if (list_empty(head))
- 		return 0;
- 
--	data = nfs_commitdata_alloc(true);
-+	data = nfs_commitdata_alloc();
-+	if (!data) {
-+		nfs_retry_commit(head, NULL, cinfo, -1);
-+		return -ENOMEM;
-+	}
- 
- 	/* Set up the argument struct */
- 	nfs_init_commit(data, head, NULL, cinfo);
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index 2a17e0dfd431..e39342945a80 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -551,7 +551,7 @@ extern int nfs_wb_all(struct inode *inode);
- extern int nfs_wb_page(struct inode *inode, struct page *page);
- extern int nfs_wb_page_cancel(struct inode *inode, struct page* page);
- extern int  nfs_commit_inode(struct inode *, int);
--extern struct nfs_commit_data *nfs_commitdata_alloc(bool never_fail);
-+extern struct nfs_commit_data *nfs_commitdata_alloc(void);
- extern void nfs_commit_free(struct nfs_commit_data *data);
- bool nfs_commit_end(struct nfs_mds_commit_info *cinfo);
- 
 -- 
 2.35.1
 
