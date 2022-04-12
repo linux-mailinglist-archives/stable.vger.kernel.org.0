@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 734624FD726
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:27:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C554FD6CE
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353676AbiDLIJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 04:09:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49158 "EHLO
+        id S1354006AbiDLHiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:38:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358378AbiDLHla (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BC24991C;
-        Tue, 12 Apr 2022 00:17:54 -0700 (PDT)
+        with ESMTP id S1353651AbiDLHZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:25:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56CB843EC5;
+        Tue, 12 Apr 2022 00:02:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF5A1B81B58;
-        Tue, 12 Apr 2022 07:17:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5352AC385A5;
-        Tue, 12 Apr 2022 07:17:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC8AE615B4;
+        Tue, 12 Apr 2022 07:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0C97C385A6;
+        Tue, 12 Apr 2022 07:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747871;
-        bh=dgM8Q+aXLKtjfC1k5I0vZOUMijAJe+ijlT5S4O9WlF8=;
+        s=korg; t=1649746973;
+        bh=WxC4Ck1eDrzF3juXXdTjdPr+pCGCfmE7AGQzZwZ9QB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eOhnmg1DiuQZ9agv9/lsGViJByEtOYSCUsvhqEQjyfPsmTaAcCHQjzXG1Ei3GBY1E
-         ZxArLu55zlOLKYDd+R1sM1QhfIXfaBz0rDACoWui0U8071LhAC0G/Hn/TehuDnxXSa
-         DIpidGG6iiVoEoinysc78v2a1NInv6P51VFfSLRc=
+        b=I8vElABA6pPZQSviUxYPl4j2mcwG42hDtDTB36+cf6IhMVwhW31yJJP4QuwnDKA3h
+         20F2YkBkmLH4yOnqNhoQEcfu4JlkFBTj0D00P8xIH9Por3/HwJgFqaYHPrzjrNRziX
+         4cVW+gjL/mOhy0NJD2MOPu6aYWS2Za+SVykiaD0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Alice Michael <alice.michael@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 234/343] ice: Do not skip not enabled queues in ice_vc_dis_qs_msg
-Date:   Tue, 12 Apr 2022 08:30:52 +0200
-Message-Id: <20220412062958.089838285@linuxfoundation.org>
+Subject: [PATCH 5.16 196/285] net: phy: mscc-miim: reject clause 45 register accesses
+Date:   Tue, 12 Apr 2022 08:30:53 +0200
+Message-Id: <20220412062949.318744997@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+References: <20220412062943.670770901@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,78 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 05ef6813b234db3196f083b91db3963f040b65bb ]
+[ Upstream commit 8d90991e5bf7fdb9f264f5f579d18969913054b7 ]
 
-Disable check for queue being enabled in ice_vc_dis_qs_msg, because
-there could be a case when queues were created, but were not enabled.
-We still need to delete those queues.
+The driver doesn't support clause 45 register access yet, but doesn't
+check if the access is a c45 one either. This leads to spurious register
+reads and writes. Add the check.
 
-Normal workflow for VF looks like:
-Enable path:
-VIRTCHNL_OP_ADD_ETH_ADDR (opcode 10)
-VIRTCHNL_OP_CONFIG_VSI_QUEUES (opcode 6)
-VIRTCHNL_OP_ENABLE_QUEUES (opcode 8)
-
-Disable path:
-VIRTCHNL_OP_DISABLE_QUEUES (opcode 9)
-VIRTCHNL_OP_DEL_ETH_ADDR (opcode 11)
-
-The issue appears only in stress conditions when VF is enabled and
-disabled very fast.
-Eventually there will be a case, when queues are created by
-VIRTCHNL_OP_CONFIG_VSI_QUEUES, but are not enabled by
-VIRTCHNL_OP_ENABLE_QUEUES.
-In turn, these queues are not deleted by VIRTCHNL_OP_DISABLE_QUEUES,
-because there is a check whether queues are enabled in
-ice_vc_dis_qs_msg.
-
-When we bring up the VF again, we will see the "Failed to set LAN Tx queue
-context" error during VIRTCHNL_OP_CONFIG_VSI_QUEUES step. This
-happens because old 16 queues were not deleted and VF requests to create
-16 more, but ice_sched_get_free_qparent in ice_ena_vsi_txq would fail to
-find a parent node for first newly requested queue (because all nodes
-are allocated to 16 old queues).
-
-Testing Hints:
-
-Just enable and disable VF fast enough, so it would be disabled before
-reaching VIRTCHNL_OP_ENABLE_QUEUES.
-
-while true; do
-        ip link set dev ens785f0v0 up
-        sleep 0.065 # adjust delay value for you machine
-        ip link set dev ens785f0v0 down
-done
-
-Fixes: 77ca27c41705 ("ice: add support for virtchnl_queue_select.[tx|rx]_queues bitmap")
-Signed-off-by: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Alice Michael <alice.michael@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 542671fe4d86 ("net: phy: mscc-miim: Add MDIO driver")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/mdio/mdio-mscc-miim.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-index 1be3cd4b2bef..2bee8f10ad89 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -3351,9 +3351,9 @@ static int ice_vc_dis_qs_msg(struct ice_vf *vf, u8 *msg)
- 				goto error_param;
- 			}
+diff --git a/drivers/net/mdio/mdio-mscc-miim.c b/drivers/net/mdio/mdio-mscc-miim.c
+index 17f98f609ec8..5070ca2f2637 100644
+--- a/drivers/net/mdio/mdio-mscc-miim.c
++++ b/drivers/net/mdio/mdio-mscc-miim.c
+@@ -76,6 +76,9 @@ static int mscc_miim_read(struct mii_bus *bus, int mii_id, int regnum)
+ 	u32 val;
+ 	int ret;
  
--			/* Skip queue if not enabled */
- 			if (!test_bit(vf_q_id, vf->txq_ena))
--				continue;
-+				dev_dbg(ice_pf_to_dev(vsi->back), "Queue %u on VSI %u is not enabled, but stopping it anyway\n",
-+					vf_q_id, vsi->vsi_num);
++	if (regnum & MII_ADDR_C45)
++		return -EOPNOTSUPP;
++
+ 	ret = mscc_miim_wait_pending(bus);
+ 	if (ret)
+ 		goto out;
+@@ -105,6 +108,9 @@ static int mscc_miim_write(struct mii_bus *bus, int mii_id,
+ 	struct mscc_miim_dev *miim = bus->priv;
+ 	int ret;
  
- 			ice_fill_txq_meta(vsi, ring, &txq_meta);
- 
++	if (regnum & MII_ADDR_C45)
++		return -EOPNOTSUPP;
++
+ 	ret = mscc_miim_wait_pending(bus);
+ 	if (ret < 0)
+ 		goto out;
 -- 
 2.35.1
 
