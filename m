@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D86CE4FD527
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A67244FD88F
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377302AbiDLHtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:49:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49154 "EHLO
+        id S242441AbiDLHVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:21:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358608AbiDLHlz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:41:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF9285370C;
-        Tue, 12 Apr 2022 00:18:27 -0700 (PDT)
+        with ESMTP id S1351827AbiDLHM7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:12:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACEBA1705E;
+        Mon, 11 Apr 2022 23:53:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 494A3B81B60;
-        Tue, 12 Apr 2022 07:18:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB803C385A5;
-        Tue, 12 Apr 2022 07:18:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48AD061451;
+        Tue, 12 Apr 2022 06:53:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52A14C385A6;
+        Tue, 12 Apr 2022 06:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747905;
-        bh=bo5oyi2RDSbh9N7tonWPZ/m9IiFZzZv7VtlZ2TBZVPY=;
+        s=korg; t=1649746394;
+        bh=OhkQB/YB9JwzoHdchmhfRn/xWsDTrD2yFnyvdWKmG7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQFmoGxYPP8G0gMEfDZLfyPShvl+CwZmLhRj5SHx5T1dJ7FXq4xn38OMbx91jpGGV
-         TxC7OE1i3GOwo7TKBg9YX5y/BHXjK0F+jZgDFAVcu1UeWbhD3zDQrrIOCNhLsTMlCX
-         7C+3KBIwWt+wrJsJMw6ejX+tWLH396VdD0cDKSOY=
+        b=PVuLBiJNDIdw7OYarTFnGpOcMn/HB/0dSZ8p1XoQ+2VizIlm442G0TM7zTzp25cEg
+         zdYyPmNs6u8alnnng8mN39yMZtuf5LJwpOae/wdSB6d9p+Pb6QSxUlUtnvPKT0YUJo
+         0idSzO5KMkSZG0fqsopfrIU9LqyDkNdqcFWuDCr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Arthur Fabre <afabre@cloudflare.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 249/343] bpf: Support dual-stack sockets in bpf_tcp_check_syncookie
-Date:   Tue, 12 Apr 2022 08:31:07 +0200
-Message-Id: <20220412062958.514317893@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.15 265/277] selftests: cgroup: Test open-time credential usage for migration checks
+Date:   Tue, 12 Apr 2022 08:31:08 +0200
+Message-Id: <20220412062949.713088117@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-References: <20220412062951.095765152@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 2e8702cc0cfa1080f29fd64003c00a3e24ac38de ]
+commit 613e040e4dc285367bff0f8f75ea59839bc10947 upstream.
 
-bpf_tcp_gen_syncookie looks at the IP version in the IP header and
-validates the address family of the socket. It supports IPv4 packets in
-AF_INET6 dual-stack sockets.
+When a task is writing to an fd opened by a different task, the perm check
+should use the credentials of the latter task. Add a test for it.
 
-On the other hand, bpf_tcp_check_syncookie looks only at the address
-family of the socket, ignoring the real IP version in headers, and
-validates only the packet size. This implementation has some drawbacks:
-
-1. Packets are not validated properly, allowing a BPF program to trick
-   bpf_tcp_check_syncookie into handling an IPv6 packet on an IPv4
-   socket.
-
-2. Dual-stack sockets fail the checks on IPv4 packets. IPv4 clients end
-   up receiving a SYNACK with the cookie, but the following ACK gets
-   dropped.
-
-This patch fixes these issues by changing the checks in
-bpf_tcp_check_syncookie to match the ones in bpf_tcp_gen_syncookie. IP
-version from the header is taken into account, and it is validated
-properly with address family.
-
-Fixes: 399040847084 ("bpf: add helper to check for a valid SYN cookie")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Acked-by: Arthur Fabre <afabre@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20220406124113.2795730-1-maximmi@nvidia.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/filter.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ tools/testing/selftests/cgroup/test_core.c |   68 +++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 82fcb7533663..48fc95626597 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -6777,24 +6777,33 @@ BPF_CALL_5(bpf_tcp_check_syncookie, struct sock *, sk, void *, iph, u32, iph_len
- 	if (!th->ack || th->rst || th->syn)
- 		return -ENOENT;
+--- a/tools/testing/selftests/cgroup/test_core.c
++++ b/tools/testing/selftests/cgroup/test_core.c
+@@ -674,6 +674,73 @@ cleanup:
+ 	return ret;
+ }
  
-+	if (unlikely(iph_len < sizeof(struct iphdr)))
-+		return -EINVAL;
++/*
++ * cgroup migration permission check should be performed based on the
++ * credentials at the time of open instead of write.
++ */
++static int test_cgcore_lesser_euid_open(const char *root)
++{
++	const uid_t test_euid = 65534;	/* usually nobody, any !root is fine */
++	int ret = KSFT_FAIL;
++	char *cg_test_a = NULL, *cg_test_b = NULL;
++	char *cg_test_a_procs = NULL, *cg_test_b_procs = NULL;
++	int cg_test_b_procs_fd = -1;
++	uid_t saved_uid;
 +
- 	if (tcp_synq_no_recent_overflow(sk))
- 		return -ENOENT;
- 
- 	cookie = ntohl(th->ack_seq) - 1;
- 
--	switch (sk->sk_family) {
--	case AF_INET:
--		if (unlikely(iph_len < sizeof(struct iphdr)))
-+	/* Both struct iphdr and struct ipv6hdr have the version field at the
-+	 * same offset so we can cast to the shorter header (struct iphdr).
-+	 */
-+	switch (((struct iphdr *)iph)->version) {
-+	case 4:
-+		if (sk->sk_family == AF_INET6 && ipv6_only_sock(sk))
- 			return -EINVAL;
- 
- 		ret = __cookie_v4_check((struct iphdr *)iph, th, cookie);
- 		break;
- 
- #if IS_BUILTIN(CONFIG_IPV6)
--	case AF_INET6:
-+	case 6:
- 		if (unlikely(iph_len < sizeof(struct ipv6hdr)))
- 			return -EINVAL;
- 
-+		if (sk->sk_family != AF_INET6)
-+			return -EINVAL;
++	cg_test_a = cg_name(root, "cg_test_a");
++	cg_test_b = cg_name(root, "cg_test_b");
 +
- 		ret = __cookie_v6_check((struct ipv6hdr *)iph, th, cookie);
- 		break;
- #endif /* CONFIG_IPV6 */
--- 
-2.35.1
-
++	if (!cg_test_a || !cg_test_b)
++		goto cleanup;
++
++	cg_test_a_procs = cg_name(cg_test_a, "cgroup.procs");
++	cg_test_b_procs = cg_name(cg_test_b, "cgroup.procs");
++
++	if (!cg_test_a_procs || !cg_test_b_procs)
++		goto cleanup;
++
++	if (cg_create(cg_test_a) || cg_create(cg_test_b))
++		goto cleanup;
++
++	if (cg_enter_current(cg_test_a))
++		goto cleanup;
++
++	if (chown(cg_test_a_procs, test_euid, -1) ||
++	    chown(cg_test_b_procs, test_euid, -1))
++		goto cleanup;
++
++	saved_uid = geteuid();
++	if (seteuid(test_euid))
++		goto cleanup;
++
++	cg_test_b_procs_fd = open(cg_test_b_procs, O_RDWR);
++
++	if (seteuid(saved_uid))
++		goto cleanup;
++
++	if (cg_test_b_procs_fd < 0)
++		goto cleanup;
++
++	if (write(cg_test_b_procs_fd, "0", 1) >= 0 || errno != EACCES)
++		goto cleanup;
++
++	ret = KSFT_PASS;
++
++cleanup:
++	cg_enter_current(root);
++	if (cg_test_b_procs_fd >= 0)
++		close(cg_test_b_procs_fd);
++	if (cg_test_b)
++		cg_destroy(cg_test_b);
++	if (cg_test_a)
++		cg_destroy(cg_test_a);
++	free(cg_test_b_procs);
++	free(cg_test_a_procs);
++	free(cg_test_b);
++	free(cg_test_a);
++	return ret;
++}
++
+ #define T(x) { x, #x }
+ struct corecg_test {
+ 	int (*fn)(const char *root);
+@@ -689,6 +756,7 @@ struct corecg_test {
+ 	T(test_cgcore_proc_migration),
+ 	T(test_cgcore_thread_migration),
+ 	T(test_cgcore_destroy),
++	T(test_cgcore_lesser_euid_open),
+ };
+ #undef T
+ 
 
 
