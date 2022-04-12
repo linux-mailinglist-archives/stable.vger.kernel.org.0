@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC654FD6BA
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AAAC4FD7A5
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235711AbiDLHVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:21:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58550 "EHLO
+        id S1377328AbiDLHtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 03:49:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351875AbiDLHNC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:13:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4FC26F1;
-        Mon, 11 Apr 2022 23:53:58 -0700 (PDT)
+        with ESMTP id S1358703AbiDLHmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:42:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D5F353B62;
+        Tue, 12 Apr 2022 00:18:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C341B81B44;
-        Tue, 12 Apr 2022 06:53:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CAF6C385A1;
-        Tue, 12 Apr 2022 06:53:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF24A6171C;
+        Tue, 12 Apr 2022 07:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E078CC385A1;
+        Tue, 12 Apr 2022 07:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649746436;
-        bh=ggHIMVDOir28eivHT7Q6oJ4r5wNBVY9vag4cZI+7UJs=;
+        s=korg; t=1649747932;
+        bh=OlZDwkLIrhSfs14hQ3b6bvoPaxN1iOD12TvNEMCVr08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUpN3sV6UOmbj1REG36CLiNt4nuW44NF10apnq06QEgHcmmWdxvB+MryNv9yX2Fxu
-         uKf0LPgc9MnEFRBYtyR0v+gMcH1bgbarLkGp+vEVPFusvTooz8DY4J7TlBzbggOm/0
-         S6SEiNzlAmralp5otL/QRvoJ2NYpMTlVohnOLCb4=
+        b=MiDp91WUTsXho3Y0Am6kBht2GngfCEsGpGAvgD8WEnkY+BnXMvGDXxopr3s55ZkMP
+         Gxu1sdbuXKdXtIDPu+FMiDkLxV1rctfBsTb/1LgXaFFHEyKr7UPwTq51ZbLokEzq0P
+         QDEEUJ2my9/A/pogA46yQsSedldwt3X2Y9Gc/7mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.15 273/277] powerpc/64: Fix build failure with allyesconfig in book3s_64_entry.S
+        stable@vger.kernel.org, Drew Fustini <dfustini@baylibre.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Suman Anna <s-anna@ti.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Tony Lindgren <tony@atomide.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 258/343] iommu/omap: Fix regression in probe for NULL pointer dereference
 Date:   Tue, 12 Apr 2022 08:31:16 +0200
-Message-Id: <20220412062949.941414766@linuxfoundation.org>
+Message-Id: <20220412062958.773402653@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
-References: <20220412062942.022903016@linuxfoundation.org>
+In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
+References: <20220412062951.095765152@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Tony Lindgren <tony@atomide.com>
 
-commit af41d2866f7d75bbb38d487f6ec7770425d70e45 upstream.
+[ Upstream commit 71ff461c3f41f6465434b9e980c01782763e7ad8 ]
 
-Using conditional branches between two files is hasardous,
-they may get linked too far from each other.
+Commit 3f6634d997db ("iommu: Use right way to retrieve iommu_ops") started
+triggering a NULL pointer dereference for some omap variants:
 
-  arch/powerpc/kvm/book3s_64_entry.o:(.text+0x3ec): relocation truncated
-  to fit: R_PPC64_REL14 (stub) against symbol `system_reset_common'
-  defined in .text section in arch/powerpc/kernel/head_64.o
+__iommu_probe_device from probe_iommu_group+0x2c/0x38
+probe_iommu_group from bus_for_each_dev+0x74/0xbc
+bus_for_each_dev from bus_iommu_probe+0x34/0x2e8
+bus_iommu_probe from bus_set_iommu+0x80/0xc8
+bus_set_iommu from omap_iommu_init+0x88/0xcc
+omap_iommu_init from do_one_initcall+0x44/0x24
 
-Reorganise the code to use non conditional branches.
+This is caused by omap iommu probe returning 0 instead of ERR_PTR(-ENODEV)
+as noted by Jason Gunthorpe <jgg@ziepe.ca>.
 
-Fixes: 89d35b239101 ("KVM: PPC: Book3S HV P9: Implement the rest of the P9 path in C")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Avoid odd-looking bne ., use named local labels]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/89cf27bf43ee07a0b2879b9e8e2f5cd6386a3645.1648366338.git.christophe.leroy@csgroup.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Looks like the regression already happened with an earlier commit
+6785eb9105e3 ("iommu/omap: Convert to probe/release_device() call-backs")
+that changed the function return type and missed converting one place.
+
+Cc: Drew Fustini <dfustini@baylibre.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Suman Anna <s-anna@ti.com>
+Suggested-by: Jason Gunthorpe <jgg@ziepe.ca>
+Fixes: 6785eb9105e3 ("iommu/omap: Convert to probe/release_device() call-backs")
+Fixes: 3f6634d997db ("iommu: Use right way to retrieve iommu_ops")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Drew Fustini <dfustini@baylibre.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/r/20220331062301.24269-1-tony@atomide.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_64_entry.S |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/iommu/omap-iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_64_entry.S
-+++ b/arch/powerpc/kvm/book3s_64_entry.S
-@@ -407,10 +407,16 @@ END_FTR_SECTION_IFSET(CPU_FTR_DAWR1)
- 	 */
- 	ld	r10,HSTATE_SCRATCH0(r13)
- 	cmpwi	r10,BOOK3S_INTERRUPT_MACHINE_CHECK
--	beq	machine_check_common
-+	beq	.Lcall_machine_check_common
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index 980e4af3f06b..d2e82a1b56d8 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -1661,7 +1661,7 @@ static struct iommu_device *omap_iommu_probe_device(struct device *dev)
+ 	num_iommus = of_property_count_elems_of_size(dev->of_node, "iommus",
+ 						     sizeof(phandle));
+ 	if (num_iommus < 0)
+-		return 0;
++		return ERR_PTR(-ENODEV);
  
- 	cmpwi	r10,BOOK3S_INTERRUPT_SYSTEM_RESET
--	beq	system_reset_common
-+	beq	.Lcall_system_reset_common
- 
- 	b	.
-+
-+.Lcall_machine_check_common:
-+	b	machine_check_common
-+
-+.Lcall_system_reset_common:
-+	b	system_reset_common
- #endif
+ 	arch_data = kcalloc(num_iommus + 1, sizeof(*arch_data), GFP_KERNEL);
+ 	if (!arch_data)
+-- 
+2.35.1
+
 
 
