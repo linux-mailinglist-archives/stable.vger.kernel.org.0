@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B254FDA1B
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 199194FD851
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 12:35:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348246AbiDLHs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 03:48:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44848 "EHLO
+        id S1355521AbiDLIKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 04:10:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357314AbiDLHj6 (ORCPT
+        with ESMTP id S1357315AbiDLHj6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 03:39:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0513B1EC50;
-        Tue, 12 Apr 2022 00:14:57 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12CD223BD7;
+        Tue, 12 Apr 2022 00:14:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3DF7B81B62;
-        Tue, 12 Apr 2022 07:14:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03DECC385A5;
-        Tue, 12 Apr 2022 07:14:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3E626176E;
+        Tue, 12 Apr 2022 07:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B46E1C385A6;
+        Tue, 12 Apr 2022 07:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649747694;
-        bh=hVu1gpPr0uY/FdIH5Ckm7DMmE8MOGJVH0WdABw0+KkI=;
+        s=korg; t=1649747697;
+        bh=pTCguM5hKfS5YojLbcfsg4liUJK9KCMGfsJzuRRUdt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kq/fd40+Roli2ois3ydVmruXjYHZkpD9kj9TSrKVnY3yZZE5g7eNkSLrZ+d25zZuw
-         Tsi0tcq5sY67fLBQ+4C7FF7LFCljmqDub2e/1nMYK1KkcF4r/FTh///946Z9QBwHgw
-         Rcco5AyABcTv0yiTl7Nqe7ou6K3zVXY2HAA96Rjk=
+        b=iK1kTBV1asbdAzKe4tlQe92rhwRyDYza7E2Ji+uj2yxvy7u/vqWNusZCxsdEPmXsV
+         mSRTLo3zfFj556Ew1AJDyOlB3VeLErp7jcm06YeuFLS2lZ30jw9sSZaP+ah6mL9ILD
+         2FRoni85NSka/N82KofFS0b4Pkljw/wwhWMcY3pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 172/343] habanalabs: reject host map with mmu disabled
-Date:   Tue, 12 Apr 2022 08:29:50 +0200
-Message-Id: <20220412062956.333257395@linuxfoundation.org>
+Subject: [PATCH 5.17 173/343] habanalabs/gaudi: handle axi errors from NIC engines
+Date:   Tue, 12 Apr 2022 08:29:51 +0200
+Message-Id: <20220412062956.361016831@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
 References: <20220412062951.095765152@linuxfoundation.org>
@@ -55,86 +55,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Oded Gabbay <ogabbay@kernel.org>
 
-[ Upstream commit 9a79e3e4a3637c07352d9723b825490a1b04391f ]
+[ Upstream commit 26ef1c000bc21a192618c9ec651dd36ba63ca00c ]
 
-This is not something we can do a workaround. It is clearly an error
-and we should notify the user that it is an error.
+Various AXI errors can occur in the NIC engines and are reported to
+the driver by the f/w. Add code to print the errors and ack them to
+the f/w.
 
 Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/memory.c | 30 +++++++++----------------
- 1 file changed, 11 insertions(+), 19 deletions(-)
+ drivers/misc/habanalabs/gaudi/gaudi.c | 48 +++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
-index c1eefaebacb6..bcc6e547e071 100644
---- a/drivers/misc/habanalabs/common/memory.c
-+++ b/drivers/misc/habanalabs/common/memory.c
-@@ -1967,16 +1967,15 @@ static int export_dmabuf_from_handle(struct hl_ctx *ctx, u64 handle, int flags,
- static int mem_ioctl_no_mmu(struct hl_fpriv *hpriv, union hl_mem_args *args)
+diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
+index 013c6da2e3ca..b4dacea80151 100644
+--- a/drivers/misc/habanalabs/gaudi/gaudi.c
++++ b/drivers/misc/habanalabs/gaudi/gaudi.c
+@@ -7819,6 +7819,48 @@ static void gaudi_print_fw_alive_info(struct hl_device *hdev,
+ 		fw_alive->thread_id, fw_alive->uptime_seconds);
+ }
+ 
++static void gaudi_print_nic_axi_irq_info(struct hl_device *hdev, u16 event_type,
++						void *data)
++{
++	char desc[64] = "", *type;
++	struct eq_nic_sei_event *eq_nic_sei = data;
++	u16 nic_id = event_type - GAUDI_EVENT_NIC_SEI_0;
++
++	switch (eq_nic_sei->axi_error_cause) {
++	case RXB:
++		type = "RXB";
++		break;
++	case RXE:
++		type = "RXE";
++		break;
++	case TXS:
++		type = "TXS";
++		break;
++	case TXE:
++		type = "TXE";
++		break;
++	case QPC_RESP:
++		type = "QPC_RESP";
++		break;
++	case NON_AXI_ERR:
++		type = "NON_AXI_ERR";
++		break;
++	case TMR:
++		type = "TMR";
++		break;
++	default:
++		dev_err(hdev->dev, "unknown NIC AXI cause %d\n",
++			eq_nic_sei->axi_error_cause);
++		type = "N/A";
++		break;
++	}
++
++	snprintf(desc, sizeof(desc), "NIC%d_%s%d", nic_id, type,
++			eq_nic_sei->id);
++	dev_err_ratelimited(hdev->dev, "Received H/W interrupt %d [\"%s\"]\n",
++		event_type, desc);
++}
++
+ static int gaudi_non_hard_reset_late_init(struct hl_device *hdev)
  {
- 	struct hl_device *hdev = hpriv->hdev;
--	struct hl_ctx *ctx = hpriv->ctx;
- 	u64 block_handle, device_addr = 0;
-+	struct hl_ctx *ctx = hpriv->ctx;
- 	u32 handle = 0, block_size;
--	int rc, dmabuf_fd = -EBADF;
-+	int rc;
- 
- 	switch (args->in.op) {
- 	case HL_MEM_OP_ALLOC:
- 		if (args->in.alloc.mem_size == 0) {
--			dev_err(hdev->dev,
--				"alloc size must be larger than 0\n");
-+			dev_err(hdev->dev, "alloc size must be larger than 0\n");
- 			rc = -EINVAL;
- 			goto out;
- 		}
-@@ -1997,15 +1996,14 @@ static int mem_ioctl_no_mmu(struct hl_fpriv *hpriv, union hl_mem_args *args)
- 
- 	case HL_MEM_OP_MAP:
- 		if (args->in.flags & HL_MEM_USERPTR) {
--			device_addr = args->in.map_host.host_virt_addr;
--			rc = 0;
-+			dev_err(hdev->dev, "Failed to map host memory when MMU is disabled\n");
-+			rc = -EPERM;
- 		} else {
--			rc = get_paddr_from_handle(ctx, &args->in,
--							&device_addr);
-+			rc = get_paddr_from_handle(ctx, &args->in, &device_addr);
-+			memset(args, 0, sizeof(*args));
-+			args->out.device_virt_addr = device_addr;
- 		}
- 
--		memset(args, 0, sizeof(*args));
--		args->out.device_virt_addr = device_addr;
+ 	/* GAUDI doesn't support any reset except hard-reset */
+@@ -8066,6 +8108,7 @@ static void gaudi_handle_eqe(struct hl_device *hdev,
+ 				struct hl_eq_entry *eq_entry)
+ {
+ 	struct gaudi_device *gaudi = hdev->asic_specific;
++	u64 data = le64_to_cpu(eq_entry->data[0]);
+ 	u32 ctl = le32_to_cpu(eq_entry->hdr.ctl);
+ 	u32 fw_fatal_err_flag = 0;
+ 	u16 event_type = ((ctl & EQ_CTL_EVENT_TYPE_MASK)
+@@ -8263,6 +8306,11 @@ static void gaudi_handle_eqe(struct hl_device *hdev,
+ 		hl_fw_unmask_irq(hdev, event_type);
  		break;
  
- 	case HL_MEM_OP_UNMAP:
-@@ -2013,20 +2011,14 @@ static int mem_ioctl_no_mmu(struct hl_fpriv *hpriv, union hl_mem_args *args)
- 		break;
- 
- 	case HL_MEM_OP_MAP_BLOCK:
--		rc = map_block(hdev, args->in.map_block.block_addr,
--				&block_handle, &block_size);
-+		rc = map_block(hdev, args->in.map_block.block_addr, &block_handle, &block_size);
- 		args->out.block_handle = block_handle;
- 		args->out.block_size = block_size;
- 		break;
- 
- 	case HL_MEM_OP_EXPORT_DMABUF_FD:
--		rc = export_dmabuf_from_addr(ctx,
--				args->in.export_dmabuf_fd.handle,
--				args->in.export_dmabuf_fd.mem_size,
--				args->in.flags,
--				&dmabuf_fd);
--		memset(args, 0, sizeof(*args));
--		args->out.fd = dmabuf_fd;
-+		dev_err(hdev->dev, "Failed to export dma-buf object when MMU is disabled\n");
-+		rc = -EPERM;
- 		break;
- 
- 	default:
++	case GAUDI_EVENT_NIC_SEI_0 ... GAUDI_EVENT_NIC_SEI_4:
++		gaudi_print_nic_axi_irq_info(hdev, event_type, &data);
++		hl_fw_unmask_irq(hdev, event_type);
++		break;
++
+ 	case GAUDI_EVENT_DMA_IF_SEI_0 ... GAUDI_EVENT_DMA_IF_SEI_3:
+ 		gaudi_print_irq_info(hdev, event_type, false);
+ 		gaudi_print_sm_sei_info(hdev, event_type,
 -- 
 2.35.1
 
