@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCAD04FD0EB
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D66874FD0EF
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350764AbiDLG4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49006 "EHLO
+        id S1350767AbiDLG4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:56:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351392AbiDLGxb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B105D3B572;
-        Mon, 11 Apr 2022 23:40:27 -0700 (PDT)
+        with ESMTP id S1351403AbiDLGxc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:53:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B703BA5D;
+        Mon, 11 Apr 2022 23:40:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63509B81B49;
-        Tue, 12 Apr 2022 06:40:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9DEBC385A6;
-        Tue, 12 Apr 2022 06:40:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85EAA60A6A;
+        Tue, 12 Apr 2022 06:40:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D14CC385A6;
+        Tue, 12 Apr 2022 06:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745625;
-        bh=3UpoHPmA1REyvS8kimEvnSZkDaZE7M/8wkUmdIftR50=;
+        s=korg; t=1649745627;
+        bh=ceuZB43P3gznOIMJ1ac94fowj66kFvngyDn8duaS0J0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kEigi1A96TMaEqfRiV1Y4CSdC5EUpsi48D3YFLl2SmZZIOTr4CWPWLy+4Y+p2a10Y
-         uIqkd7ku1BVcs/54HWBoWYvc0dTmhfn5VvE0QBZBmNEgb6rmbk36KulNEcLTIVtmJX
-         7lHcs9dogrYv4OdJ258hHpcGJhZ4NK7eTJR9Lty8=
+        b=NrTzcxH5CKA6A9Ml5j0v1IgvXVs7iMYvk8NDAmRUJJNlDPKzSHBh3J7A8B9Ze3F7X
+         ePkVX7DkoZFsmVL29alNCnhEGDkmLGOHW5wTZFmBLxucqzo3FhkA7Gf2FA2L3klcal
+         lioooI1zbALkpGYdUhVSGVsPedwwbsulzkUeBYKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        Jamie Bainbridge <jamie.bainbridge@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 121/171] net: phy: mscc-miim: reject clause 45 register accesses
-Date:   Tue, 12 Apr 2022 08:30:12 +0200
-Message-Id: <20220412062931.386921482@linuxfoundation.org>
+Subject: [PATCH 5.10 122/171] qede: confirm skb is allocated before using
+Date:   Tue, 12 Apr 2022 08:30:13 +0200
+Message-Id: <20220412062931.415031684@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -56,48 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Jamie Bainbridge <jamie.bainbridge@gmail.com>
 
-[ Upstream commit 8d90991e5bf7fdb9f264f5f579d18969913054b7 ]
+[ Upstream commit 4e910dbe36508654a896d5735b318c0b88172570 ]
 
-The driver doesn't support clause 45 register access yet, but doesn't
-check if the access is a c45 one either. This leads to spurious register
-reads and writes. Add the check.
+qede_build_skb() assumes build_skb() always works and goes straight
+to skb_reserve(). However, build_skb() can fail under memory pressure.
+This results in a kernel panic because the skb to reserve is NULL.
 
-Fixes: 542671fe4d86 ("net: phy: mscc-miim: Add MDIO driver")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Add a check in case build_skb() failed to allocate and return NULL.
+
+The NULL return is handled correctly in callers to qede_build_skb().
+
+Fixes: 8a8633978b842 ("qede: Add build_skb() support.")
+Signed-off-by: Jamie Bainbridge <jamie.bainbridge@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/mdio/mdio-mscc-miim.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/qlogic/qede/qede_fp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/mdio/mdio-mscc-miim.c b/drivers/net/mdio/mdio-mscc-miim.c
-index 11f583fd4611..1c9232fca1e2 100644
---- a/drivers/net/mdio/mdio-mscc-miim.c
-+++ b/drivers/net/mdio/mdio-mscc-miim.c
-@@ -76,6 +76,9 @@ static int mscc_miim_read(struct mii_bus *bus, int mii_id, int regnum)
- 	u32 val;
- 	int ret;
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_fp.c b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+index 21c906200e79..d210632676d3 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_fp.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_fp.c
+@@ -752,6 +752,9 @@ qede_build_skb(struct qede_rx_queue *rxq,
+ 	buf = page_address(bd->data) + bd->page_offset;
+ 	skb = build_skb(buf, rxq->rx_buf_seg_size);
  
-+	if (regnum & MII_ADDR_C45)
-+		return -EOPNOTSUPP;
++	if (unlikely(!skb))
++		return NULL;
 +
- 	ret = mscc_miim_wait_pending(bus);
- 	if (ret)
- 		goto out;
-@@ -105,6 +108,9 @@ static int mscc_miim_write(struct mii_bus *bus, int mii_id,
- 	struct mscc_miim_dev *miim = bus->priv;
- 	int ret;
+ 	skb_reserve(skb, pad);
+ 	skb_put(skb, len);
  
-+	if (regnum & MII_ADDR_C45)
-+		return -EOPNOTSUPP;
-+
- 	ret = mscc_miim_wait_pending(bus);
- 	if (ret < 0)
- 		goto out;
 -- 
 2.35.1
 
