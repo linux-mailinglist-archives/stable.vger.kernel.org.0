@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79ABF4FD0B3
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:48:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB7FE4FD0C2
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239471AbiDLGuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:50:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57702 "EHLO
+        id S1350630AbiDLGvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:51:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245566AbiDLGsd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:48:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D200A25E82;
-        Mon, 11 Apr 2022 23:39:35 -0700 (PDT)
+        with ESMTP id S1350722AbiDLGta (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:49:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E877D2716E;
+        Mon, 11 Apr 2022 23:39:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58EEFB81B46;
-        Tue, 12 Apr 2022 06:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3512C385A1;
-        Tue, 12 Apr 2022 06:39:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0172B818C8;
+        Tue, 12 Apr 2022 06:39:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58535C385A6;
+        Tue, 12 Apr 2022 06:39:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745572;
-        bh=hgWqPv0qp5XKtQyjo6xnVe2Wx2vOCKHxAO/Zm1Lvht4=;
+        s=korg; t=1649745577;
+        bh=nvRdbb4pUqSKQJGyUWNyRJDomqpaNnwKlTdQMXfzlaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIEz6OnudXcZbom9EFTGIrSS8dcBk8Jjpw/Gq5HSWMtTCVX5RFrmqX6yz+tECY7PU
-         ZYJnIIQMBzrw1rn5ljCve68dvIXNl5C9EMYJkkjg+J8jT45gqD3ZwOlVFWszlxtxIE
-         BsDbYRdkkXdELo3GilHZbt3pW36N6KIVn49V9tCM=
+        b=Si0+Vlmf6z0j0PT4SOsR3Q4w3Z0j0etSHCFCBdfPku2sWsXYd0h20yb/ZVtijKruV
+         LunqeTYuJFz4oT+tdiFnFQtJCcXdugolNSJnTN8mh8arK3QKYrPrjrS1+gBU/5htp8
+         DLodhxSXQ3symwbRqnieMgO/Rn2du7W70q38Yhdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org,
+        Neelima Krishnan <neelima.krishnan@intel.com>,
         Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
         Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 142/171] x86/pm: Save the MSR validity status at context setup
-Date:   Tue, 12 Apr 2022 08:30:33 +0200
-Message-Id: <20220412062932.000715095@linuxfoundation.org>
+Subject: [PATCH 5.10 143/171] x86/speculation: Restore speculation related MSRs during S3 resume
+Date:   Tue, 12 Apr 2022 08:30:34 +0200
+Message-Id: <20220412062932.029328163@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
 References: <20220412062927.870347203@linuxfoundation.org>
@@ -57,53 +59,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 73924ec4d560257004d5b5116b22a3647661e364 upstream.
+commit e2a1256b17b16f9b9adf1b6fea56819e7b68e463 upstream.
 
-The mechanism to save/restore MSRs during S3 suspend/resume checks for
-the MSR validity during suspend, and only restores the MSR if its a
-valid MSR.  This is not optimal, as an invalid MSR will unnecessarily
-throw an exception for every suspend cycle.  The more invalid MSRs,
-higher the impact will be.
+After resuming from suspend-to-RAM, the MSRs that control CPU's
+speculative execution behavior are not being restored on the boot CPU.
 
-Check and save the MSR validity at setup.  This ensures that only valid
-MSRs that are guaranteed to not throw an exception will be attempted
-during suspend.
+These MSRs are used to mitigate speculative execution vulnerabilities.
+Not restoring them correctly may leave the CPU vulnerable.  Secondary
+CPU's MSRs are correctly being restored at S3 resume by
+identify_secondary_cpu().
 
-Fixes: 7a9c2dd08ead ("x86/pm: Introduce quirk framework to save/restore extra MSR registers around suspend/resume")
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+During S3 resume, restore these MSRs for boot CPU when restoring its
+processor state.
+
+Fixes: 772439717dbf ("x86/bugs/intel: Set proper CPU features and setup RDS")
+Reported-by: Neelima Krishnan <neelima.krishnan@intel.com>
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
 Acked-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/power/cpu.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/power/cpu.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 --- a/arch/x86/power/cpu.c
 +++ b/arch/x86/power/cpu.c
-@@ -40,7 +40,8 @@ static void msr_save_context(struct save
- 	struct saved_msr *end = msr + ctxt->saved_msrs.num;
- 
- 	while (msr < end) {
--		msr->valid = !rdmsrl_safe(msr->info.msr_no, &msr->info.reg.q);
-+		if (msr->valid)
-+			rdmsrl(msr->info.msr_no, msr->info.reg.q);
- 		msr++;
- 	}
+@@ -506,10 +506,24 @@ static int pm_cpu_check(const struct x86
+ 	return ret;
  }
-@@ -427,8 +428,10 @@ static int msr_build_context(const u32 *
- 	}
  
- 	for (i = saved_msrs->num, j = 0; i < total_num; i++, j++) {
-+		u64 dummy;
++static void pm_save_spec_msr(void)
++{
++	u32 spec_msr_id[] = {
++		MSR_IA32_SPEC_CTRL,
++		MSR_IA32_TSX_CTRL,
++		MSR_TSX_FORCE_ABORT,
++		MSR_IA32_MCU_OPT_CTRL,
++		MSR_AMD64_LS_CFG,
++	};
 +
- 		msr_array[i].info.msr_no	= msr_id[j];
--		msr_array[i].valid		= false;
-+		msr_array[i].valid		= !rdmsrl_safe(msr_id[j], &dummy);
- 		msr_array[i].info.reg.q		= 0;
- 	}
- 	saved_msrs->num   = total_num;
++	msr_build_context(spec_msr_id, ARRAY_SIZE(spec_msr_id));
++}
++
+ static int pm_check_save_msr(void)
+ {
+ 	dmi_check_system(msr_save_dmi_table);
+ 	pm_cpu_check(msr_save_cpu_table);
++	pm_save_spec_msr();
+ 
+ 	return 0;
+ }
 
 
