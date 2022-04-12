@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44EA44FCFD8
-	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:37:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E23254FD1A9
+	for <lists+stable@lfdr.de>; Tue, 12 Apr 2022 08:58:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349500AbiDLGig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 02:38:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50794 "EHLO
+        id S1344455AbiDLG7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 02:59:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350184AbiDLGhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:37:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08B2C13EA3;
-        Mon, 11 Apr 2022 23:34:24 -0700 (PDT)
+        with ESMTP id S1352642AbiDLG4L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 02:56:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A5744160A;
+        Mon, 11 Apr 2022 23:46:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 702F5B81B4A;
-        Tue, 12 Apr 2022 06:34:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9984C385A1;
-        Tue, 12 Apr 2022 06:34:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF7F060A21;
+        Tue, 12 Apr 2022 06:46:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00CAAC385A1;
+        Tue, 12 Apr 2022 06:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649745262;
-        bh=81z2h1KVHNB5zfs48nVJ9EZ4tsJ+/5iEXZGNdjODKYQ=;
+        s=korg; t=1649745978;
+        bh=IOovzYC0GjLr5QhhclSKwqs0PgtcJowYk7HNrU5jM5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0Xb75I+Tj5eKWWrRyWTSwJSP69sR8Ijtzm1kANwxxkn0LmKPzc/oPiZZXRxxbIMn
-         Seyiwn8dPmwzFdqM8ibHovLCPC9ut2Di4Ooh0Lcj8CPezy2Z9x+GN9OopnctUc/Q4a
-         yJjE6H1ryKUumaT47Huc6LQDpYj9PWcHxNUeF1Uo=
+        b=oilqc9IgQi8tP8/j8ohlWVaNNT/tfaIr4JdrADEc3fCbB+4oz24TgtlY3bs2Pkrcf
+         5RDO4Ic/zDxJQ+bm3zstiDRTzxT554dMqT3Lrg9EsVUhTA+CC9uqNm4B/JuLePJqbA
+         dI9rIshhhRclAIXptDEwqn3bwFVkFJAqDDSTfc5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/171] PCI: aardvark: Fix support for MSI interrupts
+Subject: [PATCH 5.15 116/277] clk: rockchip: drop CLK_SET_RATE_PARENT from dclk_vop* on rk3568
 Date:   Tue, 12 Apr 2022 08:28:39 +0200
-Message-Id: <20220412062928.700590024@linuxfoundation.org>
+Message-Id: <20220412062945.397645975@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220412062927.870347203@linuxfoundation.org>
-References: <20220412062927.870347203@linuxfoundation.org>
+In-Reply-To: <20220412062942.022903016@linuxfoundation.org>
+References: <20220412062942.022903016@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,79 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit b0b0b8b897f8e12b2368e868bd7cdc5742d5c5a9 ]
+[ Upstream commit ff3187eabb5ce478d15b6ed62eb286756adefac3 ]
 
-Aardvark hardware supports Multi-MSI and MSI_FLAG_MULTI_PCI_MSI is already
-set for the MSI chip. But when allocating MSI interrupt numbers for
-Multi-MSI, the numbers need to be properly aligned, otherwise endpoint
-devices send MSI interrupt with incorrect numbers.
+The pixel clocks dclk_vop[012] can be clocked from hpll, vpll, gpll or
+cpll. gpll and cpll also drive many other clocks, so changing the
+dclk_vop[012] clocks could change these other clocks as well. Drop
+CLK_SET_RATE_PARENT to fix that. With this change the VOP2 driver can
+only adjust the pixel clocks with the divider between the PLL and the
+dclk_vop[012] which means the user may have to adjust the PLL clock to a
+suitable rate using the assigned-clock-rate device tree property.
 
-Fix this issue by using function bitmap_find_free_region() instead of
-bitmap_find_next_zero_area().
-
-To ensure that aligned MSI interrupt numbers are used by endpoint devices,
-we cannot use Linux virtual irq numbers (as they are random and not
-properly aligned). Instead we need to use the aligned hwirq numbers.
-
-This change fixes receiving MSI interrupts on Armada 3720 boards and
-allows using NVMe disks which use Multi-MSI feature with 3 interrupts.
-
-Without this NVMe disks freeze booting as linux nvme-core.c is waiting
-60s for an interrupt.
-
-Link: https://lore.kernel.org/r/20220110015018.26359-4-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Link: https://lore.kernel.org/r/20220126145549.617165-25-s.hauer@pengutronix.de
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/clk/rockchip/clk-rk3568.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 49ff8bf10c74..af051fb88699 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1186,7 +1186,7 @@ static void advk_msi_irq_compose_msi_msg(struct irq_data *data,
- 
- 	msg->address_lo = lower_32_bits(msi_msg);
- 	msg->address_hi = upper_32_bits(msi_msg);
--	msg->data = data->irq;
-+	msg->data = data->hwirq;
- }
- 
- static int advk_msi_set_affinity(struct irq_data *irq_data,
-@@ -1203,15 +1203,11 @@ static int advk_msi_irq_domain_alloc(struct irq_domain *domain,
- 	int hwirq, i;
- 
- 	mutex_lock(&pcie->msi_used_lock);
--	hwirq = bitmap_find_next_zero_area(pcie->msi_used, MSI_IRQ_NUM,
--					   0, nr_irqs, 0);
--	if (hwirq >= MSI_IRQ_NUM) {
--		mutex_unlock(&pcie->msi_used_lock);
--		return -ENOSPC;
--	}
--
--	bitmap_set(pcie->msi_used, hwirq, nr_irqs);
-+	hwirq = bitmap_find_free_region(pcie->msi_used, MSI_IRQ_NUM,
-+					order_base_2(nr_irqs));
- 	mutex_unlock(&pcie->msi_used_lock);
-+	if (hwirq < 0)
-+		return -ENOSPC;
- 
- 	for (i = 0; i < nr_irqs; i++)
- 		irq_domain_set_info(domain, virq + i, hwirq + i,
-@@ -1229,7 +1225,7 @@ static void advk_msi_irq_domain_free(struct irq_domain *domain,
- 	struct advk_pcie *pcie = domain->host_data;
- 
- 	mutex_lock(&pcie->msi_used_lock);
--	bitmap_clear(pcie->msi_used, d->hwirq, nr_irqs);
-+	bitmap_release_region(pcie->msi_used, d->hwirq, order_base_2(nr_irqs));
- 	mutex_unlock(&pcie->msi_used_lock);
- }
- 
+diff --git a/drivers/clk/rockchip/clk-rk3568.c b/drivers/clk/rockchip/clk-rk3568.c
+index 75ca855e720d..6e5440841d1e 100644
+--- a/drivers/clk/rockchip/clk-rk3568.c
++++ b/drivers/clk/rockchip/clk-rk3568.c
+@@ -1038,13 +1038,13 @@ static struct rockchip_clk_branch rk3568_clk_branches[] __initdata = {
+ 			RK3568_CLKGATE_CON(20), 8, GFLAGS),
+ 	GATE(HCLK_VOP, "hclk_vop", "hclk_vo", 0,
+ 			RK3568_CLKGATE_CON(20), 9, GFLAGS),
+-	COMPOSITE(DCLK_VOP0, "dclk_vop0", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_PARENT | CLK_SET_RATE_NO_REPARENT,
++	COMPOSITE(DCLK_VOP0, "dclk_vop0", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_NO_REPARENT,
+ 			RK3568_CLKSEL_CON(39), 10, 2, MFLAGS, 0, 8, DFLAGS,
+ 			RK3568_CLKGATE_CON(20), 10, GFLAGS),
+-	COMPOSITE(DCLK_VOP1, "dclk_vop1", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_PARENT | CLK_SET_RATE_NO_REPARENT,
++	COMPOSITE(DCLK_VOP1, "dclk_vop1", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_NO_REPARENT,
+ 			RK3568_CLKSEL_CON(40), 10, 2, MFLAGS, 0, 8, DFLAGS,
+ 			RK3568_CLKGATE_CON(20), 11, GFLAGS),
+-	COMPOSITE(DCLK_VOP2, "dclk_vop2", hpll_vpll_gpll_cpll_p, 0,
++	COMPOSITE(DCLK_VOP2, "dclk_vop2", hpll_vpll_gpll_cpll_p, CLK_SET_RATE_NO_REPARENT,
+ 			RK3568_CLKSEL_CON(41), 10, 2, MFLAGS, 0, 8, DFLAGS,
+ 			RK3568_CLKGATE_CON(20), 12, GFLAGS),
+ 	GATE(CLK_VOP_PWM, "clk_vop_pwm", "xin24m", 0,
 -- 
 2.35.1
 
