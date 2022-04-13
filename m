@@ -2,145 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A571A4FF719
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 14:51:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 717084FF747
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 14:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229441AbiDMMx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 08:53:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54852 "EHLO
+        id S229521AbiDMNBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 09:01:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235629AbiDMMx2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 08:53:28 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 70A235674B
-        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 05:51:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649854263;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Eulm2y9aUTnIqbN96P5OgT83WpD2X3ejmdT0ZWZScxQ=;
-        b=X1ixnUKEhwScKoiR8yac5nOfHjLX2EbYxPnZY7Ya+7jKGNmt9dzfCmslb8+r6wQWHMla9H
-        UqCDEXGapaHYVEupmsJIwxwVWZV4Y4tqEMhtqG+xVvlY+3PAQtJcbwXo96gD0d6AtJoaQn
-        YvU7bWwHqlqKgIGbUE3SH2NAQiEWOb4=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-615-4Uwn-FTTOTC-WDk4N1AIzg-1; Wed, 13 Apr 2022 08:51:02 -0400
-X-MC-Unique: 4Uwn-FTTOTC-WDk4N1AIzg-1
-Received: by mail-lf1-f70.google.com with SMTP id h11-20020a0565123c8b00b0044b05b775ceso884626lfv.6
-        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 05:51:02 -0700 (PDT)
+        with ESMTP id S231727AbiDMNBm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 09:01:42 -0400
+Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAE30303;
+        Wed, 13 Apr 2022 05:59:20 -0700 (PDT)
+Received: by mail-wm1-x335.google.com with SMTP id x3so1017301wmj.5;
+        Wed, 13 Apr 2022 05:59:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=tLvIKnCsgwq0Fk81VHoLGLNWgDzppdl1EGVsnwIiwWk=;
+        b=J+TeCd/41OhdiO9FUGEfBABaBHyh/+x7sT23BLdtYO5M/x78pQgF4HUNKv9pzckLvE
+         MxPd2HtNgkI6X7aRD/PgoHW6pVhDxI8euAS9xxP6mmaE1kusyaJ0y+ZjzUz6BMYa5ozG
+         9uinPwymgXMcz+Gg+OuQDeTD5Y8mH6LmuNMUDP/r/iZ6ncTL2KniEyeWwa8admD2JJxh
+         55468CiYjZUtegpegbpzGpHqZ2PuQ9QJf08kGj4VNjg0PuJiBgKjEWPP6vJNz5uLeKJS
+         pPiToZDXWjoFGkMUuKIofSm8bW4zIWYbuSBz6fEuW6Ccl8EM9Nmw4ioblOFhaO1IvD9d
+         ZBkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Eulm2y9aUTnIqbN96P5OgT83WpD2X3ejmdT0ZWZScxQ=;
-        b=4eGf1WGzH75/PLSc7mdPfZLIx5c4/5jeXfb8PRGtxLZFX7Tp9Sm0jg3Py5Q//vrMWx
-         6p9ANHXMRfNPIP/jWrxfI6f0cwyVPMywlQAZBc3jMlMg2/h8Xl/m6qUKxoaQ3bV4VfbB
-         W5nHdnB12g043EzYW+nTnODzy6+5knxzu37QCj2ZCJ6fDIxDcEQbxL4JcGdaUf4UAcKo
-         iEfWZyXNXvH2cwwM+i8dzYlcLcJsA0pDkzRexznMrkcm9Ggjph9HRjf1+PHj1lPCQgS3
-         iKKQYxWs7CP8ya9OEm8npymSo8ur4dGWGSzyrsV5GsJXmmBaGf0cQFxwRoXtC8Xrbotf
-         M79A==
-X-Gm-Message-State: AOAM531Kg0B6SfDD5FI8n3HO1L3GczlyhM6tM22yz3sPfCPQxFhOP5+t
-        icnjRhCFO5822Yh98G57hyYb2I4K1AKNc9R0jZ7j+f5JWygs/WmLCXB3d9me4sSw0Lj1PoNMvCP
-        MqdjeMMhJCBB1rkpqegMjhiRjVIFs2RhT
-X-Received: by 2002:a05:651c:1603:b0:248:e00:aeba with SMTP id f3-20020a05651c160300b002480e00aebamr26558643ljq.456.1649854260743;
-        Wed, 13 Apr 2022 05:51:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwu2OyzEJ4JRTKw7vAZezWqYqiMF//+sKH8r1BvdcnZgLuD8haa3z4A8gh3aKmOoGYr+OtLLE6BDwND6pgVEiA=
-X-Received: by 2002:a05:651c:1603:b0:248:e00:aeba with SMTP id
- f3-20020a05651c160300b002480e00aebamr26558629ljq.456.1649854260503; Wed, 13
- Apr 2022 05:51:00 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=tLvIKnCsgwq0Fk81VHoLGLNWgDzppdl1EGVsnwIiwWk=;
+        b=WX/tvb6yVCz0T6oV6WZN9+6cGtZhttzYuuK5nSYV09C9Nf/8nT8nUC27ygpJ6dyW2M
+         tw4WVyuhWOsbAs5rRRxi+A8YXNIaJjfzYueLHOTK7PuHS1kRAA6HhrNb9lZf+9I+3efh
+         q5aP3vEfB4QJZfH9dKO3jgemiFzZrUpLBt0nMYlnlLGPYMPvRtsKm9bGQrIZYB4cgXlD
+         yZ8gg7MQ8JmPXOTqdATmbeBPPxC4+mmYKb6QO+8ieUL6qBFLvzTqdjjLyB0Ix3GE+ur0
+         BbVl9LErdE+CUZ9DvyXMyCao/qXJ3XmkWJbhPhuUeNMF7mFkdemSZdR4Uhytm5ofLP/l
+         PIzQ==
+X-Gm-Message-State: AOAM530Y88/NxUFQi4GGkUdRWW2wfznoyTrFW2Z52bKjMeNg5nlLdW0A
+        zaZgs1M/kX/38/5e/2ssP1o=
+X-Google-Smtp-Source: ABdhPJzHDsOyWeJ1XYw5H42kbzi5IU99y9X4kNsBdhZkSZSUb/AfGgMpOXsUKWaFNT0R/LhnDJ9bFw==
+X-Received: by 2002:a05:600c:5128:b0:38e:bcdd:53bf with SMTP id o40-20020a05600c512800b0038ebcdd53bfmr8352243wms.109.1649854759438;
+        Wed, 13 Apr 2022 05:59:19 -0700 (PDT)
+Received: from hoboy.vegasvil.org (195-70-108-137.stat.salzburg-online.at. [195.70.108.137])
+        by smtp.gmail.com with ESMTPSA id f9-20020a05600c4e8900b0038cc29bb0e1sm2873992wmq.4.2022.04.13.05.59.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Apr 2022 05:59:18 -0700 (PDT)
+Date:   Wed, 13 Apr 2022 05:59:15 -0700
+From:   Richard Cochran <richardcochran@gmail.com>
+To:     Tan Tee Min <tee.min.tan@intel.com>
+Cc:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Rayagond Kokatanur <rayagond@vayavyalabs.com>,
+        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Voon Wei Feng <weifeng.voon@intel.com>,
+        Wong Vee Khee <vee.khee.wong@intel.com>,
+        Song Yoong Siang <yoong.siang.song@intel.com>
+Subject: Re: [PATCH net 1/1] net: stmmac: add fsleep() in HW Rx timestamp
+ checking loop
+Message-ID: <20220413125915.GA667752@hoboy.vegasvil.org>
+References: <20220413040115.2351987-1-tee.min.tan@intel.com>
 MIME-Version: 1.0
-References: <cki.LEF6Q6V9CU1O7JTZ58AW@redhat.com> <YlZse4JgKRqMBdJ1@kroah.com>
-In-Reply-To: <YlZse4JgKRqMBdJ1@kroah.com>
-From:   Veronika Kabatova <vkabatov@redhat.com>
-Date:   Wed, 13 Apr 2022 14:50:24 +0200
-Message-ID: <CA+tGwnmKj22790PG3hVYbx_80cpSD_KfKc_qG-YpzQHYZWiYFA@mail.gmail.com>
-Subject: =?UTF-8?Q?Re=3A_=E2=9D=8C_FAIL=3A_Test_report_for_kernel_5=2E17=2E2_=28stable=2D?=
-        =?UTF-8?Q?queue=2C_eabfed45=29?=
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     CKI Project <cki-project@redhat.com>,
-        skt-results-master@redhat.com,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        Li Wang <liwang@redhat.com>, Jan Stancek <jstancek@redhat.com>,
-        Guangwu Zhang <guazhang@redhat.com>,
-        Filip Suba <fsuba@redhat.com>,
-        Fendy Tjahjadi <ftjahjad@redhat.com>,
-        Yi Zhang <yizhan@redhat.com>,
-        Changhui Zhong <czhong@redhat.com>,
-        Bruno Goncalves <bgoncalv@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220413040115.2351987-1-tee.min.tan@intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 13, 2022 at 8:24 AM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Wed, Apr 13, 2022 at 06:03:14AM -0000, CKI Project wrote:
-> >
-> >
-> > Check out this report and any autotriaged failures in our web dashboard:
-> >     https://datawarehouse.cki-project.org/kcidb/checkouts/38921
-> >
-> > Hello,
-> >
-> > We ran automated tests on a recent commit from this kernel tree:
-> >
-> >        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> >             Commit: eabfed45bc7c - io_uring: drop the old style inflight file tracking
->
-> It's alive!
->
-> > The results of these automated tests are provided below.
-> >
-> >     Overall result: FAILED (see details below)
-> >              Merge: OK
-> >            Compile: OK
-> >              Tests: FAILED
-> >     Targeted tests: NO
->
-> But things are failing.
->
-> Is this the CKI tool's issue, or is it the patches in the stable queue's
-> issue?
->
-> Given that CKI has been dead for so long, I'll guess it's a CKI issue
-> unless you all say otherwise.
->
+On Wed, Apr 13, 2022 at 12:01:15PM +0800, Tan Tee Min wrote:
+> diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
+> index d3b4765c1a5b..289bf26a6105 100644
+> --- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
+> +++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
+> @@ -279,10 +279,11 @@ static int dwmac4_wrback_get_rx_timestamp_status(void *desc, void *next_desc,
+>  			/* Check if timestamp is OK from context descriptor */
+>  			do {
+>  				ret = dwmac4_rx_check_timestamp(next_desc);
+> -				if (ret < 0)
+> +				if (ret <= 0)
+>  					goto exit;
+>  				i++;
+>  
+> +				fsleep(1);
 
-Hi,
+This is nutty.  Why isn't this code using proper deferral mechanisms
+like work or kthread?
 
-yes, we finally got the builds fixed and are able to run the testing,
-and immediately hit the following Fedora bug:
+>  			} while ((ret == 1) && (i < 10));
+>  
+>  			if (i == 10)
+> -- 
+> 2.25.1
+> 
 
-https://bugzilla.redhat.com/show_bug.cgi?id=2074083
-
-We're looking into what exactly went wrong, the initial suspect is
-that the bug caused aborted test runs which confused the
-reporting system. Sorry about that, and thank you for reaching
-out about the problem!
-
-The listed failures are actual failures (both test and kernel bugs),
-but not specific to the stable tree. They were already reported to
-the relevant places. If you wish, you can look into the details in the
-provided DataWarehouse link.
-
-We're working on transforming the email reports to include the
-known issue detection that is currently provided in the dashboard,
-it should be in place in the (hopefully) near future. That should
-also stabilize the emails.
-
-Veronika
-
-> thanks,
->
-> greg k-h
->
-
+Thanks,
+Richard
