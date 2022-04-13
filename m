@@ -2,30 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F754FF16B
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 10:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8E6A4FF169
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 10:07:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233680AbiDMIJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 04:09:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60108 "EHLO
+        id S232429AbiDMIKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 04:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230518AbiDMIJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 04:09:50 -0400
-X-Greylist: delayed 75 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 13 Apr 2022 01:07:27 PDT
+        with ESMTP id S233140AbiDMIKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 04:10:07 -0400
 Received: from farmhouse.coelho.fi (paleale.coelho.fi [176.9.41.70])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160B42E08F
-        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 01:07:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774842E9C2
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 01:07:47 -0700 (PDT)
 Received: from 91-156-4-241.elisa-laajakaista.fi ([91.156.4.241] helo=kveik.ger.corp.intel.com)
         by farmhouse.coelho.fi with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.95)
         (envelope-from <luca@coelho.fi>)
-        id 1neY24-0002Pg-MW;
-        Wed, 13 Apr 2022 11:07:22 +0300
+        id 1neY2Q-0002Pr-Lm;
+        Wed, 13 Apr 2022 11:07:43 +0300
 From:   Luca Coelho <luca@coelho.fi>
 To:     stable@vger.kernel.org
 Cc:     gregory.greenman@intel.com, luca@coelho.fi
-Date:   Wed, 13 Apr 2022 11:07:19 +0300
-Message-Id: <20220413080719.282105-1-luca@coelho.fi>
+Date:   Wed, 13 Apr 2022 11:07:42 +0300
+Message-Id: <20220413080742.282244-1-luca@coelho.fi>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <1648991790212197@kroah.com>
 References: <1648991790212197@kroah.com>
@@ -37,7 +36,7 @@ X-Spam-Level:
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
         SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-Subject: [PATCH 5.16] iwlwifi: yoyo: fix DBGI_SRAM ini dump header.
+Subject: [PATCH 5.15] iwlwifi: yoyo: fix DBGI_SRAM ini dump header.
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -62,10 +61,10 @@ Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
  4 files changed, 36 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-index 1572097bccf1..9e732f8a2ffe 100644
+index d8231cc821ae..5610097adf89 100644
 --- a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
 +++ b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-@@ -281,6 +281,12 @@ static const struct iwl_ht_params iwl_22000_ht_params = {
+@@ -274,6 +274,12 @@ static const struct iwl_ht_params iwl_22000_ht_params = {
  			.addr = DBGC_CUR_DBGBUF_STATUS,			\
  			.mask = DBGC_CUR_DBGBUF_STATUS_IDX_MSK,		\
  		},							\
@@ -79,10 +78,10 @@ index 1572097bccf1..9e732f8a2ffe 100644
  
  const struct iwl_cfg_trans_params iwl_qnj_trans_cfg = {
 diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-index e2001e88a4b4..9f49b3840dcb 100644
+index b00cf92c8965..bd9da39682a3 100644
 --- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
 +++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-@@ -1695,6 +1695,17 @@ iwl_dump_ini_mon_smem_fill_header(struct iwl_fw_runtime *fwrt,
+@@ -1665,6 +1665,17 @@ iwl_dump_ini_mon_smem_fill_header(struct iwl_fw_runtime *fwrt,
  					    &fwrt->trans->cfg->mon_smem_regs);
  }
  
@@ -100,7 +99,7 @@ index e2001e88a4b4..9f49b3840dcb 100644
  static void *
  iwl_dump_ini_err_table_fill_header(struct iwl_fw_runtime *fwrt,
  				   struct iwl_dump_ini_region_data *reg_data,
-@@ -1860,6 +1871,20 @@ iwl_dump_ini_mon_smem_get_size(struct iwl_fw_runtime *fwrt,
+@@ -1830,6 +1841,20 @@ iwl_dump_ini_mon_smem_get_size(struct iwl_fw_runtime *fwrt,
  	return size;
  }
  
@@ -121,7 +120,7 @@ index e2001e88a4b4..9f49b3840dcb 100644
  static u32 iwl_dump_ini_txf_get_size(struct iwl_fw_runtime *fwrt,
  				     struct iwl_dump_ini_region_data *reg_data)
  {
-@@ -2250,8 +2275,8 @@ static const struct iwl_dump_ini_mem_ops iwl_dump_ini_region_ops[] = {
+@@ -2220,8 +2245,8 @@ static const struct iwl_dump_ini_mem_ops iwl_dump_ini_region_ops[] = {
  	},
  	[IWL_FW_INI_REGION_DBGI_SRAM] = {
  		.get_num_of_ranges = iwl_dump_ini_mem_ranges,
@@ -133,10 +132,10 @@ index e2001e88a4b4..9f49b3840dcb 100644
  	},
  };
 diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-config.h b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-index 665167a223f6..7c1b09ea0f06 100644
+index 7eb534df5331..df710f6d0516 100644
 --- a/drivers/net/wireless/intel/iwlwifi/iwl-config.h
 +++ b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-@@ -404,6 +404,7 @@ struct iwl_cfg {
+@@ -405,6 +405,7 @@ struct iwl_cfg {
  	u32 min_256_ba_txq_size;
  	const struct iwl_fw_mon_regs mon_dram_regs;
  	const struct iwl_fw_mon_regs mon_smem_regs;
@@ -145,10 +144,10 @@ index 665167a223f6..7c1b09ea0f06 100644
  
  #define IWL_CFG_ANY (~0)
 diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
-index 7d3fedfdb348..9cf4e1dd5edf 100644
+index 6c4f1c949541..763d46a0fc0b 100644
 --- a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
 +++ b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
-@@ -358,6 +358,8 @@
+@@ -352,6 +352,8 @@
  /* DBGI SRAM Register details */
  #define DBGI_SRAM_TARGET_ACCESS_RDATA_LSB		0x00A2E154
  #define DBGI_SRAM_TARGET_ACCESS_RDATA_MSB		0x00A2E158
