@@ -2,160 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8E6A4FF169
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 10:07:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F0144FF1A9
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 10:20:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232429AbiDMIKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 04:10:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60444 "EHLO
+        id S231278AbiDMIXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 04:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233140AbiDMIKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 04:10:07 -0400
-Received: from farmhouse.coelho.fi (paleale.coelho.fi [176.9.41.70])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774842E9C2
-        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 01:07:47 -0700 (PDT)
-Received: from 91-156-4-241.elisa-laajakaista.fi ([91.156.4.241] helo=kveik.ger.corp.intel.com)
-        by farmhouse.coelho.fi with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <luca@coelho.fi>)
-        id 1neY2Q-0002Pr-Lm;
-        Wed, 13 Apr 2022 11:07:43 +0300
-From:   Luca Coelho <luca@coelho.fi>
-To:     stable@vger.kernel.org
-Cc:     gregory.greenman@intel.com, luca@coelho.fi
-Date:   Wed, 13 Apr 2022 11:07:42 +0300
-Message-Id: <20220413080742.282244-1-luca@coelho.fi>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <1648991790212197@kroah.com>
-References: <1648991790212197@kroah.com>
+        with ESMTP id S230257AbiDMIXF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 04:23:05 -0400
+X-Greylist: delayed 546 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 13 Apr 2022 01:20:45 PDT
+Received: from mail.bizcorp24.com (mail.bizcorp24.com [80.211.189.103])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695633123C
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 01:20:45 -0700 (PDT)
+Received: by mail.bizcorp24.com (Postfix, from userid 1001)
+        id D82FE8D4BA; Wed, 13 Apr 2022 09:11:16 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bizcorp24.com;
+        s=mail; t=1649837509;
+        bh=dqbL4I2PbKQDd8D+BmP5Ia+tOlRQnYhmr+yxRmvobYw=;
+        h=Date:From:To:Subject:From;
+        b=Ef3295qnHoAPJ4DfBVain4X7bFQ4UxsDoMqFyqSK4+lZebeQ7tmFw1kVp1kq9g6d8
+         Tox5JnMjRX/96EderKTIJfqdycT2mR08Om4GpR9IQiWV1byu8GgzFx+RVLhdhfXHnl
+         TNf+7dSm1QBMwCrxip4LZbDTSB4vETcJH5mABvCXsFa6dw5IFHwaJHwIGaKUKalJZj
+         BTaGFpjrz7QTFDwcP2chZYw1rTMzYUdyT1aHn6pa+ICSCsNxc5FVUDgeBr4P70QM9t
+         nIBNaJmEysEP2xFOK/3dYdeC2NqGKP0TSiG3EW60lxBQ9PxOWZyYrSXtM9UBoOny2K
+         s2s1l/IV16muQ==
+Received: by mail.bizcorp24.com for <stable@vger.kernel.org>; Wed, 13 Apr 2022 08:10:44 GMT
+Message-ID: <20220413074502-0.1.30.bequ.0.la88acbn3w@bizcorp24.com>
+Date:   Wed, 13 Apr 2022 08:10:44 GMT
+From:   "Antonio Valverde" <antonio.valverde@bizcorp24.com>
+To:     <stable@vger.kernel.org>
+Subject: Servicio de la flota
+X-Mailer: mail.bizcorp24.com
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=3.3 required=5.0 tests=BAYES_99,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ***
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
-Subject: [PATCH 5.15] iwlwifi: yoyo: fix DBGI_SRAM ini dump header.
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rotem Saado <rotem.saado@intel.com>
+Buenos d=C3=ADas:
 
-commit 34bc27783a31a05d2fb987d8fa0f4f702efd0359 upstream.
+Le escribo para hablarle sobre una de las mejores herramientas GPS en el =
+mercado.
 
-DBGI SRAM is new type of monitor, therefore it should be
-dump as monitor type with ini dump monitor header.
+La herramienta, que me gustar=C3=ADa presentarle brevemente, dispone de m=
+uchas funciones =C3=BAtiles para su trabajo, que optimizan los procesos d=
+e transporte y le ayudan a realizar tareas de campo de manera m=C3=A1s ef=
+iciente.
 
-Signed-off-by: Rotem Saado <rotem.saado@intel.com>
-Fixes: 89639e06d0f3 ("iwlwifi: yoyo: support for new DBGI_SRAM region")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20220129105618.6c31f6a2dcfc.If311c1d548bc5f7157a449e848ea01f71f5592eb@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
----
- .../net/wireless/intel/iwlwifi/cfg/22000.c    |  6 ++++
- drivers/net/wireless/intel/iwlwifi/fw/dbg.c   | 29 +++++++++++++++++--
- .../net/wireless/intel/iwlwifi/iwl-config.h   |  1 +
- drivers/net/wireless/intel/iwlwifi/iwl-prph.h |  2 ++
- 4 files changed, 36 insertions(+), 2 deletions(-)
+=C2=BFQuiere conocer los detalles?
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-index d8231cc821ae..5610097adf89 100644
---- a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-+++ b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-@@ -274,6 +274,12 @@ static const struct iwl_ht_params iwl_22000_ht_params = {
- 			.addr = DBGC_CUR_DBGBUF_STATUS,			\
- 			.mask = DBGC_CUR_DBGBUF_STATUS_IDX_MSK,		\
- 		},							\
-+	},								\
-+	.mon_dbgi_regs = {						\
-+		.write_ptr = {						\
-+			.addr = DBGI_SRAM_FIFO_POINTERS,		\
-+			.mask = DBGI_SRAM_FIFO_POINTERS_WR_PTR_MSK,	\
-+		},							\
- 	}
- 
- const struct iwl_cfg_trans_params iwl_qnj_trans_cfg = {
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-index b00cf92c8965..bd9da39682a3 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
-@@ -1665,6 +1665,17 @@ iwl_dump_ini_mon_smem_fill_header(struct iwl_fw_runtime *fwrt,
- 					    &fwrt->trans->cfg->mon_smem_regs);
- }
- 
-+static void *
-+iwl_dump_ini_mon_dbgi_fill_header(struct iwl_fw_runtime *fwrt,
-+				  struct iwl_dump_ini_region_data *reg_data,
-+				  void *data, u32 data_len)
-+{
-+	struct iwl_fw_ini_monitor_dump *mon_dump = (void *)data;
-+
-+	return iwl_dump_ini_mon_fill_header(fwrt, reg_data, mon_dump,
-+					    &fwrt->trans->cfg->mon_dbgi_regs);
-+}
-+
- static void *
- iwl_dump_ini_err_table_fill_header(struct iwl_fw_runtime *fwrt,
- 				   struct iwl_dump_ini_region_data *reg_data,
-@@ -1830,6 +1841,20 @@ iwl_dump_ini_mon_smem_get_size(struct iwl_fw_runtime *fwrt,
- 	return size;
- }
- 
-+static u32 iwl_dump_ini_mon_dbgi_get_size(struct iwl_fw_runtime *fwrt,
-+					  struct iwl_dump_ini_region_data *reg_data)
-+{
-+	struct iwl_fw_ini_region_tlv *reg = (void *)reg_data->reg_tlv->data;
-+	u32 size = le32_to_cpu(reg->dev_addr.size);
-+	u32 ranges = iwl_dump_ini_mem_ranges(fwrt, reg_data);
-+
-+	if (!size || !ranges)
-+		return 0;
-+
-+	return sizeof(struct iwl_fw_ini_monitor_dump) + ranges *
-+		(size + sizeof(struct iwl_fw_ini_error_dump_range));
-+}
-+
- static u32 iwl_dump_ini_txf_get_size(struct iwl_fw_runtime *fwrt,
- 				     struct iwl_dump_ini_region_data *reg_data)
- {
-@@ -2220,8 +2245,8 @@ static const struct iwl_dump_ini_mem_ops iwl_dump_ini_region_ops[] = {
- 	},
- 	[IWL_FW_INI_REGION_DBGI_SRAM] = {
- 		.get_num_of_ranges = iwl_dump_ini_mem_ranges,
--		.get_size = iwl_dump_ini_mem_get_size,
--		.fill_mem_hdr = iwl_dump_ini_mem_fill_header,
-+		.get_size = iwl_dump_ini_mon_dbgi_get_size,
-+		.fill_mem_hdr = iwl_dump_ini_mon_dbgi_fill_header,
- 		.fill_range = iwl_dump_ini_dbgi_sram_iter,
- 	},
- };
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-config.h b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-index 7eb534df5331..df710f6d0516 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-@@ -405,6 +405,7 @@ struct iwl_cfg {
- 	u32 min_256_ba_txq_size;
- 	const struct iwl_fw_mon_regs mon_dram_regs;
- 	const struct iwl_fw_mon_regs mon_smem_regs;
-+	const struct iwl_fw_mon_regs mon_dbgi_regs;
- };
- 
- #define IWL_CFG_ANY (~0)
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
-index 6c4f1c949541..763d46a0fc0b 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-prph.h
-@@ -352,6 +352,8 @@
- /* DBGI SRAM Register details */
- #define DBGI_SRAM_TARGET_ACCESS_RDATA_LSB		0x00A2E154
- #define DBGI_SRAM_TARGET_ACCESS_RDATA_MSB		0x00A2E158
-+#define DBGI_SRAM_FIFO_POINTERS				0x00A2E148
-+#define DBGI_SRAM_FIFO_POINTERS_WR_PTR_MSK		0x00000FFF
- 
- enum {
- 	ENABLE_WFPM = BIT(31),
--- 
-2.35.1
 
+Atentamente,
+Antonio Valverde
