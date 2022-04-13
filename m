@@ -2,59 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 605064FFC23
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 19:11:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEDD94FFCA6
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 19:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237236AbiDMRNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 13:13:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51294 "EHLO
+        id S234409AbiDMRaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 13:30:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237296AbiDMRNb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 13:13:31 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5CF6B098;
-        Wed, 13 Apr 2022 10:11:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1649869869; x=1681405869;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=/LMMe7XEkZ85zUug7mkQeJZU2UTIEWt65zgjv8cOKpc=;
-  b=Zio2YsNCcnryIE242CtuDFehvMOtab/F31B2hP7HG0VDSQzqfu9wTTw6
-   8bjpbPUrtXkneTx1pGWsofN1CFFES5jbuytOajG5PLm3pIonblbTikz/r
-   N0sNKApRzR2oT/rvmLs26EbHUOXpb9nR2x0MP84rX+i5+aCEOGxd772kC
-   lAPshFzVhhZ9N13Iv/hNziZFJfgwuiXoes3wFjGLLw3+FZ2KTalIV0mLV
-   lA3bpSViXFvHbZhKbd7LaiCswzVturd1b4blb9YKGqTNu7B/v7fF/0eDr
-   YrZUrJ6PHTXIKoqi0mRKrIcHHcngdG36LrqEnowSuXrmZRXs1EOk2ESun
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10316"; a="349158022"
-X-IronPort-AV: E=Sophos;i="5.90,257,1643702400"; 
-   d="scan'208";a="349158022"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2022 10:11:06 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,257,1643702400"; 
-   d="scan'208";a="573360525"
-Received: from anguy11-desk2.jf.intel.com ([10.166.244.147])
-  by orsmga008.jf.intel.com with ESMTP; 13 Apr 2022 10:11:06 -0700
-From:   Tony Nguyen <anthony.l.nguyen@intel.com>
-To:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com
-Cc:     Sasha Neftin <sasha.neftin@intel.com>, netdev@vger.kernel.org,
-        anthony.l.nguyen@intel.com, stable@vger.kernel.org,
-        James Hutchinson <jahutchinson99@googlemail.com>,
-        Dima Ruinskiy <dima.ruinskiy@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>
-Subject: [PATCH net 4/4] e1000e: Fix possible overflow in LTR decoding
-Date:   Wed, 13 Apr 2022 10:08:14 -0700
-Message-Id: <20220413170814.2066855-5-anthony.l.nguyen@intel.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220413170814.2066855-1-anthony.l.nguyen@intel.com>
-References: <20220413170814.2066855-1-anthony.l.nguyen@intel.com>
+        with ESMTP id S232860AbiDMRaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 13:30:23 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 134B66BDF8
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 10:28:02 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id md20-20020a17090b23d400b001cb70ef790dso6880153pjb.5
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 10:28:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc
+         :references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=kujL7p0GwLveBSEOqYGp7ryLlCB5QH+7/CE7iGZN0TQ=;
+        b=GExPk5ATZICbkE5mIW9Lihjs5TT+H85wuaaWrwsxiwX2vOfbDPkzTueBzSpeycJd28
+         B3cq90bS3TBuEciCNFfHlw0vlLAwZBqOXldlrsqJo1LeqoU8kewJoTI8DDzsjTeQ1EwN
+         eVxw5viL/HADnH+iBGy/k9tHGrEkQ0FQaZy7naRprjo/hbp6yuq0HExm4t0VArNiACFe
+         z1jO7mtxqcyIVXfsjofuN5z1Un0L0wfErSduSroSulRsf721KEVkubfsvw/WagFApY5m
+         Y4IHRl+jmzDDhz7G9IvXHlpC/PmIQ2ToDOiCe5SHRuQJt7L8af1CZ4I4kfkJtMZO6pcf
+         xJGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=kujL7p0GwLveBSEOqYGp7ryLlCB5QH+7/CE7iGZN0TQ=;
+        b=NmvomrUv2zj4aH+7apITzAAi5MF7TowJp2bRtn+hv6yg8c2q5g9AtC5yHpRxy/6LiL
+         iAwYNv/5cTe8uKvKXO+q2ANb7GFeDf+YMRgAT/+zjIidYk0DD7SM5I8Sw4YIzM7hDSZa
+         6CnY2ZR2bkLCJOl5n8XB1Bl76R2U1E+6h7wd0ZEZPxYN6UGW9dWtwS+kSXZMZxVl3nhK
+         8CB31YaXqtrrqAD8kCd4Bjs35KaSNYgXoGYjEmLKCKNb7Kb5b/di5oo1SXtZz2dQaVyC
+         ZILGTZxlcLmVpeR5AQph0wfyJoJKI5X0ZOQ708Gablowxt85WgBQaW4hsPC2+2k3yKNo
+         HRBg==
+X-Gm-Message-State: AOAM533fnuxcvr3I3o66PKwXApURXudI8XWOmLzjBJ+p7Gw/1w/OHvQF
+        MjJvRQMlq8Lb+MkT8T5P9nwMyR/HryAPMYIA
+X-Google-Smtp-Source: ABdhPJz8ZapMqiwl4OrMI2SS4sA+Qlg/GiP6YYR3gcnNXfXia66TKVeK0m/YUYMyqvdlWycLHKEGqg==
+X-Received: by 2002:a17:90b:3a91:b0:1cb:955d:905c with SMTP id om17-20020a17090b3a9100b001cb955d905cmr12094736pjb.164.1649870881553;
+        Wed, 13 Apr 2022 10:28:01 -0700 (PDT)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id k27-20020aa79d1b000000b005059ad6b943sm16367677pfp.166.2022.04.13.10.28.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Apr 2022 10:28:01 -0700 (PDT)
+Message-ID: <e7692d0b-e495-8d3e-4905-c4109bf5caa4@linaro.org>
+Date:   Wed, 13 Apr 2022 10:28:00 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Content-Language: en-US
+To:     Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Cc:     bpf <bpf@vger.kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Networking <netdev@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
+References: <20220405170356.43128-1-tadeusz.struk@linaro.org>
+ <CAEf4BzaPmp5TzNM8U=SSyEp30wv335_ZxuAL-LLPQUZJ9OS74g@mail.gmail.com>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: Re: [PATCH] bpf: Fix KASAN use-after-free Read in
+ compute_effective_progs
+In-Reply-To: <CAEf4BzaPmp5TzNM8U=SSyEp30wv335_ZxuAL-LLPQUZJ9OS74g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,52 +84,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+Hi Andrii,
+On 4/12/22 21:34, Andrii Nakryiko wrote:
+> On Tue, Apr 5, 2022 at 10:04 AM Tadeusz Struk<tadeusz.struk@linaro.org>  wrote:
+>> Syzbot found a Use After Free bug in compute_effective_progs().
+>> The reproducer creates a number of BPF links, and causes a fault
+>> injected alloc to fail, while calling bpf_link_detach on them.
+>> Link detach triggers the link to be freed by bpf_link_free(),
+>> which calls __cgroup_bpf_detach() and update_effective_progs().
+>> If the memory allocation in this function fails, the function restores
+>> the pointer to the bpf_cgroup_link on the cgroup list, but the memory
+>> gets freed just after it returns. After this, every subsequent call to
+>> update_effective_progs() causes this already deallocated pointer to be
+>> dereferenced in prog_list_length(), and triggers KASAN UAF error.
+>> To fix this don't preserve the pointer to the link on the cgroup list
+>> in __cgroup_bpf_detach(), but proceed with the cleanup and retry calling
+>> update_effective_progs() again afterwards.
+> I think it's still problematic. BPF link might have been the last one
+> that holds bpf_prog's refcnt, so when link is put, its prog can stay
+> there in effective_progs array(s) and will cause use-after-free
+> anyways.
+> 
+> It would be best to make sure that detach never fails. On detach
+> effective prog array can only shrink, so even if
+> update_effective_progs() fails to allocate memory, we should be able
+> to iterate and just replace that prog with NULL, as a fallback
+> strategy.
 
-When we decode the latency and the max_latency, u16 value may not fit
-the required size and could lead to the wrong LTR representation.
+it would be ideal if detach would never fail, but it would require some kind of 
+prealloc, on attach maybe? Another option would be to minimize the probability
+of failing by sending it gfp_t flags (GFP_NOIO | GFP_NOFS | __GFP_NOFAIL)?
+Detach can really only fail if the kzalloc in compute_effective_progs() fails
+so maybe doing something like bellow would help:
 
-Scaling is represented as:
-scale 0 - 1         (2^(5*0)) = 2^0
-scale 1 - 32        (2^(5 *1))= 2^5
-scale 2 - 1024      (2^(5 *2)) =2^10
-scale 3 - 32768     (2^(5 *3)) =2^15
-scale 4 - 1048576   (2^(5 *4)) = 2^20
-scale 5 - 33554432  (2^(5 *4)) = 2^25
-scale 4 and scale 5 required 20 and 25 bits respectively.
-scale 6 reserved.
+diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+index 128028efda64..5a47740c317b 100644
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -226,7 +226,8 @@ static bool hierarchy_allows_attach(struct cgroup *cgrp,
+   */
+  static int compute_effective_progs(struct cgroup *cgrp,
+  				   enum cgroup_bpf_attach_type atype,
+-				   struct bpf_prog_array **array)
++				   struct bpf_prog_array **array,
++				   gfp_t flags)
+  {
+  	struct bpf_prog_array_item *item;
+  	struct bpf_prog_array *progs;
+@@ -241,7 +242,7 @@ static int compute_effective_progs(struct cgroup *cgrp,
+  		p = cgroup_parent(p);
+  	} while (p);
 
-Replace the u16 type with the u32 type and allow corrected LTR
-representation.
+-	progs = bpf_prog_array_alloc(cnt, GFP_KERNEL);
++	progs = bpf_prog_array_alloc(cnt, flags);
+  	if (!progs)
+  		return -ENOMEM;
 
-Cc: stable@vger.kernel.org
-Fixes: 44a13a5d99c7 ("e1000e: Fix the max snoop/no-snoop latency for 10M")
-Reported-by: James Hutchinson <jahutchinson99@googlemail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215689
-Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Tested-by: James Hutchinson <jahutchinson99@googlemail.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
----
- drivers/net/ethernet/intel/e1000e/ich8lan.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+@@ -308,7 +309,7 @@ int cgroup_bpf_inherit(struct cgroup *cgrp)
+  	INIT_LIST_HEAD(&cgrp->bpf.storages);
 
-diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-index d60e2016d03c..e6c8e6d5234f 100644
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-@@ -1009,8 +1009,8 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
- {
- 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
- 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
--	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
--	u16 lat_enc_d = 0;	/* latency decoded */
-+	u32 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
-+	u32 lat_enc_d = 0;	/* latency decoded */
- 	u16 lat_enc = 0;	/* latency encoded */
- 
- 	if (link) {
+  	for (i = 0; i < NR; i++)
+-		if (compute_effective_progs(cgrp, i, &arrays[i]))
++		if (compute_effective_progs(cgrp, i, &arrays[i], GFP_KERNEL))
+  			goto cleanup;
+
+  	for (i = 0; i < NR; i++)
+@@ -328,7 +329,8 @@ int cgroup_bpf_inherit(struct cgroup *cgrp)
+  }
+
+  static int update_effective_progs(struct cgroup *cgrp,
+-				  enum cgroup_bpf_attach_type atype)
++				  enum cgroup_bpf_attach_type atype,
++				  gfp_t flags)
+  {
+  	struct cgroup_subsys_state *css;
+  	int err;
+@@ -340,7 +342,8 @@ static int update_effective_progs(struct cgroup *cgrp,
+  		if (percpu_ref_is_zero(&desc->bpf.refcnt))
+  			continue;
+
+-		err = compute_effective_progs(desc, atype, &desc->bpf.inactive);
++		err = compute_effective_progs(desc, atype, &desc->bpf.inactive,
++					      flags);
+  		if (err)
+  			goto cleanup;
+  	}
+@@ -499,7 +502,7 @@ static int __cgroup_bpf_attach(struct cgroup *cgrp,
+  	bpf_cgroup_storages_assign(pl->storage, storage);
+  	cgrp->bpf.flags[atype] = saved_flags;
+
+-	err = update_effective_progs(cgrp, atype);
++	err = update_effective_progs(cgrp, atype, GFP_KERNEL);
+  	if (err)
+  		goto cleanup;
+
+@@ -722,7 +725,7 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct 
+bpf_prog *prog,
+  	pl->prog = NULL;
+  	pl->link = NULL;
+
+-	err = update_effective_progs(cgrp, atype);
++	err = update_effective_progs(cgrp, atype, GFP_NOIO | GFP_NOFS | __GFP_NOFAIL);
+  	if (err)
+  		goto cleanup;
+
+>> -cleanup:
+>> -       /* restore back prog or link */
+>> -       pl->prog = old_prog;
+>> -       pl->link = link;
+>> +       /* In case of error call update_effective_progs again */
+>> +       if (err)
+>> +               err = update_effective_progs(cgrp, atype);
+> there is no guarantee that this will now succeed, right? so it's more
+> like "let's try just in case we are lucky this time"?
+
+Yes, there is no guarantee, but my thinking was that since we have freed some
+memory (see kfree(pl) above) let's retry and see if it works this time.
+If that is combined with the above gfp flags it is a good chance that it will
+work. What do you think?
+
 -- 
-2.31.1
-
+Thanks,
+Tadeusz
