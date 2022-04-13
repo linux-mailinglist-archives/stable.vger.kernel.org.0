@@ -2,97 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF7F4FEBAA
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 01:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B66974FEBC4
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 02:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229649AbiDLXxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 19:53:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35904 "EHLO
+        id S229772AbiDMAHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 20:07:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229839AbiDLXxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 19:53:41 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A519DFA8;
-        Tue, 12 Apr 2022 16:51:20 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id h23-20020a17090a051700b001c9c1dd3acbso283984pjh.3;
-        Tue, 12 Apr 2022 16:51:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=rINbs2i2kBO41zmQeAZXcKL7FtvF3faOCzAqWEne8T0=;
-        b=PE2EL/WgG3TM02Lg+0AREQBO5I4vFbUgXsX288L26XCCUzIlWyjeROMB29PvI6vX9d
-         HpvJMOQ4H0iyDymJxr77SrrGSvSik2mKHXfPyaB+UDP8rQLVH3No1BPUW0NIkiad2RiG
-         mfsa3dm5tP5nZQ0Z9LvjchGEe1AWwjzKroz5BYBdVOW1urPfp+PkxlrK93njBzjUGMtY
-         iQ4pNkpRQc8mGAcVr3WrHUYuPp4csGebV6WgjGVQLh7njsXWE+Wg619gPXj9PiIO5lbp
-         JotlhHcfD5zlkT6iqz/ZodZ++a3I49AQXB38GwYLNyEZTfbYnSLcnHpGFUafvzAVv2Fm
-         k2yw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=rINbs2i2kBO41zmQeAZXcKL7FtvF3faOCzAqWEne8T0=;
-        b=m9MnrlkkPhuJBHieb9xKkrz6wnXRtatYEetMimeyQgHNtITqMhqJWmejBOWzfe/u/D
-         nAls52iY/+JUMlxlXfntW3n1N8jq7opFpT38OOgKoDeP6ci2bOWxKO2UsIGjW1BryImE
-         5TOilhMp9AQg5OOGewb6pLoS8+VRdaneMWqXjP7DmZDkvGXfGtHzxWeod/IeQ9Ouhr/8
-         167KCQXh0G8Ze8r7gGvk9uVS47mVYvwk/5291jyz5b/coUm2UDfkX8J0wAiWE2tV5+Zg
-         BcTB+cjIP1MGAmafZzmWFSjPjMMrcBjfmFBZxjY7mQmA2vLjztdUuhpb9epYgphkfJ5b
-         B8ZA==
-X-Gm-Message-State: AOAM530PhwpEyixm4hrXJtP0D/L5bOtOW/6rRx2/nppbVwXPRyFARfgA
-        B1cVyjcZ95WNktXPRmFez4ja4cq5WvzsUXK6q8c=
-X-Google-Smtp-Source: ABdhPJxQw37rWHc47tm0fLA8oep1W4BQTVGv5Hp3hTO+TaMaDYscfeNEQq0hdRe6FRkhUD3b5QK2YQ==
-X-Received: by 2002:a17:90a:1c08:b0:1cd:474a:a4f8 with SMTP id s8-20020a17090a1c0800b001cd474aa4f8mr2075510pjs.82.1649807479230;
-        Tue, 12 Apr 2022 16:51:19 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id 124-20020a621682000000b005061d974f5fsm256090pfw.19.2022.04.12.16.51.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Apr 2022 16:51:18 -0700 (PDT)
-Message-ID: <62561076.1c69fb81.1fa91.107d@mx.google.com>
-Date:   Tue, 12 Apr 2022 16:51:18 -0700 (PDT)
-X-Google-Original-Date: Tue, 12 Apr 2022 23:51:16 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-Subject: RE: [PATCH 5.17 000/343] 5.17.3-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        with ESMTP id S229881AbiDMAHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 20:07:49 -0400
+Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65A9729829
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 17:05:30 -0700 (PDT)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id A0C6C10049CDA
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 00:05:29 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id eQVknxY1eb2WGeQVlnH4E5; Wed, 13 Apr 2022 00:05:29 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=VfEygHl9 c=1 sm=1 tr=0 ts=625613c9
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=z0gMJWrwH1QA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=3Wt_arUdeEhqb3Clg6IA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=8aYdV15O9tXJOLSGH1yITgKP5A0S5t32NqiiPpDQXVM=; b=DAikxVLyLf1rNe0MarVvismHEi
+        gXeqqrM9G6fClpGxZFGn1X4COaRB8MYaDPCQkifO2QnDfuJPARh3kn707C5OnCPdj8lZzH7tsCcaD
+        ooO2ix5/5/9sga2mi7v1V8foT4Rd1n+htnve7xY+N8fCe3uq6TmPqoeR0Pifc9d2K1Segh/+NCLIB
+        EV8x6Kfuv3h4yYxvk1cbsuyzTE953X3V4o/k3fkVwJiamE0SZJ5qJWhyeBQ8CehFmye+n45aexR9/
+        baepH4U+w92y+EVXxLGKHUIyQnB1Mz6iUJe9/U0PeQF2umGvg8cfCeWUh3CpAIKhYqSibnb9X7v1F
+        MO1xLg3Q==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:37264 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1neQVk-0042Lj-0Z; Tue, 12 Apr 2022 18:05:28 -0600
+Subject: Re: [PATCH 5.16 000/285] 5.16.20-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Fox Chen <foxhlchen@gmail.com>
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <2daa5e49-29b9-be83-8d48-02a2e2c28efb@w6rz.net>
+Date:   Tue, 12 Apr 2022 17:05:25 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1neQVk-0042Lj-0Z
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:37264
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 12 Apr 2022 08:26:58 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.17.3 release.
-> There are 343 patches in this series, all will be posted as a response
+On 4/11/22 11:27 PM, Greg Kroah-Hartman wrote:
+> ----------------------
+> Note, this will be the LAST 5.16.y kernel to be released.  Please move
+> to the 5.17.y tree at this time.
+> ----------------------
+>
+> This is the start of the stable review cycle for the 5.16.20 release.
+> There are 285 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Thu, 14 Apr 2022 06:28:59 +0000.
 > Anything received after that time might be too late.
-> 
+>
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.3-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.20-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
 > and the diffstat can be found below.
-> 
+>
 > thanks,
-> 
+>
 > greg k-h
-> 
 
-5.17.3-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+
+Tested-by: Ron Economos <re@w6rz.net>
 
