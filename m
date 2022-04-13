@@ -2,111 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E114FFBE3
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 18:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D37B74FFBE0
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 18:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236496AbiDMQ7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 12:59:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33410 "EHLO
+        id S234108AbiDMQ7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 12:59:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232667AbiDMQ7u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 12:59:50 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129AE6A036;
-        Wed, 13 Apr 2022 09:57:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1649869048; x=1681405048;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=J/06hLI56n+UwECnp0EG6XOIuTP/83n8TeWwphjmSp8=;
-  b=kW/LagHcPCJaOI9h28kgoIi2daCBgPqJ7xO7gOfQkYjeKzqZYMplKlbl
-   3IIqGn57KVKRWvu7z2hJNNCsdKyiAr/kZ9CrS/b7g78BGy4dowhmHWr/e
-   t9x0vIk0rWahtABes9gQxsBZ/38I1r9ODxGfMZBG1PQIseT+iKDAF7v07
-   El+oHvIEeYslnIocY6i7DiWMN2FMo/uDQLWwc1AuFU8TtLahU0CwXZxex
-   W8egbONnrCXwMO4+i0H4JKi517cydjKPvALSs6Z8Z4/fgusMAIt6PxuyK
-   1v3UECtMh8xoy5bJcyiL9Nc+U7+z2ZTPoJb21D79J8Zeq7kMhMjT1gNJA
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10316"; a="261566264"
-X-IronPort-AV: E=Sophos;i="5.90,257,1643702400"; 
-   d="scan'208";a="261566264"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2022 09:57:17 -0700
-X-IronPort-AV: E=Sophos;i="5.90,257,1643702400"; 
-   d="scan'208";a="611958900"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2022 09:57:15 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.95)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1negFM-001vxB-Lb;
-        Wed, 13 Apr 2022 19:53:36 +0300
-Date:   Wed, 13 Apr 2022 19:53:36 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     Kent Gibson <warthog618@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] gpio: sim: fix setting and getting multiple lines
-Message-ID: <YlcAEPYOBHk+NAD8@smile.fi.intel.com>
-References: <20220413140132.286848-1-brgl@bgdev.pl>
+        with ESMTP id S232667AbiDMQ7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 12:59:05 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E70F6A029;
+        Wed, 13 Apr 2022 09:56:43 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id 125so2317140pgc.11;
+        Wed, 13 Apr 2022 09:56:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=wulehCKZ9CzkZdNSpoxl3pLVYOp3Zk9PVvJlllk+y8I=;
+        b=nyAUdImgrTwhrcUpVxaBvH+jx9VYnKRqN9BUVE/T6dn28rNpCRSiRahYH43aBiYhCP
+         jnxRsD3NeVTFgd6NrZCzqkSRJK6lihCiDKt6r1n3extUdJ4TOFHx2hmhGFbBiZPm9e8J
+         AOob+KnFLrtA9Ob3yCrR8LfRgzT293D1xFYhfwSRrp4A94A1o12h8Hpp15aJUf+7MEN6
+         YMFlUI9P2j7vSTHWOQvy5eoCOc8Lr1UadPJp8C0N5uuwvk/pULIHuOf7HGe3VqnljKmj
+         LvlHkEP2f5xvDzIZV0v58RDyQ+ljRdOc+LO7ec2FyWGAlHBIn6c8U0Ct6LreYrrwk72M
+         IxPg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=wulehCKZ9CzkZdNSpoxl3pLVYOp3Zk9PVvJlllk+y8I=;
+        b=KCsw4IQdU3vt6JAluvktj+KDCfJ2raj3UjfrDpzY3Ws2jG4NOW9uv+Z7VGPGpdxE3h
+         TFCOapJ6DZw1BOala7vE2B/nj1Z6+ioejziVoeGWqqWA4eFzQLAc7rxzmGAaOwx6jz+E
+         IjugPIssH3kghPEj2q3cElj08az8ACgcSvFM24NQhCQBm2wIIrMO9VIlmo7bG9qcFgGY
+         pUOeDntZXNukE9oukUQM2Uqbk/k1M8BZa7skah5zyAZF40o4rRWKh0wc9qoTuz+2zgsl
+         TIcz4CzBXqyOwQLj3Dtbi6+W2oMaZeazY3dg8Couk7KIasfX1ZmfKKvOhVE/YtH4Gmt6
+         1I5w==
+X-Gm-Message-State: AOAM532nXsPYaoLKt6LjPPuHN+apUXVodAS/maXuKhMl74+qBaGXDaym
+        KAxHV5fgO03C+GalEXL4HIQ=
+X-Google-Smtp-Source: ABdhPJzFMkSv6sxQM8M75/+HeAn97L4EpIhOemkvCXh/OetwEuhSw23yxATgg01hr3OayEksPgVJ5Q==
+X-Received: by 2002:a05:6a00:1304:b0:4e1:2338:f11e with SMTP id j4-20020a056a00130400b004e12338f11emr44265176pfu.24.1649869002880;
+        Wed, 13 Apr 2022 09:56:42 -0700 (PDT)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id s89-20020a17090a69e200b001cd5b0dcaa1sm2443600pjj.17.2022.04.13.09.56.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 13 Apr 2022 09:56:42 -0700 (PDT)
+Message-ID: <712c71e6-0bde-1e04-9181-5ced33de2b90@gmail.com>
+Date:   Wed, 13 Apr 2022 09:56:40 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220413140132.286848-1-brgl@bgdev.pl>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH 5.10 000/170] 5.10.111-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220412173819.234884577@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220412173819.234884577@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 13, 2022 at 04:01:32PM +0200, Bartosz Golaszewski wrote:
-> We need to take mask into account in the set/get_multiple() callbacks.
-> Use bitmap_replace() instead of bitmap_copy().
 
-Good catch!
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-> Fixes: cb8c474e79be ("gpio: sim: new testing module")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
-> ---
->  drivers/gpio/gpio-sim.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 4/12/2022 10:46 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.111 release.
+> There are 170 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> diff --git a/drivers/gpio/gpio-sim.c b/drivers/gpio/gpio-sim.c
-> index 8e5d87984a48..41c31b10ae84 100644
-> --- a/drivers/gpio/gpio-sim.c
-> +++ b/drivers/gpio/gpio-sim.c
-> @@ -134,7 +134,7 @@ static int gpio_sim_get_multiple(struct gpio_chip *gc,
->  	struct gpio_sim_chip *chip = gpiochip_get_data(gc);
->  
->  	mutex_lock(&chip->lock);
-> -	bitmap_copy(bits, chip->value_map, gc->ngpio);
-> +	bitmap_replace(bits, bits, chip->value_map, mask, gc->ngpio);
->  	mutex_unlock(&chip->lock);
->  
->  	return 0;
-> @@ -146,7 +146,7 @@ static void gpio_sim_set_multiple(struct gpio_chip *gc,
->  	struct gpio_sim_chip *chip = gpiochip_get_data(gc);
->  
->  	mutex_lock(&chip->lock);
-> -	bitmap_copy(chip->value_map, bits, gc->ngpio);
-> +	bitmap_replace(chip->value_map, chip->value_map, bits, mask, gc->ngpio);
->  	mutex_unlock(&chip->lock);
->  }
->  
-> -- 
-> 2.32.0
+> Responses should be made by Thu, 14 Apr 2022 17:37:53 +0000.
+> Anything received after that time might be too late.
 > 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.111-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+Florian
