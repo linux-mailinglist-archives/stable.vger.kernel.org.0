@@ -2,162 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 236D04FEDE2
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 05:54:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B10894FEE4F
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 06:34:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232158AbiDMD47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 23:56:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39848 "EHLO
+        id S232286AbiDMEgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 00:36:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232126AbiDMD4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 23:56:49 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC3F273A;
-        Tue, 12 Apr 2022 20:54:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1649822068; x=1681358068;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=qWnHsji0gnh/xDp7MQF81PbKycXAQAQAMMGE3n28kdA=;
-  b=YlhoMOngZDWEyJon07RvXTvrthpaDc+N+wS0AqTD8UqmyKrHA2Jzq+eP
-   bCxsTEddmO2VWcKEjnfypmWBBOU2QV+rgQY9mWqqwDBwT+azVS6dpvewZ
-   rxMJx2vrHHs8Ltx59uEj83UlNpeG3Yc33hD/0BTUDuZL2CLFwWFjP+XE9
-   VQz33zcwXCmHdnaIPm0rkHBD8lhZMW60qbGBa2TAoWH5UYejoZUD5ujEY
-   eSwJP6GiQNO/VUioeEgUoawKVLeI5ObmJCKWgLMbe7rHVcJDUOXhz1DQM
-   NAj0Jp5iSZxHPK15nkEKWcmizwabXjhZ4xHiFF2/4deaBj+Gi7+u6A0cJ
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10315"; a="249852148"
-X-IronPort-AV: E=Sophos;i="5.90,255,1643702400"; 
-   d="scan'208";a="249852148"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Apr 2022 20:54:28 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,255,1643702400"; 
-   d="scan'208";a="724733855"
-Received: from p12hl01tmin.png.intel.com ([10.158.65.75])
-  by orsmga005.jf.intel.com with ESMTP; 12 Apr 2022 20:54:23 -0700
-From:   Tan Tee Min <tee.min.tan@intel.com>
-To:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Rayagond Kokatanur <rayagond@vayavyalabs.com>,
-        Richard Cochran <richardcochran@gmail.com>
-Cc:     netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Voon Wei Feng <weifeng.voon@intel.com>,
-        Wong Vee Khee <vee.khee.wong@intel.com>,
-        Song Yoong Siang <yoong.siang.song@intel.com>,
-        Tan Tee Min <tee.min.tan@intel.com>
-Subject: [PATCH net 1/1] net: stmmac: add fsleep() in HW Rx timestamp checking loop
-Date:   Wed, 13 Apr 2022 12:01:15 +0800
-Message-Id: <20220413040115.2351987-1-tee.min.tan@intel.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S231205AbiDMEgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 00:36:35 -0400
+Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19D1A20BE6;
+        Tue, 12 Apr 2022 21:34:13 -0700 (PDT)
+Received: by mail-io1-xd33.google.com with SMTP id 125so611274iov.10;
+        Tue, 12 Apr 2022 21:34:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+kKAmZ56bSMiCNUh+T1c9pQhR9+j4E7TijaQbHLEFfI=;
+        b=DA13Jbr1itHfsq+mubcsEIdeL5WVrgUdhlg1wq21e4tHiw9MtlKgRy81OQWpdbcY2S
+         FXxKDjDF4e6MmttFTqsEdOh0l2BFsZP2RmaVLAbH6eEUxoHO9YLR9qa6aB7U+U+t2h2f
+         8sOwQ0JI9t9OjyTJzwr//4qCm2bezKDglobwwrqqaAn8B26PklVVRBmuSiG58+jcoPxI
+         pdgcSxGAAl+Tk5DXoMejzfwUr6RmOp+x+TOsi5C93hDgBHsLQgRWCsNjaEyJwhs3DGHh
+         4BRY/xTUkmrVk5nj80b/ytzxtz7lPuFXyzln+Mp4ElxeKgmKnH2S9EaYzrC4SsUal6b7
+         aN1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+kKAmZ56bSMiCNUh+T1c9pQhR9+j4E7TijaQbHLEFfI=;
+        b=ZB+cAXg5JyZaX8WWglmtXazxMTd9AhbT86K8lb+gX9FjCtvnzxKXhSQUGEWKJZfDnq
+         pj2y0xv+QFOL/eMRfCTtdgz+RanUVblJl0Kpkf15Wm7VFFUIaoETbEBkoTat/2+LLP1I
+         Esyuv5q6yVBas7huHCWlCqa6s1QRwtTA99m1z0zNl2wPIPp8fMJAdaU4qt17WnahedYo
+         StLou0fYp7IgKjCmoR8qgxhXNryd9ZeTWS/4twHVseAHhi7nt+RFvYC5O+gjQh+nFFnj
+         oxoYe6lYODGe6OnlvrrqL/TGzjZQjrasgVoW0seZT/L9xczpQwtM/obIbuaZ31XxQAMg
+         krzw==
+X-Gm-Message-State: AOAM533PyJFb61ZCQel+/xCraYG3eoljtoIW5ScX/hyb+oSeM1N7Caca
+        PMwu0sSHGcZj7EcDEmXnVnr59oPLsuKQGk7kcn0=
+X-Google-Smtp-Source: ABdhPJzqSVa2ep/AdEZORIqrAJS6wVCc+EbBE13SJmpPq4zS/7me/akccrlRROpUkl+u6W7EbVOSqkgIdE7WjOJYtsc=
+X-Received: by 2002:a02:cc07:0:b0:326:3976:81ad with SMTP id
+ n7-20020a02cc07000000b00326397681admr5093551jap.237.1649824452458; Tue, 12
+ Apr 2022 21:34:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.2 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+References: <20220405170356.43128-1-tadeusz.struk@linaro.org>
+In-Reply-To: <20220405170356.43128-1-tadeusz.struk@linaro.org>
+From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
+Date:   Tue, 12 Apr 2022 21:34:01 -0700
+Message-ID: <CAEf4BzaPmp5TzNM8U=SSyEp30wv335_ZxuAL-LLPQUZJ9OS74g@mail.gmail.com>
+Subject: Re: [PATCH] bpf: Fix KASAN use-after-free Read in compute_effective_progs
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     bpf <bpf@vger.kernel.org>, Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Networking <netdev@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There is a possibility that the context descriptor still owned by the DMA
-even the previous normal descriptor own bit is already cleared. Checking
-the context descriptor readiness without delay might be not enough time
-for the DMA to update the descriptor field, which causing failure in
-getting HW Rx timestamp.
+On Tue, Apr 5, 2022 at 10:04 AM Tadeusz Struk <tadeusz.struk@linaro.org> wrote:
+>
+> Syzbot found a Use After Free bug in compute_effective_progs().
+> The reproducer creates a number of BPF links, and causes a fault
+> injected alloc to fail, while calling bpf_link_detach on them.
+> Link detach triggers the link to be freed by bpf_link_free(),
+> which calls __cgroup_bpf_detach() and update_effective_progs().
+> If the memory allocation in this function fails, the function restores
+> the pointer to the bpf_cgroup_link on the cgroup list, but the memory
+> gets freed just after it returns. After this, every subsequent call to
+> update_effective_progs() causes this already deallocated pointer to be
+> dereferenced in prog_list_length(), and triggers KASAN UAF error.
+> To fix this don't preserve the pointer to the link on the cgroup list
+> in __cgroup_bpf_detach(), but proceed with the cleanup and retry calling
+> update_effective_progs() again afterwards.
 
-This patch introduces a 1us fsleep() in HW Rx timestamp checking loop
-to give time for DMA to update/complete the context descriptor.
+I think it's still problematic. BPF link might have been the last one
+that holds bpf_prog's refcnt, so when link is put, its prog can stay
+there in effective_progs array(s) and will cause use-after-free
+anyways.
 
-ptp4l Timestamp log without this patch:
------------------------------------------------------------
-$ echo 10000 > /sys/class/net/enp0s30f4/gro_flush_timeout
-$ echo 10000 > /sys/class/net/enp0s30f4/napi_defer_hard_irqs
-$ ptp4l -P2Hi enp0s30f4 --step_threshold=1 -m
-ptp4l: selected /dev/ptp2 as PTP clock
-ptp4l: port 1: INITIALIZING to LISTENING on INIT_COMPLETE
-ptp4l: selected local clock 901210.fffe.b57df7 as best master
-ptp4l: port 1: new foreign master 22bb22.fffe.bb22bb-1
-ptp4l: selected best master clock 22bb22.fffe.bb22bb
-ptp4l: port 1: LISTENING to UNCALIBRATED on RS_SLAVE
-ptp4l: port 1: UNCALIBRATED to SLAVE on MASTER_CLOCK_SELECTED
-ptp4l: port 1: received SYNC without timestamp
-ptp4l: rms   49 max   63 freq  -9573 +/-  34 delay    71 +/-   1
-ptp4l: rms   15 max   25 freq  -9553 +/-  20 delay    72 +/-   0
-ptp4l: port 1: received SYNC without timestamp
-ptp4l: rms    9 max   18 freq  -9540 +/-  11 delay    70 +/-   0
-ptp4l: port 1: received PDELAY_REQ without timestamp
-ptp4l: rms   16 max   29 freq  -9519 +/-  12 delay    72 +/-   0
-ptp4l: port 1: received PDELAY_REQ without timestamp
-ptp4l: rms    9 max   18 freq  -9527 +/-  12 delay    72 +/-   0
-ptp4l: rms    5 max    9 freq  -9530 +/-   7 delay    70 +/-   0
-ptp4l: rms   11 max   20 freq  -9530 +/-  16 delay    72 +/-   0
-ptp4l: rms    5 max   11 freq  -9530 +/-   7 delay    74 +/-   0
-ptp4l: rms    6 max    9 freq  -9522 +/-   7 delay    72 +/-   0
-ptp4l: port 1: received PDELAY_REQ without timestamp
------------------------------------------------------------
+It would be best to make sure that detach never fails. On detach
+effective prog array can only shrink, so even if
+update_effective_progs() fails to allocate memory, we should be able
+to iterate and just replace that prog with NULL, as a fallback
+strategy.
 
-ptp4l Timestamp log with this patch:
------------------------------------------------------------
-$ echo 10000 > /sys/class/net/enp0s30f4/gro_flush_timeout
-$ echo 10000 > /sys/class/net/enp0s30f4/napi_defer_hard_irqs
-$ ptp4l -P2Hi enp0s30f4 --step_threshold=1 -m
-ptp4l: selected /dev/ptp2 as PTP clock
-ptp4l: port 1: INITIALIZING to LISTENING on INIT_COMPLETE
-ptp4l: selected local clock 901210.fffe.b57df7 as best master
-ptp4l: port 1: new foreign master 22bb22.fffe.bb22bb-1
-ptp4l: selected best master clock 22bb22.fffe.bb22bb
-ptp4l: port 1: LISTENING to UNCALIBRATED on RS_SLAVE
-ptp4l: port 1: UNCALIBRATED to SLAVE on MASTER_CLOCK_SELECTED
-ptp4l: rms   30 max   45 freq  -9400 +/-  23 delay    72 +/-   0
-ptp4l: rms    7 max   16 freq  -9414 +/-  10 delay    70 +/-   0
-ptp4l: rms    6 max    9 freq  -9422 +/-   6 delay    72 +/-   0
-ptp4l: rms   13 max   20 freq  -9436 +/-  13 delay    74 +/-   0
-ptp4l: rms   12 max   27 freq  -9446 +/-  11 delay    72 +/-   0
-ptp4l: rms    9 max   12 freq  -9453 +/-   6 delay    74 +/-   0
-ptp4l: rms    9 max   15 freq  -9438 +/-  11 delay    74 +/-   0
-ptp4l: rms   10 max   16 freq  -9435 +/-  12 delay    74 +/-   0
-ptp4l: rms    8 max   18 freq  -9428 +/-   8 delay    72 +/-   0
-ptp4l: rms    8 max   18 freq  -9423 +/-   8 delay    72 +/-   0
-ptp4l: rms    9 max   16 freq  -9431 +/-  12 delay    70 +/-   0
-ptp4l: rms    9 max   18 freq  -9441 +/-   9 delay    72 +/-   0
------------------------------------------------------------
+>
+>
+> Cc: "Alexei Starovoitov" <ast@kernel.org>
+> Cc: "Daniel Borkmann" <daniel@iogearbox.net>
+> Cc: "Andrii Nakryiko" <andrii@kernel.org>
+> Cc: "Martin KaFai Lau" <kafai@fb.com>
+> Cc: "Song Liu" <songliubraving@fb.com>
+> Cc: "Yonghong Song" <yhs@fb.com>
+> Cc: "John Fastabend" <john.fastabend@gmail.com>
+> Cc: "KP Singh" <kpsingh@kernel.org>
+> Cc: <netdev@vger.kernel.org>
+> Cc: <bpf@vger.kernel.org>
+> Cc: <stable@vger.kernel.org>
+> Cc: <linux-kernel@vger.kernel.org>
+>
+> Link: https://syzkaller.appspot.com/bug?id=8ebf179a95c2a2670f7cf1ba62429ec044369db4
+> Fixes: af6eea57437a ("bpf: Implement bpf_link-based cgroup BPF program attachment")
+> Reported-by: <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>
+> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+> ---
+>  kernel/bpf/cgroup.c | 25 ++++++++++++++-----------
+>  1 file changed, 14 insertions(+), 11 deletions(-)
+>
+> diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+> index 128028efda64..b6307337a3c7 100644
+> --- a/kernel/bpf/cgroup.c
+> +++ b/kernel/bpf/cgroup.c
+> @@ -723,10 +723,11 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+>         pl->link = NULL;
+>
+>         err = update_effective_progs(cgrp, atype);
+> -       if (err)
+> -               goto cleanup;
+> -
+> -       /* now can actually delete it from this cgroup list */
+> +       /*
+> +        * Proceed regardless of error. The link and/or prog will be freed
+> +        * just after this function returns so just delete it from this
+> +        * cgroup list and retry calling update_effective_progs again later.
+> +        */
+>         list_del(&pl->node);
+>         kfree(pl);
+>         if (list_empty(progs))
+> @@ -735,12 +736,11 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+>         if (old_prog)
+>                 bpf_prog_put(old_prog);
+>         static_branch_dec(&cgroup_bpf_enabled_key[atype]);
+> -       return 0;
+>
+> -cleanup:
+> -       /* restore back prog or link */
+> -       pl->prog = old_prog;
+> -       pl->link = link;
+> +       /* In case of error call update_effective_progs again */
+> +       if (err)
+> +               err = update_effective_progs(cgrp, atype);
 
-Fixes: ba1ffd74df74 ("stmmac: fix PTP support for GMAC4")
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@intel.com>
----
- drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+there is no guarantee that this will now succeed, right? so it's more
+like "let's try just in case we are lucky this time"?
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
-index d3b4765c1a5b..289bf26a6105 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
-@@ -279,10 +279,11 @@ static int dwmac4_wrback_get_rx_timestamp_status(void *desc, void *next_desc,
- 			/* Check if timestamp is OK from context descriptor */
- 			do {
- 				ret = dwmac4_rx_check_timestamp(next_desc);
--				if (ret < 0)
-+				if (ret <= 0)
- 					goto exit;
- 				i++;
- 
-+				fsleep(1);
- 			} while ((ret == 1) && (i < 10));
- 
- 			if (i == 10)
--- 
-2.25.1
-
+> +
+>         return err;
+>  }
+>
+> @@ -881,6 +881,7 @@ static void bpf_cgroup_link_release(struct bpf_link *link)
+>         struct bpf_cgroup_link *cg_link =
+>                 container_of(link, struct bpf_cgroup_link, link);
+>         struct cgroup *cg;
+> +       int err;
+>
+>         /* link might have been auto-detached by dying cgroup already,
+>          * in that case our work is done here
+> @@ -896,8 +897,10 @@ static void bpf_cgroup_link_release(struct bpf_link *link)
+>                 return;
+>         }
+>
+> -       WARN_ON(__cgroup_bpf_detach(cg_link->cgroup, NULL, cg_link,
+> -                                   cg_link->type));
+> +       err = __cgroup_bpf_detach(cg_link->cgroup, NULL, cg_link,
+> +                                 cg_link->type);
+> +       if (err)
+> +               pr_warn("cgroup_bpf_detach() failed, err %d\n", err);
+>
+>         cg = cg_link->cgroup;
+>         cg_link->cgroup = NULL;
+> --
+> 2.35.1
