@@ -2,176 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A4674FF9BB
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 17:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6FA04FF9C3
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 17:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236245AbiDMPJX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 11:09:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55574 "EHLO
+        id S236402AbiDMPJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 11:09:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230492AbiDMPJW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 11:09:22 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CDDB12DD59;
-        Wed, 13 Apr 2022 08:07:00 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9432A139F;
-        Wed, 13 Apr 2022 08:07:00 -0700 (PDT)
-Received: from [10.57.8.248] (unknown [10.57.8.248])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE8B23F5A1;
-        Wed, 13 Apr 2022 08:06:58 -0700 (PDT)
-Message-ID: <af2c9715-b085-ac84-22fe-c3f082f889a0@arm.com>
-Date:   Wed, 13 Apr 2022 16:06:57 +0100
+        with ESMTP id S236359AbiDMPJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 11:09:41 -0400
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 822DA393D1
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 08:07:19 -0700 (PDT)
+Received: by mail-pl1-x62e.google.com with SMTP id n8so2231751plh.1
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 08:07:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=PJfTaPbf1TBAVO9H107FkEtLSkmsTF1Ftcz57YZCKgQ=;
+        b=bSYSGGgI6jcUlc/WDoFXVBnI+8GQ09Tmf6AjzqCMEERWr9R1QFywR0VPwnbRAXHZpE
+         0FmW5A5q5s2sfm1WrgHjscGclzu+9vq1cGhaBNGTv8K1B0KJEDXEBKF8uGhbuuJJsnls
+         Z/Pbo5tpinQD53LBKTdQS3rhf6Iy+3G2yhzjcXt0KviKmqbLcwxQacuKFjYQGTMy8ujh
+         Ytns7F9/B0PwPmApb5W2Q73FLZVfNIqd2dOlj68wcwGOKvooydBeUsi+PM4cC/nJ1JEV
+         fAXSRnk2SJueXVMQle5UiZ2pZip9B44H5Lq6U8ZkZwKiUMC/CVep4mVRl4eJ1oxPYKG8
+         YokA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=PJfTaPbf1TBAVO9H107FkEtLSkmsTF1Ftcz57YZCKgQ=;
+        b=w8BNQXfh8cRwXBoehn6ZAencmO4HiF/KNXgKBWkozGWK7z9Kuc6WcRhuCF0TcGGLin
+         8E99ged7dfVlYkuFS5CaDkPsZpUSAXU7P4ufdydmGfISg1X8DqGadfJ7QogdWBWHM2cx
+         6xbd35Ji0NU9GRopQ8FtApj7UB+RXu1mvLrv3Deu/ncwbC65YG72UtA0LOQ4PkE0wMRi
+         xViFZsAP9C9rgQPHgnkDyCgTw6Ycp0+j4gQPey7HB6pRMmJBwZFWiTFpggqa04jjjugx
+         F6iWbbdvE6x63koWLSC7V4t8reDXl8+H4L7ymiAOqccFYIkuIW/m/NAdGd92C2pXHUQb
+         cm7g==
+X-Gm-Message-State: AOAM5335hZHemFTqNLrhlLuu3LLuAvb3/XOnWLSF1phM8U11T/ddhGp3
+        bmJeNXRQadEetLVO5NwLQcsQy8jK3vadgCvs
+X-Google-Smtp-Source: ABdhPJyWHWM7u3Cfw3ChSdOEjDlVNlQBl9xTTyq/vWQ2lKiEHsflX32+LJonxRims1+F4QxlZG5gnA==
+X-Received: by 2002:a17:90b:1810:b0:1cd:4fb3:a73f with SMTP id lw16-20020a17090b181000b001cd4fb3a73fmr4148736pjb.57.1649862438506;
+        Wed, 13 Apr 2022 08:07:18 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q5-20020a17090a68c500b001cb651fffdbsm3447785pjj.8.2022.04.13.08.07.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Apr 2022 08:07:18 -0700 (PDT)
+Message-ID: <6256e726.1c69fb81.d4723.87eb@mx.google.com>
+Date:   Wed, 13 Apr 2022 08:07:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v2] thermal: devfreq_cooling: use local ops instead of
- global ops
-Content-Language: en-US
-To:     "Rafael J. Wysocki" <rafael@kernel.org>
-Cc:     Amit Kucheria <amitk@kernel.org>,
-        "Zhang, Rui" <rui.zhang@intel.com>,
-        Linux PM <linux-pm@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        allwinner-opensource-support@allwinnertech.com,
-        Stable <stable@vger.kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Ionela Voinescu <ionela.voinescu@arm.com>,
-        Kant Fan <kant@allwinnertech.com>
-References: <20220325073030.91919-1-kant@allwinnertech.com>
- <c881de5f-5a1e-19ff-0ae6-f68032c79f03@arm.com>
- <CAJZ5v0j9O4mnUtNNtaQ7SZ1_N8GUOJ0CeSzZOwcJ18BKU9yKqQ@mail.gmail.com>
-From:   Lukasz Luba <lukasz.luba@arm.com>
-In-Reply-To: <CAJZ5v0j9O4mnUtNNtaQ7SZ1_N8GUOJ0CeSzZOwcJ18BKU9yKqQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-8.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.17
+X-Kernelci-Kernel: v5.17.2-343-g74625fba2cc43
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.17 baseline: 39 runs,
+ 1 regressions (v5.17.2-343-g74625fba2cc43)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.17 baseline: 39 runs, 1 regressions (v5.17.2-343-g74625fb=
+a2cc43)
+
+Regressions Summary
+-------------------
+
+platform          | arch | lab          | compiler | defconfig           | =
+regressions
+------------------+------+--------------+----------+---------------------+-=
+-----------
+am57xx-beagle-x15 | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | =
+1          =
 
 
-On 4/13/22 15:58, Rafael J. Wysocki wrote:
-> On Fri, Mar 25, 2022 at 10:02 AM Lukasz Luba <lukasz.luba@arm.com> wrote:
->>
->> Hi Kant,
->>
->> On 3/25/22 07:30, Kant Fan wrote:
->>> Fix access illegal address problem in following condition:
->>> There are muti devfreq cooling devices in system, some of them has
->>> em model but other does not, energy model ops such as state2power will
->>> append to global devfreq_cooling_ops when the cooling device with
->>> em model register. It makes the cooling device without em model
->>> also use devfreq_cooling_ops after appending when register later by
->>> of_devfreq_cooling_register_power() or of_devfreq_cooling_register().
->>>
->>> IPA governor regards the cooling devices without em model as a power actor
->>> because they also have energy model ops, and will access illegal address
->>> at dfc->em_pd when execute cdev->ops->get_requested_power,
->>> cdev->ops->state2power or cdev->ops->power2state.
->>>
->>> Fixes: 615510fe13bd2 ("thermal: devfreq_cooling: remove old power model and use EM")
->>> Cc: stable@vger.kernel.org # 5.13+
->>> Signed-off-by: Kant Fan <kant@allwinnertech.com>
->>> ---
->>>    drivers/thermal/devfreq_cooling.c | 25 ++++++++++++++++++-------
->>>    1 file changed, 18 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/drivers/thermal/devfreq_cooling.c b/drivers/thermal/devfreq_cooling.c
->>> index 4310cb342a9f..d38a80adec73 100644
->>> --- a/drivers/thermal/devfreq_cooling.c
->>> +++ b/drivers/thermal/devfreq_cooling.c
->>> @@ -358,21 +358,28 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
->>>        struct thermal_cooling_device *cdev;
->>>        struct device *dev = df->dev.parent;
->>>        struct devfreq_cooling_device *dfc;
->>> +     struct thermal_cooling_device_ops *ops;
->>>        char *name;
->>>        int err, num_opps;
->>>
->>> -     dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
->>> -     if (!dfc)
->>> +     ops = kmemdup(&devfreq_cooling_ops, sizeof(*ops), GFP_KERNEL);
->>> +     if (!ops)
->>>                return ERR_PTR(-ENOMEM);
->>>
->>> +     dfc = kzalloc(sizeof(*dfc), GFP_KERNEL);
->>> +     if (!dfc) {
->>> +             err = -ENOMEM;
->>> +             goto free_ops;
->>> +     }
->>> +
->>>        dfc->devfreq = df;
->>>
->>>        dfc->em_pd = em_pd_get(dev);
->>>        if (dfc->em_pd) {
->>> -             devfreq_cooling_ops.get_requested_power =
->>> +             ops->get_requested_power =
->>>                        devfreq_cooling_get_requested_power;
->>> -             devfreq_cooling_ops.state2power = devfreq_cooling_state2power;
->>> -             devfreq_cooling_ops.power2state = devfreq_cooling_power2state;
->>> +             ops->state2power = devfreq_cooling_state2power;
->>> +             ops->power2state = devfreq_cooling_power2state;
->>>
->>>                dfc->power_ops = dfc_power;
->>>
->>> @@ -407,8 +414,7 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
->>>        if (!name)
->>>                goto remove_qos_req;
->>>
->>> -     cdev = thermal_of_cooling_device_register(np, name, dfc,
->>> -                                               &devfreq_cooling_ops);
->>> +     cdev = thermal_of_cooling_device_register(np, name, dfc, ops);
->>>        kfree(name);
->>>
->>>        if (IS_ERR(cdev)) {
->>> @@ -429,6 +435,8 @@ of_devfreq_cooling_register_power(struct device_node *np, struct devfreq *df,
->>>        kfree(dfc->freq_table);
->>>    free_dfc:
->>>        kfree(dfc);
->>> +free_ops:
->>> +     kfree(ops);
->>>
->>>        return ERR_PTR(err);
->>>    }
->>> @@ -510,11 +518,13 @@ EXPORT_SYMBOL_GPL(devfreq_cooling_em_register);
->>>    void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
->>>    {
->>>        struct devfreq_cooling_device *dfc;
->>> +     const struct thermal_cooling_device_ops *ops;
->>>        struct device *dev;
->>>
->>>        if (IS_ERR_OR_NULL(cdev))
->>>                return;
->>>
->>> +     ops = cdev->ops;
->>>        dfc = cdev->devdata;
->>>        dev = dfc->devfreq->dev.parent;
->>>
->>> @@ -525,5 +535,6 @@ void devfreq_cooling_unregister(struct thermal_cooling_device *cdev)
->>>
->>>        kfree(dfc->freq_table);
->>>        kfree(dfc);
->>> +     kfree(ops);
->>>    }
->>>    EXPORT_SYMBOL_GPL(devfreq_cooling_unregister);
->>
->>
->> Thank you for updating it, LGTM
->>
->> Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-> 
-> Applied as 5.19 material.
-> 
-> Lukasz, this had a conflict with your EM series, please double check
-> if my resolution in the bleeding-edge branch is correct.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
+nel/v5.17.2-343-g74625fba2cc43/plan/baseline/
 
-OK, I'll let you know after I fetch and build that branch.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.17
+  Describe: v5.17.2-343-g74625fba2cc43
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      74625fba2cc43bdb2df8f296fb66b59988fec949 =
 
-> 
-> Thanks!
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab          | compiler | defconfig           | =
+regressions
+------------------+------+--------------+----------+---------------------+-=
+-----------
+am57xx-beagle-x15 | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6256b62f650685a371ae0698
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.2-3=
+43-g74625fba2cc43/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-am57=
+xx-beagle-x15.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.2-3=
+43-g74625fba2cc43/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-am57=
+xx-beagle-x15.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6256b62f650685a371ae0=
+699
+        new failure (last pass: v5.17.2-339-g22fa848c25c53) =
+
+ =20
