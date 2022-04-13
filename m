@@ -2,201 +2,304 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBA764FFA53
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 17:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36F7B4FFA54
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 17:34:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236574AbiDMPf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 11:35:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34358 "EHLO
+        id S232463AbiDMPgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 11:36:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236577AbiDMPf5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 11:35:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 60C9A65489
-        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 08:33:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649864014;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=inuim2PAAn4iZTfHZ5LXZCSvmmA/bZRB86kqPrODYcE=;
-        b=bVitSpH3UShF50DNBMj2g1COzplSKEduD2vIBgg25zoujqnK23o97mAcHsNTG6CpERbQiY
-        nfOKDgzfXjUCWiSL7iD1JjKL/ZQhU62cYuMaNCZfht/R5aN9XW8694q8f3UyiEjg0cmyNX
-        ujcBteiCacmJgKeJz9bboMnN5T+j3ko=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-318-dlXzQdXOMkC6eWd1qMMDkQ-1; Wed, 13 Apr 2022 11:33:33 -0400
-X-MC-Unique: dlXzQdXOMkC6eWd1qMMDkQ-1
-Received: by mail-lj1-f199.google.com with SMTP id 20-20020a05651c009400b002462f08f8d2so490581ljq.2
-        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 08:33:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=inuim2PAAn4iZTfHZ5LXZCSvmmA/bZRB86kqPrODYcE=;
-        b=Lmsfv7KjLmT8jmVqvR6wyVrUkK7FTMsuTRQfZzl6TShNG0ZJK8AT0Htkvs8+P+1SLd
-         5IH+sVY9zEjbGJH+UersAN6opiwbM/MoMJ+gqPNETLTVrTt9aKsREQK2Ydi77VeODbAG
-         9GPbUQZtw5uBB4WvFKzaxrcil0zpwWYc4sNI7FvNUMMWSHfs7AEzsWb/VZHfWpHSU+Hr
-         9gZPEYnJn8sWDUSjf7A38bdIj7Pn8gX00gji8F/8udwOY5OyqFhPr3pNxb8cLvM5WqCU
-         Q6i3Kb980yEennqyCcrqq22Ttf46aTxvpf/dh7BVLzLBLAcydG2uCXrgW9VzVdPH9AEY
-         aHog==
-X-Gm-Message-State: AOAM5338BdtDPBQe9mIltOnZYUOfJr/5iGX73RicXcGODgq3lkbniEHR
-        QItwRgc5MBFYFpPGFdopTNITTe2+74WnEzIMxVquC1itypfRk28GuHko4c+lidxEhGw6JlgqbVh
-        3gSugFIMn4RG29t38M/jihnmU+9pjvTUk
-X-Received: by 2002:a2e:a26f:0:b0:24b:5f6c:7899 with SMTP id k15-20020a2ea26f000000b0024b5f6c7899mr10925665ljm.4.1649864010441;
-        Wed, 13 Apr 2022 08:33:30 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwCNIGHZcvMlWmtduOZjwqDUqtycuwiM+WaxdyRz3mBhgPO1zp9SbQspYubVuWgbZ1/+3p6ZUWAMbNNMbu1XqM=
-X-Received: by 2002:a2e:a26f:0:b0:24b:5f6c:7899 with SMTP id
- k15-20020a2ea26f000000b0024b5f6c7899mr10925656ljm.4.1649864010205; Wed, 13
- Apr 2022 08:33:30 -0700 (PDT)
+        with ESMTP id S229765AbiDMPgX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 11:36:23 -0400
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2075.outbound.protection.outlook.com [40.107.94.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58FE6393DE
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 08:34:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hAKfIjpRqMA7QPMDM/9X7kdPhE/GhBYFpKXTiRbm4xguJaskSiBcWPkNeSVmvWbWlqSW1K8khmk4tts+SqxKFuyQCLz4zy5M75kV/XijzBnOSxFknsoCi9j3XAn6Zs0+qMIaPDL7VVVtKGd3HG98pksOpsSNAPpI2MkVDvq3B1uOl69HxPzdn7IFjAgRpHSRb8mOzycfNkexzwMQnFqU99hFQW0YhV0eoLp4cBaggviZPBDCrTaGR/TzpyLGBUrPrJkUCATMqZABPwY6sTY1iNMd0wxwmjV+AvdmqxNhGuc88cEonIKn5W7EFTCFIcUeiDVJm3TgMqdOrHtz6wal6Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=L9+9nf8NueFXehXU8nNJlWrQtk4MpXO7LJ3h+8KwvBM=;
+ b=CfLTSfABlFwFz9VPhycRpUgpOxgVoiQ18TQf/fI7FbI0GT6LdI12AQayQlg4R5R4iUsSuq3eDoPjU3OsVhVtis/DMxMiBh0tSHd3c1E9aae8om1JuhKp3oUB+Eb0mCNJFnv3Hm94rCgiL556vkdgoSNMlK7ai7NblnMLpB/BGAcA6pykQAyR9+F1H1qIoViLa3ZLdXvMCeKECh9a3NaLwaMffHnpuSv0gZ+LD3yw3WYX9Wqqvf+6O/wRYNy8sK4gUFb3ywh41tMqGa0gt8cjVF45fAOWFMc5QocvgDjjudc4hXRrVpSy99Coy26NYXKgnjJSdnOpsD6KB1MPLavUjg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=L9+9nf8NueFXehXU8nNJlWrQtk4MpXO7LJ3h+8KwvBM=;
+ b=XGPiUJDivUOJFU6vBCZfdlxMAhT+mE/Zx9Qc31xdYD1Mjxz21V2dVwKrmxMGf/tm5mnjacvlFqiJzn4NGeKFaJVj9Mlljmzy2DXVuZQmN/eYrX6NjohdMxQjZBwKenZB10lUP+9blSo4hBnrcACQj5t1Yd4AJSdbqV7nIw+fAqg=
+Received: from DM5PR07CA0049.namprd07.prod.outlook.com (2603:10b6:4:ad::14) by
+ BL1PR12MB5755.namprd12.prod.outlook.com (2603:10b6:208:392::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.20; Wed, 13 Apr
+ 2022 15:33:59 +0000
+Received: from DM6NAM11FT053.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:4:ad:cafe::c0) by DM5PR07CA0049.outlook.office365.com
+ (2603:10b6:4:ad::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.20 via Frontend
+ Transport; Wed, 13 Apr 2022 15:33:59 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ DM6NAM11FT053.mail.protection.outlook.com (10.13.173.74) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.5164.19 via Frontend Transport; Wed, 13 Apr 2022 15:33:58 +0000
+Received: from tr4.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Wed, 13 Apr
+ 2022 10:33:57 -0500
+From:   Alex Deucher <alexander.deucher@amd.com>
+To:     <stable@vger.kernel.org>
+CC:     Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Eric Yang <Eric.Yang2@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        <richard.gong@amd.com>
+Subject: [PATCH 1/2] drm/amd/display: Add pstate verification and recovery for DCN31
+Date:   Wed, 13 Apr 2022 11:33:38 -0400
+Message-ID: <20220413153339.1436168-1-alexander.deucher@amd.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <cki.LEF6Q6V9CU1O7JTZ58AW@redhat.com> <YlZse4JgKRqMBdJ1@kroah.com> <CA+tGwnmKj22790PG3hVYbx_80cpSD_KfKc_qG-YpzQHYZWiYFA@mail.gmail.com>
-In-Reply-To: <CA+tGwnmKj22790PG3hVYbx_80cpSD_KfKc_qG-YpzQHYZWiYFA@mail.gmail.com>
-From:   Bruno Goncalves <bgoncalv@redhat.com>
-Date:   Wed, 13 Apr 2022 17:33:19 +0200
-Message-ID: <CA+QYu4q1EmP-_0My40Gz4e44XR8PzSPvR-1WLOFRmNaFDjzgYQ@mail.gmail.com>
-Subject: =?UTF-8?Q?Re=3A_=E2=9D=8C_FAIL=3A_Test_report_for_kernel_5=2E17=2E2_=28stable=2D?=
-        =?UTF-8?Q?queue=2C_eabfed45=29?=
-To:     Veronika Kabatova <vkabatov@redhat.com>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     CKI Project <cki-project@redhat.com>,
-        skt-results-master@redhat.com,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        Li Wang <liwang@redhat.com>, Jan Stancek <jstancek@redhat.com>,
-        Guangwu Zhang <guazhang@redhat.com>,
-        Filip Suba <fsuba@redhat.com>,
-        Fendy Tjahjadi <ftjahjad@redhat.com>,
-        Yi Zhang <yizhan@redhat.com>,
-        Changhui Zhong <czhong@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 37afb1e3-b0cc-469e-3249-08da1d630751
+X-MS-TrafficTypeDiagnostic: BL1PR12MB5755:EE_
+X-Microsoft-Antispam-PRVS: <BL1PR12MB57553C94FAB864926FCBB00BF7EC9@BL1PR12MB5755.namprd12.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: BwKEYbq68v53vsUKgkDuUnJcJFknGmF7zF3bOmwaIKt8OZXXxJiXaivoK0NGb4B6hSsqQafo9X5KcKK3lm7j3j8ywP/oeR9GtYmWmRHcFRf7MydNOn8WGSxlVO506VrtV8SY6HYiMZNuHDSGKbP9ED/s9pa2TnWNhJ3xmyIYGH9gbZnuEThoo2dQ5g8PzGKpBc2ywYo9xcEsMoJinQC2JOwthlDN1XKdAX6lWFaNaPsLAGtl2D0I7pftR//8dbS0z7Hz5W0qJZ55XfKhmpN/Qg2S88v+Z+Oj2oCbq4cNKlsskkCLvHcQUsh2Haj1uNKE0Z0tGQ17rXj6oR7U3jDHlt76Qbe+XtNgWtuqW6HH5FNwrbiFjfbfFmnYR6Djh5PSp4ir5/v+oBp+IWflu8qY3dPFRZINgY8WhUIYxWDZUErfgzcjQhJuWc2KKJZtPyQGFI0oIUYe9n6RGtQtFkWqF+MgUReGzpaOxvgPyM4kEwMJrYtlWC2Mo2BNTY/bBS9YIflWLUG5sDBD9mEMpErK1ZQ+SvZAWZstKzZkbGgdoM84oafrHtZQSISL6PKQbXG2vGHP7612/IwZ4PYVFHYrT5lP2Kwrr/W6ZHNyENuQ6ZUGnBEhF3vOrxxyeTU4uwhG1eHL4iVoLJjv32yb3BwUL1eJNZkVq5uTjZnKlq/+RwfzNjQmR35qY8XD4KZBkYIz45U/H3vQPFb4B1ZnBnoN2Q==
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(40470700004)(36840700001)(46966006)(7696005)(6666004)(15650500001)(356005)(2906002)(316002)(81166007)(54906003)(26005)(336012)(426003)(36756003)(6916009)(47076005)(82310400005)(5660300002)(4326008)(83380400001)(8936002)(186003)(70586007)(16526019)(8676002)(70206006)(2616005)(1076003)(40460700003)(36860700001)(86362001)(508600001)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Apr 2022 15:33:58.6982
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 37afb1e3-b0cc-469e-3249-08da1d630751
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT053.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5755
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 13, 2022 at 2:51 PM Veronika Kabatova <vkabatov@redhat.com> wrote:
->
-> On Wed, Apr 13, 2022 at 8:24 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Wed, Apr 13, 2022 at 06:03:14AM -0000, CKI Project wrote:
-> > >
-> > >
-> > > Check out this report and any autotriaged failures in our web dashboard:
-> > >     https://datawarehouse.cki-project.org/kcidb/checkouts/38921
-> > >
-> > > Hello,
-> > >
-> > > We ran automated tests on a recent commit from this kernel tree:
-> > >
-> > >        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > >             Commit: eabfed45bc7c - io_uring: drop the old style inflight file tracking
-> >
-> > It's alive!
-> >
-> > > The results of these automated tests are provided below.
-> > >
-> > >     Overall result: FAILED (see details below)
-> > >              Merge: OK
-> > >            Compile: OK
-> > >              Tests: FAILED
-> > >     Targeted tests: NO
-> >
-> > But things are failing.
-> >
-> > Is this the CKI tool's issue, or is it the patches in the stable queue's
-> > issue?
-> >
-> > Given that CKI has been dead for so long, I'll guess it's a CKI issue
-> > unless you all say otherwise.
-> >
->
-> Hi,
->
-> yes, we finally got the builds fixed and are able to run the testing,
-> and immediately hit the following Fedora bug:
->
-> https://bugzilla.redhat.com/show_bug.cgi?id=2074083
->
-> We're looking into what exactly went wrong, the initial suspect is
-> that the bug caused aborted test runs which confused the
-> reporting system. Sorry about that, and thank you for reaching
-> out about the problem!
->
-> The listed failures are actual failures (both test and kernel bugs),
-> but not specific to the stable tree. They were already reported to
-> the relevant places. If you wish, you can look into the details in the
-> provided DataWarehouse link.
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-Actually, we hit a panic that we don't know if it has been reported
-yet. More logs at [1].
+[Why]
+To debug when p-state is being blocked and avoid PMFW hangs when
+it does occur.
 
-[  346.728135] CPU: 12 PID: 158 Comm: kworker/12:1H Tainted: G
- I       5.17.2 #1
-[  346.770889] Hardware name: HP ProLiant SL390s G7/, BIOS P69 07/02/2013
-[  346.805535] Workqueue: kblockd blk_mq_run_work_fn
-[  346.827834] RIP: 0010:__bfq_deactivate_entity+0x168/0x240
-[  346.855601] Code: 48 2b 41 28 48 85 c0 7e 05 49 89 5c 24 18 49 8b
-44 24 08 4d 8d 74 24 08 48 85 c0 0f 84 d3 00 00 00 48 8b 7b 28 eb 03
-48 89 c8 <48> 8b 48 28 48 8d 70 10 48 8d 50 08 48 29 f9 48 85 c9 48 0f
-4f d6
-[  346.947892] RSP: 0018:ffffac0943f6bbe0 EFLAGS: 00010086
-[  346.973661] RAX: 9fa41f2000000000 RBX: ffff9ae8c9164748 RCX: 9fa41f2000000000
-[  347.009384] RDX: ffff9aeaed07c0a8 RSI: ffff9aeaed07c0a8 RDI: 0000000ae2080ce1
-[  347.044680] RBP: ffff9ae8c91646c0 R08: ffff9aeadd031960 R09: 0000004f9bf8c41b
-[  347.080125] R10: 0000000000000001 R11: 0000000000000000 R12: ffff9aeadd031960
-[  347.116032] R13: 0000000000000001 R14: ffff9aeadd031968 R15: ffff9ae8cb750748
-[  347.150977] FS:  0000000000000000(0000) GS:ffff9aeacbb80000(0000)
-knlGS:0000000000000000
-[  347.198911] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  347.228754] CR2: 00007fb1e2c6ae14 CR3: 0000000340810005 CR4: 00000000000206e0
-[  347.268138] Call Trace:
-[  347.281292]  <TASK>
-[  347.292058]  bfq_deactivate_entity+0x50/0xc0
-[  347.313894]  bfq_del_bfqq_busy+0x91/0x190
-[  347.335376]  bfq_remove_request+0x124/0x340
-[  347.357453]  ? bfq_may_expire_for_budg_timeout+0xa5/0x1c0
-[  347.385031]  ? _raw_spin_unlock_irqrestore+0x25/0x40
-[  347.411908]  ? bfq_bfqq_served+0x132/0x1a0
-[  347.433312]  bfq_dispatch_request+0x44d/0x12e0
-[  347.454390]  ? sbitmap_get+0x90/0x1a0
-[  347.472494]  blk_mq_do_dispatch_sched+0x109/0x370
-[  347.496896]  ? finish_task_switch.isra.0+0xc1/0x2f0
-[  347.520044]  ? __switch_to+0x77/0x430
-[  347.537777]  __blk_mq_sched_dispatch_requests+0xd8/0x120
-[  347.567004]  blk_mq_sched_dispatch_requests+0x30/0x60
-[  347.592476]  __blk_mq_run_hw_queue+0x34/0x90
-[  347.614232]  process_one_work+0x1c7/0x380
-[  347.635369]  worker_thread+0x4d/0x380
-[  347.652939]  ? _raw_spin_lock_irqsave+0x25/0x50
-[  347.674477]  ? process_one_work+0x380/0x380
-[  347.697082]  kthread+0xe9/0x110
-[  347.712042]  ? kthread_complete_and_exit+0x20/0x20
-[  347.735250]  ret_from_fork+0x22/0x30
-[  347.753503]  </TASK>
+[How]
+Re-use the DCN10 hardware sequencer by adding a new interface for
+verifying p-state high on the hubbub. The interface is mostly the
+same as the DCN10 interface, but the bit definitions have changed for
+the debug bus.
 
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+(cherry picked from commit e7031d8258f1b4d6d50e5e5b5d92ba16f66eb8b4)
+Cc: richard.gong@amd.com
+Cc: nicholas.kazlauskas@amd.com
+Cc: stable@vger.kernel.org # 3.15.x
+---
+ .../drm/amd/display/dc/dcn10/dcn10_hubbub.c   |  1 +
+ .../amd/display/dc/dcn10/dcn10_hw_sequencer.c | 10 +++-
+ .../drm/amd/display/dc/dcn30/dcn30_hubbub.c   |  1 +
+ .../drm/amd/display/dc/dcn301/dcn301_hubbub.c |  1 +
+ .../drm/amd/display/dc/dcn31/dcn31_hubbub.c   | 60 +++++++++++++++++++
+ .../drm/amd/display/dc/dcn31/dcn31_resource.c |  2 +-
+ .../gpu/drm/amd/display/dc/inc/hw/dchubbub.h  |  2 +
+ 7 files changed, 73 insertions(+), 4 deletions(-)
 
-[1] https://datawarehouse.cki-project.org/kcidb/tests/3193432
-
-Thanks,
-Bruno
-
-> We're working on transforming the email reports to include the
-> known issue detection that is currently provided in the dashboard,
-> it should be in place in the (hopefully) near future. That should
-> also stabilize the emails.
->
-> Veronika
->
-> > thanks,
-> >
-> > greg k-h
-> >
->
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c
+index f4f423d0b8c3..80595d7f060c 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hubbub.c
+@@ -940,6 +940,7 @@ static const struct hubbub_funcs hubbub1_funcs = {
+ 	.program_watermarks = hubbub1_program_watermarks,
+ 	.is_allow_self_refresh_enabled = hubbub1_is_allow_self_refresh_enabled,
+ 	.allow_self_refresh_control = hubbub1_allow_self_refresh_control,
++	.verify_allow_pstate_change_high = hubbub1_verify_allow_pstate_change_high,
+ };
+ 
+ void hubbub1_construct(struct hubbub *hubbub,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index 530a72e3eefe..0bd598a1d704 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -1112,9 +1112,13 @@ static bool dcn10_hw_wa_force_recovery(struct dc *dc)
+ 
+ void dcn10_verify_allow_pstate_change_high(struct dc *dc)
+ {
++	struct hubbub *hubbub = dc->res_pool->hubbub;
+ 	static bool should_log_hw_state; /* prevent hw state log by default */
+ 
+-	if (!hubbub1_verify_allow_pstate_change_high(dc->res_pool->hubbub)) {
++	if (!hubbub->funcs->verify_allow_pstate_change_high)
++		return;
++
++	if (!hubbub->funcs->verify_allow_pstate_change_high(hubbub)) {
+ 		int i = 0;
+ 
+ 		if (should_log_hw_state)
+@@ -1123,8 +1127,8 @@ void dcn10_verify_allow_pstate_change_high(struct dc *dc)
+ 		TRACE_DC_PIPE_STATE(pipe_ctx, i, MAX_PIPES);
+ 		BREAK_TO_DEBUGGER();
+ 		if (dcn10_hw_wa_force_recovery(dc)) {
+-		/*check again*/
+-			if (!hubbub1_verify_allow_pstate_change_high(dc->res_pool->hubbub))
++			/*check again*/
++			if (!hubbub->funcs->verify_allow_pstate_change_high(hubbub))
+ 				BREAK_TO_DEBUGGER();
+ 		}
+ 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubbub.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubbub.c
+index f4414de96acc..152c9c5733f1 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubbub.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hubbub.c
+@@ -448,6 +448,7 @@ static const struct hubbub_funcs hubbub30_funcs = {
+ 	.program_watermarks = hubbub3_program_watermarks,
+ 	.allow_self_refresh_control = hubbub1_allow_self_refresh_control,
+ 	.is_allow_self_refresh_enabled = hubbub1_is_allow_self_refresh_enabled,
++	.verify_allow_pstate_change_high = hubbub1_verify_allow_pstate_change_high,
+ 	.force_wm_propagate_to_pipes = hubbub3_force_wm_propagate_to_pipes,
+ 	.force_pstate_change_control = hubbub3_force_pstate_change_control,
+ 	.init_watermarks = hubbub3_init_watermarks,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_hubbub.c b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_hubbub.c
+index 1e3bd2e9cdcc..a046664e2031 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_hubbub.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn301/dcn301_hubbub.c
+@@ -60,6 +60,7 @@ static const struct hubbub_funcs hubbub301_funcs = {
+ 	.program_watermarks = hubbub3_program_watermarks,
+ 	.allow_self_refresh_control = hubbub1_allow_self_refresh_control,
+ 	.is_allow_self_refresh_enabled = hubbub1_is_allow_self_refresh_enabled,
++	.verify_allow_pstate_change_high = hubbub1_verify_allow_pstate_change_high,
+ 	.force_wm_propagate_to_pipes = hubbub3_force_wm_propagate_to_pipes,
+ 	.force_pstate_change_control = hubbub3_force_pstate_change_control,
+ 	.hubbub_read_state = hubbub2_read_state,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
+index 5e3bcaf12cac..3e6d6ebd199e 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
+@@ -949,6 +949,65 @@ static void hubbub31_get_dchub_ref_freq(struct hubbub *hubbub,
+ 	}
+ }
+ 
++static bool hubbub31_verify_allow_pstate_change_high(struct hubbub *hubbub)
++{
++	struct dcn20_hubbub *hubbub2 = TO_DCN20_HUBBUB(hubbub);
++
++	/*
++	 * Pstate latency is ~20us so if we wait over 40us and pstate allow
++	 * still not asserted, we are probably stuck and going to hang
++	 */
++	const unsigned int pstate_wait_timeout_us = 100;
++	const unsigned int pstate_wait_expected_timeout_us = 40;
++
++	static unsigned int max_sampled_pstate_wait_us; /* data collection */
++	static bool forced_pstate_allow; /* help with revert wa */
++
++	unsigned int debug_data = 0;
++	unsigned int i;
++
++	if (forced_pstate_allow) {
++		/* we hacked to force pstate allow to prevent hang last time
++		 * we verify_allow_pstate_change_high.  so disable force
++		 * here so we can check status
++		 */
++		REG_UPDATE_2(DCHUBBUB_ARB_DRAM_STATE_CNTL,
++			     DCHUBBUB_ARB_ALLOW_PSTATE_CHANGE_FORCE_VALUE, 0,
++			     DCHUBBUB_ARB_ALLOW_PSTATE_CHANGE_FORCE_ENABLE, 0);
++		forced_pstate_allow = false;
++	}
++
++	REG_WRITE(DCHUBBUB_TEST_DEBUG_INDEX, hubbub2->debug_test_index_pstate);
++
++	for (i = 0; i < pstate_wait_timeout_us; i++) {
++		debug_data = REG_READ(DCHUBBUB_TEST_DEBUG_DATA);
++
++		/* Debug bit is specific to ASIC. */
++		if (debug_data & (1 << 26)) {
++			if (i > pstate_wait_expected_timeout_us)
++				DC_LOG_WARNING("pstate took longer than expected ~%dus\n", i);
++			return true;
++		}
++		if (max_sampled_pstate_wait_us < i)
++			max_sampled_pstate_wait_us = i;
++
++		udelay(1);
++	}
++
++	/* force pstate allow to prevent system hang
++	 * and break to debugger to investigate
++	 */
++	REG_UPDATE_2(DCHUBBUB_ARB_DRAM_STATE_CNTL,
++		     DCHUBBUB_ARB_ALLOW_PSTATE_CHANGE_FORCE_VALUE, 1,
++		     DCHUBBUB_ARB_ALLOW_PSTATE_CHANGE_FORCE_ENABLE, 1);
++	forced_pstate_allow = true;
++
++	DC_LOG_WARNING("pstate TEST_DEBUG_DATA: 0x%X\n",
++			debug_data);
++
++	return false;
++}
++
+ static const struct hubbub_funcs hubbub31_funcs = {
+ 	.update_dchub = hubbub2_update_dchub,
+ 	.init_dchub_sys_ctx = hubbub31_init_dchub_sys_ctx,
+@@ -961,6 +1020,7 @@ static const struct hubbub_funcs hubbub31_funcs = {
+ 	.program_watermarks = hubbub31_program_watermarks,
+ 	.allow_self_refresh_control = hubbub1_allow_self_refresh_control,
+ 	.is_allow_self_refresh_enabled = hubbub1_is_allow_self_refresh_enabled,
++	.verify_allow_pstate_change_high = hubbub31_verify_allow_pstate_change_high,
+ 	.program_det_size = dcn31_program_det_size,
+ 	.program_compbuf_size = dcn31_program_compbuf_size,
+ 	.init_crb = dcn31_init_crb,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+index 8d64187478e4..6b1edc88e297 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
+@@ -1011,7 +1011,7 @@ static const struct dc_debug_options debug_defaults_drv = {
+ 	.max_downscale_src_width = 4096,/*upto true 4K*/
+ 	.disable_pplib_wm_range = false,
+ 	.scl_reset_length10 = true,
+-	.sanity_checks = false,
++	.sanity_checks = true,
+ 	.underflow_assert_delay_us = 0xFFFFFFFF,
+ 	.dwb_fi_phase = -1, // -1 = disable,
+ 	.dmub_command_table = true,
+diff --git a/drivers/gpu/drm/amd/display/dc/inc/hw/dchubbub.h b/drivers/gpu/drm/amd/display/dc/inc/hw/dchubbub.h
+index 713f5558f5e1..9195dec294c2 100644
+--- a/drivers/gpu/drm/amd/display/dc/inc/hw/dchubbub.h
++++ b/drivers/gpu/drm/amd/display/dc/inc/hw/dchubbub.h
+@@ -154,6 +154,8 @@ struct hubbub_funcs {
+ 	bool (*is_allow_self_refresh_enabled)(struct hubbub *hubbub);
+ 	void (*allow_self_refresh_control)(struct hubbub *hubbub, bool allow);
+ 
++	bool (*verify_allow_pstate_change_high)(struct hubbub *hubbub);
++
+ 	void (*apply_DEDCN21_147_wa)(struct hubbub *hubbub);
+ 
+ 	void (*force_wm_propagate_to_pipes)(struct hubbub *hubbub);
+-- 
+2.35.1
 
