@@ -2,72 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF5C500282
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 01:23:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85BF550029D
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 01:31:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234307AbiDMXZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 19:25:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42806 "EHLO
+        id S237878AbiDMXeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 19:34:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233812AbiDMXZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 19:25:55 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34D7725283;
-        Wed, 13 Apr 2022 16:23:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1649892207;
-        bh=UOmsfiUHZxEuNiv0Pgb/nZvDVXfQQUfQzVhysVasWek=;
-        h=X-UI-Sender-Class:Date:Subject:To:References:From:In-Reply-To;
-        b=Q/I88eJFE4/UE7peYUs6NcPHUPYa4V6tztoWnqsiWUEVczNTkIH8QDYC5urL+3RT1
-         I5I0OPenL58yKR5w35rOsE5TrNgROzFyyqpLN8KBeiXENJYz+QVm5Sw+L1ewpLpeO+
-         iy3ez3ElOvN7BXCGDMrZqs/IpqLQ3oxy0ss8X4NY=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx105
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1M9Fjb-1nYRD747TL-006KX6; Thu, 14
- Apr 2022 01:23:27 +0200
-Message-ID: <9b8f45cb-060b-0b32-ff60-b0861eca2a33@gmx.com>
-Date:   Thu, 14 Apr 2022 07:23:23 +0800
+        with ESMTP id S236369AbiDMXd6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 19:33:58 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A05BA25283
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 16:31:35 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id q19so3192046pgm.6
+        for <stable@vger.kernel.org>; Wed, 13 Apr 2022 16:31:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GbQXSifXKKiNbucWgaPjnpcfhyowBOusqmgt9WfhHXY=;
+        b=kFSeWdhQ6n1VkC4qMi1Nn7hiGr8GL+gyOtiqmGg8qbcT43i1uRbH9cWdpsklizhNGE
+         wGi4WKGY19QL5ASG9cDV4vzoBaadAVfgPKisPJrfMIaygBJKgNaZpouTxxErS0V1JV76
+         udI4buvn7qZZRZVRVm1zH7igOI/FMaj2ZXqC34JabsJjidiOiHiUG4E45AeHFFNk5rRz
+         +XmXzA3FSEkM2s029cHeJSDYg3ChcrzX36d9/dmpedmQfsNQU7SwKlPNQ20ni91OHyU8
+         TGOz5wXSQHqAR2zHNvTKT6GaPcPxmMywBMaEoi/Xw8wahEmtyL2AJzAdGqJgXqq8PQwQ
+         C5LQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GbQXSifXKKiNbucWgaPjnpcfhyowBOusqmgt9WfhHXY=;
+        b=mQFVcX1nARIOI70VN/4MqvGfKsk5J4vdsR5kU9gJB9kkGIZe4T+Dr4w2cETYMyuslY
+         bMSAAMKAXPouQuXAcZsv9VB37lMqJ7+P4vflDeaWTlC5N/L1vs+BUf0pCHHwLQnMwirs
+         C7r6ounGgdxcvEnBBhrMyDucmOKqDarxPRC6EAZaZKx0GzeZ3Ud/wluOMjbwJrW28PsB
+         4rCW7638SS33y+1Kg14p0Tc56ERalx136g7pT5eyGZ8t7zXDECzNK/zI5MQqoqlZ3J02
+         VoX1c4IuJ8H1F1RN8fDjR3XfUib7t6QAbO3lo+hNHSh4oCsQ1ScsK4Tz3lBeKoTEZTkz
+         Yx8w==
+X-Gm-Message-State: AOAM530adB+M4FAQ9DnRJhrB0We2aVHUUofoNdbz6jVEeTJbjFQdCmkI
+        ATRLYTT4GThFfAuqVbOqRiRhw1E+Xb/9sC0z
+X-Google-Smtp-Source: ABdhPJzqSyEQftrxlg73Mne66xvRJ6bl00mGJCeH+EAFlNGWVOoKNfCw6qW38Y5AIceycjk06XiKgA==
+X-Received: by 2002:a63:5525:0:b0:39d:40ed:5e3c with SMTP id j37-20020a635525000000b0039d40ed5e3cmr16308pgb.20.1649892694837;
+        Wed, 13 Apr 2022 16:31:34 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w4-20020a056a0014c400b004fb0c7b3813sm158606pfu.134.2022.04.13.16.31.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Apr 2022 16:31:34 -0700 (PDT)
+Message-ID: <62575d56.1c69fb81.33b07.0a2c@mx.google.com>
+Date:   Wed, 13 Apr 2022 16:31:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH v2 1/3] btrfs: avoid double clean up when submit_one_bio()
- failed
-Content-Language: en-US
-To:     dsterba@suse.cz, Qu Wenruo <wqu@suse.com>,
-        linux-btrfs@vger.kernel.org, stable@vger.kernel.org
-References: <cover.1649766550.git.wqu@suse.com>
- <0b13dccbc4d6e066530587d6c00c54b10c3d00d7.1649766550.git.wqu@suse.com>
- <20220412204104.GA15609@twin.jikos.cz>
- <447a2d76-dfff-9efb-09e8-9778ac4a44f2@gmx.com>
- <20220413134630.GI15609@twin.jikos.cz>
-From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
-In-Reply-To: <20220413134630.GI15609@twin.jikos.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:xCSAXaW5SaudQTKuX8ob6JbdLDbOqjDpE6+Eij9silkcHUb7NJi
- dHo/RmOlzlckRWRfCdEd0k6avRIlF0zNAGY48xXpTO0f7WE8J2fiv3NO66/ek8GwyfD09w+
- S6vOaZGcae3yVrLBzL88SpGS2tQ+tuqBBoFFSuDAapd7Oyszb/tO1hXrmKhatHjfnoRV9LH
- sspbg3ZryaeePAeO9cNWw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:JpfwP2CLRGc=:RFwyeGo8A2qTPQ9kQLKRS/
- mT6PWStYgq3W3r0/05AQi4EW/LBWtPerxK1TJ18G6kQo3qGBY262oZap2P9kwMTbGmeWDnu4Y
- sJ6MZWNg663erC1Lf+391o6Kp0vSDAel7y9vINZMgiGMiL4alJgqh6xe1LFO+hpMAlrFZuCDx
- Yzo0vZy1NdhAuGFVxHnvsPfBrTB2JW8MQdS1HPQNlwprLYhN5MVtbJIOT02oImH3WaSzB6SFH
- 3+PmsoRfMEGcehLh7l2irBbTMQ1edB5codTRvA9YMUPM7y7vvZ1Ed6hl3n2Cdr+WMGZGJ+T5w
- OmOWiSoOYMMjghu635DDg5Lvf5Q3cc0kU/1fZ7kLx1uxRd976qCuSTk/9A60bcmyoeIowurMD
- JWbBWMOn9xFEeuRnthMPCZC6ix0DlCF4fc1jdDx2TlCBj/JsXgmDqTZChwStxeM4+K1TFJI8G
- kH86ZcAyN0GqTY7IOrmt87tQ5vP3MH670gjXYDuE3Xs+rXf6JKoQPxN0AXsR62e6XToFmQ6xa
- b46FDDMMLhAEJ8sw4eFvcxxNKJUqRGriR60UqOV2DDSaKX5HJ57mvu+P5wFC68I5Nj149w4fD
- z/0RaHeC+Pja7joi/dCtyBUfsH5cvYD1VQdw8VdZ/zPs0coroQHM+mfQMVnhocgE4A5I2gV9d
- gg+DGboxxmgf1UGh661OSkkTeQPpbIK2I2JJ6PclAXngETZ0aI1huZUkrCS3b1i5kpnF17r0D
- maH5KdmRW/NxHKd36ONC1wdrXMfUButrsRacHHQ8kXnHUsJdCjWKkLQNTqxrHIw84dvyUNSZ8
- AKWWuDNIrNkMicRfYnhSd1lWXb2vRuIAii2sZe5QEXVKW0EK51sUeP8zWPfM63LWIJ0E+6D1m
- 9+AVHXxubABESv2YCWALMgp/TZBb3R0pl32eiXfr7x7+zSIFwOuggvGIV0Oh6rmp+qneMzwNn
- UVHXkvXsN0giNCieu6tpmiS/yTykUBEP+FggG8JB6Av1Q96VIY6f6uql7H2Hyvg46cJtsCz7a
- gas4plOaYQpJulmIHf11+b75y2KB7iR1XjlPSXHAQuOmQkEwly36K6I83lq20nyMLCgkjtdIi
- 8mE7kjPqk8PBKg=
-X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Kernel: v5.15.34
+X-Kernelci-Report-Type: test
+Subject: stable/linux-5.15.y baseline: 127 runs, 1 regressions (v5.15.34)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,53 +69,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.15.y baseline: 127 runs, 1 regressions (v5.15.34)
+
+Regressions Summary
+-------------------
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
 
-On 2022/4/13 21:46, David Sterba wrote:
-> On Wed, Apr 13, 2022 at 07:32:41AM +0800, Qu Wenruo wrote:
->> On 2022/4/13 04:41, David Sterba wrote:
->>> On Tue, Apr 12, 2022 at 08:30:13PM +0800, Qu Wenruo wrote:
->>>> The commit 1784b7d502a9 ("btrfs: handle csum lookup errors properly o=
-n
->>>> reads") itself is completely fine, it's our existing code not properl=
-y
->>>> handling the error from bio submission hook properly.
->>>>
->>>> This patch will make submit_one_bio() to return void so that the call=
-ers
->>>> will never be able to do cleanup when bio submission hook fails.
->>>>
->>>> CC: stable@vger.kernel.org # 5.18+
->>>
->>> BTW stable tags are only for released kernels, if it's still in some r=
-c
->>> then Fixes: is appropriate.
->>
->> The problem is I don't have a good idea on which commit to be fixed.
->>
->> Commit 1784b7d502a9 ("btrfs: handle csum lookup errors properly on
->> reads") is completely fine by itself.
->>
->> The problem is there for a long long time, but can only be triggered
->> with IO errors with that newer commit.
->>
->> Should we really use that commit? It looks like a scapegoat to me...
->
-> I see, so it does not make sense to put Fixes: if it's not clearly
-> caused by the patch, the text description of the problem and references
-> to patches that could affect is OK.
->
-> Still the stable tag should reflect where the fix applies but 5.18
-> hasn't been released so either it's a typo or you know roughly which
-> stable kernels should get the fix (5.15, 5.10, etc).
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
+/v5.15.34/plan/baseline/
 
-Then I guess we can drop the stable tag.
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.15.y
+  Describe: v5.15.34
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      1b86fc15ba6d04e393d6e65753f2013963d407f3 =
 
-Before that mentioned commit, btrfs_lookup_bio_csum() will never return
-error, thus submit_one_bio() will not really fail (due to IO error).
 
-Although the error path is there for a long long time, we don't have
-easy way to trigger the problem.
 
-Thanks,
-Qu
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62572cb6d2e3a2f6bcae069d
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.34/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.34/a=
+rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
+vin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62572cb6d2e3a2f6bcae06bf
+        failing since 35 days (last pass: v5.15.25, first fail: v5.15.27)
+
+    2022-04-13T20:03:50.087925  <8>[   59.767792] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-04-13T20:03:51.111418  /lava-6081451/1/../bin/lava-test-case
+    2022-04-13T20:03:51.121096  <8>[   60.801168] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
