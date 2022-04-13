@@ -2,298 +2,255 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A37544FEEE5
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 07:59:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E3B14FEEFD
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 08:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232701AbiDMGBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Apr 2022 02:01:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59486 "EHLO
+        id S231298AbiDMGCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Apr 2022 02:02:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232697AbiDMGBJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 02:01:09 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66B850E10;
-        Tue, 12 Apr 2022 22:58:48 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id 125so841555pgc.11;
-        Tue, 12 Apr 2022 22:58:48 -0700 (PDT)
+        with ESMTP id S229633AbiDMGCU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Apr 2022 02:02:20 -0400
+Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1174C6411
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 23:00:00 -0700 (PDT)
+Received: by mail-yb1-xb29.google.com with SMTP id z33so1884680ybh.5
+        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 23:00:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:subject:to:cc:references:in-reply-to:mime-version
-         :message-id:content-transfer-encoding;
-        bh=xZ3d2a5P09M3dOrxfauC5k5b1cVbjgEZglnnGSUkfcg=;
-        b=Z5OL+yD11+Ta4Xvg4LYGdxnmW5y+sro2rhHTh4NDJftGOPsbzsPFvXF2QmA8oHWffZ
-         DH5e/uS1VhgHuXI4ntyRHsbDT+Nf9aa2f0tzlX3tJmY8827Dqqj1iN9/yQeRRNBsyFcM
-         9WCQy/YP8CjiO62M1L0g60CEMQPw8a73dYC+Hqdhyf9ckCiuZz1sgkop7zS/w5UWtHsm
-         Ccm2UtFL6xtLoqidwIKYxYKPvi2CVjSIKo8TR8EGJrBLz1HJpRAOPnp4Nja9rfkDTlx0
-         i5cIICCpiK+nC2TCoBKEEd9YBE1h371NN6MNG5z3ZcmSfy474ja1NYPyGpBjTjH/zEtw
-         dUpA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Rfca7IeMtlOW/R4a/dqCyA7+xRxAXALkRhVZh903ofg=;
+        b=uwUMpFpqsouJU66yPo5YmfA9AqZKzGQtVU3PH0o8NMTWynsyBUbboxSJtIjKaDV4Ld
+         qzDcxBmjBWE9A4hbjKO0i0n8lI8OTdEbGGZ72LXwhQGg6hs1UYGU6UDN0thGSAYM6aRj
+         +BFcwqAIsluipnVLUz90yeKpUjyP0YzIPsQ8OjmnSgI1IbY3f1t69yb2lbcokw7MWuKP
+         7Uym6C8YgpZFyBCA6rdRiX9CO4ikwQinNz9yowPOZjw0Dk6qvqqLkZ/mqyztHDVue+Ah
+         pXo0lwhreQ8/bukoSl0z2s5zwPqmbS3/9prZ3DKOgutgcuLp50VEZDogaa8Nf1FbOxZM
+         UtYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
-         :mime-version:message-id:content-transfer-encoding;
-        bh=xZ3d2a5P09M3dOrxfauC5k5b1cVbjgEZglnnGSUkfcg=;
-        b=7f3UzpLm0kWEg6oHYA1uPTB+YDOyPjznthNW3WlYRyqm5s6lGsI5//5sz5KZw3jxCJ
-         KpyzLmDvbP4dWfzWUr2W++n6Oya7+KL5/igVPLU5FSJA7jAQGnBoLNLjznrAALfvmWCH
-         x9r2y8+ll17Q1sMS3umJhm48kiTmZvYz7LZo/+MqYYuQEaULjniinBCZUjY0l7l52ybD
-         Lm4c99TH+YAEyuPXn5xNaC3zz/iDaLPXpFlU6BJ3mEb6y/C3A5S506hLJk09IFzzccQ0
-         EDOej0bNvOEjYFqY7GBfFZ9JXg/UaxNlfsGnaRir4/2iFV6q0Evp/xCGchPuX12fG6wh
-         iN+w==
-X-Gm-Message-State: AOAM531txPQIyepbW22DG5GL1TlkWyChF4Zb8O8ONubp3eyNOIPwCguS
-        QBN5OhvvgACjpRVkKplFxscy0G8Lph8=
-X-Google-Smtp-Source: ABdhPJwyaOUokqxAVLPb3QtBI5XMnJUphj49CSrELjT4Qbj7o1eMjOPcE+jG40Q+Fxdc9vojZMcbfw==
-X-Received: by 2002:a05:6a00:1c63:b0:505:cc7f:a21b with SMTP id s35-20020a056a001c6300b00505cc7fa21bmr11834767pfw.9.1649829528283;
-        Tue, 12 Apr 2022 22:58:48 -0700 (PDT)
-Received: from localhost (220-235-208-104.tpgi.com.au. [220.235.208.104])
-        by smtp.gmail.com with ESMTPSA id k187-20020a636fc4000000b003983a01b896sm4645118pgc.90.2022.04.12.22.58.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Apr 2022 22:58:47 -0700 (PDT)
-Date:   Wed, 13 Apr 2022 15:58:42 +1000
-From:   Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH v2] powerpc/rtas: Keep MSR[RI] set when calling RTAS
-To:     Laurent Dufour <ldufour@linux.ibm.com>, mpe@ellerman.id.au
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org
-References: <20220401140634.65726-1-ldufour@linux.ibm.com>
-In-Reply-To: <20220401140634.65726-1-ldufour@linux.ibm.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Rfca7IeMtlOW/R4a/dqCyA7+xRxAXALkRhVZh903ofg=;
+        b=6J9BdSizJ7qYlxe8L+LVhCNXPllmJidmcVVnfpfxc4w2JtmBeGjfVGAq6YfLnNlaxq
+         QenPkvbWu2qhAF4dfX6m+8XO9ld+LPKD336YaPLtwtI0y19v/eoMO+JEQ+qAirKVHUm9
+         rc8WiPw7OVaM8A5+/RGptlTg2gxRB+iSvpaw/fU3u4BqfK1y7OpzpVtOUiFDM+wRZfMx
+         YyzqIogYhMabzQQ2sZ98CHd95BpAbA2rvKnq8FavTyPW39eyPJxeaWgpf/Zf+uz9NDq/
+         AkWjwNSCtEbflX8IWCqgSr6GlpGfx+DEo/WX2pEVYquQVzU5kByPmAU6kqaMbIryHTJq
+         CabQ==
+X-Gm-Message-State: AOAM531MG/jShyV+vswYOXowMsZShxyDgFCL1FVoZhlZdP7FS0N4EGuV
+        0nz2cGyClanDxQVkoktWCJVwm62eQhAbE2rpuNSo7w==
+X-Google-Smtp-Source: ABdhPJyzh8NIIPwogKkE8jbMEvrPXhaQNKMuvbYIlQ9BTRA0DNxf7+vMyyY57F3hQXO6gyoVPOXQv1qAU5Tvcws/j5E=
+X-Received: by 2002:a25:9909:0:b0:624:57e:d919 with SMTP id
+ z9-20020a259909000000b00624057ed919mr30378831ybn.494.1649829599080; Tue, 12
+ Apr 2022 22:59:59 -0700 (PDT)
 MIME-Version: 1.0
-Message-Id: <1649829486.cvd3k2eimb.astroid@bobo.none>
-Content-Type: text/plain; charset=UTF-8
+References: <20220412062943.670770901@linuxfoundation.org>
+In-Reply-To: <20220412062943.670770901@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 13 Apr 2022 11:29:47 +0530
+Message-ID: <CA+G9fYtOpNELDwKQwG5GRpN_MVCqRi_FJOdxvD4hGYftvVsiDA@mail.gmail.com>
+Subject: Re: [PATCH 5.16 000/285] 5.16.20-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Excerpts from Laurent Dufour's message of April 2, 2022 12:06 am:
-> RTAS runs in real mode (MSR[DR] and MSR[IR] unset) and in 32bits
-> mode (MSR[SF] unset).
->=20
-> The change in MSR is done in enter_rtas() in a relatively complex way,
-> since the MSR value could be hardcoded.
->=20
-> Furthermore, a panic has been reported when hitting the watchdog interrup=
-t
-> while running in RTAS, this leads to the following stack trace:
->=20
-> [69244.027433][   C24] watchdog: CPU 24 Hard LOCKUP
-> [69244.027442][   C24] watchdog: CPU 24 TB:997512652051031, last heartbea=
-t TB:997504470175378 (15980ms ago)
-> [69244.027451][   C24] Modules linked in: chacha_generic(E) libchacha(E) =
-xxhash_generic(E) wp512(E) sha3_generic(E) rmd160(E) poly1305_generic(E) li=
-bpoly1305(E) michael_mic(E) md4(E) crc32_generic(E) cmac(E) ccm(E) algif_rn=
-g(E) twofish_generic(E) twofish_common(E) serpent_generic(E) fcrypt(E) des_=
-generic(E) libdes(E) cast6_generic(E) cast5_generic(E) cast_common(E) camel=
-lia_generic(E) blowfish_generic(E) blowfish_common(E) algif_skcipher(E) alg=
-if_hash(E) gcm(E) algif_aead(E) af_alg(E) tun(E) rpcsec_gss_krb5(E) auth_rp=
-cgss(E)
-> nfsv4(E) dns_resolver(E) rpadlpar_io(EX) rpaphp(EX) xsk_diag(E) tcp_diag(=
-E) udp_diag(E) raw_diag(E) inet_diag(E) unix_diag(E) af_packet_diag(E) netl=
-ink_diag(E) nfsv3(E) nfs_acl(E) nfs(E) lockd(E) grace(E) sunrpc(E) fscache(=
-E) netfs(E) af_packet(E) rfkill(E) bonding(E) tls(E) ibmveth(EX) crct10dif_=
-vpmsum(E) rtc_generic(E) drm(E) drm_panel_orientation_quirks(E) fuse(E) con=
-figfs(E) backlight(E) ip_tables(E) x_tables(E) dm_service_time(E) sd_mod(E)=
- t10_pi(E)
-> [69244.027555][   C24]  ibmvfc(EX) scsi_transport_fc(E) vmx_crypto(E) gf1=
-28mul(E) btrfs(E) blake2b_generic(E) libcrc32c(E) crc32c_vpmsum(E) xor(E) r=
-aid6_pq(E) dm_mirror(E) dm_region_hash(E) dm_log(E) sg(E) dm_multipath(E) d=
-m_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E) scsi_mod(E)
-> [69244.027587][   C24] Supported: No, Unreleased kernel
-> [69244.027600][   C24] CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Taint=
-ed: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP=
-4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
-> [69244.027609][   C24] NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0=
-000000000000000
-> [69244.027612][   C24] REGS: c00000000fc33d60 TRAP: 0100   Tainted: G    =
-        E  X     (5.14.21-150400.71.1.bz196362_2-default)
-> [69244.027615][   C24] MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 488000=
-02  XER: 20040020
-> [69244.027625][   C24] CFAR: 000000000000011c IRQMASK: 1
-> [69244.027625][   C24] GPR00: 0000000000000003 ffffffffffffffff 000000000=
-0000001 00000000000050dc
-> [69244.027625][   C24] GPR04: 000000001ffb6100 0000000000000020 000000000=
-0000001 000000001fb09010
-> [69244.027625][   C24] GPR08: 0000000020000000 0000000000000000 000000000=
-0000000 0000000000000000
-> [69244.027625][   C24] GPR12: 80040000072a40a8 c00000000ff8b680 000000000=
-0000007 0000000000000034
-> [69244.027625][   C24] GPR16: 000000001fbf6e94 000000001fbf6d84 000000001=
-fbd1db0 000000001fb3f008
-> [69244.027625][   C24] GPR20: 000000001fb41018 ffffffffffffffff 000000000=
-000017f fffffffffffff68f
-> [69244.027625][   C24] GPR24: 000000001fb18fe8 000000001fb3e000 000000001=
-fb1adc0 000000001fb1cf40
-> [69244.027625][   C24] GPR28: 000000001fb26000 000000001fb460f0 000000001=
-fb17f18 000000001fb17000
-> [69244.027663][   C24] NIP [000000001fb41050] 0x1fb41050
-> [69244.027696][   C24] LR [000000001fb4104c] 0x1fb4104c
-> [69244.027699][   C24] Call Trace:
-> [69244.027701][   C24] Instruction dump:
-> [69244.027723][   C24] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXX=
-XXX XXXXXXXX XXXXXXXX
-> [69244.027728][   C24] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXX=
-XXX XXXXXXXX XXXXXXXX
-> [69244.027762][T87504] Oops: Unrecoverable System Reset, sig: 6 [#1]
-> [69244.028044][T87504] LE PAGE_SIZE=3D64K MMU=3DHash SMP NR_CPUS=3D2048 N=
-UMA pSeries
-> [69244.028089][T87504] Modules linked in: chacha_generic(E) libchacha(E) =
-xxhash_generic(E) wp512(E) sha3_generic(E) rmd160(E) poly1305_generic(E) li=
-bpoly1305(E) michael_mic(E) md4(E) crc32_generic(E) cmac(E) ccm(E) algif_rn=
-g(E) twofish_generic(E) twofish_common(E) serpent_generic(E) fcrypt(E) des_=
-generic(E) libdes(E) cast6_generic(E) cast5_generic(E) cast_common(E) camel=
-lia_generic(E) blowfish_generic(E) blowfish_common(E) algif_skcipher(E) alg=
-if_hash(E) gcm(E) algif_aead(E) af_alg(E) tun(E) rpcsec_gss_krb5(E) auth_rp=
-cgss(E)
-> nfsv4(E) dns_resolver(E) rpadlpar_io(EX) rpaphp(EX) xsk_diag(E) tcp_diag(=
-E) udp_diag(E) raw_diag(E) inet_diag(E) unix_diag(E) af_packet_diag(E) netl=
-ink_diag(E) nfsv3(E) nfs_acl(E) nfs(E) lockd(E) grace(E) sunrpc(E) fscache(=
-E) netfs(E) af_packet(E) rfkill(E) bonding(E) tls(E) ibmveth(EX) crct10dif_=
-vpmsum(E) rtc_generic(E) drm(E) drm_panel_orientation_quirks(E) fuse(E) con=
-figfs(E) backlight(E) ip_tables(E) x_tables(E) dm_service_time(E) sd_mod(E)=
- t10_pi(E)
-> [69244.028171][T87504]  ibmvfc(EX) scsi_transport_fc(E) vmx_crypto(E) gf1=
-28mul(E) btrfs(E) blake2b_generic(E) libcrc32c(E) crc32c_vpmsum(E) xor(E) r=
-aid6_pq(E) dm_mirror(E) dm_region_hash(E) dm_log(E) sg(E) dm_multipath(E) d=
-m_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E) scsi_mod(E)
-> [69244.028307][T87504] Supported: No, Unreleased kernel
-> [69244.028385][T87504] CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Taint=
-ed: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP=
-4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
-> [69244.028408][T87504] NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0=
-000000000000000
-> [69244.028418][T87504] REGS: c00000000fc33d60 TRAP: 0100   Tainted: G    =
-        E  X     (5.14.21-150400.71.1.bz196362_2-default)
-> [69244.028429][T87504] MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 488000=
-02  XER: 20040020
-> [69244.028444][T87504] CFAR: 000000000000011c IRQMASK: 1
-> [69244.028444][T87504] GPR00: 0000000000000003 ffffffffffffffff 000000000=
-0000001 00000000000050dc
-> [69244.028444][T87504] GPR04: 000000001ffb6100 0000000000000020 000000000=
-0000001 000000001fb09010
-> [69244.028444][T87504] GPR08: 0000000020000000 0000000000000000 000000000=
-0000000 0000000000000000
-> [69244.028444][T87504] GPR12: 80040000072a40a8 c00000000ff8b680 000000000=
-0000007 0000000000000034
-> [69244.028444][T87504] GPR16: 000000001fbf6e94 000000001fbf6d84 000000001=
-fbd1db0 000000001fb3f008
-> [69244.028444][T87504] GPR20: 000000001fb41018 ffffffffffffffff 000000000=
-000017f fffffffffffff68f
-> [69244.028444][T87504] GPR24: 000000001fb18fe8 000000001fb3e000 000000001=
-fb1adc0 000000001fb1cf40
-> [69244.028444][T87504] GPR28: 000000001fb26000 000000001fb460f0 000000001=
-fb17f18 000000001fb17000
-> [69244.028534][T87504] NIP [000000001fb41050] 0x1fb41050
-> [69244.028543][T87504] LR [000000001fb4104c] 0x1fb4104c
-> [69244.028549][T87504] Call Trace:
-> [69244.028554][T87504] Instruction dump:
-> [69244.028561][T87504] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXX=
-XXX XXXXXXXX XXXXXXXX
-> [69244.028575][T87504] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXX=
-XXX XXXXXXXX XXXXXXXX
-> [69244.028607][T87504] ---[ end trace 3ddec07f638c34a2 ]---
->=20
-> This happens because MSR[RI] is unset when entering RTAS but there is no
-> valid reason to not set it here.
->=20
-> RTAS is expected to be called with MSR[RI] as specified in PAPR+ section
-> "7.2.1 Machine State":
->=20
->  R1=E2=80=937.2.1=E2=80=939. If called with MSR[RI] equal to 1, then RTAS=
- must protect its
->  own critical regions from recursion by setting the MSRRI bit to 0 when i=
-n
->  the critical regions.
->=20
-> Fixing this by reviewing the way MSR is compute before calling RTAS. Now =
-a
-> hardcoded value meaning real mode, 32 bits and Recoverable Interrupt is
-> loaded.
->=20
-> In addition a check is added in do_enter_rtas() to detect calls made with
-> MSR[RI] unset, as we are forcing it on later.
->=20
-> This patch has been tested on the following machines:
-> Power KVM Guest
->   P8 S822L (host Ubuntu kernel 5.11.0-49-generic)
-> PowerVM LPAR
->   P8 9119-MME (FW860.A1)
->   p9 9008-22L (FW950.00)
->   P10 9080-HEX (FW1010.00)
->=20
-> Changes in V2:
->  - Change comment in code to indicate NMI (Nick's comment)
->  - Add reference to PAPR+ in the change log (Michael's comment)
->=20
-> Cc: stable@vger.kernel.org
-> Suggested-by: Nicholas Piggin <npiggin@gmail.com>
-> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+On Tue, 12 Apr 2022 at 12:25, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> ----------------------
+> Note, this will be the LAST 5.16.y kernel to be released.  Please move
+> to the 5.17.y tree at this time.
+> ----------------------
+>
+> This is the start of the stable review cycle for the 5.16.20 release.
+> There are 285 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 14 Apr 2022 06:28:59 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.16.20-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.16.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Still looks good,
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+## Build
+* kernel: 5.16.20-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.16.y
+* git commit: 4a83e2cd9b7444a50219f4be214a3d4d143e1945
+* git describe: v5.16.19-286-g4a83e2cd9b74
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.16.y/build/v5.16=
+.19-286-g4a83e2cd9b74
 
-> ---
->  arch/powerpc/kernel/entry_64.S | 20 ++++++++------------
->  arch/powerpc/kernel/rtas.c     |  5 +++++
->  2 files changed, 13 insertions(+), 12 deletions(-)
->=20
-> diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_6=
-4.S
-> index 9581906b5ee9..65cb14b56f8d 100644
-> --- a/arch/powerpc/kernel/entry_64.S
-> +++ b/arch/powerpc/kernel/entry_64.S
-> @@ -330,22 +330,18 @@ _GLOBAL(enter_rtas)
->  	clrldi	r4,r4,2			/* convert to realmode address */
->         	mtlr	r4
-> =20
-> -	li	r0,0
-> -	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE|MSR_RI
-> -	andc	r0,r6,r0
-> -=09
-> -        li      r9,1
-> -        rldicr  r9,r9,MSR_SF_LG,(63-MSR_SF_LG)
-> -	ori	r9,r9,MSR_IR|MSR_DR|MSR_FE0|MSR_FE1|MSR_FP|MSR_RI|MSR_LE
-> -	andc	r6,r0,r9
-> -
->  __enter_rtas:
-> -	sync				/* disable interrupts so SRR0/1 */
-> -	mtmsrd	r0			/* don't get trashed */
-> -
->  	LOAD_REG_ADDR(r4, rtas)
->  	ld	r5,RTASENTRY(r4)	/* get the rtas->entry value */
->  	ld	r4,RTASBASE(r4)		/* get the rtas->base value */
-> +
-> +	/* RTAS runs in 32bits real mode but let MSR[]RI on as we may hit
-> +	 * NMI (SRESET or MCE). RTAS should disable RI in its critical
-> +	 * regions (as specified in PAPR+ section 7.2.1). */
-> +	LOAD_REG_IMMEDIATE(r6, MSR_ME|MSR_RI)
-> +
-> +	li      r0,0
-> +	mtmsrd  r0,1                    /* disable RI before using SRR0/1 */
->  =09
->  	mtspr	SPRN_SRR0,r5
->  	mtspr	SPRN_SRR1,r6
-> diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-> index 1f42aabbbab3..d7775b8c8853 100644
-> --- a/arch/powerpc/kernel/rtas.c
-> +++ b/arch/powerpc/kernel/rtas.c
-> @@ -49,6 +49,11 @@ void enter_rtas(unsigned long);
-> =20
->  static inline void do_enter_rtas(unsigned long args)
->  {
-> +	unsigned long msr;
-> +
-> +	msr =3D mfmsr();
-> +	BUG_ON(!(msr & MSR_RI));
-> +
->  	enter_rtas(args);
-> =20
->  	srr_regs_clobbered(); /* rtas uses SRRs, invalidate */
-> --=20
-> 2.35.1
->=20
->=20
+## Test Regressions (compared to v5.16.19-286-g99cc9cff3df4)
+No test regressions found.
+
+## Metric Regressions (compared to v5.16.19-286-g99cc9cff3df4)
+No metric regressions found.
+
+## Test Fixes (compared to v5.16.19-286-g99cc9cff3df4)
+No test fixes found.
+
+## Metric Fixes (compared to v5.16.19-286-g99cc9cff3df4)
+No metric fixes found.
+
+## Test result summary
+total: 108903, pass: 91586, fail: 1117, skip: 14997, xfail: 1203
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 296 total, 293 passed, 3 failed
+* arm64: 47 total, 46 passed, 1 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 45 total, 41 passed, 4 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 41 total, 38 passed, 3 failed
+* parisc: 14 total, 14 passed, 0 failed
+* powerpc: 65 total, 56 passed, 9 failed
+* riscv: 32 total, 26 passed, 6 failed
+* s390: 26 total, 23 passed, 3 failed
+* sh: 26 total, 24 passed, 2 failed
+* sparc: 14 total, 14 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 47 total, 46 passed, 1 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-test[
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* prep-inline
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
