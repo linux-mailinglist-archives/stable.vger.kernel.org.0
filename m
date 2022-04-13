@@ -2,250 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDE124FEDBF
-	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 05:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 236D04FEDE2
+	for <lists+stable@lfdr.de>; Wed, 13 Apr 2022 05:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229484AbiDMDtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Apr 2022 23:49:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51266 "EHLO
+        id S232158AbiDMD47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Apr 2022 23:56:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229645AbiDMDtT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 23:49:19 -0400
-Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8478366B7
-        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 20:46:58 -0700 (PDT)
-Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-2db2add4516so9164137b3.1
-        for <stable@vger.kernel.org>; Tue, 12 Apr 2022 20:46:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=cqaAPEMX7LYW6wg5ZfwQLTI8+xvUDectbkA1gAskbOw=;
-        b=nvveBPlHiygWMrmuD+JYJ8gKsLnG6urrHeGrSt9Lt+BK4uwpMw7fqsC6eg1hEDY/eC
-         7pAwppHWjNptm6l8jtsgrJtzCteM87WmpRp9/GRB+JZoyodsTOG3DfeAwlaHMdKNWSUj
-         96pTQD5JlefglpsdnRNTokJNErGlhFK3HH6fEweA6hgc05QSKfAOnv+4kyXBwqwEWyXf
-         LbBwQupTyPKVn6OGDEXrBqwXCqx24jDyv7QAzCPTP2sriTpqad5V3YdVCsjNHU3dP71K
-         Te19LfVpvynk5KWUR2uTxJtz3SAaLyrNBcwILf8LQCpnyTZRvpkKt6MZupiOgwme9LeD
-         VlPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=cqaAPEMX7LYW6wg5ZfwQLTI8+xvUDectbkA1gAskbOw=;
-        b=HK32jtC3Ctg5KWmPf5uZRo1WmSHcouiraoCsMCFrngy0pxuBKzk81K0G9DqftzacWi
-         BD02RuDuxW2/QoC8KuFHdshvFOvIcsG/o5qMhhlfLAQFD6QhTSx91l6gPEVCjmTYLHF9
-         OhlJ5sVCU775rz9upKRFrSVjkm9ivvG9jNPUKCYN98O4r1BhjowImDVOBztEfzfletTR
-         jRhwpHwaAdin/jnqAv41xmcq4nfrvBgS5hrgjmBEgKiO/qctqhD9m0dBnQ1HxclXf9AS
-         bpL3hmeTjlQAXkCXknNhJicCYPQuCulOctWQvhHhveHdQBhFjTTpAF8zVeySBJEATL5u
-         f0JA==
-X-Gm-Message-State: AOAM5328AOWXVIskwKfW+3J71erWFIv6Hox8xS2ULd5ODYVjMveNSBGJ
-        ofXGF04cbDQ2gZgpUTi3cbqO2m33qhd3NnEI+hb35A==
-X-Google-Smtp-Source: ABdhPJy7+cF/HmAxm+sJ/582idxx0wjCJIqCVhknhj4LI9bhT556p0NrH7O3Y16Jmqp+fIL2PgsKbwZaeKHll1cvz4s=
-X-Received: by 2002:a81:bf51:0:b0:2ef:414a:f03b with SMTP id
- s17-20020a81bf51000000b002ef414af03bmr2271421ywk.199.1649821617761; Tue, 12
- Apr 2022 20:46:57 -0700 (PDT)
+        with ESMTP id S232126AbiDMD4t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Apr 2022 23:56:49 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDC3F273A;
+        Tue, 12 Apr 2022 20:54:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1649822068; x=1681358068;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=qWnHsji0gnh/xDp7MQF81PbKycXAQAQAMMGE3n28kdA=;
+  b=YlhoMOngZDWEyJon07RvXTvrthpaDc+N+wS0AqTD8UqmyKrHA2Jzq+eP
+   bCxsTEddmO2VWcKEjnfypmWBBOU2QV+rgQY9mWqqwDBwT+azVS6dpvewZ
+   rxMJx2vrHHs8Ltx59uEj83UlNpeG3Yc33hD/0BTUDuZL2CLFwWFjP+XE9
+   VQz33zcwXCmHdnaIPm0rkHBD8lhZMW60qbGBa2TAoWH5UYejoZUD5ujEY
+   eSwJP6GiQNO/VUioeEgUoawKVLeI5ObmJCKWgLMbe7rHVcJDUOXhz1DQM
+   NAj0Jp5iSZxHPK15nkEKWcmizwabXjhZ4xHiFF2/4deaBj+Gi7+u6A0cJ
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10315"; a="249852148"
+X-IronPort-AV: E=Sophos;i="5.90,255,1643702400"; 
+   d="scan'208";a="249852148"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Apr 2022 20:54:28 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,255,1643702400"; 
+   d="scan'208";a="724733855"
+Received: from p12hl01tmin.png.intel.com ([10.158.65.75])
+  by orsmga005.jf.intel.com with ESMTP; 12 Apr 2022 20:54:23 -0700
+From:   Tan Tee Min <tee.min.tan@intel.com>
+To:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Rayagond Kokatanur <rayagond@vayavyalabs.com>,
+        Richard Cochran <richardcochran@gmail.com>
+Cc:     netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Voon Wei Feng <weifeng.voon@intel.com>,
+        Wong Vee Khee <vee.khee.wong@intel.com>,
+        Song Yoong Siang <yoong.siang.song@intel.com>,
+        Tan Tee Min <tee.min.tan@intel.com>
+Subject: [PATCH net 1/1] net: stmmac: add fsleep() in HW Rx timestamp checking loop
+Date:   Wed, 13 Apr 2022 12:01:15 +0800
+Message-Id: <20220413040115.2351987-1-tee.min.tan@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20220412062951.095765152@linuxfoundation.org>
-In-Reply-To: <20220412062951.095765152@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 13 Apr 2022 09:16:46 +0530
-Message-ID: <CA+G9fYvOaEoq6tR5O4rLW=dfPv5MDOK-Qgy+H3cJSPsBWMwaWQ@mail.gmail.com>
-Subject: Re: [PATCH 5.17 000/343] 5.17.3-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=0.2 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 12 Apr 2022 at 12:38, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.17.3 release.
-> There are 343 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 14 Apr 2022 06:28:59 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.17.3-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.17.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+There is a possibility that the context descriptor still owned by the DMA
+even the previous normal descriptor own bit is already cleared. Checking
+the context descriptor readiness without delay might be not enough time
+for the DMA to update the descriptor field, which causing failure in
+getting HW Rx timestamp.
 
+This patch introduces a 1us fsleep() in HW Rx timestamp checking loop
+to give time for DMA to update/complete the context descriptor.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+ptp4l Timestamp log without this patch:
+-----------------------------------------------------------
+$ echo 10000 > /sys/class/net/enp0s30f4/gro_flush_timeout
+$ echo 10000 > /sys/class/net/enp0s30f4/napi_defer_hard_irqs
+$ ptp4l -P2Hi enp0s30f4 --step_threshold=1 -m
+ptp4l: selected /dev/ptp2 as PTP clock
+ptp4l: port 1: INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l: selected local clock 901210.fffe.b57df7 as best master
+ptp4l: port 1: new foreign master 22bb22.fffe.bb22bb-1
+ptp4l: selected best master clock 22bb22.fffe.bb22bb
+ptp4l: port 1: LISTENING to UNCALIBRATED on RS_SLAVE
+ptp4l: port 1: UNCALIBRATED to SLAVE on MASTER_CLOCK_SELECTED
+ptp4l: port 1: received SYNC without timestamp
+ptp4l: rms   49 max   63 freq  -9573 +/-  34 delay    71 +/-   1
+ptp4l: rms   15 max   25 freq  -9553 +/-  20 delay    72 +/-   0
+ptp4l: port 1: received SYNC without timestamp
+ptp4l: rms    9 max   18 freq  -9540 +/-  11 delay    70 +/-   0
+ptp4l: port 1: received PDELAY_REQ without timestamp
+ptp4l: rms   16 max   29 freq  -9519 +/-  12 delay    72 +/-   0
+ptp4l: port 1: received PDELAY_REQ without timestamp
+ptp4l: rms    9 max   18 freq  -9527 +/-  12 delay    72 +/-   0
+ptp4l: rms    5 max    9 freq  -9530 +/-   7 delay    70 +/-   0
+ptp4l: rms   11 max   20 freq  -9530 +/-  16 delay    72 +/-   0
+ptp4l: rms    5 max   11 freq  -9530 +/-   7 delay    74 +/-   0
+ptp4l: rms    6 max    9 freq  -9522 +/-   7 delay    72 +/-   0
+ptp4l: port 1: received PDELAY_REQ without timestamp
+-----------------------------------------------------------
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+ptp4l Timestamp log with this patch:
+-----------------------------------------------------------
+$ echo 10000 > /sys/class/net/enp0s30f4/gro_flush_timeout
+$ echo 10000 > /sys/class/net/enp0s30f4/napi_defer_hard_irqs
+$ ptp4l -P2Hi enp0s30f4 --step_threshold=1 -m
+ptp4l: selected /dev/ptp2 as PTP clock
+ptp4l: port 1: INITIALIZING to LISTENING on INIT_COMPLETE
+ptp4l: selected local clock 901210.fffe.b57df7 as best master
+ptp4l: port 1: new foreign master 22bb22.fffe.bb22bb-1
+ptp4l: selected best master clock 22bb22.fffe.bb22bb
+ptp4l: port 1: LISTENING to UNCALIBRATED on RS_SLAVE
+ptp4l: port 1: UNCALIBRATED to SLAVE on MASTER_CLOCK_SELECTED
+ptp4l: rms   30 max   45 freq  -9400 +/-  23 delay    72 +/-   0
+ptp4l: rms    7 max   16 freq  -9414 +/-  10 delay    70 +/-   0
+ptp4l: rms    6 max    9 freq  -9422 +/-   6 delay    72 +/-   0
+ptp4l: rms   13 max   20 freq  -9436 +/-  13 delay    74 +/-   0
+ptp4l: rms   12 max   27 freq  -9446 +/-  11 delay    72 +/-   0
+ptp4l: rms    9 max   12 freq  -9453 +/-   6 delay    74 +/-   0
+ptp4l: rms    9 max   15 freq  -9438 +/-  11 delay    74 +/-   0
+ptp4l: rms   10 max   16 freq  -9435 +/-  12 delay    74 +/-   0
+ptp4l: rms    8 max   18 freq  -9428 +/-   8 delay    72 +/-   0
+ptp4l: rms    8 max   18 freq  -9423 +/-   8 delay    72 +/-   0
+ptp4l: rms    9 max   16 freq  -9431 +/-  12 delay    70 +/-   0
+ptp4l: rms    9 max   18 freq  -9441 +/-   9 delay    72 +/-   0
+-----------------------------------------------------------
 
-## Build
-* kernel: 5.17.3-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.17.y
-* git commit: 66349d151ef98c411fbfe080a4e9c646dc41eca8
-* git describe: v5.17.2-344-g66349d151ef9
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.17.y/build/v5.17=
-.2-344-g66349d151ef9
+Fixes: ba1ffd74df74 ("stmmac: fix PTP support for GMAC4")
+Cc: <stable@vger.kernel.org> # 5.4.x
+Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
+Signed-off-by: Tan Tee Min <tee.min.tan@intel.com>
+---
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-## Test Regressions (compared to v5.17.2-340-ge5a51d774e89)
-No test regressions found.
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
+index d3b4765c1a5b..289bf26a6105 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
+@@ -279,10 +279,11 @@ static int dwmac4_wrback_get_rx_timestamp_status(void *desc, void *next_desc,
+ 			/* Check if timestamp is OK from context descriptor */
+ 			do {
+ 				ret = dwmac4_rx_check_timestamp(next_desc);
+-				if (ret < 0)
++				if (ret <= 0)
+ 					goto exit;
+ 				i++;
+ 
++				fsleep(1);
+ 			} while ((ret == 1) && (i < 10));
+ 
+ 			if (i == 10)
+-- 
+2.25.1
 
-## Metric Regressions (compared to v5.17.2-340-ge5a51d774e89)
-No metric regressions found.
-
-## Test Fixes (compared to v5.17.2-340-ge5a51d774e89)
-No test fixes found.
-
-## Metric Fixes (compared to v5.17.2-340-ge5a51d774e89)
-No metric fixes found.
-
-## Test result summary
-total: 100152, pass: 85962, fail: 732, skip: 12550, xfail: 908
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 296 total, 293 passed, 3 failed
-* arm64: 47 total, 46 passed, 1 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 45 total, 41 passed, 4 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 41 total, 38 passed, 3 failed
-* parisc: 14 total, 14 passed, 0 failed
-* powerpc: 65 total, 56 passed, 9 failed
-* riscv: 32 total, 26 passed, 6 failed
-* s390: 26 total, 23 passed, 3 failed
-* sh: 26 total, 24 passed, 2 failed
-* sparc: 14 total, 14 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 47 total, 46 passed, 1 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
