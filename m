@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 663D150155A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0240C50117D
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236246AbiDNNds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:33:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49820 "EHLO
+        id S241113AbiDNN7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:59:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244902AbiDNN2P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22903A776E;
-        Thu, 14 Apr 2022 06:21:18 -0700 (PDT)
+        with ESMTP id S1344055AbiDNNue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:50:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC07AE4F;
+        Thu, 14 Apr 2022 06:44:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B42BA612E6;
-        Thu, 14 Apr 2022 13:21:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C673FC385A5;
-        Thu, 14 Apr 2022 13:21:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 31F45CE296C;
+        Thu, 14 Apr 2022 13:44:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4286DC385AC;
+        Thu, 14 Apr 2022 13:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942477;
-        bh=Hjz2oU53MLAT469dRVbdyT7uIR4htjXRrXfpzBlOT8A=;
+        s=korg; t=1649943859;
+        bh=WTTgE0jq1ET24nxFgkUnERXPbOwuOz6l4qpBGMY5MV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWqCcbnbCrxY1AsoqIWUJNR5utn3SE6jG6+j52e2318kiFp9r0vdDmEqjx0yZ2BsI
-         kDeKyssmmb1J7EfQ/CXwcLYtLmwjdbGh63aUJLCaJwyqsezB1yBM4votRB1tVj7atL
-         GUIoUe0rWW/ii2t0d3Psu7/ReG8TF8ISrEebFUwk=
+        b=fVTwJNyPkgfF9euSFwVgAoVAL+t+CdKuMUJydZZGkmYPD3DAmc+KOLRtLDsVT9mmY
+         QWmuslCBNH1iK1BHXYPZs2aAUUFslStlHyw+UWVT2cXyVjKYjgusfVM6vlBkQlk7Ai
+         i/OCVmzgwE/Rfbis/uTsijvAawE8QuuLDAtYZD4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 148/338] vxcan: enable local echo for sent CAN frames
-Date:   Thu, 14 Apr 2022 15:10:51 +0200
-Message-Id: <20220414110843.116162702@linuxfoundation.org>
+Subject: [PATCH 5.4 267/475] selftests: test_vxlan_under_vrf: Fix broken test case
+Date:   Thu, 14 Apr 2022 15:10:52 +0200
+Message-Id: <20220414110902.579470253@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 259bdba27e32368b4404f69d613b1c1014c07cbf ]
+[ Upstream commit b50d3b46f84282d795ae3076111acb75ae1031f3 ]
 
-The vxcan driver provides a pair of virtual CAN interfaces to exchange
-CAN traffic between different namespaces - analogue to veth.
+The purpose of the last test case is to test VXLAN encapsulation and
+decapsulation when the underlay lookup takes place in a non-default VRF.
+This is achieved by enslaving the physical device of the tunnel to a
+VRF.
 
-In opposite to the vcan driver the local sent CAN traffic on this interface
-is not echo'ed back but only sent to the remote peer. This is unusual and
-can be easily fixed by removing IFF_ECHO from the netdevice flags that
-are set for vxcan interfaces by default at startup.
+The binding of the VXLAN UDP socket to the VRF happens when the VXLAN
+device itself is opened, not when its physical device is opened. This
+was also mentioned in the cited commit ("tests that moving the underlay
+from a VRF to another works when down/up the VXLAN interface"), but the
+test did something else.
 
-Without IFF_ECHO set on driver level, the local sent CAN frames are echo'ed
-in af_can.c in can_send(). This patch makes vxcan interfaces adopt the
-same local echo behavior and procedures as known from the vcan interfaces.
+Fix it by reopening the VXLAN device instead of its physical device.
 
-Fixes: a8f820a380a2 ("can: add Virtual CAN Tunnel driver (vxcan)")
-Link: https://lore.kernel.org/all/20220309120416.83514-5-socketcan@hartkopp.net
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Before:
+
+ # ./test_vxlan_under_vrf.sh
+ Checking HV connectivity                                           [ OK ]
+ Check VM connectivity through VXLAN (underlay in the default VRF)  [ OK ]
+ Check VM connectivity through VXLAN (underlay in a VRF)            [FAIL]
+
+After:
+
+ # ./test_vxlan_under_vrf.sh
+ Checking HV connectivity                                           [ OK ]
+ Check VM connectivity through VXLAN (underlay in the default VRF)  [ OK ]
+ Check VM connectivity through VXLAN (underlay in a VRF)            [ OK ]
+
+Fixes: 03f1c26b1c56 ("test/net: Add script for VXLAN underlay in a VRF")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220324200514.1638326-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/vxcan.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/test_vxlan_under_vrf.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/can/vxcan.c b/drivers/net/can/vxcan.c
-index ccd758ba3fb0..8197f04aa8b6 100644
---- a/drivers/net/can/vxcan.c
-+++ b/drivers/net/can/vxcan.c
-@@ -156,7 +156,7 @@ static void vxcan_setup(struct net_device *dev)
- 	dev->hard_header_len	= 0;
- 	dev->addr_len		= 0;
- 	dev->tx_queue_len	= 0;
--	dev->flags		= (IFF_NOARP|IFF_ECHO);
-+	dev->flags		= IFF_NOARP;
- 	dev->netdev_ops		= &vxcan_netdev_ops;
- 	dev->needs_free_netdev	= true;
- }
+diff --git a/tools/testing/selftests/net/test_vxlan_under_vrf.sh b/tools/testing/selftests/net/test_vxlan_under_vrf.sh
+index 09f9ed92cbe4..a44b9aca7427 100755
+--- a/tools/testing/selftests/net/test_vxlan_under_vrf.sh
++++ b/tools/testing/selftests/net/test_vxlan_under_vrf.sh
+@@ -118,11 +118,11 @@ echo "[ OK ]"
+ 
+ # Move the underlay to a non-default VRF
+ ip -netns hv-1 link set veth0 vrf vrf-underlay
+-ip -netns hv-1 link set veth0 down
+-ip -netns hv-1 link set veth0 up
++ip -netns hv-1 link set vxlan0 down
++ip -netns hv-1 link set vxlan0 up
+ ip -netns hv-2 link set veth0 vrf vrf-underlay
+-ip -netns hv-2 link set veth0 down
+-ip -netns hv-2 link set veth0 up
++ip -netns hv-2 link set vxlan0 down
++ip -netns hv-2 link set vxlan0 up
+ 
+ echo -n "Check VM connectivity through VXLAN (underlay in a VRF)            "
+ ip netns exec vm-1 ping -c 1 -W 1 10.0.0.2 &> /dev/null || (echo "[FAIL]"; false)
 -- 
 2.34.1
 
