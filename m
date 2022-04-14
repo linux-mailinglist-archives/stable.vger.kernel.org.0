@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB10D5011EC
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:05:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A46C501040
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245721AbiDNNsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:48:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46434 "EHLO
+        id S245485AbiDNNsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344061AbiDNNjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 558E015805;
-        Thu, 14 Apr 2022 06:37:04 -0700 (PDT)
+        with ESMTP id S1344135AbiDNNj7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 032271C6;
+        Thu, 14 Apr 2022 06:37:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E582E61D67;
-        Thu, 14 Apr 2022 13:37:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05363C385A9;
-        Thu, 14 Apr 2022 13:37:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9176661BA7;
+        Thu, 14 Apr 2022 13:37:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C9FEC385A5;
+        Thu, 14 Apr 2022 13:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943423;
-        bh=DGfFICk0ZyhZyp7gehgdnGZsI2rdjdBF6ht5fhvYKxI=;
+        s=korg; t=1649943454;
+        bh=RVi13gWGlxcg1glYZ5+Cq82yuOBQqoj/YktoICuySIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lo1wB4i713idcDyr4fr6m6sTq2BUN8P5CCMkjXfA5IGUHsefd2GpZiKyUY1D6mz5L
-         oS7FtvUiO7MzNEUKtNGZ1ZdHXIQS6S+aZxHLln/UUxLkndh0n8C4d9B/SlfkPAudqo
-         4PbuQzSYMzFJZEkSFUKphp/ylWAWmZ42YhsyVKMU=
+        b=CbfffoWByKfpijOFh5OTCFcm27TfJ+o+yxqGdBBcD5SUQ1w6QJmd8cCe6lIbCprXR
+         82aVOcDMbrTcuYzqdqgYi3QiJvv9A2tuKxALyY8qAuMrotjvd/VGo5IcNS/NIdNNpL
+         i3abac2d5AbOOniCXuyi1yWdoZ9CgmZALUh4xkFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuldeep Singh <singh.kuldeep87k@gmail.com>,
-        Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 133/475] arm64: dts: ns2: Fix spi-cpol and spi-cpha property
-Date:   Thu, 14 Apr 2022 15:08:38 +0200
-Message-Id: <20220414110858.871283159@linuxfoundation.org>
+Subject: [PATCH 5.4 134/475] arm64: dts: broadcom: Fix sata nodename
+Date:   Thu, 14 Apr 2022 15:08:39 +0200
+Message-Id: <20220414110858.899667983@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,50 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuldeep Singh <singh.kuldeep87k@gmail.com>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-[ Upstream commit c953c764e505428f59ffe6afb1c73b89b5b1ac35 ]
+[ Upstream commit 55927cb44db43a57699fa652e2437a91620385dc ]
 
-Broadcom ns2 platform has spi-cpol and spi-cpho properties set
-incorrectly. As per spi-slave-peripheral-prop.yaml, these properties are
-of flag or boolean type and not integer type. Fix the values.
+After converting ahci-platform txt binding to yaml nodename is reported
+as not matching the standard:
 
-Fixes: d69dbd9f41a7c (arm64: dts: Add ARM PL022 SPI DT nodes for NS2)
-Signed-off-by: Kuldeep Singh <singh.kuldeep87k@gmail.com>
-CC: Ray Jui <rjui@broadcom.com>
-CC: Scott Branden <sbranden@broadcom.com>
-CC: Florian Fainelli <f.fainelli@gmail.com>
+arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dt.yaml:
+ahci@663f2000: $nodename:0: 'ahci@663f2000' does not match '^sata(@.*)?$'
+
+Fix it to match binding.
+
+Fixes: ac9aae00f0fc ("arm64: dts: Add SATA3 AHCI and SATA3 PHY DT nodes for NS2")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dts | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dts b/arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dts
-index ec19fbf928a1..12a4b1c03390 100644
---- a/arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dts
-+++ b/arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dts
-@@ -111,8 +111,8 @@
- 		compatible = "silabs,si3226x";
- 		reg = <0>;
- 		spi-max-frequency = <5000000>;
--		spi-cpha = <1>;
--		spi-cpol = <1>;
-+		spi-cpha;
-+		spi-cpol;
- 		pl022,hierarchy = <0>;
- 		pl022,interface = <0>;
- 		pl022,slave-tx-disable = <0>;
-@@ -135,8 +135,8 @@
- 		at25,byte-len = <0x8000>;
- 		at25,addr-mode = <2>;
- 		at25,page-size = <64>;
--		spi-cpha = <1>;
--		spi-cpol = <1>;
-+		spi-cpha;
-+		spi-cpol;
- 		pl022,hierarchy = <0>;
- 		pl022,interface = <0>;
- 		pl022,slave-tx-disable = <0>;
+diff --git a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
+index 39802066232e..edc1a8a4c4bc 100644
+--- a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
++++ b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
+@@ -687,7 +687,7 @@
+ 			};
+ 		};
+ 
+-		sata: ahci@663f2000 {
++		sata: sata@663f2000 {
+ 			compatible = "brcm,iproc-ahci", "generic-ahci";
+ 			reg = <0x663f2000 0x1000>;
+ 			dma-coherent;
 -- 
 2.34.1
 
