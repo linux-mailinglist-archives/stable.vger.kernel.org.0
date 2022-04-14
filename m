@@ -2,42 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC31250112E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 967C05012C5
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:10:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232112AbiDNNl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:41:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60186 "EHLO
+        id S1348920AbiDNONl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:13:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344534AbiDNNca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:32:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF9022298;
-        Thu, 14 Apr 2022 06:30:05 -0700 (PDT)
+        with ESMTP id S1347632AbiDNN7Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E09C4579B;
+        Thu, 14 Apr 2022 06:50:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 485026190F;
-        Thu, 14 Apr 2022 13:30:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55D8AC385A1;
-        Thu, 14 Apr 2022 13:30:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51F15B82894;
+        Thu, 14 Apr 2022 13:50:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6013C385A5;
+        Thu, 14 Apr 2022 13:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943004;
-        bh=6qmuWssJE8BGwTQm90LV/eDA7PH3hvnsKvgw2QngIXw=;
+        s=korg; t=1649944238;
+        bh=UJ/ZCZObDlL/CWvNdNYfrmTLONFMY8IQg6iCnaVFk5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xxsd8jgP8D4JbLAsYRR7x+vWbzXQedcRBFKJ7GJySqjuWsBID8xVmP1YcrXiAcVi8
-         NT2sDq0zUd8XkMbVhuDkQgF57yb0Gwt3CCuRK+kuO55eK0/iCyKPL4NtB5o6oIoVG4
-         saJNMPSsPXxeh/Wv1WbOthKtnDvyNI4hW3y9bDmA=
+        b=eMCwmEwhIFcDCpeuKZ8PLtNctoTGuGqfY5SxhuSyqXwCtgX6B5sNwbliaRubK6AI4
+         Gof47wBYEnG9QMq/4CVzQl4duPXp0/hWF7s/1wUGl3LmstInyJ+BwB8Pa0D+KI6RqP
+         wOgWsJ3J4waGAclRudjN9kyoPmILjIVmnTPDLeBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.19 326/338] dmaengine: Revert "dmaengine: shdma: Fix runtime PM imbalance on error"
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Denis Nikitin <denik@chromium.org>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 444/475] perf session: Remap buf if there is no space for event
 Date:   Thu, 14 Apr 2022 15:13:49 +0200
-Message-Id: <20220414110848.170460403@linuxfoundation.org>
+Message-Id: <20220414110907.483969398@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,33 +59,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Denis Nikitin <denik@chromium.org>
 
-commit d143f939a95696d38ff800ada14402fa50ebbd6c upstream.
+[ Upstream commit bc21e74d4775f883ae1f542c1f1dc7205b15d925 ]
 
-This reverts commit 455896c53d5b ("dmaengine: shdma: Fix runtime PM
-imbalance on error") as the patch wrongly reduced the count on error and
-did not bail out. So drop the count by reverting the patch .
+If a perf event doesn't fit into remaining buffer space return NULL to
+remap buf and fetch the event again.
 
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Keep the logic to error out on inadequate input from fuzzing.
+
+This fixes perf failing on ChromeOS (with 32b userspace):
+
+  $ perf report -v -i perf.data
+  ...
+  prefetch_event: head=0x1fffff8 event->header_size=0x30, mmap_size=0x2000000: fuzzed or compressed perf.data?
+  Error:
+  failed to process sample
+
+Fixes: 57fc032ad643ffd0 ("perf session: Avoid infinite loop when seeing invalid header.size")
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Denis Nikitin <denik@chromium.org>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/r/20220330031130.2152327-1-denik@chromium.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/shdma-base.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ tools/perf/util/session.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/dma/sh/shdma-base.c
-+++ b/drivers/dma/sh/shdma-base.c
-@@ -118,10 +118,8 @@ static dma_cookie_t shdma_tx_submit(stru
- 		ret = pm_runtime_get(schan->dev);
+diff --git a/tools/perf/util/session.c b/tools/perf/util/session.c
+index 8ff2c98e9032..01e15b445cb5 100644
+--- a/tools/perf/util/session.c
++++ b/tools/perf/util/session.c
+@@ -1960,6 +1960,7 @@ prefetch_event(char *buf, u64 head, size_t mmap_size,
+ 	       bool needs_swap, union perf_event *error)
+ {
+ 	union perf_event *event;
++	u16 event_size;
  
- 		spin_unlock_irq(&schan->chan_lock);
--		if (ret < 0) {
-+		if (ret < 0)
- 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
--			pm_runtime_put(schan->dev);
--		}
+ 	/*
+ 	 * Ensure we have enough space remaining to read
+@@ -1972,15 +1973,23 @@ prefetch_event(char *buf, u64 head, size_t mmap_size,
+ 	if (needs_swap)
+ 		perf_event_header__bswap(&event->header);
  
- 		pm_runtime_barrier(schan->dev);
+-	if (head + event->header.size <= mmap_size)
++	event_size = event->header.size;
++	if (head + event_size <= mmap_size)
+ 		return event;
  
+ 	/* We're not fetching the event so swap back again */
+ 	if (needs_swap)
+ 		perf_event_header__bswap(&event->header);
+ 
+-	pr_debug("%s: head=%#" PRIx64 " event->header_size=%#x, mmap_size=%#zx:"
+-		 " fuzzed or compressed perf.data?\n",__func__, head, event->header.size, mmap_size);
++	/* Check if the event fits into the next mmapped buf. */
++	if (event_size <= mmap_size - head % page_size) {
++		/* Remap buf and fetch again. */
++		return NULL;
++	}
++
++	/* Invalid input. Event size should never exceed mmap_size. */
++	pr_debug("%s: head=%#" PRIx64 " event->header.size=%#x, mmap_size=%#zx:"
++		 " fuzzed or compressed perf.data?\n", __func__, head, event_size, mmap_size);
+ 
+ 	return error;
+ }
+-- 
+2.35.1
+
 
 
