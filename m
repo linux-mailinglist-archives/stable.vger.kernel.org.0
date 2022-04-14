@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD22501286
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C306550141D
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345880AbiDNNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50866 "EHLO
+        id S1344832AbiDNNwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:52:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344723AbiDNNoc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53DCB366BE;
-        Thu, 14 Apr 2022 06:40:08 -0700 (PDT)
+        with ESMTP id S1344760AbiDNNoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924AE3703D;
+        Thu, 14 Apr 2022 06:40:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76C1A61D68;
-        Thu, 14 Apr 2022 13:39:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E4ADC385A1;
-        Thu, 14 Apr 2022 13:39:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D20BAB82987;
+        Thu, 14 Apr 2022 13:40:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4553AC385A1;
+        Thu, 14 Apr 2022 13:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943598;
-        bh=r1dzmbbP6N7MCOd7kADj9EhD+NpMhAY57R/TkRH6nN8=;
+        s=korg; t=1649943601;
+        bh=mbdUSHVlV53K0AX1fRMEBXTG9pM0zEjcteH8eqAPhpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AfNPxMwybRglbkWkhDYZoRzuBeS2mDa9AgUw2wrw4DnzNfpRlzBDkHx9ixSU2q8jn
-         XUwSxViAkaCGFDAbukPWGr2XWmDbcjmZHZ6n2Stx7QyRsB/PPfXR/2QF3c1mJBmVOG
-         kbDYr98NGPw6/alQlKsA49LJZnxW16wfoIq6VwHo=
+        b=SMeWaiQgqKeSa+ZExuMQ1ZxvIX7WD555l9EZ7PAd2CMYoc3qQMbqsDutU9RvD0d41
+         8sL6P88/ZKX/osQjfvnpKkx3Qtepix0D6XEZ0xIBlcjxyqOIWL2omuuGLsqpXzP5Bm
+         1ZT5WvDmRHwHZGwgBZl2XmHHOyPAEoScOUXUr1j4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Yongzhi Liu <lyz_cs@pku.edu.cn>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 212/475] mtd: rawnand: atmel: fix refcount issue in atmel_nand_controller_init
-Date:   Thu, 14 Apr 2022 15:09:57 +0200
-Message-Id: <20220414110901.059220710@linuxfoundation.org>
+Subject: [PATCH 5.4 213/475] RDMA/mlx5: Fix memory leak in error flow for subscribe event routine
+Date:   Thu, 14 Apr 2022 15:09:58 +0200
+Message-Id: <20220414110901.086656242@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -57,73 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Yongzhi Liu <lyz_cs@pku.edu.cn>
 
-[ Upstream commit fecbd4a317c95d73c849648c406bcf1b6a0ec1cf ]
+[ Upstream commit 087f9c3f2309ed183f7e4b85ae57121d8663224d ]
 
-The reference counting issue happens in several error handling paths
-on a refcounted object "nc->dmac". In these paths, the function simply
-returns the error code, forgetting to balance the reference count of
-"nc->dmac", increased earlier by dma_request_channel(), which may
-cause refcount leaks.
+In case the second xa_insert() fails, the obj_event is not released.  Fix
+the error unwind flow to free that memory to avoid a memory leak.
 
-Fix it by decrementing the refcount of specific object in those error
-paths.
-
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Co-developed-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Co-developed-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220304085330.3610-1-xiongx18@fudan.edu.cn
+Fixes: 759738537142 ("IB/mlx5: Enable subscription for device events over DEVX")
+Link: https://lore.kernel.org/r/1647018361-18266-1-git-send-email-lyz_cs@pku.edu.cn
+Signed-off-by: Yongzhi Liu <lyz_cs@pku.edu.cn>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/atmel/nand-controller.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/mlx5/devx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/raw/atmel/nand-controller.c b/drivers/mtd/nand/raw/atmel/nand-controller.c
-index 23d11e8b5644..17c751f359d3 100644
---- a/drivers/mtd/nand/raw/atmel/nand-controller.c
-+++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
-@@ -2004,13 +2004,15 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
- 	nc->mck = of_clk_get(dev->parent->of_node, 0);
- 	if (IS_ERR(nc->mck)) {
- 		dev_err(dev, "Failed to retrieve MCK clk\n");
--		return PTR_ERR(nc->mck);
-+		ret = PTR_ERR(nc->mck);
-+		goto out_release_dma;
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index 664e0f374ac0..747f42855b7b 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -1844,8 +1844,10 @@ subscribe_event_xa_alloc(struct mlx5_devx_event_table *devx_event_table,
+ 				key_level2,
+ 				obj_event,
+ 				GFP_KERNEL);
+-		if (err)
++		if (err) {
++			kfree(obj_event);
+ 			return err;
++		}
+ 		INIT_LIST_HEAD(&obj_event->obj_sub_list);
  	}
  
- 	np = of_parse_phandle(dev->parent->of_node, "atmel,smc", 0);
- 	if (!np) {
- 		dev_err(dev, "Missing or invalid atmel,smc property\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out_release_dma;
- 	}
- 
- 	nc->smc = syscon_node_to_regmap(np);
-@@ -2018,10 +2020,16 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
- 	if (IS_ERR(nc->smc)) {
- 		ret = PTR_ERR(nc->smc);
- 		dev_err(dev, "Could not get SMC regmap (err = %d)\n", ret);
--		return ret;
-+		goto out_release_dma;
- 	}
- 
- 	return 0;
-+
-+out_release_dma:
-+	if (nc->dmac)
-+		dma_release_channel(nc->dmac);
-+
-+	return ret;
- }
- 
- static int
 -- 
 2.34.1
 
