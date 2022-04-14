@@ -2,274 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B52AA501CD4
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 22:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D62501CE7
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 22:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346627AbiDNUg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 16:36:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45732 "EHLO
+        id S235877AbiDNUqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 16:46:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346698AbiDNUgQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 16:36:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BF89EEA65;
-        Thu, 14 Apr 2022 13:33:35 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B991AB82984;
-        Thu, 14 Apr 2022 20:33:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65C3FC385A1;
-        Thu, 14 Apr 2022 20:33:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1649968412;
-        bh=pQSHrTF+SzjyiVo/ESOMPCyqnHce07pb7b+kaP1zc7I=;
-        h=Date:To:From:Subject:From;
-        b=cpE5ZE3Zpmt8lD/TqftRJATp09ltu3BrStPZK7/nG7VBT7VgdIK6KCpsl307IN3al
-         RxJ2POqe3EGbjwNB6VYJJAieWDfIFhJE8uvhH5djyCQIVxShSf8oVytJzXXcVmqIMW
-         r7SzfA735Gr2DskJJBwI85BsXEr3GLqpnCaYNaO8=
-Date:   Thu, 14 Apr 2022 13:33:31 -0700
-To:     mm-commits@vger.kernel.org, vincent.guittot@linaro.org,
-        tglx@linutronix.de, stable@vger.kernel.org, rostedt@goodmis.org,
-        rientjes@google.com, peterz@infradead.org, mingo@redhat.com,
-        mhocko@suse.com, mgorman@suse.de, longman@redhat.com,
-        juri.lelli@redhat.com, jsavitz@redhat.com, herton@redhat.com,
-        dvhart@infradead.org, dietmar.eggemann@arm.com, dave@stgolabs.net,
-        bsegall@google.com, bristot@redhat.com, aquini@redhat.com,
-        aarcange@redhat.com, npache@redhat.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup.patch added to -mm tree
-Message-Id: <20220414203332.65C3FC385A1@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S243651AbiDNUqu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 16:46:50 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A91F1FD7
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 13:44:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649969061;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=JmaAlHIjXef9NYKFArMf2KanmEfiFR7sku0+K1UQU60=;
+        b=IsSert9F117pUqgv2BFu2XbbzAlCH7EMK+DjdhgnNiPbfHXOGgTFbYKLFiLjlQSKIcAqFv
+        1DZAokG1Yopyjr3YiJpffm5BjIRvqwNQk7SZMKQ282pIMuk6SFvuc2kLJEIrDaZ10l8pp8
+        vKfrGGbDUHppyFfVyvJxhm74iOPsk/Q=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-635-Bms_T7zUOLC6RfKX_mk5Zw-1; Thu, 14 Apr 2022 16:44:20 -0400
+X-MC-Unique: Bms_T7zUOLC6RfKX_mk5Zw-1
+Received: by mail-qv1-f69.google.com with SMTP id p3-20020a05621421e300b0044427d0ab90so5332420qvj.17
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 13:44:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=JmaAlHIjXef9NYKFArMf2KanmEfiFR7sku0+K1UQU60=;
+        b=PUiIGfVEkhq5c4kxcgChtiL8AS4CPmm6Tm6sDbWyDnpVsRhUfTKG8keuGezRZmRKPf
+         ibJWz2UywfDTglvjDP1jpELuGN0dKruqeulKVM1lUs9lfXlyJbW5G7NFsF8S3oaQaHy4
+         tNsYsSjoKeJt3MWfne0pcL20w+702+tWWmyDgCbd8WXUnmvcNXlyqf27centOIUA6S2b
+         N2mcOgEqF63Q7ksrBXgz6FjzUZooialXOGmDjg0aJ2WqUChRurr/BW0IfbBQOLcJKJ63
+         xfvEySlMEYle/Il1c8Et/Ahv0qvsH9qislYdWEmptiAk5zhU84Ij3zqeC5MgSM+hJ1bN
+         Q6ZA==
+X-Gm-Message-State: AOAM532Ht8dO0XGCzXvuXDUseQmQTKmTmTNO6SYc5vBksRueamH5QuF3
+        7u54U0t4g7MJpZOsxipUyqElqbk1Iq/rgh1BIt32jKGxsl93U8H876owCSFXfFh7u4756Jx8YK9
+        9dDxbpYIgjf8lKklu
+X-Received: by 2002:a05:620a:248f:b0:69c:2e80:2194 with SMTP id i15-20020a05620a248f00b0069c2e802194mr3268044qkn.548.1649969060118;
+        Thu, 14 Apr 2022 13:44:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyQcJDfigohvjOM0rvDKHhHPaYBHGLfiTsCTHJVvIUQb2SQ4FwWN3GNCwMtOk9NUuahtr2caQ==
+X-Received: by 2002:a05:620a:248f:b0:69c:2e80:2194 with SMTP id i15-20020a05620a248f00b0069c2e802194mr3268035qkn.548.1649969059919;
+        Thu, 14 Apr 2022 13:44:19 -0700 (PDT)
+Received: from [192.168.8.138] (pool-71-126-244-162.bstnma.fios.verizon.net. [71.126.244.162])
+        by smtp.gmail.com with ESMTPSA id x20-20020a05622a001400b002f04bcd1e55sm1866390qtw.70.2022.04.14.13.44.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Apr 2022 13:44:19 -0700 (PDT)
+Message-ID: <ac1c0383b20eeec0f86e439d4889a55fcbf8cd4e.camel@redhat.com>
+Subject: Re: [PATCH v2] drm/i915: Check EDID for HDR static metadata when
+ choosing blc
+From:   Lyude Paul <lyude@redhat.com>
+To:     Jouni =?ISO-8859-1?Q?H=F6gander?= <jouni.hogander@intel.com>,
+        intel-gfx@lists.freedesktop.org
+Cc:     Mika Kahola <mika.kahola@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Filippo Falezza <filippo.falezza@outlook.it>,
+        stable@vger.kernel.org
+Date:   Thu, 14 Apr 2022 16:44:13 -0400
+In-Reply-To: <20220413082826.120634-1-jouni.hogander@intel.com>
+References: <20220413082826.120634-1-jouni.hogander@intel.com>
+Organization: Red Hat Inc.
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 
-The patch titled
-     Subject: oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
-has been added to the -mm tree.  Its filename is
-     oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup.patch
+On Wed, 2022-04-13 at 11:28 +0300, Jouni Högander wrote:
+> We have now seen panel (XMG Core 15 e21 laptop) advertizing support
+> for Intel proprietary eDP backlight control via DPCD registers, but
+> actually working only with legacy pwm control.
+> 
+> This patch adds panel EDID check for possible HDR static metadata and
+> Intel proprietary eDP backlight control is used only if that exists.
+> Missing HDR static metadata is ignored if user specifically asks for
+> Intel proprietary eDP backlight control via enable_dpcd_backlight
+> parameter.
+> 
+> v2 :
+> - Ignore missing HDR static metadata if Intel proprietary eDP
+>   backlight control is forced via i915.enable_dpcd_backlight
+> - Printout info message if panel is missing HDR static metadata and
+>   support for Intel proprietary eDP backlight control is detected
+> 
+> Fixes: 4a8d79901d5b ("drm/i915/dp: Enable Intel's HDR backlight interface
+> (only SDR for now)")
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5284
+> Cc: Lyude Paul <lyude@redhat.com>
+> Cc: Mika Kahola <mika.kahola@intel.com>
+> Cc: Jani Nikula <jani.nikula@intel.com>
+> Cc: Filippo Falezza <filippo.falezza@outlook.it>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jouni Högander <jouni.hogander@intel.com>
+> ---
+>  .../drm/i915/display/intel_dp_aux_backlight.c | 34 ++++++++++++++-----
+>  1 file changed, 26 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+> b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+> index 97cf3cac0105..fb6cf30ee628 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+> +++ b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+> @@ -97,6 +97,14 @@
+>  
+>  #define INTEL_EDP_BRIGHTNESS_OPTIMIZATION_1                           
+> 0x359
+>  
+> +enum intel_dp_aux_backlight_modparam {
+> +       INTEL_DP_AUX_BACKLIGHT_AUTO = -1,
+> +       INTEL_DP_AUX_BACKLIGHT_OFF = 0,
+> +       INTEL_DP_AUX_BACKLIGHT_ON = 1,
+> +       INTEL_DP_AUX_BACKLIGHT_FORCE_VESA = 2,
+> +       INTEL_DP_AUX_BACKLIGHT_FORCE_INTEL = 3,
+> +};
+> +
+>  /* Intel EDP backlight callbacks */
+>  static bool
+>  intel_dp_aux_supports_hdr_backlight(struct intel_connector *connector)
+> @@ -126,6 +134,24 @@ intel_dp_aux_supports_hdr_backlight(struct
+> intel_connector *connector)
+>                 return false;
+>         }
+>  
+> +       /*
+> +        * If we don't have HDR static metadata there is no way to
+> +        * runtime detect used range for nits based control. For now
+> +        * do not use Intel proprietary eDP backlight control if we
+> +        * don't have this data in panel EDID. In case we find panel
+> +        * which supports only nits based control, but doesn't provide
+> +        * HDR static metadata we need to start maintaining table of
+> +        * ranges for such panels.
+> +        */
+> +       if (i915->params.enable_dpcd_backlight !=
+> INTEL_DP_AUX_BACKLIGHT_FORCE_INTEL &&
+> +           !(connector->base.hdr_sink_metadata.hdmi_type1.metadata_type &
+> +             BIT(HDMI_STATIC_METADATA_TYPE1))) {
+> +               drm_info(&i915->drm,
+> +                        "Panel is missing HDR static metadata. Possible
+> support for Intel HDR backlight interface is not used. If your backlight
+> controls don't work try booting with i915.enable_dpcd_backlight=%d. needs
+> this, please file a _new_ bug report on drm/i915, see " FDO_BUG_URL " for
+> details.\n",
+> +                        INTEL_DP_AUX_BACKLIGHT_FORCE_INTEL);
+> +               return false;
+> +       }
+> +
+>         panel->backlight.edp.intel.sdr_uses_aux =
+>                 tcon_cap[2] & INTEL_EDP_SDR_TCON_BRIGHTNESS_AUX_CAP;
+>  
+> @@ -413,14 +439,6 @@ static const struct intel_panel_bl_funcs
+> intel_dp_vesa_bl_funcs = {
+>         .get = intel_dp_aux_vesa_get_backlight,
+>  };
+>  
+> -enum intel_dp_aux_backlight_modparam {
+> -       INTEL_DP_AUX_BACKLIGHT_AUTO = -1,
+> -       INTEL_DP_AUX_BACKLIGHT_OFF = 0,
+> -       INTEL_DP_AUX_BACKLIGHT_ON = 1,
+> -       INTEL_DP_AUX_BACKLIGHT_FORCE_VESA = 2,
+> -       INTEL_DP_AUX_BACKLIGHT_FORCE_INTEL = 3,
+> -};
+> -
+>  int intel_dp_aux_init_backlight_funcs(struct intel_connector *connector)
+>  {
+>         struct drm_device *dev = connector->base.dev;
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Nico Pache <npache@redhat.com>
-Subject: oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
-
-The pthread struct is allocated on PRIVATE|ANONYMOUS memory [1] which can
-be targeted by the oom reaper.  This mapping is used to store the futex
-robust list head; the kernel does not keep a copy of the robust list and
-instead references a userspace address to maintain the robustness during a
-process death.  A race can occur between exit_mm and the oom reaper that
-allows the oom reaper to free the memory of the futex robust list before
-the exit path has handled the futex death:
-
-    CPU1                               CPU2
-------------------------------------------------------------------------
-    page_fault
-    do_exit "signal"
-    wake_oom_reaper
-                                        oom_reaper
-                                        oom_reap_task_mm (invalidates mm)
-    exit_mm
-    exit_mm_release
-    futex_exit_release
-    futex_cleanup
-    exit_robust_list
-    get_user (EFAULT- can't access memory)
-
-If the get_user EFAULT's, the kernel will be unable to recover the waiters
-on the robust_list, leaving userspace mutexes hung indefinitely.
-
-Delay the OOM reaper, allowing more time for the exit path to perform the
-futex cleanup.
-
-Reproducer: https://gitlab.com/jsavitz/oom_futex_reproducer
-
-Based on a patch by Michal Hocko.
-
-[1] https://elixir.bootlin.com/glibc/latest/source/nptl/allocatestack.c#L370
-
-Link: https://lkml.kernel.org/r/20220414144042.677008-1-npache@redhat.com
-Fixes: 212925802454 ("mm: oom: let oom_reap_task and exit_mmap run concurrently")
-Signed-off-by: Joel Savitz <jsavitz@redhat.com>
-Signed-off-by: Nico Pache <npache@redhat.com>
-Co-developed-by: Joel Savitz <jsavitz@redhat.com>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Rafael Aquini <aquini@redhat.com>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Herton R. Krzesinski <herton@redhat.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Savitz <jsavitz@redhat.com>
-Cc: Darren Hart <dvhart@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
-
---- a/include/linux/sched.h~oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup
-+++ a/include/linux/sched.h
-@@ -1443,6 +1443,7 @@ struct task_struct {
- 	int				pagefault_disabled;
- #ifdef CONFIG_MMU
- 	struct task_struct		*oom_reaper_list;
-+	struct timer_list		oom_reaper_timer;
- #endif
- #ifdef CONFIG_VMAP_STACK
- 	struct vm_struct		*stack_vm_area;
---- a/mm/oom_kill.c~oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup
-+++ a/mm/oom_kill.c
-@@ -632,7 +632,7 @@ done:
- 	 */
- 	set_bit(MMF_OOM_SKIP, &mm->flags);
- 
--	/* Drop a reference taken by wake_oom_reaper */
-+	/* Drop a reference taken by queue_oom_reaper */
- 	put_task_struct(tsk);
- }
- 
-@@ -644,12 +644,12 @@ static int oom_reaper(void *unused)
- 		struct task_struct *tsk = NULL;
- 
- 		wait_event_freezable(oom_reaper_wait, oom_reaper_list != NULL);
--		spin_lock(&oom_reaper_lock);
-+		spin_lock_irq(&oom_reaper_lock);
- 		if (oom_reaper_list != NULL) {
- 			tsk = oom_reaper_list;
- 			oom_reaper_list = tsk->oom_reaper_list;
- 		}
--		spin_unlock(&oom_reaper_lock);
-+		spin_unlock_irq(&oom_reaper_lock);
- 
- 		if (tsk)
- 			oom_reap_task(tsk);
-@@ -658,22 +658,48 @@ static int oom_reaper(void *unused)
- 	return 0;
- }
- 
--static void wake_oom_reaper(struct task_struct *tsk)
-+static void wake_oom_reaper(struct timer_list *timer)
- {
--	/* mm is already queued? */
--	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
-+	struct task_struct *tsk = container_of(timer, struct task_struct,
-+			oom_reaper_timer);
-+	struct mm_struct *mm = tsk->signal->oom_mm;
-+	unsigned long flags;
-+
-+	/* The victim managed to terminate on its own - see exit_mmap */
-+	if (test_bit(MMF_OOM_SKIP, &mm->flags)) {
-+		put_task_struct(tsk);
- 		return;
-+	}
- 
--	get_task_struct(tsk);
--
--	spin_lock(&oom_reaper_lock);
-+	spin_lock_irqsave(&oom_reaper_lock, flags);
- 	tsk->oom_reaper_list = oom_reaper_list;
- 	oom_reaper_list = tsk;
--	spin_unlock(&oom_reaper_lock);
-+	spin_unlock_irqrestore(&oom_reaper_lock, flags);
- 	trace_wake_reaper(tsk->pid);
- 	wake_up(&oom_reaper_wait);
- }
- 
-+/*
-+ * Give the OOM victim time to exit naturally before invoking the oom_reaping.
-+ * The timers timeout is arbitrary... the longer it is, the longer the worst
-+ * case scenario for the OOM can take. If it is too small, the oom_reaper can
-+ * get in the way and release resources needed by the process exit path.
-+ * e.g. The futex robust list can sit in Anon|Private memory that gets reaped
-+ * before the exit path is able to wake the futex waiters.
-+ */
-+#define OOM_REAPER_DELAY (2*HZ)
-+static void queue_oom_reaper(struct task_struct *tsk)
-+{
-+	/* mm is already queued? */
-+	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
-+		return;
-+
-+	get_task_struct(tsk);
-+	timer_setup(&tsk->oom_reaper_timer, wake_oom_reaper, 0);
-+	tsk->oom_reaper_timer.expires = jiffies + OOM_REAPER_DELAY;
-+	add_timer(&tsk->oom_reaper_timer);
-+}
-+
- static int __init oom_init(void)
- {
- 	oom_reaper_th = kthread_run(oom_reaper, NULL, "oom_reaper");
-@@ -681,7 +707,7 @@ static int __init oom_init(void)
- }
- subsys_initcall(oom_init)
- #else
--static inline void wake_oom_reaper(struct task_struct *tsk)
-+static inline void queue_oom_reaper(struct task_struct *tsk)
- {
- }
- #endif /* CONFIG_MMU */
-@@ -932,7 +958,7 @@ static void __oom_kill_process(struct ta
- 	rcu_read_unlock();
- 
- 	if (can_oom_reap)
--		wake_oom_reaper(victim);
-+		queue_oom_reaper(victim);
- 
- 	mmdrop(mm);
- 	put_task_struct(victim);
-@@ -968,7 +994,7 @@ static void oom_kill_process(struct oom_
- 	task_lock(victim);
- 	if (task_will_free_mem(victim)) {
- 		mark_oom_victim(victim);
--		wake_oom_reaper(victim);
-+		queue_oom_reaper(victim);
- 		task_unlock(victim);
- 		put_task_struct(victim);
- 		return;
-@@ -1067,7 +1093,7 @@ bool out_of_memory(struct oom_control *o
- 	 */
- 	if (task_will_free_mem(current)) {
- 		mark_oom_victim(current);
--		wake_oom_reaper(current);
-+		queue_oom_reaper(current);
- 		return true;
- 	}
- 
-_
-
-Patches currently in -mm which might be from npache@redhat.com are
-
-oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup.patch
+-- 
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
 
