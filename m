@@ -2,89 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFEEA500E67
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:13:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF7E9500F0C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237774AbiDNNPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:15:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35576 "EHLO
+        id S233876AbiDNNXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:23:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243717AbiDNNPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:15:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF52A8BF65
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 06:12:55 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A1C9B82929
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 13:12:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCB40C385A1;
-        Thu, 14 Apr 2022 13:12:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649941973;
-        bh=5l92DEsOguBCpoA43vRq17Z/TEMDNH8g3jV/G/0p2/A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oglzUIU3Yh7sOk5YaVInxzPrEPXi9vf7goFf5j2YX4OSqQHHQf3TBZLKSGSowtlQC
-         UK7E5HWp8wRTA7+PRz3MV0zC3+UNvkeKvgui+rMe951WF7UpItiYikNc9YdqS725Ag
-         oFwlltQbRtEVZn1djN7BdsVqorda2QWtJLeko0Ow=
-Date:   Thu, 14 Apr 2022 15:12:50 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Gong, Richard" <Richard.Gong@amd.com>
-Subject: Re: Allow playing dead in C3 for 5.15.y
-Message-ID: <Ylgd0ntrAM/y4eLk@kroah.com>
-References: <BL1PR12MB5157E3D352FB769DB61E2D0DE2ED9@BL1PR12MB5157.namprd12.prod.outlook.com>
- <Ylf+DcjOorOMYnkN@kroah.com>
- <BL1PR12MB5157EDD7F142FB7F214E179CE2EF9@BL1PR12MB5157.namprd12.prod.outlook.com>
+        with ESMTP id S244016AbiDNNXD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:23:03 -0400
+Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FB929969D
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 06:18:10 -0700 (PDT)
+Received: by mail-io1-xd33.google.com with SMTP id p21so5329006ioj.4
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 06:18:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=8MpfZpSAdDem4/WWvcf9HUw6O0E3fHY2MASGd51wpJA=;
+        b=fqJJXXt+ZL5FmtkBytvLMUWVUq4Xzatpmx//AKX1ZyUP3pPvUlVD9xrzlZjacjE+m0
+         S820cNGTSCWqK9lmm10lRKbHKvrhAJKG2FR8qR/vJo7rnKcvd/8dbUw9yTvawyzhKwzS
+         +LzWWJerQFSOL4M9r/siOIPTMKXsNoBo1ieqs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=8MpfZpSAdDem4/WWvcf9HUw6O0E3fHY2MASGd51wpJA=;
+        b=yZ6kG7Lrn6Njxl/VAFU2i3Ki/DBNJmJFLFNyi2Yzxy/icWFsp5Wa7RvKBbeW4hQTJ3
+         ad3dwkDD5fJE29gYT/iSaVtKuJ6GsEwh7WxTnMdeNHrme40BAQecm2N1boKfo6MmDak6
+         sLoV/PZeJOX59k0d2MJf7yg3+Ve7RePh3BceP7dwElP4FE8ZEkOM2LZKLmn/6JDo2w3u
+         aGiW1iNkYFu2b04s1Wsb/Kw+eNUbWvXw703MBwyalkbNnH9YOZOS+xmhE/7+RHmfuKvs
+         Q6NaNY3tsZqnAQpq7W2DrIf7whoDxQwaCyhlUKW+5Ts9BAIqrX/Zwp5eAYuA9mL3Q0cx
+         w6Yw==
+X-Gm-Message-State: AOAM533ysklb+WO0EKvn6GPf4O+7/Y3NsYOzE+hpp5UA41hQTOMx79bm
+        4fo1OvkF6q1ksNoou4LWkaXuSw==
+X-Google-Smtp-Source: ABdhPJyDSA8cFt4msoVPu0HNohLrCOvJjv0PdUT3gKJ44zlF31hBllhh1Zy6M6giw5ysPFHB60+yng==
+X-Received: by 2002:a05:6638:349e:b0:323:6d60:e715 with SMTP id t30-20020a056638349e00b003236d60e715mr1103202jal.165.1649942289730;
+        Thu, 14 Apr 2022 06:18:09 -0700 (PDT)
+Received: from [172.22.22.4] (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
+        by smtp.googlemail.com with ESMTPSA id n12-20020a92dd0c000000b002cac22690b6sm1043321ilm.0.2022.04.14.06.18.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 14 Apr 2022 06:18:09 -0700 (PDT)
+Message-ID: <f4b6ecf2-50e6-2fac-9608-0cecd507ca28@ieee.org>
+Date:   Thu, 14 Apr 2022 08:18:08 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BL1PR12MB5157EDD7F142FB7F214E179CE2EF9@BL1PR12MB5157.namprd12.prod.outlook.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 1/3] soc: qcom: aoss: Expose send for generic usecase
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>, Alex Elder <elder@linaro.org>
+Cc:     stable@vger.kernel.org, Deepak Kumar Singh <deesin@codeaurora.org>,
+        clew@codeaurora.org, swboyd@chromium.org,
+        bjorn.andersson@linaro.org, kuba@kernel.org, elder@kernel.org
+References: <20220413144811.522143-1-elder@linaro.org>
+ <20220413144811.522143-2-elder@linaro.org> <Ylf+zbeq9+fAidmn@kroah.com>
+From:   Alex Elder <elder@ieee.org>
+In-Reply-To: <Ylf+zbeq9+fAidmn@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 14, 2022 at 12:59:09PM +0000, Limonciello, Mario wrote:
-> [AMD Official Use Only]
+On 4/14/22 6:00 AM, Greg KH wrote:
+> On Wed, Apr 13, 2022 at 09:48:09AM -0500, Alex Elder wrote:
+>> From: Deepak Kumar Singh <deesin@codeaurora.org>
+>>
+>> commit 8c75d585b931ac874fbe4ee5a8f1811d20c2817f upstream.
+>>
+>> Not all upcoming usecases will have an interface to allow the aoss
+>> driver to hook onto. Expose the send api and create a get function to
+>> enable drivers to send their own messages to aoss.
+>>
+>> Signed-off-by: Chris Lew <clew@codeaurora.org>
+>> Signed-off-by: Deepak Kumar Singh <deesin@codeaurora.org>
+>> Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+>> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+>> Link: https://lore.kernel.org/r/1630420228-31075-2-git-send-email-deesin@codeaurora.org
 > 
-> 
-> 
-> > -----Original Message-----
-> > From: Greg KH <gregkh@linuxfoundation.org>
-> > Sent: Thursday, April 14, 2022 05:57
-> > To: Limonciello, Mario <Mario.Limonciello@amd.com>
-> > Cc: stable@vger.kernel.org; Gong, Richard <Richard.Gong@amd.com>
-> > Subject: Re: Allow playing dead in C3 for 5.15.y
-> > 
-> > On Tue, Apr 12, 2022 at 10:15:37PM +0000, Limonciello, Mario wrote:
-> > > [Public]
-> > >
-> > > Hi,
-> > >
-> > > A change went into 5.17 to allow CPUs to play dead in the C3 state which
-> > fixed freezes on s2idle entry if a CPU is offlined by a user.
-> > > This has had some time to bake now, and a regression was identified on an
-> > ancient machine that is now fixed.
-> > >
-> > > Can you please backport these commits to 5.15.y to fix that problem and
-> > avoid the regression?
-> > > commit d6b88ce2eb9d2698eb24451eb92c0a1649b17bb1 ("ACPI: processor
-> > idle: Allow playing dead in C3 state")
-> > 
-> > Now queued up.
-> > 
-> > > commit 0f00b1b00a44bf3b5e905dabfde2d51c490678ad ("ACPI: processor:
-> > idle: fix lockup regression on 32-bit ThinkPad T40").
-> 
-> My apologies; I must have had two references in my tree.  The correct hash is 
-> bfe55a1f7fd6bfede16078bf04c6250fbca11588
+> You sent this on, so you should also sign-off on it, right?
 
-That worked, thanks.
+Yes I should have, sorry.  I'll send v2 of the series.  Thanks.
+
+					-Alex
+
+> 
+> thanks,
+> 
+> greg k-h
+
