@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D23500E72
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FCF3500E7B
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243777AbiDNNRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243787AbiDNNRz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 14 Apr 2022 09:17:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37376 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243817AbiDNNRp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:17:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70355BE0;
-        Thu, 14 Apr 2022 06:15:21 -0700 (PDT)
+        with ESMTP id S243819AbiDNNRr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:17:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C83C25C50;
+        Thu, 14 Apr 2022 06:15:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F224B82968;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 188AE612DA;
+        Thu, 14 Apr 2022 13:15:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B38FC385A5;
         Thu, 14 Apr 2022 13:15:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E969C385A5;
-        Thu, 14 Apr 2022 13:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942118;
-        bh=ttbQErNq1DNWXwjtdYJ4yzzBIABKh56kO9GVVDSZ1Fs=;
+        s=korg; t=1649942121;
+        bh=muxlBW1xDCad3F4eezC0yyiqkmIBXZvIz/L5nWGM2Tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmFBh6qGs1Xx3kAiXMn/gWkmcrpW2LY40Q6ECHsRzyMwHGRCS7w8wdaiu7Pk9Gw5c
-         It6oZkQBK0Ko/C0x4B+paMRqqz/BBkI8aMxj21xVaVMyhehNlHluEgOYjhM3jWX5Wr
-         8ZZDEtdk9mOGA6FRA4BdvtyB35kYNbKOam8kAbMg=
+        b=Vq3YWk8hdHKoQumqJ2u0leP00Luuvtp3HiaJRC8VvMU0kFTrM5vCnT8+kwa8rSMiv
+         7CKo9hq8YhuCtZxomloPVyJ4zCOFowxCSYVN39DBl2wxRq8Jk8p7ZxUIBl7pzvJmo+
+         Msvi03Z7/oOVgWsd5Z5QDd8Cr3Isaoyd+AQk7nAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        linux-hyperv@vger.kernel.org,
-        Michael Kelley <mikelley@microsoft.com>,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
-Subject: [PATCH 4.19 003/338] hv: utils: add PTP_1588_CLOCK to Kconfig to fix build
-Date:   Thu, 14 Apr 2022 15:08:26 +0200
-Message-Id: <20220414110838.987014792@linuxfoundation.org>
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        "David S. Miller" <davem@davemloft.net>,
+        Pavel Machek <pavel@denx.de>
+Subject: [PATCH 4.19 004/338] netdevice: add the case if dev is NULL
+Date:   Thu, 14 Apr 2022 15:08:27 +0200
+Message-Id: <20220414110839.015690473@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -61,50 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-commit 1dc2f2b81a6a9895da59f3915760f6c0c3074492 upstream.
+commit b37a466837393af72fe8bcb8f1436410f3f173f3 upstream.
 
-The hyperv utilities use PTP clock interfaces and should depend a
-a kconfig symbol such that they will be built as a loadable module or
-builtin so that linker errors do not happen.
+Add the case if dev is NULL in dev_{put, hold}, so the caller doesn't
+need to care whether dev is NULL or not.
 
-Prevents these build errors:
-
-ld: drivers/hv/hv_util.o: in function `hv_timesync_deinit':
-hv_util.c:(.text+0x37d): undefined reference to `ptp_clock_unregister'
-ld: drivers/hv/hv_util.o: in function `hv_timesync_init':
-hv_util.c:(.text+0x738): undefined reference to `ptp_clock_register'
-
-Fixes: 3716a49a81ba ("hv_utils: implement Hyper-V PTP source")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: linux-hyperv@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20211126023316.25184-1-rdunlap@infradead.org
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
-Cc: Petr Štetiar <ynezz@true.cz>
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Pavel Machek <pavel@denx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hv/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/netdevice.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/hv/Kconfig
-+++ b/drivers/hv/Kconfig
-@@ -16,6 +16,7 @@ config HYPERV_TSCPAGE
- config HYPERV_UTILS
- 	tristate "Microsoft Hyper-V Utilities driver"
- 	depends on HYPERV && CONNECTOR && NLS
-+	depends on PTP_1588_CLOCK_OPTIONAL
- 	help
- 	  Select this option to enable the Hyper-V Utilities.
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3674,7 +3674,8 @@ void netdev_run_todo(void);
+  */
+ static inline void dev_put(struct net_device *dev)
+ {
+-	this_cpu_dec(*dev->pcpu_refcnt);
++	if (dev)
++		this_cpu_dec(*dev->pcpu_refcnt);
+ }
  
+ /**
+@@ -3685,7 +3686,8 @@ static inline void dev_put(struct net_de
+  */
+ static inline void dev_hold(struct net_device *dev)
+ {
+-	this_cpu_inc(*dev->pcpu_refcnt);
++	if (dev)
++		this_cpu_inc(*dev->pcpu_refcnt);
+ }
+ 
+ /* Carrier loss detection, dial on demand. The functions netif_carrier_on
 
 
