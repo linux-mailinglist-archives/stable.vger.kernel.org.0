@@ -2,140 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0527A50181F
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701CC501821
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350293AbiDNQBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 12:01:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59238 "EHLO
+        id S234912AbiDNQB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 12:01:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359010AbiDNPmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 11:42:33 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3963AF211A;
-        Thu, 14 Apr 2022 08:26:01 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id bg10so10752416ejb.4;
-        Thu, 14 Apr 2022 08:26:01 -0700 (PDT)
+        with ESMTP id S1359155AbiDNPmo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 11:42:44 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 740CD13CC4
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 08:28:39 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id n8so4942735plh.1
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 08:28:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0EhNSpMEIQGwegy6XwubyizxkyeN0Yst2h+T5pwc7wQ=;
-        b=XSdI9SNB3jBQqpAUl2AkG4FTRNx/rdgEV/ie4LGU/cNA+rGhpI1sdCNLipuVapA0uo
-         JRw6MqoFe3lSaO9LY7dB8t7RMDFS9yyI44MU9veZ8hi9/HgRly2OP7Ax9KVEzxwehmMW
-         42QJpXyApV/qSQDgVxunEy/DsnNErAsOTkMzIW/94gU9eQTpQgaCeZZ9HwHYeAfojxEq
-         2mxP4lSaiteo310zBUdYGqnoFjef3Dt3PglOjgNzV+ajpubTaGw6KdHieGIgtrft6pw9
-         anQwFYnG43K9KulTzEPzYvHoXtYkldZczBhtINTfNMMhY3+RpPZUzpQvCoM0AoDQtVC1
-         bMXA==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xk7uMHwEhOEbQ1vjkznckgLUbHpUR4Q/xafzs3EPh2Y=;
+        b=bs7wEK2/ftmLX8WJXqbbUow/7XP1JWBnrtNXoYmLSEXJUH15yV1G6b9RHUGpK9o70X
+         FPNOzQ/pA9SdWWaqFjHPvBWowy61tlf7MrOlxLD6TaOvS/GMVrMZn/wVLLLvFRViRX01
+         Cy1mMr4TLQ6TiqaOrEz2dxrcmeky2PE7pDTTWr4I7x4sG9vnrY5Lqzt077PIGAbGgqoP
+         XeHIXOl/f3FkxpjcGMPw2zPvbFouKnQRRX5zOh7/s0A5TfsQHiWmi/rzYdzxO7gHpLCF
+         a0w044VE2hiydnXXHk6vGfzu+4TKNiub3J4BxU/qgdHf0GWuTQGk2bV2rAe9YTQlTzMO
+         bZ0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0EhNSpMEIQGwegy6XwubyizxkyeN0Yst2h+T5pwc7wQ=;
-        b=O9dLuhfTGVulnkb8OLtdWp8bGz0YHCYkrw2y4B4AErsNTVeld0dMmY9Jh5u0CqCy39
-         qgbo0sPcaO/AJ/EAP/xM64zQ2qV4HGERSvxQIhEQ75pyBVG9PdmnInN52UpPlNxwiI3z
-         Ram1EY3jE88wzdK74u+KnICj9kGipm5UYih2l9LTuu2MMeuQaTRGbO6pM/bIE8KDH+r/
-         Xy1KzQg9xNSLtHCUVDOnCIfv4BDqWsC0CNSNTe7ys3wYfp9R/S/Dqpbl9nwaBXuNFKQL
-         MMcp9z3Sal2JxNCQFl5wMGIvgP9ds6cX7v9vjE+hsYdIbZ+UTG21U7KHlI006mcYrDxe
-         f4dQ==
-X-Gm-Message-State: AOAM531lm4bE2WGn20VW/BdNYH77OvEmpvTc+g2ocQU4gXZ2psn8/KWQ
-        wU0If+cbQrD44luYmGW4KpCTvXcWL8wloV3F9+g=
-X-Google-Smtp-Source: ABdhPJzje0FYaro4GDs25WGq9DJiciPtbOYkFrF+6xfThZJOs30FaUMCXOrLnhtC+hG05TTiN9HH49esY1mMEsGnvdA=
-X-Received: by 2002:a17:906:1692:b0:6e8:d245:44a9 with SMTP id
- s18-20020a170906169200b006e8d24544a9mr2783204ejd.639.1649949959614; Thu, 14
- Apr 2022 08:25:59 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xk7uMHwEhOEbQ1vjkznckgLUbHpUR4Q/xafzs3EPh2Y=;
+        b=gg0afJWU7J5TC/BYY9xqLHyQB6pLRubFFd54zqhHT4mgKdR6pU4agZpNTh25W2sE+A
+         giGSIuJj3SElZe04PlGwYh+kaC63nWhNM2SZ9Rn6eP+DWGAcRDxyXpsliv3rKMJHXDRe
+         P8PfCCziRA5Y0J3yF+BQZq1mrg0D7fj7SNFEuHLpDJRHy+MBv3aVmQc4SGK26ea2p783
+         8N8DB1+8Ap2fUjOKytL7mUG+rhHPwyleH2sXpjlJun6Gik3LUOM+0fTNCV7jAExoPiai
+         +N6YoUdhakqXiqwHN4gzryvjaBbdROnMGkT7MrnJegsOulsgMczx6jYBJ8IxTuv8sy41
+         2eKw==
+X-Gm-Message-State: AOAM530HZWFlYqTb5ceZSdPDdqxvQ+KGl0YMDKGYgNV9WKZFb0jnwUhP
+        6TP9abKRYsxgLNhqhpLZE0M0izggW/ky6PL0
+X-Google-Smtp-Source: ABdhPJw8Dgn5kyE9GXo+FLNiJjNAnpDI3tHXExKXGCL28FMZy6c9qiS9RuUXVi1aLhkv78xUFTQwlw==
+X-Received: by 2002:a17:902:760a:b0:14f:4a29:1f64 with SMTP id k10-20020a170902760a00b0014f4a291f64mr30772868pll.90.1649950118851;
+        Thu, 14 Apr 2022 08:28:38 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id x5-20020aa79a45000000b00504a1c8b75asm269980pfj.165.2022.04.14.08.28.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Apr 2022 08:28:38 -0700 (PDT)
+Message-ID: <62583da6.1c69fb81.62d74.0c53@mx.google.com>
+Date:   Thu, 14 Apr 2022 08:28:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220414025705.598-1-mario.limonciello@amd.com>
-In-Reply-To: <20220414025705.598-1-mario.limonciello@amd.com>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Thu, 14 Apr 2022 18:25:23 +0300
-Message-ID: <CAHp75Vcxw+4mqfkiaDid-n4_n=Bg49UzH8X-12H2MQwEcNXQoA@mail.gmail.com>
-Subject: Re: [PATCH] gpio: Request interrupts after IRQ is initialized
-To:     Mario Limonciello <mario.limonciello@amd.com>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Shreeya Patel <shreeya.patel@collabora.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Richard.Gong@amd.com, Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.9.310-202-g346293027e299
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.9.y baseline: 28 runs,
+ 1 regressions (v4.9.310-202-g346293027e299)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 14, 2022 at 5:57 AM Mario Limonciello
-<mario.limonciello@amd.com> wrote:
->
-> commit 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members before
-> initialization") attempted to fix a race condition that lead to a NULL
-> pointer, but in the process caused a regression for _AEI/_EVT declared
-> GPIOs. This manifests in messages showing deferred probing while trying
-> to allocate IRQs like so:
->
-> [    0.688318] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0000 to IRQ, err -517
-> [    0.688337] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x002C to IRQ, err -517
-> [    0.688348] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003D to IRQ, err -517
-> [    0.688359] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003E to IRQ, err -517
-> [    0.688369] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003A to IRQ, err -517
-> [    0.688379] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003B to IRQ, err -517
-> [    0.688389] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0002 to IRQ, err -517
-> [    0.688399] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0011 to IRQ, err -517
-> [    0.688410] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0012 to IRQ, err -517
-> [    0.688420] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0007 to IRQ, err -517
->
-> The code for walking _AEI doesn't handle deferred probing and so this leads
-> to non-functional GPIO interrupts.
->
-> Fix this issue by moving the call to `acpi_gpiochip_request_interrupts` to
-> occur after gc->irc.initialized is set.
+stable-rc/linux-4.9.y baseline: 28 runs, 1 regressions (v4.9.310-202-g34629=
+3027e299)
 
-Good catch, Mario, and thanks for the prompt fix!
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Regressions Summary
+-------------------
 
-> Cc: Shreeya Patel <shreeya.patel@collabora.com>
-> Cc: stable@vger.kernel.org
-> Fixes: 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members before initialization")
-> Reported-by: Mario Limonciello <mario.limonciello@amd.com>
-> Link: https://lore.kernel.org/linux-gpio/BL1PR12MB51577A77F000A008AA694675E2EF9@BL1PR12MB5157.namprd12.prod.outlook.com/T/#u
-> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-> ---
->  drivers/gpio/gpiolib.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-> index 085348e08986..b7694171655c 100644
-> --- a/drivers/gpio/gpiolib.c
-> +++ b/drivers/gpio/gpiolib.c
-> @@ -1601,8 +1601,6 @@ static int gpiochip_add_irqchip(struct gpio_chip *gc,
->
->         gpiochip_set_irq_hooks(gc);
->
-> -       acpi_gpiochip_request_interrupts(gc);
-> -
->         /*
->          * Using barrier() here to prevent compiler from reordering
->          * gc->irq.initialized before initialization of above
-> @@ -1612,6 +1610,8 @@ static int gpiochip_add_irqchip(struct gpio_chip *gc,
->
->         gc->irq.initialized = true;
->
-> +       acpi_gpiochip_request_interrupts(gc);
-> +
->         return 0;
->  }
->
-> --
-> 2.34.1
->
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
 
 
--- 
-With Best Regards,
-Andy Shevchenko
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.310-202-g346293027e299/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.310-202-g346293027e299
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      346293027e299259342d5d386daaa9fd525d0349 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62580bfaa11c96e64dae0701
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.310=
+-202-g346293027e299/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb=
+-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.310=
+-202-g346293027e299/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb=
+-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62580bfaa11c96e64dae0=
+702
+        failing since 8 days (last pass: v4.9.307-12-g40127e05a1b8, first f=
+ail: v4.9.307-17-g9edf1c247ba2) =
+
+ =20
