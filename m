@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A359A50108C
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC8950141A
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245328AbiDNNnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:43:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57386 "EHLO
+        id S1348951AbiDNONr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:13:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344065AbiDNNaR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9247A29B;
-        Thu, 14 Apr 2022 06:27:23 -0700 (PDT)
+        with ESMTP id S1347605AbiDNN7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A08E23BD4;
+        Thu, 14 Apr 2022 06:50:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F39C60C14;
-        Thu, 14 Apr 2022 13:27:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E9CAC385A1;
-        Thu, 14 Apr 2022 13:27:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03CF6B82910;
+        Thu, 14 Apr 2022 13:50:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 518F2C385A1;
+        Thu, 14 Apr 2022 13:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942842;
-        bh=vj3ncfI3Ru8CtjnT1vco8kX9pfKvkDPvtJog+Y28LS0=;
+        s=korg; t=1649944223;
+        bh=LrQVxC0I9Zn15JTQTcZDa3bFTSfP75sB9Ic6RgbFWdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DlKcODIzUiP6zjnB6hA+afQbdjnT9AozNPgvKYJMYNxOP3wyUPmLVKo7RuU6NgZDI
-         UYwxg3FNgI5eT4t4CpJTeYJ+j1BK0G1mcGwvVHOj/WlKJMaqhGPcOIwbzpTcgqiVm4
-         BMHYutaaj+7VX3jW7BbOEy5zTgH8k33Z1ZO92bqE=
+        b=M8j5wgBrOeO9nNXHe90/k0x80XBDCrjvZNkaxkxEW8jz+CMLwt5Kun2iXtNgbY49u
+         RUF2ettvpbo5CNdFbrupcvN/TLIPw8ZnMnBvLkeG+QAUaJpVmwf96PU2byKllsPZ/A
+         e3XweDPEGOoGnJBMShzAhvTvV+12NGYCx4udgPxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dust Li <dust.li@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Harold Huang <baymaxhuang@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 279/338] net/smc: correct settings of RMB window update limit
-Date:   Thu, 14 Apr 2022 15:13:02 +0200
-Message-Id: <20220414110846.828149919@linuxfoundation.org>
+Subject: [PATCH 5.4 398/475] tuntap: add sanity checks about msg_controllen in sendmsg
+Date:   Thu, 14 Apr 2022 15:13:03 +0200
+Message-Id: <20220414110906.207886533@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dust Li <dust.li@linux.alibaba.com>
+From: Harold Huang <baymaxhuang@gmail.com>
 
-[ Upstream commit 6bf536eb5c8ca011d1ff57b5c5f7c57ceac06a37 ]
+[ Upstream commit 74a335a07a17d131b9263bfdbdcb5e40673ca9ca ]
 
-rmbe_update_limit is used to limit announcing receive
-window updating too frequently. RFC7609 request a minimal
-increase in the window size of 10% of the receive buffer
-space. But current implementation used:
+In patch [1], tun_msg_ctl was added to allow pass batched xdp buffers to
+tun_sendmsg. Although we donot use msg_controllen in this path, we should
+check msg_controllen to make sure the caller pass a valid msg_ctl.
 
-  min_t(int, rmbe_size / 10, SOCK_MIN_SNDBUF / 2)
+[1]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fe8dd45bb7556246c6b76277b1ba4296c91c2505
 
-and SOCK_MIN_SNDBUF / 2 == 2304 Bytes, which is almost
-always less then 10% of the receive buffer space.
-
-This causes the receiver always sending CDC message to
-update its consumer cursor when it consumes more then 2K
-of data. And as a result, we may encounter something like
-"TCP silly window syndrome" when sending 2.5~8K message.
-
-This patch fixes this using max(rmbe_size / 10, SOCK_MIN_SNDBUF / 2).
-
-With this patch and SMC autocorking enabled, qperf 2K/4K/8K
-tcp_bw test shows 45%/75%/40% increase in throughput respectively.
-
-Signed-off-by: Dust Li <dust.li@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Harold Huang <baymaxhuang@gmail.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20220303022441.383865-1-baymaxhuang@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/tap.c   | 3 ++-
+ drivers/net/tun.c   | 3 ++-
+ drivers/vhost/net.c | 1 +
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 6add3094ea9e..4d421407d6fc 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -709,7 +709,7 @@ static struct smc_buf_desc *smc_buf_get_slot(int compressed_bufsize,
-  */
- static inline int smc_rmb_wnd_update_limit(int rmbe_size)
- {
--	return min_t(int, rmbe_size / 10, SOCK_MIN_SNDBUF / 2);
-+	return max_t(int, rmbe_size / 10, SOCK_MIN_SNDBUF / 2);
- }
+diff --git a/drivers/net/tap.c b/drivers/net/tap.c
+index f285422a8071..f870d08bb1f8 100644
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -1214,7 +1214,8 @@ static int tap_sendmsg(struct socket *sock, struct msghdr *m,
+ 	struct xdp_buff *xdp;
+ 	int i;
  
- static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
+-	if (ctl && (ctl->type == TUN_MSG_PTR)) {
++	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
++	    ctl && ctl->type == TUN_MSG_PTR) {
+ 		for (i = 0; i < ctl->num; i++) {
+ 			xdp = &((struct xdp_buff *)ctl->ptr)[i];
+ 			tap_get_user_xdp(q, xdp);
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index 10211ea60514..d9993884a97d 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -2561,7 +2561,8 @@ static int tun_sendmsg(struct socket *sock, struct msghdr *m, size_t total_len)
+ 	if (!tun)
+ 		return -EBADFD;
+ 
+-	if (ctl && (ctl->type == TUN_MSG_PTR)) {
++	if (m->msg_controllen == sizeof(struct tun_msg_ctl) &&
++	    ctl && ctl->type == TUN_MSG_PTR) {
+ 		struct tun_page tpage;
+ 		int n = ctl->num;
+ 		int flush = 0;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index cec9173aac6f..1058aba8d573 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -472,6 +472,7 @@ static void vhost_tx_batch(struct vhost_net *net,
+ 		goto signal_used;
+ 
+ 	msghdr->msg_control = &ctl;
++	msghdr->msg_controllen = sizeof(ctl);
+ 	err = sock->ops->sendmsg(sock, msghdr, 0);
+ 	if (unlikely(err < 0)) {
+ 		vq_err(&nvq->vq, "Fail to batch sending packets\n");
 -- 
 2.35.1
 
