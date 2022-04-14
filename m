@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74849501163
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ADFC50125C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238314AbiDNNvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:51:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43240 "EHLO
+        id S245749AbiDNNsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344038AbiDNNje (ORCPT
+        with ESMTP id S1344040AbiDNNje (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1B4ADE3;
-        Thu, 14 Apr 2022 06:36:55 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E041095;
+        Thu, 14 Apr 2022 06:37:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FFFE61D67;
-        Thu, 14 Apr 2022 13:36:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A50C385A5;
-        Thu, 14 Apr 2022 13:36:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28E91B828F4;
+        Thu, 14 Apr 2022 13:36:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A14BC385A9;
+        Thu, 14 Apr 2022 13:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943414;
-        bh=Sk0gZAHQ22U6dlvI7q4bg0hVUFI8pnapaw741EWt2aw=;
+        s=korg; t=1649943417;
+        bh=A5hg1HJTXZlPgARSYUWjElpidF2kO0Odj4UexzVEnGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GO7HEL66H+tcyKqKrR57NvCRkJAEV2Yu4elkWGv6uEHPLfptUk65fgJynAFDTy0uf
-         dZWcL10CSg7IbOEAdKWz9fFV5Od7ssjpsxGEo8QeGxld+d5DA5YgGdunZPs4LHRI7K
-         ZkuRDSIIPjEchz7zi7rG9FRIQaME06sKLGVk0C+Q=
+        b=byFuIU4SMLQLRINMQovqjpxj0kbP1TDOtu1cf/B/atJ+0oqTpXTk1ifE7ROW0vTko
+         WD1CGVRikWSdUC2ehH0erTgZ7DLABRldM3zL+zRcGVFWMolp+iNw8q7V35V9XqUGck
+         r5cAisnVC1GTvfcLduGs/ZXUm3gyamxD9HUBpMuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Martin Dauskardt <martin.dauskardt@gmx.de>,
+        stable@vger.kernel.org,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 148/475] ivtv: fix incorrect device_caps for ivtvfb
-Date:   Thu, 14 Apr 2022 15:08:53 +0200
-Message-Id: <20220414110859.286252073@linuxfoundation.org>
+Subject: [PATCH 5.4 149/475] ASoC: dmaengine: do not use a NULL prepare_slave_config() callback
+Date:   Thu, 14 Apr 2022 15:08:54 +0200
+Message-Id: <20220414110859.313994383@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,121 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-[ Upstream commit 25e94139218c0293b4375233c14f2256d7dcfaa8 ]
+[ Upstream commit 9a1e13440a4f2e7566fd4c5eae6a53e6400e08a4 ]
 
-The VIDIOC_G_FBUF and related overlay ioctls no longer worked (-ENOTTY was
-returned).
+Even if struct snd_dmaengine_pcm_config is used, prepare_slave_config()
+callback might not be set. Check if this callback is set before using it.
 
-The root cause was the introduction of the caps field in ivtv-driver.h.
-While loading the ivtvfb module would update the video_device device_caps
-field with V4L2_CAP_VIDEO_OUTPUT_OVERLAY it would not update that caps
-field, and that's what the overlay ioctls would look at.
-
-It's a bad idea to keep information in two places, so drop the caps field
-and only use vdev.device_caps.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Martin Dauskardt <martin.dauskardt@gmx.de>
-Fixes: 2161536516ed (media: media/pci: set device_caps in struct video_device)
+Fixes: fa654e085300 ("ASoC: dmaengine-pcm: Provide default config")
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20220307122202.2251639-2-codrin.ciubotariu@microchip.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/ivtv/ivtv-driver.h  |  1 -
- drivers/media/pci/ivtv/ivtv-ioctl.c   | 10 +++++-----
- drivers/media/pci/ivtv/ivtv-streams.c | 11 ++++-------
- 3 files changed, 9 insertions(+), 13 deletions(-)
+ sound/soc/soc-generic-dmaengine-pcm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/pci/ivtv/ivtv-driver.h b/drivers/media/pci/ivtv/ivtv-driver.h
-index cafba6b1055d..90f38552bd36 100644
---- a/drivers/media/pci/ivtv/ivtv-driver.h
-+++ b/drivers/media/pci/ivtv/ivtv-driver.h
-@@ -333,7 +333,6 @@ struct ivtv_stream {
- 	struct ivtv *itv;		/* for ease of use */
- 	const char *name;		/* name of the stream */
- 	int type;			/* stream type */
--	u32 caps;			/* V4L2 capabilities */
+diff --git a/sound/soc/soc-generic-dmaengine-pcm.c b/sound/soc/soc-generic-dmaengine-pcm.c
+index 5552c66ca642..ca4b17bd95d1 100644
+--- a/sound/soc/soc-generic-dmaengine-pcm.c
++++ b/sound/soc/soc-generic-dmaengine-pcm.c
+@@ -91,10 +91,10 @@ static int dmaengine_pcm_hw_params(struct snd_pcm_substream *substream,
  
- 	struct v4l2_fh *fh;		/* pointer to the streaming filehandle */
- 	spinlock_t qlock;		/* locks access to the queues */
-diff --git a/drivers/media/pci/ivtv/ivtv-ioctl.c b/drivers/media/pci/ivtv/ivtv-ioctl.c
-index 137853944e46..396cc931f41a 100644
---- a/drivers/media/pci/ivtv/ivtv-ioctl.c
-+++ b/drivers/media/pci/ivtv/ivtv-ioctl.c
-@@ -443,7 +443,7 @@ static int ivtv_g_fmt_vid_out_overlay(struct file *file, void *fh, struct v4l2_f
- 	struct ivtv_stream *s = &itv->streams[fh2id(fh)->type];
- 	struct v4l2_window *winfmt = &fmt->fmt.win;
+ 	memset(&slave_config, 0, sizeof(slave_config));
  
--	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
-+	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
- 		return -EINVAL;
- 	if (!itv->osd_video_pbase)
- 		return -EINVAL;
-@@ -554,7 +554,7 @@ static int ivtv_try_fmt_vid_out_overlay(struct file *file, void *fh, struct v4l2
- 	u32 chromakey = fmt->fmt.win.chromakey;
- 	u8 global_alpha = fmt->fmt.win.global_alpha;
+-	if (!pcm->config)
+-		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
+-	else
++	if (pcm->config && pcm->config->prepare_slave_config)
+ 		prepare_slave_config = pcm->config->prepare_slave_config;
++	else
++		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
  
--	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
-+	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
- 		return -EINVAL;
- 	if (!itv->osd_video_pbase)
- 		return -EINVAL;
-@@ -1386,7 +1386,7 @@ static int ivtv_g_fbuf(struct file *file, void *fh, struct v4l2_framebuffer *fb)
- 		0,
- 	};
- 
--	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
-+	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
- 		return -ENOTTY;
- 	if (!itv->osd_video_pbase)
- 		return -ENOTTY;
-@@ -1453,7 +1453,7 @@ static int ivtv_s_fbuf(struct file *file, void *fh, const struct v4l2_framebuffe
- 	struct ivtv_stream *s = &itv->streams[fh2id(fh)->type];
- 	struct yuv_playback_info *yi = &itv->yuv_info;
- 
--	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
-+	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
- 		return -ENOTTY;
- 	if (!itv->osd_video_pbase)
- 		return -ENOTTY;
-@@ -1473,7 +1473,7 @@ static int ivtv_overlay(struct file *file, void *fh, unsigned int on)
- 	struct ivtv *itv = id->itv;
- 	struct ivtv_stream *s = &itv->streams[fh2id(fh)->type];
- 
--	if (!(s->caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
-+	if (!(s->vdev.device_caps & V4L2_CAP_VIDEO_OUTPUT_OVERLAY))
- 		return -ENOTTY;
- 	if (!itv->osd_video_pbase)
- 		return -ENOTTY;
-diff --git a/drivers/media/pci/ivtv/ivtv-streams.c b/drivers/media/pci/ivtv/ivtv-streams.c
-index f7de9118f609..200d2100dbff 100644
---- a/drivers/media/pci/ivtv/ivtv-streams.c
-+++ b/drivers/media/pci/ivtv/ivtv-streams.c
-@@ -176,7 +176,7 @@ static void ivtv_stream_init(struct ivtv *itv, int type)
- 	s->itv = itv;
- 	s->type = type;
- 	s->name = ivtv_stream_info[type].name;
--	s->caps = ivtv_stream_info[type].v4l2_caps;
-+	s->vdev.device_caps = ivtv_stream_info[type].v4l2_caps;
- 
- 	if (ivtv_stream_info[type].pio)
- 		s->dma = PCI_DMA_NONE;
-@@ -299,12 +299,9 @@ static int ivtv_reg_dev(struct ivtv *itv, int type)
- 		if (s_mpg->vdev.v4l2_dev)
- 			num = s_mpg->vdev.num + ivtv_stream_info[type].num_offset;
- 	}
--	s->vdev.device_caps = s->caps;
--	if (itv->osd_video_pbase) {
--		itv->streams[IVTV_DEC_STREAM_TYPE_YUV].vdev.device_caps |=
--			V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
--		itv->streams[IVTV_DEC_STREAM_TYPE_MPG].vdev.device_caps |=
--			V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
-+	if (itv->osd_video_pbase && (type == IVTV_DEC_STREAM_TYPE_YUV ||
-+				     type == IVTV_DEC_STREAM_TYPE_MPG)) {
-+		s->vdev.device_caps |= V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
- 		itv->v4l2_cap |= V4L2_CAP_VIDEO_OUTPUT_OVERLAY;
- 	}
- 	video_set_drvdata(&s->vdev, s);
+ 	if (prepare_slave_config) {
+ 		ret = prepare_slave_config(substream, params, &slave_config);
 -- 
 2.34.1
 
