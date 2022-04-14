@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4745050157E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:42:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3228250141B
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245018AbiDNNiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:38:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58446 "EHLO
+        id S245583AbiDNOIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:08:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344355AbiDNNbq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCBA9297;
-        Thu, 14 Apr 2022 06:29:20 -0700 (PDT)
+        with ESMTP id S1347731AbiDNN7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8A05BCB59;
+        Thu, 14 Apr 2022 06:52:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ADF9619FC;
-        Thu, 14 Apr 2022 13:29:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D80FC385A1;
-        Thu, 14 Apr 2022 13:29:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 748A0B82997;
+        Thu, 14 Apr 2022 13:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB86AC385A1;
+        Thu, 14 Apr 2022 13:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942959;
-        bh=PoYRFGU0GjJBUUHKvDBhsqlm12snxwq8S3uEQtl9yfA=;
+        s=korg; t=1649944335;
+        bh=f8xC2Rlv95bZARN2qMM9E+pHTgWfjbfKBlg/2vCQ0m8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRno+SjDBokNLlVP7G85igtvpTchnO8DX1XubKt4Nc+TJ44L3BL6+PApFnZrS36HX
-         hW1sqqqn5CNoTxe5hP+pwywa+wvPAj8euUV5sBRUUABPZZGWv9UbSllU2sm6/k/YtU
-         cA1n0wsALRJ6ujk45E9tOOjTNidpHxkvcvDCRxgY=
+        b=fyaur+a5WBbAULw2QSx0ITUuxuj9DM9Y0fgErV8mvg2qehk/KViJ9e9as3GjhwTqV
+         rkM8aMNEnyGmNICondq9hKzSqXQqxc/gcGW9YQAH+vHlCMeI9WbNjnog2hBOKruP13
+         KNkydLqrFl3XuNStvA1EIfR3cpqwmIcvZHJJPSqo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        stable@kernel.org
-Subject: [PATCH 4.19 321/338] ata: sata_dwc_460ex: Fix crash due to OOB write
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Arthur Fabre <afabre@cloudflare.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 439/475] bpf: Support dual-stack sockets in bpf_tcp_check_syncookie
 Date:   Thu, 14 Apr 2022 15:13:44 +0200
-Message-Id: <20220414110848.025150856@linuxfoundation.org>
+Message-Id: <20220414110907.348077408@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,83 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-commit 7aa8104a554713b685db729e66511b93d989dd6a upstream.
+[ Upstream commit 2e8702cc0cfa1080f29fd64003c00a3e24ac38de ]
 
-the driver uses libata's "tag" values from in various arrays.
-Since the mentioned patch bumped the ATA_TAG_INTERNAL to 32,
-the value of the SATA_DWC_QCMD_MAX needs to account for that.
+bpf_tcp_gen_syncookie looks at the IP version in the IP header and
+validates the address family of the socket. It supports IPv4 packets in
+AF_INET6 dual-stack sockets.
 
-Otherwise ATA_TAG_INTERNAL usage cause similar crashes like
-this as reported by Tice Rex on the OpenWrt Forum and
-reproduced (with symbols) here:
+On the other hand, bpf_tcp_check_syncookie looks only at the address
+family of the socket, ignoring the real IP version in headers, and
+validates only the packet size. This implementation has some drawbacks:
 
-| BUG: Kernel NULL pointer dereference at 0x00000000
-| Faulting instruction address: 0xc03ed4b8
-| Oops: Kernel access of bad area, sig: 11 [#1]
-| BE PAGE_SIZE=4K PowerPC 44x Platform
-| CPU: 0 PID: 362 Comm: scsi_eh_1 Not tainted 5.4.163 #0
-| NIP:  c03ed4b8 LR: c03d27e8 CTR: c03ed36c
-| REGS: cfa59950 TRAP: 0300   Not tainted  (5.4.163)
-| MSR:  00021000 <CE,ME>  CR: 42000222  XER: 00000000
-| DEAR: 00000000 ESR: 00000000
-| GPR00: c03d27e8 cfa59a08 cfa55fe0 00000000 0fa46bc0 [...]
-| [..]
-| NIP [c03ed4b8] sata_dwc_qc_issue+0x14c/0x254
-| LR [c03d27e8] ata_qc_issue+0x1c8/0x2dc
-| Call Trace:
-| [cfa59a08] [c003f4e0] __cancel_work_timer+0x124/0x194 (unreliable)
-| [cfa59a78] [c03d27e8] ata_qc_issue+0x1c8/0x2dc
-| [cfa59a98] [c03d2b3c] ata_exec_internal_sg+0x240/0x524
-| [cfa59b08] [c03d2e98] ata_exec_internal+0x78/0xe0
-| [cfa59b58] [c03d30fc] ata_read_log_page.part.38+0x1dc/0x204
-| [cfa59bc8] [c03d324c] ata_identify_page_supported+0x68/0x130
-| [...]
+1. Packets are not validated properly, allowing a BPF program to trick
+   bpf_tcp_check_syncookie into handling an IPv6 packet on an IPv4
+   socket.
 
-This is because sata_dwc_dma_xfer_complete() NULLs the
-dma_pending's next neighbour "chan" (a *dma_chan struct) in
-this '32' case right here (line ~735):
-> hsdevp->dma_pending[tag] = SATA_DWC_DMA_PENDING_NONE;
+2. Dual-stack sockets fail the checks on IPv4 packets. IPv4 clients end
+   up receiving a SYNACK with the cookie, but the following ACK gets
+   dropped.
 
-Then the next time, a dma gets issued; dma_dwc_xfer_setup() passes
-the NULL'd hsdevp->chan to the dmaengine_slave_config() which then
-causes the crash.
+This patch fixes these issues by changing the checks in
+bpf_tcp_check_syncookie to match the ones in bpf_tcp_gen_syncookie. IP
+version from the header is taken into account, and it is validated
+properly with address family.
 
-With this patch, SATA_DWC_QCMD_MAX is now set to ATA_MAX_QUEUE + 1.
-This avoids the OOB. But please note, there was a worthwhile discussion
-on what ATA_TAG_INTERNAL and ATA_MAX_QUEUE is. And why there should not
-be a "fake" 33 command-long queue size.
-
-Ideally, the dw driver should account for the ATA_TAG_INTERNAL.
-In Damien Le Moal's words: "... having looked at the driver, it
-is a bigger change than just faking a 33rd "tag" that is in fact
-not a command tag at all."
-
-Fixes: 28361c403683c ("libata: add extra internal command")
-Cc: stable@kernel.org # 4.18+
-BugLink: https://github.com/openwrt/openwrt/issues/9505
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 399040847084 ("bpf: add helper to check for a valid SYN cookie")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Acked-by: Arthur Fabre <afabre@cloudflare.com>
+Link: https://lore.kernel.org/bpf/20220406124113.2795730-1-maximmi@nvidia.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/sata_dwc_460ex.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/core/filter.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/ata/sata_dwc_460ex.c
-+++ b/drivers/ata/sata_dwc_460ex.c
-@@ -149,7 +149,11 @@ struct sata_dwc_device {
- #endif
- };
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 54c5e3c379f6..e16b2b5cda98 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -5824,24 +5824,33 @@ BPF_CALL_5(bpf_tcp_check_syncookie, struct sock *, sk, void *, iph, u32, iph_len
+ 	if (!th->ack || th->rst || th->syn)
+ 		return -ENOENT;
  
--#define SATA_DWC_QCMD_MAX	32
-+/*
-+ * Allow one extra special slot for commands and DMA management
-+ * to account for libata internal commands.
-+ */
-+#define SATA_DWC_QCMD_MAX	(ATA_MAX_QUEUE + 1)
++	if (unlikely(iph_len < sizeof(struct iphdr)))
++		return -EINVAL;
++
+ 	if (tcp_synq_no_recent_overflow(sk))
+ 		return -ENOENT;
  
- struct sata_dwc_device_port {
- 	struct sata_dwc_device	*hsdev;
+ 	cookie = ntohl(th->ack_seq) - 1;
+ 
+-	switch (sk->sk_family) {
+-	case AF_INET:
+-		if (unlikely(iph_len < sizeof(struct iphdr)))
++	/* Both struct iphdr and struct ipv6hdr have the version field at the
++	 * same offset so we can cast to the shorter header (struct iphdr).
++	 */
++	switch (((struct iphdr *)iph)->version) {
++	case 4:
++		if (sk->sk_family == AF_INET6 && ipv6_only_sock(sk))
+ 			return -EINVAL;
+ 
+ 		ret = __cookie_v4_check((struct iphdr *)iph, th, cookie);
+ 		break;
+ 
+ #if IS_BUILTIN(CONFIG_IPV6)
+-	case AF_INET6:
++	case 6:
+ 		if (unlikely(iph_len < sizeof(struct ipv6hdr)))
+ 			return -EINVAL;
+ 
++		if (sk->sk_family != AF_INET6)
++			return -EINVAL;
++
+ 		ret = __cookie_v6_check((struct ipv6hdr *)iph, th, cookie);
+ 		break;
+ #endif /* CONFIG_IPV6 */
+-- 
+2.35.1
+
 
 
