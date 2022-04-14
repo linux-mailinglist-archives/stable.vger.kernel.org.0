@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C3D50113A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6159450121D
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244935AbiDNNgp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:36:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57742 "EHLO
+        id S1343554AbiDNOIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:08:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344151AbiDNNal (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB5BB22F;
-        Thu, 14 Apr 2022 06:28:16 -0700 (PDT)
+        with ESMTP id S1347360AbiDNN6r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1B6D12AE3;
+        Thu, 14 Apr 2022 06:49:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 665DB619DA;
-        Thu, 14 Apr 2022 13:28:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76861C385A1;
-        Thu, 14 Apr 2022 13:28:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3682B61D93;
+        Thu, 14 Apr 2022 13:49:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C3DC385A1;
+        Thu, 14 Apr 2022 13:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942895;
-        bh=ziZhs4w4fOyVTrMqEsZJFqB0xAp5wYEYXJ6zPtEua6Y=;
+        s=korg; t=1649944170;
+        bh=1cnlC7HUjUl564h+SOgUVa4Y28A45oWnsLw+WqGOJE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9I51YNynTrykyOamzb6nuEajHc/Hoy4qgjyd9tI9IZfUcZjd+8xmffa+ySweQ8NI
-         ZMdDeFXi8N0zOh4am9xka85a8H4SAk4NZxN5vDpuSk0MuO+KtpKkTlXLRSbklRkDz7
-         MRm7+m6cDy9Gfban/Y01LerFoH3pV39Lzbx0Kumw=
+        b=VuIx9/HfqEtSxjc6Vy2d59ClSSrCO8zuiuBwXN727rr6KWYmnxbTTcLw/BEOuUKDe
+         w7srcenzPlr7a0tEdvlF0ZLW6QB1GuJLh8J9TYV28KXUYW9pqXcvuXeLxexHR34f7a
+         2d8i9xILK0dXgi2G4xSN6i9D8Dnfq2lNuomctc90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 300/338] net: add missing SOF_TIMESTAMPING_OPT_ID support
-Date:   Thu, 14 Apr 2022 15:13:23 +0200
-Message-Id: <20220414110847.423397855@linuxfoundation.org>
+Subject: [PATCH 5.4 419/475] SUNRPC: Fix socket waits for write buffer space
+Date:   Thu, 14 Apr 2022 15:13:24 +0200
+Message-Id: <20220414110906.787165610@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,148 +54,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 8f932f762e7928d250e21006b00ff9b7718b0a64 ]
+[ Upstream commit 7496b59f588dd52886fdbac7633608097543a0a5 ]
 
-SOF_TIMESTAMPING_OPT_ID is supported on TCP, UDP and RAW sockets.
-But it was missing on RAW with IPPROTO_IP, PF_PACKET and CAN.
+The socket layer requires that we use the socket lock to protect changes
+to the sock->sk_write_pending field and others.
 
-Add skb_setup_tx_timestamp that configures both tx_flags and tskey
-for these paths that do not need corking or use bytestream keys.
-
-Fixes: 09c2d251b707 ("net-timestamp: add key to disambiguate concurrent datagrams")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reported-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sock.h     | 25 +++++++++++++++++++++----
- net/can/raw.c          |  2 +-
- net/ipv4/raw.c         |  2 +-
- net/ipv6/raw.c         |  2 +-
- net/packet/af_packet.c |  6 +++---
- 5 files changed, 27 insertions(+), 10 deletions(-)
+ net/sunrpc/xprtsock.c | 54 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 39 insertions(+), 15 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 2bf8dcf863f2..7d3a4c2eea95 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2400,22 +2400,39 @@ static inline void sock_recv_ts_and_drops(struct msghdr *msg, struct sock *sk,
- void __sock_tx_timestamp(__u16 tsflags, __u8 *tx_flags);
- 
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 8ffc54b6661f..480e879e74ae 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -872,12 +872,12 @@ static int xs_sendpages(struct socket *sock, struct sockaddr *addr, int addrlen,
  /**
-- * sock_tx_timestamp - checks whether the outgoing packet is to be time stamped
-+ * _sock_tx_timestamp - checks whether the outgoing packet is to be time stamped
-  * @sk:		socket sending this packet
-  * @tsflags:	timestamping flags to use
-  * @tx_flags:	completed with instructions for time stamping
-+ * @tskey:      filled in with next sk_tskey (not for TCP, which uses seqno)
+  * xs_nospace - handle transmit was incomplete
+  * @req: pointer to RPC request
++ * @transport: pointer to struct sock_xprt
   *
-  * Note: callers should take care of initial ``*tx_flags`` value (usually 0)
   */
--static inline void sock_tx_timestamp(const struct sock *sk, __u16 tsflags,
--				     __u8 *tx_flags)
-+static inline void _sock_tx_timestamp(struct sock *sk, __u16 tsflags,
-+				      __u8 *tx_flags, __u32 *tskey)
+-static int xs_nospace(struct rpc_rqst *req)
++static int xs_nospace(struct rpc_rqst *req, struct sock_xprt *transport)
  {
--	if (unlikely(tsflags))
-+	if (unlikely(tsflags)) {
- 		__sock_tx_timestamp(tsflags, tx_flags);
-+		if (tsflags & SOF_TIMESTAMPING_OPT_ID && tskey &&
-+		    tsflags & SOF_TIMESTAMPING_TX_RECORD_MASK)
-+			*tskey = sk->sk_tskey++;
-+	}
- 	if (unlikely(sock_flag(sk, SOCK_WIFI_STATUS)))
- 		*tx_flags |= SKBTX_WIFI_STATUS;
+-	struct rpc_xprt *xprt = req->rq_xprt;
+-	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
++	struct rpc_xprt *xprt = &transport->xprt;
+ 	struct sock *sk = transport->inet;
+ 	int ret = -EAGAIN;
+ 
+@@ -891,25 +891,49 @@ static int xs_nospace(struct rpc_rqst *req)
+ 
+ 	/* Don't race with disconnect */
+ 	if (xprt_connected(xprt)) {
++		struct socket_wq *wq;
++
++		rcu_read_lock();
++		wq = rcu_dereference(sk->sk_wq);
++		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
++		rcu_read_unlock();
++
+ 		/* wait for more buffer space */
++		set_bit(SOCK_NOSPACE, &sk->sk_socket->flags);
+ 		sk->sk_write_pending++;
+ 		xprt_wait_for_buffer_space(xprt);
+ 	} else
+ 		ret = -ENOTCONN;
+ 
+ 	spin_unlock(&xprt->transport_lock);
++	return ret;
++}
+ 
+-	/* Race breaker in case memory is freed before above code is called */
+-	if (ret == -EAGAIN) {
+-		struct socket_wq *wq;
++static int xs_sock_nospace(struct rpc_rqst *req)
++{
++	struct sock_xprt *transport =
++		container_of(req->rq_xprt, struct sock_xprt, xprt);
++	struct sock *sk = transport->inet;
++	int ret = -EAGAIN;
+ 
+-		rcu_read_lock();
+-		wq = rcu_dereference(sk->sk_wq);
+-		set_bit(SOCKWQ_ASYNC_NOSPACE, &wq->flags);
+-		rcu_read_unlock();
++	lock_sock(sk);
++	if (!sock_writeable(sk))
++		ret = xs_nospace(req, transport);
++	release_sock(sk);
++	return ret;
++}
+ 
+-		sk->sk_write_space(sk);
+-	}
++static int xs_stream_nospace(struct rpc_rqst *req)
++{
++	struct sock_xprt *transport =
++		container_of(req->rq_xprt, struct sock_xprt, xprt);
++	struct sock *sk = transport->inet;
++	int ret = -EAGAIN;
++
++	lock_sock(sk);
++	if (!sk_stream_memory_free(sk))
++		ret = xs_nospace(req, transport);
++	release_sock(sk);
+ 	return ret;
  }
  
-+static inline void sock_tx_timestamp(struct sock *sk, __u16 tsflags,
-+				     __u8 *tx_flags)
-+{
-+	_sock_tx_timestamp(sk, tsflags, tx_flags, NULL);
-+}
-+
-+static inline void skb_setup_tx_timestamp(struct sk_buff *skb, __u16 tsflags)
-+{
-+	_sock_tx_timestamp(skb->sk, tsflags, &skb_shinfo(skb)->tx_flags,
-+			   &skb_shinfo(skb)->tskey);
-+}
-+
- /**
-  * sk_eat_skb - Release a skb if it is no longer needed
-  * @sk: socket to eat this skb from
-diff --git a/net/can/raw.c b/net/can/raw.c
-index d0fb5a57c66d..2a6db8752b61 100644
---- a/net/can/raw.c
-+++ b/net/can/raw.c
-@@ -814,7 +814,7 @@ static int raw_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
- 	if (err < 0)
- 		goto free_skb;
- 
--	sock_tx_timestamp(sk, sk->sk_tsflags, &skb_shinfo(skb)->tx_flags);
-+	skb_setup_tx_timestamp(skb, sk->sk_tsflags);
- 
- 	skb->dev = dev;
- 	skb->sk  = sk;
-diff --git a/net/ipv4/raw.c b/net/ipv4/raw.c
-index 8cae691c3c9f..654f586fc0d7 100644
---- a/net/ipv4/raw.c
-+++ b/net/ipv4/raw.c
-@@ -391,7 +391,7 @@ static int raw_send_hdrinc(struct sock *sk, struct flowi4 *fl4,
- 
- 	skb->ip_summed = CHECKSUM_NONE;
- 
--	sock_tx_timestamp(sk, sockc->tsflags, &skb_shinfo(skb)->tx_flags);
-+	skb_setup_tx_timestamp(skb, sockc->tsflags);
- 
- 	if (flags & MSG_CONFIRM)
- 		skb_set_dst_pending_confirm(skb, 1);
-diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
-index 98c8f98a7660..ad7bd40b6d53 100644
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -660,7 +660,7 @@ static int rawv6_send_hdrinc(struct sock *sk, struct msghdr *msg, int length,
- 
- 	skb->ip_summed = CHECKSUM_NONE;
- 
--	sock_tx_timestamp(sk, sockc->tsflags, &skb_shinfo(skb)->tx_flags);
-+	skb_setup_tx_timestamp(skb, sockc->tsflags);
- 
- 	if (flags & MSG_CONFIRM)
- 		skb_set_dst_pending_confirm(skb, 1);
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index d65051959f85..b951f411dded 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1978,7 +1978,7 @@ static int packet_sendmsg_spkt(struct socket *sock, struct msghdr *msg,
- 	skb->mark = sk->sk_mark;
- 	skb->tstamp = sockc.transmit_time;
- 
--	sock_tx_timestamp(sk, sockc.tsflags, &skb_shinfo(skb)->tx_flags);
-+	skb_setup_tx_timestamp(skb, sockc.tsflags);
- 
- 	if (unlikely(extra_len == 4))
- 		skb->no_fcs = 1;
-@@ -2501,7 +2501,7 @@ static int tpacket_fill_skb(struct packet_sock *po, struct sk_buff *skb,
- 	skb->priority = po->sk.sk_priority;
- 	skb->mark = po->sk.sk_mark;
- 	skb->tstamp = sockc->transmit_time;
--	sock_tx_timestamp(&po->sk, sockc->tsflags, &skb_shinfo(skb)->tx_flags);
-+	skb_setup_tx_timestamp(skb, sockc->tsflags);
- 	skb_zcopy_set_nouarg(skb, ph.raw);
- 
- 	skb_reserve(skb, hlen);
-@@ -2965,7 +2965,7 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
- 		goto out_free;
- 	}
- 
--	sock_tx_timestamp(sk, sockc.tsflags, &skb_shinfo(skb)->tx_flags);
-+	skb_setup_tx_timestamp(skb, sockc.tsflags);
- 
- 	if (!vnet_hdr.gso_type && (len > dev->mtu + reserve + extra_len) &&
- 	    !packet_extra_vlan_len_allowed(dev, skb)) {
+@@ -996,7 +1020,7 @@ static int xs_local_send_request(struct rpc_rqst *req)
+ 	case -ENOBUFS:
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_stream_nospace(req);
+ 		break;
+ 	default:
+ 		dprintk("RPC:       sendmsg returned unrecognized error %d\n",
+@@ -1068,7 +1092,7 @@ static int xs_udp_send_request(struct rpc_rqst *req)
+ 		/* Should we call xs_close() here? */
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_sock_nospace(req);
+ 		break;
+ 	case -ENETUNREACH:
+ 	case -ENOBUFS:
+@@ -1181,7 +1205,7 @@ static int xs_tcp_send_request(struct rpc_rqst *req)
+ 		/* Should we call xs_close() here? */
+ 		break;
+ 	case -EAGAIN:
+-		status = xs_nospace(req);
++		status = xs_stream_nospace(req);
+ 		break;
+ 	case -ECONNRESET:
+ 	case -ECONNREFUSED:
 -- 
 2.35.1
 
