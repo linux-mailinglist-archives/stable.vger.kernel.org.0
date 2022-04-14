@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E2635012DC
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3399501261
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:08:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345382AbiDNNxD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:53:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57552 "EHLO
+        id S1345668AbiDNNx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:53:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344937AbiDNNo4 (ORCPT
+        with ESMTP id S1344942AbiDNNo4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77A2215805;
-        Thu, 14 Apr 2022 06:40:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 433F920BD0;
+        Thu, 14 Apr 2022 06:40:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 115F2B82968;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4ACCB8296A;
+        Thu, 14 Apr 2022 13:40:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230CCC385A5;
         Thu, 14 Apr 2022 13:40:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FDDFC385A5;
-        Thu, 14 Apr 2022 13:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943645;
-        bh=2Z19NIKR0aVRkjY2E95TB9kgygXj4YWTY2oe3UXaocg=;
+        s=korg; t=1649943648;
+        bh=JNSG1rIavWuc32cfnqIlfwykyPVOl3m3sKZGU3GSBw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzONtApRQ1CLv82mMs5hCilIkEdM3yPoaVWOS94frSOW3pC1wCQ5CBNJph/aFszFs
-         MaFNjTjZQtOTd1OF2I+CGaFYPBLcOv0LkR6ALzuax8gQ683HM1Ja0aTKFgqcBcPdjF
-         IUT31lRNSXU3anbSsHUVslHH8AKT0CWkIbjRyYfE=
+        b=aYcHsEu91R+sFGkYyAN50XRblrZKlQYP1MKssh1nOjxwoHYt3mmSnE7CmYWvNxwwN
+         kPpNR1EGHsLK0VTtsEPcTKlBTSZFKQPM8Xi80SdQtffuget+UzWROljHblUZI9ufJE
+         ZZYcrNr5xRSvKIXczDitajCFUxXOuhv1yG0iJOj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Dirk Buchwalder <buchwalder@posteo.de>,
+        Robert Marko <robimarko@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 231/475] pinctrl: renesas: r8a77470: Reduce size for narrow VIN1 channel
-Date:   Thu, 14 Apr 2022 15:10:16 +0200
-Message-Id: <20220414110901.584754664@linuxfoundation.org>
+Subject: [PATCH 5.4 232/475] clk: qcom: ipq8074: Use floor ops for SDCC1 clock
+Date:   Thu, 14 Apr 2022 15:10:17 +0200
+Message-Id: <20220414110901.614985022@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,48 +56,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dirk Buchwalder <buchwalder@posteo.de>
 
-[ Upstream commit 9e04a0eda84fccab0ac22a33825ad53f47c968c7 ]
+[ Upstream commit b77d8306d84f83d1da68028a68c91da9c867b6f6 ]
 
-The second video-in channel on RZ/G1C has only 12 data lanes, but the
-pin control driver uses the vin_data union, which is meant for 24 data
-lanes, thus wasting space.
+Use floor ops on SDCC1 APPS clock in order to round down selected clock
+frequency and avoid overclocking SD/eMMC cards.
 
-Fix this by using the vin_data12 union instead.
+For example, currently HS200 cards were failling tuning as they were
+actually being clocked at 384MHz instead of 192MHz.
+This caused some boards to disable 1.8V I/O and force the eMMC into the
+standard HS mode (50MHz) and that appeared to work despite the eMMC being
+overclocked to 96Mhz in that case.
 
-This reduces kernel size by 96 bytes.
+There was a previous commit to use floor ops on SDCC clocks, but it looks
+to have only covered SDCC2 clock.
 
-Fixes: 50f3f2d73e3426ba ("pinctrl: sh-pfc: Reduce kernel size for narrow VIN channels")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/52716fa89139f6f92592633edb52804d4c5e18f0.1640269757.git.geert+renesas@glider.be
+Fixes: 9607f6224b39 ("clk: qcom: ipq8074: add PCIE, USB and SDCC clocks")
+
+Signed-off-by: Dirk Buchwalder <buchwalder@posteo.de>
+Signed-off-by: Robert Marko <robimarko@gmail.com>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220210173100.505128-1-robimarko@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-r8a77470.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/qcom/gcc-ipq8074.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a77470.c b/drivers/pinctrl/sh-pfc/pfc-r8a77470.c
-index b3b116da1bb0..14005725a726 100644
---- a/drivers/pinctrl/sh-pfc/pfc-r8a77470.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-r8a77470.c
-@@ -2121,7 +2121,7 @@ static const unsigned int vin0_clk_mux[] = {
- 	VI0_CLK_MARK,
- };
- /* - VIN1 ------------------------------------------------------------------- */
--static const union vin_data vin1_data_pins = {
-+static const union vin_data12 vin1_data_pins = {
- 	.data12 = {
- 		RCAR_GP_PIN(3,  1), RCAR_GP_PIN(3, 2),
- 		RCAR_GP_PIN(3,  3), RCAR_GP_PIN(3, 4),
-@@ -2131,7 +2131,7 @@ static const union vin_data vin1_data_pins = {
- 		RCAR_GP_PIN(3, 15), RCAR_GP_PIN(3, 16),
+diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
+index e01f5f591d1e..de48ba7eba3a 100644
+--- a/drivers/clk/qcom/gcc-ipq8074.c
++++ b/drivers/clk/qcom/gcc-ipq8074.c
+@@ -1074,7 +1074,7 @@ static struct clk_rcg2 sdcc1_apps_clk_src = {
+ 		.name = "sdcc1_apps_clk_src",
+ 		.parent_names = gcc_xo_gpll0_gpll2_gpll0_out_main_div2,
+ 		.num_parents = 4,
+-		.ops = &clk_rcg2_ops,
++		.ops = &clk_rcg2_floor_ops,
  	},
  };
--static const union vin_data vin1_data_mux = {
-+static const union vin_data12 vin1_data_mux = {
- 	.data12 = {
- 		VI1_DATA0_MARK, VI1_DATA1_MARK,
- 		VI1_DATA2_MARK, VI1_DATA3_MARK,
+ 
 -- 
 2.34.1
 
