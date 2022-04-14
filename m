@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E78CA501063
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9E250132A
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245364AbiDNNsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:48:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35758 "EHLO
+        id S245333AbiDNNsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343960AbiDNNjc (ORCPT
+        with ESMTP id S1343958AbiDNNjc (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44D5E98581;
-        Thu, 14 Apr 2022 06:35:48 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EB00996AE;
+        Thu, 14 Apr 2022 06:35:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1E90B828F4;
-        Thu, 14 Apr 2022 13:35:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C7E1C385A5;
-        Thu, 14 Apr 2022 13:35:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E64DCCE296C;
+        Thu, 14 Apr 2022 13:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 091CFC385A1;
+        Thu, 14 Apr 2022 13:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943345;
-        bh=kEJXb56bbqvY/OQQtRwmbKn4Oecb+8vBfcPJQHdteR8=;
+        s=korg; t=1649943348;
+        bh=xFw3ApH0lVA9EgQGF1HmI/vaS3G/NWfGam0bEyjs8SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MD7hMnxW6XGyIhpczkOT694AmPM4KNCcMP6NRSeNsY8kyEZvVSIddDO4+gaVDrBLB
-         0IPfRCqvfeR4ProgYANC21LNvnK8DJwmFN0Zz0b8u71sS8ncIlQl8oH04UWRAWEwRa
-         Hfnd/1PGFHe3lYYxl3TZpsSHE1JbujwtIl2Ewx7g=
+        b=gClP2lGY5DpF7fyhsBG7/49Mvnz44cUQVz4mU/ufC5EOEjVkgkBg7EF8WGW+KIQzF
+         46gvihi+Q1EdtEz0nAKYVcJ2tru2yQhVlHkuAqL2pNR829vKD+1vXQSMr7pSEBpEXx
+         sYrki2Cn9OQwMOvBhe7AelLNLaF1oTu/534LQ77I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        stable@vger.kernel.org,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 121/475] soc: qcom: rpmpd: Check for null return of devm_kcalloc
-Date:   Thu, 14 Apr 2022 15:08:26 +0200
-Message-Id: <20220414110858.539024926@linuxfoundation.org>
+Subject: [PATCH 5.4 122/475] soc: qcom: aoss: remove spurious IRQF_ONESHOT flags
+Date:   Thu, 14 Apr 2022 15:08:27 +0200
+Message-Id: <20220414110858.567097522@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,41 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Daniel Thompson <daniel.thompson@linaro.org>
 
-[ Upstream commit 5a811126d38f9767a20cc271b34db7c8efc5a46c ]
+[ Upstream commit 8030cb9a55688c1339edd284d9d6ce5f9fc75160 ]
 
-Because of the possible failure of the allocation, data->domains might
-be NULL pointer and will cause the dereference of the NULL pointer
-later.
-Therefore, it might be better to check it and directly return -ENOMEM
-without releasing data manually if fails, because the comment of the
-devm_kmalloc() says "Memory allocated with this function is
-automatically freed on driver detach.".
+Quoting the header comments, IRQF_ONESHOT is "Used by threaded interrupts
+which need to keep the irq line disabled until the threaded handler has
+been run.". When applied to an interrupt that doesn't request a threaded
+irq then IRQF_ONESHOT has a lesser known (undocumented?) side effect,
+which it to disable the forced threading of the irq. For "normal" kernels
+(without forced threading) then, if there is no thread_fn, then
+IRQF_ONESHOT is a nop.
 
-Fixes: bbe3a66c3f5a ("soc: qcom: rpmpd: Add a Power domain driver to model corners")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+In this case disabling forced threading is not appropriate for this driver
+because it calls wake_up_all() and this API cannot be called from
+no-thread interrupt handlers on PREEMPT_RT systems (deadlock risk, triggers
+sleeping-while-atomic warnings).
+
+Fix this by removing IRQF_ONESHOT.
+
+Fixes: 2209481409b7 ("soc: qcom: Add AOSS QMP driver")
+Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+[bjorn: Added Fixes tag]
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211231094419.1941054-1-jiasheng@iscas.ac.cn
+Link: https://lore.kernel.org/r/20220127173554.158111-1-daniel.thompson@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/rpmpd.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/soc/qcom/qcom_aoss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/rpmpd.c b/drivers/soc/qcom/rpmpd.c
-index 3c1a55cf25d6..4715acfecff4 100644
---- a/drivers/soc/qcom/rpmpd.c
-+++ b/drivers/soc/qcom/rpmpd.c
-@@ -362,6 +362,9 @@ static int rpmpd_probe(struct platform_device *pdev)
+diff --git a/drivers/soc/qcom/qcom_aoss.c b/drivers/soc/qcom/qcom_aoss.c
+index 45c5aa712eda..f16d6ec78064 100644
+--- a/drivers/soc/qcom/qcom_aoss.c
++++ b/drivers/soc/qcom/qcom_aoss.c
+@@ -544,7 +544,7 @@ static int qmp_probe(struct platform_device *pdev)
+ 	}
  
- 	data->domains = devm_kcalloc(&pdev->dev, num, sizeof(*data->domains),
- 				     GFP_KERNEL);
-+	if (!data->domains)
-+		return -ENOMEM;
-+
- 	data->num_domains = num;
- 
- 	for (i = 0; i < num; i++) {
+ 	irq = platform_get_irq(pdev, 0);
+-	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, IRQF_ONESHOT,
++	ret = devm_request_irq(&pdev->dev, irq, qmp_intr, 0,
+ 			       "aoss-qmp", qmp);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "failed to request interrupt\n");
 -- 
 2.34.1
 
