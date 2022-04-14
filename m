@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5B150102E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 049A85011BA
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245689AbiDNNnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:43:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48282 "EHLO
+        id S1345884AbiDNNyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244867AbiDNN2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:13 -0400
+        with ESMTP id S245283AbiDNNqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:46:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA257A6E12;
-        Thu, 14 Apr 2022 06:21:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C57B326117;
+        Thu, 14 Apr 2022 06:43:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D791618E3;
-        Thu, 14 Apr 2022 13:21:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 802CEC385A1;
-        Thu, 14 Apr 2022 13:21:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B73261B51;
+        Thu, 14 Apr 2022 13:43:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7004FC385A1;
+        Thu, 14 Apr 2022 13:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942465;
-        bh=eWY6ofTpSdy8cdSc096Y426V6ZJbRKoWWuKcAkr2quM=;
+        s=korg; t=1649943815;
+        bh=+MmGqabb7lZi/IA9iCaC6RQ3A+tD+p0VWv+J3PRsqG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=12sTBKXc3OL4yP4yXnO0yS0zReoVqHhNG6QqUltKN8Bh82RHvyZqQABxV0305nvUZ
-         360emhuumFMyqO9AiHDgllmr9VqOLTyldWEc9drqF/HaSBCr0UI2TQfK1hrR2AKpeV
-         KMMfJtFYZJD6oyFjrrwv/BVU297iv07MVVtBFngU=
+        b=MbshjGRXzB/ZaYGrHQD/3SCpi553g7zvNCzxoLtFug4TrNJl7/wc3v9FDCS2dsef7
+         CdzxpnCLu1EUquFmgWi8Ro3749fbNJoYNXb/dR/2qCHz82VsIMV8+ThQlCdanWvwDY
+         u1/NCRNn7UXmUV/SY9Irop9ztPw13NdamOz2oXaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Rob Herring <robh@kernel.org>,
-        Scott Branden <scott.branden@broadcom.com>,
+        stable@vger.kernel.org,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 145/338] PCI: Reduce warnings on possible RW1C corruption
-Date:   Thu, 14 Apr 2022 15:10:48 +0200
-Message-Id: <20220414110843.032381429@linuxfoundation.org>
+Subject: [PATCH 5.4 264/475] clk: Initialize orphan req_rate
+Date:   Thu, 14 Apr 2022 15:10:49 +0200
+Message-Id: <20220414110902.496167947@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,69 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 92c45b63ce22c8898aa41806e8d6692bcd577510 ]
+[ Upstream commit 5f7e2af00807f2117650e711a58b7f0e986ce1df ]
 
-For hardware that only supports 32-bit writes to PCI there is the
-possibility of clearing RW1C (write-one-to-clear) bits. A rate-limited
-messages was introduced by fb2659230120, but rate-limiting is not the best
-choice here. Some devices may not show the warnings they should if another
-device has just produced a bunch of warnings. Also, the number of messages
-can be a nuisance on devices which are otherwise working fine.
+When registering a clock that doesn't have a recalc_rate implementation,
+and doesn't have its parent registered yet, we initialize the clk_core
+rate and 'req_rate' fields to 0.
 
-Change the ratelimit to a single warning per bus. This ensures no bus is
-'starved' of emitting a warning and also that there isn't a continuous
-stream of warnings. It would be preferable to have a warning per device,
-but the pci_dev structure is not available here, and a lookup from devfn
-would be far too slow.
+The rate field is later updated when the parent is registered in
+clk_core_reparent_orphans_nolock() using __clk_recalc_rates(), but the
+'req_rate' field is never updated.
 
-Suggested-by: Bjorn Helgaas <helgaas@kernel.org>
-Fixes: fb2659230120 ("PCI: Warn on possible RW1C corruption for sub-32 bit config writes")
-Link: https://lore.kernel.org/r/20200806041455.11070-1-mark.tomlinson@alliedtelesis.co.nz
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Scott Branden <scott.branden@broadcom.com>
+This leads to an issue in clk_set_rate_range() and clk_put(), since
+those functions will call clk_set_rate() with the content of 'req_rate'
+to provide drivers with the opportunity to change the rate based on the
+new boundaries. In this case, we would call clk_set_rate() with a rate
+of 0, effectively enforcing the minimum allowed for this clock whenever
+we would call one of those two functions, even though the actual rate
+might be within range.
+
+Let's fix this by setting 'req_rate' in
+clk_core_reparent_orphans_nolock() with the rate field content just
+updated by the call to __clk_recalc_rates().
+
+Fixes: 1c8e600440c7 ("clk: Add rate constraints to clocks")
+Reported-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # T30 Nexus7
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220325161144.1901695-2-maxime@cerno.tech
+[sboyd@kernel.org: Reword comment]
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/access.c | 9 ++++++---
- include/linux/pci.h  | 1 +
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/clk/clk.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/pci/access.c b/drivers/pci/access.c
-index 3c8ffd62dc00..98ee5f05fc0f 100644
---- a/drivers/pci/access.c
-+++ b/drivers/pci/access.c
-@@ -160,9 +160,12 @@ int pci_generic_config_write32(struct pci_bus *bus, unsigned int devfn,
- 	 * write happen to have any RW1C (write-one-to-clear) bits set, we
- 	 * just inadvertently cleared something we shouldn't have.
- 	 */
--	dev_warn_ratelimited(&bus->dev, "%d-byte config write to %04x:%02x:%02x.%d offset %#x may corrupt adjacent RW1C bits\n",
--			     size, pci_domain_nr(bus), bus->number,
--			     PCI_SLOT(devfn), PCI_FUNC(devfn), where);
-+	if (!bus->unsafe_warn) {
-+		dev_warn(&bus->dev, "%d-byte config write to %04x:%02x:%02x.%d offset %#x may corrupt adjacent RW1C bits\n",
-+			 size, pci_domain_nr(bus), bus->number,
-+			 PCI_SLOT(devfn), PCI_FUNC(devfn), where);
-+		bus->unsafe_warn = 1;
-+	}
- 
- 	mask = ~(((1 << (size * 8)) - 1) << ((where & 0x3) * 8));
- 	tmp = readl(addr) & mask;
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index a4bbce871e08..3e06e9790c25 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -581,6 +581,7 @@ struct pci_bus {
- 	struct bin_attribute	*legacy_io;	/* Legacy I/O for this bus */
- 	struct bin_attribute	*legacy_mem;	/* Legacy mem */
- 	unsigned int		is_added:1;
-+	unsigned int		unsafe_warn:1;	/* warned about RW1C config write */
- };
- 
- #define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index e4e1b4e94a67..ccb26a513b29 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3278,6 +3278,19 @@ static void clk_core_reparent_orphans_nolock(void)
+ 			__clk_set_parent_after(orphan, parent, NULL);
+ 			__clk_recalc_accuracies(orphan);
+ 			__clk_recalc_rates(orphan, 0);
++
++			/*
++			 * __clk_init_parent() will set the initial req_rate to
++			 * 0 if the clock doesn't have clk_ops::recalc_rate and
++			 * is an orphan when it's registered.
++			 *
++			 * 'req_rate' is used by clk_set_rate_range() and
++			 * clk_put() to trigger a clk_set_rate() call whenever
++			 * the boundaries are modified. Let's make sure
++			 * 'req_rate' is set to something non-zero so that
++			 * clk_set_rate_range() doesn't drop the frequency.
++			 */
++			orphan->req_rate = orphan->rate;
+ 		}
+ 	}
+ }
 -- 
 2.34.1
 
