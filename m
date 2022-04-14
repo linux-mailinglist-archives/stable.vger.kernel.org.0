@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C8E50157C
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83104501202
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345860AbiDNNyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50388 "EHLO
+        id S244702AbiDNNmd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:42:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345098AbiDNNpH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6409399F;
-        Thu, 14 Apr 2022 06:41:52 -0700 (PDT)
+        with ESMTP id S244599AbiDNN1s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:27:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107EBA146A;
+        Thu, 14 Apr 2022 06:20:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA867B8296A;
-        Thu, 14 Apr 2022 13:41:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42304C385A5;
-        Thu, 14 Apr 2022 13:41:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5EC26125A;
+        Thu, 14 Apr 2022 13:20:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C6AC385A5;
+        Thu, 14 Apr 2022 13:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943709;
-        bh=o3pGqSu2GanwNI3pTFglfDWENtvDH6R8INEeGQC4wWg=;
+        s=korg; t=1649942435;
+        bh=4HMK3GT9i/Jy4zL+ToJ0EBuc9JHHhZpWYG5PSt3u5fU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCx8NpUWVEMdENxSJvbkjH6mcCHX76xiOL6ll5YnRW9gbwgJMotjwhBVMqJZHxOnp
-         WwicDt7dvkbGo+GNG00+wnSurIqAzGxM6I8M2fYWgA6tS3SuWRnpFus1aMUxmZdTTu
-         yWpXeZLmsWRT3vNkbkdH8gr1rPfIiHPUTlSD30xU=
+        b=vUZfNO/IODExwjwM8B5MhSE9wxvVEyXCXCYJS54z9hWQClP3of46Jb8znKCzlE0fE
+         x+hOEvEne9Xmrx3J6toaxSGIEi/zCsMLdo6Hr3+oi54BIaxw6K61TrfoA8Me2ndeop
+         qz0jNS83XLYO3fyJS6WkMltpifyjaV9CfmREQ7Uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 252/475] pinctrl: mediatek: paris: Fix pingroup pin config state readback
-Date:   Thu, 14 Apr 2022 15:10:37 +0200
-Message-Id: <20220414110902.164485378@linuxfoundation.org>
+Subject: [PATCH 4.19 135/338] drm/tegra: Fix reference leak in tegra_dsi_ganged_probe
+Date:   Thu, 14 Apr 2022 15:10:38 +0200
+Message-Id: <20220414110842.741975873@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 54fe55fb384ade630ef20b9a8b8f3b2a89ad97f2 ]
+[ Upstream commit 221e3638feb8bc42143833c9a704fa89b6c366bb ]
 
-mtk_pconf_group_get(), used to read back pingroup pin config state,
-simply returns a set of configs saved from a previous invocation of
-mtk_pconf_group_set(). This is an unfiltered, unvalidated set passed
-in from the pinconf core, which does not match the current hardware
-state.
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore. Add put_device() call to fix this.
 
-Since the driver library is designed to have one pin per group, pass
-through mtk_pconf_group_get() to mtk_pinconf_get(), to read back the
-current pin config state of the only pin in the group.
-
-Also drop the assignment of pin config state to the group.
-
-Fixes: 805250982bb5 ("pinctrl: mediatek: add pinctrl-paris that implements the vendor dt-bindings")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20220308100956.2750295-5-wenst@chromium.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: e94236cde4d5 ("drm/tegra: dsi: Add ganged mode support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/pinctrl-paris.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/tegra/dsi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/mediatek/pinctrl-paris.c b/drivers/pinctrl/mediatek/pinctrl-paris.c
-index e8bfaaccca68..31449514a8c0 100644
---- a/drivers/pinctrl/mediatek/pinctrl-paris.c
-+++ b/drivers/pinctrl/mediatek/pinctrl-paris.c
-@@ -646,10 +646,10 @@ static int mtk_pconf_group_get(struct pinctrl_dev *pctldev, unsigned group,
- 			       unsigned long *config)
- {
- 	struct mtk_pinctrl *hw = pinctrl_dev_get_drvdata(pctldev);
-+	struct mtk_pinctrl_group *grp = &hw->groups[group];
+diff --git a/drivers/gpu/drm/tegra/dsi.c b/drivers/gpu/drm/tegra/dsi.c
+index ee6ca8fa1c65..e2903bf7821b 100644
+--- a/drivers/gpu/drm/tegra/dsi.c
++++ b/drivers/gpu/drm/tegra/dsi.c
+@@ -1456,8 +1456,10 @@ static int tegra_dsi_ganged_probe(struct tegra_dsi *dsi)
+ 		dsi->slave = platform_get_drvdata(gangster);
+ 		of_node_put(np);
  
--	*config = hw->groups[group].config;
--
--	return 0;
-+	 /* One pin per group only */
-+	return mtk_pinconf_get(pctldev, grp->pin, config);
- }
+-		if (!dsi->slave)
++		if (!dsi->slave) {
++			put_device(&gangster->dev);
+ 			return -EPROBE_DEFER;
++		}
  
- static int mtk_pconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
-@@ -665,8 +665,6 @@ static int mtk_pconf_group_set(struct pinctrl_dev *pctldev, unsigned group,
- 				      pinconf_to_config_argument(configs[i]));
- 		if (ret < 0)
- 			return ret;
--
--		grp->config = configs[i];
+ 		dsi->slave->master = dsi;
  	}
- 
- 	return 0;
 -- 
 2.34.1
 
