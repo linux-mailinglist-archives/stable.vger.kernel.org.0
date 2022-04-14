@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4929501189
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D382C5013FC
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344580AbiDNNtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35324 "EHLO
+        id S245133AbiDNNrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:47:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343805AbiDNNjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F82D31220;
-        Thu, 14 Apr 2022 06:34:55 -0700 (PDT)
+        with ESMTP id S1343835AbiDNNj0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:26 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFD8E506F5;
+        Thu, 14 Apr 2022 06:34:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 15A84B82968;
-        Thu, 14 Apr 2022 13:34:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CBDC385A1;
-        Thu, 14 Apr 2022 13:34:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 131D6CE2997;
+        Thu, 14 Apr 2022 13:34:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E002C385A1;
+        Thu, 14 Apr 2022 13:34:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943292;
-        bh=iiGN8GFP5iON9gvPYg50r+k/HKhQy8VR5whe/C2Z20Q=;
+        s=korg; t=1649943295;
+        bh=Wp0hPJ9IukXcUIGFX8IaXuqKEfhpodXZOqo2dOyyxsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZs4hajMjpj/zene9pp+gQcaf52jj1ETBPm3T9+kv0q2mbYpDn7VFQwFP6/kCjxAw
-         +mJuxuq9F4Kv6I2mRqhXUn4/ixacgQUocICB3ABhiTehOoK/Zo4aNHRe0pwBjdAFDu
-         p+8P0hY/2JYWUd9qoFAPA9T+VwlxqGXjOxD0Sakk=
+        b=v4l8H1rjAlcTi4fKk9CpIzX/laWYVYzPPUFs0LqcLKIHU4ToFnOnEBxbxb/GKkKj+
+         pzgL6mGTAvfgrN0JMWNHePwMQwpsoVLoiOHRyPk0xz8XrQTdQXNTwimFt+xfyK1tK/
+         NmESHn3A8yIIBgRMYi18eyeH3fRhTZ58DwRgVfOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
+        John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 104/475] ACPI: APEI: fix return value of __setup handlers
-Date:   Thu, 14 Apr 2022 15:08:09 +0200
-Message-Id: <20220414110858.064345260@linuxfoundation.org>
+Subject: [PATCH 5.4 105/475] crypto: ccp - ccp_dmaengine_unregister release dma channels
+Date:   Thu, 14 Apr 2022 15:08:10 +0200
+Message-Id: <20220414110858.092392956@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,84 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dāvis Mosāns <davispuh@gmail.com>
 
-[ Upstream commit f3303ff649dbf7dcdc6a6e1a922235b12b3028f4 ]
+[ Upstream commit 54cce8ecb9254f971b40a72911c6da403720a2d2 ]
 
-__setup() handlers should return 1 to indicate that the boot option
-has been handled. Returning 0 causes a boot option to be listed in
-the Unknown kernel command line parameters and also added to init's
-arg list (if no '=' sign) or environment list (if of the form 'a=b').
+ccp_dmaengine_register adds dma_chan->device_node to dma_dev->channels list
+but ccp_dmaengine_unregister didn't remove them.
+That can cause crashes in various dmaengine methods that tries to use dma_dev->channels
 
-Unknown kernel command line parameters "erst_disable
-  bert_disable hest_disable BOOT_IMAGE=/boot/bzImage-517rc6", will be
-  passed to user space.
-
- Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-     erst_disable
-     bert_disable
-     hest_disable
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc6
-
-Fixes: a3e2acc5e37b ("ACPI / APEI: Add Boot Error Record Table (BERT) support")
-Fixes: a08f82d08053 ("ACPI, APEI, Error Record Serialization Table (ERST) support")
-Fixes: 9dc966641677 ("ACPI, APEI, HEST table parsing")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 58ea8abf4904 ("crypto: ccp - Register the CCP as a DMA...")
+Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
+Acked-by: John Allen <john.allen@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/bert.c | 2 +-
- drivers/acpi/apei/erst.c | 2 +-
- drivers/acpi/apei/hest.c | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/crypto/ccp/ccp-dmaengine.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/acpi/apei/bert.c b/drivers/acpi/apei/bert.c
-index 1155fb9dcc3a..08d820c04618 100644
---- a/drivers/acpi/apei/bert.c
-+++ b/drivers/acpi/apei/bert.c
-@@ -77,7 +77,7 @@ static int __init setup_bert_disable(char *str)
- {
- 	bert_disable = 1;
- 
--	return 0;
-+	return 1;
- }
- __setup("bert_disable", setup_bert_disable);
- 
-diff --git a/drivers/acpi/apei/erst.c b/drivers/acpi/apei/erst.c
-index 2015a0967cbb..5ee3cb7fcd90 100644
---- a/drivers/acpi/apei/erst.c
-+++ b/drivers/acpi/apei/erst.c
-@@ -891,7 +891,7 @@ EXPORT_SYMBOL_GPL(erst_clear);
- static int __init setup_erst_disable(char *str)
- {
- 	erst_disable = 1;
--	return 0;
-+	return 1;
+diff --git a/drivers/crypto/ccp/ccp-dmaengine.c b/drivers/crypto/ccp/ccp-dmaengine.c
+index 0770a83bf1a5..b3eea329f840 100644
+--- a/drivers/crypto/ccp/ccp-dmaengine.c
++++ b/drivers/crypto/ccp/ccp-dmaengine.c
+@@ -633,6 +633,20 @@ static int ccp_terminate_all(struct dma_chan *dma_chan)
+ 	return 0;
  }
  
- __setup("erst_disable", setup_erst_disable);
-diff --git a/drivers/acpi/apei/hest.c b/drivers/acpi/apei/hest.c
-index 267bdbf6a7bf..add6416e78f2 100644
---- a/drivers/acpi/apei/hest.c
-+++ b/drivers/acpi/apei/hest.c
-@@ -219,7 +219,7 @@ static int __init hest_ghes_dev_register(unsigned int ghes_count)
- static int __init setup_hest_disable(char *str)
++static void ccp_dma_release(struct ccp_device *ccp)
++{
++	struct ccp_dma_chan *chan;
++	struct dma_chan *dma_chan;
++	unsigned int i;
++
++	for (i = 0; i < ccp->cmd_q_count; i++) {
++		chan = ccp->ccp_dma_chan + i;
++		dma_chan = &chan->dma_chan;
++		tasklet_kill(&chan->cleanup_tasklet);
++		list_del_rcu(&dma_chan->device_node);
++	}
++}
++
+ int ccp_dmaengine_register(struct ccp_device *ccp)
  {
- 	hest_disable = HEST_DISABLED;
--	return 0;
-+	return 1;
- }
+ 	struct ccp_dma_chan *chan;
+@@ -737,6 +751,7 @@ int ccp_dmaengine_register(struct ccp_device *ccp)
+ 	return 0;
  
- __setup("hest_disable", setup_hest_disable);
+ err_reg:
++	ccp_dma_release(ccp);
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 
+ err_cache:
+@@ -753,6 +768,7 @@ void ccp_dmaengine_unregister(struct ccp_device *ccp)
+ 		return;
+ 
+ 	dma_async_device_unregister(dma_dev);
++	ccp_dma_release(ccp);
+ 
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 	kmem_cache_destroy(ccp->dma_cmd_cache);
 -- 
 2.34.1
 
