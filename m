@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D3CB50100E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0958B50120F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244481AbiDNNhX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:37:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57898 "EHLO
+        id S245406AbiDNOOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:14:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344189AbiDNNbF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 725BBE6;
-        Thu, 14 Apr 2022 06:28:40 -0700 (PDT)
+        with ESMTP id S1347500AbiDNN66 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C1573ED2A;
+        Thu, 14 Apr 2022 06:49:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35608B82984;
-        Thu, 14 Apr 2022 13:28:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EB18C385A5;
-        Thu, 14 Apr 2022 13:28:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AD5461D93;
+        Thu, 14 Apr 2022 13:49:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95991C385A1;
+        Thu, 14 Apr 2022 13:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942918;
-        bh=qSayJhxGXTLXW2afgOno1/qZon/DBb4zO2hFrDAy1H0=;
+        s=korg; t=1649944193;
+        bh=Ur7rnRKD7I0yAumOWBGWGZkPPf4CPiK8FlaCdTnTWQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmIjMzjujQ44RG5+liX2y+qFHwjvwzP8E26/oEkisg0fRKqyoGwK4vHQrIP2qmSNf
-         Z9C+t7C/pjfFWFqFky+i5x7h4T10No3cZcbRZOMmo1D2SNhKyx9EG54wlD3nhSug6e
-         SXxdbCNSFi5zN1OCEYBNgXsOkqW/uX5DzsocKTrM=
+        b=EYA+uN7cEXJhhPxPWFO78Ub+4K5oBieqEP2jS7a57/+46g0ZvquKiJUsStZOo2Inb
+         rCg1DAP83CI8r59kxcdnnK/E8UnwmtDC2lzXH8iaT9MCmz941ZjCFJD8Ow/wLda8ad
+         mSGr+miz1+UN0Bbs5EY5qkBT5h7mranH8g3/0dzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Maximets <i.maximets@ovn.org>,
-        Aaron Conole <aconole@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 308/338] net: openvswitch: dont send internal clone attribute to the userspace.
+Subject: [PATCH 5.4 426/475] scsi: zorro7xx: Fix a resource leak in zorro7xx_remove_one()
 Date:   Thu, 14 Apr 2022 15:13:31 +0200
-Message-Id: <20220414110847.647701636@linuxfoundation.org>
+Message-Id: <20220414110906.986846026@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Maximets <i.maximets@ovn.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 3f2a3050b4a3e7f32fc0ea3c9b0183090ae00522 ]
+[ Upstream commit 16ed828b872d12ccba8f07bcc446ae89ba662f9c ]
 
-'OVS_CLONE_ATTR_EXEC' is an internal attribute that is used for
-performance optimization inside the kernel.  It's added by the kernel
-while parsing user-provided actions and should not be sent during the
-flow dump as it's not part of the uAPI.
+The error handling path of the probe releases a resource that is not freed
+in the remove function. In some cases, a ioremap() must be undone.
 
-The issue doesn't cause any significant problems to the ovs-vswitchd
-process, because reported actions are not really used in the
-application lifecycle and only supposed to be shown to a human via
-ovs-dpctl flow dump.  However, the action list is still incorrect
-and causes the following error if the user wants to look at the
-datapath flows:
+Add the missing iounmap() call in the remove function.
 
-  # ovs-dpctl add-dp system@ovs-system
-  # ovs-dpctl add-flow "<flow match>" "clone(ct(commit),0)"
-  # ovs-dpctl dump-flows
-  <flow match>, packets:0, bytes:0, used:never,
-    actions:clone(bad length 4, expected -1 for: action0(01 00 00 00),
-                  ct(commit),0)
-
-With the fix:
-
-  # ovs-dpctl dump-flows
-  <flow match>, packets:0, bytes:0, used:never,
-    actions:clone(ct(commit),0)
-
-Additionally fixed an incorrect attribute name in the comment.
-
-Fixes: b233504033db ("openvswitch: kernel datapath clone action")
-Signed-off-by: Ilya Maximets <i.maximets@ovn.org>
-Acked-by: Aaron Conole <aconole@redhat.com>
-Link: https://lore.kernel.org/r/20220404104150.2865736-1-i.maximets@ovn.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/247066a3104d25f9a05de8b3270fc3c848763bcc.1647673264.git.christophe.jaillet@wanadoo.fr
+Fixes: 45804fbb00ee ("[SCSI] 53c700: Amiga Zorro NCR53c710 SCSI")
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/actions.c      | 2 +-
- net/openvswitch/flow_netlink.c | 4 +++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/zorro7xx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/openvswitch/actions.c b/net/openvswitch/actions.c
-index 100cc09c100d..8b75afe41284 100644
---- a/net/openvswitch/actions.c
-+++ b/net/openvswitch/actions.c
-@@ -1098,7 +1098,7 @@ static int clone(struct datapath *dp, struct sk_buff *skb,
- 	int rem = nla_len(attr);
- 	bool dont_clone_flow_key;
+diff --git a/drivers/scsi/zorro7xx.c b/drivers/scsi/zorro7xx.c
+index 27b9e2baab1a..7acf9193a9e8 100644
+--- a/drivers/scsi/zorro7xx.c
++++ b/drivers/scsi/zorro7xx.c
+@@ -159,6 +159,8 @@ static void zorro7xx_remove_one(struct zorro_dev *z)
+ 	scsi_remove_host(host);
  
--	/* The first action is always 'OVS_CLONE_ATTR_ARG'. */
-+	/* The first action is always 'OVS_CLONE_ATTR_EXEC'. */
- 	clone_arg = nla_data(attr);
- 	dont_clone_flow_key = nla_get_u32(clone_arg);
- 	actions = nla_next(clone_arg, &rem);
-diff --git a/net/openvswitch/flow_netlink.c b/net/openvswitch/flow_netlink.c
-index fb69978f50ec..4413ffdc1e03 100644
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -3173,7 +3173,9 @@ static int clone_action_to_attr(const struct nlattr *attr,
- 	if (!start)
- 		return -EMSGSIZE;
- 
--	err = ovs_nla_put_actions(nla_data(attr), rem, skb);
-+	/* Skipping the OVS_CLONE_ATTR_EXEC that is always the first attribute. */
-+	attr = nla_next(nla_data(attr), &rem);
-+	err = ovs_nla_put_actions(attr, rem, skb);
- 
- 	if (err)
- 		nla_nest_cancel(skb, start);
+ 	NCR_700_release(host);
++	if (host->base > 0x01000000)
++		iounmap(hostdata->base);
+ 	kfree(hostdata);
+ 	free_irq(host->irq, host);
+ 	zorro_release_device(z);
 -- 
 2.35.1
 
