@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D29185011AE
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFD10501185
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245130AbiDNNrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:47:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44094 "EHLO
+        id S1344664AbiDNNt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343691AbiDNNjQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A762BB3A;
-        Thu, 14 Apr 2022 06:34:39 -0700 (PDT)
+        with ESMTP id S1343711AbiDNNjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE702CCAA;
+        Thu, 14 Apr 2022 06:34:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5F0EBCE296C;
-        Thu, 14 Apr 2022 13:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72295C385A5;
-        Thu, 14 Apr 2022 13:34:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DBA2B82941;
+        Thu, 14 Apr 2022 13:34:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E85C385A5;
+        Thu, 14 Apr 2022 13:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943275;
-        bh=+sdG8/qB/CAp5h1HxgzUUfASGZcyD7ZQUj93YtNWyYA=;
+        s=korg; t=1649943278;
+        bh=V/XL2dE+it8mw8l/uHZK6zYefu6tB1jXdg6Pis3GDfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VU5ilyyM+f3voz4DMn+sD+PHXOPKS+zpXC5df6969vhokHzZZ8R1DHsdCWHhzNVBd
-         SBWPwOHO8o2MCFRcHcrDY/p7ggjN+GLWZKF1xh4oSV1JpVImc8q+zOrA0GxzZQJ6Zy
-         7fRsFxNTvaxtF2qFrhFqf44r63NZbtn+6EK5bIrA=
+        b=Nm3xIADT1Wufje3h4oPr323+4UYKOUH8TRU/n6l54/esympdXcZXae2o9mAecgiCr
+         anFq/2TB3V1+k5OM6ck3Xu7j0aggk6AzKQohoxVvL6CVNO/3jTm8o02g7MYlxBtVsu
+         Bbb3PnunKAb/uX8DnSIVsjyfnc0MHGGpPDTNG5gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/475] block: dont delete queue kobject before its children
-Date:   Thu, 14 Apr 2022 15:08:03 +0200
-Message-Id: <20220414110857.898654950@linuxfoundation.org>
+Subject: [PATCH 5.4 099/475] PM: hibernate: fix __setup handler error handling
+Date:   Thu, 14 Apr 2022 15:08:04 +0200
+Message-Id: <20220414110857.925925403@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,69 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 0f69288253e9fc7c495047720e523b9f1aba5712 ]
+[ Upstream commit ba7ffcd4c4da374b0f64666354eeeda7d3827131 ]
 
-kobjects aren't supposed to be deleted before their child kobjects are
-deleted.  Apparently this is usually benign; however, a WARN will be
-triggered if one of the child kobjects has a named attribute group:
+If an invalid value is used in "resumedelay=<seconds>", it is
+silently ignored. Add a warning message and then let the __setup
+handler return 1 to indicate that the kernel command line option
+has been handled.
 
-    sysfs group 'modes' not found for kobject 'crypto'
-    WARNING: CPU: 0 PID: 1 at fs/sysfs/group.c:278 sysfs_remove_group+0x72/0x80
-    ...
-    Call Trace:
-      sysfs_remove_groups+0x29/0x40 fs/sysfs/group.c:312
-      __kobject_del+0x20/0x80 lib/kobject.c:611
-      kobject_cleanup+0xa4/0x140 lib/kobject.c:696
-      kobject_release lib/kobject.c:736 [inline]
-      kref_put include/linux/kref.h:65 [inline]
-      kobject_put+0x53/0x70 lib/kobject.c:753
-      blk_crypto_sysfs_unregister+0x10/0x20 block/blk-crypto-sysfs.c:159
-      blk_unregister_queue+0xb0/0x110 block/blk-sysfs.c:962
-      del_gendisk+0x117/0x250 block/genhd.c:610
-
-Fix this by moving the kobject_del() and the corresponding
-kobject_uevent() to the correct place.
-
-Fixes: 2c2086afc2b8 ("block: Protect less code with sysfs_lock in blk_{un,}register_queue()")
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220124215938.2769-3-ebiggers@kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 317cf7e5e85e3 ("PM / hibernate: convert simple_strtoul to kstrtoul")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-sysfs.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ kernel/power/hibernate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index bf33570da5ac..3fb37135264b 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -1060,15 +1060,17 @@ void blk_unregister_queue(struct gendisk *disk)
- 	 */
- 	if (queue_is_mq(q))
- 		blk_mq_unregister_dev(disk_to_dev(disk), q);
--
--	kobject_uevent(&q->kobj, KOBJ_REMOVE);
--	kobject_del(&q->kobj);
- 	blk_trace_remove_sysfs(disk_to_dev(disk));
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index 6cafb2e910a1..406b4cbbec5e 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -1216,7 +1216,7 @@ static int __init resumedelay_setup(char *str)
+ 	int rc = kstrtouint(str, 0, &resume_delay);
  
- 	mutex_lock(&q->sysfs_lock);
- 	if (q->elevator)
- 		elv_unregister_queue(q);
- 	mutex_unlock(&q->sysfs_lock);
-+
-+	/* Now that we've deleted all child objects, we can delete the queue. */
-+	kobject_uevent(&q->kobj, KOBJ_REMOVE);
-+	kobject_del(&q->kobj);
-+
- 	mutex_unlock(&q->sysfs_dir_lock);
+ 	if (rc)
+-		return rc;
++		pr_warn("resumedelay: bad option string '%s'\n", str);
+ 	return 1;
+ }
  
- 	kobject_put(&disk_to_dev(disk)->kobj);
 -- 
 2.34.1
 
