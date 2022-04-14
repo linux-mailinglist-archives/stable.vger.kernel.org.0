@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65CAA501256
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9956650140E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244524AbiDNNha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:37:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57904 "EHLO
+        id S1348954AbiDNONs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:13:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344192AbiDNNbG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9841B6;
-        Thu, 14 Apr 2022 06:28:41 -0700 (PDT)
+        with ESMTP id S1347545AbiDNN7R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6475F40A1C;
+        Thu, 14 Apr 2022 06:50:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38F73619DA;
-        Thu, 14 Apr 2022 13:28:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FD6BC385A5;
-        Thu, 14 Apr 2022 13:28:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B94BAB82982;
+        Thu, 14 Apr 2022 13:49:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15EB3C385A1;
+        Thu, 14 Apr 2022 13:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942920;
-        bh=looU4CkRg1Iw42blo6qIefHdqFa0x1fhNb7YNsmF/BA=;
+        s=korg; t=1649944198;
+        bh=p9OLZDBzSTPzrG3fDjbnvnc2RGfPeeArUjvTA56P/jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TK8U/LyjcCgicFoIWyxEP226EMqq7fXvRhEaU5KW5EXgnLMnofgEIFcDmnyMpsIdt
-         Af94mzQaweKzwfH83KpnRg+c33QsuQiRIomnb8pd5zt+mSzUbi0bMVLG9z7EqoJ79r
-         Q29L5fD+toY2IIVEGUAl225VZWNjEQeS0q9hS33M=
+        b=t2DonJ5yk8SqwJ50gCX4f3eY1zzE0+LY32yWtt+dgTxtZO5Y7h1s9+4XxEtmzKVtT
+         hNBt3AJzE7gNQ4twijRLSzti+gJegD4ie6B8rDCFLndS4Yobzm3etKBAcouynLtLvd
+         vwnSvivoqyzaJNpoqIDhdGzSyvvD0lJ6zss5SV+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org, syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Nikolay Aleksandrov <razor@blackwall.org>,
+        David Ahern <dsahern@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 309/338] rxrpc: fix a race in rxrpc_exit_net()
-Date:   Thu, 14 Apr 2022 15:13:32 +0200
-Message-Id: <20220414110847.676397248@linuxfoundation.org>
+Subject: [PATCH 5.4 428/475] net: ipv4: fix route with nexthop object delete warning
+Date:   Thu, 14 Apr 2022 15:13:33 +0200
+Message-Id: <20220414110907.041920377@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -57,90 +55,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Nikolay Aleksandrov <razor@blackwall.org>
 
-[ Upstream commit 1946014ca3b19be9e485e780e862c375c6f98bad ]
+[ Upstream commit 6bf92d70e690b7ff12b24f4bfff5e5434d019b82 ]
 
-Current code can lead to the following race:
+FRR folks have hit a kernel warning[1] while deleting routes[2] which is
+caused by trying to delete a route pointing to a nexthop id without
+specifying nhid but matching on an interface. That is, a route is found
+but we hit a warning while matching it. The warning is from
+fib_info_nh() in include/net/nexthop.h because we run it on a fib_info
+with nexthop object. The call chain is:
+ inet_rtm_delroute -> fib_table_delete -> fib_nh_match (called with a
+nexthop fib_info and also with fc_oif set thus calling fib_info_nh on
+the fib_info and triggering the warning). The fix is to not do any
+matching in that branch if the fi has a nexthop object because those are
+managed separately. I.e. we should match when deleting without nh spec and
+should fail when deleting a nexthop route with old-style nh spec because
+nexthop objects are managed separately, e.g.:
+ $ ip r show 1.2.3.4/32
+ 1.2.3.4 nhid 12 via 192.168.11.2 dev dummy0
 
-CPU0                                                 CPU1
+ $ ip r del 1.2.3.4/32
+ $ ip r del 1.2.3.4/32 nhid 12
+ <both should work>
 
-rxrpc_exit_net()
-                                                     rxrpc_peer_keepalive_worker()
-                                                       if (rxnet->live)
+ $ ip r del 1.2.3.4/32 dev dummy0
+ <should fail with ESRCH>
 
-  rxnet->live = false;
-  del_timer_sync(&rxnet->peer_keepalive_timer);
+[1]
+ [  523.462226] ------------[ cut here ]------------
+ [  523.462230] WARNING: CPU: 14 PID: 22893 at include/net/nexthop.h:468 fi=
+b_nh_match+0x210/0x460
+ [  523.462236] Modules linked in: dummy rpcsec_gss_krb5 xt_socket nf_socke=
+t_ipv4 nf_socket_ipv6 ip6table_raw iptable_raw bpf_preload xt_statistic ip_=
+set ip_vs_sh ip_vs_wrr ip_vs_rr ip_vs xt_mark nf_tables xt_nat veth nf_conn=
+track_netlink nfnetlink xt_addrtype br_netfilter overlay dm_crypt nfsv3 nfs=
+ fscache netfs vhost_net vhost vhost_iotlb tap tun xt_CHECKSUM xt_MASQUERAD=
+E xt_conntrack 8021q garp mrp ipt_REJECT nf_reject_ipv4 ip6table_mangle ip6=
+table_nat iptable_mangle iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_=
+defrag_ipv4 iptable_filter bridge stp llc rfcomm snd_seq_dummy snd_hrtimer =
+rpcrdma rdma_cm iw_cm ib_cm ib_core ip6table_filter xt_comment ip6_tables v=
+boxnetadp(OE) vboxnetflt(OE) vboxdrv(OE) qrtr bnep binfmt_misc xfs vfat fat=
+ squashfs loop nvidia_drm(POE) nvidia_modeset(POE) nvidia_uvm(POE) nvidia(P=
+OE) intel_rapl_msr intel_rapl_common snd_hda_codec_realtek snd_hda_codec_ge=
+neric ledtrig_audio snd_hda_codec_hdmi btusb btrtl iwlmvm uvcvideo btbcm sn=
+d_hda_intel edac_mce_amd
+ [  523.462274]  videobuf2_vmalloc videobuf2_memops btintel snd_intel_dspcf=
+g videobuf2_v4l2 snd_intel_sdw_acpi bluetooth snd_usb_audio snd_hda_codec m=
+ac80211 snd_usbmidi_lib joydev snd_hda_core videobuf2_common kvm_amd snd_ra=
+wmidi snd_hwdep snd_seq videodev ccp snd_seq_device libarc4 ecdh_generic mc=
+ snd_pcm kvm iwlwifi snd_timer drm_kms_helper snd cfg80211 cec soundcore ir=
+qbypass rapl wmi_bmof i2c_piix4 rfkill k10temp pcspkr acpi_cpufreq nfsd aut=
+h_rpcgss nfs_acl lockd grace sunrpc drm zram ip_tables crct10dif_pclmul crc=
+32_pclmul crc32c_intel ghash_clmulni_intel nvme sp5100_tco r8169 nvme_core =
+wmi ipmi_devintf ipmi_msghandler fuse
+ [  523.462300] CPU: 14 PID: 22893 Comm: ip Tainted: P           OE     5.1=
+6.18-200.fc35.x86_64 #1
+ [  523.462302] Hardware name: Micro-Star International Co., Ltd. MS-7C37/M=
+PG X570 GAMING EDGE WIFI (MS-7C37), BIOS 1.C0 10/29/2020
+ [  523.462303] RIP: 0010:fib_nh_match+0x210/0x460
+ [  523.462304] Code: 7c 24 20 48 8b b5 90 00 00 00 e8 bb ee f4 ff 48 8b 7c=
+ 24 20 41 89 c4 e8 ee eb f4 ff 45 85 e4 0f 85 2e fe ff ff e9 4c ff ff ff <0=
+f> 0b e9 17 ff ff ff 3c 0a 0f 85 61 fe ff ff 48 8b b5 98 00 00 00
+ [  523.462306] RSP: 0018:ffffaa53d4d87928 EFLAGS: 00010286
+ [  523.462307] RAX: 0000000000000000 RBX: ffffaa53d4d87a90 RCX: ffffaa53d4=
+d87bb0
+ [  523.462308] RDX: ffff9e3d2ee6be80 RSI: ffffaa53d4d87a90 RDI: ffffffff92=
+0ed380
+ [  523.462309] RBP: ffff9e3d2ee6be80 R08: 0000000000000064 R09: 0000000000=
+000000
+ [  523.462310] R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000=
+000031
+ [  523.462310] R13: 0000000000000020 R14: 0000000000000000 R15: ffff9e3d33=
+1054e0
+ [  523.462311] FS:  00007f245517c1c0(0000) GS:ffff9e492ed80000(0000) knlGS=
+:0000000000000000
+ [  523.462313] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ [  523.462313] CR2: 000055e5dfdd8268 CR3: 00000003ef488000 CR4: 0000000000=
+350ee0
+ [  523.462315] Call Trace:
+ [  523.462316]  <TASK>
+ [  523.462320]  fib_table_delete+0x1a9/0x310
+ [  523.462323]  inet_rtm_delroute+0x93/0x110
+ [  523.462325]  rtnetlink_rcv_msg+0x133/0x370
+ [  523.462327]  ? _copy_to_iter+0xb5/0x6f0
+ [  523.462330]  ? rtnl_calcit.isra.0+0x110/0x110
+ [  523.462331]  netlink_rcv_skb+0x50/0xf0
+ [  523.462334]  netlink_unicast+0x211/0x330
+ [  523.462336]  netlink_sendmsg+0x23f/0x480
+ [  523.462338]  sock_sendmsg+0x5e/0x60
+ [  523.462340]  ____sys_sendmsg+0x22c/0x270
+ [  523.462341]  ? import_iovec+0x17/0x20
+ [  523.462343]  ? sendmsg_copy_msghdr+0x59/0x90
+ [  523.462344]  ? __mod_lruvec_page_state+0x85/0x110
+ [  523.462348]  ___sys_sendmsg+0x81/0xc0
+ [  523.462350]  ? netlink_seq_start+0x70/0x70
+ [  523.462352]  ? __dentry_kill+0x13a/0x180
+ [  523.462354]  ? __fput+0xff/0x250
+ [  523.462356]  __sys_sendmsg+0x49/0x80
+ [  523.462358]  do_syscall_64+0x3b/0x90
+ [  523.462361]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ [  523.462364] RIP: 0033:0x7f24552aa337
+ [  523.462365] Code: 0e 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b9 0f 1f=
+ 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 2e 00 00 00 0f 05 <4=
+8> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
+ [  523.462366] RSP: 002b:00007fff7f05a838 EFLAGS: 00000246 ORIG_RAX: 00000=
+0000000002e
+ [  523.462368] RAX: ffffffffffffffda RBX: 000000006245bf91 RCX: 00007f2455=
+2aa337
+ [  523.462368] RDX: 0000000000000000 RSI: 00007fff7f05a8a0 RDI: 0000000000=
+000003
+ [  523.462369] RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000=
+000000
+ [  523.462370] R10: 0000000000000008 R11: 0000000000000246 R12: 0000000000=
+000001
+ [  523.462370] R13: 00007fff7f05ce08 R14: 0000000000000000 R15: 000055e5df=
+dd1040
+ [  523.462373]  </TASK>
+ [  523.462374] ---[ end trace ba537bc16f6bf4ed ]---
 
-                                                             timer_reduce(&rxnet->peer_keepalive_timer, jiffies + delay);
+[2] https://github.com/FRRouting/frr/issues/6412
 
-  cancel_work_sync(&rxnet->peer_keepalive_work);
-
-rxrpc_exit_net() exits while peer_keepalive_timer is still armed,
-leading to use-after-free.
-
-syzbot report was:
-
-ODEBUG: free active (active state 0) object type: timer_list hint: rxrpc_peer_keepalive_timeout+0x0/0xb0
-WARNING: CPU: 0 PID: 3660 at lib/debugobjects.c:505 debug_print_object+0x16e/0x250 lib/debugobjects.c:505
-Modules linked in:
-CPU: 0 PID: 3660 Comm: kworker/u4:6 Not tainted 5.17.0-syzkaller-13993-g88e6c0207623 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: netns cleanup_net
-RIP: 0010:debug_print_object+0x16e/0x250 lib/debugobjects.c:505
-Code: ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 af 00 00 00 48 8b 14 dd 00 1c 26 8a 4c 89 ee 48 c7 c7 00 10 26 8a e8 b1 e7 28 05 <0f> 0b 83 05 15 eb c5 09 01 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e c3
-RSP: 0018:ffffc9000353fb00 EFLAGS: 00010082
-RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
-RDX: ffff888029196140 RSI: ffffffff815efad8 RDI: fffff520006a7f52
-RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff815ea4ae R11: 0000000000000000 R12: ffffffff89ce23e0
-R13: ffffffff8a2614e0 R14: ffffffff816628c0 R15: dffffc0000000000
-FS:  0000000000000000(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fe1f2908924 CR3: 0000000043720000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __debug_check_no_obj_freed lib/debugobjects.c:992 [inline]
- debug_check_no_obj_freed+0x301/0x420 lib/debugobjects.c:1023
- kfree+0xd6/0x310 mm/slab.c:3809
- ops_free_list.part.0+0x119/0x370 net/core/net_namespace.c:176
- ops_free_list net/core/net_namespace.c:174 [inline]
- cleanup_net+0x591/0xb00 net/core/net_namespace.c:598
- process_one_work+0x996/0x1610 kernel/workqueue.c:2289
- worker_thread+0x665/0x1080 kernel/workqueue.c:2436
- kthread+0x2e9/0x3a0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:298
- </TASK>
-
-Fixes: ace45bec6d77 ("rxrpc: Fix firewall route keepalive")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Marc Dionne <marc.dionne@auristor.com>
-Cc: linux-afs@lists.infradead.org
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 4c7e8084fd46 ("ipv4: Plumb support for nexthop object in a fib_info")
+Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/net_ns.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/fib_semantics.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/rxrpc/net_ns.c b/net/rxrpc/net_ns.c
-index 417d80867c4f..1b403c2573da 100644
---- a/net/rxrpc/net_ns.c
-+++ b/net/rxrpc/net_ns.c
-@@ -117,8 +117,8 @@ static __net_exit void rxrpc_exit_net(struct net *net)
- 	struct rxrpc_net *rxnet = rxrpc_net(net);
- 
- 	rxnet->live = false;
--	del_timer_sync(&rxnet->peer_keepalive_timer);
- 	cancel_work_sync(&rxnet->peer_keepalive_work);
-+	del_timer_sync(&rxnet->peer_keepalive_timer);
- 	rxrpc_destroy_all_calls(rxnet);
- 	rxrpc_destroy_all_connections(rxnet);
- 	rxrpc_destroy_all_peers(rxnet);
--- 
+diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+index 692ba6d6180f..f99ad4a98907 100644
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -876,8 +876,13 @@ int fib_nh_match(struct fib_config *cfg, struct fib_in=
+fo *fi,
+ 	}
+=20
+ 	if (cfg->fc_oif || cfg->fc_gw_family) {
+-		struct fib_nh *nh =3D fib_info_nh(fi, 0);
++		struct fib_nh *nh;
++
++		/* cannot match on nexthop object attributes */
++		if (fi->nh)
++			return 1;
+=20
++		nh =3D fib_info_nh(fi, 0);
+ 		if (cfg->fc_encap) {
+ 			if (fib_encap_match(cfg->fc_encap_type, cfg->fc_encap,
+ 					    nh, cfg, extack))
+--=20
 2.35.1
 
 
