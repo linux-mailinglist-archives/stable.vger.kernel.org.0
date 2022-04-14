@@ -2,39 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F865010BE
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3589D501412
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244604AbiDNNmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:42:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60360 "EHLO
+        id S1343893AbiDNNn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344633AbiDNNc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:32:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C69922298;
-        Thu, 14 Apr 2022 06:30:33 -0700 (PDT)
+        with ESMTP id S238285AbiDNNep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:34:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E786B92D03;
+        Thu, 14 Apr 2022 06:31:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27B4F61B6D;
-        Thu, 14 Apr 2022 13:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 364B2C385A5;
-        Thu, 14 Apr 2022 13:30:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E5FA61B51;
+        Thu, 14 Apr 2022 13:31:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25D45C385B9;
+        Thu, 14 Apr 2022 13:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943032;
-        bh=j5OThtCkKw8wixPROr3bHPlF7VL+nQO2b6T38K84FyM=;
+        s=korg; t=1649943062;
+        bh=GPaqH+1yLPZ4DKefbUNcGzaeDWSOf2VM3/SZ0PIjg+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmbJzWcQdAB4XiPWbws0m6eRIzHFdSQ8Wc7v4VmYeKZl7YYX5lWmDlIpdu+P9/kSG
-         UqOw7CJpTjsRCSQBvFEnNmZlwro6BkAG7gkOnBQ0noHID3+1gjs7pcUejHaqU9Vj+6
-         7p4wBk0vTjgSdrX1FvFbsU0HmgrSdVHMuQ+yAcGQ=
+        b=ifSNwHVu5ARvKNSeV/Ur6yesCB5YtGkvj0vgqmdmrUQ6HtEH1dE8Ydh1xXVIuviul
+         r8r6Mm1OScr4sOhm6gnvSY3XSVrxTf2hBhK2c+n1HcTUzKCNmEKtPCN6dmdAKbd3Td
+         W2FeWY0U8Mh6b7AoF+ftO53qGjANpu9KCBfg4HFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 003/475] USB: serial: simple: add Nokia phone driver
-Date:   Thu, 14 Apr 2022 15:06:28 +0200
-Message-Id: <20220414110855.244962327@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        linux-hyperv@vger.kernel.org,
+        Michael Kelley <mikelley@microsoft.com>,
+        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
+Subject: [PATCH 5.4 004/475] hv: utils: add PTP_1588_CLOCK to Kconfig to fix build
+Date:   Thu, 14 Apr 2022 15:06:29 +0200
+Message-Id: <20220414110855.274446341@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -52,150 +61,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit c4b9c570965f75d0d55e639747f1e5ccdad2fae0 upstream.
+commit 1dc2f2b81a6a9895da59f3915760f6c0c3074492 upstream.
 
-Add a new "simple" driver for certain Nokia phones, including Nokia 130
-(RM-1035) which exposes two serial ports in "charging only" mode:
+The hyperv utilities use PTP clock interfaces and should depend a
+a kconfig symbol such that they will be built as a loadable module or
+builtin so that linker errors do not happen.
 
-Bus 001 Device 009: ID 0421:069a Nokia Mobile Phones 130 [RM-1035] (Charging only)
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0         8
-  idVendor           0x0421 Nokia Mobile Phones
-  idProduct          0x069a 130 [RM-1035] (Charging only)
-  bcdDevice            1.00
-  iManufacturer           1 Nokia
-  iProduct                2 Nokia 130 (RM-1035)
-  iSerial                 0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0037
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          0
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              500mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol    255 Vendor Specific Protocol
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol    255 Vendor Specific Protocol
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-Device Status:     0x0000
-  (Bus Powered)
+Prevents these build errors:
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220228084919.10656-1-johan@kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+ld: drivers/hv/hv_util.o: in function `hv_timesync_deinit':
+hv_util.c:(.text+0x37d): undefined reference to `ptp_clock_unregister'
+ld: drivers/hv/hv_util.o: in function `hv_timesync_init':
+hv_util.c:(.text+0x738): undefined reference to `ptp_clock_register'
+
+Fixes: 3716a49a81ba ("hv_utils: implement Hyper-V PTP source")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: linux-hyperv@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20211126023316.25184-1-rdunlap@infradead.org
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Cc: Petr Štetiar <ynezz@true.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/Kconfig             |    1 +
- drivers/usb/serial/usb-serial-simple.c |    7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/hv/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/Kconfig
-+++ b/drivers/usb/serial/Kconfig
-@@ -66,6 +66,7 @@ config USB_SERIAL_SIMPLE
- 		- Libtransistor USB console
- 		- a number of Motorola phones
- 		- Motorola Tetra devices
-+		- Nokia mobile phones
- 		- Novatel Wireless GPS receivers
- 		- Siemens USB/MPI adapter.
- 		- ViVOtech ViVOpay USB device.
---- a/drivers/usb/serial/usb-serial-simple.c
-+++ b/drivers/usb/serial/usb-serial-simple.c
-@@ -91,6 +91,11 @@ DEVICE(moto_modem, MOTO_IDS);
- 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
- DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
+--- a/drivers/hv/Kconfig
++++ b/drivers/hv/Kconfig
+@@ -17,6 +17,7 @@ config HYPERV_TIMER
+ config HYPERV_UTILS
+ 	tristate "Microsoft Hyper-V Utilities driver"
+ 	depends on HYPERV && CONNECTOR && NLS
++	depends on PTP_1588_CLOCK_OPTIONAL
+ 	help
+ 	  Select this option to enable the Hyper-V Utilities.
  
-+/* Nokia mobile phone driver */
-+#define NOKIA_IDS()			\
-+	{ USB_DEVICE(0x0421, 0x069a) }	/* Nokia 130 (RM-1035) */
-+DEVICE(nokia, NOKIA_IDS);
-+
- /* Novatel Wireless GPS driver */
- #define NOVATEL_IDS()			\
- 	{ USB_DEVICE(0x09d7, 0x0100) }	/* NovAtel FlexPack GPS */
-@@ -123,6 +128,7 @@ static struct usb_serial_driver * const
- 	&vivopay_device,
- 	&moto_modem_device,
- 	&motorola_tetra_device,
-+	&nokia_device,
- 	&novatel_gps_device,
- 	&hp4x_device,
- 	&suunto_device,
-@@ -140,6 +146,7 @@ static const struct usb_device_id id_tab
- 	VIVOPAY_IDS(),
- 	MOTO_IDS(),
- 	MOTOROLA_TETRA_IDS(),
-+	NOKIA_IDS(),
- 	NOVATEL_IDS(),
- 	HP4X_IDS(),
- 	SUUNTO_IDS(),
 
 
