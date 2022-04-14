@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83104501202
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29A8150138C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244702AbiDNNmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:42:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49872 "EHLO
+        id S1345847AbiDNNya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244599AbiDNN1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:27:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107EBA146A;
-        Thu, 14 Apr 2022 06:20:36 -0700 (PDT)
+        with ESMTP id S1345102AbiDNNpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F839AE60;
+        Thu, 14 Apr 2022 06:41:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5EC26125A;
-        Thu, 14 Apr 2022 13:20:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C6AC385A5;
-        Thu, 14 Apr 2022 13:20:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4BCEB82984;
+        Thu, 14 Apr 2022 13:41:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 024C7C385A5;
+        Thu, 14 Apr 2022 13:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942435;
-        bh=4HMK3GT9i/Jy4zL+ToJ0EBuc9JHHhZpWYG5PSt3u5fU=;
+        s=korg; t=1649943712;
+        bh=AdvVmCIdrOgXqw+YRL1khi95cYKRNTPGjWol261pppE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUZfNO/IODExwjwM8B5MhSE9wxvVEyXCXCYJS54z9hWQClP3of46Jb8znKCzlE0fE
-         x+hOEvEne9Xmrx3J6toaxSGIEi/zCsMLdo6Hr3+oi54BIaxw6K61TrfoA8Me2ndeop
-         qz0jNS83XLYO3fyJS6WkMltpifyjaV9CfmREQ7Uw=
+        b=rjPiO9uhmS35KZqlwsFWPgIAd92jz0d6geh9Sg0N2rARO1WAkD7o2MGHOfliJL3We
+         I/mjBHWcnXNSjpb783AvHMQCpkzNBOvDZqp+NlOBdwl6JwUgLOb76c+N9Qb9hJef1H
+         P8rMIK93FYJGsa5VO0uoMmPsQRHV/W9AFrG96qSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/338] drm/tegra: Fix reference leak in tegra_dsi_ganged_probe
+Subject: [PATCH 5.4 253/475] pinctrl: nomadik: Add missing of_node_put() in nmk_pinctrl_probe
 Date:   Thu, 14 Apr 2022 15:10:38 +0200
-Message-Id: <20220414110842.741975873@linuxfoundation.org>
+Message-Id: <20220414110902.192567034@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +56,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 221e3638feb8bc42143833c9a704fa89b6c366bb ]
+[ Upstream commit c09ac191b1f97cfa06f394dbfd7a5db07986cefc ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore. Add put_device() call to fix this.
+This node pointer is returned by of_parse_phandle() with refcount
+incremented in this function. Calling of_node_put() to avoid
+the refcount leak.
 
-Fixes: e94236cde4d5 ("drm/tegra: dsi: Add ganged mode support")
+Fixes: 32e67eee670e ("pinctrl: nomadik: Allow prcm_base to be extracted from Device Tree")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20220307115116.25316-1-linmq006@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/dsi.c | 4 +++-
+ drivers/pinctrl/nomadik/pinctrl-nomadik.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/tegra/dsi.c b/drivers/gpu/drm/tegra/dsi.c
-index ee6ca8fa1c65..e2903bf7821b 100644
---- a/drivers/gpu/drm/tegra/dsi.c
-+++ b/drivers/gpu/drm/tegra/dsi.c
-@@ -1456,8 +1456,10 @@ static int tegra_dsi_ganged_probe(struct tegra_dsi *dsi)
- 		dsi->slave = platform_get_drvdata(gangster);
- 		of_node_put(np);
- 
--		if (!dsi->slave)
-+		if (!dsi->slave) {
-+			put_device(&gangster->dev);
- 			return -EPROBE_DEFER;
-+		}
- 
- 		dsi->slave->master = dsi;
+diff --git a/drivers/pinctrl/nomadik/pinctrl-nomadik.c b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+index 2a8190b11d10..9f00adfefba8 100644
+--- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
++++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+@@ -1923,8 +1923,10 @@ static int nmk_pinctrl_probe(struct platform_device *pdev)
  	}
+ 
+ 	prcm_np = of_parse_phandle(np, "prcm", 0);
+-	if (prcm_np)
++	if (prcm_np) {
+ 		npct->prcm_base = of_iomap(prcm_np, 0);
++		of_node_put(prcm_np);
++	}
+ 	if (!npct->prcm_base) {
+ 		if (version == PINCTRL_NMK_STN8815) {
+ 			dev_info(&pdev->dev,
 -- 
 2.34.1
 
