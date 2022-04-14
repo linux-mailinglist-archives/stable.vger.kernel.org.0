@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2574501062
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3765012C7
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229460AbiDNNgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57040 "EHLO
+        id S232742AbiDNOP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:15:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245629AbiDNN3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8344AF1D0;
-        Thu, 14 Apr 2022 06:23:22 -0700 (PDT)
+        with ESMTP id S1346245AbiDNN4H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:56:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40456B0A7B;
+        Thu, 14 Apr 2022 06:46:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E78061A00;
-        Thu, 14 Apr 2022 13:23:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 457D1C385A1;
-        Thu, 14 Apr 2022 13:23:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DBB2CB82894;
+        Thu, 14 Apr 2022 13:46:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51AA5C385A1;
+        Thu, 14 Apr 2022 13:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942601;
-        bh=/NKQc/i2EtPguCbWqU+pLA0gE+pcVnSy/5UslyQ6ho8=;
+        s=korg; t=1649943978;
+        bh=WChRulQosaNGua2aolc7/Pq3kw/yLtzV7H6Ju3h5Oag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GPb4pafXAd+FyYQjJn1vDe6EypXDwLlXYNspJN92kurQ2fI59WL/3QNd9VZhnBGUV
-         XcZeKe5pL8OOQzWUgYjcrM/v6fHf2zV/YkvNUhmR+T1PbZoZv3+pMWydM81yozGq5T
-         ehTrwrSQn5eMGMCQqhP6hX9j4lf2ta4v/uZCuYSA=
+        b=YpXthEQ1hJ1geeAR75uRPVJmdc7PEDQbaUyvbAEdOs3vSc9y01je7jqGInN5TjNKO
+         rNdrSFAHHU5zV5jYAyJsWIvB9I54HSwMcXDEhzffHMCLk2sfuJCIcz53kr6GdqH1j3
+         EacnXB/3V/99p0RMXYBcBu8Gr7wHUZRti0yIkLiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Souptick Joarder (HPE)" <jrdr.linux@gmail.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 192/338] irqchip/nvic: Release nvic_base upon failure
+        stable@vger.kernel.org, Matt Kramer <mccleetus@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 310/475] ALSA: hda/realtek: Add alc256-samsung-headphone fixup
 Date:   Thu, 14 Apr 2022 15:11:35 +0200
-Message-Id: <20220414110844.360964072@linuxfoundation.org>
+Message-Id: <20220414110903.764271220@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
+From: Matt Kramer <mccleetus@gmail.com>
 
-[ Upstream commit e414c25e3399b2b3d7337dc47abccab5c71b7c8f ]
+[ Upstream commit ef248d9bd616b04df8be25539a4dc5db4b6c56f4 ]
 
-smatch warning was reported as below ->
+This fixes the near-silence of the headphone jack on the ALC256-based
+Samsung Galaxy Book Flex Alpha (NP730QCJ). The magic verbs were found
+through trial and error, using known ALC298 hacks as inspiration. The
+fixup is auto-enabled only when the NP730QCJ is detected. It can be
+manually enabled using model=alc256-samsung-headphone.
 
-smatch warnings:
-drivers/irqchip/irq-nvic.c:131 nvic_of_init()
-warn: 'nvic_base' not released on lines: 97.
-
-Release nvic_base upon failure.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220218163303.33344-1-jrdr.linux@gmail.com
+Signed-off-by: Matt Kramer <mccleetus@gmail.com>
+Link: https://lore.kernel.org/r/3168355.aeNJFYEL58@linus
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-nvic.c | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/sound/hd-audio/models.rst |  4 ++++
+ sound/pci/hda/patch_realtek.c           | 11 +++++++++++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/drivers/irqchip/irq-nvic.c b/drivers/irqchip/irq-nvic.c
-index 9694529b709d..330beb62d015 100644
---- a/drivers/irqchip/irq-nvic.c
-+++ b/drivers/irqchip/irq-nvic.c
-@@ -108,6 +108,7 @@ static int __init nvic_of_init(struct device_node *node,
+diff --git a/Documentation/sound/hd-audio/models.rst b/Documentation/sound/hd-audio/models.rst
+index 0ea967d34583..4c91abad7b35 100644
+--- a/Documentation/sound/hd-audio/models.rst
++++ b/Documentation/sound/hd-audio/models.rst
+@@ -261,6 +261,10 @@ alc-sense-combo
+ huawei-mbx-stereo
+     Enable initialization verbs for Huawei MBX stereo speakers;
+     might be risky, try this at your own risk
++alc298-samsung-headphone
++    Samsung laptops with ALC298
++alc256-samsung-headphone
++    Samsung laptops with ALC256
  
- 	if (!nvic_irq_domain) {
- 		pr_warn("Failed to allocate irq domain\n");
-+		iounmap(nvic_base);
- 		return -ENOMEM;
- 	}
- 
-@@ -117,6 +118,7 @@ static int __init nvic_of_init(struct device_node *node,
- 	if (ret) {
- 		pr_warn("Failed to allocate irq chips\n");
- 		irq_domain_remove(nvic_irq_domain);
-+		iounmap(nvic_base);
- 		return ret;
- 	}
- 
+ ALC66x/67x/892
+ ==============
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 6e1770c76381..05ca4196cb0f 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6456,6 +6456,7 @@ enum {
+ 	ALC285_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED,
+ 	ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
++	ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET,
+ 	ALC295_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 	ALC269VC_FIXUP_ACER_VCOPPERBOX_PINS,
+ 	ALC269VC_FIXUP_ACER_HEADSET_MIC,
+@@ -7740,6 +7741,14 @@ static const struct hda_fixup alc269_fixups[] = {
+ 			{ }
+ 		},
+ 	},
++	[ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x08},
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x2fcf},
++			{ }
++		},
++	},
+ 	[ALC295_FIXUP_ASUS_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -8217,6 +8226,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x144d, 0xc740, "Samsung Ativ book 8 (NP870Z5G)", ALC269_FIXUP_ATIV_BOOK_8),
+ 	SND_PCI_QUIRK(0x144d, 0xc812, "Samsung Notebook Pen S (NT950SBE-X58)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x144d, 0xc830, "Samsung Galaxy Book Ion (NT950XCJ-X716A)", ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
++	SND_PCI_QUIRK(0x144d, 0xc832, "Samsung Galaxy Book Flex Alpha (NP730QCJ)", ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET),
+ 	SND_PCI_QUIRK(0x1458, 0xfa53, "Gigabyte BXBT-2807", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb120, "MSI Cubi MS-B120", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1462, 0xb171, "Cubi N 8GL (MS-B171)", ALC283_FIXUP_HEADSET_MIC),
+@@ -8540,6 +8550,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
+ 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
+ 	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
+ 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
++	{.id = ALC256_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc256-samsung-headphone"},
+ 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
+ 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
+ 	{.id = ALC295_FIXUP_HP_OMEN, .name = "alc295-hp-omen"},
 -- 
 2.34.1
 
