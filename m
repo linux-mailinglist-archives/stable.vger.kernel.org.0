@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73270500EB7
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:18:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A266500EB4
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:18:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243908AbiDNNUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:20:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39032 "EHLO
+        id S243819AbiDNNU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:20:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243890AbiDNNTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:19:06 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71C829287D;
+        with ESMTP id S243884AbiDNNTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:19:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC3D92D02;
         Thu, 14 Apr 2022 06:16:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DEEADCE296C;
-        Thu, 14 Apr 2022 13:16:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB1C1C385A1;
-        Thu, 14 Apr 2022 13:16:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 817AD612CA;
+        Thu, 14 Apr 2022 13:16:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959EFC385A1;
+        Thu, 14 Apr 2022 13:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942183;
-        bh=YBMuKryNkgLOxzHatH/JEMX77pRs17QuCw8/1sGS2q4=;
+        s=korg; t=1649942186;
+        bh=s3o8QTEpkB8AkiwUUghyiX7MUeEBycRZKkT9os17hoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QOnIILDdF6PKIroW30X9ZpNMdiEC4a6QwPAU8f5cfCFXAXYmP96zGZC93zPGHoYr7
-         JRzISV4M6uv2+g33cN03vdT1VA3too+HaQ2STnU0Bd2UYhKZIbSvxi7JcS2nbe3aZM
-         PhouyluRIyOerczD/LfWXkfeuhzTF0Ik3GBXVWxA=
+        b=h1X7xpTX498meOq2oi+ruGTp9AYVhmPgL7fOxVSU6LyYl9AQmlwMTpUlCC0kWTGnm
+         zrsCdhA+9oTmVc39wMoiepnnDxB1ZGmNpftj1W+jxppZPeMO2GYCCzZTANUrZJnXDL
+         DG7rskHihkddNJXHAT+bSSiHLNtW0LGi5CxR5H+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 044/338] ALSA: hda/realtek: Fix audio regression on Mi Notebook Pro 2020
-Date:   Thu, 14 Apr 2022 15:09:07 +0200
-Message-Id: <20220414110840.150964335@linuxfoundation.org>
+        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Mel Gorman <mgorman@suse.de>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 045/338] mm,hwpoison: unmap poisoned page before invalidation
+Date:   Thu, 14 Apr 2022 15:09:08 +0200
+Message-Id: <20220414110840.179325178@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -55,45 +59,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Rik van Riel <riel@surriel.com>
 
-commit f30741cded62f87bb4b1cc58bc627f076abcaba8 upstream.
+commit 3149c79f3cb0e2e3bafb7cfadacec090cbd250d3 upstream.
 
-Commit 5aec98913095 ("ALSA: hda/realtek - ALC236 headset MIC recording
-issue") is to solve recording issue met on AL236, by matching codec
-variant ALC269_TYPE_ALC257 and ALC269_TYPE_ALC256.
+In some cases it appears the invalidation of a hwpoisoned page fails
+because the page is still mapped in another process.  This can cause a
+program to be continuously restarted and die when it page faults on the
+page that was not invalidated.  Avoid that problem by unmapping the
+hwpoisoned page when we find it.
 
-This match can be too broad and Mi Notebook Pro 2020 is broken by the
-patch.
+Another issue is that sometimes we end up oopsing in finish_fault, if
+the code tries to do something with the now-NULL vmf->page.  I did not
+hit this error when submitting the previous patch because there are
+several opportunities for alloc_set_pte to bail out before accessing
+vmf->page, and that apparently happened on those systems, and most of
+the time on other systems, too.
 
-Instead, use codec ID to be narrow down the scope, in order to make
-ALC256 unaffected.
+However, across several million systems that error does occur a handful
+of times a day.  It can be avoided by returning VM_FAULT_NOPAGE which
+will cause do_read_fault to return before calling finish_fault.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215484
-Fixes: 5aec98913095 ("ALSA: hda/realtek - ALC236 headset MIC recording issue")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lkml.kernel.org/r/20220325161428.5068d97e@imladris.surriel.com
+Fixes: e53ac7374e64 ("mm: invalidate hwpoison page cache page in fault path")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20220330061335.1015533-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/memory.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3400,8 +3400,8 @@ static void alc256_shutup(struct hda_cod
- 	/* If disable 3k pulldown control for alc257, the Mic detection will not work correctly
- 	 * when booting with headset plugged. So skip setting it for the codec alc257
- 	 */
--	if (spec->codec_variant != ALC269_TYPE_ALC257 &&
--	    spec->codec_variant != ALC269_TYPE_ALC256)
-+	if (codec->core.vendor_id != 0x10ec0236 &&
-+	    codec->core.vendor_id != 0x10ec0257)
- 		alc_update_coef_idx(codec, 0x46, 0, 3 << 12);
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3416,14 +3416,18 @@ static vm_fault_t __do_fault(struct vm_f
+ 		return ret;
  
- 	if (!spec->no_shutup_pins)
+ 	if (unlikely(PageHWPoison(vmf->page))) {
++		struct page *page = vmf->page;
+ 		vm_fault_t poisonret = VM_FAULT_HWPOISON;
+ 		if (ret & VM_FAULT_LOCKED) {
++			if (page_mapped(page))
++				unmap_mapping_pages(page_mapping(page),
++						    page->index, 1, false);
+ 			/* Retry if a clean page was removed from the cache. */
+-			if (invalidate_inode_page(vmf->page))
+-				poisonret = 0;
+-			unlock_page(vmf->page);
++			if (invalidate_inode_page(page))
++				poisonret = VM_FAULT_NOPAGE;
++			unlock_page(page);
+ 		}
+-		put_page(vmf->page);
++		put_page(page);
+ 		vmf->page = NULL;
+ 		return poisonret;
+ 	}
 
 
