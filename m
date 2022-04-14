@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56BE15015B3
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4745050157E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245263AbiDNOIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:08:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45684 "EHLO
+        id S245018AbiDNNiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:38:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347728AbiDNN7a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE15AD121;
-        Thu, 14 Apr 2022 06:52:14 -0700 (PDT)
+        with ESMTP id S1344355AbiDNNbq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCBA9297;
+        Thu, 14 Apr 2022 06:29:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB936B82996;
-        Thu, 14 Apr 2022 13:52:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A6B3C385A5;
-        Thu, 14 Apr 2022 13:52:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ADF9619FC;
+        Thu, 14 Apr 2022 13:29:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D80FC385A1;
+        Thu, 14 Apr 2022 13:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944332;
-        bh=yyacd1Dcv1qRXwbo+JuSV5hgkICqF9BJvvM4PtbI4gM=;
+        s=korg; t=1649942959;
+        bh=PoYRFGU0GjJBUUHKvDBhsqlm12snxwq8S3uEQtl9yfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9SbQK9b0ZDwgRBP6ysoEllQ4eD81wrfii24XWi5eSgt+eiNoKjketCa598xuLoAC
-         FqZRornkCtR3GZUuyRlc63Ij4m12X6JDPNkb+3nOgg16E+ByOp/Oku4PGvRLTt3o5f
-         KGx5osU17Y7fBlvfZjlpAzL+Av64GyXQWFgZ/vDA=
+        b=TRno+SjDBokNLlVP7G85igtvpTchnO8DX1XubKt4Nc+TJ44L3BL6+PApFnZrS36HX
+         hW1sqqqn5CNoTxe5hP+pwywa+wvPAj8euUV5sBRUUABPZZGWv9UbSllU2sm6/k/YtU
+         cA1n0wsALRJ6ujk45E9tOOjTNidpHxkvcvDCRxgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 438/475] spi: bcm-qspi: fix MSPI only access with bcm_qspi_exec_mem_op()
-Date:   Thu, 14 Apr 2022 15:13:43 +0200
-Message-Id: <20220414110907.320117991@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@kernel.org
+Subject: [PATCH 4.19 321/338] ata: sata_dwc_460ex: Fix crash due to OOB write
+Date:   Thu, 14 Apr 2022 15:13:44 +0200
+Message-Id: <20220414110848.025150856@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Dasu <kdasu.kdev@gmail.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit 2c7d1b281286c46049cd22b43435cecba560edde ]
+commit 7aa8104a554713b685db729e66511b93d989dd6a upstream.
 
-This fixes case where MSPI controller is used to access spi-nor
-flash and BSPI block is not present.
+the driver uses libata's "tag" values from in various arrays.
+Since the mentioned patch bumped the ATA_TAG_INTERNAL to 32,
+the value of the SATA_DWC_QCMD_MAX needs to account for that.
 
-Fixes: 5f195ee7d830 ("spi: bcm-qspi: Implement the spi_mem interface")
-Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220328142442.7553-1-kdasu.kdev@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Otherwise ATA_TAG_INTERNAL usage cause similar crashes like
+this as reported by Tice Rex on the OpenWrt Forum and
+reproduced (with symbols) here:
+
+| BUG: Kernel NULL pointer dereference at 0x00000000
+| Faulting instruction address: 0xc03ed4b8
+| Oops: Kernel access of bad area, sig: 11 [#1]
+| BE PAGE_SIZE=4K PowerPC 44x Platform
+| CPU: 0 PID: 362 Comm: scsi_eh_1 Not tainted 5.4.163 #0
+| NIP:  c03ed4b8 LR: c03d27e8 CTR: c03ed36c
+| REGS: cfa59950 TRAP: 0300   Not tainted  (5.4.163)
+| MSR:  00021000 <CE,ME>  CR: 42000222  XER: 00000000
+| DEAR: 00000000 ESR: 00000000
+| GPR00: c03d27e8 cfa59a08 cfa55fe0 00000000 0fa46bc0 [...]
+| [..]
+| NIP [c03ed4b8] sata_dwc_qc_issue+0x14c/0x254
+| LR [c03d27e8] ata_qc_issue+0x1c8/0x2dc
+| Call Trace:
+| [cfa59a08] [c003f4e0] __cancel_work_timer+0x124/0x194 (unreliable)
+| [cfa59a78] [c03d27e8] ata_qc_issue+0x1c8/0x2dc
+| [cfa59a98] [c03d2b3c] ata_exec_internal_sg+0x240/0x524
+| [cfa59b08] [c03d2e98] ata_exec_internal+0x78/0xe0
+| [cfa59b58] [c03d30fc] ata_read_log_page.part.38+0x1dc/0x204
+| [cfa59bc8] [c03d324c] ata_identify_page_supported+0x68/0x130
+| [...]
+
+This is because sata_dwc_dma_xfer_complete() NULLs the
+dma_pending's next neighbour "chan" (a *dma_chan struct) in
+this '32' case right here (line ~735):
+> hsdevp->dma_pending[tag] = SATA_DWC_DMA_PENDING_NONE;
+
+Then the next time, a dma gets issued; dma_dwc_xfer_setup() passes
+the NULL'd hsdevp->chan to the dmaengine_slave_config() which then
+causes the crash.
+
+With this patch, SATA_DWC_QCMD_MAX is now set to ATA_MAX_QUEUE + 1.
+This avoids the OOB. But please note, there was a worthwhile discussion
+on what ATA_TAG_INTERNAL and ATA_MAX_QUEUE is. And why there should not
+be a "fake" 33 command-long queue size.
+
+Ideally, the dw driver should account for the ATA_TAG_INTERNAL.
+In Damien Le Moal's words: "... having looked at the driver, it
+is a bigger change than just faking a 33rd "tag" that is in fact
+not a command tag at all."
+
+Fixes: 28361c403683c ("libata: add extra internal command")
+Cc: stable@kernel.org # 4.18+
+BugLink: https://github.com/openwrt/openwrt/issues/9505
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-bcm-qspi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ata/sata_dwc_460ex.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
-index 3755be04346a..d933a6eda5fd 100644
---- a/drivers/spi/spi-bcm-qspi.c
-+++ b/drivers/spi/spi-bcm-qspi.c
-@@ -960,7 +960,7 @@ static int bcm_qspi_exec_mem_op(struct spi_mem *mem,
- 	addr = op->addr.val;
- 	len = op->data.nbytes;
+--- a/drivers/ata/sata_dwc_460ex.c
++++ b/drivers/ata/sata_dwc_460ex.c
+@@ -149,7 +149,11 @@ struct sata_dwc_device {
+ #endif
+ };
  
--	if (bcm_qspi_bspi_ver_three(qspi) == true) {
-+	if (has_bspi(qspi) && bcm_qspi_bspi_ver_three(qspi) == true) {
- 		/*
- 		 * The address coming into this function is a raw flash offset.
- 		 * But for BSPI <= V3, we need to convert it to a remapped BSPI
-@@ -979,7 +979,7 @@ static int bcm_qspi_exec_mem_op(struct spi_mem *mem,
- 	    len < 4)
- 		mspi_read = true;
+-#define SATA_DWC_QCMD_MAX	32
++/*
++ * Allow one extra special slot for commands and DMA management
++ * to account for libata internal commands.
++ */
++#define SATA_DWC_QCMD_MAX	(ATA_MAX_QUEUE + 1)
  
--	if (mspi_read)
-+	if (!has_bspi(qspi) || mspi_read)
- 		return bcm_qspi_mspi_exec_mem_op(spi, op);
- 
- 	ret = bcm_qspi_bspi_set_mode(qspi, op, 0);
--- 
-2.35.1
-
+ struct sata_dwc_device_port {
+ 	struct sata_dwc_device	*hsdev;
 
 
