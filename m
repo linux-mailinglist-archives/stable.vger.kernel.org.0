@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7425D500F72
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D31D8500F69
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244309AbiDNN1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:27:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49396 "EHLO
+        id S244452AbiDNN1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:27:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244416AbiDNN0d (ORCPT
+        with ESMTP id S244355AbiDNN0d (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:26:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86D49F3AA;
-        Thu, 14 Apr 2022 06:19:59 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57E2A9E9E6;
+        Thu, 14 Apr 2022 06:20:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5781AB82968;
-        Thu, 14 Apr 2022 13:19:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA77BC385A1;
-        Thu, 14 Apr 2022 13:19:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91120618C4;
+        Thu, 14 Apr 2022 13:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 973C4C385A9;
+        Thu, 14 Apr 2022 13:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942397;
-        bh=D0Ij6xLb5n4AnWQowEXOPRxZpdjQiNMbmIzlsTRfg6s=;
+        s=korg; t=1649942400;
+        bh=GRVYjGN0oVU3bLQLZkS30dh2b8ueNqwEcosPDjmYZFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/cOvQhdVNxq9NzZx4RQGtVp32afYcYjoQdWXeWNz6mmgCfSZAJNrjfPBMqT7FYeQ
-         H55dpE0qiMvcoxC/sCAEpX/8co5Hwp11OBW7nipFeTMouhZSngFSMeJqaW61oojP1q
-         pM/NI6AcX134Zlwd0Ve+4Ip/lMC3gMWKq8vLjEc8=
+        b=BAQyWMJAC1KiSzB4b9wpFmgbNF0I9UjEjl369G8DqEvHsOJNFZRmUxCgCz7yjuZH2
+         9NgMRE0gdzBGi2s8CC9jv3jqy9lySIi8i8WoGmhELc0kX/P4wloxspJZtXRi7YZlaY
+         tcoGWi+UuMHiXpxXfTgswrq3IANf69v5X7HcygLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabiano Rosas <farosas@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 122/338] KVM: PPC: Fix vmx/vsx mixup in mmio emulation
-Date:   Thu, 14 Apr 2022 15:10:25 +0200
-Message-Id: <20220414110842.376479310@linuxfoundation.org>
+Subject: [PATCH 4.19 123/338] power: reset: gemini-poweroff: Fix IRQ check in gemini_poweroff_probe
+Date:   Thu, 14 Apr 2022 15:10:26 +0200
+Message-Id: <20220414110842.404472626@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -55,46 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabiano Rosas <farosas@linux.ibm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit b99234b918c6e36b9aa0a5b2981e86b6bd11f8e2 ]
+[ Upstream commit ba18dad0fb880cd29aa97b6b75560ef14d1061ba ]
 
-The MMIO emulation code for vector instructions is duplicated between
-VSX and VMX. When emulating VMX we should check the VMX copy size
-instead of the VSX one.
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Fixes: acc9eb9305fe ("KVM: PPC: Reimplement LOAD_VMX/STORE_VMX instruction ...")
-Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220125215655.1026224-3-farosas@linux.ibm.com
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
+
+Fix the check of return value to catch errors correctly.
+
+Fixes: f7a388d6cd1c ("power: reset: Add a driver for the Gemini poweroff")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/powerpc.c | 4 ++--
+ drivers/power/reset/gemini-poweroff.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-index ad5a871a6cbf..dd352842a1c7 100644
---- a/arch/powerpc/kvm/powerpc.c
-+++ b/arch/powerpc/kvm/powerpc.c
-@@ -1479,7 +1479,7 @@ int kvmppc_handle_vmx_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
- {
- 	enum emulation_result emulated = EMULATE_DONE;
+diff --git a/drivers/power/reset/gemini-poweroff.c b/drivers/power/reset/gemini-poweroff.c
+index 90e35c07240a..b7f7a8225f22 100644
+--- a/drivers/power/reset/gemini-poweroff.c
++++ b/drivers/power/reset/gemini-poweroff.c
+@@ -107,8 +107,8 @@ static int gemini_poweroff_probe(struct platform_device *pdev)
+ 		return PTR_ERR(gpw->base);
  
--	if (vcpu->arch.mmio_vsx_copy_nums > 2)
-+	if (vcpu->arch.mmio_vmx_copy_nums > 2)
- 		return EMULATE_FAIL;
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq)
+-		return -EINVAL;
++	if (irq < 0)
++		return irq;
  
- 	while (vcpu->arch.mmio_vmx_copy_nums) {
-@@ -1576,7 +1576,7 @@ int kvmppc_handle_vmx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
- 	unsigned int index = rs & KVM_MMIO_REG_MASK;
- 	enum emulation_result emulated = EMULATE_DONE;
+ 	gpw->dev = dev;
  
--	if (vcpu->arch.mmio_vsx_copy_nums > 2)
-+	if (vcpu->arch.mmio_vmx_copy_nums > 2)
- 		return EMULATE_FAIL;
- 
- 	vcpu->arch.io_gpr = rs;
 -- 
 2.34.1
 
