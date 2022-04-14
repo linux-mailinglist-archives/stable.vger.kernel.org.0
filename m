@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 003D850137E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D29185011AE
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245447AbiDNNsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:48:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35550 "EHLO
+        id S245130AbiDNNrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:47:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343995AbiDNNjd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D23D427FE;
-        Thu, 14 Apr 2022 06:36:28 -0700 (PDT)
+        with ESMTP id S1343691AbiDNNjQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A762BB3A;
+        Thu, 14 Apr 2022 06:34:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F4E561D67;
-        Thu, 14 Apr 2022 13:36:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED05C385A1;
-        Thu, 14 Apr 2022 13:36:26 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5F0EBCE296C;
+        Thu, 14 Apr 2022 13:34:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72295C385A5;
+        Thu, 14 Apr 2022 13:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943387;
-        bh=twS32qAeCTY/7ABgIeeyA6EBH7JxCA+yeGiHVh5MOYc=;
+        s=korg; t=1649943275;
+        bh=+sdG8/qB/CAp5h1HxgzUUfASGZcyD7ZQUj93YtNWyYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V57kfvb9appD3gDBmwDVBIVuf0aNnljMZTpFoItIIkelKVgkZ3acNPcJj+6T2mz23
-         xC9FzZ4kY5zHy0uXeF0o4/cCIVm3uX3TxSw+qEG5OU50T0nCYTW4TK0czM1DXmOzEa
-         HebBTemaFRksUWAUXNAQSY/KW38ArTy3YUDfDXVo=
+        b=VU5ilyyM+f3voz4DMn+sD+PHXOPKS+zpXC5df6969vhokHzZZ8R1DHsdCWHhzNVBd
+         SBWPwOHO8o2MCFRcHcrDY/p7ggjN+GLWZKF1xh4oSV1JpVImc8q+zOrA0GxzZQJ6Zy
+         7fRsFxNTvaxtF2qFrhFqf44r63NZbtn+6EK5bIrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Armin Wolf <W_Armin@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/475] hwmon: (sch56xx-common) Replace WDOG_ACTIVE with WDOG_HW_RUNNING
-Date:   Thu, 14 Apr 2022 15:08:02 +0200
-Message-Id: <20220414110857.871154909@linuxfoundation.org>
+Subject: [PATCH 5.4 098/475] block: dont delete queue kobject before its children
+Date:   Thu, 14 Apr 2022 15:08:03 +0200
+Message-Id: <20220414110857.898654950@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -55,43 +56,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 647d6f09bea7dacf4cdb6d4ea7e3051883955297 ]
+[ Upstream commit 0f69288253e9fc7c495047720e523b9f1aba5712 ]
 
-If the watchdog was already enabled by the BIOS after booting, the
-watchdog infrastructure needs to regularly send keepalives to
-prevent a unexpected reset.
-WDOG_ACTIVE only serves as an status indicator for userspace,
-we want to use WDOG_HW_RUNNING instead.
+kobjects aren't supposed to be deleted before their child kobjects are
+deleted.  Apparently this is usually benign; however, a WARN will be
+triggered if one of the child kobjects has a named attribute group:
 
-Since my Fujitsu Esprimo P720 does not support the watchdog,
-this change is compile-tested only.
+    sysfs group 'modes' not found for kobject 'crypto'
+    WARNING: CPU: 0 PID: 1 at fs/sysfs/group.c:278 sysfs_remove_group+0x72/0x80
+    ...
+    Call Trace:
+      sysfs_remove_groups+0x29/0x40 fs/sysfs/group.c:312
+      __kobject_del+0x20/0x80 lib/kobject.c:611
+      kobject_cleanup+0xa4/0x140 lib/kobject.c:696
+      kobject_release lib/kobject.c:736 [inline]
+      kref_put include/linux/kref.h:65 [inline]
+      kobject_put+0x53/0x70 lib/kobject.c:753
+      blk_crypto_sysfs_unregister+0x10/0x20 block/blk-crypto-sysfs.c:159
+      blk_unregister_queue+0xb0/0x110 block/blk-sysfs.c:962
+      del_gendisk+0x117/0x250 block/genhd.c:610
 
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
-Fixes: fb551405c0f8 (watchdog: sch56xx: Use watchdog core)
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20220131211935.3656-5-W_Armin@gmx.de
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fix this by moving the kobject_del() and the corresponding
+kobject_uevent() to the correct place.
+
+Fixes: 2c2086afc2b8 ("block: Protect less code with sysfs_lock in blk_{un,}register_queue()")
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220124215938.2769-3-ebiggers@kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/sch56xx-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-sysfs.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/sch56xx-common.c b/drivers/hwmon/sch56xx-common.c
-index 6c84780e358e..066b12990fbf 100644
---- a/drivers/hwmon/sch56xx-common.c
-+++ b/drivers/hwmon/sch56xx-common.c
-@@ -424,7 +424,7 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
- 	if (nowayout)
- 		set_bit(WDOG_NO_WAY_OUT, &data->wddev.status);
- 	if (output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)
--		set_bit(WDOG_ACTIVE, &data->wddev.status);
-+		set_bit(WDOG_HW_RUNNING, &data->wddev.status);
+diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
+index bf33570da5ac..3fb37135264b 100644
+--- a/block/blk-sysfs.c
++++ b/block/blk-sysfs.c
+@@ -1060,15 +1060,17 @@ void blk_unregister_queue(struct gendisk *disk)
+ 	 */
+ 	if (queue_is_mq(q))
+ 		blk_mq_unregister_dev(disk_to_dev(disk), q);
+-
+-	kobject_uevent(&q->kobj, KOBJ_REMOVE);
+-	kobject_del(&q->kobj);
+ 	blk_trace_remove_sysfs(disk_to_dev(disk));
  
- 	/* Since the watchdog uses a downcounter there is no register to read
- 	   the BIOS set timeout from (if any was set at all) ->
+ 	mutex_lock(&q->sysfs_lock);
+ 	if (q->elevator)
+ 		elv_unregister_queue(q);
+ 	mutex_unlock(&q->sysfs_lock);
++
++	/* Now that we've deleted all child objects, we can delete the queue. */
++	kobject_uevent(&q->kobj, KOBJ_REMOVE);
++	kobject_del(&q->kobj);
++
+ 	mutex_unlock(&q->sysfs_dir_lock);
+ 
+ 	kobject_put(&disk_to_dev(disk)->kobj);
 -- 
 2.34.1
 
