@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8DF5009BA
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 11:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40A6C5009BB
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 11:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241729AbiDNJ3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 05:29:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55516 "EHLO
+        id S241739AbiDNJ3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 05:29:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241727AbiDNJ3D (ORCPT
+        with ESMTP id S241730AbiDNJ3D (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 05:29:03 -0400
 Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6790C52B18
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 680476D4D4
         for <stable@vger.kernel.org>; Thu, 14 Apr 2022 02:26:38 -0700 (PDT)
 Received: from pps.filterd (m0250812.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23E8pF5G001147;
-        Thu, 14 Apr 2022 09:26:26 GMT
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23E8pF5H001147;
+        Thu, 14 Apr 2022 09:26:27 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : content-type : content-transfer-encoding :
- mime-version; s=PPS06212021;
- bh=7pGMOq2aZFGXYE6b+/SCRxMTyVANen/deKWPXQ3QnNU=;
- b=hlRYhMjKlq9HDu5183OOKkP45/VfP5QjhpVxvzadzhGUVGuePSEeZAD3ChVnutb61L9F
- 6eyj+0xnuiNz/+Qr1Ez+8KwKsyOoU9stDlEQTjUWcWDEjIyUWTyyicSmQ6bX6EfPQlXz
- lc6bmG4J7U+GY6AGgjTOy6j+HPVsOA7Np4bbYFuNFz9IYPTgQ1ze4CD7CPNeSmBPLvuE
- BcpHDZ4adsHWxfzod1wEQQsd9TWDiS1/KZcIiyPjO7OYvQ4U6n6uFh+IptFrECwujSs6
- FoI0js8lrGJoW9F1Mvjlc/4SLLwfqrL7w/FxQYO0284fsfXIpBOSfBwYMNTe31LL/Jj/ Nw== 
+ subject : date : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=PPS06212021;
+ bh=Ck4DxZcMDFVexRYxaGwLIloleTAigYzT/Hhe8EotjNk=;
+ b=gA2y6P6OY2IocwQumjidQzniJMiJXCejbALSXAyglkM080maX7hJPbvwAObpbgHT5ewv
+ cHJItlSTBAhcvQw67Y6+oywb+PG/OSN/5ic2HRYOwWuWHh3s/jA/Kh5rE+cRXCxuyBd5
+ RcyiZcJ2XR/Mit/xuZQv0/43Y4KXqUx1tmBIMQ4NMML8fGM2bTN/g7HJMvTvPuUNVEOK
+ L4S+w45X2j2tab0lJ5BOMkFWL7TJKlgHL4dGok11XYofaIM6uTfYC5n7y0XymAQm34fV
+ xmGI17PklJ3NxYoVK9eK1XNUyp31PmLV7k9zwSzUysc/mGTWIA7FHDhpTZFGi7QjHffa Ag== 
 Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2045.outbound.protection.outlook.com [104.47.66.45])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3fb6fwbueh-1
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3fb6fwbueh-2
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Apr 2022 09:26:26 +0000
+        Thu, 14 Apr 2022 09:26:27 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cKKTHRT9QiDRTnFo3oNZMD04hsGp8JvndqzgbMTnGqO1gVFN+lodBJEnVO9jQyH4DqDNVUNn6X4lFUZN+wXLY2dHEyl/g7g41zTYbJGCB+OiqY8bvsQgGdXBp/LaXjQmzwpizumAsPM/vrem8mOBzzZENyk4xPOkTuoFyNFxB9f+N0EOe8LTqURIVaeSlbVua4zpy37GBzufZzAFta8uXIALT6CJBrpchgafpma4CE0qEfUrjt+RT6Poeg0aI2ScatluixnXhoc4TXf2MwCe3QnFloJAKsZJ6S7i/FN4OJqHXyIZKxLnn89MUaB+9Mjs0n5o15HTKrk1vZzhJlnpCA==
+ b=jLYVzc8/fWf3ADULyQ/OnG8nZbJLalUu6c3DTyt89usdXeDXv40wuqivck6nar3jikHgTEeCqUH599/u7jByoPRf6O2MsVr/sUPqTRWfb9Lg2A6yVFQ8qAAN2W9IJEoA0MWQrXwIEQnnEjQfAKV/UDCp1r54cXSfhbFzXhibkk4vbwasH39L/hJTeWH+mwWqXah3L/BvvtfxK0lK1fWdrVv21GiWsWHaHKaRxEdWfOHeNGQiNEO7G+q4hdg2n6kKs4PEzFqn5D9B4aAHrERzVjSD2WnIuWSgtPCWozBCIydg4Pvjou2vsjcxhRe6SftP9w7lQM2yKCPoHjF/5OPr8A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7pGMOq2aZFGXYE6b+/SCRxMTyVANen/deKWPXQ3QnNU=;
- b=b+BbF+IDQIZqZkqF44xw8OtZzNMQHPKlq5BJ22/TQfbg6fsOk0Rwj6aMR8eEWU/vKZ1Ag4Ar0ph6YPRodS3eHhBUKTcc4GxobItdeFzSbSU4oyAuQrNsG03XMKaOP2i6M1CvAcfabVjXJLNvoe28JjBxGDFfhKzMzXS20GNOeT1+C+0s+H45mCh1rrgz4a4kWIQhelh7vna0gF9cyolIG690uMsQl/dvZhL0maMnnNZL9viF6/6rLMICc5f3N25rj8il4aBUUSC/Bjc5mQXMVBZdHJFFQjh+V6mXv53K34OtCf5uP+x7y2bi4wUU3K5ciPCNOudl957MGV3W5EgoAQ==
+ bh=Ck4DxZcMDFVexRYxaGwLIloleTAigYzT/Hhe8EotjNk=;
+ b=KX8Mdfp/O/0g0SwNmK7aS9XpHPldwSPahthxqVH3UUxARTnwwhOERpwN1yRgkK2jDANGyxkz/Wal7+ruPyWZcCLLaVfg+J+l85GOfMaubkMSAVx8eIlXAvyEvip3v+9F+2liqYOuNHhBepfVXs1jerRRfz7FT3vuXMoYHUKECqQIQ8AP0R7rVbSYFn7ih+KcM5UM3+LzT0H+ySQiLKGG/pRGwjjYRMddJ4LdLqEZ7Z25p3QjCNambTC6CV6GTl+1RlzzfPePZT+TncwmHwQgiuNAs5S2kNbM/nMMzSyNleupD3xbsgIx/m+gG23v0yWTuC+wbJJ7StFK6s9mCn+kTQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -44,18 +44,20 @@ Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
  by CH0PR11MB5756.namprd11.prod.outlook.com (2603:10b6:610:104::23) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.20; Thu, 14 Apr
- 2022 09:26:23 +0000
+ 2022 09:26:24 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::c903:4c47:ac8a:992d]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::c903:4c47:ac8a:992d%4]) with mapi id 15.20.5164.020; Thu, 14 Apr 2022
- 09:26:23 +0000
+ 09:26:24 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
 Cc:     tj@kernel.org, mkoutny@suse.com
-Subject: [PATCH 4.14 0/3] cgroup: backports for CVE-2021-4197
-Date:   Thu, 14 Apr 2022 12:24:18 +0300
-Message-Id: <20220414092421.2730403-1-ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 1/3] cgroup: Use open-time credentials for process migraton perm checks
+Date:   Thu, 14 Apr 2022 12:24:19 +0300
+Message-Id: <20220414092421.2730403-2-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220414092421.2730403-1-ovidiu.panait@windriver.com>
+References: <20220414092421.2730403-1-ovidiu.panait@windriver.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-ClientProxiedBy: VE1PR03CA0009.eurprd03.prod.outlook.com
@@ -63,72 +65,72 @@ X-ClientProxiedBy: VE1PR03CA0009.eurprd03.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: f464de7d-fb7b-4fc7-5da0-08da1df8d785
+X-MS-Office365-Filtering-Correlation-Id: 160776ac-f930-424d-01fb-08da1df8d838
 X-MS-TrafficTypeDiagnostic: CH0PR11MB5756:EE_
-X-Microsoft-Antispam-PRVS: <CH0PR11MB5756271C378AD480655CC6C3FEEF9@CH0PR11MB5756.namprd11.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <CH0PR11MB5756BF989AA840087E41FC85FEEF9@CH0PR11MB5756.namprd11.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 87UIZ30EE/T14pVfggcgOvS7HrEjyVHV7jJr8zUbZbvcsuJ14RS2tG/t7TzCO4PtKjDg8sWdtywCHleiyrOmkM2GfHuiaRbrJqQQ37cEfm3WEUOOX9mksHqUqv1DezDzRZd2I6AsJSCoN39UB0lrRcHTRCfMiyCROi08BBi78GG/Vqxh4R4ctk8A6zSowyqREpRRd6TiGgLOLCH8lPtVGDY0xpygYzBHKnNxrammJlyRB9CsBE/4B/kIOBxUtdZIirMYyvQhWqJUv+RvhLXLCVD38CDwS64GPDAMg8c8Fmw8Ws4zMjVSDS9dbfnKcomefzsb/74evRWv5SVe9l8yyUXirBEIHvpLnYWQE0k+Z5G6GfjSy+41PvjVtzOAQlml3pXhZWd0clKvETpB8DuC8HP2v3daXzGRm0Fx3NyoxQBptinu+o7W6mEt5MYbvNCNaXcQoDP1YgpK92aR/R3R+EsgiCeGIK1r1egyqDiolkWY7+X5G3fNw3huG6FtyV0aPgVKOo/EXZ6ZdS3qZB5hkJzZ2J7gySV0/gbBZRmohBm9rCNO3C9PEJ+mkfaHfEpCxPxI64kOG6WZn2IuHr/Ar2q/oIUaKbXx0GXKhP09E/2sUL5RiwkEWdXOguhcoFTKHvr9Ueu2t8MjmjACBudQ5QI70xqgp0HQqmOhO+BGD1Dg40Z7vjdBMM2uY6J7IkoOAfMucA/koSnFwCAjn97o4w==
+X-Microsoft-Antispam-Message-Info: CiTGYuZeG4hx2IGquDrn6iEfHTv7oTK0LshQWTUXBJ7xgoDOb/dt1HusKJxno7edPMpgiKWgljPgzEami44Q7d5q6zdDQDnLiiAQmQrCGA6SyOsarIkqq1o9ewujJIIj+d5AP5EyNYtE/aO8KZPro4nMF3kfm1fxFVj3tjHlB6MkKExv0gdO/Ly5atEhT4eFi2jC0x/aBhVQsiG1eXVaJukpLIHKcajn3Xxla9eQkYvg62y+5W8FiwUzIsGW94qtPExRh5UliUtdxTFg9AZ5lyG1sR3Kf0E6SlrFcDnaOm6YHNQh6cFnmqN0GFTKNo8OLTzPfx8jsPmniVRYOM7muQQu9KVzcnpX04gDyRW9qTFJUeULkbhPwMGGpYoBmIkVmkpU7U99f/Nt9KwsevSc5lbimMAPTDohbaGbM79YMsQWX5c3kjJEkI6yF+0g7kFD1vE5l6B+tZWKyg4Gkkx/bodSMnjGUyMpDjku9Do+BF3asTWJ/dwa8XGNlYwmdOtsmCU20Qr61y0K0TbcQf5jZIOQlPDpxeNl/a8M3cjNGTP+x5JiOMwNTYEpjvGexE3FdEQm5kGKv46lg0SjPh84RM11KtFVE1tpbi3utvRHWP2MZJyT5l7HkFi6oE/hf2kwiywrHdq63zY5IyJorzhXLZMEtH4g3OAkFTcVPhlp2rUb6XrisTpWjolFkeC3cNQUhXPIu3uL+9BapXrSg2zEgQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(5660300002)(8936002)(6666004)(38350700002)(38100700002)(52116002)(316002)(6916009)(508600001)(86362001)(66946007)(66476007)(8676002)(4326008)(66556008)(6506007)(6512007)(6486002)(186003)(1076003)(36756003)(26005)(83380400001)(2906002)(44832011)(2616005);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?clV2UU03KzI0elh4Wm9KaDBRWTlDdzV5UDdmY0dCcEI0VkFqU2lzczgyNFVl?=
- =?utf-8?B?WUpTMTIxelpXZHdtZTNiSWpuU0dydkdKUkU1VVVlTXhDQzk4M3ZjeU01ZWNu?=
- =?utf-8?B?M0ZURmZNWjgzTnFHTUdGMWFCdFZtNExDeU9jeHJUdW8zNWExZW5kb1BCczM0?=
- =?utf-8?B?Y21BSTBKbDhSUW5rekt5VSt2bHcydllDT08ya3JqelZmendkN0tlNHdGZUpw?=
- =?utf-8?B?c1BjUm5hODd2VllGQUlwbElpaURVb0c1WkR3bUZ2eERTVTV1NjlST2pBc0hT?=
- =?utf-8?B?bmNlcmNJblozdDZSTktsZHUwVTFhVmM2cWg3VVZROEljNHgwS05QZnhRSnRX?=
- =?utf-8?B?djB0UlQ3SFAxNHBJbG5RVXZ2QzhJZU9UamtNMEl1cmQ5aTFueUcvQzZabE8w?=
- =?utf-8?B?cU01SHBra3MzSUdMQVk3YmhnTWJRR3Q0VVRFYkVidnVucGxMdWlCTHRzS0ds?=
- =?utf-8?B?bXk3ZUV0NjF3V05VV1pNYkZDcVI1RFdHWkJOemRjamxnM1ZJZEhiL3BxWDNF?=
- =?utf-8?B?ajY2TVZacGJoVlBkSTV1Z21PZFF3YjVMUGVPWHA2NDhrUWVnZVl3STFOMHp6?=
- =?utf-8?B?emd5SDhtT0xlZE42UUs2OWNYZHBaQmRnMmRMU0k3cWJSQStXY3ZiV3BMQmty?=
- =?utf-8?B?Z0paUWhiWkMwZlFqQk9NM2RJUnZWbUZPYmdQY3RwQU1OR3VCY2c0Q09zNUpw?=
- =?utf-8?B?WDAvR2dIb1hqTzVPZi9VazlHdTRUcjdyWUs0cS9sTm9NeW5LV3ZJRnZrVlRS?=
- =?utf-8?B?dGtaWWcwK2hENWJYVTROQ3dwQWoxQ1AyNnFFRmZKZ3pPbDRCUHJlamZOSVdR?=
- =?utf-8?B?bE9KeWlDNDF6Vk0xUWNXbWlOV1c3RDhBcklNUEUyblNEZllpRWRGZitHelhC?=
- =?utf-8?B?VkYwNWU5Y25uakdaWVFOR3FDOEUzZWFkOUt2N0dVbmlqU25XN0xVNm9keHJh?=
- =?utf-8?B?RWEveWpQSHlldWZLa1lLVXR4TTFyRUlWdmw3M1psTXp3bTVoaHg0S0Z4ZW9W?=
- =?utf-8?B?NXMrYUkvMWU2RWtmR2JHYjBDZlFBZ3BNMEJwaCtCemJ0c0w3dnlETmY4aXZU?=
- =?utf-8?B?R3BHUTRVRDdpNkFtRzdSWittcDlKMU1pNG1sdks4WWhnV2lYekFGdmtZNlp4?=
- =?utf-8?B?c09pMUF5N0JxUWd1cGxYYnJ5eUZpbW5BWmRtODhOd0YvQUJJMlI0NjlGY2xQ?=
- =?utf-8?B?YkJGcmVQbmRxNVlySzYrblo3WXdDdzdXMFIvRUYyZDh6OW1yblZ4WEp4OHBY?=
- =?utf-8?B?TktlYkZKSWRnTWlCNXMxL2FZbkxKMzhxTlpkMzNObzF4UUVEeldRMUJCdjRr?=
- =?utf-8?B?Nlgwa1BESDh1Tm5BUUFHbllIVkpocmlFOXFRQ1JITnoyQ3JkRU01UWRDcTRy?=
- =?utf-8?B?ajFhQTU3L2ZHbVB5OW95Q0xVeEhqVFd1OFpJL3dUSnpNd2JOSXdPQlR6ZnJY?=
- =?utf-8?B?b2pLaGJBb0krZk10VVNuN3ZPVTV1WEZEbmJhR0FiWE1VbExLS2ZtUUZkTkJU?=
- =?utf-8?B?Vi9YL3BYUE1RV0dzVzl4dXlVMUNac3lsQUFlOHFVTlM2aFNmbWNxZGUyQ1NV?=
- =?utf-8?B?N29IdTA4MXBIeDZDMjFDcXpmU25YSkhoSERWRndjb2h4cVE4QzZlRlVtRm9H?=
- =?utf-8?B?US9mbGFmQzRnR0lNSDRWUnZYa0VERTZJT2hqa3NYYXpQdVFLMmhHUUFuempo?=
- =?utf-8?B?ZndkZTB3MGw0SEg5SUZvVjREQ3J5S3gvUDVIdkp0Y3M2M2tSKzI3OTB2R08x?=
- =?utf-8?B?UE0rQVUvRDNMYk1Ba29qRytxMU5Na1hWd0d6VDNNMFFSZG5Talk5a1psODR4?=
- =?utf-8?B?VUhHTjdRL1hZaTRIQ3lsSHVhcy9vMFF1MTlrN2d4YmlHUEtUL3hWd3RjbTBS?=
- =?utf-8?B?bDk0bmJ1L1hZeVZCN0M5RnB1TzhQNlRZcE5DWUZMTEhnRkdZcWtFUGxTTGJt?=
- =?utf-8?B?d3hTZFBwd1dFZENXRHhUclNOQ1puTm1oU2cxeVpvWmlsL3k1c1JHMktHeUVQ?=
- =?utf-8?B?ZFpKSHB3dVZDUlorUFkrZkd1RDk0bzFNbDRtUkFaVVkrYWxmMGJpeUVDeU9s?=
- =?utf-8?B?NnFuK0ZiVEtsN2JFWEVjUVpIK0lkWlV1V3p1dEZvNlU2ZjgzNzZ4Y01JMmVr?=
- =?utf-8?B?dFBPNjdaNG9MbFpxYjFtK21sbTlLdlhiRUpnWHpKVS9yaHRuTkkvNDFOWXJ6?=
- =?utf-8?B?enpvR1pNVHNUNjNielA1MGZoWkNUbUp3ck9qdGFucHFjcUIvdWJQMXRSMEtw?=
- =?utf-8?B?MVcraUJTZEtXV0pzVldCZDlqc2luV28wc0lzM1liUjRSUUUwRE1yQS9VNk9D?=
- =?utf-8?B?ZXVmamdpQkRYYldHeDZnN052c0U4Ly9NYWsxKzd5UlNLV01LWDQwY3FhS05O?=
- =?utf-8?Q?PYDIK3E9eHiMJidI=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?Vk9XVHVBVmM0MnZPL1lLdXBnVFRmbEFBSnI1UU8wMjQ5TTVaMzVsS3lvMGNE?=
+ =?utf-8?B?ZVh3V1V5MkMzWFVZeHlWS2FUdmZRR25oOHJpTFltbnVCeEVDeTFyME1VaVp6?=
+ =?utf-8?B?N3RNbzAyWnRCeUQ5WUwwRXZ6dGh5OVlYWlZkVHphYkE1L3lRamVTckwzcnBx?=
+ =?utf-8?B?OXVGNERDbWJsajViRHc3WEtIY3N1T1JnOGtFSjZFT1E2Z2g1Syt0MG1IYkxl?=
+ =?utf-8?B?dnpqdExvMDdaSERMeGNSdUNxMEtHZm9IcTNaRW8vd2gxVGVaeFVyL3NycUpR?=
+ =?utf-8?B?SHFUS3oxdE9tVVl0Z2hwWmVFT2ZVb1JGQk1pMUxINnV2MTZWb1hSTy9qQXhG?=
+ =?utf-8?B?c3ZIUENLMGxRSHU2RGhlM25BNTNvZlNrekRDb2NrT0dUdi9WdUd4ODNPalVp?=
+ =?utf-8?B?Y0Q1K25uN041Uk9YanBBMDZTSlhxU3d2a0xjRXZ1TEpqUFdKb1UyQ0M5RGQ3?=
+ =?utf-8?B?a2V1WnJ6RkM3YTdyMUVBZTloam16azFsUmZzRkhOWmRWaFpvMWJxN3c1THRW?=
+ =?utf-8?B?VWlEc1NYaGdZVGRyVlFTV3pOMlpPUjJCVFc0RE4vS2ZTRWxhdEVnSGZmdjZC?=
+ =?utf-8?B?dCszMmFoZTdtL0VBMjUweVJ2VUJvM2JQSTBTOGwwMTRBdmlWOW40RVFJckZa?=
+ =?utf-8?B?YmZvZk8vcnh1eVJRWkdZalNlL2poaTY3WWcxclZEc01oSld1c3JXQmkwM2xF?=
+ =?utf-8?B?M2duRVVidWl5MFpZWEFobzdQZHg4d1c0akhuVDF0amhzbjRKb3ZBMStqcGdn?=
+ =?utf-8?B?SjliUXRZcmlxMXlmNjdWNG1JcHhIZS8wbkszc1hteUFMZUxUMVBhY3pIYmI0?=
+ =?utf-8?B?NjhoNXVDKzRMdXYvUk9lRkkwQWFvVXFONVAvOVR5eTR2QWFPT3JhNVlUckd5?=
+ =?utf-8?B?ZDk0bG82YUV2c3dVdldKdXo0ZmV2NGE0dGFPSi9QUmQwRVUzeWRtcjkwS2xM?=
+ =?utf-8?B?MlBEZm5ES3l0dVNYaWVFZm9QdHdvSlduQ095Q2VJaFZHczlRbG5vT3BSOE9o?=
+ =?utf-8?B?VFNKNTJFM05INGlkajVTcXNaWmRHSEs5UEFOdStsQThoWVNQVml2YXpNdVYr?=
+ =?utf-8?B?OTJ5eUxoTGtaSm04MDRSdmhYWTVWWGhuT2xIQkR5QmppU29lWkd4eDFDTFFL?=
+ =?utf-8?B?MTBKRXdpendVOUEzQUhhdDBGbzJLUGFvQXFkM2gvVi9zL3FCeVNqVi9wWXB2?=
+ =?utf-8?B?N3dOQVpTcU05MDNCN29kQmQyc2JzdjRCYmw3TTVRWnlxb1ByTEtvc013Ulgx?=
+ =?utf-8?B?RFdEZytVY09TL3BiT3ZSU3Y0QkZyWllqQUk3SFB1YXdGRHRpZHRGVEJFdDBN?=
+ =?utf-8?B?TzlHQWIvbXlZRzJIcmJ0OUJ3NVMzUlllUVc5TUFLSGtqdngvQXFoZ0svdXA5?=
+ =?utf-8?B?emxtL1lzU25kK3c5aDBCbUYrWHBaQWU3MHpiMFNRSkl3MUNhSFJHY29jVHd1?=
+ =?utf-8?B?UEhlZm1BcmNWMTJQdHJsQ2ZFcFVBUWdQb2IvdFlqcEluUjFKejYrS0VwKytW?=
+ =?utf-8?B?Q1RiQm42MG55VkNyT2VPSTBmTlFOY05JVjRDVm5yN05ZeFhMUHU1R0ZtRHRl?=
+ =?utf-8?B?SkdYeWZGT0JhalJJYW5kdTNtY1JZMldiUFliRS9qbmtGNlRqd2pNaDR4RWwv?=
+ =?utf-8?B?U3NnclVZdTlnTzVDNXhhNGRMTDBnM0NEL3dpenFXMGVTVjNFK2xaV3p5WDJk?=
+ =?utf-8?B?TDdtcCtEMStXS1lZR1ZPbWlRYmxlSjl6MWpjRnJJR3pFNjA2aW4zTi9iQnh2?=
+ =?utf-8?B?RG13RnRpZVNacGZHZDlRbWxBdTh1ZDdCY3hUMU4yMEJTTnUrQmpoNkZHcUZm?=
+ =?utf-8?B?MWZ3aWtpcGY0RmRvOUpnQnVDMjVVcnpZQjZLV0ljOWdRaUJqZjhEK2lhS2hG?=
+ =?utf-8?B?Wlp2R2dlUkdZbmtDblNPNEdBUjNQMWxUY253cmxnZmZlTFVzNmxGKzE1QjFS?=
+ =?utf-8?B?Y2xhZXlkSWZEQXNQSVRXOWoyM1dHbzJKMDg0NGhuVWNTSDBWN2x3Z251Z05R?=
+ =?utf-8?B?ZUZWeitzVlBuU2FBNkhDeHdHRjBsYzdkZFhJc1QzNnllZmIwUUNrbGR3NmpI?=
+ =?utf-8?B?Q2ZjRURDd2taR1Y0S3hnYkVoTVh1eTY4YjB0Sm53dFVPM2hrVEZVYlhrTk5K?=
+ =?utf-8?B?S2h2RFgyWFYxUHZjdU9uWEFheld1cFMxb1IzK0dzd3lrNW5mSHJuY2N0UzRG?=
+ =?utf-8?B?VWo1YTh6K01WZWR0SGc1OGxORUI3YnBVRnFkZVlpbWJtRW5sRGFuRXlZTnpL?=
+ =?utf-8?B?S0dteFVraWp6YkZBdVowQW9pTkY5dVY4UUdVNG96aVM1dTY2cUNzK1FKL0tD?=
+ =?utf-8?B?bGJDN0FrRmtmQnI2SElFUko5VjRXOHN6eXAvZStSZGVTZzdWMVFONHVnbmhn?=
+ =?utf-8?Q?7+Kgu8l6sT14B0/I=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f464de7d-fb7b-4fc7-5da0-08da1df8d785
+X-MS-Exchange-CrossTenant-Network-Message-Id: 160776ac-f930-424d-01fb-08da1df8d838
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2022 09:26:23.2845
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2022 09:26:24.4408
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: gXvgJQAb2HCjVbAmbrDbS2wlJqeYb3NIdJSqCd2C00e9EErCBPp69RRyC/NryjF7CtlySKVsZBibqntiHzLFXup/b5Qttp60Z3jrs18Gkn8=
+X-MS-Exchange-CrossTenant-UserPrincipalName: zbllUth6EhYgsD1EFiPC3lJgdB8trFbU9R/nJ/R7yYeUwr5Z4U3/diXLUKI/BfaQIxKoHWq12TIIfVy60B5nZwjqVgv4dcxdoqUCBcd+eg0=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR11MB5756
-X-Proofpoint-ORIG-GUID: 6tqoI67oec6IoKMYHHEfBNTnxObQnKcg
-X-Proofpoint-GUID: 6tqoI67oec6IoKMYHHEfBNTnxObQnKcg
+X-Proofpoint-ORIG-GUID: DA5-g6LkaQ05n5zf_GuKBOn6pI0D0gL8
+X-Proofpoint-GUID: DA5-g6LkaQ05n5zf_GuKBOn6pI0D0gL8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-14_02,2022-04-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=468
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=768
  malwarescore=0 spamscore=0 impostorscore=0 adultscore=0 priorityscore=1501
  lowpriorityscore=0 bulkscore=0 mlxscore=0 phishscore=0 clxscore=1015
  suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
@@ -143,45 +145,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Backport summary
-----------------
-1756d7994ad8 ("cgroup: Use open-time credentials for process migraton perm checks")
-	* Cherry pick from 4.19-stable, no modifications.
+From: Tejun Heo <tj@kernel.org>
 
-0d2b5955b362 ("cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv")
-	* Cherry-pick from 4.19-stable, minor contextual adjustement.
+commit 1756d7994ad85c2479af6ae5a9750b92324685af upstream.
 
-e57457641613 ("cgroup: Use open-time cgroup namespace for process migration perm checks")
-	* Cherry-pick from 4.19-stable, no modifications.
+cgroup process migration permission checks are performed at write time as
+whether a given operation is allowed or not is dependent on the content of
+the write - the PID. This currently uses current's credentials which is a
+potential security weakness as it may allow scenarios where a less
+privileged process tricks a more privileged one into writing into a fd that
+it created.
 
-Testing
--------
-There are no cgroup selftests in 4.14, but when running the ones from 4.19 on
-the 4.14 kernel, all selftests pass:
+This patch makes both cgroup2 and cgroup1 process migration interfaces to
+use the credentials saved at the time of open (file->f_cred) instead of
+current's.
 
-root@intel-x86-64:~# ./test_core
-ok 1 test_cgcore_internal_process_constraint
-ok 2 test_cgcore_top_down_constraint_enable
-ok 3 test_cgcore_top_down_constraint_disable
-ok 4 test_cgcore_no_internal_process_constraint_on_threads
-ok 5 test_cgcore_parent_becomes_threaded
-ok 6 test_cgcore_invalid_domain
-ok 7 test_cgcore_populated
-ok 8 test_cgcore_lesser_euid_open
-ok 9 test_cgcore_lesser_ns_open
+Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Fixes: 187fe84067bd ("cgroup: require write perm on common ancestor when moving processes on the default hierarchy")
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[OP: backport to v4.14: apply original __cgroup_procs_write() changes to
+cgroup_threads_write() and cgroup_procs_write()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+---
+ kernel/cgroup/cgroup-v1.c |  7 ++++---
+ kernel/cgroup/cgroup.c    | 17 ++++++++++++++++-
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
-
-Tejun Heo (3):
-  cgroup: Use open-time credentials for process migraton perm checks
-  cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv
-  cgroup: Use open-time cgroup namespace for process migration perm
-    checks
-
- kernel/cgroup/cgroup-internal.h | 19 ++++++++
- kernel/cgroup/cgroup-v1.c       | 33 ++++++++------
- kernel/cgroup/cgroup.c          | 81 +++++++++++++++++++++++----------
- 3 files changed, 95 insertions(+), 38 deletions(-)
-
+diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
+index 105f5b2f5978..4a2b148b900d 100644
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -535,10 +535,11 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
+ 		goto out_unlock;
+ 
+ 	/*
+-	 * Even if we're attaching all tasks in the thread group, we only
+-	 * need to check permissions on one of them.
++	 * Even if we're attaching all tasks in the thread group, we only need
++	 * to check permissions on one of them. Check permissions using the
++	 * credentials from file open to protect against inherited fd attacks.
+ 	 */
+-	cred = current_cred();
++	cred = of->file->f_cred;
+ 	tcred = get_task_cred(task);
+ 	if (!uid_eq(cred->euid, GLOBAL_ROOT_UID) &&
+ 	    !uid_eq(cred->euid, tcred->uid) &&
+diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
+index d5044ca33bd0..380500251b96 100644
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -4381,6 +4381,7 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ {
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
++	const struct cred *saved_cred;
+ 	ssize_t ret;
+ 
+ 	dst_cgrp = cgroup_kn_lock_live(of->kn, false);
+@@ -4397,8 +4398,15 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 	src_cgrp = task_cgroup_from_root(task, &cgrp_dfl_root);
+ 	spin_unlock_irq(&css_set_lock);
+ 
++	/*
++	 * Process and thread migrations follow same delegation rule. Check
++	 * permissions using the credentials from file open to protect against
++	 * inherited fd attacks.
++	 */
++	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+ 					    of->file->f_path.dentry->d_sb);
++	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+ 
+@@ -4422,6 +4430,7 @@ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ {
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
++	const struct cred *saved_cred;
+ 	ssize_t ret;
+ 
+ 	buf = strstrip(buf);
+@@ -4440,9 +4449,15 @@ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ 	src_cgrp = task_cgroup_from_root(task, &cgrp_dfl_root);
+ 	spin_unlock_irq(&css_set_lock);
+ 
+-	/* thread migrations follow the cgroup.procs delegation rule */
++	/*
++	 * Process and thread migrations follow same delegation rule. Check
++	 * permissions using the credentials from file open to protect against
++	 * inherited fd attacks.
++	 */
++	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+ 					    of->file->f_path.dentry->d_sb);
++	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+ 
 -- 
 2.25.1
 
