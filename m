@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8C850143A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1575015E9
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244395AbiDNNeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49932 "EHLO
+        id S244590AbiDNNhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245123AbiDNN2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17238A9948;
-        Thu, 14 Apr 2022 06:21:46 -0700 (PDT)
+        with ESMTP id S245147AbiDNN2h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82FDEAA03C;
+        Thu, 14 Apr 2022 06:21:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A15D5618C4;
-        Thu, 14 Apr 2022 13:21:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD362C385A1;
-        Thu, 14 Apr 2022 13:21:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 331BEB82982;
+        Thu, 14 Apr 2022 13:21:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D870C385AA;
+        Thu, 14 Apr 2022 13:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942505;
-        bh=2emTBnf1uuGoa0a4EPhs8gmI6znVRvgX5bYen/w9dnc=;
+        s=korg; t=1649942507;
+        bh=KoGQ+0vWP49KzgTOCU/ifdDn7F7KOjvEzSHR2vQTS+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XOIMgv754KfPLy7vrjg4tqmRU0mXo6g1mGTAB29eF05t5pg9S87usiJeSbcHI6PWj
-         8I/1fFhm6sQuMnI1aokK7fmSA5ol9KhZGkMSmJmyQ3ViKUtjW9Q51OkCZP7TaUoF5A
-         TFnl+NWYd5UD0VO337JxkdsQhAOIlEVsidkMZb0s=
+        b=l7+hL+l59fbs3gghCzyRnF/KKFcPXBBRczGdiwDK88YKXctNbWX/+WmcIalfNf4xS
+         77mEBraWrxIJ+XUNSP5hZxMb1pz9FmPJOsJpgKWHVZUTjsXdLfekd8c8uCOWypQ/yG
+         HIUMEhrXiE4USPkPWNo3CjzqaLX1tjMb+3Y0r+V4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dirk Buchwalder <buchwalder@posteo.de>,
-        Robert Marko <robimarko@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Qing Wang <wangqing@vivo.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 161/338] clk: qcom: ipq8074: Use floor ops for SDCC1 clock
-Date:   Thu, 14 Apr 2022 15:11:04 +0200
-Message-Id: <20220414110843.482937134@linuxfoundation.org>
+Subject: [PATCH 4.19 162/338] serial: 8250_mid: Balance reference count for PCI DMA device
+Date:   Thu, 14 Apr 2022 15:11:05 +0200
+Message-Id: <20220414110843.511130268@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -56,47 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Buchwalder <buchwalder@posteo.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit b77d8306d84f83d1da68028a68c91da9c867b6f6 ]
+[ Upstream commit 67ec6dd0b257bd81b4e9fcac89b29da72f6265e5 ]
 
-Use floor ops on SDCC1 APPS clock in order to round down selected clock
-frequency and avoid overclocking SD/eMMC cards.
+The pci_get_slot() increases its reference count, the caller
+must decrement the reference count by calling pci_dev_put().
 
-For example, currently HS200 cards were failling tuning as they were
-actually being clocked at 384MHz instead of 192MHz.
-This caused some boards to disable 1.8V I/O and force the eMMC into the
-standard HS mode (50MHz) and that appeared to work despite the eMMC being
-overclocked to 96Mhz in that case.
-
-There was a previous commit to use floor ops on SDCC clocks, but it looks
-to have only covered SDCC2 clock.
-
-Fixes: 9607f6224b39 ("clk: qcom: ipq8074: add PCIE, USB and SDCC clocks")
-
-Signed-off-by: Dirk Buchwalder <buchwalder@posteo.de>
-Signed-off-by: Robert Marko <robimarko@gmail.com>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220210173100.505128-1-robimarko@gmail.com
+Fixes: 90b9aacf912a ("serial: 8250_pci: add Intel Tangier support")
+Fixes: f549e94effa1 ("serial: 8250_pci: add Intel Penwell ports")
+Reported-by: Qing Wang <wangqing@vivo.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Depends-on: d9eda9bab237 ("serial: 8250_pci: Intel MID UART support to its own driver")
+Link: https://lore.kernel.org/r/20220215100920.41984-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-ipq8074.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_mid.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-ipq8074.c b/drivers/clk/qcom/gcc-ipq8074.c
-index 505c6263141d..708c486a6e96 100644
---- a/drivers/clk/qcom/gcc-ipq8074.c
-+++ b/drivers/clk/qcom/gcc-ipq8074.c
-@@ -1082,7 +1082,7 @@ static struct clk_rcg2 sdcc1_apps_clk_src = {
- 		.name = "sdcc1_apps_clk_src",
- 		.parent_names = gcc_xo_gpll0_gpll2_gpll0_out_main_div2,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_floor_ops,
- 	},
+diff --git a/drivers/tty/serial/8250/8250_mid.c b/drivers/tty/serial/8250/8250_mid.c
+index efa0515139f8..e6c1791609dd 100644
+--- a/drivers/tty/serial/8250/8250_mid.c
++++ b/drivers/tty/serial/8250/8250_mid.c
+@@ -73,6 +73,11 @@ static int pnw_setup(struct mid8250 *mid, struct uart_port *p)
+ 	return 0;
+ }
+ 
++static void pnw_exit(struct mid8250 *mid)
++{
++	pci_dev_put(mid->dma_dev);
++}
++
+ static int tng_handle_irq(struct uart_port *p)
+ {
+ 	struct mid8250 *mid = p->private_data;
+@@ -124,6 +129,11 @@ static int tng_setup(struct mid8250 *mid, struct uart_port *p)
+ 	return 0;
+ }
+ 
++static void tng_exit(struct mid8250 *mid)
++{
++	pci_dev_put(mid->dma_dev);
++}
++
+ static int dnv_handle_irq(struct uart_port *p)
+ {
+ 	struct mid8250 *mid = p->private_data;
+@@ -330,9 +340,9 @@ static int mid8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 
+ 	pci_set_drvdata(pdev, mid);
+ 	return 0;
++
+ err:
+-	if (mid->board->exit)
+-		mid->board->exit(mid);
++	mid->board->exit(mid);
+ 	return ret;
+ }
+ 
+@@ -342,8 +352,7 @@ static void mid8250_remove(struct pci_dev *pdev)
+ 
+ 	serial8250_unregister_port(mid->line);
+ 
+-	if (mid->board->exit)
+-		mid->board->exit(mid);
++	mid->board->exit(mid);
+ }
+ 
+ static const struct mid8250_board pnw_board = {
+@@ -351,6 +360,7 @@ static const struct mid8250_board pnw_board = {
+ 	.freq = 50000000,
+ 	.base_baud = 115200,
+ 	.setup = pnw_setup,
++	.exit = pnw_exit,
  };
  
+ static const struct mid8250_board tng_board = {
+@@ -358,6 +368,7 @@ static const struct mid8250_board tng_board = {
+ 	.freq = 38400000,
+ 	.base_baud = 1843200,
+ 	.setup = tng_setup,
++	.exit = tng_exit,
+ };
+ 
+ static const struct mid8250_board dnv_board = {
 -- 
 2.34.1
 
