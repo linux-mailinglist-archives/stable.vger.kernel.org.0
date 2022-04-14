@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36393500BB6
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 12:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE469500BB9
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 13:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238920AbiDNLCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 07:02:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34628 "EHLO
+        id S239639AbiDNLC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 07:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229798AbiDNLCP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 07:02:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DE621E11
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 03:59:51 -0700 (PDT)
+        with ESMTP id S229798AbiDNLC4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 07:02:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A500D3AA52
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 04:00:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EF936122A
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 10:59:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D2EDC385A5;
-        Thu, 14 Apr 2022 10:59:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4114A6122C
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 11:00:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 244D5C385A1;
+        Thu, 14 Apr 2022 11:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649933990;
-        bh=jvdbVaUuAjapmLAi7lOAyz8pM5TAuWSfm1Wgb4s8J+I=;
+        s=korg; t=1649934031;
+        bh=hR7NaWxHM8LrEBOFeDXHCDx7DEgASu00D9zXQEw3Uu8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yxrHQSkiEfYXdDOUFP/fuYYI0VeAXP3bLm3LmGF1KF9BWW53ik+BYZkw4VKuy5MBN
-         VSptusubLz+L4hGLjXqvFOgP6yinV2Kc78lzzrXVQiW5QGatD2z2eFFNXmzgB7hCR3
-         KGRQfc3qJz9lZDit72ZCBlDWnFjj49T2bOlOpThM=
-Date:   Thu, 14 Apr 2022 12:59:48 +0200
+        b=U/iw42+1lCZ33GL9ceiuJxC8VrdNIV8nr5nDlSFTxiWXY9JZSE7jyJI/PHs+lHd6o
+         Lxf7sTIuqB+GvkEFBpvcngj+UVs134pirVUNR8pcjjQdgJ1k05QwtAh62wpDkJE9vX
+         4CzkWU/RR36bZuFEjnxm2vi9+yjs0WC1AD0j82oI=
+Date:   Thu, 14 Apr 2022 13:00:29 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Luca Coelho <luca@coelho.fi>
-Cc:     stable@vger.kernel.org, gregory.greenman@intel.com
-Subject: Re: [PATCH 5.17] iwlwifi: yoyo: fix DBGI_SRAM ini dump header.
-Message-ID: <Ylf+pLW54GU23JNS@kroah.com>
-References: <1648991790212197@kroah.com>
- <20220413080600.281718-1-luca@coelho.fi>
+To:     Alex Elder <elder@linaro.org>
+Cc:     stable@vger.kernel.org, Deepak Kumar Singh <deesin@codeaurora.org>,
+        clew@codeaurora.org, swboyd@chromium.org,
+        bjorn.andersson@linaro.org, kuba@kernel.org, elder@kernel.org
+Subject: Re: [PATCH 1/3] soc: qcom: aoss: Expose send for generic usecase
+Message-ID: <Ylf+zbeq9+fAidmn@kroah.com>
+References: <20220413144811.522143-1-elder@linaro.org>
+ <20220413144811.522143-2-elder@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220413080600.281718-1-luca@coelho.fi>
+In-Reply-To: <20220413144811.522143-2-elder@linaro.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,34 +52,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 13, 2022 at 11:06:00AM +0300, Luca Coelho wrote:
-> From: Rotem Saado <rotem.saado@intel.com>
+On Wed, Apr 13, 2022 at 09:48:09AM -0500, Alex Elder wrote:
+> From: Deepak Kumar Singh <deesin@codeaurora.org>
 > 
-> commit 34bc27783a31a05d2fb987d8fa0f4f702efd0359 upstream.
+> commit 8c75d585b931ac874fbe4ee5a8f1811d20c2817f upstream.
 > 
-> DBGI SRAM is new type of monitor, therefore it should be
-> dump as monitor type with ini dump monitor header.
+> Not all upcoming usecases will have an interface to allow the aoss
+> driver to hook onto. Expose the send api and create a get function to
+> enable drivers to send their own messages to aoss.
 > 
-> Signed-off-by: Rotem Saado <rotem.saado@intel.com>
-> Fixes: 89639e06d0f3 ("iwlwifi: yoyo: support for new DBGI_SRAM region")
-> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-> Link: https://lore.kernel.org/r/iwlwifi.20220129105618.6c31f6a2dcfc.If311c1d548bc5f7157a449e848ea01f71f5592eb@changeid
-> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-> ---
->  .../net/wireless/intel/iwlwifi/cfg/22000.c    |  6 ++++
->  drivers/net/wireless/intel/iwlwifi/fw/dbg.c   | 29 +++++++++++++++++--
->  .../net/wireless/intel/iwlwifi/iwl-config.h   |  1 +
->  drivers/net/wireless/intel/iwlwifi/iwl-prph.h |  2 ++
->  4 files changed, 36 insertions(+), 2 deletions(-)
+> Signed-off-by: Chris Lew <clew@codeaurora.org>
+> Signed-off-by: Deepak Kumar Singh <deesin@codeaurora.org>
+> Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Link: https://lore.kernel.org/r/1630420228-31075-2-git-send-email-deesin@codeaurora.org
 
-Please always test-build your patches before sending them.  This broke
-the build:
+You sent this on, so you should also sign-off on it, right?
 
-drivers/net/wireless/intel/iwlwifi/fw/dbg.c:2282:33: error: initialization of ‘void * (*)(struct iwl_fw_runtime *, struct iwl_dump_ini_region_data *, void *)’ from incompatible pointer type ‘void * (*)(struct iwl_fw_runtime *, struct iwl_dump_ini_region_data *, void *, u32)’ {aka ‘void * (*)(struct iwl_fw_runtime *, struct iwl_dump_ini_region_data *, void *, unsigned int)’} [-Werror=incompatible-pointer-types]
- 2282 |                 .fill_mem_hdr = iwl_dump_ini_mon_dbgi_fill_header,
-      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+thanks,
 
-{sigh}
-
-Odds are your other backports will too, so I'm going to ignore them as
-well and wait for working ones.
+greg k-h
