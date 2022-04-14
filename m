@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0059D501331
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4C2050133B
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244970AbiDNNnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:43:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57258 "EHLO
+        id S1344923AbiDNOO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:14:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343977AbiDNNaK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E96BA2046;
-        Thu, 14 Apr 2022 06:25:46 -0700 (PDT)
+        with ESMTP id S1347011AbiDNN6L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E85B6461;
+        Thu, 14 Apr 2022 06:48:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6D74B82985;
-        Thu, 14 Apr 2022 13:25:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C71C385AA;
-        Thu, 14 Apr 2022 13:25:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D52561D73;
+        Thu, 14 Apr 2022 13:48:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5402C385A5;
+        Thu, 14 Apr 2022 13:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942743;
-        bh=DfWn7v/m6DQzQCD1f1qIdQ8MDA8tM/XY3TK+NAT8MHs=;
+        s=korg; t=1649944107;
+        bh=oxsOU/TAsc8GDoHYex7Rew1S22SyhzlHMySjRQ0/IvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWKtKhc2H7Gb3u0+lGgooI6H4qA8PcXupM/JZnyyrDLHbkwj8wuCIrvTsgCgiozw7
-         djfTeV2NM5TjIwYITGt1229q0ljLeBWnGv70buRvy7pFlcjpmUSPhtFu91DfATvSBk
-         KI9Ez/XaDzvVq8e18hEyMfveZwqkT8mzOX3Bml+s=
+        b=ZUaXUSC0I2iIrs/nr7JXnWTWDRqL36Gfioit3i7fGv7OLAqcPsGBPMjbU0FhusXf6
+         GuVRESF8mH79rwMDca33ev/P73D46tjWC8W/gryQ87fjVJRHgG78AuCX8aBookPnVX
+         Yom7jF4xQzec6qI759LJ9ohQzAn0Yo7eqmsrhPRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.19 238/338] ubifs: rename_whiteout: correct old_dir size computing
+        stable@vger.kernel.org, Hengqi Chen <hengqi.chen@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>
+Subject: [PATCH 5.4 356/475] bpf: Fix comment for helper bpf_current_task_under_cgroup()
 Date:   Thu, 14 Apr 2022 15:12:21 +0200
-Message-Id: <20220414110845.666973691@linuxfoundation.org>
+Message-Id: <20220414110905.044233670@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Hengqi Chen <hengqi.chen@gmail.com>
 
-commit 705757274599e2e064dd3054aabc74e8af31a095 upstream.
+commit 58617014405ad5c9f94f464444f4972dabb71ca7 upstream.
 
-When renaming the whiteout file, the old whiteout file is not deleted.
-Therefore, we add the old dentry size to the old dir like XFS.
-Otherwise, an error may be reported due to `fscki->calc_sz != fscki->size`
-in check_indes.
+Fix the descriptions of the return values of helper bpf_current_task_under_cgroup().
 
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
-Reported-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: c6b5fb8690fa ("bpf: add documentation for eBPF helpers (42-50)")
+Signed-off-by: Hengqi Chen <hengqi.chen@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20220310155335.1278783-1-hengqi.chen@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/dir.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/uapi/linux/bpf.h       |    4 ++--
+ tools/include/uapi/linux/bpf.h |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1379,6 +1379,9 @@ static int do_rename(struct inode *old_d
- 			iput(whiteout);
- 			goto out_release;
- 		}
-+
-+		/* Add the old_dentry size to the old_dir size. */
-+		old_sz -= CALC_DENT_SIZE(fname_len(&old_nm));
- 	}
- 
- 	lock_4_inodes(old_dir, new_dir, new_inode, whiteout);
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -1294,8 +1294,8 @@ union bpf_attr {
+  * 	Return
+  * 		The return value depends on the result of the test, and can be:
+  *
+- *		* 0, if current task belongs to the cgroup2.
+- *		* 1, if current task does not belong to the cgroup2.
++ *		* 1, if current task belongs to the cgroup2.
++ *		* 0, if current task does not belong to the cgroup2.
+  * 		* A negative error code, if an error occurred.
+  *
+  * int bpf_skb_change_tail(struct sk_buff *skb, u32 len, u64 flags)
+--- a/tools/include/uapi/linux/bpf.h
++++ b/tools/include/uapi/linux/bpf.h
+@@ -1294,8 +1294,8 @@ union bpf_attr {
+  * 	Return
+  * 		The return value depends on the result of the test, and can be:
+  *
+- *		* 0, if current task belongs to the cgroup2.
+- *		* 1, if current task does not belong to the cgroup2.
++ *		* 1, if current task belongs to the cgroup2.
++ *		* 0, if current task does not belong to the cgroup2.
+  * 		* A negative error code, if an error occurred.
+  *
+  * int bpf_skb_change_tail(struct sk_buff *skb, u32 len, u64 flags)
 
 
