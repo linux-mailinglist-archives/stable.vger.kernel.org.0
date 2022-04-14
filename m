@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3C625010C0
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C55685011A4
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345338AbiDNNuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:50:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47094 "EHLO
+        id S1345428AbiDNNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344354AbiDNNlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:41:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95190120;
-        Thu, 14 Apr 2022 06:38:37 -0700 (PDT)
+        with ESMTP id S1344456AbiDNNle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:41:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FA2C120;
+        Thu, 14 Apr 2022 06:39:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C7BCB82983;
-        Thu, 14 Apr 2022 13:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92B00C385A1;
-        Thu, 14 Apr 2022 13:38:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D3A30CE2997;
+        Thu, 14 Apr 2022 13:39:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE23C385A1;
+        Thu, 14 Apr 2022 13:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943515;
-        bh=5UPzUyTwVNafOcXp7U06LQnhvjxS56Qaqm4pj8oYI6A=;
+        s=korg; t=1649943546;
+        bh=sCBusolubFHnM0j74VpBf6a9iULaG4IbkxyhN+25IB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFWHExJlP5DVl3NqOa1YSit61OOa/QwEGi+18FHvh4B8o76TP+3juWaMU9ySAIPez
-         kOnI7+6nJA4sMOzveabfgp9Oxm8MfKz5Pwz1Ob9Y2fcrL3lZoEA8nLnWNzAuDb3+3r
-         RlIWeS/VSy1JVpzwSLJTsNzV7V+ulDcTg2Z6mv8o=
+        b=yUNJ+ZRuIyc4WRUQT+AOpJNuXAZDiuNs+FCDlTM4KH1qD4qI7v16i07qnDJKNvFsf
+         XgBffum0fEIEV1alDI367EJa1GSkqu6JJ1zDgynt+ZPo3RzUNU7uzD1reKLW1C0Sz6
+         YATqWoG6rsmA9twAYU77LcMrmBkGb1tnveLJH1HQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 176/475] iommu/ipmmu-vmsa: Check for error num after setting mask
-Date:   Thu, 14 Apr 2022 15:09:21 +0200
-Message-Id: <20220414110900.060631646@linuxfoundation.org>
+        stable@vger.kernel.org, Hersen Wu <hersenwu@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Roman Li <Roman.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 177/475] drm/amd/display: Add affected crtcs to atomic state for dsc mst unplug
+Date:   Thu, 14 Apr 2022 15:09:22 +0200
+Message-Id: <20220414110900.087931158@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,40 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Roman Li <Roman.Li@amd.com>
 
-[ Upstream commit 1fdbbfd5099f797a4dac05e7ef0192ba4a9c39b4 ]
+[ Upstream commit 128f8ed5902a287a6bb4afe0ffdae8a80b2a64ec ]
 
-Because of the possible failure of the dma_supported(), the
-dma_set_mask_and_coherent() may return error num.
-Therefore, it should be better to check it and return the error if
-fails.
+[Why]
+When display topology changed on DSC hub we add all crtcs with dsc support to
+atomic state.
+Refer to patch:"drm/amd/display: Trigger modesets on MST DSC connectors"
+However the original implementation may skip crtc if the topology change
+caused by unplug.
+That potentially could lead to no-lightup or corruption on DSC hub after
+unplug event on one of the connectors.
 
-Fixes: 1c894225bf5b ("iommu/ipmmu-vmsa: IPMMU device is 40-bit bus master")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Reviewed-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
-Link: https://lore.kernel.org/r/20220106024302.2574180-1-jiasheng@iscas.ac.cn
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+[How]
+Update add_affected_mst_dsc_crtcs() to use old connector state
+if new connector state has no crtc (undergoes modeset due to unplug)
+
+Fixes: 44be939ff7ac58 ("drm/amd/display: Trigger modesets on MST DSC connectors")
+
+Reviewed-by: Hersen Wu <hersenwu@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/ipmmu-vmsa.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index 2639fc718117..584eefab1dbc 100644
---- a/drivers/iommu/ipmmu-vmsa.c
-+++ b/drivers/iommu/ipmmu-vmsa.c
-@@ -1061,7 +1061,9 @@ static int ipmmu_probe(struct platform_device *pdev)
- 	bitmap_zero(mmu->ctx, IPMMU_CTX_MAX);
- 	mmu->features = of_device_get_match_data(&pdev->dev);
- 	memset(mmu->utlb_ctx, IPMMU_CTX_INVALID, mmu->features->num_utlbs);
--	dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(40));
-+	ret = dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(40));
-+	if (ret)
-+		return ret;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 29f8b4bd5a76..c5231c50c412 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -7268,10 +7268,13 @@ dm_determine_update_type_for_commit(struct amdgpu_display_manager *dm,
+ static int add_affected_mst_dsc_crtcs(struct drm_atomic_state *state, struct drm_crtc *crtc)
+ {
+ 	struct drm_connector *connector;
+-	struct drm_connector_state *conn_state;
++	struct drm_connector_state *conn_state, *old_conn_state;
+ 	struct amdgpu_dm_connector *aconnector = NULL;
+ 	int i;
+-	for_each_new_connector_in_state(state, connector, conn_state, i) {
++	for_each_oldnew_connector_in_state(state, connector, old_conn_state, conn_state, i) {
++		if (!conn_state->crtc)
++			conn_state = old_conn_state;
++
+ 		if (conn_state->crtc != crtc)
+ 			continue;
  
- 	/* Map I/O memory and request IRQ. */
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 -- 
 2.34.1
 
