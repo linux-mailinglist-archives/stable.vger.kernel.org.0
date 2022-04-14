@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E7795012DB
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B45D450150C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348335AbiDNOET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:04:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60368 "EHLO
+        id S244543AbiDNNfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:35:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346579AbiDNN5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 827C9A0BE4;
-        Thu, 14 Apr 2022 06:47:23 -0700 (PDT)
+        with ESMTP id S1344009AbiDNNaO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A069233C;
+        Thu, 14 Apr 2022 06:26:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E654CCE296C;
-        Thu, 14 Apr 2022 13:47:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07B7CC385A5;
-        Thu, 14 Apr 2022 13:47:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E013360BAF;
+        Thu, 14 Apr 2022 13:26:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2D4BC385A1;
+        Thu, 14 Apr 2022 13:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944040;
-        bh=MUCKA24Zs1D0m4ra/Njaa4sqlCCsLYxZeE9nhFH/L9Q=;
+        s=korg; t=1649942765;
+        bh=8BnBKM8zsWbP0b7dUDynQ2vUjf/aXJ8pGq6dXGp0ZBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ielZWYGzSYuKwUrTJhk1R1FLsHcow7ENHmVLJdD1CgDfsmAvdt+w5SIq7Br5tOGM8
-         5126aFje+nq83Oe15vifVgzqbOBhQ0adAw0aAlH4lK36NedeftQh/OJhHmvvXNjc8r
-         wfNtVeZLBC+moAAwUNbQ4a5NpMxffZk1rYu+mufE=
+        b=ZA11Pk3amAwWe8pkrrl5iM1DqPYpNfxIkdNiUVXFke4y2Izb+tb2NSDMtExPlQyyi
+         wqLQjt9mFTns1mLwWnNgG4pt9arFuf/Ge5UmQCydcnTNS99HiLbMkmBsD6U+EJ93xm
+         I44sKswOIv/yRi/dOHTsEcQ1b2S1W9soU0pA+J3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lotus Fenn <lotusf@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Like Xu <likexu@tencent.com>,
-        David Dunn <daviddunn@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 372/475] KVM: x86/svm: Clear reserved bits written to PerfEvtSeln MSRs
+        stable@vger.kernel.org,
+        Martin Varghese <martin.varghese@nokia.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 4.19 254/338] openvswitch: Fixed nd target mask field in the flow dump.
 Date:   Thu, 14 Apr 2022 15:12:37 +0200
-Message-Id: <20220414110905.487395839@linuxfoundation.org>
+Message-Id: <20220414110846.121489151@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,74 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Martin Varghese <martin.varghese@nokia.com>
 
-[ Upstream commit 9b026073db2f1ad0e4d8b61c83316c8497981037 ]
+commit f19c44452b58a84d95e209b847f5495d91c9983a upstream.
 
-AMD EPYC CPUs never raise a #GP for a WRMSR to a PerfEvtSeln MSR. Some
-reserved bits are cleared, and some are not. Specifically, on
-Zen3/Milan, bits 19 and 42 are not cleared.
+IPv6 nd target mask was not getting populated in flow dump.
 
-When emulating such a WRMSR, KVM should not synthesize a #GP,
-regardless of which bits are set. However, undocumented bits should
-not be passed through to the hardware MSR. So, rather than checking
-for reserved bits and synthesizing a #GP, just clear the reserved
-bits.
+In the function __ovs_nla_put_key the icmp code mask field was checked
+instead of icmp code key field to classify the flow as neighbour discovery.
 
-This may seem pedantic, but since KVM currently does not support the
-"Host/Guest Only" bits (41:40), it is necessary to clear these bits
-rather than synthesizing #GP, because some popular guests (e.g Linux)
-will set the "Host Only" bit even on CPUs that don't support
-EFER.SVME, and they don't expect a #GP.
+ufid:bdfbe3e5-60c2-43b0-a5ff-dfcac1c37328, recirc_id(0),dp_hash(0/0),
+skb_priority(0/0),in_port(ovs-nm1),skb_mark(0/0),ct_state(0/0),
+ct_zone(0/0),ct_mark(0/0),ct_label(0/0),
+eth(src=00:00:00:00:00:00/00:00:00:00:00:00,
+dst=00:00:00:00:00:00/00:00:00:00:00:00),
+eth_type(0x86dd),
+ipv6(src=::/::,dst=::/::,label=0/0,proto=58,tclass=0/0,hlimit=0/0,frag=no),
+icmpv6(type=135,code=0),
+nd(target=2001::2/::,
+sll=00:00:00:00:00:00/00:00:00:00:00:00,
+tll=00:00:00:00:00:00/00:00:00:00:00:00),
+packets:10, bytes:860, used:0.504s, dp:ovs, actions:ovs-nm2
 
-For example,
-
-root@Ubuntu1804:~# perf stat -e r26 -a sleep 1
-
- Performance counter stats for 'system wide':
-
-                 0      r26
-
-       1.001070977 seconds time elapsed
-
-Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379957] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000130026) at rIP: 0xffffffff9b276a28 (native_write_msr+0x8/0x30)
-Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379958] Call Trace:
-Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379963]  amd_pmu_disable_event+0x27/0x90
-
-Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
-Reported-by: Lotus Fenn <lotusf@google.com>
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Like Xu <likexu@tencent.com>
-Reviewed-by: David Dunn <daviddunn@google.com>
-Message-Id: <20220226234131.2167175-1-jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e64457191a25 (openvswitch: Restructure datapath.c and flow.c)
+Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
+Link: https://lore.kernel.org/r/20220328054148.3057-1-martinvarghesenokia@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/pmu_amd.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/openvswitch/flow_netlink.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/pmu_amd.c b/arch/x86/kvm/pmu_amd.c
-index d9990951fd0a..6bc656abbe66 100644
---- a/arch/x86/kvm/pmu_amd.c
-+++ b/arch/x86/kvm/pmu_amd.c
-@@ -245,12 +245,10 @@ static int amd_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
- 	/* MSR_EVNTSELn */
- 	pmc = get_gp_pmc_amd(pmu, msr, PMU_TYPE_EVNTSEL);
- 	if (pmc) {
--		if (data == pmc->eventsel)
--			return 0;
--		if (!(data & pmu->reserved_bits)) {
-+		data &= ~pmu->reserved_bits;
-+		if (data != pmc->eventsel)
- 			reprogram_gp_counter(pmc, data);
--			return 0;
--		}
-+		return 0;
- 	}
+--- a/net/openvswitch/flow_netlink.c
++++ b/net/openvswitch/flow_netlink.c
+@@ -2166,8 +2166,8 @@ static int __ovs_nla_put_key(const struc
+ 			icmpv6_key->icmpv6_type = ntohs(output->tp.src);
+ 			icmpv6_key->icmpv6_code = ntohs(output->tp.dst);
  
- 	return 1;
--- 
-2.35.1
-
+-			if (icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_SOLICITATION ||
+-			    icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_ADVERTISEMENT) {
++			if (swkey->tp.src == htons(NDISC_NEIGHBOUR_SOLICITATION) ||
++			    swkey->tp.src == htons(NDISC_NEIGHBOUR_ADVERTISEMENT)) {
+ 				struct ovs_key_nd *nd_key;
+ 
+ 				nla = nla_reserve(skb, OVS_KEY_ATTR_ND, sizeof(*nd_key));
 
 
