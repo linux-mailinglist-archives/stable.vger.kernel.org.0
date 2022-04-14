@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3CE250105E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56BE15015B3
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245013AbiDNNiG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:38:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58338 "EHLO
+        id S245263AbiDNOIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:08:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344349AbiDNNbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EBFB23B;
-        Thu, 14 Apr 2022 06:29:19 -0700 (PDT)
+        with ESMTP id S1347728AbiDNN7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFE15AD121;
+        Thu, 14 Apr 2022 06:52:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BC02B8296A;
-        Thu, 14 Apr 2022 13:29:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B23DAC385A5;
-        Thu, 14 Apr 2022 13:29:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB936B82996;
+        Thu, 14 Apr 2022 13:52:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A6B3C385A5;
+        Thu, 14 Apr 2022 13:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942957;
-        bh=zOsN+FLqFZCw6lZbkSg40nx71Jwo58ZaQZ43pUJ7t9c=;
+        s=korg; t=1649944332;
+        bh=yyacd1Dcv1qRXwbo+JuSV5hgkICqF9BJvvM4PtbI4gM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twC63MMi7qpQgOp3IsvkadiUbH7t+d4jGSPgO1YbCmHEZ53h1aFC6fJwoVRdyQJDH
-         pY5BTIM1qirLimpjysM1OG9uXeGvlUEI/ilXMGziu4rsMGTBPvZ95jERyqXzsqKx9x
-         tUcsyjf04cDnMvgbNg3NmD7lUq/9zpkuHHkY20Cw=
+        b=p9SbQK9b0ZDwgRBP6ysoEllQ4eD81wrfii24XWi5eSgt+eiNoKjketCa598xuLoAC
+         FqZRornkCtR3GZUuyRlc63Ij4m12X6JDPNkb+3nOgg16E+ByOp/Oku4PGvRLTt3o5f
+         KGx5osU17Y7fBlvfZjlpAzL+Av64GyXQWFgZ/vDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 320/338] arm64: patch_text: Fixup last cpu should be master
+        stable@vger.kernel.org, Kamal Dasu <kdasu.kdev@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 438/475] spi: bcm-qspi: fix MSPI only access with bcm_qspi_exec_mem_op()
 Date:   Thu, 14 Apr 2022 15:13:43 +0200
-Message-Id: <20220414110847.996385416@linuxfoundation.org>
+Message-Id: <20220414110907.320117991@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Kamal Dasu <kdasu.kdev@gmail.com>
 
-commit 31a099dbd91e69fcab55eef4be15ed7a8c984918 upstream.
+[ Upstream commit 2c7d1b281286c46049cd22b43435cecba560edde ]
 
-These patch_text implementations are using stop_machine_cpuslocked
-infrastructure with atomic cpu_count. The original idea: When the
-master CPU patch_text, the others should wait for it. But current
-implementation is using the first CPU as master, which couldn't
-guarantee the remaining CPUs are waiting. This patch changes the
-last CPU as the master to solve the potential risk.
+This fixes case where MSPI controller is used to access spi-nor
+flash and BSPI block is not present.
 
-Fixes: ae16480785de ("arm64: introduce interfaces to hotpatch kernel and module code")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220407073323.743224-2-guoren@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5f195ee7d830 ("spi: bcm-qspi: Implement the spi_mem interface")
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220328142442.7553-1-kdasu.kdev@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/insn.c |    4 ++--
+ drivers/spi/spi-bcm-qspi.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/insn.c
-+++ b/arch/arm64/kernel/insn.c
-@@ -204,8 +204,8 @@ static int __kprobes aarch64_insn_patch_
- 	int i, ret = 0;
- 	struct aarch64_insn_patch *pp = arg;
+diff --git a/drivers/spi/spi-bcm-qspi.c b/drivers/spi/spi-bcm-qspi.c
+index 3755be04346a..d933a6eda5fd 100644
+--- a/drivers/spi/spi-bcm-qspi.c
++++ b/drivers/spi/spi-bcm-qspi.c
+@@ -960,7 +960,7 @@ static int bcm_qspi_exec_mem_op(struct spi_mem *mem,
+ 	addr = op->addr.val;
+ 	len = op->data.nbytes;
  
--	/* The first CPU becomes master */
--	if (atomic_inc_return(&pp->cpu_count) == 1) {
-+	/* The last CPU becomes master */
-+	if (atomic_inc_return(&pp->cpu_count) == num_online_cpus()) {
- 		for (i = 0; ret == 0 && i < pp->insn_cnt; i++)
- 			ret = aarch64_insn_patch_text_nosync(pp->text_addrs[i],
- 							     pp->new_insns[i]);
+-	if (bcm_qspi_bspi_ver_three(qspi) == true) {
++	if (has_bspi(qspi) && bcm_qspi_bspi_ver_three(qspi) == true) {
+ 		/*
+ 		 * The address coming into this function is a raw flash offset.
+ 		 * But for BSPI <= V3, we need to convert it to a remapped BSPI
+@@ -979,7 +979,7 @@ static int bcm_qspi_exec_mem_op(struct spi_mem *mem,
+ 	    len < 4)
+ 		mspi_read = true;
+ 
+-	if (mspi_read)
++	if (!has_bspi(qspi) || mspi_read)
+ 		return bcm_qspi_mspi_exec_mem_op(spi, op);
+ 
+ 	ret = bcm_qspi_bspi_set_mode(qspi, op, 0);
+-- 
+2.35.1
+
 
 
