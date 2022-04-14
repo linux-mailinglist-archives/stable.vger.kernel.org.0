@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C925013DD
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:23:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B73BC5010C6
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345635AbiDNNxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:53:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54928 "EHLO
+        id S244688AbiDNNhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345109AbiDNNpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:08 -0400
+        with ESMTP id S244765AbiDNN2G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC5A3344D1;
-        Thu, 14 Apr 2022 06:42:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359A7A5EA2;
+        Thu, 14 Apr 2022 06:20:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DC9A61B51;
-        Thu, 14 Apr 2022 13:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FE80C385A1;
-        Thu, 14 Apr 2022 13:42:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1B756125A;
+        Thu, 14 Apr 2022 13:20:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC330C385A5;
+        Thu, 14 Apr 2022 13:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943728;
-        bh=PHHeuhm0NWxLPAAT62pIvnTG3/TxrZ35Cu7YW5GfDsI=;
+        s=korg; t=1649942452;
+        bh=M17IKYJWhPg4SFCSQnJGvSE2qWIo5R3jjaDEMUuAmuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m84sL6NiQUrfv3xT4FpuSsKIRNFEJ4pUcX/9spPzZKwn14bx1jT9vNj0URPvarhN0
-         tOrGBWETcWyc2gzlXcp0hzABj+Vef9S9wetn3rfE9H0zpR7Uuo+sCoP34SX7Qu/Wyj
-         59vwlSg+ibUMXaoNCQ1rNMavun6T0XzmCRfmhMe8=
+        b=Jmq2h6g8hjBkv//V6hW/Qy/4KYvlhay1EwhH4myl0DxVPTytJ08gdGdnO3g91jUqY
+         Nqolv/LVgiEEkZqXuOch1Tlq31GV1f634eCHUME18U7zKZofQW4RAJyU/L4wR4BX+8
+         2G7MNMeqOwY/j2D7UJiX6hl3eUVbJdG5NgXJCPpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        anton ivanov <anton.ivanov@cambridgegreys.com>,
-        Julius Werner <jwerner@chromium.org>,
-        David Gow <davidgow@google.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Hou Wenlong <houwenlong.hwl@antgroup.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 258/475] firmware: google: Properly state IOMEM dependency
+Subject: [PATCH 4.19 140/338] KVM: x86/emulator: Defer not-present segment check in __load_segment_descriptor()
 Date:   Thu, 14 Apr 2022 15:10:43 +0200
-Message-Id: <20220414110902.331271619@linuxfoundation.org>
+Message-Id: <20220414110842.889901588@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Hou Wenlong <houwenlong.hwl@antgroup.com>
 
-[ Upstream commit 37fd83916da2e4cae03d350015c82a67b1b334c4 ]
+[ Upstream commit ca85f002258fdac3762c57d12d5e6e401b6a41af ]
 
-The Google Coreboot implementation requires IOMEM functions
-(memmremap, memunmap, devm_memremap), but does not specify this is its
-Kconfig. This results in build errors when HAS_IOMEM is not set, such as
-on some UML configurations:
+Per Intel's SDM on the "Instruction Set Reference", when
+loading segment descriptor, not-present segment check should
+be after all type and privilege checks. But the emulator checks
+it first, then #NP is triggered instead of #GP if privilege fails
+and segment is not present. Put not-present segment check after
+type and privilege checks in __load_segment_descriptor().
 
-/usr/bin/ld: drivers/firmware/google/coreboot_table.o: in function `coreboot_table_probe':
-coreboot_table.c:(.text+0x311): undefined reference to `memremap'
-/usr/bin/ld: coreboot_table.c:(.text+0x34e): undefined reference to `memunmap'
-/usr/bin/ld: drivers/firmware/google/memconsole-coreboot.o: in function `memconsole_probe':
-memconsole-coreboot.c:(.text+0x12d): undefined reference to `memremap'
-/usr/bin/ld: memconsole-coreboot.c:(.text+0x17e): undefined reference to `devm_memremap'
-/usr/bin/ld: memconsole-coreboot.c:(.text+0x191): undefined reference to `memunmap'
-/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_section_destroy.isra.0':
-vpd.c:(.text+0x300): undefined reference to `memunmap'
-/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_section_init':
-vpd.c:(.text+0x382): undefined reference to `memremap'
-/usr/bin/ld: vpd.c:(.text+0x459): undefined reference to `memunmap'
-/usr/bin/ld: drivers/firmware/google/vpd.o: in function `vpd_probe':
-vpd.c:(.text+0x59d): undefined reference to `memremap'
-/usr/bin/ld: vpd.c:(.text+0x5d3): undefined reference to `memunmap'
-collect2: error: ld returned 1 exit status
-
-Fixes: a28aad66da8b ("firmware: coreboot: Collapse platform drivers into bus core")
-Acked-By: anton ivanov <anton.ivanov@cambridgegreys.com>
-Acked-By: Julius Werner <jwerner@chromium.org>
-Signed-off-by: David Gow <davidgow@google.com>
-Link: https://lore.kernel.org/r/20220225041502.1901806-1-davidgow@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 38ba30ba51a00 (KVM: x86 emulator: Emulate task switch in emulator.c)
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
+Message-Id: <52573c01d369f506cadcf7233812427cf7db81a7.1644292363.git.houwenlong.hwl@antgroup.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/google/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/emulate.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/firmware/google/Kconfig b/drivers/firmware/google/Kconfig
-index 2fba0aa7fc54..20dfe39a0537 100644
---- a/drivers/firmware/google/Kconfig
-+++ b/drivers/firmware/google/Kconfig
-@@ -21,7 +21,7 @@ config GOOGLE_SMI
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 3e182c7ae771..63754d248dfb 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -1669,11 +1669,6 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 		goto exception;
+ 	}
  
- config GOOGLE_COREBOOT_TABLE
- 	tristate "Coreboot Table Access"
--	depends on ACPI || OF
-+	depends on HAS_IOMEM && (ACPI || OF)
- 	help
- 	  This option enables the coreboot_table module, which provides other
- 	  firmware modules access to the coreboot table. The coreboot table
+-	if (!seg_desc.p) {
+-		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
+-		goto exception;
+-	}
+-
+ 	dpl = seg_desc.dpl;
+ 
+ 	switch (seg) {
+@@ -1713,6 +1708,10 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 	case VCPU_SREG_TR:
+ 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
+ 			goto exception;
++		if (!seg_desc.p) {
++			err_vec = NP_VECTOR;
++			goto exception;
++		}
+ 		old_desc = seg_desc;
+ 		seg_desc.type |= 2; /* busy */
+ 		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
+@@ -1737,6 +1736,11 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 		break;
+ 	}
+ 
++	if (!seg_desc.p) {
++		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
++		goto exception;
++	}
++
+ 	if (seg_desc.s) {
+ 		/* mark segment as accessed */
+ 		if (!(seg_desc.type & 1)) {
 -- 
 2.34.1
 
