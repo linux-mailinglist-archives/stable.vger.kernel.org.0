@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25BC15015BF
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36FBF50110C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343503AbiDNOIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:08:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55024 "EHLO
+        id S240229AbiDNNhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238894AbiDNNwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:52:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DDFE31929;
-        Thu, 14 Apr 2022 06:44:34 -0700 (PDT)
+        with ESMTP id S245521AbiDNN3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA67DAD115;
+        Thu, 14 Apr 2022 06:23:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBE9761D68;
-        Thu, 14 Apr 2022 13:44:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6DD2C385A5;
-        Thu, 14 Apr 2022 13:44:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74ECFB82910;
+        Thu, 14 Apr 2022 13:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF090C385AC;
+        Thu, 14 Apr 2022 13:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943873;
-        bh=cmQjIDOiyu6i0WOxV+vP3qJn8wa2woRKYCESBKH7hvg=;
+        s=korg; t=1649942584;
+        bh=ffsS/x+Hp3UTeuQC96zgTgsG4G+Laxov6WtZwS7N87o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nczZKgwY2/XkhUNqUz8N9GsOOdXt5f2xO5P0t8MZkn/QCoG/PUG0RBJHX3Y4aHjE3
-         uOsY7xLLptg9nmfaLPOakCLkqbhrQd7FP+QqnPiqnYFkZeY/dWi7yW3XgxDHmVaMiu
-         eJXdh6SJf1NeAyqR4473RcUMYluBLbk4IkHOPEFY=
+        b=1xKbgoeyFYbG4aOSP47uaa3NIQXDGTw+z5QphX26bxVQq6pF67kNkPCauLLO7ynjA
+         eBbLdTsdv2m7OUQDMe91SNrCLJgtGHdXpSuq0oQdbNYWMbnQEsoNXJ7aIsAlJPkx7k
+         7Wr2jMPUQEZ0a32+pXxU4tWvTahqU+feuvKntXn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 305/475] ARM: mmp: Fix failure to remove sram device
+Subject: [PATCH 4.19 187/338] lib/test: use after free in register_test_dev_kmod()
 Date:   Thu, 14 Apr 2022 15:11:30 +0200
-Message-Id: <20220414110903.627433029@linuxfoundation.org>
+Message-Id: <20220414110844.220307654@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4036b29a146b2749af3bb213b003eb69f3e5ecc4 ]
+[ Upstream commit dc0ce6cc4b133f5f2beb8b47dacae13a7d283c2c ]
 
-Make sure in .probe() to set driver data before the function is left to
-make it possible in .remove() to undo the actions done.
+The "test_dev" pointer is freed but then returned to the caller.
 
-This fixes a potential memory leak and stops returning an error code in
-.remove() that is ignored by the driver core anyhow.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: d9c6a72d6fa2 ("kmod: add test driver to stress test the module loader")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-mmp/sram.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ lib/test_kmod.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mach-mmp/sram.c b/arch/arm/mach-mmp/sram.c
-index 6794e2db1ad5..ecc46c31004f 100644
---- a/arch/arm/mach-mmp/sram.c
-+++ b/arch/arm/mach-mmp/sram.c
-@@ -72,6 +72,8 @@ static int sram_probe(struct platform_device *pdev)
- 	if (!info)
- 		return -ENOMEM;
- 
-+	platform_set_drvdata(pdev, info);
-+
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (res == NULL) {
- 		dev_err(&pdev->dev, "no memory resource defined\n");
-@@ -107,8 +109,6 @@ static int sram_probe(struct platform_device *pdev)
- 	list_add(&info->node, &sram_bank_list);
- 	mutex_unlock(&sram_lock);
- 
--	platform_set_drvdata(pdev, info);
--
- 	dev_info(&pdev->dev, "initialized\n");
- 	return 0;
- 
-@@ -127,17 +127,19 @@ static int sram_remove(struct platform_device *pdev)
- 	struct sram_bank_info *info;
- 
- 	info = platform_get_drvdata(pdev);
--	if (info == NULL)
--		return -ENODEV;
- 
--	mutex_lock(&sram_lock);
--	list_del(&info->node);
--	mutex_unlock(&sram_lock);
-+	if (info->sram_size) {
-+		mutex_lock(&sram_lock);
-+		list_del(&info->node);
-+		mutex_unlock(&sram_lock);
-+
-+		gen_pool_destroy(info->gpool);
-+		iounmap(info->sram_virt);
-+		kfree(info->pool_name);
-+	}
- 
--	gen_pool_destroy(info->gpool);
--	iounmap(info->sram_virt);
--	kfree(info->pool_name);
- 	kfree(info);
-+
- 	return 0;
- }
+diff --git a/lib/test_kmod.c b/lib/test_kmod.c
+index 87a0cc750ea2..6813b183aa34 100644
+--- a/lib/test_kmod.c
++++ b/lib/test_kmod.c
+@@ -1155,6 +1155,7 @@ static struct kmod_test_device *register_test_dev_kmod(void)
+ 	if (ret) {
+ 		pr_err("could not register misc device: %d\n", ret);
+ 		free_test_dev_kmod(test_dev);
++		test_dev = NULL;
+ 		goto out;
+ 	}
  
 -- 
 2.34.1
