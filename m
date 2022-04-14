@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 577F050103D
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C3250156F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245636AbiDNNss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:48:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35962 "EHLO
+        id S245652AbiDNNst (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344108AbiDNNjv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 886832018A;
-        Thu, 14 Apr 2022 06:37:26 -0700 (PDT)
+        with ESMTP id S1344120AbiDNNjz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E28BF205FF;
+        Thu, 14 Apr 2022 06:37:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24F4361D67;
-        Thu, 14 Apr 2022 13:37:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37C3FC385A5;
-        Thu, 14 Apr 2022 13:37:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A0ADB82968;
+        Thu, 14 Apr 2022 13:37:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DECFEC385A5;
+        Thu, 14 Apr 2022 13:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943445;
-        bh=VryAI4iqvEXFyNHMwLj7Mlgj0XNxHfOxPJ+QMEFVjqk=;
+        s=korg; t=1649943448;
+        bh=ms0g5tR68/fwEiLbebbNRSgwc/I9D2G5Az0X6PUUf8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSpthN7//plIrH0GbW9VAQitA2FnZv5R76MiIHwGaBkEmPuhwcitLPCPgEGLpn5BA
-         /ALPRfVjVOJ0kjJN/oKV5n/RIqWBSRHrym+BNz41VQy54ggkn7Olfld9OKuhzpPVVU
-         wPNWr/cHZw6fTcFGFVWQfOI6W+XLRpCmiScdo90g=
+        b=q7Y8VUUm5PmHqaA7q9pmuenyXMsNjpXI4ou822PngNXdZG6G9thU49UIgpLgZZ64b
+         ifuLOiGRUXDY9PM9g4xtRduqhJ9vS+KcZZB/qxj7elcnTE3CzZEoVKZXwfMvOkCwTO
+         zIbytc/ecFOqQ2oYCI64MQEcWEMRlG2LFnKWjiIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+2c56b725ec547fa9cb29@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 158/475] udmabuf: validate ubuf->pagecount
-Date:   Thu, 14 Apr 2022 15:09:03 +0200
-Message-Id: <20220414110859.562512974@linuxfoundation.org>
+        stable@vger.kernel.org, Yiru Xu <xyru1999@gmail.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 159/475] Bluetooth: hci_serdev: call init_rwsem() before p->open()
+Date:   Thu, 14 Apr 2022 15:09:04 +0200
+Message-Id: <20220414110859.589521599@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -57,43 +57,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 2b6dd600dd72573c23ea180b5b0b2f1813405882 ]
+[ Upstream commit 9d7cbe2b9cf5f650067df4f402fdd799d4bbb4e1 ]
 
-Syzbot has reported GPF in sg_alloc_append_table_from_pages(). The
-problem was in ubuf->pages == ZERO_PTR.
+kvartet reported, that hci_uart_tx_wakeup() uses uninitialized rwsem.
+The problem was in wrong place for percpu_init_rwsem() call.
 
-ubuf->pagecount is calculated from arguments passed from user-space. If
-user creates udmabuf with list.size == 0 then ubuf->pagecount will be
-also equal to zero; it causes kmalloc_array() to return ZERO_PTR.
+hci_uart_proto::open() may register a timer whose callback may call
+hci_uart_tx_wakeup(). There is a chance, that hci_uart_register_device()
+thread won't be fast enough to call percpu_init_rwsem().
 
-Fix it by validating ubuf->pagecount before passing it to
-kmalloc_array().
+Fix it my moving percpu_init_rwsem() call before p->open().
 
-Fixes: fbb0de795078 ("Add udmabuf misc device")
-Reported-and-tested-by: syzbot+2c56b725ec547fa9cb29@syzkaller.appspotmail.com
+INFO: trying to register non-static key.
+The code is fine but needs lockdep annotation, or maybe
+you didn't initialize this object before use?
+turning off the locking correctness validator.
+CPU: 2 PID: 18524 Comm: syz-executor.5 Not tainted 5.16.0-rc6 #9
+...
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ assign_lock_key kernel/locking/lockdep.c:951 [inline]
+ register_lock_class+0x148d/0x1950 kernel/locking/lockdep.c:1263
+ __lock_acquire+0x106/0x57e0 kernel/locking/lockdep.c:4906
+ lock_acquire kernel/locking/lockdep.c:5637 [inline]
+ lock_acquire+0x1ab/0x520 kernel/locking/lockdep.c:5602
+ percpu_down_read_trylock include/linux/percpu-rwsem.h:92 [inline]
+ hci_uart_tx_wakeup+0x12e/0x490 drivers/bluetooth/hci_ldisc.c:124
+ h5_timed_event+0x32f/0x6a0 drivers/bluetooth/hci_h5.c:188
+ call_timer_fn+0x1a5/0x6b0 kernel/time/timer.c:1421
+
+Fixes: d73e17281665 ("Bluetooth: hci_serdev: Init hci_uart proto_lock to avoid oops")
+Reported-by: Yiru Xu <xyru1999@gmail.com>
 Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20211230142649.23022-1-paskripkin@gmail.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/udmabuf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/bluetooth/hci_serdev.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma-buf/udmabuf.c b/drivers/dma-buf/udmabuf.c
-index 9635897458a0..e553c6a937f6 100644
---- a/drivers/dma-buf/udmabuf.c
-+++ b/drivers/dma-buf/udmabuf.c
-@@ -145,6 +145,10 @@ static long udmabuf_create(const struct udmabuf_create_list *head,
- 		if (ubuf->pagecount > pglimit)
- 			goto err;
- 	}
+diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
+index 1b4ad231e6ed..fd081bdd2dd8 100644
+--- a/drivers/bluetooth/hci_serdev.c
++++ b/drivers/bluetooth/hci_serdev.c
+@@ -279,6 +279,8 @@ int hci_uart_register_device(struct hci_uart *hu,
+ 	if (err)
+ 		return err;
+ 
++	percpu_init_rwsem(&hu->proto_lock);
 +
-+	if (!ubuf->pagecount)
-+		goto err;
-+
- 	ubuf->pages = kmalloc_array(ubuf->pagecount, sizeof(*ubuf->pages),
- 				    GFP_KERNEL);
- 	if (!ubuf->pages) {
+ 	err = p->open(hu);
+ 	if (err)
+ 		goto err_open;
+@@ -301,7 +303,6 @@ int hci_uart_register_device(struct hci_uart *hu,
+ 
+ 	INIT_WORK(&hu->init_ready, hci_uart_init_work);
+ 	INIT_WORK(&hu->write_work, hci_uart_write_work);
+-	percpu_init_rwsem(&hu->proto_lock);
+ 
+ 	/* Only when vendor specific setup callback is provided, consider
+ 	 * the manufacturer information valid. This avoids filling in the
 -- 
 2.34.1
 
