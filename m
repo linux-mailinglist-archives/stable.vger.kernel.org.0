@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83A2050100B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 662F85010E2
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344697AbiDNNta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
+        id S1344722AbiDNNtc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344242AbiDNNkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FBB4120;
-        Thu, 14 Apr 2022 06:37:59 -0700 (PDT)
+        with ESMTP id S1344244AbiDNNkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1331C6;
+        Thu, 14 Apr 2022 06:38:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAE72B8296A;
-        Thu, 14 Apr 2022 13:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 082EEC385A9;
-        Thu, 14 Apr 2022 13:37:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA95A61B51;
+        Thu, 14 Apr 2022 13:37:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5E1AC385A5;
+        Thu, 14 Apr 2022 13:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943476;
-        bh=m4rqaYlx0DDFTAyMPATzTutb0BZYg1FyFgvI8DIxmHw=;
+        s=korg; t=1649943479;
+        bh=bpebWxyOLTY7I9S1yS+K5xy1xLfHNLPReNaaPlGkqdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYkfmoIWDWRgAP8yJ6zEe/KKcGeb18O17Uh2BQ87UtqiNBd8trfUgGaCJ292MuIfv
-         pXyBaeZDsUM0vNZeg0wI0rq8ZhTA/mJdsZ6VlFefbYlynvUHeTjYUNRAUM/r3leJDP
-         epXd4k650Qe5R7ZwtBZevO9tzSjdLefSFQ+rWIrE=
+        b=0rVsuH9tYkgZbQ24aPDonsh55mMLb1/gjVVrNLdXNy2sdeoXtl2fKOTFng5cbisTa
+         0KncHOB9WUbsVeLsNc9l5B+aw/mMC7dnhh3Cn11wQcNmoBEzRG6BSw5w/KcirufgJZ
+         /ImstPI8clp0AboXefKwI/qojfGqAhTvROi8HtxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 168/475] ray_cs: Check ioremap return value
-Date:   Thu, 14 Apr 2022 15:09:13 +0200
-Message-Id: <20220414110859.839130940@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 169/475] powerpc/perf: Dont use perf_hw_context for trace IMC PMU
+Date:   Thu, 14 Apr 2022 15:09:14 +0200
+Message-Id: <20220414110859.866707960@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -53,55 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 7e4760713391ee46dc913194b33ae234389a174e ]
+[ Upstream commit 0198322379c25215b2778482bf1221743a76e2b5 ]
 
-As the possible failure of the ioremap(), the 'local->sram' and other
-two could be NULL.
-Therefore it should be better to check it in order to avoid the later
-dev_dbg.
+Trace IMC (In-Memory collection counters) in powerpc is useful for
+application level profiling.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20211230022926.1846757-1-jiasheng@iscas.ac.cn
+For trace_imc, presently task context (task_ctx_nr) is set to
+perf_hw_context. But perf_hw_context should only be used for CPU PMU.
+See commit 26657848502b ("perf/core: Verify we have a single
+perf_hw_context PMU").
+
+So for trace_imc, even though it is per thread PMU, it is preferred to
+use sw_context in order to be able to do application level monitoring.
+Hence change the task_ctx_nr to use perf_sw_context.
+
+Fixes: 012ae244845f ("powerpc/perf: Trace imc PMU functions")
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+[mpe: Update subject & incorporate notes into change log, reflow comment]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220202041837.65968-1-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ray_cs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/powerpc/perf/imc-pmu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ray_cs.c b/drivers/net/wireless/ray_cs.c
-index cf372684b681..3836d6ac5304 100644
---- a/drivers/net/wireless/ray_cs.c
-+++ b/drivers/net/wireless/ray_cs.c
-@@ -382,6 +382,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->sram = ioremap(link->resource[2]->start,
- 			resource_size(link->resource[2]));
-+	if (!local->sram)
-+		goto failed;
+diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
+index eb82dda884e5..d76e800a1f33 100644
+--- a/arch/powerpc/perf/imc-pmu.c
++++ b/arch/powerpc/perf/imc-pmu.c
+@@ -1441,7 +1441,11 @@ static int trace_imc_event_init(struct perf_event *event)
+ 	event->hw.idx = -1;
+ 	target = event->hw.target;
  
- /*** Set up 16k window for shared memory (receive buffer) ***************/
- 	link->resource[3]->flags |=
-@@ -396,6 +398,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->rmem = ioremap(link->resource[3]->start,
- 			resource_size(link->resource[3]));
-+	if (!local->rmem)
-+		goto failed;
- 
- /*** Set up window for attribute memory ***********************************/
- 	link->resource[4]->flags |=
-@@ -410,6 +414,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->amem = ioremap(link->resource[4]->start,
- 			resource_size(link->resource[4]));
-+	if (!local->amem)
-+		goto failed;
- 
- 	dev_dbg(&link->dev, "ray_config sram=%p\n", local->sram);
- 	dev_dbg(&link->dev, "ray_config rmem=%p\n", local->rmem);
+-	event->pmu->task_ctx_nr = perf_hw_context;
++	/*
++	 * There can only be a single PMU for perf_hw_context events which is assigned to
++	 * core PMU. Hence use "perf_sw_context" for trace_imc.
++	 */
++	event->pmu->task_ctx_nr = perf_sw_context;
+ 	event->destroy = reset_global_refc;
+ 	return 0;
+ }
 -- 
 2.34.1
 
