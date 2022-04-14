@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0CE75004F9
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 06:17:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B745500552
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 07:08:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238735AbiDNETV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 00:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44568 "EHLO
+        id S231976AbiDNFLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 01:11:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229485AbiDNETU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 00:19:20 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4C9232ECD;
-        Wed, 13 Apr 2022 21:16:57 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id e8-20020a17090a118800b001cb13402ea2so4571859pja.0;
-        Wed, 13 Apr 2022 21:16:57 -0700 (PDT)
+        with ESMTP id S229447AbiDNFLM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 01:11:12 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 282933C4B5;
+        Wed, 13 Apr 2022 22:08:49 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id u2so3806239pgq.10;
+        Wed, 13 Apr 2022 22:08:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id;
-        bh=BIgAFzY5xSuxnHp/6XHLLEysD/f28qmospLNaTnTvsI=;
-        b=G9Ulm2hp/FC95oIWoG+QcBJp0I7+ujG8ETqGU7crjc+cLm//GwAaAg1fRGHmIdA2Vm
-         LtAWAOZtpU8p42CBFBtyL++1rBoXSNbS5l8TCrtegEE+u28AMa7VCZ9JbtrNScFuM2Qz
-         R1D9AJD5KMXTz6vCz0Bl+oj7OmNqQ7LH/0G1WoLPy4pG8Mkkf/QXvkd+GMI3FKYRlGVT
-         eZBAYfuZvRUEThS0Var0tEAvwxFr+JIHaCr7SqNEmqNU20HRQDfimT6u2O19edQ4661Z
-         1wy73HuOCC6ZecIctZ826gK8h1Cyigcul99MxSGkcdS89ydbZHiJ9fv/cAAnAvK8d+gA
-         IsHQ==
+        bh=BXdefmByfbS7iadyHNuWA+1dWRCSn9oFrWGYl5Fm5mk=;
+        b=QC4YhFn1wllW1lC8gGSTmQFcF7BKiGku0fd0KEfKjckRUB1fOizADvm++YKwNJFLc6
+         +p3eYn++B8ekg9AlERZxlEGP4EGWCW45H3Bh0NIKjNlicWv3ADwMzRdciFPgkUxy7TdQ
+         MyvYxZSnGgTqL7PvRoNpEbyabTi2MfWPgu764RWig9VQDiYv19sPLGNZKNOxurugG7YF
+         AFSaTnD3n21Zot+8WlvXif9ut80zGJ6kaZJiHH5Toc+jTNzMkEMZwCaxnQDvT2RVDOtN
+         bxxfEe9q4xMbuhbDRm1KRN3eMUJa2yHoxSJKU84eH5BkDlP232pGpxWaO6+1UgaIeHu1
+         p2Ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=BIgAFzY5xSuxnHp/6XHLLEysD/f28qmospLNaTnTvsI=;
-        b=ZOhKeldXji+TK6Yp6jhBXVLx7lm3bEy39JxuUBRCGHoppYkreJGuiHZp+c6+Azwx2g
-         rCeAI2tQX5dFpqdNoP0GRr4TVV49HKyRn9664DU3gSWq7hsjyK7NFfDj2aQEzLJHADoW
-         GmVU/AlDEKrp4wj09DT8v0d9PM3vO4X6KP9tIq6Hwnf69FalhS+jKcmGqkaOeoHKCVXb
-         jv93ELwBbexkwJyXzHCaSZRdVwCRdJZj81DC0reNyrpI5i8RHvf74Q40pBJQ39VgiVux
-         Db6xGlf1gHE8Ms0ngsg69PdrFB6oMnabuGXQSD0l1yAat6JNkD9IF94OT8gySvxYbCDt
-         3x1w==
-X-Gm-Message-State: AOAM531CyaeBhkBvLe8nKFhw7fjpiBy5SA0krbQ7gVgtxFoBMzVVU5Jr
-        goF4KwThW97dgh6Pxjs6C2o=
-X-Google-Smtp-Source: ABdhPJxjX/K6Ga3KLvwGRTrOp8TKKRgBbDwr3l0xZT8z8QcQVKLiD/nyNSgCwRmazXlUTBnEEnvmdw==
-X-Received: by 2002:a17:902:a981:b0:156:229d:6834 with SMTP id bh1-20020a170902a98100b00156229d6834mr44078326plb.128.1649909817005;
-        Wed, 13 Apr 2022 21:16:57 -0700 (PDT)
+        bh=BXdefmByfbS7iadyHNuWA+1dWRCSn9oFrWGYl5Fm5mk=;
+        b=RobqDztKqjR/Yaveg8hY1y92wPrp/ZmXybjLXYXTBk7K+dcFo2lpDI3ETbiD1Kao6J
+         SJF8VHHM1LwGCkKsOx7SDkhc+pEZxgSrVhesm+0IOf0AhLbmjRYyrEN4Vt7t4yabp46c
+         gvCDuCDty2nOJpprbOwa/MrYi89P7dGOnKN0kfeOmK4WrSe/V/HcsqQDkVLGF5iQztCP
+         P03lc7yuTig0A8D3iWk2pUaX3LG08XPKqCi/urJQJ6bNnUrETNM5yffDnHbvh+E6gO4u
+         iJfEeqQ+7lDFYXASqHpVMt0ysgXI3mbWAB/aozHJNVoNt42rINQAmqAze9mxt6MOtx0B
+         ki7A==
+X-Gm-Message-State: AOAM530fqranKXGHpIpNMInbZ+sj/Cx/OSccga0vwkTkQ/VwMMyG7NJO
+        aM7WvAbQ9OBTKWHlCfeYN7w=
+X-Google-Smtp-Source: ABdhPJw2MWj6GujCGgHKVad2Vx8MRhaCT+wPaYACtZPvQZoVgZALyIcPZCbAatA+aPcL59Ad7T7eBA==
+X-Received: by 2002:a63:78f:0:b0:39e:11d0:daa4 with SMTP id 137-20020a63078f000000b0039e11d0daa4mr942690pgh.36.1649912928665;
+        Wed, 13 Apr 2022 22:08:48 -0700 (PDT)
 Received: from localhost.localdomain ([119.3.119.18])
-        by smtp.gmail.com with ESMTPSA id ne24-20020a17090b375800b001cb62235013sm556992pjb.5.2022.04.13.21.16.54
+        by smtp.gmail.com with ESMTPSA id b2-20020a056a000a8200b004e1414f0bb1sm763936pfl.135.2022.04.13.22.08.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Apr 2022 21:16:56 -0700 (PDT)
+        Wed, 13 Apr 2022 22:08:48 -0700 (PDT)
 From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     jejb@linux.ibm.com, martin.petersen@oracle.com,
-        linux@rainbow-software.org, hare@suse.de
-Cc:     linux-kernel@vger.kernel.org,
+To:     agross@kernel.org, bjorn.andersson@linaro.org, joro@8bytes.org,
+        will@kernel.org, sricharan@codeaurora.org
+Cc:     linux-arm-msm@vger.kernel.org, iommu@lists.linux-foundation.org,
+        linux-kernel@vger.kernel.org,
         Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [RESEND][PATCH] scsi: wd719x: fix a missing check on list iterator
-Date:   Thu, 14 Apr 2022 12:16:48 +0800
-Message-Id: <20220414041648.3543-1-xiam0nd.tong@gmail.com>
+Subject: [RESEND][PATCH] iommu: fix an incorrect NULL check on list iterator
+Date:   Thu, 14 Apr 2022 13:08:40 +0800
+Message-Id: <20220414050840.5691-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -65,48 +66,57 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The bug is here:
-    if (SCB_out == scb->phys)
+	if (!iommu || iommu->dev->of_node != spec->np) {
 
-The list iterator 'scb' will point to a bogus position containing
-HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it will lead
-to a invalid memory access.
+The list iterator value 'iommu' will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found (in fact,
+it will point to a invalid structure object containing HEAD).
 
-To fix this bug, add an check. Use a new variable 'iter' as the
-list iterator, while use the old variable 'scb' as a dedicated
-pointer to point to the found element.
+To fix the bug, run insert_iommu_master(dev, &iommu, spec); unlock and
+return 0 when found, otherwise unlock and return -ENODEV.
 
 Cc: stable@vger.kernel.org
-Fixes: 48a3103006631 ("wd719x: Introduce Western Digital WD7193/7197/7296 PCI SCSI card driver")
+Fixes: f78ebca8ff3d6 ("iommu/msm: Add support for generic master bindings")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 ---
- drivers/scsi/wd719x.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/iommu/msm_iommu.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/scsi/wd719x.c b/drivers/scsi/wd719x.c
-index 1a7947554581..6087ff4c05da 100644
---- a/drivers/scsi/wd719x.c
-+++ b/drivers/scsi/wd719x.c
-@@ -684,11 +684,15 @@ static irqreturn_t wd719x_interrupt(int irq, void *dev_id)
- 	case WD719X_INT_SPIDERFAILED:
- 		/* was the cmd completed a direct or SCB command? */
- 		if (regs.bytes.OPC == WD719X_CMD_PROCESS_SCB) {
--			struct wd719x_scb *scb;
--			list_for_each_entry(scb, &wd->active_scbs, list)
--				if (SCB_out == scb->phys)
-+			struct wd719x_scb *scb = NULL, *iter;
-+
-+			list_for_each_entry(iter, &wd->active_scbs, list)
-+				if (SCB_out == iter->phys) {
-+					scb = iter;
- 					break;
--			if (SCB_out == scb->phys)
-+				}
-+
-+			if (scb)
- 				wd719x_interrupt_SCB(wd, regs, scb);
- 			else
- 				dev_err(&wd->pdev->dev, "card returned invalid SCB pointer\n");
+diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
+index 3a38352b603f..1dbb8b0695ec 100644
+--- a/drivers/iommu/msm_iommu.c
++++ b/drivers/iommu/msm_iommu.c
+@@ -617,23 +617,17 @@ static int qcom_iommu_of_xlate(struct device *dev,
+ {
+ 	struct msm_iommu_dev *iommu;
+ 	unsigned long flags;
+-	int ret = 0;
+ 
+ 	spin_lock_irqsave(&msm_iommu_lock, flags);
+ 	list_for_each_entry(iommu, &qcom_iommu_devices, dev_node)
+-		if (iommu->dev->of_node == spec->np)
+-			break;
+-
+-	if (!iommu || iommu->dev->of_node != spec->np) {
+-		ret = -ENODEV;
+-		goto fail;
+-	}
+-
+-	insert_iommu_master(dev, &iommu, spec);
+-fail:
++		if (iommu->dev->of_node == spec->np) {
++			insert_iommu_master(dev, &iommu, spec);
++			spin_unlock_irqrestore(&msm_iommu_lock, flags);
++			return 0;
++		}
+ 	spin_unlock_irqrestore(&msm_iommu_lock, flags);
+ 
+-	return ret;
++	return -ENODEV;
+ }
+ 
+ irqreturn_t msm_iommu_fault_handler(int irq, void *dev_id)
 -- 
 2.17.1
 
