@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9401A501589
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F280F5013F5
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:24:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244992AbiDNNiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:38:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58074 "EHLO
+        id S245697AbiDNOI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:08:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344273AbiDNNbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB3F71B6;
-        Thu, 14 Apr 2022 06:29:06 -0700 (PDT)
+        with ESMTP id S1347697AbiDNN72 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5CFB898A;
+        Thu, 14 Apr 2022 06:51:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4722D61B51;
-        Thu, 14 Apr 2022 13:29:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC6EC385A9;
-        Thu, 14 Apr 2022 13:29:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCCEEB82985;
+        Thu, 14 Apr 2022 13:51:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43E5AC385A5;
+        Thu, 14 Apr 2022 13:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942945;
-        bh=1m3xIrLcO5FIijhI2wj1F439x8Le5NCM2hWe+oEGa6s=;
+        s=korg; t=1649944293;
+        bh=IExYXdTxHpkDpniovkL4rx+wxWfCuzt7QxTt5uIifi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsUJzO23Wlgq1FPNi2+sRhV5qdHKkaUYKNcMNPOvdaJvUK39hLhew0UvGS/gD+wh+
-         p4taCTcNr0RAcbF8mc0eQSj2K6ye/h/a87fvz/WXk6ec57iD0HPe8z6vvyfHR9+ikV
-         VPHNs59mj0rRQNx7IJCmVq5KerIvfwZK5iDgWTsU=
+        b=PTHNNNfkV8QfpymjQhOmX4vcjVySl9zGXQdT8swc4cK1Y8uG0rlf7oDeRc9LS8gMh
+         MM9PissnFPVdlyGjwp5dAeNDkjmtwltEcyOV5VW9GGZH9fDSSDmVf4CwBufI6LqwgF
+         gTf1t/7Kdv/l4OfkjybTs/WzvTI6J5QxUpaOL/BI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 317/338] x86/pm: Save the MSR validity status at context setup
-Date:   Thu, 14 Apr 2022 15:13:40 +0200
-Message-Id: <20220414110847.910365334@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org, syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 436/475] rxrpc: fix a race in rxrpc_exit_net()
+Date:   Thu, 14 Apr 2022 15:13:41 +0200
+Message-Id: <20220414110907.264322495@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +57,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 73924ec4d560257004d5b5116b22a3647661e364 upstream.
+[ Upstream commit 1946014ca3b19be9e485e780e862c375c6f98bad ]
 
-The mechanism to save/restore MSRs during S3 suspend/resume checks for
-the MSR validity during suspend, and only restores the MSR if its a
-valid MSR.  This is not optimal, as an invalid MSR will unnecessarily
-throw an exception for every suspend cycle.  The more invalid MSRs,
-higher the impact will be.
+Current code can lead to the following race:
 
-Check and save the MSR validity at setup.  This ensures that only valid
-MSRs that are guaranteed to not throw an exception will be attempted
-during suspend.
+CPU0                                                 CPU1
 
-Fixes: 7a9c2dd08ead ("x86/pm: Introduce quirk framework to save/restore extra MSR registers around suspend/resume")
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+rxrpc_exit_net()
+                                                     rxrpc_peer_keepalive_worker()
+                                                       if (rxnet->live)
+
+  rxnet->live = false;
+  del_timer_sync(&rxnet->peer_keepalive_timer);
+
+                                                             timer_reduce(&rxnet->peer_keepalive_timer, jiffies + delay);
+
+  cancel_work_sync(&rxnet->peer_keepalive_work);
+
+rxrpc_exit_net() exits while peer_keepalive_timer is still armed,
+leading to use-after-free.
+
+syzbot report was:
+
+ODEBUG: free active (active state 0) object type: timer_list hint: rxrpc_peer_keepalive_timeout+0x0/0xb0
+WARNING: CPU: 0 PID: 3660 at lib/debugobjects.c:505 debug_print_object+0x16e/0x250 lib/debugobjects.c:505
+Modules linked in:
+CPU: 0 PID: 3660 Comm: kworker/u4:6 Not tainted 5.17.0-syzkaller-13993-g88e6c0207623 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+RIP: 0010:debug_print_object+0x16e/0x250 lib/debugobjects.c:505
+Code: ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 af 00 00 00 48 8b 14 dd 00 1c 26 8a 4c 89 ee 48 c7 c7 00 10 26 8a e8 b1 e7 28 05 <0f> 0b 83 05 15 eb c5 09 01 48 83 c4 18 5b 5d 41 5c 41 5d 41 5e c3
+RSP: 0018:ffffc9000353fb00 EFLAGS: 00010082
+RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
+RDX: ffff888029196140 RSI: ffffffff815efad8 RDI: fffff520006a7f52
+RBP: 0000000000000001 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff815ea4ae R11: 0000000000000000 R12: ffffffff89ce23e0
+R13: ffffffff8a2614e0 R14: ffffffff816628c0 R15: dffffc0000000000
+FS:  0000000000000000(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fe1f2908924 CR3: 0000000043720000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __debug_check_no_obj_freed lib/debugobjects.c:992 [inline]
+ debug_check_no_obj_freed+0x301/0x420 lib/debugobjects.c:1023
+ kfree+0xd6/0x310 mm/slab.c:3809
+ ops_free_list.part.0+0x119/0x370 net/core/net_namespace.c:176
+ ops_free_list net/core/net_namespace.c:174 [inline]
+ cleanup_net+0x591/0xb00 net/core/net_namespace.c:598
+ process_one_work+0x996/0x1610 kernel/workqueue.c:2289
+ worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+ kthread+0x2e9/0x3a0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:298
+ </TASK>
+
+Fixes: ace45bec6d77 ("rxrpc: Fix firewall route keepalive")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Marc Dionne <marc.dionne@auristor.com>
+Cc: linux-afs@lists.infradead.org
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/power/cpu.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/rxrpc/net_ns.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/power/cpu.c
-+++ b/arch/x86/power/cpu.c
-@@ -41,7 +41,8 @@ static void msr_save_context(struct save
- 	struct saved_msr *end = msr + ctxt->saved_msrs.num;
+diff --git a/net/rxrpc/net_ns.c b/net/rxrpc/net_ns.c
+index b312aab80fed..9a76b74af37b 100644
+--- a/net/rxrpc/net_ns.c
++++ b/net/rxrpc/net_ns.c
+@@ -116,8 +116,8 @@ static __net_exit void rxrpc_exit_net(struct net *net)
+ 	struct rxrpc_net *rxnet = rxrpc_net(net);
  
- 	while (msr < end) {
--		msr->valid = !rdmsrl_safe(msr->info.msr_no, &msr->info.reg.q);
-+		if (msr->valid)
-+			rdmsrl(msr->info.msr_no, msr->info.reg.q);
- 		msr++;
- 	}
- }
-@@ -426,8 +427,10 @@ static int msr_build_context(const u32 *
- 	}
- 
- 	for (i = saved_msrs->num, j = 0; i < total_num; i++, j++) {
-+		u64 dummy;
-+
- 		msr_array[i].info.msr_no	= msr_id[j];
--		msr_array[i].valid		= false;
-+		msr_array[i].valid		= !rdmsrl_safe(msr_id[j], &dummy);
- 		msr_array[i].info.reg.q		= 0;
- 	}
- 	saved_msrs->num   = total_num;
+ 	rxnet->live = false;
+-	del_timer_sync(&rxnet->peer_keepalive_timer);
+ 	cancel_work_sync(&rxnet->peer_keepalive_work);
++	del_timer_sync(&rxnet->peer_keepalive_timer);
+ 	rxrpc_destroy_all_calls(rxnet);
+ 	rxrpc_destroy_all_connections(rxnet);
+ 	rxrpc_destroy_all_peers(rxnet);
+-- 
+2.35.1
+
 
 
