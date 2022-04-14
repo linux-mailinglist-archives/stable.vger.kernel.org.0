@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FEB5014AE
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0D0501307
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343903AbiDNNtN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46750 "EHLO
+        id S1344553AbiDNNtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344164AbiDNNkF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A90DCCB;
-        Thu, 14 Apr 2022 06:37:40 -0700 (PDT)
+        with ESMTP id S1344188AbiDNNkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65163120;
+        Thu, 14 Apr 2022 06:37:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06AAC61BA7;
-        Thu, 14 Apr 2022 13:37:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14CA2C385A1;
-        Thu, 14 Apr 2022 13:37:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C7A08CE2997;
+        Thu, 14 Apr 2022 13:37:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D78E9C385A5;
+        Thu, 14 Apr 2022 13:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943459;
-        bh=+KSWGZLsyCxV17kI15AtxAUl4b0L3AxImXHMggeHEKY=;
+        s=korg; t=1649943462;
+        bh=CJDEHaqs2OO5xDx5042fVeBV4hlsXrbPQw4D+12ZElY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tSxE+TUeRhdfPZKpFJqu2hl5olEkjXf80bt4v24ulrDnBSvPP1GeZLyGiQmxYkV4z
-         URHkGdEq689C6G2D2L2L5jMTR8ohA0+QI0bWG0Y/qQLPfdHBRbegBwN6ppFXUXb9K8
-         yGkPHVcKztraCcMFMKr1F0/Cbf35HvGlzhQdtEG0=
+        b=jYERjCbDUIWFlHiTg+YZPk46jGFRJ2cpZtCvp5mjQz88YeU3AkpQefZ0IxIV2uFrp
+         e17vWvBSikAkuzcZIBu42WlKDXkykts1eb0Gr8z4BzxAMEK900rOECMHfopx5QuFbb
+         CwkmWq39KxxChS5J6UXXAPDtfhb347UXRIKBCsDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 162/475] drm/edid: Dont clear formats if using deep color
-Date:   Thu, 14 Apr 2022 15:09:07 +0200
-Message-Id: <20220414110859.672777855@linuxfoundation.org>
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 163/475] drm/amd/display: Fix a NULL pointer dereference in amdgpu_dm_connector_add_common_modes()
+Date:   Thu, 14 Apr 2022 15:09:08 +0200
+Message-Id: <20220414110859.700238236@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,68 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 75478b3b393bcbdca4e6da76fe3a9f1a4133ec5d ]
+[ Upstream commit 588a70177df3b1777484267584ef38ab2ca899a2 ]
 
-The current code, when parsing the EDID Deep Color depths, that the
-YUV422 cannot be used, referring to the HDMI 1.3 Specification.
+In amdgpu_dm_connector_add_common_modes(), amdgpu_dm_create_common_mode()
+is assigned to mode and is passed to drm_mode_probed_add() directly after
+that. drm_mode_probed_add() passes &mode->head to list_add_tail(), and
+there is a dereference of it in list_add_tail() without recoveries, which
+could lead to NULL pointer dereference on failure of
+amdgpu_dm_create_common_mode().
 
-This specification, in its section 6.2.4, indeed states:
+Fix this by adding a NULL check of mode.
 
-  For each supported Deep Color mode, RGB 4:4:4 shall be supported and
-  optionally YCBCR 4:4:4 may be supported.
+This bug was found by a static analyzer.
 
-  YCBCR 4:2:2 is not permitted for any Deep Color mode.
+Builds with 'make allyesconfig' show no new warnings,
+and our static analyzer no longer warns about this code.
 
-This indeed can be interpreted like the code does, but the HDMI 1.4
-specification further clarifies that statement in its section 6.2.4:
-
-  For each supported Deep Color mode, RGB 4:4:4 shall be supported and
-  optionally YCBCR 4:4:4 may be supported.
-
-  YCBCR 4:2:2 is also 36-bit mode but does not require the further use
-  of the Deep Color modes described in section 6.5.2 and 6.5.3.
-
-This means that, even though YUV422 can be used with 12 bit per color,
-it shouldn't be treated as a deep color mode.
-
-This is also broken with YUV444 if it's supported by the display, but
-DRM_EDID_HDMI_DC_Y444 isn't set. In such a case, the code will clear
-color_formats of the YUV444 support set previously in
-drm_parse_cea_ext(), but will not set it back.
-
-Since the formats supported are already setup properly in
-drm_parse_cea_ext(), let's just remove the code modifying the formats in
-drm_parse_hdmi_deep_color_info()
-
-Fixes: d0c94692e0a3 ("drm/edid: Parse and handle HDMI deep color modes.")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220120151625.594595-3-maxime@cerno.tech
+Fixes: e7b07ceef2a6 ("drm/amd/display: Merge amdgpu_dm_types and amdgpu_dm")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c |    8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -4534,16 +4534,8 @@ static void drm_parse_hdmi_deep_color_in
- 		  connector->name, dc_bpc);
- 	info->bpc = dc_bpc;
- 
--	/*
--	 * Deep color support mandates RGB444 support for all video
--	 * modes and forbids YCRCB422 support for all video modes per
--	 * HDMI 1.3 spec.
--	 */
--	info->color_formats = DRM_COLOR_FORMAT_RGB444;
--
- 	/* YCRCB444 is optional according to spec. */
- 	if (hdmi[6] & DRM_EDID_HDMI_DC_Y444) {
--		info->color_formats |= DRM_COLOR_FORMAT_YCRCB444;
- 		DRM_DEBUG("%s: HDMI sink does YCRCB444 in deep color.\n",
- 			  connector->name);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 8e4d863c7570..29f8b4bd5a76 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -5013,6 +5013,9 @@ static void amdgpu_dm_connector_add_common_modes(struct drm_encoder *encoder,
+ 		mode = amdgpu_dm_create_common_mode(encoder,
+ 				common_modes[i].name, common_modes[i].w,
+ 				common_modes[i].h);
++		if (!mode)
++			continue;
++
+ 		drm_mode_probed_add(connector, mode);
+ 		amdgpu_dm_connector->num_modes++;
  	}
+-- 
+2.34.1
+
 
 
