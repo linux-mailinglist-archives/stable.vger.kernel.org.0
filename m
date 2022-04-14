@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF91500F49
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E1B8500F42
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:23:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244166AbiDNNYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:24:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49780 "EHLO
+        id S243989AbiDNNYx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:24:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244173AbiDNNYa (ORCPT
+        with ESMTP id S244275AbiDNNYa (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:24:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28D289BACD;
-        Thu, 14 Apr 2022 06:18:59 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0109A9BAE2;
+        Thu, 14 Apr 2022 06:19:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6C5AB82983;
-        Thu, 14 Apr 2022 13:18:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41725C385A1;
-        Thu, 14 Apr 2022 13:18:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9DA0B82986;
+        Thu, 14 Apr 2022 13:19:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5586C385A1;
+        Thu, 14 Apr 2022 13:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942336;
-        bh=sK/8tAo386GkaVn0pJ+9mOSyh9okjYxv4OWLYLHOphk=;
+        s=korg; t=1649942339;
+        bh=suKIR3nBMZp01YvKLQQQ+D7fwrZ0GKpKD2JFv8dzE3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RNzkKu8pjorbP6n6wjvHKC30/OQZHG0XnxF+JGHURtGcy8ZV81PvvRGYN8wFHPH4E
-         wnC6FZnaI6rTEnfE67HlM7ibEAKTturldpK84cyeFBf3G31r4cQ+udqgtdGd2Nr5zG
-         CwZc8PXFAQJSwLayq2iATyq1k5mHPlCTiK3avnnw=
+        b=0fuINFSbBzJGWbG3NYa850WCemQMZCYMjvD3dkmiIz9guEIriAzAJIlc71jl+uXpP
+         Z8HzxmyLfBMqFVfLL3RM95Tj379Q4hGrhth9Ydxq9sW3v4i/okv9XSHFE7u2bjI4yT
+         2WbLywSQdtCnoZ+ImBdbHM4drmWsjj1S4ywMnmkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Borislav Petkov <bp@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        John Ogness <john.ogness@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 098/338] arm64: dts: broadcom: Fix sata nodename
-Date:   Thu, 14 Apr 2022 15:10:01 +0200
-Message-Id: <20220414110841.687219671@linuxfoundation.org>
+Subject: [PATCH 4.19 099/338] printk: fix return value of printk.devkmsg __setup handler
+Date:   Thu, 14 Apr 2022 15:10:02 +0200
+Message-Id: <20220414110841.715228038@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,39 +60,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 55927cb44db43a57699fa652e2437a91620385dc ]
+[ Upstream commit b665eae7a788c5e2bc10f9ac3c0137aa0ad1fc97 ]
 
-After converting ahci-platform txt binding to yaml nodename is reported
-as not matching the standard:
+If an invalid option value is used with "printk.devkmsg=<value>",
+it is silently ignored.
+If a valid option value is used, it is honored but the wrong return
+value (0) is used, indicating that the command line option had an
+error and was not handled. This string is not added to init's
+environment strings due to init/main.c::unknown_bootoption()
+checking for a '.' in the boot option string and then considering
+that string to be an "Unused module parameter".
 
-arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dt.yaml:
-ahci@663f2000: $nodename:0: 'ahci@663f2000' does not match '^sata(@.*)?$'
+Print a warning message if a bad option string is used.
+Always return 1 from the __setup handler to indicate that the command
+line option has been handled.
 
-Fix it to match binding.
-
-Fixes: ac9aae00f0fc ("arm64: dts: Add SATA3 AHCI and SATA3 PHY DT nodes for NS2")
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 750afe7babd1 ("printk: add kernel parameter to control writes to /dev/kmsg")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220228220556.23484-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/printk/printk.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-index 6bfb7bbd264a..772ecf4ed3e6 100644
---- a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-@@ -687,7 +687,7 @@
- 			};
- 		};
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 57742e193214..2ba16c426ba5 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -127,8 +127,10 @@ static int __control_devkmsg(char *str)
  
--		sata: ahci@663f2000 {
-+		sata: sata@663f2000 {
- 			compatible = "brcm,iproc-ahci", "generic-ahci";
- 			reg = <0x663f2000 0x1000>;
- 			dma-coherent;
+ static int __init control_devkmsg(char *str)
+ {
+-	if (__control_devkmsg(str) < 0)
++	if (__control_devkmsg(str) < 0) {
++		pr_warn("printk.devkmsg: bad option string '%s'\n", str);
+ 		return 1;
++	}
+ 
+ 	/*
+ 	 * Set sysctl string accordingly:
+@@ -147,7 +149,7 @@ static int __init control_devkmsg(char *str)
+ 	 */
+ 	devkmsg_log |= DEVKMSG_LOG_MASK_LOCK;
+ 
+-	return 0;
++	return 1;
+ }
+ __setup("printk.devkmsg=", control_devkmsg);
+ 
 -- 
 2.34.1
 
