@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A329E501393
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B5B150102E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345694AbiDNNyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34366 "EHLO
+        id S245689AbiDNNnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345218AbiDNNpb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:31 -0400
+        with ESMTP id S244867AbiDNN2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB8E2DE0;
-        Thu, 14 Apr 2022 06:43:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA257A6E12;
+        Thu, 14 Apr 2022 06:21:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE25261D29;
-        Thu, 14 Apr 2022 13:43:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF5CFC385AA;
-        Thu, 14 Apr 2022 13:43:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D791618E3;
+        Thu, 14 Apr 2022 13:21:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 802CEC385A1;
+        Thu, 14 Apr 2022 13:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943785;
-        bh=Imipji81g7O1K1+tD6sk4irrm6qC8K168k7Lr8UyD5w=;
+        s=korg; t=1649942465;
+        bh=eWY6ofTpSdy8cdSc096Y426V6ZJbRKoWWuKcAkr2quM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdHqdgFCjPbtS7sdTDdD3pOA+bkWWTeuq3+b9ZRSuNHDcO8dzltJu1/zIlUpWRQTm
-         QXtyJp244dDBDUGqIBGXr71b0yLNCcL569MYbMptAvYVFqTYY2DEOZHYyp8irzsLSG
-         MjZmV8s67+sThe6zIxLBSiWkXTHeeFzo+Pt/GGsI=
+        b=12sTBKXc3OL4yP4yXnO0yS0zReoVqHhNG6QqUltKN8Bh82RHvyZqQABxV0305nvUZ
+         360emhuumFMyqO9AiHDgllmr9VqOLTyldWEc9drqF/HaSBCr0UI2TQfK1hrR2AKpeV
+         KMMfJtFYZJD6oyFjrrwv/BVU297iv07MVVtBFngU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Petr Vorel <petr.vorel@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Bjorn Helgaas <helgaas@kernel.org>,
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Rob Herring <robh@kernel.org>,
+        Scott Branden <scott.branden@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 263/475] clk: qcom: gcc-msm8994: Fix gpll4 width
+Subject: [PATCH 4.19 145/338] PCI: Reduce warnings on possible RW1C corruption
 Date:   Thu, 14 Apr 2022 15:10:48 +0200
-Message-Id: <20220414110902.468516536@linuxfoundation.org>
+Message-Id: <20220414110843.032381429@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +58,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-[ Upstream commit 71021db1c532c2545ae53b9ee85b37b7154f51d4 ]
+[ Upstream commit 92c45b63ce22c8898aa41806e8d6692bcd577510 ]
 
-The gpll4 postdiv is actually a div4, so make sure that Linux is aware of
-this.
+For hardware that only supports 32-bit writes to PCI there is the
+possibility of clearing RW1C (write-one-to-clear) bits. A rate-limited
+messages was introduced by fb2659230120, but rate-limiting is not the best
+choice here. Some devices may not show the warnings they should if another
+device has just produced a bunch of warnings. Also, the number of messages
+can be a nuisance on devices which are otherwise working fine.
 
-This fixes the following error messages:
+Change the ratelimit to a single warning per bus. This ensures no bus is
+'starved' of emitting a warning and also that there isn't a continuous
+stream of warnings. It would be preferable to have a warning per device,
+but the pci_dev structure is not available here, and a lookup from devfn
+would be far too slow.
 
- mmc1: Card appears overclocked; req 200000000 Hz, actual 343999999 Hz
- mmc1: Card appears overclocked; req 400000000 Hz, actual 687999999 Hz
-
-Fixes: aec89f78cf01 ("clk: qcom: Add support for msm8994 global clock controller")
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20220319174940.341137-1-konrad.dybcio@somainline.org
-Tested-by: Petr Vorel <petr.vorel@gmail.com>
-Reviewed-by: Petr Vorel <petr.vorel@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Suggested-by: Bjorn Helgaas <helgaas@kernel.org>
+Fixes: fb2659230120 ("PCI: Warn on possible RW1C corruption for sub-32 bit config writes")
+Link: https://lore.kernel.org/r/20200806041455.11070-1-mark.tomlinson@alliedtelesis.co.nz
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Scott Branden <scott.branden@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-msm8994.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/access.c | 9 ++++++---
+ include/linux/pci.h  | 1 +
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-msm8994.c b/drivers/clk/qcom/gcc-msm8994.c
-index b7fc8c7ba195..14f0d5d84080 100644
---- a/drivers/clk/qcom/gcc-msm8994.c
-+++ b/drivers/clk/qcom/gcc-msm8994.c
-@@ -107,6 +107,7 @@ static struct clk_alpha_pll gpll4_early = {
+diff --git a/drivers/pci/access.c b/drivers/pci/access.c
+index 3c8ffd62dc00..98ee5f05fc0f 100644
+--- a/drivers/pci/access.c
++++ b/drivers/pci/access.c
+@@ -160,9 +160,12 @@ int pci_generic_config_write32(struct pci_bus *bus, unsigned int devfn,
+ 	 * write happen to have any RW1C (write-one-to-clear) bits set, we
+ 	 * just inadvertently cleared something we shouldn't have.
+ 	 */
+-	dev_warn_ratelimited(&bus->dev, "%d-byte config write to %04x:%02x:%02x.%d offset %#x may corrupt adjacent RW1C bits\n",
+-			     size, pci_domain_nr(bus), bus->number,
+-			     PCI_SLOT(devfn), PCI_FUNC(devfn), where);
++	if (!bus->unsafe_warn) {
++		dev_warn(&bus->dev, "%d-byte config write to %04x:%02x:%02x.%d offset %#x may corrupt adjacent RW1C bits\n",
++			 size, pci_domain_nr(bus), bus->number,
++			 PCI_SLOT(devfn), PCI_FUNC(devfn), where);
++		bus->unsafe_warn = 1;
++	}
  
- static struct clk_alpha_pll_postdiv gpll4 = {
- 	.offset = 0x1dc0,
-+	.width = 4,
- 	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
- 	.clkr.hw.init = &(struct clk_init_data)
- 	{
+ 	mask = ~(((1 << (size * 8)) - 1) << ((where & 0x3) * 8));
+ 	tmp = readl(addr) & mask;
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index a4bbce871e08..3e06e9790c25 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -581,6 +581,7 @@ struct pci_bus {
+ 	struct bin_attribute	*legacy_io;	/* Legacy I/O for this bus */
+ 	struct bin_attribute	*legacy_mem;	/* Legacy mem */
+ 	unsigned int		is_added:1;
++	unsigned int		unsafe_warn:1;	/* warned about RW1C config write */
+ };
+ 
+ #define to_pci_bus(n)	container_of(n, struct pci_bus, dev)
 -- 
 2.34.1
 
