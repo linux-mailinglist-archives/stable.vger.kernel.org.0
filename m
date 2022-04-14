@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 511055012D8
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5665015DB
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343668AbiDNONd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:13:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43258 "EHLO
+        id S244519AbiDNNmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:42:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347655AbiDNN7Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE5E46172;
-        Thu, 14 Apr 2022 06:50:53 -0700 (PDT)
+        with ESMTP id S1344590AbiDNNcs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:32:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D57DA22298;
+        Thu, 14 Apr 2022 06:30:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95C94612B3;
-        Thu, 14 Apr 2022 13:50:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FFC3C385A1;
-        Thu, 14 Apr 2022 13:50:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 962EBB82987;
+        Thu, 14 Apr 2022 13:30:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9253C385A1;
+        Thu, 14 Apr 2022 13:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944252;
-        bh=+tCWKggBNn8hH7NG3ulisRqwFgLsDawMgOfRf2jLwu4=;
+        s=korg; t=1649943021;
+        bh=l64fbXu5oJpiB2N4KEORd7MB1fVL/+z++mUt1fLa+po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rABtjM8JljT5IOPkRTvXHV050DW+ZPZ2vOn/C8TsNhek4FU9hSkeir5UNcF1gzPjH
-         tDq58dSpFrUVD7TlH9SSmmVMYKzfyK7isfGtHpAP0yw51jlb9ZC9P+lyV72D1nDvVG
-         wx926wM15nDEJlMbz3YQQ625lMXiD8EsClvPO8eA=
+        b=sqLo4dLzKUxxjJ+1SLetIClkx5SsIm/BU+57CG5iQJ/vXGfasdF142/1exfnus155
+         oYDSEiuLZhJvI0d9vkMu7wzc0eovLUF37wyVD5yg4HpVFoMn3DtclPOulqpXXZaXvL
+         PVy+hFvJE3EXxZjpTyogddouQut0+5T4dIUEfVFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Michal Hocko <mhocko@suse.com>,
-        KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
-        Mel Gorman <mgorman@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 449/475] mm/mempolicy: fix mpol_new leak in shared_policy_replace
-Date:   Thu, 14 Apr 2022 15:13:54 +0200
-Message-Id: <20220414110907.623508725@linuxfoundation.org>
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com,
+        Tejun Heo <tj@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 332/338] cgroup: Use open-time cgroup namespace for process migration perm checks
+Date:   Thu, 14 Apr 2022 15:13:55 +0200
+Message-Id: <20220414110848.340385277@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,51 +58,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 4ad099559b00ac01c3726e5c95dc3108ef47d03e upstream.
+commit e57457641613fef0d147ede8bd6a3047df588b95 upstream.
 
-If mpol_new is allocated but not used in restart loop, mpol_new will be
-freed via mpol_put before returning to the caller.  But refcnt is not
-initialized yet, so mpol_put could not do the right things and might
-leak the unused mpol_new.  This would happen if mempolicy was updated on
-the shared shmem file while the sp->lock has been dropped during the
-memory allocation.
+cgroup process migration permission checks are performed at write time as
+whether a given operation is allowed or not is dependent on the content of
+the write - the PID. This currently uses current's cgroup namespace which is
+a potential security weakness as it may allow scenarios where a less
+privileged process tricks a more privileged one into writing into a fd that
+it created.
 
-This issue could be triggered easily with the below code snippet if
-there are many processes doing the below work at the same time:
+This patch makes cgroup remember the cgroup namespace at the time of open
+and uses it for migration permission checks instad of current's. Note that
+this only applies to cgroup2 as cgroup1 doesn't have namespace support.
 
-  shmid = shmget((key_t)5566, 1024 * PAGE_SIZE, 0666|IPC_CREAT);
-  shm = shmat(shmid, 0, 0);
-  loop many times {
-    mbind(shm, 1024 * PAGE_SIZE, MPOL_LOCAL, mask, maxnode, 0);
-    mbind(shm + 128 * PAGE_SIZE, 128 * PAGE_SIZE, MPOL_DEFAULT, mask,
-          maxnode, 0);
-  }
+This also fixes a use-after-free bug on cgroupns reported in
 
-Link: https://lkml.kernel.org/r/20220329111416.27954-1-linmiaohe@huawei.com
-Fixes: 42288fe366c4 ("mm: mempolicy: Convert shared_policy mutex to spinlock")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: <stable@vger.kernel.org>	[3.8]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
+
+Note that backporting this fix also requires the preceding patch.
+
+Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Cc: Michal Koutný <mkoutny@suse.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Reported-by: syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
+Fixes: 5136f6365ce3 ("cgroup: implement "nsdelegate" mount option")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[mkoutny: v5.10: duplicate ns check in procs/threads write handler, adjust context]
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[OP: backport to v4.19: drop changes to cgroup_attach_permissions() and
+cgroup_css_set_fork(), adjust cgroup_procs_write_permission() calls]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mempolicy.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/cgroup/cgroup-internal.h |    2 ++
+ kernel/cgroup/cgroup.c          |   24 +++++++++++++++++-------
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -2559,6 +2559,7 @@ alloc_new:
- 	mpol_new = kmem_cache_alloc(policy_cache, GFP_KERNEL);
- 	if (!mpol_new)
- 		goto err_out;
-+	atomic_set(&mpol_new->refcnt, 1);
- 	goto restart;
+--- a/kernel/cgroup/cgroup-internal.h
++++ b/kernel/cgroup/cgroup-internal.h
+@@ -37,6 +37,8 @@ extern char trace_cgroup_path[TRACE_CGRO
+ struct cgroup_pidlist;
+ 
+ struct cgroup_file_ctx {
++	struct cgroup_namespace	*ns;
++
+ 	struct {
+ 		void			*trigger;
+ 	} psi;
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -3457,14 +3457,19 @@ static int cgroup_file_open(struct kernf
+ 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+ 		return -ENOMEM;
++
++	ctx->ns = current->nsproxy->cgroup_ns;
++	get_cgroup_ns(ctx->ns);
+ 	of->priv = ctx;
+ 
+ 	if (!cft->open)
+ 		return 0;
+ 
+ 	ret = cft->open(of);
+-	if (ret)
++	if (ret) {
++		put_cgroup_ns(ctx->ns);
+ 		kfree(ctx);
++	}
+ 	return ret;
  }
  
+@@ -3475,13 +3480,14 @@ static void cgroup_file_release(struct k
+ 
+ 	if (cft->release)
+ 		cft->release(of);
++	put_cgroup_ns(ctx->ns);
+ 	kfree(ctx);
+ }
+ 
+ static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
+ 				 size_t nbytes, loff_t off)
+ {
+-	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *cgrp = of->kn->parent->priv;
+ 	struct cftype *cft = of->kn->priv;
+ 	struct cgroup_subsys_state *css;
+@@ -3495,7 +3501,7 @@ static ssize_t cgroup_file_write(struct
+ 	 */
+ 	if ((cgrp->root->flags & CGRP_ROOT_NS_DELEGATE) &&
+ 	    !(cft->flags & CFTYPE_NS_DELEGATABLE) &&
+-	    ns != &init_cgroup_ns && ns->root_cset->dfl_cgrp == cgrp)
++	    ctx->ns != &init_cgroup_ns && ctx->ns->root_cset->dfl_cgrp == cgrp)
+ 		return -EPERM;
+ 
+ 	if (cft->write)
+@@ -4457,9 +4463,9 @@ static int cgroup_procs_show(struct seq_
+ 
+ static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
+ 					 struct cgroup *dst_cgrp,
+-					 struct super_block *sb)
++					 struct super_block *sb,
++					 struct cgroup_namespace *ns)
+ {
+-	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
+ 	struct cgroup *com_cgrp = src_cgrp;
+ 	struct inode *inode;
+ 	int ret;
+@@ -4495,6 +4501,7 @@ static int cgroup_procs_write_permission
+ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 				  char *buf, size_t nbytes, loff_t off)
+ {
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+@@ -4521,7 +4528,8 @@ static ssize_t cgroup_procs_write(struct
+ 	 */
+ 	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+-					    of->file->f_path.dentry->d_sb);
++					    of->file->f_path.dentry->d_sb,
++					    ctx->ns);
+ 	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+@@ -4544,6 +4552,7 @@ static void *cgroup_threads_start(struct
+ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ 				    char *buf, size_t nbytes, loff_t off)
+ {
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+@@ -4572,7 +4581,8 @@ static ssize_t cgroup_threads_write(stru
+ 	 */
+ 	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+-					    of->file->f_path.dentry->d_sb);
++					    of->file->f_path.dentry->d_sb,
++					    ctx->ns);
+ 	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
 
 
