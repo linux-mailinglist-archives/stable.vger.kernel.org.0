@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 328BE501059
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78BEA501496
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244424AbiDNNeM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:34:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49098 "EHLO
+        id S1345825AbiDNNyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245274AbiDNN2o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EE879A988;
-        Thu, 14 Apr 2022 06:22:13 -0700 (PDT)
+        with ESMTP id S243469AbiDNNp4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6735FD5;
+        Thu, 14 Apr 2022 06:43:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAD12B82987;
-        Thu, 14 Apr 2022 13:22:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2708FC385A9;
-        Thu, 14 Apr 2022 13:22:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E68FB61B51;
+        Thu, 14 Apr 2022 13:43:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0554FC385A1;
+        Thu, 14 Apr 2022 13:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942530;
-        bh=XdxmLBFvxH+2a1PCMVWvLDgA3hrE3fluzsZWPW7qf8w=;
+        s=korg; t=1649943810;
+        bh=w51WdM5aHvUcdwBxHUAYODPLjNrTY/mf+S4fCEB517g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2JL09BW+Rn45kd7McTA4NJpOxBb1tQsqcuy02jQwaAFESlvz64FdVk2UzCplUtEc
-         OQnNWxPFvmV4BjuImy7TlhwiHajHZziSH6HImSsIAl/05okOfPfjUFLn4DUgmXiy2k
-         eL7QERM4icprGQeLqUr7UmQjhJ9b2KKrlvzA9BDQ=
+        b=lCp6B4NU2UmvKGL2rMBtJg1Lcl9IvXj7+UXbf30pgQQXTjwLGWudR/vioSdJn4QJk
+         ORfv5y7PTYjZDOsskDYNez1IMHcUGGBq3ZYHx3X7RubA0Km8J0AG4bhErCC76Wj6WR
+         H7azeOONqNW3dU+LtcnmGMvTqxpr53jifpjfi1Vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Stephen Boyd <sboyd@kernel.org>,
+        syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com,
+        Lee Jones <lee.jones@linaro.org>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 170/338] clk: clps711x: Terminate clk_div_table with sentinel element
-Date:   Thu, 14 Apr 2022 15:11:13 +0200
-Message-Id: <20220414110843.737325742@linuxfoundation.org>
+Subject: [PATCH 5.4 289/475] ext4: dont BUG if someone dirty pages without asking ext4 first
+Date:   Thu, 14 Apr 2022 15:11:14 +0200
+Message-Id: <20220414110903.185132971@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 8bed4ed5aa3431085d9d27afc35d684856460eda ]
+[ Upstream commit cc5095747edfb054ca2068d01af20be3fcc3634f ]
 
-In order that the end of a clk_div_table can be detected, it must be
-terminated with a sentinel element (.div = 0).
+[un]pin_user_pages_remote is dirtying pages without properly warning
+the file system in advance.  A related race was noted by Jan Kara in
+2018[1]; however, more recently instead of it being a very hard-to-hit
+race, it could be reliably triggered by process_vm_writev(2) which was
+discovered by Syzbot[2].
 
-Fixes: 631c53478973d ("clk: Add CLPS711X clk driver")
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Link: https://lore.kernel.org/r/20220218000922.134857-5-j.neuschaefer@gmx.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+This is technically a bug in mm/gup.c, but arguably ext4 is fragile in
+that if some other kernel subsystem dirty pages without properly
+notifying the file system using page_mkwrite(), ext4 will BUG, while
+other file systems will not BUG (although data will still be lost).
+
+So instead of crashing with a BUG, issue a warning (since there may be
+potential data loss) and just mark the page as clean to avoid
+unprivileged denial of service attacks until the problem can be
+properly fixed.  More discussion and background can be found in the
+thread starting at [2].
+
+[1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
+[2] https://lore.kernel.org/r/Yg0m6IjcNmfaSokM@google.com
+
+Reported-by: syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/YiDS9wVfq4mM2jGK@mit.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-clps711x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ext4/inode.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/clk/clk-clps711x.c b/drivers/clk/clk-clps711x.c
-index 2c04396402ab..50b42e91a137 100644
---- a/drivers/clk/clk-clps711x.c
-+++ b/drivers/clk/clk-clps711x.c
-@@ -32,11 +32,13 @@ static const struct clk_div_table spi_div_table[] = {
- 	{ .val = 1, .div = 8, },
- 	{ .val = 2, .div = 2, },
- 	{ .val = 3, .div = 1, },
-+	{ /* sentinel */ }
- };
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index dcbd8ac8d471..0d62f05f8925 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -2161,6 +2161,15 @@ static int ext4_writepage(struct page *page,
+ 	else
+ 		len = PAGE_SIZE;
  
- static const struct clk_div_table timer_div_table[] = {
- 	{ .val = 0, .div = 256, },
- 	{ .val = 1, .div = 1, },
-+	{ /* sentinel */ }
- };
++	/* Should never happen but for bugs in other kernel subsystems */
++	if (!page_has_buffers(page)) {
++		ext4_warning_inode(inode,
++		   "page %lu does not have buffers attached", page->index);
++		ClearPageDirty(page);
++		unlock_page(page);
++		return 0;
++	}
++
+ 	page_bufs = page_buffers(page);
+ 	/*
+ 	 * We cannot do block allocation or other extent handling in this
+@@ -2710,6 +2719,22 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
+ 			wait_on_page_writeback(page);
+ 			BUG_ON(PageWriteback(page));
  
- struct clps711x_clk {
++			/*
++			 * Should never happen but for buggy code in
++			 * other subsystems that call
++			 * set_page_dirty() without properly warning
++			 * the file system first.  See [1] for more
++			 * information.
++			 *
++			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
++			 */
++			if (!page_has_buffers(page)) {
++				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
++				ClearPageDirty(page);
++				unlock_page(page);
++				continue;
++			}
++
+ 			if (mpd->map.m_len == 0)
+ 				mpd->first_page = page->index;
+ 			mpd->next_page = page->index + 1;
 -- 
 2.34.1
 
