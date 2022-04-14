@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4904C5013B6
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE80D501444
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244918AbiDNNwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:52:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54928 "EHLO
+        id S1345753AbiDNNyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344575AbiDNNoY (ORCPT
+        with ESMTP id S1344583AbiDNNoY (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF9412FE65;
-        Thu, 14 Apr 2022 06:39:48 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C886330567;
+        Thu, 14 Apr 2022 06:39:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 36DC861D70;
-        Thu, 14 Apr 2022 13:39:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B08C385A1;
-        Thu, 14 Apr 2022 13:39:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 17B3761DB4;
+        Thu, 14 Apr 2022 13:39:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C07C2BBE4;
+        Thu, 14 Apr 2022 13:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943587;
-        bh=vC3HpaQC66yZXonEgmL5Uq5YOTH5rq+MgVEPdR036Wo=;
+        s=korg; t=1649943590;
+        bh=RS6vEzQZlWHn94CItCKXeHfk33gD5etvIdkF0aJY5ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VMei08A+jDnn0makQG7ferkPszXOt7o5X6mo1EtuAdhFlH41D/H+K7KKj/4Vh2Sq1
-         ftDAmLjgTIJlILCPnl5AIQW4ZYT/YXEvDZ2Mk1eBzH0SnflEUf8zkJLXqegagsRAg7
-         iXs+qWfVFXd/QLIwYUo/j9lBueOUNW2eH2aerxr4=
+        b=bqmPe208sgo0IwGQVGvpc9Cp3HscF5AHu7+8Dst7NyNeU9mJiHCvZzSwjQ9VhQ3We
+         Jg5G4g5+iCA6efSIOJNAfjhxPf0+1UzmhXtULqjdFTUR1sAU99gfO9AyP1UqIBeW85
+         A8uk6vTUeyl6Cs9Lx8p4S9sVjjFIdhHoMInQ5C88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Maurer <fmaurer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 208/475] selftests/bpf: Make test_lwt_ip_encap more stable and faster
-Date:   Thu, 14 Apr 2022 15:09:53 +0200
-Message-Id: <20220414110900.950018289@linuxfoundation.org>
+Subject: [PATCH 5.4 209/475] powerpc: 8xx: fix a return value error in mpc8xx_pic_init
+Date:   Thu, 14 Apr 2022 15:09:54 +0200
+Message-Id: <20220414110900.977319812@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,73 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Maurer <fmaurer@redhat.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit d23a8720327d33616f584d76c80824bfa4699be6 ]
+[ Upstream commit 3fd46e551f67f4303c3276a0d6cd20baf2d192c4 ]
 
-In test_lwt_ip_encap, the ingress IPv6 encap test failed from time to
-time. The failure occured when an IPv4 ping through the IPv6 GRE
-encapsulation did not receive a reply within the timeout. The IPv4 ping
-and the IPv6 ping in the test used different timeouts (1 sec for IPv4
-and 6 sec for IPv6), probably taking into account that IPv6 might need
-longer to successfully complete. However, when IPv4 pings (with the
-short timeout) are encapsulated into the IPv6 tunnel, the delays of IPv6
-apply.
+mpc8xx_pic_init() should return -ENOMEM instead of 0 when
+irq_domain_add_linear() return NULL. This cause mpc8xx_pics_init to continue
+executing even if mpc8xx_pic_host is NULL.
 
-The actual reason for the long delays with IPv6 was that the IPv6
-neighbor discovery sometimes did not complete in time. This was caused
-by the outgoing interface only having a tentative link local address,
-i.e., not having completed DAD for that lladdr. The ND was successfully
-retried after 1 sec but that was too late for the ping timeout.
-
-The IPv6 addresses for the test were already added with nodad. However,
-for the lladdrs, DAD was still performed. We now disable DAD in the test
-netns completely and just assume that the two lladdrs on each veth pair
-do not collide. This removes all the delays for IPv6 traffic in the
-test.
-
-Without the delays, we can now also reduce the delay of the IPv6 ping to
-1 sec. This makes the whole test complete faster because we don't need
-to wait for the excessive timeout for each IPv6 ping that is supposed
-to fail.
-
-Fixes: 0fde56e4385b0 ("selftests: bpf: add test_lwt_ip_encap selftest")
-Signed-off-by: Felix Maurer <fmaurer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/4987d549d48b4e316cd5b3936de69c8d4bc75a4f.1646305899.git.fmaurer@redhat.com
+Fixes: cc76404feaed ("powerpc/8xx: Fix possible device node reference leak")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220223070223.26845-1-hbh25y@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_lwt_ip_encap.sh | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/8xx/pic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-index b497bb85b667..6c69c42b1d60 100755
---- a/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-+++ b/tools/testing/selftests/bpf/test_lwt_ip_encap.sh
-@@ -120,6 +120,14 @@ setup()
- 	ip netns exec ${NS2} sysctl -wq net.ipv4.conf.default.rp_filter=0
- 	ip netns exec ${NS3} sysctl -wq net.ipv4.conf.default.rp_filter=0
+diff --git a/arch/powerpc/platforms/8xx/pic.c b/arch/powerpc/platforms/8xx/pic.c
+index e9617d35fd1f..209b12323aa4 100644
+--- a/arch/powerpc/platforms/8xx/pic.c
++++ b/arch/powerpc/platforms/8xx/pic.c
+@@ -153,6 +153,7 @@ int mpc8xx_pic_init(void)
+ 	if (mpc8xx_pic_host == NULL) {
+ 		printk(KERN_ERR "MPC8xx PIC: failed to allocate irq host!\n");
+ 		ret = -ENOMEM;
++		goto out;
+ 	}
  
-+	# disable IPv6 DAD because it sometimes takes too long and fails tests
-+	ip netns exec ${NS1} sysctl -wq net.ipv6.conf.all.accept_dad=0
-+	ip netns exec ${NS2} sysctl -wq net.ipv6.conf.all.accept_dad=0
-+	ip netns exec ${NS3} sysctl -wq net.ipv6.conf.all.accept_dad=0
-+	ip netns exec ${NS1} sysctl -wq net.ipv6.conf.default.accept_dad=0
-+	ip netns exec ${NS2} sysctl -wq net.ipv6.conf.default.accept_dad=0
-+	ip netns exec ${NS3} sysctl -wq net.ipv6.conf.default.accept_dad=0
-+
- 	ip link add veth1 type veth peer name veth2
- 	ip link add veth3 type veth peer name veth4
- 	ip link add veth5 type veth peer name veth6
-@@ -289,7 +297,7 @@ test_ping()
- 		ip netns exec ${NS1} ping  -c 1 -W 1 -I veth1 ${IPv4_DST} 2>&1 > /dev/null
- 		RET=$?
- 	elif [ "${PROTO}" == "IPv6" ] ; then
--		ip netns exec ${NS1} ping6 -c 1 -W 6 -I veth1 ${IPv6_DST} 2>&1 > /dev/null
-+		ip netns exec ${NS1} ping6 -c 1 -W 1 -I veth1 ${IPv6_DST} 2>&1 > /dev/null
- 		RET=$?
- 	else
- 		echo "    test_ping: unknown PROTO: ${PROTO}"
+ 	ret = 0;
 -- 
 2.34.1
 
