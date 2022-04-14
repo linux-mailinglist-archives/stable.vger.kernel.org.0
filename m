@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 432E8501237
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94107501397
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238804AbiDNOOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:14:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34390 "EHLO
+        id S1348961AbiDNOOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:14:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346648AbiDNN5s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CF1AB18AC;
-        Thu, 14 Apr 2022 06:47:56 -0700 (PDT)
+        with ESMTP id S1346678AbiDNN5u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:50 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CD8DB1A86;
+        Thu, 14 Apr 2022 06:47:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97EB4B82969;
-        Thu, 14 Apr 2022 13:47:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFDB0C385A1;
-        Thu, 14 Apr 2022 13:47:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A22A1CE296C;
+        Thu, 14 Apr 2022 13:47:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6070C385A9;
+        Thu, 14 Apr 2022 13:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944073;
-        bh=jCcE1aVSClXko4fJTUA1kEQFE/YUaoZi6qSDkA8nXpI=;
+        s=korg; t=1649944076;
+        bh=dZa3E98ZhWwf3GTrSnHKXqkVXwBMM+PdbAZRWOV9OCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R1KTuv1mDrHeZA0pk4JNzA1w5kuwaPZ5c+6nc5N43JRrlMnpwM2vYfevAADtZeAJX
-         VL1vUgCrO3AscodSe48LvS9HGvIEQrqCAaFBx91rl14Oxzg1LFDRgUmkQAQfdKOiSG
-         RVUtdjC8bUJsyA6VhNOVin+sRbhjR2WXVQUsbt/4=
+        b=Oyca5jJmD//txRfgNIB1PTd2ZVWpOe6F2wegTlOektDUqnv+xbK4M530+xQtqgIpx
+         KWOjtGBzLOaFpo/Tz/Rdmgg91IGH2nvGyreIfFNOe7IXdTcIk4WzB/kbQGYi6G7Swm
+         q4lyF37MR4YlQBOdCSurdZu41jooohlUeFyUM0Kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abdul haleem <abdhalee@linux.vnet.ibm.com>,
-        Sourabh Jain <sourabhjain@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <Alexander.Deucher@amd.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 383/475] powerpc: Set crashkernel offset to mid of RMA region
-Date:   Thu, 14 Apr 2022 15:12:48 +0200
-Message-Id: <20220414110905.788850651@linuxfoundation.org>
+Subject: [PATCH 5.4 384/475] drm/amdgpu: Fix recursive locking warning
+Date:   Thu, 14 Apr 2022 15:12:49 +0200
+Message-Id: <20220414110905.816645299@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -55,88 +58,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sourabh Jain <sourabhjain@linux.ibm.com>
+From: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
 
-[ Upstream commit 7c5ed82b800d8615cdda00729e7b62e5899f0b13 ]
+[ Upstream commit 447c7997b62a5115ba4da846dcdee4fc12298a6a ]
 
-On large config LPARs (having 192 and more cores), Linux fails to boot
-due to insufficient memory in the first memblock. It is due to the
-memory reservation for the crash kernel which starts at 128MB offset of
-the first memblock. This memory reservation for the crash kernel doesn't
-leave enough space in the first memblock to accommodate other essential
-system resources.
+Noticed the below warning while running a pytorch workload on vega10
+GPUs. Change to trylock to avoid conflicts with already held reservation
+locks.
 
-The crash kernel start address was set to 128MB offset by default to
-ensure that the crash kernel get some memory below the RMA region which
-is used to be of size 256MB. But given that the RMA region size can be
-512MB or more, setting the crash kernel offset to mid of RMA size will
-leave enough space for the kernel to allocate memory for other system
-resources.
+[  +0.000003] WARNING: possible recursive locking detected
+[  +0.000003] 5.13.0-kfd-rajneesh #1030 Not tainted
+[  +0.000004] --------------------------------------------
+[  +0.000002] python/4822 is trying to acquire lock:
+[  +0.000004] ffff932cd9a259f8 (reservation_ww_class_mutex){+.+.}-{3:3},
+at: amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000203]
+              but task is already holding lock:
+[  +0.000003] ffff932cbb7181f8 (reservation_ww_class_mutex){+.+.}-{3:3},
+at: ttm_eu_reserve_buffers+0x270/0x470 [ttm]
+[  +0.000017]
+              other info that might help us debug this:
+[  +0.000002]  Possible unsafe locking scenario:
 
-Since the above crash kernel offset change is only applicable to the LPAR
-platform, the LPAR feature detection is pushed before the crash kernel
-reservation. The rest of LPAR specific initialization will still
-be done during pseries_probe_fw_features as usual.
+[  +0.000003]        CPU0
+[  +0.000002]        ----
+[  +0.000002]   lock(reservation_ww_class_mutex);
+[  +0.000004]   lock(reservation_ww_class_mutex);
+[  +0.000003]
+               *** DEADLOCK ***
 
-This patch is dependent on changes to paca allocation for boot CPU. It
-expect boot CPU to discover 1T segment support which is introduced by
-the patch posted here:
-https://lists.ozlabs.org/pipermail/linuxppc-dev/2022-January/239175.html
+[  +0.000002]  May be due to missing lock nesting notation
 
-Reported-by: Abdul haleem <abdhalee@linux.vnet.ibm.com>
-Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220204085601.107257-1-sourabhjain@linux.ibm.com
+[  +0.000003] 7 locks held by python/4822:
+[  +0.000003]  #0: ffff932c4ac028d0 (&process->mutex){+.+.}-{3:3}, at:
+kfd_ioctl_map_memory_to_gpu+0x10b/0x320 [amdgpu]
+[  +0.000232]  #1: ffff932c55e830a8 (&info->lock#2){+.+.}-{3:3}, at:
+amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x64/0xf60 [amdgpu]
+[  +0.000241]  #2: ffff932cc45b5e68 (&(*mem)->lock){+.+.}-{3:3}, at:
+amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0xdf/0xf60 [amdgpu]
+[  +0.000236]  #3: ffffb2b35606fd28
+(reservation_ww_class_acquire){+.+.}-{0:0}, at:
+amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x232/0xf60 [amdgpu]
+[  +0.000235]  #4: ffff932cbb7181f8
+(reservation_ww_class_mutex){+.+.}-{3:3}, at:
+ttm_eu_reserve_buffers+0x270/0x470 [ttm]
+[  +0.000015]  #5: ffffffffc045f700 (*(sspp++)){....}-{0:0}, at:
+drm_dev_enter+0x5/0xa0 [drm]
+[  +0.000038]  #6: ffff932c52da7078 (&vm->eviction_lock){+.+.}-{3:3},
+at: amdgpu_vm_bo_update_mapping+0xd5/0x4f0 [amdgpu]
+[  +0.000195]
+              stack backtrace:
+[  +0.000003] CPU: 11 PID: 4822 Comm: python Not tainted
+5.13.0-kfd-rajneesh #1030
+[  +0.000005] Hardware name: GIGABYTE MZ01-CE0-00/MZ01-CE0-00, BIOS F02
+08/29/2018
+[  +0.000003] Call Trace:
+[  +0.000003]  dump_stack+0x6d/0x89
+[  +0.000010]  __lock_acquire+0xb93/0x1a90
+[  +0.000009]  lock_acquire+0x25d/0x2d0
+[  +0.000005]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000184]  ? lock_is_held_type+0xa2/0x110
+[  +0.000006]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000184]  __ww_mutex_lock.constprop.17+0xca/0x1060
+[  +0.000007]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000183]  ? lock_release+0x13f/0x270
+[  +0.000005]  ? lock_is_held_type+0xa2/0x110
+[  +0.000006]  ? amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000183]  amdgpu_bo_release_notify+0xc4/0x160 [amdgpu]
+[  +0.000185]  ttm_bo_release+0x4c6/0x580 [ttm]
+[  +0.000010]  amdgpu_bo_unref+0x1a/0x30 [amdgpu]
+[  +0.000183]  amdgpu_vm_free_table+0x76/0xa0 [amdgpu]
+[  +0.000189]  amdgpu_vm_free_pts+0xb8/0xf0 [amdgpu]
+[  +0.000189]  amdgpu_vm_update_ptes+0x411/0x770 [amdgpu]
+[  +0.000191]  amdgpu_vm_bo_update_mapping+0x324/0x4f0 [amdgpu]
+[  +0.000191]  amdgpu_vm_bo_update+0x251/0x610 [amdgpu]
+[  +0.000191]  update_gpuvm_pte+0xcc/0x290 [amdgpu]
+[  +0.000229]  ? amdgpu_vm_bo_map+0xd7/0x130 [amdgpu]
+[  +0.000190]  amdgpu_amdkfd_gpuvm_map_memory_to_gpu+0x912/0xf60
+[amdgpu]
+[  +0.000234]  kfd_ioctl_map_memory_to_gpu+0x182/0x320 [amdgpu]
+[  +0.000218]  kfd_ioctl+0x2b9/0x600 [amdgpu]
+[  +0.000216]  ? kfd_ioctl_unmap_memory_from_gpu+0x270/0x270 [amdgpu]
+[  +0.000216]  ? lock_release+0x13f/0x270
+[  +0.000006]  ? __fget_files+0x107/0x1e0
+[  +0.000007]  __x64_sys_ioctl+0x8b/0xd0
+[  +0.000007]  do_syscall_64+0x36/0x70
+[  +0.000004]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  +0.000007] RIP: 0033:0x7fbff90a7317
+[  +0.000004] Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00
+48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f
+05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
+[  +0.000005] RSP: 002b:00007fbe301fe648 EFLAGS: 00000246 ORIG_RAX:
+0000000000000010
+[  +0.000006] RAX: ffffffffffffffda RBX: 00007fbcc402d820 RCX:
+00007fbff90a7317
+[  +0.000003] RDX: 00007fbe301fe690 RSI: 00000000c0184b18 RDI:
+0000000000000004
+[  +0.000003] RBP: 00007fbe301fe690 R08: 0000000000000000 R09:
+00007fbcc402d880
+[  +0.000003] R10: 0000000002001000 R11: 0000000000000246 R12:
+00000000c0184b18
+[  +0.000003] R13: 0000000000000004 R14: 00007fbf689593a0 R15:
+00007fbcc402d820
+
+Cc: Christian König <christian.koenig@amd.com>
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: Alex Deucher <Alexander.Deucher@amd.com>
+
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/machine_kexec.c | 15 +++++++++++----
- arch/powerpc/kernel/rtas.c          |  6 ++++++
- 2 files changed, 17 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/machine_kexec.c b/arch/powerpc/kernel/machine_kexec.c
-index 7a1c11a7cba5..716f8bb17461 100644
---- a/arch/powerpc/kernel/machine_kexec.c
-+++ b/arch/powerpc/kernel/machine_kexec.c
-@@ -146,11 +146,18 @@ void __init reserve_crashkernel(void)
- 	if (!crashk_res.start) {
- #ifdef CONFIG_PPC64
- 		/*
--		 * On 64bit we split the RMO in half but cap it at half of
--		 * a small SLB (128MB) since the crash kernel needs to place
--		 * itself and some stacks to be in the first segment.
-+		 * On the LPAR platform place the crash kernel to mid of
-+		 * RMA size (512MB or more) to ensure the crash kernel
-+		 * gets enough space to place itself and some stack to be
-+		 * in the first segment. At the same time normal kernel
-+		 * also get enough space to allocate memory for essential
-+		 * system resource in the first segment. Keep the crash
-+		 * kernel starts at 128MB offset on other platforms.
- 		 */
--		crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
-+		if (firmware_has_feature(FW_FEATURE_LPAR))
-+			crashk_res.start = ppc64_rma_size / 2;
-+		else
-+			crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
- #else
- 		crashk_res.start = KDUMP_KERNELBASE;
- #endif
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index c1e2e351ebff..9392661ac8a8 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -1244,6 +1244,12 @@ int __init early_init_dt_scan_rtas(unsigned long node,
- 	entryp = of_get_flat_dt_prop(node, "linux,rtas-entry", NULL);
- 	sizep  = of_get_flat_dt_prop(node, "rtas-size", NULL);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+index 532d1842f6a3..4cc0dd494a42 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -1305,7 +1305,8 @@ void amdgpu_bo_release_notify(struct ttm_buffer_object *bo)
+ 	    !(abo->flags & AMDGPU_GEM_CREATE_VRAM_WIPE_ON_RELEASE))
+ 		return;
  
-+#ifdef CONFIG_PPC64
-+	/* need this feature to decide the crashkernel offset */
-+	if (of_get_flat_dt_prop(node, "ibm,hypertas-functions", NULL))
-+		powerpc_firmware_features |= FW_FEATURE_LPAR;
-+#endif
-+
- 	if (basep && entryp && sizep) {
- 		rtas.base = *basep;
- 		rtas.entry = *entryp;
+-	dma_resv_lock(bo->base.resv, NULL);
++	if (WARN_ON_ONCE(!dma_resv_trylock(bo->base.resv)))
++		return;
+ 
+ 	r = amdgpu_fill_buffer(abo, AMDGPU_POISON, bo->base.resv, &fence);
+ 	if (!WARN_ON(r)) {
 -- 
 2.35.1
 
