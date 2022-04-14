@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FCF3500E7B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:15:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6DCC500E85
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243787AbiDNNRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:17:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37382 "EHLO
+        id S243759AbiDNNSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:18:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243819AbiDNNRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:17:47 -0400
+        with ESMTP id S243732AbiDNNRt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:17:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C83C25C50;
-        Thu, 14 Apr 2022 06:15:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A751BE0;
+        Thu, 14 Apr 2022 06:15:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 188AE612DA;
-        Thu, 14 Apr 2022 13:15:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B38FC385A5;
-        Thu, 14 Apr 2022 13:15:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C89B3612ED;
+        Thu, 14 Apr 2022 13:15:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D57F9C385A1;
+        Thu, 14 Apr 2022 13:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942121;
-        bh=muxlBW1xDCad3F4eezC0yyiqkmIBXZvIz/L5nWGM2Tc=;
+        s=korg; t=1649942124;
+        bh=HRWp0DPtkLnjg5wRAjN9vQZy9JHLc0iQkk9SIi8PfKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vq3YWk8hdHKoQumqJ2u0leP00Luuvtp3HiaJRC8VvMU0kFTrM5vCnT8+kwa8rSMiv
-         7CKo9hq8YhuCtZxomloPVyJ4zCOFowxCSYVN39DBl2wxRq8Jk8p7ZxUIBl7pzvJmo+
-         Msvi03Z7/oOVgWsd5Z5QDd8Cr3Isaoyd+AQk7nAs=
+        b=seBMY/Gu6hOPbDR/0yBxODWcnpAkv0Qn8O2+acGQS0rdQbN5k8/GOXa2HJQ4mLw8H
+         24FKiZNqNm4fuQyrCC78huHxTDjiNxLjv8RGmKqmOLjtHA1atpEXQlxfje3eM52DIy
+         jobgm+Riect8tXTDMqDFx+0sRwZNGoSJJrzXuJu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
-        "David S. Miller" <davem@davemloft.net>,
-        Pavel Machek <pavel@denx.de>
-Subject: [PATCH 4.19 004/338] netdevice: add the case if dev is NULL
-Date:   Thu, 14 Apr 2022 15:08:27 +0200
-Message-Id: <20220414110839.015690473@linuxfoundation.org>
+        stable@vger.kernel.org, Lina Wang <lina.wang@mediatek.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 005/338] xfrm: fix tunnel model fragmentation behavior
+Date:   Thu, 14 Apr 2022 15:08:28 +0200
+Message-Id: <20220414110839.043714250@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,42 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Lina Wang <lina.wang@mediatek.com>
 
-commit b37a466837393af72fe8bcb8f1436410f3f173f3 upstream.
+[ Upstream commit 4ff2980b6bd2aa6b4ded3ce3b7c0ccfab29980af ]
 
-Add the case if dev is NULL in dev_{put, hold}, so the caller doesn't
-need to care whether dev is NULL or not.
+in tunnel mode, if outer interface(ipv4) is less, it is easily to let
+inner IPV6 mtu be less than 1280. If so, a Packet Too Big ICMPV6 message
+is received. When send again, packets are fragmentized with 1280, they
+are still rejected with ICMPV6(Packet Too Big) by xfrmi_xmit2().
 
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Pavel Machek <pavel@denx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+According to RFC4213 Section3.2.2:
+if (IPv4 path MTU - 20) is less than 1280
+	if packet is larger than 1280 bytes
+		Send ICMPv6 "packet too big" with MTU=1280
+                Drop packet
+        else
+		Encapsulate but do not set the Don't Fragment
+                flag in the IPv4 header.  The resulting IPv4
+                packet might be fragmented by the IPv4 layer
+                on the encapsulator or by some router along
+                the IPv4 path.
+	endif
+else
+	if packet is larger than (IPv4 path MTU - 20)
+        	Send ICMPv6 "packet too big" with
+                MTU = (IPv4 path MTU - 20).
+                Drop packet.
+        else
+                Encapsulate and set the Don't Fragment flag
+                in the IPv4 header.
+        endif
+endif
+Packets should be fragmentized with ipv4 outer interface, so change it.
+
+After it is fragemtized with ipv4, there will be double fragmenation.
+No.48 & No.51 are ipv6 fragment packets, No.48 is double fragmentized,
+then tunneled with IPv4(No.49& No.50), which obey spec. And received peer
+cannot decrypt it rightly.
+
+48              2002::10        2002::11 1296(length) IPv6 fragment (off=0 more=y ident=0xa20da5bc nxt=50)
+49   0x0000 (0) 2002::10        2002::11 1304         IPv6 fragment (off=0 more=y ident=0x7448042c nxt=44)
+50   0x0000 (0) 2002::10        2002::11 200          ESP (SPI=0x00035000)
+51              2002::10        2002::11 180          Echo (ping) request
+52   0x56dc     2002::10        2002::11 248          IPv6 fragment (off=1232 more=n ident=0xa20da5bc nxt=50)
+
+xfrm6_noneed_fragment has fixed above issues. Finally, it acted like below:
+1   0x6206 192.168.1.138   192.168.1.1 1316 Fragmented IP protocol (proto=Encap Security Payload 50, off=0, ID=6206) [Reassembled in #2]
+2   0x6206 2002::10        2002::11    88   IPv6 fragment (off=0 more=y ident=0x1f440778 nxt=50)
+3   0x0000 2002::10        2002::11    248  ICMPv6    Echo (ping) request
+
+Signed-off-by: Lina Wang <lina.wang@mediatek.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/ipv6/xfrm6_output.c   | 16 ++++++++++++++++
+ net/xfrm/xfrm_interface.c |  5 ++++-
+ 2 files changed, 20 insertions(+), 1 deletion(-)
 
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -3674,7 +3674,8 @@ void netdev_run_todo(void);
-  */
- static inline void dev_put(struct net_device *dev)
- {
--	this_cpu_dec(*dev->pcpu_refcnt);
-+	if (dev)
-+		this_cpu_dec(*dev->pcpu_refcnt);
+diff --git a/net/ipv6/xfrm6_output.c b/net/ipv6/xfrm6_output.c
+index b5941c9475f3..fbcec4827071 100644
+--- a/net/ipv6/xfrm6_output.c
++++ b/net/ipv6/xfrm6_output.c
+@@ -142,6 +142,19 @@ static int __xfrm6_output_finish(struct net *net, struct sock *sk, struct sk_buf
+ 	return x->outer_mode->afinfo->output_finish(sk, skb);
  }
  
- /**
-@@ -3685,7 +3686,8 @@ static inline void dev_put(struct net_de
-  */
- static inline void dev_hold(struct net_device *dev)
++static int xfrm6_noneed_fragment(struct sk_buff *skb)
++{
++	struct frag_hdr *fh;
++	u8 prevhdr = ipv6_hdr(skb)->nexthdr;
++
++	if (prevhdr != NEXTHDR_FRAGMENT)
++		return 0;
++	fh = (struct frag_hdr *)(skb->data + sizeof(struct ipv6hdr));
++	if (fh->nexthdr == NEXTHDR_ESP || fh->nexthdr == NEXTHDR_AUTH)
++		return 1;
++	return 0;
++}
++
+ static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
  {
--	this_cpu_inc(*dev->pcpu_refcnt);
-+	if (dev)
-+		this_cpu_inc(*dev->pcpu_refcnt);
- }
+ 	struct dst_entry *dst = skb_dst(skb);
+@@ -170,6 +183,9 @@ static int __xfrm6_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ 		xfrm6_local_rxpmtu(skb, mtu);
+ 		kfree_skb(skb);
+ 		return -EMSGSIZE;
++	} else if (toobig && xfrm6_noneed_fragment(skb)) {
++		skb->ignore_df = 1;
++		goto skip_frag;
+ 	} else if (!skb->ignore_df && toobig && skb->sk) {
+ 		xfrm_local_error(skb, mtu);
+ 		kfree_skb(skb);
+diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
+index 1ae8caca28a0..3c642328a117 100644
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -300,7 +300,10 @@ xfrmi_xmit2(struct sk_buff *skb, struct net_device *dev, struct flowi *fl)
+ 			if (mtu < IPV6_MIN_MTU)
+ 				mtu = IPV6_MIN_MTU;
  
- /* Carrier loss detection, dial on demand. The functions netif_carrier_on
+-			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
++			if (skb->len > 1280)
++				icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
++			else
++				goto xmit;
+ 		} else {
+ 			if (!(ip_hdr(skb)->frag_off & htons(IP_DF)))
+ 				goto xmit;
+-- 
+2.34.1
+
 
 
