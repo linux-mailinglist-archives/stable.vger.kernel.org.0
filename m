@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76B035009B9
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 11:26:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88CA55009BC
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 11:26:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241727AbiDNJ3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 05:29:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55534 "EHLO
+        id S241736AbiDNJ3H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 05:29:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241726AbiDNJ3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 05:29:03 -0400
+        with ESMTP id S241731AbiDNJ3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 05:29:04 -0400
 Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2493950E2A
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 02:26:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 918DC52B18
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 02:26:40 -0700 (PDT)
 Received: from pps.filterd (m0250812.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23E8pF5I001147;
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23E8pF5J001147;
         Thu, 14 Apr 2022 09:26:28 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references : content-type :
  content-transfer-encoding : mime-version; s=PPS06212021;
- bh=XAZHyC9K2o/7LQrznoYuKmVJVKVq9KNj/WfHjgJZXek=;
- b=JAV56AMSdmMDgKpmSbC1Cy/1UKST1ymID6JVhXnCULb3odtJIha+xGfqbrCKtAcBqahX
- 3L+nqmqnqCYohLThpM3YawzAzvfgwXFZ5yVRgjbE22+DUIy7Ayu4cFP0ppX6VJZi5Qt+
- weR8uto7GAbtTC04NGQxVdoxRVPbi5TNfeP4Pdwxc7c0onZxc0zVkj8epMyvoX0y3XR9
- Q6eGELI7l3n0KhVUq9YbJ042+HBiuJKtIq3Q4OWTDBVClBmhTOxnost4GwCfxbxZRgiU
- fThoqgtte9EqESP5Vu2kGspAcipTBsRy9J5aBAZAtR/+CqLC67BYpal3BsRtkpdIrFcr LA== 
+ bh=BzPa7VLZk/5rsgF2xiiQzcYF/+4xdA2bANaXTUsDTOE=;
+ b=spWXd4uyeTQo/VF3RZ3cu192r5CoATrZ9ud+uByhG40ek9lTTpRntKxIIY1hPX/ph9kS
+ mdzlcDhT395okdUmpFVXfEbwoCcQqn6D1s4EQqHuRGPOlNcnn2rhmgVNngEQyzO0hYpg
+ mNUX0ZwFXX76CQ0YdPiAksWcXxRvwsjym00O57HP4LmaFHTCiHtsYrhKuziziPP5w586
+ TG4wPz73KuVgszVVcVHGEMMj7UlQBtLNqXfZF4KkM9aFCrVoYrL0BxsTvdkkeM+WaDkQ
+ 9nhKuvl/py9trzVKARIfCjBz5Ba05hqBsdLKk4CgheALFCX3AbQUFg1UN3kuz4CrZeIV Jw== 
 Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2045.outbound.protection.outlook.com [104.47.66.45])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3fb6fwbueh-3
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3fb6fwbueh-4
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 14 Apr 2022 09:26:27 +0000
+        Thu, 14 Apr 2022 09:26:28 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gpv3d616M5h/wxBIDu3WTz2ynBXDGKu1iVgvfZ0Ulm7hxQD3z1DMI7bhqAIsz56TrZ/8egtHQYhHkQzRNDrR21uTC9nwimOsGXmFzgPMrHik/XFgo8N1a4DxrduVN+IHq834kZW/RGyZSL9ixPQ5xT8wLA+Knvjn73EPN+CQD6BM//lqGVy2JVoDEglyWqxDeEX/rfaqEUJp5uv8XBiZlJTSjFjHm94+BAhmaD+hudqT3EhTnI/FdqK42lyUxiXX1ghPG/LmYSWjCMa1JRUN3+rRLvh5l3dhF8hsqpRppf3oDA/hZtwpwZIodFj60blOr6bx5nmDcghQydISZuNHzA==
+ b=LIp8hXFKeYZTNrOqU7t+TK8SMbVQCJcnNlofyJg4XpPCJX6vV9rpvex0lOkbl483b9vdf6N1HwGBhOGvE0c1TBmZ8busN4fLrtI9qGKQ57GI7pgXurCsp9VeuCzTS8KReVNPRDK3QTAOct64qLu+Y9rgGTrU5hMSjqlyX012pIvzz0i7f2Vx7GkFdSnWKlXnrkQsP1FLvZ9y68VmRp3ko8C29iS8rbRKuArCfeHNTKEv2FEooMjZtnuU+2dLFT4qUPAGIdKDk/jRnvzDwjx7llSPDIW91dbX9Ls2i3RTuPTZXerN32OPg4WCnYqXkHVASg4C3fPRY2h5Tr2SFwsaLg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=XAZHyC9K2o/7LQrznoYuKmVJVKVq9KNj/WfHjgJZXek=;
- b=VOTip7Q9P7e08fWUiZWIFW4z6B85NC86QjS0slCe3GBSNC35eUrMr8KEWuF86ND2XwjIL4OUb/XLSLO0NqLYQKtU1dQFlgdvno9FbtHQGb8uG+WBPpPZwJ+hj5afniZbcMVJmqlI5loPlupBp01fGYqrnlf3rtLZbSCn/MM6FIffaxiKCMW3SontUQmgtAOQ6lv/FL0LdIxCXQtW7h9XL6fl3K2R/uCksCt3GUojLuxQ8SO0QgZV8EMyoAyCJ8x5likBU+mviHdH0Haq2ezE70KIb5BJSrCWD9APeSfLUU7idM13CgS3oVE0uGRYjIWacWxlYgcDMt1tykqSHLyUvw==
+ bh=BzPa7VLZk/5rsgF2xiiQzcYF/+4xdA2bANaXTUsDTOE=;
+ b=JwtzQmGoWfhOhhaKom0vRFV+6+JWQRfbiyQ3+10P4oid9jo/CycZQr5btNCphWw22ddqIIDQDfCWi143UQ2zCN+oK8/c8yAWG/JOmBVUo0//63wL5y6J+zoG63BcF5nBBBhIPSUaUt+by/S1039zGjf0u9ixfSGwl06v3U5lp9iHNc2eqs3GEZD8YcACnVqoqVNsLAWupE6aedtE6rfmfll6mFcxFhPhUwihHndk8fkWLqCI/m2JwOUcwmawE7/zgH6B9hRtPDFXS/LBnu5DG25p9sHtEceJStSIxTaZbeX4BYxBFxr5JzNvEb/EgP+SAmwkn8OOrCI77ofubHFvQA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -44,17 +44,17 @@ Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
  by CH0PR11MB5756.namprd11.prod.outlook.com (2603:10b6:610:104::23) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.20; Thu, 14 Apr
- 2022 09:26:25 +0000
+ 2022 09:26:26 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::c903:4c47:ac8a:992d]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::c903:4c47:ac8a:992d%4]) with mapi id 15.20.5164.020; Thu, 14 Apr 2022
- 09:26:25 +0000
+ 09:26:26 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
 Cc:     tj@kernel.org, mkoutny@suse.com
-Subject: [PATCH 4.14 2/3] cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv
-Date:   Thu, 14 Apr 2022 12:24:20 +0300
-Message-Id: <20220414092421.2730403-3-ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 3/3] cgroup: Use open-time cgroup namespace for process migration perm checks
+Date:   Thu, 14 Apr 2022 12:24:21 +0300
+Message-Id: <20220414092421.2730403-4-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220414092421.2730403-1-ovidiu.panait@windriver.com>
 References: <20220414092421.2730403-1-ovidiu.panait@windriver.com>
@@ -65,68 +65,68 @@ X-ClientProxiedBy: VE1PR03CA0009.eurprd03.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: df186478-17a9-4c49-e419-08da1df8d8f6
+X-MS-Office365-Filtering-Correlation-Id: a4b2f038-ff18-4a18-9983-08da1df8d99b
 X-MS-TrafficTypeDiagnostic: CH0PR11MB5756:EE_
-X-Microsoft-Antispam-PRVS: <CH0PR11MB57561AE9B48A7D7D7AD52E20FEEF9@CH0PR11MB5756.namprd11.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <CH0PR11MB575654AE74BFD18B67025CE8FEEF9@CH0PR11MB5756.namprd11.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: W+S+Hyx4SSFB3ZTUmHcG8qzzmCIflta/p9RQw5XPgqLst5Pzolxdf47tdsqBpO5n/hEYvdtMmnasr5bbt3q3ILQAMueiKcgZY4olKsgEfIUsrpWq8+F20++HdHr6Sdicb6x3r6RPP9qkNMQ9ZK4d85eqKwFgnQ1AEkvM4r9IXZo0VKckaKxJxxeXNuJTrehF9GAN8ZZGkkcNospS72RDiaFRO+/8gCaqhWXvJC75UVgqyYAagjDXvJxLonqh+S5Io57Ufv8+8y5Iwz7g7Jtf6QIRs6n9aGHduHSXeyF5+VjM5UqWOwM5MuLMgaFikiJtq2/v4MenV0xsSpcX4Awc5u1m6gBvyouuVf8VhGiiE39M4uWQSsNVdSH5gluIv09Av7axGcO6RF2YejzOmkOqfidX2Clr/c+SQ3JgvlOAfU/oPR6LuHveAf+mqQL4/Gw/POuRKn2nsoNPfK9g0ed5z0YLYpma5JRR6iQJNi5jlLCVph373AlrPQXnePuPQzd8YCT94Vuzvwor906HEeMBU2qXTU+fIShfuwlhHuyZLpGV1mRxSPTVNPLTipXP5pDlJZ818zOIaD4JVJ/xBwoUKZYwWuhrwgdweL2XdEFNtZhMk2yg5P0kO4wI1CNv0M4tpfjH1N+hLArI/7fvXwXc5n6QngO7j1ptpNr/xNDGDRhXiYkDMJboB5idcaZHCycHC8Lj+rgHfb3LxMXjbL0SAQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(5660300002)(8936002)(6666004)(38350700002)(38100700002)(52116002)(316002)(6916009)(508600001)(86362001)(66946007)(66476007)(8676002)(4326008)(66556008)(6506007)(6512007)(6486002)(186003)(1076003)(36756003)(26005)(83380400001)(2906002)(44832011)(2616005);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: mDiQTPN/0g4mGXuaDBhSzesLYBgTGT4JFVdZMabM5135L63508LE/GxRveYDIxtAC9YD0zO/ISYoh911BhNgks14cAbNpW89puPtdj4atMZKauYuqatB91oJqw9mLXc8IVjU/UPnpK9eyaPNEFuSEwkTHQBxKnmBo4b5li3Z+IydahEJV0Np5pOLCZhKjSTGmXPMk5P8XxbfNaX0jFD5VEFCD9V1pT0A8yW7gDCmKMneGHg3d/UoMM9W5Fd/luDCrYz/krZGtWOSrUOGvBw3BEx1uM3xeSsodMbAEP6F4w7R4626rVPfiIMenZ9CiwbQHldsERqZLoCDfDv6VfSNe2xpOJJbeewJ4PWNxYKbbiopjvPAZ+Wf/dbPu3+5qoTkTpCnuQYREwn/WTnTxCPfQCUhfHNM6RCdKgtD5rYP/ljmpklP446URh8GmaKYKWdnM+mUpkG9vmLl/I6FjstQoD/5DY30dqLexonw4gVqh751WOftxAgmD4SJW7KO2SGpO0mS3SghEaPPHKAy8VJ8S9hZFp51PJZWBiDHOQv4rssTttxFFOmKdzK+Omgdk9BOMrek/WJGtm51yx6x3WKCHK4O8STP+X36n63OdpKACKozTu4uP0wvG8Wna7vm/45D6jPEHqTPCtBy4EMPFjBZNBF1ZDO0D3IF+OSjj9KTcXMEbfqRC1iJPKXf/fscsDDKcubB/vowHTLL4mCoBVvy7xiCpMlEpZ5i7V3IpyBSpMx+3Gg6R+qrx0X/f4hn/u3F55omysoA8QwVBsOBmfw+lIac/nAkOVppsY0IKbsk6Kw=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(5660300002)(8936002)(6666004)(38350700002)(38100700002)(52116002)(316002)(6916009)(508600001)(86362001)(66946007)(966005)(66476007)(8676002)(4326008)(66556008)(6506007)(6512007)(6486002)(186003)(1076003)(36756003)(26005)(83380400001)(2906002)(44832011)(2616005);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?c3NjWFlCR05iTTl1Z0plbW1nWW1jblFzQllkWElpMFQ2RExpcDQ1NHRyRjVv?=
- =?utf-8?B?YUM2K3ZLdVdLaW8xbDRnd1FHQWZORjBmaWxWck1VeFQwYUovc1hmZkZXMldG?=
- =?utf-8?B?N2ZvRVNzWnp4Y2hYWktWUW5GTGhabGF4RCtNbXU1V29rMWlSanlUWVEyTXN0?=
- =?utf-8?B?MHJHODlKdEtVWUR6aFhPZmR5bWl2OHoyaU10bEFsQTIwaUh6M0U5Q2oyZmZH?=
- =?utf-8?B?WllrSVdDcEh0SkdrRmZaL3FMbnhudE82bk1hYlpYK0VSdXplVTRScmlBbzNt?=
- =?utf-8?B?NHh6NWRxMXVzSnhaVzRhUTFIYVIzcFd5dTd3WFlzRHgyUDRzRmxHNjNLUGoy?=
- =?utf-8?B?V1h3NERENWxuckdLQ2t3TFEwQUkvbWZWcXBDRUgxVkxKMUhPTms1cDl0YzJT?=
- =?utf-8?B?eFBjUGJNSEg5c2tKTWVwV0o1biszQ2NnM3liVjhjRXczU1o2K2JDcmlXc3Iw?=
- =?utf-8?B?UnU1QlVWTlVQRzlrQVcrMTN1dEpqUUM3T05oRlBSd3ZUUU5NZlhMYjkwdVky?=
- =?utf-8?B?YXZLUVBybDViVDVGRzd4Q0MzYXdCNi9Lcld5Tjl3SmgrVFFhZm1FTlcxNkhL?=
- =?utf-8?B?QjBFSmRJUDNwMFZGa2lMTEl1N1ljdW02TURxdmZRQmJ1N3Bqb1l5YU5YZSs1?=
- =?utf-8?B?Q01RbkFXNlpCOFBaWTJyRFozamdkNWUrRlBGZ3RBaStvNCsxQmtoNzIvTjVs?=
- =?utf-8?B?ck9EUElVVi9IYWNka2Y1NTRDdzR5amM4ZlhuVGx1Wi91eTN4ZVRSb0ZBcWRn?=
- =?utf-8?B?Wm5OMmFRMXdOc2RXbnQxRmphWmtxdGsxaW0wSm02c3l2bS9RMXAzWlI2emlt?=
- =?utf-8?B?R2J1b1BLWlRkeXQ2ZG51aEVYUGZaMUgxb0pnWktscDJGL1RpSllVdm16UlU1?=
- =?utf-8?B?eUJhOXZuZVRUaXJwYllHcE1OTHFNZzFGZVRaem4zTFhORURGbVVheVNKQXU4?=
- =?utf-8?B?ZDVjbUZBTmxML1VDV3hhTFdYR2FGdGtoKzB0Y2xXZThRSW9LdHRVRG9qVFdO?=
- =?utf-8?B?YnpldkJUU25Tb0E3bk01TjJlL29icFV6cnRZMW5Xb2FtZzN5b2dBQ0NFZnZk?=
- =?utf-8?B?WC9XcDdMWXBUZEs5UzdpV3J5eFRNZjFSVy91bEFINHZKcmFMSG9aOEE5b0dh?=
- =?utf-8?B?WTR4QTN4WlordEtTK1NzNDdwbDcrMHVHbU9CREo1SUE1VVdOb0Y4TW9WM2Uw?=
- =?utf-8?B?OGN3QUZwSVBTWGd5b3NCMk1WYXZwMFVpcUNrMTFQSDUzMUlUQUQ4S3pkeVRv?=
- =?utf-8?B?TjZlVERhMzJTSTRiL0dSVkxTQVpqMDVkQlcvd243U1FMZXpSdFA5elo5NmJo?=
- =?utf-8?B?TjlHVU9vTkhUbGF0QXByWHhKd3ZzTU9uNXVrdWRKWkcxNnRpSTNwWVV2QVVh?=
- =?utf-8?B?cmlZM25lK2ZLR0VYSEFERWFlbWpzS3c5Q21ZZGpqY0ZleFBwWUh4NEx2S2Ew?=
- =?utf-8?B?UWpiZHZaQ3BJYjRVTEFjcnFmRjdJdUhyMkIxUWNEN0MzcXZvT2NFN2NPNkpw?=
- =?utf-8?B?dktPdDBEOHU2SnE1NFlPWkVZbUE1Wmp3U3VUanBHamlmeGlTMWlVQzFWeGpt?=
- =?utf-8?B?cDVsNXpNTjB4TjRzQk9FRDhEcmJEMWRsbGg0VEJuOVpxbEN3RERVejdRWGlv?=
- =?utf-8?B?cXZmbHFLYXFvVnpBRUtxeHRVT2s0SmJ0SHVNQU5QYTlTdko0UXN6M2xwNkpz?=
- =?utf-8?B?QUxacWN4WG96TGNvY0piWHhscFpyT24vaVhvQmtHNDBPcGRDR0FxVm9kaTB3?=
- =?utf-8?B?bmw5Umo3VzFNYm5TTWlRSW02Tm9zTVhtaVZ0MHh4dDdNRndSMDloMmkrNVc2?=
- =?utf-8?B?c2VGa2h6RXhqM3cycWJubHUrSHp1cy8wMHc5OVFkWUZGSy9JN2UzSUZ0NkJi?=
- =?utf-8?B?c1A0YUR5cGJHNTlVTVRueldzV0tLNEIvN3RpSit4MnBQeTdYV05ibmh1NjJR?=
- =?utf-8?B?ZlBsTjJ1Y3hrNU00aGRjRkxzcEkycGE3bWQ2ekl3eGZLaEF0c2ZvMzdXSTg0?=
- =?utf-8?B?Q3c3OUxqOFhQSzZEc0o3MzN0VTMyQlBJZUpFYXFkOFZKYU9rTUcxbXlrWDhU?=
- =?utf-8?B?SFpEVzJtajVEZGUvQjRRTVFKYWtRZGpNZDFibEFBMmRDUW1QdHVTU0JycXlv?=
- =?utf-8?B?RkFjeFdHYWd0dUQ5Smd6NjAzM3dMTEdtYUpuNTNDZW1Oc3VtV3RwUDcrZmpr?=
- =?utf-8?B?aHVIcDJRaVlYOWJtcmRURTNyL1Y1eGhNTG80OTU5Y0IzY0tHSmd2aCt6c1BE?=
- =?utf-8?B?SXdYTUlhVnRUR1Y3OUZIYUF4dnNQTjFxb1BXTUNrVkRQLzVaV2JQOWJNMEtI?=
- =?utf-8?B?K3BrTGZFQjUvZ1ltaS8zMWtkVllKRGVkeEVSNDlMcDlxa2oxTmtMY3dyZDYv?=
- =?utf-8?Q?OC5vPSfgpl61eg8s=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?YllmZ3owUjUxZDZ0WGcyQitocklvWkxHcDJPUmliRnRHc0ZqTEl1TEd1QjBq?=
+ =?utf-8?B?NWtzUnIvTEUyam1iWHpFZW9EWnJjR1czNnRPMmwyMUhiN25tN3QvbnVpYkQr?=
+ =?utf-8?B?Y3Z6Wm1tTktlQjlQSDZoK2xGMmd0eWRsbkhyWGJoN282YmNFU29hOUZTMFlJ?=
+ =?utf-8?B?N01mdHZLaVNuMmhZRnBXd2loclRSaDl0QXNhZXU1dFRPMmN1U2RTMHgwZXV4?=
+ =?utf-8?B?Vzh3VndhL1M0ZUFhdVhKT3NqTnhXdk53d1pCaWxLTi9jRFlBeW9YNktIWkw1?=
+ =?utf-8?B?MlAyWGw1VWE5Snh1OWJLbDluTmllL3F2U1RGczJQT0x5UklnVTU2NlFFZEZy?=
+ =?utf-8?B?Tmc2OHdFMUFwZ001U3hzTk14ajFaNVlKMWxDRHpFT1F6dlpXUGphYllOVHRM?=
+ =?utf-8?B?MmJrMUJEd0ovcndwYmJHbGZZRXp0aFFLczZEQXlUc2RQeFA1T3VwVlNSQnVE?=
+ =?utf-8?B?emxWdk1WZTlsZnFOQTJXVWt4M25hanhqNXluNnNzeFJqS2Q2SWdEZWFpa3NG?=
+ =?utf-8?B?Tm9RdUNCRmFjb1RqdVRNbmRxZW5RNExLWjliTzJKVkNHcERBQVRGc3JjckdB?=
+ =?utf-8?B?UVJHazZxanZBS3RCMnVObTVPeTBPRXpZbDJTa3FvTi9ZQktwNE91SUxvQ1JR?=
+ =?utf-8?B?NTg3T284b1lmcW5PVE9qOHhQYTdLNDhqMVdkeEpBaW1PQ0FzeG1MRnlCMUF5?=
+ =?utf-8?B?SGFERmVYSGtja2ZUVjB2UUZjL1VzR2JWWUJBQ2FxcGlMcVhkWFY3aWZJcGRW?=
+ =?utf-8?B?SjBxZWhNMGNtZUd6eGdteW9nOW5rNmtHTU1ZNzRYK01NM0FFcDQ5OU5yR1Nn?=
+ =?utf-8?B?VmQzWTdMMmc2akJSRmZGYUdiV2lUa3RnLzYxcCtjNlJYUVYzU2paQVJpVGZh?=
+ =?utf-8?B?V1BWWlpoaVVpMUtqMWJBemNsRE9wSW9CSlF4cng4U3VVazV0YjM4Q2pDZHhj?=
+ =?utf-8?B?dXNpbmVyRFRJdXBuVkpPRFM0eU5WWE10S2laSlpaY25UdklDTDJpYmRVcTRV?=
+ =?utf-8?B?cmJVZjBIZlk3NEpVZVNMR3ZQMTRNMHlqTGVtRGZLaUhLN0pHRUNtTGlsNkhC?=
+ =?utf-8?B?UkZDUXJhZ3dZaElJK212VisyYXdEUzBISnRtRFBUNWkyNkV0bGJZQ3ZTTzRJ?=
+ =?utf-8?B?R2dGYzh6dkgrZG1RdU9hdXdvR25KUmRPZGNjWGVoNWZpeE9sR3ZoUXRZZ0JX?=
+ =?utf-8?B?OFdQQlpWQXRLTGFJdTdSeFUrc2xUZGRSNDVmTkZBV3ZZbGVMUFZvUDMyUGF1?=
+ =?utf-8?B?TUxMRHBtMCt1ajExZUl3eUNrd2xJc0xLamlqU2FBTTZZd1k2TjBmQ0tTV21P?=
+ =?utf-8?B?UlI2bGVrQnBBNmlDd2NKdmN5NVU0QlhEbW9iREwva2VMOGN3SFZ1UU1lWkVo?=
+ =?utf-8?B?MW9VdFBiVmZCR0NzdVc4cnpyN0Z5cWhwNlR2bElmeXgzZGhtTjkydDlQbXc2?=
+ =?utf-8?B?bzdiVTBpVVFPQk95V2htUktLQVkyT0FvcWYxOEtuazh3TVRaanpjb2YvQWx2?=
+ =?utf-8?B?ZWY2dzNoYnNWY2ZIV2F1RHlqd0owUm5SK1doL3ZJVzl6cHY0Qk5WVk5mdDVq?=
+ =?utf-8?B?QTNQWlVIWmZobjJ2L3Y1a0orM1g2SzdJeEdqYWVSRW1kR1hsdGpCWlp2RE92?=
+ =?utf-8?B?THV2ejkzZGMzUWRtMVZVWjhHTXV3dHFrR1NqcGl2WmNxYUJCL1NPdjU5dVg4?=
+ =?utf-8?B?UWNXUjk5SVdqK1JBdzdBMVFzOTVXaVVyMERrMFhyc016Z1FQVVh6SHFwVVF3?=
+ =?utf-8?B?SGFIZFYvMHZWeVMvOGlrNnNFN2ZRV0J2NFZiaG00d1Rab2RxL0wzYUtLRDdX?=
+ =?utf-8?B?b3VQYWpZSjYxRFl5QzRkZVVzZUZSZ2pqc1Q3WGJiNTVZVlR4TWdUSjNVSzhw?=
+ =?utf-8?B?eVBidWJQQVR4OE1EeUdHYkJaNFNLWUFUb1U0THVzMUNuMFdLend4Rm5jdnA0?=
+ =?utf-8?B?YVRHdWRPZ25DdkNDVi9CdGs4NU4zZHlldGxtMTdOdys2UXZSTjJmZFQ2d2Nr?=
+ =?utf-8?B?Q1VYT1J3ZC92N2I1K09Dc1lCVW16blNlN00wTVNMeDcyelBVZkVYaWZOMzFz?=
+ =?utf-8?B?YWpLNy9CV0I1N2FkRjkzY09QN2VoOGJQM0U1R24zMnhDcDFsc05Jbk42ODlB?=
+ =?utf-8?B?TFNKekFwWVFUd3l6YncvN3dPKzBlY2huYm5IbkFDQnRLeHQ3UWEyTDVlNnVZ?=
+ =?utf-8?B?RWllakduYUlQbnJxRWhubk11eHpENmNwZDlydHladW9VaFFJcXYzQzhhazBG?=
+ =?utf-8?B?VTh0M0pEUXlycEdsMGFvT2NlZ1VYUWp1R2xrb0poK2FnOHJZMzZzTEU5M3lW?=
+ =?utf-8?B?ZVZtcUN2b1RlYkNxUi82VkM2NS9QdEJ6VnB5eEg4bVpnQVI4dk9USzliSVhT?=
+ =?utf-8?Q?QnyE+OEv1nbb9e+w=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: df186478-17a9-4c49-e419-08da1df8d8f6
+X-MS-Exchange-CrossTenant-Network-Message-Id: a4b2f038-ff18-4a18-9983-08da1df8d99b
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2022 09:26:25.6595
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2022 09:26:26.7544
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8AGV0+RDiCFmpV9juIgjeIOk1bnObJ5vCTaKO7FrwSa2aAfKdVKbVoNYIGMoAMP/aEmt5oS2c/irNZc6jBaI6JdnVij2xXK63PzN8OrIRu0=
+X-MS-Exchange-CrossTenant-UserPrincipalName: R2csMDookKWfa1HDeAEN2yXyN37NqL8C5jW+25zFnKcnNQ3QUohqB2+C3CmtSyEa/YX6QSYckNBwhqEpxwUSpbDzzeueSTwK+tamqcF3fn4=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR11MB5756
-X-Proofpoint-ORIG-GUID: LraVI4T3usJFN4Fdkh54bPpljkQoe7TL
-X-Proofpoint-GUID: LraVI4T3usJFN4Fdkh54bPpljkQoe7TL
+X-Proofpoint-ORIG-GUID: yhkuN7ASoOAmWVss7n9CcxRJrQWBILOX
+X-Proofpoint-GUID: yhkuN7ASoOAmWVss7n9CcxRJrQWBILOX
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-14_02,2022-04-13_01,2022-02-23_01
@@ -147,227 +147,156 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tejun Heo <tj@kernel.org>
 
-commit 0d2b5955b36250a9428c832664f2079cbf723bec upstream.
+commit e57457641613fef0d147ede8bd6a3047df588b95 upstream.
 
-of->priv is currently used by each interface file implementation to store
-private information. This patch collects the current two private data usages
-into struct cgroup_file_ctx which is allocated and freed by the common path.
-This allows generic private data which applies to multiple files, which will
-be used to in the following patch.
+cgroup process migration permission checks are performed at write time as
+whether a given operation is allowed or not is dependent on the content of
+the write - the PID. This currently uses current's cgroup namespace which is
+a potential security weakness as it may allow scenarios where a less
+privileged process tricks a more privileged one into writing into a fd that
+it created.
 
-Note that cgroup_procs iterator is now embedded as procs.iter in the new
-cgroup_file_ctx so that it doesn't need to be allocated and freed
-separately.
+This patch makes cgroup remember the cgroup namespace at the time of open
+and uses it for migration permission checks instad of current's. Note that
+this only applies to cgroup2 as cgroup1 doesn't have namespace support.
 
-v2: union dropped from cgroup_file_ctx and the procs iterator is embedded in
-    cgroup_file_ctx as suggested by Linus.
+This also fixes a use-after-free bug on cgroupns reported in
 
-v3: Michal pointed out that cgroup1's procs pidlist uses of->priv too.
-    Converted. Didn't change to embedded allocation as cgroup1 pidlists get
-    stored for caching.
+ https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Note that backporting this fix also requires the preceding patch.
+
+Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Cc: Michal Koutný <mkoutny@suse.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
 Reviewed-by: Michal Koutný <mkoutny@suse.com>
-[mkoutny: v5.10: modify cgroup.pressure handlers, adjust context]
+Reported-by: syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
+Fixes: 5136f6365ce3 ("cgroup: implement "nsdelegate" mount option")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[mkoutny: v5.10: duplicate ns check in procs/threads write handler, adjust context]
 Signed-off-by: Michal Koutný <mkoutny@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[OP: backport to v4.14: drop changes to cgroup_pressure_*() functions]
+[OP: backport to v4.14: drop changes to cgroup_attach_permissions() and
+cgroup_css_set_fork(), adjust cgroup_procs_write_permission() calls]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
- kernel/cgroup/cgroup-internal.h | 17 +++++++++++++
- kernel/cgroup/cgroup-v1.c       | 26 ++++++++++----------
- kernel/cgroup/cgroup.c          | 42 ++++++++++++++++++++-------------
- 3 files changed, 57 insertions(+), 28 deletions(-)
+ kernel/cgroup/cgroup-internal.h |  2 ++
+ kernel/cgroup/cgroup.c          | 24 +++++++++++++++++-------
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
 diff --git a/kernel/cgroup/cgroup-internal.h b/kernel/cgroup/cgroup-internal.h
-index bf54ade001be..aee1af8bf849 100644
+index aee1af8bf849..421c01590cb5 100644
 --- a/kernel/cgroup/cgroup-internal.h
 +++ b/kernel/cgroup/cgroup-internal.h
-@@ -8,6 +8,23 @@
- #include <linux/list.h>
- #include <linux/refcount.h>
+@@ -11,6 +11,8 @@
+ struct cgroup_pidlist;
  
-+struct cgroup_pidlist;
+ struct cgroup_file_ctx {
++	struct cgroup_namespace	*ns;
 +
-+struct cgroup_file_ctx {
-+	struct {
-+		void			*trigger;
-+	} psi;
-+
-+	struct {
-+		bool			started;
-+		struct css_task_iter	iter;
-+	} procs;
-+
-+	struct {
-+		struct cgroup_pidlist	*pidlist;
-+	} procs1;
-+};
-+
- /*
-  * A cgroup can be associated with multiple css_sets as different tasks may
-  * belong to different cgroups on different hierarchies.  In the other
-diff --git a/kernel/cgroup/cgroup-v1.c b/kernel/cgroup/cgroup-v1.c
-index 4a2b148b900d..a14182e90f57 100644
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -426,6 +426,7 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
- 	 * next pid to display, if any
- 	 */
- 	struct kernfs_open_file *of = s->private;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *cgrp = seq_css(s)->cgroup;
- 	struct cgroup_pidlist *l;
- 	enum cgroup_filetype type = seq_cft(s)->private;
-@@ -435,25 +436,24 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
- 	mutex_lock(&cgrp->pidlist_mutex);
- 
- 	/*
--	 * !NULL @of->priv indicates that this isn't the first start()
--	 * after open.  If the matching pidlist is around, we can use that.
--	 * Look for it.  Note that @of->priv can't be used directly.  It
--	 * could already have been destroyed.
-+	 * !NULL @ctx->procs1.pidlist indicates that this isn't the first
-+	 * start() after open. If the matching pidlist is around, we can use
-+	 * that. Look for it. Note that @ctx->procs1.pidlist can't be used
-+	 * directly. It could already have been destroyed.
- 	 */
--	if (of->priv)
--		of->priv = cgroup_pidlist_find(cgrp, type);
-+	if (ctx->procs1.pidlist)
-+		ctx->procs1.pidlist = cgroup_pidlist_find(cgrp, type);
- 
- 	/*
- 	 * Either this is the first start() after open or the matching
- 	 * pidlist has been destroyed inbetween.  Create a new one.
- 	 */
--	if (!of->priv) {
--		ret = pidlist_array_load(cgrp, type,
--					 (struct cgroup_pidlist **)&of->priv);
-+	if (!ctx->procs1.pidlist) {
-+		ret = pidlist_array_load(cgrp, type, &ctx->procs1.pidlist);
- 		if (ret)
- 			return ERR_PTR(ret);
- 	}
--	l = of->priv;
-+	l = ctx->procs1.pidlist;
- 
- 	if (pid) {
- 		int end = l->length;
-@@ -481,7 +481,8 @@ static void *cgroup_pidlist_start(struct seq_file *s, loff_t *pos)
- static void cgroup_pidlist_stop(struct seq_file *s, void *v)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct cgroup_pidlist *l = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
- 
- 	if (l)
- 		mod_delayed_work(cgroup_pidlist_destroy_wq, &l->destroy_dwork,
-@@ -492,7 +493,8 @@ static void cgroup_pidlist_stop(struct seq_file *s, void *v)
- static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct cgroup_pidlist *l = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
- 	pid_t *p = v;
- 	pid_t *end = l->list + l->length;
- 	/*
+ 	struct {
+ 		void			*trigger;
+ 	} psi;
 diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 380500251b96..9381100d6770 100644
+index 9381100d6770..63d1349a17a3 100644
 --- a/kernel/cgroup/cgroup.c
 +++ b/kernel/cgroup/cgroup.c
-@@ -3364,18 +3364,31 @@ static int cgroup_stat_show(struct seq_file *seq, void *v)
- static int cgroup_file_open(struct kernfs_open_file *of)
- {
- 	struct cftype *cft = of->kn->priv;
-+	struct cgroup_file_ctx *ctx;
-+	int ret;
+@@ -3370,14 +3370,19 @@ static int cgroup_file_open(struct kernfs_open_file *of)
+ 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+ 		return -ENOMEM;
++
++	ctx->ns = current->nsproxy->cgroup_ns;
++	get_cgroup_ns(ctx->ns);
+ 	of->priv = ctx;
  
--	if (cft->open)
--		return cft->open(of);
--	return 0;
-+	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
-+	if (!ctx)
-+		return -ENOMEM;
-+	of->priv = ctx;
-+
-+	if (!cft->open)
-+		return 0;
-+
-+	ret = cft->open(of);
-+	if (ret)
-+		kfree(ctx);
-+	return ret;
+ 	if (!cft->open)
+ 		return 0;
+ 
+ 	ret = cft->open(of);
+-	if (ret)
++	if (ret) {
++		put_cgroup_ns(ctx->ns);
+ 		kfree(ctx);
++	}
+ 	return ret;
  }
  
- static void cgroup_file_release(struct kernfs_open_file *of)
- {
- 	struct cftype *cft = of->kn->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
+@@ -3388,13 +3393,14 @@ static void cgroup_file_release(struct kernfs_open_file *of)
  
  	if (cft->release)
  		cft->release(of);
-+	kfree(ctx);
++	put_cgroup_ns(ctx->ns);
+ 	kfree(ctx);
  }
  
  static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
-@@ -4270,21 +4283,21 @@ void css_task_iter_end(struct css_task_iter *it)
- 
- static void cgroup_procs_release(struct kernfs_open_file *of)
+ 				 size_t nbytes, loff_t off)
  {
--	if (of->priv) {
--		css_task_iter_end(of->priv);
--		kfree(of->priv);
--	}
+-	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
 +	struct cgroup_file_ctx *ctx = of->priv;
-+
-+	if (ctx->procs.started)
-+		css_task_iter_end(&ctx->procs.iter);
- }
- 
- static void *cgroup_procs_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct css_task_iter *it = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 
- 	if (pos)
- 		(*pos)++;
- 
--	return css_task_iter_next(it);
-+	return css_task_iter_next(&ctx->procs.iter);
- }
- 
- static void *__cgroup_procs_start(struct seq_file *s, loff_t *pos,
-@@ -4292,21 +4305,18 @@ static void *__cgroup_procs_start(struct seq_file *s, loff_t *pos,
- {
- 	struct kernfs_open_file *of = s->private;
- 	struct cgroup *cgrp = seq_css(s)->cgroup;
--	struct css_task_iter *it = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct css_task_iter *it = &ctx->procs.iter;
- 
- 	/*
- 	 * When a seq_file is seeked, it's always traversed sequentially
- 	 * from position 0, so we can simply keep iterating on !0 *pos.
+ 	struct cgroup *cgrp = of->kn->parent->priv;
+ 	struct cftype *cft = of->kn->priv;
+ 	struct cgroup_subsys_state *css;
+@@ -3408,7 +3414,7 @@ static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
  	 */
--	if (!it) {
-+	if (!ctx->procs.started) {
- 		if (WARN_ON_ONCE((*pos)))
- 			return ERR_PTR(-EINVAL);
--
--		it = kzalloc(sizeof(*it), GFP_KERNEL);
--		if (!it)
--			return ERR_PTR(-ENOMEM);
--		of->priv = it;
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
-+		ctx->procs.started = true;
- 	} else if (!(*pos)) {
- 		css_task_iter_end(it);
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
+ 	if ((cgrp->root->flags & CGRP_ROOT_NS_DELEGATE) &&
+ 	    !(cft->flags & CFTYPE_NS_DELEGATABLE) &&
+-	    ns != &init_cgroup_ns && ns->root_cset->dfl_cgrp == cgrp)
++	    ctx->ns != &init_cgroup_ns && ctx->ns->root_cset->dfl_cgrp == cgrp)
+ 		return -EPERM;
+ 
+ 	if (cft->write)
+@@ -4351,9 +4357,9 @@ static int cgroup_procs_show(struct seq_file *s, void *v)
+ 
+ static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
+ 					 struct cgroup *dst_cgrp,
+-					 struct super_block *sb)
++					 struct super_block *sb,
++					 struct cgroup_namespace *ns)
+ {
+-	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
+ 	struct cgroup *com_cgrp = src_cgrp;
+ 	struct inode *inode;
+ 	int ret;
+@@ -4389,6 +4395,7 @@ static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
+ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 				  char *buf, size_t nbytes, loff_t off)
+ {
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+@@ -4415,7 +4422,8 @@ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 	 */
+ 	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+-					    of->file->f_path.dentry->d_sb);
++					    of->file->f_path.dentry->d_sb,
++					    ctx->ns);
+ 	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+@@ -4438,6 +4446,7 @@ static void *cgroup_threads_start(struct seq_file *s, loff_t *pos)
+ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ 				    char *buf, size_t nbytes, loff_t off)
+ {
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+@@ -4466,7 +4475,8 @@ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ 	 */
+ 	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+-					    of->file->f_path.dentry->d_sb);
++					    of->file->f_path.dentry->d_sb,
++					    ctx->ns);
+ 	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
 -- 
 2.25.1
 
