@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF365015C7
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3622450106E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238972AbiDNOFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34344 "EHLO
+        id S244920AbiDNNgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:36:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347050AbiDNN6P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFA0B53FA;
-        Thu, 14 Apr 2022 06:48:38 -0700 (PDT)
+        with ESMTP id S1344145AbiDNNai (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E2824B;
+        Thu, 14 Apr 2022 06:28:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id CE9CECE296C;
-        Thu, 14 Apr 2022 13:48:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3A03C385A1;
-        Thu, 14 Apr 2022 13:48:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FD26190F;
+        Thu, 14 Apr 2022 13:28:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFD11C385A5;
+        Thu, 14 Apr 2022 13:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944115;
-        bh=BYHqGx1nWxQ+rin98R/HeN7tJ9czZAUyM/e5HXONEJo=;
+        s=korg; t=1649942893;
+        bh=hWNi0okxJBiVY1ydDBwp+6/rD9N0//wsF3WBY0gGUEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDazsM4ZJ6uEnnab1U2DVJ+NbRv4HlCrQum0mlVWYnKV/5+imxs4eX1C5QSnSjd3b
-         3lAsNQGtM8lFrlEeCFjDhNIzHhP9SRKyQkq6wUC5mvjI1z1ou0rXaJZNr3Z4SukqTI
-         D+bk+RVyajWLQT0kCEpXVPCIRu3J/MtB34Nspe2c=
+        b=OfvHa/w3CeWIuHJQFFlhXGLPlzmNlQkgFMwkxzTkBtTDokR7QAB24FAdnXl/1UsLS
+         wTcSZ+YWa3B1uiq9PUWYN1IZ7b8QSSLQnoNGd7dSgJP0PXtpAbVHIaw+rLn8T9WhGW
+         FfWnvmTokWmlGHV8LlEEpBcD28GzYhwC18LQBd3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 400/475] MIPS: fix fortify panic when copying asm exception handlers
+Subject: [PATCH 4.19 282/338] MIPS: fix fortify panic when copying asm exception handlers
 Date:   Thu, 14 Apr 2022 15:13:05 +0200
-Message-Id: <20220414110906.262513278@linuxfoundation.org>
+Message-Id: <20220414110846.915806787@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -103,10 +103,10 @@ index bb36a400203d..8c56b862fd9c 100644
  
  typedef void (*vi_handler_t)(void);
 diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
-index 8282d0feb0b2..749089c25d5e 100644
+index b9da2cefb564..0ca4185cc5e3 100644
 --- a/arch/mips/kernel/traps.c
 +++ b/arch/mips/kernel/traps.c
-@@ -2020,19 +2020,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
+@@ -1978,19 +1978,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
  		 * If no shadow set is selected then use the default handler
  		 * that does normal register saving and standard interrupt exit
  		 */
@@ -136,7 +136,7 @@ index 8282d0feb0b2..749089c25d5e 100644
  
  		if (handler_len > VECTORSPACING) {
  			/*
-@@ -2240,7 +2240,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
+@@ -2210,7 +2210,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
  }
  
  /* Install CPU exception handler */
