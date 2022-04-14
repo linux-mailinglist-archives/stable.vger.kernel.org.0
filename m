@@ -2,81 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A51500BBE
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 13:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6451500C26
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 13:28:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242219AbiDNLFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 07:05:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35832 "EHLO
+        id S242291AbiDNLat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 07:30:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242099AbiDNLFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 07:05:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 327B75DE5A;
-        Thu, 14 Apr 2022 04:03:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A4DE5CE2957;
-        Thu, 14 Apr 2022 11:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69B51C385A5;
-        Thu, 14 Apr 2022 11:03:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649934184;
-        bh=18Q/itAirA+kzeuhe2m6kPqg09KM+ob1KjY/V/Lx0mY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wjcdcw3DoDLvR/HawB5I+GNuZHc5vBuDcNxij5Z2gyegwob8LschsdaSa3/DEJAa/
-         DmO4yEY4kcUvp/bVJu523rcVvp7BBBf1SqrrQetptbIbtCCZP7b20GL67JUBwW6ouo
-         cyc09V98qlybaJ5M76jZ8UirUw3rfrZW4vhT1SIM=
-Date:   Thu, 14 Apr 2022 13:03:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Alvin =?utf-8?Q?=C5=A0ipraga?= <alvin@pqrs.dk>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Michael Rasmussen <mir@bang-olufsen.dk>,
-        Alvin =?utf-8?Q?=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH stable 5.16+ 0/3] backported Realtek DSA driver fixes for
- 5.16 and 5.17
-Message-ID: <Ylf/Zl9QL2M2+LYd@kroah.com>
-References: <20220412173253.2247196-1-alvin@pqrs.dk>
+        with ESMTP id S237201AbiDNLas (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 07:30:48 -0400
+Received: from www62.your-server.de (www62.your-server.de [213.133.104.62])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED99B793BE;
+        Thu, 14 Apr 2022 04:28:22 -0700 (PDT)
+Received: from sslproxy03.your-server.de ([88.198.220.132])
+        by www62.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92.3)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1nexe8-0004nU-GT; Thu, 14 Apr 2022 13:28:20 +0200
+Received: from [85.1.206.226] (helo=linux.home)
+        by sslproxy03.your-server.de with esmtpsa (TLSv1.3:TLS_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <daniel@iogearbox.net>)
+        id 1nexe8-000PZ9-8X; Thu, 14 Apr 2022 13:28:20 +0200
+Subject: Re: [PATCH net 1/2] wireguard: device: fix metadata_dst xmit null
+ pointer dereference
+To:     Nikolay Aleksandrov <razor@blackwall.org>, netdev@vger.kernel.org
+Cc:     Martynas Pumputis <m@lambda.lt>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>, wireguard@lists.zx2c4.com,
+        kuba@kernel.org, davem@davemloft.net, stable@vger.kernel.org
+References: <20220414104458.3097244-1-razor@blackwall.org>
+ <20220414104458.3097244-2-razor@blackwall.org>
+From:   Daniel Borkmann <daniel@iogearbox.net>
+Message-ID: <24cac92b-4981-4ddc-9a05-32b61799e688@iogearbox.net>
+Date:   Thu, 14 Apr 2022 13:28:18 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220412173253.2247196-1-alvin@pqrs.dk>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220414104458.3097244-2-razor@blackwall.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: daniel@iogearbox.net
+X-Virus-Scanned: Clear (ClamAV 0.103.5/26512/Thu Apr 14 10:28:56 2022)
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 12, 2022 at 07:32:49PM +0200, Alvin Šipraga wrote:
-> From: Alvin Šipraga <alsi@bang-olufsen.dk>
+On 4/14/22 12:44 PM, Nikolay Aleksandrov wrote:
+> When we try to transmit an skb with md_dst attached through wireguard
+> we hit a null pointer dereference[1] in wg_xmit() due to the use of
+> dst_mtu() which calls into dst_blackhole_mtu() which in turn tries to
+> dereference dst->dev. Since wireguard doesn't use md_dsts we should use
+> skb_valid_dst() which checks for DST_METADATA flag and if it's set then
+> fallback to wireguard's device mtu. That gives us the best chance of
+> transmitting the packet, otherwise if the blackhole netdev is used we'd
+> get ETH_MIN_MTU.
 > 
-> These fixes can be applied to both 5.16 and 5.17 - the subtree of
-> drivers/net/dsa/realtek is identical save for a few unrelated places.
+[...]
 > 
-> The main backporting effort was to remove some parts of the patches
-> which touched the newly introduced MDIO interface, which was introduced
-> in the 5.18 development cycle, and to work around a mass-rename of a
-> single variable (smi -> priv). Regrettably this rename will make future
-> stable backports equally tedious and hard to automate.
-> 
-> Please let me know if you would like me to send the series again for
-> 5.17.
+> CC: stable@vger.kernel.org
+> CC: wireguard@lists.zx2c4.com
+> CC: Jason A. Donenfeld <Jason@zx2c4.com>
+> CC: Daniel Borkmann <daniel@iogearbox.net>
+> CC: Martynas Pumputis <m@lambda.lt>
+> Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+> Reported-by: Martynas Pumputis <m@lambda.lt>
+> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
 
-5.16 is now end-of-life, but I've queued these up for 5.17 now, thanks!
+Looks good to me, thanks Nik!
 
-greg k-h
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
