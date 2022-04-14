@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F409501400
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B27F501566
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344481AbiDNODZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:03:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56808 "EHLO
+        id S240633AbiDNNeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:34:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345957AbiDNNzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:55:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE873AFB2C;
-        Thu, 14 Apr 2022 06:45:26 -0700 (PDT)
+        with ESMTP id S1343497AbiDNN3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3592E9286F;
+        Thu, 14 Apr 2022 06:24:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CFC461D7C;
-        Thu, 14 Apr 2022 13:45:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65546C385A9;
-        Thu, 14 Apr 2022 13:45:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9411618F8;
+        Thu, 14 Apr 2022 13:24:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B415FC385A5;
+        Thu, 14 Apr 2022 13:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943925;
-        bh=6w7lNS926/eVUzdpTZYeOZAKppXEosh7b0pzGq1xyUU=;
+        s=korg; t=1649942652;
+        bh=3oTTFOn4x8U2QCSUJl8IaTqxzpbx4bG6EGPFTDb8hoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/PRjodqZsf+m6wLCzpaX/zbmGSC4djjlftXj/+ZLR7kPnm/zPOSV5559TPqM40CE
-         Pg3ozWtxrZLNFeG5PLOVQuqQKt4VFbzHxygigZzx0CzK6/fLLMT1nN7YJWKVsHTbeR
-         kmPwtWqrYCsfz/aDnukUHYtiro24gtsEkUU+Bjgs=
+        b=Eb1ODZHW12NkUbUjtC9hQhg4UNbjdCmHDRuV1YJ3LymrIKCDTU8daHB+sR3lCkeaU
+         uU/aRuFMUmBAVVzhMuqanWZtRg6RXq64ZgqBWjd9wPut9eY9TBy8jHMksB9dydbDDS
+         /lthxWf0tMbv27OKS1SRnXmpnzvwDZJ3BUQMNEpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.4 331/475] ubifs: rename_whiteout: Fix double free for whiteout_ui->data
+        stable@vger.kernel.org,
+        =?UTF-8?q?Daniel=20Gonz=C3=A1lez=20Cabanelas?= <dgcbueu@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 213/338] media: cx88-mpeg: clear interrupt status register before streaming video
 Date:   Thu, 14 Apr 2022 15:11:56 +0200
-Message-Id: <20220414110904.349522595@linuxfoundation.org>
+Message-Id: <20220414110844.958036892@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Daniel González Cabanelas <dgcbueu@gmail.com>
 
-commit 40a8f0d5e7b3999f096570edab71c345da812e3e upstream.
+[ Upstream commit 56cb61f70e547e1b0cdfe6ff5a1f1ce6242e6d96 ]
 
-'whiteout_ui->data' will be freed twice if space budget fail for
-rename whiteout operation as following process:
+Some cx88 video cards may have transport stream status interrupts set
+to 1 from cold start, causing errors like this:
 
-rename_whiteout
-  dev = kmalloc
-  whiteout_ui->data = dev
-  kfree(whiteout_ui->data)  // Free first time
-  iput(whiteout)
-    ubifs_free_inode
-      kfree(ui->data)	    // Double free!
+  cx88xx: cx88_print_irqbits: core:irq mpeg  [0x100000] ts_err?*
+  cx8802: cx8802_mpeg_irq: mpeg:general errors: 0x00100000
 
-KASAN reports:
-==================================================================
-BUG: KASAN: double-free or invalid-free in ubifs_free_inode+0x4f/0x70
-Call Trace:
-  kfree+0x117/0x490
-  ubifs_free_inode+0x4f/0x70 [ubifs]
-  i_callback+0x30/0x60
-  rcu_do_batch+0x366/0xac0
-  __do_softirq+0x133/0x57f
+According to CX2388x datasheet, the interrupt status register should be
+cleared before enabling IRQs to stream video.
 
-Allocated by task 1506:
-  kmem_cache_alloc_trace+0x3c2/0x7a0
-  do_rename+0x9b7/0x1150 [ubifs]
-  ubifs_rename+0x106/0x1f0 [ubifs]
-  do_syscall_64+0x35/0x80
+Fix it by clearing the Transport Stream Interrupt Status register.
 
-Freed by task 1506:
-  kfree+0x117/0x490
-  do_rename.cold+0x53/0x8a [ubifs]
-  ubifs_rename+0x106/0x1f0 [ubifs]
-  do_syscall_64+0x35/0x80
-
-The buggy address belongs to the object at ffff88810238bed8 which
-belongs to the cache kmalloc-8 of size 8
-==================================================================
-
-Let ubifs_free_inode() free 'whiteout_ui->data'. BTW, delete unused
-assignment 'whiteout_ui->data_len = 0', process 'ubifs_evict_inode()
--> ubifs_jnl_delete_inode() -> ubifs_jnl_write_inode()' doesn't need it
-(because 'inc_nlink(whiteout)' won't be excuted by 'goto out_release',
- and the nlink of whiteout inode is 0).
-
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Daniel González Cabanelas <dgcbueu@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/media/pci/cx88/cx88-mpeg.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1431,8 +1431,6 @@ static int do_rename(struct inode *old_d
+diff --git a/drivers/media/pci/cx88/cx88-mpeg.c b/drivers/media/pci/cx88/cx88-mpeg.c
+index 52ff00ebd4bd..281eca525340 100644
+--- a/drivers/media/pci/cx88/cx88-mpeg.c
++++ b/drivers/media/pci/cx88/cx88-mpeg.c
+@@ -171,6 +171,9 @@ int cx8802_start_dma(struct cx8802_dev    *dev,
+ 	cx_write(MO_TS_GPCNTRL, GP_COUNT_CONTROL_RESET);
+ 	q->count = 0;
  
- 		err = ubifs_budget_space(c, &wht_req);
- 		if (err) {
--			kfree(whiteout_ui->data);
--			whiteout_ui->data_len = 0;
- 			iput(whiteout);
- 			goto out_release;
- 		}
++	/* clear interrupt status register */
++	cx_write(MO_TS_INTSTAT,  0x1f1111);
++
+ 	/* enable irqs */
+ 	dprintk(1, "setting the interrupt mask\n");
+ 	cx_set(MO_PCI_INTMSK, core->pci_irqmask | PCI_INT_TSINT);
+-- 
+2.34.1
+
 
 
