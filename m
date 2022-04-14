@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED590501333
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6D55014D7
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345541AbiDNNxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:53:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54716 "EHLO
+        id S239464AbiDNNe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:34:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345121AbiDNNpJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA532DE0;
-        Thu, 14 Apr 2022 06:42:38 -0700 (PDT)
+        with ESMTP id S245415AbiDNN24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220468FE4C;
+        Thu, 14 Apr 2022 06:22:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37F8461D29;
-        Thu, 14 Apr 2022 13:42:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4962DC385A5;
-        Thu, 14 Apr 2022 13:42:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA46BB82983;
+        Thu, 14 Apr 2022 13:22:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C7A0C385A9;
+        Thu, 14 Apr 2022 13:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943757;
-        bh=zKQo7IiNDcL3fmJlkaGknPp8ckFjNKAzNI6WCfpsNHI=;
+        s=korg; t=1649942564;
+        bh=fL/9JExO2tXP04LmpEbKDEVhu/cjfqqWwkkGoW1e1g8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+sAH/G4DcLZ0748xkaJMPRFtYLVeKElm/0ZE578D9BLzUquP5ZRhIbq38HzNHeEP
-         5kQcFEy6dQSomJuH1RuwsEBp/utqg84XFbiO1gMUN8A4p94QLVDulreRVoFFMOIWFF
-         OfcNo8V3g7RTG2kBVc8V7eePVELUlJGj4HMlIt60=
+        b=jWvgzZ2taV1mprgOfKBP4+i29ExEyllNMG6WLJSItFB56ZJKWzyDYACAyFuzSXeE8
+         PWKec3hMZCeHTyjYiY5/5XV4nu20p1KVmdA2Ntn/W9wGIzlctECHzGA61QQ7Fn0Aty
+         mvWpy1D1QYXF+0rMmzfJQJ21yXOsekgUrP6cVuNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 271/475] net: dsa: bcm_sf2_cfp: fix an incorrect NULL check on list iterator
-Date:   Thu, 14 Apr 2022 15:10:56 +0200
-Message-Id: <20220414110902.690311050@linuxfoundation.org>
+Subject: [PATCH 4.19 154/338] selftests/bpf/test_lirc_mode2.sh: Exit with proper code
+Date:   Thu, 14 Apr 2022 15:10:57 +0200
+Message-Id: <20220414110843.284819545@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 6da69b1da130e7d96766042750cd9f902e890eba ]
+[ Upstream commit ec80906b0fbd7be11e3e960813b977b1ffe5f8fe ]
 
-The bug is here:
-	return rule;
+When test_lirc_mode2_user exec failed, the test report failed but still
+exit with 0. Fix it by exiting with an error code.
 
-The list iterator value 'rule' will *always* be set and non-NULL
-by list_for_each_entry(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element
-is found.
+Another issue is for the LIRCDEV checking. With bash -n, we need to quote
+the variable, or it will always be true. So if test_lirc_mode2_user was
+not run, just exit with skip code.
 
-To fix the bug, return 'rule' when found, otherwise return NULL.
-
-Fixes: ae7a5aff783c7 ("net: dsa: bcm_sf2: Keep copy of inserted rules")
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220328032431.22538-1-xiam0nd.tong@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 6bdd533cee9a ("bpf: add selftest for lirc_mode2 type program")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220321024149.157861-1-liuhangbin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/bcm_sf2_cfp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/bpf/test_lirc_mode2.sh | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/bcm_sf2_cfp.c b/drivers/net/dsa/bcm_sf2_cfp.c
-index e15d18bb981e..5cc31118b97e 100644
---- a/drivers/net/dsa/bcm_sf2_cfp.c
-+++ b/drivers/net/dsa/bcm_sf2_cfp.c
-@@ -542,14 +542,14 @@ static void bcm_sf2_cfp_slice_ipv6(struct bcm_sf2_priv *priv,
- static struct cfp_rule *bcm_sf2_cfp_rule_find(struct bcm_sf2_priv *priv,
- 					      int port, u32 location)
- {
--	struct cfp_rule *rule = NULL;
-+	struct cfp_rule *rule;
+diff --git a/tools/testing/selftests/bpf/test_lirc_mode2.sh b/tools/testing/selftests/bpf/test_lirc_mode2.sh
+index 677686198df3..795e56e3eaec 100755
+--- a/tools/testing/selftests/bpf/test_lirc_mode2.sh
++++ b/tools/testing/selftests/bpf/test_lirc_mode2.sh
+@@ -3,6 +3,7 @@
  
- 	list_for_each_entry(rule, &priv->cfp.rules_list, next) {
- 		if (rule->port == port && rule->fs.location == location)
--			break;
-+			return rule;
- 	}
+ # Kselftest framework requirement - SKIP code is 4.
+ ksft_skip=4
++ret=$ksft_skip
  
--	return rule;
-+	return NULL;
- }
+ msg="skip all tests:"
+ if [ $UID != 0 ]; then
+@@ -24,7 +25,7 @@ do
+ 	fi
+ done
  
- static int bcm_sf2_cfp_rule_cmp(struct bcm_sf2_priv *priv, int port,
+-if [ -n $LIRCDEV ];
++if [ -n "$LIRCDEV" ];
+ then
+ 	TYPE=lirc_mode2
+ 	./test_lirc_mode2_user $LIRCDEV
+@@ -35,3 +36,5 @@ then
+ 		echo -e ${GREEN}"PASS: $TYPE"${NC}
+ 	fi
+ fi
++
++exit $ret
 -- 
 2.34.1
 
