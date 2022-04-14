@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFAA75012C2
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:10:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 365EB50123D
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245147AbiDNOHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:07:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43162 "EHLO
+        id S245162AbiDNOHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:07:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347700AbiDNN7a (ORCPT
+        with ESMTP id S1347703AbiDNN7a (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8036BA308;
-        Thu, 14 Apr 2022 06:51:41 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC67EA7756;
+        Thu, 14 Apr 2022 06:51:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71E1FB82985;
-        Thu, 14 Apr 2022 13:51:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8845C385A5;
-        Thu, 14 Apr 2022 13:51:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68294B82910;
+        Thu, 14 Apr 2022 13:51:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE25BC385A1;
+        Thu, 14 Apr 2022 13:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944299;
-        bh=EgRkeLreh2EEzvs3S03Ulg7fZbCBtTMrqVlQQjJWO4M=;
+        s=korg; t=1649944302;
+        bh=wutGclBUfxGLLDAMDkOqd76TAwFxGfljFph8llK6Xs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vm4PK/azeVa1r0k5T6h1gka/VmSbwpcNNdaPFjG8i0210Z2l8d9tu8k9ShxavAu72
-         qzsZ6z8L4h5bksbBJNpeFnkZOP4ppHjtkk5k5wqpPL/sZsmDE0+RRYlzToFIjR2N0E
-         XYIBMW60YpRF0e+bFp0mMMOjV1vNle8OSO+wNy50=
+        b=WsTvs2NmnVYXpPawmLmyKbtAYFozlaBRRAcVs5MOTaY3tQ3bHF1CemMrpfKfG962Y
+         azu5le45nCvZJHbf8RVXFXsLkuzpcC6frOBVDhIdXBLzaek4qJAVDx4Ga8Nk2gc5sx
+         f3HvcdMiG3mkLqSF8H8iT6zjaMLfFO0SFn7iQIHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Justin Forbes <jforbes@redhat.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Rafael Aquini <aquini@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 464/475] mm/sparsemem: fix mem_section will never be NULL gcc 12 warning
-Date:   Thu, 14 Apr 2022 15:14:09 +0200
-Message-Id: <20220414110908.040132627@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.4 465/475] drm/amdkfd: add missing void argument to function kgd2kfd_init
+Date:   Thu, 14 Apr 2022 15:14:10 +0200
+Message-Id: <20220414110908.067968065@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -58,77 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit a431dbbc540532b7465eae4fc8b56a85a9fc7d17 upstream.
+From: Colin Ian King <colin.king@canonical.com>
 
-The gcc 12 compiler reports a "'mem_section' will never be NULL" warning
-on the following code:
+commit 63617d8b125ed9f674133dd000b6df58d6b2965a upstream.
 
-    static inline struct mem_section *__nr_to_section(unsigned long nr)
-    {
-    #ifdef CONFIG_SPARSEMEM_EXTREME
-        if (!mem_section)
-                return NULL;
-    #endif
-        if (!mem_section[SECTION_NR_TO_ROOT(nr)])
-                return NULL;
-       :
+Function kgd2kfd_init is missing a void argument, add it
+to clean up the non-ANSI function declaration.
 
-It happens with CONFIG_SPARSEMEM_EXTREME off.  The mem_section definition
-is
-
-    #ifdef CONFIG_SPARSEMEM_EXTREME
-    extern struct mem_section **mem_section;
-    #else
-    extern struct mem_section mem_section[NR_SECTION_ROOTS][SECTIONS_PER_ROOT];
-    #endif
-
-In the !CONFIG_SPARSEMEM_EXTREME case, mem_section is a static
-2-dimensional array and so the check "!mem_section[SECTION_NR_TO_ROOT(nr)]"
-doesn't make sense.
-
-Fix this warning by moving the "!mem_section[SECTION_NR_TO_ROOT(nr)]"
-check up inside the CONFIG_SPARSEMEM_EXTREME block and adding an
-explicit NR_SECTION_ROOTS check to make sure that there is no
-out-of-bound array access.
-
-Link: https://lkml.kernel.org/r/20220331180246.2746210-1-longman@redhat.com
-Fixes: 3e347261a80b ("sparsemem extreme implementation")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Reported-by: Justin Forbes <jforbes@redhat.com>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Rafael Aquini <aquini@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mmzone.h |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_module.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/mmzone.h
-+++ b/include/linux/mmzone.h
-@@ -1250,13 +1250,16 @@ static inline unsigned long *section_to_
- 
- static inline struct mem_section *__nr_to_section(unsigned long nr)
- {
-+	unsigned long root = SECTION_NR_TO_ROOT(nr);
-+
-+	if (unlikely(root >= NR_SECTION_ROOTS))
-+		return NULL;
-+
- #ifdef CONFIG_SPARSEMEM_EXTREME
--	if (!mem_section)
-+	if (!mem_section || !mem_section[root])
- 		return NULL;
- #endif
--	if (!mem_section[SECTION_NR_TO_ROOT(nr)])
--		return NULL;
--	return &mem_section[SECTION_NR_TO_ROOT(nr)][nr & SECTION_ROOT_MASK];
-+	return &mem_section[root][nr & SECTION_ROOT_MASK];
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_module.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_module.c
+@@ -82,7 +82,7 @@ static void kfd_exit(void)
+ 	kfd_chardev_exit();
  }
- extern unsigned long __section_nr(struct mem_section *ms);
- extern size_t mem_section_usage_size(void);
+ 
+-int kgd2kfd_init()
++int kgd2kfd_init(void)
+ {
+ 	return kfd_init();
+ }
 
 
