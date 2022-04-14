@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1A7F5015E1
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0059D501331
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239156AbiDNOFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:05:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34706 "EHLO
+        id S244970AbiDNNnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346980AbiDNN6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3454DB6444;
-        Thu, 14 Apr 2022 06:48:25 -0700 (PDT)
+        with ESMTP id S1343977AbiDNNaK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E96BA2046;
+        Thu, 14 Apr 2022 06:25:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C554D61D68;
-        Thu, 14 Apr 2022 13:48:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28E4C385A1;
-        Thu, 14 Apr 2022 13:48:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6D74B82985;
+        Thu, 14 Apr 2022 13:25:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34C71C385AA;
+        Thu, 14 Apr 2022 13:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944104;
-        bh=izMv/LMDq16sbMxK8dWa52dHpvXUUl3PEqt/CPB1xl4=;
+        s=korg; t=1649942743;
+        bh=DfWn7v/m6DQzQCD1f1qIdQ8MDA8tM/XY3TK+NAT8MHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzzIx2BcGaMv+EScwCjs2cQlRseb3lzZI70Pe+WiPVZKQBD5gbWgNI9JRGuwz7jEZ
-         mW8byoTYLdVoJNlxJamFcybJm0Wo/tTKnBpyjZs0l0sM6Z5iYnhsC0EKNRYRpfc3ku
-         w1ra2qwNRKlMJc1E5cTEw5/HoGfYnWc0hn7SRaqI=
+        b=oWKtKhc2H7Gb3u0+lGgooI6H4qA8PcXupM/JZnyyrDLHbkwj8wuCIrvTsgCgiozw7
+         djfTeV2NM5TjIwYITGt1229q0ljLeBWnGv70buRvy7pFlcjpmUSPhtFu91DfATvSBk
+         KI9Ez/XaDzvVq8e18hEyMfveZwqkT8mzOX3Bml+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Chris von Recklinghausen <crecklin@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 355/475] mm/usercopy: return 1 from hardened_usercopy __setup() handler
-Date:   Thu, 14 Apr 2022 15:12:20 +0200
-Message-Id: <20220414110905.016570272@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.19 238/338] ubifs: rename_whiteout: correct old_dir size computing
+Date:   Thu, 14 Apr 2022 15:12:21 +0200
+Message-Id: <20220414110845.666973691@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,63 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 05fe3c103f7e6b8b4fca8a7001dfc9ed4628085b upstream.
+commit 705757274599e2e064dd3054aabc74e8af31a095 upstream.
 
-__setup() handlers should return 1 if the command line option is handled
-and 0 if not (or maybe never return 0; it just pollutes init's
-environment).  This prevents:
+When renaming the whiteout file, the old whiteout file is not deleted.
+Therefore, we add the old dentry size to the old dir like XFS.
+Otherwise, an error may be reported due to `fscki->calc_sz != fscki->size`
+in check_indes.
 
-  Unknown kernel command line parameters \
-  "BOOT_IMAGE=/boot/bzImage-517rc5 hardened_usercopy=off", will be \
-  passed to user space.
-
-  Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     hardened_usercopy=off
-or
-     hardened_usercopy=on
-but when "hardened_usercopy=foo" is used, there is no Unknown kernel
-command line parameter.
-
-Return 1 to indicate that the boot option has been handled.
-Print a warning if strtobool() returns an error on the option string,
-but do not mark this as in unknown command line option and do not cause
-init's environment to be polluted with this string.
-
-Link: https://lkml.kernel.org/r/20220222034249.14795-1-rdunlap@infradead.org
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Fixes: b5cb15d9372ab ("usercopy: Allow boot cmdline disabling of hardening")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Acked-by: Chris von Recklinghausen <crecklin@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
+Reported-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/usercopy.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/ubifs/dir.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/usercopy.c
-+++ b/mm/usercopy.c
-@@ -294,7 +294,10 @@ static bool enable_checks __initdata = t
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -1379,6 +1379,9 @@ static int do_rename(struct inode *old_d
+ 			iput(whiteout);
+ 			goto out_release;
+ 		}
++
++		/* Add the old_dentry size to the old_dir size. */
++		old_sz -= CALC_DENT_SIZE(fname_len(&old_nm));
+ 	}
  
- static int __init parse_hardened_usercopy(char *str)
- {
--	return strtobool(str, &enable_checks);
-+	if (strtobool(str, &enable_checks))
-+		pr_warn("Invalid option string for hardened_usercopy: '%s'\n",
-+			str);
-+	return 1;
- }
- 
- __setup("hardened_usercopy=", parse_hardened_usercopy);
+ 	lock_4_inodes(old_dir, new_dir, new_inode, whiteout);
 
 
