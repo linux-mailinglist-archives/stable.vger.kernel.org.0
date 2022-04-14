@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2A45014A0
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:32:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F82750154F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245713AbiDNOIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:08:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47114 "EHLO
+        id S245165AbiDNOHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:07:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347695AbiDNN72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 780DFA6E2A;
-        Thu, 14 Apr 2022 06:51:33 -0700 (PDT)
+        with ESMTP id S1347701AbiDNN7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD6DCB89B0;
+        Thu, 14 Apr 2022 06:51:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B954B82910;
-        Thu, 14 Apr 2022 13:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D824C385A5;
-        Thu, 14 Apr 2022 13:51:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85CDEB82968;
+        Thu, 14 Apr 2022 13:51:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1868C385A1;
+        Thu, 14 Apr 2022 13:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944290;
-        bh=OZeSVsW4OxLXRciJ0QO8oagn+jAbALPbh4VIDU6ygH4=;
+        s=korg; t=1649944296;
+        bh=SVUhsddBmWswKvz/evovXrM8Ot3L4ZbrK62OfJK0Goo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ew2WqUsAFwtMwnvA+Z25SoCjA3pfKpfBBv/a3NB3iWfFVIcFVo/I49pQ53kQn4LOQ
-         UELSAzAZIOpJaODeDoCZwqhEOdF/B23jjhuNwimdCp7jsHxqPWxARLyb4g7QTAOKU4
-         SaYZPwvo6q/Psy7HwlGybEmj0+dw6yz7wsSdnG9Q=
+        b=g28l1N3EY1IwGLmSGZ8HoC1QnXgd2oKEuGcvwMD2dzq4ALDxhunhzHmIroZaSuGIe
+         DMiveeYyu3SVp/qUHEx5A0M91NyDi1CueRFEBJ9FrxJK2/g2ki54gyMuQHqlA4hzCc
+         aQtKA/PvkHFN2HPhGva1MsLTOAJGE7MOscDHFRSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        David Hildenbrand <david@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        Matthew Wilcox <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 462/475] mm: dont skip swap entry even if zap_details specified
-Date:   Thu, 14 Apr 2022 15:14:07 +0200
-Message-Id: <20220414110907.984641268@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Fangrui Song <maskray@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>, Will Deacon <will@kernel.org>
+Subject: [PATCH 5.4 463/475] arm64: module: remove (NOLOAD) from linker script
+Date:   Thu, 14 Apr 2022 15:14:08 +0200
+Message-Id: <20220414110908.012579726@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -63,178 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Fangrui Song <maskray@google.com>
 
-commit 5abfd71d936a8aefd9f9ccd299dea7a164a5d455 upstream.
+commit 4013e26670c590944abdab56c4fa797527b74325 upstream.
 
-Patch series "mm: Rework zap ptes on swap entries", v5.
+On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
+inappropriate for .plt and .text.* sections which are always
+SHT_PROGBITS.
 
-Patch 1 should fix a long standing bug for zap_pte_range() on
-zap_details usage.  The risk is we could have some swap entries skipped
-while we should have zapped them.
+In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
+and (NOLOAD) will be essentially ignored. In ld.lld, since
+https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
+customize the output section type"), ld.lld will report a `section type
+mismatch` error. Just remove (NOLOAD) to fix the error.
 
-Migration entries are not the major concern because file backed memory
-always zap in the pattern that "first time without page lock, then
-re-zap with page lock" hence the 2nd zap will always make sure all
-migration entries are already recovered.
+[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
+section should be marked as not loadable" on
+https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
+outdated for ELF.
 
-However there can be issues with real swap entries got skipped
-errornoously.  There's a reproducer provided in commit message of patch
-1 for that.
-
-Patch 2-4 are cleanups that are based on patch 1.  After the whole
-patchset applied, we should have a very clean view of zap_pte_range().
-
-Only patch 1 needs to be backported to stable if necessary.
-
-This patch (of 4):
-
-The "details" pointer shouldn't be the token to decide whether we should
-skip swap entries.
-
-For example, when the callers specified details->zap_mapping==NULL, it
-means the user wants to zap all the pages (including COWed pages), then
-we need to look into swap entries because there can be private COWed
-pages that was swapped out.
-
-Skipping some swap entries when details is non-NULL may lead to wrongly
-leaving some of the swap entries while we should have zapped them.
-
-A reproducer of the problem:
-
-===8<===
-        #define _GNU_SOURCE         /* See feature_test_macros(7) */
-        #include <stdio.h>
-        #include <assert.h>
-        #include <unistd.h>
-        #include <sys/mman.h>
-        #include <sys/types.h>
-
-        int page_size;
-        int shmem_fd;
-        char *buffer;
-
-        void main(void)
-        {
-                int ret;
-                char val;
-
-                page_size = getpagesize();
-                shmem_fd = memfd_create("test", 0);
-                assert(shmem_fd >= 0);
-
-                ret = ftruncate(shmem_fd, page_size * 2);
-                assert(ret == 0);
-
-                buffer = mmap(NULL, page_size * 2, PROT_READ | PROT_WRITE,
-                                MAP_PRIVATE, shmem_fd, 0);
-                assert(buffer != MAP_FAILED);
-
-                /* Write private page, swap it out */
-                buffer[page_size] = 1;
-                madvise(buffer, page_size * 2, MADV_PAGEOUT);
-
-                /* This should drop private buffer[page_size] already */
-                ret = ftruncate(shmem_fd, page_size);
-                assert(ret == 0);
-                /* Recover the size */
-                ret = ftruncate(shmem_fd, page_size * 2);
-                assert(ret == 0);
-
-                /* Re-read the data, it should be all zero */
-                val = buffer[page_size];
-                if (val == 0)
-                        printf("Good\n");
-                else
-                        printf("BUG\n");
-        }
-===8<===
-
-We don't need to touch up the pmd path, because pmd never had a issue with
-swap entries.  For example, shmem pmd migration will always be split into
-pte level, and same to swapping on anonymous.
-
-Add another helper should_zap_cows() so that we can also check whether we
-should zap private mappings when there's no page pointer specified.
-
-This patch drops that trick, so we handle swap ptes coherently.  Meanwhile
-we should do the same check upon migration entry, hwpoison entry and
-genuine swap entries too.
-
-To be explicit, we should still remember to keep the private entries if
-even_cows==false, and always zap them when even_cows==true.
-
-The issue seems to exist starting from the initial commit of git.
-
-[peterx@redhat.com: comment tweaks]
-  Link: https://lkml.kernel.org/r/20220217060746.71256-2-peterx@redhat.com
-
-Link: https://lkml.kernel.org/r/20220217060746.71256-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20220216094810.60572-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20220216094810.60572-2-peterx@redhat.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20220218081209.354383-1-maskray@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
+[nathan: Fix conflicts due to lack of 596b0474d3d9]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ arch/arm64/kernel/module.lds |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -1013,6 +1013,17 @@ int copy_page_range(struct mm_struct *ds
- 	return ret;
+--- a/arch/arm64/kernel/module.lds
++++ b/arch/arm64/kernel/module.lds
+@@ -1,5 +1,5 @@
+ SECTIONS {
+-	.plt 0 (NOLOAD) : { BYTE(0) }
+-	.init.plt 0 (NOLOAD) : { BYTE(0) }
+-	.text.ftrace_trampoline 0 (NOLOAD) : { BYTE(0) }
++	.plt 0 : { BYTE(0) }
++	.init.plt 0 : { BYTE(0) }
++	.text.ftrace_trampoline 0 : { BYTE(0) }
  }
- 
-+/* Whether we should zap all COWed (private) pages too */
-+static inline bool should_zap_cows(struct zap_details *details)
-+{
-+	/* By default, zap all pages */
-+	if (!details)
-+		return true;
-+
-+	/* Or, we zap COWed pages only if the caller wants to */
-+	return !details->check_mapping;
-+}
-+
- static unsigned long zap_pte_range(struct mmu_gather *tlb,
- 				struct vm_area_struct *vma, pmd_t *pmd,
- 				unsigned long addr, unsigned long end,
-@@ -1104,16 +1115,18 @@ again:
- 			continue;
- 		}
- 
--		/* If details->check_mapping, we leave swap entries. */
--		if (unlikely(details))
--			continue;
--
--		if (!non_swap_entry(entry))
-+		if (!non_swap_entry(entry)) {
-+			/* Genuine swap entry, hence a private anon page */
-+			if (!should_zap_cows(details))
-+				continue;
- 			rss[MM_SWAPENTS]--;
--		else if (is_migration_entry(entry)) {
-+		} else if (is_migration_entry(entry)) {
- 			struct page *page;
- 
- 			page = migration_entry_to_page(entry);
-+			if (details && details->check_mapping &&
-+			    details->check_mapping != page_rmapping(page))
-+				continue;
- 			rss[mm_counter(page)]--;
- 		}
- 		if (unlikely(!free_swap_and_cache(entry)))
 
 
