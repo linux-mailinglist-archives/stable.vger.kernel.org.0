@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8905012FE
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18807501136
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345895AbiDNNyo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
+        id S244439AbiDNNeR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:34:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244542AbiDNNqX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:46:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 539A03E5CF;
-        Thu, 14 Apr 2022 06:43:44 -0700 (PDT)
+        with ESMTP id S245331AbiDNN2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC3DCAC052;
+        Thu, 14 Apr 2022 06:22:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB63AB828E6;
-        Thu, 14 Apr 2022 13:43:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 190C7C385A1;
-        Thu, 14 Apr 2022 13:43:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5908061670;
+        Thu, 14 Apr 2022 13:22:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CE48C385AA;
+        Thu, 14 Apr 2022 13:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943821;
-        bh=4pm0G3USxRvKEi6HUBlG9gAVAVKFBCngUYORUfw9HaE=;
+        s=korg; t=1649942544;
+        bh=2vfym5BrCqtDL9t7Aho8GcBZIQcYmCDrudsuTyXMNBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLUDSvBwTn5tHEfnXvtShrN1+jkFccbKbXBDwf9lBcg7G3IwTtTrSx2H5gnl4pCWc
-         5RwZ9gdfgzDH1VPaZsvUFWBvUJL2N/ExOTpWT3nNo9L0wWPue9G/3hLAdLCl0SJpsh
-         CgHoWB1GaXW0X2K7iN5s22IQqcQcNQvY6ViBgnIs=
+        b=lLhiCruGTH1i8y/EZsPateb82HgxMqph6R4geYsBu7Sj+JQs9UR4Y+6wkpEGN4c5I
+         8Y/ZxW/HUtXhlX2JmApIVcdtYf+T+Sn4fTw3xgC7ywZm5aSNAIv7RqIgmbUzNFvjS2
+         mOuH4Ytz4qm8nsWF9GhJ6C+C+uixBPRJXobTRres=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 292/475] video: fbdev: w100fb: Reset global state
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 174/338] pinctrl: nomadik: Add missing of_node_put() in nmk_pinctrl_probe
 Date:   Thu, 14 Apr 2022 15:11:17 +0200
-Message-Id: <20220414110903.268074001@linuxfoundation.org>
+Message-Id: <20220414110843.850157212@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 8738ddcac644964ae128ccd3d80d48773c8d528e ]
+[ Upstream commit c09ac191b1f97cfa06f394dbfd7a5db07986cefc ]
 
-w100fb_probe() did not reset the global state to its initial state. This
-can result in invocation of iounmap() even when there was not the
-appropriate successful call of ioremap(). For instance, this may be the
-case if first probe fails after two successful ioremap() while second
-probe fails when first ioremap() fails. The similar issue is with
-w100fb_remove(). The patch fixes both bugs.
+This node pointer is returned by of_parse_phandle() with refcount
+incremented in this function. Calling of_node_put() to avoid
+the refcount leak.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 32e67eee670e ("pinctrl: nomadik: Allow prcm_base to be extracted from Device Tree")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220307115116.25316-1-linmq006@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/w100fb.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/pinctrl/nomadik/pinctrl-nomadik.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/w100fb.c b/drivers/video/fbdev/w100fb.c
-index e30f9427b335..52ec80bbfe5e 100644
---- a/drivers/video/fbdev/w100fb.c
-+++ b/drivers/video/fbdev/w100fb.c
-@@ -770,12 +770,18 @@ int w100fb_probe(struct platform_device *pdev)
- 		fb_dealloc_cmap(&info->cmap);
- 		kfree(info->pseudo_palette);
+diff --git a/drivers/pinctrl/nomadik/pinctrl-nomadik.c b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+index f0e7a8c114b2..415e91360994 100644
+--- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
++++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+@@ -1916,8 +1916,10 @@ static int nmk_pinctrl_probe(struct platform_device *pdev)
  	}
--	if (remapped_fbuf != NULL)
-+	if (remapped_fbuf != NULL) {
- 		iounmap(remapped_fbuf);
--	if (remapped_regs != NULL)
-+		remapped_fbuf = NULL;
-+	}
-+	if (remapped_regs != NULL) {
- 		iounmap(remapped_regs);
--	if (remapped_base != NULL)
-+		remapped_regs = NULL;
-+	}
-+	if (remapped_base != NULL) {
- 		iounmap(remapped_base);
-+		remapped_base = NULL;
-+	}
- 	if (info)
- 		framebuffer_release(info);
- 	return err;
-@@ -795,8 +801,11 @@ static int w100fb_remove(struct platform_device *pdev)
- 	fb_dealloc_cmap(&info->cmap);
  
- 	iounmap(remapped_base);
-+	remapped_base = NULL;
- 	iounmap(remapped_regs);
-+	remapped_regs = NULL;
- 	iounmap(remapped_fbuf);
-+	remapped_fbuf = NULL;
- 
- 	framebuffer_release(info);
- 
+ 	prcm_np = of_parse_phandle(np, "prcm", 0);
+-	if (prcm_np)
++	if (prcm_np) {
+ 		npct->prcm_base = of_iomap(prcm_np, 0);
++		of_node_put(prcm_np);
++	}
+ 	if (!npct->prcm_base) {
+ 		if (version == PINCTRL_NMK_STN8815) {
+ 			dev_info(&pdev->dev,
 -- 
 2.34.1
 
