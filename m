@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A458450145A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85816501450
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244577AbiDNNen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:34:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49878 "EHLO
+        id S1344500AbiDNOD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:03:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245741AbiDNN3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:22 -0400
+        with ESMTP id S1345798AbiDNNyR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:54:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 949EBAFB00;
-        Thu, 14 Apr 2022 06:24:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C4CAFAF1;
+        Thu, 14 Apr 2022 06:45:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 589F7B82983;
-        Thu, 14 Apr 2022 13:23:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2627C385A1;
-        Thu, 14 Apr 2022 13:23:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A604B82968;
+        Thu, 14 Apr 2022 13:45:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F08BC385A5;
+        Thu, 14 Apr 2022 13:45:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942638;
-        bh=fmpcjlrQyuXeYIr4SD899N4DuouCEUXenDr/5r7lMkE=;
+        s=korg; t=1649943914;
+        bh=yQ4T9TIoITXS7/LEve1Xs+3fb0ycUVou+pMeg19nm/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=msy61rTz/R5k4efNcT/LGdAuJoSKocM/L3Z2Oy3YMVftqR5bBEsBg8jlFmNMllvAV
-         0uCAa188l7khO9k2icbHEE2zPDR2ymsdchFIo+h1+va/78+YwTrjOhFrDDp9Jmp6Bt
-         8TuRBysfMUis6GjXLx02xuTZKXC2FV4oAzb0iKZw=
+        b=IkebCFLNMscSqh5SEAP9XNYelRjzVu5ldIYL0RuqbewayQeUSQ4BxVrU8FFAmubsq
+         qEAWUWQiDurCBYmqJ5RZ3fmjt2KEwCmmOIcwX2AYjUKOe47Fm0iGx2+SrRJrVj1c0c
+         fh0ec+Nbwty8i8LRKrWfZFRli0u89WPV68/WGl6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 208/338] ARM: ftrace: avoid redundant loads or clobbering IP
-Date:   Thu, 14 Apr 2022 15:11:51 +0200
-Message-Id: <20220414110844.817011928@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 327/475] scsi: qla2xxx: Use correct feature type field during RFF_ID processing
+Date:   Thu, 14 Apr 2022 15:11:52 +0200
+Message-Id: <20220414110904.238965036@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,135 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Manish Rangankar <mrangankar@marvell.com>
 
-[ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
+commit a7e05f7a1bcbe4ee055479242de46c5c16ab03b1 upstream.
 
-Tweak the ftrace return paths to avoid redundant loads of SP, as well as
-unnecessary clobbering of IP.
+During SNS Register FC-4 Features (RFF_ID) the initiator driver was sending
+incorrect type field for NVMe supported device. Use correct feature type
+field.
 
-This also fixes the inconsistency of using MOV to perform a function
-return, which is sub-optimal on recent micro-architectures but more
-importantly, does not perform an interworking return, unlike compiler
-generated function returns in Thumb2 builds.
-
-Let's fix this by popping PC from the stack like most ordinary code
-does.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220310092604.22950-12-njavali@marvell.com
+Fixes: e374f9f59281 ("scsi: qla2xxx: Migrate switch registration commands away from mailbox interface")
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/entry-ftrace.S | 51 +++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ drivers/scsi/qla2xxx/qla_gs.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
-index 1acf4d05e94c..393c342ecd51 100644
---- a/arch/arm/kernel/entry-ftrace.S
-+++ b/arch/arm/kernel/entry-ftrace.S
-@@ -41,10 +41,7 @@
-  * mcount can be thought of as a function called in the middle of a subroutine
-  * call.  As such, it needs to be transparent for both the caller and the
-  * callee: the original lr needs to be restored when leaving mcount, and no
-- * registers should be clobbered.  (In the __gnu_mcount_nc implementation, we
-- * clobber the ip register.  This is OK because the ARM calling convention
-- * allows it to be clobbered in subroutines and doesn't use it to hold
-- * parameters.)
-+ * registers should be clobbered.
-  *
-  * When using dynamic ftrace, we patch out the mcount call by a "mov r0, r0"
-  * for the mcount case, and a "pop {lr}" for the __gnu_mcount_nc case (see
-@@ -96,26 +93,25 @@
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -675,8 +675,7 @@ qla2x00_rff_id(scsi_qla_host_t *vha, u8
+ 		return (QLA_SUCCESS);
+ 	}
  
- .macro __ftrace_regs_caller
+-	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha),
+-	    FC4_TYPE_FCP_SCSI);
++	return qla_async_rffid(vha, &vha->d_id, qlt_rff_id(vha), type);
+ }
  
--	sub	sp, sp, #8	@ space for PC and CPSR OLD_R0,
-+	str	lr, [sp, #-8]!	@ store LR as PC and make space for CPSR/OLD_R0,
- 				@ OLD_R0 will overwrite previous LR
+ static int qla_async_rffid(scsi_qla_host_t *vha, port_id_t *d_id,
+@@ -726,7 +725,7 @@ static int qla_async_rffid(scsi_qla_host
+ 	/* Prepare CT arguments -- port_id, FC-4 feature, FC-4 type */
+ 	ct_req->req.rff_id.port_id = port_id_to_be_id(*d_id);
+ 	ct_req->req.rff_id.fc4_feature = fc4feature;
+-	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI - FCP */
++	ct_req->req.rff_id.fc4_type = fc4type;		/* SCSI-FCP or FC-NVMe */
  
--	add 	ip, sp, #12	@ move in IP the value of SP as it was
--				@ before the push {lr} of the mcount mechanism
-+	ldr	lr, [sp, #8]    @ get previous LR
- 
--	str     lr, [sp, #0]    @ store LR instead of PC
-+	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
- 
--	ldr     lr, [sp, #8]    @ get previous LR
-+	str	lr, [sp, #-4]!	@ store previous LR as LR
- 
--	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
-+	add 	lr, sp, #16	@ move in LR the value of SP as it was
-+				@ before the push {lr} of the mcount mechanism
- 
--	stmdb   sp!, {ip, lr}
--	stmdb   sp!, {r0-r11, lr}
-+	push	{r0-r11, ip, lr}
- 
- 	@ stack content at this point:
- 	@ 0  4          48   52       56            60   64    68       72
--	@ R0 | R1 | ... | LR | SP + 4 | previous LR | LR | PSR | OLD_R0 |
-+	@ R0 | R1 | ... | IP | SP + 4 | previous LR | LR | PSR | OLD_R0 |
- 
--	mov r3, sp				@ struct pt_regs*
-+	mov	r3, sp				@ struct pt_regs*
- 
- 	ldr r2, =function_trace_op
- 	ldr r2, [r2]				@ pointer to the current
-@@ -138,11 +134,9 @@ ftrace_graph_regs_call:
- #endif
- 
- 	@ pop saved regs
--	ldmia   sp!, {r0-r12}			@ restore r0 through r12
--	ldr	ip, [sp, #8]			@ restore PC
--	ldr	lr, [sp, #4]			@ restore LR
--	ldr	sp, [sp, #0]			@ restore SP
--	mov	pc, ip				@ return
-+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
-+	ldr	lr, [sp], #4			@ restore LR
-+	ldr	pc, [sp], #12
- .endm
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-@@ -158,11 +152,9 @@ ftrace_graph_regs_call:
- 	bl	prepare_ftrace_return
- 
- 	@ pop registers saved in ftrace_regs_caller
--	ldmia   sp!, {r0-r12}			@ restore r0 through r12
--	ldr	ip, [sp, #8]			@ restore PC
--	ldr	lr, [sp, #4]			@ restore LR
--	ldr	sp, [sp, #0]			@ restore SP
--	mov	pc, ip				@ return
-+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
-+	ldr	lr, [sp], #4			@ restore LR
-+	ldr	pc, [sp], #12
- 
- .endm
- #endif
-@@ -273,16 +265,17 @@ ENDPROC(ftrace_graph_caller_old)
- .endm
- 
- .macro mcount_exit
--	ldmia	sp!, {r0-r3, ip, lr}
--	ret	ip
-+	ldmia	sp!, {r0-r3}
-+	ldr	lr, [sp, #4]
-+	ldr	pc, [sp], #8
- .endm
- 
- ENTRY(__gnu_mcount_nc)
- UNWIND(.fnstart)
- #ifdef CONFIG_DYNAMIC_FTRACE
--	mov	ip, lr
--	ldmia	sp!, {lr}
--	ret	ip
-+	push	{lr}
-+	ldr	lr, [sp, #4]
-+	ldr	pc, [sp], #8
- #else
- 	__mcount
- #endif
--- 
-2.34.1
-
+ 	sp->u.iocb_cmd.u.ctarg.req_size = RFF_ID_REQ_SIZE;
+ 	sp->u.iocb_cmd.u.ctarg.rsp_size = RFF_ID_RSP_SIZE;
 
 
