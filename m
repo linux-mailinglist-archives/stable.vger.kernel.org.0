@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FEC050129C
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:09:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F392C50110E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245229AbiDNONc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:13:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47082 "EHLO
+        id S242845AbiDNNlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:41:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347654AbiDNN7Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D06631929;
-        Thu, 14 Apr 2022 06:50:57 -0700 (PDT)
+        with ESMTP id S1344458AbiDNNcK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:32:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F13D613EA8;
+        Thu, 14 Apr 2022 06:29:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34118B82968;
-        Thu, 14 Apr 2022 13:50:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 823BEC385A9;
-        Thu, 14 Apr 2022 13:50:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 339906190F;
+        Thu, 14 Apr 2022 13:29:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42329C385A5;
+        Thu, 14 Apr 2022 13:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944254;
-        bh=hPqokpt1S+D0RoQfYU/GmNha60gRb/ACr6l/G4p/+ik=;
+        s=korg; t=1649942984;
+        bh=siny51Z+doNuYO6m1NxR9m9eWQilmOugNnUhVUO0yt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Smz3x4mRh9Hx76OyjEgV+RZuX6elVJCG3MAopyqN/nLVYQqlNI9sHSMtBl1HVdAkE
-         hZauLdiJaDFFL/Hf4UsUoOufObCuG6j5lGfp7PAoHFyth1/a7XZrDsXBqMchXiPVoL
-         rpi4Szj/zp/5CGwDVK5IM6NlYOYho0RkCdZ88Xh4=
+        b=CmtO+vh4P4h7C5lDv62qmZzG3gGBkG73Ii26+TT3v8jEqMhZdcum6wJ6+OyjmH2HN
+         gqqlT42MGAKFiUQ+ln2QE6IIXL/yxzJwfJTwB0saj4R/asSpewYC0WNZuEcEPV4Nml
+         PADHM9KY52Ghd57DAWbdGP7UpzanC2Lav1zfp/zg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 450/475] x86/pm: Save the MSR validity status at context setup
-Date:   Thu, 14 Apr 2022 15:13:55 +0200
-Message-Id: <20220414110907.652509873@linuxfoundation.org>
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 333/338] selftests: cgroup: Make cg_create() use 0755 for permission instead of 0644
+Date:   Thu, 14 Apr 2022 15:13:56 +0200
+Message-Id: <20220414110848.369410824@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 73924ec4d560257004d5b5116b22a3647661e364 upstream.
+commit b09c2baa56347ae65795350dfcc633dedb1c2970 upstream.
 
-The mechanism to save/restore MSRs during S3 suspend/resume checks for
-the MSR validity during suspend, and only restores the MSR if its a
-valid MSR.  This is not optimal, as an invalid MSR will unnecessarily
-throw an exception for every suspend cycle.  The more invalid MSRs,
-higher the impact will be.
+0644 is an odd perm to create a cgroup which is a directory. Use the regular
+0755 instead. This is necessary for euid switching test case.
 
-Check and save the MSR validity at setup.  This ensures that only valid
-MSRs that are guaranteed to not throw an exception will be attempted
-during suspend.
-
-Fixes: 7a9c2dd08ead ("x86/pm: Introduce quirk framework to save/restore extra MSR registers around suspend/resume")
-Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[OP: backport to 4.19: adjust context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/power/cpu.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ tools/testing/selftests/cgroup/cgroup_util.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/power/cpu.c
-+++ b/arch/x86/power/cpu.c
-@@ -40,7 +40,8 @@ static void msr_save_context(struct save
- 	struct saved_msr *end = msr + ctxt->saved_msrs.num;
+--- a/tools/testing/selftests/cgroup/cgroup_util.c
++++ b/tools/testing/selftests/cgroup/cgroup_util.c
+@@ -192,7 +192,7 @@ int cg_find_unified_root(char *root, siz
  
- 	while (msr < end) {
--		msr->valid = !rdmsrl_safe(msr->info.msr_no, &msr->info.reg.q);
-+		if (msr->valid)
-+			rdmsrl(msr->info.msr_no, msr->info.reg.q);
- 		msr++;
- 	}
+ int cg_create(const char *cgroup)
+ {
+-	return mkdir(cgroup, 0644);
++	return mkdir(cgroup, 0755);
  }
-@@ -421,8 +422,10 @@ static int msr_build_context(const u32 *
- 	}
  
- 	for (i = saved_msrs->num, j = 0; i < total_num; i++, j++) {
-+		u64 dummy;
-+
- 		msr_array[i].info.msr_no	= msr_id[j];
--		msr_array[i].valid		= false;
-+		msr_array[i].valid		= !rdmsrl_safe(msr_id[j], &dummy);
- 		msr_array[i].info.reg.q		= 0;
- 	}
- 	saved_msrs->num   = total_num;
+ static int cg_killall(const char *cgroup)
 
 
