@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E03B5014B0
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:33:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2563D501090
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345909AbiDNNyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43650 "EHLO
+        id S244445AbiDNNhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344958AbiDNNtx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:49:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34633A27ED;
-        Thu, 14 Apr 2022 06:44:00 -0700 (PDT)
+        with ESMTP id S245418AbiDNN24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D043BE0;
+        Thu, 14 Apr 2022 06:22:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 311E6B82968;
-        Thu, 14 Apr 2022 13:43:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F3B3C385A1;
-        Thu, 14 Apr 2022 13:43:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D76C5619EF;
+        Thu, 14 Apr 2022 13:22:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D32C385A1;
+        Thu, 14 Apr 2022 13:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943837;
-        bh=IrqnNTvRac6zDFBz8lPZ519erod6BwbMDCIQfnHanu8=;
+        s=korg; t=1649942567;
+        bh=ONVrsDX9luGxtvHXfM9RH5hOjSyNdgMQabC4i6/1Woo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJIuWRzBz2+LzuQelwg1kgjJ4pmtjYLcNOAcJe+jysqSH0YG6yKYMkJ3v6DXKVqJs
-         GoVXMCyr8bWYCtFSUKWscULTnRTgWx5UQl7OM9mozYGypnpEVybfAfpri8Pyjxts0j
-         6iAPq8uNvMjkwMPgXqR8w5AIYzIUcT8NJdO1axLM=
+        b=YehMOWE/1KZEWizY3JWDKhZK3e5gPN0Ty0g6zQD4iqZu17UWfoZ53f3Gwc949dZ1F
+         wslOvlRV0HOfd12tS0SaevihnZlIHVvdJnNrK/1EGA2AK/aWCeVXo4Ei7aG2/NB34K
+         TxBpLvWUZYK9YKokvI0VTaV266cve25Ce/XD5Nhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Petr Vorel <petr.vorel@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 298/475] ARM: ftrace: avoid redundant loads or clobbering IP
-Date:   Thu, 14 Apr 2022 15:11:23 +0200
-Message-Id: <20220414110903.434160288@linuxfoundation.org>
+Subject: [PATCH 4.19 181/338] clk: qcom: gcc-msm8994: Fix gpll4 width
+Date:   Thu, 14 Apr 2022 15:11:24 +0200
+Message-Id: <20220414110844.049387319@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,133 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
+[ Upstream commit 71021db1c532c2545ae53b9ee85b37b7154f51d4 ]
 
-Tweak the ftrace return paths to avoid redundant loads of SP, as well as
-unnecessary clobbering of IP.
+The gpll4 postdiv is actually a div4, so make sure that Linux is aware of
+this.
 
-This also fixes the inconsistency of using MOV to perform a function
-return, which is sub-optimal on recent micro-architectures but more
-importantly, does not perform an interworking return, unlike compiler
-generated function returns in Thumb2 builds.
+This fixes the following error messages:
 
-Let's fix this by popping PC from the stack like most ordinary code
-does.
+ mmc1: Card appears overclocked; req 200000000 Hz, actual 343999999 Hz
+ mmc1: Card appears overclocked; req 400000000 Hz, actual 687999999 Hz
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Fixes: aec89f78cf01 ("clk: qcom: Add support for msm8994 global clock controller")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20220319174940.341137-1-konrad.dybcio@somainline.org
+Tested-by: Petr Vorel <petr.vorel@gmail.com>
+Reviewed-by: Petr Vorel <petr.vorel@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-ftrace.S | 51 +++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 29 deletions(-)
+ drivers/clk/qcom/gcc-msm8994.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
-index f4886fb6e9ba..f33c171e3090 100644
---- a/arch/arm/kernel/entry-ftrace.S
-+++ b/arch/arm/kernel/entry-ftrace.S
-@@ -22,10 +22,7 @@
-  * mcount can be thought of as a function called in the middle of a subroutine
-  * call.  As such, it needs to be transparent for both the caller and the
-  * callee: the original lr needs to be restored when leaving mcount, and no
-- * registers should be clobbered.  (In the __gnu_mcount_nc implementation, we
-- * clobber the ip register.  This is OK because the ARM calling convention
-- * allows it to be clobbered in subroutines and doesn't use it to hold
-- * parameters.)
-+ * registers should be clobbered.
-  *
-  * When using dynamic ftrace, we patch out the mcount call by a "pop {lr}"
-  * instead of the __gnu_mcount_nc call (see arch/arm/kernel/ftrace.c).
-@@ -70,26 +67,25 @@
+diff --git a/drivers/clk/qcom/gcc-msm8994.c b/drivers/clk/qcom/gcc-msm8994.c
+index 53f0f369a33e..4ec481efedc8 100644
+--- a/drivers/clk/qcom/gcc-msm8994.c
++++ b/drivers/clk/qcom/gcc-msm8994.c
+@@ -115,6 +115,7 @@ static struct clk_alpha_pll gpll4_early = {
  
- .macro __ftrace_regs_caller
- 
--	sub	sp, sp, #8	@ space for PC and CPSR OLD_R0,
-+	str	lr, [sp, #-8]!	@ store LR as PC and make space for CPSR/OLD_R0,
- 				@ OLD_R0 will overwrite previous LR
- 
--	add 	ip, sp, #12	@ move in IP the value of SP as it was
--				@ before the push {lr} of the mcount mechanism
-+	ldr	lr, [sp, #8]    @ get previous LR
- 
--	str     lr, [sp, #0]    @ store LR instead of PC
-+	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
- 
--	ldr     lr, [sp, #8]    @ get previous LR
-+	str	lr, [sp, #-4]!	@ store previous LR as LR
- 
--	str	r0, [sp, #8]	@ write r0 as OLD_R0 over previous LR
-+	add 	lr, sp, #16	@ move in LR the value of SP as it was
-+				@ before the push {lr} of the mcount mechanism
- 
--	stmdb   sp!, {ip, lr}
--	stmdb   sp!, {r0-r11, lr}
-+	push	{r0-r11, ip, lr}
- 
- 	@ stack content at this point:
- 	@ 0  4          48   52       56            60   64    68       72
--	@ R0 | R1 | ... | LR | SP + 4 | previous LR | LR | PSR | OLD_R0 |
-+	@ R0 | R1 | ... | IP | SP + 4 | previous LR | LR | PSR | OLD_R0 |
- 
--	mov r3, sp				@ struct pt_regs*
-+	mov	r3, sp				@ struct pt_regs*
- 
- 	ldr r2, =function_trace_op
- 	ldr r2, [r2]				@ pointer to the current
-@@ -112,11 +108,9 @@ ftrace_graph_regs_call:
- #endif
- 
- 	@ pop saved regs
--	ldmia   sp!, {r0-r12}			@ restore r0 through r12
--	ldr	ip, [sp, #8]			@ restore PC
--	ldr	lr, [sp, #4]			@ restore LR
--	ldr	sp, [sp, #0]			@ restore SP
--	mov	pc, ip				@ return
-+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
-+	ldr	lr, [sp], #4			@ restore LR
-+	ldr	pc, [sp], #12
- .endm
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-@@ -132,11 +126,9 @@ ftrace_graph_regs_call:
- 	bl	prepare_ftrace_return
- 
- 	@ pop registers saved in ftrace_regs_caller
--	ldmia   sp!, {r0-r12}			@ restore r0 through r12
--	ldr	ip, [sp, #8]			@ restore PC
--	ldr	lr, [sp, #4]			@ restore LR
--	ldr	sp, [sp, #0]			@ restore SP
--	mov	pc, ip				@ return
-+	pop	{r0-r11, ip, lr}		@ restore r0 through r12
-+	ldr	lr, [sp], #4			@ restore LR
-+	ldr	pc, [sp], #12
- 
- .endm
- #endif
-@@ -202,16 +194,17 @@ ftrace_graph_call\suffix:
- .endm
- 
- .macro mcount_exit
--	ldmia	sp!, {r0-r3, ip, lr}
--	ret	ip
-+	ldmia	sp!, {r0-r3}
-+	ldr	lr, [sp, #4]
-+	ldr	pc, [sp], #8
- .endm
- 
- ENTRY(__gnu_mcount_nc)
- UNWIND(.fnstart)
- #ifdef CONFIG_DYNAMIC_FTRACE
--	mov	ip, lr
--	ldmia	sp!, {lr}
--	ret	ip
-+	push	{lr}
-+	ldr	lr, [sp, #4]
-+	ldr	pc, [sp], #8
- #else
- 	__mcount
- #endif
+ static struct clk_alpha_pll_postdiv gpll4 = {
+ 	.offset = 0x1dc0,
++	.width = 4,
+ 	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data)
+ 	{
 -- 
 2.34.1
 
