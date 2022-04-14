@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B14D150119A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C39C25015B0
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345681AbiDNNyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58548 "EHLO
+        id S245656AbiDNNnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344908AbiDNNov (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:51 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A30C956415;
-        Thu, 14 Apr 2022 06:40:40 -0700 (PDT)
+        with ESMTP id S244877AbiDNN2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD985A76F7;
+        Thu, 14 Apr 2022 06:21:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EA6A4CE29B0;
-        Thu, 14 Apr 2022 13:40:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F4D1C385A5;
-        Thu, 14 Apr 2022 13:40:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19E7560BAF;
+        Thu, 14 Apr 2022 13:21:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D74C385A5;
+        Thu, 14 Apr 2022 13:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943637;
-        bh=sWy0e/18JWbVs46Eodi28jgo6Ubg6qIZHedHHPj0BUE=;
+        s=korg; t=1649942471;
+        bh=arYmQ6gdhCroZr/XsiSO5yOvG9bBTqXz5YPkWZg9fPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfdqK5E3vwKk48Va2jxeGLFyQRFxgYLRRaDfeGyTLv4IeqhnQKX0YAr3uq71q2MDM
-         qDe+Wj+78oa6q7vc6Luc8x7pPldjfluP4UfrNcnuGfJn+5Ef9sP0uEaYzTuzUS5t94
-         QfIp1a4vvO++87GZpdYVvXB701P1RoSCVCaPKzHc=
+        b=YQ9UZJip61aHbivt/UwEprZnVUvcao0tbp30N8XQCdyFv2U6NZd8ulk+sFY6rhXu3
+         IyXAkwF+P7keWClFbTnEYYjNg2kFiQj9SuMdy5A5sXYeyomq3l/ivSv7o36p/pxk9H
+         KDI692JgQXBaFLdzHoHl48CuqeqvZ8K8kzXthxS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 228/475] pwm: lpc18xx-sct: Initialize driver data and hardware before pwmchip_add()
-Date:   Thu, 14 Apr 2022 15:10:13 +0200
-Message-Id: <20220414110901.500914263@linuxfoundation.org>
+Subject: [PATCH 4.19 111/338] ASoC: mxs: Fix error handling in mxs_sgtl5000_probe
+Date:   Thu, 14 Apr 2022 15:10:14 +0200
+Message-Id: <20220414110842.068828264@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 0401f24cd238ae200a23a13925f98de3d2c883b8 ]
+[ Upstream commit 6ae0a4d8fec551ec581d620f0eb1fe31f755551c ]
 
-When a driver calls pwmchip_add() it has to be prepared to immediately
-get its callbacks called. So move allocation of driver data and hardware
-initialization before the call to pwmchip_add().
+This function only calls of_node_put() in the regular path.
+And it will cause refcount leak in error paths.
+For example, when codec_np is NULL, saif_np[0] and saif_np[1]
+are not NULL, it will cause leaks.
 
-This fixes a potential NULL pointer exception and a race condition on
-register writes.
+of_node_put() will check if the node pointer is NULL, so we can
+call it directly to release the refcount of regular pointers.
 
-Fixes: 841e6f90bb78 ("pwm: NXP LPC18xx PWM/SCT driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Fixes: e968194b45c4 ("ASoC: mxs: add device tree support for mxs-sgtl5000")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220308020146.26496-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-lpc18xx-sct.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
+ sound/soc/mxs/mxs-sgtl5000.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
-index 5ff11145c1a3..9b15b6a79082 100644
---- a/drivers/pwm/pwm-lpc18xx-sct.c
-+++ b/drivers/pwm/pwm-lpc18xx-sct.c
-@@ -400,12 +400,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
- 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_LIMIT,
- 			   BIT(lpc18xx_pwm->period_event));
- 
--	ret = pwmchip_add(&lpc18xx_pwm->chip);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
--		goto disable_pwmclk;
--	}
--
- 	for (i = 0; i < lpc18xx_pwm->chip.npwm; i++) {
- 		struct lpc18xx_pwm_data *data;
- 
-@@ -415,14 +409,12 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
- 				    GFP_KERNEL);
- 		if (!data) {
- 			ret = -ENOMEM;
--			goto remove_pwmchip;
-+			goto disable_pwmclk;
- 		}
- 
- 		pwm_set_chip_data(pwm, data);
+diff --git a/sound/soc/mxs/mxs-sgtl5000.c b/sound/soc/mxs/mxs-sgtl5000.c
+index 2b3f2408301a..c40e0ab49657 100644
+--- a/sound/soc/mxs/mxs-sgtl5000.c
++++ b/sound/soc/mxs/mxs-sgtl5000.c
+@@ -120,6 +120,9 @@ static int mxs_sgtl5000_probe(struct platform_device *pdev)
+ 	codec_np = of_parse_phandle(np, "audio-codec", 0);
+ 	if (!saif_np[0] || !saif_np[1] || !codec_np) {
+ 		dev_err(&pdev->dev, "phandle missing or invalid\n");
++		of_node_put(codec_np);
++		of_node_put(saif_np[0]);
++		of_node_put(saif_np[1]);
+ 		return -EINVAL;
  	}
  
--	platform_set_drvdata(pdev, lpc18xx_pwm);
--
- 	val = lpc18xx_pwm_readl(lpc18xx_pwm, LPC18XX_PWM_CTRL);
- 	val &= ~LPC18XX_PWM_BIDIR;
- 	val &= ~LPC18XX_PWM_CTRL_HALT;
-@@ -430,10 +422,16 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
- 	val |= LPC18XX_PWM_PRE(0);
- 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_CTRL, val);
- 
-+	ret = pwmchip_add(&lpc18xx_pwm->chip);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
-+		goto disable_pwmclk;
-+	}
-+
-+	platform_set_drvdata(pdev, lpc18xx_pwm);
-+
- 	return 0;
- 
--remove_pwmchip:
--	pwmchip_remove(&lpc18xx_pwm->chip);
- disable_pwmclk:
- 	clk_disable_unprepare(lpc18xx_pwm->pwm_clk);
- 	return ret;
 -- 
 2.34.1
 
