@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D4A5013D5
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D15E55015D2
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241257AbiDNNfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
+        id S238036AbiDNOCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:02:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343909AbiDNNaF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:05 -0400
+        with ESMTP id S1345571AbiDNNxq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:53:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3898E985BF;
-        Thu, 14 Apr 2022 06:25:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A641A7768;
+        Thu, 14 Apr 2022 06:44:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C91BC60BAF;
-        Thu, 14 Apr 2022 13:25:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FA9C385A5;
-        Thu, 14 Apr 2022 13:25:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1AA661BA7;
+        Thu, 14 Apr 2022 13:44:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF98C385A1;
+        Thu, 14 Apr 2022 13:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942735;
-        bh=qW1x31HnZxqlWv9yLK7leVGiHSRFHxjgpFRqN+3ePM4=;
+        s=korg; t=1649943892;
+        bh=usCtAVw9HZvGKewnGLaVVyFTh1KVhPuX1FXOoHhB5XU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUsLUZ6CRxkl/cGhY9RnGhQmB/hMUL7IurCuuebNHBlf7stzFyVDe5+biHKfxlNQZ
-         KMAw/wicnnbUmMLTqbjCOHI6sb2HJTkhrVgiykgkdiqt7PQnPNm4+npreJrNGf/0Uj
-         GFmMin026F5npt8ldGvQ7nOzDEO6+JtEw8TLrWbU=
+        b=zghvAE9bK+c7WCk0ONUB6bOtO2itlxM/i3DlIF1xYckrRNX2E7wgeeBokk8FvWxGs
+         6quWbitKphoqRWuNKQe9y/UreBauVFAEs8sEyEWqpTr5lNYxbgTlVAxbRyIMDZzvQL
+         HjieVpFUOC4hGfLWlllXxTTukRqHbl06VxOANSmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antonino Daplas <adaplas@gmail.com>,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Tim Gardner <tim.gardner@canonical.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 202/338] video: fbdev: nvidiafb: Use strscpy() to prevent buffer overflow
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 320/475] scsi: qla2xxx: Suppress a kernel complaint in qla_create_qpair()
 Date:   Thu, 14 Apr 2022 15:11:45 +0200
-Message-Id: <20220414110844.643873453@linuxfoundation.org>
+Message-Id: <20220414110904.043472065@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Gardner <tim.gardner@canonical.com>
+From: Saurav Kashyap <skashyap@marvell.com>
 
-[ Upstream commit 37a1a2e6eeeb101285cd34e12e48a881524701aa ]
+commit a60447e7d451df42c7bde43af53b34f10f34f469 upstream.
 
-Coverity complains of a possible buffer overflow. However,
-given the 'static' scope of nvidia_setup_i2c_bus() it looks
-like that can't happen after examiniing the call sites.
+[   12.323788] BUG: using smp_processor_id() in preemptible [00000000] code: systemd-udevd/1020
+[   12.332297] caller is qla2xxx_create_qpair+0x32a/0x5d0 [qla2xxx]
+[   12.338417] CPU: 7 PID: 1020 Comm: systemd-udevd Tainted: G          I      --------- ---  5.14.0-29.el9.x86_64 #1
+[   12.348827] Hardware name: Dell Inc. PowerEdge R610/0F0XJ6, BIOS 6.6.0 05/22/2018
+[   12.356356] Call Trace:
+[   12.358821]  dump_stack_lvl+0x34/0x44
+[   12.362514]  check_preemption_disabled+0xd9/0xe0
+[   12.367164]  qla2xxx_create_qpair+0x32a/0x5d0 [qla2xxx]
+[   12.372481]  qla2x00_probe_one+0xa3a/0x1b80 [qla2xxx]
+[   12.377617]  ? _raw_spin_lock_irqsave+0x19/0x40
+[   12.384284]  local_pci_probe+0x42/0x80
+[   12.390162]  ? pci_match_device+0xd7/0x110
+[   12.396366]  pci_device_probe+0xfd/0x1b0
+[   12.402372]  really_probe+0x1e7/0x3e0
+[   12.408114]  __driver_probe_device+0xfe/0x180
+[   12.414544]  driver_probe_device+0x1e/0x90
+[   12.420685]  __driver_attach+0xc0/0x1c0
+[   12.426536]  ? __device_attach_driver+0xe0/0xe0
+[   12.433061]  ? __device_attach_driver+0xe0/0xe0
+[   12.439538]  bus_for_each_dev+0x78/0xc0
+[   12.445294]  bus_add_driver+0x12b/0x1e0
+[   12.451021]  driver_register+0x8f/0xe0
+[   12.456631]  ? 0xffffffffc07bc000
+[   12.461773]  qla2x00_module_init+0x1be/0x229 [qla2xxx]
+[   12.468776]  do_one_initcall+0x44/0x200
+[   12.474401]  ? load_module+0xad3/0xba0
+[   12.479908]  ? kmem_cache_alloc_trace+0x45/0x410
+[   12.486268]  do_init_module+0x5c/0x280
+[   12.491730]  __do_sys_init_module+0x12e/0x1b0
+[   12.497785]  do_syscall_64+0x3b/0x90
+[   12.503029]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   12.509764] RIP: 0033:0x7f554f73ab2e
 
-CID 19036 (#1 of 1): Copy into fixed size buffer (STRING_OVERFLOW)
-1. fixed_size_dest: You might overrun the 48-character fixed-size string
-  chan->adapter.name by copying name without checking the length.
-2. parameter_as_source: Note: This defect has an elevated risk because the
-  source argument is a parameter of the current function.
- 89        strcpy(chan->adapter.name, name);
-
-Fix this warning by using strscpy() which will silence the warning and
-prevent any future buffer overflows should the names used to identify the
-channel become much longer.
-
-Cc: Antonino Daplas <adaplas@gmail.com>
-Cc: linux-fbdev@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220110050218.3958-15-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/nvidia/nv_i2c.c | 2 +-
+ drivers/scsi/qla2xxx/qla_init.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/nvidia/nv_i2c.c b/drivers/video/fbdev/nvidia/nv_i2c.c
-index d7994a173245..0b48965a6420 100644
---- a/drivers/video/fbdev/nvidia/nv_i2c.c
-+++ b/drivers/video/fbdev/nvidia/nv_i2c.c
-@@ -86,7 +86,7 @@ static int nvidia_setup_i2c_bus(struct nvidia_i2c_chan *chan, const char *name,
- {
- 	int rc;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -9022,7 +9022,7 @@ struct qla_qpair *qla2xxx_create_qpair(s
+ 		qpair->rsp->req = qpair->req;
+ 		qpair->rsp->qpair = qpair;
+ 		/* init qpair to this cpu. Will adjust at run time. */
+-		qla_cpu_update(qpair, smp_processor_id());
++		qla_cpu_update(qpair, raw_smp_processor_id());
  
--	strcpy(chan->adapter.name, name);
-+	strscpy(chan->adapter.name, name, sizeof(chan->adapter.name));
- 	chan->adapter.owner = THIS_MODULE;
- 	chan->adapter.class = i2c_class;
- 	chan->adapter.algo_data = &chan->algo;
--- 
-2.34.1
-
+ 		if (IS_T10_PI_CAPABLE(ha) && ql2xenabledif) {
+ 			if (ha->fw_attributes & BIT_4)
 
 
