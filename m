@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADA105010F4
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F35501211
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343542AbiDNOIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:08:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43404 "EHLO
+        id S245402AbiDNNnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347176AbiDNN6d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F26BEB8207;
-        Thu, 14 Apr 2022 06:49:07 -0700 (PDT)
+        with ESMTP id S1344076AbiDNNaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 066A7219A;
+        Thu, 14 Apr 2022 06:27:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCD9561DE7;
-        Thu, 14 Apr 2022 13:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6CBFC385A1;
-        Thu, 14 Apr 2022 13:49:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98EAC619DA;
+        Thu, 14 Apr 2022 13:27:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5543C385A5;
+        Thu, 14 Apr 2022 13:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944146;
-        bh=6Gbe4J2EhR/VgiSxky4sq29L3flJuguxPUi/AjaeUlY=;
+        s=korg; t=1649942870;
+        bh=Ae9q9nxSN3EVFhjOM8eyzrCND6wo/9iVMMHTDrWSK90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1M4vpCm4NGdTHsglJ9H2wW5hBpFkf7rqP8MrSXcZtVjSMQCtYfB73yd2aUmu/Jus
-         x4UJnbZooOev1r3DlX3cGH5zszusABOOEyEoIWtUW9A3aiEEotYd9xsCu3z7F5pGO0
-         t/3BGuWkunc2WKFFJU6uCrwfPUpq+9EIPIuW/wsI=
+        b=xB6Ox/K82KdKz5Ot9ikeQZ84tIKPOEc6qExSfz84qm+NPTzD7rGxPwrST33NzPevr
+         7tUMmB/F0o5MnB5lIoquE2fh59xHQKHYU3cvFuyj3lOx80KeIHg2i8HPWP9ykdTYYU
+         0lD2vE/TkuLrDPWMd9RKGIxyxEcPDBsKFAm6Qd5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 410/475] NFSv4: Protect the state recovery thread against direct reclaim
+Subject: [PATCH 4.19 292/338] clk: Enforce that disjoints limits are invalid
 Date:   Thu, 14 Apr 2022 15:13:15 +0200
-Message-Id: <20220414110906.539053686@linuxfoundation.org>
+Message-Id: <20220414110847.199578361@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,74 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 3e17898aca293a24dae757a440a50aa63ca29671 ]
+[ Upstream commit 10c46f2ea914202482d19cf80dcc9c321c9ff59b ]
 
-If memory allocation triggers a direct reclaim from the state recovery
-thread, then we can deadlock. Use memalloc_nofs_save/restore to ensure
-that doesn't happen.
+If we were to have two users of the same clock, doing something like:
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+clk_set_rate_range(user1, 1000, 2000);
+clk_set_rate_range(user2, 3000, 4000);
+
+The second call would fail with -EINVAL, preventing from getting in a
+situation where we end up with impossible limits.
+
+However, this is never explicitly checked against and enforced, and
+works by relying on an undocumented behaviour of clk_set_rate().
+
+Indeed, on the first clk_set_rate_range will make sure the current clock
+rate is within the new range, so it will be between 1000 and 2000Hz. On
+the second clk_set_rate_range(), it will consider (rightfully), that our
+current clock is outside of the 3000-4000Hz range, and will call
+clk_core_set_rate_nolock() to set it to 3000Hz.
+
+clk_core_set_rate_nolock() will then call clk_calc_new_rates() that will
+eventually check that our rate 3000Hz rate is outside the min 3000Hz max
+2000Hz range, will bail out, the error will propagate and we'll
+eventually return -EINVAL.
+
+This solely relies on the fact that clk_calc_new_rates(), and in
+particular clk_core_determine_round_nolock(), won't modify the new rate
+allowing the error to be reported. That assumption won't be true for all
+drivers, and most importantly we'll break that assumption in a later
+patch.
+
+It can also be argued that we shouldn't even reach the point where we're
+calling clk_core_set_rate_nolock().
+
+Let's make an explicit check for disjoints range before we're doing
+anything.
+
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20220225143534.405820-4-maxime@cerno.tech
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/clk/clk.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index aa2caba38a01..1d2b81a233bb 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -49,6 +49,7 @@
- #include <linux/workqueue.h>
- #include <linux/bitops.h>
- #include <linux/jiffies.h>
-+#include <linux/sched/mm.h>
- 
- #include <linux/sunrpc/clnt.h>
- 
-@@ -2504,9 +2505,17 @@ static int nfs4_bind_conn_to_session(struct nfs_client *clp)
- 
- static void nfs4_state_manager(struct nfs_client *clp)
- {
-+	unsigned int memflags;
- 	int status = 0;
- 	const char *section = "", *section_sep = "";
- 
-+	/*
-+	 * State recovery can deadlock if the direct reclaim code tries
-+	 * start NFS writeback. So ensure memory allocations are all
-+	 * GFP_NOFS.
-+	 */
-+	memflags = memalloc_nofs_save();
-+
- 	/* Ensure exclusive access to NFSv4 state */
- 	do {
- 		clear_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state);
-@@ -2600,6 +2609,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 			clear_bit(NFS4CLNT_RECLAIM_NOGRACE, &clp->cl_state);
- 		}
- 
-+		memalloc_nofs_restore(memflags);
- 		nfs4_end_drain_session(clp);
- 		nfs4_clear_state_manager_bit(clp);
- 
-@@ -2616,6 +2626,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 			return;
- 		if (test_and_set_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state) != 0)
- 			return;
-+		memflags = memalloc_nofs_save();
- 	} while (refcount_read(&clp->cl_count) > 1 && !signalled());
- 	goto out_drain;
- 
-@@ -2627,6 +2638,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
- 			clp->cl_hostname, -status);
- 	ssleep(1);
- out_drain:
-+	memalloc_nofs_restore(memflags);
- 	nfs4_end_drain_session(clp);
- 	nfs4_clear_state_manager_bit(clp);
+diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
+index a9490c8e82a7..32606d1094fe 100644
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -523,6 +523,24 @@ static void clk_core_get_boundaries(struct clk_core *core,
+ 		*max_rate = min(*max_rate, clk_user->max_rate);
  }
+ 
++static bool clk_core_check_boundaries(struct clk_core *core,
++				      unsigned long min_rate,
++				      unsigned long max_rate)
++{
++	struct clk *user;
++
++	lockdep_assert_held(&prepare_lock);
++
++	if (min_rate > core->max_rate || max_rate < core->min_rate)
++		return false;
++
++	hlist_for_each_entry(user, &core->clks, clks_node)
++		if (min_rate > user->max_rate || max_rate < user->min_rate)
++			return false;
++
++	return true;
++}
++
+ void clk_hw_set_rate_range(struct clk_hw *hw, unsigned long min_rate,
+ 			   unsigned long max_rate)
+ {
+@@ -2066,6 +2084,11 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
+ 	clk->min_rate = min;
+ 	clk->max_rate = max;
+ 
++	if (!clk_core_check_boundaries(clk->core, min, max)) {
++		ret = -EINVAL;
++		goto out;
++	}
++
+ 	rate = clk_core_get_rate_nolock(clk->core);
+ 	if (rate < min || rate > max) {
+ 		/*
+@@ -2094,6 +2117,7 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
+ 		}
+ 	}
+ 
++out:
+ 	if (clk->exclusive_count)
+ 		clk_core_rate_protect(clk->core);
+ 
 -- 
 2.35.1
 
