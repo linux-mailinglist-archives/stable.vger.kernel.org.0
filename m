@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6115850137B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 236E25012A4
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244803AbiDNNmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:42:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57352 "EHLO
+        id S1348964AbiDNOO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:14:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344017AbiDNNaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2957592D02;
-        Thu, 14 Apr 2022 06:26:22 -0700 (PDT)
+        with ESMTP id S1346615AbiDNN5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C78A8B0D2D;
+        Thu, 14 Apr 2022 06:47:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C69D5B82984;
-        Thu, 14 Apr 2022 13:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 227CDC385A9;
-        Thu, 14 Apr 2022 13:26:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A94561D68;
+        Thu, 14 Apr 2022 13:47:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551D6C385A5;
+        Thu, 14 Apr 2022 13:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942779;
-        bh=iQRV5ateyNk7x82zVTTRxMV9NpHDhO7Yy587hC+Z5TU=;
+        s=korg; t=1649944056;
+        bh=Y4PFYmdYR2WjNP0fkjHUgXF9wtFrae+g7GdxMfughyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xD1Yn8bZVSMAAPaPKjIL5PIwj9taXe1KQnlovcs98vLR6sUOtm5E+b80IoqrJi5U4
-         nyXVoI+O8mxhDHI5B/xqVxD1Yk+0MXcF4WXkKlEBwHpHSJgwURaasc96Pruc1GlVzX
-         Qq9fawfA7pwK8spqinDme40j9TZj+ufaRqY46BgM=
+        b=qURscsU9bWCAiZBwT6bdlXznh7UXbWERGhmdvzKI322bm4tCZpKhQa2quP3R+ictW
+         HF46oq7gPvlIRJ/BjyBp1MbSVzyFemObH+6MrtUSbyZ6OJPOX9pMt4qnHyjAO/PTaG
+         Xmo/YfCqeigKBc9dh2yeWHMOlUcbhnoPxNsGHDDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Maxim Kochetkov <fido_max@inbox.ru>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 258/338] riscv module: remove (NOLOAD)
-Date:   Thu, 14 Apr 2022 15:12:41 +0200
-Message-Id: <20220414110846.233086921@linuxfoundation.org>
+Subject: [PATCH 5.4 377/475] powerpc: dts: t104xrdb: fix phy type for FMAN 4/5
+Date:   Thu, 14 Apr 2022 15:12:42 +0200
+Message-Id: <20220414110905.624498647@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-[ Upstream commit 60210a3d86dc57ce4a76a366e7841dda746a33f7 ]
+[ Upstream commit 17846485dff91acce1ad47b508b633dffc32e838 ]
 
-On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
-inappropriate for .plt, .got, and .got.plt sections which are always
-SHT_PROGBITS.
+T1040RDB has two RTL8211E-VB phys which requires setting
+of internal delays for correct work.
 
-In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
-and (NOLOAD) will be essentially ignored. In ld.lld, since
-https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
-customize the output section type"), ld.lld will report a `section type
-mismatch` error (later changed to a warning). Just remove (NOLOAD) to
-fix the warning.
+Changing the phy-connection-type property to `rgmii-id`
+will fix this issue.
 
-[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
-section should be marked as not loadable" on
-https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
-outdated for ELF.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1597
-Fixes: ab1ef68e5401 ("RISC-V: Add sections of PLT and GOT for kernel module")
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211230151123.1258321-1-bigunclemax@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/module.lds | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/boot/dts/fsl/t104xrdb.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/riscv/kernel/module.lds b/arch/riscv/kernel/module.lds
-index 295ecfb341a2..18ec719899e2 100644
---- a/arch/riscv/kernel/module.lds
-+++ b/arch/riscv/kernel/module.lds
-@@ -2,7 +2,7 @@
- /* Copyright (C) 2017 Andes Technology Corporation */
+diff --git a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
+index 099a598c74c0..bfe1ed5be337 100644
+--- a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
++++ b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
+@@ -139,12 +139,12 @@
+ 		fman@400000 {
+ 			ethernet@e6000 {
+ 				phy-handle = <&phy_rgmii_0>;
+-				phy-connection-type = "rgmii";
++				phy-connection-type = "rgmii-id";
+ 			};
  
- SECTIONS {
--	.plt (NOLOAD) : { BYTE(0) }
--	.got (NOLOAD) : { BYTE(0) }
--	.got.plt (NOLOAD) : { BYTE(0) }
-+	.plt : { BYTE(0) }
-+	.got : { BYTE(0) }
-+	.got.plt : { BYTE(0) }
- }
+ 			ethernet@e8000 {
+ 				phy-handle = <&phy_rgmii_1>;
+-				phy-connection-type = "rgmii";
++				phy-connection-type = "rgmii-id";
+ 			};
+ 
+ 			mdio0: mdio@fc000 {
 -- 
 2.35.1
 
