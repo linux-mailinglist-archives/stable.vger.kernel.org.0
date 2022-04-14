@@ -2,168 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9BBA50180F
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 821A250181A
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245664AbiDNQAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 12:00:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54996 "EHLO
+        id S1350256AbiDNQBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 12:01:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352584AbiDNPRj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 11:17:39 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E82DAE1272;
-        Thu, 14 Apr 2022 08:02:01 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B5CF9139F;
-        Thu, 14 Apr 2022 08:02:01 -0700 (PDT)
-Received: from [192.168.122.164] (U203867.austin.arm.com [10.118.30.26])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 921B63F5A1;
-        Thu, 14 Apr 2022 08:02:01 -0700 (PDT)
-Message-ID: <2c2ecd15-72c7-ced9-8092-eb375a426cd8@arm.com>
-Date:   Thu, 14 Apr 2022 10:02:00 -0500
+        with ESMTP id S1348816AbiDNPkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 11:40:10 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2494FC31F0
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 08:18:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1649949524;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WebPVtGMXwiaKLP3FU98CAuUa7w60cn7WdQ5x8iGnDU=;
+        b=TP5X6N30qFsVbcz+RujnztuoBA/uLJphS9Uw5kKZpA+E+88ipkqAWNIp+g9FuXvOJckzFo
+        fo5FJyzuodDXLvnokp55VmsdBKdZP7Ofzustrtk6Bhw0omIFQzO94e5J2pd/+T1bp5t/ro
+        Hs+UlHy+0J+zYLG2J1GfqH+iB76TNZ4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-18-sEc2PB6GOKC5B2KpO2xgtg-1; Thu, 14 Apr 2022 11:18:41 -0400
+X-MC-Unique: sEc2PB6GOKC5B2KpO2xgtg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 589AC811E81;
+        Thu, 14 Apr 2022 15:18:40 +0000 (UTC)
+Received: from [10.22.19.30] (unknown [10.22.19.30])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id EE8292166BA3;
+        Thu, 14 Apr 2022 15:18:23 +0000 (UTC)
+Message-ID: <d32d3036-a554-624b-0d3f-247539142273@redhat.com>
+Date:   Thu, 14 Apr 2022 11:18:23 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-Subject: Re: [PATCH 4.19 155/338] net: bcmgenet: Use stronger register
- read/writes to assure ordering
+Subject: Re: [PATCH v5] locking/rwsem: Make handoff bit handling more
+ consistent
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20220414110838.883074566@linuxfoundation.org>
- <20220414110843.312864762@linuxfoundation.org>
-From:   Jeremy Linton <jeremy.linton@arm.com>
-In-Reply-To: <20220414110843.312864762@linuxfoundation.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     john.p.donnelly@oracle.com,
+        chenguanyou <chenguanyou9338@gmail.com>, dave@stgolabs.net,
+        hdanton@sina.com, linux-kernel@vger.kernel.org,
+        mazhenhua@xiaomi.com, mingo@redhat.com, peterz@infradead.org,
+        quic_aiquny@quicinc.com, will@kernel.org, sashal@kernel.org,
+        stable@vger.kernel.org
+References: <20211116012912.723980-1-longman@redhat.com>
+ <20220214154741.12399-1-chenguanyou@xiaomi.com>
+ <3f02975c-1a9d-be20-32cf-f1d8e3dfafcc@oracle.com>
+ <e873727e-22db-3330-015d-bd6581a2937a@redhat.com>
+ <31178c33-e25c-c3e8-35e2-776b5211200c@oracle.com>
+ <161c2e25-3d26-4dd7-d378-d1741f7bcca8@redhat.com>
+ <2b6ed542-b3e0-1a87-33ac-d52fc0e0339c@oracle.com>
+ <b3620b7b-c66a-65f8-b10b-c3669b2f82ec@redhat.com>
+ <Ylf78yGuXdXWugpn@kroah.com>
+From:   Waiman Long <longman@redhat.com>
+In-Reply-To: <Ylf78yGuXdXWugpn@kroah.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-9.4 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
+X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On 4/14/22 06:48, Greg KH wrote:
+> On Tue, Apr 12, 2022 at 01:04:05PM -0400, Waiman Long wrote:
+>> The patch has already been in the tip tree. It may not be easy to add a
+>> Fixes tag to it. Anyway, I will encourage stable tree maintainer to take it
+>> as it does fix a problem as shown in your test.
+> I have no idea what you want me to do here.  Please be explicit...
+>
+I would like the stable trees to include commit 1ee326196c66 
+("locking/rwsem: Always try to wake waiters in out_nolock path") after 
+it is merged into the mainline in the v5.19 merge window. It should be 
+applied to the stable trees that have incorporated the backport of 
+commit d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more 
+consistent") since this commit seems to make the missed wakeup problem 
+easier to show up.
 
-I would kill this commit too, since the final conclusion was that 
-underlying problem was a compiler bug (which has now been fixed).
-
-Thanks,
+Cheers,
+Longman
 
 
-
-On 4/14/22 08:10, Greg Kroah-Hartman wrote:
-> From: Jeremy Linton <jeremy.linton@arm.com>
-> 
-> [ Upstream commit 8d3ea3d402db94b61075617e71b67459a714a502 ]
-> 
-> GCC12 appears to be much smarter about its dependency tracking and is
-> aware that the relaxed variants are just normal loads and stores and
-> this is causing problems like:
-> 
-> [  210.074549] ------------[ cut here ]------------
-> [  210.079223] NETDEV WATCHDOG: enabcm6e4ei0 (bcmgenet): transmit queue 1 timed out
-> [  210.086717] WARNING: CPU: 1 PID: 0 at net/sched/sch_generic.c:529 dev_watchdog+0x234/0x240
-> [  210.095044] Modules linked in: genet(E) nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat]
-> [  210.146561] ACPI CPPC: PCC check channel failed for ss: 0. ret=-110
-> [  210.146927] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G            E     5.17.0-rc7G12+ #58
-> [  210.153226] CPPC Cpufreq:cppc_scale_freq_workfn: failed to read perf counters
-> [  210.161349] Hardware name: Raspberry Pi Foundation Raspberry Pi 4 Model B/Raspberry Pi 4 Model B, BIOS EDK2-DEV 02/08/2022
-> [  210.161353] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-> [  210.161358] pc : dev_watchdog+0x234/0x240
-> [  210.161364] lr : dev_watchdog+0x234/0x240
-> [  210.161368] sp : ffff8000080a3a40
-> [  210.161370] x29: ffff8000080a3a40 x28: ffffcd425af87000 x27: ffff8000080a3b20
-> [  210.205150] x26: ffffcd425aa00000 x25: 0000000000000001 x24: ffffcd425af8ec08
-> [  210.212321] x23: 0000000000000100 x22: ffffcd425af87000 x21: ffff55b142688000
-> [  210.219491] x20: 0000000000000001 x19: ffff55b1426884c8 x18: ffffffffffffffff
-> [  210.226661] x17: 64656d6974203120 x16: 0000000000000001 x15: 6d736e617274203a
-> [  210.233831] x14: 2974656e65676d63 x13: ffffcd4259c300d8 x12: ffffcd425b07d5f0
-> [  210.241001] x11: 00000000ffffffff x10: ffffcd425b07d5f0 x9 : ffffcd4258bdad9c
-> [  210.248171] x8 : 00000000ffffdfff x7 : 000000000000003f x6 : 0000000000000000
-> [  210.255341] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000001000
-> [  210.262511] x2 : 0000000000001000 x1 : 0000000000000005 x0 : 0000000000000044
-> [  210.269682] Call trace:
-> [  210.272133]  dev_watchdog+0x234/0x240
-> [  210.275811]  call_timer_fn+0x3c/0x15c
-> [  210.279489]  __run_timers.part.0+0x288/0x310
-> [  210.283777]  run_timer_softirq+0x48/0x80
-> [  210.287716]  __do_softirq+0x128/0x360
-> [  210.291392]  __irq_exit_rcu+0x138/0x140
-> [  210.295243]  irq_exit_rcu+0x1c/0x30
-> [  210.298745]  el1_interrupt+0x38/0x54
-> [  210.302334]  el1h_64_irq_handler+0x18/0x24
-> [  210.306445]  el1h_64_irq+0x7c/0x80
-> [  210.309857]  arch_cpu_idle+0x18/0x2c
-> [  210.313445]  default_idle_call+0x4c/0x140
-> [  210.317470]  cpuidle_idle_call+0x14c/0x1a0
-> [  210.321584]  do_idle+0xb0/0x100
-> [  210.324737]  cpu_startup_entry+0x30/0x8c
-> [  210.328675]  secondary_start_kernel+0xe4/0x110
-> [  210.333138]  __secondary_switched+0x94/0x98
-> 
-> The assumption when these were relaxed seems to be that device memory
-> would be mapped non reordering, and that other constructs
-> (spinlocks/etc) would provide the barriers to assure that packet data
-> and in memory rings/queues were ordered with respect to device
-> register reads/writes. This itself seems a bit sketchy, but the real
-> problem with GCC12 is that it is moving the actual reads/writes around
-> at will as though they were independent operations when in truth they
-> are not, but the compiler can't know that. When looking at the
-> assembly dumps for many of these routines its possible to see very
-> clean, but not strictly in program order operations occurring as the
-> compiler would be free to do if these weren't actually register
-> reads/write operations.
-> 
-> Its possible to suppress the timeout with a liberal bit of dma_mb()'s
-> sprinkled around but the device still seems unable to reliably
-> send/receive data. A better plan is to use the safer readl/writel
-> everywhere.
-> 
-> Since this partially reverts an older commit, which notes the use of
-> the relaxed variants for performance reasons. I would suggest that
-> any performance problems with this commit are targeted at relaxing only
-> the performance critical code paths after assuring proper barriers.
-> 
-> Fixes: 69d2ea9c79898 ("net: bcmgenet: Use correct I/O accessors")
-> Reported-by: Peter Robinson <pbrobinson@gmail.com>
-> Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-> Acked-by: Peter Robinson <pbrobinson@gmail.com>
-> Tested-by: Peter Robinson <pbrobinson@gmail.com>
-> Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-> Link: https://lore.kernel.org/r/20220310045358.224350-1-jeremy.linton@arm.com
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-> index d4be107ea4cd..c78b687a1443 100644
-> --- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-> +++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-> @@ -83,7 +83,7 @@ static inline void bcmgenet_writel(u32 value, void __iomem *offset)
->   	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
->   		__raw_writel(value, offset);
->   	else
-> -		writel_relaxed(value, offset);
-> +		writel(value, offset);
->   }
->   
->   static inline u32 bcmgenet_readl(void __iomem *offset)
-> @@ -91,7 +91,7 @@ static inline u32 bcmgenet_readl(void __iomem *offset)
->   	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
->   		return __raw_readl(offset);
->   	else
-> -		return readl_relaxed(offset);
-> +		return readl(offset);
->   }
->   
->   static inline void dmadesc_set_length_status(struct bcmgenet_priv *priv,
 
