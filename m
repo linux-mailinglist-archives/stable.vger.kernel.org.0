@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9607D501253
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F12365015EC
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345601AbiDNNxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:53:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57544 "EHLO
+        id S244891AbiDNNgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:36:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345134AbiDNNpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D464715805;
-        Thu, 14 Apr 2022 06:42:46 -0700 (PDT)
+        with ESMTP id S245675AbiDNN3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96106AF1ED;
+        Thu, 14 Apr 2022 06:23:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7038E61D29;
-        Thu, 14 Apr 2022 13:42:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80846C385AA;
-        Thu, 14 Apr 2022 13:42:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C22CB82986;
+        Thu, 14 Apr 2022 13:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF9ABC385A9;
+        Thu, 14 Apr 2022 13:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943765;
-        bh=KLq3MPkjNx7wkx1Me1htQFQREd2ARzbMTWYEu7Q2FxA=;
+        s=korg; t=1649942610;
+        bh=Un8XpncjO9JrpGSBBgKS6Q1V6sjrZX1aK6GJ1+1hbTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdlL7yhIFe/oBXeBmESkaIg59DslmSszl1c76Nl3VZ6Ic187biSQd72y8Z32xuZkI
-         92g8JJhtioM8mVLi8eaDARI7/Y+ctKwNGuKuBp2FyPCKjPInX0ir4+VqqpMzAf65jb
-         HdR4m2plVvvMRvniv5oP3nE4mtIfkUtn7QFWnmBw=
+        b=U19rLdwdU/C51EJr8+Bc3Rk1GXEiUrvM4EAd+HDhneZNhmLYARVEX/W70BZubYYhz
+         ZWlbQpQw8Hc4dXslhwNJ9UHW8/wTb44dpnHeXo4ykH1Zd60SueFWwH1TevKbVKEIh0
+         x+Jne7IRyZeoANxJSi4LzAdYVRRNgA0AWeHDC5u4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Popov <alex.popov@linux.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 274/475] gcc-plugins/stackleak: Exactly match strings instead of prefixes
-Date:   Thu, 14 Apr 2022 15:10:59 +0200
-Message-Id: <20220414110902.772069629@linuxfoundation.org>
+Subject: [PATCH 4.19 157/338] mfd: asic3: Add missing iounmap() on error asic3_mfd_probe
+Date:   Thu, 14 Apr 2022 15:11:00 +0200
+Message-Id: <20220414110843.369653918@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 27e9faf415dbf94af19b9c827842435edbc1fbbc ]
+[ Upstream commit e84ee1a75f944a0fe3c277aaa10c426603d2b0bc ]
 
-Since STRING_CST may not be NUL terminated, strncmp() was used for check
-for equality. However, this may lead to mismatches for longer section
-names where the start matches the tested-for string. Test for exact
-equality by checking for the presences of NUL termination.
+Add the missing iounmap() before return from asic3_mfd_probe
+in the error handling case.
 
-Cc: Alexander Popov <alex.popov@linux.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 64e8867ba809 ("mfd: tmio_mmc hardware abstraction for CNF area")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220307072947.5369-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gcc-plugins/stackleak_plugin.c | 25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ drivers/mfd/asic3.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/scripts/gcc-plugins/stackleak_plugin.c b/scripts/gcc-plugins/stackleak_plugin.c
-index dbd37460c573..f46abb315010 100644
---- a/scripts/gcc-plugins/stackleak_plugin.c
-+++ b/scripts/gcc-plugins/stackleak_plugin.c
-@@ -262,6 +262,23 @@ static unsigned int stackleak_cleanup_execute(void)
- 	return 0;
- }
- 
-+/*
-+ * STRING_CST may or may not be NUL terminated:
-+ * https://gcc.gnu.org/onlinedocs/gccint/Constant-expressions.html
-+ */
-+static inline bool string_equal(tree node, const char *string, int length)
-+{
-+	if (TREE_STRING_LENGTH(node) < length)
-+		return false;
-+	if (TREE_STRING_LENGTH(node) > length + 1)
-+		return false;
-+	if (TREE_STRING_LENGTH(node) == length + 1 &&
-+	    TREE_STRING_POINTER(node)[length] != '\0')
-+		return false;
-+	return !memcmp(TREE_STRING_POINTER(node), string, length);
-+}
-+#define STRING_EQUAL(node, str)	string_equal(node, str, strlen(str))
-+
- static bool stackleak_gate(void)
- {
- 	tree section;
-@@ -271,13 +288,13 @@ static bool stackleak_gate(void)
- 	if (section && TREE_VALUE(section)) {
- 		section = TREE_VALUE(TREE_VALUE(section));
- 
--		if (!strncmp(TREE_STRING_POINTER(section), ".init.text", 10))
-+		if (STRING_EQUAL(section, ".init.text"))
- 			return false;
--		if (!strncmp(TREE_STRING_POINTER(section), ".devinit.text", 13))
-+		if (STRING_EQUAL(section, ".devinit.text"))
- 			return false;
--		if (!strncmp(TREE_STRING_POINTER(section), ".cpuinit.text", 13))
-+		if (STRING_EQUAL(section, ".cpuinit.text"))
- 			return false;
--		if (!strncmp(TREE_STRING_POINTER(section), ".meminit.text", 13))
-+		if (STRING_EQUAL(section, ".meminit.text"))
- 			return false;
+diff --git a/drivers/mfd/asic3.c b/drivers/mfd/asic3.c
+index 1531302a50ec..75584cee0da5 100644
+--- a/drivers/mfd/asic3.c
++++ b/drivers/mfd/asic3.c
+@@ -918,14 +918,14 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
+ 		ret = mfd_add_devices(&pdev->dev, pdev->id,
+ 			&asic3_cell_ds1wm, 1, mem, asic->irq_base, NULL);
+ 		if (ret < 0)
+-			goto out;
++			goto out_unmap;
  	}
+ 
+ 	if (mem_sdio && (irq >= 0)) {
+ 		ret = mfd_add_devices(&pdev->dev, pdev->id,
+ 			&asic3_cell_mmc, 1, mem_sdio, irq, NULL);
+ 		if (ret < 0)
+-			goto out;
++			goto out_unmap;
+ 	}
+ 
+ 	ret = 0;
+@@ -939,8 +939,12 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
+ 		ret = mfd_add_devices(&pdev->dev, 0,
+ 			asic3_cell_leds, ASIC3_NUM_LEDS, NULL, 0, NULL);
+ 	}
++	return ret;
+ 
+- out:
++out_unmap:
++	if (asic->tmio_cnf)
++		iounmap(asic->tmio_cnf);
++out:
+ 	return ret;
+ }
  
 -- 
 2.34.1
