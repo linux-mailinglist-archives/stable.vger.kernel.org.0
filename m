@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74270501127
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71F845013B4
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241309AbiDNNhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:37:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49820 "EHLO
+        id S1348272AbiDNOEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:04:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245487AbiDNN3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380EDAC925;
-        Thu, 14 Apr 2022 06:23:01 -0700 (PDT)
+        with ESMTP id S1346267AbiDNN4L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:56:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6376AA70;
+        Thu, 14 Apr 2022 06:46:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8330B82982;
-        Thu, 14 Apr 2022 13:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4229EC385A9;
-        Thu, 14 Apr 2022 13:22:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5672EB82968;
+        Thu, 14 Apr 2022 13:46:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D557C385A1;
+        Thu, 14 Apr 2022 13:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942578;
-        bh=/94NnZF5zCsGRDaGi4EOOs91gwBmesWffr7GrRdd6r0=;
+        s=korg; t=1649943990;
+        bh=tZLkmdGLd3BRCcgyFFRiPY+tkNgl+dRTZ9QJcTbaIMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4oL1QC8bLOaljlXL0b8JPq8BSA8PicyATR2p3RlFkEjpICs4Q4bLklHE1Pv38s9M
-         5hyAQVwOJ4LBS9bP5sq0FtzGJM1f+iGna+7MtBjaZTmdCqxwz2fwttJTPJavcmB1w0
-         YH01zPLmdSBqDcPNgI720oSUDt2TI5g5WL0+cUdw=
+        b=TZblIqCyIdnNLcnXG1Nv8Nl9OaIu6coqo2Q6pFZ0QheMo/woXqzDgaZDZHN9HJfZI
+         h9LrWMvgc/uBkk/xSNs9DPnKWvNC258CFLkVhvEILpHdL7mShnoM4ksmNdNaT6engx
+         NoOjmordtUopEkcKGnOj8Nhj6j01Ahp0XewTwQXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Richard Leitner <richard.leitner@skidata.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 185/338] net/x25: Fix null-ptr-deref caused by x25_disconnect
-Date:   Thu, 14 Apr 2022 15:11:28 +0200
-Message-Id: <20220414110844.163589087@linuxfoundation.org>
+Subject: [PATCH 5.4 304/475] ARM: tegra: tamonten: Fix I2C3 pad setting
+Date:   Thu, 14 Apr 2022 15:11:29 +0200
+Message-Id: <20220414110903.599819088@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Richard Leitner <richard.leitner@skidata.com>
 
-[ Upstream commit 7781607938c8371d4c2b243527430241c62e39c2 ]
+[ Upstream commit 0092c25b541a5422d7e71892a13c55ee91abc34b ]
 
-When the link layer is terminating, x25->neighbour will be set to NULL
-in x25_disconnect(). As a result, it could cause null-ptr-deref bugs in
-x25_sendmsg(),x25_recvmsg() and x25_connect(). One of the bugs is
-shown below.
+This patch fixes the tristate configuration for i2c3 function assigned
+to the dtf pins on the Tamonten Tegra20 SoM.
 
-    (Thread 1)                 |  (Thread 2)
-x25_link_terminated()          | x25_recvmsg()
- x25_kill_by_neigh()           |  ...
-  x25_disconnect()             |  lock_sock(sk)
-   ...                         |  ...
-   x25->neighbour = NULL //(1) |
-   ...                         |  x25->neighbour->extended //(2)
-
-The code sets NULL to x25->neighbour in position (1) and dereferences
-x25->neighbour in position (2), which could cause null-ptr-deref bug.
-
-This patch adds lock_sock() in x25_kill_by_neigh() in order to synchronize
-with x25_sendmsg(), x25_recvmsg() and x25_connect(). What`s more, the
-sock held by lock_sock() is not NULL, because it is extracted from x25_list
-and uses x25_list_lock to synchronize.
-
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/tegra20-tamonten.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index f87002792836..77d8adb27ec7 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -1797,10 +1797,15 @@ void x25_kill_by_neigh(struct x25_neigh *nb)
- 
- 	write_lock_bh(&x25_list_lock);
- 
--	sk_for_each(s, &x25_list)
--		if (x25_sk(s)->neighbour == nb)
-+	sk_for_each(s, &x25_list) {
-+		if (x25_sk(s)->neighbour == nb) {
-+			write_unlock_bh(&x25_list_lock);
-+			lock_sock(s);
- 			x25_disconnect(s, ENETUNREACH, 0, 0);
--
-+			release_sock(s);
-+			write_lock_bh(&x25_list_lock);
-+		}
-+	}
- 	write_unlock_bh(&x25_list_lock);
- 
- 	/* Remove any related forwards */
+diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+index 394a6b4dc69d..69cb65d86c46 100644
+--- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
++++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+@@ -183,8 +183,8 @@
+ 			};
+ 			conf_ata {
+ 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
+-					"cdev1", "cdev2", "dap1", "dtb", "gma",
+-					"gmb", "gmc", "gmd", "gme", "gpu7",
++					"cdev1", "cdev2", "dap1", "dtb", "dtf",
++					"gma", "gmb", "gmc", "gmd", "gme", "gpu7",
+ 					"gpv", "i2cp", "irrx", "irtx", "pta",
+ 					"rm", "slxa", "slxk", "spia", "spib",
+ 					"uac";
+@@ -203,7 +203,7 @@
+ 			};
+ 			conf_crtp {
+ 				nvidia,pins = "crtp", "dap2", "dap3", "dap4",
+-					"dtc", "dte", "dtf", "gpu", "sdio1",
++					"dtc", "dte", "gpu", "sdio1",
+ 					"slxc", "slxd", "spdi", "spdo", "spig",
+ 					"uda";
+ 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
 -- 
 2.34.1
 
