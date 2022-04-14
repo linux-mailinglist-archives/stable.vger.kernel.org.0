@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFC7150101E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA88F5010C1
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241308AbiDNOFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:05:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43106 "EHLO
+        id S238735AbiDNNg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:36:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347415AbiDNN6u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6CE38BC0;
-        Thu, 14 Apr 2022 06:49:40 -0700 (PDT)
+        with ESMTP id S1344162AbiDNNav (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98DEE1B6;
+        Thu, 14 Apr 2022 06:28:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96B196190F;
-        Thu, 14 Apr 2022 13:49:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4B2DC385A1;
-        Thu, 14 Apr 2022 13:49:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C18DB82941;
+        Thu, 14 Apr 2022 13:28:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8933C385A1;
+        Thu, 14 Apr 2022 13:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944179;
-        bh=mR2O/g+rjFObtLuc8qXfsCZ+aho+SVwU90zDb6t0Px0=;
+        s=korg; t=1649942904;
+        bh=R6HGfcENthV3OG7hc+h2wMcHLrbDfmMblPuwkbgbh5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c855c0DOIhTykme6jXXGE0qkDcs/gmkHaFCKaTZ9vDq3PdTgRAxXKVj1mhjKjGUCR
-         S69tEEAnxHvDE/QLkGB5mlQ5cm1c3tN0Ts+Snnf+CJuCXfyFGrTzm7NF4IFzXA0ddZ
-         0hCsnZbqw5fPK4SEICFekoV1W9OoqIj0pN/nzjbA=
+        b=wxW3+PD8wibdY3Bw16bexmNZMaBMhHyJ1IMY3ooRJk/i7FnWrKYQtt7laXUb6QSbr
+         lYdVa46lLKgVvIMPxk7nOHv4NfEXalaZQOh4WjPd0LqjSwyDMrzXhFR6JLJZbcnCvB
+         I2stvhAdptgdH20Djc/03jaCblislSpplMJhw5sA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 421/475] parisc: Fix patch code locking and flushing
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 303/338] drm/amdgpu: fix off by one in amdgpu_gfx_kiq_acquire()
 Date:   Thu, 14 Apr 2022 15:13:26 +0200
-Message-Id: <20220414110906.842016034@linuxfoundation.org>
+Message-Id: <20220414110847.508767904@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a9fe7fa7d874a536e0540469f314772c054a0323 ]
+[ Upstream commit 1647b54ed55d4d48c7199d439f8834626576cbe9 ]
 
-This change fixes the following:
+This post-op should be a pre-op so that we do not pass -1 as the bit
+number to test_bit().  The current code will loop downwards from 63 to
+-1.  After changing to a pre-op, it loops from 63 to 0.
 
-1) The flags variable is not initialized. Always use raw_spin_lock_irqsave
-and raw_spin_unlock_irqrestore to serialize patching.
-
-2) flush_kernel_vmap_range is primarily intended for DMA flushes. Since
-__patch_text_multiple is often called with interrupts disabled, it is
-better to directly call flush_kernel_dcache_range_asm and
-flush_kernel_icache_range_asm. This avoids an extra call.
-
-3) The final call to flush_icache_range is unnecessary.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 71c37505e7ea ("drm/amdgpu/gfx: move more common KIQ code to amdgpu_gfx.c")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/patch.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/parisc/kernel/patch.c b/arch/parisc/kernel/patch.c
-index 80a0ab372802..e59574f65e64 100644
---- a/arch/parisc/kernel/patch.c
-+++ b/arch/parisc/kernel/patch.c
-@@ -40,10 +40,7 @@ static void __kprobes *patch_map(void *addr, int fixmap, unsigned long *flags,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+index 239bf2a4b3c6..eeaa2e825858 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+@@ -173,7 +173,7 @@ static int amdgpu_gfx_kiq_acquire(struct amdgpu_device *adev,
+ 		    * adev->gfx.mec.num_pipe_per_mec
+ 		    * adev->gfx.mec.num_queue_per_pipe;
  
- 	*need_unmap = 1;
- 	set_fixmap(fixmap, page_to_phys(page));
--	if (flags)
--		raw_spin_lock_irqsave(&patch_lock, *flags);
--	else
--		__acquire(&patch_lock);
-+	raw_spin_lock_irqsave(&patch_lock, *flags);
+-	while (queue_bit-- >= 0) {
++	while (--queue_bit >= 0) {
+ 		if (test_bit(queue_bit, adev->gfx.mec.queue_bitmap))
+ 			continue;
  
- 	return (void *) (__fix_to_virt(fixmap) + (uintaddr & ~PAGE_MASK));
- }
-@@ -52,10 +49,7 @@ static void __kprobes patch_unmap(int fixmap, unsigned long *flags)
- {
- 	clear_fixmap(fixmap);
- 
--	if (flags)
--		raw_spin_unlock_irqrestore(&patch_lock, *flags);
--	else
--		__release(&patch_lock);
-+	raw_spin_unlock_irqrestore(&patch_lock, *flags);
- }
- 
- void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
-@@ -67,8 +61,9 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 	int mapped;
- 
- 	/* Make sure we don't have any aliases in cache */
--	flush_kernel_vmap_range(addr, len);
--	flush_icache_range(start, end);
-+	flush_kernel_dcache_range_asm(start, end);
-+	flush_kernel_icache_range_asm(start, end);
-+	flush_tlb_kernel_range(start, end);
- 
- 	p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags, &mapped);
- 
-@@ -81,8 +76,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 			 * We're crossing a page boundary, so
- 			 * need to remap
- 			 */
--			flush_kernel_vmap_range((void *)fixmap,
--						(p-fixmap) * sizeof(*p));
-+			flush_kernel_dcache_range_asm((unsigned long)fixmap,
-+						      (unsigned long)p);
-+			flush_tlb_kernel_range((unsigned long)fixmap,
-+					       (unsigned long)p);
- 			if (mapped)
- 				patch_unmap(FIX_TEXT_POKE0, &flags);
- 			p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags,
-@@ -90,10 +87,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 		}
- 	}
- 
--	flush_kernel_vmap_range((void *)fixmap, (p-fixmap) * sizeof(*p));
-+	flush_kernel_dcache_range_asm((unsigned long)fixmap, (unsigned long)p);
-+	flush_tlb_kernel_range((unsigned long)fixmap, (unsigned long)p);
- 	if (mapped)
- 		patch_unmap(FIX_TEXT_POKE0, &flags);
--	flush_icache_range(start, end);
- }
- 
- void __kprobes __patch_text(void *addr, u32 insn)
 -- 
 2.35.1
 
