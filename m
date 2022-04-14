@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7D0A5012F7
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C875010FA
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236551AbiDNNr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:47:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35334 "EHLO
+        id S245267AbiDNNsR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343942AbiDNNjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:31 -0400
+        with ESMTP id S1343956AbiDNNjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:32 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CB28A8EDB;
-        Thu, 14 Apr 2022 06:35:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 305DDA94E2;
+        Thu, 14 Apr 2022 06:35:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DBD2A61D70;
-        Thu, 14 Apr 2022 13:35:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8527C385A1;
-        Thu, 14 Apr 2022 13:35:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1E9461D29;
+        Thu, 14 Apr 2022 13:35:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA023C385A1;
+        Thu, 14 Apr 2022 13:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943337;
-        bh=WDYk853cnf7XgNf3KD/FCThRZet/E/qBvqM1/yjX7og=;
+        s=korg; t=1649943340;
+        bh=zEeKefMZYRslSx40JLS5O+6+t08QoeqPa7ZuL/Iyqg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mj2SljdI7uf2hUgeydgwAhbJ7NhOxVSRxz+hQU3tQF67Jyk/UeprXOIB1ozbGGmpu
-         9d14c2RuF9ygdYoFs+bwFQ91wtf6vbrYUoIB4B9RP/pDIs+7nJ38lCLwKcKy0LAOXo
-         cA1ME2qUBG1+Jy02DfHc449025id12M5yC1GT7Vw=
+        b=L4QcMyCk6hluYj5p9hell/IKZFBGJ416D/UEGliKC1N/ysEouPCki+ZPOaTXx1dXW
+         WcAwsBxDUu7TEIJiLsMio+l9m9u3eoNrsyAkM6M8mSFXGhwZWrOfbkIaOexDgDhhYo
+         ZezwDQolHloEw6VS4HtefS0lP68iWVlo9U1FfFuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 118/475] video: fbdev: atmel_lcdfb: fix an error code in atmel_lcdfb_probe()
-Date:   Thu, 14 Apr 2022 15:08:23 +0200
-Message-Id: <20220414110858.454507840@linuxfoundation.org>
+Subject: [PATCH 5.4 119/475] video: fbdev: fbcvt.c: fix printing in fb_cvt_print_name()
+Date:   Thu, 14 Apr 2022 15:08:24 +0200
+Message-Id: <20220414110858.482690346@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,46 +55,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit fee5c1e4b789e41719af9fee0e2dd397cd31988f ]
+[ Upstream commit 78482af095abd9f4f29f1aa3fe575d25c6ae3028 ]
 
-If "sinfo->config" is not found, then return -ENODEV.  Don't
-return success.
+This code has two bugs:
+1) "cnt" is 255 but the size of the buffer is 256 so the last byte is
+   not used.
+2) If we try to print more than 255 characters then "cnt" will be
+   negative and that will trigger a WARN() in snprintf(). The fix for
+   this is to use scnprintf() instead of snprintf().
 
-Fixes: b985172b328a ("video: atmel_lcdfb: add device tree suport")
+We can re-write this code to be cleaner:
+1) Rename "offset" to "off" because that's shorter.
+2) Get rid of the "cnt" variable and just use "size - off" directly.
+3) Get rid of the "read" variable and just increment "off" directly.
+
+Fixes: 96fe6a2109db ("fbdev: Add VESA Coordinated Video Timings (CVT) support")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/atmel_lcdfb.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/video/fbdev/core/fbcvt.c | 53 +++++++++++++-------------------
+ 1 file changed, 21 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/video/fbdev/atmel_lcdfb.c b/drivers/video/fbdev/atmel_lcdfb.c
-index cf2bfff2efbf..b91919861075 100644
---- a/drivers/video/fbdev/atmel_lcdfb.c
-+++ b/drivers/video/fbdev/atmel_lcdfb.c
-@@ -1062,15 +1062,16 @@ static int __init atmel_lcdfb_probe(struct platform_device *pdev)
+diff --git a/drivers/video/fbdev/core/fbcvt.c b/drivers/video/fbdev/core/fbcvt.c
+index 55d2bd0ce5c0..64843464c661 100644
+--- a/drivers/video/fbdev/core/fbcvt.c
++++ b/drivers/video/fbdev/core/fbcvt.c
+@@ -214,9 +214,11 @@ static u32 fb_cvt_aspect_ratio(struct fb_cvt_data *cvt)
+ static void fb_cvt_print_name(struct fb_cvt_data *cvt)
+ {
+ 	u32 pixcount, pixcount_mod;
+-	int cnt = 255, offset = 0, read = 0;
+-	u8 *buf = kzalloc(256, GFP_KERNEL);
++	int size = 256;
++	int off = 0;
++	u8 *buf;
  
- 	INIT_LIST_HEAD(&info->modelist);
++	buf = kzalloc(size, GFP_KERNEL);
+ 	if (!buf)
+ 		return;
  
--	if (pdev->dev.of_node) {
--		ret = atmel_lcdfb_of_init(sinfo);
--		if (ret)
--			goto free_info;
--	} else {
-+	if (!pdev->dev.of_node) {
- 		dev_err(dev, "cannot get default configuration\n");
- 		goto free_info;
+@@ -224,43 +226,30 @@ static void fb_cvt_print_name(struct fb_cvt_data *cvt)
+ 	pixcount_mod = (cvt->xres * (cvt->yres/cvt->interlace)) % 1000000;
+ 	pixcount_mod /= 1000;
+ 
+-	read = snprintf(buf+offset, cnt, "fbcvt: %dx%d@%d: CVT Name - ",
+-			cvt->xres, cvt->yres, cvt->refresh);
+-	offset += read;
+-	cnt -= read;
++	off += scnprintf(buf + off, size - off, "fbcvt: %dx%d@%d: CVT Name - ",
++			    cvt->xres, cvt->yres, cvt->refresh);
+ 
+-	if (cvt->status)
+-		snprintf(buf+offset, cnt, "Not a CVT standard - %d.%03d Mega "
+-			 "Pixel Image\n", pixcount, pixcount_mod);
+-	else {
+-		if (pixcount) {
+-			read = snprintf(buf+offset, cnt, "%d", pixcount);
+-			cnt -= read;
+-			offset += read;
+-		}
++	if (cvt->status) {
++		off += scnprintf(buf + off, size - off,
++				 "Not a CVT standard - %d.%03d Mega Pixel Image\n",
++				 pixcount, pixcount_mod);
++	} else {
++		if (pixcount)
++			off += scnprintf(buf + off, size - off, "%d", pixcount);
+ 
+-		read = snprintf(buf+offset, cnt, ".%03dM", pixcount_mod);
+-		cnt -= read;
+-		offset += read;
++		off += scnprintf(buf + off, size - off, ".%03dM", pixcount_mod);
+ 
+ 		if (cvt->aspect_ratio == 0)
+-			read = snprintf(buf+offset, cnt, "3");
++			off += scnprintf(buf + off, size - off, "3");
+ 		else if (cvt->aspect_ratio == 3)
+-			read = snprintf(buf+offset, cnt, "4");
++			off += scnprintf(buf + off, size - off, "4");
+ 		else if (cvt->aspect_ratio == 1 || cvt->aspect_ratio == 4)
+-			read = snprintf(buf+offset, cnt, "9");
++			off += scnprintf(buf + off, size - off, "9");
+ 		else if (cvt->aspect_ratio == 2)
+-			read = snprintf(buf+offset, cnt, "A");
+-		else
+-			read = 0;
+-		cnt -= read;
+-		offset += read;
+-
+-		if (cvt->flags & FB_CVT_FLAG_REDUCED_BLANK) {
+-			read = snprintf(buf+offset, cnt, "-R");
+-			cnt -= read;
+-			offset += read;
+-		}
++			off += scnprintf(buf + off, size - off, "A");
++
++		if (cvt->flags & FB_CVT_FLAG_REDUCED_BLANK)
++			off += scnprintf(buf + off, size - off, "-R");
  	}
  
-+	ret = atmel_lcdfb_of_init(sinfo);
-+	if (ret)
-+		goto free_info;
-+
-+	ret = -ENODEV;
- 	if (!sinfo->config)
- 		goto free_info;
- 
+ 	printk(KERN_INFO "%s\n", buf);
 -- 
 2.34.1
 
