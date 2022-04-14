@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A09C95012EA
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6BD45014A4
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233839AbiDNOHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:07:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
+        id S245214AbiDNOIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:08:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347711AbiDNN7a (ORCPT
+        with ESMTP id S1347712AbiDNN7a (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DC6EBB92A;
-        Thu, 14 Apr 2022 06:52:01 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84C66BB900;
+        Thu, 14 Apr 2022 06:52:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 262F2B82991;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A61A61E2F;
+        Thu, 14 Apr 2022 13:52:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D80EC385A9;
         Thu, 14 Apr 2022 13:52:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E7C5C385A5;
-        Thu, 14 Apr 2022 13:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944318;
-        bh=GnmKCvE+ByfuYzISgpPJ3qaRhO1tC7mUEen+1h7+eto=;
+        s=korg; t=1649944321;
+        bh=BbAbQTiD5sPKd5mjvDKHGYczpcz1xT3MGOGL0xfKAHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VzcHfJW8lP5oInsAvWLbS33eR0p8rzr6aHvQLNxyW3UPdRv7/5HJSq3L2XJqn9kSu
-         Q3acZZu/Iwb4immByA2vGw3rkzKd9C8f5Evl1LYejPzzl3oIx0k6I6YVEHn+RaQ1p5
-         GaZHxWXC1xIoL9VPmO4XvwvEZOetGmu+EW4q/y3I=
+        b=rFjfUQZpGYalK5uQ44XhJpnMvMQ6utX0SF/d+2wuTrSGm1hU6eEL9uZPib5hkCx4N
+         jT9ENYEL6DRHGKxMZYiVziSIc9oc4fv4FZ9TWTvailZliCtQ4q3BnH7Dm6gPCDhTbf
+         mwez5isAhrsVxamzVgUoCp2GWKTt7S7JgdSvIz1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
         Tejun Heo <tj@kernel.org>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 471/475] selftests: cgroup: Make cg_create() use 0755 for permission instead of 0644
-Date:   Thu, 14 Apr 2022 15:14:16 +0200
-Message-Id: <20220414110908.237958598@linuxfoundation.org>
+Subject: [PATCH 5.4 472/475] selftests: cgroup: Test open-time credential usage for migration checks
+Date:   Thu, 14 Apr 2022 15:14:17 +0200
+Message-Id: <20220414110908.266181813@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,29 +56,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tejun Heo <tj@kernel.org>
 
-commit b09c2baa56347ae65795350dfcc633dedb1c2970 upstream.
+commit 613e040e4dc285367bff0f8f75ea59839bc10947 upstream.
 
-0644 is an odd perm to create a cgroup which is a directory. Use the regular
-0755 instead. This is necessary for euid switching test case.
+When a task is writing to an fd opened by a different task, the perm check
+should use the credentials of the latter task. Add a test for it.
 
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Tested-by: Michal Koutný <mkoutny@suse.com>
 Signed-off-by: Tejun Heo <tj@kernel.org>
+[OP: backport to v5.4: adjust context]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/cgroup/cgroup_util.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/cgroup/test_core.c |   68 +++++++++++++++++++++++++++++
+ 1 file changed, 68 insertions(+)
 
---- a/tools/testing/selftests/cgroup/cgroup_util.c
-+++ b/tools/testing/selftests/cgroup/cgroup_util.c
-@@ -202,7 +202,7 @@ int cg_find_unified_root(char *root, siz
- 
- int cg_create(const char *cgroup)
- {
--	return mkdir(cgroup, 0644);
-+	return mkdir(cgroup, 0755);
+--- a/tools/testing/selftests/cgroup/test_core.c
++++ b/tools/testing/selftests/cgroup/test_core.c
+@@ -354,6 +354,73 @@ cleanup:
+ 	return ret;
  }
  
- int cg_wait_for_proc_count(const char *cgroup, int count)
++/*
++ * cgroup migration permission check should be performed based on the
++ * credentials at the time of open instead of write.
++ */
++static int test_cgcore_lesser_euid_open(const char *root)
++{
++	const uid_t test_euid = 65534;	/* usually nobody, any !root is fine */
++	int ret = KSFT_FAIL;
++	char *cg_test_a = NULL, *cg_test_b = NULL;
++	char *cg_test_a_procs = NULL, *cg_test_b_procs = NULL;
++	int cg_test_b_procs_fd = -1;
++	uid_t saved_uid;
++
++	cg_test_a = cg_name(root, "cg_test_a");
++	cg_test_b = cg_name(root, "cg_test_b");
++
++	if (!cg_test_a || !cg_test_b)
++		goto cleanup;
++
++	cg_test_a_procs = cg_name(cg_test_a, "cgroup.procs");
++	cg_test_b_procs = cg_name(cg_test_b, "cgroup.procs");
++
++	if (!cg_test_a_procs || !cg_test_b_procs)
++		goto cleanup;
++
++	if (cg_create(cg_test_a) || cg_create(cg_test_b))
++		goto cleanup;
++
++	if (cg_enter_current(cg_test_a))
++		goto cleanup;
++
++	if (chown(cg_test_a_procs, test_euid, -1) ||
++	    chown(cg_test_b_procs, test_euid, -1))
++		goto cleanup;
++
++	saved_uid = geteuid();
++	if (seteuid(test_euid))
++		goto cleanup;
++
++	cg_test_b_procs_fd = open(cg_test_b_procs, O_RDWR);
++
++	if (seteuid(saved_uid))
++		goto cleanup;
++
++	if (cg_test_b_procs_fd < 0)
++		goto cleanup;
++
++	if (write(cg_test_b_procs_fd, "0", 1) >= 0 || errno != EACCES)
++		goto cleanup;
++
++	ret = KSFT_PASS;
++
++cleanup:
++	cg_enter_current(root);
++	if (cg_test_b_procs_fd >= 0)
++		close(cg_test_b_procs_fd);
++	if (cg_test_b)
++		cg_destroy(cg_test_b);
++	if (cg_test_a)
++		cg_destroy(cg_test_a);
++	free(cg_test_b_procs);
++	free(cg_test_a_procs);
++	free(cg_test_b);
++	free(cg_test_a);
++	return ret;
++}
++
+ #define T(x) { x, #x }
+ struct corecg_test {
+ 	int (*fn)(const char *root);
+@@ -366,6 +433,7 @@ struct corecg_test {
+ 	T(test_cgcore_parent_becomes_threaded),
+ 	T(test_cgcore_invalid_domain),
+ 	T(test_cgcore_populated),
++	T(test_cgcore_lesser_euid_open),
+ };
+ #undef T
+ 
 
 
