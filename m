@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF4150135B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4929501189
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344610AbiDNNtW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35550 "EHLO
+        id S1344580AbiDNNtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343791AbiDNNjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:23 -0400
+        with ESMTP id S1343805AbiDNNjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D7C30557;
-        Thu, 14 Apr 2022 06:34:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F82D31220;
+        Thu, 14 Apr 2022 06:34:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C96BB8296A;
-        Thu, 14 Apr 2022 13:34:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A18C7C385A1;
-        Thu, 14 Apr 2022 13:34:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15A84B82968;
+        Thu, 14 Apr 2022 13:34:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CBDC385A1;
+        Thu, 14 Apr 2022 13:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943290;
-        bh=9xVC0t8fE1nc9iethMyli5nPUonY6Z+rOanOsf8awNw=;
+        s=korg; t=1649943292;
+        bh=iiGN8GFP5iON9gvPYg50r+k/HKhQy8VR5whe/C2Z20Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ge8UWJ0S6AFd7OeJnqfThYvWVTbkAahHAvBJjDrK3QTyIvklh22oyPcCrErdlnhUf
-         xSM8QXg2g5dDKL3ovB2FDXpoHhJkrplqyC9snTJUZlyVfdoSDZFVy01+L5w/IQAy4H
-         PBz5RlNArGUMlTmAbol5Fp+MY4BpdtFbxZhFAe6M=
+        b=qZs4hajMjpj/zene9pp+gQcaf52jj1ETBPm3T9+kv0q2mbYpDn7VFQwFP6/kCjxAw
+         +mJuxuq9F4Kv6I2mRqhXUn4/ixacgQUocICB3ABhiTehOoK/Zo4aNHRe0pwBjdAFDu
+         p+8P0hY/2JYWUd9qoFAPA9T+VwlxqGXjOxD0Sakk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/475] clocksource/drivers/timer-of: Check return value of of_iomap in timer_of_base_init()
-Date:   Thu, 14 Apr 2022 15:08:08 +0200
-Message-Id: <20220414110858.036715290@linuxfoundation.org>
+Subject: [PATCH 5.4 104/475] ACPI: APEI: fix return value of __setup handlers
+Date:   Thu, 14 Apr 2022 15:08:09 +0200
+Message-Id: <20220414110858.064345260@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,42 +56,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Ranquet <granquet@baylibre.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 4467b8bad2401794fb89a0268c8c8257180bf60f ]
+[ Upstream commit f3303ff649dbf7dcdc6a6e1a922235b12b3028f4 ]
 
-of_base->base can either be iomapped using of_io_request_and_map() or
-of_iomap() depending whether or not an of_base->name has been set.
+__setup() handlers should return 1 to indicate that the boot option
+has been handled. Returning 0 causes a boot option to be listed in
+the Unknown kernel command line parameters and also added to init's
+arg list (if no '=' sign) or environment list (if of the form 'a=b').
 
-Thus check of_base->base against NULL as of_iomap() does not return a
-PTR_ERR() in case of error.
+Unknown kernel command line parameters "erst_disable
+  bert_disable hest_disable BOOT_IMAGE=/boot/bzImage-517rc6", will be
+  passed to user space.
 
-Fixes: 9aea417afa6b ("clocksource/drivers/timer-of: Don't request the resource by name")
-Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
-Link: https://lore.kernel.org/r/20220307172656.4836-1-granquet@baylibre.com
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+     erst_disable
+     bert_disable
+     hest_disable
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc6
+
+Fixes: a3e2acc5e37b ("ACPI / APEI: Add Boot Error Record Table (BERT) support")
+Fixes: a08f82d08053 ("ACPI, APEI, Error Record Serialization Table (ERST) support")
+Fixes: 9dc966641677 ("ACPI, APEI, HEST table parsing")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/timer-of.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/apei/bert.c | 2 +-
+ drivers/acpi/apei/erst.c | 2 +-
+ drivers/acpi/apei/hest.c | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clocksource/timer-of.c b/drivers/clocksource/timer-of.c
-index a3c73e972fce..bf2a6f64ba0c 100644
---- a/drivers/clocksource/timer-of.c
-+++ b/drivers/clocksource/timer-of.c
-@@ -157,9 +157,9 @@ static __init int timer_of_base_init(struct device_node *np,
- 	of_base->base = of_base->name ?
- 		of_io_request_and_map(np, of_base->index, of_base->name) :
- 		of_iomap(np, of_base->index);
--	if (IS_ERR(of_base->base)) {
--		pr_err("Failed to iomap (%s)\n", of_base->name);
--		return PTR_ERR(of_base->base);
-+	if (IS_ERR_OR_NULL(of_base->base)) {
-+		pr_err("Failed to iomap (%s:%s)\n", np->name, of_base->name);
-+		return of_base->base ? PTR_ERR(of_base->base) : -ENOMEM;
- 	}
+diff --git a/drivers/acpi/apei/bert.c b/drivers/acpi/apei/bert.c
+index 1155fb9dcc3a..08d820c04618 100644
+--- a/drivers/acpi/apei/bert.c
++++ b/drivers/acpi/apei/bert.c
+@@ -77,7 +77,7 @@ static int __init setup_bert_disable(char *str)
+ {
+ 	bert_disable = 1;
  
- 	return 0;
+-	return 0;
++	return 1;
+ }
+ __setup("bert_disable", setup_bert_disable);
+ 
+diff --git a/drivers/acpi/apei/erst.c b/drivers/acpi/apei/erst.c
+index 2015a0967cbb..5ee3cb7fcd90 100644
+--- a/drivers/acpi/apei/erst.c
++++ b/drivers/acpi/apei/erst.c
+@@ -891,7 +891,7 @@ EXPORT_SYMBOL_GPL(erst_clear);
+ static int __init setup_erst_disable(char *str)
+ {
+ 	erst_disable = 1;
+-	return 0;
++	return 1;
+ }
+ 
+ __setup("erst_disable", setup_erst_disable);
+diff --git a/drivers/acpi/apei/hest.c b/drivers/acpi/apei/hest.c
+index 267bdbf6a7bf..add6416e78f2 100644
+--- a/drivers/acpi/apei/hest.c
++++ b/drivers/acpi/apei/hest.c
+@@ -219,7 +219,7 @@ static int __init hest_ghes_dev_register(unsigned int ghes_count)
+ static int __init setup_hest_disable(char *str)
+ {
+ 	hest_disable = HEST_DISABLED;
+-	return 0;
++	return 1;
+ }
+ 
+ __setup("hest_disable", setup_hest_disable);
 -- 
 2.34.1
 
