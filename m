@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0240C50117D
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:59:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE3250115F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241113AbiDNN7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:59:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
+        id S244633AbiDNNhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344055AbiDNNue (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:50:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC07AE4F;
-        Thu, 14 Apr 2022 06:44:22 -0700 (PDT)
+        with ESMTP id S244946AbiDNN2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64DBE92D21;
+        Thu, 14 Apr 2022 06:21:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 31F45CE296C;
-        Thu, 14 Apr 2022 13:44:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4286DC385AC;
-        Thu, 14 Apr 2022 13:44:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 102BFB82910;
+        Thu, 14 Apr 2022 13:21:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F6BCC385A5;
+        Thu, 14 Apr 2022 13:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943859;
-        bh=WTTgE0jq1ET24nxFgkUnERXPbOwuOz6l4qpBGMY5MV0=;
+        s=korg; t=1649942479;
+        bh=l7d66aP+CP5ElLEDAcENCaR7JrvXmzpPHGCIoregqro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fVTwJNyPkgfF9euSFwVgAoVAL+t+CdKuMUJydZZGkmYPD3DAmc+KOLRtLDsVT9mmY
-         QWmuslCBNH1iK1BHXYPZs2aAUUFslStlHyw+UWVT2cXyVjKYjgusfVM6vlBkQlk7Ai
-         i/OCVmzgwE/Rfbis/uTsijvAawE8QuuLDAtYZD4s=
+        b=gk9lVol0HIQdqB7789naBQeST194xertex+2jFQBh9a1X5wV5LT/bG8q4oRZxV1OW
+         F2Yr/cMbUMn6lnRXrD6lZrmLm34LIvXBb1oWEsRvTL5Q0XKS6Rg78tOq7cGPqKGIj5
+         CCMfP4KKDp5V8VOb8XuWtU6hqbTgj8O7vJnBJCko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
+        Phil Sutter <n0-1@freewrt.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Daniel Walter <dwalter@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 267/475] selftests: test_vxlan_under_vrf: Fix broken test case
+Subject: [PATCH 4.19 149/338] MIPS: RB532: fix return value of __setup handler
 Date:   Thu, 14 Apr 2022 15:10:52 +0200
-Message-Id: <20220414110902.579470253@linuxfoundation.org>
+Message-Id: <20220414110843.144141518@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +61,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit b50d3b46f84282d795ae3076111acb75ae1031f3 ]
+[ Upstream commit 8755d57ba1ff910666572fab9e32890e8cc6ed3b ]
 
-The purpose of the last test case is to test VXLAN encapsulation and
-decapsulation when the underlay lookup takes place in a non-default VRF.
-This is achieved by enslaving the physical device of the tunnel to a
-VRF.
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled.
+A return of 0 causes the boot option/value to be listed as an Unknown
+kernel parameter and added to init's (limited) argument or environment
+strings. Also, error return codes don't mean anything to
+obsolete_checksetup() -- only non-zero (usually 1) or zero.
+So return 1 from setup_kmac().
 
-The binding of the VXLAN UDP socket to the VRF happens when the VXLAN
-device itself is opened, not when its physical device is opened. This
-was also mentioned in the cited commit ("tests that moving the underlay
-from a VRF to another works when down/up the VXLAN interface"), but the
-test did something else.
-
-Fix it by reopening the VXLAN device instead of its physical device.
-
-Before:
-
- # ./test_vxlan_under_vrf.sh
- Checking HV connectivity                                           [ OK ]
- Check VM connectivity through VXLAN (underlay in the default VRF)  [ OK ]
- Check VM connectivity through VXLAN (underlay in a VRF)            [FAIL]
-
-After:
-
- # ./test_vxlan_under_vrf.sh
- Checking HV connectivity                                           [ OK ]
- Check VM connectivity through VXLAN (underlay in the default VRF)  [ OK ]
- Check VM connectivity through VXLAN (underlay in a VRF)            [ OK ]
-
-Fixes: 03f1c26b1c56 ("test/net: Add script for VXLAN underlay in a VRF")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220324200514.1638326-1-idosch@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 9e21c7e40b7e ("MIPS: RB532: Replace parse_mac_addr() with mac_pton().")
+Fixes: 73b4390fb234 ("[MIPS] Routerboard 532: Support for base system")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+From: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Phil Sutter <n0-1@freewrt.org>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Daniel Walter <dwalter@google.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/test_vxlan_under_vrf.sh | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/mips/rb532/devices.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/net/test_vxlan_under_vrf.sh b/tools/testing/selftests/net/test_vxlan_under_vrf.sh
-index 09f9ed92cbe4..a44b9aca7427 100755
---- a/tools/testing/selftests/net/test_vxlan_under_vrf.sh
-+++ b/tools/testing/selftests/net/test_vxlan_under_vrf.sh
-@@ -118,11 +118,11 @@ echo "[ OK ]"
+diff --git a/arch/mips/rb532/devices.c b/arch/mips/rb532/devices.c
+index 354d258396ff..6624fe15839a 100644
+--- a/arch/mips/rb532/devices.c
++++ b/arch/mips/rb532/devices.c
+@@ -315,11 +315,9 @@ static int __init plat_setup_devices(void)
+ static int __init setup_kmac(char *s)
+ {
+ 	printk(KERN_INFO "korina mac = %s\n", s);
+-	if (!mac_pton(s, korina_dev0_data.mac)) {
++	if (!mac_pton(s, korina_dev0_data.mac))
+ 		printk(KERN_ERR "Invalid mac\n");
+-		return -EINVAL;
+-	}
+-	return 0;
++	return 1;
+ }
  
- # Move the underlay to a non-default VRF
- ip -netns hv-1 link set veth0 vrf vrf-underlay
--ip -netns hv-1 link set veth0 down
--ip -netns hv-1 link set veth0 up
-+ip -netns hv-1 link set vxlan0 down
-+ip -netns hv-1 link set vxlan0 up
- ip -netns hv-2 link set veth0 vrf vrf-underlay
--ip -netns hv-2 link set veth0 down
--ip -netns hv-2 link set veth0 up
-+ip -netns hv-2 link set vxlan0 down
-+ip -netns hv-2 link set vxlan0 up
- 
- echo -n "Check VM connectivity through VXLAN (underlay in a VRF)            "
- ip netns exec vm-1 ping -c 1 -W 1 10.0.0.2 &> /dev/null || (echo "[FAIL]"; false)
+ __setup("kmac=", setup_kmac);
 -- 
 2.34.1
 
