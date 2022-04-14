@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C7795014CF
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CCE5015E6
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244663AbiDNNfY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:35:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56790 "EHLO
+        id S243737AbiDNOPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:15:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344013AbiDNNaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A524992876;
-        Thu, 14 Apr 2022 06:26:14 -0700 (PDT)
+        with ESMTP id S1346456AbiDNN5K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6E45FF0B;
+        Thu, 14 Apr 2022 06:46:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41CF8612B3;
-        Thu, 14 Apr 2022 13:26:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 540C8C385A1;
-        Thu, 14 Apr 2022 13:26:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C395B82985;
+        Thu, 14 Apr 2022 13:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3495C385A5;
+        Thu, 14 Apr 2022 13:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942773;
-        bh=jpf1n49PwEk7KXAiKU/xbsttVCN7nX+VUnABwoWLeKo=;
+        s=korg; t=1649943998;
+        bh=+r+nESv/qzOm6IdEf29mDmUPKKrFEOEg5L6QpN7iQjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqPwYPCRQsqkcCWTn058u4UXywuWn1gPi4c2dCPgnYeb7mFKbonN5jNH0YCo4RhKs
-         AwcTYD8Ck2UD2J54LqjrFlLD7ptCoYCSi58gLOwuYn2LKYwmMjqcOzLSmGT+TS4qdP
-         KsxcVIjyBl2cWShHVN2vQ3UdG77NICmYp/b830x0=
+        b=0wxejdwaRORRR0TsWDqP58k3TZmjVvoR2mqAnC0mNdQoB/V9w4lfvtJU4P7ICVlzC
+         3AQdS2jqL/20F0r0T5Z1yFvwnBW+wWCYpGrrgMexxsqXmvycV6vipmj7Z14t84tser
+         crP5+bYAT9HttWRmYzWekHuPMYH1qb5cEVl21GXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 239/338] can: mcba_usb: mcba_usb_start_xmit(): fix double dev_kfree_skb in error path
-Date:   Thu, 14 Apr 2022 15:12:22 +0200
-Message-Id: <20220414110845.695262825@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 358/475] dt-bindings: mtd: nand-controller: Fix a comment in the examples
+Date:   Thu, 14 Apr 2022 15:12:23 +0200
+Message-Id: <20220414110905.101640914@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 04c9b00ba83594a29813d6b1fb8fdc93a3915174 upstream.
+commit 0e7f1b557974ce297e5e4c9d4245720fbb489886 upstream.
 
-There is no need to call dev_kfree_skb() when usb_submit_urb() fails
-because can_put_echo_skb() deletes original skb and
-can_free_echo_skb() deletes the cloned skb.
+The controller properties should be in the controller 'parent' node,
+while properties in the children nodes are specific to the NAND
+*chip*. This error was already present during the yaml conversion.
 
-Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
-Link: https://lore.kernel.org/all/20220311080208.45047-1-hbh25y@gmail.com
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 2d472aba15ff ("mtd: nand: document the NAND controller/NAND chip DT representation")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20211216111654.238086-3-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/mcba_usb.c |    1 -
- 1 file changed, 1 deletion(-)
+ Documentation/devicetree/bindings/mtd/nand-controller.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/mcba_usb.c
-+++ b/drivers/net/can/usb/mcba_usb.c
-@@ -379,7 +379,6 @@ static netdev_tx_t mcba_usb_start_xmit(s
- xmit_failed:
- 	can_free_echo_skb(priv->netdev, ctx->ndx);
- 	mcba_usb_free_ctx(ctx);
--	dev_kfree_skb(skb);
- 	stats->tx_dropped++;
+--- a/Documentation/devicetree/bindings/mtd/nand-controller.yaml
++++ b/Documentation/devicetree/bindings/mtd/nand-controller.yaml
+@@ -139,6 +139,6 @@ examples:
+         nand-ecc-mode = "soft";
+         nand-ecc-algo = "bch";
  
- 	return NETDEV_TX_OK;
+-        /* controller specific properties */
++        /* NAND chip specific properties */
+       };
+     };
 
 
