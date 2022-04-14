@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92515501422
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E82A501515
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235061AbiDNOCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:02:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56944 "EHLO
+        id S244567AbiDNNem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:34:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345589AbiDNNxr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:53:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC726ABF6A;
-        Thu, 14 Apr 2022 06:44:58 -0700 (PDT)
+        with ESMTP id S245715AbiDNN3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E39AFAE7;
+        Thu, 14 Apr 2022 06:23:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57F7161BA7;
-        Thu, 14 Apr 2022 13:44:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 651ABC385AA;
-        Thu, 14 Apr 2022 13:44:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B342B82983;
+        Thu, 14 Apr 2022 13:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96230C385A9;
+        Thu, 14 Apr 2022 13:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943897;
-        bh=+CHxBjUPAssW2Q28/oiH/OK/B0WMnIHTpv9bWzb9PXQ=;
+        s=korg; t=1649942627;
+        bh=gTMrMCC1RQkVhABduM/2Eg06saCccssHNFDPRbEfmG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQmVSmlQU4xbEj3riXHjpUkB6TaeB7EwCw7jsTAvZNilCZIJCy1Z2M5nns0qN+BED
-         3Qyk68w5EYmaov3MLPcMygHWz5CjOCCOqB5xq3t8TGf/rMX0BCyuZ+rcLqa7MdjKlY
-         ajbUBywE9weUtlGEkLFl+nBWqDWJJk5Jmp/NLP/o=
+        b=BnsDGy6TH5Lk5vRLu22On+ON5KWZCIR1Kh0XVS4bPCV29UjO5C3hmHfGwco3t2NRy
+         uABg2hNF58XDyMcZo1qVRaP2vJir1rtajR7NmPyVTPdixujoMqjN6LqRG8befFoz8e
+         jwCXQbIRWAV8oVIfvgdmb6NC+bJvh30zlNDmuIr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 322/475] scsi: qla2xxx: Fix incorrect reporting of task management failure
+        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 204/338] video: fbdev: cirrusfb: check pixclock to avoid divide by zero
 Date:   Thu, 14 Apr 2022 15:11:47 +0200
-Message-Id: <20220414110904.099377079@linuxfoundation.org>
+Message-Id: <20220414110844.699774428@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 58ca5999e0367d131de82a75257fbfd5aed0195d upstream.
+[ Upstream commit 5c6f402bdcf9e7239c6bc7087eda71ac99b31379 ]
 
-User experienced no task management error while target device is responding
-with error. The RSP_CODE field in the status IOCB is in little endian.
-Driver assumes it's big endian and it picked up erroneous data.
+Do a sanity check on pixclock value to avoid divide by zero.
 
-Convert the data back to big endian as is on the wire.
+If the pixclock value is zero, the cirrusfb driver will round up
+pixclock to get the derived frequency as close to maxclock as
+possible.
 
-Link: https://lore.kernel.org/r/20220310092604.22950-2-njavali@marvell.com
-Fixes: faef62d13463 ("[SCSI] qla2xxx: Fix Task Management command asynchronous handling")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Syzkaller reported a divide error in cirrusfb_check_pixclock.
+
+divide error: 0000 [#1] SMP KASAN PTI
+CPU: 0 PID: 14938 Comm: cirrusfb_test Not tainted 5.15.0-rc6 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2
+RIP: 0010:cirrusfb_check_var+0x6f1/0x1260
+
+Call Trace:
+ fb_set_var+0x398/0xf90
+ do_fb_ioctl+0x4b8/0x6f0
+ fb_ioctl+0xeb/0x130
+ __x64_sys_ioctl+0x19d/0x220
+ do_syscall_64+0x3a/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/cirrusfb.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -1839,6 +1839,7 @@ qla24xx_tm_iocb_entry(scsi_qla_host_t *v
- 		iocb->u.tmf.data = QLA_FUNCTION_FAILED;
- 	} else if ((le16_to_cpu(sts->scsi_status) &
- 	    SS_RESPONSE_INFO_LEN_VALID)) {
-+		host_to_fcp_swap(sts->data, sizeof(sts->data));
- 		if (le32_to_cpu(sts->rsp_data_len) < 4) {
- 			ql_log(ql_log_warn, fcport->vha, 0x503b,
- 			    "Async-%s error - hdl=%x not enough response(%d).\n",
+diff --git a/drivers/video/fbdev/cirrusfb.c b/drivers/video/fbdev/cirrusfb.c
+index b3be06dd2908..72358d187023 100644
+--- a/drivers/video/fbdev/cirrusfb.c
++++ b/drivers/video/fbdev/cirrusfb.c
+@@ -470,7 +470,7 @@ static int cirrusfb_check_mclk(struct fb_info *info, long freq)
+ 	return 0;
+ }
+ 
+-static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
++static int cirrusfb_check_pixclock(struct fb_var_screeninfo *var,
+ 				   struct fb_info *info)
+ {
+ 	long freq;
+@@ -479,9 +479,7 @@ static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
+ 	unsigned maxclockidx = var->bits_per_pixel >> 3;
+ 
+ 	/* convert from ps to kHz */
+-	freq = PICOS2KHZ(var->pixclock);
+-
+-	dev_dbg(info->device, "desired pixclock: %ld kHz\n", freq);
++	freq = PICOS2KHZ(var->pixclock ? : 1);
+ 
+ 	maxclock = cirrusfb_board_info[cinfo->btype].maxclock[maxclockidx];
+ 	cinfo->multiplexing = 0;
+@@ -489,11 +487,13 @@ static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
+ 	/* If the frequency is greater than we can support, we might be able
+ 	 * to use multiplexing for the video mode */
+ 	if (freq > maxclock) {
+-		dev_err(info->device,
+-			"Frequency greater than maxclock (%ld kHz)\n",
+-			maxclock);
+-		return -EINVAL;
++		var->pixclock = KHZ2PICOS(maxclock);
++
++		while ((freq = PICOS2KHZ(var->pixclock)) > maxclock)
++			var->pixclock++;
+ 	}
++	dev_dbg(info->device, "desired pixclock: %ld kHz\n", freq);
++
+ 	/*
+ 	 * Additional constraint: 8bpp uses DAC clock doubling to allow maximum
+ 	 * pixel clock
+-- 
+2.34.1
+
 
 
