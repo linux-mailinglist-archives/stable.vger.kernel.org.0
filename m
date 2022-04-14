@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9761D50104E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88ED25013E3
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:23:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237639AbiDNNhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:37:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49798 "EHLO
+        id S1345932AbiDNNy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245377AbiDNN2x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF2A9AC077;
-        Thu, 14 Apr 2022 06:22:39 -0700 (PDT)
+        with ESMTP id S245741AbiDNNsy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:48:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4600A7CDFD;
+        Thu, 14 Apr 2022 06:43:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50E27619FD;
-        Thu, 14 Apr 2022 13:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CF9DC385A1;
-        Thu, 14 Apr 2022 13:22:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 979AF61D70;
+        Thu, 14 Apr 2022 13:43:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD147C385A1;
+        Thu, 14 Apr 2022 13:43:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942558;
-        bh=4qYlqX1bEJoR3QcQAW1sTb116QDn2HpZAFF9pvsTW6g=;
+        s=korg; t=1649943835;
+        bh=Xf6RKwKJr0X6eS2HT3oif7GlIDa6DBuZr8xzMrXw190=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXZ7NaiTVX7nJ5LLQxSpZk0COjvPAl5VQLRcwmk1jTFxhP1ndiIa45mrrf6nJBxQd
-         Iy2VOitNxzNQL7DAzLigkmtjzg4uNMI/ZOdUjd/AvHXtuf6PhpM3TnbF/ZA4kKqlHe
-         H8BxkSly3B/syyx2OL2UifrXyLRXABGkN1xnEM0w=
+        b=pK+L5jVydNrIXcA3QllHwFsGqpVuziRoFmV7zzISg4GJitwDjswOn19k7taxF2m83
+         j5uE8OTUgXUXoSgMhjjqF8YM9AiQ+zQBn/X05CH/+ncA3oQbEkmRGqVRRu0N7b6sOj
+         f+9R7pyzFwYYISx+k4g49fblJOmf+jLx9neydOVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 179/338] jfs: fix divide error in dbNextAG
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 297/475] ASoC: madera: Add dependencies on MFD
 Date:   Thu, 14 Apr 2022 15:11:22 +0200
-Message-Id: <20220414110843.993017879@linuxfoundation.org>
+Message-Id: <20220414110903.406562717@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 2cc7cc01c15f57d056318c33705647f87dcd4aab ]
+[ Upstream commit ec29170c724ca30305fc3a19ba2ee73ecac65509 ]
 
-Syzbot reported divide error in dbNextAG(). The problem was in missing
-validation check for malicious image.
+The Madera CODECs use regmap_irq functions but nothing ensures that
+regmap_irq is built into the kernel. Add dependencies on the ASoC
+symbols for the relevant MFD component. There is no point in building
+the ASoC driver if the MFD doesn't support it and the MFD part contains
+the necessary dependencies to ensure everything is built into the
+kernel.
 
-Syzbot crafted an image with bmp->db_numag equal to 0. There wasn't any
-validation checks, but dbNextAG() blindly use bmp->db_numag in divide
-expression
-
-Fix it by validating bmp->db_numag in dbMount() and return an error if
-image is malicious
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Reported-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220203115025.16464-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/codecs/Kconfig | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index 687b07b9b4f6..f05805a10a50 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -161,6 +161,7 @@ static const s8 budtab[256] = {
-  *	0	- success
-  *	-ENOMEM	- insufficient memory
-  *	-EIO	- i/o error
-+ *	-EINVAL - wrong bmap data
-  */
- int dbMount(struct inode *ipbmap)
- {
-@@ -192,6 +193,12 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_nfree = le64_to_cpu(dbmp_le->dn_nfree);
- 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
- 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
-+	if (!bmp->db_numag) {
-+		release_metapage(mp);
-+		kfree(bmp);
-+		return -EINVAL;
-+	}
-+
- 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
- 	bmp->db_maxag = le32_to_cpu(dbmp_le->dn_maxag);
- 	bmp->db_agpref = le32_to_cpu(dbmp_le->dn_agpref);
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index 229cc89f8c5a..466dc67799f4 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -586,21 +586,26 @@ config SND_SOC_CS4349
+ 
+ config SND_SOC_CS47L15
+ 	tristate
++	depends on MFD_CS47L15
+ 
+ config SND_SOC_CS47L24
+ 	tristate
+ 
+ config SND_SOC_CS47L35
+ 	tristate
++	depends on MFD_CS47L35
+ 
+ config SND_SOC_CS47L85
+ 	tristate
++	depends on MFD_CS47L85
+ 
+ config SND_SOC_CS47L90
+ 	tristate
++	depends on MFD_CS47L90
+ 
+ config SND_SOC_CS47L92
+ 	tristate
++	depends on MFD_CS47L92
+ 
+ # Cirrus Logic Quad-Channel ADC
+ config SND_SOC_CS53L30
 -- 
 2.34.1
 
