@@ -2,98 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 821A250181A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88F7550181E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:05:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350256AbiDNQBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 12:01:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53136 "EHLO
+        id S1350285AbiDNQBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 12:01:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348816AbiDNPkK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 11:40:10 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2494FC31F0
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 08:18:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649949524;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WebPVtGMXwiaKLP3FU98CAuUa7w60cn7WdQ5x8iGnDU=;
-        b=TP5X6N30qFsVbcz+RujnztuoBA/uLJphS9Uw5kKZpA+E+88ipkqAWNIp+g9FuXvOJckzFo
-        fo5FJyzuodDXLvnokp55VmsdBKdZP7Ofzustrtk6Bhw0omIFQzO94e5J2pd/+T1bp5t/ro
-        Hs+UlHy+0J+zYLG2J1GfqH+iB76TNZ4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-18-sEc2PB6GOKC5B2KpO2xgtg-1; Thu, 14 Apr 2022 11:18:41 -0400
-X-MC-Unique: sEc2PB6GOKC5B2KpO2xgtg-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 589AC811E81;
-        Thu, 14 Apr 2022 15:18:40 +0000 (UTC)
-Received: from [10.22.19.30] (unknown [10.22.19.30])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EE8292166BA3;
-        Thu, 14 Apr 2022 15:18:23 +0000 (UTC)
-Message-ID: <d32d3036-a554-624b-0d3f-247539142273@redhat.com>
-Date:   Thu, 14 Apr 2022 11:18:23 -0400
+        with ESMTP id S1354437AbiDNPlD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 11:41:03 -0400
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42FDBDEBB9
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 08:21:36 -0700 (PDT)
+Received: by mail-io1-xd30.google.com with SMTP id i196so350894ioa.1
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 08:21:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+pAklxEG3+PXR2r0+lSNzO9rI9ICP6iqjJt9y4ZtzIA=;
+        b=TglNXAtXm182hCZb8FPG7zcwn4kiqh00rn55c1bdDZwrFYNKcYrgH3GqlcJe/Cns6B
+         50dGfu5WUtadt3VqqCv4hPXCyjJ8yaeDbA/GW4jHil2MWOZScnip+FPP32SywvGJEpvi
+         xMuWSq7E0z+o1Xm4xzFJA5g4mU4dB4rxeH6K1iyeGb7Ua0VaQsaccIxE0W5quYcmxzM4
+         QT5e5pYhBWWVf70ycxpWo29lpuS4bk3UlvB1X38dnavFZZ/Zq8XHZQLlIuHPlnVnAs/K
+         ZLaKKgq0v48kDvhdIec/QbBZQWBowKMCE64+XYcnlKWMGuyjYDctozCQWW2Cf6M564D6
+         epPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+pAklxEG3+PXR2r0+lSNzO9rI9ICP6iqjJt9y4ZtzIA=;
+        b=wCjXoZncOxkLsBTBiRUxZ8MoRL1UGUnnuu45+f7WR3+Lz763a55exDiJr1cEk+3y+C
+         f+0d0otSfZJ0RFG2JXtiYz/NeENA9fCqmaet5m0QEF7oguCfk+3AQkScbhnwiFyHIoJ7
+         B0GwajEa/vKTTwUoURlotjz6acIYTyxLalyHV1XDuUW36Qk3hSiu2kyZrQ8z3e+rIR+H
+         GsAEonHkNdR4dMMkEzv7c0HO4h60k452y7BYWZxxHC3g0w0J1/YOp8d06acOTPoFuaiw
+         +dm912jYRriF/2YU0W0oc4rqEQHisSkNg5qfM+gc8/OYJYlY4obScqR++A2uDBtiQba8
+         +NSA==
+X-Gm-Message-State: AOAM532zzOrk99CKErd2G2tK6Ube2NwsNDbWlRQUU+Sm0BFf7IFAzc/H
+        hqCgJbGr5leBuZav/TcR3H4DaR0mPCvuQQ==
+X-Google-Smtp-Source: ABdhPJyQf00B2o/F0u8R3+hdvXE5PzTDX0Yb5DGX8Ik5a2Uc0K7pXelvVyViK4QKHWZtYQvWZmCnMg==
+X-Received: by 2002:a05:6602:3c7:b0:64f:cb21:a8a0 with SMTP id g7-20020a05660203c700b0064fcb21a8a0mr1290944iov.28.1649949695118;
+        Thu, 14 Apr 2022 08:21:35 -0700 (PDT)
+Received: from presto.localdomain (c-73-185-129-58.hsd1.mn.comcast.net. [73.185.129.58])
+        by smtp.gmail.com with ESMTPSA id x2-20020a056602160200b006463c1977f9sm1365395iow.22.2022.04.14.08.21.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Apr 2022 08:21:34 -0700 (PDT)
+From:   Alex Elder <elder@linaro.org>
+To:     stable@vger.kernel.org
+Cc:     kuba@kernel.org, bjorn.andersson@linaro.org, quic_clew@quicinc.com,
+        quic_deesin@quicinc.com, swboyd@chromium.org, elder@kernel.org,
+        gregkh@linuxfoundation.org
+Subject: [PATCH v2 0/3] net: ipa: backport for v5.15.y
+Date:   Thu, 14 Apr 2022 10:21:28 -0500
+Message-Id: <20220414152131.713724-1-elder@linaro.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH v5] locking/rwsem: Make handoff bit handling more
- consistent
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     john.p.donnelly@oracle.com,
-        chenguanyou <chenguanyou9338@gmail.com>, dave@stgolabs.net,
-        hdanton@sina.com, linux-kernel@vger.kernel.org,
-        mazhenhua@xiaomi.com, mingo@redhat.com, peterz@infradead.org,
-        quic_aiquny@quicinc.com, will@kernel.org, sashal@kernel.org,
-        stable@vger.kernel.org
-References: <20211116012912.723980-1-longman@redhat.com>
- <20220214154741.12399-1-chenguanyou@xiaomi.com>
- <3f02975c-1a9d-be20-32cf-f1d8e3dfafcc@oracle.com>
- <e873727e-22db-3330-015d-bd6581a2937a@redhat.com>
- <31178c33-e25c-c3e8-35e2-776b5211200c@oracle.com>
- <161c2e25-3d26-4dd7-d378-d1741f7bcca8@redhat.com>
- <2b6ed542-b3e0-1a87-33ac-d52fc0e0339c@oracle.com>
- <b3620b7b-c66a-65f8-b10b-c3669b2f82ec@redhat.com>
- <Ylf78yGuXdXWugpn@kroah.com>
-From:   Waiman Long <longman@redhat.com>
-In-Reply-To: <Ylf78yGuXdXWugpn@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
-X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE,T_SPF_TEMPERROR autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/14/22 06:48, Greg KH wrote:
-> On Tue, Apr 12, 2022 at 01:04:05PM -0400, Waiman Long wrote:
->> The patch has already been in the tip tree. It may not be easy to add a
->> Fixes tag to it. Anyway, I will encourage stable tree maintainer to take it
->> as it does fix a problem as shown in your test.
-> I have no idea what you want me to do here.  Please be explicit...
->
-I would like the stable trees to include commit 1ee326196c66 
-("locking/rwsem: Always try to wake waiters in out_nolock path") after 
-it is merged into the mainline in the v5.19 merge window. It should be 
-applied to the stable trees that have incorporated the backport of 
-commit d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more 
-consistent") since this commit seems to make the missed wakeup problem 
-easier to show up.
+This series is a back-port for stable branch version 5.15 *only*.
+The IPA patches have already been applied to v5.16.y, and they are
+not required for versions prior to 5.15.
 
-Cheers,
-Longman
+There was a missing prerequisite commit that prevented building the
+code successfully when back-porting to v5.15 was first attempted.
+That commit has been added to the front of this series.  All three
+commits otherwise cherry-pick cleanly.
 
+Version 2 just adds my sign-off on the first patch (and is rebased).
 
+					-Alex
+
+Alex Elder (2):
+  dt-bindings: net: qcom,ipa: add optional qcom,qmp property
+  net: ipa: request IPA register values be retained
+
+Deepak Kumar Singh (1):
+  soc: qcom: aoss: Expose send for generic usecase
+
+ .../devicetree/bindings/net/qcom,ipa.yaml     |  6 +++
+ drivers/net/ipa/ipa_power.c                   | 52 ++++++++++++++++++
+ drivers/net/ipa/ipa_power.h                   |  7 +++
+ drivers/net/ipa/ipa_uc.c                      |  5 ++
+ drivers/soc/qcom/qcom_aoss.c                  | 54 ++++++++++++++++++-
+ include/linux/soc/qcom/qcom_aoss.h            | 38 +++++++++++++
+ 6 files changed, 161 insertions(+), 1 deletion(-)
+ create mode 100644 include/linux/soc/qcom/qcom_aoss.h
+
+-- 
+2.32.0
 
