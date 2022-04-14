@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0B3F5015B7
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CDAF501440
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245089AbiDNOHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:07:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48426 "EHLO
+        id S245206AbiDNOIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:08:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347702AbiDNN7a (ORCPT
+        with ESMTP id S1347708AbiDNN7a (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72563BA334;
-        Thu, 14 Apr 2022 06:51:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6686CA76F3;
+        Thu, 14 Apr 2022 06:51:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F05CB82985;
-        Thu, 14 Apr 2022 13:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8270DC385A1;
-        Thu, 14 Apr 2022 13:51:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C542B82990;
+        Thu, 14 Apr 2022 13:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE4EC385A5;
+        Thu, 14 Apr 2022 13:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944304;
-        bh=r2IB35UkUQMt3pjuLBJxNIR0DurAilVizkh8rdXZppk=;
+        s=korg; t=1649944307;
+        bh=ji+Vu9oKkZG2EzVq7HbQ8ZOLSkcDfIfAAp7sojUI33I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18ASRKXvfIqgFZHfn02W0UnmuTaAOiw4yQg1VBHsSt47OvF7pbjKPDeMntrvKPN12
-         7rsRo/lEqj4zSROm4BjoUw1QsuBuAPII8SBjjHhgmpTYvz+b7Y9oelVGKvD+BSWRFm
-         XPFE/PYXYWjfmpp+DyxXIyhzyuc8NjX7ksLa0djs=
+        b=m/Z1LAZ4CzO/6J5G7aywLLmL0QbDRxK3ZorwEn+YS9lv+NgdHJZFFarRaSybaL3C6
+         iB2k9dfv2ngqpD3c4rz/Xg4NDxHOq5KFKj75R/IgwUJieZRRrgx2URbrdIOfBYSq4Q
+         9E0uk2JE9JKdl3+PXUziQSjtXpm2qmuzuUyavOIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.4 466/475] drm/amdkfd: Fix -Wstrict-prototypes from amdgpu_amdkfd_gfx_10_0_get_functions()
-Date:   Thu, 14 Apr 2022 15:14:11 +0200
-Message-Id: <20220414110908.096683236@linuxfoundation.org>
+        stable@vger.kernel.org, Bing-Jhong Billy Jheng <billy@starlabs.sg>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: [PATCH 5.4 467/475] io_uring: fix fs->users overflow
+Date:   Thu, 14 Apr 2022 15:14:12 +0200
+Message-Id: <20220414110908.124909230@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -52,48 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-This patch is for linux-5.4.y only, it has no equivalent change
-upstream.
+There is a bunch of cases where we can grab req->fs but not put it, this
+can be used to cause a controllable overflow with further implications.
+Release req->fs in the request free path and make sure we zero the field
+to be sure we don't do it twice.
 
-When building x86_64 allmodconfig with tip of tree clang, there is an
-instance of -Wstrict-prototypes:
-
-  drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10.c:168:59: error: a function declaration without a prototype is deprecated in all versions of C [-Werror,-Wstrict-prototypes]
-  struct kfd2kgd_calls *amdgpu_amdkfd_gfx_10_0_get_functions()
-                                                            ^
-                                                             void
-  1 error generated.
-
-amdgpu_amdkfd_gfx_10_0_get_functions() is prototyped properly in
-drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h but its definition in
-amdgpu_amdkfd_gfx_v10.c does not have the argument types specified,
-which causes the warning. GCC does not warn because it permits an
-old-style definition if the prototype has the argument types.
-
-This code was eliminated by commit e392c887df97 ("drm/amdkfd: Use array
-to probe kfd2kgd_calls"), which was a part of a larger series that does
-not look very suitable for stable. Just fix this one location, as it was
-the only instance of this new warning across a variety of builds.
-
-Fixes: 6bdadb207224 ("drm/amdgpu: Add navi10 kfd support for amdgpu (v3)")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Fixes: cac68d12c531 ("io_uring: grab ->fs as part of async offload")
+Reported-by: Bing-Jhong Billy Jheng <billy@starlabs.sg>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10.c
-@@ -165,7 +165,7 @@ static const struct kfd2kgd_calls kfd2kg
- 	.get_tile_config = amdgpu_amdkfd_get_tile_config,
- };
- 
--struct kfd2kgd_calls *amdgpu_amdkfd_gfx_10_0_get_functions()
-+struct kfd2kgd_calls *amdgpu_amdkfd_gfx_10_0_get_functions(void)
- {
- 	return (struct kfd2kgd_calls *)&kfd2kgd;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -438,6 +438,22 @@ static struct io_ring_ctx *io_ring_ctx_a
+ 	return ctx;
  }
+ 
++static void io_req_put_fs(struct io_kiocb *req)
++{
++	struct fs_struct *fs = req->fs;
++
++	if (!fs)
++		return;
++
++	spin_lock(&req->fs->lock);
++	if (--fs->users)
++		fs = NULL;
++	spin_unlock(&req->fs->lock);
++	if (fs)
++		free_fs_struct(fs);
++	req->fs = NULL;
++}
++
+ static inline bool __io_sequence_defer(struct io_ring_ctx *ctx,
+ 				       struct io_kiocb *req)
+ {
+@@ -695,6 +711,7 @@ static void io_free_req_many(struct io_r
+ 
+ static void __io_free_req(struct io_kiocb *req)
+ {
++	io_req_put_fs(req);
+ 	if (req->file && !(req->flags & REQ_F_FIXED_FILE))
+ 		fput(req->file);
+ 	percpu_ref_put(&req->ctx->refs);
+@@ -1701,16 +1718,7 @@ static int io_send_recvmsg(struct io_kio
+ 			ret = -EINTR;
+ 	}
+ 
+-	if (req->fs) {
+-		struct fs_struct *fs = req->fs;
+-
+-		spin_lock(&req->fs->lock);
+-		if (--fs->users)
+-			fs = NULL;
+-		spin_unlock(&req->fs->lock);
+-		if (fs)
+-			free_fs_struct(fs);
+-	}
++	io_req_put_fs(req);
+ 	io_cqring_add_event(req->ctx, sqe->user_data, ret);
+ 	io_put_req(req);
+ 	return 0;
 
 
