@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B96A5015C1
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F4EB501573
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244719AbiDNNf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:35:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57314 "EHLO
+        id S240955AbiDNOE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:04:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344024AbiDNNaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8235A92D21;
-        Thu, 14 Apr 2022 06:26:28 -0700 (PDT)
+        with ESMTP id S1346619AbiDNN5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2676EB188D;
+        Thu, 14 Apr 2022 06:47:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18059619FC;
-        Thu, 14 Apr 2022 13:26:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 283B5C385A1;
-        Thu, 14 Apr 2022 13:26:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B90FA61D70;
+        Thu, 14 Apr 2022 13:47:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9DF7C385A5;
+        Thu, 14 Apr 2022 13:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942787;
-        bh=nykVD0DJXDd0UdNNk9QP36sh5b6mWDSRtyVtW2ucjPc=;
+        s=korg; t=1649944062;
+        bh=y5LvjFW6ohKhZJirF7GBq/C186M52DjHvLqgsfoqvEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVfPwutQxViA6qvKRFpDIgqmmqiSpD8Tu7U147vAQNtgOxQmRO33j59omMFZdAa2L
-         X7p0cFUCooi7EwYxJw0Q+LRvOcBx9Y0PK2oAYWS7uZXla41IhTcV9pwMcS0mKeOugB
-         Y9rNKoc9D1BXp0PePiRjr/VNlOBtmf7FMLLK3+E8=
+        b=QlHTQsXReH/8wjESgjdf0zug+wtB+TxGSWjES9gtw9cYAXTVXrGpDbOoLa3a3DjvQ
+         PVXMCmuMea6C9Mp4n7bwSIWDte+DZYg3FqdNbHZMdxJ2JjcAiJs+CexKF91XwtXyZK
+         3cm7sxur7oEYjB+4FzS6top3G7PHBsbEkLma059Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anisse Astier <anisse@astier.eu>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Yang Guang <yang.guang5@zte.com.cn>,
+        David Yang <davidcomponentone@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 261/338] drm: Add orientation quirk for GPD Win Max
+Subject: [PATCH 5.4 379/475] scsi: mvsas: Replace snprintf() with sysfs_emit()
 Date:   Thu, 14 Apr 2022 15:12:44 +0200
-Message-Id: <20220414110846.318718296@linuxfoundation.org>
+Message-Id: <20220414110905.679399641@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anisse Astier <anisse@astier.eu>
+From: Yang Guang <yang.guang5@zte.com.cn>
 
-[ Upstream commit 0b464ca3e0dd3cec65f28bc6d396d82f19080f69 ]
+[ Upstream commit 0ad3867b0f13e45cfee5a1298bfd40eef096116c ]
 
-Panel is 800x1280, but mounted on a laptop form factor, sideways.
+coccinelle report:
+./drivers/scsi/mvsas/mv_init.c:699:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/mvsas/mv_init.c:747:8-16:
+WARNING: use scnprintf or sprintf
 
-Signed-off-by: Anisse Astier <anisse@astier.eu>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211229222200.53128-3-anisse@astier.eu
+Use sysfs_emit() instead of scnprintf() or sprintf().
+
+Link: https://lore.kernel.org/r/c1711f7cf251730a8ceb5bdfc313bf85662b3395.1643182948.git.yang.guang5@zte.com.cn
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
+Signed-off-by: David Yang <davidcomponentone@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/scsi/mvsas/mv_init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 3b70a338e5b4..265df1e67eb3 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -133,6 +133,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "MicroPC"),
- 		},
- 		.driver_data = (void *)&lcd720x1280_rightside_up,
-+	}, {	/* GPD Win Max */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "GPD"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "G1619-01"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/*
- 		 * GPD Pocket, note that the the DMI data is less generic then
- 		 * it seems, devices with a board-vendor of "AMI Corporation"
+diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
+index 52405ce58ade..c16d7fb0fdcb 100644
+--- a/drivers/scsi/mvsas/mv_init.c
++++ b/drivers/scsi/mvsas/mv_init.c
+@@ -697,7 +697,7 @@ static ssize_t
+ mvs_show_driver_version(struct device *cdev,
+ 		struct device_attribute *attr,  char *buffer)
+ {
+-	return snprintf(buffer, PAGE_SIZE, "%s\n", DRV_VERSION);
++	return sysfs_emit(buffer, "%s\n", DRV_VERSION);
+ }
+ 
+ static DEVICE_ATTR(driver_version,
+@@ -749,7 +749,7 @@ mvs_store_interrupt_coalescing(struct device *cdev,
+ static ssize_t mvs_show_interrupt_coalescing(struct device *cdev,
+ 			struct device_attribute *attr, char *buffer)
+ {
+-	return snprintf(buffer, PAGE_SIZE, "%d\n", interrupt_coalescing);
++	return sysfs_emit(buffer, "%d\n", interrupt_coalescing);
+ }
+ 
+ static DEVICE_ATTR(interrupt_coalescing,
 -- 
 2.35.1
 
