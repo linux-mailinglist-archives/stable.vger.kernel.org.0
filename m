@@ -2,56 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15F405005CE
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 08:14:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95DB45005DB
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 08:21:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235641AbiDNGQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 02:16:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43372 "EHLO
+        id S240038AbiDNGXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 02:23:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229990AbiDNGQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 02:16:47 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72A3D641C;
-        Wed, 13 Apr 2022 23:14:21 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id o5-20020a17090ad20500b001ca8a1dc47aso8404018pju.1;
-        Wed, 13 Apr 2022 23:14:21 -0700 (PDT)
+        with ESMTP id S240026AbiDNGXf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 02:23:35 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F14404D24A;
+        Wed, 13 Apr 2022 23:21:11 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id n18so3867418plg.5;
+        Wed, 13 Apr 2022 23:21:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id;
-        bh=xSaEo9LO7falECQjCcduKi//QmoNEw98a9U9ZQZJgh0=;
-        b=kxTi7L39zBMmLwbO/yI0P60LXETiezuazG6rlO5ELFcbhEY1oEruR/u/1yo6N3KdQM
-         2O3AUj5NiRsJ7q8fAiWhsh1U7XzByWNXQ0o+0xTNY6Fm/VpR3V3BCHnj6q1Y4ZmerDhl
-         ml3SH/gbEb8sBaGbfujS5u45t1wFcG08OKiubAk72kE3re/C0hcN5oRWV5yHx2cWPh3G
-         4EHxbAAxD5TeYvB/GTp04kn5Ko8AZzXvBXTj5w73Klbl6Pym2+BixMDk3gFHJN2VGOg0
-         7cDTVYIflbge4PL8N9KjNv+cRh+9M1Nx1gAYdPFS3eYVK5FrN+1+TYR4Yd2qMNOSfcC9
-         GKpw==
+        bh=v6BSL8VhVmwIej2fDS4fILub4T69woLAa8tFuzppLBk=;
+        b=myoGwm2G1MSWxH52mFS6PB//GYIp24Zl7kzfWhLsbgDggF7p3Uq899B13XQH5s71gu
+         HHFqo6T+QWWaM66hqv+AyVlDLgA/ey/zDE2HM5L7WTYH4D2kU2LDq9fB6nM1HjNmFtCp
+         hEqP6Z0xmeWKJqmVJ2bT6wT/f9FTWcSfZT1ed9mXOqC/ZtcS0ppQJyMNs4teGiBy2J3R
+         nGsG4/HlF/Up6SkA56i2FJJZzhjZLHyUV95Ii+3tbh5yryu0XvRuWwPUFVqgq9b+ij1o
+         A54iIEeEkJ81az7JwRj8iFxQMs2XOc+AC/ZlQRYtkaZZIUz1liYyXYTwdzsiLOPqesFB
+         Glmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=xSaEo9LO7falECQjCcduKi//QmoNEw98a9U9ZQZJgh0=;
-        b=jFyJeWD+L8o7x8WNA8Suz4cYTeqA5QmdL5I21iZPv0cfuHuyGJ34A79moLVBfYnUO4
-         r5SP+/vPT7XWA6ZMHB7AhUDQ7ir8hIYBnRumZZDgWRmFwIhgkPy5VeUrAbdcR8A/WFdX
-         puBbfMO/2htGL9tE/8y7LJuidENU4lGYDz/PrAkR0NUDcUfoX1P474OB7FGmWnuB465F
-         JB6Rjd6nREMJrAN64XepmlEBl0oQY7TSMb6mU6Cq6E9aQZOhzQ7DEaAgdBjIfG6QBfcE
-         xZuBCs1fpqMydD6FsHIM1EkpsTUYdGCu39ONlwWz2J84lPS5e+CLZ3pAgUG5H+/n5+ch
-         9liQ==
-X-Gm-Message-State: AOAM531e5vSTOXcH/JXpnb3rMqa6gnfaR6wsPJw6TzZ/aBUaocL7UfnG
-        beycy9J4tyc9rmFLc55UejA=
-X-Google-Smtp-Source: ABdhPJzfqbuE+SKFgvlaHYYvwCo6iZQfPGv6i6/v9EAG/8WGUTum8VyjBgQWC5Y8dRWej4ZxlU0lQQ==
-X-Received: by 2002:a17:90a:ca:b0:1ca:5253:b625 with SMTP id v10-20020a17090a00ca00b001ca5253b625mr2065267pjd.220.1649916860983;
-        Wed, 13 Apr 2022 23:14:20 -0700 (PDT)
+        bh=v6BSL8VhVmwIej2fDS4fILub4T69woLAa8tFuzppLBk=;
+        b=13dzXlrVJkwyOBkNc1y7IPQcywIMm3woZQcKbkDOKa7EtCkYMSini3AOaN/HMqQthp
+         X/f0GooRlanmIR/YiqrqGnLRgLlN1O5A51cRVF6qwsPJ2u9oFL8W02y4Qobg1tGkix4K
+         tCVOoO9mRcdpXhVe7sSFIW0iGmTtj4+IETHVk07B9auikQBEVe/FlJGZUK0dC+HvLLyD
+         cJ1n2HRJ0/yar2g4Vghx+uyfi+CqYmjehLvS2XA/E6/d6VbP98hkzHSdS9U7E/txgcI8
+         6iJfyj4WG2B3R0O2infPBmMeeNp+94bfFdlO3jW+3WjxABuC7NES88cKd8PIUOq2rX8a
+         HlRQ==
+X-Gm-Message-State: AOAM532ggi1s5ONqX3eODP269Ue7cHc2Xnp+lbCn32gXqTWUNlIEmUPN
+        UwsvVvT6DZj2AAuGsijVCYE=
+X-Google-Smtp-Source: ABdhPJx/+VfCKqnYmadJUeIHFXxCThNG7ojieyEdrIdWyLC4NUzoCeJQJbvhMw0o07fEgwbpqK4R8g==
+X-Received: by 2002:a17:90b:314a:b0:1cd:3a73:3a99 with SMTP id ip10-20020a17090b314a00b001cd3a733a99mr2641203pjb.189.1649917270729;
+        Wed, 13 Apr 2022 23:21:10 -0700 (PDT)
 Received: from localhost.localdomain ([119.3.119.18])
-        by smtp.gmail.com with ESMTPSA id 25-20020a631259000000b0039d353e6d75sm927364pgs.57.2022.04.13.23.14.17
+        by smtp.googlemail.com with ESMTPSA id nl17-20020a17090b385100b001c70883f6ccsm5042588pjb.36.2022.04.13.23.21.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Apr 2022 23:14:20 -0700 (PDT)
+        Wed, 13 Apr 2022 23:21:10 -0700 (PDT)
 From:   Xiaomeng Tong <xiam0nd.tong@gmail.com>
-To:     tomba@kernel.org, airlied@linux.ie, daniel@ffwll.ch
-Cc:     dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+To:     mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org,
+        akpm@linux-foundation.org, liam.howlett@oracle.com,
+        david@redhat.com, maz@kernel.org, Felix.Kuehling@amd.com,
+        maciej.szmigiero@oracle.com, apopple@nvidia.com,
+        bharata@linux.ibm.com, linuxram@us.ibm.com
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
         Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
-Subject: [RESEND][PATCH] omapdrm: fix missing check on list iterator
-Date:   Thu, 14 Apr 2022 14:14:10 +0800
-Message-Id: <20220414061410.7678-1-xiam0nd.tong@gmail.com>
+Subject: [RESEND][PATCH] KVM: PPC: Book3S HV: fix incorrect NULL check on list iterator
+Date:   Thu, 14 Apr 2022 14:21:03 +0800
+Message-Id: <20220414062103.8153-1-xiam0nd.tong@gmail.com>
 X-Mailer: git-send-email 2.17.1
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
@@ -64,61 +68,46 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The bug is here:
-	bus_flags = connector->display_info.bus_flags;
+	if (!p)
+                return ret;
 
-The list iterator 'connector-' will point to a bogus position containing
-HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it will lead
-to a invalid memory access.
+The list iterator value 'p' will *always* be set and non-NULL by
+list_for_each_entry(), so it is incorrect to assume that the iterator
+value will be NULL if the list is empty or no element is found.
 
-To fix this bug, add an check. Use a new value 'iter' as the list
-iterator, while use the old value 'connector' as a dedicated variable
-to point to the found element.
+To fix the bug, Use a new value 'iter' as the list iterator, while use
+the old value 'p' as a dedicated variable to point to the found element.
 
 Cc: stable@vger.kernel.org
-Fixes: ("drm/omap: Add support for drm_panel")
+Fixes: dfaa973ae9605 ("KVM: PPC: Book3S HV: In H_SVM_INIT_DONE, migrate remaining normal-GFNs to secure-GFNs")
 Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 ---
- drivers/gpu/drm/omapdrm/omap_encoder.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ arch/powerpc/kvm/book3s_hv_uvmem.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/omap_encoder.c b/drivers/gpu/drm/omapdrm/omap_encoder.c
-index 4dd05bc732da..d648ab4223b1 100644
---- a/drivers/gpu/drm/omapdrm/omap_encoder.c
-+++ b/drivers/gpu/drm/omapdrm/omap_encoder.c
-@@ -76,14 +76,16 @@ static void omap_encoder_mode_set(struct drm_encoder *encoder,
- 	struct omap_encoder *omap_encoder = to_omap_encoder(encoder);
- 	struct omap_dss_device *output = omap_encoder->output;
- 	struct drm_device *dev = encoder->dev;
--	struct drm_connector *connector;
-+	struct drm_connector *connector = NULL, *iter;
- 	struct drm_bridge *bridge;
- 	struct videomode vm = { 0 };
- 	u32 bus_flags;
+diff --git a/arch/powerpc/kvm/book3s_hv_uvmem.c b/arch/powerpc/kvm/book3s_hv_uvmem.c
+index e414ca44839f..0cb20ee6a632 100644
+--- a/arch/powerpc/kvm/book3s_hv_uvmem.c
++++ b/arch/powerpc/kvm/book3s_hv_uvmem.c
+@@ -360,13 +360,15 @@ static bool kvmppc_gfn_is_uvmem_pfn(unsigned long gfn, struct kvm *kvm,
+ static bool kvmppc_next_nontransitioned_gfn(const struct kvm_memory_slot *memslot,
+ 		struct kvm *kvm, unsigned long *gfn)
+ {
+-	struct kvmppc_uvmem_slot *p;
++	struct kvmppc_uvmem_slot *p = NULL, *iter;
+ 	bool ret = false;
+ 	unsigned long i;
  
--	list_for_each_entry(connector, &dev->mode_config.connector_list, head) {
--		if (connector->encoder == encoder)
-+	list_for_each_entry(iter, &dev->mode_config.connector_list, head) {
-+		if (iter->encoder == encoder) {
-+			connector = iter;
+-	list_for_each_entry(p, &kvm->arch.uvmem_pfns, list)
+-		if (*gfn >= p->base_pfn && *gfn < p->base_pfn + p->nr_pfns)
++	list_for_each_entry(iter, &kvm->arch.uvmem_pfns, list)
++		if (*gfn >= iter->base_pfn && *gfn < iter->base_pfn + iter->nr_pfns) {
++			p = iter;
  			break;
 +		}
- 	}
- 
- 	drm_display_mode_to_videomode(adjusted_mode, &vm);
-@@ -106,8 +108,10 @@ static void omap_encoder_mode_set(struct drm_encoder *encoder,
- 		omap_encoder_update_videomode_flags(&vm, bus_flags);
- 	}
- 
--	bus_flags = connector->display_info.bus_flags;
--	omap_encoder_update_videomode_flags(&vm, bus_flags);
-+	if (connector) {
-+		bus_flags = connector->display_info.bus_flags;
-+		omap_encoder_update_videomode_flags(&vm, bus_flags);
-+	}
- 
- 	/* Set timings for all devices in the display pipeline. */
- 	dss_mgr_set_timings(output, &vm);
+ 	if (!p)
+ 		return ret;
+ 	/*
 -- 
 2.17.1
 
