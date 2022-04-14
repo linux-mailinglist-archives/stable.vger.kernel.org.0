@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AC6750130E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 675AD50100C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244991AbiDNNqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36830 "EHLO
+        id S244977AbiDNNq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:46:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245606AbiDNNip (ORCPT
+        with ESMTP id S245605AbiDNNip (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F72A5EAF;
-        Thu, 14 Apr 2022 06:33:13 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD8DDA5EBA;
+        Thu, 14 Apr 2022 06:33:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B391C61CB7;
-        Thu, 14 Apr 2022 13:33:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C40D5C385A1;
-        Thu, 14 Apr 2022 13:33:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7466361B9C;
+        Thu, 14 Apr 2022 13:33:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF62C385A5;
+        Thu, 14 Apr 2022 13:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943192;
-        bh=Cw2NlYAm/sub3uTEA3b2qIyrR3JDeMkKrC26amsoKtQ=;
+        s=korg; t=1649943194;
+        bh=dbCTSqQ4qHrqImnvmxiYCxq28zGYTpEj35mVxVeZ4Y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8Fuy3gTj5bbYwXas+zJwci9QBfEzJVAmIv0JzR0PTntFurP8OQ3VAHH6aqZmneJx
-         RW6JLQN0yTsO746rBgbIAo5xClptQu/VDdpeAPJajV4j7dKo72syFNXMKHldOwG9Pr
-         UmXpW3rO195G/EITfrFt0POBCPLUc778qsWLOZSk=
+        b=ezJC3SRc7oL2KSBnKQg+NRrYmasM1bSMF+C9Up1FTtjdFARkUMutVr3opoBCkFp0E
+         Zj6x5ipjhWXJr5Ejw8o5SFqWutKgbuOYZajcuI4oim8WER5WnYVA+egZ8dAbfMIjQX
+         1mW6xF3j+CSpIxkUQBGAVDpezsPlzAmAd+wu6cDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michael Schmitz <schmitzmic@gmail.com>,
         Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 067/475] video: fbdev: sm712fb: Fix crash in smtcfb_read()
-Date:   Thu, 14 Apr 2022 15:07:32 +0200
-Message-Id: <20220414110857.028961836@linuxfoundation.org>
+Subject: [PATCH 5.4 068/475] video: fbdev: atari: Atari 2 bpp (STe) palette bugfix
+Date:   Thu, 14 Apr 2022 15:07:33 +0200
+Message-Id: <20220414110857.056712104@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -53,76 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Michael Schmitz <schmitzmic@gmail.com>
 
-commit bd771cf5c4254511cc4abb88f3dab3bd58bdf8e8 upstream.
+commit c8be5edbd36ceed2ff3d6b8f8e40643c3f396ea3 upstream.
 
-Zheyu Ma reported this crash in the sm712fb driver when reading
-three bytes from the framebuffer:
+The code to set the shifter STe palette registers has a long
+standing operator precedence bug, manifesting as colors set
+on a 2 bits per pixel frame buffer coming up with a distinctive
+blue tint.
 
- BUG: unable to handle page fault for address: ffffc90001ffffff
- RIP: 0010:smtcfb_read+0x230/0x3e0
- Call Trace:
-  vfs_read+0x198/0xa00
-  ? do_sys_openat2+0x27d/0x350
-  ? __fget_light+0x54/0x340
-  ksys_read+0xce/0x190
-  do_syscall_64+0x43/0x90
+Add parentheses around the calculation of the per-color palette
+data before shifting those into their respective bit field position.
 
-Fix it by removing the open-coded endianess fixup-code and
-by moving the pointer post decrement out the fb_readl() function.
+This bug goes back a long way (2.4 days at the very least) so there
+won't be a Fixes: tag.
 
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Tested on ARAnyM as well on Falcon030 hardware.
+
 Cc: stable@vger.kernel.org
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Link: https://lore.kernel.org/all/CAMuHMdU3ievhXxKR_xi_v3aumnYW7UNUO6qMdhgfyWTyVSsCkQ@mail.gmail.com
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/sm712fb.c |   25 +++++++------------------
- 1 file changed, 7 insertions(+), 18 deletions(-)
+ drivers/video/fbdev/atafb.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1047,7 +1047,7 @@ static ssize_t smtcfb_read(struct fb_inf
- 	if (count + p > total_size)
- 		count = total_size - p;
- 
--	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
-+	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
- 
-@@ -1059,25 +1059,14 @@ static ssize_t smtcfb_read(struct fb_inf
- 	while (count) {
- 		c = (count > PAGE_SIZE) ? PAGE_SIZE : count;
- 		dst = buffer;
--		for (i = c >> 2; i--;) {
--			*dst = fb_readl(src++);
--			*dst = big_swap(*dst);
-+		for (i = (c + 3) >> 2; i--;) {
-+			u32 val;
-+
-+			val = fb_readl(src);
-+			*dst = big_swap(val);
-+			src++;
- 			dst++;
- 		}
--		if (c & 3) {
--			u8 *dst8 = (u8 *)dst;
--			u8 __iomem *src8 = (u8 __iomem *)src;
--
--			for (i = c & 3; i--;) {
--				if (i & 1) {
--					*dst8++ = fb_readb(++src8);
--				} else {
--					*dst8++ = fb_readb(--src8);
--					src8 += 2;
--				}
--			}
--			src = (u32 __iomem *)src8;
--		}
- 
- 		if (copy_to_user(buf, buffer, c)) {
- 			err = -EFAULT;
+--- a/drivers/video/fbdev/atafb.c
++++ b/drivers/video/fbdev/atafb.c
+@@ -1692,9 +1692,9 @@ static int falcon_setcolreg(unsigned int
+ 			   ((blue & 0xfc00) >> 8));
+ 	if (regno < 16) {
+ 		shifter_tt.color_reg[regno] =
+-			(((red & 0xe000) >> 13) | ((red & 0x1000) >> 12) << 8) |
+-			(((green & 0xe000) >> 13) | ((green & 0x1000) >> 12) << 4) |
+-			((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
++			((((red & 0xe000) >> 13)   | ((red & 0x1000) >> 12)) << 8)   |
++			((((green & 0xe000) >> 13) | ((green & 0x1000) >> 12)) << 4) |
++			   ((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
+ 		((u32 *)info->pseudo_palette)[regno] = ((red & 0xf800) |
+ 						       ((green & 0xfc00) >> 5) |
+ 						       ((blue & 0xf800) >> 11));
+@@ -1980,9 +1980,9 @@ static int stste_setcolreg(unsigned int
+ 	green >>= 12;
+ 	if (ATARIHW_PRESENT(EXTD_SHIFTER))
+ 		shifter_tt.color_reg[regno] =
+-			(((red & 0xe) >> 1) | ((red & 1) << 3) << 8) |
+-			(((green & 0xe) >> 1) | ((green & 1) << 3) << 4) |
+-			((blue & 0xe) >> 1) | ((blue & 1) << 3);
++			((((red & 0xe)   >> 1) | ((red & 1)   << 3)) << 8) |
++			((((green & 0xe) >> 1) | ((green & 1) << 3)) << 4) |
++			  ((blue & 0xe)  >> 1) | ((blue & 1)  << 3);
+ 	else
+ 		shifter_tt.color_reg[regno] =
+ 			((red & 0xe) << 7) |
 
 
