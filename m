@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A23D5011BB
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71AC25011AD
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245670AbiDNNnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:43:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49098 "EHLO
+        id S233441AbiDNNdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:33:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244868AbiDNN2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:13 -0400
+        with ESMTP id S244898AbiDNN2P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D930A76C1;
-        Thu, 14 Apr 2022 06:21:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E172091557;
+        Thu, 14 Apr 2022 06:21:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1A54B82910;
-        Thu, 14 Apr 2022 13:21:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FE32C385A5;
-        Thu, 14 Apr 2022 13:21:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97B7DB82910;
+        Thu, 14 Apr 2022 13:21:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09458C385A5;
+        Thu, 14 Apr 2022 13:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942468;
-        bh=HTDpf9gOSoN+0VRBjXQ2P84SInQ0QONH+i4WXzJpWGo=;
+        s=korg; t=1649942474;
+        bh=vyCVv6qJIsnjkSaHv0zFcCe681Rag8sg95z3AiB6Fuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ukp0RiStKsHSZX6hvbKE/gik8F5vqX9CNt50HnjizgNuj6kxuHXdaoxEYjtEq2Kt/
-         IMWCL3ggZSEJxzFKGfb3iCx7ykbhw4JpW6Zn2qCG6uC/+Wyo6/oQoaNk6ZFyf2xSkb
-         g8I2FxlcyrPFoWyt4Xxo3l3WqRMpCctt53Lr4v6s=
+        b=IUyUmTV8RyFy1D1yZ1kohxIwHlM1JHKmjcHoXjmqau3e7CAhvN9DWagdeAcAX1FVt
+         5AkwNn5l3Ldbuj98nN7NbxXnYqUrjaYBGM2KA2c1H4shJP4VO6N3U2ne1jK8RTMBl0
+         F3zMFkhz/jbH6t9/gDKqb/3TZFYPDbMLQxqjaseo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 146/338] powerpc/sysdev: fix incorrect use to determine if list is empty
-Date:   Thu, 14 Apr 2022 15:10:49 +0200
-Message-Id: <20220414110843.060250057@linuxfoundation.org>
+Subject: [PATCH 4.19 147/338] mfd: mc13xxx: Add check for mc13xxx_irq_request
+Date:   Thu, 14 Apr 2022 15:10:50 +0200
+Message-Id: <20220414110843.088144094@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,48 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit fa1321b11bd01752f5be2415e74a0e1a7c378262 ]
+[ Upstream commit e477e51a41cb5d6034f3c5ea85a71ad4613996b9 ]
 
-'gtm' will *always* be set by list_for_each_entry().
-It is incorrect to assume that the iterator value will be NULL if the
-list is empty.
+As the potential failure of the devm_request_threaded_irq(),
+it should be better to check the return value of the
+mc13xxx_irq_request() and return error if fails.
 
-Instead of checking the pointer it should be checked if
-the list is empty.
-
-Fixes: 83ff9dcf375c ("powerpc/sysdev: implement FSL GTM support")
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220228142434.576226-1-jakobkoschel@gmail.com
+Fixes: 8e00593557c3 ("mfd: Add mc13892 support to mc13xxx")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220224022331.3208275-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/fsl_gtm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mfd/mc13xxx-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/sysdev/fsl_gtm.c b/arch/powerpc/sysdev/fsl_gtm.c
-index d902306f4718..42fe959f6fc2 100644
---- a/arch/powerpc/sysdev/fsl_gtm.c
-+++ b/arch/powerpc/sysdev/fsl_gtm.c
-@@ -90,7 +90,7 @@ static LIST_HEAD(gtms);
-  */
- struct gtm_timer *gtm_get_timer16(void)
- {
--	struct gtm *gtm = NULL;
-+	struct gtm *gtm;
- 	int i;
+diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
+index d0bf50e3568d..dcbb969af5f4 100644
+--- a/drivers/mfd/mc13xxx-core.c
++++ b/drivers/mfd/mc13xxx-core.c
+@@ -326,8 +326,10 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
+ 		adc1 |= MC13783_ADC1_ATOX;
  
- 	list_for_each_entry(gtm, &gtms, list_node) {
-@@ -107,7 +107,7 @@ struct gtm_timer *gtm_get_timer16(void)
- 		spin_unlock_irq(&gtm->lock);
- 	}
+ 	dev_dbg(mc13xxx->dev, "%s: request irq\n", __func__);
+-	mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
++	ret = mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
+ 			mc13xxx_handler_adcdone, __func__, &adcdone_data);
++	if (ret)
++		goto out;
  
--	if (gtm)
-+	if (!list_empty(&gtms))
- 		return ERR_PTR(-EBUSY);
- 	return ERR_PTR(-ENODEV);
- }
+ 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, adc0);
+ 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC1, adc1);
 -- 
 2.34.1
 
