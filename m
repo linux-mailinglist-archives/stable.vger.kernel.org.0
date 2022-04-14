@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC370501240
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D283E501501
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345361AbiDNNuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345372AbiDNNuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 14 Apr 2022 09:50:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47218 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344424AbiDNNlV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:41:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B743B120;
-        Thu, 14 Apr 2022 06:38:56 -0700 (PDT)
+        with ESMTP id S1344432AbiDNNlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:41:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E8E120;
+        Thu, 14 Apr 2022 06:38:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79791B828F4;
-        Thu, 14 Apr 2022 13:38:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB256C385A1;
-        Thu, 14 Apr 2022 13:38:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B58FB8296A;
+        Thu, 14 Apr 2022 13:38:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A73C4C385A1;
+        Thu, 14 Apr 2022 13:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943534;
-        bh=kpIJFWMcqxcqjFuoso9jkxfzSX1OdPZB8F0t3dVUqcg=;
+        s=korg; t=1649943537;
+        bh=4VR1gNw0Ixkx5YMl7UBXLyrvvkfpFpFPgHBUp8qiyLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pgmhI1IdsHLke8NQtXWKeWzTXK7Z9ug3WL1Ohv0efOVkOyWrpcj7pdDaPb0X9ZZ7T
-         jr3/KJJ/TI87N4k3ayYI6U8Kwu99KhE17a3k1ZMB5SY93mC7TQMQqPG8JDDtf/N75/
-         ipQzgKui6cH5UfVWLOAhzMDz1Mfqa+WlkVoEYx2M=
+        b=NsiaD2bJDWn8QfKEBhKsN/PGYqV9Jm1/HGJ6L598bNVzc+Q8atGtgWBcwSUDZihNE
+         ASzRZbA5GZhIqop75gye2Uhg4sta34VMrMQ4YTcV0G8nlUk4uY70GmClj7jVBq4PEU
+         XlSnVoVaikTas5qIVvjcxNlj/fo4hK6fVW2ul7gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Yihang Li <liyihang6@hisilicon.com>,
+        Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 191/475] power: supply: bq24190_charger: Fix bq24190_vbus_is_enabled() wrong false return
-Date:   Thu, 14 Apr 2022 15:09:36 +0200
-Message-Id: <20220414110900.475386082@linuxfoundation.org>
+Subject: [PATCH 5.4 192/475] scsi: hisi_sas: Change permission of parameter prot_mask
+Date:   Thu, 14 Apr 2022 15:09:37 +0200
+Message-Id: <20220414110900.503727036@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,55 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit f7731754fdce33dad19be746f647d6ac47c5d695 ]
+[ Upstream commit c4e070457a93705e56ed06b3910d9e5fe56d3be3 ]
 
-The datasheet says that the BQ24190_REG_POC_CHG_CONFIG bits can
-have a value of either 10(0x2) or 11(0x3) for OTG (5V boost regulator)
-mode.
+Currently the permission of parameter prot_mask is 0x0, which means that
+the member does not appear in sysfs. Change it as other module parameters
+to 0444 for world-readable.
 
-Sofar bq24190_vbus_is_enabled() was only checking for 10 but some BIOS-es
-uses 11 when enabling the regulator at boot.
+[mkp: s/v3/v2/]
 
-Make bq24190_vbus_is_enabled() also check for 11 so that it does not
-wrongly returns false when the bits are set to 11.
-
-Fixes: 66b6bef2c4e0 ("power: supply: bq24190_charger: Export 5V boost converter as regulator")
-Cc: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://lore.kernel.org/r/1645703489-87194-2-git-send-email-john.garry@huawei.com
+Fixes: d6a9000b81be ("scsi: hisi_sas: Add support for DIF feature for v2 hw")
+Reported-by: Yihang Li <liyihang6@hisilicon.com>
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/bq24190_charger.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/bq24190_charger.c b/drivers/power/supply/bq24190_charger.c
-index 1ae5d6d42c9e..64d87dccea82 100644
---- a/drivers/power/supply/bq24190_charger.c
-+++ b/drivers/power/supply/bq24190_charger.c
-@@ -41,6 +41,7 @@
- #define BQ24190_REG_POC_CHG_CONFIG_DISABLE		0x0
- #define BQ24190_REG_POC_CHG_CONFIG_CHARGE		0x1
- #define BQ24190_REG_POC_CHG_CONFIG_OTG			0x2
-+#define BQ24190_REG_POC_CHG_CONFIG_OTG_ALT		0x3
- #define BQ24190_REG_POC_SYS_MIN_MASK		(BIT(3) | BIT(2) | BIT(1))
- #define BQ24190_REG_POC_SYS_MIN_SHIFT		1
- #define BQ24190_REG_POC_SYS_MIN_MIN			3000
-@@ -550,7 +551,11 @@ static int bq24190_vbus_is_enabled(struct regulator_dev *dev)
- 	pm_runtime_mark_last_busy(bdi->dev);
- 	pm_runtime_put_autosuspend(bdi->dev);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 13f314fa757e..a86aae52d94f 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -504,7 +504,7 @@ MODULE_PARM_DESC(intr_conv, "interrupt converge enable (0-1)");
  
--	return ret ? ret : val == BQ24190_REG_POC_CHG_CONFIG_OTG;
-+	if (ret)
-+		return ret;
-+
-+	return (val == BQ24190_REG_POC_CHG_CONFIG_OTG ||
-+		val == BQ24190_REG_POC_CHG_CONFIG_OTG_ALT);
- }
+ /* permit overriding the host protection capabilities mask (EEDP/T10 PI) */
+ static int prot_mask;
+-module_param(prot_mask, int, 0);
++module_param(prot_mask, int, 0444);
+ MODULE_PARM_DESC(prot_mask, " host protection capabilities mask, def=0x0 ");
  
- static const struct regulator_ops bq24190_vbus_ops = {
+ static bool auto_affine_msi_experimental;
 -- 
 2.34.1
 
