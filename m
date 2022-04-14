@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23C9F501574
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D8F5501572
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238879AbiDNNh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:37:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56980 "EHLO
+        id S1345890AbiDNNym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245347AbiDNN2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AF89BAE7;
-        Thu, 14 Apr 2022 06:22:30 -0700 (PDT)
+        with ESMTP id S244668AbiDNNqY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:46:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07E35A087;
+        Thu, 14 Apr 2022 06:43:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E01F4B82910;
-        Thu, 14 Apr 2022 13:22:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365EFC385AA;
-        Thu, 14 Apr 2022 13:22:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B49D961BA7;
+        Thu, 14 Apr 2022 13:43:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C033BC385A1;
+        Thu, 14 Apr 2022 13:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942547;
-        bh=fX5nX8ouuILJBEHDtw8W9UjqN1r7EIzvKgzOccRngx8=;
+        s=korg; t=1649943824;
+        bh=Zl3mV2kom1J1QGfCvXrzMeZKwH+Y7QGCQgb+92XB33U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTcw9C+RXv6pLiGPIxOViVolczjb2PfAHGJHu4mn/0EzNWt4hHuhi0hA0NNUl4cv8
-         d42Oa77PlhTzmKff2uOpJ9GETsxzQfADb+L4xJhJmLB5lj8uJcyc/XnoufnLVkx4J8
-         39I8EDPMYqR+HTImbx+ORGtteEsqNJfY8g+5pRhA=
+        b=wFXEBf3/jDbU8Zb7XJ1Gqno+Xr15kTVO6Pg6Lut5+OymnyrYCr4Hw74YC2Ituferx
+         i8NKyd+3a2nxVBaQOu0BhGzYmm3Xg1HU+479xIvaOsnHU0EcnG/V0f1EBDIxx6lsW0
+         lbdCXh3+Z6iDXH2+B8KxfQagcdEEP2DpS033vxoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 175/338] pinctrl/rockchip: Add missing of_node_put() in rockchip_pinctrl_probe
+        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 293/475] video: fbdev: cirrusfb: check pixclock to avoid divide by zero
 Date:   Thu, 14 Apr 2022 15:11:18 +0200
-Message-Id: <20220414110843.878116919@linuxfoundation.org>
+Message-Id: <20220414110903.295722740@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit 89388f8730699c259f8090ec435fb43569efe4ac ]
+[ Upstream commit 5c6f402bdcf9e7239c6bc7087eda71ac99b31379 ]
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+Do a sanity check on pixclock value to avoid divide by zero.
 
-Fixes: 1e747e59cc4d ("pinctrl: rockchip: base regmap supplied by a syscon")
-Fixes: 14dee8677e19 ("pinctrl: rockchip: let pmu registers be supplied by a syscon")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220307120234.28657-1-linmq006@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+If the pixclock value is zero, the cirrusfb driver will round up
+pixclock to get the derived frequency as close to maxclock as
+possible.
+
+Syzkaller reported a divide error in cirrusfb_check_pixclock.
+
+divide error: 0000 [#1] SMP KASAN PTI
+CPU: 0 PID: 14938 Comm: cirrusfb_test Not tainted 5.15.0-rc6 #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.11.0-2
+RIP: 0010:cirrusfb_check_var+0x6f1/0x1260
+
+Call Trace:
+ fb_set_var+0x398/0xf90
+ do_fb_ioctl+0x4b8/0x6f0
+ fb_ioctl+0xeb/0x130
+ __x64_sys_ioctl+0x19d/0x220
+ do_syscall_64+0x3a/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/cirrusfb.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index d0d5b8bdbc10..dc405d7aa1b7 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -3400,6 +3400,7 @@ static int rockchip_pinctrl_probe(struct platform_device *pdev)
- 	node = of_parse_phandle(np, "rockchip,grf", 0);
- 	if (node) {
- 		info->regmap_base = syscon_node_to_regmap(node);
-+		of_node_put(node);
- 		if (IS_ERR(info->regmap_base))
- 			return PTR_ERR(info->regmap_base);
- 	} else {
-@@ -3436,6 +3437,7 @@ static int rockchip_pinctrl_probe(struct platform_device *pdev)
- 	node = of_parse_phandle(np, "rockchip,pmu", 0);
- 	if (node) {
- 		info->regmap_pmu = syscon_node_to_regmap(node);
-+		of_node_put(node);
- 		if (IS_ERR(info->regmap_pmu))
- 			return PTR_ERR(info->regmap_pmu);
+diff --git a/drivers/video/fbdev/cirrusfb.c b/drivers/video/fbdev/cirrusfb.c
+index e4ce5667b125..1b0a58f96af2 100644
+--- a/drivers/video/fbdev/cirrusfb.c
++++ b/drivers/video/fbdev/cirrusfb.c
+@@ -470,7 +470,7 @@ static int cirrusfb_check_mclk(struct fb_info *info, long freq)
+ 	return 0;
+ }
+ 
+-static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
++static int cirrusfb_check_pixclock(struct fb_var_screeninfo *var,
+ 				   struct fb_info *info)
+ {
+ 	long freq;
+@@ -479,9 +479,7 @@ static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
+ 	unsigned maxclockidx = var->bits_per_pixel >> 3;
+ 
+ 	/* convert from ps to kHz */
+-	freq = PICOS2KHZ(var->pixclock);
+-
+-	dev_dbg(info->device, "desired pixclock: %ld kHz\n", freq);
++	freq = PICOS2KHZ(var->pixclock ? : 1);
+ 
+ 	maxclock = cirrusfb_board_info[cinfo->btype].maxclock[maxclockidx];
+ 	cinfo->multiplexing = 0;
+@@ -489,11 +487,13 @@ static int cirrusfb_check_pixclock(const struct fb_var_screeninfo *var,
+ 	/* If the frequency is greater than we can support, we might be able
+ 	 * to use multiplexing for the video mode */
+ 	if (freq > maxclock) {
+-		dev_err(info->device,
+-			"Frequency greater than maxclock (%ld kHz)\n",
+-			maxclock);
+-		return -EINVAL;
++		var->pixclock = KHZ2PICOS(maxclock);
++
++		while ((freq = PICOS2KHZ(var->pixclock)) > maxclock)
++			var->pixclock++;
  	}
++	dev_dbg(info->device, "desired pixclock: %ld kHz\n", freq);
++
+ 	/*
+ 	 * Additional constraint: 8bpp uses DAC clock doubling to allow maximum
+ 	 * pixel clock
 -- 
 2.34.1
 
