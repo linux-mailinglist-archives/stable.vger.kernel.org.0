@@ -2,73 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2AB2501E66
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 00:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA90501E76
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 00:31:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347204AbiDNWdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 18:33:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32826 "EHLO
+        id S1347211AbiDNWda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 18:33:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347197AbiDNWdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 18:33:21 -0400
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07911C559B;
-        Thu, 14 Apr 2022 15:30:55 -0700 (PDT)
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23EJT05Q028178;
-        Thu, 14 Apr 2022 22:30:53 GMT
+        with ESMTP id S1347197AbiDNWd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 18:33:28 -0400
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B959C55A5;
+        Thu, 14 Apr 2022 15:31:01 -0700 (PDT)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 23EKX5sh008564;
+        Thu, 14 Apr 2022 22:30:58 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2021-07-09; bh=dXLgYHGX2bcuJ1qIa1hHlApYOsaF6wp685Y8tY54+6o=;
- b=DDbb1yeSVQ3HYx36SR8fgZ5tmnBsEwTxtUUMvTpwoeYu7pPVCUlylWC94JxpbKFlW33g
- EYWmeBwECxSnWclMaSgoKKkxTjJJaRV5sgc+zUmu6GEjdOgRCyiOvKo0J6rn7hjFFRC0
- 2YFdbx+tbJip5BlEu0ocrBY5STYcQqyECdQ9C4yPm8Y+E6cm1Lq64oSGNfgart1AVKNg
- YqApNiljxlOINy5U4xj/jFrdx4R5bwxDmdMiBsfChoq8w5nryuy9IpvabfpSTHObgnmh
- 8HC5hVEdGFFxxxIU5Wdh8J2uyNH0q8Ab1xEKH6wl9eZ26yBrfVFBquYvIugieFTTc9cj Sw== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3fb21a5m0m-1
+ s=corp-2021-07-09; bh=8Ct0seMaWqqoEdaNRFLwwYNLam8EXfh3cGOja5tWS8Q=;
+ b=iukYm+sGpreU7G1lK8sCZZQ6reesM4EAAwugHfsDR1nl0+wW6wLHELYaHSTEzlTf3RWa
+ pQ2HpgOeUikqnvIWLqJhZgwyBGVCCNSqwTeBXOV1jPph8YS62AakKxTisXZp+oKjM0MZ
+ P6tlquY4vdCnYKXuEI/MNWyOXDCuw7V1eS5l3URPAyZ54vuMRBfDgsv8fQRAd7IcoLya
+ eDlOUWJ0LsOr2v8I0OugQInh1zrOXkxvsoDfMUayQT9zcQwgnSsjXGmPwrPsg84KPnO0
+ CVjK7D/09IhzjgfP1AwRcdEniTdBK1lhZsACHE/reh3u4mG7BYVOD6kkkmeJPA0ihZbQ rg== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3fb0x2p3w1-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Apr 2022 22:30:52 +0000
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 23EMGT7v009294;
-        Thu, 14 Apr 2022 22:30:51 GMT
-Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam07lp2044.outbound.protection.outlook.com [104.47.56.44])
-        by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3fck15dac9-1
+        Thu, 14 Apr 2022 22:30:57 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 23EMFowJ006346;
+        Thu, 14 Apr 2022 22:30:56 GMT
+Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam07lp2047.outbound.protection.outlook.com [104.47.56.47])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com with ESMTP id 3fb0k5p5n5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 14 Apr 2022 22:30:51 +0000
+        Thu, 14 Apr 2022 22:30:56 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MUFHKj+KehihwS/HkqjUmmnIxiyofbL8KxrRgVnOyOddRaRRxGSTl4X+ZWIG7fbX4Il1pXyhF2vI11KffFOsrlYBV7c9SrlLg0lYiiMnXXvjFKEZyMatoTf5e2xUVRgA6NEiLb73k05PFaXYZ4PwinTHNOZ7yoFHBHH518j2+yEjPeS9jjDbrhpcHB/zKfde8ZASU6QQRWUpG0+Z2sM/Oy6SwY8W+1C99DQAxPMHl+dV304Lbe2STPF12FqhzW/nnoaBYev3Cu8feZaSter/+ANFyjxZ2VQ7U9+wxvR2XjHI3ABJzeTyaxAU4WN1al7zUVnbpeDF9q30m1r35RQmCw==
+ b=kE2evXRAoPyUgZowN3pAURGl0LFV9F4CprqiiFeMmHrjnqP+/ELL4NYsbzFKzAwAikD+9xFGHxliFWxTrMgcKPcfpxujCFfeA7ky1AsHf0T+9eegdfpxQD5Dqc7yivRlu63mz0Lw0lVgba3e/kAlkzyAHtmKmJo1Fq1gX9W+kUs2hGeNPqOtZR+qGiLhylmsyWvUYAZjTNeSIVJemA5d6z6N9Nane82BI913fyEC4UxNWzq9XvGy+oTPHOKe8FFtHq+Io4vs/qQtSGbIVb5Hkee4JceEIG+L8HqXhaQT18btd0z2yz6Kr41jLkdU8DxQKwWuQI+TRRSr0+R9bg/C/A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dXLgYHGX2bcuJ1qIa1hHlApYOsaF6wp685Y8tY54+6o=;
- b=YuqOJuTlteeujetbLPxQNfPVpApdiBFxVwf0eTUFUJu1AYL86TAQt+zo9FM6DbNzZqLoB0BRMtHzJOm8XbdwmS7OPkIf2/0i8Bik0uYDW01Ud3y9zIUCx+RNwSSpvgg7GjFANswiC2MLotrl36c3ITr+2M8vxlBrfy6Znfcls3YUROO3lJUN/d0CKs7HOla1GppmuldmE3cZ2fHyJJhU8+mMdiuqHxUMEsYcwPg8PxaRIyDbmzr0Xib+h/vsmJ0TACCTsi94untAxlplEPUs9Qy8SCu6Bvhf+Mz8rcC6LIM1kj4eMm11f5irC20OG42lF+OO/bakoxaXZh+GUzkWsA==
+ bh=8Ct0seMaWqqoEdaNRFLwwYNLam8EXfh3cGOja5tWS8Q=;
+ b=UJuWzo/Ghyl1zVucu2mHttCFuK6yZYW8+NBPmPgKDF4ZMZXBUwbQFBC4MvQ13upQ00JjN6fWR5jUZ68CyAoI4VgDT3GUkmFSe1hOMyaSekIYOXUtH8z45ZvAg+rB+O0SOKPl6qHADHg27CT1YWdJfqKEYBQwA9z0Y4ZcMy1ROT+j3A8nkgBrNEJbd1sv/zmVlpxCAhZAMvv3jTyB0+AQPkOxaSn4Omn42Eb3oNJrpmdub49yqyWdgiv9jwLnxlqkOn3rR2eDcOFwov3ITUwWXD0P90Rj2gGl8r3Gy1GlGd+wraDt0lA4HV0RU1sZPdnTonrVa91T0itcH4jGQ6tZlg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dXLgYHGX2bcuJ1qIa1hHlApYOsaF6wp685Y8tY54+6o=;
- b=lf3wx0GHGWMWuYuuFGokt3qepqe0GG8E9W40hubNvYKPq/dnUgA6E7oohhumOBNpEWt6jVaQDwR0LoW/88sYYSxAHlodHvmgHl8a8CidTL939aEbIwbPyk2PK54GsRNGGwwdkCkp2/whpI9KkH679BRKkGZWIaWxZvX9ec0KBxM=
+ bh=8Ct0seMaWqqoEdaNRFLwwYNLam8EXfh3cGOja5tWS8Q=;
+ b=xLsi7eQQNA7uXdZitlChnUVlxRtG15yt2M8ScHyB7sY6J0Bf9SDH2M41Jx28G4/vDmRg7HWl9B3zshlumb7R1zc2OR0zTsIcCOxMF6XoyAOXh5Q3XiaVd4pk2T88plvTjTVZkFjZS+RuadhYpL2Bvs0/9k78flmWzkEoJBcsMFw=
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com (2603:10b6:510:148::10)
  by CO6PR10MB5572.namprd10.prod.outlook.com (2603:10b6:303:147::6) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.20; Thu, 14 Apr
- 2022 22:30:49 +0000
+ 2022 22:30:54 +0000
 Received: from PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::d414:7654:e1b8:4306]) by PH0PR10MB5706.namprd10.prod.outlook.com
  ([fe80::d414:7654:e1b8:4306%7]) with mapi id 15.20.5144.029; Thu, 14 Apr 2022
- 22:30:49 +0000
+ 22:30:54 +0000
 From:   Anand Jain <anand.jain@oracle.com>
 To:     stable@vger.kernel.org
-Cc:     linux-btrfs@vger.kernel.org,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+Cc:     linux-btrfs@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH v3 15/18 stable-5.15.y] gfs2: Fix mmap + page fault deadlocks for direct I/O
-Date:   Fri, 15 Apr 2022 06:28:53 +0800
-Message-Id: <02aca00403b19d316add3a4c835d40436a615103.1649951733.git.anand.jain@oracle.com>
+Subject: [PATCH v3 16/18 stable-5.15.y] btrfs: fix deadlock due to page faults during direct IO reads and writes
+Date:   Fri, 15 Apr 2022 06:28:54 +0800
+Message-Id: <b3ed77a21e8c9b82b32a044aac971feaa0a893e0.1649951733.git.anand.jain@oracle.com>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <cover.1649951733.git.anand.jain@oracle.com>
 References: <cover.1649951733.git.anand.jain@oracle.com>
@@ -79,64 +80,64 @@ X-ClientProxiedBy: TYCPR01CA0057.jpnprd01.prod.outlook.com
  (2603:10b6:510:148::10)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 165da06e-1e37-422c-7e19-08da1e666d1d
+X-MS-Office365-Filtering-Correlation-Id: 40c51a68-596b-4e51-c5b7-08da1e66700c
 X-MS-TrafficTypeDiagnostic: CO6PR10MB5572:EE_
-X-Microsoft-Antispam-PRVS: <CO6PR10MB55722E4FD5D9A9B5DC42D823E5EF9@CO6PR10MB5572.namprd10.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <CO6PR10MB55728F207E926C8A2DCDF05CE5EF9@CO6PR10MB5572.namprd10.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 6YZcoYg/l+ICi5T9/36TxpHfXFPkp5ZNa7dgxq4humM6+II80SJQCMetM0c2wczw6s6coWmmjmz3PgyoF0PLL1ThxAE1wJgzKKNg5qvkO4pM61n8lhrsvg1/zCc5W45wSYMpG/cDVcIDV3d6mEPNQnmhw/Z9BSy4hO98+vV+0m5AoUFMhySuhinEeUGnyxBcvRQr9BgOArRZsEa3VM89AoQ2GLu75+7z8HT5xNH5xL0gk7IIwQrxWSdKuP6RfJ48eI2T3AUTmok47wbFbUtEn26nVDFB8Q6hpgEQEiR8o94x0/5Kt28pTnw780ytT5/J+3AbwiONja0lSTiexVzSNK/rbM5wLfImVpfo/7gg9uSKIUuE5arPtT1+rilWnQMX4gstj61i2BeuXelnEvUDRWvjGFozaO0KF7BRHXEDUvY0JGT7voyH9TGMagPJ+XyahZf0p7Nbewcal0eF8/v2NMXr3SigTN1l9HV6ubY5gmHZXbRKCI5iOhfpVBzKMbvzO+A/ZWrRKaA88PaU1/xOm1xPDgISz0LSuOnF2e3KlmHxaMslS4n2msMpCqPM+LL43MiM2n1x6mCtq/LbJPrMhQ2vNvX1jiuHdxaMX01TWaH5irGAlxhR0RVjTjHVfqiJyfcwnrR/l3Sr99oow/7vkQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(6666004)(38100700002)(86362001)(6512007)(6506007)(2906002)(4326008)(36756003)(66556008)(66476007)(66946007)(508600001)(8676002)(6486002)(44832011)(83380400001)(107886003)(8936002)(6916009)(5660300002)(316002)(2616005)(54906003)(186003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: TI3sZyRMKyev6VDK31z2YoAqe+TXgncBuXJSGJKBAW+ooo1jfABNxI1crhRaTHxH/d5ulA/9nJp2JAvLh6hOWC7/U4jRI0m6gtfVOzNONyQjC9He3O3Bh5bXL8rOdw9ml+5mRfUrqLMHd/px6KlAswr37VH+X99D1D0gT9eb2DWvQwvPZSeAx3fAQ1WuHTGB1njRNXZ/LaeR7+hyM1jBZ5KDRd8QOCrBTo5u2/4/e1AT2H+ywvV+Jqp0O/K8jy8n17Vh+JtrM6tfcBmuoHmOKIKR+9unqig7kfpFxl/lbJ1trfTWSjfsUr0tShklqMZgtrNU50kkDV8AAqekVKALHBRF0Pc8fTn88TTlO0okdKmJivLKR/lbpBokx12kPYJrbgX7DDpHUTqCWVvXDm43zzxd65gznGSOCDH1Wc1b/g1qc0iA04T62QU8mRTUzKqfidoSQoO77n+E1Y96pUCFeRwRTMyoR+/Rt2eOxpKQZox1kEUcRsqWtLEe5256dCl4O7Fk3y2zVRUiUGvLqEya316IxE3S6RKvW3iPY4G1/6tOIYebPQV6hfnDQ1PnAq2m6WQD3x5u2YXyjkZtTJybxKVliwSRMfHrHPPA33wWD54QNub0OEWYQz11aJU4e9PcJFmr1wfGlJh7MmPQUAe/VA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR10MB5706.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(38100700002)(86362001)(6512007)(6506007)(2906002)(4326008)(36756003)(66556008)(66476007)(66946007)(508600001)(8676002)(6486002)(44832011)(83380400001)(107886003)(8936002)(6916009)(5660300002)(316002)(2616005)(54906003)(30864003)(186003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?qL+7s49vVW36elxmUWB10WSQVUgYYkwadA2wDYHeRvzSmo4/WyXYSEuq3x83?=
- =?us-ascii?Q?VgJNG6xTQOFXS2Hy/lFMoE0SJyixs1Fs8U9nq0DN6D+toBYnIqS6KVi49GwC?=
- =?us-ascii?Q?ze6tBsVsIHXC3ekp4aRwLaQWMJrgTZodZiZxaVr6ix7os0EArlJlfARm5ubZ?=
- =?us-ascii?Q?2hD4Z3q7SixpHnxWbu/q4Xn8jDtdKUsXur2Ebuuqv/rGLiBfGCcOk7CloQhw?=
- =?us-ascii?Q?hdNYdDow79FQmdJ+kFZ18YP8aRwE28YGvpXBQUnmSYpl2CPD7cEBDBi5i0nV?=
- =?us-ascii?Q?KMjBuA8x/YLdwllWu3Mm+qkiSbntiPWbOSapXu4FcYgsKttQGG4TPobYhrad?=
- =?us-ascii?Q?MxP7fhqvQGfmp7P6t2HkZJZFMD17rzGCl8W8Lc8+5X/Vv9UZVbcure+p0cbn?=
- =?us-ascii?Q?SSnb79LbWYnL/PehjwGz4cCBsJJN75bMHEankBwWL4eYXTVALT9lGtBhkR5G?=
- =?us-ascii?Q?Yur3e1AcQERzdgf0h/7PVL4dgepT4CUo9aprdHR5nzLCowNEJGKVsWLaZ6Uj?=
- =?us-ascii?Q?v+NDOCVoY0s2LfzXmuBXGU37Ahk+5MWc6fnJDyHEo6joaqvGqzifY3Fc5N2J?=
- =?us-ascii?Q?YO/1dD5jVxYjVcCEeKISPAIK/85buEWluTUuGohXp1c3mZ0gtX5OICvoeQjS?=
- =?us-ascii?Q?cWhPzbJxsbgsyNYgM5Zer6ys/gAMHO+W4d6HEmK4nkhR+PoSX+P1zlo6HktR?=
- =?us-ascii?Q?cXeIqxIQ6sMCT34zTW0BX9i8zf7cLvqwb6kK6souM686oq38kS1xs15ZA4bz?=
- =?us-ascii?Q?238PTUkSqcUMbbmjkRpbD6Wgy8RaC0GJeGwT+lQf/iUstsC/63QJebNjy/9I?=
- =?us-ascii?Q?DG1fyzJIkN/L4KSYBA1DpIw/DptsDBauh/cPMNJXG+NXxl3iDJNyuCCTyiR/?=
- =?us-ascii?Q?avr+tlgGIhaCgRD27YoeVA/CTHFpWVpcpqE2a4MYzGYvhuT+v7Ontuf4/baE?=
- =?us-ascii?Q?fZqdqrcHVQ6Vaxc96GP9Sb1LzEARp9K7ZMbHa+IHLigdhpb98sFLJ2oDIh2l?=
- =?us-ascii?Q?L/iZLtVLGW0bkVLJQ4avxRb8HExAyxlRhQ1iT/WB89oL0uuSPH36p/KPGBrc?=
- =?us-ascii?Q?E5I5blWqoH5yPFk2wnfoMhdqGBMPap1FVVUqX12Dh3eOb8R57fRfaqmirtkt?=
- =?us-ascii?Q?Vk8PWajqMBSVvmNV3njjy8QE80Bap+QLh2YKcg0s4+kWw7qLq86901ERXGcL?=
- =?us-ascii?Q?ARpu3js/V/zKe3A5TT2JkuhxItJIPw3QpiLAo6wi095FGHzc+6e6jVbufBNv?=
- =?us-ascii?Q?ttkVDrIMH/aJg4CZNntUziMpf/ry+qD1PPlV9Ku3gDpUJrkbyQr/vxtTDpyc?=
- =?us-ascii?Q?1CjyQITxAcN8VERKD2iR9fDwGr5rHcz0jinA4l5P6eH3p3e1Eyt40rijV2t/?=
- =?us-ascii?Q?KsE/fwTXDMG0pjBQi+47BgIqGCxN3OYWOQ+Mk2O6RqbvF1ANMefqe6C2jJQv?=
- =?us-ascii?Q?UkDJYmvg9kmy3gQT3XVovqDk5F+sOasAPPpO+tnqrExMM166ISAenWaRhzVp?=
- =?us-ascii?Q?0q/MVJmq9GYWnwLzJ2JhtYy8kzy2X+yZcpaCJo8x82A2Qw5CbXfvkmiAyP1a?=
- =?us-ascii?Q?yIroxH7XjX7lN5tD9P0+4yXAbDqM39JAdl6qRxD//IjNOhUJic+4tYxesKHT?=
- =?us-ascii?Q?iHSZ1VyipORE+oB4g/V+nliEyEaEZr5NXgugefFjRNnh4hbEwkVF2Sj3tGfv?=
- =?us-ascii?Q?SJhBxinpQFK23UeO2kEl426gwrmGDgO1fcPziyQ1VZXShVKlZbQuuvcWYKGU?=
- =?us-ascii?Q?G1MAGtaVirZEDkYjr2oIOOjjYKWg0kUA579soxEd1GeGoJg+vs4o?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?tnbXDicVn1eFPJjtc+/CHHDUXhUq329/Y2zmWpHAj0joTVtP6dPT39eAiiW5?=
+ =?us-ascii?Q?4wZ7QblQ3rO7VC8fvxExa5/IZr1mQAZ+bVqZ+f+xZqKzpRd4bEjYvhHc95VC?=
+ =?us-ascii?Q?TqdWyhX7WELRq3OXyBwE5qa8AkjZaD90cUk8swk2MXYTdCDfolCXUhzW9RY2?=
+ =?us-ascii?Q?4tWls9hfSVZFjePRru+h7wnrmcnG7l+vmCaMRK1GVtKBcxPdfYmeJR5D6NkL?=
+ =?us-ascii?Q?FwDjerpEJHa5fREFkC/I7wanc4F7vB5U97KYiorjmKjmOZijzIc8TmYDL8tn?=
+ =?us-ascii?Q?zuvZ7sAMStN3sH3fxIkU/9/5dLBJLokpt6S2sTRM1xFW0qFVWtO+0vAwUBhl?=
+ =?us-ascii?Q?fGCeLt+DEED5OjMYPc0+tSAXJr0tPUHWx6B+XLrVuYu5pW8ZtC1HQs7Pgimd?=
+ =?us-ascii?Q?GJPpIItj8f24HraocEWu0l3Nc/ZWI4iTJjix9lzPRZeEnImmmvlHlz590rQX?=
+ =?us-ascii?Q?RKXAUvxUCQ+xf2Cc0PF+eF9K22ZtUZrlhhlMG9inZLG14NWItN7cJSHXfXFT?=
+ =?us-ascii?Q?WzQGJKxqoJisnREVOufidvs9rNpVNRZFQ/OeC09Jt/MV15G8yWXvZVmiNXka?=
+ =?us-ascii?Q?vL1jpdkMdkJ5E6WaWvT/aEoE+/MXkIuiaw8H3/IG3g+8UFUP8pRmreP1vSyi?=
+ =?us-ascii?Q?TxW6vluC6D2G7nr0mBOKjl5HRPDLwd6HDcGUFheoLX0g61ogaxwy3Dph0Ac4?=
+ =?us-ascii?Q?r5Kl7f0VVuj7eG3k2LbvVbFBmdFF+OUrmfl91NfQYkOWllwvn6mRZBDr28us?=
+ =?us-ascii?Q?VM32kA/LECCxtPw+4VMXzvssOxZSiJXUlYybrA6FsiGkYlXNUfQZEkrI3N6s?=
+ =?us-ascii?Q?AWuiqsJaJrPApLqTSQ8T42/OinOTOSBba1FpvwJsA3iGXKdge7Jx2YiXC6x1?=
+ =?us-ascii?Q?care4bjIe+xLsL2RR/bAvqyFNRj8+ISwl6kb3Q+QxKMhk+XfjUYNYea8QaYM?=
+ =?us-ascii?Q?gcnFD2Df79ooveWS/NYfSRIHZoI+d30mx5o+DhDnqyn3bNPVwfGn77L9/lpe?=
+ =?us-ascii?Q?cjZJ/fmtQqwZMxKtPVSVlqlI5sTYs7OYQojRf0cfbmTsw6+hVkOqPcuGOkUW?=
+ =?us-ascii?Q?n5N3XNfYQNoDu5Ba3AODNAT2zIa/qcSGuhLochqTb6pocoj2YlUawNnhF56w?=
+ =?us-ascii?Q?OYQAseFJsN0vcrIcEjP3WkSiS15I4JLn3KYW2Qex1KenjtkliNIm2NNA4G8i?=
+ =?us-ascii?Q?2+0W/PeaqOGOWEqjaDV20l6slCiZsiKlWmwOpTeGxS9jEYSqE5FaFbJEnmuj?=
+ =?us-ascii?Q?viMT304NaK6oVRNd/79VqDv/e8jhEBHU4PqyjWqXoXMUUhidXlpUGpxnAZpG?=
+ =?us-ascii?Q?Dr37gEKt04ZTR2oG/iaUCRxehH/UUHme0xphslMipUVum2E97UN3kaw6Iasp?=
+ =?us-ascii?Q?WB/EaZO6k/dbPO2qFL24mCHv4VNvdc5DQLpghN7yMJlyEW3N7iUP0j276fMN?=
+ =?us-ascii?Q?6sp9fbb3FPp45uUD+NfxoEELdP5JZKiiA0QC/Wv2uSOTyXKEOLE6fZ5xho7m?=
+ =?us-ascii?Q?lE7Z2PWg5mymuf+GbNDQF165tQGfIYoXTa2hyRHy8rOaTKF02zGs+aJx5WuY?=
+ =?us-ascii?Q?gaMdYBEKUPg87UfceGLT4IorL7edKky5N46Ls908bU9FMU5dxT0N7pQ8sG3p?=
+ =?us-ascii?Q?vtyeLvxOsFP16M0NILZ/Zkjuikp4+lahzYEa087T/Y0otBL3kA5dLMC4K6Do?=
+ =?us-ascii?Q?wQwiu+RfcgYKKQSQgEQENL7l7lz6xFTxORslDIYAZsMlNff6BNlXug82gwUT?=
+ =?us-ascii?Q?29BKIBelFgQOKfeZJKRKbJ2faSbr6oH6fjj7mf7n9XVWxH/h6aSF?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 165da06e-1e37-422c-7e19-08da1e666d1d
+X-MS-Exchange-CrossTenant-Network-Message-Id: 40c51a68-596b-4e51-c5b7-08da1e66700c
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR10MB5706.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2022 22:30:49.4211
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2022 22:30:54.3134
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: TpUbKEvga7h8SkIx8RPl/5vHAFRO3TAYz9g6cEKJkW8k28HEyQ2KJsIMAQG0oFH6U8T6gVKEi5y1KhGeLRHPhQ==
+X-MS-Exchange-CrossTenant-UserPrincipalName: u1U7EgH25XspZ7Z4ziJiUX6O0/dPrBomqtrL5mumh+rp8Hd0tsdeQYyqBsUAJ2g50Pbx3fJ9VhGSiNF/oTy1zA==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR10MB5572
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486,18.0.858
  definitions=2022-04-14_07:2022-04-14,2022-04-14 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 adultscore=0
- phishscore=0 mlxscore=0 suspectscore=0 malwarescore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2204140116
-X-Proofpoint-GUID: 0GgPr6T3PgpEQfCXX9VDRzFckatUStbK
-X-Proofpoint-ORIG-GUID: 0GgPr6T3PgpEQfCXX9VDRzFckatUStbK
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 malwarescore=0
+ mlxscore=0 phishscore=0 suspectscore=0 spamscore=0 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204140116
+X-Proofpoint-ORIG-GUID: j8yxx6EPSSgrTdfMLy8KiM3q3uVbQDck
+X-Proofpoint-GUID: j8yxx6EPSSgrTdfMLy8KiM3q3uVbQDck
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
@@ -147,178 +148,357 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit b01b2d72da25c000aeb124bc78daf3fb998be2b6 upstream
+commit 51bd9563b6783de8315f38f7baed949e77c42311 upstream
 
-Also disable page faults during direct I/O requests and implement a
-similar kind of retry logic as in the buffered I/O case.
+If we do a direct IO read or write when the buffer given by the user is
+memory mapped to the file range we are going to do IO, we end up ending
+in a deadlock. This is triggered by the new test case generic/647 from
+fstests.
 
-The retry logic in the direct I/O case differs from the buffered I/O
-case in the following way: direct I/O doesn't provide the kinds of
-consistency guarantees between concurrent reads and writes that buffered
-I/O provides, so once we lose the inode glock while faulting in user
-pages, we always resume the operation.  We never need to return a
-partial read or write.
+For a direct IO read we get a trace like this:
 
-This locking problem was originally reported by Jan Kara.  Linus came up
-with the idea of disabling page faults.  Many thanks to Al Viro and
-Matthew Wilcox for their feedback.
+  [967.872718] INFO: task mmap-rw-fault:12176 blocked for more than 120 seconds.
+  [967.874161]       Not tainted 5.14.0-rc7-btrfs-next-95 #1
+  [967.874909] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [967.875983] task:mmap-rw-fault   state:D stack:    0 pid:12176 ppid: 11884 flags:0x00000000
+  [967.875992] Call Trace:
+  [967.875999]  __schedule+0x3ca/0xe10
+  [967.876015]  schedule+0x43/0xe0
+  [967.876020]  wait_extent_bit.constprop.0+0x1eb/0x260 [btrfs]
+  [967.876109]  ? do_wait_intr_irq+0xb0/0xb0
+  [967.876118]  lock_extent_bits+0x37/0x90 [btrfs]
+  [967.876150]  btrfs_lock_and_flush_ordered_range+0xa9/0x120 [btrfs]
+  [967.876184]  ? extent_readahead+0xa7/0x530 [btrfs]
+  [967.876214]  extent_readahead+0x32d/0x530 [btrfs]
+  [967.876253]  ? lru_cache_add+0x104/0x220
+  [967.876255]  ? kvm_sched_clock_read+0x14/0x40
+  [967.876258]  ? sched_clock_cpu+0xd/0x110
+  [967.876263]  ? lock_release+0x155/0x4a0
+  [967.876271]  read_pages+0x86/0x270
+  [967.876274]  ? lru_cache_add+0x125/0x220
+  [967.876281]  page_cache_ra_unbounded+0x1a3/0x220
+  [967.876291]  filemap_fault+0x626/0xa20
+  [967.876303]  __do_fault+0x36/0xf0
+  [967.876308]  __handle_mm_fault+0x83f/0x15f0
+  [967.876322]  handle_mm_fault+0x9e/0x260
+  [967.876327]  __get_user_pages+0x204/0x620
+  [967.876332]  ? get_user_pages_unlocked+0x69/0x340
+  [967.876340]  get_user_pages_unlocked+0xd3/0x340
+  [967.876349]  internal_get_user_pages_fast+0xbca/0xdc0
+  [967.876366]  iov_iter_get_pages+0x8d/0x3a0
+  [967.876374]  bio_iov_iter_get_pages+0x82/0x4a0
+  [967.876379]  ? lock_release+0x155/0x4a0
+  [967.876387]  iomap_dio_bio_actor+0x232/0x410
+  [967.876396]  iomap_apply+0x12a/0x4a0
+  [967.876398]  ? iomap_dio_rw+0x30/0x30
+  [967.876414]  __iomap_dio_rw+0x29f/0x5e0
+  [967.876415]  ? iomap_dio_rw+0x30/0x30
+  [967.876420]  ? lock_acquired+0xf3/0x420
+  [967.876429]  iomap_dio_rw+0xa/0x30
+  [967.876431]  btrfs_file_read_iter+0x10b/0x140 [btrfs]
+  [967.876460]  new_sync_read+0x118/0x1a0
+  [967.876472]  vfs_read+0x128/0x1b0
+  [967.876477]  __x64_sys_pread64+0x90/0xc0
+  [967.876483]  do_syscall_64+0x3b/0xc0
+  [967.876487]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [967.876490] RIP: 0033:0x7fb6f2c038d6
+  [967.876493] RSP: 002b:00007fffddf586b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000011
+  [967.876496] RAX: ffffffffffffffda RBX: 0000000000001000 RCX: 00007fb6f2c038d6
+  [967.876498] RDX: 0000000000001000 RSI: 00007fb6f2c17000 RDI: 0000000000000003
+  [967.876499] RBP: 0000000000001000 R08: 0000000000000003 R09: 0000000000000000
+  [967.876501] R10: 0000000000001000 R11: 0000000000000246 R12: 0000000000000003
+  [967.876502] R13: 0000000000000000 R14: 00007fb6f2c17000 R15: 0000000000000000
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+This happens because at btrfs_dio_iomap_begin() we lock the extent range
+and return with it locked - we only unlock in the endio callback, at
+end_bio_extent_readpage() -> endio_readpage_release_extent(). Then after
+iomap called the btrfs_dio_iomap_begin() callback, it triggers the page
+faults that resulting in reading the pages, through the readahead callback
+btrfs_readahead(), and through there we end to attempt to lock again the
+same extent range (or a subrange of what we locked before), resulting in
+the deadlock.
+
+For a direct IO write, the scenario is a bit different, and it results in
+trace like this:
+
+  [1132.442520] run fstests generic/647 at 2021-08-31 18:53:35
+  [1330.349355] INFO: task mmap-rw-fault:184017 blocked for more than 120 seconds.
+  [1330.350540]       Not tainted 5.14.0-rc7-btrfs-next-95 #1
+  [1330.351158] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+  [1330.351900] task:mmap-rw-fault   state:D stack:    0 pid:184017 ppid:183725 flags:0x00000000
+  [1330.351906] Call Trace:
+  [1330.351913]  __schedule+0x3ca/0xe10
+  [1330.351930]  schedule+0x43/0xe0
+  [1330.351935]  btrfs_start_ordered_extent+0x108/0x1c0 [btrfs]
+  [1330.352020]  ? do_wait_intr_irq+0xb0/0xb0
+  [1330.352028]  btrfs_lock_and_flush_ordered_range+0x8c/0x120 [btrfs]
+  [1330.352064]  ? extent_readahead+0xa7/0x530 [btrfs]
+  [1330.352094]  extent_readahead+0x32d/0x530 [btrfs]
+  [1330.352133]  ? lru_cache_add+0x104/0x220
+  [1330.352135]  ? kvm_sched_clock_read+0x14/0x40
+  [1330.352138]  ? sched_clock_cpu+0xd/0x110
+  [1330.352143]  ? lock_release+0x155/0x4a0
+  [1330.352151]  read_pages+0x86/0x270
+  [1330.352155]  ? lru_cache_add+0x125/0x220
+  [1330.352162]  page_cache_ra_unbounded+0x1a3/0x220
+  [1330.352172]  filemap_fault+0x626/0xa20
+  [1330.352176]  ? filemap_map_pages+0x18b/0x660
+  [1330.352184]  __do_fault+0x36/0xf0
+  [1330.352189]  __handle_mm_fault+0x1253/0x15f0
+  [1330.352203]  handle_mm_fault+0x9e/0x260
+  [1330.352208]  __get_user_pages+0x204/0x620
+  [1330.352212]  ? get_user_pages_unlocked+0x69/0x340
+  [1330.352220]  get_user_pages_unlocked+0xd3/0x340
+  [1330.352229]  internal_get_user_pages_fast+0xbca/0xdc0
+  [1330.352246]  iov_iter_get_pages+0x8d/0x3a0
+  [1330.352254]  bio_iov_iter_get_pages+0x82/0x4a0
+  [1330.352259]  ? lock_release+0x155/0x4a0
+  [1330.352266]  iomap_dio_bio_actor+0x232/0x410
+  [1330.352275]  iomap_apply+0x12a/0x4a0
+  [1330.352278]  ? iomap_dio_rw+0x30/0x30
+  [1330.352292]  __iomap_dio_rw+0x29f/0x5e0
+  [1330.352294]  ? iomap_dio_rw+0x30/0x30
+  [1330.352306]  btrfs_file_write_iter+0x238/0x480 [btrfs]
+  [1330.352339]  new_sync_write+0x11f/0x1b0
+  [1330.352344]  ? NF_HOOK_LIST.constprop.0.cold+0x31/0x3e
+  [1330.352354]  vfs_write+0x292/0x3c0
+  [1330.352359]  __x64_sys_pwrite64+0x90/0xc0
+  [1330.352365]  do_syscall_64+0x3b/0xc0
+  [1330.352369]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [1330.352372] RIP: 0033:0x7f4b0a580986
+  [1330.352379] RSP: 002b:00007ffd34d75418 EFLAGS: 00000246 ORIG_RAX: 0000000000000012
+  [1330.352382] RAX: ffffffffffffffda RBX: 0000000000001000 RCX: 00007f4b0a580986
+  [1330.352383] RDX: 0000000000001000 RSI: 00007f4b0a3a4000 RDI: 0000000000000003
+  [1330.352385] RBP: 00007f4b0a3a4000 R08: 0000000000000003 R09: 0000000000000000
+  [1330.352386] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
+  [1330.352387] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+
+Unlike for reads, at btrfs_dio_iomap_begin() we return with the extent
+range unlocked, but later when the page faults are triggered and we try
+to read the extents, we end up btrfs_lock_and_flush_ordered_range() where
+we find the ordered extent for our write, created by the iomap callback
+btrfs_dio_iomap_begin(), and we wait for it to complete, which makes us
+deadlock since we can't complete the ordered extent without reading the
+pages (the iomap code only submits the bio after the pages are faulted
+in).
+
+Fix this by setting the nofault attribute of the given iov_iter and retry
+the direct IO read/write if we get an -EFAULT error returned from iomap.
+For reads, also disable page faults completely, this is because when we
+read from a hole or a prealloc extent, we can still trigger page faults
+due to the call to iov_iter_zero() done by iomap - at the moment, it is
+oblivious to the value of the ->nofault attribute of an iov_iter.
+We also need to keep track of the number of bytes written or read, and
+pass it to iomap_dio_rw(), as well as use the new flag IOMAP_DIO_PARTIAL.
+
+This depends on the iov_iter and iomap changes introduced in commit
+c03098d4b9ad ("Merge tag 'gfs2-v5.15-rc5-mmap-fault' of
+git://git.kernel.org/pub/scm/linux/kernel/git/gfs2/linux-gfs2").
+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Anand Jain <anand.jain@oracle.com>
 ---
- fs/gfs2/file.c | 99 ++++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 87 insertions(+), 12 deletions(-)
+ fs/btrfs/file.c | 139 ++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 123 insertions(+), 16 deletions(-)
 
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 81835d34d6f6..247b8d95b5ef 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -812,22 +812,64 @@ static ssize_t gfs2_file_direct_read(struct kiocb *iocb, struct iov_iter *to,
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index cd4950476366..5ac6ec80b970 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1903,16 +1903,17 @@ static ssize_t check_direct_IO(struct btrfs_fs_info *fs_info,
+ 
+ static ssize_t btrfs_direct_write(struct kiocb *iocb, struct iov_iter *from)
  {
++	const bool is_sync_write = (iocb->ki_flags & IOCB_DSYNC);
  	struct file *file = iocb->ki_filp;
- 	struct gfs2_inode *ip = GFS2_I(file->f_mapping->host);
--	size_t count = iov_iter_count(to);
-+	size_t prev_count = 0, window_size = 0;
-+	size_t written = 0;
- 	ssize_t ret;
+ 	struct inode *inode = file_inode(file);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+ 	loff_t pos;
+ 	ssize_t written = 0;
+ 	ssize_t written_buffered;
++	size_t prev_left = 0;
+ 	loff_t endbyte;
+ 	ssize_t err;
+ 	unsigned int ilock_flags = 0;
+-	struct iomap_dio *dio = NULL;
  
--	if (!count)
+ 	if (iocb->ki_flags & IOCB_NOWAIT)
+ 		ilock_flags |= BTRFS_ILOCK_TRY;
+@@ -1955,23 +1956,80 @@ static ssize_t btrfs_direct_write(struct kiocb *iocb, struct iov_iter *from)
+ 		goto buffered;
+ 	}
+ 
+-	dio = __iomap_dio_rw(iocb, from, &btrfs_dio_iomap_ops, &btrfs_dio_ops,
+-			     0, 0);
 +	/*
-+	 * In this function, we disable page faults when we're holding the
-+	 * inode glock while doing I/O.  If a page fault occurs, we indicate
-+	 * that the inode glock may be dropped, fault in the pages manually,
-+	 * and retry.
-+	 *
-+	 * Unlike generic_file_read_iter, for reads, iomap_dio_rw can trigger
-+	 * physical as well as manual page faults, and we need to disable both
-+	 * kinds.
-+	 *
-+	 * For direct I/O, gfs2 takes the inode glock in deferred mode.  This
-+	 * locking mode is compatible with other deferred holders, so multiple
-+	 * processes and nodes can do direct I/O to a file at the same time.
-+	 * There's no guarantee that reads or writes will be atomic.  Any
-+	 * coordination among readers and writers needs to happen externally.
++	 * We remove IOCB_DSYNC so that we don't deadlock when iomap_dio_rw()
++	 * calls generic_write_sync() (through iomap_dio_complete()), because
++	 * that results in calling fsync (btrfs_sync_file()) which will try to
++	 * lock the inode in exclusive/write mode.
 +	 */
-+
-+	if (!iov_iter_count(to))
- 		return 0; /* skip atime */
++	if (is_sync_write)
++		iocb->ki_flags &= ~IOCB_DSYNC;
  
- 	gfs2_holder_init(ip->i_gl, LM_ST_DEFERRED, 0, gh);
-+retry:
- 	ret = gfs2_glock_nq(gh);
- 	if (ret)
- 		goto out_uninit;
-+retry_under_glock:
-+	pagefault_disable();
-+	to->nofault = true;
-+	ret = iomap_dio_rw(iocb, to, &gfs2_iomap_ops, NULL,
+-	btrfs_inode_unlock(inode, ilock_flags);
++	/*
++	 * The iov_iter can be mapped to the same file range we are writing to.
++	 * If that's the case, then we will deadlock in the iomap code, because
++	 * it first calls our callback btrfs_dio_iomap_begin(), which will create
++	 * an ordered extent, and after that it will fault in the pages that the
++	 * iov_iter refers to. During the fault in we end up in the readahead
++	 * pages code (starting at btrfs_readahead()), which will lock the range,
++	 * find that ordered extent and then wait for it to complete (at
++	 * btrfs_lock_and_flush_ordered_range()), resulting in a deadlock since
++	 * obviously the ordered extent can never complete as we didn't submit
++	 * yet the respective bio(s). This always happens when the buffer is
++	 * memory mapped to the same file range, since the iomap DIO code always
++	 * invalidates pages in the target file range (after starting and waiting
++	 * for any writeback).
++	 *
++	 * So here we disable page faults in the iov_iter and then retry if we
++	 * got -EFAULT, faulting in the pages before the retry.
++	 */
++again:
++	from->nofault = true;
++	err = iomap_dio_rw(iocb, from, &btrfs_dio_iomap_ops, &btrfs_dio_ops,
 +			   IOMAP_DIO_PARTIAL, written);
-+	to->nofault = false;
-+	pagefault_enable();
-+	if (ret > 0)
-+		written = ret;
++	from->nofault = false;
  
--	ret = iomap_dio_rw(iocb, to, &gfs2_iomap_ops, NULL, 0, 0);
--	gfs2_glock_dq(gh);
-+	if (should_fault_in_pages(ret, to, &prev_count, &window_size)) {
-+		size_t leftover;
+-	if (IS_ERR_OR_NULL(dio)) {
+-		err = PTR_ERR_OR_ZERO(dio);
+-		if (err < 0 && err != -ENOTBLK)
+-			goto out;
+-	} else {
+-		written = iomap_dio_complete(dio);
++	/* No increment (+=) because iomap returns a cumulative value. */
++	if (err > 0)
++		written = err;
 +
-+		gfs2_holder_allow_demote(gh);
-+		leftover = fault_in_iov_iter_writeable(to, window_size);
-+		gfs2_holder_disallow_demote(gh);
-+		if (leftover != window_size) {
-+			if (!gfs2_holder_queued(gh))
-+				goto retry;
-+			goto retry_under_glock;
++	if (iov_iter_count(from) > 0 && (err == -EFAULT || err > 0)) {
++		const size_t left = iov_iter_count(from);
++		/*
++		 * We have more data left to write. Try to fault in as many as
++		 * possible of the remainder pages and retry. We do this without
++		 * releasing and locking again the inode, to prevent races with
++		 * truncate.
++		 *
++		 * Also, in case the iov refers to pages in the file range of the
++		 * file we want to write to (due to a mmap), we could enter an
++		 * infinite loop if we retry after faulting the pages in, since
++		 * iomap will invalidate any pages in the range early on, before
++		 * it tries to fault in the pages of the iov. So we keep track of
++		 * how much was left of iov in the previous EFAULT and fallback
++		 * to buffered IO in case we haven't made any progress.
++		 */
++		if (left == prev_left) {
++			err = -ENOTBLK;
++		} else {
++			fault_in_iov_iter_readable(from, left);
++			prev_left = left;
++			goto again;
 +		}
-+	}
-+	if (gfs2_holder_queued(gh))
-+		gfs2_glock_dq(gh);
- out_uninit:
- 	gfs2_holder_uninit(gh);
--	return ret;
-+	if (ret < 0)
-+		return ret;
-+	return written;
+ 	}
+ 
+-	if (written < 0 || !iov_iter_count(from)) {
+-		err = written;
++	btrfs_inode_unlock(inode, ilock_flags);
++
++	/*
++	 * Add back IOCB_DSYNC. Our caller, btrfs_file_write_iter(), will do
++	 * the fsync (call generic_write_sync()).
++	 */
++	if (is_sync_write)
++		iocb->ki_flags |= IOCB_DSYNC;
++
++	/* If 'err' is -ENOTBLK then it means we must fallback to buffered IO. */
++	if ((err < 0 && err != -ENOTBLK) || !iov_iter_count(from))
+ 		goto out;
+-	}
+ 
+ buffered:
+ 	pos = iocb->ki_pos;
+@@ -1996,7 +2054,7 @@ static ssize_t btrfs_direct_write(struct kiocb *iocb, struct iov_iter *from)
+ 	invalidate_mapping_pages(file->f_mapping, pos >> PAGE_SHIFT,
+ 				 endbyte >> PAGE_SHIFT);
+ out:
+-	return written ? written : err;
++	return err < 0 ? err : written;
  }
  
- static ssize_t gfs2_file_direct_write(struct kiocb *iocb, struct iov_iter *from,
-@@ -836,10 +878,20 @@ static ssize_t gfs2_file_direct_write(struct kiocb *iocb, struct iov_iter *from,
- 	struct file *file = iocb->ki_filp;
- 	struct inode *inode = file->f_mapping->host;
- 	struct gfs2_inode *ip = GFS2_I(inode);
--	size_t len = iov_iter_count(from);
--	loff_t offset = iocb->ki_pos;
-+	size_t prev_count = 0, window_size = 0;
-+	size_t read = 0;
+ static ssize_t btrfs_file_write_iter(struct kiocb *iocb,
+@@ -3650,6 +3708,8 @@ static int check_direct_read(struct btrfs_fs_info *fs_info,
+ static ssize_t btrfs_direct_read(struct kiocb *iocb, struct iov_iter *to)
+ {
+ 	struct inode *inode = file_inode(iocb->ki_filp);
++	size_t prev_left = 0;
++	ssize_t read = 0;
  	ssize_t ret;
  
-+	/*
-+	 * In this function, we disable page faults when we're holding the
-+	 * inode glock while doing I/O.  If a page fault occurs, we indicate
-+	 * that the inode glock may be dropped, fault in the pages manually,
-+	 * and retry.
-+	 *
-+	 * For writes, iomap_dio_rw only triggers manual page faults, so we
-+	 * don't need to disable physical ones.
-+	 */
-+
- 	/*
- 	 * Deferred lock, even if its a write, since we do no allocation on
- 	 * this path. All we need to change is the atime, and this lock mode
-@@ -849,22 +901,45 @@ static ssize_t gfs2_file_direct_write(struct kiocb *iocb, struct iov_iter *from,
- 	 * VFS does.
- 	 */
- 	gfs2_holder_init(ip->i_gl, LM_ST_DEFERRED, 0, gh);
-+retry:
- 	ret = gfs2_glock_nq(gh);
- 	if (ret)
- 		goto out_uninit;
--
-+retry_under_glock:
- 	/* Silently fall back to buffered I/O when writing beyond EOF */
--	if (offset + len > i_size_read(&ip->i_inode))
-+	if (iocb->ki_pos + iov_iter_count(from) > i_size_read(&ip->i_inode))
- 		goto out;
+ 	if (fsverity_active(inode))
+@@ -3659,10 +3719,57 @@ static ssize_t btrfs_direct_read(struct kiocb *iocb, struct iov_iter *to)
+ 		return 0;
  
--	ret = iomap_dio_rw(iocb, from, &gfs2_iomap_ops, NULL, 0, 0);
-+	from->nofault = true;
-+	ret = iomap_dio_rw(iocb, from, &gfs2_iomap_ops, NULL,
+ 	btrfs_inode_lock(inode, BTRFS_ILOCK_SHARED);
++again:
++	/*
++	 * This is similar to what we do for direct IO writes, see the comment
++	 * at btrfs_direct_write(), but we also disable page faults in addition
++	 * to disabling them only at the iov_iter level. This is because when
++	 * reading from a hole or prealloc extent, iomap calls iov_iter_zero(),
++	 * which can still trigger page fault ins despite having set ->nofault
++	 * to true of our 'to' iov_iter.
++	 *
++	 * The difference to direct IO writes is that we deadlock when trying
++	 * to lock the extent range in the inode's tree during he page reads
++	 * triggered by the fault in (while for writes it is due to waiting for
++	 * our own ordered extent). This is because for direct IO reads,
++	 * btrfs_dio_iomap_begin() returns with the extent range locked, which
++	 * is only unlocked in the endio callback (end_bio_extent_readpage()).
++	 */
++	pagefault_disable();
++	to->nofault = true;
+ 	ret = iomap_dio_rw(iocb, to, &btrfs_dio_iomap_ops, &btrfs_dio_ops,
+-			   0, 0);
 +			   IOMAP_DIO_PARTIAL, read);
-+	from->nofault = false;
++	to->nofault = false;
++	pagefault_enable();
 +
- 	if (ret == -ENOTBLK)
- 		ret = 0;
++	/* No increment (+=) because iomap returns a cumulative value. */
 +	if (ret > 0)
 +		read = ret;
 +
-+	if (should_fault_in_pages(ret, from, &prev_count, &window_size)) {
-+		size_t leftover;
++	if (iov_iter_count(to) > 0 && (ret == -EFAULT || ret > 0)) {
++		const size_t left = iov_iter_count(to);
 +
-+		gfs2_holder_allow_demote(gh);
-+		leftover = fault_in_iov_iter_readable(from, window_size);
-+		gfs2_holder_disallow_demote(gh);
-+		if (leftover != window_size) {
-+			if (!gfs2_holder_queued(gh))
-+				goto retry;
-+			goto retry_under_glock;
++		if (left == prev_left) {
++			/*
++			 * We didn't make any progress since the last attempt,
++			 * fallback to a buffered read for the remainder of the
++			 * range. This is just to avoid any possibility of looping
++			 * for too long.
++			 */
++			ret = read;
++		} else {
++			/*
++			 * We made some progress since the last retry or this is
++			 * the first time we are retrying. Fault in as many pages
++			 * as possible and retry.
++			 */
++			fault_in_iov_iter_writeable(to, left);
++			prev_left = left;
++			goto again;
 +		}
 +	}
- out:
--	gfs2_glock_dq(gh);
-+	if (gfs2_holder_queued(gh))
-+		gfs2_glock_dq(gh);
- out_uninit:
- 	gfs2_holder_uninit(gh);
+ 	btrfs_inode_unlock(inode, BTRFS_ILOCK_SHARED);
 -	return ret;
-+	if (ret < 0)
-+		return ret;
-+	return read;
++	return ret < 0 ? ret : read;
  }
  
- static ssize_t gfs2_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ static ssize_t btrfs_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 -- 
 2.33.1
 
