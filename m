@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3757B501138
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C66D05014F9
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241902AbiDNOFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:05:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43132 "EHLO
+        id S245397AbiDNNnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347118AbiDNN63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:29 -0400
+        with ESMTP id S1344078AbiDNNaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8EA9B7162;
-        Thu, 14 Apr 2022 06:48:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C4F3117D;
+        Thu, 14 Apr 2022 06:27:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 374DE61D73;
-        Thu, 14 Apr 2022 13:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8DEC385A9;
-        Thu, 14 Apr 2022 13:48:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEEEE6190F;
+        Thu, 14 Apr 2022 13:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DACCFC385A1;
+        Thu, 14 Apr 2022 13:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944137;
-        bh=+bi3CB0sKMUtiIkI6DbmdeWT1n5jF2lA8k1vBDqSFM4=;
+        s=korg; t=1649942864;
+        bh=pq5Hkm5sFmOw4+bSV+L9OhXIlFKnUqlcIn+go98fDOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIINmJoJ5KuniuVGI3WMEUPcEKt3ilKU54IFmkE4XCXhXtn7wc2PmBmToRwsu97/L
-         F/tRjdrCjfpqxCZdyvv13Fv9Ti8/RklcVHAXmce4kNhcfzEovdCYV8pHZbHHFzDyF9
-         o3m3/0d3uUARGDwfX06zQRJrREMQJFf8/hCusxuw=
+        b=ijCF15l19Sqi4SZIlgeVvJja3RBJwnbyJirewikgVEWeHEEp9aIO2Qhu/yoAmCskC
+         ViOVDNp9eYj/7R76OhGCVQVePuYE7EjCRXqAtQaXsRhK31YJ3cXeNDouzbtxrugYwq
+         zKjDTkPXX0DNP99h6mYXOKoKXG1HpilcWP7nLcbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
-        Robert Hancock <robert.hancock@calian.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 408/475] clk: si5341: fix reported clk_rate when output divider is 2
+Subject: [PATCH 4.19 290/338] NFSv4: Protect the state recovery thread against direct reclaim
 Date:   Thu, 14 Apr 2022 15:13:13 +0200
-Message-Id: <20220414110906.482208290@linuxfoundation.org>
+Message-Id: <20220414110847.143408909@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Wujek <dev_public@wujek.eu>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 2a8b539433e111c4de364237627ef219d2f6350a ]
+[ Upstream commit 3e17898aca293a24dae757a440a50aa63ca29671 ]
 
-SI5341_OUT_CFG_RDIV_FORCE2 shall be checked first to distinguish whether
-a divider for a given output is set to 2 (SI5341_OUT_CFG_RDIV_FORCE2
-is set) or the output is disabled (SI5341_OUT_CFG_RDIV_FORCE2 not set,
-SI5341_OUT_R_REG is set 0).
-Before the change, divider set to 2 (SI5341_OUT_R_REG set to 0) was
-interpreted as output is disabled.
+If memory allocation triggers a direct reclaim from the state recovery
+thread, then we can deadlock. Use memalloc_nofs_save/restore to ensure
+that doesn't happen.
 
-Signed-off-by: Adam Wujek <dev_public@wujek.eu>
-Link: https://lore.kernel.org/r/20211203141125.2447520-1-dev_public@wujek.eu
-Reviewed-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-si5341.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ fs/nfs/nfs4state.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
-index 20ed0955416a..07ef9995b3cb 100644
---- a/drivers/clk/clk-si5341.c
-+++ b/drivers/clk/clk-si5341.c
-@@ -638,6 +638,15 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
- 	u32 r_divider;
- 	u8 r[3];
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index 9c98547fcefc..30576a10a1f4 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -49,6 +49,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/bitops.h>
+ #include <linux/jiffies.h>
++#include <linux/sched/mm.h>
  
-+	err = regmap_read(output->data->regmap,
-+			SI5341_OUT_CONFIG(output), &val);
-+	if (err < 0)
-+		return err;
+ #include <linux/sunrpc/clnt.h>
+ 
+@@ -2505,9 +2506,17 @@ static int nfs4_bind_conn_to_session(struct nfs_client *clp)
+ 
+ static void nfs4_state_manager(struct nfs_client *clp)
+ {
++	unsigned int memflags;
+ 	int status = 0;
+ 	const char *section = "", *section_sep = "";
+ 
++	/*
++	 * State recovery can deadlock if the direct reclaim code tries
++	 * start NFS writeback. So ensure memory allocations are all
++	 * GFP_NOFS.
++	 */
++	memflags = memalloc_nofs_save();
 +
-+	/* If SI5341_OUT_CFG_RDIV_FORCE2 is set, r_divider is 2 */
-+	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
-+		return parent_rate / 2;
-+
- 	err = regmap_bulk_read(output->data->regmap,
- 			SI5341_OUT_R_REG(output), r, 3);
- 	if (err < 0)
-@@ -654,13 +663,6 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
- 	r_divider += 1;
- 	r_divider <<= 1;
+ 	/* Ensure exclusive access to NFSv4 state */
+ 	do {
+ 		clear_bit(NFS4CLNT_RUN_MANAGER, &clp->cl_state);
+@@ -2600,6 +2609,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
+ 				goto out_error;
+ 		}
  
--	err = regmap_read(output->data->regmap,
--			SI5341_OUT_CONFIG(output), &val);
--	if (err < 0)
--		return err;
--
--	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
--		r_divider = 2;
++		memalloc_nofs_restore(memflags);
+ 		nfs4_end_drain_session(clp);
+ 		nfs4_clear_state_manager_bit(clp);
  
- 	return parent_rate / r_divider;
+@@ -2616,6 +2626,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
+ 			return;
+ 		if (test_and_set_bit(NFS4CLNT_MANAGER_RUNNING, &clp->cl_state) != 0)
+ 			return;
++		memflags = memalloc_nofs_save();
+ 	} while (refcount_read(&clp->cl_count) > 1 && !signalled());
+ 	goto out_drain;
+ 
+@@ -2627,6 +2638,7 @@ static void nfs4_state_manager(struct nfs_client *clp)
+ 			clp->cl_hostname, -status);
+ 	ssleep(1);
+ out_drain:
++	memalloc_nofs_restore(memflags);
+ 	nfs4_end_drain_session(clp);
+ 	nfs4_clear_state_manager_bit(clp);
  }
 -- 
 2.35.1
