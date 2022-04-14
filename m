@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8548B5010B9
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F07F5014CA
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:33:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345557AbiDNNxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:53:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54668 "EHLO
+        id S245096AbiDNOCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:02:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345108AbiDNNpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10E035A8B;
-        Thu, 14 Apr 2022 06:42:16 -0700 (PDT)
+        with ESMTP id S1344666AbiDNNwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:52:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 938A7326DA;
+        Thu, 14 Apr 2022 06:44:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD515B82983;
-        Thu, 14 Apr 2022 13:42:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F31C7C385A5;
-        Thu, 14 Apr 2022 13:42:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3593B82968;
+        Thu, 14 Apr 2022 13:44:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D73BC385A1;
+        Thu, 14 Apr 2022 13:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943734;
-        bh=IrcQOEkRHvkartR3DewjUWYHIioWHfFulXXJpBlKWyI=;
+        s=korg; t=1649943870;
+        bh=KJVM8lmmOWqWU325e4Gw2XlSrizB3+aH08ELkkUoQLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7RhEGNyeLEO7+wqqKI1X3NtguDJ0Wkkc9LEknkAA5u4n5CT81tM6honVp5Cp3Wf3
-         Pu9LMFAZy3TKi9BlTHsgsZs132EWsIxhF7a20BCunStYuU156t+5F4QwAnUHH0P2nY
-         YLF4ZhbDe2WCEJ5z/6ZNUs4EqlKpd8JH5k1kz+rc=
+        b=UnpwGGYzkfcWiKPfELpXe/mB4Y5pb336TF86L3mnP4QK2nq1j+T0cBs42rSS7DRSX
+         j9KR7bnNKahr9SkRgv5TrG1nxeSMxBMd7jktWDNxMmYd9BB/zNQga6XGdgMF/sf2O4
+         vtVr0jrwslTvUNQRy6XYRf4yVhs3racl2OWM3v6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 260/475] jfs: fix divide error in dbNextAG
-Date:   Thu, 14 Apr 2022 15:10:45 +0200
-Message-Id: <20220414110902.386588338@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 261/475] netfilter: nf_conntrack_tcp: preserve liberal flag in tcp options
+Date:   Thu, 14 Apr 2022 15:10:46 +0200
+Message-Id: <20220414110902.413840811@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -55,54 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 2cc7cc01c15f57d056318c33705647f87dcd4aab ]
+[ Upstream commit f2dd495a8d589371289981d5ed33e6873df94ecc ]
 
-Syzbot reported divide error in dbNextAG(). The problem was in missing
-validation check for malicious image.
+Do not reset IP_CT_TCP_FLAG_BE_LIBERAL flag in out-of-sync scenarios
+coming before the TCP window tracking, otherwise such connections will
+fail in the window check.
 
-Syzbot crafted an image with bmp->db_numag equal to 0. There wasn't any
-validation checks, but dbNextAG() blindly use bmp->db_numag in divide
-expression
+Update tcp_options() to leave this flag in place and add a new helper
+function to reset the tcp window state.
 
-Fix it by validating bmp->db_numag in dbMount() and return an error if
-image is malicious
+Based on patch from Sven Auhagen.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Fixes: c4832c7bbc3f ("netfilter: nf_ct_tcp: improve out-of-sync situation in TCP tracking")
+Tested-by: Sven Auhagen <sven.auhagen@voleatech.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/netfilter/nf_conntrack_proto_tcp.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index 6fe82ce8663e..79f3440e204b 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -148,6 +148,7 @@ static const s8 budtab[256] = {
-  *	0	- success
-  *	-ENOMEM	- insufficient memory
-  *	-EIO	- i/o error
-+ *	-EINVAL - wrong bmap data
-  */
- int dbMount(struct inode *ipbmap)
- {
-@@ -179,6 +180,12 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_nfree = le64_to_cpu(dbmp_le->dn_nfree);
- 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
- 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
-+	if (!bmp->db_numag) {
-+		release_metapage(mp);
-+		kfree(bmp);
-+		return -EINVAL;
-+	}
+diff --git a/net/netfilter/nf_conntrack_proto_tcp.c b/net/netfilter/nf_conntrack_proto_tcp.c
+index 848b137151c2..b8cc3339a249 100644
+--- a/net/netfilter/nf_conntrack_proto_tcp.c
++++ b/net/netfilter/nf_conntrack_proto_tcp.c
+@@ -354,8 +354,8 @@ static void tcp_options(const struct sk_buff *skb,
+ 				 length, buff);
+ 	BUG_ON(ptr == NULL);
+ 
+-	state->td_scale =
+-	state->flags = 0;
++	state->td_scale = 0;
++	state->flags &= IP_CT_TCP_FLAG_BE_LIBERAL;
+ 
+ 	while (length > 0) {
+ 		int opcode=*ptr++;
+@@ -840,6 +840,16 @@ static bool nf_conntrack_tcp_established(const struct nf_conn *ct)
+ 	       test_bit(IPS_ASSURED_BIT, &ct->status);
+ }
+ 
++static void nf_ct_tcp_state_reset(struct ip_ct_tcp_state *state)
++{
++	state->td_end		= 0;
++	state->td_maxend	= 0;
++	state->td_maxwin	= 0;
++	state->td_maxack	= 0;
++	state->td_scale		= 0;
++	state->flags		&= IP_CT_TCP_FLAG_BE_LIBERAL;
++}
 +
- 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
- 	bmp->db_maxag = le32_to_cpu(dbmp_le->dn_maxag);
- 	bmp->db_agpref = le32_to_cpu(dbmp_le->dn_agpref);
+ /* Returns verdict for packet, or -1 for invalid. */
+ int nf_conntrack_tcp_packet(struct nf_conn *ct,
+ 			    struct sk_buff *skb,
+@@ -946,8 +956,7 @@ int nf_conntrack_tcp_packet(struct nf_conn *ct,
+ 			ct->proto.tcp.last_flags &= ~IP_CT_EXP_CHALLENGE_ACK;
+ 			ct->proto.tcp.seen[ct->proto.tcp.last_dir].flags =
+ 				ct->proto.tcp.last_flags;
+-			memset(&ct->proto.tcp.seen[dir], 0,
+-			       sizeof(struct ip_ct_tcp_state));
++			nf_ct_tcp_state_reset(&ct->proto.tcp.seen[dir]);
+ 			break;
+ 		}
+ 		ct->proto.tcp.last_index = index;
 -- 
 2.34.1
 
