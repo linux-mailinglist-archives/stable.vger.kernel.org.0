@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A95F45013C9
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99ECD50102F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345487AbiDNNxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:53:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54658 "EHLO
+        id S244755AbiDNNhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345076AbiDNNpE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:04 -0400
+        with ESMTP id S244507AbiDNN1e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:27:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9B9B26AC5;
-        Thu, 14 Apr 2022 06:41:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7F0897BBF;
+        Thu, 14 Apr 2022 06:20:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EA21B82968;
-        Thu, 14 Apr 2022 13:41:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EBC5C385A1;
-        Thu, 14 Apr 2022 13:41:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B7D1B82968;
+        Thu, 14 Apr 2022 13:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E05F6C385B9;
+        Thu, 14 Apr 2022 13:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943692;
-        bh=/e939rd1A2uwixXnhODZ6M7aRH+e9L0PjcmbSpaeySc=;
+        s=korg; t=1649942419;
+        bh=Egr88YpiSUHE4xOHeYgePSswWMplcasX3QygVT4vgvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EyCQTZWAYoHQv5ZodbRkr45dbG3EAngG+jYBuV07ZIjr27sUTrkK1oQ4dGwps6uf3
-         ZzwjnR4bwG/mNZ/0mM8D/R8LAu/OC2caygtfPub7YsC8e9gY72IoY33AaGM2XwTYtG
-         BSa9nbfRvKyIydhC+kuqKbqGsvTgmSSoYR1oh/fc=
+        b=QAiJOKHChr8kY1PlUBWdtkhQ5MMhNGY0dJIR5eKEGf//rsQsF7NCe7CiwqJ1ISrjd
+         jN0XNb98DvQTE4H501f4F0YjIJwz6M3Peur/kNc9pqa7EOQhbTHo/UtYWYSZDUJJcF
+         L0oFVNT9CZEXLVv9dsoDGYeZiGYJXKsIP9k40q/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 247/475] clk: tegra: tegra124-emc: Fix missing put_device() call in emc_ensure_emc_driver
+Subject: [PATCH 4.19 129/338] scsi: pm8001: Fix command initialization in pm80XX_send_read_log()
 Date:   Thu, 14 Apr 2022 15:10:32 +0200
-Message-Id: <20220414110902.026855833@linuxfoundation.org>
+Message-Id: <20220414110842.572635505@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 6d6ef58c2470da85a99119f74d34216c8074b9f0 ]
+[ Upstream commit 1a37b6738b58d86f6b144b3fc754ace0f2e0166d ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+Since the sata_cmd struct is zeroed out before its fields are initialized,
+there is no need for using "|=" to initialize the ncqtag_atap_dir_m
+field. Using a standard assignment removes the sparse warning:
 
-Fixes: 2db04f16b589 ("clk: tegra: Add EMC clock driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20220112104501.30655-1-linmq006@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+warning: invalid assignment: |=
+
+Also, since the ncqtag_atap_dir_m field has type __le32, use cpu_to_le32()
+to generate the assigned value.
+
+Link: https://lore.kernel.org/r/20220220031810.738362-5-damien.lemoal@opensource.wdc.com
+Fixes: c6b9ef5779c3 ("[SCSI] pm80xx: NCQ error handling changes")
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-emc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/pm8001/pm8001_hwi.c | 2 +-
+ drivers/scsi/pm8001/pm80xx_hwi.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-emc.c b/drivers/clk/tegra/clk-emc.c
-index ea39caf3d762..0c1b83bedb73 100644
---- a/drivers/clk/tegra/clk-emc.c
-+++ b/drivers/clk/tegra/clk-emc.c
-@@ -191,6 +191,7 @@ static struct tegra_emc *emc_ensure_emc_driver(struct tegra_clk_emc *tegra)
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 3e814c0469fb..d0f3b65224f5 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -1826,7 +1826,7 @@ static void pm8001_send_read_log(struct pm8001_hba_info *pm8001_ha,
  
- 	tegra->emc = platform_get_drvdata(pdev);
- 	if (!tegra->emc) {
-+		put_device(&pdev->dev);
- 		pr_err("%s: cannot find EMC driver\n", __func__);
- 		return NULL;
- 	}
+ 	sata_cmd.tag = cpu_to_le32(ccb_tag);
+ 	sata_cmd.device_id = cpu_to_le32(pm8001_ha_dev->device_id);
+-	sata_cmd.ncqtag_atap_dir_m |= ((0x1 << 7) | (0x5 << 9));
++	sata_cmd.ncqtag_atap_dir_m = cpu_to_le32((0x1 << 7) | (0x5 << 9));
+ 	memcpy(&sata_cmd.sata_fis, &fis, sizeof(struct host_to_dev_fis));
+ 
+ 	res = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &sata_cmd, 0);
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index c63b5db435c5..c73a365da1d8 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -1516,7 +1516,7 @@ static void pm80xx_send_read_log(struct pm8001_hba_info *pm8001_ha,
+ 
+ 	sata_cmd.tag = cpu_to_le32(ccb_tag);
+ 	sata_cmd.device_id = cpu_to_le32(pm8001_ha_dev->device_id);
+-	sata_cmd.ncqtag_atap_dir_m_dad |= ((0x1 << 7) | (0x5 << 9));
++	sata_cmd.ncqtag_atap_dir_m_dad = cpu_to_le32(((0x1 << 7) | (0x5 << 9)));
+ 	memcpy(&sata_cmd.sata_fis, &fis, sizeof(struct host_to_dev_fis));
+ 
+ 	res = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &sata_cmd, 0);
 -- 
 2.34.1
 
