@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A92A5014E8
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84EC3501448
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245625AbiDNNnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49972 "EHLO
+        id S1345452AbiDNNxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:53:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245037AbiDNN20 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C234A94DD;
-        Thu, 14 Apr 2022 06:21:34 -0700 (PDT)
+        with ESMTP id S1344954AbiDNNo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E105D65C;
+        Thu, 14 Apr 2022 06:40:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55F46612B3;
-        Thu, 14 Apr 2022 13:21:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 654F0C385AB;
-        Thu, 14 Apr 2022 13:21:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BA6D1CE2997;
+        Thu, 14 Apr 2022 13:40:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F0EC385A5;
+        Thu, 14 Apr 2022 13:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942493;
-        bh=cA/kv3g7lYi6a/KEKnJBsOL4S8nb9ZhK9ZFr2ym6lTg=;
+        s=korg; t=1649943654;
+        bh=KoGQ+0vWP49KzgTOCU/ifdDn7F7KOjvEzSHR2vQTS+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syuJmH1CZpzJSF2+5XKsa67yUN/dxRiKkJp25ZXK7Icl09uf8fi9cAAYJlOfwTNxu
-         T1gbs/4RGyxNFNSkcKzBl3HH3X56L6hPnUh6umSqPJfNnAaxROrjh8AWVO+QlgUOKb
-         QXg43g5zpIC6N1HTBIfHotE/jTkMXfzzmDKBq760=
+        b=dbBPx4QboJJ0hmFCIY2BLHfNrbIBw/4QiYQa1j+M04tMWOWBJ3UklIMiGq80FBDpA
+         f47oyjdZ6aazfodsDbZ05P6mkJpX35xS6ogzbbb5s9toof+PMea4g8TIPyXnGSFw+D
+         FjfSDIU/Ay57vVDONm/8wUpxdIBkyvqmcpqPeJ0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Qing Wang <wangqing@vivo.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 115/338] drm/bridge: Fix free wrong object in sii8620_init_rcp_input_dev
-Date:   Thu, 14 Apr 2022 15:10:18 +0200
-Message-Id: <20220414110842.181049759@linuxfoundation.org>
+Subject: [PATCH 5.4 234/475] serial: 8250_mid: Balance reference count for PCI DMA device
+Date:   Thu, 14 Apr 2022 15:10:19 +0200
+Message-Id: <20220414110901.670558939@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 7c442e76c06cb1bef16a6c523487438175584eea ]
+[ Upstream commit 67ec6dd0b257bd81b4e9fcac89b29da72f6265e5 ]
 
-rc_dev is allocated by rc_allocate_device(), and doesn't assigned to
-ctx->rc_dev before calling  rc_free_device(ctx->rc_dev).
-So it should call rc_free_device(rc_dev);
+The pci_get_slot() increases its reference count, the caller
+must decrement the reference count by calling pci_dev_put().
 
-Fixes: e25f1f7c94e1 ("drm/bridge/sii8620: add remote control support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211227092522.21755-1-linmq006@gmail.com
+Fixes: 90b9aacf912a ("serial: 8250_pci: add Intel Tangier support")
+Fixes: f549e94effa1 ("serial: 8250_pci: add Intel Penwell ports")
+Reported-by: Qing Wang <wangqing@vivo.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Depends-on: d9eda9bab237 ("serial: 8250_pci: Intel MID UART support to its own driver")
+Link: https://lore.kernel.org/r/20220215100920.41984-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_mid.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
-index 1ea2a1b0fe37..ea433bb189ca 100644
---- a/drivers/gpu/drm/bridge/sil-sii8620.c
-+++ b/drivers/gpu/drm/bridge/sil-sii8620.c
-@@ -2122,7 +2122,7 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
- 	if (ret) {
- 		dev_err(ctx->dev, "Failed to register RC device\n");
- 		ctx->error = ret;
--		rc_free_device(ctx->rc_dev);
-+		rc_free_device(rc_dev);
- 		return;
- 	}
- 	ctx->rc_dev = rc_dev;
+diff --git a/drivers/tty/serial/8250/8250_mid.c b/drivers/tty/serial/8250/8250_mid.c
+index efa0515139f8..e6c1791609dd 100644
+--- a/drivers/tty/serial/8250/8250_mid.c
++++ b/drivers/tty/serial/8250/8250_mid.c
+@@ -73,6 +73,11 @@ static int pnw_setup(struct mid8250 *mid, struct uart_port *p)
+ 	return 0;
+ }
+ 
++static void pnw_exit(struct mid8250 *mid)
++{
++	pci_dev_put(mid->dma_dev);
++}
++
+ static int tng_handle_irq(struct uart_port *p)
+ {
+ 	struct mid8250 *mid = p->private_data;
+@@ -124,6 +129,11 @@ static int tng_setup(struct mid8250 *mid, struct uart_port *p)
+ 	return 0;
+ }
+ 
++static void tng_exit(struct mid8250 *mid)
++{
++	pci_dev_put(mid->dma_dev);
++}
++
+ static int dnv_handle_irq(struct uart_port *p)
+ {
+ 	struct mid8250 *mid = p->private_data;
+@@ -330,9 +340,9 @@ static int mid8250_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 
+ 	pci_set_drvdata(pdev, mid);
+ 	return 0;
++
+ err:
+-	if (mid->board->exit)
+-		mid->board->exit(mid);
++	mid->board->exit(mid);
+ 	return ret;
+ }
+ 
+@@ -342,8 +352,7 @@ static void mid8250_remove(struct pci_dev *pdev)
+ 
+ 	serial8250_unregister_port(mid->line);
+ 
+-	if (mid->board->exit)
+-		mid->board->exit(mid);
++	mid->board->exit(mid);
+ }
+ 
+ static const struct mid8250_board pnw_board = {
+@@ -351,6 +360,7 @@ static const struct mid8250_board pnw_board = {
+ 	.freq = 50000000,
+ 	.base_baud = 115200,
+ 	.setup = pnw_setup,
++	.exit = pnw_exit,
+ };
+ 
+ static const struct mid8250_board tng_board = {
+@@ -358,6 +368,7 @@ static const struct mid8250_board tng_board = {
+ 	.freq = 38400000,
+ 	.base_baud = 1843200,
+ 	.setup = tng_setup,
++	.exit = tng_exit,
+ };
+ 
+ static const struct mid8250_board dnv_board = {
 -- 
 2.34.1
 
