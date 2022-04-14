@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B47501F47
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 01:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C299501F4F
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 01:51:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347754AbiDNXoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 19:44:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
+        id S231537AbiDNXyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 19:54:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347748AbiDNXo2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 19:44:28 -0400
-Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0220B36AF
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 16:42:02 -0700 (PDT)
+        with ESMTP id S240890AbiDNXyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 19:54:00 -0400
+Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A337D01C
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 16:51:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1649979722; x=1681515722;
+  t=1649980293; x=1681516293;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=octI8gkuUdPp2CcD7y3vKEWC/6kqL3X5ZcA2TURCbbY=;
-  b=QCxkInnhm0m/dn6q0tmA7eAh9bDw7bjBIWub8/Sr6rF2iErjb4RnJfBN
-   GJhRcKJ3L3Ei0yGoEjs2zBh/C2gN7nv8D15Q9X3KpYblqpaLshEzd9Kgc
-   BxDQ3+7a80in3/b9dv49MoHVgP6YKEj1Q1V+NZxhWe8jh8O3h67aU7kEf
-   Aa3dbDH2c6L3deA6cFWE+TiB2qIVXcjUCMBon3hlbXgZPnFuV+ISCspPg
-   xnzMtOb8qtNWCXKqEpC6z2H98AKH1rp08ALw5fgbO+GRVZR7Uvu7+IeWA
-   iHwk87ftAGX/ON4M2U0IPyK2N6Pg5i5msA7M2GzR8eKOY2m+FNv7R7cP9
+  bh=WbVM9cfScKKYc/EursZygzoF86dsBLIRg6xwYxy7W0E=;
+  b=MQYqIwZwEqUAeX6wd+9VwoTnLk5NuryceTTEfBICQWnVcC90GtXkVzRg
+   UGFsTa5J1WXnzZ0zdcj+gzLyoiHRwPFucDArZHQgPkTDbSOcg0VARb1h7
+   MZcjwyltmlprKqQArEDhlursKEBmC4MWffSpZT89tZMRrsQBk1seMCxwI
+   kC+D7viVTtHcnoMHpF3l95cd7YSy+vBZ2dZUI2otKUJdqXZdEb569eiKc
+   iBHq1AoEdslCAW/92v/fJJ1HbDj+KsmtEJIGkh9v0p48XK0QgZZTBq6YE
+   vi12bAYyRdGXWF4/nes5+oRW59kPeBttKSzJbiGdUODcTn7RjY0BF61Jv
    g==;
 X-IronPort-AV: E=Sophos;i="5.90,261,1643644800"; 
-   d="scan'208";a="309920056"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 15 Apr 2022 07:42:01 +0800
-IronPort-SDR: BwE++6R9+Ra5PSz03kHdpQCJu8ONF3K/4TruRnkeP/raxXr5uqRU6oSStAu7ZDmGtmJf9qBgT9
- a9kqIxMGbtBQCmHgnsbohx2Nbvfn/OJIHgpEBgUvFIxQe/mOtltPkygkbPhGxWa0eVx2ZNRXQK
- aF6dqBqldKfaBIRRFpkKUU5TJTvA0/COc4x2lKdDkykLeUAuERJUtgP2a7q4Od3HtJZs+O8r1y
- cVUXF2HVCUAIcLFy8uZGg2Zo8bWiP204G1Va8Ipixu8AFctpUZM6DFKFhBk6cu2zRhyMo7k54/
- Uy7bWxw0b0zObIaTDZzQxLix
+   d="scan'208";a="197954185"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 15 Apr 2022 07:51:33 +0800
+IronPort-SDR: bFPNb7EuxzAounVaDT+YeR0ilhotgusekzI6ttlhoOSeR+p21kQ5jEkpc0V3rBytQSvcqFNlW3
+ 4207APDbmY7r8aasBW/lnoXFuvAG+YjVsLhoZqxpeOMfQJC1dBLrmxFVdOevGvjqA0h7jVtlpw
+ Ju4g8Jl4cvRAZcC4YtrW/zQSrcn5eOEbCzSZ2FKLWz+sCNMDYo7jFstpzICWg5aXokDE12gvNX
+ YhOnlzPtkpLXvN/vXt1KYCgGLUUqBt1eVbWAEvrwnFcletaBK4kYt+rsUHo+dnuiZ4MaP6ggFN
+ Z6yelReiAigq3Z9E7xCe0lvN
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Apr 2022 16:12:27 -0700
-IronPort-SDR: ndJnVxyT6QJVTTqWVrLSAMIEQn8EEW39hxvD2oUTrjN9DbQ95DbP0rB/yL9LkQjZUjt344AVzG
- 7KZ9A3n2QPCcz9AW+B1RbVKKNQK9Iel5L7R8udluL8iYXgvji7C16/sKu/mTDHnLFXJFmYH3XU
- ZvD4bO5Mrn7JrWKezLGbwYhJLOUMjpTMNDkZH8AavvhcMsdfkayYano6DkzgT5Wzy38qGLvfWh
- tO+YtCW4bbQ6wtXSl0oQdsiRdzo4wA80dImwX2f+zF9Vb6vm0fyrdStOP0iW3Ld4D2hPjxryCL
- v1Y=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Apr 2022 16:22:45 -0700
+IronPort-SDR: sYkLJN8t6H6GhmWg4QGlFHEZF2Ww17sZBCxoP520+VfCUtvFRfFqqXUvLBleussfsGEU2ae+BE
+ EcSGeTCla4ehxM/RMH/tu9G7BrPeUMd+RfWbZVIIj8xZrhFlilvPGo5ijXHXxG8q9HWv0sxIBp
+ qntkaByRFRJjIHZiNQCWAgtwlnt+B/txKgLwehLmO4jye/QtVAuaBhR+nlmvQnlxlw6KVzK0wW
+ aUKz0LrLxF+4S6n6/+VldOpNhHBrsM3ewdmJhQqS4riiGiCK6WW7QdcmjQQHxJqAnSHq06GmH5
+ sto=
 WDCIronportException: Internal
 Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Apr 2022 16:42:02 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Apr 2022 16:51:34 -0700
 Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4KfbbF26jhz1SVp6
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 16:42:01 -0700 (PDT)
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4KfbpD6ktcz1SVp4
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 16:51:32 -0700 (PDT)
 Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
         reason="pass (just generated, assumed good)"
         header.d=opensource.wdc.com
@@ -56,48 +56,46 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
         opensource.wdc.com; h=content-transfer-encoding:content-type
         :in-reply-to:organization:from:references:to:content-language
         :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1649979720; x=1652571721; bh=octI8gkuUdPp2CcD7y3vKEWC/6kqL3X5ZcA
-        2TURCbbY=; b=G8u3sp4M11CSasP2r1AQLolHkzCU61yyv5FwdwwXq4CypIYTAnH
-        hGyML2VTo37SlnJ9Mgk5XyJhd01IXY5KeJdsnBN8iKFe3L71ueTUYRYA1dKm/Q3h
-        OeieM9OwF+JDY+JUsMXV7vBYzylsEK9jEj5n//hIieuSziiWR7dUOgd1xX6WlwZD
-        miasY8fSj3Q7K7nemKO99tJ3LrlcOpZK3FpOM6uBS7pT6Ly3pq4NCCFEggimhqFg
-        1oOm7TyQJrpQ8icbEc176i79M8XmZw+lTmLadQG9q9348w3MXGxYfLM4MSQ94Zv8
-        NsVkd07JhCSjOYZN5yR6fQdvhg/eLTFYX+A==
+        1649980291; x=1652572292; bh=WbVM9cfScKKYc/EursZygzoF86dsBLIRg6x
+        wYxy7W0E=; b=cKEhB42giErCT2IlFVEQa2gh6lHnR8sHxTTUPuQWALBSpaAGvGT
+        mGL4PdrltRTNgGcZVQhmNWj+iOhhaj7raUOIsMozPAD3jvXBE4Y7rhE6kYmMW+GU
+        SqbqYrYbDcdJwswoJ2O7p/OylgnhOC4xbRfuY15N5vs8YrmxwMdkVq4zffFXHgY0
+        I/FAgjKzXKzRjN6jSnwKZA0MrTdAW2KKLPtvrD9a0EBVi3Vt/yPxqUCF4cBm7Xaa
+        UPjYAq3mJb+Z7jFuHA0DJkxAcDC3tz3bWT8y1s99lGuVm4JPrILm0NvTCS6AUgRb
+        9frurXIYEBUxcziyVQUXnkBzincyCOiaBLQ==
 X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
 Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
         by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id l0bou-tcn8Ve for <stable@vger.kernel.org>;
-        Thu, 14 Apr 2022 16:42:00 -0700 (PDT)
+        with ESMTP id Fv4KAhj_JWKm for <stable@vger.kernel.org>;
+        Thu, 14 Apr 2022 16:51:31 -0700 (PDT)
 Received: from [10.225.163.9] (unknown [10.225.163.9])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4KfbbB0qm4z1Rvlx;
-        Thu, 14 Apr 2022 16:41:57 -0700 (PDT)
-Message-ID: <04a0c48d-e81f-264a-b467-4a5b3ffc4f9c@opensource.wdc.com>
-Date:   Fri, 15 Apr 2022 08:41:56 +0900
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4Kfbp91f4qz1Rvlx;
+        Thu, 14 Apr 2022 16:51:29 -0700 (PDT)
+Message-ID: <f379cb56-6ff5-f256-d5f2-3718a47e976d@opensource.wdc.com>
+Date:   Fri, 15 Apr 2022 08:51:27 +0900
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
 Subject: Re: [PATCH v2] binfmt_flat: do not stop relocating GOT entries
  prematurely on riscv
 Content-Language: en-US
-To:     Kees Cook <keescook@chromium.org>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Konstantin Ryabitsev <konstantin@linuxfoundation.org>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
+To:     Niklas Cassel <niklas.cassel@wdc.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
         Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
         Paul Walmsley <paul.walmsley@sifive.com>,
         Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        Albert Ou <aou@eecs.berkeley.edu>
+Cc:     Greg Ungerer <gerg@linux-m68k.org>,
         Mike Frysinger <vapier@gentoo.org>, stable@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
         linux-riscv@lists.infradead.org
 References: <20220414091018.896737-1-niklas.cassel@wdc.com>
- <202204141624.6689D6B@keescook>
 From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Organization: Western Digital Research
-In-Reply-To: <202204141624.6689D6B@keescook>
+In-Reply-To: <20220414091018.896737-1-niklas.cassel@wdc.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
         SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
@@ -108,28 +106,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/15/22 08:27, Kees Cook wrote:
-> On Thu, Apr 14, 2022 at 11:10:18AM +0200, Niklas Cassel wrote:
->> bFLT binaries are usually created using elf2flt.
->> [...]
->=20
-> Hm, something in the chain broke DKIM, but I can't see what:
->=20
->   =E2=9C=97 [PATCH v2] binfmt_flat: do not stop relocating GOT entries =
-prematurely on riscv
->     =E2=9C=97 BADSIG: DKIM/wdc.com
+On 4/14/22 18:10, Niklas Cassel wrote:
+> bFLT binaries are usually created using elf2flt.
+> 
+> The linker script used by elf2flt has defined the .data section like the
+> following for the last 19 years:
+> 
+> .data : {
+> 	_sdata = . ;
+> 	__data_start = . ;
+> 	data_start = . ;
+> 	*(.got.plt)
+> 	*(.got)
+> 	FILL(0) ;
+> 	. = ALIGN(0x20) ;
+> 	LONG(-1)
+> 	. = ALIGN(0x20) ;
+> 	...
+> }
+> 
+> It places the .got.plt input section before the .got input section.
+> The same is true for the default linker script (ld --verbose) on most
+> architectures except x86/x86-64.
+> 
+> The binfmt_flat loader should relocate all GOT entries until it encounters
+> a -1 (the LONG(-1) in the linker script).
+> 
+> The problem is that the .got.plt input section starts with a GOTPLT header
+> (which has size 16 bytes on elf64-riscv and 8 bytes on elf32-riscv), where
+> the first word is set to -1. See the binutils implementation for riscv [1].
+> 
+> This causes the binfmt_flat loader to stop relocating GOT entries
+> prematurely and thus causes the application to crash when running.
+> 
+> Fix this by skipping the whole GOTPLT header, since the whole GOTPLT header
+> is reserved for the dynamic linker.
+> 
+> The GOTPLT header will only be skipped for bFLT binaries with flag
+> FLAT_FLAG_GOTPIC set. This flag is unconditionally set by elf2flt if the
+> supplied ELF binary has the symbol _GLOBAL_OFFSET_TABLE_ defined.
+> ELF binaries without a .got input section should thus remain unaffected.
+> 
+> Tested on RISC-V Canaan Kendryte K210 and RISC-V QEMU nommu_virt_defconfig.
+> 
+> [1] https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=bfd/elfnn-riscv.c;hb=binutils-2_38#l3275
+> 
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+> ---
+> Changes since v1:
+> -Incorporated review comments from Eric Biederman.
+> 
+> RISC-V elf2flt patches are still not merged, they can be found here:
+> https://github.com/floatious/elf2flt/tree/riscv
+> 
+> buildroot branch for k210 nommu (including this patch and elf2flt patches):
+> https://github.com/floatious/buildroot/tree/k210-v14
+> 
+>  fs/binfmt_flat.c | 27 ++++++++++++++++++++++++++-
+>  1 file changed, 26 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/binfmt_flat.c b/fs/binfmt_flat.c
+> index 626898150011..e5e2a03b39c1 100644
+> --- a/fs/binfmt_flat.c
+> +++ b/fs/binfmt_flat.c
+> @@ -440,6 +440,30 @@ static void old_reloc(unsigned long rl)
+>  
+>  /****************************************************************************/
+>  
+> +static inline u32 __user *skip_got_header(u32 __user *rp)
+> +{
+> +	if (IS_ENABLED(CONFIG_RISCV)) {
+> +		/*
+> +		 * RISC-V has a 16 byte GOT PLT header for elf64-riscv
+> +		 * and 8 byte GOT PLT header for elf32-riscv.
+> +		 * Skip the whole GOT PLT header, since it is reserved
+> +		 * for the dynamic linker (ld.so).
+> +		 */
+> +		u32 rp_val0, rp_val1;
+> +
+> +		if (get_user(rp_val0, rp))
+> +			return rp;
+> +		if (get_user(rp_val1, rp + 1))
+> +			return rp;
+> +
+> +		if (rp_val0 == 0xffffffff && rp_val1 == 0xffffffff)
+> +			rp += 4;
+> +		else if (rp_val0 == 0xffffffff)
+> +			rp += 2;
 
-Hu... WDC emails are not spams :)
-No clue what is going on here. I can check with our IT if they changed
-something though.
+This looks good to me. But thinking more about it, do we really need to
+check what the content of the header is ? Why not simply replace this
+entire hunk with:
 
->=20
-> Konstantin, do you have a process for debugging these? I don't see the
-> "normal" stuff that breaks DKIM (i.e. a trailing mailing list footer, e=
-tc)
->=20
+		return rp + sizeof(unsigned long) * 2;
+
+to ignore the 16B (or 8B for 32-bits arch) header regardless of what the
+header word values are ? Are there any case where the header is *not*
+present ?
+
+> +	}
+> +	return rp;
+> +}
+> +
+>  static int load_flat_file(struct linux_binprm *bprm,
+>  		struct lib_info *libinfo, int id, unsigned long *extra_stack)
+>  {
+> @@ -789,7 +813,8 @@ static int load_flat_file(struct linux_binprm *bprm,
+>  	 * image.
+>  	 */
+>  	if (flags & FLAT_FLAG_GOTPIC) {
+> -		for (rp = (u32 __user *)datapos; ; rp++) {
+> +		rp = skip_got_header((u32 * __user) datapos);
+> +		for (; ; rp++) {
+>  			u32 addr, rp_val;
+>  			if (get_user(rp_val, rp))
+>  				return -EFAULT;
+
+Regardless of the above nit, feel free to add:
+
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
 
---=20
+-- 
 Damien Le Moal
 Western Digital Research
