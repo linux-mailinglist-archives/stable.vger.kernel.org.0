@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 959E9500E8B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:16:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C71500E9A
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243763AbiDNNSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:18:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37796 "EHLO
+        id S243104AbiDNNTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:19:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243812AbiDNNSD (ORCPT
+        with ESMTP id S243816AbiDNNSD (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:18:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A31B890275;
-        Thu, 14 Apr 2022 06:15:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88BFF8BF51;
+        Thu, 14 Apr 2022 06:15:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BB4961307;
-        Thu, 14 Apr 2022 13:15:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 390A1C385A1;
-        Thu, 14 Apr 2022 13:15:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2117661307;
+        Thu, 14 Apr 2022 13:15:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30388C385A9;
+        Thu, 14 Apr 2022 13:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942132;
-        bh=fZ0NMhp8ITe263nvjodv6Z57zmXNL/LGHoSpLaRSkNE=;
+        s=korg; t=1649942135;
+        bh=x8Q4wDzx3/rZ0p91J6o/b9ne1uknoW2iH6CqC6u3gDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+YhTp/797hot6zW4OZJIc3mHTaQVfp5kyA3itm9tSJndj5kHd2WkMESs+8nAjEYg
-         136fCpn7wqlv9gDtmhiVBh4WaUegHjo+bFkxdr8iZxW2z/vnDK63J7VvDkDCwn+Zmx
-         pzPKo19QzZA5yXq3NuL4fICFUzvx+NEmunc9sYhw=
+        b=cwvA2T4KvyCN0lCyYIBsQNDzxbp3uqcZCQoskbIKX8ZABsHPRxIdlGH9T8yHqoZ0S
+         q/tk059rFdSa79qCXoKe11SvVR4Kyxuk3IJMXLjDGAlvELkwHrX5wNz2iHSUQQYjZG
+         m8HFi2Oq0f5HRgpKaKGs/SFU6muZWJMDx52XClZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        "Minghao Chi (CGEL ZTE)" <chi.minghao@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 008/338] spi: Fix invalid sgs value
-Date:   Thu, 14 Apr 2022 15:08:31 +0200
-Message-Id: <20220414110839.127888557@linuxfoundation.org>
+Subject: [PATCH 4.19 009/338] net:mcf8390: Use platform_get_irq() to get the interrupt
+Date:   Thu, 14 Apr 2022 15:08:32 +0200
+Message-Id: <20220414110839.156020764@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -56,45 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Minghao Chi (CGEL ZTE) <chi.minghao@zte.com.cn>
 
-[ Upstream commit 1a4e53d2fc4f68aa654ad96d13ad042e1a8e8a7d ]
+[ Upstream commit 2a760554dcba450d3ad61b32375b50ed6d59a87c ]
 
-max_seg_size is unsigned int and it can have a value up to 2^32
-(for eg:-RZ_DMAC driver sets dma_set_max_seg_size as U32_MAX)
-When this value is used in min_t() as an integer type, it becomes
--1 and the value of sgs becomes 0.
+It is not recommened to use platform_get_resource(pdev, IORESOURCE_IRQ)
+for requesting IRQ's resources any more, as they can be not ready yet in
+case of DT-booting.
 
-Fix this issue by replacing the 'int' data type with 'unsigned int'
-in min_t().
+platform_get_irq() instead is a recommended way for getting IRQ even if
+it was not retrieved earlier.
 
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20220307184843.9994-1-biju.das.jz@bp.renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+It also makes code simpler because we're getting "int" value right away
+and no conversion from resource to int is required.
+
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Minghao Chi (CGEL ZTE) <chi.minghao@zte.com.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/8390/mcf8390.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 49f592e433a8..518c8e0eef7f 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -779,10 +779,10 @@ int spi_map_buf(struct spi_controller *ctlr, struct device *dev,
- 	int i, ret;
+diff --git a/drivers/net/ethernet/8390/mcf8390.c b/drivers/net/ethernet/8390/mcf8390.c
+index 4ad8031ab669..065fdbe66c42 100644
+--- a/drivers/net/ethernet/8390/mcf8390.c
++++ b/drivers/net/ethernet/8390/mcf8390.c
+@@ -406,12 +406,12 @@ static int mcf8390_init(struct net_device *dev)
+ static int mcf8390_probe(struct platform_device *pdev)
+ {
+ 	struct net_device *dev;
+-	struct resource *mem, *irq;
++	struct resource *mem;
+ 	resource_size_t msize;
+-	int ret;
++	int ret, irq;
  
- 	if (vmalloced_buf || kmap_buf) {
--		desc_len = min_t(int, max_seg_size, PAGE_SIZE);
-+		desc_len = min_t(unsigned int, max_seg_size, PAGE_SIZE);
- 		sgs = DIV_ROUND_UP(len + offset_in_page(buf), desc_len);
- 	} else if (virt_addr_valid(buf)) {
--		desc_len = min_t(int, max_seg_size, ctlr->max_dma_len);
-+		desc_len = min_t(unsigned int, max_seg_size, ctlr->max_dma_len);
- 		sgs = DIV_ROUND_UP(len, desc_len);
- 	} else {
- 		return -EINVAL;
+-	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	if (irq == NULL) {
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no IRQ specified?\n");
+ 		return -ENXIO;
+ 	}
+@@ -434,7 +434,7 @@ static int mcf8390_probe(struct platform_device *pdev)
+ 	SET_NETDEV_DEV(dev, &pdev->dev);
+ 	platform_set_drvdata(pdev, dev);
+ 
+-	dev->irq = irq->start;
++	dev->irq = irq;
+ 	dev->base_addr = mem->start;
+ 
+ 	ret = mcf8390_init(dev);
 -- 
 2.34.1
 
