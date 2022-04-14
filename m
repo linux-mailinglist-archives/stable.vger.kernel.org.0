@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A62135013C8
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA6F5010C9
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348963AbiDNOOv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:14:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43278 "EHLO
+        id S245075AbiDNNnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346621AbiDNN5q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D578CA1471;
-        Thu, 14 Apr 2022 06:47:48 -0700 (PDT)
+        with ESMTP id S1344032AbiDNNaQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BE5492300;
+        Thu, 14 Apr 2022 06:26:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E8F66190F;
-        Thu, 14 Apr 2022 13:47:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 572B2C385A5;
-        Thu, 14 Apr 2022 13:47:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3488EB82986;
+        Thu, 14 Apr 2022 13:26:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E0B9C385A5;
+        Thu, 14 Apr 2022 13:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944067;
-        bh=dvPcYCzevFs+1/jJSvQNJgim5I2zaaED6vtbihtMvF4=;
+        s=korg; t=1649942792;
+        bh=+8oWWhQFbeXgY2fS6ypUQrNuuLh4/MvIj3IT41g/lGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ci8hVCdi5KdQh93H/OHu+wGUM+78N15/EXfs4NRi8alxuMvWsd/TjcPVm8YEhi7km
-         Wiv0MQcIDPtwbctYQaSCRFYOK4TFI/4vCkQoo4Bq49LhL8UpQBa8q/a7l5UOojRgb2
-         UOJ7eV51TtP0YXvo2dblpGjUhd4ErJTOY99DgIek=
+        b=QJBx01ci8zvGFjgVLfOg4GJ03ulUdp+AtpnhWwkZIl/wiOo+FbTGVASOLyjO/9qry
+         /Ux5B0rUt6woTE6asYqgiOPcf/gX0koPZWcmYW/0u6nehLFfyexrqaNIDrdUkeIJEZ
+         fuh2t7udswVLT8J03VaDBm6espW+xgbrwmFFQvXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Boger <boger@wirenboard.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 381/475] power: supply: axp20x_battery: properly report current when discharging
+Subject: [PATCH 4.19 263/338] drm/amd/amdgpu/amdgpu_cs: fix refcount leak of a dma_fence obj
 Date:   Thu, 14 Apr 2022 15:12:46 +0200
-Message-Id: <20220414110905.734302533@linuxfoundation.org>
+Message-Id: <20220414110846.374997237@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Boger <boger@wirenboard.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit d4f408cdcd26921c1268cb8dcbe8ffb6faf837f3 ]
+[ Upstream commit dfced44f122c500004a48ecc8db516bb6a295a1b ]
 
-As stated in [1], negative current values are used for discharging
-batteries.
+This issue takes place in an error path in
+amdgpu_cs_fence_to_handle_ioctl(). When `info->in.what` falls into
+default case, the function simply returns -EINVAL, forgetting to
+decrement the reference count of a dma_fence obj, which is bumped
+earlier by amdgpu_cs_get_fence(). This may result in reference count
+leaks.
 
-AXP PMICs internally have two different ADC channels for shunt current
-measurement: one used during charging and one during discharging.
-The values reported by these ADCs are unsigned.
-While the driver properly selects ADC channel to get the data from,
-it doesn't apply negative sign when reporting discharging current.
+Fix it by decreasing the refcount of specific object before returning
+the error code.
 
-[1] Documentation/ABI/testing/sysfs-class-power
-
-Signed-off-by: Evgeny Boger <boger@wirenboard.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp20x_battery.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/axp20x_battery.c b/drivers/power/supply/axp20x_battery.c
-index e84b6e4da14a..9fda98b950ba 100644
---- a/drivers/power/supply/axp20x_battery.c
-+++ b/drivers/power/supply/axp20x_battery.c
-@@ -185,7 +185,6 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
- 				   union power_supply_propval *val)
- {
- 	struct axp20x_batt_ps *axp20x_batt = power_supply_get_drvdata(psy);
--	struct iio_channel *chan;
- 	int ret = 0, reg, val1;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+index 81001d879322..023309296bfc 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c
+@@ -1469,6 +1469,7 @@ int amdgpu_cs_fence_to_handle_ioctl(struct drm_device *dev, void *data,
+ 		return 0;
  
- 	switch (psp) {
-@@ -265,12 +264,12 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
- 		if (ret)
- 			return ret;
- 
--		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING)
--			chan = axp20x_batt->batt_chrg_i;
--		else
--			chan = axp20x_batt->batt_dischrg_i;
--
--		ret = iio_read_channel_processed(chan, &val->intval);
-+		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING) {
-+			ret = iio_read_channel_processed(axp20x_batt->batt_chrg_i, &val->intval);
-+		} else {
-+			ret = iio_read_channel_processed(axp20x_batt->batt_dischrg_i, &val1);
-+			val->intval = -val1;
-+		}
- 		if (ret)
- 			return ret;
- 
+ 	default:
++		dma_fence_put(fence);
+ 		return -EINVAL;
+ 	}
+ }
 -- 
 2.35.1
 
