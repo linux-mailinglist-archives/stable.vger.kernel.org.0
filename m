@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E0B1501504
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3757B501138
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243385AbiDNOGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42490 "EHLO
+        id S241902AbiDNOFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:05:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347110AbiDNN63 (ORCPT
+        with ESMTP id S1347118AbiDNN63 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA411B714C;
-        Thu, 14 Apr 2022 06:48:55 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8EA9B7162;
+        Thu, 14 Apr 2022 06:48:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 760E1612E6;
-        Thu, 14 Apr 2022 13:48:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F130C385A1;
-        Thu, 14 Apr 2022 13:48:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 374DE61D73;
+        Thu, 14 Apr 2022 13:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F8DEC385A9;
+        Thu, 14 Apr 2022 13:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944134;
-        bh=uhQnSfy3Z6EChaD3gdeY3m3fyfr4HlXJGGwubVe+8Fg=;
+        s=korg; t=1649944137;
+        bh=+bi3CB0sKMUtiIkI6DbmdeWT1n5jF2lA8k1vBDqSFM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YK/EGenfjRkUOHetpzWD6fvu6Iy6F7v051I9kTi/iexwvPIg0QEUtR9btpdnSrxaz
-         kN6d1cs8efLKt0wec3K4RPuA2vRuSszTs1Chmgme2YA2kxcaj5KhRazYMHX06bRWk9
-         Hk8br6moCZC/jRHEX+1sAQvnihnbwM/FoK+jcO6E=
+        b=pIINmJoJ5KuniuVGI3WMEUPcEKt3ilKU54IFmkE4XCXhXtn7wc2PmBmToRwsu97/L
+         F/tRjdrCjfpqxCZdyvv13Fv9Ti8/RklcVHAXmce4kNhcfzEovdCYV8pHZbHHFzDyF9
+         o3m3/0d3uUARGDwfX06zQRJrREMQJFf8/hCusxuw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qinghua Jin <qhjin.dev@gmail.com>,
-        Colin Ian King <colin.king@intel.com>,
-        Jan Kara <jack@suse.cz>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
+        Robert Hancock <robert.hancock@calian.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 407/475] minix: fix bug when opening a file with O_DIRECT
-Date:   Thu, 14 Apr 2022 15:13:12 +0200
-Message-Id: <20220414110906.454695379@linuxfoundation.org>
+Subject: [PATCH 5.4 408/475] clk: si5341: fix reported clk_rate when output divider is 2
+Date:   Thu, 14 Apr 2022 15:13:13 +0200
+Message-Id: <20220414110906.482208290@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -58,46 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinghua Jin <qhjin.dev@gmail.com>
+From: Adam Wujek <dev_public@wujek.eu>
 
-[ Upstream commit 9ce3c0d26c42d279b6c378a03cd6a61d828f19ca ]
+[ Upstream commit 2a8b539433e111c4de364237627ef219d2f6350a ]
 
-Testcase:
-1. create a minix file system and mount it
-2. open a file on the file system with O_RDWR|O_CREAT|O_TRUNC|O_DIRECT
-3. open fails with -EINVAL but leaves an empty file behind. All other
-   open() failures don't leave the failed open files behind.
+SI5341_OUT_CFG_RDIV_FORCE2 shall be checked first to distinguish whether
+a divider for a given output is set to 2 (SI5341_OUT_CFG_RDIV_FORCE2
+is set) or the output is disabled (SI5341_OUT_CFG_RDIV_FORCE2 not set,
+SI5341_OUT_R_REG is set 0).
+Before the change, divider set to 2 (SI5341_OUT_R_REG set to 0) was
+interpreted as output is disabled.
 
-It is hard to check the direct_IO op before creating the inode.  Just as
-ext4 and btrfs do, this patch will resolve the issue by allowing to
-create the file with O_DIRECT but returning error when writing the file.
-
-Link: https://lkml.kernel.org/r/20220107133626.413379-1-qhjin.dev@gmail.com
-Signed-off-by: Qinghua Jin <qhjin.dev@gmail.com>
-Reported-by: Colin Ian King <colin.king@intel.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Adam Wujek <dev_public@wujek.eu>
+Link: https://lore.kernel.org/r/20211203141125.2447520-1-dev_public@wujek.eu
+Reviewed-by: Robert Hancock <robert.hancock@calian.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/minix/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/clk-si5341.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/fs/minix/inode.c b/fs/minix/inode.c
-index 7b09a9158e40..3fffc709afd4 100644
---- a/fs/minix/inode.c
-+++ b/fs/minix/inode.c
-@@ -447,7 +447,8 @@ static const struct address_space_operations minix_aops = {
- 	.writepage = minix_writepage,
- 	.write_begin = minix_write_begin,
- 	.write_end = generic_write_end,
--	.bmap = minix_bmap
-+	.bmap = minix_bmap,
-+	.direct_IO = noop_direct_IO
- };
+diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
+index 20ed0955416a..07ef9995b3cb 100644
+--- a/drivers/clk/clk-si5341.c
++++ b/drivers/clk/clk-si5341.c
+@@ -638,6 +638,15 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
+ 	u32 r_divider;
+ 	u8 r[3];
  
- static const struct inode_operations minix_symlink_inode_operations = {
++	err = regmap_read(output->data->regmap,
++			SI5341_OUT_CONFIG(output), &val);
++	if (err < 0)
++		return err;
++
++	/* If SI5341_OUT_CFG_RDIV_FORCE2 is set, r_divider is 2 */
++	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
++		return parent_rate / 2;
++
+ 	err = regmap_bulk_read(output->data->regmap,
+ 			SI5341_OUT_R_REG(output), r, 3);
+ 	if (err < 0)
+@@ -654,13 +663,6 @@ static unsigned long si5341_output_clk_recalc_rate(struct clk_hw *hw,
+ 	r_divider += 1;
+ 	r_divider <<= 1;
+ 
+-	err = regmap_read(output->data->regmap,
+-			SI5341_OUT_CONFIG(output), &val);
+-	if (err < 0)
+-		return err;
+-
+-	if (val & SI5341_OUT_CFG_RDIV_FORCE2)
+-		r_divider = 2;
+ 
+ 	return parent_rate / r_divider;
+ }
 -- 
 2.35.1
 
