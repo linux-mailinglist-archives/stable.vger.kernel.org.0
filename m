@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 613EF50105A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8165350112D
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344900AbiDNNtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35574 "EHLO
+        id S231247AbiDNNqE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:46:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245387AbiDNNi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:28 -0400
+        with ESMTP id S245406AbiDNNi3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155A8A1448;
-        Thu, 14 Apr 2022 06:32:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9952A1460;
+        Thu, 14 Apr 2022 06:32:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2E14B82968;
-        Thu, 14 Apr 2022 13:32:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E979CC385A1;
-        Thu, 14 Apr 2022 13:32:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76CE6B82968;
+        Thu, 14 Apr 2022 13:32:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F82C385A1;
+        Thu, 14 Apr 2022 13:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943121;
-        bh=EOdu4CEmkcnDwJMBk6OsqstsD3MrKYOf+7r24Eg9bds=;
+        s=korg; t=1649943127;
+        bh=3TnHiDcoE4UN7piXzw8IEQIziQxDeP2KahwoBf8cuVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdvrUUZ/m2ewosRXhq7sAXMGnC1eAiArDjhlVy0IaQz73ZcUytHVsXlWU8EZy122t
-         v/mfhoFrWlR5nmFOL4gglkcZ03b9UNq7LrkY7C9n7fVH3+byn2PEaLvkk1lGUKZp9m
-         0R90yrJQr8YQB51Y+e0D+hdqPK1mZofhNJ/Hf2yY=
+        b=0MBVT+GiqFaM8v2yVLl8MB23czFa32gK7QbF9VZ+YynKj44njX+Jobpi75cq/q+VE
+         uFPYLBm6vsktPCoPkg6WJSuR1Nguy0upBOLvUGFuKbWFqNu2KXOAwT+9nnoXSHBkuK
+         yImv3u3xr5QW612SLhKiYcVG+I/+rO9zc5Yl3VTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Chanho Park <chanho61.park@samsung.com>
-Subject: [PATCH 5.4 041/475] pinctrl: samsung: drop pin banks references on error paths
-Date:   Thu, 14 Apr 2022 15:07:06 +0200
-Message-Id: <20220414110856.307869652@linuxfoundation.org>
+        stable@vger.kernel.org, Mason Yang <masonccyang@mxic.com.tw>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Zhengxun Li <zhengxunli@mxic.com.tw>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 042/475] spi: mxic: Fix the transmit path
+Date:   Thu, 14 Apr 2022 15:07:07 +0200
+Message-Id: <20220414110856.335104036@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -55,83 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 50ebd19e3585b9792e994cfa8cbee8947fe06371 upstream.
+commit 5fd6739e0df7e320bcac103dfb95fe75941fea17 upstream.
 
-The driver iterates over its devicetree children with
-for_each_child_of_node() and stores for later found node pointer.  This
-has to be put in error paths to avoid leak during re-probing.
+By working with external hardware ECC engines, we figured out that
+Under certain circumstances, it is needed for the SPI controller to
+check INT_TX_EMPTY and INT_RX_NOT_EMPTY in both receive and transmit
+path (not only in the receive path). The delay penalty being
+negligible, move this code in the common path.
 
-Fixes: ab663789d697 ("pinctrl: samsung: Match pin banks with their device nodes")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
-Reviewed-by: Chanho Park <chanho61.park@samsung.com>
-Link: https://lore.kernel.org/r/20220111201426.326777-2-krzysztof.kozlowski@canonical.com
+Fixes: b942d80b0a39 ("spi: Add MXIC controller driver")
+Cc: stable@vger.kernel.org
+Suggested-by: Mason Yang <masonccyang@mxic.com.tw>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Reviewed-by: Zhengxun Li <zhengxunli@mxic.com.tw>
+Reviewed-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20220127091808.1043392-10-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/samsung/pinctrl-samsung.c |   30 +++++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+ drivers/spi/spi-mxic.c |   26 +++++++++++---------------
+ 1 file changed, 11 insertions(+), 15 deletions(-)
 
---- a/drivers/pinctrl/samsung/pinctrl-samsung.c
-+++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
-@@ -1002,6 +1002,16 @@ samsung_pinctrl_get_soc_data_for_of_alia
- 	return &(of_data->ctrl[id]);
- }
+--- a/drivers/spi/spi-mxic.c
++++ b/drivers/spi/spi-mxic.c
+@@ -304,25 +304,21 @@ static int mxic_spi_data_xfer(struct mxi
  
-+static void samsung_banks_of_node_put(struct samsung_pinctrl_drv_data *d)
-+{
-+	struct samsung_pin_bank *bank;
-+	unsigned int i;
-+
-+	bank = d->pin_banks;
-+	for (i = 0; i < d->nr_banks; ++i, ++bank)
-+		of_node_put(bank->of_node);
-+}
-+
- /* retrieve the soc specific data */
- static const struct samsung_pin_ctrl *
- samsung_pinctrl_get_soc_data(struct samsung_pinctrl_drv_data *d,
-@@ -1116,19 +1126,19 @@ static int samsung_pinctrl_probe(struct
- 	if (ctrl->retention_data) {
- 		drvdata->retention_ctrl = ctrl->retention_data->init(drvdata,
- 							  ctrl->retention_data);
--		if (IS_ERR(drvdata->retention_ctrl))
--			return PTR_ERR(drvdata->retention_ctrl);
-+		if (IS_ERR(drvdata->retention_ctrl)) {
-+			ret = PTR_ERR(drvdata->retention_ctrl);
-+			goto err_put_banks;
-+		}
- 	}
+ 		writel(data, mxic->regs + TXD(nbytes % 4));
  
- 	ret = samsung_pinctrl_register(pdev, drvdata);
- 	if (ret)
--		return ret;
-+		goto err_put_banks;
+-		if (rxbuf) {
+-			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
+-						 sts & INT_TX_EMPTY, 0,
+-						 USEC_PER_SEC);
+-			if (ret)
+-				return ret;
++		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
++					 sts & INT_TX_EMPTY, 0, USEC_PER_SEC);
++		if (ret)
++			return ret;
  
- 	ret = samsung_gpiolib_register(pdev, drvdata);
--	if (ret) {
--		samsung_pinctrl_unregister(pdev, drvdata);
--		return ret;
--	}
-+	if (ret)
-+		goto err_unregister;
+-			ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
+-						 sts & INT_RX_NOT_EMPTY, 0,
+-						 USEC_PER_SEC);
+-			if (ret)
+-				return ret;
++		ret = readl_poll_timeout(mxic->regs + INT_STS, sts,
++					 sts & INT_RX_NOT_EMPTY, 0,
++					 USEC_PER_SEC);
++		if (ret)
++			return ret;
  
- 	if (ctrl->eint_gpio_init)
- 		ctrl->eint_gpio_init(drvdata);
-@@ -1138,6 +1148,12 @@ static int samsung_pinctrl_probe(struct
- 	platform_set_drvdata(pdev, drvdata);
+-			data = readl(mxic->regs + RXD);
++		data = readl(mxic->regs + RXD);
++		if (rxbuf) {
+ 			data >>= (8 * (4 - nbytes));
+ 			memcpy(rxbuf + pos, &data, nbytes);
+-			WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
+-		} else {
+-			readl(mxic->regs + RXD);
+ 		}
+ 		WARN_ON(readl(mxic->regs + INT_STS) & INT_RX_NOT_EMPTY);
  
- 	return 0;
-+
-+err_unregister:
-+	samsung_pinctrl_unregister(pdev, drvdata);
-+err_put_banks:
-+	samsung_banks_of_node_put(drvdata);
-+	return ret;
- }
- 
- /**
 
 
