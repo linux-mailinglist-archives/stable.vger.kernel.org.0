@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 356895011F0
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4041750106C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237932AbiDNOCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:02:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53478 "EHLO
+        id S244798AbiDNNmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:42:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345484AbiDNNxS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:53:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D922D69722;
-        Thu, 14 Apr 2022 06:44:47 -0700 (PDT)
+        with ESMTP id S1343891AbiDNNaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1521B0D26;
+        Thu, 14 Apr 2022 06:25:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7658861D29;
-        Thu, 14 Apr 2022 13:44:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C5E7C385A5;
-        Thu, 14 Apr 2022 13:44:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11940B82985;
+        Thu, 14 Apr 2022 13:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D206C385A5;
+        Thu, 14 Apr 2022 13:25:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943886;
-        bh=w4WKydU6Nn9pxhdgp5zxAadvtDA/K6whSBp79ozYitg=;
+        s=korg; t=1649942729;
+        bh=X9+QBqSy1pQQYXeuH+D28z07BYNcRuMRUFmFK7j86Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2wqr9Ff0JrDTd5fWmmctYpw5Ubqvctgwqj/3OkaeAlBaWzhKFVcTFYqypLLU24Ht
-         EkQ3RhFCY8NIH6+b1a87dsiFs9HTtChEwNQ6wSIhGpSpwvh2Ed5GYDfhOZKtPsbEDf
-         tHCQV7DXVIKC21/ZWhnNQ8ncgY7iazwe6v6Nh8wI=
+        b=yxNlfYKn9COCY76g37iVzDMYsdIL1n282AeMQWmVlT2EPdClTqUjRsiFslsotnnXf
+         BU5or+DGWtaOrJWPI58dfI3XqCJtiixAa1EvLHIHhgYUeBdmPE0esQY/AKEL9k5SYx
+         22pylTJCZEDk7q7fiSeIFGQKAYpEa/PJ+p6Ms0F4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Carnuccio <joe.carnuccio@cavium.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 318/475] scsi: qla2xxx: Add devids and conditionals for 28xx
+        stable@vger.kernel.org,
+        syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com,
+        Lee Jones <lee.jones@linaro.org>, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 200/338] ext4: dont BUG if someone dirty pages without asking ext4 first
 Date:   Thu, 14 Apr 2022 15:11:43 +0200
-Message-Id: <20220414110903.988026866@linuxfoundation.org>
+Message-Id: <20220414110844.587766421@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,177 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Carnuccio <joe.carnuccio@cavium.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 0d6a536cb1fcabb6c3e9c94871c8d0b29bb5813b upstream.
+[ Upstream commit cc5095747edfb054ca2068d01af20be3fcc3634f ]
 
-This is an update to the original 28xx adapter enablement. Add a bunch of
-conditionals that are applicable for 28xx.
+[un]pin_user_pages_remote is dirtying pages without properly warning
+the file system in advance.  A related race was noted by Jan Kara in
+2018[1]; however, more recently instead of it being a very hard-to-hit
+race, it could be reliably triggered by process_vm_writev(2) which was
+discovered by Syzbot[2].
 
-Link: https://lore.kernel.org/r/20220110050218.3958-16-njavali@marvell.com
-Fixes: ecc89f25e225 ("scsi: qla2xxx: Add Device ID for ISP28XX")
-Cc: stable@vger.kernel.org
-Signed-off-by: Joe Carnuccio <joe.carnuccio@cavium.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is technically a bug in mm/gup.c, but arguably ext4 is fragile in
+that if some other kernel subsystem dirty pages without properly
+notifying the file system using page_mkwrite(), ext4 will BUG, while
+other file systems will not BUG (although data will still be lost).
+
+So instead of crashing with a BUG, issue a warning (since there may be
+potential data loss) and just mark the page as clean to avoid
+unprivileged denial of service attacks until the problem can be
+properly fixed.  More discussion and background can be found in the
+thread starting at [2].
+
+[1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
+[2] https://lore.kernel.org/r/Yg0m6IjcNmfaSokM@google.com
+
+Reported-by: syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/YiDS9wVfq4mM2jGK@mit.edu
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_attr.c   |    7 ++-----
- drivers/scsi/qla2xxx/qla_init.c   |    8 +++-----
- drivers/scsi/qla2xxx/qla_mbx.c    |   14 +++++++++++---
- drivers/scsi/qla2xxx/qla_os.c     |    3 +--
- drivers/scsi/qla2xxx/qla_sup.c    |    4 ++--
- drivers/scsi/qla2xxx/qla_target.c |    3 +--
- 6 files changed, 20 insertions(+), 19 deletions(-)
+ fs/ext4/inode.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -527,7 +527,7 @@ qla2x00_sysfs_read_vpd(struct file *filp
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EINVAL;
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 7959aae4857e..96cf0f57ca95 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -2148,6 +2148,15 @@ static int ext4_writepage(struct page *page,
+ 	else
+ 		len = PAGE_SIZE;
  
--	if (IS_NOCACHE_VPD_TYPE(ha))
-+	if (!IS_NOCACHE_VPD_TYPE(ha))
- 		goto skip;
- 
- 	faddr = ha->flt_region_vpd << 2;
-@@ -710,7 +710,7 @@ qla2x00_sysfs_write_reset(struct file *f
- 		ql_log(ql_log_info, vha, 0x706f,
- 		    "Issuing MPI reset.\n");
- 
--		if (IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha)) {
-+		if (IS_QLA83XX(ha)) {
- 			uint32_t idc_control;
- 
- 			qla83xx_idc_lock(vha, 0);
-@@ -1020,9 +1020,6 @@ qla2x00_free_sysfs_attr(scsi_qla_host_t
- 			continue;
- 		if (iter->type == 3 && !(IS_CNA_CAPABLE(ha)))
- 			continue;
--		if (iter->type == 0x27 &&
--		    (!IS_QLA27XX(ha) || !IS_QLA28XX(ha)))
--			continue;
- 
- 		sysfs_remove_bin_file(&host->shost_gendev.kobj,
- 		    iter->attr);
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -3241,7 +3241,7 @@ qla2x00_alloc_fw_dump(scsi_qla_host_t *v
- 		mem_size = (ha->fw_memory_size - 0x11000 + 1) *
- 		    sizeof(uint16_t);
- 	} else if (IS_FWI2_CAPABLE(ha)) {
--		if (IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
-+		if (IS_QLA83XX(ha))
- 			fixed_size = offsetof(struct qla83xx_fw_dump, ext_mem);
- 		else if (IS_QLA81XX(ha))
- 			fixed_size = offsetof(struct qla81xx_fw_dump, ext_mem);
-@@ -3253,8 +3253,7 @@ qla2x00_alloc_fw_dump(scsi_qla_host_t *v
- 		mem_size = (ha->fw_memory_size - 0x100000 + 1) *
- 		    sizeof(uint32_t);
- 		if (ha->mqenable) {
--			if (!IS_QLA83XX(ha) && !IS_QLA27XX(ha) &&
--			    !IS_QLA28XX(ha))
-+			if (!IS_QLA83XX(ha))
- 				mq_size = sizeof(struct qla2xxx_mq_chain);
- 			/*
- 			 * Allocate maximum buffer size for all queues - Q0.
-@@ -3751,8 +3750,7 @@ enable_82xx_npiv:
- 			    ha->fw_major_version, ha->fw_minor_version,
- 			    ha->fw_subminor_version);
- 
--			if (IS_QLA83XX(ha) || IS_QLA27XX(ha) ||
--			    IS_QLA28XX(ha)) {
-+			if (IS_QLA83XX(ha)) {
- 				ha->flags.fac_supported = 0;
- 				rval = QLA_SUCCESS;
- 			}
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -10,6 +10,12 @@
- #include <linux/delay.h>
- #include <linux/gfp.h>
- 
-+#ifdef CONFIG_PPC
-+#define IS_PPCARCH      true
-+#else
-+#define IS_PPCARCH      false
-+#endif
++	/* Should never happen but for bugs in other kernel subsystems */
++	if (!page_has_buffers(page)) {
++		ext4_warning_inode(inode,
++		   "page %lu does not have buffers attached", page->index);
++		ClearPageDirty(page);
++		unlock_page(page);
++		return 0;
++	}
 +
- static struct mb_cmd_name {
- 	uint16_t cmd;
- 	const char *str;
-@@ -731,6 +737,9 @@ qla2x00_execute_fw(scsi_qla_host_t *vha,
- 				vha->min_supported_speed =
- 				    nv->min_supported_speed;
- 			}
+ 	page_bufs = page_buffers(page);
+ 	/*
+ 	 * We cannot do block allocation or other extent handling in this
+@@ -2697,6 +2706,22 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
+ 			wait_on_page_writeback(page);
+ 			BUG_ON(PageWriteback(page));
+ 
++			/*
++			 * Should never happen but for buggy code in
++			 * other subsystems that call
++			 * set_page_dirty() without properly warning
++			 * the file system first.  See [1] for more
++			 * information.
++			 *
++			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
++			 */
++			if (!page_has_buffers(page)) {
++				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
++				ClearPageDirty(page);
++				unlock_page(page);
++				continue;
++			}
 +
-+			if (IS_PPCARCH)
-+				mcp->mb[11] |= BIT_4;
- 		}
- 
- 		if (ha->flags.exlogins_enabled)
-@@ -2897,8 +2906,7 @@ qla2x00_get_resource_cnts(scsi_qla_host_
- 		ha->orig_fw_iocb_count = mcp->mb[10];
- 		if (ha->flags.npiv_supported)
- 			ha->max_npiv_vports = mcp->mb[11];
--		if (IS_QLA81XX(ha) || IS_QLA83XX(ha) || IS_QLA27XX(ha) ||
--		    IS_QLA28XX(ha))
-+		if (IS_QLA81XX(ha) || IS_QLA83XX(ha))
- 			ha->fw_max_fcf_count = mcp->mb[12];
- 	}
- 
-@@ -5391,7 +5399,7 @@ qla2x00_get_data_rate(scsi_qla_host_t *v
- 	mcp->out_mb = MBX_1|MBX_0;
- 	mcp->in_mb = MBX_2|MBX_1|MBX_0;
- 	if (IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha))
--		mcp->in_mb |= MBX_3;
-+		mcp->in_mb |= MBX_4|MBX_3;
- 	mcp->tov = MBX_TOV_SECONDS;
- 	mcp->flags = 0;
- 	rval = qla2x00_mailbox_command(vha, mcp);
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -3627,8 +3627,7 @@ qla2x00_unmap_iobases(struct qla_hw_data
- 		if (ha->mqiobase)
- 			iounmap(ha->mqiobase);
- 
--		if ((IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha)) &&
--		    ha->msixbase)
-+		if (ha->msixbase)
- 			iounmap(ha->msixbase);
- 	}
- }
---- a/drivers/scsi/qla2xxx/qla_sup.c
-+++ b/drivers/scsi/qla2xxx/qla_sup.c
-@@ -843,7 +843,7 @@ qla2xxx_get_flt_info(scsi_qla_host_t *vh
- 				ha->flt_region_nvram = start;
- 			break;
- 		case FLT_REG_IMG_PRI_27XX:
--			if (IS_QLA27XX(ha) && !IS_QLA28XX(ha))
-+			if (IS_QLA27XX(ha) || IS_QLA28XX(ha))
- 				ha->flt_region_img_status_pri = start;
- 			break;
- 		case FLT_REG_IMG_SEC_27XX:
-@@ -1355,7 +1355,7 @@ next:
- 		    flash_data_addr(ha, faddr), cpu_to_le32(*dwptr));
- 		if (ret) {
- 			ql_dbg(ql_dbg_user, vha, 0x7006,
--			    "Failed slopw write %x (%x)\n", faddr, *dwptr);
-+			    "Failed slow write %x (%x)\n", faddr, *dwptr);
- 			break;
- 		}
- 	}
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -7084,8 +7084,7 @@ qlt_probe_one_stage1(struct scsi_qla_hos
- 	if (!QLA_TGT_MODE_ENABLED())
- 		return;
- 
--	if  ((ql2xenablemsix == 0) || IS_QLA83XX(ha) || IS_QLA27XX(ha) ||
--	    IS_QLA28XX(ha)) {
-+	if  (ha->mqenable || IS_QLA83XX(ha) || IS_QLA27XX(ha) || IS_QLA28XX(ha)) {
- 		ISP_ATIO_Q_IN(base_vha) = &ha->mqiobase->isp25mq.atio_q_in;
- 		ISP_ATIO_Q_OUT(base_vha) = &ha->mqiobase->isp25mq.atio_q_out;
- 	} else {
+ 			if (mpd->map.m_len == 0)
+ 				mpd->first_page = page->index;
+ 			mpd->next_page = page->index + 1;
+-- 
+2.34.1
+
 
 
