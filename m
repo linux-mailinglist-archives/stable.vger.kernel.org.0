@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C2050133B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:17:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1735F501530
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:35:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344923AbiDNOO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:14:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43162 "EHLO
+        id S1348255AbiDNOD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:03:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347011AbiDNN6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:11 -0400
+        with ESMTP id S1346306AbiDNN4U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:56:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E85B6461;
-        Thu, 14 Apr 2022 06:48:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC5D5FFB;
+        Thu, 14 Apr 2022 06:46:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D52561D73;
-        Thu, 14 Apr 2022 13:48:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5402C385A5;
-        Thu, 14 Apr 2022 13:48:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 068B761DAA;
+        Thu, 14 Apr 2022 13:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1276DC385A1;
+        Thu, 14 Apr 2022 13:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944107;
-        bh=oxsOU/TAsc8GDoHYex7Rew1S22SyhzlHMySjRQ0/IvQ=;
+        s=korg; t=1649943995;
+        bh=U/g5B4wlflmbqg7OERUD/evOJgKpiBydlBYyTuryB+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUaXUSC0I2iIrs/nr7JXnWTWDRqL36Gfioit3i7fGv7OLAqcPsGBPMjbU0FhusXf6
-         GuVRESF8mH79rwMDca33ev/P73D46tjWC8W/gryQ87fjVJRHgG78AuCX8aBookPnVX
-         Yom7jF4xQzec6qI759LJ9ohQzAn0Yo7eqmsrhPRk=
+        b=YaWWiKMzjpQHC8ZbMK8c/5rbBj0F8B0AVwohXOvAHYeagG8y4bvUg2X494zQ3VkO6
+         Jx+vLdGskudFyHoFycwXv9gNLB7OpAPNrp7LKg0VaHKN3gzb3vdICjAf+uPiXESZhr
+         Izcmz94skdytxu85qydqJVA8CmTgVtEK+zbIqATA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hengqi Chen <hengqi.chen@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>
-Subject: [PATCH 5.4 356/475] bpf: Fix comment for helper bpf_current_task_under_cgroup()
-Date:   Thu, 14 Apr 2022 15:12:21 +0200
-Message-Id: <20220414110905.044233670@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.4 357/475] dt-bindings: mtd: nand-controller: Fix the reg property description
+Date:   Thu, 14 Apr 2022 15:12:22 +0200
+Message-Id: <20220414110905.073612356@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,48 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hengqi Chen <hengqi.chen@gmail.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 58617014405ad5c9f94f464444f4972dabb71ca7 upstream.
+commit 93f2ec9e401276fb4ea9903194a5bfcf175f9a2c upstream.
 
-Fix the descriptions of the return values of helper bpf_current_task_under_cgroup().
+The reg property of a NAND device always references the chip-selects.
+The ready/busy lines are described in the nand-rb property. I believe
+this was a harmless copy/paste error during the conversion to yaml.
 
-Fixes: c6b5fb8690fa ("bpf: add documentation for eBPF helpers (42-50)")
-Signed-off-by: Hengqi Chen <hengqi.chen@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20220310155335.1278783-1-hengqi.chen@gmail.com
+Fixes: 212e49693592 ("dt-bindings: mtd: Add YAML schemas for the generic NAND options")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20211216111654.238086-2-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/bpf.h       |    4 ++--
- tools/include/uapi/linux/bpf.h |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ Documentation/devicetree/bindings/mtd/nand-controller.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -1294,8 +1294,8 @@ union bpf_attr {
-  * 	Return
-  * 		The return value depends on the result of the test, and can be:
-  *
-- *		* 0, if current task belongs to the cgroup2.
-- *		* 1, if current task does not belong to the cgroup2.
-+ *		* 1, if current task belongs to the cgroup2.
-+ *		* 0, if current task does not belong to the cgroup2.
-  * 		* A negative error code, if an error occurred.
-  *
-  * int bpf_skb_change_tail(struct sk_buff *skb, u32 len, u64 flags)
---- a/tools/include/uapi/linux/bpf.h
-+++ b/tools/include/uapi/linux/bpf.h
-@@ -1294,8 +1294,8 @@ union bpf_attr {
-  * 	Return
-  * 		The return value depends on the result of the test, and can be:
-  *
-- *		* 0, if current task belongs to the cgroup2.
-- *		* 1, if current task does not belong to the cgroup2.
-+ *		* 1, if current task belongs to the cgroup2.
-+ *		* 0, if current task does not belong to the cgroup2.
-  * 		* A negative error code, if an error occurred.
-  *
-  * int bpf_skb_change_tail(struct sk_buff *skb, u32 len, u64 flags)
+--- a/Documentation/devicetree/bindings/mtd/nand-controller.yaml
++++ b/Documentation/devicetree/bindings/mtd/nand-controller.yaml
+@@ -44,7 +44,7 @@ patternProperties:
+     properties:
+       reg:
+         description:
+-          Contains the native Ready/Busy IDs.
++          Contains the chip-select IDs.
+ 
+       nand-ecc-mode:
+         allOf:
 
 
