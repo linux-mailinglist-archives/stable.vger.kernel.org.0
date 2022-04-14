@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EDDD8501296
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74270501127
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239545AbiDNN7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:59:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37596 "EHLO
+        id S241309AbiDNNhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242879AbiDNNuc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:50:32 -0400
+        with ESMTP id S245487AbiDNN3A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:00 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9648A76CF;
-        Thu, 14 Apr 2022 06:44:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380EDAC925;
+        Thu, 14 Apr 2022 06:23:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 785F6B82986;
-        Thu, 14 Apr 2022 13:44:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1F66C385A1;
-        Thu, 14 Apr 2022 13:44:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8330B82982;
+        Thu, 14 Apr 2022 13:22:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4229EC385A9;
+        Thu, 14 Apr 2022 13:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943854;
-        bh=M1gU7GJAdKfEoxBo0mmxgvDmkAOM71wt/lDiYoCEucE=;
+        s=korg; t=1649942578;
+        bh=/94NnZF5zCsGRDaGi4EOOs91gwBmesWffr7GrRdd6r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FH8E8wGFtWeRkY1D0hF+k9kB42n9fRwkrcmAqL/+yL9nCMhcZREyte6Z489pXN5F+
-         oQgo1ZwQDpUjruAck6MsDmstLNYoqCL47aS8lNPzZTKOgCSRm9EjyjLlQ3oxXahFHT
-         QhE0WCf415lYdSoDwwsO+o03X/7U2MYxYcdB3kiQ=
+        b=T4oL1QC8bLOaljlXL0b8JPq8BSA8PicyATR2p3RlFkEjpICs4Q4bLklHE1Pv38s9M
+         5hyAQVwOJ4LBS9bP5sq0FtzGJM1f+iGna+7MtBjaZTmdCqxwz2fwttJTPJavcmB1w0
+         YH01zPLmdSBqDcPNgI720oSUDt2TI5g5WL0+cUdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Daniel=20Gonz=C3=A1lez=20Cabanelas?= <dgcbueu@gmail.com>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 303/475] media: cx88-mpeg: clear interrupt status register before streaming video
+Subject: [PATCH 4.19 185/338] net/x25: Fix null-ptr-deref caused by x25_disconnect
 Date:   Thu, 14 Apr 2022 15:11:28 +0200
-Message-Id: <20220414110903.572333287@linuxfoundation.org>
+Message-Id: <20220414110844.163589087@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel González Cabanelas <dgcbueu@gmail.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 56cb61f70e547e1b0cdfe6ff5a1f1ce6242e6d96 ]
+[ Upstream commit 7781607938c8371d4c2b243527430241c62e39c2 ]
 
-Some cx88 video cards may have transport stream status interrupts set
-to 1 from cold start, causing errors like this:
+When the link layer is terminating, x25->neighbour will be set to NULL
+in x25_disconnect(). As a result, it could cause null-ptr-deref bugs in
+x25_sendmsg(),x25_recvmsg() and x25_connect(). One of the bugs is
+shown below.
 
-  cx88xx: cx88_print_irqbits: core:irq mpeg  [0x100000] ts_err?*
-  cx8802: cx8802_mpeg_irq: mpeg:general errors: 0x00100000
+    (Thread 1)                 |  (Thread 2)
+x25_link_terminated()          | x25_recvmsg()
+ x25_kill_by_neigh()           |  ...
+  x25_disconnect()             |  lock_sock(sk)
+   ...                         |  ...
+   x25->neighbour = NULL //(1) |
+   ...                         |  x25->neighbour->extended //(2)
 
-According to CX2388x datasheet, the interrupt status register should be
-cleared before enabling IRQs to stream video.
+The code sets NULL to x25->neighbour in position (1) and dereferences
+x25->neighbour in position (2), which could cause null-ptr-deref bug.
 
-Fix it by clearing the Transport Stream Interrupt Status register.
+This patch adds lock_sock() in x25_kill_by_neigh() in order to synchronize
+with x25_sendmsg(), x25_recvmsg() and x25_connect(). What`s more, the
+sock held by lock_sock() is not NULL, because it is extracted from x25_list
+and uses x25_list_lock to synchronize.
 
-Signed-off-by: Daniel González Cabanelas <dgcbueu@gmail.com>
+Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx88/cx88-mpeg.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/x25/af_x25.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/pci/cx88/cx88-mpeg.c b/drivers/media/pci/cx88/cx88-mpeg.c
-index a57c991b165b..10d2971ef062 100644
---- a/drivers/media/pci/cx88/cx88-mpeg.c
-+++ b/drivers/media/pci/cx88/cx88-mpeg.c
-@@ -162,6 +162,9 @@ int cx8802_start_dma(struct cx8802_dev    *dev,
- 	cx_write(MO_TS_GPCNTRL, GP_COUNT_CONTROL_RESET);
- 	q->count = 0;
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index f87002792836..77d8adb27ec7 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -1797,10 +1797,15 @@ void x25_kill_by_neigh(struct x25_neigh *nb)
  
-+	/* clear interrupt status register */
-+	cx_write(MO_TS_INTSTAT,  0x1f1111);
-+
- 	/* enable irqs */
- 	dprintk(1, "setting the interrupt mask\n");
- 	cx_set(MO_PCI_INTMSK, core->pci_irqmask | PCI_INT_TSINT);
+ 	write_lock_bh(&x25_list_lock);
+ 
+-	sk_for_each(s, &x25_list)
+-		if (x25_sk(s)->neighbour == nb)
++	sk_for_each(s, &x25_list) {
++		if (x25_sk(s)->neighbour == nb) {
++			write_unlock_bh(&x25_list_lock);
++			lock_sock(s);
+ 			x25_disconnect(s, ENETUNREACH, 0, 0);
+-
++			release_sock(s);
++			write_lock_bh(&x25_list_lock);
++		}
++	}
+ 	write_unlock_bh(&x25_list_lock);
+ 
+ 	/* Remove any related forwards */
 -- 
 2.34.1
 
