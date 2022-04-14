@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E33500EE4
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C45500EE5
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243998AbiDNNWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:22:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38660 "EHLO
+        id S235175AbiDNNWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:22:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237997AbiDNNVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:21:42 -0400
+        with ESMTP id S242734AbiDNNVn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:21:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 398AB97286;
-        Thu, 14 Apr 2022 06:17:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E189F97280;
+        Thu, 14 Apr 2022 06:17:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1028610A6;
-        Thu, 14 Apr 2022 13:17:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB67FC385A9;
-        Thu, 14 Apr 2022 13:17:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B9D460BAF;
+        Thu, 14 Apr 2022 13:17:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85CF9C385A1;
+        Thu, 14 Apr 2022 13:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942244;
-        bh=PRvNGRbCxJO3uZqkoyIaJS5EUibIifK85wWIQr+TfZQ=;
+        s=korg; t=1649942246;
+        bh=XgD35y0ZDYepumDEGpwZAkyDc25heZ6kudVmbOQXoE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6ceOBQ7PqyihgpSoa0RMojFlqhA7v6Thu9d1u9Bop53bf/7BWD/xL2xKrkttV2tM
-         3a9HV24q+09khFpA3KCS3oOK9BMV+GqdC3uUyP85bQUtyYJOyPmx0Ua9ZdKSeWCE8b
-         J/b6sv/hFV/SKbFxwxDYTNAytMVcAR7BD62sE604=
+        b=B9SH5nb4Rmdw/uySgWhziITxHQtYsJ4I6IENYsunWcaK0CpFjoI6glXqaNraqH+jD
+         fR/1McTuDB2AAffCw6Kr9JHsu/RIYG0cp4VhgntLxUVGELqJuiWnHbtMIvhlQohCed
+         /ilJa00GZhS85xNCz3Q8O0b2+h74DeJ7ZQhI1fxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Bagas Sanjaya <bagasdotme@gmail.com>
-Subject: [PATCH 4.19 026/338] Documentation: update stable tree link
-Date:   Thu, 14 Apr 2022 15:08:49 +0200
-Message-Id: <20220414110839.636910023@linuxfoundation.org>
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.19 027/338] SUNRPC: avoid race between mod_timer() and del_timer_sync()
+Date:   Thu, 14 Apr 2022 15:08:50 +0200
+Message-Id: <20220414110839.664512423@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,36 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bagas Sanjaya <bagasdotme@gmail.com>
+From: NeilBrown <neilb@suse.de>
 
-commit 555d44932c67e617d89bc13c81c7efac5b51fcfa upstream.
+commit 3848e96edf4788f772d83990022fa7023a233d83 upstream.
 
-The link to stable tree is redirected to
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git. Update
-accordingly.
+xprt_destory() claims XPRT_LOCKED and then calls del_timer_sync().
+Both xprt_unlock_connect() and xprt_release() call
+ ->release_xprt()
+which drops XPRT_LOCKED and *then* xprt_schedule_autodisconnect()
+which calls mod_timer().
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Jonathan Corbet <corbet@lwn.net>
+This may result in mod_timer() being called *after* del_timer_sync().
+When this happens, the timer may fire long after the xprt has been freed,
+and run_timer_softirq() will probably crash.
+
+The pairing of ->release_xprt() and xprt_schedule_autodisconnect() is
+always called under ->transport_lock.  So if we take ->transport_lock to
+call del_timer_sync(), we can be sure that mod_timer() will run first
+(if it runs at all).
+
 Cc: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
-Link: https://lore.kernel.org/r/20220314113329.485372-6-bagasdotme@gmail.com
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/process/stable-kernel-rules.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/xprt.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/Documentation/process/stable-kernel-rules.rst
-+++ b/Documentation/process/stable-kernel-rules.rst
-@@ -174,7 +174,7 @@ Trees
-  - The finalized and tagged releases of all stable kernels can be found
-    in separate branches per version at:
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1545,7 +1545,14 @@ static void xprt_destroy(struct rpc_xprt
+ 	 */
+ 	wait_on_bit_lock(&xprt->state, XPRT_LOCKED, TASK_UNINTERRUPTIBLE);
  
--	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
-+	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
++	/*
++	 * xprt_schedule_autodisconnect() can run after XPRT_LOCKED
++	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
++	 * can only run *before* del_time_sync(), never after.
++	 */
++	spin_lock(&xprt->transport_lock);
+ 	del_timer_sync(&xprt->timer);
++	spin_unlock(&xprt->transport_lock);
  
-  - The release candidate of all stable kernel versions can be found at:
- 
+ 	/*
+ 	 * Destroy sockets etc from the system workqueue so they can
 
 
