@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C1950108E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 282EC50135D
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344582AbiDNODh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:03:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54028 "EHLO
+        id S244588AbiDNNep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:34:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345935AbiDNNy7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:54:59 -0400
+        with ESMTP id S245760AbiDNN3W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE7839158;
-        Thu, 14 Apr 2022 06:45:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0533954B3;
+        Thu, 14 Apr 2022 06:24:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90D52B828F4;
-        Thu, 14 Apr 2022 13:45:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2E77C385A1;
-        Thu, 14 Apr 2022 13:45:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7950FB82985;
+        Thu, 14 Apr 2022 13:24:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8D57C385A9;
+        Thu, 14 Apr 2022 13:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943920;
-        bh=OXQboSLCCc6ekno63Z+vQjWUAYh0Kr1qx8wjAgRTReI=;
+        s=korg; t=1649942649;
+        bh=jG8282IFcj0nXP570rbRy+T3hJ8cUA1zFu1Wj8etJZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4ciQ2dem09PmfOeAQI309aKhlWFvXYxWPj9RInUfvquHcNhcJDw4fIq1nw3UeYWY
-         9uODAPQwfXc7UytHzciNmx80KalGqoLqFcrvfyQtzchFAQKgek9l0HExNJxcK+ODwl
-         lvT01m60D5ijsiHxotnXhzSf1gUHBnEd1sbPWdSw=
+        b=S4slPEU+/xIliWJHdplD37TrIgBEUn0CntjbR5JhDfHb6DIVhEeIS4xDSWVkoaGL0
+         +oh4kL1OY4OyrJs05wWJfNjWghyIcT4WWpsfBA2ux9uOH35Bcf+vSWmCaxVlZe27F7
+         EF1XttP3OI5Nl/2wikfEV8YDLNg0Z9WFsctR5xIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 329/475] KVM: x86: fix sending PV IPI
-Date:   Thu, 14 Apr 2022 15:11:54 +0200
-Message-Id: <20220414110904.293423623@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 212/338] ASoC: soc-core: skip zero num_dai component in searching dai name
+Date:   Thu, 14 Apr 2022 15:11:55 +0200
+Message-Id: <20220414110844.929600939@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-commit c15e0ae42c8e5a61e9aca8aac920517cf7b3e94e upstream.
+[ Upstream commit f7d344a2bd5ec81fbd1ce76928fd059e57ec9bea ]
 
-If apic_id is less than min, and (max - apic_id) is greater than
-KVM_IPI_CLUSTER_SIZE, then the third check condition is satisfied but
-the new apic_id does not fit the bitmask.  In this case __send_ipi_mask
-should send the IPI.
+In the case like dmaengine which's not a dai but as a component, the
+num_dai is zero, dmaengine component has the same component_of_node
+as cpu dai, when cpu dai component is not ready, but dmaengine component
+is ready, try to get cpu dai name, the snd_soc_get_dai_name() return
+-EINVAL, not -EPROBE_DEFER, that cause below error:
 
-This is mostly theoretical, but it can happen if the apic_ids on three
-iterations of the loop are for example 1, KVM_IPI_CLUSTER_SIZE, 0.
+asoc-simple-card <card name>: parse error -22
+asoc-simple-card: probe of <card name> failed with error -22
 
-Fixes: aaffcfd1e82 ("KVM: X86: Implement PV IPIs in linux guest")
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Message-Id: <1646814944-51801-1-git-send-email-lirongqing@baidu.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The sound card failed to probe.
+
+So this patch fixes the issue above by skipping the zero num_dai
+component in searching dai name.
+
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1644491952-7457-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/kvm.c |    2 +-
+ sound/soc/soc-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -487,7 +487,7 @@ static void __send_ipi_mask(const struct
- 		} else if (apic_id < min && max - apic_id < KVM_IPI_CLUSTER_SIZE) {
- 			ipi_bitmap <<= min - apic_id;
- 			min = apic_id;
--		} else if (apic_id < min + KVM_IPI_CLUSTER_SIZE) {
-+		} else if (apic_id > min && apic_id < min + KVM_IPI_CLUSTER_SIZE) {
- 			max = apic_id < max ? max : apic_id;
- 		} else {
- 			ret = kvm_hypercall4(KVM_HC_SEND_IPI, (unsigned long)ipi_bitmap,
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 273898b358c4..9ca7dff5593d 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -3708,7 +3708,7 @@ int snd_soc_get_dai_name(struct of_phandle_args *args,
+ 		if (!component_of_node && pos->dev->parent)
+ 			component_of_node = pos->dev->parent->of_node;
+ 
+-		if (component_of_node != args->np)
++		if (component_of_node != args->np || !pos->num_dai)
+ 			continue;
+ 
+ 		if (pos->driver->of_xlate_dai_name) {
+-- 
+2.34.1
+
 
 
