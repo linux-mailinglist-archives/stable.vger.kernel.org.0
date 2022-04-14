@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F2F5015ED
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1E1A501337
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244826AbiDNNmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:42:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57118 "EHLO
+        id S1348974AbiDNOPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:15:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344005AbiDNNaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:14 -0400
+        with ESMTP id S1346526AbiDNN52 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE1A986E2;
-        Thu, 14 Apr 2022 06:25:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CB75F8C1;
+        Thu, 14 Apr 2022 06:47:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A668B82987;
-        Thu, 14 Apr 2022 13:25:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2A13C385A5;
-        Thu, 14 Apr 2022 13:25:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27260B82894;
+        Thu, 14 Apr 2022 13:47:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FBF3C385A1;
+        Thu, 14 Apr 2022 13:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942757;
-        bh=TtEuCSySUoleU+Sw6EzEPbql2kI+3nlYtifVMMkERWk=;
+        s=korg; t=1649944034;
+        bh=iQRV5ateyNk7x82zVTTRxMV9NpHDhO7Yy587hC+Z5TU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RMrDkAJppddUATu1dwhBKZdTsu4tiySKPTXxZg3YYJ/e1nd4xTgCWmrnAaHci/4Mp
-         dABDgS/0L+zQpCtBQmkzyDm29ocuGh7H8s7eXSqRD25bLFe7ol5Kc1D2kzpKdJILgX
-         VWCLh3kwYbmVBYxNS9ejMwu1n1LPzEULBo3FuZUk=
+        b=2JYiFqqW8gtj5qiPDD+LQSBfwyv2hhVVcYXpDxjfNbK+Ce0DIG8Rveyrdhcb/NcZ1
+         Cdwml8/FqzLqZEv7T/W0ggudqcHTz1pvfnN1W0G2DKcstUnlw+w/xZ4v2DUnKixYPZ
+         eV3bx0sI4oBbz+mufIEtl+m65bt++YRywP3Hrg2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuldeep Singh <singh.kuldeep87k@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.19 251/338] ARM: dts: spear1340: Update serial node properties
-Date:   Thu, 14 Apr 2022 15:12:34 +0200
-Message-Id: <20220414110846.035693286@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Fangrui Song <maskray@google.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 370/475] riscv module: remove (NOLOAD)
+Date:   Thu, 14 Apr 2022 15:12:35 +0200
+Message-Id: <20220414110905.431887033@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuldeep Singh <singh.kuldeep87k@gmail.com>
+From: Fangrui Song <maskray@google.com>
 
-commit 583d6b0062640def86f3265aa1042ecb6672516e upstream.
+[ Upstream commit 60210a3d86dc57ce4a76a366e7841dda746a33f7 ]
 
-Reorder dma and dma-names property for serial node to make it compliant
-with bindings.
+On ELF, (NOLOAD) sets the section type to SHT_NOBITS[1]. It is conceptually
+inappropriate for .plt, .got, and .got.plt sections which are always
+SHT_PROGBITS.
 
-Fixes: 6e8887f60f60 ("ARM: SPEAr13xx: Pass generic DW DMAC platform data from DT")
-Signed-off-by: Kuldeep Singh <singh.kuldeep87k@gmail.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Link: https://lore.kernel.org/r/20220326042313.97862-3-singh.kuldeep87k@gmail.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In GNU ld, if PLT entries are needed, .plt will be SHT_PROGBITS anyway
+and (NOLOAD) will be essentially ignored. In ld.lld, since
+https://reviews.llvm.org/D118840 ("[ELF] Support (TYPE=<value>) to
+customize the output section type"), ld.lld will report a `section type
+mismatch` error (later changed to a warning). Just remove (NOLOAD) to
+fix the warning.
+
+[1] https://lld.llvm.org/ELF/linker_script.html As of today, "The
+section should be marked as not loadable" on
+https://sourceware.org/binutils/docs/ld/Output-Section-Type.html is
+outdated for ELF.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1597
+Fixes: ab1ef68e5401 ("RISC-V: Add sections of PLT and GOT for kernel module")
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/spear1340.dtsi |    6 +++---
+ arch/riscv/kernel/module.lds | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/spear1340.dtsi
-+++ b/arch/arm/boot/dts/spear1340.dtsi
-@@ -142,9 +142,9 @@
- 				reg = <0xb4100000 0x1000>;
- 				interrupts = <0 105 0x4>;
- 				status = "disabled";
--				dmas = <&dwdma0 12 0 1>,
--					<&dwdma0 13 1 0>;
--				dma-names = "tx", "rx";
-+				dmas = <&dwdma0 13 0 1>,
-+					<&dwdma0 12 1 0>;
-+				dma-names = "rx", "tx";
- 			};
+diff --git a/arch/riscv/kernel/module.lds b/arch/riscv/kernel/module.lds
+index 295ecfb341a2..18ec719899e2 100644
+--- a/arch/riscv/kernel/module.lds
++++ b/arch/riscv/kernel/module.lds
+@@ -2,7 +2,7 @@
+ /* Copyright (C) 2017 Andes Technology Corporation */
  
- 			thermal@e07008c4 {
+ SECTIONS {
+-	.plt (NOLOAD) : { BYTE(0) }
+-	.got (NOLOAD) : { BYTE(0) }
+-	.got.plt (NOLOAD) : { BYTE(0) }
++	.plt : { BYTE(0) }
++	.got : { BYTE(0) }
++	.got.plt : { BYTE(0) }
+ }
+-- 
+2.35.1
+
 
 
