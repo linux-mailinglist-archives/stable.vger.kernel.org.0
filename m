@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 352895015AA
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A5B6501380
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348280AbiDNOEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:04:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42450 "EHLO
+        id S1348971AbiDNOPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:15:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346518AbiDNN52 (ORCPT
+        with ESMTP id S1346523AbiDNN52 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 911CE7F224;
-        Thu, 14 Apr 2022 06:46:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42E4122B18;
+        Thu, 14 Apr 2022 06:47:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46212B82986;
-        Thu, 14 Apr 2022 13:46:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A5EC385A5;
-        Thu, 14 Apr 2022 13:46:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8230B82969;
+        Thu, 14 Apr 2022 13:46:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47211C385A1;
+        Thu, 14 Apr 2022 13:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944014;
-        bh=RHNxGL7bcbwJZEtC99Uv4qm7qx/UvaOnhh+E7nDBd/I=;
+        s=korg; t=1649944017;
+        bh=mOj9P46YKzgpldyCc6jmRDbLtvWPuPzscmMKmln6W18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJU+Knla58A3dpAopwckhUp9sXdjuu1lQxCIIfRClSMXYTIJ25CRNrKr5za1vJGo7
-         /rx0MnqoWVPTh4GEoYXtEYbSzIctyg+Gpom1JIzTcTzWPAY0fL1lHNayKP6xtfuN/l
-         XrfN+HKRiunGDzwfBpwAK2fXD5C0E6pMaJeB1Q5c=
+        b=GR+JAWolLBwJqf4kbWqAEsRzWFR6w5N4Pf5UjPyzlG2pTpnZG6EiACnjU2Tc2WeF8
+         WXP556gXxvTHdx9EBTJnvlm+VaomrXFex8yMi431KCVvhOvqeOpqIaOSo3XDp1DRko
+         dTGq4bLh++t+1uVON5na+pOQpPcvZr4CceksizjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.4 364/475] um: Fix uml_mconsole stop/go
-Date:   Thu, 14 Apr 2022 15:12:29 +0200
-Message-Id: <20220414110905.266701449@linuxfoundation.org>
+        Martin Varghese <martin.varghese@nokia.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.4 365/475] openvswitch: Fixed nd target mask field in the flow dump.
+Date:   Thu, 14 Apr 2022 15:12:30 +0200
+Message-Id: <20220414110905.293928920@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,39 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+From: Martin Varghese <martin.varghese@nokia.com>
 
-commit 1a3a6a2a035bb6c3a7ef4c788d8fd69a7b2d6284 upstream.
+commit f19c44452b58a84d95e209b847f5495d91c9983a upstream.
 
-Moving to an EPOLL based IRQ controller broke uml_mconsole stop/go
-commands. This fixes it and restores stop/go functionality.
+IPv6 nd target mask was not getting populated in flow dump.
 
-Fixes: ff6a17989c08 ("Epoll based IRQ controller")
-Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+In the function __ovs_nla_put_key the icmp code mask field was checked
+instead of icmp code key field to classify the flow as neighbour discovery.
+
+ufid:bdfbe3e5-60c2-43b0-a5ff-dfcac1c37328, recirc_id(0),dp_hash(0/0),
+skb_priority(0/0),in_port(ovs-nm1),skb_mark(0/0),ct_state(0/0),
+ct_zone(0/0),ct_mark(0/0),ct_label(0/0),
+eth(src=00:00:00:00:00:00/00:00:00:00:00:00,
+dst=00:00:00:00:00:00/00:00:00:00:00:00),
+eth_type(0x86dd),
+ipv6(src=::/::,dst=::/::,label=0/0,proto=58,tclass=0/0,hlimit=0/0,frag=no),
+icmpv6(type=135,code=0),
+nd(target=2001::2/::,
+sll=00:00:00:00:00:00/00:00:00:00:00:00,
+tll=00:00:00:00:00:00/00:00:00:00:00:00),
+packets:10, bytes:860, used:0.504s, dp:ovs, actions:ovs-nm2
+
+Fixes: e64457191a25 (openvswitch: Restructure datapath.c and flow.c)
+Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
+Link: https://lore.kernel.org/r/20220328054148.3057-1-martinvarghesenokia@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/drivers/mconsole_kern.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/openvswitch/flow_netlink.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/um/drivers/mconsole_kern.c
-+++ b/arch/um/drivers/mconsole_kern.c
-@@ -217,7 +217,7 @@ void mconsole_go(struct mc_request *req)
+--- a/net/openvswitch/flow_netlink.c
++++ b/net/openvswitch/flow_netlink.c
+@@ -2179,8 +2179,8 @@ static int __ovs_nla_put_key(const struc
+ 			icmpv6_key->icmpv6_type = ntohs(output->tp.src);
+ 			icmpv6_key->icmpv6_code = ntohs(output->tp.dst);
  
- void mconsole_stop(struct mc_request *req)
- {
--	deactivate_fd(req->originating_fd, MCONSOLE_IRQ);
-+	block_signals();
- 	os_set_fd_block(req->originating_fd, 1);
- 	mconsole_reply(req, "stopped", 0, 0);
- 	for (;;) {
-@@ -240,6 +240,7 @@ void mconsole_stop(struct mc_request *re
- 	}
- 	os_set_fd_block(req->originating_fd, 0);
- 	mconsole_reply(req, "", 0, 0);
-+	unblock_signals();
- }
+-			if (icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_SOLICITATION ||
+-			    icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_ADVERTISEMENT) {
++			if (swkey->tp.src == htons(NDISC_NEIGHBOUR_SOLICITATION) ||
++			    swkey->tp.src == htons(NDISC_NEIGHBOUR_ADVERTISEMENT)) {
+ 				struct ovs_key_nd *nd_key;
  
- static DEFINE_SPINLOCK(mc_devices_lock);
+ 				nla = nla_reserve(skb, OVS_KEY_ATTR_ND, sizeof(*nd_key));
 
 
