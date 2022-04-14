@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B33FF501304
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC31250112E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344085AbiDNONf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:13:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43152 "EHLO
+        id S232112AbiDNNl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:41:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347633AbiDNN7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:24 -0400
+        with ESMTP id S1344534AbiDNNca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:32:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F145745503;
-        Thu, 14 Apr 2022 06:50:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF9022298;
+        Thu, 14 Apr 2022 06:30:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE1B061D93;
-        Thu, 14 Apr 2022 13:50:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9C24C385A1;
-        Thu, 14 Apr 2022 13:50:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 485026190F;
+        Thu, 14 Apr 2022 13:30:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55D8AC385A1;
+        Thu, 14 Apr 2022 13:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944235;
-        bh=YOTT4AEIhELaP3kNNZ3XpYJ78sfFl9zFrHB3TNdXrbo=;
+        s=korg; t=1649943004;
+        bh=6qmuWssJE8BGwTQm90LV/eDA7PH3hvnsKvgw2QngIXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFLCi3kAn/oSzdTL1+rtjD7+J51bRRszNlftTfaqWnOFAcv7lscsCJ30plJ1luJXj
-         RZuoYpnNMROr0yJbGJzkgxS74O70jt5AkY4YM0iK9bFM+s9224J/Bxjk4CTlLuHi1T
-         kaO78oPlQXGW7etBfwcjfh1DHJAuaxhH1n2uYX0I=
+        b=Xxsd8jgP8D4JbLAsYRR7x+vWbzXQedcRBFKJ7GJySqjuWsBID8xVmP1YcrXiAcVi8
+         NT2sDq0zUd8XkMbVhuDkQgF57yb0Gwt3CCuRK+kuO55eK0/iCyKPL4NtB5o6oIoVG4
+         saJNMPSsPXxeh/Wv1WbOthKtnDvyNI4hW3y9bDmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 443/475] perf tools: Fix perfs libperf_print callback
-Date:   Thu, 14 Apr 2022 15:13:48 +0200
-Message-Id: <20220414110907.456769223@linuxfoundation.org>
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.19 326/338] dmaengine: Revert "dmaengine: shdma: Fix runtime PM imbalance on error"
+Date:   Thu, 14 Apr 2022 15:13:49 +0200
+Message-Id: <20220414110848.170460403@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit aeee9dc53ce405d2161f9915f553114e94e5b677 ]
+commit d143f939a95696d38ff800ada14402fa50ebbd6c upstream.
 
-eprintf() does not expect va_list as the type of the 4th parameter.
+This reverts commit 455896c53d5b ("dmaengine: shdma: Fix runtime PM
+imbalance on error") as the patch wrongly reduced the count on error and
+did not bail out. So drop the count by reverting the patch .
 
-Use veprintf() because it does.
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 428dab813a56ce94 ("libperf: Merge libperf_set_print() into libperf_init()")
-Cc: Jiri Olsa <jolsa@kernel.org>
-Link: https://lore.kernel.org/r/20220408132625.2451452-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/perf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/sh/shdma-base.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/tools/perf/perf.c b/tools/perf/perf.c
-index 27f94b0bb874..505e2a2f1872 100644
---- a/tools/perf/perf.c
-+++ b/tools/perf/perf.c
-@@ -433,7 +433,7 @@ void pthread__unblock_sigwinch(void)
- static int libperf_print(enum libperf_print_level level,
- 			 const char *fmt, va_list ap)
- {
--	return eprintf(level, verbose, fmt, ap);
-+	return veprintf(level, verbose, fmt, ap);
- }
+--- a/drivers/dma/sh/shdma-base.c
++++ b/drivers/dma/sh/shdma-base.c
+@@ -118,10 +118,8 @@ static dma_cookie_t shdma_tx_submit(stru
+ 		ret = pm_runtime_get(schan->dev);
  
- int main(int argc, const char **argv)
--- 
-2.35.1
-
+ 		spin_unlock_irq(&schan->chan_lock);
+-		if (ret < 0) {
++		if (ret < 0)
+ 			dev_err(schan->dev, "%s(): GET = %d\n", __func__, ret);
+-			pm_runtime_put(schan->dev);
+-		}
+ 
+ 		pm_runtime_barrier(schan->dev);
+ 
 
 
