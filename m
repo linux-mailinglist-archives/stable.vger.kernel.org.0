@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0346C501416
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F1250147C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345045AbiDNNt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47068 "EHLO
+        id S1343494AbiDNNs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344337AbiDNNk5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FBC4120;
-        Thu, 14 Apr 2022 06:38:33 -0700 (PDT)
+        with ESMTP id S1343997AbiDNNjd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD786FA2A;
+        Thu, 14 Apr 2022 06:36:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE98F61BA7;
-        Thu, 14 Apr 2022 13:38:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8845C385A1;
-        Thu, 14 Apr 2022 13:38:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19E4E61D70;
+        Thu, 14 Apr 2022 13:36:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DF38C385A5;
+        Thu, 14 Apr 2022 13:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943512;
-        bh=pfgyiXwM06gCupNegwbTjuuuTwSKW806/KKM1t59/Rs=;
+        s=korg; t=1649943392;
+        bh=wIYZiiX7LOSV2Ed8osLsL7O0y2PdlI8H6Yv0SYtWV/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owa2yUepbUy4wXmPRCoXkAQjvhJu/Ob704uXPneQlHORCxaM3iBNYDghqEX7my4qx
-         q/SNPfD5W73j6pMmLI4nkq6BfWdNPd7weqS7FSBF4zrYtyfVMJYxWlZ3GXikO04A7C
-         R/Q0rvpasMJ6fZ70rMTqRAULeZWLgQyidi9U/ics=
+        b=NQr82NaX8nnAwYjxRYZ7mFJrb08M2WecpcBXmcjT82tLJ1mwSbg3KjniptJldj9Qq
+         5eWgkFWO+1oru70IUbFHIYrmJlx5MhlrShGyzPnl8tPI8WEPi27/b8ouXxJxCqaCA0
+         amiULWietPDO5dSbD7kPo7d8Gmb48OONqPKm3qbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 131/475] ASoC: ti: davinci-i2s: Add check for clk_enable()
-Date:   Thu, 14 Apr 2022 15:08:36 +0200
-Message-Id: <20220414110858.815281096@linuxfoundation.org>
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 132/475] ALSA: spi: Add check for clk_enable()
+Date:   Thu, 14 Apr 2022 15:08:37 +0200
+Message-Id: <20220414110858.843066854@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -57,45 +55,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit ed7c9fef11931fc5d32a83d68017ff390bf5c280 ]
+[ Upstream commit ca1697eb09208f0168d94b88b72f57505339cbe5 ]
 
 As the potential failure of the clk_enable(),
 it should be better to check it and return error
 if fails.
 
-Fixes: 5f9a50c3e55e ("ASoC: Davinci: McBSP: add device tree support for McBSP")
+Fixes: 3568459a5113 ("ALSA: at73c213: manage SSC clock")
 Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220228031540.3571959-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220228022839.3547266-1-jiasheng@iscas.ac.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/davinci-i2s.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/spi/at73c213.c | 27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/ti/davinci-i2s.c b/sound/soc/ti/davinci-i2s.c
-index d89b5c928c4d..b2b2dcdb05d4 100644
---- a/sound/soc/ti/davinci-i2s.c
-+++ b/sound/soc/ti/davinci-i2s.c
-@@ -708,7 +708,9 @@ static int davinci_i2s_probe(struct platform_device *pdev)
- 	dev->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(dev->clk))
- 		return -ENODEV;
--	clk_enable(dev->clk);
-+	ret = clk_enable(dev->clk);
-+	if (ret)
-+		goto err_put_clk;
+diff --git a/sound/spi/at73c213.c b/sound/spi/at73c213.c
+index 4de1ba9a418d..6e5d315bab59 100644
+--- a/sound/spi/at73c213.c
++++ b/sound/spi/at73c213.c
+@@ -218,7 +218,9 @@ static int snd_at73c213_pcm_open(struct snd_pcm_substream *substream)
+ 	runtime->hw = snd_at73c213_playback_hw;
+ 	chip->substream = substream;
  
- 	dev->dev = &pdev->dev;
- 	dev_set_drvdata(&pdev->dev, dev);
-@@ -730,6 +732,7 @@ static int davinci_i2s_probe(struct platform_device *pdev)
- 	snd_soc_unregister_component(&pdev->dev);
- err_release_clk:
- 	clk_disable(dev->clk);
-+err_put_clk:
- 	clk_put(dev->clk);
- 	return ret;
+-	clk_enable(chip->ssc->clk);
++	err = clk_enable(chip->ssc->clk);
++	if (err)
++		return err;
+ 
+ 	return 0;
  }
+@@ -784,7 +786,9 @@ static int snd_at73c213_chip_init(struct snd_at73c213 *chip)
+ 		goto out;
+ 
+ 	/* Enable DAC master clock. */
+-	clk_enable(chip->board->dac_clk);
++	retval = clk_enable(chip->board->dac_clk);
++	if (retval)
++		goto out;
+ 
+ 	/* Initialize at73c213 on SPI bus. */
+ 	retval = snd_at73c213_write_reg(chip, DAC_RST, 0x04);
+@@ -897,7 +901,9 @@ static int snd_at73c213_dev_init(struct snd_card *card,
+ 	chip->card = card;
+ 	chip->irq = -1;
+ 
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->ssc->clk);
++	if (retval)
++		return retval;
+ 
+ 	retval = request_irq(irq, snd_at73c213_interrupt, 0, "at73c213", chip);
+ 	if (retval) {
+@@ -1016,7 +1022,9 @@ static int snd_at73c213_remove(struct spi_device *spi)
+ 	int retval;
+ 
+ 	/* Stop playback. */
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->ssc->clk);
++	if (retval)
++		goto out;
+ 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXDIS));
+ 	clk_disable(chip->ssc->clk);
+ 
+@@ -1096,9 +1104,16 @@ static int snd_at73c213_resume(struct device *dev)
+ {
+ 	struct snd_card *card = dev_get_drvdata(dev);
+ 	struct snd_at73c213 *chip = card->private_data;
++	int retval;
+ 
+-	clk_enable(chip->board->dac_clk);
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->board->dac_clk);
++	if (retval)
++		return retval;
++	retval = clk_enable(chip->ssc->clk);
++	if (retval) {
++		clk_disable(chip->board->dac_clk);
++		return retval;
++	}
+ 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXEN));
+ 
+ 	return 0;
 -- 
 2.34.1
 
