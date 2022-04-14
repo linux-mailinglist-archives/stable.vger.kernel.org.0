@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 012BA5010F5
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B094D5012E5
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345676AbiDNNyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
+        id S1345671AbiDNNyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344914AbiDNNoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C3F56775;
-        Thu, 14 Apr 2022 06:40:41 -0700 (PDT)
+        with ESMTP id S1344928AbiDNNoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:55 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 095D1F7F;
+        Thu, 14 Apr 2022 06:40:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D07A161BA7;
-        Thu, 14 Apr 2022 13:40:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C85C385A1;
-        Thu, 14 Apr 2022 13:40:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5AC4FCE2997;
+        Thu, 14 Apr 2022 13:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72605C385A5;
+        Thu, 14 Apr 2022 13:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943640;
-        bh=jwt4CADUzDZcKMg31hsForQ2DAABZD9u7dOEA4ghXUw=;
+        s=korg; t=1649943642;
+        bh=8De7dNRXiuQNvYAC6aTIy18uDVbph4MMV5k3kClx2hQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LA+x1a1CDTxlMNywmuWLLb/OMqH1QWBbqIGjlX+OAmkZZ98qgvxd1hr9F4qoFpN23
-         E+D6HvmPTZjYtwt8KkMl6avJ4xIWSiiOXqqPHGjoJQWY8aUOLH/LVII36i0mcFeOZO
-         rYqr9KKQtQC1mruhJffoPlupJqgp3smpkunsEiFc=
+        b=woivB2CbWiOh04pFttixg/H+fO8Kv2lXbVL6JkchaezqgMy9756ll9br8iE7p203l
+         KOdH6XSQ9lJ4pYfYxsPT1pFZ5tuSaWenKFW7AR3LVsx1ryY1/LdR+oHT5I1Zxb01du
+         VBJwgoLvYZeo4HMvOqygZsS5V6drMYGwSVUa8cL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Marcelo Schmitt <marcelo.schmitt1@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 229/475] misc: alcor_pci: Fix an error handling path
-Date:   Thu, 14 Apr 2022 15:10:14 +0200
-Message-Id: <20220414110901.529728373@linuxfoundation.org>
+Subject: [PATCH 5.4 230/475] staging:iio:adc:ad7280a: Fix handing of device address bit reversing.
+Date:   Thu, 14 Apr 2022 15:10:15 +0200
+Message-Id: <20220414110901.557486201@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,70 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 5b3dc949f554379edcb8ef6111aa5ecb78feb798 ]
+[ Upstream commit f281e4ddbbc0b60f061bc18a2834e9363ba85f9f ]
 
-A successful ida_simple_get() should be balanced by a corresponding
-ida_simple_remove().
+The bit reversal was wrong for bits 1 and 3 of the 5 bits.
+Result is driver failure to probe if you have more than 2 daisy-chained
+devices.  Discovered via QEMU based device emulation.
 
-Add the missing call in the error handling path of the probe.
+Fixes tag is for when this moved from a macro to a function, but it
+was broken before that.
 
-While at it, switch to ida_alloc()/ida_free() instead to
-ida_simple_get()/ida_simple_remove().
-The latter is deprecated and more verbose.
-
-Fixes: 4f556bc04e3c ("misc: cardreader: add new Alcor Micro Cardreader PCI driver")
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/918a9875b7f67b7f8f123c4446452603422e8c5e.1644136776.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 065a7c0b1fec ("Staging: iio: adc: ad7280a.c: Fixed Macro argument reuse")
+Reviewed-by: Marcelo Schmitt <marcelo.schmitt1@gmail.com>
+Link: https://lore.kernel.org/r/20220206190328.333093-2-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/alcor_pci.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/staging/iio/adc/ad7280a.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
-index 1fadb95b85b0..ba5d5c102b3c 100644
---- a/drivers/misc/cardreader/alcor_pci.c
-+++ b/drivers/misc/cardreader/alcor_pci.c
-@@ -260,7 +260,7 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 	if (!priv)
- 		return -ENOMEM;
- 
--	ret = ida_simple_get(&alcor_pci_idr, 0, 0, GFP_KERNEL);
-+	ret = ida_alloc(&alcor_pci_idr, GFP_KERNEL);
- 	if (ret < 0)
- 		return ret;
- 	priv->id = ret;
-@@ -274,7 +274,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 	ret = pci_request_regions(pdev, DRV_NAME_ALCOR_PCI);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Cannot request region\n");
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto error_free_ida;
- 	}
- 
- 	if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM)) {
-@@ -318,6 +319,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
- 
- error_release_regions:
- 	pci_release_regions(pdev);
-+error_free_ida:
-+	ida_free(&alcor_pci_idr, priv->id);
- 	return ret;
+diff --git a/drivers/staging/iio/adc/ad7280a.c b/drivers/staging/iio/adc/ad7280a.c
+index 19a5f244dcae..d8886c5c0d1f 100644
+--- a/drivers/staging/iio/adc/ad7280a.c
++++ b/drivers/staging/iio/adc/ad7280a.c
+@@ -107,9 +107,9 @@
+ static unsigned int ad7280a_devaddr(unsigned int addr)
+ {
+ 	return ((addr & 0x1) << 4) |
+-	       ((addr & 0x2) << 3) |
++	       ((addr & 0x2) << 2) |
+ 	       (addr & 0x4) |
+-	       ((addr & 0x8) >> 3) |
++	       ((addr & 0x8) >> 2) |
+ 	       ((addr & 0x10) >> 4);
  }
  
-@@ -331,7 +334,7 @@ static void alcor_pci_remove(struct pci_dev *pdev)
- 
- 	mfd_remove_devices(&pdev->dev);
- 
--	ida_simple_remove(&alcor_pci_idr, priv->id);
-+	ida_free(&alcor_pci_idr, priv->id);
- 
- 	pci_release_regions(pdev);
- 	pci_set_drvdata(pdev, NULL);
 -- 
 2.34.1
 
