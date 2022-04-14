@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3415013AC
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E9E4501592
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344230AbiDNOOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:14:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43372 "EHLO
+        id S245007AbiDNNiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:38:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347057AbiDNN6Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBD74B6D23;
-        Thu, 14 Apr 2022 06:48:41 -0700 (PDT)
+        with ESMTP id S1344320AbiDNNbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497D81D3;
+        Thu, 14 Apr 2022 06:29:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54522612E6;
-        Thu, 14 Apr 2022 13:48:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 624FBC385A5;
-        Thu, 14 Apr 2022 13:48:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA1A561B18;
+        Thu, 14 Apr 2022 13:29:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2756C385A1;
+        Thu, 14 Apr 2022 13:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944120;
-        bh=DkUbED2tPSMTBImr/Usm6iUYAasY38b5DmcIF4cmdR8=;
+        s=korg; t=1649942954;
+        bh=zCLyd9yat9t+0NJF5ard6p5JfnYrqiSGe4IUhgCGwZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRhWk1kSKSV3c5uL7DfK9QmKmuKSyAiqKQSHUH0eIP6NW97mqi/yfMfx2k7w1E7X3
-         oNz4gV2uEHBH9uBMWB5CPrlXF2krqYvQ30NGeC7eVTZHA4zoBY77jAzM3DdnIU6MV5
-         3LM+roaXVIxOekD9i/P5A/YNcBocZZCd0i/AKEgA=
+        b=S2mYrindejx1IVuoWXc+hfbh/534ICPZwmVqOAS/l0CUF6+phTaDargVqq2E8npD4
+         Mqcg+5mGBa5gt1C14n0SbpdhVtyD+OWUYTpcYfCHQCY4HNp1k8WF89vLktKh2/o5pc
+         jgnRlzx04b6bgWGQDDTKAB4zaY8DEwOc0TeYNLCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 402/475] usb: dwc3: omap: fix "unbalanced disables for smps10_out1" on omap5evm
+Subject: [PATCH 4.19 284/338] usb: dwc3: omap: fix "unbalanced disables for smps10_out1" on omap5evm
 Date:   Thu, 14 Apr 2022 15:13:07 +0200
-Message-Id: <20220414110906.317811238@linuxfoundation.org>
+Message-Id: <20220414110846.972986150@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -107,10 +107,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/usb/dwc3/dwc3-omap.c b/drivers/usb/dwc3/dwc3-omap.c
-index e8acad49a53a..81ee1cd794f7 100644
+index 0dfb710f48b5..0b800bc6150d 100644
 --- a/drivers/usb/dwc3/dwc3-omap.c
 +++ b/drivers/usb/dwc3/dwc3-omap.c
-@@ -242,7 +242,7 @@ static void dwc3_omap_set_mailbox(struct dwc3_omap *omap,
+@@ -237,7 +237,7 @@ static void dwc3_omap_set_mailbox(struct dwc3_omap *omap,
  		break;
  
  	case OMAP_DWC3_ID_FLOAT:
