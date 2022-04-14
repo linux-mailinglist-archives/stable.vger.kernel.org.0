@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6C2F50148E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:32:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9535011B7
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343577AbiDNOIv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:08:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47178 "EHLO
+        id S241741AbiDNOGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:06:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347590AbiDNN7W (ORCPT
+        with ESMTP id S1347587AbiDNN7W (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 039481FA6D;
-        Thu, 14 Apr 2022 06:50:10 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1600A43497;
+        Thu, 14 Apr 2022 06:50:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8B6661D93;
-        Thu, 14 Apr 2022 13:50:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7067C385A1;
-        Thu, 14 Apr 2022 13:50:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B224DB82894;
+        Thu, 14 Apr 2022 13:50:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF0D9C385A9;
+        Thu, 14 Apr 2022 13:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944209;
-        bh=56n9008Yh4oszyhdEIYlXv3SmiaHAihv3gOj6ujHtDc=;
+        s=korg; t=1649944212;
+        bh=w17I2GFNMzwU5tGUrCqoLz9FROTmjllgoGdb7huj748=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJ+o+8Q5n4TrtmSTlGS6d5TjuAOy0V7CN64u0ti9VAdcwtQpHEH872feJmv9CKiwU
-         5dn/jjdjzvMWfs9/ALys2/8x6JOQ4lPwGS+SBBlTvh8KUYl7omC/CtIgDzAlymRyGo
-         HyEUybjfUTT1KMgbF1YF1YsKElAWeQKiclVHrYgs=
+        b=G5HMh3wlnOgE0n1mb7HXuMJvYYfz1kMy3m4mciXHSY1Qotgqnkt0Vm/sdkKu1kG25
+         R4AONZRHQ4QwhfzBeWyKwr/t1fw58QCQQPKff5MmpLH3vMilo2VH0Ba5FsbTYnIr1z
+         DBMQim/lDtr5lLte3qyRavYyeLC8E9qvPWVRLQIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Andy Gospodarek <gospo@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 431/475] bnxt_en: reserve space inside receive page for skb_shared_info
-Date:   Thu, 14 Apr 2022 15:13:36 +0200
-Message-Id: <20220414110907.125476171@linuxfoundation.org>
+Subject: [PATCH 5.4 432/475] IB/rdmavt: add lock to call to rvt_error_qp to prevent a race condition
+Date:   Thu, 14 Apr 2022 15:13:37 +0200
+Message-Id: <20220414110907.153690997@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -57,43 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Gospodarek <gospo@broadcom.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-[ Upstream commit facc173cf700e55b2ad249ecbd3a7537f7315691 ]
+[ Upstream commit 4d809f69695d4e7d1378b3a072fa9aef23123018 ]
 
-Insufficient space was being reserved in the page used for packet
-reception, so the interface MTU could be set too large to still have
-room for the contents of the packet when doing XDP redirect.  This
-resulted in the following message when redirecting a packet between
-3520 and 3822 bytes with an MTU of 3822:
+The documentation of the function rvt_error_qp says both r_lock and s_lock
+need to be held when calling that function.  It also asserts using lockdep
+that both of those locks are held.  However, the commit I referenced in
+Fixes accidentally makes the call to rvt_error_qp in rvt_ruc_loopback no
+longer covered by r_lock.  This results in the lockdep assertion failing
+and also possibly in a race condition.
 
-[311815.561880] XDP_WARN: xdp_update_frame_from_buff(line:200): Driver BUG: missing reserved tailroom
-
-Fixes: f18c2b77b2e4 ("bnxt_en: optimized XDP_REDIRECT support")
-Reviewed-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d757c60eca9b ("IB/rdmavt: Fix concurrency panics in QP post_send and modify to error")
+Link: https://lore.kernel.org/r/20220228165330.41546-1-dossche.niels@gmail.com
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Acked-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/sw/rdmavt/qp.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.h b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-index 8ba369c0100b..9e8a0c772ca9 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -559,7 +559,8 @@ struct nqe_cn {
- #define BNXT_MAX_MTU		9500
- #define BNXT_MAX_PAGE_MODE_MTU	\
- 	((unsigned int)PAGE_SIZE - VLAN_ETH_HLEN - NET_IP_ALIGN -	\
--	 XDP_PACKET_HEADROOM)
-+	 XDP_PACKET_HEADROOM - \
-+	 SKB_DATA_ALIGN((unsigned int)sizeof(struct skb_shared_info)))
+diff --git a/drivers/infiniband/sw/rdmavt/qp.c b/drivers/infiniband/sw/rdmavt/qp.c
+index a5152f097cb7..48e8612c1bc8 100644
+--- a/drivers/infiniband/sw/rdmavt/qp.c
++++ b/drivers/infiniband/sw/rdmavt/qp.c
+@@ -3227,7 +3227,11 @@ void rvt_ruc_loopback(struct rvt_qp *sqp)
+ 	spin_lock_irqsave(&sqp->s_lock, flags);
+ 	rvt_send_complete(sqp, wqe, send_status);
+ 	if (sqp->ibqp.qp_type == IB_QPT_RC) {
+-		int lastwqe = rvt_error_qp(sqp, IB_WC_WR_FLUSH_ERR);
++		int lastwqe;
++
++		spin_lock(&sqp->r_lock);
++		lastwqe = rvt_error_qp(sqp, IB_WC_WR_FLUSH_ERR);
++		spin_unlock(&sqp->r_lock);
  
- #define BNXT_MIN_PKT_SIZE	52
- 
+ 		sqp->s_flags &= ~RVT_S_BUSY;
+ 		spin_unlock_irqrestore(&sqp->s_lock, flags);
 -- 
 2.35.1
 
