@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7692C5014D5
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 613EF50105A
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344919AbiDNNtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36010 "EHLO
+        id S1344900AbiDNNtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245358AbiDNNi1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:27 -0400
+        with ESMTP id S245387AbiDNNi2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 064DBA0BD9;
-        Thu, 14 Apr 2022 06:32:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155A8A1448;
+        Thu, 14 Apr 2022 06:32:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9CEB4B8296A;
-        Thu, 14 Apr 2022 13:31:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10913C385A1;
-        Thu, 14 Apr 2022 13:31:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2E14B82968;
+        Thu, 14 Apr 2022 13:32:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E979CC385A1;
+        Thu, 14 Apr 2022 13:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943118;
-        bh=pz4SwLnyQgVCpN4F2tuLiBG4T/dHTViBa/Utc5NSmC4=;
+        s=korg; t=1649943121;
+        bh=EOdu4CEmkcnDwJMBk6OsqstsD3MrKYOf+7r24Eg9bds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RpAhRedYLOUOVNAPn3MgrRMCU2Ph6/JCPv52SVFUE6Rj7stH2Ie9gLGNa/M/tKN8L
-         5Q98/vrdmgxyMZTF9BH4hyLtbiAeqKX6Qu8GlaAgoF9c57VRSBRRKcL2zyqZf58emG
-         oRIv+/Zoa7NiCmMR1S3kvvh/x++A3IWy3jLC/QtM=
+        b=ZdvrUUZ/m2ewosRXhq7sAXMGnC1eAiArDjhlVy0IaQz73ZcUytHVsXlWU8EZy122t
+         v/mfhoFrWlR5nmFOL4gglkcZ03b9UNq7LrkY7C9n7fVH3+byn2PEaLvkk1lGUKZp9m
+         0R90yrJQr8YQB51Y+e0D+hdqPK1mZofhNJ/Hf2yY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao.yu@oppo.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 040/475] f2fs: fix to do sanity check on .cp_pack_total_block_count
-Date:   Thu, 14 Apr 2022 15:07:05 +0200
-Message-Id: <20220414110856.278362208@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Chanho Park <chanho61.park@samsung.com>
+Subject: [PATCH 5.4 041/475] pinctrl: samsung: drop pin banks references on error paths
+Date:   Thu, 14 Apr 2022 15:07:06 +0200
+Message-Id: <20220414110856.307869652@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -53,76 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 5b5b4f85b01604389f7a0f11ef180a725bf0e2d4 upstream.
+commit 50ebd19e3585b9792e994cfa8cbee8947fe06371 upstream.
 
-As bughunter reported in bugzilla:
+The driver iterates over its devicetree children with
+for_each_child_of_node() and stores for later found node pointer.  This
+has to be put in error paths to avoid leak during re-probing.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215709
-
-f2fs may hang when mounting a fuzzed image, the dmesg shows as below:
-
-__filemap_get_folio+0x3a9/0x590
-pagecache_get_page+0x18/0x60
-__get_meta_page+0x95/0x460 [f2fs]
-get_checkpoint_version+0x2a/0x1e0 [f2fs]
-validate_checkpoint+0x8e/0x2a0 [f2fs]
-f2fs_get_valid_checkpoint+0xd0/0x620 [f2fs]
-f2fs_fill_super+0xc01/0x1d40 [f2fs]
-mount_bdev+0x18a/0x1c0
-f2fs_mount+0x15/0x20 [f2fs]
-legacy_get_tree+0x28/0x50
-vfs_get_tree+0x27/0xc0
-path_mount+0x480/0xaa0
-do_mount+0x7c/0xa0
-__x64_sys_mount+0x8b/0xe0
-do_syscall_64+0x38/0xc0
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is cp_pack_total_block_count field in checkpoint was fuzzed
-to one, as calcuated, two cp pack block locates in the same block address,
-so then read latter cp pack block, it will block on the page lock due to
-the lock has already held when reading previous cp pack block, fix it by
-adding sanity check for cp_pack_total_block_count.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: ab663789d697 ("pinctrl: samsung: Match pin banks with their device nodes")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reviewed-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20220111201426.326777-2-krzysztof.kozlowski@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/checkpoint.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/pinctrl/samsung/pinctrl-samsung.c |   30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
 
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -848,6 +848,7 @@ static struct page *validate_checkpoint(
- 	struct page *cp_page_1 = NULL, *cp_page_2 = NULL;
- 	struct f2fs_checkpoint *cp_block = NULL;
- 	unsigned long long cur_version = 0, pre_version = 0;
-+	unsigned int cp_blocks;
- 	int err;
+--- a/drivers/pinctrl/samsung/pinctrl-samsung.c
++++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
+@@ -1002,6 +1002,16 @@ samsung_pinctrl_get_soc_data_for_of_alia
+ 	return &(of_data->ctrl[id]);
+ }
  
- 	err = get_checkpoint_version(sbi, cp_addr, &cp_block,
-@@ -855,15 +856,16 @@ static struct page *validate_checkpoint(
- 	if (err)
- 		return NULL;
- 
--	if (le32_to_cpu(cp_block->cp_pack_total_block_count) >
--					sbi->blocks_per_seg) {
-+	cp_blocks = le32_to_cpu(cp_block->cp_pack_total_block_count);
++static void samsung_banks_of_node_put(struct samsung_pinctrl_drv_data *d)
++{
++	struct samsung_pin_bank *bank;
++	unsigned int i;
 +
-+	if (cp_blocks > sbi->blocks_per_seg || cp_blocks <= F2FS_CP_PACKS) {
- 		f2fs_warn(sbi, "invalid cp_pack_total_block_count:%u",
- 			  le32_to_cpu(cp_block->cp_pack_total_block_count));
- 		goto invalid_cp;
++	bank = d->pin_banks;
++	for (i = 0; i < d->nr_banks; ++i, ++bank)
++		of_node_put(bank->of_node);
++}
++
+ /* retrieve the soc specific data */
+ static const struct samsung_pin_ctrl *
+ samsung_pinctrl_get_soc_data(struct samsung_pinctrl_drv_data *d,
+@@ -1116,19 +1126,19 @@ static int samsung_pinctrl_probe(struct
+ 	if (ctrl->retention_data) {
+ 		drvdata->retention_ctrl = ctrl->retention_data->init(drvdata,
+ 							  ctrl->retention_data);
+-		if (IS_ERR(drvdata->retention_ctrl))
+-			return PTR_ERR(drvdata->retention_ctrl);
++		if (IS_ERR(drvdata->retention_ctrl)) {
++			ret = PTR_ERR(drvdata->retention_ctrl);
++			goto err_put_banks;
++		}
  	}
- 	pre_version = *version;
  
--	cp_addr += le32_to_cpu(cp_block->cp_pack_total_block_count) - 1;
-+	cp_addr += cp_blocks - 1;
- 	err = get_checkpoint_version(sbi, cp_addr, &cp_block,
- 					&cp_page_2, version);
- 	if (err)
+ 	ret = samsung_pinctrl_register(pdev, drvdata);
+ 	if (ret)
+-		return ret;
++		goto err_put_banks;
+ 
+ 	ret = samsung_gpiolib_register(pdev, drvdata);
+-	if (ret) {
+-		samsung_pinctrl_unregister(pdev, drvdata);
+-		return ret;
+-	}
++	if (ret)
++		goto err_unregister;
+ 
+ 	if (ctrl->eint_gpio_init)
+ 		ctrl->eint_gpio_init(drvdata);
+@@ -1138,6 +1148,12 @@ static int samsung_pinctrl_probe(struct
+ 	platform_set_drvdata(pdev, drvdata);
+ 
+ 	return 0;
++
++err_unregister:
++	samsung_pinctrl_unregister(pdev, drvdata);
++err_put_banks:
++	samsung_banks_of_node_put(drvdata);
++	return ret;
+ }
+ 
+ /**
 
 
