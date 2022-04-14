@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B1AE501056
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B897501301
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345663AbiDNNx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:53:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54862 "EHLO
+        id S1345471AbiDNNxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:53:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344987AbiDNNo6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:58 -0400
+        with ESMTP id S1345000AbiDNNo7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16F5766615;
-        Thu, 14 Apr 2022 06:41:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D576A60CC9;
+        Thu, 14 Apr 2022 06:41:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C26B1B82983;
-        Thu, 14 Apr 2022 13:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA8CC385A1;
-        Thu, 14 Apr 2022 13:41:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 416BFB8296A;
+        Thu, 14 Apr 2022 13:41:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 915D3C385A5;
+        Thu, 14 Apr 2022 13:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943662;
-        bh=ZGW8BiQG7HCfwzspUwBInQ6eQWFaOMQ0x/bgFalDr/0=;
+        s=korg; t=1649943667;
+        bh=0yqvMpcWaAR3dMtVCzR5hf1l6lIs367xNIC9Ory2ITU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hyhg6aDU1kkhakg3XdJhPIG0TCIlBQDVKMwpbTzzrH9HHwjjgktyZWgogAB+BJUCf
-         eK62lN4FOmcGv9BLEbdFYKkHrUckzEasn9nh/e+BVWZTYItZLijY1KbKJ95EB9/ZoE
-         t0bh9xv+ggk1xd0fACm8QHqYoSdrxlXXf080+VsA=
+        b=mZlTzen39KVHMcCSVZdlw1nXEUyDzmpJ4IopP0PbbRh5d7g/x0rVuzbrlfSpDCuXg
+         62IpU8ab8XfoyrdBcY6eTWWBhOj9N1PmMLxO96CYYHEr9y111lgnDxMt+yIsV8Sjk3
+         AM3Yw5+sVhFNNQwJf60qtgtaSdsoL3WQou3gHmN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Joerg Roedel <joro@8bytes.org>, Christoph Hellwig <hch@lst.de>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        iommu@lists.linux-foundation.org,
+        Robin Murphy <robin.murphy@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 237/475] NFS: Return valid errors from nfs2/3_decode_dirent()
-Date:   Thu, 14 Apr 2022 15:10:22 +0200
-Message-Id: <20220414110901.751641174@linuxfoundation.org>
+Subject: [PATCH 5.4 238/475] dma-debug: fix return value of __setup handlers
+Date:   Thu, 14 Apr 2022 15:10:23 +0200
+Message-Id: <20220414110901.779191925@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,104 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 64cfca85bacde54caa64e0ab855c48734894fa37 ]
+[ Upstream commit 80e4390981618e290616dbd06ea190d4576f219d ]
 
-Valid return values for decode_dirent() callback functions are:
- 0: Success
- -EBADCOOKIE: End of directory
- -EAGAIN: End of xdr_stream
+When valid kernel command line parameters
+  dma_debug=off dma_debug_entries=100
+are used, they are reported as Unknown parameters and added to init's
+environment strings, polluting it.
 
-All errors need to map into one of those three values.
+  Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc5
+    dma_debug=off dma_debug_entries=100", will be passed to user space.
 
-Fixes: 573c4e1ef53a ("NFS: Simplify ->decode_dirent() calling sequence")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+and
+
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc5
+     dma_debug=off
+     dma_debug_entries=100
+
+Return 1 from these __setup handlers to indicate that the command line
+option has been handled.
+
+Fixes: 59d3daafa1726 ("dma-debug: add kernel command line parameters")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: iommu@lists.linux-foundation.org
+Cc: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs2xdr.c |  2 +-
- fs/nfs/nfs3xdr.c | 21 ++++++---------------
- 2 files changed, 7 insertions(+), 16 deletions(-)
+ kernel/dma/debug.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs2xdr.c b/fs/nfs/nfs2xdr.c
-index 887f9136a9db..af557dc2cfe1 100644
---- a/fs/nfs/nfs2xdr.c
-+++ b/fs/nfs/nfs2xdr.c
-@@ -953,7 +953,7 @@ int nfs2_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 
- 	error = decode_filename_inline(xdr, &entry->name, &entry->len);
- 	if (unlikely(error))
--		return error;
-+		return -EAGAIN;
- 
- 	/*
- 	 * The type (size and byte order) of nfscookie isn't defined in
-diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
-index 23d75cddbb2e..84369d51353a 100644
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -1968,7 +1968,6 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 		       bool plus)
- {
- 	struct user_namespace *userns = rpc_userns(entry->server->client);
--	struct nfs_entry old = *entry;
- 	__be32 *p;
- 	int error;
- 	u64 new_cookie;
-@@ -1988,15 +1987,15 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 
- 	error = decode_fileid3(xdr, &entry->ino);
- 	if (unlikely(error))
--		return error;
-+		return -EAGAIN;
- 
- 	error = decode_inline_filename3(xdr, &entry->name, &entry->len);
- 	if (unlikely(error))
--		return error;
-+		return -EAGAIN;
- 
- 	error = decode_cookie3(xdr, &new_cookie);
- 	if (unlikely(error))
--		return error;
-+		return -EAGAIN;
- 
- 	entry->d_type = DT_UNKNOWN;
- 
-@@ -2004,7 +2003,7 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 		entry->fattr->valid = 0;
- 		error = decode_post_op_attr(xdr, entry->fattr, userns);
- 		if (unlikely(error))
--			return error;
-+			return -EAGAIN;
- 		if (entry->fattr->valid & NFS_ATTR_FATTR_V3)
- 			entry->d_type = nfs_umode_to_dtype(entry->fattr->mode);
- 
-@@ -2019,11 +2018,8 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 			return -EAGAIN;
- 		if (*p != xdr_zero) {
- 			error = decode_nfs_fh3(xdr, entry->fh);
--			if (unlikely(error)) {
--				if (error == -E2BIG)
--					goto out_truncated;
--				return error;
--			}
-+			if (unlikely(error))
-+				return -EAGAIN;
- 		} else
- 			zero_nfs_fh3(entry->fh);
+diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
+index b28665f4d8c7..4dc3bbfd3e3f 100644
+--- a/kernel/dma/debug.c
++++ b/kernel/dma/debug.c
+@@ -980,7 +980,7 @@ static __init int dma_debug_cmdline(char *str)
+ 		global_disable = true;
  	}
-@@ -2032,11 +2028,6 @@ int nfs3_decode_dirent(struct xdr_stream *xdr, struct nfs_entry *entry,
- 	entry->cookie = new_cookie;
  
- 	return 0;
--
--out_truncated:
--	dprintk("NFS: directory entry contains invalid file handle\n");
--	*entry = old;
--	return -EAGAIN;
+-	return 0;
++	return 1;
  }
  
- /*
+ static __init int dma_debug_entries_cmdline(char *str)
+@@ -989,7 +989,7 @@ static __init int dma_debug_entries_cmdline(char *str)
+ 		return -EINVAL;
+ 	if (!get_option(&str, &nr_prealloc_entries))
+ 		nr_prealloc_entries = PREALLOC_DMA_DEBUG_ENTRIES;
+-	return 0;
++	return 1;
+ }
+ 
+ __setup("dma_debug=", dma_debug_cmdline);
 -- 
 2.34.1
 
