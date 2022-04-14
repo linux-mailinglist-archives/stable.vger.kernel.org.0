@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78BEA501496
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D05950130B
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345825AbiDNNyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34542 "EHLO
+        id S242333AbiDNNeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:34:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243469AbiDNNp4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6735FD5;
-        Thu, 14 Apr 2022 06:43:31 -0700 (PDT)
+        with ESMTP id S245317AbiDNN2u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1579BAC5;
+        Thu, 14 Apr 2022 06:22:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E68FB61B51;
-        Thu, 14 Apr 2022 13:43:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0554FC385A1;
-        Thu, 14 Apr 2022 13:43:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1EB5B82986;
+        Thu, 14 Apr 2022 13:22:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01F69C385A5;
+        Thu, 14 Apr 2022 13:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943810;
-        bh=w51WdM5aHvUcdwBxHUAYODPLjNrTY/mf+S4fCEB517g=;
+        s=korg; t=1649942536;
+        bh=sd0NXxd0gz5WV080qFGi9PRjHeovtrpCI+ZAGK+PE1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lCp6B4NU2UmvKGL2rMBtJg1Lcl9IvXj7+UXbf30pgQQXTjwLGWudR/vioSdJn4QJk
-         ORfv5y7PTYjZDOsskDYNez1IMHcUGGBq3ZYHx3X7RubA0Km8J0AG4bhErCC76Wj6WR
-         H7azeOONqNW3dU+LtcnmGMvTqxpr53jifpjfi1Vs=
+        b=TSsQOVhR1uQNyevcDFs6+tEuY9VRD5W3P1o3+GZlYjG4znouBa/Lp82o7sXFZhWkt
+         aRfgpu4LSY+Y2SqyKV5wwNOiQVceflTPAvj5HhfkmFOVXfqhDmpJil6TZwMv+8nAKk
+         DVBLuK8s8fNI6gdzbFWT2ZGtHBslNfx2ZRuHSvrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com,
-        Lee Jones <lee.jones@linaro.org>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 289/475] ext4: dont BUG if someone dirty pages without asking ext4 first
+Subject: [PATCH 4.19 171/338] clk: tegra: tegra124-emc: Fix missing put_device() call in emc_ensure_emc_driver
 Date:   Thu, 14 Apr 2022 15:11:14 +0200
-Message-Id: <20220414110903.185132971@linuxfoundation.org>
+Message-Id: <20220414110843.765477988@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,82 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit cc5095747edfb054ca2068d01af20be3fcc3634f ]
+[ Upstream commit 6d6ef58c2470da85a99119f74d34216c8074b9f0 ]
 
-[un]pin_user_pages_remote is dirtying pages without properly warning
-the file system in advance.  A related race was noted by Jan Kara in
-2018[1]; however, more recently instead of it being a very hard-to-hit
-race, it could be reliably triggered by process_vm_writev(2) which was
-discovered by Syzbot[2].
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the error handling path.
 
-This is technically a bug in mm/gup.c, but arguably ext4 is fragile in
-that if some other kernel subsystem dirty pages without properly
-notifying the file system using page_mkwrite(), ext4 will BUG, while
-other file systems will not BUG (although data will still be lost).
-
-So instead of crashing with a BUG, issue a warning (since there may be
-potential data loss) and just mark the page as clean to avoid
-unprivileged denial of service attacks until the problem can be
-properly fixed.  More discussion and background can be found in the
-thread starting at [2].
-
-[1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
-[2] https://lore.kernel.org/r/Yg0m6IjcNmfaSokM@google.com
-
-Reported-by: syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/YiDS9wVfq4mM2jGK@mit.edu
+Fixes: 2db04f16b589 ("clk: tegra: Add EMC clock driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20220112104501.30655-1-linmq006@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/clk/tegra/clk-emc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index dcbd8ac8d471..0d62f05f8925 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -2161,6 +2161,15 @@ static int ext4_writepage(struct page *page,
- 	else
- 		len = PAGE_SIZE;
+diff --git a/drivers/clk/tegra/clk-emc.c b/drivers/clk/tegra/clk-emc.c
+index 0621a3a82ea6..7aeace88be6e 100644
+--- a/drivers/clk/tegra/clk-emc.c
++++ b/drivers/clk/tegra/clk-emc.c
+@@ -190,6 +190,7 @@ static struct tegra_emc *emc_ensure_emc_driver(struct tegra_clk_emc *tegra)
  
-+	/* Should never happen but for bugs in other kernel subsystems */
-+	if (!page_has_buffers(page)) {
-+		ext4_warning_inode(inode,
-+		   "page %lu does not have buffers attached", page->index);
-+		ClearPageDirty(page);
-+		unlock_page(page);
-+		return 0;
-+	}
-+
- 	page_bufs = page_buffers(page);
- 	/*
- 	 * We cannot do block allocation or other extent handling in this
-@@ -2710,6 +2719,22 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
- 			wait_on_page_writeback(page);
- 			BUG_ON(PageWriteback(page));
- 
-+			/*
-+			 * Should never happen but for buggy code in
-+			 * other subsystems that call
-+			 * set_page_dirty() without properly warning
-+			 * the file system first.  See [1] for more
-+			 * information.
-+			 *
-+			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
-+			 */
-+			if (!page_has_buffers(page)) {
-+				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
-+				ClearPageDirty(page);
-+				unlock_page(page);
-+				continue;
-+			}
-+
- 			if (mpd->map.m_len == 0)
- 				mpd->first_page = page->index;
- 			mpd->next_page = page->index + 1;
+ 	tegra->emc = platform_get_drvdata(pdev);
+ 	if (!tegra->emc) {
++		put_device(&pdev->dev);
+ 		pr_err("%s: cannot find EMC driver\n", __func__);
+ 		return NULL;
+ 	}
 -- 
 2.34.1
 
