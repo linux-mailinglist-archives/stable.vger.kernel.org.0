@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 924A2500E6E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:15:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F59500E79
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:15:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243753AbiDNNRu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:17:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37092 "EHLO
+        id S243825AbiDNNRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:17:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243773AbiDNNRc (ORCPT
+        with ESMTP id S243778AbiDNNRc (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:17:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A737590CDC;
-        Thu, 14 Apr 2022 06:15:04 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38F289154F;
+        Thu, 14 Apr 2022 06:15:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AD62B8296A;
-        Thu, 14 Apr 2022 13:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98144C385A1;
-        Thu, 14 Apr 2022 13:15:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5C99B82910;
+        Thu, 14 Apr 2022 13:15:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D8EC385A1;
+        Thu, 14 Apr 2022 13:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942102;
-        bh=rsmhHZrQX9dB5XLRSv/cEVQitQ799+F6/y9wxWssfdA=;
+        s=korg; t=1649942104;
+        bh=NQPIVR0e7eIba3kPb+i1E5KNRk2Vm5TI+XO/0mqC11U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1H9c/O65D3S2Xi1nn5p0NGYRed3wz4R1Y2kKXF7jg3pZ9GgogeQMc1ikeMEDzi1+x
-         X+LEYaT+AjPTQV/sPIpfgWOdK3VsnOrB+TvDRnUvFUpWgHVW24QmDWYKdt/tUW8e28
-         MM8A6AmEP9UVLBPnrAVoTVnKESi5etnxJY0AwMl0=
+        b=jFeFa0cMAVCku28JGjhP0ruIxkBYwnJQOcy46z9as8aqn1puEoloR5IgacLm/PFUh
+         MYaJDxMuJ31OgbhkbYc/Rmfp8CWvNCla3tDDERJG2SLl0dFrtWEkTr1LSyQo519Aoj
+         lM/wAjSvRX1jKXnrTrtVIIvprNpqJ3h5yQ0M9ZNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.19 016/338] USB: usb-storage: Fix use of bitfields for hardware data in ene_ub6250.c
-Date:   Thu, 14 Apr 2022 15:08:39 +0200
-Message-Id: <20220414110839.354090962@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Pavan Kondeti <quic_pkondeti@quicinc.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 017/338] xhci: make xhci_handshake timeout for xhci_reset() adjustable
+Date:   Thu, 14 Apr 2022 15:08:40 +0200
+Message-Id: <20220414110839.381869170@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -52,353 +54,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 1892bf90677abcad7f06e897e308f5c3e3618dd4 upstream.
+commit 14073ce951b5919da450022c050772902f24f054 upstream.
 
-The kernel test robot found a problem with the ene_ub6250 subdriver in
-usb-storage: It uses structures containing bitfields to represent
-hardware bits in its SD_STATUS, MS_STATUS, and SM_STATUS bytes.  This
-is not safe; it presumes a particular bit ordering and it assumes the
-compiler will not insert padding, neither of which is guaranteed.
+xhci_reset() timeout was increased from 250ms to 10 seconds in order to
+give Renesas 720201 xHC enough time to get ready in probe.
 
-This patch fixes the problem by changing the structures to simple u8
-values, with the bitfields replaced by bitmask constants.
+xhci_reset() is called with interrupts disabled in other places, and
+waiting for 10 seconds there is not acceptable.
 
-CC: <stable@vger.kernel.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YjOcbuU106UpJ/V8@rowland.harvard.edu
+Add a timeout parameter to xhci_reset(), and adjust it back to 250ms
+when called from xhci_stop() or xhci_shutdown() where interrupts are
+disabled, and successful reset isn't that critical.
+This solves issues when deactivating host mode on platforms like SM8450.
+
+For now don't change the timeout if xHC is reset in xhci_resume().
+No issues are reported for it, and we need the reset to succeed.
+Locking around that reset needs to be revisited later.
+
+Additionally change the signed integer timeout parameter in
+xhci_handshake() to a u64 to match the timeout value we pass to
+readl_poll_timeout_atomic()
+
+Fixes: 22ceac191211 ("xhci: Increase reset timeout for Renesas 720201 host.")
+Cc: stable@vger.kernel.org
+Reported-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reported-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Tested-by: Pavan Kondeti <quic_pkondeti@quicinc.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220303110903.1662404-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/ene_ub6250.c |  153 +++++++++++++++++++--------------------
- 1 file changed, 75 insertions(+), 78 deletions(-)
+ drivers/usb/host/xhci-hub.c |    2 +-
+ drivers/usb/host/xhci-mem.c |    2 +-
+ drivers/usb/host/xhci.c     |   20 +++++++++-----------
+ drivers/usb/host/xhci.h     |    7 +++++--
+ 4 files changed, 16 insertions(+), 15 deletions(-)
 
---- a/drivers/usb/storage/ene_ub6250.c
-+++ b/drivers/usb/storage/ene_ub6250.c
-@@ -236,36 +236,33 @@ static struct us_unusual_dev ene_ub6250_
- #define memstick_logaddr(logadr1, logadr0) ((((u16)(logadr1)) << 8) | (logadr0))
- 
- 
--struct SD_STATUS {
--	u8    Insert:1;
--	u8    Ready:1;
--	u8    MediaChange:1;
--	u8    IsMMC:1;
--	u8    HiCapacity:1;
--	u8    HiSpeed:1;
--	u8    WtP:1;
--	u8    Reserved:1;
--};
--
--struct MS_STATUS {
--	u8    Insert:1;
--	u8    Ready:1;
--	u8    MediaChange:1;
--	u8    IsMSPro:1;
--	u8    IsMSPHG:1;
--	u8    Reserved1:1;
--	u8    WtP:1;
--	u8    Reserved2:1;
--};
--
--struct SM_STATUS {
--	u8    Insert:1;
--	u8    Ready:1;
--	u8    MediaChange:1;
--	u8    Reserved:3;
--	u8    WtP:1;
--	u8    IsMS:1;
--};
-+/* SD_STATUS bits */
-+#define SD_Insert	BIT(0)
-+#define SD_Ready	BIT(1)
-+#define SD_MediaChange	BIT(2)
-+#define SD_IsMMC	BIT(3)
-+#define SD_HiCapacity	BIT(4)
-+#define SD_HiSpeed	BIT(5)
-+#define SD_WtP		BIT(6)
-+			/* Bit 7 reserved */
-+
-+/* MS_STATUS bits */
-+#define MS_Insert	BIT(0)
-+#define MS_Ready	BIT(1)
-+#define MS_MediaChange	BIT(2)
-+#define MS_IsMSPro	BIT(3)
-+#define MS_IsMSPHG	BIT(4)
-+			/* Bit 5 reserved */
-+#define MS_WtP		BIT(6)
-+			/* Bit 7 reserved */
-+
-+/* SM_STATUS bits */
-+#define SM_Insert	BIT(0)
-+#define SM_Ready	BIT(1)
-+#define SM_MediaChange	BIT(2)
-+			/* Bits 3-5 reserved */
-+#define SM_WtP		BIT(6)
-+#define SM_IsMS		BIT(7)
- 
- struct ms_bootblock_cis {
- 	u8 bCistplDEVICE[6];    /* 0 */
-@@ -436,9 +433,9 @@ struct ene_ub6250_info {
- 	u8		*bbuf;
- 
- 	/* for 6250 code */
--	struct SD_STATUS	SD_Status;
--	struct MS_STATUS	MS_Status;
--	struct SM_STATUS	SM_Status;
-+	u8		SD_Status;
-+	u8		MS_Status;
-+	u8		SM_Status;
- 
- 	/* ----- SD Control Data ---------------- */
- 	/*SD_REGISTER SD_Regs; */
-@@ -601,7 +598,7 @@ static int sd_scsi_test_unit_ready(struc
- {
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
- 
--	if (info->SD_Status.Insert && info->SD_Status.Ready)
-+	if ((info->SD_Status & SD_Insert) && (info->SD_Status & SD_Ready))
- 		return USB_STOR_TRANSPORT_GOOD;
- 	else {
- 		ene_sd_init(us);
-@@ -621,7 +618,7 @@ static int sd_scsi_mode_sense(struct us_
- 		0x0b, 0x00, 0x80, 0x08, 0x00, 0x00,
- 		0x71, 0xc0, 0x00, 0x00, 0x02, 0x00 };
- 
--	if (info->SD_Status.WtP)
-+	if (info->SD_Status & SD_WtP)
- 		usb_stor_set_xfer_buf(mediaWP, 12, srb);
- 	else
- 		usb_stor_set_xfer_buf(mediaNoWP, 12, srb);
-@@ -640,9 +637,9 @@ static int sd_scsi_read_capacity(struct
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
- 
- 	usb_stor_dbg(us, "sd_scsi_read_capacity\n");
--	if (info->SD_Status.HiCapacity) {
-+	if (info->SD_Status & SD_HiCapacity) {
- 		bl_len = 0x200;
--		if (info->SD_Status.IsMMC)
-+		if (info->SD_Status & SD_IsMMC)
- 			bl_num = info->HC_C_SIZE-1;
- 		else
- 			bl_num = (info->HC_C_SIZE + 1) * 1024 - 1;
-@@ -692,7 +689,7 @@ static int sd_scsi_read(struct us_data *
- 		return USB_STOR_TRANSPORT_ERROR;
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -670,7 +670,7 @@ static int xhci_exit_test_mode(struct xh
  	}
- 
--	if (info->SD_Status.HiCapacity)
-+	if (info->SD_Status & SD_HiCapacity)
- 		bnByte = bn;
- 
- 	/* set up the command wrapper */
-@@ -732,7 +729,7 @@ static int sd_scsi_write(struct us_data
- 		return USB_STOR_TRANSPORT_ERROR;
- 	}
- 
--	if (info->SD_Status.HiCapacity)
-+	if (info->SD_Status & SD_HiCapacity)
- 		bnByte = bn;
- 
- 	/* set up the command wrapper */
-@@ -1454,7 +1451,7 @@ static int ms_scsi_test_unit_ready(struc
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
- 
- 	/* pr_info("MS_SCSI_Test_Unit_Ready\n"); */
--	if (info->MS_Status.Insert && info->MS_Status.Ready) {
-+	if ((info->MS_Status & MS_Insert) && (info->MS_Status & MS_Ready)) {
- 		return USB_STOR_TRANSPORT_GOOD;
- 	} else {
- 		ene_ms_init(us);
-@@ -1474,7 +1471,7 @@ static int ms_scsi_mode_sense(struct us_
- 		0x0b, 0x00, 0x80, 0x08, 0x00, 0x00,
- 		0x71, 0xc0, 0x00, 0x00, 0x02, 0x00 };
- 
--	if (info->MS_Status.WtP)
-+	if (info->MS_Status & MS_WtP)
- 		usb_stor_set_xfer_buf(mediaWP, 12, srb);
- 	else
- 		usb_stor_set_xfer_buf(mediaNoWP, 12, srb);
-@@ -1493,7 +1490,7 @@ static int ms_scsi_read_capacity(struct
- 
- 	usb_stor_dbg(us, "ms_scsi_read_capacity\n");
- 	bl_len = 0x200;
--	if (info->MS_Status.IsMSPro)
-+	if (info->MS_Status & MS_IsMSPro)
- 		bl_num = info->MSP_TotalBlock - 1;
- 	else
- 		bl_num = info->MS_Lib.NumberOfLogBlock * info->MS_Lib.blockSize * 2 - 1;
-@@ -1648,7 +1645,7 @@ static int ms_scsi_read(struct us_data *
- 	if (bn > info->bl_num)
- 		return USB_STOR_TRANSPORT_ERROR;
- 
--	if (info->MS_Status.IsMSPro) {
-+	if (info->MS_Status & MS_IsMSPro) {
- 		result = ene_load_bincode(us, MSP_RW_PATTERN);
- 		if (result != USB_STOR_XFER_GOOD) {
- 			usb_stor_dbg(us, "Load MPS RW pattern Fail !!\n");
-@@ -1749,7 +1746,7 @@ static int ms_scsi_write(struct us_data
- 	if (bn > info->bl_num)
- 		return USB_STOR_TRANSPORT_ERROR;
- 
--	if (info->MS_Status.IsMSPro) {
-+	if (info->MS_Status & MS_IsMSPro) {
- 		result = ene_load_bincode(us, MSP_RW_PATTERN);
- 		if (result != USB_STOR_XFER_GOOD) {
- 			pr_info("Load MSP RW pattern Fail !!\n");
-@@ -1857,12 +1854,12 @@ static int ene_get_card_status(struct us
- 
- 	tmpreg = (u16) reg4b;
- 	reg4b = *(u32 *)(&buf[0x14]);
--	if (info->SD_Status.HiCapacity && !info->SD_Status.IsMMC)
-+	if ((info->SD_Status & SD_HiCapacity) && !(info->SD_Status & SD_IsMMC))
- 		info->HC_C_SIZE = (reg4b >> 8) & 0x3fffff;
- 
- 	info->SD_C_SIZE = ((tmpreg & 0x03) << 10) | (u16)(reg4b >> 22);
- 	info->SD_C_SIZE_MULT = (u8)(reg4b >> 7)  & 0x07;
--	if (info->SD_Status.HiCapacity && info->SD_Status.IsMMC)
-+	if ((info->SD_Status & SD_HiCapacity) && (info->SD_Status & SD_IsMMC))
- 		info->HC_C_SIZE = *(u32 *)(&buf[0x100]);
- 
- 	if (info->SD_READ_BL_LEN > SD_BLOCK_LEN) {
-@@ -2074,6 +2071,7 @@ static int ene_ms_init(struct us_data *u
- 	u16 MSP_BlockSize, MSP_UserAreaBlocks;
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
- 	u8 *bbuf = info->bbuf;
-+	unsigned int s;
- 
- 	printk(KERN_INFO "transport --- ENE_MSInit\n");
- 
-@@ -2098,15 +2096,16 @@ static int ene_ms_init(struct us_data *u
- 		return USB_STOR_TRANSPORT_ERROR;
- 	}
- 	/* the same part to test ENE */
--	info->MS_Status = *(struct MS_STATUS *) bbuf;
-+	info->MS_Status = bbuf[0];
- 
--	if (info->MS_Status.Insert && info->MS_Status.Ready) {
--		printk(KERN_INFO "Insert     = %x\n", info->MS_Status.Insert);
--		printk(KERN_INFO "Ready      = %x\n", info->MS_Status.Ready);
--		printk(KERN_INFO "IsMSPro    = %x\n", info->MS_Status.IsMSPro);
--		printk(KERN_INFO "IsMSPHG    = %x\n", info->MS_Status.IsMSPHG);
--		printk(KERN_INFO "WtP= %x\n", info->MS_Status.WtP);
--		if (info->MS_Status.IsMSPro) {
-+	s = info->MS_Status;
-+	if ((s & MS_Insert) && (s & MS_Ready)) {
-+		printk(KERN_INFO "Insert     = %x\n", !!(s & MS_Insert));
-+		printk(KERN_INFO "Ready      = %x\n", !!(s & MS_Ready));
-+		printk(KERN_INFO "IsMSPro    = %x\n", !!(s & MS_IsMSPro));
-+		printk(KERN_INFO "IsMSPHG    = %x\n", !!(s & MS_IsMSPHG));
-+		printk(KERN_INFO "WtP= %x\n", !!(s & MS_WtP));
-+		if (s & MS_IsMSPro) {
- 			MSP_BlockSize      = (bbuf[6] << 8) | bbuf[7];
- 			MSP_UserAreaBlocks = (bbuf[10] << 8) | bbuf[11];
- 			info->MSP_TotalBlock = MSP_BlockSize * MSP_UserAreaBlocks;
-@@ -2167,17 +2166,17 @@ static int ene_sd_init(struct us_data *u
- 		return USB_STOR_TRANSPORT_ERROR;
- 	}
- 
--	info->SD_Status =  *(struct SD_STATUS *) bbuf;
--	if (info->SD_Status.Insert && info->SD_Status.Ready) {
--		struct SD_STATUS *s = &info->SD_Status;
-+	info->SD_Status = bbuf[0];
-+	if ((info->SD_Status & SD_Insert) && (info->SD_Status & SD_Ready)) {
-+		unsigned int s = info->SD_Status;
- 
- 		ene_get_card_status(us, bbuf);
--		usb_stor_dbg(us, "Insert     = %x\n", s->Insert);
--		usb_stor_dbg(us, "Ready      = %x\n", s->Ready);
--		usb_stor_dbg(us, "IsMMC      = %x\n", s->IsMMC);
--		usb_stor_dbg(us, "HiCapacity = %x\n", s->HiCapacity);
--		usb_stor_dbg(us, "HiSpeed    = %x\n", s->HiSpeed);
--		usb_stor_dbg(us, "WtP        = %x\n", s->WtP);
-+		usb_stor_dbg(us, "Insert     = %x\n", !!(s & SD_Insert));
-+		usb_stor_dbg(us, "Ready      = %x\n", !!(s & SD_Ready));
-+		usb_stor_dbg(us, "IsMMC      = %x\n", !!(s & SD_IsMMC));
-+		usb_stor_dbg(us, "HiCapacity = %x\n", !!(s & SD_HiCapacity));
-+		usb_stor_dbg(us, "HiSpeed    = %x\n", !!(s & SD_HiSpeed));
-+		usb_stor_dbg(us, "WtP        = %x\n", !!(s & SD_WtP));
- 	} else {
- 		usb_stor_dbg(us, "SD Card Not Ready --- %x\n", bbuf[0]);
- 		return USB_STOR_TRANSPORT_ERROR;
-@@ -2199,14 +2198,14 @@ static int ene_init(struct us_data *us)
- 
- 	misc_reg03 = bbuf[0];
- 	if (misc_reg03 & 0x01) {
--		if (!info->SD_Status.Ready) {
-+		if (!(info->SD_Status & SD_Ready)) {
- 			result = ene_sd_init(us);
- 			if (result != USB_STOR_XFER_GOOD)
- 				return USB_STOR_TRANSPORT_ERROR;
- 		}
- 	}
- 	if (misc_reg03 & 0x02) {
--		if (!info->MS_Status.Ready) {
-+		if (!(info->MS_Status & MS_Ready)) {
- 			result = ene_ms_init(us);
- 			if (result != USB_STOR_XFER_GOOD)
- 				return USB_STOR_TRANSPORT_ERROR;
-@@ -2305,14 +2304,14 @@ static int ene_transport(struct scsi_cmn
- 
- 	/*US_DEBUG(usb_stor_show_command(us, srb)); */
- 	scsi_set_resid(srb, 0);
--	if (unlikely(!(info->SD_Status.Ready || info->MS_Status.Ready)))
-+	if (unlikely(!(info->SD_Status & SD_Ready) || (info->MS_Status & MS_Ready)))
- 		result = ene_init(us);
- 	if (result == USB_STOR_XFER_GOOD) {
- 		result = USB_STOR_TRANSPORT_ERROR;
--		if (info->SD_Status.Ready)
-+		if (info->SD_Status & SD_Ready)
- 			result = sd_scsi_irp(us, srb);
- 
--		if (info->MS_Status.Ready)
-+		if (info->MS_Status & MS_Ready)
- 			result = ms_scsi_irp(us, srb);
- 	}
- 	return result;
-@@ -2376,7 +2375,6 @@ static int ene_ub6250_probe(struct usb_i
- 
- static int ene_ub6250_resume(struct usb_interface *iface)
- {
--	u8 tmp = 0;
- 	struct us_data *us = usb_get_intfdata(iface);
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
- 
-@@ -2388,17 +2386,16 @@ static int ene_ub6250_resume(struct usb_
- 	mutex_unlock(&us->dev_mutex);
- 
- 	info->Power_IsResum = true;
--	/*info->SD_Status.Ready = 0; */
--	info->SD_Status = *(struct SD_STATUS *)&tmp;
--	info->MS_Status = *(struct MS_STATUS *)&tmp;
--	info->SM_Status = *(struct SM_STATUS *)&tmp;
-+	/* info->SD_Status &= ~SD_Ready; */
-+	info->SD_Status = 0;
-+	info->MS_Status = 0;
-+	info->SM_Status = 0;
- 
- 	return 0;
+ 	pm_runtime_allow(xhci_to_hcd(xhci)->self.controller);
+ 	xhci->test_mode = 0;
+-	return xhci_reset(xhci);
++	return xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
  }
  
- static int ene_ub6250_reset_resume(struct usb_interface *iface)
- {
--	u8 tmp = 0;
- 	struct us_data *us = usb_get_intfdata(iface);
- 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
+ void xhci_set_link_state(struct xhci_hcd *xhci, struct xhci_port *port,
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -2595,7 +2595,7 @@ int xhci_mem_init(struct xhci_hcd *xhci,
  
-@@ -2410,10 +2407,10 @@ static int ene_ub6250_reset_resume(struc
- 	 * the device
+ fail:
+ 	xhci_halt(xhci);
+-	xhci_reset(xhci);
++	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	xhci_mem_cleanup(xhci);
+ 	return -ENOMEM;
+ }
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -66,7 +66,7 @@ static bool td_on_ring(struct xhci_td *t
+  * handshake done).  There are two failure modes:  "usec" have passed (major
+  * hardware flakeout), or the register reads as all-ones (hardware removed).
+  */
+-int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
++int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us)
+ {
+ 	u32	result;
+ 	int	ret;
+@@ -74,7 +74,7 @@ int xhci_handshake(void __iomem *ptr, u3
+ 	ret = readl_poll_timeout_atomic(ptr, result,
+ 					(result & mask) == done ||
+ 					result == U32_MAX,
+-					1, usec);
++					1, timeout_us);
+ 	if (result == U32_MAX)		/* card removed */
+ 		return -ENODEV;
+ 
+@@ -163,7 +163,7 @@ int xhci_start(struct xhci_hcd *xhci)
+  * Transactions will be terminated immediately, and operational registers
+  * will be set to their defaults.
+  */
+-int xhci_reset(struct xhci_hcd *xhci)
++int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us)
+ {
+ 	u32 command;
+ 	u32 state;
+@@ -196,8 +196,7 @@ int xhci_reset(struct xhci_hcd *xhci)
+ 	if (xhci->quirks & XHCI_INTEL_HOST)
+ 		udelay(1000);
+ 
+-	ret = xhci_handshake(&xhci->op_regs->command,
+-			CMD_RESET, 0, 10 * 1000 * 1000);
++	ret = xhci_handshake(&xhci->op_regs->command, CMD_RESET, 0, timeout_us);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -210,8 +209,7 @@ int xhci_reset(struct xhci_hcd *xhci)
+ 	 * xHCI cannot write to any doorbells or operational registers other
+ 	 * than status until the "Controller Not Ready" flag is cleared.
  	 */
- 	info->Power_IsResum = true;
--	/*info->SD_Status.Ready = 0; */
--	info->SD_Status = *(struct SD_STATUS *)&tmp;
--	info->MS_Status = *(struct MS_STATUS *)&tmp;
--	info->SM_Status = *(struct SM_STATUS *)&tmp;
-+	/* info->SD_Status &= ~SD_Ready; */
-+	info->SD_Status = 0;
-+	info->MS_Status = 0;
-+	info->SM_Status = 0;
+-	ret = xhci_handshake(&xhci->op_regs->status,
+-			STS_CNR, 0, 10 * 1000 * 1000);
++	ret = xhci_handshake(&xhci->op_regs->status, STS_CNR, 0, timeout_us);
  
- 	return 0;
- }
+ 	for (i = 0; i < 2; i++) {
+ 		xhci->bus_state[i].port_c_suspend = 0;
+@@ -731,7 +729,7 @@ static void xhci_stop(struct usb_hcd *hc
+ 	xhci->xhc_state |= XHCI_STATE_HALTED;
+ 	xhci->cmd_ring_state = CMD_RING_STATE_STOPPED;
+ 	xhci_halt(xhci);
+-	xhci_reset(xhci);
++	xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+@@ -784,7 +782,7 @@ void xhci_shutdown(struct usb_hcd *hcd)
+ 	xhci_halt(xhci);
+ 	/* Workaround for spurious wakeups at shutdown with HSW */
+ 	if (xhci->quirks & XHCI_SPURIOUS_WAKEUP)
+-		xhci_reset(xhci);
++		xhci_reset(xhci, XHCI_RESET_SHORT_USEC);
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	xhci_cleanup_msix(xhci);
+@@ -1162,7 +1160,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ 		xhci_dbg(xhci, "Stop HCD\n");
+ 		xhci_halt(xhci);
+ 		xhci_zero_64b_regs(xhci);
+-		retval = xhci_reset(xhci);
++		retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+ 		spin_unlock_irq(&xhci->lock);
+ 		if (retval)
+ 			return retval;
+@@ -5190,7 +5188,7 @@ int xhci_gen_setup(struct usb_hcd *hcd,
+ 
+ 	xhci_dbg(xhci, "Resetting HCD\n");
+ 	/* Reset the internal HC memory state and registers. */
+-	retval = xhci_reset(xhci);
++	retval = xhci_reset(xhci, XHCI_RESET_LONG_USEC);
+ 	if (retval)
+ 		return retval;
+ 	xhci_dbg(xhci, "Reset complete\n");
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -226,6 +226,9 @@ struct xhci_op_regs {
+ #define CMD_ETE		(1 << 14)
+ /* bits 15:31 are reserved (and should be preserved on writes). */
+ 
++#define XHCI_RESET_LONG_USEC		(10 * 1000 * 1000)
++#define XHCI_RESET_SHORT_USEC		(250 * 1000)
++
+ /* IMAN - Interrupt Management Register */
+ #define IMAN_IE		(1 << 1)
+ #define IMAN_IP		(1 << 0)
+@@ -2057,11 +2060,11 @@ void xhci_free_container_ctx(struct xhci
+ 
+ /* xHCI host controller glue */
+ typedef void (*xhci_get_quirks_t)(struct device *, struct xhci_hcd *);
+-int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec);
++int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us);
+ void xhci_quiesce(struct xhci_hcd *xhci);
+ int xhci_halt(struct xhci_hcd *xhci);
+ int xhci_start(struct xhci_hcd *xhci);
+-int xhci_reset(struct xhci_hcd *xhci);
++int xhci_reset(struct xhci_hcd *xhci, u64 timeout_us);
+ int xhci_run(struct usb_hcd *hcd);
+ int xhci_gen_setup(struct usb_hcd *hcd, xhci_get_quirks_t get_quirks);
+ void xhci_shutdown(struct usb_hcd *hcd);
 
 
