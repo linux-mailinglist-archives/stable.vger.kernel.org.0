@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C86500F15
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 454BE500F16
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244283AbiDNNYb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:24:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39032 "EHLO
+        id S244191AbiDNNYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:24:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244176AbiDNNXo (ORCPT
+        with ESMTP id S244178AbiDNNXo (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:23:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3657492859;
-        Thu, 14 Apr 2022 06:18:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABDD93981;
+        Thu, 14 Apr 2022 06:18:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C82236132E;
-        Thu, 14 Apr 2022 13:18:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCBB9C385A1;
-        Thu, 14 Apr 2022 13:18:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 80BBC617BB;
+        Thu, 14 Apr 2022 13:18:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90FC9C385A1;
+        Thu, 14 Apr 2022 13:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942303;
-        bh=aiie2cvjnArLZvqbUIwql61WUvJ64nqylGwE/sTHu4U=;
+        s=korg; t=1649942305;
+        bh=nQoZ/jKhcbsjHwPxJEIr5sDQrgJemWYWU/Nl4SZ37ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlQ0Oy4cv0XDPqhgULDFWxTWOX3rSbpilMFzXr2Kn70rkzvzS5Mykia45Hg1xY+zg
-         owYCsAIA2OzpHvoo+uBwXkHgG8rOiTVgx5fSzYssZYohQeUzKyReUpQN/SZTa5AVa1
-         SIXnwH1sRqUdkb44oubK+5r5p2Xr6ya5wC5qapTE=
+        b=e+7ZsVHwoU2qpvzyBeATeYma5WVe4TY8M7z1y741ZchFrwneDpKVdDp/w6TRF0vWb
+         qWyw0f8y7FrdqfMzeHP1ROQV9YtlyFP7hIco8T6UiPTni8dNArlhEuI9pn3/s+3I9W
+         e5xc252bQr/stlKPJYp1b9VxvEg0dLApB7M9pbeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 087/338] media: coda: Fix missing put_device() call in coda_get_vdoa_data
-Date:   Thu, 14 Apr 2022 15:09:50 +0200
-Message-Id: <20220414110841.375502941@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 088/338] video: fbdev: smscufx: Fix null-ptr-deref in ufx_usb_probe()
+Date:   Thu, 14 Apr 2022 15:09:51 +0200
+Message-Id: <20220414110841.403437368@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -55,35 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit ca85d271531a1e1c86f24b892f57b7d0a3ddb5a6 ]
+[ Upstream commit 1791f487f877a9e83d81c8677bd3e7b259e7cb27 ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+I got a null-ptr-deref report:
 
-Fixes: e7f3c5481035 ("[media] coda: use VDOA for un-tiling custom macroblock format")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+BUG: kernel NULL pointer dereference, address: 0000000000000000
+...
+RIP: 0010:fb_destroy_modelist+0x38/0x100
+...
+Call Trace:
+ ufx_usb_probe.cold+0x2b5/0xac1 [smscufx]
+ usb_probe_interface+0x1aa/0x3c0 [usbcore]
+ really_probe+0x167/0x460
+...
+ ret_from_fork+0x1f/0x30
+
+If fb_alloc_cmap() fails in ufx_usb_probe(), fb_destroy_modelist() will
+be called to destroy modelist in the error handling path. But modelist
+has not been initialized yet, so it will result in null-ptr-deref.
+
+Initialize modelist before calling fb_alloc_cmap() to fix this bug.
+
+Fixes: 3c8a63e22a08 ("Add support for SMSC UFX6000/7000 USB display adapters")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-common.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/smscufx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
-index fccc771d23a5..5f8da544b98d 100644
---- a/drivers/media/platform/coda/coda-common.c
-+++ b/drivers/media/platform/coda/coda-common.c
-@@ -376,6 +376,7 @@ static struct vdoa_data *coda_get_vdoa_data(void)
- 	if (!vdoa_data)
- 		vdoa_data = ERR_PTR(-EPROBE_DEFER);
+diff --git a/drivers/video/fbdev/smscufx.c b/drivers/video/fbdev/smscufx.c
+index 22b606af0a87..da54a84d2e62 100644
+--- a/drivers/video/fbdev/smscufx.c
++++ b/drivers/video/fbdev/smscufx.c
+@@ -1662,6 +1662,7 @@ static int ufx_usb_probe(struct usb_interface *interface,
+ 	info->par = dev;
+ 	info->pseudo_palette = dev->pseudo_palette;
+ 	info->fbops = &ufx_ops;
++	INIT_LIST_HEAD(&info->modelist);
  
-+	put_device(&vdoa_pdev->dev);
- out:
- 	if (vdoa_node)
- 		of_node_put(vdoa_node);
+ 	retval = fb_alloc_cmap(&info->cmap, 256, 0);
+ 	if (retval < 0) {
+@@ -1672,8 +1673,6 @@ static int ufx_usb_probe(struct usb_interface *interface,
+ 	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
+ 			  ufx_free_framebuffer_work);
+ 
+-	INIT_LIST_HEAD(&info->modelist);
+-
+ 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
+ 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
+ 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);
 -- 
 2.34.1
 
