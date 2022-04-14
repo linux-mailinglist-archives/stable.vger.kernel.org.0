@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D84245013A6
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D178650155B
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345441AbiDNNuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345443AbiDNNuP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 14 Apr 2022 09:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344484AbiDNNlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:41:40 -0400
+        with ESMTP id S1344490AbiDNNln (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:41:43 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C818D1C6;
-        Thu, 14 Apr 2022 06:39:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CCD8120;
+        Thu, 14 Apr 2022 06:39:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6128D612E6;
-        Thu, 14 Apr 2022 13:39:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64E7BC385A5;
-        Thu, 14 Apr 2022 13:39:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18FAB61BA7;
+        Thu, 14 Apr 2022 13:39:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29117C385A1;
+        Thu, 14 Apr 2022 13:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943554;
-        bh=ggEp+GW0LsGrBlV1F9X3N68mybpKoEmNH5PJbLSWMEo=;
+        s=korg; t=1649943557;
+        bh=u7dqo7xzU04dRpQZ+ywfuJhM0M8SJ9rMSWBEkvkCExU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iE7t9gkkmR5tF68xld74qlPDd8aADq/pwT9e2BqISykl6UmQbH++YU0hU2pJgbLN0
-         5XZ8e31FIKTeY2DygrF9U+lM5w4Up9c9ffzgVQshPbXsUYgoQwNM0FXcEmoCTmInhn
-         aT9V+tZUOEKoTln/r6hcRrYowKvGTxabSnzuY1K8=
+        b=Gi1ZuBy5/iKOdDqr8+Qkpt0x88wyDBqAXEIjEnl9DCFKEIcFOT/f1+1qXwg0ML7Vy
+         xj8lGuQYHnBxiTipB6TLDMRzBDN4NlMfE91Ob2j7IMigE7EkHZFMOuZDsMj+4q1Z6S
+         k2lWchUej0Dyxy8Kk8GJk8Tes8v+DXJuRE/yVy2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 197/475] powerpc/Makefile: Dont pass -mcpu=powerpc64 when building 32-bit
-Date:   Thu, 14 Apr 2022 15:09:42 +0200
-Message-Id: <20220414110900.642618780@linuxfoundation.org>
+Subject: [PATCH 5.4 198/475] KVM: x86: Fix emulation in writing cr8
+Date:   Thu, 14 Apr 2022 15:09:43 +0200
+Message-Id: <20220414110900.670021352@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -53,55 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Zhenzhong Duan <zhenzhong.duan@intel.com>
 
-[ Upstream commit 2863dd2db23e0407f6c50b8ba5c0e55abef894f1 ]
+[ Upstream commit f66af9f222f08d5b11ea41c1bd6c07a0f12daa07 ]
 
-When CONFIG_GENERIC_CPU=y (true for all our defconfigs) we pass
--mcpu=powerpc64 to the compiler, even when we're building a 32-bit
-kernel.
+In emulation of writing to cr8, one of the lowest four bits in TPR[3:0]
+is kept.
 
-This happens because we have an ifdef CONFIG_PPC_BOOK3S_64/else block in
-the Makefile that was written before 32-bit supported GENERIC_CPU. Prior
-to that the else block only applied to 64-bit Book3E.
+According to Intel SDM 10.8.6.1(baremetal scenario):
+"APIC.TPR[bits 7:4] = CR8[bits 3:0], APIC.TPR[bits 3:0] = 0";
 
-The GCC man page says -mcpu=powerpc64 "[specifies] a pure ... 64-bit big
-endian PowerPC ... architecture machine [type], with an appropriate,
-generic processor model assumed for scheduling purposes."
+and SDM 28.3(use TPR shadow):
+"MOV to CR8. The instruction stores bits 3:0 of its source operand into
+bits 7:4 of VTPR; the remainder of VTPR (bits 3:0 and bits 31:8) are
+cleared.";
 
-It's unclear how that interacts with -m32, which we are also passing,
-although obviously -m32 is taking precedence in some sense, as the
-32-bit kernel only contains 32-bit instructions.
+and AMD's APM 16.6.4:
+"Task Priority Sub-class (TPS)-Bits 3 : 0. The TPS field indicates the
+current sub-priority to be used when arbitrating lowest-priority messages.
+This field is written with zero when TPR is written using the architectural
+CR8 register.";
 
-This was noticed by inspection, not via any bug reports, but it does
-affect code generation. Comparing before/after code generation, there
-are some changes to instruction scheduling, and the after case (with
--mcpu=powerpc64 removed) the compiler seems more keen to use r8.
+so in KVM emulated scenario, clear TPR[3:0] to make a consistent behavior
+as in other scenarios.
 
-Fix it by making the else case only apply to Book3E 64, which excludes
-32-bit.
+This doesn't impact evaluation and delivery of pending virtual interrupts
+because processor does not use the processor-priority sub-class to
+determine which interrupts to delivery and which to inhibit.
 
-Fixes: 0e00a8c9fd92 ("powerpc: Allow CPU selection also on PPC32")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220215112858.304779-1-mpe@ellerman.id.au
+Sub-class is used by hardware to arbitrate lowest priority interrupts,
+but KVM just does a round-robin style delivery.
+
+Fixes: b93463aa59d6 ("KVM: Accelerated apic support")
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@intel.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220210094506.20181-1-zhenzhong.duan@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/lapic.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index 9f73fb6b1cc9..b9d2fcf030d0 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -174,7 +174,7 @@ else
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mtune=power7,$(call cc-option,-mtune=power5))
- CFLAGS-$(CONFIG_GENERIC_CPU) += $(call cc-option,-mcpu=power5,-mcpu=power4)
- endif
--else
-+else ifdef CONFIG_PPC_BOOK3E_64
- CFLAGS-$(CONFIG_GENERIC_CPU) += -mcpu=powerpc64
- endif
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index eea2d6f10f59..afe3b8e61514 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2099,10 +2099,7 @@ void kvm_set_lapic_tscdeadline_msr(struct kvm_vcpu *vcpu, u64 data)
  
+ void kvm_lapic_set_tpr(struct kvm_vcpu *vcpu, unsigned long cr8)
+ {
+-	struct kvm_lapic *apic = vcpu->arch.apic;
+-
+-	apic_set_tpr(apic, ((cr8 & 0x0f) << 4)
+-		     | (kvm_lapic_get_reg(apic, APIC_TASKPRI) & 4));
++	apic_set_tpr(vcpu->arch.apic, (cr8 & 0x0f) << 4);
+ }
+ 
+ u64 kvm_lapic_get_cr8(struct kvm_vcpu *vcpu)
 -- 
 2.34.1
 
