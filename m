@@ -2,171 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90EC4501963
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 19:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CA9A501993
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 19:04:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241739AbiDNRDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 13:03:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48598 "EHLO
+        id S243577AbiDNRGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 13:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245149AbiDNRCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 13:02:49 -0400
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D2D20BD1
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 09:38:51 -0700 (PDT)
-Received: by mail-pg1-x531.google.com with SMTP id 32so5227395pgl.4
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 09:38:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=sJ+MvmKe7fT4Uvho7fHs2CvsqpdomKVO+/H3XJOUDL8=;
-        b=6WbwYhzA80ZZvBoAWvGoE/VB9gXcULa4TuuwaTmtvkr8mfqUuopiNZjE3omCi23vsX
-         LMivbZuIFOvRIbVJXxOQLST9gxx2R3+AtX7WFKzS+5/V9KVw+mskVG5M6NsIt+Lo4mKY
-         HyTL0w4AhVR4HpvWx2jJvxhlRhFtLkwycaE1q4wx+rExv7ZQZJ3Yl10qsADfdUFakX/w
-         ++E7I9NovzLvgK/NRSTtjP2AsRIKAkJbPACllL3GW5LUeK68wYcbNYWiwHWaDDD2a5qz
-         EfmySWCt5sMYX7HND5mw5d5Nuzo7C8rbBRam2Nvo8c89aTRoOA/LFPqo9gbFIrK4mmJ9
-         IKYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=sJ+MvmKe7fT4Uvho7fHs2CvsqpdomKVO+/H3XJOUDL8=;
-        b=GhlLtmDUUaeonKgojfH/8q5lhbsP4FRMDXyioCc3V0o4ZNeHSr3OSnlHjQuVJS16d7
-         QiR/BwTJVJuKQeF6JXBTAJCoegnKhJ/NioInuzgdc9xTC94ujC5zZ68xcnqpwOFt1/0n
-         lzne+cfVN3dG0bqXdUOVtavKddy50MU7lb35scBrDOjgGEBM6UPau0xqW1maI5uYeTOH
-         cSOJ3ds1Rr2pkW77O36Na9oiE4Edoomx/F6mkIHh0TcmBd/tnnJsM1SE3yJS1tQpx22a
-         XL7Eb3YimRTikhcqb1B6D2+40Ry8VHuHRAj+cKR1xTEbeUAC/TTG8Ku2SG2RkfHyWWGs
-         uIkw==
-X-Gm-Message-State: AOAM5304uUJg6X5kraEUTbxm3mn2NXYhNMKCOt1QZD7PxLyJ4jVe8FAa
-        7t+ZbRJspg3RwMshCFoNfCcMDowslJByMJWQ
-X-Google-Smtp-Source: ABdhPJziHMMjJK6duG9t8iTQBClK3saqBNt57afqo+WS5wZ6Uw2EJhl0lsG0vOwb9LezYpKNiqOkmA==
-X-Received: by 2002:a05:6a00:1955:b0:505:7902:36d3 with SMTP id s21-20020a056a00195500b00505790236d3mr4649027pfk.77.1649954330702;
-        Thu, 14 Apr 2022 09:38:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ml1-20020a17090b360100b001cd40539cd9sm2409022pjb.1.2022.04.14.09.38.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Apr 2022 09:38:50 -0700 (PDT)
-Message-ID: <62584e1a.1c69fb81.bead3.6654@mx.google.com>
-Date:   Thu, 14 Apr 2022 09:38:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S242707AbiDNRFa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 13:05:30 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C903EFE430;
+        Thu, 14 Apr 2022 09:44:12 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 7CDCF1F747;
+        Thu, 14 Apr 2022 16:44:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1649954651; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=fAh1doWqdu+T5/UcndhANWk7kmOrXizHJ0CC+YKJ3Ek=;
+        b=ItvkKqTJave9fRovg0ydCzfpuP8dusozKz3WSWTw4xyCZGYtm401PRaOw3A7tKtn195ttV
+        70Iq3LASPYGaaQFBLo3dZiZFNeqlNkqtTdFBwMkiE/Frdb4DB0+Mp2kc/s0DQAGgLyu5/I
+        Vu6vxdwLlPRhTE1WJ+UxARYAK7bzTjw=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 30A0813A86;
+        Thu, 14 Apr 2022 16:44:11 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Rl0ZC1tPWGKBDgAAMHmgww
+        (envelope-from <mkoutny@suse.com>); Thu, 14 Apr 2022 16:44:11 +0000
+Date:   Thu, 14 Apr 2022 18:44:09 +0200
+From:   Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     cgroups@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+Subject: Re: [PATCH] cgroup: don't queue css_release_work if one already
+ pending
+Message-ID: <20220414164409.GA5404@blackbody.suse.cz>
+References: <20220412192459.227740-1-tadeusz.struk@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.237-339-g3f08640122e30
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.19.y baseline: 67 runs,
- 2 regressions (v4.19.237-339-g3f08640122e30)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220412192459.227740-1-tadeusz.struk@linaro.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 67 runs, 2 regressions (v4.19.237-339-g3f0=
-8640122e30)
+Hello Tadeusz.
 
-Regressions Summary
--------------------
+Thanks for analyzing this syzbot report. Let me provide my understanding
+of the test case and explanation why I think your patch fixes it but is
+not fully correct.
 
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-meson-gxbb-p200      | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
-     =
+On Tue, Apr 12, 2022 at 12:24:59PM -0700, Tadeusz Struk <tadeusz.struk@linaro.org> wrote:
+> Syzbot found a corrupted list bug scenario that can be triggered from
+> cgroup css_create(). The reproduces writes to cgroup.subtree_control
+> file, which invokes cgroup_apply_control_enable(), css_create(), and
+> css_populate_dir(), which then randomly fails with a fault injected -ENOMEM.
 
-meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
-     =
+The reproducer code makes it hard for me to understand which function
+fails with ENOMEM.
+But I can see your patch fixes the reproducer and your additional debug
+patch which proves that css->destroy_work is re-queued.
 
+> In such scenario the css_create() error path rcu enqueues css_free_rwork_fn
+> work for an css->refcnt initialized with css_release() destructor,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.237-339-g3f08640122e30/plan/baseline/
+Note that css_free_rwork_fn() utilizes css->destroy_*r*work.
+The error path in css_create() open codes relevant parts of
+css_release_work_fn() so that css_release() can be skipped and the
+refcnt is eventually just percpu_ref_exit()'d.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.237-339-g3f08640122e30
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3f08640122e30667d6aa2e90e4fa57f3d9f48ceb =
+> and there is a chance that the css_release() function will be invoked
+> for a cgroup_subsys_state, for which a destroy_work has already been
+> queued via css_create() error path.
 
+But I think the problem is css_populate_dir() failing in
+cgroup_apply_control_enable(). (Is this what you actually meant?
+css_create() error path is then irrelevant, no?)
 
+The already created csses should then be rolled back via 
+	cgroup_restore_control(cgrp);
+	cgroup_apply_control_disable(cgrp);
+	   ...
+	   kill_css(css)
 
-Test Regressions
----------------- =
+I suspect the double-queuing is a result of the fact that there exists
+only the single reference to the css->refcnt. I.e. it's
+percpu_ref_kill_and_confirm()'d and released both at the same time.
 
+(Normally (when not killing the last reference), css->destroy_work reuse
+is not a problem because of the sequenced chain
+css_killed_work_fn()->css_put()->css_release().)
 
+> This can be avoided by adding a check to css_release() that checks
+> if it has already been enqueued.
 
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-meson-gxbb-p200      | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
-     =
+If that's what's happening, then your patch omits the final
+css_release_work_fn() in favor of css_killed_work_fn() but both should
+be run during the rollback upon css_populate_dir() failure.
 
+So an alternative approach to tackle this situation would be to split
+css->destroy_work into two work work_structs (one for killing, one for
+releasing) at the cost of inflating cgroup_subsys_state.
 
-  Details:     https://kernelci.org/test/plan/id/62581cddec00924459ae06af
+Take my hypothesis with a grain of salt maybe the assumption (last
+reference == initial reference) is not different from normal operation.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-37-339-g3f08640122e30/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gx=
-bb-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-37-339-g3f08640122e30/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gx=
-bb-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62581cddec00924459ae0=
-6b0
-        failing since 8 days (last pass: v4.19.235-23-g354b947849d2, first =
-fail: v4.19.235-58-ga78343b23cae) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/62581e08528f0fc69aae06a1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-37-339-g3f08640122e30/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gx=
-l-s905d-p230.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-37-339-g3f08640122e30/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gx=
-l-s905d-p230.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/62581e08528f0fc69aae0=
-6a2
-        failing since 2 days (last pass: v4.19.234-30-g4401d649cac2, first =
-fail: v4.19.237) =
-
- =20
+Regards,
+Michal
