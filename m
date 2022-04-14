@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 662F85010E2
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6A97501039
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344722AbiDNNtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46866 "EHLO
+        id S1344746AbiDNNtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344244AbiDNNkY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1331C6;
-        Thu, 14 Apr 2022 06:38:00 -0700 (PDT)
+        with ESMTP id S1344256AbiDNNk2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60DB2120;
+        Thu, 14 Apr 2022 06:38:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA95A61B51;
-        Thu, 14 Apr 2022 13:37:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5E1AC385A5;
-        Thu, 14 Apr 2022 13:37:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 155F7B8296A;
+        Thu, 14 Apr 2022 13:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F1DFC385A1;
+        Thu, 14 Apr 2022 13:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943479;
-        bh=bpebWxyOLTY7I9S1yS+K5xy1xLfHNLPReNaaPlGkqdQ=;
+        s=korg; t=1649943481;
+        bh=wDriJDKwR3kl2WCYFkBDUJGbKyw2oXfEQ4c7OPZa04E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0rVsuH9tYkgZbQ24aPDonsh55mMLb1/gjVVrNLdXNy2sdeoXtl2fKOTFng5cbisTa
-         0KncHOB9WUbsVeLsNc9l5B+aw/mMC7dnhh3Cn11wQcNmoBEzRG6BSw5w/KcirufgJZ
-         /ImstPI8clp0AboXefKwI/qojfGqAhTvROi8HtxI=
+        b=N0tF2mYyPJM+SFGYakvdQb09EcxkvtlUhobHpCXcfvOZ+eF8tyN7Z9q3qQSsldHXM
+         JvD8eUo8nrjLCozpIjyyfh9mscyl5697jqFzfIwWLKDvbs9o5ggJGt7gAx30MLgC5M
+         zHfk1zbxobZbhaZybh0AQzn3xBQNU0N4AJySf6mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 169/475] powerpc/perf: Dont use perf_hw_context for trace IMC PMU
-Date:   Thu, 14 Apr 2022 15:09:14 +0200
-Message-Id: <20220414110859.866707960@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 170/475] mt76: mt7603: check sta_rates pointer in mt7603_sta_rate_tbl_update
+Date:   Thu, 14 Apr 2022 15:09:15 +0200
+Message-Id: <20220414110859.894252771@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,50 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 0198322379c25215b2778482bf1221743a76e2b5 ]
+[ Upstream commit fc8e2c707ce11c8ec2e992885b0d53a5e04031ac ]
 
-Trace IMC (In-Memory collection counters) in powerpc is useful for
-application level profiling.
+Check sta_rates pointer value in mt7603_sta_rate_tbl_update routine
+since minstrel_ht_update_rates can fail allocating rates array.
 
-For trace_imc, presently task context (task_ctx_nr) is set to
-perf_hw_context. But perf_hw_context should only be used for CPU PMU.
-See commit 26657848502b ("perf/core: Verify we have a single
-perf_hw_context PMU").
-
-So for trace_imc, even though it is per thread PMU, it is preferred to
-use sw_context in order to be able to do application level monitoring.
-Hence change the task_ctx_nr to use perf_sw_context.
-
-Fixes: 012ae244845f ("powerpc/perf: Trace imc PMU functions")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-[mpe: Update subject & incorporate notes into change log, reflow comment]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220202041837.65968-1-atrajeev@linux.vnet.ibm.com
+Fixes: c8846e1015022 ("mt76: add driver for MT7603E and MT7628/7688")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/imc-pmu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7603/main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
-index eb82dda884e5..d76e800a1f33 100644
---- a/arch/powerpc/perf/imc-pmu.c
-+++ b/arch/powerpc/perf/imc-pmu.c
-@@ -1441,7 +1441,11 @@ static int trace_imc_event_init(struct perf_event *event)
- 	event->hw.idx = -1;
- 	target = event->hw.target;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/main.c b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+index 0a5695c3d924..625492284389 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/main.c
+@@ -605,6 +605,9 @@ mt7603_sta_rate_tbl_update(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 	struct ieee80211_sta_rates *sta_rates = rcu_dereference(sta->rates);
+ 	int i;
  
--	event->pmu->task_ctx_nr = perf_hw_context;
-+	/*
-+	 * There can only be a single PMU for perf_hw_context events which is assigned to
-+	 * core PMU. Hence use "perf_sw_context" for trace_imc.
-+	 */
-+	event->pmu->task_ctx_nr = perf_sw_context;
- 	event->destroy = reset_global_refc;
- 	return 0;
- }
++	if (!sta_rates)
++		return;
++
+ 	spin_lock_bh(&dev->mt76.lock);
+ 	for (i = 0; i < ARRAY_SIZE(msta->rates); i++) {
+ 		msta->rates[i].idx = sta_rates->rate[i].idx;
 -- 
 2.34.1
 
