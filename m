@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EB81501079
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 369AA5015A5
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345788AbiDNNyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34474 "EHLO
+        id S244429AbiDNNeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:34:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345309AbiDNNpr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2581F5FE4;
-        Thu, 14 Apr 2022 06:43:23 -0700 (PDT)
+        with ESMTP id S245263AbiDNN2n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B12939E4;
+        Thu, 14 Apr 2022 06:22:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B43E961BA7;
-        Thu, 14 Apr 2022 13:43:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3986C385A5;
-        Thu, 14 Apr 2022 13:43:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D880DB82983;
+        Thu, 14 Apr 2022 13:22:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 426E0C385AA;
+        Thu, 14 Apr 2022 13:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943802;
-        bh=pi1YzonsmN3xLrnZwsHAmnI0WIGzORRyUjplctooHms=;
+        s=korg; t=1649942527;
+        bh=EWN/7L55u75adv+qjP3MgLPwUeZ7+C3NKYz1XAHFdGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uBMk6hzjVo2Y+VKq7AlnbuJRX4g02AymLCEjz6/DXR+XptJj7TRBrLCVQWZvDvVkp
-         af6DAx2fF+6iLY3BJcSPJQgijq3S3TWClHzSQIwQr70cSuu1oKINCOUVSrXvIgK9VB
-         5EcbO2u8RVpTqCiKZ5bP4Ay/AGMhswQ2QM9CyYxs=
+        b=MbSVDTUXoDpit8iXSZIVmUqlS8crhizIMIW9EqRC1cE2X6vcOoFsnzSU0VEdhDtGc
+         GFyzR4/u0D70XzdYXyL0MbY6BCCCjrZxeC9FdkuuZQHYPlP+A/23bO4LKqPaGUgNVJ
+         wAw/dHDncDQ+apCndEQQGnK1+P9aWhiTQiln9+GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Darren Hart <darren@os.amperecomputing.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 286/475] ACPI/APEI: Limit printable size of BERT table data
-Date:   Thu, 14 Apr 2022 15:11:11 +0200
-Message-Id: <20220414110903.102478709@linuxfoundation.org>
+Subject: [PATCH 4.19 169/338] clk: loongson1: Terminate clk_div_table with sentinel element
+Date:   Thu, 14 Apr 2022 15:11:12 +0200
+Message-Id: <20220414110843.709613554@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darren Hart <darren@os.amperecomputing.com>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-[ Upstream commit 3f8dec116210ca649163574ed5f8df1e3b837d07 ]
+[ Upstream commit 3eb00f89162e80083dfcaa842468b510462cfeaa ]
 
-Platforms with large BERT table data can trigger soft lockup errors
-while attempting to print the entire BERT table data to the console at
-boot:
+In order that the end of a clk_div_table can be detected, it must be
+terminated with a sentinel element (.div = 0).
 
-  watchdog: BUG: soft lockup - CPU#160 stuck for 23s! [swapper/0:1]
-
-Observed on Ampere Altra systems with a single BERT record of ~250KB.
-
-The original bert driver appears to have assumed relatively small table
-data. Since it is impractical to reassemble large table data from
-interwoven console messages, and the table data is available in
-
-  /sys/firmware/acpi/tables/data/BERT
-
-limit the size for tables printed to the console to 1024 (for no reason
-other than it seemed like a good place to kick off the discussion, would
-appreciate feedback from existing users in terms of what size would
-maintain their current usage model).
-
-Alternatively, we could make printing a CONFIG option, use the
-bert_disable boot arg (or something similar), or use a debug log level.
-However, all those solutions require extra steps or change the existing
-behavior for small table data. Limiting the size preserves existing
-behavior on existing platforms with small table data, and eliminates the
-soft lockups for platforms with large table data, while still making it
-available.
-
-Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: b4626a7f4892 ("CLK: Add Loongson1C clock support")
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Link: https://lore.kernel.org/r/20220218000922.134857-3-j.neuschaefer@gmx.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/bert.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/clk/loongson1/clk-loongson1c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/apei/bert.c b/drivers/acpi/apei/bert.c
-index 08d820c04618..76b7539a37a9 100644
---- a/drivers/acpi/apei/bert.c
-+++ b/drivers/acpi/apei/bert.c
-@@ -29,6 +29,7 @@
+diff --git a/drivers/clk/loongson1/clk-loongson1c.c b/drivers/clk/loongson1/clk-loongson1c.c
+index 3466f7320b40..e3aa502761a3 100644
+--- a/drivers/clk/loongson1/clk-loongson1c.c
++++ b/drivers/clk/loongson1/clk-loongson1c.c
+@@ -40,6 +40,7 @@ static const struct clk_div_table ahb_div_table[] = {
+ 	[1] = { .val = 1, .div = 4 },
+ 	[2] = { .val = 2, .div = 3 },
+ 	[3] = { .val = 3, .div = 3 },
++	[4] = { /* sentinel */ }
+ };
  
- #undef pr_fmt
- #define pr_fmt(fmt) "BERT: " fmt
-+#define ACPI_BERT_PRINT_MAX_LEN 1024
- 
- static int bert_disable;
- 
-@@ -58,8 +59,11 @@ static void __init bert_print_all(struct acpi_bert_region *region,
- 		}
- 
- 		pr_info_once("Error records from previous boot:\n");
--
--		cper_estatus_print(KERN_INFO HW_ERR, estatus);
-+		if (region_len < ACPI_BERT_PRINT_MAX_LEN)
-+			cper_estatus_print(KERN_INFO HW_ERR, estatus);
-+		else
-+			pr_info_once("Max print length exceeded, table data is available at:\n"
-+				     "/sys/firmware/acpi/tables/data/BERT");
- 
- 		/*
- 		 * Because the boot error source is "one-time polled" type,
+ void __init ls1x_clk_init(void)
 -- 
 2.34.1
 
