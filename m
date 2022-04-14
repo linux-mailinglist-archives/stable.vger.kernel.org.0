@@ -2,95 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C1B50116D
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02146501358
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344728AbiDNODj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:03:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34700 "EHLO
+        id S244738AbiDNNmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:42:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346187AbiDNN4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:56:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE95B0A5A;
-        Thu, 14 Apr 2022 06:45:56 -0700 (PDT)
+        with ESMTP id S1343576AbiDNN3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A18D897B83;
+        Thu, 14 Apr 2022 06:24:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2342B82985;
-        Thu, 14 Apr 2022 13:45:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 547CBC385A5;
-        Thu, 14 Apr 2022 13:45:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DAAAB8296A;
+        Thu, 14 Apr 2022 13:24:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85457C385A1;
+        Thu, 14 Apr 2022 13:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943953;
-        bh=8pB0J7RuG+0VRdERB0M6sy0avVjZh9WeAccoMSSevQo=;
+        s=korg; t=1649942682;
+        bh=/cj/JxLywpcxnb3dCuK6ANzvkDZZBNQFep7c2zxeNWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBzpGz4h4rjEpRqz7A4JsQcdoly8aVkVmio1RcUf75ryBCMprBqS2NMifAyrekNFE
-         AFgQpIt00U0OUy41bLOYHnJmONppVUKEs6eIeh15BojnZnqfu8GZjX57bgLB1BGLRc
-         CV7VitbvlD6wP2v2b/t1E7UfVHH5Cmjz3WPPWV1U=
+        b=eLejhhfUY4K3naRSz3fZp6wFQrnLnahbkJG5ZgQpYx7/wlgi9W3QlXuLK/eSJ39+X
+         K1gRZPcnwdErXqef6PBXxrdRGonF56d2miNMkmh3z/KUv0CZn4qgeABvabpEsXsJJb
+         jMn6Wsv8Y8TqFHg8OLZumXQo24U2Z6OMkUNG2mPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 5.4 340/475] XArray: Update the LRU list in xas_split()
-Date:   Thu, 14 Apr 2022 15:12:05 +0200
-Message-Id: <20220414110904.597801199@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 223/338] scsi: qla2xxx: Fix stuck session in gpdb
+Date:   Thu, 14 Apr 2022 15:12:06 +0200
+Message-Id: <20220414110845.240278579@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PDS_OTHER_BAD_TLD,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 3ed4bb77156da0bc732847c8c9df92454c1fbeea upstream.
+commit 725d3a0d31a51c0debf970011e05f585e805165b upstream.
 
-When splitting a value entry, we may need to add the new nodes to the LRU
-list and remove the parent node from the LRU list.  The WARN_ON checks
-in shadow_lru_isolate() catch this oversight.  This bug was latent
-until we stopped splitting folios in shrink_page_list() with commit
-820c4e2e6f51 ("mm/vmscan: Free non-shmem folios without splitting them").
-That allows the creation of large shadow entries, and subsequently when
-trying to page in a small page, we will split the large shadow entry
-in __filemap_add_folio().
+Fix stuck sessions in get port database. When a thread is in the process of
+re-establishing a session, a flag is set to prevent multiple threads /
+triggers from doing the same task. This flag was left on, where any attempt
+to relogin was locked out. Clear this flag, if the attempt has failed.
 
-Fixes: 8fc75643c5e1 ("XArray: add xas_split")
-Reported-by: Hugh Dickins <hughd@google.com>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Link: https://lore.kernel.org/r/20220110050218.3958-4-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/xarray.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/qla2xxx/qla_init.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/lib/xarray.c
-+++ b/lib/xarray.c
-@@ -1080,6 +1080,7 @@ void xas_split(struct xa_state *xas, voi
- 					xa_mk_node(child));
- 			if (xa_is_value(curr))
- 				values--;
-+			xas_update(xas, child);
- 		} else {
- 			unsigned int canon = offset - xas->xa_sibs;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -219,9 +219,9 @@ qla2x00_async_login(struct scsi_qla_host
+ 	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
+ 	    fcport->loop_id == FC_NO_LOOP_ID) {
+ 		ql_log(ql_log_warn, vha, 0xffff,
+-		    "%s: %8phC - not sending command.\n",
+-		    __func__, fcport->port_name);
+-		return rval;
++		    "%s: %8phC online %d flags %x - not sending command.\n",
++		    __func__, fcport->port_name, vha->flags.online, fcport->flags);
++		goto done;
+ 	}
  
-@@ -1094,6 +1095,7 @@ void xas_split(struct xa_state *xas, voi
- 	} while (offset-- > xas->xa_offset);
- 
- 	node->nr_values += values;
-+	xas_update(xas, node);
- }
- EXPORT_SYMBOL_GPL(xas_split);
- #endif
+ 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
 
 
