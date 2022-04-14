@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0675010D1
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15C1B50116D
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244448AbiDNNfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:35:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
+        id S1344728AbiDNODj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:03:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343568AbiDNN3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ADC3939B9;
-        Thu, 14 Apr 2022 06:24:41 -0700 (PDT)
+        with ESMTP id S1346187AbiDNN4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:56:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE95B0A5A;
+        Thu, 14 Apr 2022 06:45:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB46260C14;
-        Thu, 14 Apr 2022 13:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF218C385A1;
-        Thu, 14 Apr 2022 13:24:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2342B82985;
+        Thu, 14 Apr 2022 13:45:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 547CBC385A5;
+        Thu, 14 Apr 2022 13:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942680;
-        bh=PpkgBRZ/wUWFEO+eFhFoU+2vbu24ZrSNp069ndb+tcs=;
+        s=korg; t=1649943953;
+        bh=8pB0J7RuG+0VRdERB0M6sy0avVjZh9WeAccoMSSevQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEbPtih9w8+Q5UzlLibjA+Ssu+Pa3yakejrKkQKlrCfbPSpegyoyPtNtcAvFTm3di
-         +Pa4DXDCwvJnpLfUMjP7LZbEH44xaRDxsvHyfC3ZJ1GZg4QXKLwzy2BDlieWVI9fir
-         gqtUgjRLGzrFS4FXH24MHNZ0w8lcSX/ThLw3xEPU=
+        b=VBzpGz4h4rjEpRqz7A4JsQcdoly8aVkVmio1RcUf75ryBCMprBqS2NMifAyrekNFE
+         AFgQpIt00U0OUy41bLOYHnJmONppVUKEs6eIeh15BojnZnqfu8GZjX57bgLB1BGLRc
+         CV7VitbvlD6wP2v2b/t1E7UfVHH5Cmjz3WPPWV1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 222/338] powerpc: Fix build errors with newer binutils
+        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 5.4 340/475] XArray: Update the LRU list in xas_split()
 Date:   Thu, 14 Apr 2022 15:12:05 +0200
-Message-Id: <20220414110845.212281132@linuxfoundation.org>
+Message-Id: <20220414110904.597801199@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,164 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 8667d0d64dd1f84fd41b5897fd87fa9113ae05e3 upstream.
+commit 3ed4bb77156da0bc732847c8c9df92454c1fbeea upstream.
 
-Building tinyconfig with gcc (Debian 11.2.0-16) and assembler (Debian
-2.37.90.20220207) the following build error shows up:
+When splitting a value entry, we may need to add the new nodes to the LRU
+list and remove the parent node from the LRU list.  The WARN_ON checks
+in shadow_lru_isolate() catch this oversight.  This bug was latent
+until we stopped splitting folios in shrink_page_list() with commit
+820c4e2e6f51 ("mm/vmscan: Free non-shmem folios without splitting them").
+That allows the creation of large shadow entries, and subsequently when
+trying to page in a small page, we will split the large shadow entry
+in __filemap_add_folio().
 
-  {standard input}: Assembler messages:
-  {standard input}:1190: Error: unrecognized opcode: `stbcix'
-  {standard input}:1433: Error: unrecognized opcode: `lwzcix'
-  {standard input}:1453: Error: unrecognized opcode: `stbcix'
-  {standard input}:1460: Error: unrecognized opcode: `stwcix'
-  {standard input}:1596: Error: unrecognized opcode: `stbcix'
-  ...
-
-Rework to add assembler directives [1] around the instruction. Going
-through them one by one shows that the changes should be safe.  Like
-__get_user_atomic_128_aligned() is only called in p9_hmi_special_emu(),
-which according to the name is specific to power9.  And __raw_rm_read*()
-are only called in things that are powernv or book3s_hv specific.
-
-[1] https://sourceware.org/binutils/docs/as/PowerPC_002dPseudo.html#PowerPC_002dPseudo
-
-Cc: stable@vger.kernel.org
-Co-developed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-[mpe: Make commit subject more descriptive]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220224162215.3406642-2-anders.roxell@linaro.org
+Fixes: 8fc75643c5e1 ("XArray: add xas_split")
+Reported-by: Hugh Dickins <hughd@google.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/io.h        |   40 ++++++++++++++++++++++++++++-------
- arch/powerpc/include/asm/uaccess.h   |    3 ++
- arch/powerpc/platforms/powernv/rng.c |    6 ++++-
- 3 files changed, 40 insertions(+), 9 deletions(-)
+ lib/xarray.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/include/asm/io.h
-+++ b/arch/powerpc/include/asm/io.h
-@@ -372,25 +372,37 @@ static inline void __raw_writeq_be(unsig
-  */
- static inline void __raw_rm_writeb(u8 val, volatile void __iomem *paddr)
- {
--	__asm__ __volatile__("stbcix %0,0,%1"
-+	__asm__ __volatile__(".machine push;   \
-+			      .machine power6; \
-+			      stbcix %0,0,%1;  \
-+			      .machine pop;"
- 		: : "r" (val), "r" (paddr) : "memory");
- }
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -1080,6 +1080,7 @@ void xas_split(struct xa_state *xas, voi
+ 					xa_mk_node(child));
+ 			if (xa_is_value(curr))
+ 				values--;
++			xas_update(xas, child);
+ 		} else {
+ 			unsigned int canon = offset - xas->xa_sibs;
  
- static inline void __raw_rm_writew(u16 val, volatile void __iomem *paddr)
- {
--	__asm__ __volatile__("sthcix %0,0,%1"
-+	__asm__ __volatile__(".machine push;   \
-+			      .machine power6; \
-+			      sthcix %0,0,%1;  \
-+			      .machine pop;"
- 		: : "r" (val), "r" (paddr) : "memory");
- }
+@@ -1094,6 +1095,7 @@ void xas_split(struct xa_state *xas, voi
+ 	} while (offset-- > xas->xa_offset);
  
- static inline void __raw_rm_writel(u32 val, volatile void __iomem *paddr)
- {
--	__asm__ __volatile__("stwcix %0,0,%1"
-+	__asm__ __volatile__(".machine push;   \
-+			      .machine power6; \
-+			      stwcix %0,0,%1;  \
-+			      .machine pop;"
- 		: : "r" (val), "r" (paddr) : "memory");
+ 	node->nr_values += values;
++	xas_update(xas, node);
  }
- 
- static inline void __raw_rm_writeq(u64 val, volatile void __iomem *paddr)
- {
--	__asm__ __volatile__("stdcix %0,0,%1"
-+	__asm__ __volatile__(".machine push;   \
-+			      .machine power6; \
-+			      stdcix %0,0,%1;  \
-+			      .machine pop;"
- 		: : "r" (val), "r" (paddr) : "memory");
- }
- 
-@@ -402,7 +414,10 @@ static inline void __raw_rm_writeq_be(u6
- static inline u8 __raw_rm_readb(volatile void __iomem *paddr)
- {
- 	u8 ret;
--	__asm__ __volatile__("lbzcix %0,0, %1"
-+	__asm__ __volatile__(".machine push;   \
-+			      .machine power6; \
-+			      lbzcix %0,0, %1; \
-+			      .machine pop;"
- 			     : "=r" (ret) : "r" (paddr) : "memory");
- 	return ret;
- }
-@@ -410,7 +425,10 @@ static inline u8 __raw_rm_readb(volatile
- static inline u16 __raw_rm_readw(volatile void __iomem *paddr)
- {
- 	u16 ret;
--	__asm__ __volatile__("lhzcix %0,0, %1"
-+	__asm__ __volatile__(".machine push;   \
-+			      .machine power6; \
-+			      lhzcix %0,0, %1; \
-+			      .machine pop;"
- 			     : "=r" (ret) : "r" (paddr) : "memory");
- 	return ret;
- }
-@@ -418,7 +436,10 @@ static inline u16 __raw_rm_readw(volatil
- static inline u32 __raw_rm_readl(volatile void __iomem *paddr)
- {
- 	u32 ret;
--	__asm__ __volatile__("lwzcix %0,0, %1"
-+	__asm__ __volatile__(".machine push;   \
-+			      .machine power6; \
-+			      lwzcix %0,0, %1; \
-+			      .machine pop;"
- 			     : "=r" (ret) : "r" (paddr) : "memory");
- 	return ret;
- }
-@@ -426,7 +447,10 @@ static inline u32 __raw_rm_readl(volatil
- static inline u64 __raw_rm_readq(volatile void __iomem *paddr)
- {
- 	u64 ret;
--	__asm__ __volatile__("ldcix %0,0, %1"
-+	__asm__ __volatile__(".machine push;   \
-+			      .machine power6; \
-+			      ldcix %0,0, %1;  \
-+			      .machine pop;"
- 			     : "=r" (ret) : "r" (paddr) : "memory");
- 	return ret;
- }
---- a/arch/powerpc/include/asm/uaccess.h
-+++ b/arch/powerpc/include/asm/uaccess.h
-@@ -217,8 +217,11 @@ extern long __get_user_bad(void);
-  */
- #define __get_user_atomic_128_aligned(kaddr, uaddr, err)		\
- 	__asm__ __volatile__(				\
-+		".machine push\n"			\
-+		".machine altivec\n"			\
- 		"1:	lvx  0,0,%1	# get user\n"	\
- 		" 	stvx 0,0,%2	# put kernel\n"	\
-+		".machine pop\n"			\
- 		"2:\n"					\
- 		".section .fixup,\"ax\"\n"		\
- 		"3:	li %0,%3\n"			\
---- a/arch/powerpc/platforms/powernv/rng.c
-+++ b/arch/powerpc/platforms/powernv/rng.c
-@@ -47,7 +47,11 @@ static unsigned long rng_whiten(struct p
- 	unsigned long parity;
- 
- 	/* Calculate the parity of the value */
--	asm ("popcntd %0,%1" : "=r" (parity) : "r" (val));
-+	asm (".machine push;   \
-+	      .machine power7; \
-+	      popcntd %0,%1;   \
-+	      .machine pop;"
-+	     : "=r" (parity) : "r" (val));
- 
- 	/* xor our value with the previous mask */
- 	val ^= rng->mask;
+ EXPORT_SYMBOL_GPL(xas_split);
+ #endif
 
 
