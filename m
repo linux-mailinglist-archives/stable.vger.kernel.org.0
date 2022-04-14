@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 412BF50102A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D57E450113C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239366AbiDNOFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:05:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42010 "EHLO
+        id S245069AbiDNNiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:38:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347089AbiDNN61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:27 -0400
+        with ESMTP id S1344401AbiDNNb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B6CEB6D3E;
-        Thu, 14 Apr 2022 06:48:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7852182;
+        Thu, 14 Apr 2022 06:29:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E70596190F;
-        Thu, 14 Apr 2022 13:48:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2B30C385A1;
-        Thu, 14 Apr 2022 13:48:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F19C60C14;
+        Thu, 14 Apr 2022 13:29:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F6D9C385A5;
+        Thu, 14 Apr 2022 13:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944126;
-        bh=y1NLtXVKCAF9s4bJUdAgTMySx/PrTvU+WMnIIgND6qU=;
+        s=korg; t=1649942967;
+        bh=p6SyKgAmWU0pg0zDnYx6NwgcQMONDNRIaJfCRpdUFfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4E3g97DEwdoJqhFekbGjhtruNxHKO3xVv2PiDlp//kZJpsIgi15KAHjDtS0pUDBO
-         aZGa5CLQI3njMHRY1ybLJVkLAzT6Vlqt36/0S3fVmANo1lGiW5Tx4+y4X/evDHUDOn
-         QovMGWDDJyJddOmrZLc+yaKn6EV3d3ivPK4VM0Oc=
+        b=KbIke5Trl0c7sflFgKfER8jZt6JiSbNdsSk4VRzeiGIzxBLQsYHBVUVJjRPfxo8vO
+         4mK7uWPTmW+eWf2z7b45oqltYuguliC5LBIUYMXzOkPGIrcfVI0YhEMQrOnG0CdB5Z
+         XUrl+9P1PtNqLhCK2I6uWnopVLoe9J0HjvjzxYtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,19 +36,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 404/475] Bluetooth: Fix use after free in hci_send_acl
+Subject: [PATCH 4.19 286/338] Bluetooth: Fix use after free in hci_send_acl
 Date:   Thu, 14 Apr 2022 15:13:09 +0200
-Message-Id: <20220414110906.372772980@linuxfoundation.org>
+Message-Id: <20220414110847.029773167@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -165,10 +165,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 082a262ab49c..ff6625493c9f 100644
+index 196d0d832007..dd7bf437d88e 100644
 --- a/net/bluetooth/hci_event.c
 +++ b/net/bluetooth/hci_event.c
-@@ -4911,8 +4911,9 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
+@@ -4792,8 +4792,9 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
  	hci_dev_lock(hdev);
  
  	hcon = hci_conn_hash_lookup_handle(hdev, ev->phy_handle);
