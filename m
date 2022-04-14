@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B5C50120C
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:06:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC5AE5010AF
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245504AbiDNNvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:51:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36604 "EHLO
+        id S245102AbiDNNr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:47:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245708AbiDNNix (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAEF5A76F7;
-        Thu, 14 Apr 2022 06:33:51 -0700 (PDT)
+        with ESMTP id S245722AbiDNNiy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E8C8A7757;
+        Thu, 14 Apr 2022 06:33:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B1026190F;
-        Thu, 14 Apr 2022 13:33:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E8E4C385A1;
-        Thu, 14 Apr 2022 13:33:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3DDEB82968;
+        Thu, 14 Apr 2022 13:33:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C2E0C385A1;
+        Thu, 14 Apr 2022 13:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943230;
-        bh=/LOOwWxADR70oUQ6lKCBYnij1x7THp3OofmlkedM3f8=;
+        s=korg; t=1649943233;
+        bh=vCNxLByh22qWpvDtzrk7nKcRMnmgzftlBFDb7fx5dWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxuDsuzyxpbOwEvAZDJuUb40ehimxeqZMPtNDPRLyPdqEHvSgej8siuFnjRCt4SLL
-         V8whAGYMRHkC8IFJPxgQpLszvtjrN04arRV12IAHUnYRvR9LQ2JTeuua7nnJdZ9Rsg
-         qBj9RZFX/lEGqE48CSntPnW0pZasGXKek3DptHrw=
+        b=bdJ4E48nqz83iUXm5y5hC50Dixoncl8bE+eGp8GRcvdS63oD3KXTU/kqxOiYVoIde
+         Qtp6Yk3eYaVX+6VvdR45qZd5Ddm3Tb12vyNIi01PekyQU+94IbbEZ9OWoIs6Kq7g6P
+         jGAjwv2vbm5LROme2tQ0dNsFwQygwEXdUDKUVVAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Lad@vger.kernel.org
-Subject: [PATCH 5.4 080/475] media: davinci: vpif: fix unbalanced runtime PM get
-Date:   Thu, 14 Apr 2022 15:07:45 +0200
-Message-Id: <20220414110857.393953764@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.4 081/475] xtensa: fix stop_machine_cpuslocked call in patch_text
+Date:   Thu, 14 Apr 2022 15:07:46 +0200
+Message-Id: <20220414110857.422252189@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -57,33 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 4a321de239213300a714fa0353a5f1272d381a44 upstream.
+commit f406f2d03e07afc199dd8cf501f361dde6be8a69 upstream.
 
-Make sure to balance the runtime PM usage counter on driver unbind.
+patch_text must invoke patch_text_stop_machine on all online CPUs, but
+it calls stop_machine_cpuslocked with NULL cpumask. As a result only one
+CPU runs patch_text_stop_machine potentially leaving stale icache
+entries on other CPUs. Fix that by calling stop_machine_cpuslocked with
+cpu_online_mask as the last argument.
 
-Fixes: 407ccc65bfd2 ("[media] davinci: vpif: add pm_runtime support")
-Cc: stable@vger.kernel.org      # 3.9
-Cc: Lad, Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 64711f9a47d4 ("xtensa: implement jump_label support")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/davinci/vpif.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/xtensa/kernel/jump_label.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/platform/davinci/vpif.c
-+++ b/drivers/media/platform/davinci/vpif.c
-@@ -496,6 +496,7 @@ static int vpif_probe(struct platform_de
+--- a/arch/xtensa/kernel/jump_label.c
++++ b/arch/xtensa/kernel/jump_label.c
+@@ -61,7 +61,7 @@ static void patch_text(unsigned long add
+ 			.data = data,
+ 		};
+ 		stop_machine_cpuslocked(patch_text_stop_machine,
+-					&patch, NULL);
++					&patch, cpu_online_mask);
+ 	} else {
+ 		unsigned long flags;
  
- static int vpif_remove(struct platform_device *pdev)
- {
-+	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	return 0;
- }
 
 
