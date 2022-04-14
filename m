@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1F8E5015A0
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8081150107E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243492AbiDNNp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:45:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33068 "EHLO
+        id S1344927AbiDNNv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:51:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245220AbiDNNiT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D73F29D0ED;
-        Thu, 14 Apr 2022 06:31:45 -0700 (PDT)
+        with ESMTP id S245262AbiDNNiW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CBFF9F3A5;
+        Thu, 14 Apr 2022 06:31:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D71B9619FC;
-        Thu, 14 Apr 2022 13:31:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E24A6C385A1;
-        Thu, 14 Apr 2022 13:31:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A19DE61BA6;
+        Thu, 14 Apr 2022 13:31:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD58DC385A1;
+        Thu, 14 Apr 2022 13:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943104;
-        bh=vO4BCb5pS8Pv1TM8S9KT9qyRws81V47DwJgT0d0kFAA=;
+        s=korg; t=1649943107;
+        bh=UxiJWQzOxUTKSG/tgEQ7ATLQBu5U6+KUi7zIDsnJIkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNuCImU9iXK7IKZCaUG2ltmlYpy8RbRRktl1di4LE61/LI5FvYyMWctLXD5LFuM/G
-         UdrysGPFKmCpWLYyTg7E6g0+bZulOQVOXeCb/LxEPoxVIHnLCrwr9ReRQvt9VMivQT
-         maErM3j7TI+V6d1p2IIAJEA2MGjXTItAiyBq6mkM=
+        b=PmWX782I7jmUlzjoPlkxwTi1Dt3m1v6c6g13Y2Xc7cREvHHUdPUrYErUMfBHJ7QpL
+         p19KcncRYgZR7mr7BIY+C364Au1dyLNP7NOlEsEl5278GCOqQ7Oa6qIZP6r+RWgykI
+         G3o16KZE+U9mXi0sL+1YcLJdP+Ma4urRCQYuOPGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.4 035/475] SUNRPC: avoid race between mod_timer() and del_timer_sync()
-Date:   Thu, 14 Apr 2022 15:07:00 +0200
-Message-Id: <20220414110856.139602434@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.4 036/475] NFSD: prevent underflow in nfssvc_decode_writeargs()
+Date:   Thu, 14 Apr 2022 15:07:01 +0200
+Message-Id: <20220414110856.167378742@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -53,49 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 3848e96edf4788f772d83990022fa7023a233d83 upstream.
+commit 184416d4b98509fb4c3d8fc3d6dc1437896cc159 upstream.
 
-xprt_destory() claims XPRT_LOCKED and then calls del_timer_sync().
-Both xprt_unlock_connect() and xprt_release() call
- ->release_xprt()
-which drops XPRT_LOCKED and *then* xprt_schedule_autodisconnect()
-which calls mod_timer().
+Smatch complains:
 
-This may result in mod_timer() being called *after* del_timer_sync().
-When this happens, the timer may fire long after the xprt has been freed,
-and run_timer_softirq() will probably crash.
+	fs/nfsd/nfsxdr.c:341 nfssvc_decode_writeargs()
+	warn: no lower bound on 'args->len'
 
-The pairing of ->release_xprt() and xprt_schedule_autodisconnect() is
-always called under ->transport_lock.  So if we take ->transport_lock to
-call del_timer_sync(), we can be sure that mod_timer() will run first
-(if it runs at all).
+Change the type to unsigned to prevent this issue.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xprt.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/nfsd/nfsproc.c |    2 +-
+ fs/nfsd/xdr.h     |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -2006,7 +2006,14 @@ static void xprt_destroy(struct rpc_xprt
- 	 */
- 	wait_on_bit_lock(&xprt->state, XPRT_LOCKED, TASK_UNINTERRUPTIBLE);
+--- a/fs/nfsd/nfsproc.c
++++ b/fs/nfsd/nfsproc.c
+@@ -230,7 +230,7 @@ nfsd_proc_write(struct svc_rqst *rqstp)
+ 	unsigned long cnt = argp->len;
+ 	unsigned int nvecs;
  
-+	/*
-+	 * xprt_schedule_autodisconnect() can run after XPRT_LOCKED
-+	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
-+	 * can only run *before* del_time_sync(), never after.
-+	 */
-+	spin_lock(&xprt->transport_lock);
- 	del_timer_sync(&xprt->timer);
-+	spin_unlock(&xprt->transport_lock);
+-	dprintk("nfsd: WRITE    %s %d bytes at %d\n",
++	dprintk("nfsd: WRITE    %s %u bytes at %d\n",
+ 		SVCFH_fmt(&argp->fh),
+ 		argp->len, argp->offset);
  
- 	/*
- 	 * Destroy sockets etc from the system workqueue so they can
+--- a/fs/nfsd/xdr.h
++++ b/fs/nfsd/xdr.h
+@@ -33,7 +33,7 @@ struct nfsd_readargs {
+ struct nfsd_writeargs {
+ 	svc_fh			fh;
+ 	__u32			offset;
+-	int			len;
++	__u32			len;
+ 	struct kvec		first;
+ };
+ 
 
 
