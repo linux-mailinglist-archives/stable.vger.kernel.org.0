@@ -2,114 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3245F5012D9
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 321335016AC
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243681AbiDNONQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:13:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43372 "EHLO
+        id S236730AbiDNPJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 11:09:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347755AbiDNN7b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:31 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 562B3ADD4F;
-        Thu, 14 Apr 2022 06:52:29 -0700 (PDT)
-Received: from zn.tnic (p2e55d808.dip0.t-ipconnect.de [46.85.216.8])
+        with ESMTP id S1350144AbiDNOVs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 10:21:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95BB3BF019;
+        Thu, 14 Apr 2022 07:13:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 5A22C1EC0528;
-        Thu, 14 Apr 2022 15:52:23 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1649944343;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=fQgHc4czP4/s+ov58mWIy2itnrhyUqDjJiRz0eAusuQ=;
-        b=P2umxhzc6D+5zvIJYnM79nTO6MH6q8AqRhwO/hJ/8i/Uwam9nXDcA6V8TELpfUrUoUZ0a7
-        gPDtAjl9ijWd06nxH/yV2i/3EDn8xiTEmjnudzGjf/QRW9muIipnrcNIv22BMACd8wg44t
-        aNafyo5YZ1fjZzp6Z7Q5NxC+hWfqnvE=
-Date:   Thu, 14 Apr 2022 15:52:23 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Cc:     linux-edac@vger.kernel.org, michal.simek@xilinx.com,
-        mchehab@kernel.org, tony.luck@intel.com, stable@vger.kernel.org
-Subject: Re: [PATCH v3] edac: synopsys: Fix the issue in reporting of the
- error count
-Message-ID: <YlgnFxbripsQcCm5@zn.tnic>
-References: <20220414102813.4468-1-shubhrajyoti.datta@xilinx.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18ED061EDE;
+        Thu, 14 Apr 2022 14:13:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A964C385A9;
+        Thu, 14 Apr 2022 14:13:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1649945598;
+        bh=O2j8QmGGCbxSuuXx/g5kDa3DRaSfCxpFwD5IxKqExPA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=OGCariBz9xUcR/9uWegnuZoa0AJblOM4su4snkh/cWQLrco1Hy3xxkJQ4un8mKZKI
+         slaFL0BugVW9yG2QtLMjCJ9U74kc7ap/CwqSflHQg4uIYVcH0yq8GHpnvPmKeFmY7d
+         A2v3Edpg+VDTOUYGQ/CL/Vwh3lG0zzm+nib2ZwQpS5j6+P58DRC6d+GXhRMhFLBEgC
+         SPQvuM+GDuq6FDQePWpO/n80jdTym6xnHNGocNCxrTdUfrn7g+c/C19qwhF+UzbMAH
+         kaB/xmPujNPsTiDuSKEKQjhSz9/qNPe234q0sOscj9yK7uE4KsMKoiFR16htrl36z0
+         ZaGtvj0IEZeOQ==
+Received: by mail-oo1-f50.google.com with SMTP id s203-20020a4a3bd4000000b003191c2dcbe8so891714oos.9;
+        Thu, 14 Apr 2022 07:13:18 -0700 (PDT)
+X-Gm-Message-State: AOAM531ZbIm7hXnU8BTmRUgbGrLEJBV4AsTIdoyfSt8pGUfqtlNMIxBS
+        tLtBnb6qw7RzXwveBIxNb0hCcCsBkC7Y3n5TK+Y=
+X-Google-Smtp-Source: ABdhPJzVObenFOQNGcxYgE0aDD4jEL5N64ZkM2Y91EDfGvnxH0aONGXpmnq0C6XLW//uOxlJxjSE12Xnef7TjPDpE6s=
+X-Received: by 2002:a4a:95f3:0:b0:331:3e74:ed5d with SMTP id
+ p48-20020a4a95f3000000b003313e74ed5dmr795426ooi.60.1649945597626; Thu, 14 Apr
+ 2022 07:13:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220414102813.4468-1-shubhrajyoti.datta@xilinx.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220414110838.883074566@linuxfoundation.org> <20220414110844.817011928@linuxfoundation.org>
+ <CAMj1kXG9ibOZfo60_pjwqACWhfPt8=38MDJD8C_CBoLrTYmCOw@mail.gmail.com> <Ylgi3Nh8mbAOvXi6@kroah.com>
+In-Reply-To: <Ylgi3Nh8mbAOvXi6@kroah.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Thu, 14 Apr 2022 16:13:06 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXFwQ+WrM4G=xa5+1CVd0z3RDLRUbFnpYRirWVHwbtvXGg@mail.gmail.com>
+Message-ID: <CAMj1kXFwQ+WrM4G=xa5+1CVd0z3RDLRUbFnpYRirWVHwbtvXGg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 208/338] ARM: ftrace: avoid redundant loads or
+ clobbering IP
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 14, 2022 at 03:58:13PM +0530, Shubhrajyoti Datta wrote:
-> Currently the error count from status register is being read which
-> is not correct. Fix the issue by reading the count from the
-> error count register(ERRCNT).
-> 
-> Fixes: b500b4a029d5 ("EDAC, synopsys: Add ECC support for ZynqMP DDR controller")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-> ---
-> v2:
-> Remove the cumulative count change
-> v3:
-> Add the fixes and stable tag
-> 
->  drivers/edac/synopsys_edac.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/edac/synopsys_edac.c b/drivers/edac/synopsys_edac.c
-> index f05ff02c0656..1a9a5b886903 100644
-> --- a/drivers/edac/synopsys_edac.c
-> +++ b/drivers/edac/synopsys_edac.c
-> @@ -164,6 +164,11 @@
->  #define ECC_STAT_CECNT_SHIFT		8
->  #define ECC_STAT_BITNUM_MASK		0x7F
->  
-> +/* ECC error count register definitions */
-> +#define ECC_ERRCNT_UECNT_MASK		0xFFFF0000
-> +#define ECC_ERRCNT_UECNT_SHIFT		16
-> +#define ECC_ERRCNT_CECNT_MASK		0xFFFF
-> +
->  /* DDR QOS Interrupt register definitions */
->  #define DDR_QOS_IRQ_STAT_OFST		0x20200
->  #define DDR_QOSUE_MASK			0x4
-> @@ -423,14 +428,16 @@ static int zynqmp_get_error_info(struct synps_edac_priv *priv)
->  	base = priv->baseaddr;
->  	p = &priv->stat;
->  
-> +	regval = readl(base + ECC_ERRCNT_OFST);
-> +	p->ce_cnt = regval & ECC_ERRCNT_CECNT_MASK;
-> +	p->ue_cnt = (regval & ECC_ERRCNT_UECNT_MASK) >> ECC_ERRCNT_UECNT_SHIFT;
-> +	if (!p->ce_cnt)
-> +		goto ue_err;
-> +
->  	regval = readl(base + ECC_STAT_OFST);
->  	if (!regval)
->  		return 1;
->  
-> -	p->ce_cnt = (regval & ECC_STAT_CECNT_MASK) >> ECC_STAT_CECNT_SHIFT;
-> -	p->ue_cnt = (regval & ECC_STAT_UECNT_MASK) >> ECC_STAT_UECNT_SHIFT;
-> -	if (!p->ce_cnt)
-> -		goto ue_err;
->  
->  	p->ceinfo.bitpos = (regval & ECC_STAT_BITNUM_MASK);
->  
-> -- 
+On Thu, 14 Apr 2022 at 15:57, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Apr 14, 2022 at 03:25:29PM +0200, Ard Biesheuvel wrote:
+> > On Thu, 14 Apr 2022 at 15:23, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > From: Ard Biesheuvel <ardb@kernel.org>
+> > >
+> > > [ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
+> > >
+> >
+> > NAK. Please don't backport these patches to -stable, I thought I had
+> > been clear on this.
+>
+> I dropped the patches you asked to be dropped, but this is a different
+> one and is already in the following releases:
+>         5.10.110 5.15.33 5.16.19 5.17.2
+>
+> I can also drop it from here and the 5.4 queue if you do not want it
+> there.
+>
 
-Applied, thanks.
+This is not how I remember it:
 
--- 
-Regards/Gruss,
-    Boris.
+On Tue, 5 Apr 2022 at 18:52, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Apr 05, 2022 at 12:01:19PM +0200, Ard Biesheuvel wrote:
+> > On Tue, 5 Apr 2022 at 11:54, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > From: Ard Biesheuvel <ardb@kernel.org>
+> > >
+> > > [ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
+> > >
+..
+> >
+> > Please drop all the 32-bit ARM patches authored by me from the stable
+> > queues except the ones that have fixes tags. These are highly likely
+> > to cause an explosion of regressions, and they should have never been
+> > selected, as I don't remember anyone proposing these for stable.
+>
+> From what I can tell, that is only this commit.  I'll go drop it from
+> all trees, thanks.
+>
 
-https://people.kernel.org/tglx/notes-about-netiquette
+Can you *please* exclude all patches authored by me from consideration
+by this bot? Consider this a blanket NAK to all AUTOSEL patches cc'ed
+to me.
