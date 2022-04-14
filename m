@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48C755010F6
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8DA50156E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345922AbiDNNyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43524 "EHLO
+        id S244507AbiDNN7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:59:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345426AbiDNNuN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:50:13 -0400
+        with ESMTP id S1344004AbiDNNuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:50:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988B2A6E09;
-        Thu, 14 Apr 2022 06:44:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D380E1FCFE;
+        Thu, 14 Apr 2022 06:44:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B0ACB82987;
-        Thu, 14 Apr 2022 13:44:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A71E9C385A5;
-        Thu, 14 Apr 2022 13:44:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C31DB82968;
+        Thu, 14 Apr 2022 13:44:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D1F1C385A1;
+        Thu, 14 Apr 2022 13:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943846;
-        bh=ANab7f4cOqKNj2sib7uC1f78bOzxhVfXID49rCCK1Iw=;
+        s=korg; t=1649943856;
+        bh=iWKH1mlMdsZhiA9X2sK2oDiy++NEq5LxR0fY3wTNPow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r4ICkYYLejtfmTF8a4YFdO0mKLli0MkoCFqYpyVl8DLZNg/lhAQvyXgzxR1VLbCIN
-         DmOJr+NXnxf6TWr7SWO9IuLYAHXFmN9+BoCuHTZF/0+9d/eAJbcDRqgo6fK9iNqPEY
-         ckNamT+lYJtC+mVjgIGO5XTEBlKNW7bl/a0vtYG4=
+        b=OfvWoC8XJMDeqKFYJzKqyscSvOIr/8JCeWaaIYrpJCOgGg/U6+HvzLbpJ/WuVhdjj
+         iL/ys1I9/M7IUD/YePyKegJaZJd/Y2fj5lwZ24wvoxA6hJ4qmZw2PuHPgVWc5OwK10
+         /YB0TEeTXqxxTzXmpWnv7km61/H7tAY6J0MIpKBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 265/475] xen: fix is_xen_pmu()
-Date:   Thu, 14 Apr 2022 15:10:50 +0200
-Message-Id: <20220414110902.524262472@linuxfoundation.org>
+Subject: [PATCH 5.4 266/475] net: phy: broadcom: Fix brcm_fet_config_init()
+Date:   Thu, 14 Apr 2022 15:10:51 +0200
+Message-Id: <20220414110902.552177180@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,122 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit de2ae403b4c0e79a3410e63bc448542fbb9f9bfc ]
+[ Upstream commit bf8bfc4336f7a34e48b3bbd19b1542bf085bdc3d ]
 
-is_xen_pmu() is taking the cpu number as parameter, but it is not using
-it. Instead it just tests whether the Xen PMU initialization on the
-current cpu did succeed. As this test is done by checking a percpu
-pointer, preemption needs to be disabled in order to avoid switching
-the cpu while doing the test. While resuming from suspend() this seems
-not to be the case:
+A Broadcom AC201 PHY (same entry as 5241) would be flagged by the
+Broadcom UniMAC MDIO controller as not completing the turn around
+properly since the PHY expects 65 MDC clock cycles to complete a write
+cycle, and the MDIO controller was only sending 64 MDC clock cycles as
+determined by looking at a scope shot.
 
-[   88.082751] ACPI: PM: Low-level resume complete
-[   88.087933] ACPI: EC: EC started
-[   88.091464] ACPI: PM: Restoring platform NVS memory
-[   88.097166] xen_acpi_processor: Uploading Xen processor PM info
-[   88.103850] Enabling non-boot CPUs ...
-[   88.108128] installing Xen timer for CPU 1
-[   88.112763] BUG: using smp_processor_id() in preemptible [00000000] code: systemd-sleep/7138
-[   88.122256] caller is is_xen_pmu+0x12/0x30
-[   88.126937] CPU: 0 PID: 7138 Comm: systemd-sleep Tainted: G        W         5.16.13-2.fc32.qubes.x86_64 #1
-[   88.137939] Hardware name: Star Labs StarBook/StarBook, BIOS 7.97 03/21/2022
-[   88.145930] Call Trace:
-[   88.148757]  <TASK>
-[   88.151193]  dump_stack_lvl+0x48/0x5e
-[   88.155381]  check_preemption_disabled+0xde/0xe0
-[   88.160641]  is_xen_pmu+0x12/0x30
-[   88.164441]  xen_smp_intr_init_pv+0x75/0x100
+This would make the subsequent read fail with the UniMAC MDIO controller
+command field having MDIO_READ_FAIL set and we would abort the
+brcm_fet_config_init() function and thus not probe the PHY at all.
 
-Fix that by replacing is_xen_pmu() by a simple boolean variable which
-reflects the Xen PMU initialization state on cpu 0.
+After issuing a software reset, wait for at least 1ms which is well
+above the 1us reset delay advertised by the datasheet and issue a dummy
+read to let the PHY turn around the line properly. This read
+specifically ignores -EIO which would be returned by MDIO controllers
+checking for the line being turned around.
 
-Modify xen_pmu_init() to return early in case it is being called for a
-cpu other than cpu 0 and the boolean variable not being set.
+If we have a genuine reaad failure, the next read of the interrupt
+status register would pick it up anyway.
 
-Fixes: bf6dfb154d93 ("xen/PMU: PMU emulation code")
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/20220325142002.31789-1-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: d7a2ed9248a3 ("broadcom: Add AC131 phy support")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220324232438.1156812-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/pmu.c    | 10 ++++------
- arch/x86/xen/pmu.h    |  3 ++-
- arch/x86/xen/smp_pv.c |  2 +-
- 3 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/net/phy/broadcom.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/arch/x86/xen/pmu.c b/arch/x86/xen/pmu.c
-index e13b0b49fcdf..d7249f4c90f1 100644
---- a/arch/x86/xen/pmu.c
-+++ b/arch/x86/xen/pmu.c
-@@ -512,10 +512,7 @@ irqreturn_t xen_pmu_irq_handler(int irq, void *dev_id)
- 	return ret;
- }
+diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
+index c23fec34b50e..7be75a611e9e 100644
+--- a/drivers/net/phy/broadcom.c
++++ b/drivers/net/phy/broadcom.c
+@@ -11,6 +11,7 @@
+  */
  
--bool is_xen_pmu(int cpu)
--{
--	return (get_xenpmu_data() != NULL);
--}
-+bool is_xen_pmu;
+ #include "bcm-phy-lib.h"
++#include <linux/delay.h>
+ #include <linux/module.h>
+ #include <linux/phy.h>
+ #include <linux/brcmphy.h>
+@@ -479,6 +480,26 @@ static int brcm_fet_config_init(struct phy_device *phydev)
+ 	if (err < 0)
+ 		return err;
  
- void xen_pmu_init(int cpu)
- {
-@@ -526,7 +523,7 @@ void xen_pmu_init(int cpu)
- 
- 	BUILD_BUG_ON(sizeof(struct xen_pmu_data) > PAGE_SIZE);
- 
--	if (xen_hvm_domain())
-+	if (xen_hvm_domain() || (cpu != 0 && !is_xen_pmu))
- 		return;
- 
- 	xenpmu_data = (struct xen_pmu_data *)get_zeroed_page(GFP_KERNEL);
-@@ -547,7 +544,8 @@ void xen_pmu_init(int cpu)
- 	per_cpu(xenpmu_shared, cpu).xenpmu_data = xenpmu_data;
- 	per_cpu(xenpmu_shared, cpu).flags = 0;
- 
--	if (cpu == 0) {
-+	if (!is_xen_pmu) {
-+		is_xen_pmu = true;
- 		perf_register_guest_info_callbacks(&xen_guest_cbs);
- 		xen_pmu_arch_init();
- 	}
-diff --git a/arch/x86/xen/pmu.h b/arch/x86/xen/pmu.h
-index 0e83a160589b..65c58894fc79 100644
---- a/arch/x86/xen/pmu.h
-+++ b/arch/x86/xen/pmu.h
-@@ -4,6 +4,8 @@
- 
- #include <xen/interface/xenpmu.h>
- 
-+extern bool is_xen_pmu;
++	/* The datasheet indicates the PHY needs up to 1us to complete a reset,
++	 * build some slack here.
++	 */
++	usleep_range(1000, 2000);
 +
- irqreturn_t xen_pmu_irq_handler(int irq, void *dev_id);
- #ifdef CONFIG_XEN_HAVE_VPMU
- void xen_pmu_init(int cpu);
-@@ -12,7 +14,6 @@ void xen_pmu_finish(int cpu);
- static inline void xen_pmu_init(int cpu) {}
- static inline void xen_pmu_finish(int cpu) {}
- #endif
--bool is_xen_pmu(int cpu);
- bool pmu_msr_read(unsigned int msr, uint64_t *val, int *err);
- bool pmu_msr_write(unsigned int msr, uint32_t low, uint32_t high, int *err);
- int pmu_apic_update(uint32_t reg);
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index 0cebe5db691d..64e6ec2c32a7 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -129,7 +129,7 @@ int xen_smp_intr_init_pv(unsigned int cpu)
- 	per_cpu(xen_irq_work, cpu).irq = rc;
- 	per_cpu(xen_irq_work, cpu).name = callfunc_name;
- 
--	if (is_xen_pmu(cpu)) {
-+	if (is_xen_pmu) {
- 		pmu_name = kasprintf(GFP_KERNEL, "pmu%d", cpu);
- 		rc = bind_virq_to_irqhandler(VIRQ_XENPMU, cpu,
- 					     xen_pmu_irq_handler,
++	/* The PHY requires 65 MDC clock cycles to complete a write operation
++	 * and turnaround the line properly.
++	 *
++	 * We ignore -EIO here as the MDIO controller (e.g.: mdio-bcm-unimac)
++	 * may flag the lack of turn-around as a read failure. This is
++	 * particularly true with this combination since the MDIO controller
++	 * only used 64 MDC cycles. This is not a critical failure in this
++	 * specific case and it has no functional impact otherwise, so we let
++	 * that one go through. If there is a genuine bus error, the next read
++	 * of MII_BRCM_FET_INTREG will error out.
++	 */
++	err = phy_read(phydev, MII_BMCR);
++	if (err < 0 && err != -EIO)
++		return err;
++
+ 	reg = phy_read(phydev, MII_BRCM_FET_INTREG);
+ 	if (reg < 0)
+ 		return reg;
 -- 
 2.34.1
 
