@@ -2,61 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6AF75011CB
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C005014BA
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244807AbiDNNgF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:36:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56968 "EHLO
+        id S244772AbiDNNmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:42:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343952AbiDNNaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45EC9A1465;
-        Thu, 14 Apr 2022 06:25:43 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC71F612B3;
-        Thu, 14 Apr 2022 13:25:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3534CC385AA;
-        Thu, 14 Apr 2022 13:25:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649942742;
-        bh=sX1qu7YDHYA0JsHy2eX7J6i2/0a5r/gQxQOYSL9GlXs=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=SiCnU1yAXDZJ2DfdqQa0nqjh5+FHDBWFumLLsCupwEInzjqdLNx9j4OcXdXMBpG6s
-         Tqih8+A15L9hhdunz3322JI1pAirquE1OhR6j+K0X8ZcYvurIy6lbT8U1QO/Fd9QvP
-         Ww3uSatHHP6GUXgGnMCdU9qEatbQePmN/8r36A0Bxu0OE9AgkBMiz8f/rUZWterzFk
-         k4rnvq3F1YhfPl1IvxjKeGg4URrv0IO2AlgEWHqj2C7eDa87Pqd8eiJ4AKVYBh8lW7
-         KZnX2YQdfZmLspRzfFdiSsKZA4jfNNf+D0KpD2/ccmq9scZMDf6dMIGKzcfTGXLh3K
-         phkTavHZ8SviA==
-Received: by mail-oa1-f50.google.com with SMTP id 586e51a60fabf-df22f50e0cso5237245fac.3;
-        Thu, 14 Apr 2022 06:25:42 -0700 (PDT)
-X-Gm-Message-State: AOAM5333HlX1XvOoqgDkfgcFEGfiRJodsBr5SQNMoKiv4eaWxHf7L1Uv
-        3Yd3LZyi5CgrE1jceU2HLw3thmmYmHmArvOlw88=
-X-Google-Smtp-Source: ABdhPJyp/EdraI7LW3lHC+T6Cw6PWGqq4DBse7Ji+a2+SpHK+D9sU7GDpbn+Pvj8viHwA+HcXxMB/Yl6lQNkmRVA9Fs=
-X-Received: by 2002:a05:6870:b027:b0:de:7fcd:fabf with SMTP id
- y39-20020a056870b02700b000de7fcdfabfmr1276807oae.126.1649942741344; Thu, 14
- Apr 2022 06:25:41 -0700 (PDT)
+        with ESMTP id S1343871AbiDNNaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:03 -0400
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA2CAB0D19
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 06:25:31 -0700 (PDT)
+Received: by mail-il1-f200.google.com with SMTP id h1-20020a056e021b8100b002cbec2c4261so328472ili.16
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 06:25:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to:cc;
+        bh=63dgzYb/YD/fHyGcMt+vSjeSoQXMPp9ik+UDymjhyew=;
+        b=CccG8TfINSs7gS9z3UuFXkAjMVubW9ZBDCMDNoQt5KmMXunNQn6AQP98lPE2BgcLoo
+         y65AW9wKtL6YaOvjNLQglCxvxIxWSVU9I665aQb53MADHj07PGaQ/IfsdfYNTYYunN0E
+         /ABZ4/SbZRFlZf705+gUd7yUpKRa15X8Dc3CJ/k+FTeEfkorNeT1S+CEvQ46+yqUsWP8
+         7ZVaBweVwqZRxW186XGEMKOf4B+FHInS2etvlw39FTQroH+57DPh31kN+9CJD5V2GS61
+         jt6QClrIpCEYGysKQ4DwifbhdY18kHs+8FUkDbip6MU2flMY9A8Rj6gRr0Irwhx4G+Qr
+         xLpA==
+X-Gm-Message-State: AOAM533dRQu1Ss4W61U8i0CCub1A3So1lYddAtzMrkUzg0raxkjRP+Ex
+        I4Yv8d04ghrjVBeVizttc0J+/tSwjikdyRNzzOwFsPO6vT0u
+X-Google-Smtp-Source: ABdhPJzxBGXJoz4F8vYU4sx+5cEa0NMAaCGjxivuVaI0KmPWiwxdEL9HL4VwkOY7JbZigmNpdENJdU6ceIfKL6D4szKkfXxcxtY1
 MIME-Version: 1.0
-References: <20220414110838.883074566@linuxfoundation.org> <20220414110844.817011928@linuxfoundation.org>
-In-Reply-To: <20220414110844.817011928@linuxfoundation.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Thu, 14 Apr 2022 15:25:29 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXG9ibOZfo60_pjwqACWhfPt8=38MDJD8C_CBoLrTYmCOw@mail.gmail.com>
-Message-ID: <CAMj1kXG9ibOZfo60_pjwqACWhfPt8=38MDJD8C_CBoLrTYmCOw@mail.gmail.com>
-Subject: Re: [PATCH 4.19 208/338] ARM: ftrace: avoid redundant loads or
- clobbering IP
+X-Received: by 2002:a05:6638:13d5:b0:323:a795:ccf0 with SMTP id
+ i21-20020a05663813d500b00323a795ccf0mr1124962jaj.265.1649942730964; Thu, 14
+ Apr 2022 06:25:30 -0700 (PDT)
+Date:   Thu, 14 Apr 2022 06:25:30 -0700
+In-Reply-To: <20220414110844.587766421@linuxfoundation.org>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000006103b605dc9d3a02@google.com>
+Subject: Re: [PATCH 4.19 200/338] ext4: dont BUG if someone dirty pages
+ without asking ext4 first
+From:   syzbot 
+        <syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
+Cc:     gregkh@linuxfoundation.org, lee.jones@linaro.org,
+        linux-kernel@vger.kernel.org, sashal@kernel.org,
+        stable@vger.kernel.org, tytso@mit.edu
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -64,143 +58,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 14 Apr 2022 at 15:23, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+> From: Theodore Ts'o <tytso@mit.edu>
 >
-> From: Ard Biesheuvel <ardb@kernel.org>
+> [ Upstream commit cc5095747edfb054ca2068d01af20be3fcc3634f ]
 >
-> [ Upstream commit d11967870815b5ab89843980e35aab616c97c463 ]
+> [un]pin_user_pages_remote is dirtying pages without properly warning
+> the file system in advance.  A related race was noted by Jan Kara in
+> 2018[1]; however, more recently instead of it being a very hard-to-hit
+> race, it could be reliably triggered by process_vm_writev(2) which was
+> discovered by Syzbot[2].
 >
-
-NAK. Please don't backport these patches to -stable, I thought I had
-been clear on this.
-
-
-> Tweak the ftrace return paths to avoid redundant loads of SP, as well as
-> unnecessary clobbering of IP.
+> This is technically a bug in mm/gup.c, but arguably ext4 is fragile in
+> that if some other kernel subsystem dirty pages without properly
+> notifying the file system using page_mkwrite(), ext4 will BUG, while
+> other file systems will not BUG (although data will still be lost).
 >
-> This also fixes the inconsistency of using MOV to perform a function
-> return, which is sub-optimal on recent micro-architectures but more
-> importantly, does not perform an interworking return, unlike compiler
-> generated function returns in Thumb2 builds.
+> So instead of crashing with a BUG, issue a warning (since there may be
+> potential data loss) and just mark the page as clean to avoid
+> unprivileged denial of service attacks until the problem can be
+> properly fixed.  More discussion and background can be found in the
+> thread starting at [2].
 >
-> Let's fix this by popping PC from the stack like most ordinary code
-> does.
+> [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
+> [2] https://lore.kernel.org/r/Yg0m6IjcNmfaSokM@google.com
 >
-> Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> Reviewed-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+> Reported-by: syzbot+d59332e2db681cf18f0318a06e994ebbb529a8db@syzkaller.appspotmail.com
+> Reported-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+> Link: https://lore.kernel.org/r/YiDS9wVfq4mM2jGK@mit.edu
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  arch/arm/kernel/entry-ftrace.S | 51 +++++++++++++++-------------------
->  1 file changed, 22 insertions(+), 29 deletions(-)
+>  fs/ext4/inode.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 >
-> diff --git a/arch/arm/kernel/entry-ftrace.S b/arch/arm/kernel/entry-ftrace.S
-> index 1acf4d05e94c..393c342ecd51 100644
-> --- a/arch/arm/kernel/entry-ftrace.S
-> +++ b/arch/arm/kernel/entry-ftrace.S
-> @@ -41,10 +41,7 @@
->   * mcount can be thought of as a function called in the middle of a subroutine
->   * call.  As such, it needs to be transparent for both the caller and the
->   * callee: the original lr needs to be restored when leaving mcount, and no
-> - * registers should be clobbered.  (In the __gnu_mcount_nc implementation, we
-> - * clobber the ip register.  This is OK because the ARM calling convention
-> - * allows it to be clobbered in subroutines and doesn't use it to hold
-> - * parameters.)
-> + * registers should be clobbered.
->   *
->   * When using dynamic ftrace, we patch out the mcount call by a "mov r0, r0"
->   * for the mcount case, and a "pop {lr}" for the __gnu_mcount_nc case (see
-> @@ -96,26 +93,25 @@
->
->  .macro __ftrace_regs_caller
->
-> -       sub     sp, sp, #8      @ space for PC and CPSR OLD_R0,
-> +       str     lr, [sp, #-8]!  @ store LR as PC and make space for CPSR/OLD_R0,
->                                 @ OLD_R0 will overwrite previous LR
->
-> -       add     ip, sp, #12     @ move in IP the value of SP as it was
-> -                               @ before the push {lr} of the mcount mechanism
-> +       ldr     lr, [sp, #8]    @ get previous LR
->
-> -       str     lr, [sp, #0]    @ store LR instead of PC
-> +       str     r0, [sp, #8]    @ write r0 as OLD_R0 over previous LR
->
-> -       ldr     lr, [sp, #8]    @ get previous LR
-> +       str     lr, [sp, #-4]!  @ store previous LR as LR
->
-> -       str     r0, [sp, #8]    @ write r0 as OLD_R0 over previous LR
-> +       add     lr, sp, #16     @ move in LR the value of SP as it was
-> +                               @ before the push {lr} of the mcount mechanism
->
-> -       stmdb   sp!, {ip, lr}
-> -       stmdb   sp!, {r0-r11, lr}
-> +       push    {r0-r11, ip, lr}
->
->         @ stack content at this point:
->         @ 0  4          48   52       56            60   64    68       72
-> -       @ R0 | R1 | ... | LR | SP + 4 | previous LR | LR | PSR | OLD_R0 |
-> +       @ R0 | R1 | ... | IP | SP + 4 | previous LR | LR | PSR | OLD_R0 |
->
-> -       mov r3, sp                              @ struct pt_regs*
-> +       mov     r3, sp                          @ struct pt_regs*
->
->         ldr r2, =function_trace_op
->         ldr r2, [r2]                            @ pointer to the current
-> @@ -138,11 +134,9 @@ ftrace_graph_regs_call:
->  #endif
->
->         @ pop saved regs
-> -       ldmia   sp!, {r0-r12}                   @ restore r0 through r12
-> -       ldr     ip, [sp, #8]                    @ restore PC
-> -       ldr     lr, [sp, #4]                    @ restore LR
-> -       ldr     sp, [sp, #0]                    @ restore SP
-> -       mov     pc, ip                          @ return
-> +       pop     {r0-r11, ip, lr}                @ restore r0 through r12
-> +       ldr     lr, [sp], #4                    @ restore LR
-> +       ldr     pc, [sp], #12
->  .endm
->
->  #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-> @@ -158,11 +152,9 @@ ftrace_graph_regs_call:
->         bl      prepare_ftrace_return
->
->         @ pop registers saved in ftrace_regs_caller
-> -       ldmia   sp!, {r0-r12}                   @ restore r0 through r12
-> -       ldr     ip, [sp, #8]                    @ restore PC
-> -       ldr     lr, [sp, #4]                    @ restore LR
-> -       ldr     sp, [sp, #0]                    @ restore SP
-> -       mov     pc, ip                          @ return
-> +       pop     {r0-r11, ip, lr}                @ restore r0 through r12
-> +       ldr     lr, [sp], #4                    @ restore LR
-> +       ldr     pc, [sp], #12
->
->  .endm
->  #endif
-> @@ -273,16 +265,17 @@ ENDPROC(ftrace_graph_caller_old)
->  .endm
->
->  .macro mcount_exit
-> -       ldmia   sp!, {r0-r3, ip, lr}
-> -       ret     ip
-> +       ldmia   sp!, {r0-r3}
-> +       ldr     lr, [sp, #4]
-> +       ldr     pc, [sp], #8
->  .endm
->
->  ENTRY(__gnu_mcount_nc)
->  UNWIND(.fnstart)
->  #ifdef CONFIG_DYNAMIC_FTRACE
-> -       mov     ip, lr
-> -       ldmia   sp!, {lr}
-> -       ret     ip
-> +       push    {lr}
-> +       ldr     lr, [sp, #4]
-> +       ldr     pc, [sp], #8
->  #else
->         __mcount
->  #endif
-> --
+> diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+> index 7959aae4857e..96cf0f57ca95 100644
+> --- a/fs/ext4/inode.c
+> +++ b/fs/ext4/inode.c
+> @@ -2148,6 +2148,15 @@ static int ext4_writepage(struct page *page,
+>  	else
+>  		len = PAGE_SIZE;
+>  
+> +	/* Should never happen but for bugs in other kernel subsystems */
+> +	if (!page_has_buffers(page)) {
+> +		ext4_warning_inode(inode,
+> +		   "page %lu does not have buffers attached", page->index);
+> +		ClearPageDirty(page);
+> +		unlock_page(page);
+> +		return 0;
+> +	}
+> +
+>  	page_bufs = page_buffers(page);
+>  	/*
+>  	 * We cannot do block allocation or other extent handling in this
+> @@ -2697,6 +2706,22 @@ static int mpage_prepare_extent_to_map(struct mpage_da_data *mpd)
+>  			wait_on_page_writeback(page);
+>  			BUG_ON(PageWriteback(page));
+>  
+> +			/*
+> +			 * Should never happen but for buggy code in
+> +			 * other subsystems that call
+> +			 * set_page_dirty() without properly warning
+> +			 * the file system first.  See [1] for more
+> +			 * information.
+> +			 *
+> +			 * [1] https://lore.kernel.org/linux-mm/20180103100430.GE4911@quack2.suse.cz
+> +			 */
+> +			if (!page_has_buffers(page)) {
+> +				ext4_warning_inode(mpd->inode, "page %lu does not have buffers attached", page->index);
+> +				ClearPageDirty(page);
+> +				unlock_page(page);
+> +				continue;
+> +			}
+> +
+>  			if (mpd->map.m_len == 0)
+>  				mpd->first_page = page->index;
+>  			mpd->next_page = page->index + 1;
+> -- 
 > 2.34.1
 >
 >
 >
+
+I see the command but can't find the corresponding bug.
+The email is sent to  syzbot+HASH@syzkaller.appspotmail.com address
+but the HASH does not correspond to any known bug.
+Please double check the address.
+
