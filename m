@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1DFC501384
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CA86501234
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348354AbiDNOEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43134 "EHLO
+        id S244456AbiDNNfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:35:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346575AbiDNN5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:42 -0400
+        with ESMTP id S1344071AbiDNNaR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B56415EBF6;
-        Thu, 14 Apr 2022 06:46:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED108BC9;
+        Thu, 14 Apr 2022 06:27:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AB3561D9B;
-        Thu, 14 Apr 2022 13:46:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB7BC385A5;
-        Thu, 14 Apr 2022 13:46:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89E84619DA;
+        Thu, 14 Apr 2022 13:27:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C64AC385A5;
+        Thu, 14 Apr 2022 13:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944006;
-        bh=y8qTDUU89JfGa8eZGV063SlRAFzrEvcF+jAExHfm8OE=;
+        s=korg; t=1649942848;
+        bh=o/pxBbwXzGx8eqC7mwu/vzFszedoV+40KDqAeUJ2mpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1SCN3wIhVysYp4f1/RWH+ffacaui8A8D+kJFjQCizoxK/a8N9t72D3GAA3Ez5Ib7T
-         Q7SgZmThPqvoWhklGIBpuKlxzYItlRsLIbVpvL9OXxlOOWaX1zcazbggcxHeuHXCmd
-         TG5jZ4zedHk7OoG3acBh8Fqnyw1sNcCNYVBNu+sQ=
+        b=UJCmjjn43CjWzGPDoMQmHjrTJqASeLxXP56kHdj72dPrWkBroOkwJkxY13BeRHJXH
+         Epm15+A5Tksh4wDZakOVrLZuORhYx1sDfi8V2IkF7AzLe1ZQKH+CHnIchJsQkX3Cwm
+         Cvf1zxO54lkpM/us0/UIM2mKdskpji6MZLnWVVq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 361/475] ASoC: topology: Allow TLV control to be either read or write
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.19 243/338] ubi: Fix race condition between ctrl_cdev_ioctl and ubi_cdev_ioctl
 Date:   Thu, 14 Apr 2022 15:12:26 +0200
-Message-Id: <20220414110905.184485001@linuxfoundation.org>
+Message-Id: <20220414110845.807826907@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,40 +54,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit feb00b736af64875560f371fe7f58b0b7f239046 upstream.
+commit 3cbf0e392f173ba0ce425968c8374a6aa3e90f2e upstream.
 
-There is no reason to force readwrite access on TLV controls. It can be
-either read, write or both. This is further evidenced in code where it
-performs following checks:
-                if ((k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READ) && !sbe->get)
-                        return -EINVAL;
-                if ((k->access & SNDRV_CTL_ELEM_ACCESS_TLV_WRITE) && !sbe->put)
-                        return -EINVAL;
+Hulk Robot reported a KASAN report about use-after-free:
+ ==================================================================
+ BUG: KASAN: use-after-free in __list_del_entry_valid+0x13d/0x160
+ Read of size 8 at addr ffff888035e37d98 by task ubiattach/1385
+ [...]
+ Call Trace:
+  klist_dec_and_del+0xa7/0x4a0
+  klist_put+0xc7/0x1a0
+  device_del+0x4d4/0xed0
+  cdev_device_del+0x1a/0x80
+  ubi_attach_mtd_dev+0x2951/0x34b0 [ubi]
+  ctrl_cdev_ioctl+0x286/0x2f0 [ubi]
 
-Fixes: 1a3232d2f61d ("ASoC: topology: Add support for TLV bytes controls")
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220112170030.569712-3-amadeuszx.slawinski@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ Allocated by task 1414:
+  device_add+0x60a/0x18b0
+  cdev_device_add+0x103/0x170
+  ubi_create_volume+0x1118/0x1a10 [ubi]
+  ubi_cdev_ioctl+0xb7f/0x1ba0 [ubi]
+
+ Freed by task 1385:
+  cdev_device_del+0x1a/0x80
+  ubi_remove_volume+0x438/0x6c0 [ubi]
+  ubi_cdev_ioctl+0xbf4/0x1ba0 [ubi]
+ [...]
+ ==================================================================
+
+The lock held by ctrl_cdev_ioctl is ubi_devices_mutex, but the lock held
+by ubi_cdev_ioctl is ubi->device_mutex. Therefore, the two locks can be
+concurrent.
+
+ctrl_cdev_ioctl contains two operations: ubi_attach and ubi_detach.
+ubi_detach is bug-free because it uses reference counting to prevent
+concurrency. However, uif_init and uif_close in ubi_attach may race with
+ubi_cdev_ioctl.
+
+uif_init will race with ubi_cdev_ioctl as in the following stack.
+           cpu1                   cpu2                  cpu3
+_______________________|________________________|______________________
+ctrl_cdev_ioctl
+ ubi_attach_mtd_dev
+  uif_init
+                           ubi_cdev_ioctl
+                            ubi_create_volume
+                             cdev_device_add
+   ubi_add_volume
+   // sysfs exist
+   kill_volumes
+                                                    ubi_cdev_ioctl
+                                                     ubi_remove_volume
+                                                      cdev_device_del
+                                                       // first free
+    ubi_free_volume
+     cdev_del
+     // double free
+   cdev_device_del
+
+And uif_close will race with ubi_cdev_ioctl as in the following stack.
+           cpu1                   cpu2                  cpu3
+_______________________|________________________|______________________
+ctrl_cdev_ioctl
+ ubi_attach_mtd_dev
+  uif_init
+                           ubi_cdev_ioctl
+                            ubi_create_volume
+                             cdev_device_add
+  ubi_debugfs_init_dev
+  //error goto out_uif;
+  uif_close
+   kill_volumes
+                                                    ubi_cdev_ioctl
+                                                     ubi_remove_volume
+                                                      cdev_device_del
+                                                       // first free
+    ubi_free_volume
+    // double free
+
+The cause of this problem is that commit 714fb87e8bc0 make device
+"available" before it becomes accessible via sysfs. Therefore, we
+roll back the modification. We will fix the race condition between
+ubi device creation and udev by removing ubi_get_device in
+vol_attribute_show and dev_attribute_show.This avoids accessing
+uninitialized ubi_devices[ubi_num].
+
+ubi_get_device is used to prevent devices from being deleted during
+sysfs execution. However, now kernfs ensures that devices will not
+be deleted before all reference counting are released.
+The key process is shown in the following stack.
+
+device_del
+  device_remove_attrs
+    device_remove_groups
+      sysfs_remove_groups
+        sysfs_remove_group
+          remove_files
+            kernfs_remove_by_name
+              kernfs_remove_by_name_ns
+                __kernfs_remove
+                  kernfs_drain
+
+Fixes: 714fb87e8bc0 ("ubi: Fix race condition between ubi device creation and udev")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-topology.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mtd/ubi/build.c |    9 +--------
+ drivers/mtd/ubi/vmt.c   |    8 +-------
+ 2 files changed, 2 insertions(+), 15 deletions(-)
 
---- a/sound/soc/soc-topology.c
-+++ b/sound/soc/soc-topology.c
-@@ -587,7 +587,8 @@ static int soc_tplg_kcontrol_bind_io(str
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -363,9 +363,6 @@ static ssize_t dev_attribute_show(struct
+ 	 * we still can use 'ubi->ubi_num'.
+ 	 */
+ 	ubi = container_of(dev, struct ubi_device, dev);
+-	ubi = ubi_get_device(ubi->ubi_num);
+-	if (!ubi)
+-		return -ENODEV;
  
- 	if (le32_to_cpu(hdr->ops.info) == SND_SOC_TPLG_CTL_BYTES
- 		&& k->iface & SNDRV_CTL_ELEM_IFACE_MIXER
--		&& k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READWRITE
-+		&& (k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READ
-+		    || k->access & SNDRV_CTL_ELEM_ACCESS_TLV_WRITE)
- 		&& k->access & SNDRV_CTL_ELEM_ACCESS_TLV_CALLBACK) {
- 		struct soc_bytes_ext *sbe;
- 		struct snd_soc_tplg_bytes_control *be;
+ 	if (attr == &dev_eraseblock_size)
+ 		ret = sprintf(buf, "%d\n", ubi->leb_size);
+@@ -394,7 +391,6 @@ static ssize_t dev_attribute_show(struct
+ 	else
+ 		ret = -EINVAL;
+ 
+-	ubi_put_device(ubi);
+ 	return ret;
+ }
+ 
+@@ -969,9 +965,6 @@ int ubi_attach_mtd_dev(struct mtd_info *
+ 			goto out_detach;
+ 	}
+ 
+-	/* Make device "available" before it becomes accessible via sysfs */
+-	ubi_devices[ubi_num] = ubi;
+-
+ 	err = uif_init(ubi);
+ 	if (err)
+ 		goto out_detach;
+@@ -1016,6 +1009,7 @@ int ubi_attach_mtd_dev(struct mtd_info *
+ 	wake_up_process(ubi->bgt_thread);
+ 	spin_unlock(&ubi->wl_lock);
+ 
++	ubi_devices[ubi_num] = ubi;
+ 	ubi_notify_all(ubi, UBI_VOLUME_ADDED, NULL);
+ 	return ubi_num;
+ 
+@@ -1024,7 +1018,6 @@ out_debugfs:
+ out_uif:
+ 	uif_close(ubi);
+ out_detach:
+-	ubi_devices[ubi_num] = NULL;
+ 	ubi_wl_close(ubi);
+ 	ubi_free_internal_volumes(ubi);
+ 	vfree(ubi->vtbl);
+--- a/drivers/mtd/ubi/vmt.c
++++ b/drivers/mtd/ubi/vmt.c
+@@ -69,16 +69,11 @@ static ssize_t vol_attribute_show(struct
+ {
+ 	int ret;
+ 	struct ubi_volume *vol = container_of(dev, struct ubi_volume, dev);
+-	struct ubi_device *ubi;
+-
+-	ubi = ubi_get_device(vol->ubi->ubi_num);
+-	if (!ubi)
+-		return -ENODEV;
++	struct ubi_device *ubi = vol->ubi;
+ 
+ 	spin_lock(&ubi->volumes_lock);
+ 	if (!ubi->volumes[vol->vol_id]) {
+ 		spin_unlock(&ubi->volumes_lock);
+-		ubi_put_device(ubi);
+ 		return -ENODEV;
+ 	}
+ 	/* Take a reference to prevent volume removal */
+@@ -116,7 +111,6 @@ static ssize_t vol_attribute_show(struct
+ 	vol->ref_count -= 1;
+ 	ubi_assert(vol->ref_count >= 0);
+ 	spin_unlock(&ubi->volumes_lock);
+-	ubi_put_device(ubi);
+ 	return ret;
+ }
+ 
 
 
