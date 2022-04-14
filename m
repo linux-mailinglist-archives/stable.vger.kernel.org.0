@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FAB550157B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA20501452
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245245AbiDNNsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42932 "EHLO
+        id S245205AbiDNNsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343884AbiDNNj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B5E5D645;
-        Thu, 14 Apr 2022 06:35:06 -0700 (PDT)
+        with ESMTP id S1343937AbiDNNjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81B79A88BE;
+        Thu, 14 Apr 2022 06:35:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46E31B82941;
-        Thu, 14 Apr 2022 13:35:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB629C385A1;
-        Thu, 14 Apr 2022 13:35:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E48361D29;
+        Thu, 14 Apr 2022 13:35:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27E59C385A1;
+        Thu, 14 Apr 2022 13:35:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943304;
-        bh=emK4+PLGrhzElF/9OZuyNrv7Fd6uVJQ4VZjngjyI7kA=;
+        s=korg; t=1649943334;
+        bh=WBKT2YO2VHBVTL9dpFF9Dl4veiphWoqJ6kRBXpG2OVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PdBiqCc1BoYWZsFHZfznt4+mMy/4Evvc1eFXA0ilYPyo1TF4YdLRoGYxVi+t/cclu
-         5jwZaeSuK2YnYZm1nBhyIPg7ZsZhxmD0CJxIqCj8/sq/DuyYqRZLUTMi4Ilvvmn0PW
-         SqLrrnjHA4qaNh+7vPBev+03DDuWQZmC+gocf83s=
+        b=up41+eHf2Q4pQRjv34ANMTTAN1/j+HQhLypADt0Qcr/Ysor/2oxbK36JFksq7dLee
+         BlrGiMaWmgJgMZEA6ENJzVF7lWk3ULl1xh9WzNQRLHSLWDtRQhLngv/CHDpPc6TpMD
+         vAd/km9I32aKxz8ByE8HySkR8WHSUWNQGiw5sAao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Paukrt <tomaspaukrt@email.cz>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/475] crypto: mxs-dcp - Fix scatterlist processing
-Date:   Thu, 14 Apr 2022 15:07:55 +0200
-Message-Id: <20220414110857.672201877@linuxfoundation.org>
+Subject: [PATCH 5.4 091/475] spi: tegra114: Add missing IRQ check in tegra_spi_probe
+Date:   Thu, 14 Apr 2022 15:07:56 +0200
+Message-Id: <20220414110857.699899406@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,33 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Paukrt <tomaspaukrt@email.cz>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 28e9b6d8199a3f124682b143800c2dacdc3d70dd ]
+[ Upstream commit 4f92724d4b92c024e721063f520d66e11ca4b54b ]
 
-This patch fixes a bug in scatterlist processing that may cause incorrect AES block encryption/decryption.
+This func misses checking for platform_get_irq()'s call and may passes the
+negative error codes to request_threaded_irq(), which takes unsigned IRQ #,
+causing it to fail with -EINVAL, overriding an original error code.
+Stop calling request_threaded_irq() with invalid IRQ #s.
 
-Fixes: 2e6d793e1bf0 ("crypto: mxs-dcp - Use sg_mapping_iter to copy data")
-Signed-off-by: Tomas Paukrt <tomaspaukrt@email.cz>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: f333a331adfa ("spi/tegra114: add spi driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220128165238.25615-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/mxs-dcp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-tegra114.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
-index 547111079207..9443f31acd27 100644
---- a/drivers/crypto/mxs-dcp.c
-+++ b/drivers/crypto/mxs-dcp.c
-@@ -329,7 +329,7 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
- 		memset(key + AES_KEYSIZE_128, 0, AES_KEYSIZE_128);
- 	}
+diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
+index 594905bf89aa..3f7a64b2a5d0 100644
+--- a/drivers/spi/spi-tegra114.c
++++ b/drivers/spi/spi-tegra114.c
+@@ -1352,6 +1352,10 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 	tspi->phys = r->start;
  
--	for_each_sg(req->src, src, sg_nents(src), i) {
-+	for_each_sg(req->src, src, sg_nents(req->src), i) {
- 		src_buf = sg_virt(src);
- 		len = sg_dma_len(src);
- 		tlen += len;
+ 	spi_irq = platform_get_irq(pdev, 0);
++	if (spi_irq < 0) {
++		ret = spi_irq;
++		goto exit_free_master;
++	}
+ 	tspi->irq = spi_irq;
+ 
+ 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
 -- 
 2.34.1
 
