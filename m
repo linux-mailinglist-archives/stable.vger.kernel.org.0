@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4834500F53
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F84500F87
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240907AbiDNN0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:26:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49874 "EHLO
+        id S243352AbiDNNdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:33:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244345AbiDNNZR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:25:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D98F9D0EF;
-        Thu, 14 Apr 2022 06:19:42 -0700 (PDT)
+        with ESMTP id S244471AbiDNN1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:27:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882F7972E9;
+        Thu, 14 Apr 2022 06:20:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A61C3B82910;
-        Thu, 14 Apr 2022 13:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03B40C385A1;
-        Thu, 14 Apr 2022 13:19:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3FDF2B82910;
+        Thu, 14 Apr 2022 13:20:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0EEEC385A1;
+        Thu, 14 Apr 2022 13:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942380;
-        bh=ZjnIkTT+EfwJEUtR8/sFEfd5fpB4d2azg7CksWVUHrQ=;
+        s=korg; t=1649942411;
+        bh=3X5yPZmDQzoAnMRoFbTlEmaaQNUNd2P8pdHICpsssZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CRTEe2pDVVhbHwAl3JlM7mUBgfjCvW5MdiKZU9jxk+YcLjg4ddfm+BcgmqyT2MDfD
-         ZuFlWzGyPYaz/Tfp3uiVHYCHOoRoaZCkCUvGXzlflSRFeFoN23Rk/8y1xp8e0qLJ/F
-         JuAOg855EFTYE97vwmkt17vjQ5olYFyPIn/YG2kk=
+        b=MneeXJPOPqm9fY1rgf48Zdg0w5xVBckTSoyaTKvT5GPtDoDOVnhkzdKIgjNSlUI6b
+         UWp7fZBg1CABkygOKpXqp4H0/SUn3BLVUv6e+D7QWU/6o/QSD/AkIxmdn3wKHh9q7u
+         vZJ/rnZuBxmbIlAK4ml8ECS0wTxHEawgmIvnjJ7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 108/338] ASoC: fsi: Add check for clk_enable
-Date:   Thu, 14 Apr 2022 15:10:11 +0200
-Message-Id: <20220414110841.984812575@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 109/338] video: fbdev: omapfb: Add missing of_node_put() in dvic_probe_of
+Date:   Thu, 14 Apr 2022 15:10:12 +0200
+Message-Id: <20220414110842.012982380@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,58 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 405afed8a728f23cfaa02f75bbc8bdd6b7322123 ]
+[ Upstream commit a58c22cfbbf62fefca090334bbd35fd132e92a23 ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error
-if fails.
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fixes: ab6f6d85210c ("ASoC: fsi: add master clock control functions")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220302062844.46869-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f76ee892a99e ("omapfb: copy omapdss & displays for omapfb")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/fsi.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/omap2/omapfb/displays/connector-dvi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/sh/fsi.c b/sound/soc/sh/fsi.c
-index aa7e902f0c02..f486e2b2c540 100644
---- a/sound/soc/sh/fsi.c
-+++ b/sound/soc/sh/fsi.c
-@@ -816,14 +816,27 @@ static int fsi_clk_enable(struct device *dev,
- 			return ret;
- 		}
- 
--		clk_enable(clock->xck);
--		clk_enable(clock->ick);
--		clk_enable(clock->div);
-+		ret = clk_enable(clock->xck);
-+		if (ret)
-+			goto err;
-+		ret = clk_enable(clock->ick);
-+		if (ret)
-+			goto disable_xck;
-+		ret = clk_enable(clock->div);
-+		if (ret)
-+			goto disable_ick;
- 
- 		clock->count++;
- 	}
- 
- 	return ret;
-+
-+disable_ick:
-+	clk_disable(clock->ick);
-+disable_xck:
-+	clk_disable(clock->xck);
-+err:
-+	return ret;
- }
- 
- static int fsi_clk_disable(struct device *dev,
+diff --git a/drivers/video/fbdev/omap2/omapfb/displays/connector-dvi.c b/drivers/video/fbdev/omap2/omapfb/displays/connector-dvi.c
+index 06e1db34541e..41b0db0cc047 100644
+--- a/drivers/video/fbdev/omap2/omapfb/displays/connector-dvi.c
++++ b/drivers/video/fbdev/omap2/omapfb/displays/connector-dvi.c
+@@ -254,6 +254,7 @@ static int dvic_probe_of(struct platform_device *pdev)
+ 	adapter_node = of_parse_phandle(node, "ddc-i2c-bus", 0);
+ 	if (adapter_node) {
+ 		adapter = of_get_i2c_adapter_by_node(adapter_node);
++		of_node_put(adapter_node);
+ 		if (adapter == NULL) {
+ 			dev_err(&pdev->dev, "failed to parse ddc-i2c-bus\n");
+ 			omap_dss_put_device(ddata->in);
 -- 
 2.34.1
 
