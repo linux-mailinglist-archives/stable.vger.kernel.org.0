@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D73D50101C
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D75B50106F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344931AbiDNNtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46964 "EHLO
+        id S1344935AbiDNNtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344294AbiDNNkk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B88120;
-        Thu, 14 Apr 2022 06:38:15 -0700 (PDT)
+        with ESMTP id S1344295AbiDNNkl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A1F1C6;
+        Thu, 14 Apr 2022 06:38:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36118B828F4;
-        Thu, 14 Apr 2022 13:38:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9913BC385A9;
-        Thu, 14 Apr 2022 13:38:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5229F6190F;
+        Thu, 14 Apr 2022 13:38:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C137C385A1;
+        Thu, 14 Apr 2022 13:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943493;
-        bh=1r55jlbUFl9JkzOJgmReru9g+jlzcgu6Nv/zzdx1Izw=;
+        s=korg; t=1649943495;
+        bh=6i2pIc4DfBlAvUDdBVgV5ahqFbgGM70bfdwOdV3kkJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F96ScIs50jMdWjDOCdndqsKiW+rlFmnv3JorOwMQxLFQYk+NLlXDq7mja64pwTkI9
-         CIelWdqqIVxoATCXt2IZqGUq6tvIZxM1VHhSVVnJ6cCQKvCPguKh/mAPiYBnVDkQJm
-         MybAE/m3huftYbkxGrjprjW0GB/1P/iENZtCgJxE=
+        b=eVhfd/9tOD5faxh1JVw/4rk6EGeqWHgzEfdzB0qxqdB/DeMaaIkas6MxewOIGcuoL
+         FdEigILnm5X7usPIDl96+mrUWIgIQz+mdSXemotYwzQ6AAta7mgYAuSEnzbhPEGRrx
+         0T4YPYw3CSBbmRDLbfTOT1kElr4FFSnMVS3airb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 173/475] PCI: aardvark: Fix reading PCI_EXP_RTSTA_PME bit on emulated bridge
-Date:   Thu, 14 Apr 2022 15:09:18 +0200
-Message-Id: <20220414110859.977339270@linuxfoundation.org>
+Subject: [PATCH 5.4 174/475] power: supply: ab8500: Fix memory leak in ab8500_fg_sysfs_init
+Date:   Thu, 14 Apr 2022 15:09:19 +0200
+Message-Id: <20220414110900.005260227@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,50 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 735f5ae49e1b44742cc63ca9b5c1ffde3e94ba91 ]
+[ Upstream commit 6a4760463dbc6b603690938c468839985189ce0a ]
 
-The emulated bridge returns incorrect value for PCI_EXP_RTSTA register
-during readout in advk_pci_bridge_emul_pcie_conf_read() function: the
-correct bit is BIT(16), but we are setting BIT(23), because the code
-does
-  *value = (isr0 & PCIE_MSG_PM_PME_MASK) << 16
-where
-  PCIE_MSG_PM_PME_MASK
-is
-  BIT(7).
+kobject_init_and_add() takes reference even when it fails.
+According to the doc of kobject_init_and_add()：
 
-The code should probably have been something like
-  *value = (!!(isr0 & PCIE_MSG_PM_PME_MASK)) << 16,
-but we are better of using an if() and using the proper macro for this
-bit.
+   If this function returns an error, kobject_put() must be called to
+   properly clean up the memory associated with the object.
 
-Link: https://lore.kernel.org/r/20220110015018.26359-15-kabel@kernel.org
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fix memory leak by calling kobject_put().
+
+Fixes: 8c0984e5a753 ("power: move power supply drivers to power/supply")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 4 +++-
+ drivers/power/supply/ab8500_fg.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index d2f8cd3a9568..5958316651e4 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -835,7 +835,9 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
- 	case PCI_EXP_RTSTA: {
- 		u32 isr0 = advk_readl(pcie, PCIE_ISR0_REG);
- 		u32 msglog = advk_readl(pcie, PCIE_MSG_LOG_REG);
--		*value = (isr0 & PCIE_MSG_PM_PME_MASK) << 16 | (msglog >> 16);
-+		*value = msglog >> 16;
-+		if (isr0 & PCIE_MSG_PM_PME_MASK)
-+			*value |= PCI_EXP_RTSTA_PME;
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	}
+diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
+index 69452fc085b9..4c229e6fb750 100644
+--- a/drivers/power/supply/ab8500_fg.c
++++ b/drivers/power/supply/ab8500_fg.c
+@@ -2541,8 +2541,10 @@ static int ab8500_fg_sysfs_init(struct ab8500_fg *di)
+ 	ret = kobject_init_and_add(&di->fg_kobject,
+ 		&ab8500_fg_ktype,
+ 		NULL, "battery");
+-	if (ret < 0)
++	if (ret < 0) {
++		kobject_put(&di->fg_kobject);
+ 		dev_err(di->dev, "failed to create sysfs entry\n");
++	}
  
+ 	return ret;
+ }
 -- 
 2.34.1
 
