@@ -2,43 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0345012E7
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 977C2501057
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244767AbiDNNmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:42:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53498 "EHLO
+        id S239415AbiDNOFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:05:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343812AbiDNN36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B61EFB0A72;
-        Thu, 14 Apr 2022 06:25:25 -0700 (PDT)
+        with ESMTP id S1346977AbiDNN6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2066AB53FC;
+        Thu, 14 Apr 2022 06:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D561260BAF;
-        Thu, 14 Apr 2022 13:25:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4002C385A5;
-        Thu, 14 Apr 2022 13:25:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD49FB828F4;
+        Thu, 14 Apr 2022 13:48:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF17C385A1;
+        Thu, 14 Apr 2022 13:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942724;
-        bh=2qTjr38AEoK3qa67uWE4I50hnLN5R/4G4HuAPtQDisI=;
+        s=korg; t=1649944101;
+        bh=HTmVfr0Nd+j4vAn0uP6LhkggxBleFaQQfoRReiLyuFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E/ZiAAsJN1MfmLE/0QxkJ4w137f3D0BDSdhvUQ7MZNWsuMYRfF0iuO3/bJN3r4jHf
-         MNGe1hC0Y81Bu4zbxgoYXzogbMunhC9lrvdfXhPy36XofIWZqakhc3L6FA0ki9vNOf
-         cXcjCAaHuC0o84h07CqGIrYoljzS3r70QVQNIW4I=
+        b=nV19b1Rmvcgf/S2s548sP8ne1Ba1hFX722I5wRGbh8h9g4VYVBpFTeDSv4dMaqPOt
+         PySXufLfs1ClUilCaUCQDpxI2oCl8qZBYxOn295+W+zcni6YFKm/kG7fqz72TbfWUR
+         2xYRoWUDnjBPAvPWDeHKCVG2oA5w/xaihf9tGzU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.19 236/338] ubifs: setflags: Make dirtied_ino_d 8 bytes aligned
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 354/475] mm/memcontrol: return 1 from cgroup.memory __setup() handler
 Date:   Thu, 14 Apr 2022 15:12:19 +0200
-Message-Id: <20220414110845.605007779@linuxfoundation.org>
+Message-Id: <20220414110904.988533865@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +60,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 1b83ec057db16b4d0697dc21ef7a9743b6041f72 upstream.
+commit 460a79e18842caca6fa0c415de4a3ac1e671ac50 upstream.
 
-Make 'ui->data_len' aligned with 8 bytes before it is assigned to
-dirtied_ino_d. Since 8871d84c8f8b0c6b("ubifs: convert to fileattr")
-applied, 'setflags()' only affects regular files and directories, only
-xattr inode, symlink inode and special inode(pipe/char_dev/block_dev)
-have none- zero 'ui->data_len' field, so assertion
-'!(req->dirtied_ino_d & 7)' cannot fail in ubifs_budget_space().
-To avoid assertion fails in future evolution(eg. setflags can operate
-special inodes), it's better to make dirtied_ino_d 8 bytes aligned,
-after all aligned size is still zero for regular files.
+__setup() handlers should return 1 if the command line option is handled
+and 0 if not (or maybe never return 0; it just pollutes init's
+environment).
 
-Fixes: 1e51764a3c2ac05a ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+The only reason that this particular __setup handler does not pollute
+init's environment is that the setup string contains a '.', as in
+"cgroup.memory".  This causes init/main.c::unknown_boottoption() to
+consider it to be an "Unused module parameter" and ignore it.  (This is
+for parsing of loadable module parameters any time after kernel init.)
+Otherwise the string "cgroup.memory=whatever" would be added to init's
+environment strings.
+
+Instead of relying on this '.' quirk, just return 1 to indicate that the
+boot option has been handled.
+
+Note that there is no warning message if someone enters:
+	cgroup.memory=anything_invalid
+
+Link: https://lkml.kernel.org/r/20220222005811.10672-1-rdunlap@infradead.org
+Fixes: f7e1cb6ec51b0 ("mm: memcontrol: account socket memory in unified hierarchy memory controller")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/ioctl.c |    2 +-
+ mm/memcontrol.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ubifs/ioctl.c
-+++ b/fs/ubifs/ioctl.c
-@@ -113,7 +113,7 @@ static int setflags(struct inode *inode,
- 	struct ubifs_inode *ui = ubifs_inode(inode);
- 	struct ubifs_info *c = inode->i_sb->s_fs_info;
- 	struct ubifs_budget_req req = { .dirtied_ino = 1,
--					.dirtied_ino_d = ui->data_len };
-+			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -6973,7 +6973,7 @@ static int __init cgroup_memory(char *s)
+ 		if (!strcmp(token, "nokmem"))
+ 			cgroup_memory_nokmem = true;
+ 	}
+-	return 0;
++	return 1;
+ }
+ __setup("cgroup.memory=", cgroup_memory);
  
- 	err = ubifs_budget_space(c, &req);
- 	if (err)
 
 
