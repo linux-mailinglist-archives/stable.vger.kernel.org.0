@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBBCD501816
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9BBA50180F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350241AbiDNQBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 12:01:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52290 "EHLO
+        id S245664AbiDNQAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 12:00:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352566AbiDNPRj (ORCPT
+        with ESMTP id S1352584AbiDNPRj (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 11:17:39 -0400
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B3EFCBAB95;
-        Thu, 14 Apr 2022 08:01:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E82DAE1272;
+        Thu, 14 Apr 2022 08:02:01 -0700 (PDT)
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 408E1139F;
-        Thu, 14 Apr 2022 08:01:31 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B5CF9139F;
+        Thu, 14 Apr 2022 08:02:01 -0700 (PDT)
 Received: from [192.168.122.164] (U203867.austin.arm.com [10.118.30.26])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1F9633F5A1;
-        Thu, 14 Apr 2022 08:01:31 -0700 (PDT)
-Message-ID: <d5ad3e6f-769d-05d8-3e94-21ec8b5cb3ba@arm.com>
-Date:   Thu, 14 Apr 2022 10:01:30 -0500
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 921B63F5A1;
+        Thu, 14 Apr 2022 08:02:01 -0700 (PDT)
+Message-ID: <2c2ecd15-72c7-ced9-8092-eb375a426cd8@arm.com>
+Date:   Thu, 14 Apr 2022 10:02:00 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-Subject: Re: [PATCH 5.4 222/475] net: bcmgenet: Use stronger register
+Subject: Re: [PATCH 4.19 155/338] net: bcmgenet: Use stronger register
  read/writes to assure ordering
 Content-Language: en-US
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,10 +34,10 @@ Cc:     stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-References: <20220414110855.141582785@linuxfoundation.org>
- <20220414110901.335632939@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
+ <20220414110843.312864762@linuxfoundation.org>
 From:   Jeremy Linton <jeremy.linton@arm.com>
-In-Reply-To: <20220414110901.335632939@linuxfoundation.org>
+In-Reply-To: <20220414110843.312864762@linuxfoundation.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-9.4 required=5.0 tests=BAYES_00,NICE_REPLY_A,
@@ -51,8 +51,8 @@ X-Mailing-List: stable@vger.kernel.org
 
 Hi,
 
-I would kill this commit since the final conclusion was that underlying 
-problem was a compiler bug (which has now been fixed).
+I would kill this commit too, since the final conclusion was that 
+underlying problem was a compiler bug (which has now been fixed).
 
 Thanks,
 
@@ -145,10 +145,10 @@ On 4/14/22 08:10, Greg Kroah-Hartman wrote:
 >   1 file changed, 2 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-> index 2affdddc12bf..7a8a53807909 100644
+> index d4be107ea4cd..c78b687a1443 100644
 > --- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
 > +++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-> @@ -80,7 +80,7 @@ static inline void bcmgenet_writel(u32 value, void __iomem *offset)
+> @@ -83,7 +83,7 @@ static inline void bcmgenet_writel(u32 value, void __iomem *offset)
 >   	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
 >   		__raw_writel(value, offset);
 >   	else
@@ -157,7 +157,7 @@ On 4/14/22 08:10, Greg Kroah-Hartman wrote:
 >   }
 >   
 >   static inline u32 bcmgenet_readl(void __iomem *offset)
-> @@ -88,7 +88,7 @@ static inline u32 bcmgenet_readl(void __iomem *offset)
+> @@ -91,7 +91,7 @@ static inline u32 bcmgenet_readl(void __iomem *offset)
 >   	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
 >   		return __raw_readl(offset);
 >   	else
