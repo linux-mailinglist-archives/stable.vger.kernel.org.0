@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBB55010EF
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB24C5010E0
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344785AbiDNNvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:51:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44024 "EHLO
+        id S1343743AbiDNNtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343974AbiDNNjc (ORCPT
+        with ESMTP id S1343986AbiDNNjc (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18EB9AE41;
-        Thu, 14 Apr 2022 06:36:07 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B00B9AE4E;
+        Thu, 14 Apr 2022 06:36:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BB24B82983;
-        Thu, 14 Apr 2022 13:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C529AC385A1;
-        Thu, 14 Apr 2022 13:36:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA69B61D70;
+        Thu, 14 Apr 2022 13:36:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD21AC385A1;
+        Thu, 14 Apr 2022 13:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943365;
-        bh=Jc+JzbY33FN9h8pyG2ldw03fJ9OJVncRfFwxDY8PMaw=;
+        s=korg; t=1649943376;
+        bh=qSw7DYtG+YVEuSfus7DwJeE3m1HmD3NbCUvmP6ECxEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILmo5si+nPxm8iMToXevG9F11VBVIDYxtkgpkB48rugb2TBd3Es83UOpx1azDYrsN
-         tVCU+NTFrRnLfuIEsbJ/WM7dMYZxJ8vVX3Hq83K8JCtMbtOYB3hl+hVMVeBabvHBeJ
-         nekHRGgDL5ag+aIOFyMNStQ9Ugj66gU/+IBcvwpg=
+        b=g+TDN3Y/oaCB2TLJKt5DRvZSr51Rgdjl+YBI9EleYAbyWyIMibueX/pMxFcNVou8z
+         88AbfGgLugC+EiU0POSyk904Ci4SfQCACt3urhbSL+PXIqx3uwESaZVsUItz+BOUWg
+         g/0si9SzCo1MBG9WlxDUWwyszLQeKGU2cy9Fhq4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "kernelci.org bot" <bot@kernelci.org>,
-        Muhammad Usama Anjum <usama.anjum@collabora.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/475] selftests/x86: Add validity check and allow field splitting
-Date:   Thu, 14 Apr 2022 15:07:57 +0200
-Message-Id: <20220414110857.733001879@linuxfoundation.org>
+Subject: [PATCH 5.4 093/475] audit: log AUDIT_TIME_* records only from rules
+Date:   Thu, 14 Apr 2022 15:07:58 +0200
+Message-Id: <20220414110857.760358381@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -55,38 +54,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muhammad Usama Anjum <usama.anjum@collabora.com>
+From: Richard Guy Briggs <rgb@redhat.com>
 
-[ Upstream commit b06e15ebd5bfb670f93c7f11a29b8299c1178bc6 ]
+[ Upstream commit 272ceeaea355214b301530e262a0df8600bfca95 ]
 
-Add check to test if CC has a string. CC can have multiple sub-strings
-like "ccache gcc". Erorr pops up if it is treated as single string and
-double quotes are used around it. This can be fixed by removing the
-quotes and not treating CC as a single string.
+AUDIT_TIME_* events are generated when there are syscall rules present
+that are not related to time keeping.  This will produce noisy log
+entries that could flood the logs and hide events we really care about.
 
-Fixes: e9886ace222e ("selftests, x86: Rework x86 target architecture detection")
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Signed-off-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lkml.kernel.org/r/20220214184109.3739179-2-usama.anjum@collabora.com
+Rather than immediately produce the AUDIT_TIME_* records, store the data
+in the context and log it at syscall exit time respecting the filter
+rules.
+
+Note: This eats the audit_buffer, unlike any others in show_special().
+
+Please see https://bugzilla.redhat.com/show_bug.cgi?id=1991919
+
+Fixes: 7e8eda734d30 ("ntp: Audit NTP parameters adjustment")
+Fixes: 2d87a0674bd6 ("timekeeping: Audit clock adjustments")
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+[PM: fixed style/whitespace issues]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/x86/check_cc.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/audit.h   |  4 +++
+ kernel/auditsc.c | 87 +++++++++++++++++++++++++++++++++++++-----------
+ 2 files changed, 71 insertions(+), 20 deletions(-)
 
-diff --git a/tools/testing/selftests/x86/check_cc.sh b/tools/testing/selftests/x86/check_cc.sh
-index 3e2089c8cf54..8c669c0d662e 100755
---- a/tools/testing/selftests/x86/check_cc.sh
-+++ b/tools/testing/selftests/x86/check_cc.sh
-@@ -7,7 +7,7 @@ CC="$1"
- TESTPROG="$2"
- shift 2
+diff --git a/kernel/audit.h b/kernel/audit.h
+index ddc22878433d..fed8e93ce169 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -191,6 +191,10 @@ struct audit_context {
+ 		struct {
+ 			char			*name;
+ 		} module;
++		struct {
++			struct audit_ntp_data	ntp_data;
++			struct timespec64	tk_injoffset;
++		} time;
+ 	};
+ 	int fds[2];
+ 	struct audit_proctitle proctitle;
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index d33c5dccde1c..e8e90c0c4936 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1185,6 +1185,53 @@ static void audit_log_fcaps(struct audit_buffer *ab, struct audit_names *name)
+ 			 from_kuid(&init_user_ns, name->fcap.rootid));
+ }
  
--if "$CC" -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
-+if [ -n "$CC" ] && $CC -o /dev/null "$TESTPROG" -O0 "$@" 2>/dev/null; then
-     echo 1
- else
-     echo 0
++static void audit_log_time(struct audit_context *context, struct audit_buffer **ab)
++{
++	const struct audit_ntp_data *ntp = &context->time.ntp_data;
++	const struct timespec64 *tk = &context->time.tk_injoffset;
++	static const char * const ntp_name[] = {
++		"offset",
++		"freq",
++		"status",
++		"tai",
++		"tick",
++		"adjust",
++	};
++	int type;
++
++	if (context->type == AUDIT_TIME_ADJNTPVAL) {
++		for (type = 0; type < AUDIT_NTP_NVALS; type++) {
++			if (ntp->vals[type].newval != ntp->vals[type].oldval) {
++				if (!*ab) {
++					*ab = audit_log_start(context,
++							GFP_KERNEL,
++							AUDIT_TIME_ADJNTPVAL);
++					if (!*ab)
++						return;
++				}
++				audit_log_format(*ab, "op=%s old=%lli new=%lli",
++						 ntp_name[type],
++						 ntp->vals[type].oldval,
++						 ntp->vals[type].newval);
++				audit_log_end(*ab);
++				*ab = NULL;
++			}
++		}
++	}
++	if (tk->tv_sec != 0 || tk->tv_nsec != 0) {
++		if (!*ab) {
++			*ab = audit_log_start(context, GFP_KERNEL,
++					      AUDIT_TIME_INJOFFSET);
++			if (!*ab)
++				return;
++		}
++		audit_log_format(*ab, "sec=%lli nsec=%li",
++				 (long long)tk->tv_sec, tk->tv_nsec);
++		audit_log_end(*ab);
++		*ab = NULL;
++	}
++}
++
+ static void show_special(struct audit_context *context, int *call_panic)
+ {
+ 	struct audit_buffer *ab;
+@@ -1290,6 +1337,11 @@ static void show_special(struct audit_context *context, int *call_panic)
+ 			audit_log_format(ab, "(null)");
+ 
+ 		break;
++	case AUDIT_TIME_ADJNTPVAL:
++	case AUDIT_TIME_INJOFFSET:
++		/* this call deviates from the rest, eating the buffer */
++		audit_log_time(context, &ab);
++		break;
+ 	}
+ 	audit_log_end(ab);
+ }
+@@ -2518,31 +2570,26 @@ void __audit_fanotify(unsigned int response)
+ 
+ void __audit_tk_injoffset(struct timespec64 offset)
+ {
+-	audit_log(audit_context(), GFP_KERNEL, AUDIT_TIME_INJOFFSET,
+-		  "sec=%lli nsec=%li",
+-		  (long long)offset.tv_sec, offset.tv_nsec);
+-}
+-
+-static void audit_log_ntp_val(const struct audit_ntp_data *ad,
+-			      const char *op, enum audit_ntp_type type)
+-{
+-	const struct audit_ntp_val *val = &ad->vals[type];
+-
+-	if (val->newval == val->oldval)
+-		return;
++	struct audit_context *context = audit_context();
+ 
+-	audit_log(audit_context(), GFP_KERNEL, AUDIT_TIME_ADJNTPVAL,
+-		  "op=%s old=%lli new=%lli", op, val->oldval, val->newval);
++	/* only set type if not already set by NTP */
++	if (!context->type)
++		context->type = AUDIT_TIME_INJOFFSET;
++	memcpy(&context->time.tk_injoffset, &offset, sizeof(offset));
+ }
+ 
+ void __audit_ntp_log(const struct audit_ntp_data *ad)
+ {
+-	audit_log_ntp_val(ad, "offset",	AUDIT_NTP_OFFSET);
+-	audit_log_ntp_val(ad, "freq",	AUDIT_NTP_FREQ);
+-	audit_log_ntp_val(ad, "status",	AUDIT_NTP_STATUS);
+-	audit_log_ntp_val(ad, "tai",	AUDIT_NTP_TAI);
+-	audit_log_ntp_val(ad, "tick",	AUDIT_NTP_TICK);
+-	audit_log_ntp_val(ad, "adjust",	AUDIT_NTP_ADJUST);
++	struct audit_context *context = audit_context();
++	int type;
++
++	for (type = 0; type < AUDIT_NTP_NVALS; type++)
++		if (ad->vals[type].newval != ad->vals[type].oldval) {
++			/* unconditionally set type, overwriting TK */
++			context->type = AUDIT_TIME_ADJNTPVAL;
++			memcpy(&context->time.ntp_data, ad, sizeof(*ad));
++			break;
++		}
+ }
+ 
+ static void audit_log_task(struct audit_buffer *ab)
 -- 
 2.34.1
 
