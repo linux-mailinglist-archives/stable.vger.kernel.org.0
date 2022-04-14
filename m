@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76832501271
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D04355012A6
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:09:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241452AbiDNOCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:02:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43648 "EHLO
+        id S244827AbiDNNgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:36:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345446AbiDNNxG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:53:06 -0400
+        with ESMTP id S1343720AbiDNN3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 085AD3B281;
-        Thu, 14 Apr 2022 06:44:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91752A0BC7;
+        Thu, 14 Apr 2022 06:25:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 973D1B828E6;
-        Thu, 14 Apr 2022 13:44:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0332EC385A5;
-        Thu, 14 Apr 2022 13:44:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E7ACB82941;
+        Thu, 14 Apr 2022 13:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE58C385A5;
+        Thu, 14 Apr 2022 13:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943881;
-        bh=gsRuMsGjfxkdnBd1z0/hEsRw9INfyXVH42wKTTpLjRQ=;
+        s=korg; t=1649942715;
+        bh=EneP4hTlaxSisnsqP5+1NY8vgL3FcGbPdBJQRJWluzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lh7lDO985bsY1Llh3w8p45zpV/gSXdxukZpwUaBW4tMZaTnfQZFfHbA4NMXmnNEI9
-         UBk3TfkrzbuHrqaUFyz2rn6/TBjvXaN7ATuIvebE/O8jiNPxMlGZlf6aS5kO5HuY0w
-         xBVXjHEOW+vt7i3h9txu1xi8xRrufg2QsYFD6fO8=
+        b=xB93maJAuB5xTLZUfNnqqRbaN2ve0SjGDksHPsDt1S03tnaPKXpP+e6yeo6kMbFp6
+         TR1QvHvEOoVHr0ehP4L9MAwPN5+i/ajD5J4fd27CieLgr8gkHN0i5YGqdEm01/Iw8x
+         SxMbZVF1raH+muqegnbDSo5Ab+0E+MvhEaijvjDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 316/475] scsi: qla2xxx: Fix warning for missing error code
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 198/338] PM: core: keep irq flags in device_pm_check_callbacks()
 Date:   Thu, 14 Apr 2022 15:11:41 +0200
-Message-Id: <20220414110903.932718606@linuxfoundation.org>
+Message-Id: <20220414110844.531560699@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +55,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 14cb838d245ae0d523b2f7804af5a02c22e79f5a upstream.
+[ Upstream commit 524bb1da785a7ae43dd413cd392b5071c6c367f8 ]
 
-Fix smatch-reported warning message:
+The function device_pm_check_callbacks() can be called under the spin
+lock (in the reported case it happens from genpd_add_device() ->
+dev_pm_domain_set(), when the genpd uses spinlocks rather than mutexes.
 
-drivers/scsi/qla2xxx/qla_target.c:3324 qlt_xmit_response() warn: missing error
-code 'res'
+However this function uncoditionally uses spin_lock_irq() /
+spin_unlock_irq(), thus not preserving the CPU flags. Use the
+irqsave/irqrestore instead.
 
-Link: https://lore.kernel.org/r/20220110050218.3958-12-njavali@marvell.com
-Fixes: 4a8f71014b4d ("scsi: qla2xxx: Fix unmap of already freed sgl")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The backtrace for the reference:
+[    2.752010] ------------[ cut here ]------------
+[    2.756769] raw_local_irq_restore() called with IRQs enabled
+[    2.762596] WARNING: CPU: 4 PID: 1 at kernel/locking/irqflag-debug.c:10 warn_bogus_irq_restore+0x34/0x50
+[    2.772338] Modules linked in:
+[    2.775487] CPU: 4 PID: 1 Comm: swapper/0 Tainted: G S                5.17.0-rc6-00384-ge330d0d82eff-dirty #684
+[    2.781384] Freeing initrd memory: 46024K
+[    2.785839] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    2.785841] pc : warn_bogus_irq_restore+0x34/0x50
+[    2.785844] lr : warn_bogus_irq_restore+0x34/0x50
+[    2.785846] sp : ffff80000805b7d0
+[    2.785847] x29: ffff80000805b7d0 x28: 0000000000000000 x27: 0000000000000002
+[    2.785850] x26: ffffd40e80930b18 x25: ffff7ee2329192b8 x24: ffff7edfc9f60800
+[    2.785853] x23: ffffd40e80930b18 x22: ffffd40e80930d30 x21: ffff7edfc0dffa00
+[    2.785856] x20: ffff7edfc09e3768 x19: 0000000000000000 x18: ffffffffffffffff
+[    2.845775] x17: 6572206f74206465 x16: 6c696166203a3030 x15: ffff80008805b4f7
+[    2.853108] x14: 0000000000000000 x13: ffffd40e809550b0 x12: 00000000000003d8
+[    2.860441] x11: 0000000000000148 x10: ffffd40e809550b0 x9 : ffffd40e809550b0
+[    2.867774] x8 : 00000000ffffefff x7 : ffffd40e809ad0b0 x6 : ffffd40e809ad0b0
+[    2.875107] x5 : 000000000000bff4 x4 : 0000000000000000 x3 : 0000000000000000
+[    2.882440] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff7edfc03a8000
+[    2.889774] Call trace:
+[    2.892290]  warn_bogus_irq_restore+0x34/0x50
+[    2.896770]  _raw_spin_unlock_irqrestore+0x94/0xa0
+[    2.901690]  genpd_unlock_spin+0x20/0x30
+[    2.905724]  genpd_add_device+0x100/0x2d0
+[    2.909850]  __genpd_dev_pm_attach+0xa8/0x23c
+[    2.914329]  genpd_dev_pm_attach_by_id+0xc4/0x190
+[    2.919167]  genpd_dev_pm_attach_by_name+0x3c/0xd0
+[    2.924086]  dev_pm_domain_attach_by_name+0x24/0x30
+[    2.929102]  psci_dt_attach_cpu+0x24/0x90
+[    2.933230]  psci_cpuidle_probe+0x2d4/0x46c
+[    2.937534]  platform_probe+0x68/0xe0
+[    2.941304]  really_probe.part.0+0x9c/0x2fc
+[    2.945605]  __driver_probe_device+0x98/0x144
+[    2.950085]  driver_probe_device+0x44/0x15c
+[    2.954385]  __device_attach_driver+0xb8/0x120
+[    2.958950]  bus_for_each_drv+0x78/0xd0
+[    2.962896]  __device_attach+0xd8/0x180
+[    2.966843]  device_initial_probe+0x14/0x20
+[    2.971144]  bus_probe_device+0x9c/0xa4
+[    2.975092]  device_add+0x380/0x88c
+[    2.978679]  platform_device_add+0x114/0x234
+[    2.983067]  platform_device_register_full+0x100/0x190
+[    2.988344]  psci_idle_init+0x6c/0xb0
+[    2.992113]  do_one_initcall+0x74/0x3a0
+[    2.996060]  kernel_init_freeable+0x2fc/0x384
+[    3.000543]  kernel_init+0x28/0x130
+[    3.004132]  ret_from_fork+0x10/0x20
+[    3.007817] irq event stamp: 319826
+[    3.011404] hardirqs last  enabled at (319825): [<ffffd40e7eda0268>] __up_console_sem+0x78/0x84
+[    3.020332] hardirqs last disabled at (319826): [<ffffd40e7fd6d9d8>] el1_dbg+0x24/0x8c
+[    3.028458] softirqs last  enabled at (318312): [<ffffd40e7ec90410>] _stext+0x410/0x588
+[    3.036678] softirqs last disabled at (318299): [<ffffd40e7ed1bf68>] __irq_exit_rcu+0x158/0x174
+[    3.045607] ---[ end trace 0000000000000000 ]---
+
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/base/power/main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -3251,6 +3251,7 @@ int qlt_xmit_response(struct qla_tgt_cmd
- 			"RESET-RSP online/active/old-count/new-count = %d/%d/%d/%d.\n",
- 			vha->flags.online, qla2x00_reset_active(vha),
- 			cmd->reset_count, qpair->chip_reset);
-+		res = 0;
- 		goto out_unmap_unlock;
- 	}
+diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
+index da413b95afab..c0284c8db19b 100644
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -2145,7 +2145,9 @@ static bool pm_ops_is_empty(const struct dev_pm_ops *ops)
  
+ void device_pm_check_callbacks(struct device *dev)
+ {
+-	spin_lock_irq(&dev->power.lock);
++	unsigned long flags;
++
++	spin_lock_irqsave(&dev->power.lock, flags);
+ 	dev->power.no_pm_callbacks =
+ 		(!dev->bus || (pm_ops_is_empty(dev->bus->pm) &&
+ 		 !dev->bus->suspend && !dev->bus->resume)) &&
+@@ -2154,7 +2156,7 @@ void device_pm_check_callbacks(struct device *dev)
+ 		(!dev->pm_domain || pm_ops_is_empty(&dev->pm_domain->ops)) &&
+ 		(!dev->driver || (pm_ops_is_empty(dev->driver->pm) &&
+ 		 !dev->driver->suspend && !dev->driver->resume));
+-	spin_unlock_irq(&dev->power.lock);
++	spin_unlock_irqrestore(&dev->power.lock, flags);
+ }
+ 
+ bool dev_pm_smart_suspend_and_suspended(struct device *dev)
+-- 
+2.34.1
+
 
 
