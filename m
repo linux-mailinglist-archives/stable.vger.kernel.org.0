@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E42500EE8
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42A97500E93
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243189AbiDNNWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:22:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38846 "EHLO
+        id S243804AbiDNNTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:19:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243954AbiDNNWI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:22:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4ADE972FE;
-        Thu, 14 Apr 2022 06:17:37 -0700 (PDT)
+        with ESMTP id S243832AbiDNNSK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:18:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C7E491557;
+        Thu, 14 Apr 2022 06:15:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82A14B82968;
-        Thu, 14 Apr 2022 13:17:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F03E4C385A1;
-        Thu, 14 Apr 2022 13:17:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD4A8612ED;
+        Thu, 14 Apr 2022 13:15:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6B13C385A1;
+        Thu, 14 Apr 2022 13:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942255;
-        bh=KLGo8g7kILFDsYSGimZs1OgY+bChucqqpbIHm8CuvKE=;
+        s=korg; t=1649942144;
+        bh=EOdu4CEmkcnDwJMBk6OsqstsD3MrKYOf+7r24Eg9bds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4Xylr/PCZ4z5CLxdUU0zczSw03f4GN2IsRwWS+IuaSo20Yuib3anyRpx+5zRdl+T
-         IeBh8XqcZ08rfyObsmDMGzXKga1jk7hCE/xL5JV38DOE1HdGNUimF//DP6z+gLUqTW
-         Q1MsGUJzlzM4wChKGNhVj4vNyB8NJGU65BDrjkPM=
+        b=id5oyzun+923AKQQxrf4QcTk2Cq+ipNTqQF2mmYIyoRf2XUIBfbuaqhlejP0cV9FX
+         1O6HrnG4AMx2KRFWmWIoyvDrCD3VGyNZUe0RUJQjWVXx6RrCO8cvP6Q+GRnk7PMYAb
+         33h/UOKGLgdeY0ckTppIis0hQhk4Tto4uT9yeRcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 4.19 030/338] f2fs: fix to unlock page correctly in error path of is_alive()
-Date:   Thu, 14 Apr 2022 15:08:53 +0200
-Message-Id: <20220414110839.749999630@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sam Protsenko <semen.protsenko@linaro.org>,
+        Chanho Park <chanho61.park@samsung.com>
+Subject: [PATCH 4.19 031/338] pinctrl: samsung: drop pin banks references on error paths
+Date:   Thu, 14 Apr 2022 15:08:54 +0200
+Message-Id: <20220414110839.778126605@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -53,43 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 6d18762ed5cd549fde74fd0e05d4d87bac5a3beb upstream.
+commit 50ebd19e3585b9792e994cfa8cbee8947fe06371 upstream.
 
-As Pavel Machek reported in below link [1]:
+The driver iterates over its devicetree children with
+for_each_child_of_node() and stores for later found node pointer.  This
+has to be put in error paths to avoid leak during re-probing.
 
-After commit 77900c45ee5c ("f2fs: fix to do sanity check in is_alive()"),
-node page should be unlock via calling f2fs_put_page() in the error path
-of is_alive(), otherwise, f2fs may hang when it tries to lock the node
-page, fix it.
-
-[1] https://lore.kernel.org/stable/20220124203637.GA19321@duo.ucw.cz/
-
-Fixes: 77900c45ee5c ("f2fs: fix to do sanity check in is_alive()")
+Fixes: ab663789d697 ("pinctrl: samsung: Match pin banks with their device nodes")
 Cc: <stable@vger.kernel.org>
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reviewed-by: Chanho Park <chanho61.park@samsung.com>
+Link: https://lore.kernel.org/r/20220111201426.326777-2-krzysztof.kozlowski@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/gc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pinctrl/samsung/pinctrl-samsung.c |   30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
 
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -589,8 +589,10 @@ static bool is_alive(struct f2fs_sb_info
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+--- a/drivers/pinctrl/samsung/pinctrl-samsung.c
++++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
+@@ -1002,6 +1002,16 @@ samsung_pinctrl_get_soc_data_for_of_alia
+ 	return &(of_data->ctrl[id]);
+ }
+ 
++static void samsung_banks_of_node_put(struct samsung_pinctrl_drv_data *d)
++{
++	struct samsung_pin_bank *bank;
++	unsigned int i;
++
++	bank = d->pin_banks;
++	for (i = 0; i < d->nr_banks; ++i, ++bank)
++		of_node_put(bank->of_node);
++}
++
+ /* retrieve the soc specific data */
+ static const struct samsung_pin_ctrl *
+ samsung_pinctrl_get_soc_data(struct samsung_pinctrl_drv_data *d,
+@@ -1116,19 +1126,19 @@ static int samsung_pinctrl_probe(struct
+ 	if (ctrl->retention_data) {
+ 		drvdata->retention_ctrl = ctrl->retention_data->init(drvdata,
+ 							  ctrl->retention_data);
+-		if (IS_ERR(drvdata->retention_ctrl))
+-			return PTR_ERR(drvdata->retention_ctrl);
++		if (IS_ERR(drvdata->retention_ctrl)) {
++			ret = PTR_ERR(drvdata->retention_ctrl);
++			goto err_put_banks;
++		}
  	}
  
--	if (f2fs_check_nid_range(sbi, dni->ino))
-+	if (f2fs_check_nid_range(sbi, dni->ino)) {
-+		f2fs_put_page(node_page, 1);
- 		return false;
-+	}
+ 	ret = samsung_pinctrl_register(pdev, drvdata);
+ 	if (ret)
+-		return ret;
++		goto err_put_banks;
  
- 	*nofs = ofs_of_node(node_page);
- 	source_blkaddr = datablock_addr(NULL, node_page, ofs_in_node);
+ 	ret = samsung_gpiolib_register(pdev, drvdata);
+-	if (ret) {
+-		samsung_pinctrl_unregister(pdev, drvdata);
+-		return ret;
+-	}
++	if (ret)
++		goto err_unregister;
+ 
+ 	if (ctrl->eint_gpio_init)
+ 		ctrl->eint_gpio_init(drvdata);
+@@ -1138,6 +1148,12 @@ static int samsung_pinctrl_probe(struct
+ 	platform_set_drvdata(pdev, drvdata);
+ 
+ 	return 0;
++
++err_unregister:
++	samsung_pinctrl_unregister(pdev, drvdata);
++err_put_banks:
++	samsung_banks_of_node_put(drvdata);
++	return ret;
+ }
+ 
+ /**
 
 
