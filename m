@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C32501367
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8553F5011C0
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239652AbiDNNrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35576 "EHLO
+        id S243025AbiDNNrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:47:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245743AbiDNNi6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:38:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774A5A776F;
-        Thu, 14 Apr 2022 06:34:08 -0700 (PDT)
+        with ESMTP id S245754AbiDNNjC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A84A8889;
+        Thu, 14 Apr 2022 06:34:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12B8761D2D;
-        Thu, 14 Apr 2022 13:34:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18FAFC385A5;
-        Thu, 14 Apr 2022 13:34:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98EB9B82968;
+        Thu, 14 Apr 2022 13:34:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1FE2C385A9;
+        Thu, 14 Apr 2022 13:34:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943247;
-        bh=LkG14/5++LS3YAYaWOkPhw6jaMaYk60qm+svSCsFjIc=;
+        s=korg; t=1649943250;
+        bh=MYXKRL6zh+SFfUS482sv3pgx8X+jfhG4h+6uNd7kH6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+NKELI2Arfz+qI3nSXhNDOqbeubv+HK1mY/ZfnaVkUATfjnECFazvxJUXvAS42jw
-         TG8BgRZSgfgBk+ZJFDIBgE/YQ6iOKNGLCfXzH88zSVa5M/rP5fCoHKPpAsITPRsUmQ
-         sFyrNUIiORvI8yYSGe5ESpzoyhdVXK2sEfyEXPqc=
+        b=E7hpBONlnMDwBZ8/aGYycDAQzScXqwh+B3nf7C2t4RDiSycXumOHFqIDVt2lgJYV1
+         Vmqi1ahbP37fe/kbfuDPvWsFUf67zlszAcb8qGKUnoy4nALk33eSPzCIWT5XHbu2HG
+         tW2Z2bCRssEtaVO0xssa16plHe8rdBBLp6nJRYYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Hector Martin <marcan@marcan.st>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hector Martin <marcan@marcan.st>, Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.4 085/475] brcmfmac: pcie: Replace brcmf_pcie_copy_mem_todev with memcpy_toio
-Date:   Thu, 14 Apr 2022 15:07:50 +0200
-Message-Id: <20220414110857.532255593@linuxfoundation.org>
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.4 086/475] brcmfmac: pcie: Fix crashes due to early IRQs
+Date:   Thu, 14 Apr 2022 15:07:51 +0200
+Message-Id: <20220414110857.560093571@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -57,106 +58,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hector Martin <marcan@marcan.st>
 
-commit 9466987f246758eb7e9071ae58005253f631271e upstream.
+commit b50255c83b914defd61a57fbc81d452334b63f4c upstream.
 
-The alignment check was wrong (e.g. & 4 instead of & 3), and the logic
-was also inefficient if the length was not a multiple of 4, since it
-would needlessly fall back to copying the entire buffer bytewise.
-
-We already have a perfectly good memcpy_toio function, so just call that
-instead of rolling our own copy logic here. brcmf_pcie_init_ringbuffers
-was already using it anyway.
+The driver was enabling IRQs before the message processing was
+initialized. This could cause IRQs to come in too early and crash the
+driver. Instead, move the IRQ enable and hostready to a bus preinit
+function, at which point everything is properly initialized.
 
 Fixes: 9e37f045d5e7 ("brcmfmac: Adding PCIe bus layer support.")
 Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Hector Martin <marcan@marcan.st>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220131160713.245637-6-marcan@marcan.st
+Link: https://lore.kernel.org/r/20220131160713.245637-7-marcan@marcan.st
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c |   48 +---------------
- 1 file changed, 4 insertions(+), 44 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
 --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
 +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -12,6 +12,7 @@
- #include <linux/interrupt.h>
- #include <linux/bcma/bcma.h>
- #include <linux/sched.h>
-+#include <linux/io.h>
- #include <asm/unaligned.h>
- 
- #include <soc.h>
-@@ -445,47 +446,6 @@ brcmf_pcie_write_ram32(struct brcmf_pcie
- 
- 
- static void
--brcmf_pcie_copy_mem_todev(struct brcmf_pciedev_info *devinfo, u32 mem_offset,
--			  void *srcaddr, u32 len)
--{
--	void __iomem *address = devinfo->tcm + mem_offset;
--	__le32 *src32;
--	__le16 *src16;
--	u8 *src8;
--
--	if (((ulong)address & 4) || ((ulong)srcaddr & 4) || (len & 4)) {
--		if (((ulong)address & 2) || ((ulong)srcaddr & 2) || (len & 2)) {
--			src8 = (u8 *)srcaddr;
--			while (len) {
--				iowrite8(*src8, address);
--				address++;
--				src8++;
--				len--;
--			}
--		} else {
--			len = len / 2;
--			src16 = (__le16 *)srcaddr;
--			while (len) {
--				iowrite16(le16_to_cpu(*src16), address);
--				address += 2;
--				src16++;
--				len--;
--			}
--		}
--	} else {
--		len = len / 4;
--		src32 = (__le32 *)srcaddr;
--		while (len) {
--			iowrite32(le32_to_cpu(*src32), address);
--			address += 4;
--			src32++;
--			len--;
--		}
--	}
--}
--
--
--static void
- brcmf_pcie_copy_dev_tomem(struct brcmf_pciedev_info *devinfo, u32 mem_offset,
- 			  void *dstaddr, u32 len)
+@@ -1306,6 +1306,18 @@ static void brcmf_pcie_down(struct devic
  {
-@@ -1561,8 +1521,8 @@ static int brcmf_pcie_download_fw_nvram(
- 		return err;
+ }
  
- 	brcmf_dbg(PCIE, "Download FW %s\n", devinfo->fw_name);
--	brcmf_pcie_copy_mem_todev(devinfo, devinfo->ci->rambase,
--				  (void *)fw->data, fw->size);
-+	memcpy_toio(devinfo->tcm + devinfo->ci->rambase,
-+		    (void *)fw->data, fw->size);
++static int brcmf_pcie_preinit(struct device *dev)
++{
++	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
++	struct brcmf_pciedev *buspub = bus_if->bus_priv.pcie;
++
++	brcmf_dbg(PCIE, "Enter\n");
++
++	brcmf_pcie_intr_enable(buspub->devinfo);
++	brcmf_pcie_hostready(buspub->devinfo);
++
++	return 0;
++}
  
- 	resetintr = get_unaligned_le32(fw->data);
- 	release_firmware(fw);
-@@ -1576,7 +1536,7 @@ static int brcmf_pcie_download_fw_nvram(
- 		brcmf_dbg(PCIE, "Download NVRAM %s\n", devinfo->nvram_name);
- 		address = devinfo->ci->rambase + devinfo->ci->ramsize -
- 			  nvram_len;
--		brcmf_pcie_copy_mem_todev(devinfo, address, nvram, nvram_len);
-+		memcpy_toio(devinfo->tcm + address, nvram, nvram_len);
- 		brcmf_fw_nvram_free(nvram);
- 	} else {
- 		brcmf_dbg(PCIE, "No matching NVRAM file found %s\n",
+ static int brcmf_pcie_tx(struct device *dev, struct sk_buff *skb)
+ {
+@@ -1414,6 +1426,7 @@ static int brcmf_pcie_reset(struct devic
+ }
+ 
+ static const struct brcmf_bus_ops brcmf_pcie_bus_ops = {
++	.preinit = brcmf_pcie_preinit,
+ 	.txdata = brcmf_pcie_tx,
+ 	.stop = brcmf_pcie_down,
+ 	.txctl = brcmf_pcie_tx_ctlpkt,
+@@ -1786,9 +1799,6 @@ static void brcmf_pcie_setup(struct devi
+ 
+ 	init_waitqueue_head(&devinfo->mbdata_resp_wait);
+ 
+-	brcmf_pcie_intr_enable(devinfo);
+-	brcmf_pcie_hostready(devinfo);
+-
+ 	ret = brcmf_attach(&devinfo->pdev->dev);
+ 	if (ret)
+ 		goto fail;
 
 
