@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00671501372
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A329E501393
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244638AbiDNNhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:37:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48380 "EHLO
+        id S1345694AbiDNNyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244857AbiDNN2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:11 -0400
+        with ESMTP id S1345218AbiDNNpb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20112A6E19;
-        Thu, 14 Apr 2022 06:21:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB8E2DE0;
+        Thu, 14 Apr 2022 06:43:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B304760BAF;
-        Thu, 14 Apr 2022 13:21:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C75EFC385A1;
-        Thu, 14 Apr 2022 13:21:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE25261D29;
+        Thu, 14 Apr 2022 13:43:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF5CFC385AA;
+        Thu, 14 Apr 2022 13:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942463;
-        bh=h6oQkcpqY19ND5YQnkdbuJPchEgvOcBITGhiT6Rppqs=;
+        s=korg; t=1649943785;
+        bh=Imipji81g7O1K1+tD6sk4irrm6qC8K168k7Lr8UyD5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/tbZaKNEPHWHhygz0NU94Ts5LE06bDoViE+6HDqDlJDYr/aX4hEpRA1U1Eyzm8rJ
-         m0W8rdw/6tT+ocY744FWoP2Gh/FDxqmItBwny/6/3Zk5e0pckaI+Q7yH9VbIRNb59g
-         nOYdRT5TzEIEOwYPl5dChqhj5f9XdCwcjJQLOVI4=
+        b=qdHqdgFCjPbtS7sdTDdD3pOA+bkWWTeuq3+b9ZRSuNHDcO8dzltJu1/zIlUpWRQTm
+         QXtyJp244dDBDUGqIBGXr71b0yLNCcL569MYbMptAvYVFqTYY2DEOZHYyp8irzsLSG
+         MjZmV8s67+sThe6zIxLBSiWkXTHeeFzo+Pt/GGsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Petr Vorel <petr.vorel@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/338] power: supply: wm8350-power: Add missing free in free_charger_irq
-Date:   Thu, 14 Apr 2022 15:10:47 +0200
-Message-Id: <20220414110843.004518241@linuxfoundation.org>
+Subject: [PATCH 5.4 263/475] clk: qcom: gcc-msm8994: Fix gpll4 width
+Date:   Thu, 14 Apr 2022 15:10:48 +0200
+Message-Id: <20220414110902.468516536@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 6dee930f6f6776d1e5a7edf542c6863b47d9f078 ]
+[ Upstream commit 71021db1c532c2545ae53b9ee85b37b7154f51d4 ]
 
-In free_charger_irq(), there is no free for 'WM8350_IRQ_CHG_FAST_RDY'.
-Therefore, it should be better to add it in order to avoid the memory leak.
+The gpll4 postdiv is actually a div4, so make sure that Linux is aware of
+this.
 
-Fixes: 14431aa0c5a4 ("power_supply: Add support for WM8350 PMU")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+This fixes the following error messages:
+
+ mmc1: Card appears overclocked; req 200000000 Hz, actual 343999999 Hz
+ mmc1: Card appears overclocked; req 400000000 Hz, actual 687999999 Hz
+
+Fixes: aec89f78cf01 ("clk: qcom: Add support for msm8994 global clock controller")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20220319174940.341137-1-konrad.dybcio@somainline.org
+Tested-by: Petr Vorel <petr.vorel@gmail.com>
+Reviewed-by: Petr Vorel <petr.vorel@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/wm8350_power.c | 1 +
+ drivers/clk/qcom/gcc-msm8994.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/wm8350_power.c b/drivers/power/supply/wm8350_power.c
-index 33683b8477d2..4fa42d4a8a40 100644
---- a/drivers/power/supply/wm8350_power.c
-+++ b/drivers/power/supply/wm8350_power.c
-@@ -527,6 +527,7 @@ static void free_charger_irq(struct wm8350 *wm8350)
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
- 	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
+diff --git a/drivers/clk/qcom/gcc-msm8994.c b/drivers/clk/qcom/gcc-msm8994.c
+index b7fc8c7ba195..14f0d5d84080 100644
+--- a/drivers/clk/qcom/gcc-msm8994.c
++++ b/drivers/clk/qcom/gcc-msm8994.c
+@@ -107,6 +107,7 @@ static struct clk_alpha_pll gpll4_early = {
+ 
+ static struct clk_alpha_pll_postdiv gpll4 = {
+ 	.offset = 0x1dc0,
++	.width = 4,
+ 	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
+ 	.clkr.hw.init = &(struct clk_init_data)
+ 	{
 -- 
 2.34.1
 
