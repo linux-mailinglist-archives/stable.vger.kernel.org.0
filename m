@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0B35014DE
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:33:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D73D50101C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344886AbiDNNtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46950 "EHLO
+        id S1344931AbiDNNtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344286AbiDNNkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:37 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5603D120;
-        Thu, 14 Apr 2022 06:38:13 -0700 (PDT)
+        with ESMTP id S1344294AbiDNNkk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B88120;
+        Thu, 14 Apr 2022 06:38:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C43D6CE296C;
-        Thu, 14 Apr 2022 13:38:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A59C385A1;
-        Thu, 14 Apr 2022 13:38:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 36118B828F4;
+        Thu, 14 Apr 2022 13:38:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9913BC385A9;
+        Thu, 14 Apr 2022 13:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943490;
-        bh=aBLnrYbFg0SEzV9XqSQqHdOnr+QHRmjllQIhQ/14OPk=;
+        s=korg; t=1649943493;
+        bh=1r55jlbUFl9JkzOJgmReru9g+jlzcgu6Nv/zzdx1Izw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EtWjaql7171t0YQRxBnMbw7uhmdiuY/9OZ+08kwV8GVOvQl8VQvoc4UA2GiCm1zhv
-         m4j5MRxZajG/9PXm7FaiGKuf48ll8M/yooCtM7pTOG85mN7gmlklD0JecobCO9FIos
-         gOAxK1y7NM8fT/R0CplRLOoTcgqzTFN65FHfuIUM=
+        b=F96ScIs50jMdWjDOCdndqsKiW+rlFmnv3JorOwMQxLFQYk+NLlXDq7mja64pwTkI9
+         CIelWdqqIVxoATCXt2IZqGUq6tvIZxM1VHhSVVnJ6cCQKvCPguKh/mAPiYBnVDkQJm
+         MybAE/m3huftYbkxGrjprjW0GB/1P/iENZtCgJxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Waldekranz <tobias@waldekranz.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 172/475] net: dsa: mv88e6xxx: Enable port policy support on 6097
-Date:   Thu, 14 Apr 2022 15:09:17 +0200
-Message-Id: <20220414110859.950098375@linuxfoundation.org>
+Subject: [PATCH 5.4 173/475] PCI: aardvark: Fix reading PCI_EXP_RTSTA_PME bit on emulated bridge
+Date:   Thu, 14 Apr 2022 15:09:18 +0200
+Message-Id: <20220414110859.977339270@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,33 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Waldekranz <tobias@waldekranz.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 585d42bb57bb358d48906660a8de273b078810b1 ]
+[ Upstream commit 735f5ae49e1b44742cc63ca9b5c1ffde3e94ba91 ]
 
-This chip has support for the same per-port policy actions found in
-later versions of LinkStreet devices.
+The emulated bridge returns incorrect value for PCI_EXP_RTSTA register
+during readout in advk_pci_bridge_emul_pcie_conf_read() function: the
+correct bit is BIT(16), but we are setting BIT(23), because the code
+does
+  *value = (isr0 & PCIE_MSG_PM_PME_MASK) << 16
+where
+  PCIE_MSG_PM_PME_MASK
+is
+  BIT(7).
 
-Fixes: f3a2cd326e44 ("net: dsa: mv88e6xxx: introduce .port_set_policy")
-Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The code should probably have been something like
+  *value = (!!(isr0 & PCIE_MSG_PM_PME_MASK)) << 16,
+but we are better of using an if() and using the proper macro for this
+bit.
+
+Link: https://lore.kernel.org/r/20220110015018.26359-15-kabel@kernel.org
+Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/controller/pci-aardvark.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 40b105daaf9e..87d28ef82559 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -3062,6 +3062,7 @@ static const struct mv88e6xxx_ops mv88e6097_ops = {
- 	.port_set_duplex = mv88e6xxx_port_set_duplex,
- 	.port_set_speed = mv88e6185_port_set_speed,
- 	.port_tag_remap = mv88e6095_port_tag_remap,
-+	.port_set_policy = mv88e6352_port_set_policy,
- 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
- 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
- 	.port_set_ether_type = mv88e6351_port_set_ether_type,
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index d2f8cd3a9568..5958316651e4 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -835,7 +835,9 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
+ 	case PCI_EXP_RTSTA: {
+ 		u32 isr0 = advk_readl(pcie, PCIE_ISR0_REG);
+ 		u32 msglog = advk_readl(pcie, PCIE_MSG_LOG_REG);
+-		*value = (isr0 & PCIE_MSG_PM_PME_MASK) << 16 | (msglog >> 16);
++		*value = msglog >> 16;
++		if (isr0 & PCIE_MSG_PM_PME_MASK)
++			*value |= PCI_EXP_RTSTA_PME;
+ 		return PCI_BRIDGE_EMUL_HANDLED;
+ 	}
+ 
 -- 
 2.34.1
 
