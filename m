@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F782501025
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89CFA501424
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244647AbiDNNfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:35:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57176 "EHLO
+        id S244854AbiDNNgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:36:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343603AbiDNN3l (ORCPT
+        with ESMTP id S1343611AbiDNN3l (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3BE49F3A8;
-        Thu, 14 Apr 2022 06:24:54 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 925D59F6C1;
+        Thu, 14 Apr 2022 06:24:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A6B1619EF;
-        Thu, 14 Apr 2022 13:24:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B69EC385A5;
-        Thu, 14 Apr 2022 13:24:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F079A61B20;
+        Thu, 14 Apr 2022 13:24:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D302C385A1;
+        Thu, 14 Apr 2022 13:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942693;
-        bh=+1Z4arYE7iHdVl5xJrT/gpT0RJg+EwjdT39ymULlnc4=;
+        s=korg; t=1649942696;
+        bh=lw5UyGMX3eE9b/Atcp9+zvrS8ntRqRwxCOGfBukoTeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftSVzpXFh9yNed3RimOSAElGmQn5JtKVWtMej3SQDN65ofl9VIiI44a6O6BKk/oEj
-         guJXEsHFgOv5DYho5GIi111NtS5PwfFIYbJ2ZGf3kQ+X5SpwRIC1W9oxvIH2uph1i0
-         S8wJWdyRmExWsL+pSEx/iIPPYCo5u6yVSvlm1GZc=
+        b=fUi6qkUFB+6vutP9f8pacOAwlfAATzIhIGFPqiQw0pLDhEW8V5hdYHFfSVZU5ev46
+         XWX8slEz29qkqwEEG0gXz0AQtUwMpDc2P64dR9sBYXdKb0B0d1BzFx8nBY1YUYCAG2
+         R8EKdiB0+aIyZEMoMDnTt75acM694/aiy+9muYlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
+        Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 226/338] scsi: qla2xxx: Suppress a kernel complaint in qla_create_qpair()
-Date:   Thu, 14 Apr 2022 15:12:09 +0200
-Message-Id: <20220414110845.324335418@linuxfoundation.org>
+Subject: [PATCH 4.19 227/338] scsi: qla2xxx: Fix incorrect reporting of task management failure
+Date:   Thu, 14 Apr 2022 15:12:10 +0200
+Message-Id: <20220414110845.352651502@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -56,64 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit a60447e7d451df42c7bde43af53b34f10f34f469 upstream.
+commit 58ca5999e0367d131de82a75257fbfd5aed0195d upstream.
 
-[   12.323788] BUG: using smp_processor_id() in preemptible [00000000] code: systemd-udevd/1020
-[   12.332297] caller is qla2xxx_create_qpair+0x32a/0x5d0 [qla2xxx]
-[   12.338417] CPU: 7 PID: 1020 Comm: systemd-udevd Tainted: G          I      --------- ---  5.14.0-29.el9.x86_64 #1
-[   12.348827] Hardware name: Dell Inc. PowerEdge R610/0F0XJ6, BIOS 6.6.0 05/22/2018
-[   12.356356] Call Trace:
-[   12.358821]  dump_stack_lvl+0x34/0x44
-[   12.362514]  check_preemption_disabled+0xd9/0xe0
-[   12.367164]  qla2xxx_create_qpair+0x32a/0x5d0 [qla2xxx]
-[   12.372481]  qla2x00_probe_one+0xa3a/0x1b80 [qla2xxx]
-[   12.377617]  ? _raw_spin_lock_irqsave+0x19/0x40
-[   12.384284]  local_pci_probe+0x42/0x80
-[   12.390162]  ? pci_match_device+0xd7/0x110
-[   12.396366]  pci_device_probe+0xfd/0x1b0
-[   12.402372]  really_probe+0x1e7/0x3e0
-[   12.408114]  __driver_probe_device+0xfe/0x180
-[   12.414544]  driver_probe_device+0x1e/0x90
-[   12.420685]  __driver_attach+0xc0/0x1c0
-[   12.426536]  ? __device_attach_driver+0xe0/0xe0
-[   12.433061]  ? __device_attach_driver+0xe0/0xe0
-[   12.439538]  bus_for_each_dev+0x78/0xc0
-[   12.445294]  bus_add_driver+0x12b/0x1e0
-[   12.451021]  driver_register+0x8f/0xe0
-[   12.456631]  ? 0xffffffffc07bc000
-[   12.461773]  qla2x00_module_init+0x1be/0x229 [qla2xxx]
-[   12.468776]  do_one_initcall+0x44/0x200
-[   12.474401]  ? load_module+0xad3/0xba0
-[   12.479908]  ? kmem_cache_alloc_trace+0x45/0x410
-[   12.486268]  do_init_module+0x5c/0x280
-[   12.491730]  __do_sys_init_module+0x12e/0x1b0
-[   12.497785]  do_syscall_64+0x3b/0x90
-[   12.503029]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   12.509764] RIP: 0033:0x7f554f73ab2e
+User experienced no task management error while target device is responding
+with error. The RSP_CODE field in the status IOCB is in little endian.
+Driver assumes it's big endian and it picked up erroneous data.
 
-Link: https://lore.kernel.org/r/20220110050218.3958-15-njavali@marvell.com
+Convert the data back to big endian as is on the wire.
+
+Link: https://lore.kernel.org/r/20220310092604.22950-2-njavali@marvell.com
+Fixes: faef62d13463 ("[SCSI] qla2xxx: Fix Task Management command asynchronous handling")
 Cc: stable@vger.kernel.org
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_isr.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -8717,7 +8717,7 @@ struct qla_qpair *qla2xxx_create_qpair(s
- 		qpair->rsp->req = qpair->req;
- 		qpair->rsp->qpair = qpair;
- 		/* init qpair to this cpu. Will adjust at run time. */
--		qla_cpu_update(qpair, smp_processor_id());
-+		qla_cpu_update(qpair, raw_smp_processor_id());
- 
- 		if (IS_T10_PI_CAPABLE(ha) && ql2xenabledif) {
- 			if (ha->fw_attributes & BIT_4)
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -1819,6 +1819,7 @@ qla24xx_tm_iocb_entry(scsi_qla_host_t *v
+ 		iocb->u.tmf.data = QLA_FUNCTION_FAILED;
+ 	} else if ((le16_to_cpu(sts->scsi_status) &
+ 	    SS_RESPONSE_INFO_LEN_VALID)) {
++		host_to_fcp_swap(sts->data, sizeof(sts->data));
+ 		if (le32_to_cpu(sts->rsp_data_len) < 4) {
+ 			ql_log(ql_log_warn, fcport->vha, 0x503b,
+ 			    "Async-%s error - hdl=%x not enough response(%d).\n",
 
 
