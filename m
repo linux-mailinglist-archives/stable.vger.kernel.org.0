@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA87501270
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:08:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D755013B8
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244876AbiDNNg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:36:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56790 "EHLO
+        id S1347544AbiDNODv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:03:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343594AbiDNN3j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:39 -0400
+        with ESMTP id S1346217AbiDNN4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:56:05 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04AA39E9D5;
-        Thu, 14 Apr 2022 06:24:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD9565A098;
+        Thu, 14 Apr 2022 06:46:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A18CBB82983;
-        Thu, 14 Apr 2022 13:24:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00189C385A5;
-        Thu, 14 Apr 2022 13:24:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B357B828E6;
+        Thu, 14 Apr 2022 13:46:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9548EC385A1;
+        Thu, 14 Apr 2022 13:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942688;
-        bh=JSZWGaDDLQfuTSHDyFBGMcjYqYdEW8j/2u00b9MsXxQ=;
+        s=korg; t=1649943962;
+        bh=kaBfcwaEPG0w9QfQXaAFjfZgMRuMBTfVid4mHf1EyPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVPvlvUFr4BCPjdM3emyGn9fB6aUc3w/d/e4BJIjkx1jIw/ZvyfKvccsLedlaE7a1
-         N9fQwYI/c5h9XLeH+zGH8ftnmxnYc3IEzVkkxU5kAkrsL8uvFzSeY3CoBHVB8XXwOR
-         nsY6rIfeIAsqd5Ow7zJengesH/L6kchex9FZswmo=
+        b=blR3CNzJC63HQzp/ZWy8zJENaJ51f5/nYKuPp+j6lQu4Ut0mrFaUkWMD5OhRKsmx7
+         vBwxwJFe7eOcufu/t5UBKUXBBAPN3HhBQH4lvYrLVDwzugEFBdqxBSs2kbzeuPW/zD
+         6mLcRZtlDJuoxfp6oLDzv27yneV+dZ/Ar6QfMS6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 224/338] scsi: qla2xxx: Fix warning for missing error code
-Date:   Thu, 14 Apr 2022 15:12:07 +0200
-Message-Id: <20220414110845.268097507@linuxfoundation.org>
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.4 343/475] net: hns3: fix software vlan talbe of vlan 0 inconsistent with hardware
+Date:   Thu, 14 Apr 2022 15:12:08 +0200
+Message-Id: <20220414110904.681017496@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nilesh Javali <njavali@marvell.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit 14cb838d245ae0d523b2f7804af5a02c22e79f5a upstream.
+commit 7ed258f12ec5ce855f15cdfb5710361dc82fe899 upstream.
 
-Fix smatch-reported warning message:
+When user delete vlan 0, as driver will not delete vlan 0 for hardware in
+function hclge_set_vlan_filter_hw(), so vlan 0 in software vlan talbe should
+not be deleted.
 
-drivers/scsi/qla2xxx/qla_target.c:3324 qlt_xmit_response() warn: missing error
-code 'res'
-
-Link: https://lore.kernel.org/r/20220110050218.3958-12-njavali@marvell.com
-Fixes: 4a8f71014b4d ("scsi: qla2xxx: Fix unmap of already freed sgl")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: fe4144d47eef ("net: hns3: sync VLAN filter entries when kill VLAN ID failed")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -3216,6 +3216,7 @@ int qlt_xmit_response(struct qla_tgt_cmd
- 			"RESET-RSP online/active/old-count/new-count = %d/%d/%d/%d.\n",
- 			vha->flags.online, qla2x00_reset_active(vha),
- 			cmd->reset_count, qpair->chip_reset);
-+		res = 0;
- 		goto out_unmap_unlock;
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -8344,11 +8344,11 @@ int hclge_set_vlan_filter(struct hnae3_h
  	}
  
+ 	if (!ret) {
+-		if (is_kill)
+-			hclge_rm_vport_vlan_table(vport, vlan_id, false);
+-		else
++		if (!is_kill)
+ 			hclge_add_vport_vlan_table(vport, vlan_id,
+ 						   writen_to_tbl);
++		else if (is_kill && vlan_id != 0)
++			hclge_rm_vport_vlan_table(vport, vlan_id, false);
+ 	} else if (is_kill) {
+ 		/* when remove hw vlan filter failed, record the vlan id,
+ 		 * and try to remove it from hw later, to be consistence
 
 
