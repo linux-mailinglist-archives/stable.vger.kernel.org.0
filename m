@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D4EF5011E3
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1087250140F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244904AbiDNNnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56930 "EHLO
+        id S236537AbiDNOEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:04:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344030AbiDNNaQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 340A592D25;
-        Thu, 14 Apr 2022 06:26:31 -0700 (PDT)
+        with ESMTP id S1346620AbiDNN5q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ECF926577;
+        Thu, 14 Apr 2022 06:47:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2F06619DA;
-        Thu, 14 Apr 2022 13:26:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0043C385A5;
-        Thu, 14 Apr 2022 13:26:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 177E8B82894;
+        Thu, 14 Apr 2022 13:47:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C485C385A5;
+        Thu, 14 Apr 2022 13:47:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942790;
-        bh=IID6F9Ke4JqC9L6vJlF0luQUGFuNBiHgFrpgIgXi2P0=;
+        s=korg; t=1649944064;
+        bh=KC1vkIe7jvHl9OTz+6oYFQVHa32go+6X5E64lly1HI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yH9L/Skr92sk+y+EuI6XOzeNeAXOAg9Mlqnf8OmHhO2puMTnI1e74UcYO1DeIzsKL
-         L3MfZzJELPVjI8iZD3oW9jyV9mez8406pHcuB65b+ty+k3v1Ds8MK11DAtQf8oo+Ty
-         XKHPPensmCzi1SnodN+ZAnzJm/fD8x596+orpznM=
+        b=ItZdMsfialzQvDy7btXGSAky1Yi5fYgABc+fpQzisvTJT0pt8R87xMIVBz++hU+O1
+         r6oYiyZU8vx8FwNNwBdVlf7h8LYXrrs5R/obLWQ3mfSEgUEu5X5WxyL0wv8rzeAyt+
+         MDqU4d4QJA5NjYcY5xSqGHHSONu8i3dA165TcJwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Yang Guang <yang.guang5@zte.com.cn>,
+        David Yang <davidcomponentone@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 262/338] ath5k: fix OOB in ath5k_eeprom_read_pcal_info_5111
+Subject: [PATCH 5.4 380/475] scsi: bfa: Replace snprintf() with sysfs_emit()
 Date:   Thu, 14 Apr 2022 15:12:45 +0200
-Message-Id: <20220414110846.346265747@linuxfoundation.org>
+Message-Id: <20220414110905.706906682@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,85 +56,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Yang Guang <yang.guang5@zte.com.cn>
 
-[ Upstream commit 564d4eceb97eaf381dd6ef6470b06377bb50c95a ]
+[ Upstream commit 2245ea91fd3a04cafbe2f54911432a8657528c3b ]
 
-The bug was found during fuzzing. Stacktrace locates it in
-ath5k_eeprom_convert_pcal_info_5111.
-When none of the curve is selected in the loop, idx can go
-up to AR5K_EEPROM_N_PD_CURVES. The line makes pd out of bound.
-pd = &chinfo[pier].pd_curves[idx];
+coccinelle report:
+./drivers/scsi/bfa/bfad_attr.c:908:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:860:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:888:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:853:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:808:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:728:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:822:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:927:9-17:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:900:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:874:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:714:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/scsi/bfa/bfad_attr.c:839:8-16:
+WARNING: use scnprintf or sprintf
 
-There are many OOB writes using pd later in the code. So I
-added a sanity check for idx. Checks for other loops involving
-AR5K_EEPROM_N_PD_CURVES are not needed as the loop index is not
-used outside the loops.
+Use sysfs_emit() instead of scnprintf() or sprintf().
 
-The patch is NOT tested with real device.
-
-The following is the fuzzing report
-
-BUG: KASAN: slab-out-of-bounds in ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
-Write of size 1 at addr ffff8880174a4d60 by task modprobe/214
-
-CPU: 0 PID: 214 Comm: modprobe Not tainted 5.6.0 #1
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- __kasan_report.cold+0x37/0x7c
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- kasan_report+0xe/0x20
- ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? ath5k_pci_eeprom_read+0x228/0x3c0 [ath5k]
- ath5k_eeprom_init+0x2513/0x6290 [ath5k]
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? usleep_range+0xb8/0x100
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_read_pcal_info_2413+0x2f20/0x2f20 [ath5k]
- ath5k_hw_init+0xb60/0x1970 [ath5k]
- ath5k_init_ah+0x6fe/0x2530 [ath5k]
- ? kasprintf+0xa6/0xe0
- ? ath5k_stop+0x140/0x140 [ath5k]
- ? _dev_notice+0xf6/0xf6
- ? apic_timer_interrupt+0xa/0x20
- ath5k_pci_probe.cold+0x29a/0x3d6 [ath5k]
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- ? mutex_lock+0x89/0xd0
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- local_pci_probe+0xd3/0x160
- pci_device_probe+0x23f/0x3e0
- ? pci_device_remove+0x280/0x280
- ? pci_device_remove+0x280/0x280
- really_probe+0x209/0x5d0
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/YckvDdj3mtCkDRIt@a-10-27-26-18.dynapool.vpn.nyu.edu
+Link: https://lore.kernel.org/r/def83ff75faec64ba592b867a8499b1367bae303.1643181468.git.yang.guang5@zte.com.cn
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
+Signed-off-by: David Yang <davidcomponentone@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath5k/eeprom.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/bfa/bfad_attr.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath5k/eeprom.c b/drivers/net/wireless/ath/ath5k/eeprom.c
-index 94d34ee02265..01163b333945 100644
---- a/drivers/net/wireless/ath/ath5k/eeprom.c
-+++ b/drivers/net/wireless/ath/ath5k/eeprom.c
-@@ -746,6 +746,9 @@ ath5k_eeprom_convert_pcal_info_5111(struct ath5k_hw *ah, int mode,
- 			}
- 		}
+diff --git a/drivers/scsi/bfa/bfad_attr.c b/drivers/scsi/bfa/bfad_attr.c
+index fbfce02e5b93..c285f401ff7b 100644
+--- a/drivers/scsi/bfa/bfad_attr.c
++++ b/drivers/scsi/bfa/bfad_attr.c
+@@ -711,7 +711,7 @@ bfad_im_serial_num_show(struct device *dev, struct device_attribute *attr,
+ 	char serial_num[BFA_ADAPTER_SERIAL_NUM_LEN];
  
-+		if (idx == AR5K_EEPROM_N_PD_CURVES)
-+			goto err_out;
-+
- 		ee->ee_pd_gains[mode] = 1;
+ 	bfa_get_adapter_serial_num(&bfad->bfa, serial_num);
+-	return snprintf(buf, PAGE_SIZE, "%s\n", serial_num);
++	return sysfs_emit(buf, "%s\n", serial_num);
+ }
  
- 		pd = &chinfo[pier].pd_curves[idx];
+ static ssize_t
+@@ -725,7 +725,7 @@ bfad_im_model_show(struct device *dev, struct device_attribute *attr,
+ 	char model[BFA_ADAPTER_MODEL_NAME_LEN];
+ 
+ 	bfa_get_adapter_model(&bfad->bfa, model);
+-	return snprintf(buf, PAGE_SIZE, "%s\n", model);
++	return sysfs_emit(buf, "%s\n", model);
+ }
+ 
+ static ssize_t
+@@ -805,7 +805,7 @@ bfad_im_model_desc_show(struct device *dev, struct device_attribute *attr,
+ 		snprintf(model_descr, BFA_ADAPTER_MODEL_DESCR_LEN,
+ 			"Invalid Model");
+ 
+-	return snprintf(buf, PAGE_SIZE, "%s\n", model_descr);
++	return sysfs_emit(buf, "%s\n", model_descr);
+ }
+ 
+ static ssize_t
+@@ -819,7 +819,7 @@ bfad_im_node_name_show(struct device *dev, struct device_attribute *attr,
+ 	u64        nwwn;
+ 
+ 	nwwn = bfa_fcs_lport_get_nwwn(port->fcs_port);
+-	return snprintf(buf, PAGE_SIZE, "0x%llx\n", cpu_to_be64(nwwn));
++	return sysfs_emit(buf, "0x%llx\n", cpu_to_be64(nwwn));
+ }
+ 
+ static ssize_t
+@@ -836,7 +836,7 @@ bfad_im_symbolic_name_show(struct device *dev, struct device_attribute *attr,
+ 	bfa_fcs_lport_get_attr(&bfad->bfa_fcs.fabric.bport, &port_attr);
+ 	strlcpy(symname, port_attr.port_cfg.sym_name.symname,
+ 			BFA_SYMNAME_MAXLEN);
+-	return snprintf(buf, PAGE_SIZE, "%s\n", symname);
++	return sysfs_emit(buf, "%s\n", symname);
+ }
+ 
+ static ssize_t
+@@ -850,14 +850,14 @@ bfad_im_hw_version_show(struct device *dev, struct device_attribute *attr,
+ 	char hw_ver[BFA_VERSION_LEN];
+ 
+ 	bfa_get_pci_chip_rev(&bfad->bfa, hw_ver);
+-	return snprintf(buf, PAGE_SIZE, "%s\n", hw_ver);
++	return sysfs_emit(buf, "%s\n", hw_ver);
+ }
+ 
+ static ssize_t
+ bfad_im_drv_version_show(struct device *dev, struct device_attribute *attr,
+ 				char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "%s\n", BFAD_DRIVER_VERSION);
++	return sysfs_emit(buf, "%s\n", BFAD_DRIVER_VERSION);
+ }
+ 
+ static ssize_t
+@@ -871,7 +871,7 @@ bfad_im_optionrom_version_show(struct device *dev,
+ 	char optrom_ver[BFA_VERSION_LEN];
+ 
+ 	bfa_get_adapter_optrom_ver(&bfad->bfa, optrom_ver);
+-	return snprintf(buf, PAGE_SIZE, "%s\n", optrom_ver);
++	return sysfs_emit(buf, "%s\n", optrom_ver);
+ }
+ 
+ static ssize_t
+@@ -885,7 +885,7 @@ bfad_im_fw_version_show(struct device *dev, struct device_attribute *attr,
+ 	char fw_ver[BFA_VERSION_LEN];
+ 
+ 	bfa_get_adapter_fw_ver(&bfad->bfa, fw_ver);
+-	return snprintf(buf, PAGE_SIZE, "%s\n", fw_ver);
++	return sysfs_emit(buf, "%s\n", fw_ver);
+ }
+ 
+ static ssize_t
+@@ -897,7 +897,7 @@ bfad_im_num_of_ports_show(struct device *dev, struct device_attribute *attr,
+ 			(struct bfad_im_port_s *) shost->hostdata[0];
+ 	struct bfad_s *bfad = im_port->bfad;
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n",
++	return sysfs_emit(buf, "%d\n",
+ 			bfa_get_nports(&bfad->bfa));
+ }
+ 
+@@ -905,7 +905,7 @@ static ssize_t
+ bfad_im_drv_name_show(struct device *dev, struct device_attribute *attr,
+ 				char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "%s\n", BFAD_DRIVER_NAME);
++	return sysfs_emit(buf, "%s\n", BFAD_DRIVER_NAME);
+ }
+ 
+ static ssize_t
+@@ -924,14 +924,14 @@ bfad_im_num_of_discovered_ports_show(struct device *dev,
+ 	rports = kcalloc(nrports, sizeof(struct bfa_rport_qualifier_s),
+ 			 GFP_ATOMIC);
+ 	if (rports == NULL)
+-		return snprintf(buf, PAGE_SIZE, "Failed\n");
++		return sysfs_emit(buf, "Failed\n");
+ 
+ 	spin_lock_irqsave(&bfad->bfad_lock, flags);
+ 	bfa_fcs_lport_get_rport_quals(port->fcs_port, rports, &nrports);
+ 	spin_unlock_irqrestore(&bfad->bfad_lock, flags);
+ 	kfree(rports);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", nrports);
++	return sysfs_emit(buf, "%d\n", nrports);
+ }
+ 
+ static          DEVICE_ATTR(serial_number, S_IRUGO,
 -- 
 2.35.1
 
