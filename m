@@ -2,140 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CFA4501B6C
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 21:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A11D501B9A
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 21:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243102AbiDNTD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 15:03:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37394 "EHLO
+        id S234903AbiDNTOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 15:14:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245685AbiDNTDZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 15:03:25 -0400
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4F3E0AE6
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 12:01:00 -0700 (PDT)
-Received: by mail-pg1-x531.google.com with SMTP id q19so5542018pgm.6
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 12:01:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=XiIY2bpIl87rve9rCCsLMKA66tXDqjakf3CIq1AlcFY=;
-        b=J8jBPE2Cp1547qCuZkJ3qnaWsp+Xpt20bHm8SBXRL6td9nulZEHfQxfP10VdT16UJM
-         a58ncdDEHAVMsfUaL9b3ZdatJ8tVcc9NDTHhGeO+Yq/pURU8rKBNhW6OAkuG5BwSnmza
-         t6ZKwc35KGmN8w7vuL9ndB/xz/himzDH/8CYwuD+77hliVAMsBnItXIFaKQXWvYimn3r
-         hLelSDhh9QgAtShh4sjhLlhqavmOCBLaGlJqc+fl/u0jhpCo/nwyqMC366FoT74aiQGG
-         rtsfxaIbo9rka+MTvqJhrXzYh9Huhue0T0LW7t2JKSa+6MPm0ybULB8jzA+/9lNh5kJy
-         ePLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=XiIY2bpIl87rve9rCCsLMKA66tXDqjakf3CIq1AlcFY=;
-        b=qZ+TU46yQraUKFNKOP+tG9xN4CBSX6/qsiG62LVDb/VUrG70ZuVttAQGHBZK3FXwGf
-         KdvPw+yieeg3w8GLMUyKpdcTLS9ClA7IeX8wtTvxINtfu/mQQjSDR6rSKPHw/hBMI/tB
-         wpXRnRsTRmYTWLD8wS7QlfFsaM95jRHKMG+hO3tQF1kQ0ipcmmEI3h7ygQ7OlGT+euNo
-         3JXTtXx6pXxLdJBHFck5FlQ9achNnNuessaxv7vElKh+bUzc270uw4I69T9+uhdrEceZ
-         LjgJ//NoUc3cilrIez0UZYMUr7eQW/pouNKpftorFCANu+lDqAst/hRFJc+C1W8d5yYh
-         eL6w==
-X-Gm-Message-State: AOAM533S4qfwM1zS2Ddg6adrm8eBRN0gPrLQXPDXnF68/tr4EgfvyMiU
-        JhoweFMYdMl2ojVNg6a6SYu8h775u50e+Om0
-X-Google-Smtp-Source: ABdhPJwYRUku7lSCSFoHbdcTD1AI5CMBwNV97iDQyN0nrMp4l4y4Pwqwn3xPF9fLaom9rxPmkWkzzQ==
-X-Received: by 2002:a63:de10:0:b0:399:4e32:32b with SMTP id f16-20020a63de10000000b003994e32032bmr3340675pgg.41.1649962859858;
-        Thu, 14 Apr 2022 12:00:59 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j12-20020a056a00234c00b00505deacf78dsm602822pfj.149.2022.04.14.12.00.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Apr 2022 12:00:59 -0700 (PDT)
-Message-ID: <62586f6b.1c69fb81.bee9a.2439@mx.google.com>
-Date:   Thu, 14 Apr 2022 12:00:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S232417AbiDNTOM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 15:14:12 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [46.235.227.227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD8BE996B;
+        Thu, 14 Apr 2022 12:11:46 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: shreeya)
+        with ESMTPSA id A99041F47C76
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+        s=mail; t=1649963504;
+        bh=QzazdTkJUyPxoWMBQtS0j3+6PWTkOSNi4bctVgjyFy4=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=SnxNYl7LNmTWZVkOCTGlL6LmjkwXInzk0zIBF9kXMlaKKZ8bMWzDBl9BjJe0BVjKe
+         4Yud9mz9d8h9Ed6luJlZTVHyY2QuBGZ+EQKjZHaJzQY34tCqeRJ68MZuVebpKzH188
+         t9v7fC7/VFJQGn3jmAtrU6bFFFwQKeRZU+CxwDKL9VQY5u3iP2b/qDteB4k+wo6Q6U
+         zI9ON8nPLrsMHmiXEcSF07pTqx9zWj7E0DAsuHm4Bo1GWzrUgFxGeun3PFfwJm/Nxm
+         +iqsnGNFnXMRInUdaAGKhp0pHMP59zrA9uVbBt1Sfy0IvYDZEYNjMj79TjUC4tLcWT
+         U0lPYUwffoP5w==
+Message-ID: <207d6171-173a-3d77-4b13-ea6f7476478d@collabora.com>
+Date:   Fri, 15 Apr 2022 00:41:36 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.111-5-g5c4c2b7fc0e1b
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 86 runs,
- 1 regressions (v5.10.111-5-g5c4c2b7fc0e1b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH] gpio: Request interrupts after IRQ is initialized
+Content-Language: en-US
+To:     Mario Limonciello <mario.limonciello@amd.com>
+Cc:     Basavaraj.Natikar@amd.com, Richard.Gong@amd.com,
+        stable@vger.kernel.org, open list <linux-kernel@vger.kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        gabriel Krisman Bertazi <krisman@collabora.com>,
+        Collabora Kernel ML <kernel@collabora.com>
+References: <20220414025705.598-1-mario.limonciello@amd.com>
+From:   Shreeya Patel <shreeya.patel@collabora.com>
+In-Reply-To: <20220414025705.598-1-mario.limonciello@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 86 runs, 1 regressions (v5.10.111-5-g5c4c2b7=
-fc0e1b)
 
-Regressions Summary
--------------------
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.111-5-g5c4c2b7fc0e1b/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.111-5-g5c4c2b7fc0e1b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5c4c2b7fc0e1be6df91ac9c3a2d307e42d773388 =
-
-
-
-Test Regressions
----------------- =
+On 14/04/22 08:27, Mario Limonciello wrote:
+> commit 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members before
+> initialization") attempted to fix a race condition that lead to a NULL
+> pointer, but in the process caused a regression for _AEI/_EVT declared
+> GPIOs. This manifests in messages showing deferred probing while trying
+> to allocate IRQs like so:
+>
+> [    0.688318] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0000 to IRQ, err -517
+> [    0.688337] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x002C to IRQ, err -517
+> [    0.688348] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003D to IRQ, err -517
+> [    0.688359] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003E to IRQ, err -517
+> [    0.688369] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003A to IRQ, err -517
+> [    0.688379] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003B to IRQ, err -517
+> [    0.688389] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0002 to IRQ, err -517
+> [    0.688399] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0011 to IRQ, err -517
+> [    0.688410] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0012 to IRQ, err -517
+> [    0.688420] amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0007 to IRQ, err -517
+>
+> The code for walking _AEI doesn't handle deferred probing and so this leads
+> to non-functional GPIO interrupts.
+>
+> Fix this issue by moving the call to `acpi_gpiochip_request_interrupts` to
+> occur after gc->irc.initialized is set.
 
 
+Thanks Mario for sending a fix for this issue, I didn't realize 
+gpiod_to_irq() was also
+being called through acpi_gpiochip_request_interrupts().
+Change looks good to me.
+Reviewed-by: Shreeya Patel <shreeya.patel@collabora.com>
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62584046fb87fd7e34ae0689
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.111=
--5-g5c4c2b7fc0e1b/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.111=
--5-g5c4c2b7fc0e1b/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62584046fb87fd7e34ae06ab
-        failing since 37 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-04-14T15:39:39.378213  <8>[   60.004266] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-14T15:39:40.401544  /lava-6090381/1/../bin/lava-test-case
-    2022-04-14T15:39:40.412216  <8>[   61.038436] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+> Cc: Shreeya Patel <shreeya.patel@collabora.com>
+> Cc: stable@vger.kernel.org
+> Fixes: 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members before initialization")
+> Reported-by: Mario Limonciello <mario.limonciello@amd.com>
+> Link: https://lore.kernel.org/linux-gpio/BL1PR12MB51577A77F000A008AA694675E2EF9@BL1PR12MB5157.namprd12.prod.outlook.com/T/#u
+> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> ---
+>   drivers/gpio/gpiolib.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+> index 085348e08986..b7694171655c 100644
+> --- a/drivers/gpio/gpiolib.c
+> +++ b/drivers/gpio/gpiolib.c
+> @@ -1601,8 +1601,6 @@ static int gpiochip_add_irqchip(struct gpio_chip *gc,
+>   
+>   	gpiochip_set_irq_hooks(gc);
+>   
+> -	acpi_gpiochip_request_interrupts(gc);
+> -
+>   	/*
+>   	 * Using barrier() here to prevent compiler from reordering
+>   	 * gc->irq.initialized before initialization of above
+> @@ -1612,6 +1610,8 @@ static int gpiochip_add_irqchip(struct gpio_chip *gc,
+>   
+>   	gc->irq.initialized = true;
+>   
+> +	acpi_gpiochip_request_interrupts(gc);
+> +
+>   	return 0;
+>   }
+>   
