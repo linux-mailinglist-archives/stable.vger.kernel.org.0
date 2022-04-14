@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B5CA50118A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AD22501286
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344783AbiDNNwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:52:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57542 "EHLO
+        id S1345880AbiDNNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344609AbiDNNo1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02AFE340EA;
-        Thu, 14 Apr 2022 06:39:59 -0700 (PDT)
+        with ESMTP id S1344723AbiDNNoc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53DCB366BE;
+        Thu, 14 Apr 2022 06:40:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6736CB8298F;
-        Thu, 14 Apr 2022 13:39:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77BF3C385A1;
-        Thu, 14 Apr 2022 13:39:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76C1A61D68;
+        Thu, 14 Apr 2022 13:39:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E4ADC385A1;
+        Thu, 14 Apr 2022 13:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943596;
-        bh=Pmy95jZn5haKEEuYNU6AqIskvTvgmt4/onvmm2150WI=;
+        s=korg; t=1649943598;
+        bh=r1dzmbbP6N7MCOd7kADj9EhD+NpMhAY57R/TkRH6nN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9OIPpxSW9o1dRR9re3OmigQGZrRw6RCj6yFB3t59yNi5zMFkw/bUaVhKrH3ChlHs
-         L2waA+WSlhIZTw8LkzPZgWOUdoZUoXcFmdOGeOiM+rc/pNDsPQnO37Z4kaTkS65Nw9
-         W9b7tYbgj+4OMQ5aPasrm7QYOZU0C8jWKLDCUWwE=
+        b=AfNPxMwybRglbkWkhDYZoRzuBeS2mDa9AgUw2wrw4DnzNfpRlzBDkHx9ixSU2q8jn
+         XUwSxViAkaCGFDAbukPWGr2XWmDbcjmZHZ6n2Stx7QyRsB/PPfXR/2QF3c1mJBmVOG
+         kbDYr98NGPw6/alQlKsA49LJZnxW16wfoIq6VwHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Phil Sutter <n0-1@freewrt.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Daniel Walter <dwalter@google.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 211/475] MIPS: RB532: fix return value of __setup handler
-Date:   Thu, 14 Apr 2022 15:09:56 +0200
-Message-Id: <20220414110901.031621999@linuxfoundation.org>
+Subject: [PATCH 5.4 212/475] mtd: rawnand: atmel: fix refcount issue in atmel_nand_controller_init
+Date:   Thu, 14 Apr 2022 15:09:57 +0200
+Message-Id: <20220414110901.059220710@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -61,55 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit 8755d57ba1ff910666572fab9e32890e8cc6ed3b ]
+[ Upstream commit fecbd4a317c95d73c849648c406bcf1b6a0ec1cf ]
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled.
-A return of 0 causes the boot option/value to be listed as an Unknown
-kernel parameter and added to init's (limited) argument or environment
-strings. Also, error return codes don't mean anything to
-obsolete_checksetup() -- only non-zero (usually 1) or zero.
-So return 1 from setup_kmac().
+The reference counting issue happens in several error handling paths
+on a refcounted object "nc->dmac". In these paths, the function simply
+returns the error code, forgetting to balance the reference count of
+"nc->dmac", increased earlier by dma_request_channel(), which may
+cause refcount leaks.
 
-Fixes: 9e21c7e40b7e ("MIPS: RB532: Replace parse_mac_addr() with mac_pton().")
-Fixes: 73b4390fb234 ("[MIPS] Routerboard 532: Support for base system")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-From: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Phil Sutter <n0-1@freewrt.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Daniel Walter <dwalter@google.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fix it by decrementing the refcount of specific object in those error
+paths.
+
+Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
+Co-developed-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Co-developed-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220304085330.3610-1-xiongx18@fudan.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/rb532/devices.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/mtd/nand/raw/atmel/nand-controller.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/rb532/devices.c b/arch/mips/rb532/devices.c
-index c9ecf17f8660..74808619fefe 100644
---- a/arch/mips/rb532/devices.c
-+++ b/arch/mips/rb532/devices.c
-@@ -310,11 +310,9 @@ static int __init plat_setup_devices(void)
- static int __init setup_kmac(char *s)
- {
- 	printk(KERN_INFO "korina mac = %s\n", s);
--	if (!mac_pton(s, korina_dev0_data.mac)) {
-+	if (!mac_pton(s, korina_dev0_data.mac))
- 		printk(KERN_ERR "Invalid mac\n");
+diff --git a/drivers/mtd/nand/raw/atmel/nand-controller.c b/drivers/mtd/nand/raw/atmel/nand-controller.c
+index 23d11e8b5644..17c751f359d3 100644
+--- a/drivers/mtd/nand/raw/atmel/nand-controller.c
++++ b/drivers/mtd/nand/raw/atmel/nand-controller.c
+@@ -2004,13 +2004,15 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
+ 	nc->mck = of_clk_get(dev->parent->of_node, 0);
+ 	if (IS_ERR(nc->mck)) {
+ 		dev_err(dev, "Failed to retrieve MCK clk\n");
+-		return PTR_ERR(nc->mck);
++		ret = PTR_ERR(nc->mck);
++		goto out_release_dma;
+ 	}
+ 
+ 	np = of_parse_phandle(dev->parent->of_node, "atmel,smc", 0);
+ 	if (!np) {
+ 		dev_err(dev, "Missing or invalid atmel,smc property\n");
 -		return -EINVAL;
--	}
--	return 0;
-+	return 1;
++		ret = -EINVAL;
++		goto out_release_dma;
+ 	}
+ 
+ 	nc->smc = syscon_node_to_regmap(np);
+@@ -2018,10 +2020,16 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
+ 	if (IS_ERR(nc->smc)) {
+ 		ret = PTR_ERR(nc->smc);
+ 		dev_err(dev, "Could not get SMC regmap (err = %d)\n", ret);
+-		return ret;
++		goto out_release_dma;
+ 	}
+ 
+ 	return 0;
++
++out_release_dma:
++	if (nc->dmac)
++		dma_release_channel(nc->dmac);
++
++	return ret;
  }
  
- __setup("kmac=", setup_kmac);
+ static int
 -- 
 2.34.1
 
