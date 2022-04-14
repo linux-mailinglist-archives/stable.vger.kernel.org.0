@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCEC1501114
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16BBA50143F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344948AbiDNNwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:52:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54616 "EHLO
+        id S1344986AbiDNNwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:52:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344775AbiDNNoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:39 -0400
+        with ESMTP id S1344818AbiDNNom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F664377E8;
-        Thu, 14 Apr 2022 06:40:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD5438DA0;
+        Thu, 14 Apr 2022 06:40:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81D6561D7C;
-        Thu, 14 Apr 2022 13:40:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90E9EC385A1;
-        Thu, 14 Apr 2022 13:40:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB0D561DA2;
+        Thu, 14 Apr 2022 13:40:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4299C385A1;
+        Thu, 14 Apr 2022 13:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943606;
-        bh=QdXZfHMgeqEdDVdRvmXDPY15nbciP81tVpwNi5Hrryg=;
+        s=korg; t=1649943618;
+        bh=y5YIjea00GKKfI6l/BDxtYNFZa0CHf8VnDm2FYM27uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRSM9PPoi0u92WY6OoVO/hLY7pLlU5ZBfuNPKjXzLdHyKSOYJLpNTtpl4LZnjj4xK
-         wng2kunPp34bI1xjq7P9MQWLI0RsmnBywfhx0zw47zxabKZSE50oziuieGVClqoH/V
-         qODVXnAPBD2RX7Ws+s/Z4zx9Oiz2qG4lRBnaEA6I=
+        b=GSmadgQce9tettmVQXIihcv30tSAJA6FJ0aBqjnJSyR5SlzTwKOCcunWfJsdmRIn4
+         WWao8Dp79PWWyev5w/jVydmWZXAf6MbaJ/76KHxsWjGepuGtvQJJrVrG3ELQQ/U8Bs
+         b3Tc2eUdPLGBemxjHJEWwgBDeX2LMPDed1tANNhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 179/475] dax: make sure inodes are flushed before destroy cache
-Date:   Thu, 14 Apr 2022 15:09:24 +0200
-Message-Id: <20220414110900.144369848@linuxfoundation.org>
+Subject: [PATCH 5.4 180/475] iwlwifi: Fix -EIO error code that is never returned
+Date:   Thu, 14 Apr 2022 15:09:25 +0200
+Message-Id: <20220414110900.171796120@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,49 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit a7e8de822e0b1979f08767c751f6c8a9c1d4ad86 ]
+[ Upstream commit c305c94bdc18e45b5ad1db54da4269f8cbfdff6b ]
 
-A bug can be triggered by following command
+Currently the error -EIO is being assinged to variable ret when
+the READY_BIT is not set but the function iwlagn_mac_start returns
+0 rather than ret. Fix this by returning ret instead of 0.
 
-$ modprobe nd_pmem && modprobe -r nd_pmem
-
-[   10.060014] BUG dax_cache (Not tainted): Objects remaining in dax_cache on __kmem_cache_shutdown()
-[   10.060938] Slab 0x0000000085b729ac objects=9 used=1 fp=0x000000004f5ae469 flags=0x200000000010200(slab|head|node)
-[   10.062433] Call Trace:
-[   10.062673]  dump_stack_lvl+0x34/0x44
-[   10.062865]  slab_err+0x90/0xd0
-[   10.063619]  __kmem_cache_shutdown+0x13b/0x2f0
-[   10.063848]  kmem_cache_destroy+0x4a/0x110
-[   10.064058]  __x64_sys_delete_module+0x265/0x300
-
-This is caused by dax_fs_exit() not flushing inodes before destroy cache.
-To fix this issue, call rcu_barrier() before destroy cache.
-
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20220212071111.148575-1-ztong0001@gmail.com
-Fixes: 7b6be8444e0f ("dax: refactor dax-fs into a generic provider of 'struct dax_device' instances")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Addresses-Coverity: ("Unused value")
+Fixes: 7335613ae27a ("iwlwifi: move all mac80211 related functions to one place")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210907104658.14706-1-colin.king@canonical.com
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dax/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index 8074e5de815b..5005b92b197d 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -691,6 +691,7 @@ static int dax_fs_init(void)
- static void dax_fs_exit(void)
- {
- 	kern_unmount(dax_mnt);
-+	rcu_barrier();
- 	kmem_cache_destroy(dax_cache);
+diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
+index 6512d25e3563..f3bb1f91b587 100644
+--- a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
+@@ -303,7 +303,7 @@ static int iwlagn_mac_start(struct ieee80211_hw *hw)
+ 
+ 	priv->is_open = 1;
+ 	IWL_DEBUG_MAC80211(priv, "leave\n");
+-	return 0;
++	return ret;
  }
  
+ static void iwlagn_mac_stop(struct ieee80211_hw *hw)
 -- 
 2.34.1
 
