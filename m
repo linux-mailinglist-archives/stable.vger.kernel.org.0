@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 007C250128D
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:09:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD29450109F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:46:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241829AbiDNOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:06:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
+        id S245373AbiDNNnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347226AbiDNN6h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B7BB82E2;
-        Thu, 14 Apr 2022 06:49:14 -0700 (PDT)
+        with ESMTP id S1344091AbiDNNaV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A71466265;
+        Thu, 14 Apr 2022 06:27:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F18BAB828F4;
-        Thu, 14 Apr 2022 13:49:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA6FC385A1;
-        Thu, 14 Apr 2022 13:49:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4377960C14;
+        Thu, 14 Apr 2022 13:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B3EAC385A1;
+        Thu, 14 Apr 2022 13:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944151;
-        bh=Sv+F4xpukFX5bchEpbGf4cv7MHzubjsajgK9G5MTDlw=;
+        s=korg; t=1649942875;
+        bh=a1iPLyt3/Czrbu1gWemAJpCnIFWibewpU8fc5Nmz7O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKXtLbmliTgO2EAehKBoG6e9Gpto8zTkIYwXv03o9+98JUUYykdPJfH+f61vXWhfH
-         jDeG4F6Gr7LpoYN26/XHnWaxWqCoaqrlbntcHpiodg8YLXqXMU4KXxWDBPrLglv593
-         1r8Zx0gygVC8x3QazxxrILhWRpgaFP1poGO9BCuA=
+        b=RJlFDdRmh20T6i46KywZuwpON/43tnjmX8O9UITh5tYTE1+d4sfCYtnjKU1tgwjOA
+         TtQx5WwaL9sjS4g9K1MwIQfDRPC22cioLR5bFmhcV9XPQVaaccM6uQ8JeXhw3ZuY+i
+         jgH353cnGuuKVXjop6TD3z37a5ZsM9lOudWk/WC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 412/475] clk: Enforce that disjoints limits are invalid
+Subject: [PATCH 4.19 294/338] NFS: swap IO handling is slightly different for O_DIRECT IO
 Date:   Thu, 14 Apr 2022 15:13:17 +0200
-Message-Id: <20220414110906.594974640@linuxfoundation.org>
+Message-Id: <20220414110847.255786443@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +54,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 10c46f2ea914202482d19cf80dcc9c321c9ff59b ]
+[ Upstream commit 64158668ac8b31626a8ce48db4cad08496eb8340 ]
 
-If we were to have two users of the same clock, doing something like:
+1/ Taking the i_rwsem for swap IO triggers lockdep warnings regarding
+   possible deadlocks with "fs_reclaim".  These deadlocks could, I believe,
+   eventuate if a buffered read on the swapfile was attempted.
 
-clk_set_rate_range(user1, 1000, 2000);
-clk_set_rate_range(user2, 3000, 4000);
+   We don't need coherence with the page cache for a swap file, and
+   buffered writes are forbidden anyway.  There is no other need for
+   i_rwsem during direct IO.  So never take it for swap_rw()
 
-The second call would fail with -EINVAL, preventing from getting in a
-situation where we end up with impossible limits.
+2/ generic_write_checks() explicitly forbids writes to swap, and
+   performs checks that are not needed for swap.  So bypass it
+   for swap_rw().
 
-However, this is never explicitly checked against and enforced, and
-works by relying on an undocumented behaviour of clk_set_rate().
-
-Indeed, on the first clk_set_rate_range will make sure the current clock
-rate is within the new range, so it will be between 1000 and 2000Hz. On
-the second clk_set_rate_range(), it will consider (rightfully), that our
-current clock is outside of the 3000-4000Hz range, and will call
-clk_core_set_rate_nolock() to set it to 3000Hz.
-
-clk_core_set_rate_nolock() will then call clk_calc_new_rates() that will
-eventually check that our rate 3000Hz rate is outside the min 3000Hz max
-2000Hz range, will bail out, the error will propagate and we'll
-eventually return -EINVAL.
-
-This solely relies on the fact that clk_calc_new_rates(), and in
-particular clk_core_determine_round_nolock(), won't modify the new rate
-allowing the error to be reported. That assumption won't be true for all
-drivers, and most importantly we'll break that assumption in a later
-patch.
-
-It can also be argued that we shouldn't even reach the point where we're
-calling clk_core_set_rate_nolock().
-
-Let's make an explicit check for disjoints range before we're doing
-anything.
-
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220225143534.405820-4-maxime@cerno.tech
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ fs/nfs/direct.c        | 42 ++++++++++++++++++++++++++++--------------
+ fs/nfs/file.c          |  4 ++--
+ include/linux/nfs_fs.h |  8 ++++----
+ 3 files changed, 34 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index ccb26a513b29..13332f89e034 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -637,6 +637,24 @@ static void clk_core_get_boundaries(struct clk_core *core,
- 		*max_rate = min(*max_rate, clk_user->max_rate);
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index e5da9d7fb69e..41ff316cd6ad 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -288,8 +288,8 @@ ssize_t nfs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 	VM_BUG_ON(iov_iter_count(iter) != PAGE_SIZE);
+ 
+ 	if (iov_iter_rw(iter) == READ)
+-		return nfs_file_direct_read(iocb, iter);
+-	return nfs_file_direct_write(iocb, iter);
++		return nfs_file_direct_read(iocb, iter, true);
++	return nfs_file_direct_write(iocb, iter, true);
  }
  
-+static bool clk_core_check_boundaries(struct clk_core *core,
-+				      unsigned long min_rate,
-+				      unsigned long max_rate)
-+{
-+	struct clk *user;
-+
-+	lockdep_assert_held(&prepare_lock);
-+
-+	if (min_rate > core->max_rate || max_rate < core->min_rate)
-+		return false;
-+
-+	hlist_for_each_entry(user, &core->clks, clks_node)
-+		if (min_rate > user->max_rate || max_rate < user->min_rate)
-+			return false;
-+
-+	return true;
-+}
-+
- void clk_hw_set_rate_range(struct clk_hw *hw, unsigned long min_rate,
- 			   unsigned long max_rate)
+ static void nfs_direct_release_pages(struct page **pages, unsigned int npages)
+@@ -553,6 +553,7 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
+  * nfs_file_direct_read - file direct read operation for NFS files
+  * @iocb: target I/O control block
+  * @iter: vector of user buffers into which to read data
++ * @swap: flag indicating this is swap IO, not O_DIRECT IO
+  *
+  * We use this function for direct reads instead of calling
+  * generic_file_aio_read() in order to avoid gfar's check to see if
+@@ -568,7 +569,8 @@ static ssize_t nfs_direct_read_schedule_iovec(struct nfs_direct_req *dreq,
+  * client must read the updated atime from the server back into its
+  * cache.
+  */
+-ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
++ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter,
++			     bool swap)
  {
-@@ -2306,6 +2324,11 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
- 	clk->min_rate = min;
- 	clk->max_rate = max;
+ 	struct file *file = iocb->ki_filp;
+ 	struct address_space *mapping = file->f_mapping;
+@@ -610,12 +612,14 @@ ssize_t nfs_file_direct_read(struct kiocb *iocb, struct iov_iter *iter)
+ 	if (iter_is_iovec(iter))
+ 		dreq->flags = NFS_ODIRECT_SHOULD_DIRTY;
  
-+	if (!clk_core_check_boundaries(clk->core, min, max)) {
-+		ret = -EINVAL;
-+		goto out;
+-	nfs_start_io_direct(inode);
++	if (!swap)
++		nfs_start_io_direct(inode);
+ 
+ 	NFS_I(inode)->read_io += count;
+ 	requested = nfs_direct_read_schedule_iovec(dreq, iter, iocb->ki_pos);
+ 
+-	nfs_end_io_direct(inode);
++	if (!swap)
++		nfs_end_io_direct(inode);
+ 
+ 	if (requested > 0) {
+ 		result = nfs_direct_wait(dreq);
+@@ -971,6 +975,7 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
+  * nfs_file_direct_write - file direct write operation for NFS files
+  * @iocb: target I/O control block
+  * @iter: vector of user buffers from which to write data
++ * @swap: flag indicating this is swap IO, not O_DIRECT IO
+  *
+  * We use this function for direct writes instead of calling
+  * generic_file_aio_write() in order to avoid taking the inode
+@@ -987,7 +992,8 @@ static ssize_t nfs_direct_write_schedule_iovec(struct nfs_direct_req *dreq,
+  * Note that O_APPEND is not supported for NFS direct writes, as there
+  * is no atomic O_APPEND write facility in the NFS protocol.
+  */
+-ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
++ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter,
++			      bool swap)
+ {
+ 	ssize_t result = -EINVAL, requested;
+ 	size_t count;
+@@ -1001,7 +1007,11 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
+ 	dfprintk(FILE, "NFS: direct write(%pD2, %zd@%Ld)\n",
+ 		file, iov_iter_count(iter), (long long) iocb->ki_pos);
+ 
+-	result = generic_write_checks(iocb, iter);
++	if (swap)
++		/* bypass generic checks */
++		result =  iov_iter_count(iter);
++	else
++		result = generic_write_checks(iocb, iter);
+ 	if (result <= 0)
+ 		return result;
+ 	count = result;
+@@ -1031,16 +1041,20 @@ ssize_t nfs_file_direct_write(struct kiocb *iocb, struct iov_iter *iter)
+ 	if (!is_sync_kiocb(iocb))
+ 		dreq->iocb = iocb;
+ 
+-	nfs_start_io_direct(inode);
++	if (swap) {
++		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
++	} else {
++		nfs_start_io_direct(inode);
+ 
+-	requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
++		requested = nfs_direct_write_schedule_iovec(dreq, iter, pos);
+ 
+-	if (mapping->nrpages) {
+-		invalidate_inode_pages2_range(mapping,
+-					      pos >> PAGE_SHIFT, end);
+-	}
++		if (mapping->nrpages) {
++			invalidate_inode_pages2_range(mapping,
++						      pos >> PAGE_SHIFT, end);
++		}
+ 
+-	nfs_end_io_direct(inode);
++		nfs_end_io_direct(inode);
 +	}
-+
- 	rate = clk_core_get_rate_nolock(clk->core);
- 	if (rate < min || rate > max) {
- 		/*
-@@ -2334,6 +2357,7 @@ int clk_set_rate_range(struct clk *clk, unsigned long min, unsigned long max)
- 		}
- 	}
  
-+out:
- 	if (clk->exclusive_count)
- 		clk_core_rate_protect(clk->core);
+ 	if (requested > 0) {
+ 		result = nfs_direct_wait(dreq);
+diff --git a/fs/nfs/file.c b/fs/nfs/file.c
+index 29553fdba8af..62a86c414391 100644
+--- a/fs/nfs/file.c
++++ b/fs/nfs/file.c
+@@ -157,7 +157,7 @@ nfs_file_read(struct kiocb *iocb, struct iov_iter *to)
+ 	ssize_t result;
  
+ 	if (iocb->ki_flags & IOCB_DIRECT)
+-		return nfs_file_direct_read(iocb, to);
++		return nfs_file_direct_read(iocb, to, false);
+ 
+ 	dprintk("NFS: read(%pD2, %zu@%lu)\n",
+ 		iocb->ki_filp,
+@@ -606,7 +606,7 @@ ssize_t nfs_file_write(struct kiocb *iocb, struct iov_iter *from)
+ 		return result;
+ 
+ 	if (iocb->ki_flags & IOCB_DIRECT)
+-		return nfs_file_direct_write(iocb, from);
++		return nfs_file_direct_write(iocb, from, false);
+ 
+ 	dprintk("NFS: write(%pD2, %zu@%Ld)\n",
+ 		file, iov_iter_count(from), (long long) iocb->ki_pos);
+diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
+index 0ff7dd2bf8a4..8ea7ceed8285 100644
+--- a/include/linux/nfs_fs.h
++++ b/include/linux/nfs_fs.h
+@@ -475,10 +475,10 @@ static inline struct rpc_cred *nfs_file_cred(struct file *file)
+  * linux/fs/nfs/direct.c
+  */
+ extern ssize_t nfs_direct_IO(struct kiocb *, struct iov_iter *);
+-extern ssize_t nfs_file_direct_read(struct kiocb *iocb,
+-			struct iov_iter *iter);
+-extern ssize_t nfs_file_direct_write(struct kiocb *iocb,
+-			struct iov_iter *iter);
++ssize_t nfs_file_direct_read(struct kiocb *iocb,
++			     struct iov_iter *iter, bool swap);
++ssize_t nfs_file_direct_write(struct kiocb *iocb,
++			      struct iov_iter *iter, bool swap);
+ 
+ /*
+  * linux/fs/nfs/dir.c
 -- 
 2.35.1
 
