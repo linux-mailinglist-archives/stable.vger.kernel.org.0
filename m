@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBDA3501235
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C741501232
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:07:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237210AbiDNNg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:36:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49922 "EHLO
+        id S244901AbiDNNgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:36:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245607AbiDNN3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69DC4ADD79;
-        Thu, 14 Apr 2022 06:23:18 -0700 (PDT)
+        with ESMTP id S245655AbiDNN3N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 548D3AF1E9;
+        Thu, 14 Apr 2022 06:23:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A191B8296A;
-        Thu, 14 Apr 2022 13:23:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61AD3C385A5;
-        Thu, 14 Apr 2022 13:23:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5A5261158;
+        Thu, 14 Apr 2022 13:23:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1BBEC385A1;
+        Thu, 14 Apr 2022 13:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942595;
-        bh=3AZ22Q27VC5XywaxZv0s78RKASczYjqy4rY8l5wrQGQ=;
+        s=korg; t=1649942607;
+        bh=spp/pBvR0UT2dPXHmzefxhdVtTjFVL6s5suj8ISh1Ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4BqmqiNbw1wfSJMPGwwh4USNYhiHkNjfl+r6Rlwuh9wtUHtxP613DPLuwq6S1uSh
-         eyNSXlr9inT2703ijQ+hUvTBl5uX5ts/zzYjAz5JemOlvfguueaK2vuk3pWJWv7R3h
-         tMldr+78gCf3I17nHzROXtx8fbPkFzsYEhiSDqFo=
+        b=CW6mIOmF35ovOLBKBoG7WVzi9oR1wavHv11Z3mTKTOai7y5tgKptoAMqSEJWXXgAr
+         AjBPtkIER0E1NGTDQOxkAJs1Sa4CtfT/fURUI9fefImA6tvmbVQpw3u0uxkTBYnjaT
+         agcrxNmYP4yovWM5Zgck3AIbFknn90KKSc4kcfrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Andre Nash <alnash@fb.com>,
+        Neil Spring <ntspring@fb.com>, Wei Wang <weiwan@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         Jakub Kicinski <kuba@kernel.org>,
+        Eric Dumazet <edumazet@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 155/338] net: bcmgenet: Use stronger register read/writes to assure ordering
-Date:   Thu, 14 Apr 2022 15:10:58 +0200
-Message-Id: <20220414110843.312864762@linuxfoundation.org>
+Subject: [PATCH 4.19 156/338] tcp: ensure PMTU updates are processed during fastopen
+Date:   Thu, 14 Apr 2022 15:10:59 +0200
+Message-Id: <20220414110843.341093176@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -56,113 +58,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 8d3ea3d402db94b61075617e71b67459a714a502 ]
+[ Upstream commit ed0c99dc0f499ff8b6e75b5ae6092ab42be1ad39 ]
 
-GCC12 appears to be much smarter about its dependency tracking and is
-aware that the relaxed variants are just normal loads and stores and
-this is causing problems like:
+tp->rx_opt.mss_clamp is not populated, yet, during TFO send so we
+rise it to the local MSS. tp->mss_cache is not updated, however:
 
-[  210.074549] ------------[ cut here ]------------
-[  210.079223] NETDEV WATCHDOG: enabcm6e4ei0 (bcmgenet): transmit queue 1 timed out
-[  210.086717] WARNING: CPU: 1 PID: 0 at net/sched/sch_generic.c:529 dev_watchdog+0x234/0x240
-[  210.095044] Modules linked in: genet(E) nft_fib_inet nft_fib_ipv4 nft_fib_ipv6 nft_fib nft_reject_inet nf_reject_ipv4 nf_reject_ipv6 nft_reject nft_ct nft_chain_nat]
-[  210.146561] ACPI CPPC: PCC check channel failed for ss: 0. ret=-110
-[  210.146927] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G            E     5.17.0-rc7G12+ #58
-[  210.153226] CPPC Cpufreq:cppc_scale_freq_workfn: failed to read perf counters
-[  210.161349] Hardware name: Raspberry Pi Foundation Raspberry Pi 4 Model B/Raspberry Pi 4 Model B, BIOS EDK2-DEV 02/08/2022
-[  210.161353] pstate: 80400005 (Nzcv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  210.161358] pc : dev_watchdog+0x234/0x240
-[  210.161364] lr : dev_watchdog+0x234/0x240
-[  210.161368] sp : ffff8000080a3a40
-[  210.161370] x29: ffff8000080a3a40 x28: ffffcd425af87000 x27: ffff8000080a3b20
-[  210.205150] x26: ffffcd425aa00000 x25: 0000000000000001 x24: ffffcd425af8ec08
-[  210.212321] x23: 0000000000000100 x22: ffffcd425af87000 x21: ffff55b142688000
-[  210.219491] x20: 0000000000000001 x19: ffff55b1426884c8 x18: ffffffffffffffff
-[  210.226661] x17: 64656d6974203120 x16: 0000000000000001 x15: 6d736e617274203a
-[  210.233831] x14: 2974656e65676d63 x13: ffffcd4259c300d8 x12: ffffcd425b07d5f0
-[  210.241001] x11: 00000000ffffffff x10: ffffcd425b07d5f0 x9 : ffffcd4258bdad9c
-[  210.248171] x8 : 00000000ffffdfff x7 : 000000000000003f x6 : 0000000000000000
-[  210.255341] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000001000
-[  210.262511] x2 : 0000000000001000 x1 : 0000000000000005 x0 : 0000000000000044
-[  210.269682] Call trace:
-[  210.272133]  dev_watchdog+0x234/0x240
-[  210.275811]  call_timer_fn+0x3c/0x15c
-[  210.279489]  __run_timers.part.0+0x288/0x310
-[  210.283777]  run_timer_softirq+0x48/0x80
-[  210.287716]  __do_softirq+0x128/0x360
-[  210.291392]  __irq_exit_rcu+0x138/0x140
-[  210.295243]  irq_exit_rcu+0x1c/0x30
-[  210.298745]  el1_interrupt+0x38/0x54
-[  210.302334]  el1h_64_irq_handler+0x18/0x24
-[  210.306445]  el1h_64_irq+0x7c/0x80
-[  210.309857]  arch_cpu_idle+0x18/0x2c
-[  210.313445]  default_idle_call+0x4c/0x140
-[  210.317470]  cpuidle_idle_call+0x14c/0x1a0
-[  210.321584]  do_idle+0xb0/0x100
-[  210.324737]  cpu_startup_entry+0x30/0x8c
-[  210.328675]  secondary_start_kernel+0xe4/0x110
-[  210.333138]  __secondary_switched+0x94/0x98
+tcp_v6_connect():
+  tp->rx_opt.mss_clamp = IPV6_MIN_MTU - headers;
+  tcp_connect():
+     tcp_connect_init():
+       tp->mss_cache = min(mtu, tp->rx_opt.mss_clamp)
+     tcp_send_syn_data():
+       tp->rx_opt.mss_clamp = tp->advmss
 
-The assumption when these were relaxed seems to be that device memory
-would be mapped non reordering, and that other constructs
-(spinlocks/etc) would provide the barriers to assure that packet data
-and in memory rings/queues were ordered with respect to device
-register reads/writes. This itself seems a bit sketchy, but the real
-problem with GCC12 is that it is moving the actual reads/writes around
-at will as though they were independent operations when in truth they
-are not, but the compiler can't know that. When looking at the
-assembly dumps for many of these routines its possible to see very
-clean, but not strictly in program order operations occurring as the
-compiler would be free to do if these weren't actually register
-reads/write operations.
+After recent fixes to ICMPv6 PTB handling we started dropping
+PMTU updates higher than tp->mss_cache. Because of the stale
+tp->mss_cache value PMTU updates during TFO are always dropped.
 
-Its possible to suppress the timeout with a liberal bit of dma_mb()'s
-sprinkled around but the device still seems unable to reliably
-send/receive data. A better plan is to use the safer readl/writel
-everywhere.
+Thanks to Wei for helping zero in on the problem and the fix!
 
-Since this partially reverts an older commit, which notes the use of
-the relaxed variants for performance reasons. I would suggest that
-any performance problems with this commit are targeted at relaxing only
-the performance critical code paths after assuring proper barriers.
-
-Fixes: 69d2ea9c79898 ("net: bcmgenet: Use correct I/O accessors")
-Reported-by: Peter Robinson <pbrobinson@gmail.com>
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Acked-by: Peter Robinson <pbrobinson@gmail.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220310045358.224350-1-jeremy.linton@arm.com
+Fixes: c7bb4b89033b ("ipv6: tcp: drop silly ICMPv6 packet too big messages")
+Reported-by: Andre Nash <alnash@fb.com>
+Reported-by: Neil Spring <ntspring@fb.com>
+Reviewed-by: Wei Wang <weiwan@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220321165957.1769954-1-kuba@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/tcp_output.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index d4be107ea4cd..c78b687a1443 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -83,7 +83,7 @@ static inline void bcmgenet_writel(u32 value, void __iomem *offset)
- 	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		__raw_writel(value, offset);
- 	else
--		writel_relaxed(value, offset);
-+		writel(value, offset);
- }
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index c97c027a8d77..97c3b616d594 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -3425,6 +3425,7 @@ static void tcp_connect_queue_skb(struct sock *sk, struct sk_buff *skb)
+  */
+ static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
+ {
++	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct tcp_fastopen_request *fo = tp->fastopen_req;
+ 	int space, err = 0;
+@@ -3439,8 +3440,10 @@ static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
+ 	 * private TCP options. The cost is reduced data space in SYN :(
+ 	 */
+ 	tp->rx_opt.mss_clamp = tcp_mss_clamp(tp, tp->rx_opt.mss_clamp);
++	/* Sync mss_cache after updating the mss_clamp */
++	tcp_sync_mss(sk, icsk->icsk_pmtu_cookie);
  
- static inline u32 bcmgenet_readl(void __iomem *offset)
-@@ -91,7 +91,7 @@ static inline u32 bcmgenet_readl(void __iomem *offset)
- 	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		return __raw_readl(offset);
- 	else
--		return readl_relaxed(offset);
-+		return readl(offset);
- }
+-	space = __tcp_mtu_to_mss(sk, inet_csk(sk)->icsk_pmtu_cookie) -
++	space = __tcp_mtu_to_mss(sk, icsk->icsk_pmtu_cookie) -
+ 		MAX_TCP_OPTION_SPACE;
  
- static inline void dmadesc_set_length_status(struct bcmgenet_priv *priv,
+ 	space = min_t(size_t, space, fo->size);
 -- 
 2.34.1
 
