@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B7C500EFA
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E729F500F07
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:22:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243294AbiDNNXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:23:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38820 "EHLO
+        id S244160AbiDNNXn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:23:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244163AbiDNNWf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:22:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DEFB98F5E;
-        Thu, 14 Apr 2022 06:17:56 -0700 (PDT)
+        with ESMTP id S244182AbiDNNWg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:22:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D309391557;
+        Thu, 14 Apr 2022 06:18:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AC7760BAF;
-        Thu, 14 Apr 2022 13:17:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D9E5C385A1;
-        Thu, 14 Apr 2022 13:17:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79E7FB8296D;
+        Thu, 14 Apr 2022 13:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2191C385A1;
+        Thu, 14 Apr 2022 13:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942275;
-        bh=OpD1BDYPwMtTDZCSK+H85PSOkBIsB6lrv4Odz2brAJk=;
+        s=korg; t=1649942278;
+        bh=t7k5Z8xW/UXhospe3ujYiUIvZzorl8/rIkYHU2jTO18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O2VGkjpOcaS6+nb3ZFUqX5BL56TdgfibeSsBTXTH/d04EF6uz4ycqyApJvvstFZja
-         HvLdQeZ/EnBgqim8krlPaurmbii4gp7iOVO3vXEzc775ZEbnYlSZNxGK3hngi2yFNp
-         VdLDHQjWX3azrb8yZEszzH52ldVWWLQBV/VvDcMk=
+        b=C45dLFKo0wYKblzD7tEBgjpfGXmiZ5aWHQ5yRFmW0mmilEXt0/NlxNZtjRRDWaKQ4
+         soRlIe5zyW1Njhpfm0J8kYbPXr7F4Jw7N01gcXYUEVv+OL3XvZ20NkKRDej4azgUEX
+         yioEEN0S7vajQS582izZR1sImDRlXeML+RHsXL5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        Petr Vorel <pvorel@suse.cz>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Guillaume Ranquet <granquet@baylibre.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 078/338] crypto: vmx - add missing dependencies
-Date:   Thu, 14 Apr 2022 15:09:41 +0200
-Message-Id: <20220414110841.119838433@linuxfoundation.org>
+Subject: [PATCH 4.19 079/338] clocksource/drivers/timer-of: Check return value of of_iomap in timer_of_base_init()
+Date:   Thu, 14 Apr 2022 15:09:42 +0200
+Message-Id: <20220414110841.147921739@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -55,60 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Vorel <pvorel@suse.cz>
+From: Guillaume Ranquet <granquet@baylibre.com>
 
-[ Upstream commit 647d41d3952d726d4ae49e853a9eff68ebad3b3f ]
+[ Upstream commit 4467b8bad2401794fb89a0268c8c8257180bf60f ]
 
-vmx-crypto module depends on CRYPTO_AES, CRYPTO_CBC, CRYPTO_CTR or
-CRYPTO_XTS, thus add them.
+of_base->base can either be iomapped using of_io_request_and_map() or
+of_iomap() depending whether or not an of_base->name has been set.
 
-These dependencies are likely to be enabled, but if
-CRYPTO_DEV_VMX=y && !CRYPTO_MANAGER_DISABLE_TESTS
-and either of CRYPTO_AES, CRYPTO_CBC, CRYPTO_CTR or CRYPTO_XTS is built
-as module or disabled, alg_test() from crypto/testmgr.c complains during
-boot about failing to allocate the generic fallback implementations
-(2 == ENOENT):
+Thus check of_base->base against NULL as of_iomap() does not return a
+PTR_ERR() in case of error.
 
-[    0.540953] Failed to allocate xts(aes) fallback: -2
-[    0.541014] alg: skcipher: failed to allocate transform for p8_aes_xts: -2
-[    0.541120] alg: self-tests for p8_aes_xts (xts(aes)) failed (rc=-2)
-[    0.544440] Failed to allocate ctr(aes) fallback: -2
-[    0.544497] alg: skcipher: failed to allocate transform for p8_aes_ctr: -2
-[    0.544603] alg: self-tests for p8_aes_ctr (ctr(aes)) failed (rc=-2)
-[    0.547992] Failed to allocate cbc(aes) fallback: -2
-[    0.548052] alg: skcipher: failed to allocate transform for p8_aes_cbc: -2
-[    0.548156] alg: self-tests for p8_aes_cbc (cbc(aes)) failed (rc=-2)
-[    0.550745] Failed to allocate transformation for 'aes': -2
-[    0.550801] alg: cipher: Failed to load transform for p8_aes: -2
-[    0.550892] alg: self-tests for p8_aes (aes) failed (rc=-2)
-
-Fixes: c07f5d3da643 ("crypto: vmx - Adding support for XTS")
-Fixes: d2e3ae6f3aba ("crypto: vmx - Enabling VMX module for PPC64")
-
-Suggested-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Petr Vorel <pvorel@suse.cz>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 9aea417afa6b ("clocksource/drivers/timer-of: Don't request the resource by name")
+Signed-off-by: Guillaume Ranquet <granquet@baylibre.com>
+Link: https://lore.kernel.org/r/20220307172656.4836-1-granquet@baylibre.com
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/vmx/Kconfig | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/clocksource/timer-of.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/vmx/Kconfig b/drivers/crypto/vmx/Kconfig
-index c3d524ea6998..f39eeca87932 100644
---- a/drivers/crypto/vmx/Kconfig
-+++ b/drivers/crypto/vmx/Kconfig
-@@ -1,7 +1,11 @@
- config CRYPTO_DEV_VMX_ENCRYPT
- 	tristate "Encryption acceleration support on P8 CPU"
- 	depends on CRYPTO_DEV_VMX
-+	select CRYPTO_AES
-+	select CRYPTO_CBC
-+	select CRYPTO_CTR
- 	select CRYPTO_GHASH
-+	select CRYPTO_XTS
- 	default m
- 	help
- 	  Support for VMX cryptographic acceleration instructions on Power8 CPU.
+diff --git a/drivers/clocksource/timer-of.c b/drivers/clocksource/timer-of.c
+index 6e2cb3693ed8..82bb0d39e8af 100644
+--- a/drivers/clocksource/timer-of.c
++++ b/drivers/clocksource/timer-of.c
+@@ -164,9 +164,9 @@ static __init int timer_of_base_init(struct device_node *np,
+ 	of_base->base = of_base->name ?
+ 		of_io_request_and_map(np, of_base->index, of_base->name) :
+ 		of_iomap(np, of_base->index);
+-	if (IS_ERR(of_base->base)) {
+-		pr_err("Failed to iomap (%s)\n", of_base->name);
+-		return PTR_ERR(of_base->base);
++	if (IS_ERR_OR_NULL(of_base->base)) {
++		pr_err("Failed to iomap (%s:%s)\n", np->name, of_base->name);
++		return of_base->base ? PTR_ERR(of_base->base) : -ENOMEM;
+ 	}
+ 
+ 	return 0;
 -- 
 2.34.1
 
