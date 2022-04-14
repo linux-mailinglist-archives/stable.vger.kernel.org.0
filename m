@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D9350101A
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B655013A5
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344625AbiDNNtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46802 "EHLO
+        id S1344637AbiDNNtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:49:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344219AbiDNNkP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83157120;
-        Thu, 14 Apr 2022 06:37:50 -0700 (PDT)
+        with ESMTP id S1344223AbiDNNkQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:40:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 941D5120;
+        Thu, 14 Apr 2022 06:37:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A76AB82983;
-        Thu, 14 Apr 2022 13:37:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B9A5C385A5;
-        Thu, 14 Apr 2022 13:37:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F7D06190F;
+        Thu, 14 Apr 2022 13:37:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40337C385A5;
+        Thu, 14 Apr 2022 13:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943467;
-        bh=WFGnr/magdyyCje3mXFUY0rNHEzvwgrhLixtbQcS02c=;
+        s=korg; t=1649943470;
+        bh=kcU/Eqok8/jdzy1t2CKhVSmSnBGevGAQKWjGBf8vtKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/LE1vKbrbEm1PN3OqnJ99JsTKoy3nBvAS+pSfCOx36fPPRrn6u5w594k/guAvfpi
-         s9ovSlVfTPxI3sLReE026TcmuAY6zhVWdtOpA42XuHFiMNV8mvTjQOUNjpyuLzPeyg
-         1JHCmlROzyxgxezgvAGJUQfjMZt+jlgXFPLFRrNI=
+        b=gqY18b2RpuTt5GdLV0i08LNVMkoAaCCoNslr/1QYHWIdQuDRcACi07qnQgzV1JqIf
+         aE4ADUseyzYiuOGDo67a0yEjArftesJqYb93n9wdCjRJKrVUK3n+tGef0NuSmK/tpc
+         AWTzq8dVD8etimb+7anHNB0/oj71kgR2j3HBcf6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabiano Rosas <farosas@linux.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Kiran Bhandare <kiranx.bhandare@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 165/475] KVM: PPC: Fix vmx/vsx mixup in mmio emulation
-Date:   Thu, 14 Apr 2022 15:09:10 +0200
-Message-Id: <20220414110859.756881055@linuxfoundation.org>
+Subject: [PATCH 5.4 166/475] i40e: dont reserve excessive XDP_PACKET_HEADROOM on XSK Rx to skb
+Date:   Thu, 14 Apr 2022 15:09:11 +0200
+Message-Id: <20220414110859.784219757@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -55,46 +58,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabiano Rosas <farosas@linux.ibm.com>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-[ Upstream commit b99234b918c6e36b9aa0a5b2981e86b6bd11f8e2 ]
+[ Upstream commit bc97f9c6f988b31b728eb47a94ca825401dbeffe ]
 
-The MMIO emulation code for vector instructions is duplicated between
-VSX and VMX. When emulating VMX we should check the VMX copy size
-instead of the VSX one.
+{__,}napi_alloc_skb() allocates and reserves additional NET_SKB_PAD
++ NET_IP_ALIGN for any skb.
+OTOH, i40e_construct_skb_zc() currently allocates and reserves
+additional `xdp->data - xdp->data_hard_start`, which is
+XDP_PACKET_HEADROOM for XSK frames.
+There's no need for that at all as the frame is post-XDP and will
+go only to the networking stack core.
+Pass the size of the actual data only to __napi_alloc_skb() and
+don't reserve anything. This will give enough headroom for stack
+processing.
 
-Fixes: acc9eb9305fe ("KVM: PPC: Reimplement LOAD_VMX/STORE_VMX instruction ...")
-Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220125215655.1026224-3-farosas@linux.ibm.com
+Fixes: 0a714186d3c0 ("i40e: add AF_XDP zero-copy Rx support")
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Tested-by: Kiran Bhandare <kiranx.bhandare@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/powerpc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_xsk.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-index 8dd4d2b83677..eb8c72846b7f 100644
---- a/arch/powerpc/kvm/powerpc.c
-+++ b/arch/powerpc/kvm/powerpc.c
-@@ -1495,7 +1495,7 @@ int kvmppc_handle_vmx_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
- {
- 	enum emulation_result emulated = EMULATE_DONE;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+index a9ad788c4913..fd2da58c7140 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+@@ -505,13 +505,11 @@ static struct sk_buff *i40e_construct_skb_zc(struct i40e_ring *rx_ring,
+ 	struct sk_buff *skb;
  
--	if (vcpu->arch.mmio_vsx_copy_nums > 2)
-+	if (vcpu->arch.mmio_vmx_copy_nums > 2)
- 		return EMULATE_FAIL;
+ 	/* allocate a skb to store the frags */
+-	skb = __napi_alloc_skb(&rx_ring->q_vector->napi,
+-			       xdp->data_end - xdp->data_hard_start,
++	skb = __napi_alloc_skb(&rx_ring->q_vector->napi, datasize,
+ 			       GFP_ATOMIC | __GFP_NOWARN);
+ 	if (unlikely(!skb))
+ 		return NULL;
  
- 	while (vcpu->arch.mmio_vmx_copy_nums) {
-@@ -1592,7 +1592,7 @@ int kvmppc_handle_vmx_store(struct kvm_run *run, struct kvm_vcpu *vcpu,
- 	unsigned int index = rs & KVM_MMIO_REG_MASK;
- 	enum emulation_result emulated = EMULATE_DONE;
- 
--	if (vcpu->arch.mmio_vsx_copy_nums > 2)
-+	if (vcpu->arch.mmio_vmx_copy_nums > 2)
- 		return EMULATE_FAIL;
- 
- 	vcpu->arch.io_gpr = rs;
+-	skb_reserve(skb, xdp->data - xdp->data_hard_start);
+ 	memcpy(__skb_put(skb, datasize), xdp->data, datasize);
+ 	if (metasize)
+ 		skb_metadata_set(skb, metasize);
 -- 
 2.34.1
 
