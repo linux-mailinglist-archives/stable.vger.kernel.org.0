@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CDAF501440
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D79850147B
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:31:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245206AbiDNOIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:08:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43182 "EHLO
+        id S240535AbiDNOHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:07:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347708AbiDNN7a (ORCPT
+        with ESMTP id S1347710AbiDNN7a (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6686CA76F3;
-        Thu, 14 Apr 2022 06:51:50 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 852B2BABA2;
+        Thu, 14 Apr 2022 06:51:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C542B82990;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A3EB61DA1;
+        Thu, 14 Apr 2022 13:51:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27953C385A1;
         Thu, 14 Apr 2022 13:51:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE4EC385A5;
-        Thu, 14 Apr 2022 13:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944307;
-        bh=ji+Vu9oKkZG2EzVq7HbQ8ZOLSkcDfIfAAp7sojUI33I=;
+        s=korg; t=1649944310;
+        bh=6+DL0H6P0Lz+kScFSwzG0fxxL3fhyTZhJbBHhSZ44pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/Z1LAZ4CzO/6J5G7aywLLmL0QbDRxK3ZorwEn+YS9lv+NgdHJZFFarRaSybaL3C6
-         iB2k9dfv2ngqpD3c4rz/Xg4NDxHOq5KFKj75R/IgwUJieZRRrgx2URbrdIOfBYSq4Q
-         9E0uk2JE9JKdl3+PXUziQSjtXpm2qmuzuUyavOIw=
+        b=ei3RDwaKJQB01QFJhJTufaX58zXUnFZNFYZ7tZMb3bdDzHr6UImGH3M6kDv2+6xcZ
+         usVVKqkgjOgq60q75E9feaSPCPd+Oj07R/tF3M688MBazy6SZJUvaFGqBQfy/XeY2W
+         dAKeRP+bqE1qk1Af9aGrnIEwRL+oJoqU4YO7AJgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bing-Jhong Billy Jheng <billy@starlabs.sg>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.4 467/475] io_uring: fix fs->users overflow
-Date:   Thu, 14 Apr 2022 15:14:12 +0200
-Message-Id: <20220414110908.124909230@linuxfoundation.org>
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 468/475] cgroup: Use open-time credentials for process migraton perm checks
+Date:   Thu, 14 Apr 2022 15:14:13 +0200
+Message-Id: <20220414110908.152315792@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -53,71 +56,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Tejun Heo <tj@kernel.org>
 
-There is a bunch of cases where we can grab req->fs but not put it, this
-can be used to cause a controllable overflow with further implications.
-Release req->fs in the request free path and make sure we zero the field
-to be sure we don't do it twice.
+commit 1756d7994ad85c2479af6ae5a9750b92324685af upstream.
 
-Fixes: cac68d12c531 ("io_uring: grab ->fs as part of async offload")
-Reported-by: Bing-Jhong Billy Jheng <billy@starlabs.sg>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+cgroup process migration permission checks are performed at write time as
+whether a given operation is allowed or not is dependent on the content of
+the write - the PID. This currently uses current's credentials which is a
+potential security weakness as it may allow scenarios where a less
+privileged process tricks a more privileged one into writing into a fd that
+it created.
+
+This patch makes both cgroup2 and cgroup1 process migration interfaces to
+use the credentials saved at the time of open (file->f_cred) instead of
+current's.
+
+Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Fixes: 187fe84067bd ("cgroup: require write perm on common ancestor when moving processes on the default hierarchy")
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[OP: backport to 5.4: apply original __cgroup_procs_write() changes to
+cgroup_threads_write() and cgroup_procs_write()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ kernel/cgroup/cgroup-v1.c |    7 ++++---
+ kernel/cgroup/cgroup.c    |   17 ++++++++++++++++-
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -438,6 +438,22 @@ static struct io_ring_ctx *io_ring_ctx_a
- 	return ctx;
- }
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -507,10 +507,11 @@ static ssize_t __cgroup1_procs_write(str
+ 		goto out_unlock;
  
-+static void io_req_put_fs(struct io_kiocb *req)
-+{
-+	struct fs_struct *fs = req->fs;
-+
-+	if (!fs)
-+		return;
-+
-+	spin_lock(&req->fs->lock);
-+	if (--fs->users)
-+		fs = NULL;
-+	spin_unlock(&req->fs->lock);
-+	if (fs)
-+		free_fs_struct(fs);
-+	req->fs = NULL;
-+}
-+
- static inline bool __io_sequence_defer(struct io_ring_ctx *ctx,
- 				       struct io_kiocb *req)
+ 	/*
+-	 * Even if we're attaching all tasks in the thread group, we only
+-	 * need to check permissions on one of them.
++	 * Even if we're attaching all tasks in the thread group, we only need
++	 * to check permissions on one of them. Check permissions using the
++	 * credentials from file open to protect against inherited fd attacks.
+ 	 */
+-	cred = current_cred();
++	cred = of->file->f_cred;
+ 	tcred = get_task_cred(task);
+ 	if (!uid_eq(cred->euid, GLOBAL_ROOT_UID) &&
+ 	    !uid_eq(cred->euid, tcred->uid) &&
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -4798,6 +4798,7 @@ static ssize_t cgroup_procs_write(struct
  {
-@@ -695,6 +711,7 @@ static void io_free_req_many(struct io_r
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
++	const struct cred *saved_cred;
+ 	ssize_t ret;
  
- static void __io_free_req(struct io_kiocb *req)
+ 	dst_cgrp = cgroup_kn_lock_live(of->kn, false);
+@@ -4814,8 +4815,15 @@ static ssize_t cgroup_procs_write(struct
+ 	src_cgrp = task_cgroup_from_root(task, &cgrp_dfl_root);
+ 	spin_unlock_irq(&css_set_lock);
+ 
++	/*
++	 * Process and thread migrations follow same delegation rule. Check
++	 * permissions using the credentials from file open to protect against
++	 * inherited fd attacks.
++	 */
++	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+ 					    of->file->f_path.dentry->d_sb);
++	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+ 
+@@ -4839,6 +4847,7 @@ static ssize_t cgroup_threads_write(stru
  {
-+	io_req_put_fs(req);
- 	if (req->file && !(req->flags & REQ_F_FIXED_FILE))
- 		fput(req->file);
- 	percpu_ref_put(&req->ctx->refs);
-@@ -1701,16 +1718,7 @@ static int io_send_recvmsg(struct io_kio
- 			ret = -EINTR;
- 	}
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
++	const struct cred *saved_cred;
+ 	ssize_t ret;
  
--	if (req->fs) {
--		struct fs_struct *fs = req->fs;
--
--		spin_lock(&req->fs->lock);
--		if (--fs->users)
--			fs = NULL;
--		spin_unlock(&req->fs->lock);
--		if (fs)
--			free_fs_struct(fs);
--	}
-+	io_req_put_fs(req);
- 	io_cqring_add_event(req->ctx, sqe->user_data, ret);
- 	io_put_req(req);
- 	return 0;
+ 	buf = strstrip(buf);
+@@ -4857,9 +4866,15 @@ static ssize_t cgroup_threads_write(stru
+ 	src_cgrp = task_cgroup_from_root(task, &cgrp_dfl_root);
+ 	spin_unlock_irq(&css_set_lock);
+ 
+-	/* thread migrations follow the cgroup.procs delegation rule */
++	/*
++	 * Process and thread migrations follow same delegation rule. Check
++	 * permissions using the credentials from file open to protect against
++	 * inherited fd attacks.
++	 */
++	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+ 					    of->file->f_path.dentry->d_sb);
++	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+ 
 
 
