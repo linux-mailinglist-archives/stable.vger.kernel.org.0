@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36FBF50110C
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED64501264
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240229AbiDNNhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238999AbiDNNhC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 14 Apr 2022 09:37:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56978 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245521AbiDNN3C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA67DAD115;
-        Thu, 14 Apr 2022 06:23:06 -0700 (PDT)
+        with ESMTP id S245541AbiDNN3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3753AD12D;
+        Thu, 14 Apr 2022 06:23:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74ECFB82910;
-        Thu, 14 Apr 2022 13:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF090C385AC;
-        Thu, 14 Apr 2022 13:23:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75FC7B82983;
+        Thu, 14 Apr 2022 13:23:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD78FC385A1;
+        Thu, 14 Apr 2022 13:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942584;
-        bh=ffsS/x+Hp3UTeuQC96zgTgsG4G+Laxov6WtZwS7N87o=;
+        s=korg; t=1649942587;
+        bh=utaBIuZOLBtXiQN4N4Zh4kTBVWVw5hJbIvn9YJrb1B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xKbgoeyFYbG4aOSP47uaa3NIQXDGTw+z5QphX26bxVQq6pF67kNkPCauLLO7ynjA
-         eBbLdTsdv2m7OUQDMe91SNrCLJgtGHdXpSuq0oQdbNYWMbnQEsoNXJ7aIsAlJPkx7k
-         7Wr2jMPUQEZ0a32+pXxU4tWvTahqU+feuvKntXn4=
+        b=wbi7heLSvQ/cdPT2kvEvpzHodMgdF6nylAu++us3mPUEDeAK8y/PxW/JIqsRomCsW
+         m8O5AiiZRKVtOEUJI7oqlKoFIcBy4IgSjoBZj4sEVh68KcwDCvE1if6ROIh2dXBrHR
+         5RdxXdrQg08BUYK4XW3bWbrcZjkcSuildBccXERE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 187/338] lib/test: use after free in register_test_dev_kmod()
-Date:   Thu, 14 Apr 2022 15:11:30 +0200
-Message-Id: <20220414110844.220307654@linuxfoundation.org>
+Subject: [PATCH 4.19 188/338] selinux: use correct type for context length
+Date:   Thu, 14 Apr 2022 15:11:31 +0200
+Message-Id: <20220414110844.248047303@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,32 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Christian Göttsche <cgzones@googlemail.com>
 
-[ Upstream commit dc0ce6cc4b133f5f2beb8b47dacae13a7d283c2c ]
+[ Upstream commit b97df7c098c531010e445da88d02b7bf7bf59ef6 ]
 
-The "test_dev" pointer is freed but then returned to the caller.
+security_sid_to_context() expects a pointer to an u32 as the address
+where to store the length of the computed context.
 
-Fixes: d9c6a72d6fa2 ("kmod: add test driver to stress test the module loader")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reported by sparse:
+
+    security/selinux/xfrm.c:359:39: warning: incorrect type in arg 4
+                                    (different signedness)
+    security/selinux/xfrm.c:359:39:    expected unsigned int
+                                       [usertype] *scontext_len
+    security/selinux/xfrm.c:359:39:    got int *
+
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+[PM: wrapped commit description]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_kmod.c | 1 +
- 1 file changed, 1 insertion(+)
+ security/selinux/xfrm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/test_kmod.c b/lib/test_kmod.c
-index 87a0cc750ea2..6813b183aa34 100644
---- a/lib/test_kmod.c
-+++ b/lib/test_kmod.c
-@@ -1155,6 +1155,7 @@ static struct kmod_test_device *register_test_dev_kmod(void)
- 	if (ret) {
- 		pr_err("could not register misc device: %d\n", ret);
- 		free_test_dev_kmod(test_dev);
-+		test_dev = NULL;
- 		goto out;
- 	}
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 91dc3783ed94..9e803d2a687a 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -349,7 +349,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
+ 	int rc;
+ 	struct xfrm_sec_ctx *ctx;
+ 	char *ctx_str = NULL;
+-	int str_len;
++	u32 str_len;
  
+ 	if (!polsec)
+ 		return 0;
 -- 
 2.34.1
 
