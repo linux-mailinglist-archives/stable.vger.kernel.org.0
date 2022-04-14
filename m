@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0537501054
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2BDD5015DF
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243466AbiDNNlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:41:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60102 "EHLO
+        id S244946AbiDNOHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:07:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344485AbiDNNcQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:32:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD701838A;
-        Thu, 14 Apr 2022 06:29:51 -0700 (PDT)
+        with ESMTP id S1347677AbiDNN70 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18DB0488B7;
+        Thu, 14 Apr 2022 06:51:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE6FD60C14;
-        Thu, 14 Apr 2022 13:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B23C385A5;
-        Thu, 14 Apr 2022 13:29:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40732612B3;
+        Thu, 14 Apr 2022 13:51:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F0BDC385A5;
+        Thu, 14 Apr 2022 13:51:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942990;
-        bh=FomcOLTOekwEIH+iOHyPbBhkepnkpoHru2AtF8wkD1Y=;
+        s=korg; t=1649944268;
+        bh=J+TnkjUnUJTPTjWdY0vnCLiIu4RAOPI2eSIf3Ml9EyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tm9MlVaYb22ArlHMgansHne5BCEHF2WLqeUz1F1hMCjOAD1UoIrmz97q7IF04otOh
-         RVbZNF9JV66M2WaQmM7XWRmiaKK4S4GOeagbhM1KfN7PMsAV5Mo2i1ITyp+U3iUpUE
-         k8kJDV1eVisVtqquM+stbJymVnek8Fk90/ZZtrXQ=
+        b=u4uegCANtdxHHdr0Kmh1dqCSUTgx3DSRHZD1yEcB5eUQ13bcIi7VEu60h45eCvS0d
+         A83P/mPg+o2yF0E3E/KbydXS4H3IGCyrIc4TLO9CVPj7db/QgpdG22C0AeF4V1yFmH
+         Xv3DJDSZJbs9e8TLxuiW0pXYqof3C8T40KtrpvEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 335/338] selftests: cgroup: Test open-time cgroup namespace usage for migration checks
-Date:   Thu, 14 Apr 2022 15:13:58 +0200
-Message-Id: <20220414110848.427179082@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@kernel.org
+Subject: [PATCH 5.4 454/475] ata: sata_dwc_460ex: Fix crash due to OOB write
+Date:   Thu, 14 Apr 2022 15:13:59 +0200
+Message-Id: <20220414110907.763470410@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,145 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit bf35a7879f1dfb0d050fe779168bcf25c7de66f5 upstream.
+commit 7aa8104a554713b685db729e66511b93d989dd6a upstream.
 
-When a task is writing to an fd opened by a different task, the perm check
-should use the cgroup namespace of the latter task. Add a test for it.
+the driver uses libata's "tag" values from in various arrays.
+Since the mentioned patch bumped the ATA_TAG_INTERNAL to 32,
+the value of the SATA_DWC_QCMD_MAX needs to account for that.
 
-Tested-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-[OP: backport to v4.19: adjust context, add wait.h and fcntl.h includes]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Otherwise ATA_TAG_INTERNAL usage cause similar crashes like
+this as reported by Tice Rex on the OpenWrt Forum and
+reproduced (with symbols) here:
+
+| BUG: Kernel NULL pointer dereference at 0x00000000
+| Faulting instruction address: 0xc03ed4b8
+| Oops: Kernel access of bad area, sig: 11 [#1]
+| BE PAGE_SIZE=4K PowerPC 44x Platform
+| CPU: 0 PID: 362 Comm: scsi_eh_1 Not tainted 5.4.163 #0
+| NIP:  c03ed4b8 LR: c03d27e8 CTR: c03ed36c
+| REGS: cfa59950 TRAP: 0300   Not tainted  (5.4.163)
+| MSR:  00021000 <CE,ME>  CR: 42000222  XER: 00000000
+| DEAR: 00000000 ESR: 00000000
+| GPR00: c03d27e8 cfa59a08 cfa55fe0 00000000 0fa46bc0 [...]
+| [..]
+| NIP [c03ed4b8] sata_dwc_qc_issue+0x14c/0x254
+| LR [c03d27e8] ata_qc_issue+0x1c8/0x2dc
+| Call Trace:
+| [cfa59a08] [c003f4e0] __cancel_work_timer+0x124/0x194 (unreliable)
+| [cfa59a78] [c03d27e8] ata_qc_issue+0x1c8/0x2dc
+| [cfa59a98] [c03d2b3c] ata_exec_internal_sg+0x240/0x524
+| [cfa59b08] [c03d2e98] ata_exec_internal+0x78/0xe0
+| [cfa59b58] [c03d30fc] ata_read_log_page.part.38+0x1dc/0x204
+| [cfa59bc8] [c03d324c] ata_identify_page_supported+0x68/0x130
+| [...]
+
+This is because sata_dwc_dma_xfer_complete() NULLs the
+dma_pending's next neighbour "chan" (a *dma_chan struct) in
+this '32' case right here (line ~735):
+> hsdevp->dma_pending[tag] = SATA_DWC_DMA_PENDING_NONE;
+
+Then the next time, a dma gets issued; dma_dwc_xfer_setup() passes
+the NULL'd hsdevp->chan to the dmaengine_slave_config() which then
+causes the crash.
+
+With this patch, SATA_DWC_QCMD_MAX is now set to ATA_MAX_QUEUE + 1.
+This avoids the OOB. But please note, there was a worthwhile discussion
+on what ATA_TAG_INTERNAL and ATA_MAX_QUEUE is. And why there should not
+be a "fake" 33 command-long queue size.
+
+Ideally, the dw driver should account for the ATA_TAG_INTERNAL.
+In Damien Le Moal's words: "... having looked at the driver, it
+is a bigger change than just faking a 33rd "tag" that is in fact
+not a command tag at all."
+
+Fixes: 28361c403683c ("libata: add extra internal command")
+Cc: stable@kernel.org # 4.18+
+BugLink: https://github.com/openwrt/openwrt/issues/9505
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/cgroup/test_core.c |   99 +++++++++++++++++++++++++++++
- 1 file changed, 99 insertions(+)
+ drivers/ata/sata_dwc_460ex.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/cgroup/test_core.c
-+++ b/tools/testing/selftests/cgroup/test_core.c
-@@ -1,8 +1,13 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- 
-+#define _GNU_SOURCE
- #include <linux/limits.h>
-+#include <linux/sched.h>
- #include <sys/types.h>
-+#include <sys/wait.h>
- #include <unistd.h>
-+#include <fcntl.h>
-+#include <sched.h>
- #include <stdio.h>
- #include <errno.h>
- 
-@@ -421,6 +426,99 @@ cleanup:
- 	return ret;
- }
- 
-+struct lesser_ns_open_thread_arg {
-+	const char	*path;
-+	int		fd;
-+	int		err;
-+};
-+
-+static int lesser_ns_open_thread_fn(void *arg)
-+{
-+	struct lesser_ns_open_thread_arg *targ = arg;
-+
-+	targ->fd = open(targ->path, O_RDWR);
-+	targ->err = errno;
-+	return 0;
-+}
-+
-+/*
-+ * cgroup migration permission check should be performed based on the cgroup
-+ * namespace at the time of open instead of write.
-+ */
-+static int test_cgcore_lesser_ns_open(const char *root)
-+{
-+	static char stack[65536];
-+	const uid_t test_euid = 65534;	/* usually nobody, any !root is fine */
-+	int ret = KSFT_FAIL;
-+	char *cg_test_a = NULL, *cg_test_b = NULL;
-+	char *cg_test_a_procs = NULL, *cg_test_b_procs = NULL;
-+	int cg_test_b_procs_fd = -1;
-+	struct lesser_ns_open_thread_arg targ = { .fd = -1 };
-+	pid_t pid;
-+	int status;
-+
-+	cg_test_a = cg_name(root, "cg_test_a");
-+	cg_test_b = cg_name(root, "cg_test_b");
-+
-+	if (!cg_test_a || !cg_test_b)
-+		goto cleanup;
-+
-+	cg_test_a_procs = cg_name(cg_test_a, "cgroup.procs");
-+	cg_test_b_procs = cg_name(cg_test_b, "cgroup.procs");
-+
-+	if (!cg_test_a_procs || !cg_test_b_procs)
-+		goto cleanup;
-+
-+	if (cg_create(cg_test_a) || cg_create(cg_test_b))
-+		goto cleanup;
-+
-+	if (cg_enter_current(cg_test_b))
-+		goto cleanup;
-+
-+	if (chown(cg_test_a_procs, test_euid, -1) ||
-+	    chown(cg_test_b_procs, test_euid, -1))
-+		goto cleanup;
-+
-+	targ.path = cg_test_b_procs;
-+	pid = clone(lesser_ns_open_thread_fn, stack + sizeof(stack),
-+		    CLONE_NEWCGROUP | CLONE_FILES | CLONE_VM | SIGCHLD,
-+		    &targ);
-+	if (pid < 0)
-+		goto cleanup;
-+
-+	if (waitpid(pid, &status, 0) < 0)
-+		goto cleanup;
-+
-+	if (!WIFEXITED(status))
-+		goto cleanup;
-+
-+	cg_test_b_procs_fd = targ.fd;
-+	if (cg_test_b_procs_fd < 0)
-+		goto cleanup;
-+
-+	if (cg_enter_current(cg_test_a))
-+		goto cleanup;
-+
-+	if ((status = write(cg_test_b_procs_fd, "0", 1)) >= 0 || errno != ENOENT)
-+		goto cleanup;
-+
-+	ret = KSFT_PASS;
-+
-+cleanup:
-+	cg_enter_current(root);
-+	if (cg_test_b_procs_fd >= 0)
-+		close(cg_test_b_procs_fd);
-+	if (cg_test_b)
-+		cg_destroy(cg_test_b);
-+	if (cg_test_a)
-+		cg_destroy(cg_test_a);
-+	free(cg_test_b_procs);
-+	free(cg_test_a_procs);
-+	free(cg_test_b);
-+	free(cg_test_a);
-+	return ret;
-+}
-+
- #define T(x) { x, #x }
- struct corecg_test {
- 	int (*fn)(const char *root);
-@@ -434,6 +532,7 @@ struct corecg_test {
- 	T(test_cgcore_invalid_domain),
- 	T(test_cgcore_populated),
- 	T(test_cgcore_lesser_euid_open),
-+	T(test_cgcore_lesser_ns_open),
+--- a/drivers/ata/sata_dwc_460ex.c
++++ b/drivers/ata/sata_dwc_460ex.c
+@@ -145,7 +145,11 @@ struct sata_dwc_device {
+ #endif
  };
- #undef T
  
+-#define SATA_DWC_QCMD_MAX	32
++/*
++ * Allow one extra special slot for commands and DMA management
++ * to account for libata internal commands.
++ */
++#define SATA_DWC_QCMD_MAX	(ATA_MAX_QUEUE + 1)
+ 
+ struct sata_dwc_device_port {
+ 	struct sata_dwc_device	*hsdev;
 
 
