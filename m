@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B2A15011C4
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560A550109B
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240947AbiDNOEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:04:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43260 "EHLO
+        id S244724AbiDNNf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:35:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346616AbiDNN5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C2FFB1883;
-        Thu, 14 Apr 2022 06:47:42 -0700 (PDT)
+        with ESMTP id S1344021AbiDNNaP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D153992D03;
+        Thu, 14 Apr 2022 06:26:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6B99B82894;
-        Thu, 14 Apr 2022 13:47:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A20AC385A5;
-        Thu, 14 Apr 2022 13:47:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BC38612B3;
+        Thu, 14 Apr 2022 13:26:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BBE9C385A1;
+        Thu, 14 Apr 2022 13:26:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944059;
-        bh=1YSXq97S+Q4jYIJd4a7+sV73lAvthooMeqFEbp6tLdQ=;
+        s=korg; t=1649942784;
+        bh=azZg63SKPjeddzVz+T39tuS4s1cORkFrsjZpBrsPqQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9riB27A1KNLBbiXygAAQFKdlVGmBJrlIlZ/JtiI3aAsvGUmjZI0RUsQZvxis9+OL
-         1JA0WeAQLe4qMlEpfLN6wD3yya9cZt+IPPU3Lk3K5Kac+JXzvJvyr3u5pznSbiAaRN
-         /2mAOrD+Y23zCOw2KMwn1vCeU16RfZNJrll6ZdWs=
+        b=atS1taRANTge3rr6n4hgaW/RNXozYxSdBVVc/PTGsvjCBRdudCixZopYr7/6H5MuU
+         91C+0/M0n+sHI3FeHr4MZH1Tn1Oy6DdvLlOyBcNDpAeyy4gRBSoP6FswZ0yYeAUCzd
+         5Ya2zen4GnKiXKiWgmYUI0CmSgByVTCaLMo8Us6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <imagedong@tencent.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Lotus Fenn <lotusf@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Like Xu <likexu@tencent.com>,
+        David Dunn <daviddunn@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 378/475] bpf: Make dst_port field in struct bpf_sock 16-bit wide
+Subject: [PATCH 4.19 260/338] KVM: x86/svm: Clear reserved bits written to PerfEvtSeln MSRs
 Date:   Thu, 14 Apr 2022 15:12:43 +0200
-Message-Id: <20220414110905.652113437@linuxfoundation.org>
+Message-Id: <20220414110846.290377603@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,92 +57,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit 4421a582718ab81608d8486734c18083b822390d ]
+[ Upstream commit 9b026073db2f1ad0e4d8b61c83316c8497981037 ]
 
-Menglong Dong reports that the documentation for the dst_port field in
-struct bpf_sock is inaccurate and confusing. From the BPF program PoV, the
-field is a zero-padded 16-bit integer in network byte order. The value
-appears to the BPF user as if laid out in memory as so:
+AMD EPYC CPUs never raise a #GP for a WRMSR to a PerfEvtSeln MSR. Some
+reserved bits are cleared, and some are not. Specifically, on
+Zen3/Milan, bits 19 and 42 are not cleared.
 
-  offsetof(struct bpf_sock, dst_port) + 0  <port MSB>
-                                      + 8  <port LSB>
-                                      +16  0x00
-                                      +24  0x00
+When emulating such a WRMSR, KVM should not synthesize a #GP,
+regardless of which bits are set. However, undocumented bits should
+not be passed through to the hardware MSR. So, rather than checking
+for reserved bits and synthesizing a #GP, just clear the reserved
+bits.
 
-32-, 16-, and 8-bit wide loads from the field are all allowed, but only if
-the offset into the field is 0.
+This may seem pedantic, but since KVM currently does not support the
+"Host/Guest Only" bits (41:40), it is necessary to clear these bits
+rather than synthesizing #GP, because some popular guests (e.g Linux)
+will set the "Host Only" bit even on CPUs that don't support
+EFER.SVME, and they don't expect a #GP.
 
-32-bit wide loads from dst_port are especially confusing. The loaded value,
-after converting to host byte order with bpf_ntohl(dst_port), contains the
-port number in the upper 16-bits.
+For example,
 
-Remove the confusion by splitting the field into two 16-bit fields. For
-backward compatibility, allow 32-bit wide loads from offsetof(struct
-bpf_sock, dst_port).
+root@Ubuntu1804:~# perf stat -e r26 -a sleep 1
 
-While at it, allow loads 8-bit loads at offset [0] and [1] from dst_port.
+ Performance counter stats for 'system wide':
 
-Reported-by: Menglong Dong <imagedong@tencent.com>
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/r/20220130115518.213259-2-jakub@cloudflare.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+                 0      r26
+
+       1.001070977 seconds time elapsed
+
+Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379957] unchecked MSR access error: WRMSR to 0xc0010200 (tried to write 0x0000020000130026) at rIP: 0xffffffff9b276a28 (native_write_msr+0x8/0x30)
+Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379958] Call Trace:
+Feb 23 03:59:58 Ubuntu1804 kernel: [  405.379963]  amd_pmu_disable_event+0x27/0x90
+
+Fixes: ca724305a2b0 ("KVM: x86/vPMU: Implement AMD vPMU code for KVM")
+Reported-by: Lotus Fenn <lotusf@google.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Like Xu <likexu@tencent.com>
+Reviewed-by: David Dunn <daviddunn@google.com>
+Message-Id: <20220226234131.2167175-1-jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/bpf.h |  3 ++-
- net/core/filter.c        | 10 +++++++++-
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ arch/x86/kvm/pmu_amd.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
-index 0bfad86ec960..cb0631098f91 100644
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -3068,7 +3068,8 @@ struct bpf_sock {
- 	__u32 src_ip4;
- 	__u32 src_ip6[4];
- 	__u32 src_port;		/* host byte order */
--	__u32 dst_port;		/* network byte order */
-+	__be16 dst_port;	/* network byte order */
-+	__u16 :16;		/* zero padding */
- 	__u32 dst_ip4;
- 	__u32 dst_ip6[4];
- 	__u32 state;
-diff --git a/net/core/filter.c b/net/core/filter.c
-index d39518f691b4..54c5e3c379f6 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -6708,6 +6708,7 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
- 			      struct bpf_insn_access_aux *info)
- {
- 	const int size_default = sizeof(__u32);
-+	int field_size;
- 
- 	if (off < 0 || off >= sizeof(struct bpf_sock))
- 		return false;
-@@ -6719,7 +6720,6 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
- 	case offsetof(struct bpf_sock, family):
- 	case offsetof(struct bpf_sock, type):
- 	case offsetof(struct bpf_sock, protocol):
--	case offsetof(struct bpf_sock, dst_port):
- 	case offsetof(struct bpf_sock, src_port):
- 	case bpf_ctx_range(struct bpf_sock, src_ip4):
- 	case bpf_ctx_range_till(struct bpf_sock, src_ip6[0], src_ip6[3]):
-@@ -6727,6 +6727,14 @@ bool bpf_sock_is_valid_access(int off, int size, enum bpf_access_type type,
- 	case bpf_ctx_range_till(struct bpf_sock, dst_ip6[0], dst_ip6[3]):
- 		bpf_ctx_record_field_size(info, size_default);
- 		return bpf_ctx_narrow_access_ok(off, size, size_default);
-+	case bpf_ctx_range(struct bpf_sock, dst_port):
-+		field_size = size == size_default ?
-+			size_default : sizeof_field(struct bpf_sock, dst_port);
-+		bpf_ctx_record_field_size(info, field_size);
-+		return bpf_ctx_narrow_access_ok(off, size, field_size);
-+	case offsetofend(struct bpf_sock, dst_port) ...
-+	     offsetof(struct bpf_sock, dst_ip4) - 1:
-+		return false;
+diff --git a/arch/x86/kvm/pmu_amd.c b/arch/x86/kvm/pmu_amd.c
+index 41dff881e0f0..93a135f216b2 100644
+--- a/arch/x86/kvm/pmu_amd.c
++++ b/arch/x86/kvm/pmu_amd.c
+@@ -247,12 +247,10 @@ static int amd_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 	/* MSR_EVNTSELn */
+ 	pmc = get_gp_pmc_amd(pmu, msr, PMU_TYPE_EVNTSEL);
+ 	if (pmc) {
+-		if (data == pmc->eventsel)
+-			return 0;
+-		if (!(data & pmu->reserved_bits)) {
++		data &= ~pmu->reserved_bits;
++		if (data != pmc->eventsel)
+ 			reprogram_gp_counter(pmc, data);
+-			return 0;
+-		}
++		return 0;
  	}
  
- 	return size == size_default;
+ 	return 1;
 -- 
 2.35.1
 
