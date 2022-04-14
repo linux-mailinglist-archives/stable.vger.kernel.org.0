@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E57501557
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 959E2501176
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:59:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239490AbiDNNe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:34:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49798 "EHLO
+        id S241991AbiDNN7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:59:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245474AbiDNN27 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 664641E3EA;
-        Thu, 14 Apr 2022 06:22:58 -0700 (PDT)
+        with ESMTP id S1343490AbiDNNuU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:50:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93525A6E3E;
+        Thu, 14 Apr 2022 06:44:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 181E3B82983;
-        Thu, 14 Apr 2022 13:22:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D0A6C385A1;
-        Thu, 14 Apr 2022 13:22:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F091B61D68;
+        Thu, 14 Apr 2022 13:44:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04138C385A1;
+        Thu, 14 Apr 2022 13:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942575;
-        bh=MQ80TICDoU0k4gTgTnLQ3uHrBBGBTGfzc7zcAeNUXYA=;
+        s=korg; t=1649943851;
+        bh=h+DPwnbYxXhjLcQ5Auj4tYhe7axfgxUCxroL7gFkx9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sz2vivlWBKfu7057TF8O+8zyuEXLCgWjkauR6P5DlsuI0Heb8ltuN7ykK2EDD3FFm
-         55I6/+ay+96ciL4R/c7gWqXY05HZvgV0cNT2XIZqq46aQrJ8ct9YgCq//8tMycM7yy
-         Hcewum7RFT5GwgCBWbwylQdIcFy9abqtEu15GBms=
+        b=MQCdc/xVFpoqnMcF7WLy1iA+ZhBxjmTQkt0Mrdbw31aIsMrVqhZbvKc1Mh/N0Ho4d
+         2H5o5TRHRpKq8x5UsokXwZp2seXw/jH8HM3YyK2kffCdeyeWHbFdRv+Pyv83432rXr
+         0eN4878eYfvJby3R7lL/JlxKZuHHjvMK9iH/xUDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 184/338] qlcnic: dcb: default to returning -EOPNOTSUPP
+Subject: [PATCH 5.4 302/475] ASoC: soc-core: skip zero num_dai component in searching dai name
 Date:   Thu, 14 Apr 2022 15:11:27 +0200
-Message-Id: <20220414110844.135645490@linuxfoundation.org>
+Message-Id: <20220414110903.544469799@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,79 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 1521db37f0d42334a88e8ff28198a27d1ed5cd7b ]
+[ Upstream commit f7d344a2bd5ec81fbd1ce76928fd059e57ec9bea ]
 
-Clang static analysis reports this issue
-qlcnic_dcb.c:382:10: warning: Assigned value is
-  garbage or undefined
-  mbx_out = *val;
-          ^ ~~~~
+In the case like dmaengine which's not a dai but as a component, the
+num_dai is zero, dmaengine component has the same component_of_node
+as cpu dai, when cpu dai component is not ready, but dmaengine component
+is ready, try to get cpu dai name, the snd_soc_get_dai_name() return
+-EINVAL, not -EPROBE_DEFER, that cause below error:
 
-val is set in the qlcnic_dcb_query_hw_capability() wrapper.
-If there is no query_hw_capability op in dcp, success is
-returned without setting the val.
+asoc-simple-card <card name>: parse error -22
+asoc-simple-card: probe of <card name> failed with error -22
 
-For this and similar wrappers, return -EOPNOTSUPP.
+The sound card failed to probe.
 
-Fixes: 14d385b99059 ("qlcnic: dcb: Query adapter DCB capabilities.")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+So this patch fixes the issue above by skipping the zero num_dai
+component in searching dai name.
+
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1644491952-7457-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/soc/soc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-index f4aa6331b367..0a9d24e86715 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-@@ -52,7 +52,7 @@ static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
- 	if (dcb && dcb->ops->get_hw_capability)
- 		return dcb->ops->get_hw_capability(dcb);
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index c0e03cc8ea82..093ab32ea2c3 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -3362,7 +3362,7 @@ int snd_soc_get_dai_name(struct of_phandle_args *args,
+ 	for_each_component(pos) {
+ 		component_of_node = soc_component_to_node(pos);
  
--	return 0;
-+	return -EOPNOTSUPP;
- }
+-		if (component_of_node != args->np)
++		if (component_of_node != args->np || !pos->num_dai)
+ 			continue;
  
- static inline void qlcnic_dcb_free(struct qlcnic_dcb *dcb)
-@@ -66,7 +66,7 @@ static inline int qlcnic_dcb_attach(struct qlcnic_dcb *dcb)
- 	if (dcb && dcb->ops->attach)
- 		return dcb->ops->attach(dcb);
- 
--	return 0;
-+	return -EOPNOTSUPP;
- }
- 
- static inline int
-@@ -75,7 +75,7 @@ qlcnic_dcb_query_hw_capability(struct qlcnic_dcb *dcb, char *buf)
- 	if (dcb && dcb->ops->query_hw_capability)
- 		return dcb->ops->query_hw_capability(dcb, buf);
- 
--	return 0;
-+	return -EOPNOTSUPP;
- }
- 
- static inline void qlcnic_dcb_get_info(struct qlcnic_dcb *dcb)
-@@ -90,7 +90,7 @@ qlcnic_dcb_query_cee_param(struct qlcnic_dcb *dcb, char *buf, u8 type)
- 	if (dcb && dcb->ops->query_cee_param)
- 		return dcb->ops->query_cee_param(dcb, buf, type);
- 
--	return 0;
-+	return -EOPNOTSUPP;
- }
- 
- static inline int qlcnic_dcb_get_cee_cfg(struct qlcnic_dcb *dcb)
-@@ -98,7 +98,7 @@ static inline int qlcnic_dcb_get_cee_cfg(struct qlcnic_dcb *dcb)
- 	if (dcb && dcb->ops->get_cee_cfg)
- 		return dcb->ops->get_cee_cfg(dcb);
- 
--	return 0;
-+	return -EOPNOTSUPP;
- }
- 
- static inline void qlcnic_dcb_aen_handler(struct qlcnic_dcb *dcb, void *msg)
+ 		ret = snd_soc_component_of_xlate_dai_name(pos, args, dai_name);
 -- 
 2.34.1
 
