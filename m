@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F3C2501129
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABC85014F0
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:34:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236307AbiDNOEZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:04:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60366 "EHLO
+        id S1348379AbiDNOEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:04:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346573AbiDNN5m (ORCPT
+        with ESMTP id S1346572AbiDNN5m (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:57:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906AF8C7EA;
-        Thu, 14 Apr 2022 06:47:10 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F23148CDAE;
+        Thu, 14 Apr 2022 06:47:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35590B82988;
-        Thu, 14 Apr 2022 13:47:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E95BC385A1;
-        Thu, 14 Apr 2022 13:47:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9064E61D73;
+        Thu, 14 Apr 2022 13:47:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70AFDC385A1;
+        Thu, 14 Apr 2022 13:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944029;
-        bh=Ti6npx+XBz+vRIA0uWfsCsai9jdUGH16snYnLGzhmJo=;
+        s=korg; t=1649944032;
+        bh=t0g3o+vjO6oyTmJLg+UH2gahFuYs6k7jNgBfmjGR/W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x55zn+BzO/1shpfk3OspEdVsS1/IUxoRsu909mKAZM4uxA36O0Ot1+KdtDNCMqjKf
-         OFjW3Ha7oAgc+WCoxl/xGJCMbusg/4CHGHK/7DOz3f07xRjLqWd32yK2+YDjvD4YJB
-         miQAtnkixTWPHb2vtWFXF6q2MfD166gTRTC4DU0g=
+        b=xukP+4mtal+m8n9gxBz6mrd6YcFhVHL0kmL1cfLONE1zGIFY2gcOLIqawhzb3xAjK
+         zdXtt7N01jH4/ovDSPn5+C10ipBR26+CCJhSc8XXxaH3H7J25d2YAiVsPnwpLkPMVt
+         Ui66FF936W9qEUl+J+qu9fkQYj3ZwYf5xZ+2gH0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 368/475] ubifs: Rectify space amount budget for mkdir/tmpfile operations
-Date:   Thu, 14 Apr 2022 15:12:33 +0200
-Message-Id: <20220414110905.377243078@linuxfoundation.org>
+Subject: [PATCH 5.4 369/475] rtc: wm8350: Handle error for wm8350_register_irq
+Date:   Thu, 14 Apr 2022 15:12:34 +0200
+Message-Id: <20220414110905.404559971@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,69 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit a6dab6607d4681d227905d5198710b575dbdb519 ]
+[ Upstream commit 43f0269b6b89c1eec4ef83c48035608f4dcdd886 ]
 
-UBIFS should make sure the flash has enough space to store dirty (Data
-that is newer than disk) data (in memory), space budget is exactly
-designed to do that. If space budget calculates less data than we need,
-'make_reservation()' will do more work(return -ENOSPC if no free space
-lelf, sometimes we can see "cannot reserve xxx bytes in jhead xxx, error
--28" in ubifs error messages) with ubifs inodes locked, which may effect
-other syscalls.
+As the potential failure of the wm8350_register_irq(),
+it should be better to check it and return error if fails.
+Also, it need not free 'wm_rtc->rtc' since it will be freed
+automatically.
 
-A simple way to decide how much space do we need when make a budget:
-See how much space is needed by 'make_reservation()' in ubifs_jnl_xxx()
-function according to corresponding operation.
-
-It's better to report ENOSPC in ubifs_budget_space(), as early as we can.
-
-Fixes: 474b93704f32163 ("ubifs: Implement O_TMPFILE")
-Fixes: 1e51764a3c2ac05 ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 077eaf5b40ec ("rtc: rtc-wm8350: add support for WM8350 RTC")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220303085030.291793-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-wm8350.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 6a49b1ed659d..83a173feb698 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -361,15 +361,18 @@ static int do_tmpfile(struct inode *dir, struct dentry *dentry,
- {
- 	struct inode *inode;
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1};
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct ubifs_budget_req ino_req = { .dirtied_ino = 1 };
- 	struct ubifs_inode *ui, *dir_ui = ubifs_inode(dir);
- 	int err, instantiated = 0;
- 	struct fscrypt_name nm;
+diff --git a/drivers/rtc/rtc-wm8350.c b/drivers/rtc/rtc-wm8350.c
+index 2018614f258f..6eaa9321c074 100644
+--- a/drivers/rtc/rtc-wm8350.c
++++ b/drivers/rtc/rtc-wm8350.c
+@@ -432,14 +432,21 @@ static int wm8350_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- 	/*
--	 * Budget request settings: new dirty inode, new direntry,
--	 * budget for dirtied inode will be released via writeback.
-+	 * Budget request settings: new inode, new direntry, changing the
-+	 * parent directory inode.
-+	 * Allocate budget separately for new dirtied inode, the budget will
-+	 * be released via writeback.
- 	 */
+-	wm8350_register_irq(wm8350, WM8350_IRQ_RTC_SEC,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_RTC_SEC,
+ 			    wm8350_rtc_update_handler, 0,
+ 			    "RTC Seconds", wm8350);
++	if (ret)
++		return ret;
++
+ 	wm8350_mask_irq(wm8350, WM8350_IRQ_RTC_SEC);
  
- 	dbg_gen("dent '%pd', mode %#hx in dir ino %lu",
-@@ -957,7 +960,8 @@ static int ubifs_mkdir(struct inode *dir, struct dentry *dentry, umode_t mode)
- 	struct ubifs_inode *dir_ui = ubifs_inode(dir);
- 	struct ubifs_info *c = dir->i_sb->s_fs_info;
- 	int err, sz_change;
--	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1 };
-+	struct ubifs_budget_req req = { .new_ino = 1, .new_dent = 1,
-+					.dirtied_ino = 1};
- 	struct fscrypt_name nm;
+-	wm8350_register_irq(wm8350, WM8350_IRQ_RTC_ALM,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_RTC_ALM,
+ 			    wm8350_rtc_alarm_handler, 0,
+ 			    "RTC Alarm", wm8350);
++	if (ret) {
++		wm8350_free_irq(wm8350, WM8350_IRQ_RTC_SEC, wm8350);
++		return ret;
++	}
  
- 	/*
+ 	return 0;
+ }
 -- 
 2.35.1
 
