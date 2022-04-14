@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EADFC500E80
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:16:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 924A2500E6E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243865AbiDNNSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:18:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37046 "EHLO
+        id S243753AbiDNNRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:17:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243738AbiDNNRY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:17:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 344B38FE50;
-        Thu, 14 Apr 2022 06:15:00 -0700 (PDT)
+        with ESMTP id S243773AbiDNNRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:17:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A737590CDC;
+        Thu, 14 Apr 2022 06:15:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3ED9612DA;
-        Thu, 14 Apr 2022 13:14:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D36C9C385A1;
-        Thu, 14 Apr 2022 13:14:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AD62B8296A;
+        Thu, 14 Apr 2022 13:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98144C385A1;
+        Thu, 14 Apr 2022 13:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942099;
-        bh=PaTngJ64p5Jnkri65TBcUAY1LQxwH7tWkPjQpSs/TRM=;
+        s=korg; t=1649942102;
+        bh=rsmhHZrQX9dB5XLRSv/cEVQitQ799+F6/y9wxWssfdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1PG1tNo7NkVKMfyRyCIEZ1dMyBMTrd+muj2MuK4b7ljx3ujHva+0TBL5UZ0O1rT8m
-         DQ4srSa82kkZdJ9v+xjsz3gyc91QEOscx8+tCFJFtm7bQSpZbzEV7aDPJKDT90XQoM
-         V5ndZdeuK+w5vYUIrsNn58J9wkyXL/o/YvXAkwEs=
+        b=1H9c/O65D3S2Xi1nn5p0NGYRed3wz4R1Y2kKXF7jg3pZ9GgogeQMc1ikeMEDzi1+x
+         X+LEYaT+AjPTQV/sPIpfgWOdK3VsnOrB+TvDRnUvFUpWgHVW24QmDWYKdt/tUW8e28
+         MM8A6AmEP9UVLBPnrAVoTVnKESi5etnxJY0AwMl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.19 015/338] virtio-blk: Use blk_validate_block_size() to validate block size
-Date:   Thu, 14 Apr 2022 15:08:38 +0200
-Message-Id: <20220414110839.326021105@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.19 016/338] USB: usb-storage: Fix use of bitfields for hardware data in ene_ub6250.c
+Date:   Thu, 14 Apr 2022 15:08:39 +0200
+Message-Id: <20220414110839.354090962@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,72 +52,353 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 57a13a5b8157d9a8606490aaa1b805bafe6c37e1 upstream.
+commit 1892bf90677abcad7f06e897e308f5c3e3618dd4 upstream.
 
-The block layer can't support a block size larger than
-page size yet. And a block size that's too small or
-not a power of two won't work either. If a misconfigured
-device presents an invalid block size in configuration space,
-it will result in the kernel crash something like below:
+The kernel test robot found a problem with the ene_ub6250 subdriver in
+usb-storage: It uses structures containing bitfields to represent
+hardware bits in its SD_STATUS, MS_STATUS, and SM_STATUS bytes.  This
+is not safe; it presumes a particular bit ordering and it assumes the
+compiler will not insert padding, neither of which is guaranteed.
 
-[  506.154324] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[  506.160416] RIP: 0010:create_empty_buffers+0x24/0x100
-[  506.174302] Call Trace:
-[  506.174651]  create_page_buffers+0x4d/0x60
-[  506.175207]  block_read_full_page+0x50/0x380
-[  506.175798]  ? __mod_lruvec_page_state+0x60/0xa0
-[  506.176412]  ? __add_to_page_cache_locked+0x1b2/0x390
-[  506.177085]  ? blkdev_direct_IO+0x4a0/0x4a0
-[  506.177644]  ? scan_shadow_nodes+0x30/0x30
-[  506.178206]  ? lru_cache_add+0x42/0x60
-[  506.178716]  do_read_cache_page+0x695/0x740
-[  506.179278]  ? read_part_sector+0xe0/0xe0
-[  506.179821]  read_part_sector+0x36/0xe0
-[  506.180337]  adfspart_check_ICS+0x32/0x320
-[  506.180890]  ? snprintf+0x45/0x70
-[  506.181350]  ? read_part_sector+0xe0/0xe0
-[  506.181906]  bdev_disk_changed+0x229/0x5c0
-[  506.182483]  blkdev_get_whole+0x6d/0x90
-[  506.183013]  blkdev_get_by_dev+0x122/0x2d0
-[  506.183562]  device_add_disk+0x39e/0x3c0
-[  506.184472]  virtblk_probe+0x3f8/0x79b [virtio_blk]
-[  506.185461]  virtio_dev_probe+0x15e/0x1d0 [virtio]
+This patch fixes the problem by changing the structures to simple u8
+values, with the bitfields replaced by bitmask constants.
 
-So let's use a block layer helper to validate the block size.
-
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20211026144015.188-5-xieyongji@bytedance.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/YjOcbuU106UpJ/V8@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/virtio_blk.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/usb/storage/ene_ub6250.c |  153 +++++++++++++++++++--------------------
+ 1 file changed, 75 insertions(+), 78 deletions(-)
 
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -849,9 +849,17 @@ static int virtblk_probe(struct virtio_d
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
- 				   struct virtio_blk_config, blk_size,
- 				   &blk_size);
--	if (!err)
-+	if (!err) {
-+		err = blk_validate_block_size(blk_size);
-+		if (err) {
-+			dev_err(&vdev->dev,
-+				"virtio_blk: invalid block size: 0x%x\n",
-+				blk_size);
-+			goto out_free_tags;
-+		}
-+
- 		blk_queue_logical_block_size(q, blk_size);
--	else
-+	} else
- 		blk_size = queue_logical_block_size(q);
+--- a/drivers/usb/storage/ene_ub6250.c
++++ b/drivers/usb/storage/ene_ub6250.c
+@@ -236,36 +236,33 @@ static struct us_unusual_dev ene_ub6250_
+ #define memstick_logaddr(logadr1, logadr0) ((((u16)(logadr1)) << 8) | (logadr0))
  
- 	/* Use topology information if available */
+ 
+-struct SD_STATUS {
+-	u8    Insert:1;
+-	u8    Ready:1;
+-	u8    MediaChange:1;
+-	u8    IsMMC:1;
+-	u8    HiCapacity:1;
+-	u8    HiSpeed:1;
+-	u8    WtP:1;
+-	u8    Reserved:1;
+-};
+-
+-struct MS_STATUS {
+-	u8    Insert:1;
+-	u8    Ready:1;
+-	u8    MediaChange:1;
+-	u8    IsMSPro:1;
+-	u8    IsMSPHG:1;
+-	u8    Reserved1:1;
+-	u8    WtP:1;
+-	u8    Reserved2:1;
+-};
+-
+-struct SM_STATUS {
+-	u8    Insert:1;
+-	u8    Ready:1;
+-	u8    MediaChange:1;
+-	u8    Reserved:3;
+-	u8    WtP:1;
+-	u8    IsMS:1;
+-};
++/* SD_STATUS bits */
++#define SD_Insert	BIT(0)
++#define SD_Ready	BIT(1)
++#define SD_MediaChange	BIT(2)
++#define SD_IsMMC	BIT(3)
++#define SD_HiCapacity	BIT(4)
++#define SD_HiSpeed	BIT(5)
++#define SD_WtP		BIT(6)
++			/* Bit 7 reserved */
++
++/* MS_STATUS bits */
++#define MS_Insert	BIT(0)
++#define MS_Ready	BIT(1)
++#define MS_MediaChange	BIT(2)
++#define MS_IsMSPro	BIT(3)
++#define MS_IsMSPHG	BIT(4)
++			/* Bit 5 reserved */
++#define MS_WtP		BIT(6)
++			/* Bit 7 reserved */
++
++/* SM_STATUS bits */
++#define SM_Insert	BIT(0)
++#define SM_Ready	BIT(1)
++#define SM_MediaChange	BIT(2)
++			/* Bits 3-5 reserved */
++#define SM_WtP		BIT(6)
++#define SM_IsMS		BIT(7)
+ 
+ struct ms_bootblock_cis {
+ 	u8 bCistplDEVICE[6];    /* 0 */
+@@ -436,9 +433,9 @@ struct ene_ub6250_info {
+ 	u8		*bbuf;
+ 
+ 	/* for 6250 code */
+-	struct SD_STATUS	SD_Status;
+-	struct MS_STATUS	MS_Status;
+-	struct SM_STATUS	SM_Status;
++	u8		SD_Status;
++	u8		MS_Status;
++	u8		SM_Status;
+ 
+ 	/* ----- SD Control Data ---------------- */
+ 	/*SD_REGISTER SD_Regs; */
+@@ -601,7 +598,7 @@ static int sd_scsi_test_unit_ready(struc
+ {
+ 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+ 
+-	if (info->SD_Status.Insert && info->SD_Status.Ready)
++	if ((info->SD_Status & SD_Insert) && (info->SD_Status & SD_Ready))
+ 		return USB_STOR_TRANSPORT_GOOD;
+ 	else {
+ 		ene_sd_init(us);
+@@ -621,7 +618,7 @@ static int sd_scsi_mode_sense(struct us_
+ 		0x0b, 0x00, 0x80, 0x08, 0x00, 0x00,
+ 		0x71, 0xc0, 0x00, 0x00, 0x02, 0x00 };
+ 
+-	if (info->SD_Status.WtP)
++	if (info->SD_Status & SD_WtP)
+ 		usb_stor_set_xfer_buf(mediaWP, 12, srb);
+ 	else
+ 		usb_stor_set_xfer_buf(mediaNoWP, 12, srb);
+@@ -640,9 +637,9 @@ static int sd_scsi_read_capacity(struct
+ 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+ 
+ 	usb_stor_dbg(us, "sd_scsi_read_capacity\n");
+-	if (info->SD_Status.HiCapacity) {
++	if (info->SD_Status & SD_HiCapacity) {
+ 		bl_len = 0x200;
+-		if (info->SD_Status.IsMMC)
++		if (info->SD_Status & SD_IsMMC)
+ 			bl_num = info->HC_C_SIZE-1;
+ 		else
+ 			bl_num = (info->HC_C_SIZE + 1) * 1024 - 1;
+@@ -692,7 +689,7 @@ static int sd_scsi_read(struct us_data *
+ 		return USB_STOR_TRANSPORT_ERROR;
+ 	}
+ 
+-	if (info->SD_Status.HiCapacity)
++	if (info->SD_Status & SD_HiCapacity)
+ 		bnByte = bn;
+ 
+ 	/* set up the command wrapper */
+@@ -732,7 +729,7 @@ static int sd_scsi_write(struct us_data
+ 		return USB_STOR_TRANSPORT_ERROR;
+ 	}
+ 
+-	if (info->SD_Status.HiCapacity)
++	if (info->SD_Status & SD_HiCapacity)
+ 		bnByte = bn;
+ 
+ 	/* set up the command wrapper */
+@@ -1454,7 +1451,7 @@ static int ms_scsi_test_unit_ready(struc
+ 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
+ 
+ 	/* pr_info("MS_SCSI_Test_Unit_Ready\n"); */
+-	if (info->MS_Status.Insert && info->MS_Status.Ready) {
++	if ((info->MS_Status & MS_Insert) && (info->MS_Status & MS_Ready)) {
+ 		return USB_STOR_TRANSPORT_GOOD;
+ 	} else {
+ 		ene_ms_init(us);
+@@ -1474,7 +1471,7 @@ static int ms_scsi_mode_sense(struct us_
+ 		0x0b, 0x00, 0x80, 0x08, 0x00, 0x00,
+ 		0x71, 0xc0, 0x00, 0x00, 0x02, 0x00 };
+ 
+-	if (info->MS_Status.WtP)
++	if (info->MS_Status & MS_WtP)
+ 		usb_stor_set_xfer_buf(mediaWP, 12, srb);
+ 	else
+ 		usb_stor_set_xfer_buf(mediaNoWP, 12, srb);
+@@ -1493,7 +1490,7 @@ static int ms_scsi_read_capacity(struct
+ 
+ 	usb_stor_dbg(us, "ms_scsi_read_capacity\n");
+ 	bl_len = 0x200;
+-	if (info->MS_Status.IsMSPro)
++	if (info->MS_Status & MS_IsMSPro)
+ 		bl_num = info->MSP_TotalBlock - 1;
+ 	else
+ 		bl_num = info->MS_Lib.NumberOfLogBlock * info->MS_Lib.blockSize * 2 - 1;
+@@ -1648,7 +1645,7 @@ static int ms_scsi_read(struct us_data *
+ 	if (bn > info->bl_num)
+ 		return USB_STOR_TRANSPORT_ERROR;
+ 
+-	if (info->MS_Status.IsMSPro) {
++	if (info->MS_Status & MS_IsMSPro) {
+ 		result = ene_load_bincode(us, MSP_RW_PATTERN);
+ 		if (result != USB_STOR_XFER_GOOD) {
+ 			usb_stor_dbg(us, "Load MPS RW pattern Fail !!\n");
+@@ -1749,7 +1746,7 @@ static int ms_scsi_write(struct us_data
+ 	if (bn > info->bl_num)
+ 		return USB_STOR_TRANSPORT_ERROR;
+ 
+-	if (info->MS_Status.IsMSPro) {
++	if (info->MS_Status & MS_IsMSPro) {
+ 		result = ene_load_bincode(us, MSP_RW_PATTERN);
+ 		if (result != USB_STOR_XFER_GOOD) {
+ 			pr_info("Load MSP RW pattern Fail !!\n");
+@@ -1857,12 +1854,12 @@ static int ene_get_card_status(struct us
+ 
+ 	tmpreg = (u16) reg4b;
+ 	reg4b = *(u32 *)(&buf[0x14]);
+-	if (info->SD_Status.HiCapacity && !info->SD_Status.IsMMC)
++	if ((info->SD_Status & SD_HiCapacity) && !(info->SD_Status & SD_IsMMC))
+ 		info->HC_C_SIZE = (reg4b >> 8) & 0x3fffff;
+ 
+ 	info->SD_C_SIZE = ((tmpreg & 0x03) << 10) | (u16)(reg4b >> 22);
+ 	info->SD_C_SIZE_MULT = (u8)(reg4b >> 7)  & 0x07;
+-	if (info->SD_Status.HiCapacity && info->SD_Status.IsMMC)
++	if ((info->SD_Status & SD_HiCapacity) && (info->SD_Status & SD_IsMMC))
+ 		info->HC_C_SIZE = *(u32 *)(&buf[0x100]);
+ 
+ 	if (info->SD_READ_BL_LEN > SD_BLOCK_LEN) {
+@@ -2074,6 +2071,7 @@ static int ene_ms_init(struct us_data *u
+ 	u16 MSP_BlockSize, MSP_UserAreaBlocks;
+ 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+ 	u8 *bbuf = info->bbuf;
++	unsigned int s;
+ 
+ 	printk(KERN_INFO "transport --- ENE_MSInit\n");
+ 
+@@ -2098,15 +2096,16 @@ static int ene_ms_init(struct us_data *u
+ 		return USB_STOR_TRANSPORT_ERROR;
+ 	}
+ 	/* the same part to test ENE */
+-	info->MS_Status = *(struct MS_STATUS *) bbuf;
++	info->MS_Status = bbuf[0];
+ 
+-	if (info->MS_Status.Insert && info->MS_Status.Ready) {
+-		printk(KERN_INFO "Insert     = %x\n", info->MS_Status.Insert);
+-		printk(KERN_INFO "Ready      = %x\n", info->MS_Status.Ready);
+-		printk(KERN_INFO "IsMSPro    = %x\n", info->MS_Status.IsMSPro);
+-		printk(KERN_INFO "IsMSPHG    = %x\n", info->MS_Status.IsMSPHG);
+-		printk(KERN_INFO "WtP= %x\n", info->MS_Status.WtP);
+-		if (info->MS_Status.IsMSPro) {
++	s = info->MS_Status;
++	if ((s & MS_Insert) && (s & MS_Ready)) {
++		printk(KERN_INFO "Insert     = %x\n", !!(s & MS_Insert));
++		printk(KERN_INFO "Ready      = %x\n", !!(s & MS_Ready));
++		printk(KERN_INFO "IsMSPro    = %x\n", !!(s & MS_IsMSPro));
++		printk(KERN_INFO "IsMSPHG    = %x\n", !!(s & MS_IsMSPHG));
++		printk(KERN_INFO "WtP= %x\n", !!(s & MS_WtP));
++		if (s & MS_IsMSPro) {
+ 			MSP_BlockSize      = (bbuf[6] << 8) | bbuf[7];
+ 			MSP_UserAreaBlocks = (bbuf[10] << 8) | bbuf[11];
+ 			info->MSP_TotalBlock = MSP_BlockSize * MSP_UserAreaBlocks;
+@@ -2167,17 +2166,17 @@ static int ene_sd_init(struct us_data *u
+ 		return USB_STOR_TRANSPORT_ERROR;
+ 	}
+ 
+-	info->SD_Status =  *(struct SD_STATUS *) bbuf;
+-	if (info->SD_Status.Insert && info->SD_Status.Ready) {
+-		struct SD_STATUS *s = &info->SD_Status;
++	info->SD_Status = bbuf[0];
++	if ((info->SD_Status & SD_Insert) && (info->SD_Status & SD_Ready)) {
++		unsigned int s = info->SD_Status;
+ 
+ 		ene_get_card_status(us, bbuf);
+-		usb_stor_dbg(us, "Insert     = %x\n", s->Insert);
+-		usb_stor_dbg(us, "Ready      = %x\n", s->Ready);
+-		usb_stor_dbg(us, "IsMMC      = %x\n", s->IsMMC);
+-		usb_stor_dbg(us, "HiCapacity = %x\n", s->HiCapacity);
+-		usb_stor_dbg(us, "HiSpeed    = %x\n", s->HiSpeed);
+-		usb_stor_dbg(us, "WtP        = %x\n", s->WtP);
++		usb_stor_dbg(us, "Insert     = %x\n", !!(s & SD_Insert));
++		usb_stor_dbg(us, "Ready      = %x\n", !!(s & SD_Ready));
++		usb_stor_dbg(us, "IsMMC      = %x\n", !!(s & SD_IsMMC));
++		usb_stor_dbg(us, "HiCapacity = %x\n", !!(s & SD_HiCapacity));
++		usb_stor_dbg(us, "HiSpeed    = %x\n", !!(s & SD_HiSpeed));
++		usb_stor_dbg(us, "WtP        = %x\n", !!(s & SD_WtP));
+ 	} else {
+ 		usb_stor_dbg(us, "SD Card Not Ready --- %x\n", bbuf[0]);
+ 		return USB_STOR_TRANSPORT_ERROR;
+@@ -2199,14 +2198,14 @@ static int ene_init(struct us_data *us)
+ 
+ 	misc_reg03 = bbuf[0];
+ 	if (misc_reg03 & 0x01) {
+-		if (!info->SD_Status.Ready) {
++		if (!(info->SD_Status & SD_Ready)) {
+ 			result = ene_sd_init(us);
+ 			if (result != USB_STOR_XFER_GOOD)
+ 				return USB_STOR_TRANSPORT_ERROR;
+ 		}
+ 	}
+ 	if (misc_reg03 & 0x02) {
+-		if (!info->MS_Status.Ready) {
++		if (!(info->MS_Status & MS_Ready)) {
+ 			result = ene_ms_init(us);
+ 			if (result != USB_STOR_XFER_GOOD)
+ 				return USB_STOR_TRANSPORT_ERROR;
+@@ -2305,14 +2304,14 @@ static int ene_transport(struct scsi_cmn
+ 
+ 	/*US_DEBUG(usb_stor_show_command(us, srb)); */
+ 	scsi_set_resid(srb, 0);
+-	if (unlikely(!(info->SD_Status.Ready || info->MS_Status.Ready)))
++	if (unlikely(!(info->SD_Status & SD_Ready) || (info->MS_Status & MS_Ready)))
+ 		result = ene_init(us);
+ 	if (result == USB_STOR_XFER_GOOD) {
+ 		result = USB_STOR_TRANSPORT_ERROR;
+-		if (info->SD_Status.Ready)
++		if (info->SD_Status & SD_Ready)
+ 			result = sd_scsi_irp(us, srb);
+ 
+-		if (info->MS_Status.Ready)
++		if (info->MS_Status & MS_Ready)
+ 			result = ms_scsi_irp(us, srb);
+ 	}
+ 	return result;
+@@ -2376,7 +2375,6 @@ static int ene_ub6250_probe(struct usb_i
+ 
+ static int ene_ub6250_resume(struct usb_interface *iface)
+ {
+-	u8 tmp = 0;
+ 	struct us_data *us = usb_get_intfdata(iface);
+ 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
+ 
+@@ -2388,17 +2386,16 @@ static int ene_ub6250_resume(struct usb_
+ 	mutex_unlock(&us->dev_mutex);
+ 
+ 	info->Power_IsResum = true;
+-	/*info->SD_Status.Ready = 0; */
+-	info->SD_Status = *(struct SD_STATUS *)&tmp;
+-	info->MS_Status = *(struct MS_STATUS *)&tmp;
+-	info->SM_Status = *(struct SM_STATUS *)&tmp;
++	/* info->SD_Status &= ~SD_Ready; */
++	info->SD_Status = 0;
++	info->MS_Status = 0;
++	info->SM_Status = 0;
+ 
+ 	return 0;
+ }
+ 
+ static int ene_ub6250_reset_resume(struct usb_interface *iface)
+ {
+-	u8 tmp = 0;
+ 	struct us_data *us = usb_get_intfdata(iface);
+ 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
+ 
+@@ -2410,10 +2407,10 @@ static int ene_ub6250_reset_resume(struc
+ 	 * the device
+ 	 */
+ 	info->Power_IsResum = true;
+-	/*info->SD_Status.Ready = 0; */
+-	info->SD_Status = *(struct SD_STATUS *)&tmp;
+-	info->MS_Status = *(struct MS_STATUS *)&tmp;
+-	info->SM_Status = *(struct SM_STATUS *)&tmp;
++	/* info->SD_Status &= ~SD_Ready; */
++	info->SD_Status = 0;
++	info->MS_Status = 0;
++	info->SM_Status = 0;
+ 
+ 	return 0;
+ }
 
 
