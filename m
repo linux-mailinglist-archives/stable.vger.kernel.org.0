@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B1D45011FD
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:06:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0377E5013F1
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:23:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343689AbiDNNtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:49:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36018 "EHLO
+        id S245441AbiDNNsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343987AbiDNNjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:32 -0400
+        with ESMTP id S1343990AbiDNNjd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 723B538199;
-        Thu, 14 Apr 2022 06:36:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2F7222BD;
+        Thu, 14 Apr 2022 06:36:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C3DAB82968;
-        Thu, 14 Apr 2022 13:36:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C8E8C385A5;
-        Thu, 14 Apr 2022 13:36:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB103B8296A;
+        Thu, 14 Apr 2022 13:36:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B963C385A5;
+        Thu, 14 Apr 2022 13:36:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943378;
-        bh=777DB/vHOat0ruyrlz98w0Bs75LlAkfwC+qTQqNJ6Qw=;
+        s=korg; t=1649943381;
+        bh=pgtTMJ3lOChN0sZhtkEWGnw/cn/E2bkd2HKG/XVMGcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=voASBJbiLF3+PdFbnFLB1nX41tCDnVIjZJ87BVHTlB24vmGnyQNNgigNl7uhenUI1
-         cMANT4NSUeOmGLg527beaVZS6qQchjvht2qKSwoQoWme/Psz9cOwwU500kbyyAib76
-         oKHkrQeZZ+ilYrhgEL89VyvoXKVxIvYzB85zNjN4=
+        b=EOXweEmT33RU3V9giVAnmOQ9C8IKDJOaV66yUrExpc5A2iGcGOxepvYW1eLDJS1u/
+         SkYCq0vaKdNq+SLh3IArnxpD66UfmxORh+OcbPCZBPLunUCSFDgq+o34htF71677dI
+         9Vm19H9Tvd2yT5poxJ66ayqYo0GzY3Q1Y0oJ7VEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 094/475] crypto: ccree - dont attempt 0 len DMA mappings
-Date:   Thu, 14 Apr 2022 15:07:59 +0200
-Message-Id: <20220414110857.787624384@linuxfoundation.org>
+Subject: [PATCH 5.4 095/475] spi: pxa2xx-pci: Balance reference count for PCI DMA device
+Date:   Thu, 14 Apr 2022 15:08:00 +0200
+Message-Id: <20220414110857.815309834@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -55,43 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 1fb37b5692c915edcc2448a6b37255738c7c77e0 ]
+[ Upstream commit 609d7ffdc42199a0ec949db057e3b4be6745d6c5 ]
 
-Refuse to try mapping zero bytes as this may cause a fault
-on some configurations / platforms and it seems the prev.
-attempt is not enough and we need to be more explicit.
+The pci_get_slot() increases its reference count, the caller
+must decrement the reference count by calling pci_dev_put().
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Fixes: ce0fc6db38de ("crypto: ccree - protect against empty or NULL
-scatterlists")
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 743485ea3bee ("spi: pxa2xx-pci: Do a specific setup in a separate function")
+Fixes: 25014521603f ("spi: pxa2xx-pci: Enable DMA for Intel Merrifield")
+Reported-by: Wang Qing <wangqing@vivo.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220223191637.31147-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccree/cc_buffer_mgr.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/spi/spi-pxa2xx-pci.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccree/cc_buffer_mgr.c b/drivers/crypto/ccree/cc_buffer_mgr.c
-index 954f14bddf1d..dce30ae2b704 100644
---- a/drivers/crypto/ccree/cc_buffer_mgr.c
-+++ b/drivers/crypto/ccree/cc_buffer_mgr.c
-@@ -295,6 +295,13 @@ static int cc_map_sg(struct device *dev, struct scatterlist *sg,
- {
- 	int ret = 0;
+diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
+index aafac128bb5f..4eb979a096c7 100644
+--- a/drivers/spi/spi-pxa2xx-pci.c
++++ b/drivers/spi/spi-pxa2xx-pci.c
+@@ -74,14 +74,23 @@ static bool lpss_dma_filter(struct dma_chan *chan, void *param)
+ 	return true;
+ }
  
-+	if (!nbytes) {
-+		*mapped_nents = 0;
-+		*lbytes = 0;
-+		*nents = 0;
-+		return 0;
-+	}
++static void lpss_dma_put_device(void *dma_dev)
++{
++	pci_dev_put(dma_dev);
++}
 +
- 	*nents = cc_get_sgl_nents(dev, sg, nbytes, lbytes);
- 	if (*nents > max_sg_nents) {
- 		*nents = 0;
+ static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ {
+ 	struct pci_dev *dma_dev;
++	int ret;
+ 
+ 	c->num_chipselect = 1;
+ 	c->max_clk_rate = 50000000;
+ 
+ 	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(PCI_SLOT(dev->devfn), 0));
++	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
++	if (ret)
++		return ret;
+ 
+ 	if (c->tx_param) {
+ 		struct dw_dma_slave *slave = c->tx_param;
+@@ -105,8 +114,9 @@ static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ 
+ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ {
+-	struct pci_dev *dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
+ 	struct dw_dma_slave *tx, *rx;
++	struct pci_dev *dma_dev;
++	int ret;
+ 
+ 	switch (PCI_FUNC(dev->devfn)) {
+ 	case 0:
+@@ -131,6 +141,11 @@ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
+ 		return -ENODEV;
+ 	}
+ 
++	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
++	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
++	if (ret)
++		return ret;
++
+ 	tx = c->tx_param;
+ 	tx->dma_dev = &dma_dev->dev;
+ 
 -- 
 2.34.1
 
