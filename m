@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 528835012BC
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:10:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45B5E501317
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344967AbiDNNwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:52:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58426 "EHLO
+        id S1344979AbiDNNwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:52:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344792AbiDNNol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8393B38795;
-        Thu, 14 Apr 2022 06:40:16 -0700 (PDT)
+        with ESMTP id S1344820AbiDNNom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D30538D86;
+        Thu, 14 Apr 2022 06:40:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 038D961D7E;
-        Thu, 14 Apr 2022 13:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F4B0C385A1;
-        Thu, 14 Apr 2022 13:40:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E98AB82968;
+        Thu, 14 Apr 2022 13:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFB78C385A1;
+        Thu, 14 Apr 2022 13:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943612;
-        bh=StjqynMU0FVl6unB/pSncxQTzqqQXrq2twB8ET6DAyU=;
+        s=korg; t=1649943615;
+        bh=CSM//Rz3PDHvzk+BYq71+X+1Jm1t0/cBCElyGnnl1/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PamRrSvxHNSwNa73IsVyIEL5dLf03oxdAAIIEipSKmpyeHqTJh+HZXHrzlZ0+XLaK
-         7cKAfdPBYOlU6A6bGGmgUNrbk5ZYELb/b/KXOkOmaqaqZbIrIuN1kYodxP/hs6tg+m
-         vpyQ51fucm6ouxOqETntJOBgKaGMGuJz3usk4cjQ=
+        b=Qsa1MBfw0rduwvxT67ajWxqTLVMyadbzorSqp15siYS+B/ZCBlCMOcXvsjKrDwZBH
+         AUFrzSdmvPflb+ZT/Hp1phg+ulWNy2CYwWjgQUu3UTJx9dJkRuiKRY76o13nC36/48
+         fyl7gM6Q4dIKmyA2vGyhzdmqopqvesN7r5PycJOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yufen <wangyufen@huawei.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 216/475] bpf, sockmap: Fix double uncharge the mem of sk_msg
-Date:   Thu, 14 Apr 2022 15:10:01 +0200
-Message-Id: <20220414110901.169014846@linuxfoundation.org>
+Subject: [PATCH 5.4 217/475] USB: storage: ums-realtek: fix error code in rts51x_read_mem()
+Date:   Thu, 14 Apr 2022 15:10:02 +0200
+Message-Id: <20220414110901.196759005@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -55,70 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Yufen <wangyufen@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2486ab434b2c2a14e9237296db00b1e1b7ae3273 ]
+[ Upstream commit b07cabb8361dc692522538205552b1b9dab134be ]
 
-If tcp_bpf_sendmsg is running during a tear down operation, psock may be
-freed.
+The rts51x_read_mem() function should return negative error codes.
+Currently if the kmalloc() fails it returns USB_STOR_TRANSPORT_ERROR (3)
+which is treated as success by the callers.
 
-tcp_bpf_sendmsg()
- tcp_bpf_send_verdict()
-  sk_msg_return()
-  tcp_bpf_sendmsg_redir()
-   unlikely(!psock))
-     sk_msg_free()
-
-The mem of msg has been uncharged in tcp_bpf_send_verdict() by
-sk_msg_return(), and would be uncharged by sk_msg_free() again. When psock
-is null, we can simply returning an error code, this would then trigger
-the sk_msg_free_nocharge in the error path of __SK_REDIRECT and would have
-the side effect of throwing an error up to user space. This would be a
-slight change in behavior from user side but would look the same as an
-error if the redirect on the socket threw an error.
-
-This issue can cause the following info:
-WARNING: CPU: 0 PID: 2136 at net/ipv4/af_inet.c:155 inet_sock_destruct+0x13c/0x260
-Call Trace:
- <TASK>
- __sk_destruct+0x24/0x1f0
- sk_psock_destroy+0x19b/0x1c0
- process_one_work+0x1b3/0x3c0
- worker_thread+0x30/0x350
- ? process_one_work+0x3c0/0x3c0
- kthread+0xe6/0x110
- ? kthread_complete_and_exit+0x20/0x20
- ret_from_fork+0x22/0x30
- </TASK>
-
-Fixes: 604326b41a6f ("bpf, sockmap: convert to generic sk_msg interface")
-Signed-off-by: Wang Yufen <wangyufen@huawei.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20220304081145.2037182-5-wangyufen@huawei.com
+Fixes: 065e60964e29 ("ums_realtek: do not use stack memory for DMA")
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220304073504.GA26464@kili
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_bpf.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/usb/storage/realtek_cr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 1584863bbdc1..bcc13368c836 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -296,10 +296,9 @@ int tcp_bpf_sendmsg_redir(struct sock *sk, struct sk_msg *msg,
- 	struct sk_psock *psock = sk_psock_get(sk);
- 	int ret;
+diff --git a/drivers/usb/storage/realtek_cr.c b/drivers/usb/storage/realtek_cr.c
+index 3789698d9d3c..0c423916d7bf 100644
+--- a/drivers/usb/storage/realtek_cr.c
++++ b/drivers/usb/storage/realtek_cr.c
+@@ -365,7 +365,7 @@ static int rts51x_read_mem(struct us_data *us, u16 addr, u8 *data, u16 len)
  
--	if (unlikely(!psock)) {
--		sk_msg_free(sk, msg);
--		return 0;
--	}
-+	if (unlikely(!psock))
-+		return -EPIPE;
-+
- 	ret = ingress ? bpf_tcp_ingress(sk, psock, msg, bytes, flags) :
- 			tcp_bpf_push_locked(sk, msg, bytes, flags, false);
- 	sk_psock_put(sk, psock);
+ 	buf = kmalloc(len, GFP_NOIO);
+ 	if (buf == NULL)
+-		return USB_STOR_TRANSPORT_ERROR;
++		return -ENOMEM;
+ 
+ 	usb_stor_dbg(us, "addr = 0x%x, len = %d\n", addr, len);
+ 
 -- 
 2.34.1
 
