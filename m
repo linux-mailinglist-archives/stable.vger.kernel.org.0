@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C39C25015B0
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 012BA5010F5
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245656AbiDNNnu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:43:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49778 "EHLO
+        id S1345676AbiDNNyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:54:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244877AbiDNN2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD985A76F7;
-        Thu, 14 Apr 2022 06:21:12 -0700 (PDT)
+        with ESMTP id S1344914AbiDNNoy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:44:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C3F56775;
+        Thu, 14 Apr 2022 06:40:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19E7560BAF;
-        Thu, 14 Apr 2022 13:21:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D74C385A5;
-        Thu, 14 Apr 2022 13:21:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D07A161BA7;
+        Thu, 14 Apr 2022 13:40:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C85C385A1;
+        Thu, 14 Apr 2022 13:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942471;
-        bh=arYmQ6gdhCroZr/XsiSO5yOvG9bBTqXz5YPkWZg9fPc=;
+        s=korg; t=1649943640;
+        bh=jwt4CADUzDZcKMg31hsForQ2DAABZD9u7dOEA4ghXUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQ9UZJip61aHbivt/UwEprZnVUvcao0tbp30N8XQCdyFv2U6NZd8ulk+sFY6rhXu3
-         IyXAkwF+P7keWClFbTnEYYjNg2kFiQj9SuMdy5A5sXYeyomq3l/ivSv7o36p/pxk9H
-         KDI692JgQXBaFLdzHoHl48CuqeqvZ8K8kzXthxS0=
+        b=LA+x1a1CDTxlMNywmuWLLb/OMqH1QWBbqIGjlX+OAmkZZ98qgvxd1hr9F4qoFpN23
+         E+D6HvmPTZjYtwt8KkMl6avJ4xIWSiiOXqqPHGjoJQWY8aUOLH/LVII36i0mcFeOZO
+         rYqr9KKQtQC1mruhJffoPlupJqgp3smpkunsEiFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 111/338] ASoC: mxs: Fix error handling in mxs_sgtl5000_probe
+Subject: [PATCH 5.4 229/475] misc: alcor_pci: Fix an error handling path
 Date:   Thu, 14 Apr 2022 15:10:14 +0200
-Message-Id: <20220414110842.068828264@linuxfoundation.org>
+Message-Id: <20220414110901.529728373@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6ae0a4d8fec551ec581d620f0eb1fe31f755551c ]
+[ Upstream commit 5b3dc949f554379edcb8ef6111aa5ecb78feb798 ]
 
-This function only calls of_node_put() in the regular path.
-And it will cause refcount leak in error paths.
-For example, when codec_np is NULL, saif_np[0] and saif_np[1]
-are not NULL, it will cause leaks.
+A successful ida_simple_get() should be balanced by a corresponding
+ida_simple_remove().
 
-of_node_put() will check if the node pointer is NULL, so we can
-call it directly to release the refcount of regular pointers.
+Add the missing call in the error handling path of the probe.
 
-Fixes: e968194b45c4 ("ASoC: mxs: add device tree support for mxs-sgtl5000")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220308020146.26496-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+While at it, switch to ida_alloc()/ida_free() instead to
+ida_simple_get()/ida_simple_remove().
+The latter is deprecated and more verbose.
+
+Fixes: 4f556bc04e3c ("misc: cardreader: add new Alcor Micro Cardreader PCI driver")
+Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/918a9875b7f67b7f8f123c4446452603422e8c5e.1644136776.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mxs/mxs-sgtl5000.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/misc/cardreader/alcor_pci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/mxs/mxs-sgtl5000.c b/sound/soc/mxs/mxs-sgtl5000.c
-index 2b3f2408301a..c40e0ab49657 100644
---- a/sound/soc/mxs/mxs-sgtl5000.c
-+++ b/sound/soc/mxs/mxs-sgtl5000.c
-@@ -120,6 +120,9 @@ static int mxs_sgtl5000_probe(struct platform_device *pdev)
- 	codec_np = of_parse_phandle(np, "audio-codec", 0);
- 	if (!saif_np[0] || !saif_np[1] || !codec_np) {
- 		dev_err(&pdev->dev, "phandle missing or invalid\n");
-+		of_node_put(codec_np);
-+		of_node_put(saif_np[0]);
-+		of_node_put(saif_np[1]);
- 		return -EINVAL;
+diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
+index 1fadb95b85b0..ba5d5c102b3c 100644
+--- a/drivers/misc/cardreader/alcor_pci.c
++++ b/drivers/misc/cardreader/alcor_pci.c
+@@ -260,7 +260,7 @@ static int alcor_pci_probe(struct pci_dev *pdev,
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	ret = ida_simple_get(&alcor_pci_idr, 0, 0, GFP_KERNEL);
++	ret = ida_alloc(&alcor_pci_idr, GFP_KERNEL);
+ 	if (ret < 0)
+ 		return ret;
+ 	priv->id = ret;
+@@ -274,7 +274,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
+ 	ret = pci_request_regions(pdev, DRV_NAME_ALCOR_PCI);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Cannot request region\n");
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto error_free_ida;
  	}
  
+ 	if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM)) {
+@@ -318,6 +319,8 @@ static int alcor_pci_probe(struct pci_dev *pdev,
+ 
+ error_release_regions:
+ 	pci_release_regions(pdev);
++error_free_ida:
++	ida_free(&alcor_pci_idr, priv->id);
+ 	return ret;
+ }
+ 
+@@ -331,7 +334,7 @@ static void alcor_pci_remove(struct pci_dev *pdev)
+ 
+ 	mfd_remove_devices(&pdev->dev);
+ 
+-	ida_simple_remove(&alcor_pci_idr, priv->id);
++	ida_free(&alcor_pci_idr, priv->id);
+ 
+ 	pci_release_regions(pdev);
+ 	pci_set_drvdata(pdev, NULL);
 -- 
 2.34.1
 
