@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE9535011B7
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BE05010E3
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241741AbiDNOGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43462 "EHLO
+        id S244864AbiDNNhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347587AbiDNN7W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1600A43497;
-        Thu, 14 Apr 2022 06:50:15 -0700 (PDT)
+        with ESMTP id S1344247AbiDNNbW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AFCD1B6;
+        Thu, 14 Apr 2022 06:28:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B224DB82894;
-        Thu, 14 Apr 2022 13:50:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF0D9C385A9;
-        Thu, 14 Apr 2022 13:50:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28E2E619FC;
+        Thu, 14 Apr 2022 13:28:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31F3AC385A9;
+        Thu, 14 Apr 2022 13:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944212;
-        bh=w17I2GFNMzwU5tGUrCqoLz9FROTmjllgoGdb7huj748=;
+        s=korg; t=1649942937;
+        bh=xTC8NEoBFjAUAUSvY4B6++YNOBYS8QkkKluA+P6BqXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5HMh3wlnOgE0n1mb7HXuMJvYYfz1kMy3m4mciXHSY1Qotgqnkt0Vm/sdkKu1kG25
-         R4AONZRHQ4QwhfzBeWyKwr/t1fw58QCQQPKff5MmpLH3vMilo2VH0Ba5FsbTYnIr1z
-         DBMQim/lDtr5lLte3qyRavYyeLC8E9qvPWVRLQIE=
+        b=KrJkCEK2cIYOP/RGZjK9naRasVEFNQ9z3dVM3q1OWyAVkg0ZWhnBYubS+KPKau/5z
+         Cv31oWEM5fwytt+PZIuiRp1TGycKxVWx20rhhVIarj3LKC+3nxDv2oI5pAH73YyK+H
+         Q+hWhoYPpMqeRjKXqFbFpbt4rIW16wt6SXSDIQWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 432/475] IB/rdmavt: add lock to call to rvt_error_qp to prevent a race condition
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 314/338] mmc: renesas_sdhi: dont overwrite TAP settings when HS400 tuning is complete
 Date:   Thu, 14 Apr 2022 15:13:37 +0200
-Message-Id: <20220414110907.153690997@linuxfoundation.org>
+Message-Id: <20220414110847.825058985@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 4d809f69695d4e7d1378b3a072fa9aef23123018 ]
+commit 03e59b1e2f56245163b14c69e0a830c24b1a3a47 upstream.
 
-The documentation of the function rvt_error_qp says both r_lock and s_lock
-need to be held when calling that function.  It also asserts using lockdep
-that both of those locks are held.  However, the commit I referenced in
-Fixes accidentally makes the call to rvt_error_qp in rvt_ruc_loopback no
-longer covered by r_lock.  This results in the lockdep assertion failing
-and also possibly in a race condition.
+When HS400 tuning is complete and HS400 is going to be activated, we
+have to keep the current number of TAPs and should not overwrite them
+with a hardcoded value. This was probably a copy&paste mistake when
+upporting HS400 support from the BSP.
 
-Fixes: d757c60eca9b ("IB/rdmavt: Fix concurrency panics in QP post_send and modify to error")
-Link: https://lore.kernel.org/r/20220228165330.41546-1-dossche.niels@gmail.com
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Acked-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 26eb2607fa28 ("mmc: renesas_sdhi: add eMMC HS400 mode support")
+Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220404114902.12175-1-wsa+renesas@sang-engineering.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/sw/rdmavt/qp.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/mmc/host/renesas_sdhi_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rdmavt/qp.c b/drivers/infiniband/sw/rdmavt/qp.c
-index a5152f097cb7..48e8612c1bc8 100644
---- a/drivers/infiniband/sw/rdmavt/qp.c
-+++ b/drivers/infiniband/sw/rdmavt/qp.c
-@@ -3227,7 +3227,11 @@ void rvt_ruc_loopback(struct rvt_qp *sqp)
- 	spin_lock_irqsave(&sqp->s_lock, flags);
- 	rvt_send_complete(sqp, wqe, send_status);
- 	if (sqp->ibqp.qp_type == IB_QPT_RC) {
--		int lastwqe = rvt_error_qp(sqp, IB_WC_WR_FLUSH_ERR);
-+		int lastwqe;
-+
-+		spin_lock(&sqp->r_lock);
-+		lastwqe = rvt_error_qp(sqp, IB_WC_WR_FLUSH_ERR);
-+		spin_unlock(&sqp->r_lock);
+--- a/drivers/mmc/host/renesas_sdhi_core.c
++++ b/drivers/mmc/host/renesas_sdhi_core.c
+@@ -302,10 +302,10 @@ static void renesas_sdhi_hs400_complete(
+ 			SH_MOBILE_SDHI_SCC_TMPPORT2_HS400OSEL) |
+ 			sd_scc_read32(host, priv, SH_MOBILE_SDHI_SCC_TMPPORT2));
  
- 		sqp->s_flags &= ~RVT_S_BUSY;
- 		spin_unlock_irqrestore(&sqp->s_lock, flags);
--- 
-2.35.1
-
+-	/* Set the sampling clock selection range of HS400 mode */
+ 	sd_scc_write32(host, priv, SH_MOBILE_SDHI_SCC_DTCNTL,
+ 		       SH_MOBILE_SDHI_SCC_DTCNTL_TAPEN |
+-		       0x4 << SH_MOBILE_SDHI_SCC_DTCNTL_TAPNUM_SHIFT);
++		       sd_scc_read32(host, priv,
++				     SH_MOBILE_SDHI_SCC_DTCNTL));
+ 
+ 
+ 	if (host->pdata->flags & TMIO_MMC_HAVE_4TAP_HS400)
 
 
