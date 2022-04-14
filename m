@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D17595015DA
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 003D850137E
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:20:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245425AbiDNNsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:48:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35526 "EHLO
+        id S245447AbiDNNsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343991AbiDNNjd (ORCPT
+        with ESMTP id S1343995AbiDNNjd (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5124D3A700;
-        Thu, 14 Apr 2022 06:36:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D23D427FE;
+        Thu, 14 Apr 2022 06:36:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E04D261D67;
-        Thu, 14 Apr 2022 13:36:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F02E3C385A5;
-        Thu, 14 Apr 2022 13:36:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F4E561D67;
+        Thu, 14 Apr 2022 13:36:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED05C385A1;
+        Thu, 14 Apr 2022 13:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943384;
-        bh=rQs5H8uc9j26fZe2HZCqfSJGDUNahqadiRCoxT7AeKA=;
+        s=korg; t=1649943387;
+        bh=twS32qAeCTY/7ABgIeeyA6EBH7JxCA+yeGiHVh5MOYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RS8AftHo4rzVL/ujhw9ezbSTzp7X0/UTmmFuxTiERU1lCenR2yM1cX2QZanUoNmAN
-         gejbe8fxe5QfyjMxOEOL2AF+p7E2r7G9NedyiQeYXriWt6tMRB3xVnvnMAbaLEpUBg
-         A3NftpTTmGERcW3tMj9Rd/XYb/vLAjy7zQZTUTn4=
+        b=V57kfvb9appD3gDBmwDVBIVuf0aNnljMZTpFoItIIkelKVgkZ3acNPcJj+6T2mz23
+         xC9FzZ4kY5zHy0uXeF0o4/cCIVm3uX3TxSw+qEG5OU50T0nCYTW4TK0czM1DXmOzEa
+         HebBTemaFRksUWAUXNAQSY/KW38ArTy3YUDfDXVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Patrick Rudolph <patrick.rudolph@9elements.com>,
-        Marcello Sylvester Bauer <sylv@sylv.io>,
-        Alan Tull <atull@opensource.altera.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Armin Wolf <W_Armin@gmx.de>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 096/475] hwmon: (pmbus) Add mutex to regulator ops
-Date:   Thu, 14 Apr 2022 15:08:01 +0200
-Message-Id: <20220414110857.842403768@linuxfoundation.org>
+Subject: [PATCH 5.4 097/475] hwmon: (sch56xx-common) Replace WDOG_ACTIVE with WDOG_HW_RUNNING
+Date:   Thu, 14 Apr 2022 15:08:02 +0200
+Message-Id: <20220414110857.871154909@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -57,69 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Rudolph <patrick.rudolph@9elements.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-[ Upstream commit 686d303ee6301261b422ea51e64833d7909a2c36 ]
+[ Upstream commit 647d6f09bea7dacf4cdb6d4ea7e3051883955297 ]
 
-On PMBUS devices with multiple pages, the regulator ops need to be
-protected with the update mutex. This prevents accidentally changing
-the page in a separate thread while operating on the PMBUS_OPERATION
-register.
+If the watchdog was already enabled by the BIOS after booting, the
+watchdog infrastructure needs to regularly send keepalives to
+prevent a unexpected reset.
+WDOG_ACTIVE only serves as an status indicator for userspace,
+we want to use WDOG_HW_RUNNING instead.
 
-Tested on Infineon xdpe11280 while a separate thread polls for sensor
-data.
+Since my Fujitsu Esprimo P720 does not support the watchdog,
+this change is compile-tested only.
 
-Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
-Signed-off-by: Marcello Sylvester Bauer <sylv@sylv.io>
-Link: https://lore.kernel.org/r/b991506bcbf665f7af185945f70bf9d5cf04637c.1645804976.git.sylv@sylv.io
-Fixes: ddbb4db4ced1b ("hwmon: (pmbus) Add regulator support")
-Cc: Alan Tull <atull@opensource.altera.com>
+Suggested-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: fb551405c0f8 (watchdog: sch56xx: Use watchdog core)
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Link: https://lore.kernel.org/r/20220131211935.3656-5-W_Armin@gmx.de
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/pmbus_core.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/hwmon/sch56xx-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
-index 8470097907bc..b2dfbd1cb543 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -2174,10 +2174,14 @@ static int pmbus_regulator_is_enabled(struct regulator_dev *rdev)
- {
- 	struct device *dev = rdev_get_dev(rdev);
- 	struct i2c_client *client = to_i2c_client(dev->parent);
-+	struct pmbus_data *data = i2c_get_clientdata(client);
- 	u8 page = rdev_get_id(rdev);
- 	int ret;
+diff --git a/drivers/hwmon/sch56xx-common.c b/drivers/hwmon/sch56xx-common.c
+index 6c84780e358e..066b12990fbf 100644
+--- a/drivers/hwmon/sch56xx-common.c
++++ b/drivers/hwmon/sch56xx-common.c
+@@ -424,7 +424,7 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
+ 	if (nowayout)
+ 		set_bit(WDOG_NO_WAY_OUT, &data->wddev.status);
+ 	if (output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)
+-		set_bit(WDOG_ACTIVE, &data->wddev.status);
++		set_bit(WDOG_HW_RUNNING, &data->wddev.status);
  
-+	mutex_lock(&data->update_lock);
- 	ret = pmbus_read_byte_data(client, page, PMBUS_OPERATION);
-+	mutex_unlock(&data->update_lock);
-+
- 	if (ret < 0)
- 		return ret;
- 
-@@ -2188,11 +2192,17 @@ static int _pmbus_regulator_on_off(struct regulator_dev *rdev, bool enable)
- {
- 	struct device *dev = rdev_get_dev(rdev);
- 	struct i2c_client *client = to_i2c_client(dev->parent);
-+	struct pmbus_data *data = i2c_get_clientdata(client);
- 	u8 page = rdev_get_id(rdev);
-+	int ret;
- 
--	return pmbus_update_byte_data(client, page, PMBUS_OPERATION,
--				      PB_OPERATION_CONTROL_ON,
--				      enable ? PB_OPERATION_CONTROL_ON : 0);
-+	mutex_lock(&data->update_lock);
-+	ret = pmbus_update_byte_data(client, page, PMBUS_OPERATION,
-+				     PB_OPERATION_CONTROL_ON,
-+				     enable ? PB_OPERATION_CONTROL_ON : 0);
-+	mutex_unlock(&data->update_lock);
-+
-+	return ret;
- }
- 
- static int pmbus_regulator_enable(struct regulator_dev *rdev)
+ 	/* Since the watchdog uses a downcounter there is no register to read
+ 	   the BIOS set timeout from (if any was set at all) ->
 -- 
 2.34.1
 
