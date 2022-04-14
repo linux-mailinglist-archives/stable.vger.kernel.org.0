@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D2D6500F83
+	by mail.lfdr.de (Postfix) with ESMTP id C7FDC500F84
 	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:31:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344672AbiDNNdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:33:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47974 "EHLO
+        id S243158AbiDNNdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:33:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244379AbiDNN0p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:26:45 -0400
+        with ESMTP id S244241AbiDNN1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:27:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD709F6D1;
-        Thu, 14 Apr 2022 06:20:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF4AFA0BC5;
+        Thu, 14 Apr 2022 06:20:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D292618B8;
-        Thu, 14 Apr 2022 13:20:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 652CDC385A5;
-        Thu, 14 Apr 2022 13:20:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 330E7612E6;
+        Thu, 14 Apr 2022 13:20:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41894C385A5;
+        Thu, 14 Apr 2022 13:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942402;
-        bh=HmqK+8Ssv/l7pPAmYxYimKs/FNSOXU2JK7PgAjEZZX8=;
+        s=korg; t=1649942405;
+        bh=MjzH9VaNpxVoybsV/F7s83Ffo96O/wDIS1zXUyBEfHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEqNdXzCNSkiHpXBILPE6T0swYh8+I7Hz/g8BeoTQaCcC5l42YntXm2q354VroYR1
-         tcB57/dOocWTYumy3YHyFbORlXVlCXR7mjdQEmi69e+7zK24cFsSdYdEyLSkYJTHqN
-         qjAndFryumVI9MS8+vN7FNA3GqU75KAaVthEZbCI=
+        b=jqECoXRVzldkGGlbiJlWTE4HGwDvXnaAqT8DWqIzWLjkYy25KecXzC06mPaJTjm5B
+         +FVd+iRIVlRk+Hzg6A5KSBg//a1ewNWPHdi22d5KhfSEEq89a5IOvpCV9sw064pTso
+         E948FM2DRlzCJDvAVkHWcJoyQI2dVr2yGLHxUWKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 124/338] ray_cs: Check ioremap return value
-Date:   Thu, 14 Apr 2022 15:10:27 +0200
-Message-Id: <20220414110842.432496463@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 125/338] power: supply: ab8500: Fix memory leak in ab8500_fg_sysfs_init
+Date:   Thu, 14 Apr 2022 15:10:28 +0200
+Message-Id: <20220414110842.460545819@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -53,55 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 7e4760713391ee46dc913194b33ae234389a174e ]
+[ Upstream commit 6a4760463dbc6b603690938c468839985189ce0a ]
 
-As the possible failure of the ioremap(), the 'local->sram' and other
-two could be NULL.
-Therefore it should be better to check it in order to avoid the later
-dev_dbg.
+kobject_init_and_add() takes reference even when it fails.
+According to the doc of kobject_init_and_add()：
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20211230022926.1846757-1-jiasheng@iscas.ac.cn
+   If this function returns an error, kobject_put() must be called to
+   properly clean up the memory associated with the object.
+
+Fix memory leak by calling kobject_put().
+
+Fixes: 8c0984e5a753 ("power: move power supply drivers to power/supply")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ray_cs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/power/supply/ab8500_fg.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ray_cs.c b/drivers/net/wireless/ray_cs.c
-index 08c607c031bc..8704bae39e1b 100644
---- a/drivers/net/wireless/ray_cs.c
-+++ b/drivers/net/wireless/ray_cs.c
-@@ -394,6 +394,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->sram = ioremap(link->resource[2]->start,
- 			resource_size(link->resource[2]));
-+	if (!local->sram)
-+		goto failed;
+diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
+index b0e77324b016..675f9d0e8471 100644
+--- a/drivers/power/supply/ab8500_fg.c
++++ b/drivers/power/supply/ab8500_fg.c
+@@ -2541,8 +2541,10 @@ static int ab8500_fg_sysfs_init(struct ab8500_fg *di)
+ 	ret = kobject_init_and_add(&di->fg_kobject,
+ 		&ab8500_fg_ktype,
+ 		NULL, "battery");
+-	if (ret < 0)
++	if (ret < 0) {
++		kobject_put(&di->fg_kobject);
+ 		dev_err(di->dev, "failed to create sysfs entry\n");
++	}
  
- /*** Set up 16k window for shared memory (receive buffer) ***************/
- 	link->resource[3]->flags |=
-@@ -408,6 +410,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->rmem = ioremap(link->resource[3]->start,
- 			resource_size(link->resource[3]));
-+	if (!local->rmem)
-+		goto failed;
- 
- /*** Set up window for attribute memory ***********************************/
- 	link->resource[4]->flags |=
-@@ -422,6 +426,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->amem = ioremap(link->resource[4]->start,
- 			resource_size(link->resource[4]));
-+	if (!local->amem)
-+		goto failed;
- 
- 	dev_dbg(&link->dev, "ray_config sram=%p\n", local->sram);
- 	dev_dbg(&link->dev, "ray_config rmem=%p\n", local->rmem);
+ 	return ret;
+ }
 -- 
 2.34.1
 
