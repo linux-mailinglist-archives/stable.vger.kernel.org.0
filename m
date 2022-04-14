@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC844500EE6
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52D12500EF3
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:21:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235901AbiDNNWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:22:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38694 "EHLO
+        id S243937AbiDNNWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:22:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244083AbiDNNVp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:21:45 -0400
+        with ESMTP id S244019AbiDNNVq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:21:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3814972C3;
-        Thu, 14 Apr 2022 06:17:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF27A972E1;
+        Thu, 14 Apr 2022 06:17:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 508DB60BAF;
-        Thu, 14 Apr 2022 13:17:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F75BC385A5;
-        Thu, 14 Apr 2022 13:17:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FCD7610A6;
+        Thu, 14 Apr 2022 13:17:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E051C385A1;
+        Thu, 14 Apr 2022 13:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942249;
-        bh=a0z+4bNJuWkVDPFtdSi72TTIrXDVSpc08J+Ltx9GaPI=;
+        s=korg; t=1649942252;
+        bh=tKDf/MbBgYBcIuSRd5o9A4mYU79slsU9+wMt9sanalQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mlZ4UNZVnml2SVHFImXoZkDWDUKgY3pVZTk1TnKWPH4mybHO2q2yKFBrgJM8KwsG8
-         ebExx9XssZKtyoxblXAe+0wQhqnAx+ZMmQ+Q7yiK2eFK7sISzzd83ZquEbX+LV/tdA
-         /EerVFB6jK2xsGpcT4fWO8RsRMfRqNIBvyy/DYcA=
+        b=aQf+mii47HhUao92Jpi/bXRoMahk2KNTiXN13KVY1I+WQ7nt92psHZorQe9ZbfnXr
+         xtpV2dikba5y69e7b9m2cTJrwSxQjt3ElSpRoPyuZ30AMl36J2/lpCZoDD64Tf122n
+         fVtmuShY61eM3IQ077Ua4UCi6Z9OAT8O2/8VnF8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Chuck Lever <chuck.lever@oracle.com>
-Subject: [PATCH 4.19 028/338] NFSD: prevent underflow in nfssvc_decode_writeargs()
-Date:   Thu, 14 Apr 2022 15:08:51 +0200
-Message-Id: <20220414110839.692949376@linuxfoundation.org>
+Subject: [PATCH 4.19 029/338] NFSD: prevent integer overflow on 32 bit systems
+Date:   Thu, 14 Apr 2022 15:08:52 +0200
+Message-Id: <20220414110839.720507036@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -55,45 +55,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 184416d4b98509fb4c3d8fc3d6dc1437896cc159 upstream.
+commit 23a9dbbe0faf124fc4c139615633b9d12a3a89ef upstream.
 
-Smatch complains:
-
-	fs/nfsd/nfsxdr.c:341 nfssvc_decode_writeargs()
-	warn: no lower bound on 'args->len'
-
-Change the type to unsigned to prevent this issue.
+On a 32 bit system, the "len * sizeof(*p)" operation can have an
+integer overflow.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/nfsproc.c |    2 +-
- fs/nfsd/xdr.h     |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ include/linux/sunrpc/xdr.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/nfsd/nfsproc.c
-+++ b/fs/nfsd/nfsproc.c
-@@ -228,7 +228,7 @@ nfsd_proc_write(struct svc_rqst *rqstp)
- 	unsigned long cnt = argp->len;
- 	unsigned int nvecs;
+--- a/include/linux/sunrpc/xdr.h
++++ b/include/linux/sunrpc/xdr.h
+@@ -509,6 +509,8 @@ xdr_stream_decode_uint32_array(struct xd
  
--	dprintk("nfsd: WRITE    %s %d bytes at %d\n",
-+	dprintk("nfsd: WRITE    %s %u bytes at %d\n",
- 		SVCFH_fmt(&argp->fh),
- 		argp->len, argp->offset);
- 
---- a/fs/nfsd/xdr.h
-+++ b/fs/nfsd/xdr.h
-@@ -33,7 +33,7 @@ struct nfsd_readargs {
- struct nfsd_writeargs {
- 	svc_fh			fh;
- 	__u32			offset;
--	int			len;
-+	__u32			len;
- 	struct kvec		first;
- };
- 
+ 	if (unlikely(xdr_stream_decode_u32(xdr, &len) < 0))
+ 		return -EBADMSG;
++	if (len > SIZE_MAX / sizeof(*p))
++		return -EBADMSG;
+ 	p = xdr_inline_decode(xdr, len * sizeof(*p));
+ 	if (unlikely(!p))
+ 		return -EBADMSG;
 
 
