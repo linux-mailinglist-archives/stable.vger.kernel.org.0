@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41586501081
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 429FA50103F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237570AbiDNNvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35284 "EHLO
+        id S229651AbiDNNrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:47:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343525AbiDNNjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:04 -0400
+        with ESMTP id S1343559AbiDNNjG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356D21095;
-        Thu, 14 Apr 2022 06:34:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F060818392;
+        Thu, 14 Apr 2022 06:34:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E54F3B82968;
-        Thu, 14 Apr 2022 13:34:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F5DC385A1;
-        Thu, 14 Apr 2022 13:34:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AACFFB8296A;
+        Thu, 14 Apr 2022 13:34:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E965C385A5;
+        Thu, 14 Apr 2022 13:34:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943261;
-        bh=LLwRp3ENrPhMEI4bqu6WcRra/U7y12FSubcvTmwVew4=;
+        s=korg; t=1649943264;
+        bh=CdMOvF6r2GW8m2roTh6MVKEvGZyY1x+ccDj8OjjuD2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dIYfCCKR7iCwONDUCKdGVe/ufBOQpj2o3COQ8jIuLWcjAkMAMabDo2xuUH6OjxEtk
-         orWpAt36JmgnPZW93Qv4zzhZcMwwNwI6bo/5aCIyWvNMx+Sh2XwdwBEjoOwFkQ7REn
-         r+NhvptMXtZhkQV5lbsDTYzjyYI1EipZ0TX6eREs=
+        b=Jo6XPMrT7i4m0IRj+9BNe5Mj9DSJKFXVOr+qtiuzxhwkUTDaFp+5a+21d05f3FPjc
+         dRkpTd48zKR/AoiTiMxZcHbqYDKuOqHOLiJueJsdwlq13DXq3hx3m/ZPjYXdzDmzVF
+         HS2Zd58Sc/sGuygIlwQL+rc1PIbE4me31rDaNVq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 052/475] qed: validate and restrict untrusted VFs vlan promisc mode
-Date:   Thu, 14 Apr 2022 15:07:17 +0200
-Message-Id: <20220414110856.610579042@linuxfoundation.org>
+        stable@vger.kernel.org, Nikita Shubin <n.shubin@yadro.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.4 053/475] riscv: Fix fill_callchain return value
+Date:   Thu, 14 Apr 2022 15:07:18 +0200
+Message-Id: <20220414110856.638091092@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -54,108 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Nikita Shubin <n.shubin@yadro.com>
 
-commit cbcc44db2cf7b836896733acc0e5ea966136ed22 upstream.
+commit 2b2b574ac587ec5bd7716a356492a85ab8b0ce9f upstream.
 
-Today when VFs are put in promiscuous mode, they can request PF
-to configure device for them to receive all VLANs traffic regardless
-of what vlan is configured by the PF (via ip link) and PF allows this
-config request regardless of whether VF is trusted or not.
+perf_callchain_store return 0 on success, -1 otherwise,
+fix fill_callchain to return correct bool value.
 
->From security POV, when VLAN is configured for VF through PF (via ip link),
-honour such config requests from VF only when they are configured to be
-trusted, otherwise restrict such VFs vlan promisc mode config.
-
+Fixes: dbeb90b0c1eb ("riscv: Add perf callchain support")
+Signed-off-by: Nikita Shubin <n.shubin@yadro.com>
 Cc: stable@vger.kernel.org
-Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_sriov.c |   28 ++++++++++++++++++++++++++--
- drivers/net/ethernet/qlogic/qed/qed_sriov.h |    1 +
- 2 files changed, 27 insertions(+), 2 deletions(-)
+ arch/riscv/kernel/perf_callchain.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
-@@ -3003,12 +3003,16 @@ static int qed_iov_pre_update_vport(stru
- 	u8 mask = QED_ACCEPT_UCAST_UNMATCHED | QED_ACCEPT_MCAST_UNMATCHED;
- 	struct qed_filter_accept_flags *flags = &params->accept_flags;
- 	struct qed_public_vf_info *vf_info;
-+	u16 tlv_mask;
-+
-+	tlv_mask = BIT(QED_IOV_VP_UPDATE_ACCEPT_PARAM) |
-+		   BIT(QED_IOV_VP_UPDATE_ACCEPT_ANY_VLAN);
+--- a/arch/riscv/kernel/perf_callchain.c
++++ b/arch/riscv/kernel/perf_callchain.c
+@@ -77,7 +77,7 @@ void perf_callchain_user(struct perf_cal
  
- 	/* Untrusted VFs can't even be trusted to know that fact.
- 	 * Simply indicate everything is configured fine, and trace
- 	 * configuration 'behind their back'.
- 	 */
--	if (!(*tlvs & BIT(QED_IOV_VP_UPDATE_ACCEPT_PARAM)))
-+	if (!(*tlvs & tlv_mask))
- 		return 0;
- 
- 	vf_info = qed_iov_get_public_vf_info(hwfn, vfid, true);
-@@ -3025,6 +3029,13 @@ static int qed_iov_pre_update_vport(stru
- 			flags->tx_accept_filter &= ~mask;
- 	}
- 
-+	if (params->update_accept_any_vlan_flg) {
-+		vf_info->accept_any_vlan = params->accept_any_vlan;
-+
-+		if (vf_info->forced_vlan && !vf_info->is_trusted_configured)
-+			params->accept_any_vlan = false;
-+	}
-+
- 	return 0;
+ bool fill_callchain(unsigned long pc, void *entry)
+ {
+-	return perf_callchain_store(entry, pc);
++	return perf_callchain_store(entry, pc) == 0;
  }
  
-@@ -5148,6 +5159,12 @@ static void qed_iov_handle_trust_change(
- 
- 		params.update_ctl_frame_check = 1;
- 		params.mac_chk_en = !vf_info->is_trusted_configured;
-+		params.update_accept_any_vlan_flg = 0;
-+
-+		if (vf_info->accept_any_vlan && vf_info->forced_vlan) {
-+			params.update_accept_any_vlan_flg = 1;
-+			params.accept_any_vlan = vf_info->accept_any_vlan;
-+		}
- 
- 		if (vf_info->rx_accept_mode & mask) {
- 			flags->update_rx_mode_config = 1;
-@@ -5163,13 +5180,20 @@ static void qed_iov_handle_trust_change(
- 		if (!vf_info->is_trusted_configured) {
- 			flags->rx_accept_filter &= ~mask;
- 			flags->tx_accept_filter &= ~mask;
-+			params.accept_any_vlan = false;
- 		}
- 
- 		if (flags->update_rx_mode_config ||
- 		    flags->update_tx_mode_config ||
--		    params.update_ctl_frame_check)
-+		    params.update_ctl_frame_check ||
-+		    params.update_accept_any_vlan_flg) {
-+			DP_VERBOSE(hwfn, QED_MSG_IOV,
-+				   "vport update config for %s VF[abs 0x%x rel 0x%x]\n",
-+				   vf_info->is_trusted_configured ? "trusted" : "untrusted",
-+				   vf->abs_vf_id, vf->relative_vf_id);
- 			qed_sp_vport_update(hwfn, &params,
- 					    QED_SPQ_MODE_EBLOCK, NULL);
-+		}
- 	}
- }
- 
---- a/drivers/net/ethernet/qlogic/qed/qed_sriov.h
-+++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.h
-@@ -88,6 +88,7 @@ struct qed_public_vf_info {
- 	bool is_trusted_request;
- 	u8 rx_accept_mode;
- 	u8 tx_accept_mode;
-+	bool accept_any_vlan;
- };
- 
- struct qed_iov_vf_init_params {
+ void notrace walk_stackframe(struct task_struct *task,
 
 
