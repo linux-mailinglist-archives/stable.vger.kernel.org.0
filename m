@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E445015B6
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD60F50115C
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244838AbiDNNm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:42:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
+        id S244642AbiDNNfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:35:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344000AbiDNNaN (ORCPT
+        with ESMTP id S1344003AbiDNNaN (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BC51986EC;
-        Thu, 14 Apr 2022 06:25:54 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BEA0986ED;
+        Thu, 14 Apr 2022 06:25:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC300B82984;
-        Thu, 14 Apr 2022 13:25:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 509C9C385A5;
-        Thu, 14 Apr 2022 13:25:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB9E460BAF;
+        Thu, 14 Apr 2022 13:25:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 070E4C385A5;
+        Thu, 14 Apr 2022 13:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942751;
-        bh=7RxymfT8Xm1svcbf3FJpx9qjtzeoBy5JDrZwS/fzW4I=;
+        s=korg; t=1649942754;
+        bh=o5371cJE9stQoyXeQEwyQlAvFQA7wqNjxzsAWeT8ShA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=po2maBx7r6F6TX5P7olzOE6pJq21DQV8xBct+O4IK40ABO6SrZ4kmvfZvDf8P5ozr
-         uBYvqL6wjKmsffWHlpUPFQ99jjjT94OI8vY+dwWnAceKgPZiFJQ2980o6QQG3ip81a
-         X3sG5ipsS1e2dHZsTL8TKi14bvgUFW4Bu0tjCvE0=
+        b=Hq7Z2c4CiyZ7UJDn4n575i+Ay3rxA5OTe/JALXdLBf6i3fOvzMVpowS9ZI35xzqLs
+         u5usvu6d5XkiCehIb83urR9+i/veJ19nrL9d9OtPnsARz4E4EpdOt6BL5BepNTCMTL
+         hTB7VGpNy4b4fTF7spvEyqGVjgwpMW0kGoKd/FGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.19 249/338] ubi: fastmap: Return error code if memory allocation fails in add_aeb()
-Date:   Thu, 14 Apr 2022 15:12:32 +0200
-Message-Id: <20220414110845.979154628@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 250/338] ASoC: topology: Allow TLV control to be either read or write
+Date:   Thu, 14 Apr 2022 15:12:33 +0200
+Message-Id: <20220414110846.006922586@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -53,86 +57,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
 
-commit c3c07fc25f37c157fde041b3a0c3dfcb1590cbce upstream.
+commit feb00b736af64875560f371fe7f58b0b7f239046 upstream.
 
-Abort fastmap scanning and return error code if memory allocation fails
-in add_aeb(). Otherwise ubi will get wrong peb statistics information
-after scanning.
+There is no reason to force readwrite access on TLV controls. It can be
+either read, write or both. This is further evidenced in code where it
+performs following checks:
+                if ((k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READ) && !sbe->get)
+                        return -EINVAL;
+                if ((k->access & SNDRV_CTL_ELEM_ACCESS_TLV_WRITE) && !sbe->put)
+                        return -EINVAL;
 
-Fixes: dbb7d2a88d2a7b ("UBI: Add fastmap core")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 1a3232d2f61d ("ASoC: topology: Add support for TLV bytes controls")
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220112170030.569712-3-amadeuszx.slawinski@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/ubi/fastmap.c |   28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ sound/soc/soc-topology.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/ubi/fastmap.c
-+++ b/drivers/mtd/ubi/fastmap.c
-@@ -477,7 +477,9 @@ static int scan_pool(struct ubi_device *
- 			if (err == UBI_IO_FF_BITFLIPS)
- 				scrub = 1;
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -547,7 +547,8 @@ static int soc_tplg_kcontrol_bind_io(str
  
--			add_aeb(ai, free, pnum, ec, scrub);
-+			ret = add_aeb(ai, free, pnum, ec, scrub);
-+			if (ret)
-+				goto out;
- 			continue;
- 		} else if (err == 0 || err == UBI_IO_BITFLIPS) {
- 			dbg_bld("Found non empty PEB:%i in pool", pnum);
-@@ -647,8 +649,10 @@ static int ubi_attach_fastmap(struct ubi
- 		if (fm_pos >= fm_size)
- 			goto fail_bad;
- 
--		add_aeb(ai, &ai->free, be32_to_cpu(fmec->pnum),
--			be32_to_cpu(fmec->ec), 0);
-+		ret = add_aeb(ai, &ai->free, be32_to_cpu(fmec->pnum),
-+			      be32_to_cpu(fmec->ec), 0);
-+		if (ret)
-+			goto fail;
- 	}
- 
- 	/* read EC values from used list */
-@@ -658,8 +662,10 @@ static int ubi_attach_fastmap(struct ubi
- 		if (fm_pos >= fm_size)
- 			goto fail_bad;
- 
--		add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
--			be32_to_cpu(fmec->ec), 0);
-+		ret = add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
-+			      be32_to_cpu(fmec->ec), 0);
-+		if (ret)
-+			goto fail;
- 	}
- 
- 	/* read EC values from scrub list */
-@@ -669,8 +675,10 @@ static int ubi_attach_fastmap(struct ubi
- 		if (fm_pos >= fm_size)
- 			goto fail_bad;
- 
--		add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
--			be32_to_cpu(fmec->ec), 1);
-+		ret = add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
-+			      be32_to_cpu(fmec->ec), 1);
-+		if (ret)
-+			goto fail;
- 	}
- 
- 	/* read EC values from erase list */
-@@ -680,8 +688,10 @@ static int ubi_attach_fastmap(struct ubi
- 		if (fm_pos >= fm_size)
- 			goto fail_bad;
- 
--		add_aeb(ai, &ai->erase, be32_to_cpu(fmec->pnum),
--			be32_to_cpu(fmec->ec), 1);
-+		ret = add_aeb(ai, &ai->erase, be32_to_cpu(fmec->pnum),
-+			      be32_to_cpu(fmec->ec), 1);
-+		if (ret)
-+			goto fail;
- 	}
- 
- 	ai->mean_ec = div_u64(ai->ec_sum, ai->ec_count);
+ 	if (hdr->ops.info == SND_SOC_TPLG_CTL_BYTES
+ 		&& k->iface & SNDRV_CTL_ELEM_IFACE_MIXER
+-		&& k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READWRITE
++		&& (k->access & SNDRV_CTL_ELEM_ACCESS_TLV_READ
++		    || k->access & SNDRV_CTL_ELEM_ACCESS_TLV_WRITE)
+ 		&& k->access & SNDRV_CTL_ELEM_ACCESS_TLV_CALLBACK) {
+ 		struct soc_bytes_ext *sbe;
+ 		struct snd_soc_tplg_bytes_control *be;
 
 
