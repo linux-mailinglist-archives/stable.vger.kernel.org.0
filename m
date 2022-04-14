@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7807500EF1
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C61B500EF5
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244099AbiDNNXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:23:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38424 "EHLO
+        id S244115AbiDNNXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:23:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244142AbiDNNWc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:22:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E0D986E9;
-        Thu, 14 Apr 2022 06:17:51 -0700 (PDT)
+        with ESMTP id S244158AbiDNNWe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:22:34 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C904C98F55;
+        Thu, 14 Apr 2022 06:17:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A59E3612CA;
-        Thu, 14 Apr 2022 13:17:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B792AC385A9;
-        Thu, 14 Apr 2022 13:17:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4A25CCE299A;
+        Thu, 14 Apr 2022 13:17:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 684CDC385A1;
+        Thu, 14 Apr 2022 13:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942270;
-        bh=bEM7qOBc7IJVNEaG71DewBv/7O4ZTdXmvVxauwwLXro=;
+        s=korg; t=1649942272;
+        bh=ixFp+VREdiwg4C8bkraoklg+IKasd/O7lUJoJG23Ug8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5BAQ0VZVUokpzeTyu+zZu8TS6KNlk1/25ZJPSZ7PocBlyNfBiEZqzKPMOvtDx9qj
-         CfpHfQNDQECZPNvm0/zB7+E5LdZeLOAkBRoV8le7HpfVsMxKv41cfTXZd3VHzt8oZK
-         GVSkK89jiXbVic1mmckKsB3uyZVbr8qSk/z4HCfg=
+        b=0okO7E4p2vf+Ahe+VAE6fLQD+wPo0akjSJAMiSaTmCl25uajMynrtOiBWIW8C8Y5b
+         1YXqTQSDTUTSb27YQS9LSXSQuIrNoMekm+XNA7571u3K/nk7kZI3rMC3nOG4VctAvB
+         ZHTRq11m+XKaS+KqouOoPkqAMjYjxxx3wP/++jTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 076/338] PM: suspend: fix return value of __setup handler
-Date:   Thu, 14 Apr 2022 15:09:39 +0200
-Message-Id: <20220414110841.063241365@linuxfoundation.org>
+Subject: [PATCH 4.19 077/338] hwrng: atmel - disable trng on failure path
+Date:   Thu, 14 Apr 2022 15:09:40 +0200
+Message-Id: <20220414110841.091125002@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -55,70 +55,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 7a64ca17e4dd50d5f910769167f3553902777844 ]
+[ Upstream commit a223ea9f89ab960eb254ba78429efd42eaf845eb ]
 
-If an invalid option is given for "test_suspend=<option>", the entire
-string is added to init's environment, so return 1 instead of 0 from
-the __setup handler.
+Call atmel_trng_disable() on failure path of probe.
 
-  Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc5
-    test_suspend=invalid"
-
-and
-
- Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     test_suspend=invalid
-
-Fixes: 2ce986892faf ("PM / sleep: Enhance test_suspend option with repeat capability")
-Fixes: 27ddcc6596e5 ("PM / sleep: Add state field to pm_states[] entries")
-Fixes: a9d7052363a6 ("PM: Separate suspend to RAM functionality from core")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: a1fa98d8116f ("hwrng: atmel - disable TRNG during suspend")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/suspend_test.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/char/hw_random/atmel-rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/power/suspend_test.c b/kernel/power/suspend_test.c
-index 6a897e8b2a88..3f6345d60256 100644
---- a/kernel/power/suspend_test.c
-+++ b/kernel/power/suspend_test.c
-@@ -158,22 +158,22 @@ static int __init setup_test_suspend(char *value)
- 	value++;
- 	suspend_type = strsep(&value, ",");
- 	if (!suspend_type)
--		return 0;
-+		return 1;
+diff --git a/drivers/char/hw_random/atmel-rng.c b/drivers/char/hw_random/atmel-rng.c
+index 433426242b87..40e6951ea078 100644
+--- a/drivers/char/hw_random/atmel-rng.c
++++ b/drivers/char/hw_random/atmel-rng.c
+@@ -96,6 +96,7 @@ static int atmel_trng_probe(struct platform_device *pdev)
  
- 	repeat = strsep(&value, ",");
- 	if (repeat) {
- 		if (kstrtou32(repeat, 0, &test_repeat_count_max))
--			return 0;
-+			return 1;
- 	}
- 
- 	for (i = PM_SUSPEND_MIN; i < PM_SUSPEND_MAX; i++)
- 		if (!strcmp(pm_labels[i], suspend_type)) {
- 			test_state_label = pm_labels[i];
--			return 0;
-+			return 1;
- 		}
- 
- 	printk(warn_bad_state, suspend_type);
--	return 0;
-+	return 1;
+ err_register:
+ 	clk_disable_unprepare(trng->clk);
++	atmel_trng_disable(trng);
+ 	return ret;
  }
- __setup("test_suspend", setup_test_suspend);
  
 -- 
 2.34.1
