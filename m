@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C72DD5012F3
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A8B501506
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345630AbiDNNxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54942 "EHLO
+        id S244305AbiDNNd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:33:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345110AbiDNNpI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:45:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9E5F3703D;
-        Thu, 14 Apr 2022 06:42:23 -0700 (PDT)
+        with ESMTP id S245101AbiDNN2e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72188A9974;
+        Thu, 14 Apr 2022 06:21:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 770A1612E6;
-        Thu, 14 Apr 2022 13:42:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CF76C385A5;
-        Thu, 14 Apr 2022 13:42:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 053E7612B3;
+        Thu, 14 Apr 2022 13:21:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A1FFC385A1;
+        Thu, 14 Apr 2022 13:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943742;
-        bh=bdeyf/EEdqy1IiuOr6PhVWb3INeKAeoYpfyYVYIfNjI=;
+        s=korg; t=1649942499;
+        bh=ESmkX1nqelw0zFwRX5vLKk8DOz1DhVHBb9u1+DCQth8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQ97Q4Zwb1dSnUesHxTm1+ZyGXgrryvnoFjEHYoPdu2APdOJrc216oGj5D2up9Fdk
-         /q1Q15CDV9qjmuVm/dYVi535bLQqYRcbCiaelZFu/kuLlqPsmdQH9lHNIqR5WTMkZl
-         VTd1RGJK5cYEjD5FwL+sRlmd5jOfZaA7c/AiYtTQ=
+        b=CxVSNUofwPnrpMEKFFENLdsJdTmnxyRTZeR6QdQzSIxqdgilS/wnhwA3FWhfUNQdS
+         KrvtOTtoZXU7bdVx50X79fhPUwsu24k2rA4VN/a6h3Z+KG3PRUOra7OCHbhrhs1UFF
+         QN3d2jWZWCDN7PGf8VZ051XlhKOOaKJUeX7/MW20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xue <ying.xue@windriver.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 225/475] tipc: fix the timer expires after interval 100ms
+Subject: [PATCH 4.19 107/338] ASoC: wm8350: Handle error for wm8350_register_irq
 Date:   Thu, 14 Apr 2022 15:10:10 +0200
-Message-Id: <20220414110901.418792126@linuxfoundation.org>
+Message-Id: <20220414110841.957151465@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 6a7d8cff4a3301087dd139293e9bddcf63827282 ]
+[ Upstream commit db0350da8084ad549bca16cc0486c11cc70a1f9b ]
 
-In the timer callback function tipc_sk_timeout(), we're trying to
-reschedule another timeout to retransmit a setup request if destination
-link is congested. But we use the incorrect timeout value
-(msecs_to_jiffies(100)) instead of (jiffies + msecs_to_jiffies(100)),
-so that the timer expires immediately, it's irrelevant for original
-description.
+As the potential failure of the wm8350_register_irq(),
+it should be better to check it and return error if fails.
+Also, use 'free_' in order to avoid the same code.
 
-In this commit we correct the timeout value in sk_reset_timer()
-
-Fixes: 6787927475e5 ("tipc: buffer overflow handling in listener socket")
-Acked-by: Ying Xue <ying.xue@windriver.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Link: https://lore.kernel.org/r/20220321042229.314288-1-hoang.h.le@dektech.com.au
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: a6ba2b2dabb5 ("ASoC: Implement WM8350 headphone jack detection")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220304023821.391936-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wm8350.c | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/net/tipc/socket.c b/net/tipc/socket.c
-index f4217673eee7..d543c4556df2 100644
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -2698,7 +2698,8 @@ static void tipc_sk_retry_connect(struct sock *sk, struct sk_buff_head *list)
+diff --git a/sound/soc/codecs/wm8350.c b/sound/soc/codecs/wm8350.c
+index e92ebe52d485..707b31ef9346 100644
+--- a/sound/soc/codecs/wm8350.c
++++ b/sound/soc/codecs/wm8350.c
+@@ -1538,18 +1538,38 @@ static  int wm8350_component_probe(struct snd_soc_component *component)
+ 	wm8350_clear_bits(wm8350, WM8350_JACK_DETECT,
+ 			  WM8350_JDL_ENA | WM8350_JDR_ENA);
  
- 	/* Try again later if dest link is congested */
- 	if (tsk->cong_link_cnt) {
--		sk_reset_timer(sk, &sk->sk_timer, msecs_to_jiffies(100));
-+		sk_reset_timer(sk, &sk->sk_timer,
-+			       jiffies + msecs_to_jiffies(100));
- 		return;
- 	}
- 	/* Prepare SYN for retransmit */
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
+ 			    wm8350_hpl_jack_handler, 0, "Left jack detect",
+ 			    priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
++	if (ret != 0)
++		goto err;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
+ 			    wm8350_hpr_jack_handler, 0, "Right jack detect",
+ 			    priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
++	if (ret != 0)
++		goto free_jck_det_l;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
+ 			    wm8350_mic_handler, 0, "Microphone short", priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
++	if (ret != 0)
++		goto free_jck_det_r;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
+ 			    wm8350_mic_handler, 0, "Microphone detect", priv);
++	if (ret != 0)
++		goto free_micscd;
+ 
+ 	return 0;
++
++free_micscd:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_MICSCD, priv);
++free_jck_det_r:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R, priv);
++free_jck_det_l:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L, priv);
++err:
++	return ret;
+ }
+ 
+ static void wm8350_component_remove(struct snd_soc_component *component)
 -- 
 2.34.1
 
