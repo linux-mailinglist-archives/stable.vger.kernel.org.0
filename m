@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F84050146D
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78987501210
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245029AbiDNNiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:38:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59074 "EHLO
+        id S240662AbiDNOGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:06:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344397AbiDNNbx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:53 -0400
+        with ESMTP id S1347083AbiDNN61 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3578BC16;
-        Thu, 14 Apr 2022 06:29:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A6CB6D35;
+        Thu, 14 Apr 2022 06:48:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91D43B8296A;
-        Thu, 14 Apr 2022 13:29:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F9DC385AA;
-        Thu, 14 Apr 2022 13:29:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BDC16B82969;
+        Thu, 14 Apr 2022 13:48:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15AB6C385A1;
+        Thu, 14 Apr 2022 13:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942965;
+        s=korg; t=1649944123;
         bh=X/XV6dqIM01stGb6muJgsi2Mox5PAsrFHhzqwvCyAKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LG3xn8dcVstOigIhBASIq4ppFmsEnLeS13dGtXosP5zdothT/Ww/nlEEafETwDdag
-         +AOmCX0EbkxKKl41fMa+oKT5ZDSFGQpxrw8ERRav3MSc2dw9x0QMH146h+Tfx3lhqM
-         W4KsJN1xQEoiU/FUM2FeN0VUtHAtcURk/hIc2xXs=
+        b=hdYKc2T0HqlTcBeflqUXz2Xo2oJfc2NmCmZ266cVlGJoaiCh0YS9w7++KBp0JEic8
+         kquUZOWZEHaNVlqQ528GALsIvixRUmp87GQRn3kQXUwrtaBS7J/n7XyOb6smOqnhsC
+         hp+/Jo1LLuldgqYSu9FO1ZohNagiQYIMcBxdQquA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 285/338] xtensa: fix DTC warning unit_address_format
+Subject: [PATCH 5.4 403/475] xtensa: fix DTC warning unit_address_format
 Date:   Thu, 14 Apr 2022 15:13:08 +0200
-Message-Id: <20220414110847.000993167@linuxfoundation.org>
+Message-Id: <20220414110906.345392348@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
