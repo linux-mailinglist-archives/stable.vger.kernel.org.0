@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BE9D50104B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F92501509
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244670AbiDNNfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:35:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56972 "EHLO
+        id S1344439AbiDNOOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:14:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343638AbiDNN3n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:29:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 297B7AFB32;
-        Thu, 14 Apr 2022 06:25:03 -0700 (PDT)
+        with ESMTP id S1347003AbiDNN6L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71550B646E;
+        Thu, 14 Apr 2022 06:48:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D36A60C14;
-        Thu, 14 Apr 2022 13:25:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A6E8C385A5;
-        Thu, 14 Apr 2022 13:25:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D6D261D7C;
+        Thu, 14 Apr 2022 13:48:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6968DC385A5;
+        Thu, 14 Apr 2022 13:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942702;
-        bh=9WRlb7g34HZdRb4Iu1zP64sHnU/hoYGHmY2xIMXjOng=;
+        s=korg; t=1649944109;
+        bh=fPmpLe+7FvbhcldTdjSftrunihcoe0o5T4QI/mKdpK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smSeqmkR6USyIq9xIUeuM1Z6f9wcCwPqw7MbAuOQuqbVvV/5M6fN+qjM27MNJJQ80
-         PECknARgdj0Ad3oincy1NdBgzv8lFcmv4xdFJcqLRzbPw92PP4sPd1XIhP5ipvEq9H
-         pOb6CgtK1S9iHSr089nXoAPhsLLQCQxa6yMcwnFo=
+        b=AP2CJA790CDVYZDLfBWIDDd9XO7MU/e9xq6wa0dc4jEHTTxD9wN5c97YBc/toXoQX
+         eXKQ4vUV5RLIwilaAT5SZ31MwrzjZ8KjweKImlDx3pGjnjW5LApglPa5r19BlISa2Y
+         ko1JLOvPVgaY7VMIYrklIiCni8ejE6MB6Xj8jyaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Quinn Tran <qutran@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 229/338] scsi: qla2xxx: Reduce false trigger to login
+        stable@vger.kernel.org, Jiaxin Yu <jiaxin.yu@mediatek.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 347/475] ASoC: mediatek: mt6358: add missing EXPORT_SYMBOLs
 Date:   Thu, 14 Apr 2022 15:12:12 +0200
-Message-Id: <20220414110845.409098292@linuxfoundation.org>
+Message-Id: <20220414110904.791709704@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,47 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Jiaxin Yu <jiaxin.yu@mediatek.com>
 
-commit d2646eed7b19a206912f49101178cbbaa507256c upstream.
+commit a7663c89f4193dbf717572e46e5a3251940dbdc8 upstream.
 
-While a session is in the middle of a relogin, a late RSCN can be delivered
-from switch. RSCN trigger fabric scan where the scan logic can trigger
-another session login while a login is in progress.  Reduce the extra
-trigger to prevent multiple logins to the same session.
+Fixes the following build errors when mt6358 is configured as module:
 
-Link: https://lore.kernel.org/r/20220310092604.22950-10-njavali@marvell.com
-Fixes: bee8b84686c4 ("scsi: qla2xxx: Reduce redundant ADISC command for RSCNs")
-Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+>> ERROR: modpost: "mt6358_set_mtkaif_protocol"
+>> [sound/soc/mediatek/mt8186/mt8186-mt6366-rt1019-rt5682s.ko] undefined!
+>> ERROR: modpost: "mt6358_set_mtkaif_protocol"
+>> [sound/soc/mediatek/mt8186/mt8186-mt6366-da7219-max98357.ko] undefined!
+
+Fixes: 6a8d4198ca80 ("ASoC: mediatek: mt6358: add codec driver")
+Signed-off-by: Jiaxin Yu <jiaxin.yu@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220319120325.11882-1-jiaxin.yu@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/codecs/mt6358.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -1346,7 +1346,8 @@ int qla24xx_fcport_handle_login(struct s
- 	    fcport->login_gen, fcport->login_retry,
- 	    fcport->loop_id, fcport->scan_state);
+--- a/sound/soc/codecs/mt6358.c
++++ b/sound/soc/codecs/mt6358.c
+@@ -103,6 +103,7 @@ int mt6358_set_mtkaif_protocol(struct sn
+ 	priv->mtkaif_protocol = mtkaif_protocol;
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mt6358_set_mtkaif_protocol);
  
--	if (fcport->scan_state != QLA_FCPORT_FOUND)
-+	if (fcport->scan_state != QLA_FCPORT_FOUND ||
-+	    fcport->disc_state == DSC_DELETE_PEND)
- 		return 0;
+ static void playback_gpio_set(struct mt6358_priv *priv)
+ {
+@@ -269,6 +270,7 @@ int mt6358_mtkaif_calibration_enable(str
+ 			   1 << RG_AUD_PAD_TOP_DAT_MISO_LOOPBACK_SFT);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mt6358_mtkaif_calibration_enable);
  
- 	if ((fcport->loop_id != FC_NO_LOOP_ID) &&
-@@ -1365,7 +1366,7 @@ int qla24xx_fcport_handle_login(struct s
- 	if (vha->host->active_mode == MODE_TARGET)
- 		return 0;
+ int mt6358_mtkaif_calibration_disable(struct snd_soc_component *cmpnt)
+ {
+@@ -292,6 +294,7 @@ int mt6358_mtkaif_calibration_disable(st
+ 	capture_gpio_reset(priv);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mt6358_mtkaif_calibration_disable);
  
--	if (fcport->flags & FCF_ASYNC_SENT) {
-+	if (fcport->flags & (FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE)) {
- 		set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
- 		return 0;
- 	}
+ int mt6358_set_mtkaif_calibration_phase(struct snd_soc_component *cmpnt,
+ 					int phase_1, int phase_2)
+@@ -306,6 +309,7 @@ int mt6358_set_mtkaif_calibration_phase(
+ 			   phase_2 << RG_AUD_PAD_TOP_PHASE_MODE2_SFT);
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(mt6358_set_mtkaif_calibration_phase);
+ 
+ /* dl pga gain */
+ enum {
 
 
