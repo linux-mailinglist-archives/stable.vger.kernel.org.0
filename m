@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3622450106E
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 706385012D3
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:11:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244920AbiDNNgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:36:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57740 "EHLO
+        id S244611AbiDNNhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344145AbiDNNai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E2824B;
-        Thu, 14 Apr 2022 06:28:14 -0700 (PDT)
+        with ESMTP id S1344201AbiDNNbJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87FC41B6;
+        Thu, 14 Apr 2022 06:28:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FD26190F;
-        Thu, 14 Apr 2022 13:28:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFD11C385A5;
-        Thu, 14 Apr 2022 13:28:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20E1E6190F;
+        Thu, 14 Apr 2022 13:28:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B351C385A5;
+        Thu, 14 Apr 2022 13:28:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942893;
-        bh=hWNi0okxJBiVY1ydDBwp+6/rD9N0//wsF3WBY0gGUEI=;
+        s=korg; t=1649942923;
+        bh=AWYy8rOKJFVWVVwDVHX+muVJcjQmAIjXRPSJZ4HgY6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfvHa/w3CeWIuHJQFFlhXGLPlzmNlQkgFMwkxzTkBtTDokR7QAB24FAdnXl/1UsLS
-         wTcSZ+YWa3B1uiq9PUWYN1IZ7b8QSSLQnoNGd7dSgJP0PXtpAbVHIaw+rLn8T9WhGW
-         FfWnvmTokWmlGHV8LlEEpBcD28GzYhwC18LQBd3I=
+        b=hV4a6MMM6jdt39dDnh38JSFI44y5xGnWdvp3LpYfJb4M0NHm9gE40bvGz92wA+oIM
+         +PyUc4g4TrZ2ut6nhLHlJ2HSHRd3Y9WEdw347835NLcxsxHuq6paUUfjCx3cPM7XJq
+         W1oThdy2pIKMnrIpwClDLWf30KzTLIMVcoPsw894=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Jianglei Nie <niejianglei2021@163.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 282/338] MIPS: fix fortify panic when copying asm exception handlers
-Date:   Thu, 14 Apr 2022 15:13:05 +0200
-Message-Id: <20220414110846.915806787@linuxfoundation.org>
+Subject: [PATCH 4.19 283/338] scsi: libfc: Fix use after free in fc_exch_abts_resp()
+Date:   Thu, 14 Apr 2022 15:13:06 +0200
+Message-Id: <20220414110846.944840465@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,97 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit d17b66417308996e7e64b270a3c7f3c1fbd4cfc8 ]
+[ Upstream commit 271add11994ba1a334859069367e04d2be2ebdd4 ]
 
-With KCFLAGS="-O3", I was able to trigger a fortify-source
-memcpy() overflow panic on set_vi_srs_handler().
-Although O3 level is not supported in the mainline, under some
-conditions that may've happened with any optimization settings,
-it's just a matter of inlining luck. The panic itself is correct,
-more precisely, 50/50 false-positive and not at the same time.
->From the one side, no real overflow happens. Exception handler
-defined in asm just gets copied to some reserved places in the
-memory.
-But the reason behind is that C code refers to that exception
-handler declares it as `char`, i.e. something of 1 byte length.
-It's obvious that the asm function itself is way more than 1 byte,
-so fortify logics thought we are going to past the symbol declared.
-The standard way to refer to asm symbols from C code which is not
-supposed to be called from C is to declare them as
-`extern const u8[]`. This is fully correct from any point of view,
-as any code itself is just a bunch of bytes (including 0 as it is
-for syms like _stext/_etext/etc.), and the exact size is not known
-at the moment of compilation.
-Adjust the type of the except_vec_vi_*() and related variables.
-Make set_handler() take `const` as a second argument to avoid
-cast-away warnings and give a little more room for optimization.
+fc_exch_release(ep) will decrease the ep's reference count. When the
+reference count reaches zero, it is freed. But ep is still used in the
+following code, which will lead to a use after free.
 
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Return after the fc_exch_release() call to avoid use after free.
+
+Link: https://lore.kernel.org/r/20220303015115.459778-1-niejianglei2021@163.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/setup.h |  2 +-
- arch/mips/kernel/traps.c      | 22 +++++++++++-----------
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/scsi/libfc/fc_exch.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/include/asm/setup.h b/arch/mips/include/asm/setup.h
-index bb36a400203d..8c56b862fd9c 100644
---- a/arch/mips/include/asm/setup.h
-+++ b/arch/mips/include/asm/setup.h
-@@ -16,7 +16,7 @@ static inline void setup_8250_early_printk_port(unsigned long base,
- 	unsigned int reg_shift, unsigned int timeout) {}
- #endif
+diff --git a/drivers/scsi/libfc/fc_exch.c b/drivers/scsi/libfc/fc_exch.c
+index 384458d1f73c..9fa0aa235cb4 100644
+--- a/drivers/scsi/libfc/fc_exch.c
++++ b/drivers/scsi/libfc/fc_exch.c
+@@ -1709,6 +1709,7 @@ static void fc_exch_abts_resp(struct fc_exch *ep, struct fc_frame *fp)
+ 	if (cancel_delayed_work_sync(&ep->timeout_work)) {
+ 		FC_EXCH_DBG(ep, "Exchange timer canceled due to ABTS response\n");
+ 		fc_exch_release(ep);	/* release from pending timer hold */
++		return;
+ 	}
  
--extern void set_handler(unsigned long offset, void *addr, unsigned long len);
-+void set_handler(unsigned long offset, const void *addr, unsigned long len);
- extern void set_uncached_handler(unsigned long offset, void *addr, unsigned long len);
- 
- typedef void (*vi_handler_t)(void);
-diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
-index b9da2cefb564..0ca4185cc5e3 100644
---- a/arch/mips/kernel/traps.c
-+++ b/arch/mips/kernel/traps.c
-@@ -1978,19 +1978,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
- 		 * If no shadow set is selected then use the default handler
- 		 * that does normal register saving and standard interrupt exit
- 		 */
--		extern char except_vec_vi, except_vec_vi_lui;
--		extern char except_vec_vi_ori, except_vec_vi_end;
--		extern char rollback_except_vec_vi;
--		char *vec_start = using_rollback_handler() ?
--			&rollback_except_vec_vi : &except_vec_vi;
-+		extern const u8 except_vec_vi[], except_vec_vi_lui[];
-+		extern const u8 except_vec_vi_ori[], except_vec_vi_end[];
-+		extern const u8 rollback_except_vec_vi[];
-+		const u8 *vec_start = using_rollback_handler() ?
-+				      rollback_except_vec_vi : except_vec_vi;
- #if defined(CONFIG_CPU_MICROMIPS) || defined(CONFIG_CPU_BIG_ENDIAN)
--		const int lui_offset = &except_vec_vi_lui - vec_start + 2;
--		const int ori_offset = &except_vec_vi_ori - vec_start + 2;
-+		const int lui_offset = except_vec_vi_lui - vec_start + 2;
-+		const int ori_offset = except_vec_vi_ori - vec_start + 2;
- #else
--		const int lui_offset = &except_vec_vi_lui - vec_start;
--		const int ori_offset = &except_vec_vi_ori - vec_start;
-+		const int lui_offset = except_vec_vi_lui - vec_start;
-+		const int ori_offset = except_vec_vi_ori - vec_start;
- #endif
--		const int handler_len = &except_vec_vi_end - vec_start;
-+		const int handler_len = except_vec_vi_end - vec_start;
- 
- 		if (handler_len > VECTORSPACING) {
- 			/*
-@@ -2210,7 +2210,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
- }
- 
- /* Install CPU exception handler */
--void set_handler(unsigned long offset, void *addr, unsigned long size)
-+void set_handler(unsigned long offset, const void *addr, unsigned long size)
- {
- #ifdef CONFIG_CPU_MICROMIPS
- 	memcpy((void *)(ebase + offset), ((unsigned char *)addr - 1), size);
+ 	spin_lock_bh(&ep->ex_lock);
 -- 
 2.35.1
 
