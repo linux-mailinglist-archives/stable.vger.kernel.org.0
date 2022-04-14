@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A266500EB4
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:18:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE7C500EAD
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243819AbiDNNU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:20:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
+        id S244010AbiDNNUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:20:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243884AbiDNNTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:19:03 -0400
+        with ESMTP id S243894AbiDNNTH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:19:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEC3D92D02;
-        Thu, 14 Apr 2022 06:16:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE60C92D20;
+        Thu, 14 Apr 2022 06:16:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 817AD612CA;
-        Thu, 14 Apr 2022 13:16:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959EFC385A1;
-        Thu, 14 Apr 2022 13:16:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 585AD610A6;
+        Thu, 14 Apr 2022 13:16:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5630AC385A5;
+        Thu, 14 Apr 2022 13:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942186;
-        bh=s3o8QTEpkB8AkiwUUghyiX7MUeEBycRZKkT9os17hoc=;
+        s=korg; t=1649942188;
+        bh=ppHpru4VsQzJxITMdZEUGtbM4eqf231wGeMtdnZLn78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1X7xpTX498meOq2oi+ruGTp9AYVhmPgL7fOxVSU6LyYl9AQmlwMTpUlCC0kWTGnm
-         zrsCdhA+9oTmVc39wMoiepnnDxB1ZGmNpftj1W+jxppZPeMO2GYCCzZTANUrZJnXDL
-         DG7rskHihkddNJXHAT+bSSiHLNtW0LGi5CxR5H+c=
+        b=g64+seu6nn0fCpDQHFU4ryrIzKOnqie9553zscwy7EC5ruxqFWXFbL2qovqTZVU7C
+         fbt6zUQ7v6jqiqAKKdj9MyFP6sZ6yN9BwnBrH8W2Bba20wLCvm45oIaUvfnifNUTtS
+         vSrHoEsYhHbjt8PdgzuizKxO/ScKj4tNrvyWkFHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Mel Gorman <mgorman@suse.de>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 045/338] mm,hwpoison: unmap poisoned page before invalidation
-Date:   Thu, 14 Apr 2022 15:09:08 +0200
-Message-Id: <20220414110840.179325178@linuxfoundation.org>
+        stable@vger.kernel.org, Lars Ellenberg <lars.ellenberg@linbit.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 046/338] drbd: fix potential silent data corruption
+Date:   Thu, 14 Apr 2022 15:09:09 +0200
+Message-Id: <20220414110840.207572972@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -59,67 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rik van Riel <riel@surriel.com>
+From: Lars Ellenberg <lars.ellenberg@linbit.com>
 
-commit 3149c79f3cb0e2e3bafb7cfadacec090cbd250d3 upstream.
+commit f4329d1f848ac35757d9cc5487669d19dfc5979c upstream.
 
-In some cases it appears the invalidation of a hwpoisoned page fails
-because the page is still mapped in another process.  This can cause a
-program to be continuously restarted and die when it page faults on the
-page that was not invalidated.  Avoid that problem by unmapping the
-hwpoisoned page when we find it.
+Scenario:
+---------
 
-Another issue is that sometimes we end up oopsing in finish_fault, if
-the code tries to do something with the now-NULL vmf->page.  I did not
-hit this error when submitting the previous patch because there are
-several opportunities for alloc_set_pte to bail out before accessing
-vmf->page, and that apparently happened on those systems, and most of
-the time on other systems, too.
+bio chain generated by blk_queue_split().
+Some split bio fails and propagates its error status to the "parent" bio.
+But then the (last part of the) parent bio itself completes without error.
 
-However, across several million systems that error does occur a handful
-of times a day.  It can be avoided by returning VM_FAULT_NOPAGE which
-will cause do_read_fault to return before calling finish_fault.
+We would clobber the already recorded error status with BLK_STS_OK,
+causing silent data corruption.
 
-Link: https://lkml.kernel.org/r/20220325161428.5068d97e@imladris.surriel.com
-Fixes: e53ac7374e64 ("mm: invalidate hwpoison page cache page in fault path")
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Tested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reproducer:
+-----------
+
+How to trigger this in the real world within seconds:
+
+DRBD on top of degraded parity raid,
+small stripe_cache_size, large read_ahead setting.
+Drop page cache (sysctl vm.drop_caches=1, fadvise "DONTNEED",
+umount and mount again, "reboot").
+
+Cause significant read ahead.
+
+Large read ahead request is split by blk_queue_split().
+Parts of the read ahead that are already in the stripe cache,
+or find an available stripe cache to use, can be serviced.
+Parts of the read ahead that would need "too much work",
+would need to wait for a "stripe_head" to become available,
+are rejected immediately.
+
+For larger read ahead requests that are split in many pieces, it is very
+likely that some "splits" will be serviced, but then the stripe cache is
+exhausted/busy, and the remaining ones will be rejected.
+
+Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
+Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Cc: <stable@vger.kernel.org> # 4.13.x
+Link: https://lore.kernel.org/r/20220330185551.3553196-1-christoph.boehmwalder@linbit.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/block/drbd/drbd_req.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3416,14 +3416,18 @@ static vm_fault_t __do_fault(struct vm_f
- 		return ret;
- 
- 	if (unlikely(PageHWPoison(vmf->page))) {
-+		struct page *page = vmf->page;
- 		vm_fault_t poisonret = VM_FAULT_HWPOISON;
- 		if (ret & VM_FAULT_LOCKED) {
-+			if (page_mapped(page))
-+				unmap_mapping_pages(page_mapping(page),
-+						    page->index, 1, false);
- 			/* Retry if a clean page was removed from the cache. */
--			if (invalidate_inode_page(vmf->page))
--				poisonret = 0;
--			unlock_page(vmf->page);
-+			if (invalidate_inode_page(page))
-+				poisonret = VM_FAULT_NOPAGE;
-+			unlock_page(page);
- 		}
--		put_page(vmf->page);
-+		put_page(page);
- 		vmf->page = NULL;
- 		return poisonret;
- 	}
+--- a/drivers/block/drbd/drbd_req.c
++++ b/drivers/block/drbd/drbd_req.c
+@@ -207,7 +207,8 @@ void start_new_tl_epoch(struct drbd_conn
+ void complete_master_bio(struct drbd_device *device,
+ 		struct bio_and_error *m)
+ {
+-	m->bio->bi_status = errno_to_blk_status(m->error);
++	if (unlikely(m->error))
++		m->bio->bi_status = errno_to_blk_status(m->error);
+ 	bio_endio(m->bio);
+ 	dec_ap_bio(device);
+ }
 
 
