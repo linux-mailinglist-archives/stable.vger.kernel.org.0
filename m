@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 955A75015B8
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE2A5010C4
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 16:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244700AbiDNNfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57352 "EHLO
+        id S237351AbiDNOCp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 10:02:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343832AbiDNNaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:30:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF63998585;
-        Thu, 14 Apr 2022 06:25:29 -0700 (PDT)
+        with ESMTP id S1344883AbiDNNxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:53:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D06D5DA2E;
+        Thu, 14 Apr 2022 06:44:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36328B82941;
-        Thu, 14 Apr 2022 13:25:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EF9DC385A5;
-        Thu, 14 Apr 2022 13:25:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98E4C61BA7;
+        Thu, 14 Apr 2022 13:44:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E5FC385A5;
+        Thu, 14 Apr 2022 13:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942727;
-        bh=X1P+uoFM8eTv0k4flg3ON4z680a6QwZcO0ujur2zgxA=;
+        s=korg; t=1649943884;
+        bh=Iuq8Ee1e4p6+D/zvNNeiej/ULtkgpt2PrjCWCmzJEh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkTHu708pjtL7RosUjBut3lJG/tjo3RJI1vSJkceBAKCKWrIJGVz22LQ3hJEDstR7
-         R1uNc6qgwzyU6y58O0rsrNaeRUpPFbzN9sqhw6pZcd+W9aARWtbxW7mKVz4QtZZoHU
-         8fosjtkf8D1AH96PAVNGvcaHEgbTknNQfDFurbdA=
+        b=F6owHZ2HUfEdmNMmgaXlJaJ9Pkmie/fkfRbQXMOP/6tQG1yONWoCzXEyL9MGkIT/G
+         WitB4MQk7vwQf9eoLPQewlU9QRcvfBbKlqFouacxYpIsXd7n8BYLaPM7KtzEjsbibw
+         WzGuL/DYqfik4D8qQMtUr+tZ36ZhqvRkEoxtDTYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Minghao Chi <chi.minghao@zte.com.cn>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 199/338] spi: tegra20: Use of_device_get_match_data()
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Arun Easi <aeasi@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 317/475] scsi: qla2xxx: Fix device reconnect in loop topology
 Date:   Thu, 14 Apr 2022 15:11:42 +0200
-Message-Id: <20220414110844.559882262@linuxfoundation.org>
+Message-Id: <20220414110903.960074098@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-References: <20220414110838.883074566@linuxfoundation.org>
+In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
+References: <20220414110855.141582785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minghao Chi <chi.minghao@zte.com.cn>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit c9839acfcbe20ce43d363c2a9d0772472d9921c0 ]
+commit 8ad4be3d15cf144b5834bdb00d5bbe4050938dc7 upstream.
 
-Use of_device_get_match_data() to simplify the code.
+A device logout in loop topology initiates a device connection teardown
+which loses the FW device handle. In loop topo, the device handle is not
+regrabbed leading to device login failures and eventually to loss of the
+device. Fix this by taking the main login path that does it.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Minghao Chi <chi.minghao@zte.com.cn>
-Link: https://lore.kernel.org/r/20220315023138.2118293-1-chi.minghao@zte.com.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20220110050218.3958-11-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-tegra20-slink.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c |   15 +++++++++++++++
+ drivers/scsi/qla2xxx/qla_os.c   |    5 +++++
+ 2 files changed, 20 insertions(+)
 
-diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
-index bc3097e5cc26..436d559503db 100644
---- a/drivers/spi/spi-tegra20-slink.c
-+++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1016,14 +1016,8 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 	struct resource		*r;
- 	int ret, spi_irq;
- 	const struct tegra_slink_chip_data *cdata = NULL;
--	const struct of_device_id *match;
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -955,6 +955,9 @@ static void qla24xx_handle_gnl_done_even
+ 				set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+ 			}
+ 			break;
++		case ISP_CFG_NL:
++			qla24xx_fcport_handle_login(vha, fcport);
++			break;
+ 		default:
+ 			break;
+ 		}
+@@ -1477,6 +1480,11 @@ static void qla_chk_n2n_b4_login(struct
+ 	u8 login = 0;
+ 	int rc;
  
--	match = of_match_device(tegra_slink_of_match, &pdev->dev);
--	if (!match) {
--		dev_err(&pdev->dev, "Error: No device match found\n");
--		return -ENODEV;
--	}
--	cdata = match->data;
-+	cdata = of_device_get_match_data(&pdev->dev);
++	ql_dbg(ql_dbg_disc, vha, 0x307b,
++	    "%s %8phC DS %d LS %d lid %d retries=%d\n",
++	    __func__, fcport->port_name, fcport->disc_state,
++	    fcport->fw_login_state, fcport->loop_id, fcport->login_retry);
++
+ 	if (qla_tgt_mode_enabled(vha))
+ 		return;
  
- 	master = spi_alloc_master(&pdev->dev, sizeof(*tspi));
- 	if (!master) {
--- 
-2.34.1
-
+@@ -5217,6 +5225,13 @@ skip_login:
+ 			memcpy(fcport->node_name, new_fcport->node_name,
+ 			    WWN_SIZE);
+ 			fcport->scan_state = QLA_FCPORT_FOUND;
++			if (fcport->login_retry == 0) {
++				fcport->login_retry = vha->hw->login_retry_count;
++				ql_dbg(ql_dbg_disc, vha, 0x2135,
++				    "Port login retry %8phN, lid 0x%04x retry cnt=%d.\n",
++				    fcport->port_name, fcport->loop_id,
++				    fcport->login_retry);
++			}
+ 			found++;
+ 			break;
+ 		}
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -5349,6 +5349,11 @@ void qla2x00_relogin(struct scsi_qla_hos
+ 					ea.fcport = fcport;
+ 					qla24xx_handle_relogin_event(vha, &ea);
+ 				} else if (vha->hw->current_topology ==
++					 ISP_CFG_NL &&
++					IS_QLA2XXX_MIDTYPE(vha->hw)) {
++					(void)qla24xx_fcport_handle_login(vha,
++									fcport);
++				} else if (vha->hw->current_topology ==
+ 				    ISP_CFG_NL) {
+ 					fcport->login_retry--;
+ 					status =
 
 
