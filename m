@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E522B50139B
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:21:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 487BA50137F
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245292AbiDNOIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:08:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43152 "EHLO
+        id S244465AbiDNNmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:42:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347730AbiDNN7a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:59:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C04FBCB60;
-        Thu, 14 Apr 2022 06:52:23 -0700 (PDT)
+        with ESMTP id S1344595AbiDNNct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:32:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01768222BD;
+        Thu, 14 Apr 2022 06:30:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9619B82985;
-        Thu, 14 Apr 2022 13:52:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C75FC385A5;
-        Thu, 14 Apr 2022 13:52:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92217619DA;
+        Thu, 14 Apr 2022 13:30:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E4BC385A5;
+        Thu, 14 Apr 2022 13:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944340;
-        bh=MTNEDokzIJV8kocz+OtmTL6Q2jicNfa/zpCrfQ5JlCM=;
+        s=korg; t=1649943024;
+        bh=g8MMQeFtD7/2Q+X8a4npninYKUfo7+G4ENbgF0X1lSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFpvkuUIAJ2ZdRQPM3O2y6/lsNVJs/+UPAThViYq7Y9gfcuGIQsFBKc7aYhX7EMOT
-         bBZ+TM9RqgULV4XmYAAuRvxg95m2ytMzoXFKfZ8IeQdTUxOESNz+TPQXSQ8ZeDNwjV
-         ze5y3hv+STkTNF/Noqtsh7XcyZlnYxgLYWxFjTvE=
+        b=NiWworDcGOx56ZI+kbhyERYo4d8PadRb0GFbPhZvh7R26JQNlzGm5QKhxdR7B9ALX
+         gGfIQn9sj1zMLTAvZx1IM/K4s8l/5QTRj4pAbiFiFEMAb3tj0sjEkp1EznSGNop/N4
+         H8xT3cuZGyHsKb5+w3kXk62aDReY8vsohYVmL77Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 441/475] SUNRPC: Handle ENOMEM in call_transmit_status()
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.19 323/338] irqchip/gic-v3: Fix GICR_CTLR.RWP polling
 Date:   Thu, 14 Apr 2022 15:13:46 +0200
-Message-Id: <20220414110907.402176458@linuxfoundation.org>
+Message-Id: <20220414110848.082482008@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit d3c15033b240767d0287f1c4a529cbbe2d5ded8a ]
+commit 0df6664531a12cdd8fc873f0cac0dcb40243d3e9 upstream.
 
-Both call_transmit() and call_bc_transmit() can now return ENOMEM, so
-let's make sure that we handle the errors gracefully.
+It turns out that our polling of RWP is totally wrong when checking
+for it in the redistributors, as we test the *distributor* bit index,
+whereas it is a different bit number in the RDs... Oopsie boo.
 
-Fixes: 0472e4766049 ("SUNRPC: Convert socket page send code to use iov_iter()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is embarassing. Not only because it is wrong, but also because
+it took *8 years* to notice the blunder...
+
+Just fix the damn thing.
+
+Fixes: 021f653791ad ("irqchip: gic-v3: Initial support for GICv3")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/20220315165034.794482-2-maz@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/clnt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/irqchip/irq-gic-v3.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index b6039642df67..bc191d2c193e 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2223,6 +2223,7 @@ call_transmit_status(struct rpc_task *task)
- 		 * socket just returned a connection error,
- 		 * then hold onto the transport lock.
- 		 */
-+	case -ENOMEM:
- 	case -ENOBUFS:
- 		rpc_delay(task, HZ>>2);
- 		/* fall through */
-@@ -2308,6 +2309,7 @@ call_bc_transmit_status(struct rpc_task *task)
- 	case -ENOTCONN:
- 	case -EPIPE:
- 		break;
-+	case -ENOMEM:
- 	case -ENOBUFS:
- 		rpc_delay(task, HZ>>2);
- 		/* fall through */
--- 
-2.35.1
-
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -95,11 +95,11 @@ static inline void __iomem *gic_dist_bas
+ 	return NULL;
+ }
+ 
+-static void gic_do_wait_for_rwp(void __iomem *base)
++static void gic_do_wait_for_rwp(void __iomem *base, u32 bit)
+ {
+ 	u32 count = 1000000;	/* 1s! */
+ 
+-	while (readl_relaxed(base + GICD_CTLR) & GICD_CTLR_RWP) {
++	while (readl_relaxed(base + GICD_CTLR) & bit) {
+ 		count--;
+ 		if (!count) {
+ 			pr_err_ratelimited("RWP timeout, gone fishing\n");
+@@ -113,13 +113,13 @@ static void gic_do_wait_for_rwp(void __i
+ /* Wait for completion of a distributor change */
+ static void gic_dist_wait_for_rwp(void)
+ {
+-	gic_do_wait_for_rwp(gic_data.dist_base);
++	gic_do_wait_for_rwp(gic_data.dist_base, GICD_CTLR_RWP);
+ }
+ 
+ /* Wait for completion of a redistributor change */
+ static void gic_redist_wait_for_rwp(void)
+ {
+-	gic_do_wait_for_rwp(gic_data_rdist_rd_base());
++	gic_do_wait_for_rwp(gic_data_rdist_rd_base(), GICR_CTLR_RWP);
+ }
+ 
+ #ifdef CONFIG_ARM64
 
 
