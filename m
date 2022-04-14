@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90BE850155D
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:41:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE3815013EF
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:23:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245683AbiDNNsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:48:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46606 "EHLO
+        id S245502AbiDNNso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:48:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344083AbiDNNjk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:40 -0400
+        with ESMTP id S1344089AbiDNNjm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:39:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BB361BEB9;
-        Thu, 14 Apr 2022 06:37:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED3E1FA55;
+        Thu, 14 Apr 2022 06:37:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1777261B51;
-        Thu, 14 Apr 2022 13:37:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B523C385A9;
-        Thu, 14 Apr 2022 13:37:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE67E61B51;
+        Thu, 14 Apr 2022 13:37:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E14F1C385A1;
+        Thu, 14 Apr 2022 13:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943434;
-        bh=75Ns8eCvyfcrmIeMkaDtUf1A8ExvRTiNaszZHqYzsB8=;
+        s=korg; t=1649943437;
+        bh=g2a5AAnN68t5TPe87By5Yz5QmXMvVPAt4Miu9ePgIZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMwu6Io1pA2fhttnCaAoQKHpeRRdUS1VEULIsIVsjvplLQ8uji8vQZYyBmCSF2rRq
-         s3a/Y4lmcm1iQDLC9zPn1EvU8iAJGJAhE91cGnqcJzEJlmmrj/Vh0PW+e3tO3guQlW
-         VGq13tTTtc05Zf+7EGFWpyu3p57c9fwgNIl6XVSk=
+        b=Go06bL5oRVuMx95LyTm7JW7ruRu13oAbfGQsPnJufmC5hJqrBxE+PyXWJ1zDzbT1r
+         CWQYOI3y6QEHGXadrAEeb2pZSHUqDJpFxZQz/EMRSgmACb8M1nHpa5jtoqbCKzN+UR
+         DD5CB6vv4Fz7ndW7iUILcbRmoglokX6bDTL6FXts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        Robert Foss <robert.foss@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 154/475] ASoC: msm8916-wcd-analog: Fix error handling in pm8916_wcd_analog_spmi_probe
-Date:   Thu, 14 Apr 2022 15:08:59 +0200
-Message-Id: <20220414110859.451569017@linuxfoundation.org>
+Subject: [PATCH 5.4 155/475] drm/bridge: Fix free wrong object in sii8620_init_rcp_input_dev
+Date:   Thu, 14 Apr 2022 15:09:00 +0200
+Message-Id: <20220414110859.479136968@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
 References: <20220414110855.141582785@linuxfoundation.org>
@@ -56,75 +56,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 9ebd62d60edcd4d9c75485e5ccd0b79581ad3c49 ]
+[ Upstream commit 7c442e76c06cb1bef16a6c523487438175584eea ]
 
-In the error handling path, the clk_prepare_enable() function
-call should be balanced by a corresponding 'clk_disable_unprepare()'
-call , as already done in the remove function.
+rc_dev is allocated by rc_allocate_device(), and doesn't assigned to
+ctx->rc_dev before calling  rc_free_device(ctx->rc_dev).
+So it should call rc_free_device(rc_dev);
 
-Fixes: de66b3455023 ("ASoC: codecs: msm8916-wcd-analog: add MBHC support")
+Fixes: e25f1f7c94e1 ("drm/bridge/sii8620: add remote control support")
 Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220316041924.17560-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211227092522.21755-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/msm8916-wcd-analog.c | 22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/bridge/sil-sii8620.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-analog.c b/sound/soc/codecs/msm8916-wcd-analog.c
-index 337bddb7c2a4..5a8eedea6be0 100644
---- a/sound/soc/codecs/msm8916-wcd-analog.c
-+++ b/sound/soc/codecs/msm8916-wcd-analog.c
-@@ -1195,8 +1195,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/bridge/sil-sii8620.c b/drivers/gpu/drm/bridge/sil-sii8620.c
+index 04431dbac4a4..fb0b64c965b7 100644
+--- a/drivers/gpu/drm/bridge/sil-sii8620.c
++++ b/drivers/gpu/drm/bridge/sil-sii8620.c
+@@ -2118,7 +2118,7 @@ static void sii8620_init_rcp_input_dev(struct sii8620 *ctx)
+ 	if (ret) {
+ 		dev_err(ctx->dev, "Failed to register RC device\n");
+ 		ctx->error = ret;
+-		rc_free_device(ctx->rc_dev);
++		rc_free_device(rc_dev);
+ 		return;
  	}
- 
- 	irq = platform_get_irq_byname(pdev, "mbhc_switch_int");
--	if (irq < 0)
--		return irq;
-+	if (irq < 0) {
-+		ret = irq;
-+		goto err_disable_clk;
-+	}
- 
- 	ret = devm_request_threaded_irq(dev, irq, NULL,
- 			       pm8916_mbhc_switch_irq_handler,
-@@ -1208,8 +1210,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 
- 	if (priv->mbhc_btn_enabled) {
- 		irq = platform_get_irq_byname(pdev, "mbhc_but_press_det");
--		if (irq < 0)
--			return irq;
-+		if (irq < 0) {
-+			ret = irq;
-+			goto err_disable_clk;
-+		}
- 
- 		ret = devm_request_threaded_irq(dev, irq, NULL,
- 				       mbhc_btn_press_irq_handler,
-@@ -1220,8 +1224,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 			dev_err(dev, "cannot request mbhc button press irq\n");
- 
- 		irq = platform_get_irq_byname(pdev, "mbhc_but_rel_det");
--		if (irq < 0)
--			return irq;
-+		if (irq < 0) {
-+			ret = irq;
-+			goto err_disable_clk;
-+		}
- 
- 		ret = devm_request_threaded_irq(dev, irq, NULL,
- 				       mbhc_btn_release_irq_handler,
-@@ -1238,6 +1244,10 @@ static int pm8916_wcd_analog_spmi_probe(struct platform_device *pdev)
- 	return devm_snd_soc_register_component(dev, &pm8916_wcd_analog,
- 				      pm8916_wcd_analog_dai,
- 				      ARRAY_SIZE(pm8916_wcd_analog_dai));
-+
-+err_disable_clk:
-+	clk_disable_unprepare(priv->mclk);
-+	return ret;
- }
- 
- static int pm8916_wcd_analog_spmi_remove(struct platform_device *pdev)
+ 	ctx->rc_dev = rc_dev;
 -- 
 2.34.1
 
