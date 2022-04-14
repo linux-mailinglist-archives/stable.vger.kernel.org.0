@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 049A85011BA
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A23D5011BB
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:00:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345884AbiDNNyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:54:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34732 "EHLO
+        id S245670AbiDNNnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:43:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245283AbiDNNqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:46:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C57B326117;
-        Thu, 14 Apr 2022 06:43:36 -0700 (PDT)
+        with ESMTP id S244868AbiDNN2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:28:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D930A76C1;
+        Thu, 14 Apr 2022 06:21:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B73261B51;
-        Thu, 14 Apr 2022 13:43:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7004FC385A1;
-        Thu, 14 Apr 2022 13:43:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1A54B82910;
+        Thu, 14 Apr 2022 13:21:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FE32C385A5;
+        Thu, 14 Apr 2022 13:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649943815;
-        bh=+MmGqabb7lZi/IA9iCaC6RQ3A+tD+p0VWv+J3PRsqG0=;
+        s=korg; t=1649942468;
+        bh=HTDpf9gOSoN+0VRBjXQ2P84SInQ0QONH+i4WXzJpWGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbshjGRXzB/ZaYGrHQD/3SCpi553g7zvNCzxoLtFug4TrNJl7/wc3v9FDCS2dsef7
-         CdzxpnCLu1EUquFmgWi8Ro3749fbNJoYNXb/dR/2qCHz82VsIMV8+ThQlCdanWvwDY
-         u1/NCRNn7UXmUV/SY9Irop9ztPw13NdamOz2oXaM=
+        b=ukp0RiStKsHSZX6hvbKE/gik8F5vqX9CNt50HnjizgNuj6kxuHXdaoxEYjtEq2Kt/
+         IMWCL3ggZSEJxzFKGfb3iCx7ykbhw4JpW6Zn2qCG6uC/+Wyo6/oQoaNk6ZFyf2xSkb
+         g8I2FxlcyrPFoWyt4Xxo3l3WqRMpCctt53Lr4v6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 264/475] clk: Initialize orphan req_rate
+Subject: [PATCH 4.19 146/338] powerpc/sysdev: fix incorrect use to determine if list is empty
 Date:   Thu, 14 Apr 2022 15:10:49 +0200
-Message-Id: <20220414110902.496167947@linuxfoundation.org>
+Message-Id: <20220414110843.060250057@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-[ Upstream commit 5f7e2af00807f2117650e711a58b7f0e986ce1df ]
+[ Upstream commit fa1321b11bd01752f5be2415e74a0e1a7c378262 ]
 
-When registering a clock that doesn't have a recalc_rate implementation,
-and doesn't have its parent registered yet, we initialize the clk_core
-rate and 'req_rate' fields to 0.
+'gtm' will *always* be set by list_for_each_entry().
+It is incorrect to assume that the iterator value will be NULL if the
+list is empty.
 
-The rate field is later updated when the parent is registered in
-clk_core_reparent_orphans_nolock() using __clk_recalc_rates(), but the
-'req_rate' field is never updated.
+Instead of checking the pointer it should be checked if
+the list is empty.
 
-This leads to an issue in clk_set_rate_range() and clk_put(), since
-those functions will call clk_set_rate() with the content of 'req_rate'
-to provide drivers with the opportunity to change the rate based on the
-new boundaries. In this case, we would call clk_set_rate() with a rate
-of 0, effectively enforcing the minimum allowed for this clock whenever
-we would call one of those two functions, even though the actual rate
-might be within range.
-
-Let's fix this by setting 'req_rate' in
-clk_core_reparent_orphans_nolock() with the rate field content just
-updated by the call to __clk_recalc_rates().
-
-Fixes: 1c8e600440c7 ("clk: Add rate constraints to clocks")
-Reported-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Tested-by: Dmitry Osipenko <dmitry.osipenko@collabora.com> # T30 Nexus7
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20220325161144.1901695-2-maxime@cerno.tech
-[sboyd@kernel.org: Reword comment]
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 83ff9dcf375c ("powerpc/sysdev: implement FSL GTM support")
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220228142434.576226-1-jakobkoschel@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/powerpc/sysdev/fsl_gtm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk.c b/drivers/clk/clk.c
-index e4e1b4e94a67..ccb26a513b29 100644
---- a/drivers/clk/clk.c
-+++ b/drivers/clk/clk.c
-@@ -3278,6 +3278,19 @@ static void clk_core_reparent_orphans_nolock(void)
- 			__clk_set_parent_after(orphan, parent, NULL);
- 			__clk_recalc_accuracies(orphan);
- 			__clk_recalc_rates(orphan, 0);
-+
-+			/*
-+			 * __clk_init_parent() will set the initial req_rate to
-+			 * 0 if the clock doesn't have clk_ops::recalc_rate and
-+			 * is an orphan when it's registered.
-+			 *
-+			 * 'req_rate' is used by clk_set_rate_range() and
-+			 * clk_put() to trigger a clk_set_rate() call whenever
-+			 * the boundaries are modified. Let's make sure
-+			 * 'req_rate' is set to something non-zero so that
-+			 * clk_set_rate_range() doesn't drop the frequency.
-+			 */
-+			orphan->req_rate = orphan->rate;
- 		}
+diff --git a/arch/powerpc/sysdev/fsl_gtm.c b/arch/powerpc/sysdev/fsl_gtm.c
+index d902306f4718..42fe959f6fc2 100644
+--- a/arch/powerpc/sysdev/fsl_gtm.c
++++ b/arch/powerpc/sysdev/fsl_gtm.c
+@@ -90,7 +90,7 @@ static LIST_HEAD(gtms);
+  */
+ struct gtm_timer *gtm_get_timer16(void)
+ {
+-	struct gtm *gtm = NULL;
++	struct gtm *gtm;
+ 	int i;
+ 
+ 	list_for_each_entry(gtm, &gtms, list_node) {
+@@ -107,7 +107,7 @@ struct gtm_timer *gtm_get_timer16(void)
+ 		spin_unlock_irq(&gtm->lock);
  	}
+ 
+-	if (gtm)
++	if (!list_empty(&gtms))
+ 		return ERR_PTR(-EBUSY);
+ 	return ERR_PTR(-ENODEV);
  }
 -- 
 2.34.1
