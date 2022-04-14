@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1BAE501421
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:25:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 665385013FA
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 17:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245404AbiDNON5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 10:13:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47256 "EHLO
+        id S235551AbiDNNhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:37:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347497AbiDNN66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:58:58 -0400
+        with ESMTP id S1344180AbiDNNbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:31:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF7963E5FC;
-        Thu, 14 Apr 2022 06:49:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3172BE6;
+        Thu, 14 Apr 2022 06:28:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFB4561DA0;
-        Thu, 14 Apr 2022 13:49:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE97CC385A1;
-        Thu, 14 Apr 2022 13:49:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFDEA6190F;
+        Thu, 14 Apr 2022 13:28:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA82CC385B6;
+        Thu, 14 Apr 2022 13:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649944190;
-        bh=R7RrpTjzQmZF1cuichYrQu6LFJbmbhgx08Zivm3o6K0=;
+        s=korg; t=1649942915;
+        bh=Uz2K6rMzXEBpy3icDYmX4sup6BOJ99BdoTYeBDhKxwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FnywNz6tHOLAobr269ybD0Lk2J6m33V8hEfT/6yr5lDUDTkgnyxXF2+X0okRI1WmO
-         RHKLzO7lQM6y5Gl3NaImyDmJTX9PFJb5bVryfbwabUvWNzNOd65P8AR0SqLoHNr35E
-         xBij3562h9yjNNjhzkcd+EutnN2iOa/xBCre2iOU=
+        b=PurR87x08LEiGOGZf7cxIv2u3VeuVofoLvRCjc1nVvXd8NThmch4ssOWR9Z4uMXDZ
+         8jC9P2YvO49zoDe0j5DZ5WQUulYlMCb6X/TtWc1W2g54jA9KnOck4Pl8VuyLI3+u/4
+         veyGVHzTjxUokFUPJEoffBQ0vJO7mJm83b3yZAes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 425/475] Drivers: hv: vmbus: Fix potential crash on module unload
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 307/338] drm/imx: Fix memory leak in imx_pd_connector_get_modes
 Date:   Thu, 14 Apr 2022 15:13:30 +0200
-Message-Id: <20220414110906.958128956@linuxfoundation.org>
+Message-Id: <20220414110847.620267775@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220414110855.141582785@linuxfoundation.org>
-References: <20220414110855.141582785@linuxfoundation.org>
+In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
+References: <20220414110838.883074566@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guilherme G. Piccoli <gpiccoli@igalia.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 792f232d57ff28bbd5f9c4abe0466b23d5879dc8 ]
+[ Upstream commit bce81feb03a20fca7bbdd1c4af16b4e9d5c0e1d3 ]
 
-The vmbus driver relies on the panic notifier infrastructure to perform
-some operations when a panic event is detected. Since vmbus can be built
-as module, it is required that the driver handles both registering and
-unregistering such panic notifier callback.
+Avoid leaking the display mode variable if of_get_drm_display_mode
+fails.
 
-After commit 74347a99e73a ("x86/Hyper-V: Unload vmbus channel in hv panic callback")
-though, the panic notifier registration is done unconditionally in the module
-initialization routine whereas the unregistering procedure is conditionally
-guarded and executes only if HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE capability
-is set.
-
-This patch fixes that by unconditionally unregistering the panic notifier
-in the module's exit routine as well.
-
-Fixes: 74347a99e73a ("x86/Hyper-V: Unload vmbus channel in hv panic callback")
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20220315203535.682306-1-gpiccoli@igalia.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 76ecd9c9fb24 ("drm/imx: parallel-display: check return code from of_get_drm_display_mode()")
+Addresses-Coverity-ID: 1443943 ("Resource leak")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20220108165230.44610-1-jose.exposito89@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/imx/parallel-display.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 6b7ab8f234e8..943654ded73d 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -2493,10 +2493,15 @@ static void __exit vmbus_exit(void)
- 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
- 		kmsg_dump_unregister(&hv_kmsg_dumper);
- 		unregister_die_notifier(&hyperv_die_block);
--		atomic_notifier_chain_unregister(&panic_notifier_list,
--						 &hyperv_panic_block);
- 	}
+diff --git a/drivers/gpu/drm/imx/parallel-display.c b/drivers/gpu/drm/imx/parallel-display.c
+index aefd04e18f93..e9dff31b377c 100644
+--- a/drivers/gpu/drm/imx/parallel-display.c
++++ b/drivers/gpu/drm/imx/parallel-display.c
+@@ -77,8 +77,10 @@ static int imx_pd_connector_get_modes(struct drm_connector *connector)
+ 		ret = of_get_drm_display_mode(np, &imxpd->mode,
+ 					      &imxpd->bus_flags,
+ 					      OF_USE_NATIVE_MODE);
+-		if (ret)
++		if (ret) {
++			drm_mode_destroy(connector->dev, mode);
+ 			return ret;
++		}
  
-+	/*
-+	 * The panic notifier is always registered, hence we should
-+	 * also unconditionally unregister it here as well.
-+	 */
-+	atomic_notifier_chain_unregister(&panic_notifier_list,
-+					 &hyperv_panic_block);
-+
- 	free_page((unsigned long)hv_panic_page);
- 	unregister_sysctl_table(hv_ctl_table_hdr);
- 	hv_ctl_table_hdr = NULL;
+ 		drm_mode_copy(mode, &imxpd->mode);
+ 		mode->type |= DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED,
 -- 
 2.35.1
 
