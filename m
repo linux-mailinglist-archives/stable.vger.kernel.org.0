@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0227D5018BE
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:35:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 669C35018BD
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 18:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236426AbiDNQfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 12:35:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53398 "EHLO
+        id S233329AbiDNQf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 12:35:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239673AbiDNQe5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 12:34:57 -0400
+        with ESMTP id S235360AbiDNQfb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 12:35:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A79AE483BF
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 09:04:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D8DF3A66
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 09:04:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40E10B829E1
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 16:04:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E73C385A9;
-        Thu, 14 Apr 2022 16:04:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01DAAB82A71
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 16:04:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6A3C385A1;
+        Thu, 14 Apr 2022 16:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649952242;
-        bh=j+m3jK5wnuiKVTUH+FfeKvea8JjVtNiRGjXjTkybUiQ=;
+        s=korg; t=1649952250;
+        bh=Z1SFQw76hLIWkE9SX7DkMBI8zaVF22Twy9pzaKo9LmY=;
         h=Subject:To:From:Date:From;
-        b=Z9Vqt4nO7L2E1zmH6DtFf9Onn+KNioQ9KOrQeYUznTyXgGAf9vwG0IdA5nmUKv/uX
-         wRwYhhBjpun4BP4uX9Nyj1pw5oNVaSAYJu+5T8DABiriaHhXegTGlwL1e1ILlIH6zT
-         kPG3OlnVL0aJ2KTFW6gOAKV3PJ0AZNaJmoypA444=
-Subject: patch "USB: quirks: add a Realtek card reader" added to usb-linus
+        b=WUYuNfkuBav3QxpSYtruNe/dc9RVgKEijnS3TVfQpdMseT9F2gKWnqJxdadY+ZjP+
+         eLrAwtc106RxsQv8Mz+fidiufjwUv0vrfxrcuXQI1gwvJFd3wO94QxMClaAxQvrcZb
+         IH/uShdIgoweSECKYWYyNNrC8afxsSLzVszmeTbI=
+Subject: patch "USB: quirks: add STRING quirk for VCOM device" added to usb-linus
 To:     oneukum@suse.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 14 Apr 2022 18:03:59 +0200
-Message-ID: <1649952239121122@kroah.com>
+Message-ID: <1649952239238114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: quirks: add a Realtek card reader
+    USB: quirks: add STRING quirk for VCOM device
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -65,34 +65,34 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 2a7ccf6bb6f147f64c025ad68f4255d8e1e0ce6d Mon Sep 17 00:00:00 2001
+From ec547af8a9ea6441864bad34172676b5652ceb96 Mon Sep 17 00:00:00 2001
 From: Oliver Neukum <oneukum@suse.com>
-Date: Thu, 14 Apr 2022 13:02:09 +0200
-Subject: USB: quirks: add a Realtek card reader
+Date: Thu, 14 Apr 2022 14:31:52 +0200
+Subject: USB: quirks: add STRING quirk for VCOM device
 
-This device is reported to stall when enummerated.
+This has been reported to stall if queried
 
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20220414110209.30924-1-oneukum@suse.com
+Link: https://lore.kernel.org/r/20220414123152.1700-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/usb/core/quirks.c | 3 +++
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-index d3c14b5ed4a1..8ce8c0d06c66 100644
+index 8ce8c0d06c66..97b44a68668a 100644
 --- a/drivers/usb/core/quirks.c
 +++ b/drivers/usb/core/quirks.c
-@@ -404,6 +404,9 @@ static const struct usb_device_id usb_quirk_list[] = {
- 	{ USB_DEVICE(0x0b05, 0x17e0), .driver_info =
- 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
+@@ -510,6 +510,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
-+	/* Realtek Semiconductor Corp. Mass Storage Device (Multicard Reader)*/
-+	{ USB_DEVICE(0x0bda, 0x0151), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
++	/* VCOM device */
++	{ USB_DEVICE(0x4296, 0x7570), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
 +
- 	/* Realtek hub in Dell WD19 (Type-C) */
- 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
  
 -- 
 2.35.2
