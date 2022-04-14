@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48875500F24
-	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 587C2500F22
+	for <lists+stable@lfdr.de>; Thu, 14 Apr 2022 15:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244189AbiDNNYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 09:24:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39070 "EHLO
+        id S244204AbiDNNYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 09:24:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244237AbiDNNXo (ORCPT
+        with ESMTP id S244243AbiDNNXo (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 09:23:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFE5799EF4;
-        Thu, 14 Apr 2022 06:18:36 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22E859A987;
+        Thu, 14 Apr 2022 06:18:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E9E7B8296A;
-        Thu, 14 Apr 2022 13:18:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5B5AC385AA;
-        Thu, 14 Apr 2022 13:18:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 854BBCE29B0;
+        Thu, 14 Apr 2022 13:18:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91888C385A9;
+        Thu, 14 Apr 2022 13:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649942314;
-        bh=AUvEkxJgWYupdOylQTuil4pIBi8f/1REK1n0Gy1EdMs=;
+        s=korg; t=1649942317;
+        bh=rMIHqJKmpycu6O2npx9WM/AIg4FfJweXZtKM7+IChyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/fMjbMs2NnmHKevzDCFaH0mAD2GIww2CngtFOXD6jazm90udbruoHyZf17g1dUH2
-         jpr4XqH8bhL3cr7+5rV2ABFmyyctWJXApDgTtB+xXI6CleeDjhnvA8/k8KVx0hsCtq
-         i9vNz4OAydpbWReVznZsX+wyE/rY6k8GclSKvvlk=
+        b=OQdCkaHP1vO6Kqd6EgK2vZeBqeJcp33MxjvzOsKBYT+PemiRzLyu6Xk17EMcn0vBG
+         4CTrvWIHfbHY7nCJB12LD944ZD7cJNc2i8f+lVKPslTVSS4gqlklGGQZZiYIGp95+j
+         9E50vq7rpuwyigcq8+qYcyonoB5JC3MMbxGQiUwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>,
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/338] soc: ti: wkup_m3_ipc: Fix IRQ check in wkup_m3_ipc_probe
-Date:   Thu, 14 Apr 2022 15:09:54 +0200
-Message-Id: <20220414110841.489144903@linuxfoundation.org>
+Subject: [PATCH 4.19 092/338] media: em28xx: initialize refcount before kref_get
+Date:   Thu, 14 Apr 2022 15:09:55 +0200
+Message-Id: <20220414110841.517726604@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
 References: <20220414110838.883074566@linuxfoundation.org>
@@ -54,45 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit c3d66a164c726cc3b072232d3b6d87575d194084 ]
+[ Upstream commit c08eadca1bdfa099e20a32f8fa4b52b2f672236d ]
 
-platform_get_irq() returns negative error number instead 0 on failure.
-And the doc of platform_get_irq() provides a usage example:
+The commit 47677e51e2a4("[media] em28xx: Only deallocate struct
+em28xx after finishing all extensions") adds kref_get to many init
+functions (e.g., em28xx_audio_init). However, kref_init is called too
+late in em28xx_usb_probe, since em28xx_init_dev before will invoke
+those init functions and call kref_get function. Then refcount bug
+occurs in my local syzkaller instance.
 
-    int irq = platform_get_irq(pdev, 0);
-    if (irq < 0)
-        return irq;
+Fix it by moving kref_init before em28xx_init_dev. This issue occurs
+not only in dev but also dev->dev_next.
 
-Fix the check of return value to catch errors correctly.
-
-Fixes: cdd5de500b2c ("soc: ti: Add wkup_m3_ipc driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Acked-by: Dave Gerlach <d-gerlach@ti.com>
-Link: https://lore.kernel.org/r/20220114062840.16620-1-linmq006@gmail.com
+Fixes: 47677e51e2a4 ("[media] em28xx: Only deallocate struct em28xx after finishing all extensions")
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/wkup_m3_ipc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/soc/ti/wkup_m3_ipc.c b/drivers/soc/ti/wkup_m3_ipc.c
-index c1fda6acb670..8358b97505db 100644
---- a/drivers/soc/ti/wkup_m3_ipc.c
-+++ b/drivers/soc/ti/wkup_m3_ipc.c
-@@ -454,9 +454,9 @@ static int wkup_m3_ipc_probe(struct platform_device *pdev)
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index 06da08f8efdb..c7f79d0f3883 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -3822,6 +3822,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
+ 		goto err_free;
  	}
  
- 	irq = platform_get_irq(pdev, 0);
--	if (!irq) {
-+	if (irq < 0) {
- 		dev_err(&pdev->dev, "no irq resource\n");
--		return -ENXIO;
-+		return irq;
++	kref_init(&dev->ref);
++
+ 	dev->devno = nr;
+ 	dev->model = id->driver_info;
+ 	dev->alt   = -1;
+@@ -3922,6 +3924,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
  	}
  
- 	ret = devm_request_irq(dev, irq, wkup_m3_txev_handler,
+ 	if (dev->board.has_dual_ts && em28xx_duplicate_dev(dev) == 0) {
++		kref_init(&dev->dev_next->ref);
++
+ 		dev->dev_next->ts = SECONDARY_TS;
+ 		dev->dev_next->alt   = -1;
+ 		dev->dev_next->is_audio_only = has_vendor_audio &&
+@@ -3976,12 +3980,8 @@ static int em28xx_usb_probe(struct usb_interface *intf,
+ 			em28xx_write_reg(dev, 0x0b, 0x82);
+ 			mdelay(100);
+ 		}
+-
+-		kref_init(&dev->dev_next->ref);
+ 	}
+ 
+-	kref_init(&dev->ref);
+-
+ 	request_modules(dev);
+ 
+ 	/*
 -- 
 2.34.1
 
