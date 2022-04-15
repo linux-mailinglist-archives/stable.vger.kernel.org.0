@@ -2,245 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB825030DD
-	for <lists+stable@lfdr.de>; Sat, 16 Apr 2022 01:09:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2A74503097
+	for <lists+stable@lfdr.de>; Sat, 16 Apr 2022 01:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356211AbiDOVoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Apr 2022 17:44:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54518 "EHLO
+        id S232090AbiDOWMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Apr 2022 18:12:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356119AbiDOVoS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 17:44:18 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D7CD48303
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 14:41:22 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id 125so8652715pgc.11
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 14:41:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8Ko1m09jvFX1VuhHAMAgdg2w0rHdTcCDF3fJuy9YVw4=;
-        b=EcGRYETVlP531DrZfj2e6lIzGN1dCtcQ3EyRpa3gnAnbGbM+7Gft/nDwL0fy/aaLZu
-         wWxL1L+mOgWv5Xe2bKh6giXDeVPPZ+JpnUU4Q7qp78CS0BkWq3S6jcyV3QtqGRhNhxCn
-         EDE2cpMdCH0TmoHgXSLbsZkYsiHJIRXJBMePmeHb7zJBVkDDOJhcK0ry6lNuJ0Izfu1g
-         HU6sgYCaY7cbvCt71MMSRFGf2WUxi/iCjmOo+GAShnx47PvSzBxZXVfKDKp0BB9p6A88
-         Eez0/7tlhMfsmhh7aYQzAeFzdCPu2yLAdUEGA8gAqRMfi+J6xjcdZOnsbPBRDg0qQJdH
-         h/ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8Ko1m09jvFX1VuhHAMAgdg2w0rHdTcCDF3fJuy9YVw4=;
-        b=aLXAxiPhvTbFfuC7CdbDWLkth8wnM6W9Lrfd696F8PqKwHVDm64NTAqFsSUu+Pfz2n
-         AGMNAKhZXu9DoKqTGMu7LZcRTnPF88PnmF6tsXzZT2cK/8ZYKVa7G70lN0513p6KPtPH
-         wEBtI682sm+wqQsD2XVU6kMJYIIw3wOhcGulmif2Neurp4csnAXC+TT7W2OuqfhkmH7k
-         cwV6NfLA/LhqGmeXk6bcZybkU1fu4dNipsg1h3/8MTmvQl9RUkkjZB6jn51UEF1Z4BGA
-         kdHXha/kRqBzkEP7EvhID7TKpRL1TRkfA16dLcgamDEQK4oN4LGdPFzYxlreViAQL+Et
-         zBnA==
-X-Gm-Message-State: AOAM5331qSdEJx/EXXtWElZjJTxjLP1do5Mq1SSIwBUY/lgzSb0sTIdi
-        lL0/s5JB4a6G3k/l8Na3f28M/GGA5kK7YO+x
-X-Google-Smtp-Source: ABdhPJwv0HI7mZOU/8x6DXY0kGC64sIZZg+YoeRn104HhEmJRKWHqFLe27FdnOPVg1IzJCtS+u6TPQ==
-X-Received: by 2002:a65:5b8c:0:b0:39e:293a:7787 with SMTP id i12-20020a655b8c000000b0039e293a7787mr696809pgr.461.1650058881594;
-        Fri, 15 Apr 2022 14:41:21 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m15-20020a638c0f000000b003827bfe1f5csm5185340pgd.7.2022.04.15.14.41.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Apr 2022 14:41:20 -0700 (PDT)
-Message-ID: <6259e680.1c69fb81.aaf33.df5f@mx.google.com>
-Date:   Fri, 15 Apr 2022 14:41:20 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Kernel: v5.4.188-472-g2a5c061fe182a
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.4 baseline: 128 runs,
- 4 regressions (v5.4.188-472-g2a5c061fe182a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S232797AbiDOWME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 18:12:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E561168;
+        Fri, 15 Apr 2022 15:09:33 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D129FB82FAE;
+        Fri, 15 Apr 2022 22:09:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52D9FC385A5;
+        Fri, 15 Apr 2022 22:09:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1650060570;
+        bh=uUTQqgUrEzM7Si1aiQakKXkiczJd/bLPM5S7/8UuewM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=v1978BaeFognAVHsSsO/IbUq5gZ2MfdtX3pU/XfWl2EDOtBmtFQ6U+QxtPEPewUqy
+         t8q0ImX7X34MWexGSi8QR/FRCIG0iO6Gg1TIx7Sr10hjd0BuyBxZPfCgdzHbgK1OpC
+         360VyOfe0eoYqVGzTn++ivmyJmcy7oHU68eCY6qI=
+Date:   Fri, 15 Apr 2022 15:09:29 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v10] mm, hugetlbfs: Allow for "high" userspace addresses
+Message-Id: <20220415150929.a62cbad83c22d6304560f626@linux-foundation.org>
+In-Reply-To: <ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu>
+References: <ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-11.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 128 runs, 4 regressions (v5.4.188-472-g2a5c06=
-1fe182a)
+On Fri, 15 Apr 2022 16:45:13 +0200 Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
 
-Regressions Summary
--------------------
+> This is a fix for commit f6795053dac8 ("mm: mmap: Allow for "high"
+> userspace addresses") for hugetlb.
+> 
+> This patch adds support for "high" userspace addresses that are
+> optionally supported on the system and have to be requested via a hint
+> mechanism ("high" addr parameter to mmap).
+> 
+> Architectures such as powerpc and x86 achieve this by making changes to
+> their architectural versions of hugetlb_get_unmapped_area() function.
+> However, arm64 uses the generic version of that function.
+> 
+> So take into account arch_get_mmap_base() and arch_get_mmap_end() in
+> hugetlb_get_unmapped_area(). To allow that, move those two macros
+> out of mm/mmap.c into include/linux/sched/mm.h
+> 
+> If these macros are not defined in architectural code then they default
+> to (TASK_SIZE) and (base) so should not introduce any behavioural
+> changes to architectures that do not define them.
+> 
+> For the time being, only ARM64 is affected by this change.
+> 
+> >From Catalin (ARM64):
+>   We should have fixed hugetlb_get_unmapped_area() as well when we
+> added support for 52-bit VA. The reason for commit f6795053dac8 was to
+> prevent normal mmap() from returning addresses above 48-bit by default
+> as some user-space had hard assumptions about this.
+> 
+> It's a slight ABI change if you do this for hugetlb_get_unmapped_area()
+> but I doubt anyone would notice. It's more likely that the current
+> behaviour would cause issues, so I'd rather have them consistent.
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+I'm struggling to understand the need for a -stable backport from the
+above text.
 
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
+Could we please get a simple statement of the end-user visible effects
+of the shortcoming?  Target audience is -stable tree maintainers, and
+people who we've never heard of who will be wondering whether they should
+add this to their organization's older kernel.
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+>  fs/hugetlbfs/inode.c     | 9 +++++----
+>  include/linux/sched/mm.h | 8 ++++++++
+>  mm/mmap.c                | 8 --------
+>  3 files changed, 13 insertions(+), 12 deletions(-)
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
+I'm a bit surprised that this has reached version 10!  Was it really
+that tricky?
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.188-472-g2a5c061fe182a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.188-472-g2a5c061fe182a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2a5c061fe182a528845cc9d00b0201b89274fd72 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6259b5264465879bcfae06d7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-4=
-72-g2a5c061fe182a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-4=
-72-g2a5c061fe182a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6259b5264465879bcfae0=
-6d8
-        failing since 120 days (last pass: v5.4.165-9-g27d736c7bdee, first =
-fail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6259b512c0f8fc05fdae068f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-4=
-72-g2a5c061fe182a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-4=
-72-g2a5c061fe182a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6259b512c0f8fc05fdae0=
-690
-        failing since 120 days (last pass: v5.4.165-9-g27d736c7bdee, first =
-fail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6259b53cbc3e848d5eae067c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-4=
-72-g2a5c061fe182a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-4=
-72-g2a5c061fe182a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6259b53cbc3e848d5eae0=
-67d
-        failing since 120 days (last pass: v5.4.165-9-g27d736c7bdee, first =
-fail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6259b5134465879bcfae067c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-4=
-72-g2a5c061fe182a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.188-4=
-72-g2a5c061fe182a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6259b5134465879bcfae0=
-67d
-        failing since 120 days (last pass: v5.4.165-9-g27d736c7bdee, first =
-fail: v5.4.165-18-ge938927511cb) =
-
- =20
