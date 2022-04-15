@@ -2,138 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 628BC502B70
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 16:05:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21D74502B94
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 16:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354229AbiDOOIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Apr 2022 10:08:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44660 "EHLO
+        id S236542AbiDOOQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Apr 2022 10:16:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239553AbiDOOIQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 10:08:16 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFB465F8D5
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 07:05:47 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id h5so7344802pgc.7
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 07:05:47 -0700 (PDT)
+        with ESMTP id S1354353AbiDOOQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 10:16:54 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD74ECF4AA
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 07:14:23 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id a16-20020a17090a6d9000b001c7d6c1bb13so8441588pjk.4
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 07:14:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BcybBYNf6Gvr3NvRHfKWdg6vVltz+tmZIlTkKQBZFZs=;
-        b=bmccG/JMmc93a3lNGCvYgyT/z8mem5aRnT2KYBFxSEKvQRHU/4RcmWoE/mvehFiErP
-         TC9K0iqGqHR20XFs0aG+TzHdfhyDZUjUjVUefT1TQH0XT6W4Tf0Q7ySjTwDWV9cxC4m4
-         uOM6hLXYCDGH3en+YSlgmEXr4F2sdWL0tKlrhm1Ea1auknv3bT1Kd74k/SxakCZVgA+L
-         LI3KuByyyUAtZ1LV1JixYJqB8nWSURrKNqF9XgbZog0y3OGUbxNLlBWUMhUKPBEwjxvn
-         Dijx3ijzFlt1Q0R0BSZTtv9TGFWIQzX8DEufMIa8Tg489IHzzx5jWTCC3ewhvlTUk8mm
-         WvpQ==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=W7pJ87MMKgb5DtroOsn6zX1k9Enz1UopIOm4KxB8CdU=;
+        b=cl6RaMXM2TAsZOMW89aMuGQgKEIMl7GsTFPcrv7gyNZd1WPR48gwuVCjmE3gnHj6MM
+         kx0a533ilutzRFYcLIfQtywqy5NCvd1VgNO9pK/tt5xuOHORBDeX9jKs5QGJjKGI5YO2
+         7VQURjVRDdga27AqW4x9aRdYTYzNcIQutvTEcNAjPflq22e+8XAzskHHnXwjWa6Yuzuq
+         ZCBe643HeK945voQ4oLhvyxW4gQ8gRuxCRnRv0OIN9CgPq11WfaGQSszlsHQpbwL/0An
+         lxWAIZPK0N+9PmGU/j5fXIM14NiJHnQmlUCoynlpBAMpF/ilxXatwHTfIbC6LjY0BODd
+         ZzYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BcybBYNf6Gvr3NvRHfKWdg6vVltz+tmZIlTkKQBZFZs=;
-        b=t0dgoFs7zTgg7IbK5m+IB7290TW0RmaFu9rrm+rRzjvtzvz1ZCeQP5bDlFqX9T5OYJ
-         0U8E+rVIS7XFO0bD9qrebD4OT23hd0e57Iw8si8aYJSVEBMD3/IYSOCDYi26PhhzC4Xm
-         hSk4QWNMg1YFhtY+OqzbYJCL3p93ZJAQaHSe6SlCc6wa8a9Xx4JXpcbqU5QMmxXqrcH3
-         OpnAf03XBmPcYJg98JYkDiXQIDgMkj1LmN1QHuWt7Q43mxvBAzTyRxFF8kP+4YBRCV7T
-         Esli2Rr85z/PG0Fw+HDvwregIrRQTohEZVkYy/xW2XONT+GEsoYHpm0ATVRJPwPK6j0j
-         WV9Q==
-X-Gm-Message-State: AOAM533gLHBx5iXCNhfxod1Cn1pkHIqsQ1pXfwQtEHRTckBvDMVhKFAS
-        2WBzHMrDgbC43etEf7v+frjWeQiwexXR1z4N
-X-Google-Smtp-Source: ABdhPJzZ4PP0FWi978DziypxzZR47NzBXkPoK9Cefu44dpLZXS0eL1iRYQn/5EF8cROFMsVsBCOZig==
-X-Received: by 2002:a63:4f0d:0:b0:399:5115:ff48 with SMTP id d13-20020a634f0d000000b003995115ff48mr6572784pgb.235.1650031546952;
-        Fri, 15 Apr 2022 07:05:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r6-20020a17090b050600b001d08a7d568bsm2250846pjz.7.2022.04.15.07.05.46
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=W7pJ87MMKgb5DtroOsn6zX1k9Enz1UopIOm4KxB8CdU=;
+        b=HwcF6BFWDPEKxuATqaG/MuIPTVDHYFTeDV1cAzs2PKjladjKEJx3vAqlvrgp7apL6i
+         06hyw3VcJ4IAKXACK1mxmdsvs94nbYTGNXzyoYoFnuLALNbOJlDVGStkz0y4XEW4jJYu
+         wTXZ8jw+d0edGES5B5L7SA5A2EotpFjwwnyF6Q2ytMTnxYZZugiUEf6/qpp173Psi2Ya
+         t+hYkzuZBjHSzcQjn0PR3hzrDeqKAyBih5uU6xManxWIOR1xZ3K32yCRMYJtolmUNGOo
+         0SOtksLaN18v1ovFlksHOINTbAIM8BHE4rsSHvNAhUA7TXp6GGZCOLVAgSNyTyvAPaL8
+         PFDg==
+X-Gm-Message-State: AOAM530XoiT8fpASShpPyZVXo01KCcPqQ1z2X4CzRemO8wPRKGMr8TpP
+        4/gbssgQyD7Hb0zR4GpZHZQEoQ==
+X-Google-Smtp-Source: ABdhPJwIMENFkDtZsLGQMuu3vxL5lc0twYuZQL+N4DXflSHdA2RL1NFxd/fLLyIOwAIcuhK3MyNKZA==
+X-Received: by 2002:a17:90b:380f:b0:1c7:4403:4e72 with SMTP id mq15-20020a17090b380f00b001c744034e72mr4462158pjb.228.1650032063329;
+        Fri, 15 Apr 2022 07:14:23 -0700 (PDT)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id n24-20020aa79058000000b0050612d0fe01sm3012707pfo.2.2022.04.15.07.14.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Apr 2022 07:05:46 -0700 (PDT)
-Message-ID: <62597bba.1c69fb81.4bd68.5b74@mx.google.com>
-Date:   Fri, 15 Apr 2022 07:05:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Fri, 15 Apr 2022 07:14:22 -0700 (PDT)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     andrii.nakryiko@gmail.com
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        "Alexei Starovoitov" <ast@kernel.org>,
+        "Daniel Borkmann" <daniel@iogearbox.net>,
+        "Andrii Nakryiko" <andrii@kernel.org>,
+        "Martin KaFai Lau" <kafai@fb.com>,
+        "Song Liu" <songliubraving@fb.com>, "Yonghong Song" <yhs@fb.com>,
+        "John Fastabend" <john.fastabend@gmail.com>,
+        "KP Singh" <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
+Subject: [PATCH v2] bpf: Fix KASAN use-after-free Read in compute_effective_progs
+Date:   Fri, 15 Apr 2022 07:13:55 -0700
+Message-Id: <20220415141355.4329-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <CAEf4BzbiVeQfhxEu908w2mU4d8+5kKeMknuvhzCXuxM9pJ1jmQ@mail.gmail.com>
+References: <CAEf4BzbiVeQfhxEu908w2mU4d8+5kKeMknuvhzCXuxM9pJ1jmQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.111-6-gc2210c2901b40
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 130 runs,
- 1 regressions (v5.10.111-6-gc2210c2901b40)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 130 runs, 1 regressions (v5.10.111-6-gc2210c=
-2901b40)
+Syzbot found a Use After Free bug in compute_effective_progs().
+The reproducer creates a number of BPF links, and causes a fault
+injected alloc to fail, while calling bpf_link_detach on them.
+Link detach triggers the link to be freed by bpf_link_free(),
+which calls __cgroup_bpf_detach() and update_effective_progs().
+If the memory allocation in this function fails, the function restores
+the pointer to the bpf_cgroup_link on the cgroup list, but the memory
+gets freed just after it returns. After this, every subsequent call to
+update_effective_progs() causes this already deallocated pointer to be
+dereferenced in prog_list_length(), and triggers KASAN UAF error.
 
-Regressions Summary
--------------------
+To fix this issue don't preserve the pointer to the prog or link in the
+list, but remove it and rearrange the effective table without
+shrinking it. The subsequent call to __cgroup_bpf_detach() or
+__cgroup_bpf_detach() will correct it.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+Cc: "Alexei Starovoitov" <ast@kernel.org>
+Cc: "Daniel Borkmann" <daniel@iogearbox.net>
+Cc: "Andrii Nakryiko" <andrii@kernel.org>
+Cc: "Martin KaFai Lau" <kafai@fb.com>
+Cc: "Song Liu" <songliubraving@fb.com>
+Cc: "Yonghong Song" <yhs@fb.com>
+Cc: "John Fastabend" <john.fastabend@gmail.com>
+Cc: "KP Singh" <kpsingh@kernel.org>
+Cc: <netdev@vger.kernel.org>
+Cc: <bpf@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 
+Link: https://syzkaller.appspot.com/bug?id=8ebf179a95c2a2670f7cf1ba62429ec044369db4
+Fixes: af6eea57437a ("bpf: Implement bpf_link-based cgroup BPF program attachment")
+Reported-by: <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+v2: Add a fall back path that removes a prog from the effective progs
+    table in case detach fails to allocate memory in compute_effective_progs().
+---
+ kernel/bpf/cgroup.c | 55 +++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 48 insertions(+), 7 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.111-6-gc2210c2901b40/plan/baseline/
+diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+index 128028efda64..5a64cece09f3 100644
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -723,10 +723,8 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+ 	pl->link = NULL;
+ 
+ 	err = update_effective_progs(cgrp, atype);
+-	if (err)
+-		goto cleanup;
+ 
+-	/* now can actually delete it from this cgroup list */
++	/* now can delete it from this cgroup list */
+ 	list_del(&pl->node);
+ 	kfree(pl);
+ 	if (list_empty(progs))
+@@ -735,12 +733,55 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+ 	if (old_prog)
+ 		bpf_prog_put(old_prog);
+ 	static_branch_dec(&cgroup_bpf_enabled_key[atype]);
+-	return 0;
++
++	if (!err)
++		return 0;
+ 
+ cleanup:
+-	/* restore back prog or link */
+-	pl->prog = old_prog;
+-	pl->link = link;
++	/*
++	 * If compute_effective_progs failed with -ENOMEM, i.e. alloc for
++	 * cgrp->bpf.inactive table failed, we can recover by removing
++	 * the detached prog from effective table and rearranging it.
++	 */
++	if (err == -ENOMEM) {
++		struct bpf_prog_array_item *item;
++		struct bpf_prog *prog_tmp, *prog_detach, *prog_last;
++		struct bpf_prog_array *array;
++		int index = 0, index_detach = -1;
++
++		array = cgrp->bpf.effective[atype];
++		item = &array->items[0];
++
++		if (prog)
++			prog_detach = prog;
++		else
++			prog_detach = link->link.prog;
++
++		if (!prog_detach)
++			return -EINVAL;
++
++		while ((prog_tmp = READ_ONCE(item->prog))) {
++			if (prog_tmp == prog_detach)
++				index_detach = index;
++			item++;
++			index++;
++			prog_last = prog_tmp;
++		}
++
++		/* Check if we found what's needed for removing the prog */
++		if (index_detach == -1 || index_detach == index-1)
++			return -EINVAL;
++
++		/* Remove the last program in the array */
++		if (bpf_prog_array_delete_safe_at(array, index-1))
++			return -EINVAL;
++
++		/* and update the detached with the last just removed */
++		if (bpf_prog_array_update_at(array, index_detach, prog_last))
++			return -EINVAL;
++
++		err = 0;
++	}
+ 	return err;
+ }
+ 
+-- 
+2.35.1
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.111-6-gc2210c2901b40
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c2210c2901b4032f508e74602d2a87144d2316ec =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625950264e5df2a1f3ae067c
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.111=
--6-gc2210c2901b40/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.111=
--6-gc2210c2901b40/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/625950264e5df2a1f3ae069e
-        failing since 38 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-04-15T10:59:39.653643  <8>[   32.711552] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-15T10:59:40.674739  /lava-6097200/1/../bin/lava-test-case   =
-
- =20
