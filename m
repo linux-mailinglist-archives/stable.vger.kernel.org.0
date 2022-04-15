@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97E30502E73
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 19:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A68A502E6B
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 19:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343622AbiDORws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Apr 2022 13:52:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47800 "EHLO
+        id S1343707AbiDORwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Apr 2022 13:52:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343707AbiDORwZ (ORCPT
+        with ESMTP id S1343970AbiDORwZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 13:52:25 -0400
 Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F483506C0
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 10:49:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C8F857150
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 10:49:56 -0700 (PDT)
 Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23FHmi5C009434
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 17:49:54 GMT
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23FHmi5E009434
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 17:49:55 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=PPS06212021;
- bh=r59l6xMtmKc0sQnNX+Eacm3FpYJTT/wNXyCEk5kNOVc=;
- b=UZeSb6PsMTaF+jTHdWp3mYsrXhfeZuEWQQXwjAuGlSD+6XGqpGwEwFJDXUOXBVV57hCq
- +zq2yQ8FjDIzp5KJPWKr2qZfzSxCuiUT1SpsmLt7mTVwnkrKukX6XvKdO4bDNqWTQPct
- NxEOuLpPzIZPbKgLGAVb8VOLtdGLtlodTDTiosuMrqCuLSREKLz10suvvBFM7H3MFRto
- HxAlRLZPjmYJ0m0p1QcMKy2gkwNh3DFQIWsXCM0rB/4pkFOaENXZ22X6+0VPLFM3alnS
- MbCoqXljX6VGThvdeIiURLLcB9bLYmeJRe4bk7zLoH3XDIjAzXMSL9Zg7oTHb9XTy6aP 9A== 
+ bh=rvl1PV5RZMGN2YOBDHkM2/1hg0HvvN42RhgluyCBtTk=;
+ b=rVpvfAOWWYLq4gJjGIrLUQ3IJfH2QFUZBqojgqARvUNfLORiXDFtet6zIA7KTUH9AGao
+ h2goBmFJCt3Uiqyp8B6xyt1y+HQYo+8IUIoZ3dXAnrQRuXNORLomrbGfAKMMo3zjd2K/
+ 2FX90qx0APsS/64obdAatPD4mER0lQKWjiRobI1TyP7ofGQRElMttFgJCMphKE9Wbv7e
+ Te/BEVRFdKocJOjG1lZT29KBDjHYeuRBL+aLe0c/QWSvmMXZ8w0GqTsPcU1CY+X3RdPp
+ UHLCC3eYp0MIH2vkdwVEopqiTZ41kBm5K7IdjlEiy/UUmEmsKkcIa4F1aJUzNqtNvQfw /g== 
 Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam07lp2047.outbound.protection.outlook.com [104.47.56.47])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3fb66evw4d-1
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3fb66evw4d-3
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 17:49:54 +0000
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 17:49:55 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=l3wThVzx+eBC7hLsv+9dgUZlR3G0PkN4TAxa83L9wHkcWX7fyl6seBxsu0dl1MqdqvKPTjmsf0yOxruCxfOXRYS5dZ40cTlGn34hxe3KKoEk7CYk9z9A5xzY5bBA/mcdRSWnBofIF6jX8FPOxgQfxQs+cMYQua4YBSHwSCAM0oqzWuTgy1f4TTbhxIWx7LeifagwV6hl2vcCa+19a3sTkZpm50Ai9VwkvC1LyVc+sVTqG60pvxiKxhM2tHT1jYFBcPUQfrTzpQWfGOaPUgYZWqninM1T8lPxu6mjQLZy/HQHkVQWBvVhSvjNE0Muni4Fyjh9evwp0CQbi67bPFuxTg==
+ b=eSdy7lQ3tV47sJkmKKwgOw89o5CtRFiSGUclI7smouSKEejiVCN5Xtydhhgc6apkYST3BcSqOrNuYprHEA3OZojcgPUYU2PzgCSNyX+EYU4OD+KvuydvYnML2tUXDvDKQojf95SIW3iEDyvIbLsgHE8Dhb8xzFr+kElT52cmS/BYGGmFGZYVaW9dva2irCEzWeY7Jk5v9hei4If2RXDCwgYJskk3MUKJXifAxg50vLvfJj6K08g2wtRfxtDYoWG6AFHETKpEzNcaj35khG0MJrWZMR9oA2g4zJNVcZ8p4ZqrRV/SUwQ8jriAW9K7RwXmDFRRA3DFN8gowOjXk7HDuw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=r59l6xMtmKc0sQnNX+Eacm3FpYJTT/wNXyCEk5kNOVc=;
- b=gEb9vVLZwM90iVagTBUGP0PsULkryuAW5/iMik2hJdNCrfL57Pwvvq+CUqDc1xfvCDqE/hy6coYWssgWJOvkFqejoRmbbLW7IifiMiVTxj6WFkrPzEaOqHM/oJOqrIvjxtlXRg2xbuZa+98Ox0Rf4bvUjDWRR6UWUOa2uzlgdp4nFBE5dDhhxHynfCEyigW5P6cphhXjm9IIOfLNxpZeMebh5R5NyJF8erZOsdMan6D48+NbK3qdVzLUS2/+J3JwcaGcC8lxZeX63lPLz4wDtZGTbyPYaGY1/uZ2uwYjg9ItC+s70fYvS0jX55k4G0PyPKRCfhLQl8ajUE8i6yYAqg==
+ bh=rvl1PV5RZMGN2YOBDHkM2/1hg0HvvN42RhgluyCBtTk=;
+ b=Q3TkVj7CrtG4gmzGaCQkY4Soh1JpoaHSbCVqY2/vSVW8lNucrbd6//J/MvKZJMuqqOVGE7bYqpojGx4SqczmiVt+PKASrk27qbxaaDsXN4Y+usoBsJ6/hgeP59N44t+CSYJ6XhXEyygqJ79G6U5wl1a2FAlI28u/R8okw5z+jftCrG9NEhnWBu273p6yo5R730htM0X8XUQfoSTjiTRX/y+v0V6D3jalSNX9o4Buwar4/delltioyjrjPkhqRW9R0dS9dLubGO/qPaOqQEs4PwNLnb1RPZvNZICHUnIFoD1K0D+fJKRCIcue3v1ejTpo7qctY0LuvQRTdYhpJNSwOQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -48,12 +48,12 @@ Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::c903:4c47:ac8a:992d]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::c903:4c47:ac8a:992d%4]) with mapi id 15.20.5164.020; Fri, 15 Apr 2022
- 17:49:51 +0000
+ 17:49:52 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 5.10 2/8] ax25: fix reference count leaks of ax25_dev
-Date:   Fri, 15 Apr 2022 20:49:27 +0300
-Message-Id: <20220415174933.1076972-2-ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 3/8] ax25: fix UAF bugs of net_device caused by rebinding operation
+Date:   Fri, 15 Apr 2022 20:49:28 +0300
+Message-Id: <20220415174933.1076972-3-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220415174933.1076972-1-ovidiu.panait@windriver.com>
 References: <20220415174933.1076972-1-ovidiu.panait@windriver.com>
@@ -64,64 +64,64 @@ X-ClientProxiedBy: VI1PR08CA0217.eurprd08.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0d2a8c5d-1b29-42a1-b18b-08da1f0857b0
+X-MS-Office365-Filtering-Correlation-Id: db30d1a3-0032-405f-3e9d-08da1f085831
 X-MS-TrafficTypeDiagnostic: BN6PR1101MB2290:EE_
-X-Microsoft-Antispam-PRVS: <BN6PR1101MB229070B87B98F1730CF148D5FEEE9@BN6PR1101MB2290.namprd11.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <BN6PR1101MB2290F1FB5C8771A600BAC72AFEEE9@BN6PR1101MB2290.namprd11.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 4YS6QwO59LlK6JuIY1ElAilFLBSlQwCbY/m6UcLiv2Nn083QaYwV33MZBQ5g+An9pVsRnzW03d4CBGx6oeBiRmdEurYiJ0j+enFi0b+yvbjYROHOKmHDppDwsq17K+iUoRj9RQbub5II4V6+fxqEwN06FfQ7YhBTJ+09mC87IQGdPsD+HKTNTVjIV2y8hyfzENKuMFL6dCc8nC1pSrCTlViQuEkKjWcX5SgRtyjr1QeggN6m1X8fwYieZhTZV8XejUWXV91iQjjkzYcPnqqvDXcCU7IsMUjyEBgRIuLGy/dv/mttDge659j4PI1ZGnYSwkhgFFhRJaKkicRKjsMbMdesXf5ancxaTaQqG4N3lrZgeW/MVDWrAnROkxNQauxSCwwHDiScHQ1xdCsEDFnnfx7Z+a665ryKwtRrtvfrPiWJ01lrDMJ7cOtGKUbsFvxz1zq6+8cHEDeKFuBeE+bMn7z0CulrR2X+vhfq+Byw6/sCzNM5RXcJRjg0xUirJXqHUYlu7w1bJBZz5L6naRz+dKLlFih7cj6qC54fQbdBxtYajGsryUYyiSVeKGu9rdwcQ2wZpH4GJmfqnwMsrFZfrMhSmKX8CoRF6fBcmnUisaWVVCj3qPIp/HNMuQ1/hxOptpgBJxffaHWJ9bI7Ca/6ZeR4RdaDN+xxFtT71joQo+qLZwi+2O5H4SN3vRSlQ8SFduDsHek/qqFfCuxyqYtPFgAq8Fscy+51Af4yqiUgtW9qCF/jnP5OdHXCSoGPt2G4uouMlwKnyBOpGf94kVHSQ1gjWtAWVHE2yXxo97G8Gw0=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(2906002)(38100700002)(6916009)(186003)(5660300002)(83380400001)(1076003)(26005)(66946007)(66556008)(8676002)(38350700002)(66476007)(6506007)(6666004)(52116002)(6512007)(508600001)(316002)(86362001)(2616005)(8936002)(44832011)(966005)(6486002)(36756003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 0Z4tVbobwvL0kpx3EtdWzAQOQ/9ZmNND/U9EExkLxAmAKioqO1QRN+hICIuJYBIQFlDvnD/BfFbtxd1uAMaxmtthKc7/FwzL5bExbtTdXCjewFUSED9MlBS+FHWVyeIEX8IPw2Qw3NZlOnHhQ+OqcBCf9Vstq0FbuDta9tRKul4zgRZl/3DzT1v5rhX0A2Bs+WBM5BkhdrWVvrXi3iyW7qUcsQnfMwX6YK3wOclVq34kK/OgAYrC0Puve4Zd8vlsxFvyMMyzhNUb7PauEQLYMX2Jk2hGSLEjdbs7AL0qVLFB+WWcl6CA4OZJlMsNrRW/A4fdzHmHJ0/IoomLXW3mhIVFq9sPw+ucZEqxbdL2bJGUujVOAthY4UqaNkV0nejy7AmJ/jI7iUUR5jgsi/dDiEU9blD0wPGVVXBXyVBaABe0qnIC4tYWjCvd+1oZ6ewI7PEWYuFhOhKr9sFjkg2NQ1A+anWhXi+DweZAtlSHRRKYVvfCbpF7FDf81AS+NtAHPEL7j6iTy/L+IpzDG1RBw9BXBl2zzYMKJPWBzMpNPhNbQitmo2vqp2VatJYTXAZK1YQ6PYJggtd9h3ofOQc8qmCDXYq4eYzWHovFmfB4fpxLiebwmhlldW2+duasYnkLVBb7YM4Y0unfQxVROBpT+ezwui0FDUebbtR0925MGf+TQiLBcV27YmOMS2QLQUn8i8bkBhIWExNrEmCDBi3TCg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(2906002)(38100700002)(6916009)(186003)(5660300002)(83380400001)(1076003)(26005)(66946007)(66556008)(8676002)(38350700002)(66476007)(6506007)(6666004)(52116002)(6512007)(508600001)(316002)(86362001)(2616005)(8936002)(44832011)(6486002)(36756003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?iZw8W8sf12N318GjPj5W6Pcae+rbUheFvOqCSYbG+D17nahfidaK4Dq0GxcI?=
- =?us-ascii?Q?R6nVpFSP1RA8w4JvGDWpLHjUgC+Iw7g/Dqy0YIUHppzLIqjUeMBkCoxWb5Ou?=
- =?us-ascii?Q?Fk0jC26yCD3pqeJpcCD4ZsgWnyHX7D1uuRJGKELW40k6mWct8leGimorAhFw?=
- =?us-ascii?Q?K6YnNg1Fxt/sZdVs8HstuN8nCzW3lS1eUxrMO/CdwILINOo8YU2yrNuBXb0f?=
- =?us-ascii?Q?1CrZ9LyYAM+PbxyoazsCPb7Ynr10KaQLqvHyQFyHNw8jJwB8u+b0kpostlzL?=
- =?us-ascii?Q?cUQ3MlijCrPgOHarzf1tQG4EuqQWg8gDU14JvU+77cxYK2h79VO56cnQTXqZ?=
- =?us-ascii?Q?+HPhqA2VIx14W7N66f9BbqSWNOdJF4gjVw+N5W7fRJmkDTEiHtnIN6b/Y/8x?=
- =?us-ascii?Q?JbzyWKc/2Ip9qfjqG5bEuzTJxFltXgyOl4RpCba/tFHsBAg+GdZM8l87rLCO?=
- =?us-ascii?Q?AJ1MaCb107dQjgnYOPB++G/Zpsqpi82h3TyUHZ4k6uCzUaZVmw3Vm/emJ5js?=
- =?us-ascii?Q?e5eHAiHgjNooIcDin1AQfVGu7EZdGfyogVPtPcZmS5an8rrG5BckcADVwgbU?=
- =?us-ascii?Q?IhskH522xgBisUxDjwtg3QvlvucFMfUDNhxImm1cq291cb3zlt0nMKl/WmUg?=
- =?us-ascii?Q?J9jE2OV0pYtynVOHeqAtQcvBsAH5dyq+vY7m2w2MX5YU8uOiZZpV3JIZyQYi?=
- =?us-ascii?Q?8LjtGlkyduUtOkvRFEfREx8V4oAjSt6Hyu9pg5t1epvFFpNJzSPYNzjX+f/F?=
- =?us-ascii?Q?t8f/Z5dHe7qdg46yaj8L+unoDRIFH02kjJOUSGSCGFEvnGGSS6NW0hiMWoM0?=
- =?us-ascii?Q?GjYwR92WTQwEmxIb0MUYASSZgN6DSgp7Lq5ujjAAS04K4jEHhRBxBvH9StGz?=
- =?us-ascii?Q?VSp2w5xNAuopY2w6nQq4LOYwS2kHB1AxNqjRMLFWW+pHuobHvXAONLpH6mJ1?=
- =?us-ascii?Q?4l1UTpGqjc9AUznzBmACIpJAhDeINh/VfS+SVChhkNlsKRyqQYzJuA49Jxmr?=
- =?us-ascii?Q?h/NK5zY3UvaIjJK5yLaCWcasaukXpTsBNPcVmjN9/qxa2aZMgN77Tm9pOVy5?=
- =?us-ascii?Q?hh2SoHqWxe94RnANFRiSSx/PuQdJsXmE1VDjgPDmk3XYzHrI/qYiIYSq/ll6?=
- =?us-ascii?Q?DfgXjQafJFfxCLTYzWY2kBTmN7/X4KimRx15rQF0bmk9ZM71/7/USwaVRbWd?=
- =?us-ascii?Q?FcfTjGWxe/ekBQyOkwSdADbDIoNKojbSvp35Q5Ts+f3FlgQXfSjzkHgFB2is?=
- =?us-ascii?Q?lWSch4IyauIBDmZJRMlg/R7Rk18MxaitW5ORY7nfhdsLvFmjlGLFZCtZaC3l?=
- =?us-ascii?Q?JWyvPiJ4/PjfMxUw3qOjakMR5BaP4tVPc2OPG9PaABTGHevXlup2+4I9G+V6?=
- =?us-ascii?Q?h1jyY1GZHABH+fn37J8lnT1baQNlKiGRnaMR7Mc4twizgUJ03JhDhWMTUSsy?=
- =?us-ascii?Q?PAltFGZ/b7kH/4W1Hnpl1z0ngcwEMne+2Phna7ieqKksqxCmpQvsbtNWPPsM?=
- =?us-ascii?Q?8trRmWWxMCH4zPcrzpLOEm2fGe/EJeo9NoZ9HIQkShWJPF5yIwaAcddpvIks?=
- =?us-ascii?Q?QV4O34lgrEHZaNhAGeGiSXAmfsJF+pchxsPPdltUKQJX1IfuTVjaU4bbUu1M?=
- =?us-ascii?Q?mz2Q9LV+5xjLwos9UU5ckTJms8D4WonLXoQ1IQi4DFLQfWiaOjP5UupgqdZ0?=
- =?us-ascii?Q?vAPHws19X+/eug3tlUMwX/nVjnnl6ZO/RkNeVHcXPGXSrVy1ckCkBBp7elUL?=
- =?us-ascii?Q?LvwVfkoYrTft62BRnwYAcCYS0RG8Q54=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?PAjqfHU+RFB0EztdabpmvMktSSkHkmt+2N7v3z6G6/WbnZQUER1t7BH/pXJW?=
+ =?us-ascii?Q?Dn8toQ8UhD4VSuNOAvt8ks4M2565IsnKiUoaH7omgERxUYVKfX8kxEfn0SJV?=
+ =?us-ascii?Q?jZlPBrnSY01Xo2bKP53iiVRYsCAXRTXLUz21F40TokqWVcTVfWQjHvXZdCwX?=
+ =?us-ascii?Q?AT3BEGX2nRLgvFxWMfiiXS2W93mM5UnFm7I8S4HYpsBAruAwlKjH2dA/nNNz?=
+ =?us-ascii?Q?wP1DH+baSDVxcwGPOkZ02NRdT/1ney0eq13xFSbRW+potRIvmDB7jdezrmox?=
+ =?us-ascii?Q?b74Np7VPKwXNVBDzQuvlCjuQMMOII97Q1OEc9amqZXjmItjyr+BFmqzJ0Wdn?=
+ =?us-ascii?Q?Au3cvLi9aaLf3oFTzvTFl769auOwqa1OJu5WLBrlE84KjnRcbptz993M/ipv?=
+ =?us-ascii?Q?pv8JAh5fouR5M41H7kQqCVkJs9vtmb41l7A0WpXbX1y1CTlCx4jBXBk1nZcR?=
+ =?us-ascii?Q?CDkNY3m14d8xPXncJbvPhZDGPFouP94E/JmauWSGsgbiZtmsR1FrXedZ+tqP?=
+ =?us-ascii?Q?e5rofs6Hqqi1P8PVZr4IvqQT2NuSaeVWyJHBwQmxyRVxktnPhzJFxIjLFJTV?=
+ =?us-ascii?Q?HqfOzYPABk0V8XfLb2sVzSAWQaU35cJqK+r5v/FU0hsXesV0m+Y/18sOa1yj?=
+ =?us-ascii?Q?4Ns71GbTyeD3R8q1a4aVw1Lup5C9Q0JaxXPBnAJCcwR26TSh5OeFnRJeSj9l?=
+ =?us-ascii?Q?4IqHL1kxWvaKJFR5CnovBLdv9BEqlL5MpzLiAt2ZBK3kj8jq591VHP9XW5Jk?=
+ =?us-ascii?Q?n0/0CtW2L0e44GNJWoSlV+5wjcswH/TBk/NeGAZXdIQc4q+yA9Lbuwhta/+I?=
+ =?us-ascii?Q?xz5V5+TW/N5XNS/oe6ka+oQUJpXhNdK6STphyHjh3CTVpzJK/yhhP9ydiVsR?=
+ =?us-ascii?Q?oMS274syYooVqJnL8cMEaHMcTmBovBm+CpQbVwgDFtym9g/CuwOsr6uoOqzw?=
+ =?us-ascii?Q?G0mOI4bUmQeGQEqxfK3ZrdhaXn3HypLPCfeJwKtsdeoNPqBbReTevjb84/we?=
+ =?us-ascii?Q?e60zT9xz43ogDVL1AYEKyTjqLPADfkQgg1mA/VKeew/DbYkiKICotZB3virs?=
+ =?us-ascii?Q?HEcoPVGOTCvnSV3B1Q5oV7h0VuSwrS6Nt5Lt/qYiF4rRpXdwavgEapsA3ZUi?=
+ =?us-ascii?Q?RoGNTxJYhug2tVO9HIOK7A71KXkzOfYOZP+UIeU+34v59h8lQyaxk08pnnLF?=
+ =?us-ascii?Q?MRpoiDX2xTl55GhxVpk9kJb2C4zmXIGDKygc1WexYMxT/co1URdszCWFSBLu?=
+ =?us-ascii?Q?Rkx5fk2O5VnLDCGXu2/4OWqkFUME736B4zJAxERhHzi/5TWvQ/orm8ZLMZnA?=
+ =?us-ascii?Q?BA8mrMJCMbFuwrHRLgwtDvctrb2dkilAuEJ0NUUyQg0mNtb5QWMiqVKVEQl1?=
+ =?us-ascii?Q?pNSa9xE3o6qMgpFpx/jXjkbv3jezGtP3oocEl2308QMMihqzPg56wc6jzss5?=
+ =?us-ascii?Q?2TZYREePzDgV2mRfS+JNMDVH1fUQSmzs+teoGVIcW/fpwJHQuJBqFeZMTk7Z?=
+ =?us-ascii?Q?nYTWGXzU4QFSPFZqBnbrzU5+1Dqsa4i5J9B87qczgi+3NGiVAvAHsQD+MieE?=
+ =?us-ascii?Q?pNAdB+wjgGNgqmEy6pPjQsKOCCOOdbGpOYrKxJaWQ1ODoImqVjC57HRuSkHS?=
+ =?us-ascii?Q?oxaWj8f/mOuM8ESPMa3e6zugiqAr4655ZUwUk59Z7hP7sfkd67L3bc1FcokJ?=
+ =?us-ascii?Q?47/Oe3IhuJ7CYnRD/712R/VGhyUp/ehvfP3thBdx55L57yM5WxhKOlVb2ryF?=
+ =?us-ascii?Q?/vnyaB0KThNL+QSDuxx+I06884pUPRo=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0d2a8c5d-1b29-42a1-b18b-08da1f0857b0
+X-MS-Exchange-CrossTenant-Network-Message-Id: db30d1a3-0032-405f-3e9d-08da1f085831
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2022 17:49:51.9305
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2022 17:49:52.7730
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: DQZ+TkGeqYA74QYpC83bpmVAGfCrW4kxcmOahCzMdZwVm4PFFOdnRty8iC+kPz99AlCYfQ5SvH2BoW8z5XpzkyabzOh3Av3hW1XXCbzBGFs=
+X-MS-Exchange-CrossTenant-UserPrincipalName: pvy5elqvz+QBHHmMmR5nHqlDuytfAvUPUmWP0MZs/3YFO5HEVu3xBLf+rqXGvLfSBcUyMTwCCFkiTZbkL7U/ApBXxtCeASLflq8eOZZn3Fk=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR1101MB2290
-X-Proofpoint-GUID: _4RoYBsDp-Y1v4NQx-JD_MG9PwwMhxEc
-X-Proofpoint-ORIG-GUID: _4RoYBsDp-Y1v4NQx-JD_MG9PwwMhxEc
+X-Proofpoint-GUID: 8CckNggcoiyQ0kq7Ka5h64R27tyo5s8G
+X-Proofpoint-ORIG-GUID: 8CckNggcoiyQ0kq7Ka5h64R27tyo5s8G
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-15_06,2022-04-15_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 clxscore=1015
  suspectscore=0 adultscore=0 lowpriorityscore=0 spamscore=0
- priorityscore=1501 mlxscore=0 mlxlogscore=999 impostorscore=0 phishscore=0
+ priorityscore=1501 mlxscore=0 mlxlogscore=596 impostorscore=0 phishscore=0
  malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2202240000 definitions=main-2204150100
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -136,243 +136,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 87563a043cef044fed5db7967a75741cc16ad2b1 upstream.
+commit feef318c855a361a1eccd880f33e88c460eb63b4 upstream.
 
-The previous commit d01ffb9eee4a ("ax25: add refcount in ax25_dev
-to avoid UAF bugs") introduces refcount into ax25_dev, but there
-are reference leak paths in ax25_ctl_ioctl(), ax25_fwd_ioctl(),
-ax25_rt_add(), ax25_rt_del() and ax25_rt_opt().
+The ax25_kill_by_device() will set s->ax25_dev = NULL and
+call ax25_disconnect() to change states of ax25_cb and
+sock, if we call ax25_bind() before ax25_kill_by_device().
 
-This patch uses ax25_dev_put() and adjusts the position of
-ax25_addr_ax25dev() to fix reference cout leaks of ax25_dev.
+However, if we call ax25_bind() again between the window of
+ax25_kill_by_device() and ax25_dev_device_down(), the values
+and states changed by ax25_kill_by_device() will be reassigned.
 
-Fixes: d01ffb9eee4a ("ax25: add refcount in ax25_dev to avoid UAF bugs")
+Finally, ax25_dev_device_down() will deallocate net_device.
+If we dereference net_device in syscall functions such as
+ax25_release(), ax25_sendmsg(), ax25_getsockopt(), ax25_getname()
+and ax25_info_show(), a UAF bug will occur.
+
+One of the possible race conditions is shown below:
+
+      (USE)                   |      (FREE)
+ax25_bind()                   |
+                              |  ax25_kill_by_device()
+ax25_bind()                   |
+ax25_connect()                |    ...
+                              |  ax25_dev_device_down()
+                              |    ...
+                              |    dev_put_track(dev, ...) //FREE
+ax25_release()                |    ...
+  ax25_send_control()         |
+    alloc_skb()      //USE    |
+
+the corresponding fail log is shown below:
+===============================================================
+BUG: KASAN: use-after-free in ax25_send_control+0x43/0x210
+...
+Call Trace:
+  ...
+  ax25_send_control+0x43/0x210
+  ax25_release+0x2db/0x3b0
+  __sock_release+0x6d/0x120
+  sock_close+0xf/0x20
+  __fput+0x11f/0x420
+  ...
+Allocated by task 1283:
+  ...
+  __kasan_kmalloc+0x81/0xa0
+  alloc_netdev_mqs+0x5a/0x680
+  mkiss_open+0x6c/0x380
+  tty_ldisc_open+0x55/0x90
+  ...
+Freed by task 1969:
+  ...
+  kfree+0xa3/0x2c0
+  device_release+0x54/0xe0
+  kobject_put+0xa5/0x120
+  tty_ldisc_kill+0x3e/0x80
+  ...
+
+In order to fix these UAF bugs caused by rebinding operation,
+this patch adds dev_hold_track() into ax25_bind() and
+corresponding dev_put_track() into ax25_kill_by_device().
+
 Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20220203150811.42256-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[OP: backport to 5.10: adjust context]
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: backport to 5.10: adjust dev_put_track()->dev_put() and
+dev_hold_track()->dev_hold()]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
- include/net/ax25.h    |  8 +++++---
- net/ax25/af_ax25.c    | 12 ++++++++----
- net/ax25/ax25_dev.c   | 24 +++++++++++++++++-------
- net/ax25/ax25_route.c | 16 +++++++++++-----
- 4 files changed, 41 insertions(+), 19 deletions(-)
+ net/ax25/af_ax25.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/ax25.h b/include/net/ax25.h
-index d81bfb674906..aadff553e4b7 100644
---- a/include/net/ax25.h
-+++ b/include/net/ax25.h
-@@ -291,10 +291,12 @@ static __inline__ void ax25_cb_put(ax25_cb *ax25)
- 	}
- }
- 
--#define ax25_dev_hold(__ax25_dev) \
--	refcount_inc(&((__ax25_dev)->refcount))
-+static inline void ax25_dev_hold(ax25_dev *ax25_dev)
-+{
-+	refcount_inc(&ax25_dev->refcount);
-+}
- 
--static __inline__ void ax25_dev_put(ax25_dev *ax25_dev)
-+static inline void ax25_dev_put(ax25_dev *ax25_dev)
- {
- 	if (refcount_dec_and_test(&ax25_dev->refcount)) {
- 		kfree(ax25_dev);
 diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 7da36517d4f3..c1ea187f56e8 100644
+index c1ea187f56e8..de80989d672a 100644
 --- a/net/ax25/af_ax25.c
 +++ b/net/ax25/af_ax25.c
-@@ -366,21 +366,25 @@ static int ax25_ctl_ioctl(const unsigned int cmd, void __user *arg)
- 	if (copy_from_user(&ax25_ctl, arg, sizeof(ax25_ctl)))
- 		return -EFAULT;
+@@ -98,6 +98,7 @@ static void ax25_kill_by_device(struct net_device *dev)
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
+ 			s->ax25_dev = NULL;
++			dev_put(ax25_dev->dev);
+ 			ax25_dev_put(ax25_dev);
+ 			release_sock(sk);
+ 			ax25_disconnect(s, ENETUNREACH);
+@@ -1122,8 +1123,10 @@ static int ax25_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ 		}
+ 	}
  
--	if ((ax25_dev = ax25_addr_ax25dev(&ax25_ctl.port_addr)) == NULL)
--		return -ENODEV;
--
- 	if (ax25_ctl.digi_count > AX25_MAX_DIGIS)
- 		return -EINVAL;
- 
- 	if (ax25_ctl.arg > ULONG_MAX / HZ && ax25_ctl.cmd != AX25_KILL)
- 		return -EINVAL;
- 
-+	ax25_dev = ax25_addr_ax25dev(&ax25_ctl.port_addr);
-+	if (!ax25_dev)
-+		return -ENODEV;
-+
- 	digi.ndigi = ax25_ctl.digi_count;
- 	for (k = 0; k < digi.ndigi; k++)
- 		digi.calls[k] = ax25_ctl.digi_addr[k];
- 
--	if ((ax25 = ax25_find_cb(&ax25_ctl.source_addr, &ax25_ctl.dest_addr, &digi, ax25_dev->dev)) == NULL)
-+	ax25 = ax25_find_cb(&ax25_ctl.source_addr, &ax25_ctl.dest_addr, &digi, ax25_dev->dev);
-+	if (!ax25) {
-+		ax25_dev_put(ax25_dev);
- 		return -ENOTCONN;
+-	if (ax25_dev != NULL)
++	if (ax25_dev) {
+ 		ax25_fillin_cb(ax25, ax25_dev);
++		dev_hold(ax25_dev->dev);
 +	}
  
- 	switch (ax25_ctl.cmd) {
- 	case AX25_KILL:
-diff --git a/net/ax25/ax25_dev.c b/net/ax25/ax25_dev.c
-index 2c845ff1d036..d2e0cc67d91a 100644
---- a/net/ax25/ax25_dev.c
-+++ b/net/ax25/ax25_dev.c
-@@ -85,8 +85,8 @@ void ax25_dev_device_up(struct net_device *dev)
- 	spin_lock_bh(&ax25_dev_lock);
- 	ax25_dev->next = ax25_dev_list;
- 	ax25_dev_list  = ax25_dev;
--	ax25_dev_hold(ax25_dev);
- 	spin_unlock_bh(&ax25_dev_lock);
-+	ax25_dev_hold(ax25_dev);
- 
- 	ax25_register_dev_sysctl(ax25_dev);
- }
-@@ -115,8 +115,8 @@ void ax25_dev_device_down(struct net_device *dev)
- 
- 	if ((s = ax25_dev_list) == ax25_dev) {
- 		ax25_dev_list = s->next;
--		ax25_dev_put(ax25_dev);
- 		spin_unlock_bh(&ax25_dev_lock);
-+		ax25_dev_put(ax25_dev);
- 		dev->ax25_ptr = NULL;
- 		dev_put(dev);
- 		ax25_dev_put(ax25_dev);
-@@ -126,8 +126,8 @@ void ax25_dev_device_down(struct net_device *dev)
- 	while (s != NULL && s->next != NULL) {
- 		if (s->next == ax25_dev) {
- 			s->next = ax25_dev->next;
--			ax25_dev_put(ax25_dev);
- 			spin_unlock_bh(&ax25_dev_lock);
-+			ax25_dev_put(ax25_dev);
- 			dev->ax25_ptr = NULL;
- 			dev_put(dev);
- 			ax25_dev_put(ax25_dev);
-@@ -150,25 +150,35 @@ int ax25_fwd_ioctl(unsigned int cmd, struct ax25_fwd_struct *fwd)
- 
- 	switch (cmd) {
- 	case SIOCAX25ADDFWD:
--		if ((fwd_dev = ax25_addr_ax25dev(&fwd->port_to)) == NULL)
-+		fwd_dev = ax25_addr_ax25dev(&fwd->port_to);
-+		if (!fwd_dev) {
-+			ax25_dev_put(ax25_dev);
- 			return -EINVAL;
--		if (ax25_dev->forward != NULL)
-+		}
-+		if (ax25_dev->forward) {
-+			ax25_dev_put(fwd_dev);
-+			ax25_dev_put(ax25_dev);
- 			return -EINVAL;
-+		}
- 		ax25_dev->forward = fwd_dev->dev;
- 		ax25_dev_put(fwd_dev);
-+		ax25_dev_put(ax25_dev);
- 		break;
- 
- 	case SIOCAX25DELFWD:
--		if (ax25_dev->forward == NULL)
-+		if (!ax25_dev->forward) {
-+			ax25_dev_put(ax25_dev);
- 			return -EINVAL;
-+		}
- 		ax25_dev->forward = NULL;
-+		ax25_dev_put(ax25_dev);
- 		break;
- 
- 	default:
-+		ax25_dev_put(ax25_dev);
- 		return -EINVAL;
- 	}
- 
--	ax25_dev_put(ax25_dev);
- 	return 0;
- }
- 
-diff --git a/net/ax25/ax25_route.c b/net/ax25/ax25_route.c
-index ed8cf2983f8a..dc2168d2a32a 100644
---- a/net/ax25/ax25_route.c
-+++ b/net/ax25/ax25_route.c
-@@ -75,11 +75,13 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
- 	ax25_dev *ax25_dev;
- 	int i;
- 
--	if ((ax25_dev = ax25_addr_ax25dev(&route->port_addr)) == NULL)
--		return -EINVAL;
- 	if (route->digi_count > AX25_MAX_DIGIS)
- 		return -EINVAL;
- 
-+	ax25_dev = ax25_addr_ax25dev(&route->port_addr);
-+	if (!ax25_dev)
-+		return -EINVAL;
-+
- 	write_lock_bh(&ax25_route_lock);
- 
- 	ax25_rt = ax25_route_list;
-@@ -91,6 +93,7 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
- 			if (route->digi_count != 0) {
- 				if ((ax25_rt->digipeat = kmalloc(sizeof(ax25_digi), GFP_ATOMIC)) == NULL) {
- 					write_unlock_bh(&ax25_route_lock);
-+					ax25_dev_put(ax25_dev);
- 					return -ENOMEM;
- 				}
- 				ax25_rt->digipeat->lastrepeat = -1;
-@@ -101,6 +104,7 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
- 				}
- 			}
- 			write_unlock_bh(&ax25_route_lock);
-+			ax25_dev_put(ax25_dev);
- 			return 0;
- 		}
- 		ax25_rt = ax25_rt->next;
-@@ -108,6 +112,7 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
- 
- 	if ((ax25_rt = kmalloc(sizeof(ax25_route), GFP_ATOMIC)) == NULL) {
- 		write_unlock_bh(&ax25_route_lock);
-+		ax25_dev_put(ax25_dev);
- 		return -ENOMEM;
- 	}
- 
-@@ -116,11 +121,11 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
- 	ax25_rt->dev          = ax25_dev->dev;
- 	ax25_rt->digipeat     = NULL;
- 	ax25_rt->ip_mode      = ' ';
--	ax25_dev_put(ax25_dev);
- 	if (route->digi_count != 0) {
- 		if ((ax25_rt->digipeat = kmalloc(sizeof(ax25_digi), GFP_ATOMIC)) == NULL) {
- 			write_unlock_bh(&ax25_route_lock);
- 			kfree(ax25_rt);
-+			ax25_dev_put(ax25_dev);
- 			return -ENOMEM;
- 		}
- 		ax25_rt->digipeat->lastrepeat = -1;
-@@ -133,6 +138,7 @@ static int __must_check ax25_rt_add(struct ax25_routes_struct *route)
- 	ax25_rt->next   = ax25_route_list;
- 	ax25_route_list = ax25_rt;
- 	write_unlock_bh(&ax25_route_lock);
-+	ax25_dev_put(ax25_dev);
- 
- 	return 0;
- }
-@@ -173,8 +179,8 @@ static int ax25_rt_del(struct ax25_routes_struct *route)
- 			}
- 		}
- 	}
--	ax25_dev_put(ax25_dev);
- 	write_unlock_bh(&ax25_route_lock);
-+	ax25_dev_put(ax25_dev);
- 
- 	return 0;
- }
-@@ -216,8 +222,8 @@ static int ax25_rt_opt(struct ax25_route_opt_struct *rt_option)
- 	}
- 
- out:
--	ax25_dev_put(ax25_dev);
- 	write_unlock_bh(&ax25_route_lock);
-+	ax25_dev_put(ax25_dev);
- 	return err;
- }
- 
+ done:
+ 	ax25_cb_add(ax25);
 -- 
 2.25.1
 
