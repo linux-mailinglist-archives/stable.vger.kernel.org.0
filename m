@@ -2,244 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1AC4502B36
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 15:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80F2502B62
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 15:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354112AbiDONq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Apr 2022 09:46:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53604 "EHLO
+        id S1344128AbiDOOAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Apr 2022 10:00:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244242AbiDONqz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 09:46:55 -0400
-Received: from mail-oa1-x2c.google.com (mail-oa1-x2c.google.com [IPv6:2001:4860:4864:20::2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C182DDF86
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 06:44:25 -0700 (PDT)
-Received: by mail-oa1-x2c.google.com with SMTP id 586e51a60fabf-d39f741ba0so8095793fac.13
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 06:44:25 -0700 (PDT)
+        with ESMTP id S236307AbiDOOAe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 10:00:34 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64766BE9D6
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 06:58:06 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id a16-20020a17090a6d9000b001c7d6c1bb13so8402737pjk.4
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 06:58:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=H6uC+E6X+NZtMZ9qxcUR8mekijY3ApRikEJ7kwgOoaY=;
-        b=TN1yjtnXHqix4F1p8YqiAHjS3eqe8KnKLsT9vCo0mUG8GXHESpYH/kMDRUJVGPxjF2
-         /5w6OAO86PCWDEXOpHRauygOQ/sS+N6rBTHE3GH+fn7kbFesZc+gsrEwxLsia+KTdZqb
-         CIvuyCmhqmOwUQceDGmErNWZ4YLZJr1bWaSUALNuBdgl/ZPzsQzOyHEHkafTSYEMui4x
-         wllR7NLQMKv6+ox62GOhrNPBQMg2viKXUFYweUZ5PDVW+fdV+uQGcKwkun2CeY/+MLq4
-         TJ4XvgmZKIIsGHMXL3WwswJ9Oj3dt8owVoK6KSGJ2eGFYpq3qJrrB2EOA47WJrwsN123
-         24Vw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7rpDPveM4jy95t+WnON3DIGesNNdmDlKs7ttFwq8ulE=;
+        b=q9MysMNR0IG9Ol5YpngSqi3Wtbmqmo1kKeTxyqfZiD5LKh/kRAQhvzV4S139sLCimb
+         2+JTjBonJRdPdsliKt+K3/Wblj0YoAr1EwABvtUdpKEEppjE2CTcXdZ+81gRrI06E+Hd
+         LG1DWe8XMkakM3Zg1Um9YxQB4SNf0kEgUg7+bQlDKIfZfgDO/jlMneCdpvJSlk5sNamA
+         WT5NLuszO1DjiIxiVYgldRxvYAMEYrFnoWDztzV3UpVcpJO6w9h+SW3pbFKLwQsrAhcG
+         WIEgtnhNAkYKHMXV241pZvbZXQcjzKHIfNIJ3STNV3s+rV3D8rhVX6rGAal+OVPCMPeT
+         56Eg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=H6uC+E6X+NZtMZ9qxcUR8mekijY3ApRikEJ7kwgOoaY=;
-        b=YjkNfRV1u5D5dus8lYUDsD6K3khH69KzWWOyQ2jK9T1aU8bX5XWKeR6eYQuSxLaGgL
-         S2LmfBO8lk61z7OTKLUndYZCzWdDrU5ziORf50LBL1GhThF7xMPq4fwMtYKSMJYadArl
-         5vSbcwBcjsxfpRhPrQelfW5XQLvDNaKWd1ehE5KYtBs7x9xDB888i/3qpMmzQOoYjydu
-         9xiHHvhin4mpCqGg143lWZBTKylX+Ov8d1Ffpc7ThkbH2BfhBRnb/uMwX4r8dqG1Gg0h
-         CtPrZokppYUyAjuYUZjwLhcB3zsJ+MzaQfGGz24ARELwgGs+Z3BZo/Gmx0hRoHX7QIDD
-         fcfA==
-X-Gm-Message-State: AOAM531aXvnHj6rpniLPdg13U3R/bQetmhQJfkW1bsDUIJjbgZ6FSzaN
-        NZ52hAHOGWZfYtDQwJ+kOgovSQ==
-X-Google-Smtp-Source: ABdhPJzSjwldH2OrkdQ7mhy7CC8//fjnYVAfQAw/G9sHPghE5ti1TqalYMbcLmNY6Ou+IPV+0MfOBg==
-X-Received: by 2002:a05:6870:59b:b0:e2:976c:7720 with SMTP id m27-20020a056870059b00b000e2976c7720mr1405630oap.16.1650030264243;
-        Fri, 15 Apr 2022 06:44:24 -0700 (PDT)
-Received: from [10.90.244.38] (static-121.206.189-220.alestra.net.mx. [189.206.121.220])
-        by smtp.gmail.com with ESMTPSA id u14-20020a4aae8e000000b003332a47de0bsm1155173oon.20.2022.04.15.06.44.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 Apr 2022 06:44:23 -0700 (PDT)
-Message-ID: <6f590b27-e52d-a59d-ac55-3709554b5447@linaro.org>
-Date:   Fri, 15 Apr 2022 08:44:21 -0500
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7rpDPveM4jy95t+WnON3DIGesNNdmDlKs7ttFwq8ulE=;
+        b=EHh5lABg/t9iJL+HNxXsK21zG1RMHPe6U/ScvFFZa69X9IuQY1akq/rNbtKE2ACdEf
+         oq6k3zpwAg1vulOaEgMT2fTRMeqXFTmsN+IoXjzDyoG3BSsSo2Gch89agrr4XCy2xFeY
+         5JNOeBC1n2JmfnqrbJUwMXkzrymqf0Ykj9WTThDGWTreXbj41+nqEERKDjTodsdcB7JF
+         N7FmcQiilnQ3jq9GG9ukRxNgW07xK6OiW27o0+ZGweBulgGWzC5VfzTbxRwZdJ/vARIr
+         AsfPYOgJgu81zrW5FJvmZIGZHWSb+siuyWZIvmYApOFqEBDyIZ2OVP0RekkuHh/W2saA
+         gLtg==
+X-Gm-Message-State: AOAM531HlBxK3gIo86wvviKeZVxnvdif/0nJG5KZCNmPeTXeyRoPYFQM
+        HtZrzQbyMrlQVps5bPV+0uwDgA74G4Gt6Lgd
+X-Google-Smtp-Source: ABdhPJyPkaPeUZhLrQrUM+bWnPWVPR9fJe2GNWDDjYCNZuCIdFjq1f9EUZwOEEaLhh9kzPZjo9nokQ==
+X-Received: by 2002:a17:902:ec81:b0:158:7eff:792f with SMTP id x1-20020a170902ec8100b001587eff792fmr19918883plg.154.1650031085817;
+        Fri, 15 Apr 2022 06:58:05 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b16-20020a056a00115000b004f6ff260c9esm2957914pfm.207.2022.04.15.06.58.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Apr 2022 06:58:05 -0700 (PDT)
+Message-ID: <625979ed.1c69fb81.421af.7da3@mx.google.com>
+Date:   Fri, 15 Apr 2022 06:58:05 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 4.19 000/338] 4.19.238-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220414110838.883074566@linuxfoundation.org>
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-In-Reply-To: <20220414110838.883074566@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.17
+X-Kernelci-Kernel: v5.17.3-9-g4f73362485c4f
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.17 baseline: 74 runs,
+ 2 regressions (v5.17.3-9-g4f73362485c4f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+stable-rc/queue/5.17 baseline: 74 runs, 2 regressions (v5.17.3-9-g4f7336248=
+5c4f)
 
-On 4/14/22 08:08, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.238 release.
-> There are 338 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 16 Apr 2022 11:07:54 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.238-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Regressions Summary
+-------------------
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+platform      | arch | lab         | compiler | defconfig          | regres=
+sions
+--------------+------+-------------+----------+--------------------+-------=
+-----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | at91_dt_defconfig  | 1     =
+     =
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 4.19.238-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-* git branch: linux-4.19.y
-* git commit: 3f08640122e30667d6aa2e90e4fa57f3d9f48ceb
-* git describe: v4.19.237-339-g3f08640122e3
-* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19.237-339-g3f08640122e3
-
-## No Test Regressions (compared to v4.19.237)
-
-## No Metric Regressions (compared to v4.19.237)
-
-## No Test Fixes (compared to v4.19.237)
-
-## No Metric Fixes (compared to v4.19.237)
-
-## Test result summary
-total: 86571, pass: 69522, fail: 1159, skip: 13859, xfail: 2031
-
-## Build Summary
-* arm: 281 total, 275 passed, 6 failed
-* arm64: 39 total, 39 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 27 total, 27 passed, 0 failed
-* powerpc: 60 total, 54 passed, 6 failed
-* s390: 12 total, 12 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 38 total, 38 passed, 0 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | multi_v5_defconfig | 1     =
+     =
 
 
-Greetings!
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
+nel/v5.17.3-9-g4f73362485c4f/plan/baseline/
 
-Daniel Díaz
-daniel.diaz@linaro.org
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.17
+  Describe: v5.17.3-9-g4f73362485c4f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4f73362485c4fb25ddaac28b5691adcd6da59a97 =
 
--- 
-Linaro LKFT
-https://lkft.linaro.org
+
+
+Test Regressions
+---------------- =
+
+
+
+platform      | arch | lab         | compiler | defconfig          | regres=
+sions
+--------------+------+-------------+----------+--------------------+-------=
+-----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | at91_dt_defconfig  | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/625942dfc1a43d2850ae06a0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: at91_dt_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.3-9=
+-g4f73362485c4f/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g=
+20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.3-9=
+-g4f73362485c4f/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g=
+20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625942dfc1a43d2850ae0=
+6a1
+        failing since 0 day (last pass: v5.17.2-343-g74625fba2cc43, first f=
+ail: v5.17.3-7-g214113ee8b920) =
+
+ =
+
+
+
+platform      | arch | lab         | compiler | defconfig          | regres=
+sions
+--------------+------+-------------+----------+--------------------+-------=
+-----
+at91sam9g20ek | arm  | lab-broonie | gcc-10   | multi_v5_defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/625944bf7071cac126ae06a0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v5_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.3-9=
+-g4f73362485c4f/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam9=
+g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.3-9=
+-g4f73362485c4f/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam9=
+g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625944bf7071cac126ae0=
+6a1
+        failing since 0 day (last pass: v5.17.2-339-g22fa848c25c53, first f=
+ail: v5.17.3-7-g214113ee8b920) =
+
+ =20
