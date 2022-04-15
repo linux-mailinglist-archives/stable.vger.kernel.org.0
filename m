@@ -2,67 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B7F95027CB
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 11:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57795502844
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 12:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241903AbiDOKCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Apr 2022 06:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36654 "EHLO
+        id S1352300AbiDOK21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Apr 2022 06:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234932AbiDOKCI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 06:02:08 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB3DFD23
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 02:59:38 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id t4so6972760pgc.1
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 02:59:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qJDglZJBmp7Tspfj9hyp3glU3oJ5wJSRARrpfDBaGSE=;
-        b=IG1MCV6jGofw9vfLqcIUP56RzovYAHCY1Hd2+SKaqQlabL96PevoL/g9c3cE6Qz/P3
-         0jBUrlpamilpzzfAgI4j9ouFJq53NMNvcINc7LiNasEn7cv1f0EnyrTk96pm3ZsbNDxZ
-         onmgkStX+dl1zThgva0VcE+y3VKU0ts/ejH0gEMBA4dtvL8tQneo4ytzclbWrf+SlA18
-         OfyZ366uxpWKBbCN3PhAY0nT6EaJGOKonKbMB+TTdoIOIiVbzu6qnWXqet9FIc9pW3sq
-         5XnIZjHcZa53lo59YT4fgyhZ9DfynpurkmLkFzS00wNNFgf4emvaPVw/KUsQkHOW2FOF
-         QxkQ==
+        with ESMTP id S1352296AbiDOK20 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 06:28:26 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9A308BBE22
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 03:25:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650018357;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HVOGcxJlhUaQTDwioEmpkZGtMHyUwP0bW34wHvyVnV8=;
+        b=Gzce5AFxopGjgD28CodGf18ies125ieBd0DgNjL5zwIZEQInWBNhNhu+15J6MnkR10gFTy
+        K6g40YaW4/iagO0bXZ7w9rMzzcz4c9KOHOj2lL13VuDbZ/Q14gfTcb2AiUxce8iUkTcbmu
+        wB0qtDD5XPePWaAB5uuqLTuGjESEMoU=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-462-XTg9hj96PAKRIQdPWcjMjQ-1; Fri, 15 Apr 2022 06:25:56 -0400
+X-MC-Unique: XTg9hj96PAKRIQdPWcjMjQ-1
+Received: by mail-ed1-f71.google.com with SMTP id da8-20020a056402176800b0041d79488e29so4599336edb.3
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 03:25:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qJDglZJBmp7Tspfj9hyp3glU3oJ5wJSRARrpfDBaGSE=;
-        b=bSrGVVsv8mZzExl4X36dGch631vxHVbXMyqZlO9au/s9diOZyvkuJZr0xCi1y8D7TS
-         2gPOhlPjp7kX1S58lFqCnHU7l7EKT5tAtgRGL2CuK4FbxTHOkl9VO3OSUm9XItpjGa15
-         GnrDRZvGVUUIgh1LQEJLdAU3XtdTXspUA6tgyxy0/wtL7VbVoz7cwmfbdOfAQsnzeO9o
-         dfvjU9hgVZQwtnKWK0gjW/Y9Vd8oKj/oXt/hzbMXI4bE0j1GeU4TNI811vqxUNWtQyQW
-         vZb7qeg/Be7uOmdcI8bxMYZplaYfz6fh54DGKzkNngQEgnNyQwzgZjWX/Rhw5FoRrJyF
-         IPGA==
-X-Gm-Message-State: AOAM530EfUeetStyHLw9dX61jPPemTHtYOItQN9t3KRLozogiBqI1Lsl
-        dkM5Qa2yDzhDv6N8KsNElB8EXjrXl4Hr7Tjn
-X-Google-Smtp-Source: ABdhPJzf9CjVwSaogRs7iLX7s8yi51IN4uLsH6JNu5lR2Hu3+nhPjP31LOY1fgrtmxUaP8ehgjd6wQ==
-X-Received: by 2002:a63:5fd0:0:b0:39f:cede:cfe9 with SMTP id t199-20020a635fd0000000b0039fcedecfe9mr5754762pgb.455.1650016777357;
-        Fri, 15 Apr 2022 02:59:37 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p3-20020a056a000b4300b004faee36ea56sm2417032pfo.155.2022.04.15.02.59.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Apr 2022 02:59:37 -0700 (PDT)
-Message-ID: <62594209.1c69fb81.19c69.706d@mx.google.com>
-Date:   Fri, 15 Apr 2022 02:59:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=HVOGcxJlhUaQTDwioEmpkZGtMHyUwP0bW34wHvyVnV8=;
+        b=r8z9d9xcVNHLC+sJekM+7VGyaaTs/lbkDC/ijU6ZDwce0V1iLMgOFyr7mZ6z0jGafv
+         eBRf0RZvIFROhXNLmTBjwQNXsxiAXLfJeSIXzHO8yRsiqPq5vVjm4xE+PbMxbOohlS1T
+         Iw4dsVNcHhRPUJUUhiRW1MizKWyf+vhgKdDxOSiGDm2kKFFhEFVm+ydpmU3/v0H70q0K
+         3hBghyb0bswG6ifyztU9BuyZ3omKlhgg5gJZ/JUlrLZIcYSFQLXRXWN6iNuOqfWi9Fdw
+         jaFx7C9oGnnF7g1anQj0KiZSnSd/ogpKoeY5YmEvXjDvvdtCVW5n+oHI+BFsJ9CJAdMS
+         beiA==
+X-Gm-Message-State: AOAM533/ZsPXfZTRR/0WTj5juKPN0fmHLbOo55qJdLaumv6Czc7ylTry
+        Uk5o0aS2zIf5MlUnJnaIIRDSdegdBeV0u6hpB+4WYLF8w2TUkQ9ou+q5qStCvQAVPfl9Qj4J3Jr
+        v24eHCQWbKgq0dAyP
+X-Received: by 2002:a17:907:7e84:b0:6e8:b7ce:22b5 with SMTP id qb4-20020a1709077e8400b006e8b7ce22b5mr5579658ejc.763.1650018355258;
+        Fri, 15 Apr 2022 03:25:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyk6M533dhdPB/fMPbiU1LHutkqBWogXhzimlt8N+dBQDbw+WEYcoow0bSsOAmT+adoHVtpUA==
+X-Received: by 2002:a17:907:7e84:b0:6e8:b7ce:22b5 with SMTP id qb4-20020a1709077e8400b006e8b7ce22b5mr5579646ejc.763.1650018355054;
+        Fri, 15 Apr 2022 03:25:55 -0700 (PDT)
+Received: from [10.39.192.127] (5920ab7b.static.cust.trined.nl. [89.32.171.123])
+        by smtp.gmail.com with ESMTPSA id a22-20020a50ff16000000b00410d029ea5csm2379162edu.96.2022.04.15.03.25.54
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 15 Apr 2022 03:25:54 -0700 (PDT)
+From:   Eelco Chaudron <echaudro@redhat.com>
+To:     Paolo Valerio <pvalerio@redhat.com>
+Cc:     netdev@vger.kernel.org, dev@openvswitch.org,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org
+Subject: Re: [ovs-dev] [PATCH] openvswitch: fix OOB access in
+ reserve_sfa_size()
+Date:   Fri, 15 Apr 2022 12:25:53 +0200
+X-Mailer: MailMate (1.14r5885)
+Message-ID: <B291EC2A-DC76-47F3-90E8-885699779FDF@redhat.com>
+In-Reply-To: <165001012108.2147631.5880395764325229829.stgit@fed.void>
+References: <165001012108.2147631.5880395764325229829.stgit@fed.void>
 MIME-Version: 1.0
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Kernel: v4.19.237-335-g5bcecb0e64a0a
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 72 runs,
- 3 regressions (v4.19.237-335-g5bcecb0e64a0a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H5,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,144 +80,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 72 runs, 3 regressions (v4.19.237-335-g5bcec=
-b0e64a0a)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab           | compiler | defconfig        =
-          | regressions
----------------------+-------+---------------+----------+------------------=
-----------+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-10   | defconfig        =
-          | 1          =
-
-meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
-          | 1          =
-
-rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
-hromebook | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.237-335-g5bcecb0e64a0a/plan/baseline/
+On 15 Apr 2022, at 10:08, Paolo Valerio wrote:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.237-335-g5bcecb0e64a0a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5bcecb0e64a0ac4b335e92f1e37cbf9a76998e3e =
+> Given a sufficiently large number of actions, while copying and
+> reserving memory for a new action of a new flow, if next_offset is
+> greater than MAX_ACTIONS_BUFSIZE, the function reserve_sfa_size() does
+> not return -EMSGSIZE as expected, but it allocates MAX_ACTIONS_BUFSIZE
+> bytes increasing actions_len by req_size. This can then lead to an OOB
+> write access, especially when further actions need to be copied.
+>
+> Fix it by rearranging the flow action size check.
+>
+> KASAN splat below:
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> BUG: KASAN: slab-out-of-bounds in reserve_sfa_size+0x1ba/0x380 [openvsw=
+itch]
+> Write of size 65360 at addr ffff888147e4001c by task handler15/836
+>
+> CPU: 1 PID: 836 Comm: handler15 Not tainted 5.18.0-rc1+ #27
+> ...
+> Call Trace:
+>  <TASK>
+>  dump_stack_lvl+0x45/0x5a
+>  print_report.cold+0x5e/0x5db
+>  ? __lock_text_start+0x8/0x8
+>  ? reserve_sfa_size+0x1ba/0x380 [openvswitch]
+>  kasan_report+0xb5/0x130
+>  ? reserve_sfa_size+0x1ba/0x380 [openvswitch]
+>  kasan_check_range+0xf5/0x1d0
+>  memcpy+0x39/0x60
+>  reserve_sfa_size+0x1ba/0x380 [openvswitch]
+>  __add_action+0x24/0x120 [openvswitch]
+>  ovs_nla_add_action+0xe/0x20 [openvswitch]
+>  ovs_ct_copy_action+0x29d/0x1130 [openvswitch]
+>  ? __kernel_text_address+0xe/0x30
+>  ? unwind_get_return_address+0x56/0xa0
+>  ? create_prof_cpu_mask+0x20/0x20
+>  ? ovs_ct_verify+0xf0/0xf0 [openvswitch]
+>  ? prep_compound_page+0x198/0x2a0
+>  ? __kasan_check_byte+0x10/0x40
+>  ? kasan_unpoison+0x40/0x70
+>  ? ksize+0x44/0x60
+>  ? reserve_sfa_size+0x75/0x380 [openvswitch]
+>  __ovs_nla_copy_actions+0xc26/0x2070 [openvswitch]
+>  ? __zone_watermark_ok+0x420/0x420
+>  ? validate_set.constprop.0+0xc90/0xc90 [openvswitch]
+>  ? __alloc_pages+0x1a9/0x3e0
+>  ? __alloc_pages_slowpath.constprop.0+0x1da0/0x1da0
+>  ? unwind_next_frame+0x991/0x1e40
+>  ? __mod_node_page_state+0x99/0x120
+>  ? __mod_lruvec_page_state+0x2e3/0x470
+>  ? __kasan_kmalloc_large+0x90/0xe0
+>  ovs_nla_copy_actions+0x1b4/0x2c0 [openvswitch]
+>  ovs_flow_cmd_new+0x3cd/0xb10 [openvswitch]
+>  ...
+>
+> Cc: stable@vger.kernel.org
+> Fixes: f28cd2af22a0 ("openvswitch: fix flow actions reallocation")
+> Signed-off-by: Paolo Valerio <pvalerio@redhat.com>
 
+Change looks fine to me.
 
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
 
-Test Regressions
----------------- =
+> ---
+>  net/openvswitch/flow_netlink.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/net/openvswitch/flow_netlink.c b/net/openvswitch/flow_netl=
+ink.c
+> index 7176156d3844..4c09cf8a0ab2 100644
+> --- a/net/openvswitch/flow_netlink.c
+> +++ b/net/openvswitch/flow_netlink.c
+> @@ -2465,7 +2465,7 @@ static struct nlattr *reserve_sfa_size(struct sw_=
+flow_actions **sfa,
+>  	new_acts_size =3D max(next_offset + req_size, ksize(*sfa) * 2);
+>
+>  	if (new_acts_size > MAX_ACTIONS_BUFSIZE) {
+> -		if ((MAX_ACTIONS_BUFSIZE - next_offset) < req_size) {
+> +		if ((next_offset + req_size) > MAX_ACTIONS_BUFSIZE) {
+>  			OVS_NLERR(log, "Flow action size exceeds max %u",
+>  				  MAX_ACTIONS_BUFSIZE);
+>  			return ERR_PTR(-EMSGSIZE);
+>
+> _______________________________________________
+> dev mailing list
+> dev@openvswitch.org
+> https://mail.openvswitch.org/mailman/listinfo/ovs-dev
 
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-          | regressions
----------------------+-------+---------------+----------+------------------=
-----------+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-10   | defconfig        =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6259190cd9907cdb6fae0702
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--335-g5bcecb0e64a0a/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb=
--p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--335-g5bcecb0e64a0a/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb=
--p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6259190cd9907cdb6fae0=
-703
-        failing since 14 days (last pass: v4.19.235-17-gd92d6a84236d, first=
- fail: v4.19.235-22-ge34a3fde5b20) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-          | regressions
----------------------+-------+---------------+----------+------------------=
-----------+------------
-meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
-          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625911b35b22014934ae069a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--335-g5bcecb0e64a0a/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-=
-s905d-p230.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--335-g5bcecb0e64a0a/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-=
-s905d-p230.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625911b35b22014934ae0=
-69b
-        failing since 9 days (last pass: v4.19.237-15-g3c6b80cc3200, first =
-fail: v4.19.237-256-ge149a8f3cb39) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-          | regressions
----------------------+-------+---------------+----------+------------------=
-----------+------------
-rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
-hromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62591205401a7d0c34ae067c
-
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--335-g5bcecb0e64a0a/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.237=
--335-g5bcecb0e64a0a/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62591205401a7d0c34ae069e
-        failing since 39 days (last pass: v4.19.232-31-g5cf846953aa2, first=
- fail: v4.19.232-44-gfd65e02206f4)
-
-    2022-04-15T06:34:19.100395  /lava-6094206/1/../bin/lava-test-case
-    2022-04-15T06:34:19.109165  <8>[   36.771644] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
