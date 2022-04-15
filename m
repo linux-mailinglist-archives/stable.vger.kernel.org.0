@@ -2,153 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B24502050
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 04:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1E0F502053
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 04:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346170AbiDOCOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 22:14:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50350 "EHLO
+        id S1348596AbiDOCQD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 22:16:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343504AbiDOCOK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 22:14:10 -0400
-Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2DE1A393;
-        Thu, 14 Apr 2022 19:11:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1649988702; x=1681524702;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=zKcMh1uSuv4aANQHEyO6VkNKNbIFKvpALVi3DILMBUE=;
-  b=AGRzpviFM7gO7I1Smh/G43bxIg6sULfUa9xvMLm9YMpy5i24ZPew+hZV
-   anhPK58mGrHbd3SZ4WUUwGKdykXXXUQJdz/KM89KNrnjj03VileM+5tDB
-   Ol9uRPIzWjJEES/gvwWi0fm/P6XD4vVRDHOn4lDJFdQS0iduObTQ2+gCs
-   Q5NJXUpJJW8IBZDfElkZ1v1+4NbX59H2q6aGfysqVnvwwDcz+QdfLNNVJ
-   hvmJGbgQX/q0kVZ1MZgqK5IFonKYrBc85nvg5jlFNL0ADbvjJrclS+k/8
-   hZNKvKeITmX5nqp9Q0hEM4YjZgl0N3cu1G0Ry8h24G0YF/O8tlQFiRkXd
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.90,261,1643644800"; 
-   d="scan'208";a="197962070"
-Received: from mail-mw2nam10lp2101.outbound.protection.outlook.com (HELO NAM10-MW2-obe.outbound.protection.outlook.com) ([104.47.55.101])
-  by ob1.hgst.iphmx.com with ESMTP; 15 Apr 2022 10:11:41 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OHmrujZ3WJ8l84gr6ATe7LZdURYMXijCcQwIanOtt0RNcfT1tH3P++2p3leHe41iZz1rxacKPoyjfC45YBL6ObgrfvJ7eOQZZ5V5XljTWo+/AvzAdSkWwOls7wzYuRG1RWyLajc1XZmGaJOGaYO1C6l67oSR4lSgg6yZFoYttjGvV1jaWnc7Ek4RHesizX2km0ZskfZ32QAC5Sc8DymoUS9R3Ywc7ZA59VFVim1oA8tmVdNIiE3aUTeY/lj6Gf1NbhqG5vQmAF7qZ8cfV4y2F+BmK7Na5aULuJ6sWZX/FBE4x15yPZEm2/fCLTfgPRAymtHlp3Cu4pOpHhhYrzYalg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zKcMh1uSuv4aANQHEyO6VkNKNbIFKvpALVi3DILMBUE=;
- b=S7CFdtNBoqMKwJWfMcwNPbzZonx49fp7Coz7e72rv6qF7RusF7Ag2S3MPVrPpVDGZiKPOcbpwn5NkQOncdF8Lu+2RTmAB8uKUiYAqeq8UGmvl64V0nv+se7/ubAj1j7Se73TvXifyBLqrxhsD9FayN35U8qIKmp1o7xlqhVWfs9eTX09hkA9+f/hYVsdprCYc8tBDUBwlgm3Pht0PcXBO/CYkqn2Fjc/DSY8w/tr2aowl18s3ab8v0q/Z3yWvU72XRzMpotyvgAenO2cpZrtnAgvQs8VfIbSHD9ugUbdsNHbp+1A9C4qKC1fsJkJvDxJXuu/4wuxZ6tSqsLuc2Vliw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zKcMh1uSuv4aANQHEyO6VkNKNbIFKvpALVi3DILMBUE=;
- b=RGi0U3kLDseKoqAKpbQHs32r0eskMq1lxaNXXnZf0zwOp2/GkelTlYXINXg3q5rXVcrmeWs/5xjfRt7rXvFLgoLcwTpgbZa8CNFccJ9nIeiCWu7ZGu2UuOquJ6KwupqIQ4X0R7Y/A5zzz6rUCrCPCWFlnEMnJ22YHJQbjWaA0kE=
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
- by CY4PR04MB0393.namprd04.prod.outlook.com (2603:10b6:903:b7::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5144.29; Fri, 15 Apr
- 2022 02:11:40 +0000
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::995b:363e:8d1c:49af]) by PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::995b:363e:8d1c:49af%8]) with mapi id 15.20.5164.021; Fri, 15 Apr 2022
- 02:11:40 +0000
-From:   Niklas Cassel <Niklas.Cassel@wdc.com>
-To:     Damien Le Moal <damien.lemoal@opensource.wdc.com>
-CC:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Mike Frysinger <vapier@gentoo.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>
-Subject: Re: [PATCH v2] binfmt_flat: do not stop relocating GOT entries
- prematurely on riscv
-Thread-Topic: [PATCH v2] binfmt_flat: do not stop relocating GOT entries
- prematurely on riscv
-Thread-Index: AQHYT9+B/BNFs63JH02JGuF3zm1OJqzwFV2AgAALBgCAAAcwAIAAA0oAgAABboCAABA9AA==
-Date:   Fri, 15 Apr 2022 02:11:39 +0000
-Message-ID: <YljUWpq42t1gQFRf@x1-carbon>
-References: <20220414091018.896737-1-niklas.cassel@wdc.com>
- <f379cb56-6ff5-f256-d5f2-3718a47e976d@opensource.wdc.com>
- <Yli8voX7hw3EZ7E/@x1-carbon>
- <6ee62ced-7a49-be56-442d-ba012782b8e2@opensource.wdc.com>
- <YljFiLqPHemB/u77@x1-carbon>
- <9a9a4dcf-0ea1-01ac-d599-16c10b547beb@opensource.wdc.com>
-In-Reply-To: <9a9a4dcf-0ea1-01ac-d599-16c10b547beb@opensource.wdc.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: d1d2bf2f-ea1c-44bc-ead5-08da1e85473c
-x-ms-traffictypediagnostic: CY4PR04MB0393:EE_
-x-microsoft-antispam-prvs: <CY4PR04MB0393652883C411723C948FB8F2EE9@CY4PR04MB0393.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 2syTxO5bKAY3inVu0xVgo7f+rgY2oXxfqQvQTHSgF9LUXLIao1SdtCUSxpxn2vIJGxRLzm4O07au1O3tx0qS29jYzBGUgh/wi9lTGFL+XbuI8t2mu2QmeQ6tXUDs52mH71Vjr+Qv10ifZWoPq802Mhz0Z/K0+7R2d7YowTPeFo0pC1WtqxuDnh1f0c2RAjdS4JHTEvnRRF22AoK/ysZZOIKtWi2fYek6XQKXIjRhyxmYjuOeXNSGJ9aMDVSd1parpLWmSruxJ0UcGHEBzHe2M88I+87ijh/+Tk3vIH7iAHzeALj4NSKwzYQPFj1Rx+C2USCCEPJ7wpWd2O2eO6NhLpqbBsqFHxodw967i1kHhqcB8+d6x4T8P1RDZh1xPkmadYib92ta7o1gBCVePK4nWCwOhyskuyfnzooJ1qGaQzABIbdgRIK9ZM46TsCaJHsD5yDWoORGK5hrNShFO5KBUOYjbBNXvH062toTfFT6WTfHUrMo5bBC/gqQjuGXRgG5eXyFdljkGtnVby2v9vBdGY82KepNxnRABBMrX1LrOYjlN27u1LaePBx992GrulU/6CD3qB5dSJUXU04/qGPaIIzXosPdSuWL/4nZ/zzJSKFx2CE7lAwg+lNcsIJkqVZ52bytL0JvILYG4ramvb7r9vZMoMUr0lYSIZT41Ftsxx028/+8Bhmt6sCiFEM9WioD4ZXJncDVR1145p07tsB7DA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(7916004)(366004)(122000001)(82960400001)(5660300002)(7416002)(54906003)(38070700005)(38100700002)(33716001)(316002)(83380400001)(2906002)(86362001)(91956017)(66446008)(6862004)(8676002)(4326008)(71200400001)(508600001)(6486002)(66946007)(76116006)(66556008)(64756008)(66476007)(8936002)(26005)(186003)(6506007)(53546011)(6512007)(9686003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ec/DdO5KKXr4QOWJ69QL0sOv8vC5DzjeMc4URXK4c+VPgLESn4OevtIXWvkN?=
- =?us-ascii?Q?1evKJAFIrWtO8VfM8nkOlUtyzzYnuipfUGPHHIBi8S/0W+3tvQT19klEsaIL?=
- =?us-ascii?Q?YoMz09rMaE6U/Or6u9ggx3azdATgHoBgR2iRugoHfj+hmvwJz5z4AQOol+KK?=
- =?us-ascii?Q?8vjwWxcGPUDInyrkOCVqL5mWFq+e7yvRF++1tvEwH49HGkCnyM99DM/zLL/n?=
- =?us-ascii?Q?fEC7OwX6FJJBR5eyhaZ8dGJqgJppN3mHgaYkti+ywRlRShenlsg/twXOAOhg?=
- =?us-ascii?Q?r5QYAkT2nzne+8TrcKx5L/Yqfj0vPhjX6Z8+LnirJJ7sPSqC4QytaDJOl0/0?=
- =?us-ascii?Q?WhyKcue+k1sraD5xEtbi3SIgUDSa4CpmbaA9dgn0IWrMJNYkxOgO3KaNSmsG?=
- =?us-ascii?Q?Jr8ecYhFRikcHfp56QDYAfeMSBNpEbObUk3OVXAtDJyRtoo87hv43iKagS2D?=
- =?us-ascii?Q?a8vDMX7o8Srwo56AlzS2L5Y0F8CvQIVPl35nYJEBoeMUHHgCQ3/BMuW3U0Nc?=
- =?us-ascii?Q?XJU2FedkiYplrxtfPCyPcVQszoQ0xhjZdNVVyaUJT7jtz+SkNBTGZxRLeUsr?=
- =?us-ascii?Q?3X8QcptOHl+jsTACpogbNkHbFIeot+ut32rCbGWhyLZwrO6pJvaRxvJ0mcUB?=
- =?us-ascii?Q?uiiCHCZqGJNWpBNDi4fykVcDianpAFcodgw9kPVx6286PoC0DKNanDVlHN2p?=
- =?us-ascii?Q?8mIJoHqv441e0PKyd+xZMf45uiOdGf75FO0iAvDlDoI2ENOzvBFnQ9hjK3Xg?=
- =?us-ascii?Q?vTFUBSe/qAmd7GvsSEle2R/nDcTb2UEWdci9ZRcRoqgpaFe/MiXmJYMGAKXL?=
- =?us-ascii?Q?FVDlSNL9GMh1KwNBKKDshGM6FiKRuv7g4Ahaje0R6mO0bmbTpJBg4yrcQhNx?=
- =?us-ascii?Q?BhC5lzmvvTN2QxO1eUhzqjr7xUu4DlN2o6EC6WEbcroqGt7C+7uC3Z7KOcZq?=
- =?us-ascii?Q?hIm6fqOSlyqXeCRHUcQjrxSehg3FNuxOZ4kFqMEDlQPiAlhy4mo3MR/O8gni?=
- =?us-ascii?Q?V6aolrj3LJq6xrNnWohvHchlqNpQUUvga2xpixCK13z+jVG2nXBQZFiWEIL7?=
- =?us-ascii?Q?e4LiV5EuINJQGMuDmp5ydP59ZzL6Z0e4kHh7JALnG9UOSVz8LRkFJuv+KhPl?=
- =?us-ascii?Q?ZdVj8T8jeO66gJOx2mtxfnR7wOSXqzTmI66tadY4iV1JRseuvzVT/xzATbPa?=
- =?us-ascii?Q?7+1tFQPfigNbNK6ulSbABWQ4iIsA6aJCyzqpish3zrhDMB+XEHrmeasaaYhN?=
- =?us-ascii?Q?SIVsxUXLKJDDyKMheKmsgRx41O8Pn/6knqQssx7GdxxJUS9gbg+5GeeUKrGh?=
- =?us-ascii?Q?r0wGw7Wdt0AaQg6KyWm/4VXAONcY4iGQRa4VBwrAv6AATfrYhdu42wyMoX/0?=
- =?us-ascii?Q?pnvWuF1oRygAwVYxFyC9+LgMA2xW1qgVHaqzQx6+cUd/W2kYRcsbtV45En6E?=
- =?us-ascii?Q?tCjff5oaPuiM1jN8deYdC/k7AzxY/sXYVIYCJoKP0u0xO0Bc/SDl9UOonv6G?=
- =?us-ascii?Q?v4++HsUkhZCNMznAHm1b11M3W3ZMaL51gWOlQbBdm3IvV5717R9QS4g1S9Y5?=
- =?us-ascii?Q?4hpb9Dj93kxtY6Q4MjqXoa4xaOQjwuMwYZ5ZG5phHWloVp6OBIt5Fy/yH8j8?=
- =?us-ascii?Q?ZaTRucjxcA2nxytRJzoc+LHWUQiIt2ybx2ASgVPRmhLSs7RoW8ajVO7rpjCN?=
- =?us-ascii?Q?n1gv6BTTRTliln4xBPl6fXqaR3muqVasgZ8AhWhTwBKrXJy07UH5U/6xyMvb?=
- =?us-ascii?Q?nqQiSVkhb8vyzTZ2rJ5glnQhLczHu2o=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <8F37960F8EB37D41819B15FE97695048@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d1d2bf2f-ea1c-44bc-ead5-08da1e85473c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Apr 2022 02:11:39.9598
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: zA14FSkNUOohSp3JwDWX+D2dbULLyV6+RGs93KXgCwXxO4GEPXzG9ssJC+r708aA0KOssYdyMhsxrJPHGO93Pw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR04MB0393
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        with ESMTP id S1346914AbiDOCQB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 22:16:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 498F41D334;
+        Thu, 14 Apr 2022 19:13:34 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F31CDB82BF3;
+        Fri, 15 Apr 2022 02:13:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2123C385AA;
+        Fri, 15 Apr 2022 02:13:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1649988811;
+        bh=kJy8HCH2PF88Ukvq4CiNIs0nm73iZq6YeCxUJq69zzo=;
+        h=Date:To:From:In-Reply-To:Subject:From;
+        b=uu+rQXmnuzQrdBDHHnFepv7hC5HElUNTlNXY42oY1vQJEMWbF/Q9wg4Vownuq6Ui5
+         WNXGhnOtNdo/iIFhR0T701CvB8ZyO0EC3OsG1hnJydoulir/sSqJ1sHRsrEQPAB5sj
+         ixYL82RjBGRRKqdqH5jet6cUOiNBumH6CyLquD+A=
+Date:   Thu, 14 Apr 2022 19:13:31 -0700
+To:     willy@infradead.org, stable@vger.kernel.org, rppt@kernel.org,
+        lkp@intel.com, axelrasmussen@google.com, akpm@linux-foundation.org,
+        patches@lists.linux.dev, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+In-Reply-To: <20220414191240.9f86d15a3e3afd848a9839a6@linux-foundation.org>
+Subject: [patch 03/14] mm/secretmem: fix panic when growing a memfd_secret
+Message-Id: <20220415021331.A2123C385AA@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -156,56 +48,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 15, 2022 at 10:13:31AM +0900, Damien Le Moal wrote:
-> On 4/15/22 10:08, Niklas Cassel wrote:
-> > On Fri, Apr 15, 2022 at 09:56:38AM +0900, Damien Le Moal wrote:
-> >> On 4/15/22 09:30, Niklas Cassel wrote:
-> >>> On Fri, Apr 15, 2022 at 08:51:27AM +0900, Damien Le Moal wrote:
-> >>>> On 4/14/22 18:10, Niklas Cassel wrote:
-> >=20
-> > (snip)
-> >=20
-> >> So if we are sure that we can just skip the first 16B/8B for riscv, I
-> >> would not bother checking the header content. But as mentioned, the
-> >> current code is fine too.
-> >=20
-> > That was my point, I'm not sure that we can be sure that we can always
-> > skip it in the future. E.g. if the elf2flt linker script decides to swa=
-p
-> > the order of .got and .got.plt for some random reason in the future,
-> > we would skip data that really should have been relocated.
->=20
-> Good point. Your current patch is indeed better then. BUT that would also
-> mean that the skip header function needs to be called inside the loop
-> then, no ? If the section orders are reversed, we would still need to ski=
-p
-> that header in the middle of the relocation loop...
+From: Axel Rasmussen <axelrasmussen@google.com>
+Subject: mm/secretmem: fix panic when growing a memfd_secret
 
-So this is theoretical, but if the sections were swapped in the linker
-script, and we have the patch in $subject applied, we will not skip data
-that needs to be relocated. But after relocating all the entries in the
-.got section we will still break too early, if we actually had any
-.got.plt entries after the .got.plt header. The .got.plt entries would
-not get relocated.
+When one tries to grow an existing memfd_secret with ftruncate, one gets a
+panic [1].  For example, doing the following reliably induces the panic:
 
-However, the elf2flt maintainer explicitly asked ut to fix the kernel or
-binutils, so that they can continue using the exact same linker script
-that it has been using forever. (And we shouldn't need to change binutils
-just for the bFLT format.)
+    fd = memfd_secret();
 
-So the chance that the linker script changes in practice is really small.
-(This .got.plt vs .got hasn't changed in 19 years.)
+    ftruncate(fd, 10);
+    ptr = mmap(NULL, 10, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    strcpy(ptr, "123456789");
 
-But if it does, we will just have one problem instead of two :)
-However, I think that applying this patch is sufficient for now,
-since it makes the code work with the existing elf2flt linker script.
+    munmap(ptr, 10);
+    ftruncate(fd, 20);
 
-Adapting the code to also handle this theoretical layout of the linker
-script would just complicate things even more. I'm not even sure if we
-would be able to handle this case, since the information about the .got
-and .got.plt section sizes is lost once the ELF has been converted to
-bFLT.
+The basic reason for this is, when we grow with ftruncate, we call down
+into simple_setattr, and then truncate_inode_pages_range, and eventually
+we try to zero part of the memory.  The normal truncation code does this
+via the direct map (i.e., it calls page_address() and hands that to
+memset()).
 
+For memfd_secret though, we specifically don't map our pages via the
+direct map (i.e.  we call set_direct_map_invalid_noflush() on every
+fault).  So the address returned by page_address() isn't useful, and when
+we try to memset() with it we panic.
 
-Kind regards,
-Niklas=
+This patch avoids the panic by implementing a custom setattr for
+memfd_secret, which detects resizes specifically (setting the size for the
+first time works just fine, since there are no existing pages to try to
+zero), and rejects them with EINVAL.
+
+One could argue growing should be supported, but I think that will require
+a significantly more lengthy change.  So, I propose a minimal fix for the
+benefit of stable kernels, and then perhaps to extend memfd_secret to
+support growing in a separate patch.
+
+[1]:
+
+[  774.320433] BUG: unable to handle page fault for address: ffffa0a889277028
+[  774.322297] #PF: supervisor write access in kernel mode
+[  774.323306] #PF: error_code(0x0002) - not-present page
+[  774.324296] PGD afa01067 P4D afa01067 PUD 83f909067 PMD 83f8bf067 PTE 800ffffef6d88060
+[  774.325841] Oops: 0002 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
+[  774.326934] CPU: 0 PID: 281 Comm: repro Not tainted 5.17.0-dbg-DEV #1
+[  774.328074] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+[  774.329732] RIP: 0010:memset_erms+0x9/0x10
+[  774.330474] Code: c1 e9 03 40 0f b6 f6 48 b8 01 01 01 01 01 01 01 01 48 0f af c6 f3 48 ab 89 d1 f3 aa 4c 89 c8 c3 90 49 89 f9 40 88 f0 48 89 d1 <f3> aa 4c 89 c8 c3 90 49 89 fa 40 0f b6 ce 48 b8 01 01 01 01 01 01
+[  774.333543] RSP: 0018:ffffb932c09afbf0 EFLAGS: 00010246
+[  774.334404] RAX: 0000000000000000 RBX: ffffda63c4249dc0 RCX: 0000000000000fd8
+[  774.335545] RDX: 0000000000000fd8 RSI: 0000000000000000 RDI: ffffa0a889277028
+[  774.336685] RBP: ffffb932c09afc00 R08: 0000000000001000 R09: ffffa0a889277028
+[  774.337929] R10: 0000000000020023 R11: 0000000000000000 R12: ffffda63c4249dc0
+[  774.339236] R13: ffffa0a890d70d98 R14: 0000000000000028 R15: 0000000000000fd8
+[  774.340356] FS:  00007f7294899580(0000) GS:ffffa0af9bc00000(0000) knlGS:0000000000000000
+[  774.341635] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  774.342535] CR2: ffffa0a889277028 CR3: 0000000107ef6006 CR4: 0000000000370ef0
+[  774.343651] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  774.344780] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  774.345938] Call Trace:
+[  774.346334]  <TASK>
+[  774.346671]  ? zero_user_segments+0x82/0x190
+[  774.347346]  truncate_inode_partial_folio+0xd4/0x2a0
+[  774.348128]  truncate_inode_pages_range+0x380/0x830
+[  774.348904]  truncate_setsize+0x63/0x80
+[  774.349530]  simple_setattr+0x37/0x60
+[  774.350102]  notify_change+0x3d8/0x4d0
+[  774.350681]  do_sys_ftruncate+0x162/0x1d0
+[  774.351302]  __x64_sys_ftruncate+0x1c/0x20
+[  774.351936]  do_syscall_64+0x44/0xa0
+[  774.352486]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  774.353284] RIP: 0033:0x7f72947c392b
+[  774.354001] Code: 77 05 c3 0f 1f 40 00 48 8b 15 41 85 0c 00 f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 4d 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 05 c3 0f 1f 40 00 48 8b 15 11 85 0c 00 f7 d8
+[  774.357938] RSP: 002b:00007ffcad62a1a8 EFLAGS: 00000202 ORIG_RAX: 000000000000004d
+[  774.359116] RAX: ffffffffffffffda RBX: 000055f47662b440 RCX: 00007f72947c392b
+[  774.360186] RDX: 0000000000000028 RSI: 0000000000000028 RDI: 0000000000000003
+[  774.361246] RBP: 00007ffcad62a1c0 R08: 0000000000000003 R09: 0000000000000000
+[  774.362324] R10: 00007f72946dc230 R11: 0000000000000202 R12: 000055f47662b0e0
+[  774.363393] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+[  774.364470]  </TASK>
+[  774.364807] Modules linked in: xhci_pci xhci_hcd virtio_net net_failover failover virtio_blk virtio_balloon uhci_hcd ohci_pci ohci_hcd evdev ehci_pci ehci_hcd 9pnet_virtio 9p netfs 9pnet
+[  774.367325] CR2: ffffa0a889277028
+[  774.367838] ---[ end trace 0000000000000000 ]---
+[  774.368543] RIP: 0010:memset_erms+0x9/0x10
+[  774.369187] Code: c1 e9 03 40 0f b6 f6 48 b8 01 01 01 01 01 01 01 01 48 0f af c6 f3 48 ab 89 d1 f3 aa 4c 89 c8 c3 90 49 89 f9 40 88 f0 48 89 d1 <f3> aa 4c 89 c8 c3 90 49 89 fa 40 0f b6 ce 48 b8 01 01 01 01 01 01
+[  774.372282] RSP: 0018:ffffb932c09afbf0 EFLAGS: 00010246
+[  774.373372] RAX: 0000000000000000 RBX: ffffda63c4249dc0 RCX: 0000000000000fd8
+[  774.374814] RDX: 0000000000000fd8 RSI: 0000000000000000 RDI: ffffa0a889277028
+[  774.376248] RBP: ffffb932c09afc00 R08: 0000000000001000 R09: ffffa0a889277028
+[  774.377687] R10: 0000000000020023 R11: 0000000000000000 R12: ffffda63c4249dc0
+[  774.379135] R13: ffffa0a890d70d98 R14: 0000000000000028 R15: 0000000000000fd8
+[  774.380550] FS:  00007f7294899580(0000) GS:ffffa0af9bc00000(0000) knlGS:0000000000000000
+[  774.382177] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  774.383329] CR2: ffffa0a889277028 CR3: 0000000107ef6006 CR4: 0000000000370ef0
+[  774.384763] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  774.386229] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  774.387664] Kernel panic - not syncing: Fatal exception
+[  774.388863] Kernel Offset: 0x8000000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[  774.391014] ---[ end Kernel panic - not syncing: Fatal exception ]---
+
+[lkp@intel.com: secretmem_iops can be static]
+  Signed-off-by: kernel test robot <lkp@intel.com>
+[axelrasmussen@google.com: return EINVAL]
+  Link: https://lkml.kernel.org/r/20220412193023.279320-1-axelrasmussen@google.com
+Link: https://lkml.kernel.org/r/20220324210909.1843814-1-axelrasmussen@google.com
+Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
+Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Cc: kernel test robot <lkp@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/secretmem.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+--- a/mm/secretmem.c~mm-secretmem-fix-panic-when-growing-a-memfd_secret
++++ a/mm/secretmem.c
+@@ -158,6 +158,22 @@ const struct address_space_operations se
+ 	.isolate_page	= secretmem_isolate_page,
+ };
+ 
++static int secretmem_setattr(struct user_namespace *mnt_userns,
++			     struct dentry *dentry, struct iattr *iattr)
++{
++	struct inode *inode = d_inode(dentry);
++	unsigned int ia_valid = iattr->ia_valid;
++
++	if ((ia_valid & ATTR_SIZE) && inode->i_size)
++		return -EINVAL;
++
++	return simple_setattr(mnt_userns, dentry, iattr);
++}
++
++static const struct inode_operations secretmem_iops = {
++	.setattr = secretmem_setattr,
++};
++
+ static struct vfsmount *secretmem_mnt;
+ 
+ static struct file *secretmem_file_create(unsigned long flags)
+@@ -177,6 +193,7 @@ static struct file *secretmem_file_creat
+ 	mapping_set_gfp_mask(inode->i_mapping, GFP_HIGHUSER);
+ 	mapping_set_unevictable(inode->i_mapping);
+ 
++	inode->i_op = &secretmem_iops;
+ 	inode->i_mapping->a_ops = &secretmem_aops;
+ 
+ 	/* pretend we are a normal file with zero size */
+_
