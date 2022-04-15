@@ -2,79 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4B4E50236C
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 07:08:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E83502673
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 10:00:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347138AbiDOFJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Apr 2022 01:09:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38784 "EHLO
+        id S244946AbiDOIDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Apr 2022 04:03:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351079AbiDOFF1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 01:05:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0DA7BE9C7;
-        Thu, 14 Apr 2022 21:57:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55CCFB82C28;
-        Fri, 15 Apr 2022 04:57:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63D2C385A6;
-        Fri, 15 Apr 2022 04:57:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1649998632;
-        bh=sdf3KNK2bCPLRKBu/jbG05O+vAvWO2dlRW++18iqkWk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yvgRgIJ/EZ6dXfJiAClGq2iKMGVu4cGaeM/SFONhtbI5bvkcjb/7i7oKBSmmQa9cv
-         +NjKml8zX249PhAmTJ5Jnc87fv5ivODJ4zVVpPFR9DNgmRnTYOzlEuiyrvCVCbrOu7
-         YHfKOZXN69H6QJQ9ETNNlzsaLOO12ASlRFtY7OHk=
-Date:   Fri, 15 Apr 2022 06:57:09 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        llvm@lists.linux.dev, Nick Desaulniers <ndesaulniers@google.com>,
-        linux-btrfs@vger.kernel.org
-Subject: Re: btrfs warning fixes for 5.15 and 5.17
-Message-ID: <Ylj7JclrqzHx2gpQ@kroah.com>
-References: <YliEOSL8z3/s7DGG@dev-arch.thelio-3990X>
+        with ESMTP id S232094AbiDOIDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 04:03:11 -0400
+X-Greylist: delayed 18361 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 15 Apr 2022 01:00:42 PDT
+Received: from smtp3.pipni.cz (smtp3.pipni.cz [IPv6:2a00:1ed0:1:500::f006])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 549F11BE92
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 01:00:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=www.tophosting.cz; s=dkim; h=Content-Type:Content-Transfer-Encoding:
+        MIME-Version:Message-ID:From:Date:Subject:To:Sender:Reply-To:Cc:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=N8qZkf7SlcCeLqA73BSAZKvYIL+enk8oEL90wWBONGY=; b=jsSyNYKjKzkPYLw6g0+WUXzizu
+        uwzxonYxc7kKF8yFrruD7yWXZrHYlGysJY502dgxy0XywlVURw8I4guTKKsn5vW6kOU5HX8g0+gdb
+        0UYDCG9kOA3b0gP4NUaFPxwTfzLYzVrr0FHeuzW86wfILWKOj9XEf5BWzdEBLwhHAqng=;
+Received: from www5.tophosting.cz ([2a00:1ed0:1:500::a025])
+        id 1nfC6Z-0000qa-BS; Fri, 15 Apr 2022 04:54:39 +0200
+Received: id 1nfC6Z-0001jv-C2; Fri, 15 Apr 2022 04:54:39 +0200
+To:     lawyer@lawyer.cz, stable@vger.kernel.org
+Subject: =?utf-8?Q?Objedn=C3=A1vka_knihy_Softwarov=C3=A9_pr=C3=A1vo?=
+X-PHP-Script: softwarovepravo.cz/objednavka.php for 109.70.100.35, 109.70.100.35
+X-PHP-Originating-Script: 177456:class.phpmailer.php
+Date:   Fri, 15 Apr 2022 04:54:39 +0200
+From:   "SoftwarovePravo.cz" <stable@vger.kernel.org>
+Message-ID: <b21c72e60fd9264e2f31d5f74a905e78@softwarovepravo.cz>
+X-Priority: 3
+X-Mailer: PHPMailer [version 1.73]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YliEOSL8z3/s7DGG@dev-arch.thelio-3990X>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+X-pipni-MailScanner-ID: 1nfC6Z-0000qa-BS
+X-pipni-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-pipni-MailScanner-SpamCheck: not spam, SpamAssassin (not cached,
+        score=-1.65, required 4, BAYES_00 -1.90,
+        HEADER_FROM_DIFFERENT_DOMAINS 0.25, UNPARSEABLE_RELAY 0.00)
+X-pipni-MailScanner-From: apache@www.tophosting.cz
+X-Spam-Status: No, score=1.2 required=5.0 tests=BAYES_50,DKIM_INVALID,
+        DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: *
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 14, 2022 at 01:29:45PM -0700, Nathan Chancellor wrote:
-> Hi Greg and Sasha,
-> 
-> Please apply
-> 
-> ad3fc7946b18 ("btrfs: remove no longer used counter when reading data page")
-> 6d4a6b515c39 ("btrfs: remove unused variable in btrfs_{start,write}_dirty_block_groups()")
-> 
-> to 5.15 and 5.17 and
-> 
-> cd9255be6980 ("btrfs: remove unused parameter nr_pages in add_ra_bio_pages()")
-> 
-> to 5.15 (it landed in 5.16), as they all resolve build errors with
-> CONFIG_WERROR=y and tip of tree clang, which recently added support for
-> unary operations in -Wunused-but-set-variable. They all apply cleanly
-> and I do not see any additional build warnings and errors.
-> 
-> Commit 6d4a6b515c39 was specifically tagged for stable back to 5.4,
-> which should be fine, but it really only needs to go back to 5.12+, as
-> btrfs turned on W=1 (which includes this warning) for itself in commit
-> e9aa7c285d20 ("btrfs: enable W=1 checks for btrfs"), which landed in
-> 5.12-rc1. Prior that that change, none of these warnings will be
-> visible under a normal build.
+Objednávka knihy Softwarové právo
+--------------------
 
-Now queued up, thanks.
+Zákaznické údaje:
 
-greg k-h
+Jméno a příjmení / Název firmy: 🖤 Judith want to play with you! Start play: https://cutt.us/BogkZ?xg09cb 🖤
+Ulice a č.p.: mgf5raas
+Město: xbhm0p
+Psč: sus30qrr
+Telefon: 597129524160
+E-mail: stable@vger.kernel.org
+
+Dodací adresa:
+
+Jméno a příjmení / Název firmy: w9wp63v
+Ulice a č.p.: l5c17996
+Město: qpe1hl
+Psč: trxic8
+Kontaktní osoba: eu4leji
+
+Objednávka:
+
+Počet kusů: 226ujx9
+Cena za knihy: 95824 Kč
+Způsob úhrady: více než 3ks - dle dohody
+Cena dopravy: dle dohody Kč
+
+Celková cena: 95824 Kč
+--------------------
+
+
