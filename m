@@ -2,146 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8722F502006
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 03:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BB6F502012
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 03:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231788AbiDOBQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Apr 2022 21:16:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58488 "EHLO
+        id S1346463AbiDOBXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Apr 2022 21:23:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231893AbiDOBQD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 21:16:03 -0400
-Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC0F6B0B9
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 18:13:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1649985217; x=1681521217;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=2o3hbZhROctTrf9/YEdToCbep6cUQhIveDuZAWOBAjM=;
-  b=lTkN6pAHkAYRgwRi9e1oDcGb6b8957pT4Fz1NO/bFW3Pf7Hxv7FXBOS0
-   CU61fEj579chu/LRwr1eg5PO/oa3w7O/qeO7yf/vhD4vuBJZiKot00nEY
-   Q+j+NVNa1xR9HO6XjyJWbWBJOwFCQOhIO5jqh/Ju07HVRjTWrt3lkhPnC
-   OIUxvaK6oO9z2KJbp3HH+Uj9RJWtS5fAmtCDFIME4TTSTGvmbqmAWyfMU
-   iMcuDHg4xHliuamtJvaDAG9ZItbzC0l75IWtmM0211n7aH7zeTJasXWp9
-   LlISJGXE71HlgYQnji97kvOP9M26JFsfeEwX+pWYPrxcDVQ71I7iojo3W
-   g==;
-X-IronPort-AV: E=Sophos;i="5.90,261,1643644800"; 
-   d="scan'208";a="198855965"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 15 Apr 2022 09:13:37 +0800
-IronPort-SDR: a7jA7UcAm0Ykou7qg9+0r3JrzgFEH3xavQS/srvj73ettlIblaKcdnUEnzmKy5nF4jcwQj1W+C
- 4Q0hAOphkiIM13WmTjQjI13swTrtsEAKh/wiIDinO85GJDXonMxVUX91AwvyUn4XPkj4SyaWB7
- 3Wztu8Nhp2ZnTLckDbUffLoLaOjbWvish+apjowCzwmAIB4iX9MdWjv3NcjHlRN81vgPYCIhMZ
- ssF4KSUWByk7w926i+pJpqAVAQfYLSm+NOdgeH/tGtMiYxExFA0ioGiXqVERHTpw7PXOXgjbgb
- HRVy8pxNgAlyACV2Mpmxi/Zw
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Apr 2022 17:44:47 -0700
-IronPort-SDR: 5iI7XWBhTAReLLihGQo5gsZeXblA3lTxsPw53RwW7smpuhWIcRgZQXzMeYHr2V/hsmEp8pahBo
- sS1TkxFs5EFAwHwEzsZfHg5veIPBnUBdeiqsns0KgXH4OXCbcn62N36BrI8O10EbPwYDAzwNEN
- M5xphlQjQ2PkJLdmWG/yUHYjolfba1P3HEqPMR0OPQDkeAWcCxR/AEHZOTwyg7fzpg87iDJcRR
- y6SX7HxMyJSUCSUSgta3ZWfoqBhBgvP09/c281eHQN5J17V5cUzbQR3MkgxWG2s7scnfJlgImL
- zOA=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Apr 2022 18:13:36 -0700
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4Kfdcv4Ly7z1SVp6
-        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 18:13:35 -0700 (PDT)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1649985214; x=1652577215; bh=2o3hbZhROctTrf9/YEdToCbep6cUQhIveDu
-        ZAWOBAjM=; b=mWJ7/209jF5f6cH7UXv/Nyw7kMvCcMKmosSacEyi84ORPLbeYJQ
-        MtUB3jAAFeHPNpA8o+sWbphgyyUNQYB8OZ5diOrgk9B7KoXA2yecdJ4CPlqgi0zL
-        X7gNmQToLzBFQR8a23dn9UnxA7nz1U3gm4qx6SZyK+2/dHZc0je0n5KbV/l9B2xH
-        gK4Kfaqn7Nwu1VunDYoDJD7KwWLLKzn9IQqxk0vKWAbRtNdVl1uDlsiv/0jNo8cv
-        xCYXVwG3tp64CBUPTC1Qyl37g2PHLfG3O0Xz5HzP+cChYa98sC49qe95xjj26W74
-        5xSEMLfkgGl/VvMtJsCUkoM/fpFgWzarxOA==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id IJ-lUag0b5yv for <stable@vger.kernel.org>;
-        Thu, 14 Apr 2022 18:13:34 -0700 (PDT)
-Received: from [10.225.163.9] (unknown [10.225.163.9])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4Kfdcr4SBfz1Rvlx;
-        Thu, 14 Apr 2022 18:13:32 -0700 (PDT)
-Message-ID: <9a9a4dcf-0ea1-01ac-d599-16c10b547beb@opensource.wdc.com>
-Date:   Fri, 15 Apr 2022 10:13:31 +0900
+        with ESMTP id S1348535AbiDOBW7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Apr 2022 21:22:59 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 791A02A259
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 18:20:32 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id md4so6547494pjb.4
+        for <stable@vger.kernel.org>; Thu, 14 Apr 2022 18:20:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=z65084CBkW08OPjEpV5CuS7+fT8KtRJJfiYLIq/kuh8=;
+        b=UmmeAWVM/VX1NU92sf0nkOu8VrePux1yVDTFQInFNcf+EP/U/7DGJuToURuF7oB/WP
+         XjH1lDCcoOIfR8lp9MdWZJFjgw5BxZLqcQcf0EHqBDBjpqK+/R8isKTN8B9dKT9GjHM8
+         Ie0c1avMSwyBF8Yi2ziT60BiZMhpo6Rp70Rx06hTnTIR5TCIxqUJg76A1pHMMyfLd1jf
+         weuvblJkEd10/r+H6B3Q/M1fOFDadfOuxqIqf4r2LNTqSDJjjTNLhSaSDwII4UCgcm8t
+         qt7hjcgXyAzUwSK4HUI+SNQwdSnYme+1keY1GrNEfrN44AITD0yVwZi44byLoI+eNdVx
+         1Ibg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=z65084CBkW08OPjEpV5CuS7+fT8KtRJJfiYLIq/kuh8=;
+        b=RNx0SMoAfKeHZs1gnWC6EwQEsoL1G9+ptwTUz4P41DuROBa9o24LBuia9nvN5hfEPh
+         inrmMMO83iCuU6Hq8mnuU9RY5GBmn3lhbGsYnRP3TyjIsdqKYET3HFO1u+2S7Pls99tT
+         BG7PGNnjlqhegtZVr8a4noA2NDGkQ1EopaRZnsYxoNGLLNyoZcZ1z+CHIgQYk0FZEV2A
+         //HuoWcpS8egiCWYcTn7t5rTLMZIrArJZrpnPgGsKifQOWLdN39PbKqchrWfI6Lv6o5s
+         OC4JEIa+YTz/uGUwjA1ws5de+oSU4gvGB8lla0kW72CJFbIFJilktzOXsYMHtl1f4nvm
+         JvDg==
+X-Gm-Message-State: AOAM5329vif/X+Hyv6Efslw9q+LzcqgYPglzPvkpWSqwyNfV3owJNohI
+        z2umlHhz8IDJiXBmGuyVuYkHu/75QNmurMtS
+X-Google-Smtp-Source: ABdhPJw/7NR7ijB3p7fucrr9jxcmwPcjNHO5UNnTK51V4PTNfmCnVTy/4yYpeDfNIW4fkqVmHPYLRg==
+X-Received: by 2002:a17:902:bc86:b0:151:ec83:4a8b with SMTP id bb6-20020a170902bc8600b00151ec834a8bmr48921732plb.69.1649985631864;
+        Thu, 14 Apr 2022 18:20:31 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l22-20020a17090aaa9600b001ca7a005620sm3001931pjq.49.2022.04.14.18.20.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 Apr 2022 18:20:31 -0700 (PDT)
+Message-ID: <6258c85f.1c69fb81.a2e20.8a0a@mx.google.com>
+Date:   Thu, 14 Apr 2022 18:20:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v2] binfmt_flat: do not stop relocating GOT entries
- prematurely on riscv
-Content-Language: en-US
-To:     Niklas Cassel <Niklas.Cassel@wdc.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Mike Frysinger <vapier@gentoo.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>
-References: <20220414091018.896737-1-niklas.cassel@wdc.com>
- <f379cb56-6ff5-f256-d5f2-3718a47e976d@opensource.wdc.com>
- <Yli8voX7hw3EZ7E/@x1-carbon>
- <6ee62ced-7a49-be56-442d-ba012782b8e2@opensource.wdc.com>
- <YljFiLqPHemB/u77@x1-carbon>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <YljFiLqPHemB/u77@x1-carbon>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.17
+X-Kernelci-Kernel: v5.17.3-7-g363c8c6fd7ed5
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.17 baseline: 122 runs,
+ 2 regressions (v5.17.3-7-g363c8c6fd7ed5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/15/22 10:08, Niklas Cassel wrote:
-> On Fri, Apr 15, 2022 at 09:56:38AM +0900, Damien Le Moal wrote:
->> On 4/15/22 09:30, Niklas Cassel wrote:
->>> On Fri, Apr 15, 2022 at 08:51:27AM +0900, Damien Le Moal wrote:
->>>> On 4/14/22 18:10, Niklas Cassel wrote:
-> 
-> (snip)
-> 
->> So if we are sure that we can just skip the first 16B/8B for riscv, I
->> would not bother checking the header content. But as mentioned, the
->> current code is fine too.
-> 
-> That was my point, I'm not sure that we can be sure that we can always
-> skip it in the future. E.g. if the elf2flt linker script decides to swap
-> the order of .got and .got.plt for some random reason in the future,
-> we would skip data that really should have been relocated.
+stable-rc/queue/5.17 baseline: 122 runs, 2 regressions (v5.17.3-7-g363c8c6f=
+d7ed5)
 
-Good point. Your current patch is indeed better then. BUT that would also
-mean that the skip header function needs to be called inside the loop
-then, no ? If the section orders are reversed, we would still need to skip
-that header in the middle of the relocation loop...
+Regressions Summary
+-------------------
 
-> 
-> So I think that it is better to keep it, even if it is a bit verbose.
-> 
-> 
-> Kind regards,
-> Niklas
+platform           | arch  | lab         | compiler | defconfig         | r=
+egressions
+-------------------+-------+-------------+----------+-------------------+--=
+----------
+at91sam9g20ek      | arm   | lab-broonie | gcc-10   | at91_dt_defconfig | 1=
+          =
+
+kontron-pitx-imx8m | arm64 | lab-kontron | gcc-10   | defconfig         | 1=
+          =
 
 
--- 
-Damien Le Moal
-Western Digital Research
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
+nel/v5.17.3-7-g363c8c6fd7ed5/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.17
+  Describe: v5.17.3-7-g363c8c6fd7ed5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      363c8c6fd7ed5459b0fcf4dde2e4b3c985062bf9 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab         | compiler | defconfig         | r=
+egressions
+-------------------+-------+-------------+----------+-------------------+--=
+----------
+at91sam9g20ek      | arm   | lab-broonie | gcc-10   | at91_dt_defconfig | 1=
+          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62589100b40f853e94ae0681
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: at91_dt_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.3-7=
+-g363c8c6fd7ed5/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g=
+20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.3-7=
+-g363c8c6fd7ed5/arm/at91_dt_defconfig/gcc-10/lab-broonie/baseline-at91sam9g=
+20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/62589100b40f853e94ae0=
+682
+        failing since 0 day (last pass: v5.17.2-343-g74625fba2cc43, first f=
+ail: v5.17.3-7-g214113ee8b920) =
+
+ =
+
+
+
+platform           | arch  | lab         | compiler | defconfig         | r=
+egressions
+-------------------+-------+-------------+----------+-------------------+--=
+----------
+kontron-pitx-imx8m | arm64 | lab-kontron | gcc-10   | defconfig         | 1=
+          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62589442450e579e33ae070d
+
+  Results:     51 PASS, 1 FAIL, 1 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.3-7=
+-g363c8c6fd7ed5/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-im=
+x8m.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.3-7=
+-g363c8c6fd7ed5/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-im=
+x8m.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.dwc3-usb1-probed: https://kernelci.org/test/case/id/625=
+89442450e579e33ae0720
+        new failure (last pass: v5.17.3-7-g214113ee8b920)
+
+    2022-04-14T21:37:53.851643  /lava-108813/1/../bin/lava-test-case
+    2022-04-14T21:37:53.851969  <8>[   13.473831] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwc3-usb1-probed RESULT=3Dfail>
+    2022-04-14T21:37:53.852168  /lava-108813/1/../bin/lava-test-case
+    2022-04-14T21:37:53.852364  <8>[   13.493615] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dimx8mq-usb-phy-driver-present RESULT=3Dpass>
+    2022-04-14T21:37:53.852527  /lava-108813/1/../bin/lava-test-case
+    2022-04-14T21:37:53.852680  <8>[   13.514827] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dimx8mq-usb-phy0-probed RESULT=3Dpass>
+    2022-04-14T21:37:53.852835  /lava-108813/1/../bin/lava-test-case   =
+
+ =20
