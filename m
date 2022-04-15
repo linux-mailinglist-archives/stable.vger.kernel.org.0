@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3210502D8E
-	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 18:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E227502D9C
+	for <lists+stable@lfdr.de>; Fri, 15 Apr 2022 18:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355280AbiDOQRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Apr 2022 12:17:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54234 "EHLO
+        id S1355786AbiDOQRy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Apr 2022 12:17:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355763AbiDOQRM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 12:17:12 -0400
+        with ESMTP id S1355837AbiDOQRs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 12:17:48 -0400
 Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AAD71D326
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 09:14:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA2AB2A73D
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 09:15:19 -0700 (PDT)
 Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23FFQIe2014393
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 09:14:42 -0700
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 23FFQIe3014393
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 09:15:19 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=PPS06212021;
- bh=7Qv2z94CXNgn+dmn6Zg5YE+WbYUZP3D3dxz7F9XUboY=;
- b=Vy1LJ0358+Us5LJTdcCPuHyaP2kjVVc1de9YgZvwgckFJcu4ST36A+wfVl4HvPcBMS/m
- FXq37mcMq1yI+UkWlFdw9X78/vFgAkecnjD/gmFB44+3Q83gnco69xMvX0CoPRs88pOS
- JCJltyr6wDVk6Z8Z8X3YGcbg++Sza/T/fnfta0KEI7zsjg12gVOfyX4jKOw81/+l1qzl
- e1wj388PyvP7ZPc3e58EGLWORi1UCtmZdGVfAKgvqDIJoQEmQTB9a0+ZslKfZj+w2OWZ
- kOhjA6icPb2xJqKzmE5xXNTCKtYgIA92xzVK73LHHSe6OYTntYS9rzo1fgvCBZCy6K6B dA== 
+ bh=Ss9Z9wnqaJz4zS/Qna87oCWMAvPq/5WbHpZd1yAVUYU=;
+ b=VguAxFA8aajGpaUbfoS9S4bWOWOvwhAxvbHL435HE1ITWQA6c9Wa78Vd5jLz15zUc8oO
+ k1L6ecdp+EksJL76QCLUFfoCshDSqlS+pi56VnLQPCeDhztTop0lDPptzA2m9zeDKurM
+ bnokiSh4UYICmyMoUjKS5iiJxMJOd2IYLXcFB/hsN3bs7OyErvQmqKBnYAzisofGvPMl
+ FChftgF7baQ+iINBmqcWMeLx0R88l7PbbvHXIoejWu2NzuqK5ogR5x4SuCDcHNWGItU6
+ EvVhmrJ6Yvm7NHbuSoil0W91MejhSjuVuq/EVcg9L+WcXkD675DApG9E/jloqk0HxScT +Q== 
 Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2100.outbound.protection.outlook.com [104.47.55.100])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3fb9nfvsk3-1
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3fb9nfvsk3-2
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 09:14:41 -0700
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 09:14:42 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FKAgBfW3LcZrbfFO6bSDyrPxpJOxA+rDxymgDDcCNb+u6HLeFraUI06QgubQilwVzbeZBp5wkGK8o81dViLf074whfLK5u0bnID3gSJ20cO2S8uIOHr9r5WxynArYBcnyybDZiX6tHar1fLJH9bbggJO3+LvYHqJPLlpiSQkIyHGuMQlUZhOsbXc2Wqrg3CdKTU3N1DGavLCJCE2StTgPMjsXh/MRe8RZRbOC4Dp5qc8yKe+JUJuYx2hqIzZTwKHYVBnu4V8Yz2fcDLVGlaNsbIJkFqE3H4dQa0Vv4NgUKAwzSEJ9yd/VpE7fhIjEd3MIXXBV1tY3jDRNYtR+o3gHQ==
+ b=es5N84VuA5ugGhm/Yx7UqVfeYKGEUBnjMly/bQOo0Sh6A9ii4oS929aBfxenPnAZB4v307JVvjk2JBlnOFWIA31/HkT7UMJjlrj3AO2hu/GAKflKhgcODjAV+bIQ1vWYOoWe/oHhJvw2zeZhk2/UauLkuELeQgKVAHpyz69CJ2PJ6tahF4+o4/FP5v6YDwXjyedtiLW/zvaWUauM05G5pphwIOJho0M5667qrqP1XfBK8QiuAhZtuMxJLwbnxyfqF7kLCIJu0XOxvipHfjO9OP/ypolvVca4ysw5ZVFIqRNxxDR7OO4UX7xUbGJwheovu8Aoa+6rs6lbrnBeQ2cmDg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7Qv2z94CXNgn+dmn6Zg5YE+WbYUZP3D3dxz7F9XUboY=;
- b=mmaf2vvK6VU2fmSehSQuFnbU1Pa+6gUS8a76Slw1IqhzKSMM1IZ82OgK6iGIWsO1KRHM1VcuDKrD6CPb2yuqCKwSCni5enokowdgFlijBMgAZR4G+CJUBgqSNE4iT1phgNGFU9GENPR3nEVM1En02PLyYOF8bM5a290D3pS6Zqe0YsWQx/NAOsfGeZGzWE7Byo1aIynjr/7gzu3z4jbBWErVB53bqx2Sz/ZzwUn4PCDeoL/zD7DpyYASzadGItxvYgNmi1juiqHeiyutTT7beMIRy/z1g/kS4faRMhxbbC98BYpUo9kV8X9+KhtH6NraT2+c5+Iu3TO6qEbvQp6GBg==
+ bh=Ss9Z9wnqaJz4zS/Qna87oCWMAvPq/5WbHpZd1yAVUYU=;
+ b=ClWmpXLeA1sN7XW7ho8p4ekB5uvyNjJnnX80H8wpLOqIZLgFdcnwvni+WKB7MSl4R3VXS5giWWURfe7NvM+/aRfzeNwcFZck9ZvYBm7/vX4L43n2N9lWiOTh7Ca7kIZ9MsayAK2szhEhHRQu9AGLqZaq5b+yirjs/TXL/kMisVFsGDi61vE62hmecUgo5lfBlcoz3NaUVJBF+bc5mGEBf18cm7ugAh+E/oDNl024i3WxROt3dcP9h5GlNokuQiYAsgKW90ohvHisCyhkIdnrGiYMiD9NW/XyvDCGN/tZ3E0VqFo0iI92IoNMQnrjp8K/6psYpnDB3sSzLgUmdg2cHg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -44,16 +44,16 @@ Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
  by DM6PR11MB3626.namprd11.prod.outlook.com (2603:10b6:5:146::17) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5164.20; Fri, 15 Apr
- 2022 16:14:40 +0000
+ 2022 16:14:41 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::c903:4c47:ac8a:992d]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::c903:4c47:ac8a:992d%4]) with mapi id 15.20.5164.020; Fri, 15 Apr 2022
- 16:14:40 +0000
+ 16:14:41 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
-Subject: [PATCH 5.15 4/8] ax25: Fix refcount leaks caused by ax25_cb_del()
-Date:   Fri, 15 Apr 2022 19:14:18 +0300
-Message-Id: <20220415161422.1016735-5-ovidiu.panait@windriver.com>
+Subject: [PATCH 5.15 5/8] ax25: fix UAF bug in ax25_send_control()
+Date:   Fri, 15 Apr 2022 19:14:19 +0300
+Message-Id: <20220415161422.1016735-6-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220415161422.1016735-1-ovidiu.panait@windriver.com>
 References: <20220415161422.1016735-1-ovidiu.panait@windriver.com>
@@ -64,63 +64,63 @@ X-ClientProxiedBy: VI1PR0202CA0009.eurprd02.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: ec743d6e-ddda-4f55-aaf7-08da1efb0b6f
+X-MS-Office365-Filtering-Correlation-Id: 0876bf0b-08b8-4cc0-0d03-08da1efb0bec
 X-MS-TrafficTypeDiagnostic: DM6PR11MB3626:EE_
-X-Microsoft-Antispam-PRVS: <DM6PR11MB36268DEC66C5B385A6C8E66EFEEE9@DM6PR11MB3626.namprd11.prod.outlook.com>
+X-Microsoft-Antispam-PRVS: <DM6PR11MB362613E0A258417E89C74C56FEEE9@DM6PR11MB3626.namprd11.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: HO6gZzxL5V9TI76cMyc0GRQKy3/W4KvrHTbM2gfp8LkmPjVgKbj1y3ZEbZsytFNPO2bozEbuDKzB6frBPgMk3PHVY7gK/Ry2iHNHWN0W2tcBi1RKe/eUaCI44D48hzIHnEB+zSkAA8jI5TsagK1UZdlpcmhMIht1aHXIEnyIHYwucotl1xIatBra+5PN1n6dyBIL1Qh67XqXVmQH+z5c7SY7RUlYjqOY7zf49wAbhhNpkGQOlZOEX71Kn6edzZsCp3fYvmLLhEqhEPwNpZ9pH0PXxSqtAaXiMcqemQuPmq61QX3rb0sn40OXM88hmoty6N/rXQij8pcCXS8HP6lLx3EfHBGULI84eM/GN5gkDm3yavf5itcnVk7bsbpXw7kYfjcSarv+gGDkZG2MKbtjA/UhA6pwerrOYyKyzZsD+4bEaCJYL9EBa9y2E8yvDxA4LpIvWWg2MAXGDRZSDmHg5QrRrpmzgJxdqhiM9GjzFUC2HEQfmD8WYqA7ZQ3u8C/Cy4Js5rMOyMOUSfPvVj23wv4AJfR5M2XEphJ3Q6+1YZvZvJ8KZo6N+RF2M4pAHpEHPEdkAs7fEa7hYMwEG+Fvl8g26QgL1rvRiBn8jqB3Di5JvG3yey8C76+nuCH9+nwc3FTAHjJYrYJjDTWbd6B5AIljLfMov4c9ZMA5WNF1rS7M1HUTqCic68Mvc7nE6Exknpzxn1kBwE0eZd2L0aqWNg==
+X-Microsoft-Antispam-Message-Info: tlpdT1qSSc6v0/slrXZD71jnD6DdOnuH6qLflD8hNXpcATFiHc4W2Ct28r6jnRZC4GyDyzfsLu9UzU2rrXkUBDeSBGR6CiOx2B6zNewWHWpDQNFC4YrPDj9PYhrEd1belY3bA9nYqSsssAGeOgJkVZhiFrCuAddgoAZXfHG6LQaujkNGFfp4Ejnb0J6LOKAJw/qoSrN6UhtcYGcMKysewY9s14L2KEb7UCxxYvur3uwmzgJBqHFIbKWZeehh4LAxHwkoWMLQ/ZZJzfI+l1LEiUXzTuJk8FEKDRff3KsQbIunFlB0T3WVdMyNNNAahLBLuLVGjXSHJFG8W9NGFhlA1rV47dd6MTZkOfgcrhzvflOX7EY5mZE6NVM2jGEjHAQLIWqDPFu/bOhUyNi9kPUvAxuXBJVibDFARuEIp7hq5weF+zCCwb4dwtKUfvjusa889xJbpyUTe+ZGNU6e2epixR+faLwtkIPMNlXZUsNGOcg0q0r0wIhhJQNeD5Dk5+ObISJEBybrre2GD05/Hs2BalxR3eraFIZnlKMMtRxbaieYV9HuuEF3cgamkbe1fIDIbNT7DIeBAruJhDBjATeMRFIxrBX+Bd/WZ8PwuGny5vAaFwj2pbzUcVO2SxSkTwpOQzCAxplrC4RkNy9CRo4tG05CcqAs8s7DxS9zGmO69kcptHHdTII+VKbOHoss/1m2ZWlglMh7EFJJuT8iUhVmWQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(5660300002)(38100700002)(8936002)(38350700002)(1076003)(6506007)(26005)(186003)(2616005)(6916009)(52116002)(6666004)(508600001)(6486002)(6512007)(316002)(66556008)(66476007)(66946007)(8676002)(83380400001)(36756003)(2906002)(44832011)(86362001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?aAONGUgCh4nHJrcUeG8tL8GBkUsrln+iSRIS8BzzzeibYXbV+jk5BSR/x3qj?=
- =?us-ascii?Q?kldozzGn9O1K1ubBplc7a24O4OVAFcFwETpKCCg1VESwSEXoeY2lnIgSPsDX?=
- =?us-ascii?Q?A2hIRJKkWk+gGCmD87VXq/9jCeDngX2rR+Mu3FR/SkQxDTVfwylHXACTrM5Z?=
- =?us-ascii?Q?2VjrkF1/3fx2AvWE55zxAXirhi8MFnAfVD0RIt0DdgoPtCgTXjRHOWmWxo1A?=
- =?us-ascii?Q?oSJ0Zf4gMJsjiaX1O5VSSX/LfJrDpjGAfZQRGjV/UVif1B21VMireJy4YCNZ?=
- =?us-ascii?Q?nrhb7o3E8XIRstceLynwzIahLg7Z3DRPg4gpCFiCTvLdCXWrhJz7SOiCBEps?=
- =?us-ascii?Q?VPMHus0IexQb2zFNLLUMs8e+EF6Ds3FqxfHVJhzLIZTpk4t8/KLY4OIhFw73?=
- =?us-ascii?Q?CqZS/Rd576VdSHKbS8CWE2XHV/nBMUd0uNPoduivPrpj4t8kF/XdsS/m/86S?=
- =?us-ascii?Q?kkC8K+mKAabPHjIw6v9ST/08py9FcM1D7sYPCSaRuifQAgaLWfQtv/oe4h3K?=
- =?us-ascii?Q?iJlU1MRLm0DBE9jUgbpVyge3iYvAasoKAqlxu26TiQ6jTH6Ip/Pb0kf/Y+mS?=
- =?us-ascii?Q?bSyx1MXto+XQGxmI8lR0jHRSZbSA/aWoFEV/up2Yo/ZxDkxNUL5rTlIp/8Cn?=
- =?us-ascii?Q?4LLhUhZDmN8oc6+fvq8uCkg6BEvrLAqoyVwOmwyLlKwF7UrMoB/aaDufyp1n?=
- =?us-ascii?Q?1HJZwQUfAEmTHLfdB6OnM6O3lzOshWpXDLkCyl+Lg/jYOdQXD5D1wLdLfZei?=
- =?us-ascii?Q?YHNjZpmCRzDkozXRQ6K6AnawHjexTNbsNksYEXgtNsBI/0e+ps7xHfJvXVdq?=
- =?us-ascii?Q?vcJR0FWEJDX9lt8VdWyeUThESgCbdDlnTnTAiB9shFq8PcFcy4zVyvjlqdIF?=
- =?us-ascii?Q?TRH90kiVlPniBBum108/UkMsazRi3FBvHuqZvQMAQkYmpQ9ofRgMW8JkelAG?=
- =?us-ascii?Q?2ieiVEqBOEmnKA/SQT0DvlQnYi5lVBfYYZ3Gl+bk0xrfc3/nZNkJW3rbzZG4?=
- =?us-ascii?Q?9bDUGTfHRZciQFBGlxTYPeL1iMaXK2e2zpTv6/3s/prwhRGMh/yb93jiHDys?=
- =?us-ascii?Q?Xi0NTy8dJp9GM+Bqkr2ittYFVTwwVKR5juBzh64NbLQhZV/AFE/wTD/0yHaH?=
- =?us-ascii?Q?NaWzvOeM15N/QG7Z4bAa6sL6fenMEGYYMZ5DSBplzYsEaGIEpm1iDi/gHy1c?=
- =?us-ascii?Q?8IZrnduVKE+nTIbDsZf/hbMXA4XMeXOh4jnYv/BOMHoLYuMZRmDK6gx7Ix8B?=
- =?us-ascii?Q?HJwz1zobFindCmNRT8ZMbB6wxoRYOZL6YOnW1O5ViGk7O8+NHWZh8kWEZJHG?=
- =?us-ascii?Q?EOdQrYVMojJbUSKnyZxd8DR4DaUtLoXIo7J4TTBzR0a1hiy7Xjsohq2zuoW5?=
- =?us-ascii?Q?PcH24PBzgz9rJEFvu/kAeyv9cHAfQZs8LaVwo7lv80yZV2YzWqAVr5obvAaN?=
- =?us-ascii?Q?9XX3WT6S2A4Dpl2oXRZnhhfHysFoQ615t3rIL/OrDv1nxfs4JABca047NTle?=
- =?us-ascii?Q?wr3HuvQ0+l0DXs39gO94vpOjw/6qylkxCHQj4M9NiJY+0dsnB09UGkhm6OUh?=
- =?us-ascii?Q?1Ah/BTZziITxmIX5oA8NzKzxkjZBtYIUupsnFu/wQfx6PxBd48NeTt5Q5Jtl?=
- =?us-ascii?Q?5upzopHl2HmTP5t/lpDvuBAHAVKPXUWx5moTkraaWgG2ko3tGa1A8DaSIL7n?=
- =?us-ascii?Q?qokhFl6hZ2G0aZ8fVmJBNPMPMmkOb7BooonvBN4PoUZK+unYS68v2lu7nVnh?=
- =?us-ascii?Q?vAdLdPi4OBB2Rs5B7EUpV34YY90IJk0=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?tiFJQfR11Jyip7FPPRn7QzkrSzY4wagV7a1oJj+rrBySM+EvK9+l2X3Ycrp3?=
+ =?us-ascii?Q?3aHLwzO4zA27nI2yTEAN1VnjytdLMiQEg1uT0Veyc+vRIFfLPwTSais0PWvC?=
+ =?us-ascii?Q?PaTUGSGWbQ8SX0Yc2K4Sa7Q4aZyV3uN90ALZzoAa5sV0n5JjMN4UsE1gc1sK?=
+ =?us-ascii?Q?nQ9Pq8L9/nj3QoN8QpgZ2sT3OGe9ssSfS7lwPPnoF9YvpvTNo+FLhOjoxZBK?=
+ =?us-ascii?Q?Ewic1N/13+KrD33f3+qrHvjxfKYfJK/x8ERvKle19JUaoBOd/vei6z8wmO3r?=
+ =?us-ascii?Q?/Jl/4/TNZUY99Iu8Y1TagjyZRmbu0ET31qDF+tUTQ4AMeS9DpNxaW2qU/6lH?=
+ =?us-ascii?Q?3IPBFLhwEqZFlIj2qlk9971rCSL05QAWU1/SbUegWtFPsLP/ZgFnqeI9XbCH?=
+ =?us-ascii?Q?DBSlEGAoyJJxhnLmo/e/j9K5MYbXugaP01BoRwWx4ovJVsXfPIuMfMx7SLfJ?=
+ =?us-ascii?Q?09Lz5J7lCDAtRWqbWxMe3pbmamQdeN/BVTzwQ+L4SMRM+hurIHsxElLtxO3a?=
+ =?us-ascii?Q?lRBB62Zp1EFUKsQ1AyN/Pyi6PCPRDsxL6cRtb+qhVimG/I/GMQ8fek8olZov?=
+ =?us-ascii?Q?4xwE0RN8+MRg2ujGXzeOoNa7kjegxTVfMxwnwSk+5k0RP686P5531aMrEYpg?=
+ =?us-ascii?Q?hbsQsiVL4COlJjLJL7Wnm1b/lXK5vVrvZJrcXTz6jBjBnbQqn3ZyN0ir/Vvp?=
+ =?us-ascii?Q?9E99F2bzCWG7gZrl+LU0/rBX3pX7TJVMaekyPKfHfMB9EhFI+K87XxHNYbzt?=
+ =?us-ascii?Q?8JsLUsvYz2JC7iBhQK6PO36WujxpZ3T2lfxkiIYrQrFxJlNKyt/JgL7R/ro+?=
+ =?us-ascii?Q?HC46UvBqX2fJ4AglDNFH8RC58jl4Db2EyA8rX6oJHlvU8DEMOpQ1Wg7kcZEQ?=
+ =?us-ascii?Q?4YCVadFOrdxsOr7T5W0PDhfR8QBX5yUbEVPjbsqZd15epVvUzGz/XPxWRpLo?=
+ =?us-ascii?Q?kzNsCpT/1vopuTOFN7rA6jB58u3gjg7M/Ml7epvdAB4QPMOsJa3xUkZPCBP2?=
+ =?us-ascii?Q?WzXwvY0eft3u+tPY/o1qoNk5bAig0+/hEC5mLGH8I6WEk2XbSHL0VPmH+8QO?=
+ =?us-ascii?Q?USQEnkHGO86rXV+Q1mnoE6fvJuHRWd7Ghhkzxk//URDagdTOGdbH/Cr3rK7e?=
+ =?us-ascii?Q?DEHheaV4FqsNLYYVI8DTkmPP4sP2d3AwNx2+DKOAPnHT34MtaXKNl3MZL9/1?=
+ =?us-ascii?Q?H/5C5OQOlfZMT1rf0JDv8VBYcAoQ1UZ3SJx6Hmh/7CRi8vOIE1sTNhNM+QVB?=
+ =?us-ascii?Q?OhfNVbhlnm0bjWmDQrQZ7+Bhd+uzd3FEh2s3ygjoDYCLZG9kyIDV5DCxcFUa?=
+ =?us-ascii?Q?tcuDm/aqlbXWZ6IWsLex47urKoRsbkCcgXDNfPVbCAUEd39wf7/E6P1BJATv?=
+ =?us-ascii?Q?G+bFnfALEX1NWaDjweRfNB9PiUO287lrFn++4NHPou30m7bXlK7js2Rcjqty?=
+ =?us-ascii?Q?iM7pMdpPyvt/HpXVdJPYK4FuXKBSkf3+Iy7nOBAM+ujkhe8ItwqtPNJNBnBQ?=
+ =?us-ascii?Q?qVC57WZvGbn+2I7sQJwaBufSx1P+acJZL3DvSaG9tUmgDcHSPJTuP0k42Oyl?=
+ =?us-ascii?Q?RjOv9/FIZ6rT3zvD3PT66FPyINiR9SyLBX584/gZrXRRGOb6YmCWYWpw2mvZ?=
+ =?us-ascii?Q?N/YwOBa+v45MAUFB9CFNDyAMBC8MARpn/dRyk5Ck9Fstqj9Uv2FGMznn3iQ4?=
+ =?us-ascii?Q?2YYxzQ8a8hCPXD4vbjLyobDfKozoTckT9eIEeUYz1GU0Y43fEFYuEsnDX0jp?=
+ =?us-ascii?Q?s+vkOyh2z4ngcbsBr+0l0MHDLGmEdIA=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ec743d6e-ddda-4f55-aaf7-08da1efb0b6f
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0876bf0b-08b8-4cc0-0d03-08da1efb0bec
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2022 16:14:40.4932
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2022 16:14:41.3083
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: wKarfHSlTaS34g42ra6u2cOWMjYmkWcPISXeUCcwanK5spfJszpbOcJdxranyq1XGuAKv6KbCAY4/dzREBw/B9i6TfncQLzKEduU7MCTlos=
+X-MS-Exchange-CrossTenant-UserPrincipalName: UrzfZIAk6PWVDHeZzIotlNdKkJBpfqBOKxd9Zv8HUv24UJbB4sZCraAvQV/GIEcnvS0uchBDixlo3cJyTaYx7Z0FjYIHGvEiNadxaegMTr4=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB3626
-X-Proofpoint-ORIG-GUID: FyL8xy-FB2gEY9eoSfA-Oz9WMIgxRSln
-X-Proofpoint-GUID: FyL8xy-FB2gEY9eoSfA-Oz9WMIgxRSln
+X-Proofpoint-ORIG-GUID: Oa-2HkS6V-KKOm7RdF5u65Rc0W8jDc70
+X-Proofpoint-GUID: Oa-2HkS6V-KKOm7RdF5u65Rc0W8jDc70
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-04-15_06,2022-04-15_01,2022-02-23_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0 mlxscore=0
- mlxlogscore=945 bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0
+ mlxlogscore=721 bulkscore=0 adultscore=0 impostorscore=0 malwarescore=0
  clxscore=1015 phishscore=0 priorityscore=1501 suspectscore=0 spamscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
  definitions=main-2204150092
@@ -136,100 +136,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 9fd75b66b8f68498454d685dc4ba13192ae069b0 upstream.
+commit 5352a761308397a0e6250fdc629bb3f615b94747 upstream.
 
-The previous commit d01ffb9eee4a ("ax25: add refcount in ax25_dev to
-avoid UAF bugs") and commit feef318c855a ("ax25: fix UAF bugs of
-net_device caused by rebinding operation") increase the refcounts of
-ax25_dev and net_device in ax25_bind() and decrease the matching refcounts
-in ax25_kill_by_device() in order to prevent UAF bugs, but there are
-reference count leaks.
+There are UAF bugs in ax25_send_control(), when we call ax25_release()
+to deallocate ax25_dev. The possible race condition is shown below:
 
-The root cause of refcount leaks is shown below:
+      (Thread 1)              |     (Thread 2)
+ax25_dev_device_up() //(1)    |
+                              | ax25_kill_by_device()
+ax25_bind()          //(2)    |
+ax25_connect()                | ...
+ ax25->state = AX25_STATE_1   |
+ ...                          | ax25_dev_device_down() //(3)
 
-     (Thread 1)                      |      (Thread 2)
-ax25_bind()                          |
- ...                                 |
- ax25_addr_ax25dev()                 |
-  ax25_dev_hold()   //(1)            |
-  ...                                |
- dev_hold_track()   //(2)            |
- ...                                 | ax25_destroy_socket()
-                                     |  ax25_cb_del()
-                                     |   ...
-                                     |   hlist_del_init() //(3)
-                                     |
-                                     |
-     (Thread 3)                      |
-ax25_kill_by_device()                |
- ...                                 |
- ax25_for_each(s, &ax25_list) {      |
-  if (s->ax25_dev == ax25_dev) //(4) |
-   ...                               |
+      (Thread 3)
+ax25_release()                |
+ ax25_dev_put()  //(4) FREE   |
+ case AX25_STATE_1:           |
+  ax25_send_control()         |
+   alloc_skb()       //USE    |
 
-Firstly, we use ax25_bind() to increase the refcount of ax25_dev in
-position (1) and increase the refcount of net_device in position (2).
-Then, we use ax25_cb_del() invoked by ax25_destroy_socket() to delete
-ax25_cb in hlist in position (3) before calling ax25_kill_by_device().
-Finally, the decrements of refcounts in ax25_kill_by_device() will not
-be executed, because no s->ax25_dev equals to ax25_dev in position (4).
+The refcount of ax25_dev increases in position (1) and (2), and
+decreases in position (3) and (4). The ax25_dev will be freed
+before dereference sites in ax25_send_control().
 
-This patch adds decrements of refcounts in ax25_release() and use
-lock_sock() to do synchronization. If refcounts decrease in ax25_release(),
-the decrements of refcounts in ax25_kill_by_device() will not be
-executed and vice versa.
+The following is part of the report:
 
-Fixes: d01ffb9eee4a ("ax25: add refcount in ax25_dev to avoid UAF bugs")
-Fixes: 87563a043cef ("ax25: fix reference count leaks of ax25_dev")
-Fixes: feef318c855a ("ax25: fix UAF bugs of net_device caused by rebinding operation")
-Reported-by: Thomas Osterried <thomas@osterried.de>
+[  102.297448] BUG: KASAN: use-after-free in ax25_send_control+0x33/0x210
+[  102.297448] Read of size 8 at addr ffff888009e6e408 by task ax25_close/602
+[  102.297448] Call Trace:
+[  102.303751]  ax25_send_control+0x33/0x210
+[  102.303751]  ax25_release+0x356/0x450
+[  102.305431]  __sock_release+0x6d/0x120
+[  102.305431]  sock_close+0xf/0x20
+[  102.305431]  __fput+0x11f/0x420
+[  102.305431]  task_work_run+0x86/0xd0
+[  102.307130]  get_signal+0x1075/0x1220
+[  102.308253]  arch_do_signal_or_restart+0x1df/0xc00
+[  102.308253]  exit_to_user_mode_prepare+0x150/0x1e0
+[  102.308253]  syscall_exit_to_user_mode+0x19/0x50
+[  102.308253]  do_syscall_64+0x48/0x90
+[  102.308253]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  102.308253] RIP: 0033:0x405ae7
+
+This patch defers the free operation of ax25_dev and net_device after
+all corresponding dereference sites in ax25_release() to avoid UAF.
+
+Fixes: 9fd75b66b8f6 ("ax25: Fix refcount leaks caused by ax25_cb_del()")
 Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 [OP: backport to 5.15: adjust dev_put_track()->dev_put()]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
- net/ax25/af_ax25.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ net/ax25/af_ax25.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index 1235bbcc7953..13e8c9a0cf4f 100644
+index 13e8c9a0cf4f..7968696d78ee 100644
 --- a/net/ax25/af_ax25.c
 +++ b/net/ax25/af_ax25.c
-@@ -98,8 +98,10 @@ static void ax25_kill_by_device(struct net_device *dev)
- 			spin_unlock_bh(&ax25_list_lock);
- 			lock_sock(sk);
- 			s->ax25_dev = NULL;
--			dev_put(ax25_dev->dev);
--			ax25_dev_put(ax25_dev);
-+			if (sk->sk_socket) {
-+				dev_put(ax25_dev->dev);
-+				ax25_dev_put(ax25_dev);
-+			}
- 			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
- 			spin_lock_bh(&ax25_list_lock);
-@@ -979,14 +981,20 @@ static int ax25_release(struct socket *sock)
- {
- 	struct sock *sk = sock->sk;
- 	ax25_cb *ax25;
-+	ax25_dev *ax25_dev;
- 
- 	if (sk == NULL)
- 		return 0;
- 
- 	sock_hold(sk);
--	sock_orphan(sk);
- 	lock_sock(sk);
-+	sock_orphan(sk);
+@@ -991,10 +991,6 @@ static int ax25_release(struct socket *sock)
+ 	sock_orphan(sk);
  	ax25 = sk_to_ax25(sk);
-+	ax25_dev = ax25->ax25_dev;
+ 	ax25_dev = ax25->ax25_dev;
+-	if (ax25_dev) {
+-		dev_put(ax25_dev->dev);
+-		ax25_dev_put(ax25_dev);
+-	}
+ 
+ 	if (sk->sk_type == SOCK_SEQPACKET) {
+ 		switch (ax25->state) {
+@@ -1056,6 +1052,10 @@ static int ax25_release(struct socket *sock)
+ 		sk->sk_state_change(sk);
+ 		ax25_destroy_socket(ax25);
+ 	}
 +	if (ax25_dev) {
 +		dev_put(ax25_dev->dev);
 +		ax25_dev_put(ax25_dev);
 +	}
  
- 	if (sk->sk_type == SOCK_SEQPACKET) {
- 		switch (ax25->state) {
+ 	sock->sk   = NULL;
+ 	release_sock(sk);
 -- 
 2.25.1
 
