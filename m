@@ -2,65 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1465850332D
-	for <lists+stable@lfdr.de>; Sat, 16 Apr 2022 07:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 485EB50333B
+	for <lists+stable@lfdr.de>; Sat, 16 Apr 2022 07:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229437AbiDPCHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Apr 2022 22:07:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37026 "EHLO
+        id S229986AbiDPE20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Apr 2022 00:28:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229661AbiDPCGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Apr 2022 22:06:09 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD54E17;
-        Fri, 15 Apr 2022 19:00:05 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id q12so9258914pgj.13;
-        Fri, 15 Apr 2022 19:00:05 -0700 (PDT)
+        with ESMTP id S229997AbiDPE2Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 16 Apr 2022 00:28:24 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C915C26ACF
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 21:25:53 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id md20-20020a17090b23d400b001cb70ef790dso13123605pjb.5
+        for <stable@vger.kernel.org>; Fri, 15 Apr 2022 21:25:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8XEJp2R4K25ZYHNS7d51S7Y7FdMSq6LIaDwY2H8Jjr4=;
-        b=kQsKyrkT1DWICrd0ptnoiBSDY/8mwSomsBEmcNT+vOSVEupMSVa7wDQ1ZaII+k1i0h
-         gm0IbwRP6+tleoe51hK5sIbdaPDAvC6YyKupthbkj5YlKMp7iLJEREukF38JQEVPtmgb
-         C7LBkXRLChz/Lo40XLkQVfN/GPl7gjcg+tqcnhe0PNVNjcJTViHuHG1iqkTaL8LY/JNZ
-         LOlnRzh+lrxGvmYBtLiA5YbebU0JlWjJjiVqaI1Fax6atGQ6v5FmA/0xqUzOpbyU/oYG
-         royS+qDvPJc0ctoWHF4tpf+bBkuVUh4d197rd+TrfLvMug16FupxYFIgCH3cQHx3+O/R
-         ulJw==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=fwjZWUK23SDc9f6Fzho9lbrW12rtjQaU86s3X7g7WA8=;
+        b=F34psi04KzHnYMusfXO0+Sf3dJ+pbADOBfrHzkAjvESdbhKsZSm2ygbl4eJ8nzig2M
+         6I4LRslXFzO0BGeOnKyUp9HRJeF5QPCuHXGQNSY4rw5MVk8II4OdX1w478l05XQxHCaj
+         ltrcULTumO2g2mcppqt0GiQ9OCt++92abzFh4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8XEJp2R4K25ZYHNS7d51S7Y7FdMSq6LIaDwY2H8Jjr4=;
-        b=m8olP9Z1sSkblglZMrxi9rF4/y7hxozHpE15stoiJyBGZpZgjV6WgXnRAauopnTPiq
-         sELcnO6nSNUc2xv670dw5I9DlwoP+RiFRLzACcAddBRgy2+632XHIiY9ILkQ+w2+WLFY
-         u065JcG9Z+Tt8AOwfhE14FGAeNW39BK51FzvqSRnha7ypAE1gTsn6ld0nq/NgLcnXcZP
-         YRyLIuzdX3cD1QVzcWTfNnLUWePEb+t3Uvn0y2alf+W3dOoiKIqJh8PetyHvuMHnKbU8
-         4htlwKLdzCfL022ZFJFET4L2A+VfFaOiqldkyq/H+bBFcwYj8JZpy82LHHRsDxkmUWa5
-         tT9A==
-X-Gm-Message-State: AOAM533qVpxTEN0zBtdz6BI+CQ5OM+TnwwV8+zYTJotzYRSTTt3+TmvV
-        Axu5jntQbwU2gepH5PsQWs1DO5NcjWc=
-X-Google-Smtp-Source: ABdhPJx+ex28/CxkmPcqU/qGwXQmffQRsGXU8jOdNzZxx9XrSJz0QB9hKwR+mpiU5ton0cWn7TdfxQ==
-X-Received: by 2002:a17:903:11cc:b0:151:71e4:dadc with SMTP id q12-20020a17090311cc00b0015171e4dadcmr1428533plh.78.1650073831037;
-        Fri, 15 Apr 2022 18:50:31 -0700 (PDT)
-Received: from octofox.hsd1.ca.comcast.net ([2601:641:401:1d20:9b6:6aad:72f6:6e16])
-        by smtp.gmail.com with ESMTPSA id d8-20020a056a00198800b004fab740dbe6sm4325957pfl.15.2022.04.15.18.50.29
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=fwjZWUK23SDc9f6Fzho9lbrW12rtjQaU86s3X7g7WA8=;
+        b=eiH9hfjwP7Z1EJZHvgWpg16dd8uyQNAJu1yLlxJG9zzEH8N2JW12si7GoeTi0nvEOP
+         9/EqqORO+4Q3iwku2x3uwQ5WbucBOisHVei5Oh8KCtbOO4hJzZFIx85Cd8734njbjJ0Z
+         dx+i9/CZaZFI8VPGyzcziGLhbA1iiAHZT2owOY062Ipp8QTWM71zgPwCVLJNhrcmg0PM
+         mgFYdGus1pqMz94/GEjuHfnjIW/fdCKp+bV6/ryVolshR2dFKuydhayPz0VrwyIT0GGX
+         6GaEWvvOxTXE7hCUGMTlnJFchbbOWRM3+C5Xme5G4ezpEcIQr6VcoDswjuNBNZ5E7aPx
+         KdHQ==
+X-Gm-Message-State: AOAM5305da+QVpC4cq6opyg/D+ss7sZxb08zUVEaP/Sw6QtVxVTly76O
+        JM3U84grmCnhu/3LCUjHIHMCEvWGCOdniQ==
+X-Google-Smtp-Source: ABdhPJzuch/i5PtXeUfpilPZbG0Ojdf8xS0zPST9o6TFZXb4i9S7hdqyz7HtmT5xcBIsyArbi7vBqw==
+X-Received: by 2002:a17:90b:4f91:b0:1cd:3a73:3a5d with SMTP id qe17-20020a17090b4f9100b001cd3a733a5dmr2216377pjb.98.1650083153061;
+        Fri, 15 Apr 2022 21:25:53 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id h5-20020a17090a648500b001cd5137217fsm6115627pjj.47.2022.04.15.21.25.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Apr 2022 18:50:30 -0700 (PDT)
-From:   Max Filippov <jcmvbkbc@gmail.com>
-To:     linux-xtensa@linux-xtensa.org
-Cc:     Chris Zankel <chris@zankel.net>, linux-kernel@vger.kernel.org,
-        Max Filippov <jcmvbkbc@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] xtensa: fix a7 clobbering in coprocessor context load/store
-Date:   Fri, 15 Apr 2022 18:50:18 -0700
-Message-Id: <20220416015018.2025282-1-jcmvbkbc@gmail.com>
-X-Mailer: git-send-email 2.30.2
+        Fri, 15 Apr 2022 21:25:52 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     palmer@dabbelt.com, Al Viro <viro@zeniv.linux.org.uk>,
+        ebiederm@xmission.com, paul.walmsley@sifive.com,
+        aou@eecs.berkeley.edu, niklas.cassel@wdc.com
+Cc:     Kees Cook <keescook@chromium.org>, linux-fsdevel@vger.kernel.org,
+        vapier@gentoo.org, gerg@linux-m68k.org, linux-mm@kvack.org,
+        stable@vger.kernel.org, damien.lemoal@opensource.wdc.com,
+        linux-riscv@lists.infradead.org
+Subject: Re: [PATCH v2] binfmt_flat: do not stop relocating GOT entries prematurely on riscv
+Date:   Fri, 15 Apr 2022 21:25:07 -0700
+Message-Id: <165008310452.2715005.9013061971753495821.b4-ty@chromium.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220414091018.896737-1-niklas.cassel@wdc.com>
+References: <20220414091018.896737-1-niklas.cassel@wdc.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        FROM_LOCAL_NOVOWEL,HK_RANDOM_ENVFROM,HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,41 +71,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fast coprocessor exception handler saves a3..a6, but coprocessor context
-load/store code uses a4..a7 as temporaries, potentially clobbering a7.
-'Potentially' because coprocessor state load/store macros may not use
-all four temporary registers (and neither FPU nor HiFi macros do).
-Use a3..a6 as intended.
+On Thu, 14 Apr 2022 11:10:18 +0200, Niklas Cassel wrote:
+> bFLT binaries are usually created using elf2flt.
+> 
+> The linker script used by elf2flt has defined the .data section like the
+> following for the last 19 years:
+> 
+> .data : {
+> 	_sdata = . ;
+> 	__data_start = . ;
+> 	data_start = . ;
+> 	*(.got.plt)
+> 	*(.got)
+> 	FILL(0) ;
+> 	. = ALIGN(0x20) ;
+> 	LONG(-1)
+> 	. = ALIGN(0x20) ;
+> 	...
+> }
+> 
+> [...]
 
-Cc: stable@vger.kernel.org
-Fixes: c658eac628aa ("[XTENSA] Add support for configurable registers and coprocessors")
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
----
- arch/xtensa/kernel/coprocessor.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Applied to for-next/execve, thanks!
 
-diff --git a/arch/xtensa/kernel/coprocessor.S b/arch/xtensa/kernel/coprocessor.S
-index 45cc0ae0af6f..c7b9f12896f2 100644
---- a/arch/xtensa/kernel/coprocessor.S
-+++ b/arch/xtensa/kernel/coprocessor.S
-@@ -29,7 +29,7 @@
- 	.if XTENSA_HAVE_COPROCESSOR(x);					\
- 		.align 4;						\
- 	.Lsave_cp_regs_cp##x:						\
--		xchal_cp##x##_store a2 a4 a5 a6 a7;			\
-+		xchal_cp##x##_store a2 a3 a4 a5 a6;			\
- 		jx	a0;						\
- 	.endif
- 
-@@ -46,7 +46,7 @@
- 	.if XTENSA_HAVE_COPROCESSOR(x);					\
- 		.align 4;						\
- 	.Lload_cp_regs_cp##x:						\
--		xchal_cp##x##_load a2 a4 a5 a6 a7;			\
-+		xchal_cp##x##_load a2 a3 a4 a5 a6;			\
- 		jx	a0;						\
- 	.endif
- 
+[1/1] binfmt_flat: do not stop relocating GOT entries prematurely on riscv
+      https://git.kernel.org/kees/c/a767e6fd68d2
+
 -- 
-2.30.2
+Kees Cook
 
