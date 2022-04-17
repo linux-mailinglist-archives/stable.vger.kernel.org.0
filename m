@@ -2,112 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C70350478B
-	for <lists+stable@lfdr.de>; Sun, 17 Apr 2022 12:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78CF25047B5
+	for <lists+stable@lfdr.de>; Sun, 17 Apr 2022 14:17:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233052AbiDQKUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Apr 2022 06:20:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
+        id S234027AbiDQMTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Apr 2022 08:19:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232241AbiDQKUw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Apr 2022 06:20:52 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE2826102
-        for <stable@vger.kernel.org>; Sun, 17 Apr 2022 03:18:17 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id b21so20372803lfb.5
-        for <stable@vger.kernel.org>; Sun, 17 Apr 2022 03:18:16 -0700 (PDT)
+        with ESMTP id S234026AbiDQMTo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Apr 2022 08:19:44 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C082314;
+        Sun, 17 Apr 2022 05:17:09 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id ck12so1185527ejb.4;
+        Sun, 17 Apr 2022 05:17:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=z+v8ugHyK4Bi1bsAOtuex5rzJWIULuLfF++ZnJg6JJs=;
-        b=DwODqr4TUbOJQSpkZJekGRmfBBzQs/STdpLc0XJSqZk21MhTESl4oLrVJ+ZS/h+9NB
-         OIaH//U+xjsQ3TO5Igc+95qeuf8aI3q7SQMqIuts8s9FsFpBoQOfaZHECO3ODiwQ3c7t
-         dPH6Nd3nJH3/4tneb2KkOFo9tG9PGYKpcp3FC0u+n3owgSvj+H9aA9c1b37jTP08xWNH
-         003W+9Hv0euAo06SKyCnpanyf5BKg6skb6lPpUbC4VrXag0efwCReHcyI+Q6vxo+QOnC
-         P5SQSGJodoKOxooUfnDNKa0Ja6rEk97BUrzngqCao3mfWMhJHmth70a4vzFtiSRdYrYN
-         uxAQ==
+        h=message-id:date:mime-version:user-agent:to:cc:references:subject
+         :content-language:from:in-reply-to:content-transfer-encoding;
+        bh=4AWzMkn2REJdxzoBq8sd8O7Q8q12XiYN49koYpewt9c=;
+        b=iexMTYj3Hrug4YHuzpVDDhxhxuJUn+FHke1lHNEUBr0bvaM3tl/UxQbYtBQbT8F7q7
+         BdU+tVyzAENMkP032YHgGhgy21L+xok792Ee+NFlOsIfBFr8Zms5vUs9DNZQpmRAl0t/
+         TfjMRbQq3uVd5WjkVQDlnNxTrTzg3seXavSaTb3Y1eW2SjfoMNUpD3WGukH3tz3OATsS
+         Ij7Ivgn2lu5kp3oumOHFNm00XrAEj1LYXY3J+Y+McbmRLkxmZvbFZNvlHYr3gxOgsOKW
+         +ylj/tbV+bltc1wRFBWm/71Ofm7S1AWEDw1zFtj/sjI/TofuZ1PUWiEDfYHj7J0vjmjy
+         qmhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=z+v8ugHyK4Bi1bsAOtuex5rzJWIULuLfF++ZnJg6JJs=;
-        b=EwqWuhp7ldiwLu6EmOoxlzvpdwqCrXqIDTkPxaicoTwvvIL1DgY2A3JNvQ0Ou5RU2j
-         TI7pJy7ItyOLkOoQbdrzx++hdRmK/caLCueRevUNlWKd4CBj8nBohBxaA4/xdC6uS98e
-         ft/cBKhcopAZsxZEtaY0d0jgmyO+R7S6sYip3/G/MAfwcyLOpcpSNv6PIHSpQhx5XGw+
-         tcLElzgjHJQXBWReaXTFA32i055IpeupLZQxIjPbjxdc+A7N/n7RQkaxt5nJ1ZpxmD1e
-         agnjTPgR33a65LfgENOHUHn8rY0YH1BK1AnA8WnA5tFuDs1NjL9k/sZSJT4f96+GHE/v
-         Bbnw==
-X-Gm-Message-State: AOAM533DdHxFmtEJlVW06mWYkrP9b8qkQrNEp06GDx2Qj4vfC3DgJXeZ
-        F+cKcH03jwLt/+EItqBhjMbgiDgFl6bPXrIWBdQ=
-X-Google-Smtp-Source: ABdhPJzAp/I+fUKgEOdKrHYkT9GhNGT1erJ0YZEWcVeUKTKGNId8isWRqp5YGDQvw6txRxECzzz/CuCjQvzDEhw6yrU=
-X-Received: by 2002:a05:6512:3d09:b0:470:e0b0:cf70 with SMTP id
- d9-20020a0565123d0900b00470e0b0cf70mr3220030lfv.146.1650190695305; Sun, 17
- Apr 2022 03:18:15 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:to:cc
+         :references:subject:content-language:from:in-reply-to
+         :content-transfer-encoding;
+        bh=4AWzMkn2REJdxzoBq8sd8O7Q8q12XiYN49koYpewt9c=;
+        b=POVKzzSnAIK7FcR1IXTKfUQjex6a/DkgRRvBRO9Yazrf8ZItxTTkto0OBIMexICxTN
+         6y7TD5E//DLaYXaTO2nNEIsYPIDt6gyJIAwEkEuLxqppNgFy5IckikF3QhwuXpRaEjsx
+         Jt+j39YKR/tS7BZWfPoDz06DhC6dLdAuN6AjyQEVQOMoEqAqQBxbO6FJSTDTE3gu8dO/
+         1xHJLyeX7nJJNP3H6MAgVvA29PpbY/atsXMhHruKNlTbi3hbJZvIRXdmN4p/OQNETpLu
+         xrVNFdXR6j4HJYR5LXENUeh55Vl6ldm7Oy4BB1mGtbERCkEMCP3asnmu1RrfcKlyhyk/
+         VHgQ==
+X-Gm-Message-State: AOAM530RQT5YDF1iCHioPOpN23Reesj8QlDyiAGQCQxDBGIk1mC9iCXV
+        Zwxq6XszqSXFKqtc+NrfKHg=
+X-Google-Smtp-Source: ABdhPJx5tgmeQ8i9GZOmuTQvKSoK1/5kLvvROaCFuHdZoGEDAdpwkzmBXe8UsRVfCw0Ub5tUeyJ3Lg==
+X-Received: by 2002:a17:907:97d3:b0:6ef:6af8:7352 with SMTP id js19-20020a17090797d300b006ef6af87352mr1906059ejc.29.1650197827886;
+        Sun, 17 Apr 2022 05:17:07 -0700 (PDT)
+Received: from [192.168.1.84] (host-79-32-251-169.retail.telecomitalia.it. [79.32.251.169])
+        by smtp.gmail.com with ESMTPSA id g24-20020a056402321800b00423e43ebb60sm514743eda.61.2022.04.17.05.17.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 17 Apr 2022 05:17:07 -0700 (PDT)
+Message-ID: <4ded2708-aba6-ffb2-f787-7c78f9d12a11@gmail.com>
+Date:   Sun, 17 Apr 2022 14:17:05 +0200
 MIME-Version: 1.0
-Received: by 2002:ab3:730a:0:0:0:0:0 with HTTP; Sun, 17 Apr 2022 03:18:14
- -0700 (PDT)
-Reply-To: markwillima00@gmail.com
-From:   Mark <nnannacollins2019@gmail.com>
-Date:   Sun, 17 Apr 2022 03:18:14 -0700
-Message-ID: <CAPQqOC1E5z0Tk3Lx8voyb=0pMA3PH2Bd=ZcV5TWWMsMQjVYdGg@mail.gmail.com>
-Subject: Re: Greetings!
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+To:     mario.limonciello@amd.com
+Cc:     Basavaraj.Natikar@amd.com, Richard.Gong@amd.com,
+        andy.shevchenko@gmail.com, brgl@bgdev.pl, linus.walleij@linaro.org,
+        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        shreeya.patel@collabora.com, stable@vger.kernel.org
+References: <20220414025705.598-1-mario.limonciello@amd.com>
+Subject: Re: [PATCH] gpio: Request interrupts after IRQ is initialized
+Content-Language: en-US
+From:   luke <lukeluk498@gmail.com>
+In-Reply-To: <20220414025705.598-1-mario.limonciello@amd.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:142 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [nnannacollins2019[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [markwillima00[at]gmail.com]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [nnannacollins2019[at]gmail.com]
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SCC_BODY_URI_ONLY,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Tested-By: lukeluk498@gmail.com Link: 
+https://gitlab.freedesktop.org/drm/amd/-/issues/1976
 
-The HSBC Bank is a financial institution in United Kingdom. We
-promotes long-term,sustainable and broad-based economic growth in
-developing and emerging countries by providing financial support like
-loans and investment to large, small and
-medium-sized companies (SMEs) as well as fast-growing enterprises
-which in turn helps to create secure and permanent jobs and reduce
-poverty.
-
-If you need fund to promotes your business, project(Project Funding),
-Loan, planning, budgeting and expansion of your business(s) , do not
-hesitate to indicate your interest as we are here to serve you better
-by granting your request.
-
-
-Thank you
-Mr:Mark
