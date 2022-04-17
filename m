@@ -2,101 +2,245 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8A350495C
-	for <lists+stable@lfdr.de>; Sun, 17 Apr 2022 22:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70146504961
+	for <lists+stable@lfdr.de>; Sun, 17 Apr 2022 22:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234925AbiDQUDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Apr 2022 16:03:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33068 "EHLO
+        id S234937AbiDQUJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 17 Apr 2022 16:09:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234937AbiDQUDk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Apr 2022 16:03:40 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44351170;
-        Sun, 17 Apr 2022 13:01:02 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id u15so23752513ejf.11;
-        Sun, 17 Apr 2022 13:01:02 -0700 (PDT)
+        with ESMTP id S234954AbiDQUJ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 17 Apr 2022 16:09:27 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14175CFC
+        for <stable@vger.kernel.org>; Sun, 17 Apr 2022 13:06:50 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id t12so10884514pll.7
+        for <stable@vger.kernel.org>; Sun, 17 Apr 2022 13:06:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:from:mime-version:content-transfer-encoding
-         :content-description:subject:to:date:reply-to;
-        bh=eay0EUYLiuox0vdGN4o3I8zJaDIt6G96vlIeYyTE7ck=;
-        b=dC6qUspPjw5tWdVPOtykjQ8Wdc9Mst+wRO3PfuDY7u2WB3/qktQe59YVeiw0rQfwOQ
-         QIM6BDppKjX2onelnB0ZsAMnVykdPXl/CMciwYgHmlBHBdiZTq3kHqc+0iKRF37TS4L5
-         Je3AxPD+EH5AZhGvndCR3InU+YQ2+MoZVKTr3cGmJ8NM3X0jcFRQ0QSm3ROorQhziOw4
-         5SzslT2m2N5fjbD7ELJmcOFmO9RQd7c/aIBPCuU9alcAtPYH1wY75srf+g0/LOVo0G4m
-         6mmVjowR24CXMoeUddT13+9CO+7MUnCEiCcFtx5X3OOHuXBGBDG+RaQu3C0Ii6DAuVJM
-         9Rbw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TeAf8U1S0iEVRZc5BoFRS4h09RnNrlj+mCH5RdGg7iE=;
+        b=yXMv6H1kmMqGhv7RmhP54/uXbwQnYKhkpZWvS/ZE8ImspsEWAw0/cv6agzikAa2mMX
+         nolrLRdiGu9MbxQPPkL3eV8NS0mav0V6KSmADR+60fTOBxqJGAMSEzNIBFKQB0eQT7M1
+         VUhUnIFZDCsnJgCdpRG7w3JMCNo8DQMrowSwmHXlok3UJDImOIU2H+qGg0Intx0Bger2
+         tLOgImGEHxA4aCfPEeyWjBq0pe/YVBSNf6saP/F+Nx9M2369ToHiorDF6WknWp6Y1/kR
+         Jju9PMmqO1YuvJSyB6yfea+NRUD4BA9ep13qTI+8RVbmORGFBGw0xuAuX/Fpg1X1Wh/m
+         TUzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:from:mime-version
-         :content-transfer-encoding:content-description:subject:to:date
-         :reply-to;
-        bh=eay0EUYLiuox0vdGN4o3I8zJaDIt6G96vlIeYyTE7ck=;
-        b=0d1IBN+Nu0net71zTreJ9VKd3flMMbMgZE2l8Mc4vhLiFxprecczecn1Pjj3Jmksv0
-         8X5oq2pq+nTZrSv+UPO2If2sM6C6sXPmdPXhQ+2Bia3l6rMLyDD5evGavBKUOIckMXsr
-         Rmz2a33QBDdkwRaPEH6fU0fi4ketfbLkIzCnv7M1pnSKfMlDp6r/5QP4bY/seS8dQHld
-         Pvl1+Mj/2SaMjNYI+qg7zvtXcmXRSv6YJCY9aTN7JtBjzWbLj8NZqbVKsLpVzRmicWMt
-         teXDnn+QyDtJhKD5jtFvhAVPgXy0g3f5ymxcop/VQsbRXe04ZRnRfmE/i8C7tIXwzVMq
-         X8/Q==
-X-Gm-Message-State: AOAM532I9iYUJIm5aD558CL66O+CuL8/2zUvUspwoObsYGFPDCiAQ0M2
-        Wjtd2Vbtr/G/9x2kW2YJnHk=
-X-Google-Smtp-Source: ABdhPJwnhIUn+CtONHayEHvicQLj0Kbx4xYB5A4yDc6V4LQQPUbxVcWNSKDTvTkh30UA85Eny9zdsw==
-X-Received: by 2002:a17:906:e18:b0:6e8:69c2:528c with SMTP id l24-20020a1709060e1800b006e869c2528cmr6442403eji.439.1650225661348;
-        Sun, 17 Apr 2022 13:01:01 -0700 (PDT)
-Received: from [192.168.144.19] (mob-5-90-199-215.net.vodafone.it. [5.90.199.215])
-        by smtp.gmail.com with ESMTPSA id k15-20020aa7c04f000000b004229daeaf37sm4010853edo.40.2022.04.17.13.00.54
-        (version=TLS1 cipher=AES128-SHA bits=128/128);
-        Sun, 17 Apr 2022 13:01:01 -0700 (PDT)
-Message-ID: <625c71fd.1c69fb81.68fae.3a73@mx.google.com>
-From:   limburgmauro@gmail.com
-X-Google-Original-From: rolandohanger@gmail.com
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TeAf8U1S0iEVRZc5BoFRS4h09RnNrlj+mCH5RdGg7iE=;
+        b=tUN8hDZQNCE4FP/QnH65BVyqiBNL4/p4jNpeRsoYaDjMt/LN9rkga4enaxK8175iwa
+         gqlPnqiWw106oVJWwC5GjBb7HeVaqgnVh4zWCAmaPbvun6bcOaLdiMhnwQm+ESSD0eHa
+         N24gGtGjGjkWue43t3QXJs4VcMgAu/bD0X69Q3uMcL9Fj2JM305PKpVoE7cHDYBkm9sk
+         fgeRZyCVywjVVv7B03DEV7SW/FW21Pd+Xb4wrAqdWKvQqbBp/DjcS+SLBDnZHcZSAXl6
+         vN3uwcZOO8MlIFAgsb9XKMo2g8qfmrBILvzOajsFRuoahWQkJFK7Hd7ZnwCKiOVgchsH
+         9Lxw==
+X-Gm-Message-State: AOAM531yNOa/7ulP9RyWoU0GwcerSStFAKL4P0Kv24eUIHqo4hetPlSY
+        PKoOPqodEF+eymEoLjg5Vc+HcudWyH+AeDc4
+X-Google-Smtp-Source: ABdhPJwtDLxQS7huJ40ROt+4ip0ENIQMayKoXM6TUmbGq5LCqx8aVXfTJCNk9spUCg6+aDQl7k17Fw==
+X-Received: by 2002:a17:902:b60a:b0:158:9543:70ab with SMTP id b10-20020a170902b60a00b00158954370abmr7803957pls.82.1650226009386;
+        Sun, 17 Apr 2022 13:06:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id v16-20020aa78090000000b0050583cb0adbsm9381504pff.196.2022.04.17.13.06.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 17 Apr 2022 13:06:49 -0700 (PDT)
+Message-ID: <625c7359.1c69fb81.8f0f3.681b@mx.google.com>
+Date:   Sun, 17 Apr 2022 13:06:49 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: GOOD MORNING 
-To:     Recipients <rolandohanger@gmail.com>
-Date:   Sun, 17 Apr 2022 22:00:53 +0200
-Reply-To: richardwahl01011@gmail.com
-X-Antivirus: Avast (VPS 220417-10, 17/4/2022), Outbound message
-X-Antivirus-Status: Clean
-X-Spam-Status: No, score=3.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,REPTO_419_FRAUD_GM_LOOSE,
-        SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ***
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.189
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.4.y baseline: 108 runs, 4 regressions (v5.4.189)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good day,
-   
+stable-rc/linux-5.4.y baseline: 108 runs, 4 regressions (v5.4.189)
+
+Regressions Summary
+-------------------
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+hifive-unleashed-a00     | riscv | lab-baylibre  | gcc-10   | defconfig    =
+              | 1          =
+
+qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
+64-chromebook | 1          =
 
 
-I am Mr. Richard Wahl, you have a Donation of  =E2=82=AC1,200,000.00 . I wo=
-n a fortune in the Power-ball lottery and i am donating part of it to Ten L=
-ucky people and Ten Charity organization. Your email came out victorious so=
- Reply me urgently for more information via email   richardwahl01011@gmail.=
-com
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.189/plan/baseline/
 
-Sincerely,
-Mr. Richard Wahl
-=2E..............................................................
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.189
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e7f5213d755bc34f366d36f08825c0b446117d96 =
 
-Ich bin Herr Richard Wahl, Sie haben eine Spende in H=C3=B6he von 1.200.000=
-,00 =E2=82=AC. Ich habe ein Verm=C3=B6gen in der Power-Ball-Lotterie gewonn=
-en und spende einen Teil davon an Ten Lucky People und die Ten Charity-Orga=
-nisation. Ihre E-Mail war erfolgreich, also antworten Sie mir dringend f=C3=
-=BCr weitere Informationen per E-Mail richardwahl01011@gmail.com
 
-Aufrichtig,
-Herr Richard Wahl
 
--- 
-This email has been checked for viruses by Avast antivirus software.
-https://www.avast.com/antivirus
+Test Regressions
+---------------- =
 
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+hifive-unleashed-a00     | riscv | lab-baylibre  | gcc-10   | defconfig    =
+              | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625c3f20d771bf0645ae067c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (riscv64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.189=
+/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleashed-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.189=
+/riscv/defconfig/gcc-10/lab-baylibre/baseline-hifive-unleashed-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/riscv/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625c3f20d771bf0645ae0=
+67d
+        failing since 10 days (last pass: v5.4.188-371-g48b29a8f8ae0, first=
+ fail: v5.4.188-368-ga24be10a1a9ef) =
+
+ =
+
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+qemu_arm-virt-gicv2-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625c4345ccc444107cae067c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.189=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
+fi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.189=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv2-ue=
+fi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625c4345ccc444107cae0=
+67d
+        failing since 122 days (last pass: v5.4.165, first fail: v5.4.165-1=
+9-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+qemu_arm-virt-gicv3-uefi | arm   | lab-baylibre  | gcc-10   | multi_v7_defc=
+onfig         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625c43212c0aba2e6eae06d3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.189=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
+fi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.189=
+/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_arm-virt-gicv3-ue=
+fi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625c43212c0aba2e6eae0=
+6d4
+        failing since 122 days (last pass: v5.4.165, first fail: v5.4.165-1=
+9-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch  | lab           | compiler | defconfig    =
+              | regressions
+-------------------------+-------+---------------+----------+--------------=
+--------------+------------
+rk3399-gru-kevin         | arm64 | lab-collabora | gcc-10   | defconfig+arm=
+64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625c415d94c96ee98fae068a
+
+  Results:     88 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.189=
+/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
+kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.189=
+/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-=
+kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/625c415d94c96ee98fae06ac
+        failing since 42 days (last pass: v5.4.181-51-gb77a12b8d613, first =
+fail: v5.4.182-54-gf27af6bf3c32)
+
+    2022-04-17T16:33:13.765565  /lava-6110772/1/../bin/lava-test-case
+    2022-04-17T16:33:13.774073  <8>[   31.403209] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
