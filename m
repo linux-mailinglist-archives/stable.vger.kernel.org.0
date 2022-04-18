@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54914505469
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14C7D50543E
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240844AbiDRNHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:07:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41108 "EHLO
+        id S241201AbiDRNFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:05:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240964AbiDRNFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83A0E340CF;
-        Mon, 18 Apr 2022 05:45:52 -0700 (PDT)
+        with ESMTP id S238792AbiDRNDe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE9F62E7;
+        Mon, 18 Apr 2022 05:44:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2273B6101A;
-        Mon, 18 Apr 2022 12:45:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B3A0C385A7;
-        Mon, 18 Apr 2022 12:45:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE700611E4;
+        Mon, 18 Apr 2022 12:44:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09811C385A1;
+        Mon, 18 Apr 2022 12:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285951;
-        bh=pJ2M5/+qEwvfUYmQmLNTCFIGmh9gFKayrlgbg4eF8lo=;
+        s=korg; t=1650285896;
+        bh=4t+GxwbZUYIHcVXu+SdU9OHfL9PQT/NKdgNLyhswu+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tegn9rZei41rXMEGFzs9DSo0y4fYGSyVbR5o0i0oUFRk6VewVQCQIDt0H4MQrGgzh
-         TjVxpG4vMjqbfHYWS5KZ8MxmLd56KWfj9ulXaHSQBBTgqlCRHGH3aVT4RqOBg+ZjeN
-         YS+lap8FgK4XJlfVEzuvKEVeIx/kUNIqA2zVx48s=
+        b=xbVWgp8UpOQ9oWO42c7hbXZOwGlXamGb12eQby3BT5ohG5N0cJwL/yf9FFluXtYcD
+         wIKRF0C67oCHKe737OUv4KjbR0u8+cy3pWIDdyDUP1hiLWOa8NcCePp2B5s5L4ni4y
+         0coDn3F+JFbMuURDaJdGzj5YKCLh9AiBL1Cx2y8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/32] scsi: ibmvscsis: Increase INITIAL_SRP_LIMIT to 1024
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 58/63] ax25: fix UAF bugs of net_device caused by rebinding operation
 Date:   Mon, 18 Apr 2022 14:13:55 +0200
-Message-Id: <20220418121127.572901104@linuxfoundation.org>
+Message-Id: <20220418121138.047689464@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
-References: <20220418121127.127656835@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 0bade8e53279157c7cc9dd95d573b7e82223d78a ]
+commit feef318c855a361a1eccd880f33e88c460eb63b4 upstream.
 
-The adapter request_limit is hardcoded to be INITIAL_SRP_LIMIT which is
-currently an arbitrary value of 800. Increase this value to 1024 which
-better matches the characteristics of the typical IBMi Initiator that
-supports 32 LUNs and a queue depth of 32.
+The ax25_kill_by_device() will set s->ax25_dev = NULL and
+call ax25_disconnect() to change states of ax25_cb and
+sock, if we call ax25_bind() before ax25_kill_by_device().
 
-This change also has the secondary benefit of being a power of two as
-required by the kfifo API. Since, Commit ab9bb6318b09 ("Partially revert
-"kfifo: fix kfifo_alloc() and kfifo_init()"") the size of IU pool for each
-target has been rounded down to 512 when attempting to kfifo_init() those
-pools with the current request_limit size of 800.
+However, if we call ax25_bind() again between the window of
+ax25_kill_by_device() and ax25_dev_device_down(), the values
+and states changed by ax25_kill_by_device() will be reassigned.
 
-Link: https://lore.kernel.org/r/20220322194443.678433-1-tyreld@linux.ibm.com
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Finally, ax25_dev_device_down() will deallocate net_device.
+If we dereference net_device in syscall functions such as
+ax25_release(), ax25_sendmsg(), ax25_getsockopt(), ax25_getname()
+and ax25_info_show(), a UAF bug will occur.
+
+One of the possible race conditions is shown below:
+
+      (USE)                   |      (FREE)
+ax25_bind()                   |
+                              |  ax25_kill_by_device()
+ax25_bind()                   |
+ax25_connect()                |    ...
+                              |  ax25_dev_device_down()
+                              |    ...
+                              |    dev_put_track(dev, ...) //FREE
+ax25_release()                |    ...
+  ax25_send_control()         |
+    alloc_skb()      //USE    |
+
+the corresponding fail log is shown below:
+===============================================================
+BUG: KASAN: use-after-free in ax25_send_control+0x43/0x210
+...
+Call Trace:
+  ...
+  ax25_send_control+0x43/0x210
+  ax25_release+0x2db/0x3b0
+  __sock_release+0x6d/0x120
+  sock_close+0xf/0x20
+  __fput+0x11f/0x420
+  ...
+Allocated by task 1283:
+  ...
+  __kasan_kmalloc+0x81/0xa0
+  alloc_netdev_mqs+0x5a/0x680
+  mkiss_open+0x6c/0x380
+  tty_ldisc_open+0x55/0x90
+  ...
+Freed by task 1969:
+  ...
+  kfree+0xa3/0x2c0
+  device_release+0x54/0xe0
+  kobject_put+0xa5/0x120
+  tty_ldisc_kill+0x3e/0x80
+  ...
+
+In order to fix these UAF bugs caused by rebinding operation,
+this patch adds dev_hold_track() into ax25_bind() and
+corresponding dev_put_track() into ax25_kill_by_device().
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: backport to 5.4: adjust dev_put_track()->dev_put() and
+dev_hold_track()->dev_hold()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ax25/af_ax25.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-index f42a619198c4..79bc6c3bfa6e 100644
---- a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-+++ b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-@@ -44,7 +44,7 @@
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -98,6 +98,7 @@ again:
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
+ 			s->ax25_dev = NULL;
++			dev_put(ax25_dev->dev);
+ 			ax25_dev_put(ax25_dev);
+ 			release_sock(sk);
+ 			ax25_disconnect(s, ENETUNREACH);
+@@ -1122,8 +1123,10 @@ static int ax25_bind(struct socket *sock
+ 		}
+ 	}
  
- #define IBMVSCSIS_VERSION	"v0.2"
+-	if (ax25_dev != NULL)
++	if (ax25_dev) {
+ 		ax25_fillin_cb(ax25, ax25_dev);
++		dev_hold(ax25_dev->dev);
++	}
  
--#define	INITIAL_SRP_LIMIT	800
-+#define	INITIAL_SRP_LIMIT	1024
- #define	DEFAULT_MAX_SECTORS	256
- #define MAX_TXU			1024 * 1024
- 
--- 
-2.35.1
-
+ done:
+ 	ax25_cb_add(ax25);
 
 
