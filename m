@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7C6505435
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70FF8505732
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240638AbiDRNEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41140 "EHLO
+        id S242619AbiDRNqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:46:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241826AbiDRNDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C24B33EB1;
-        Mon, 18 Apr 2022 05:44:39 -0700 (PDT)
+        with ESMTP id S244507AbiDRNog (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:44:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D6842A3B;
+        Mon, 18 Apr 2022 06:00:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D961C6124B;
-        Mon, 18 Apr 2022 12:44:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E426CC385A1;
-        Mon, 18 Apr 2022 12:44:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7841EB80E59;
+        Mon, 18 Apr 2022 13:00:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6016C385A8;
+        Mon, 18 Apr 2022 13:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285878;
-        bh=Y+wvMQmBYMXimVlEy/JTM10FdVRp4VVo24cbL45XkYg=;
+        s=korg; t=1650286803;
+        bh=Vz9F1VXHEvKAznuSrFypgDgfV5pLlBGpncol3CcvjBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0FkQHjchSbsBagkLzD+6pwNrr7CB4mub+L2/0RimtrITc5S3pCrUoraVhaPk53B4n
-         K6DkJnV4m6DiIvKU65jT5dioc9wDJDJzF0g7VA9YyTSwuHpM9RUPrZMgbbN2Ng8UP3
-         u75szJ9+cpKTOMea+ruP/90Oi7cixzz2OwtK5mWM=
+        b=yxR9sMegvSPoQIwRN/ByOSru0xkTOd/kRearDTR4J44opI5dJgZS2+j4VGUx2Gy9W
+         FQu/uCj4D4CMdBZoFsSKWwl39WNjhR1gwPHmg/+HuLIS18yYrHZ1mxvDRP7X44Ga0s
+         +NOX26u9u6TgP7XmXbVQ34ftVqHnyOUhwrw9wP5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.4 53/63] smp: Fix offline cpu check in flush_smp_call_function_queue()
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Ethan Lien <ethanlien@synology.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 249/284] btrfs: fix qgroup reserve overflow the qgroup limit
 Date:   Mon, 18 Apr 2022 14:13:50 +0200
-Message-Id: <20220418121137.744444333@linuxfoundation.org>
+Message-Id: <20220418121219.284904302@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Ethan Lien <ethanlien@synology.com>
 
-commit 9e949a3886356fe9112c6f6f34a6e23d1d35407f upstream.
+commit b642b52d0b50f4d398cb4293f64992d0eed2e2ce upstream.
 
-The check in flush_smp_call_function_queue() for callbacks that are sent
-to offline CPUs currently checks whether the queue is empty.
+We use extent_changeset->bytes_changed in qgroup_reserve_data() to record
+how many bytes we set for EXTENT_QGROUP_RESERVED state. Currently the
+bytes_changed is set as "unsigned int", and it will overflow if we try to
+fallocate a range larger than 4GiB. The result is we reserve less bytes
+and eventually break the qgroup limit.
 
-However, flush_smp_call_function_queue() has just deleted all the
-callbacks from the queue and moved all the entries into a local list.
-This checks would only be positive if some callbacks were added in the
-short time after llist_del_all() was called. This does not seem to be
-the intention of this check.
+Unlike regular buffered/direct write, which we use one changeset for
+each ordered extent, which can never be larger than 256M.  For
+fallocate, we use one changeset for the whole range, thus it no longer
+respects the 256M per extent limit, and caused the problem.
 
-Change the check to look at the local list to which the entries were
-moved instead of the queue from which all the callbacks were just
-removed.
+The following example test script reproduces the problem:
 
-Fixes: 8d056c48e4862 ("CPU hotplug, smp: flush any pending IPI callbacks before CPU offline")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20220319072015.1495036-1-namit@vmware.com
+  $ cat qgroup-overflow.sh
+  #!/bin/bash
+
+  DEV=/dev/sdj
+  MNT=/mnt/sdj
+
+  mkfs.btrfs -f $DEV
+  mount $DEV $MNT
+
+  # Set qgroup limit to 2GiB.
+  btrfs quota enable $MNT
+  btrfs qgroup limit 2G $MNT
+
+  # Try to fallocate a 3GiB file. This should fail.
+  echo
+  echo "Try to fallocate a 3GiB file..."
+  fallocate -l 3G $MNT/3G.file
+
+  # Try to fallocate a 5GiB file.
+  echo
+  echo "Try to fallocate a 5GiB file..."
+  fallocate -l 5G $MNT/5G.file
+
+  # See we break the qgroup limit.
+  echo
+  sync
+  btrfs qgroup show -r $MNT
+
+  umount $MNT
+
+When running the test:
+
+  $ ./qgroup-overflow.sh
+  (...)
+
+  Try to fallocate a 3GiB file...
+  fallocate: fallocate failed: Disk quota exceeded
+
+  Try to fallocate a 5GiB file...
+
+  qgroupid         rfer         excl     max_rfer
+  --------         ----         ----     --------
+  0/5           5.00GiB      5.00GiB      2.00GiB
+
+Since we have no control of how bytes_changed is used, it's better to
+set it to u64.
+
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Ethan Lien <ethanlien@synology.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/smp.c |    2 +-
+ fs/btrfs/extent_io.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -222,7 +222,7 @@ static void flush_smp_call_function_queu
+--- a/fs/btrfs/extent_io.h
++++ b/fs/btrfs/extent_io.h
+@@ -210,7 +210,7 @@ struct extent_buffer {
+  */
+ struct extent_changeset {
+ 	/* How many bytes are set/cleared in this operation */
+-	unsigned int bytes_changed;
++	u64 bytes_changed;
  
- 	/* There shouldn't be any pending callbacks on an offline CPU. */
- 	if (unlikely(warn_cpu_offline && !cpu_online(smp_processor_id()) &&
--		     !warned && !llist_empty(head))) {
-+		     !warned && entry != NULL)) {
- 		warned = true;
- 		WARN(1, "IPI on offline CPU %d\n", smp_processor_id());
- 
+ 	/* Changed ranges */
+ 	struct ulist range_changed;
 
 
