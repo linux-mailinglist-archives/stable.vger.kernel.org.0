@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5EA50505F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30585054AA
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238606AbiDRMYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:24:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49166 "EHLO
+        id S242160AbiDRNN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:13:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236400AbiDRMXY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A37921D0CA;
-        Mon, 18 Apr 2022 05:19:00 -0700 (PDT)
+        with ESMTP id S242481AbiDRNJJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:09:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDB235AA4;
+        Mon, 18 Apr 2022 05:48:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B24760F01;
-        Mon, 18 Apr 2022 12:19:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 351FAC385A7;
-        Mon, 18 Apr 2022 12:18:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 850AEB80E4B;
+        Mon, 18 Apr 2022 12:48:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8314C385A1;
+        Mon, 18 Apr 2022 12:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284339;
-        bh=KJhOiG78T1nRHR2+NaULZbtj53RBADErqzhl+13IYrE=;
+        s=korg; t=1650286115;
+        bh=Jbek3RH1Q9L3rOLcqgTTv2pDWqjqTznyGw/Jbp7pOlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lNLVou171h3MWm879Sm4vZDAHm8zvn0OXTY0uQwP6uvlrzo6nLqVFZ/eTDDOBUwkx
-         q4+leukziwYBciwvmPN2Uw6oAG24iZoKkonQc5jwQM14m4hSCgaRqjOa00t0s+w73p
-         4rEl9EXQo33UEwHYKTwrNkUWzWcYZIJnaoyr0Au8=
+        b=LERuLMq1U0dESh9bB591X078hGWT3cMHhtbhWntFIimofEtDGSdLDcfqrWso5FKPb
+         h+GkYTXrrE/FNFTss89r4K2pi1r+VlDhivjKql6TiVQQ52juMtqa/CSluIEbG4nlqI
+         5VJBP0AsavxcRAZqMtiM9K2PwQTDrEdzDLxcQhkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 044/219] ALSA: lola: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 032/284] qed: display VF trust config
 Date:   Mon, 18 Apr 2022 14:10:13 +0200
-Message-Id: <20220418121206.010623072@linuxfoundation.org>
+Message-Id: <20220418121211.608674664@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Manish Chopra <manishc@marvell.com>
 
-commit d04e84b9817c652002f0ee9b42059d41493e9118 upstream.
+commit 4e6e6bec7440b9b76f312f28b1f4e944eebb3abc upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+Driver does support SR-IOV VFs trust configuration but
+it does not display it when queried via ip link utility.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: 098fe3d6e775 ("ALSA: lola: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-30-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: f990c82c385b ("qed*: Add support for ndo_set_vf_trust")
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/lola/lola.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_sriov.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/lola/lola.c
-+++ b/sound/pci/lola/lola.c
-@@ -637,8 +637,8 @@ static int lola_create(struct snd_card *
+--- a/drivers/net/ethernet/qlogic/qed/qed_sriov.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_sriov.c
+@@ -4587,6 +4587,7 @@ static int qed_get_vf_config(struct qed_
+ 	tx_rate = vf_info->tx_rate;
+ 	ivi->max_tx_rate = tx_rate ? tx_rate : link.speed;
+ 	ivi->min_tx_rate = qed_iov_get_vf_min_rate(hwfn, vf_id);
++	ivi->trusted = vf_info->is_trusted_request;
+ 
  	return 0;
  }
- 
--static int lola_probe(struct pci_dev *pci,
--		      const struct pci_device_id *pci_id)
-+static int __lola_probe(struct pci_dev *pci,
-+			const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -687,6 +687,12 @@ static int lola_probe(struct pci_dev *pc
- 	return 0;
- }
- 
-+static int lola_probe(struct pci_dev *pci,
-+		      const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __lola_probe(pci, pci_id));
-+}
-+
- /* PCI IDs */
- static const struct pci_device_id lola_ids[] = {
- 	{ PCI_VDEVICE(DIGIGRAM, 0x0001) },
 
 
