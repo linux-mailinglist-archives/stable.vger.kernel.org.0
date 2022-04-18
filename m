@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 427C350529E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A5685057B0
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237698AbiDRMuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:50:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60574 "EHLO
+        id S244317AbiDRN4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:56:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239768AbiDRMrh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:47:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B841D2A24F;
-        Mon, 18 Apr 2022 05:33:15 -0700 (PDT)
+        with ESMTP id S244155AbiDRNyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:54:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7C7496B1;
+        Mon, 18 Apr 2022 06:04:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4817D61170;
-        Mon, 18 Apr 2022 12:33:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F840C385A7;
-        Mon, 18 Apr 2022 12:33:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24252B80EE4;
+        Mon, 18 Apr 2022 13:04:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E721C385A1;
+        Mon, 18 Apr 2022 13:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285194;
-        bh=i4z+os5u3h4C2r/+ZIZBW6EK61j0wr3aOjEa0iZMvrY=;
+        s=korg; t=1650287066;
+        bh=OpD1BDYPwMtTDZCSK+H85PSOkBIsB6lrv4Odz2brAJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JLUSYTMoOLp+aKHiDWTImuj91O3hKA8MGwUBGVw0R4lbh6bE59qL4H1X67muhZCx3
-         GmeuXfuOoJXMuCwe+ZzEU9vIQgIgEke/+nyX4sK65AuDyu56hbHEaYzqJkf0ilxABC
-         BKb1ZuKRduT3uFhfyQYMrmsABVWFL0WjbtTfD/90=
+        b=by1uzJh3h/htFjVyNCUiDwWczRljnrlCY9nfjw7goP6z9yZsw851/N3hCGfuoJI0e
+         x6YH1H2f38NGm8/3M6TLDrc4v69ZGpsT+P29ayOTeoYqME0bMCTdE5bubCi780jYDJ
+         nRxEkpb8/bjIJW5uCLMQC8JtNvnCbvc/8GAyuwas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/189] ALSA: usb-audio: Increase max buffer size
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        Petr Vorel <pvorel@suse.cz>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 048/218] crypto: vmx - add missing dependencies
 Date:   Mon, 18 Apr 2022 14:11:54 +0200
-Message-Id: <20220418121203.174073547@linuxfoundation.org>
+Message-Id: <20220418121200.984165965@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Petr Vorel <pvorel@suse.cz>
 
-[ Upstream commit fee2ec8cceb33b8886bc5894fb07e0b2e34148af ]
+[ Upstream commit 647d41d3952d726d4ae49e853a9eff68ebad3b3f ]
 
-The current limit of max buffer size 1MB seems too small for modern
-devices with lots of channels and high sample rates.
-Let's make bigger, 4MB.
+vmx-crypto module depends on CRYPTO_AES, CRYPTO_CBC, CRYPTO_CTR or
+CRYPTO_XTS, thus add them.
 
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220407212740.17920-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+These dependencies are likely to be enabled, but if
+CRYPTO_DEV_VMX=y && !CRYPTO_MANAGER_DISABLE_TESTS
+and either of CRYPTO_AES, CRYPTO_CBC, CRYPTO_CTR or CRYPTO_XTS is built
+as module or disabled, alg_test() from crypto/testmgr.c complains during
+boot about failing to allocate the generic fallback implementations
+(2 == ENOENT):
+
+[    0.540953] Failed to allocate xts(aes) fallback: -2
+[    0.541014] alg: skcipher: failed to allocate transform for p8_aes_xts: -2
+[    0.541120] alg: self-tests for p8_aes_xts (xts(aes)) failed (rc=-2)
+[    0.544440] Failed to allocate ctr(aes) fallback: -2
+[    0.544497] alg: skcipher: failed to allocate transform for p8_aes_ctr: -2
+[    0.544603] alg: self-tests for p8_aes_ctr (ctr(aes)) failed (rc=-2)
+[    0.547992] Failed to allocate cbc(aes) fallback: -2
+[    0.548052] alg: skcipher: failed to allocate transform for p8_aes_cbc: -2
+[    0.548156] alg: self-tests for p8_aes_cbc (cbc(aes)) failed (rc=-2)
+[    0.550745] Failed to allocate transformation for 'aes': -2
+[    0.550801] alg: cipher: Failed to load transform for p8_aes: -2
+[    0.550892] alg: self-tests for p8_aes (aes) failed (rc=-2)
+
+Fixes: c07f5d3da643 ("crypto: vmx - Adding support for XTS")
+Fixes: d2e3ae6f3aba ("crypto: vmx - Enabling VMX module for PPC64")
+
+Suggested-by: Nicolai Stange <nstange@suse.de>
+Signed-off-by: Petr Vorel <pvorel@suse.cz>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/pcm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/vmx/Kconfig | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index 6fa9115e322b..866a82b69d8d 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -659,7 +659,7 @@ static int snd_usb_pcm_prepare(struct snd_pcm_substream *substream)
- #define hwc_debug(fmt, args...) do { } while(0)
- #endif
- 
--#define MAX_BUFFER_BYTES	(1024 * 1024)
-+#define MAX_BUFFER_BYTES	(4 * 1024 * 1024)
- #define MAX_PERIOD_BYTES	(512 * 1024)
- 
- static const struct snd_pcm_hardware snd_usb_hardware =
+diff --git a/drivers/crypto/vmx/Kconfig b/drivers/crypto/vmx/Kconfig
+index c3d524ea6998..f39eeca87932 100644
+--- a/drivers/crypto/vmx/Kconfig
++++ b/drivers/crypto/vmx/Kconfig
+@@ -1,7 +1,11 @@
+ config CRYPTO_DEV_VMX_ENCRYPT
+ 	tristate "Encryption acceleration support on P8 CPU"
+ 	depends on CRYPTO_DEV_VMX
++	select CRYPTO_AES
++	select CRYPTO_CBC
++	select CRYPTO_CTR
+ 	select CRYPTO_GHASH
++	select CRYPTO_XTS
+ 	default m
+ 	help
+ 	  Support for VMX cryptographic acceleration instructions on Power8 CPU.
 -- 
-2.35.1
+2.34.1
 
 
 
