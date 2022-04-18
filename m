@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C1EF505417
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD175053A1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235457AbiDRNEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60544 "EHLO
+        id S240663AbiDRNAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:00:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241523AbiDRNDJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8BD33A04;
-        Mon, 18 Apr 2022 05:43:38 -0700 (PDT)
+        with ESMTP id S242473AbiDRM77 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01E2431227;
+        Mon, 18 Apr 2022 05:41:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F9C5B80E4E;
-        Mon, 18 Apr 2022 12:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E08C6C385A1;
-        Mon, 18 Apr 2022 12:43:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83D4161239;
+        Mon, 18 Apr 2022 12:41:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76F19C385A7;
+        Mon, 18 Apr 2022 12:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285816;
-        bh=zaBTjNkcM8cbUwEEMh6y0TD42PYpHi2M7HAfRYX2IB4=;
+        s=korg; t=1650285681;
+        bh=9Mi13LQ3ueDfouVHxT/drIOtDkIQ87aRTzNV+mSmQwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=He9KX69x5fAOqGhFwDgbrKZ9Mw+Cx0wUTtKEHJA5yQtTUthRQsL27250CjLb6Vj9k
-         agSYkboBA1JfsahAWBYdr987UrpLHXwGOwRCz4/ILLEvCdL6B7O6TVKUWxXfU/20tz
-         h7bd49PMUAWQiNbq9MIha68LbgD4yiBUS3WudsZI=
+        b=Vm6Xr/Cmet6I1pNX8GRoKIZXTDHsXDdbNyzqkLmHx/5c9BDmi2WDxdjVbOv6mGoYR
+         pqqKVpG54NsIo2RvmgmEpyAo/v8RBpWp7Uog90wJSxieNLwj1RJxdfodLkEW4ke75P
+         e2t9F1RZ7BVqhOpEnlmvcbqwihPWwIHPcijezvns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chandrakanth patil <chandrakanth.patil@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 34/63] scsi: megaraid_sas: Target with invalid LUN ID is deleted during scan
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 089/105] tick/nohz: Use WARN_ON_ONCE() to prevent console saturation
 Date:   Mon, 18 Apr 2022 14:13:31 +0200
-Message-Id: <20220418121136.492784074@linuxfoundation.org>
+Message-Id: <20220418121149.161626115@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandrakanth patil <chandrakanth.patil@broadcom.com>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
 
-[ Upstream commit 56495f295d8e021f77d065b890fc0100e3f9f6d8 ]
+commit 40e97e42961f8c6cc7bd5fe67cc18417e02d78f1 upstream.
 
-The megaraid_sas driver supports single LUN for RAID devices. That is LUN
-0. All other LUNs are unsupported. When a device scan on a logical target
-with invalid LUN number is invoked through sysfs, that target ends up
-getting removed.
+While running some testing on code that happened to allow the variable
+tick_nohz_full_running to get set but with no "possible" NOHZ cores to
+back up that setting, this warning triggered:
 
-Add LUN ID validation in the slave destroy function to avoid the target
-deletion.
+        if (unlikely(tick_do_timer_cpu == TICK_DO_TIMER_NONE))
+                WARN_ON(tick_nohz_full_running);
 
-Link: https://lore.kernel.org/r/20220324094711.48833-1-chandrakanth.patil@broadcom.com
-Signed-off-by: Chandrakanth patil <chandrakanth.patil@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The console was overwhemled with an endless stream of one WARN per tick
+per core and there was no way to even see what was going on w/o using a
+serial console to capture it and then trace it back to this.
+
+Change it to WARN_ON_ONCE().
+
+Fixes: 08ae95f4fd3b ("nohz_full: Allow the boot CPU to be nohz_full")
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211206145950.10927-3-paul.gortmaker@windriver.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/megaraid/megaraid_sas.h      | 3 +++
- drivers/scsi/megaraid/megaraid_sas_base.c | 7 +++++++
- 2 files changed, 10 insertions(+)
+ kernel/time/tick-sched.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
-index 3d43ac9772f7..aa62cc8ffd0a 100644
---- a/drivers/scsi/megaraid/megaraid_sas.h
-+++ b/drivers/scsi/megaraid/megaraid_sas.h
-@@ -2551,6 +2551,9 @@ struct megasas_instance_template {
- #define MEGASAS_IS_LOGICAL(sdev)					\
- 	((sdev->channel < MEGASAS_MAX_PD_CHANNELS) ? 0 : 1)
- 
-+#define MEGASAS_IS_LUN_VALID(sdev)					\
-+	(((sdev)->lun == 0) ? 1 : 0)
-+
- #define MEGASAS_DEV_INDEX(scp)						\
- 	(((scp->device->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +	\
- 	scp->device->id)
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 6700d43b12ff..a261ce511e9e 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -2102,6 +2102,9 @@ static int megasas_slave_alloc(struct scsi_device *sdev)
- 			goto scan_target;
- 		}
- 		return -ENXIO;
-+	} else if (!MEGASAS_IS_LUN_VALID(sdev)) {
-+		sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
-+		return -ENXIO;
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -136,7 +136,7 @@ static void tick_sched_do_timer(struct t
+ 	 */
+ 	if (unlikely(tick_do_timer_cpu == TICK_DO_TIMER_NONE)) {
+ #ifdef CONFIG_NO_HZ_FULL
+-		WARN_ON(tick_nohz_full_running);
++		WARN_ON_ONCE(tick_nohz_full_running);
+ #endif
+ 		tick_do_timer_cpu = cpu;
  	}
- 
- scan_target:
-@@ -2132,6 +2135,10 @@ static void megasas_slave_destroy(struct scsi_device *sdev)
- 	instance = megasas_lookup_instance(sdev->host->host_no);
- 
- 	if (MEGASAS_IS_LOGICAL(sdev)) {
-+		if (!MEGASAS_IS_LUN_VALID(sdev)) {
-+			sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
-+			return;
-+		}
- 		ld_tgt_id = MEGASAS_TARGET_ID(sdev);
- 		instance->ld_tgtid_status[ld_tgt_id] = LD_TARGET_ID_DELETED;
- 		if (megasas_dbg_lvl & LD_PD_DEBUG)
--- 
-2.35.1
-
 
 
