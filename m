@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A066B505102
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DFB6505635
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236949AbiDRMac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:30:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38174 "EHLO
+        id S242249AbiDRNcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:32:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240047AbiDRM3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:16 -0400
+        with ESMTP id S244616AbiDRNal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6960E20BDC;
-        Mon, 18 Apr 2022 05:23:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75F28626C;
+        Mon, 18 Apr 2022 05:54:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECA4660F0C;
-        Mon, 18 Apr 2022 12:23:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04DAFC385A8;
-        Mon, 18 Apr 2022 12:23:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D3461612B7;
+        Mon, 18 Apr 2022 12:54:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D42E9C385A8;
+        Mon, 18 Apr 2022 12:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284587;
-        bh=FFtHTLViO7Kk3k4dRDhJk2ARFMqmxQ2ReCqBcHvNwIw=;
+        s=korg; t=1650286487;
+        bh=9RRj2Lk/KOKCOnuvEkIEZrB2zstpFOYqmB2h5bfTBgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vuR3qDYveLGD9v7nr+gRJD6QtyuJshU2KmvtTXCLF3ZUMYVE1zsiyR+zvZFjpoqhh
-         0f0AHGXERA3m5R0RnOQpOLykXR6Y7IQNtHn2juYQLkbEKMxZbxeLNG+xcqdEo3IpJG
-         kGFDMeylCBAAOMZpiLyezM7kKJEKWY7HGZcQO4ec=
+        b=oGF2rh5aTMPgR5V1flzl4pgsSSN+i7mMghH1+MsCXbThQjnKPpW2HEIneLNUrpZIt
+         lWtEUvHpNVfZ8Hp8dqXaGujqsvDQl9cr0Lx46psliDp65nj3cg/3Lmbu23CZrCydc+
+         fZbErKjiMru3ikgZxl8W5pv4Asx0d2L6Jfgpc98k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenjing Liu <Wenjing.Liu@amd.com>,
-        Alex Hung <alex.hung@amd.com>, Chris Park <Chris.Park@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 162/219] drm/amd/display: Correct Slice reset calculation
+Subject: [PATCH 4.14 150/284] net: phy: broadcom: Fix brcm_fet_config_init()
 Date:   Mon, 18 Apr 2022 14:12:11 +0200
-Message-Id: <20220418121211.417970399@linuxfoundation.org>
+Message-Id: <20220418121215.902643341@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,51 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Park <Chris.Park@amd.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 862a876c3a6372f2fa9d0c6510f1976ac94fc857 ]
+[ Upstream commit bf8bfc4336f7a34e48b3bbd19b1542bf085bdc3d ]
 
-[Why]
-Once DSC slice cannot fit pixel clock, we incorrectly
-reset min slices to 0 and allow max slice to operate,
-even when max slice itself cannot fit the pixel clock
-properly.
+A Broadcom AC201 PHY (same entry as 5241) would be flagged by the
+Broadcom UniMAC MDIO controller as not completing the turn around
+properly since the PHY expects 65 MDC clock cycles to complete a write
+cycle, and the MDIO controller was only sending 64 MDC clock cycles as
+determined by looking at a scope shot.
 
-[How]
-Change the sequence such that we correctly determine
-DSC is not possible when both min slices and max
-slices cannot fit pixel clock per slice.
+This would make the subsequent read fail with the UniMAC MDIO controller
+command field having MDIO_READ_FAIL set and we would abort the
+brcm_fet_config_init() function and thus not probe the PHY at all.
 
-Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Chris Park <Chris.Park@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+After issuing a software reset, wait for at least 1ms which is well
+above the 1us reset delay advertised by the datasheet and issue a dummy
+read to let the PHY turn around the line properly. This read
+specifically ignores -EIO which would be returned by MDIO controllers
+checking for the line being turned around.
+
+If we have a genuine reaad failure, the next read of the interrupt
+status register would pick it up anyway.
+
+Fixes: d7a2ed9248a3 ("broadcom: Add AC131 phy support")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220324232438.1156812-1-f.fainelli@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/phy/broadcom.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c b/drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c
-index 9c74564cbd8d..8973d3a38f9c 100644
---- a/drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dsc/dc_dsc.c
-@@ -864,11 +864,11 @@ static bool setup_dsc_config(
- 		min_slices_h = inc_num_slices(dsc_common_caps.slice_caps, min_slices_h);
- 	}
+diff --git a/drivers/net/phy/broadcom.c b/drivers/net/phy/broadcom.c
+index 1e9ad30a35c8..97e017a54eb5 100644
+--- a/drivers/net/phy/broadcom.c
++++ b/drivers/net/phy/broadcom.c
+@@ -15,6 +15,7 @@
+  */
  
-+	is_dsc_possible = (min_slices_h <= max_slices_h);
+ #include "bcm-phy-lib.h"
++#include <linux/delay.h>
+ #include <linux/module.h>
+ #include <linux/phy.h>
+ #include <linux/brcmphy.h>
+@@ -444,6 +445,26 @@ static int brcm_fet_config_init(struct phy_device *phydev)
+ 	if (err < 0)
+ 		return err;
+ 
++	/* The datasheet indicates the PHY needs up to 1us to complete a reset,
++	 * build some slack here.
++	 */
++	usleep_range(1000, 2000);
 +
- 	if (pic_width % min_slices_h != 0)
- 		min_slices_h = 0; // DSC TODO: Maybe try increasing the number of slices first?
- 
--	is_dsc_possible = (min_slices_h <= max_slices_h);
--
- 	if (min_slices_h == 0 && max_slices_h == 0)
- 		is_dsc_possible = false;
- 
++	/* The PHY requires 65 MDC clock cycles to complete a write operation
++	 * and turnaround the line properly.
++	 *
++	 * We ignore -EIO here as the MDIO controller (e.g.: mdio-bcm-unimac)
++	 * may flag the lack of turn-around as a read failure. This is
++	 * particularly true with this combination since the MDIO controller
++	 * only used 64 MDC cycles. This is not a critical failure in this
++	 * specific case and it has no functional impact otherwise, so we let
++	 * that one go through. If there is a genuine bus error, the next read
++	 * of MII_BRCM_FET_INTREG will error out.
++	 */
++	err = phy_read(phydev, MII_BMCR);
++	if (err < 0 && err != -EIO)
++		return err;
++
+ 	reg = phy_read(phydev, MII_BRCM_FET_INTREG);
+ 	if (reg < 0)
+ 		return reg;
 -- 
-2.35.1
+2.34.1
 
 
 
