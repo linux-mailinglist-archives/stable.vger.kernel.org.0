@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EEE65050A6
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4021E50558A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238798AbiDRM04 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38160 "EHLO
+        id S240226AbiDRNOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:14:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238738AbiDRM0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:22 -0400
+        with ESMTP id S241239AbiDRNLi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:11:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A348A12600;
-        Mon, 18 Apr 2022 05:20:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68EB82D1E5;
+        Mon, 18 Apr 2022 05:50:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 408C460F0A;
-        Mon, 18 Apr 2022 12:20:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 512A8C385A7;
-        Mon, 18 Apr 2022 12:20:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6565661254;
+        Mon, 18 Apr 2022 12:50:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58C2BC385A1;
+        Mon, 18 Apr 2022 12:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284422;
-        bh=mgiNPNrYV+G7zNOVM3b/+0HrK8qaTh+zhMEjYBOPAb0=;
+        s=korg; t=1650286239;
+        bh=H2E+hkoWrFyiw9Yw9enrsHb/6o1hrtPFBfEID+qRoMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSusfsMbz9VbkmQOz6aR3ddQ7CMTWdlYR92TkpPgu7vsr6BuFMByT6fUZNYunp8TH
-         kc/nVs0DHsjgpYiB5s2EoKOeOwI/0iwqgvVOEqMNEkTlltl9TizYCkehBcq6ppasHI
-         2js0q1dX9om/CyeqVbERsrXoRReVpxpw0EMWLhBY=
+        b=W9bsQ8i4+GuJEgh6CL6+ftOfmsbYjYS2an8Rwwh+7sByVMnmSxSirghWbsyGE2mmq
+         +9N6bNcvjQ2TY14dDvloEOdsjUSIFv2xlazLb9ZRp8sAomH5zScBRNNh5ZKxuNy/pm
+         M/BdhUWaVResTLQKnSjArFVJZDrcv/0LxpjPB3bI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
-        Anup Patel <anup@brainfault.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 083/219] RISC-V: KVM: include missing hwcap.h into vcpu_fp
+Subject: [PATCH 4.14 071/284] media: coda: Fix missing put_device() call in coda_get_vdoa_data
 Date:   Mon, 18 Apr 2022 14:10:52 +0200
-Message-Id: <20220418121208.652849112@linuxfoundation.org>
+Message-Id: <20220418121212.707431987@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Stuebner <heiko@sntech.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 4054eee9290248bf66c5eacb58879c9aaad37f71 ]
+[ Upstream commit ca85d271531a1e1c86f24b892f57b7d0a3ddb5a6 ]
 
-vcpu_fp uses the riscv_isa_extension mechanism which gets
-defined in hwcap.h but doesn't include that head file.
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the error handling path.
 
-While it seems to work in most cases, in certain conditions
-this can lead to build failures like
-
-../arch/riscv/kvm/vcpu_fp.c: In function ‘kvm_riscv_vcpu_fp_reset’:
-../arch/riscv/kvm/vcpu_fp.c:22:13: error: implicit declaration of function ‘riscv_isa_extension_available’ [-Werror=implicit-function-declaration]
-   22 |         if (riscv_isa_extension_available(&isa, f) ||
-      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-../arch/riscv/kvm/vcpu_fp.c:22:49: error: ‘f’ undeclared (first use in this function)
-   22 |         if (riscv_isa_extension_available(&isa, f) ||
-
-Fix this by simply including the necessary header.
-
-Fixes: 0a86512dc113 ("RISC-V: KVM: Factor-out FP virtualization into separate
-sources")
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Anup Patel <anup@brainfault.org>
+Fixes: e7f3c5481035 ("[media] coda: use VDOA for un-tiling custom macroblock format")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kvm/vcpu_fp.c | 1 +
+ drivers/media/platform/coda/coda-common.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/arch/riscv/kvm/vcpu_fp.c b/arch/riscv/kvm/vcpu_fp.c
-index 4449a976e5a6..d4308c512007 100644
---- a/arch/riscv/kvm/vcpu_fp.c
-+++ b/arch/riscv/kvm/vcpu_fp.c
-@@ -11,6 +11,7 @@
- #include <linux/err.h>
- #include <linux/kvm_host.h>
- #include <linux/uaccess.h>
-+#include <asm/hwcap.h>
+diff --git a/drivers/media/platform/coda/coda-common.c b/drivers/media/platform/coda/coda-common.c
+index 5b87c488ee11..993208944ace 100644
+--- a/drivers/media/platform/coda/coda-common.c
++++ b/drivers/media/platform/coda/coda-common.c
+@@ -360,6 +360,7 @@ static struct vdoa_data *coda_get_vdoa_data(void)
+ 	if (!vdoa_data)
+ 		vdoa_data = ERR_PTR(-EPROBE_DEFER);
  
- #ifdef CONFIG_FPU
- void kvm_riscv_vcpu_fp_reset(struct kvm_vcpu *vcpu)
++	put_device(&vdoa_pdev->dev);
+ out:
+ 	if (vdoa_node)
+ 		of_node_put(vdoa_node);
 -- 
-2.35.1
+2.34.1
 
 
 
