@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1AC15057A4
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D66C7505458
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244470AbiDRNvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:51:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57504 "EHLO
+        id S231803AbiDRNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:05:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244656AbiDRNuu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:50:50 -0400
+        with ESMTP id S241172AbiDRNEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:04:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1257443F7;
-        Mon, 18 Apr 2022 06:02:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56D8313CEF;
+        Mon, 18 Apr 2022 05:45:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BD00B80EDC;
-        Mon, 18 Apr 2022 13:02:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1577C385A1;
-        Mon, 18 Apr 2022 13:01:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2342B80EC0;
+        Mon, 18 Apr 2022 12:45:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356DEC385A7;
+        Mon, 18 Apr 2022 12:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286920;
-        bh=0c1wzjzdCckmhAYOoRg1y/jRpjgntM2jVZjWBC9E3BY=;
+        s=korg; t=1650285926;
+        bh=mojVL1QzffXoVVdfe87igzvxcXwQsQdaFZO8jKOu6gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iKATwCC5x/Jp/gyIUKdMAG0nmwTp8CmWUGWCMqWMweg44z0dgldjP8ocpeaVRbhNI
-         6PTi2ttj66oDe7p/iaDl+aRRhtqgFooy1Ey4Ol7ltMaoQKBm5fOdPFRF6poHUwRDtz
-         zxyKU3EMU6OO+kfB5yDbkO4w+ZGTG8NVoOw8rnf0=
+        b=IjPATnPFlOJDeut9xLTj64/n7fmeMz4S6joINKB84HqZNotDK/jJEqQFlQxx6LsWj
+         Uym56wxNl571CgJVLiFdCUUXfAdEJNRl2iSywrYYHJVAAtyKuZjbLo76CIDdMY08D/
+         E2qUwYFRRpS1Wg0iXt88pZ/vhFbLV5AIXPXEpREc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com,
-        Tejun Heo <tj@kernel.org>,
+        Duoming Zhou <duoming@zju.edu.cn>,
+        Paolo Abeni <pabeni@redhat.com>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 259/284] cgroup: Use open-time cgroup namespace for process migration perm checks
+Subject: [PATCH 5.4 63/63] ax25: Fix UAF bugs in ax25 timers
 Date:   Mon, 18 Apr 2022 14:14:00 +0200
-Message-Id: <20220418121219.855654899@linuxfoundation.org>
+Message-Id: <20220418121138.364771542@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,154 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit e57457641613fef0d147ede8bd6a3047df588b95 upstream.
+commit 82e31755e55fbcea6a9dfaae5fe4860ade17cbc0 upstream.
 
-cgroup process migration permission checks are performed at write time as
-whether a given operation is allowed or not is dependent on the content of
-the write - the PID. This currently uses current's cgroup namespace which is
-a potential security weakness as it may allow scenarios where a less
-privileged process tricks a more privileged one into writing into a fd that
-it created.
+There are race conditions that may lead to UAF bugs in
+ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
+ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we call
+ax25_release() to deallocate ax25_dev.
 
-This patch makes cgroup remember the cgroup namespace at the time of open
-and uses it for migration permission checks instad of current's. Note that
-this only applies to cgroup2 as cgroup1 doesn't have namespace support.
+One of the UAF bugs caused by ax25_release() is shown below:
 
-This also fixes a use-after-free bug on cgroupns reported in
+      (Thread 1)                    |      (Thread 2)
+ax25_dev_device_up() //(1)          |
+...                                 | ax25_kill_by_device()
+ax25_bind()          //(2)          |
+ax25_connect()                      | ...
+ ax25_std_establish_data_link()     |
+  ax25_start_t1timer()              | ax25_dev_device_down() //(3)
+   mod_timer(&ax25->t1timer,..)     |
+                                    | ax25_release()
+   (wait a time)                    |  ...
+                                    |  ax25_dev_put(ax25_dev) //(4)FREE
+   ax25_t1timer_expiry()            |
+    ax25->ax25_dev->values[..] //USE|  ...
+     ...                            |
 
- https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
+We increase the refcount of ax25_dev in position (1) and (2), and
+decrease the refcount of ax25_dev in position (3) and (4).
+The ax25_dev will be freed in position (4) and be used in
+ax25_t1timer_expiry().
 
-Note that backporting this fix also requires the preceding patch.
+The fail log is shown below:
+==============================================================
 
-Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Cc: Michal Koutný <mkoutny@suse.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reported-by: syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
-Fixes: 5136f6365ce3 ("cgroup: implement "nsdelegate" mount option")
-Signed-off-by: Tejun Heo <tj@kernel.org>
-[mkoutny: v5.10: duplicate ns check in procs/threads write handler, adjust context]
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[OP: backport to v4.14: drop changes to cgroup_attach_permissions() and
-cgroup_css_set_fork(), adjust cgroup_procs_write_permission() calls]
+[  106.116942] BUG: KASAN: use-after-free in ax25_t1timer_expiry+0x1c/0x60
+[  106.116942] Read of size 8 at addr ffff88800bda9028 by task swapper/0/0
+[  106.116942] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-06123-g0905eec574
+[  106.116942] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-14
+[  106.116942] Call Trace:
+...
+[  106.116942]  ax25_t1timer_expiry+0x1c/0x60
+[  106.116942]  call_timer_fn+0x122/0x3d0
+[  106.116942]  __run_timers.part.0+0x3f6/0x520
+[  106.116942]  run_timer_softirq+0x4f/0xb0
+[  106.116942]  __do_softirq+0x1c2/0x651
+...
+
+This patch adds del_timer_sync() in ax25_release(), which could ensure
+that all timers stop before we deallocate ax25_dev.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+[OP: backport to 5.4: adjust context]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-internal.h |    2 ++
- kernel/cgroup/cgroup.c          |   24 +++++++++++++++++-------
- 2 files changed, 19 insertions(+), 7 deletions(-)
+ net/ax25/af_ax25.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -11,6 +11,8 @@
- struct cgroup_pidlist;
- 
- struct cgroup_file_ctx {
-+	struct cgroup_namespace	*ns;
-+
- 	struct {
- 		void			*trigger;
- 	} psi;
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -3370,14 +3370,19 @@ static int cgroup_file_open(struct kernf
- 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
- 	if (!ctx)
- 		return -ENOMEM;
-+
-+	ctx->ns = current->nsproxy->cgroup_ns;
-+	get_cgroup_ns(ctx->ns);
- 	of->priv = ctx;
- 
- 	if (!cft->open)
- 		return 0;
- 
- 	ret = cft->open(of);
--	if (ret)
-+	if (ret) {
-+		put_cgroup_ns(ctx->ns);
- 		kfree(ctx);
-+	}
- 	return ret;
- }
- 
-@@ -3388,13 +3393,14 @@ static void cgroup_file_release(struct k
- 
- 	if (cft->release)
- 		cft->release(of);
-+	put_cgroup_ns(ctx->ns);
- 	kfree(ctx);
- }
- 
- static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
- 				 size_t nbytes, loff_t off)
- {
--	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *cgrp = of->kn->parent->priv;
- 	struct cftype *cft = of->kn->priv;
- 	struct cgroup_subsys_state *css;
-@@ -3408,7 +3414,7 @@ static ssize_t cgroup_file_write(struct
- 	 */
- 	if ((cgrp->root->flags & CGRP_ROOT_NS_DELEGATE) &&
- 	    !(cft->flags & CFTYPE_NS_DELEGATABLE) &&
--	    ns != &init_cgroup_ns && ns->root_cset->dfl_cgrp == cgrp)
-+	    ctx->ns != &init_cgroup_ns && ctx->ns->root_cset->dfl_cgrp == cgrp)
- 		return -EPERM;
- 
- 	if (cft->write)
-@@ -4351,9 +4357,9 @@ static int cgroup_procs_show(struct seq_
- 
- static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
- 					 struct cgroup *dst_cgrp,
--					 struct super_block *sb)
-+					 struct super_block *sb,
-+					 struct cgroup_namespace *ns)
- {
--	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
- 	struct cgroup *com_cgrp = src_cgrp;
- 	struct inode *inode;
- 	int ret;
-@@ -4389,6 +4395,7 @@ static int cgroup_procs_write_permission
- static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
- 				  char *buf, size_t nbytes, loff_t off)
- {
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *src_cgrp, *dst_cgrp;
- 	struct task_struct *task;
- 	const struct cred *saved_cred;
-@@ -4415,7 +4422,8 @@ static ssize_t cgroup_procs_write(struct
- 	 */
- 	saved_cred = override_creds(of->file->f_cred);
- 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
--					    of->file->f_path.dentry->d_sb);
-+					    of->file->f_path.dentry->d_sb,
-+					    ctx->ns);
- 	revert_creds(saved_cred);
- 	if (ret)
- 		goto out_finish;
-@@ -4438,6 +4446,7 @@ static void *cgroup_threads_start(struct
- static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
- 				    char *buf, size_t nbytes, loff_t off)
- {
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *src_cgrp, *dst_cgrp;
- 	struct task_struct *task;
- 	const struct cred *saved_cred;
-@@ -4466,7 +4475,8 @@ static ssize_t cgroup_threads_write(stru
- 	 */
- 	saved_cred = override_creds(of->file->f_cred);
- 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
--					    of->file->f_path.dentry->d_sb);
-+					    of->file->f_path.dentry->d_sb,
-+					    ctx->ns);
- 	revert_creds(saved_cred);
- 	if (ret)
- 		goto out_finish;
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1052,6 +1052,11 @@ static int ax25_release(struct socket *s
+ 		ax25_destroy_socket(ax25);
+ 	}
+ 	if (ax25_dev) {
++		del_timer_sync(&ax25->timer);
++		del_timer_sync(&ax25->t1timer);
++		del_timer_sync(&ax25->t2timer);
++		del_timer_sync(&ax25->t3timer);
++		del_timer_sync(&ax25->idletimer);
+ 		dev_put(ax25_dev->dev);
+ 		ax25_dev_put(ax25_dev);
+ 	}
 
 
