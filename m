@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F6F505090
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B5A505227
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238854AbiDRM0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38444 "EHLO
+        id S237896AbiDRMl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238714AbiDRM0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3FE65E5;
-        Mon, 18 Apr 2022 05:19:58 -0700 (PDT)
+        with ESMTP id S240822AbiDRMjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E072BF9;
+        Mon, 18 Apr 2022 05:30:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B19CB80EC4;
-        Mon, 18 Apr 2022 12:19:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6527C385A1;
-        Mon, 18 Apr 2022 12:19:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE72460F04;
+        Mon, 18 Apr 2022 12:30:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC8BC385A7;
+        Mon, 18 Apr 2022 12:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284396;
-        bh=Wx4NCEWlH2dKwa1cDmSNLQyZi3kQ6S5UPpNLcHYn7bk=;
+        s=korg; t=1650285055;
+        bh=E3d15w7RgC9OkRukB1YAWsbpXjPeSSQyE0CQCeK1vTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2eJLMrzSBQbNNZO6fHf5Fj+s8Zca0mlYsXuIVSDju07dAzvKTRtvmJfHhxeuSyPB
-         wTl0HSgrjGYfolQPzNW5chh4w+M6ezAu/8GcvlvrXpXUGEOY0dlDr8WWmFYAFXYZSp
-         VeyJR6ejeXVjFj9gL5a2vLzKSrjoawD52O5KAjFk=
+        b=e1ss9fDpxgvo505X9wtWLd9lL7+1LKhhNRqhzoVlDApTqRMyQbrMCmLHHVDEyxPyT
+         06RagDyAdrnMO6Z++6Tz6I+opma7Dob2JHxx+clXbjohAgVRYasbd5uveT/LS8I9xk
+         EMgIhVZxUilDSkLK5UgpQBXZIc+eVX2DqG5JW1cA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 101/219] scsi: iscsi: Fix conn cleanup and stop race during iscsid restart
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 050/189] ALSA: rme96: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:11:10 +0200
-Message-Id: <20220418121209.680843067@linuxfoundation.org>
+Message-Id: <20220418121201.932931967@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,152 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 7c6e99c18167ed89729bf167ccb4a7e3ab3115ba ]
+commit 93b884f8d82f08c7af542703a724cc23cd2d5bfc upstream.
 
-If iscsid is doing a stop_conn at the same time the kernel is starting
-error recovery we can hit a race that allows the cleanup work to run on a
-valid connection. In the race, iscsi_if_stop_conn sees the cleanup bit set,
-but it calls flush_work on the clean_work before iscsi_conn_error_event has
-queued it. The flush then returns before the queueing and so the
-cleanup_work can run later and disconnect/stop a conn while it's in a
-connected state.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-The patch:
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-Commit 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in
-kernel space")
-
-added the late stop_conn call bug originally, and the patch:
-
-Commit 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
-
-attempted to fix it but only fixed the normal EH case and left the above
-race for the iscsid restart case. For the normal EH case we don't hit the
-race because we only signal userspace to start recovery after we have done
-the queueing, so the flush will always catch the queued work or see it
-completed.
-
-For iscsid restart cases like boot, we can hit the race because iscsid will
-call down to the kernel before the kernel has signaled any error, so both
-code paths can be running at the same time. This adds a lock around the
-setting of the cleanup bit and queueing so they happen together.
-
-Link: https://lore.kernel.org/r/20220408001314.5014-6-michael.christie@oracle.com
-Fixes: 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in kernel space")
-Tested-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: df06df7cc997 ("ALSA: rme96: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-24-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 17 +++++++++++++++++
- include/scsi/scsi_transport_iscsi.h |  2 ++
- 2 files changed, 19 insertions(+)
+ sound/pci/rme96.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 4fa2fd7f4c72..ed289e1242c9 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2260,9 +2260,12 @@ static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
- 					 bool is_active)
+diff --git a/sound/pci/rme96.c b/sound/pci/rme96.c
+index 8fc811504920..bccb7e0d3d11 100644
+--- a/sound/pci/rme96.c
++++ b/sound/pci/rme96.c
+@@ -2430,8 +2430,8 @@ static void snd_rme96_card_free(struct snd_card *card)
+ }
+ 
+ static int
+-snd_rme96_probe(struct pci_dev *pci,
+-		const struct pci_device_id *pci_id)
++__snd_rme96_probe(struct pci_dev *pci,
++		  const struct pci_device_id *pci_id)
  {
- 	/* Check if this was a conn error and the kernel took ownership */
-+	spin_lock_irq(&conn->lock);
- 	if (!test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
-+		spin_unlock_irq(&conn->lock);
- 		iscsi_ep_disconnect(conn, is_active);
- 	} else {
-+		spin_unlock_irq(&conn->lock);
- 		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
- 		mutex_unlock(&conn->ep_mutex);
- 
-@@ -2309,9 +2312,12 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 		/*
- 		 * Figure out if it was the kernel or userspace initiating this.
- 		 */
-+		spin_lock_irq(&conn->lock);
- 		if (!test_and_set_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
-+			spin_unlock_irq(&conn->lock);
- 			iscsi_stop_conn(conn, flag);
- 		} else {
-+			spin_unlock_irq(&conn->lock);
- 			ISCSI_DBG_TRANS_CONN(conn,
- 					     "flush kernel conn cleanup.\n");
- 			flush_work(&conn->cleanup_work);
-@@ -2320,7 +2326,9 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 		 * Only clear for recovery to avoid extra cleanup runs during
- 		 * termination.
- 		 */
-+		spin_lock_irq(&conn->lock);
- 		clear_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags);
-+		spin_unlock_irq(&conn->lock);
- 	}
- 	ISCSI_DBG_TRANS_CONN(conn, "iscsi if conn stop done.\n");
+ 	static int dev;
+ 	struct rme96 *rme96;
+@@ -2498,6 +2498,12 @@ snd_rme96_probe(struct pci_dev *pci,
  	return 0;
-@@ -2341,7 +2349,9 @@ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
- 	 */
- 	if (conn->state != ISCSI_CONN_BOUND && conn->state != ISCSI_CONN_UP) {
- 		ISCSI_DBG_TRANS_CONN(conn, "Got error while conn is already failed. Ignoring.\n");
-+		spin_lock_irq(&conn->lock);
- 		clear_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags);
-+		spin_unlock_irq(&conn->lock);
- 		mutex_unlock(&conn->ep_mutex);
- 		return;
- 	}
-@@ -2407,6 +2417,7 @@ iscsi_create_conn(struct iscsi_cls_session *session, int dd_size, uint32_t cid)
- 		conn->dd_data = &conn[1];
+ }
  
- 	mutex_init(&conn->ep_mutex);
-+	spin_lock_init(&conn->lock);
- 	INIT_LIST_HEAD(&conn->conn_list);
- 	INIT_WORK(&conn->cleanup_work, iscsi_cleanup_conn_work_fn);
- 	conn->transport = transport;
-@@ -2598,9 +2609,12 @@ void iscsi_conn_error_event(struct iscsi_cls_conn *conn, enum iscsi_err error)
- 	struct iscsi_uevent *ev;
- 	struct iscsi_internal *priv;
- 	int len = nlmsg_total_size(sizeof(*ev));
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(&conn->lock, flags);
- 	if (!test_and_set_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags))
- 		queue_work(iscsi_conn_cleanup_workq, &conn->cleanup_work);
-+	spin_unlock_irqrestore(&conn->lock, flags);
- 
- 	priv = iscsi_if_transport_lookup(conn->transport);
- 	if (!priv)
-@@ -3743,11 +3757,14 @@ static int iscsi_if_transport_conn(struct iscsi_transport *transport,
- 		return -EINVAL;
- 
- 	mutex_lock(&conn->ep_mutex);
-+	spin_lock_irq(&conn->lock);
- 	if (test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
-+		spin_unlock_irq(&conn->lock);
- 		mutex_unlock(&conn->ep_mutex);
- 		ev->r.retcode = -ENOTCONN;
- 		return 0;
- 	}
-+	spin_unlock_irq(&conn->lock);
- 
- 	switch (nlh->nlmsg_type) {
- 	case ISCSI_UEVENT_BIND_CONN:
-diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
-index c5d7810fd792..037c77fb5dc5 100644
---- a/include/scsi/scsi_transport_iscsi.h
-+++ b/include/scsi/scsi_transport_iscsi.h
-@@ -211,6 +211,8 @@ struct iscsi_cls_conn {
- 	struct mutex ep_mutex;
- 	struct iscsi_endpoint *ep;
- 
-+	/* Used when accessing flags and queueing work. */
-+	spinlock_t lock;
- 	unsigned long flags;
- 	struct work_struct cleanup_work;
- 
++static int snd_rme96_probe(struct pci_dev *pci,
++			   const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_rme96_probe(pci, pci_id));
++}
++
+ static struct pci_driver rme96_driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = snd_rme96_ids,
 -- 
-2.35.1
+2.35.2
 
 
 
