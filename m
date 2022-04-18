@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5816950582D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1E1250561B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244062AbiDRN7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:59:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
+        id S241949AbiDRNcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:32:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244608AbiDRN5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 591A52AC53;
-        Mon, 18 Apr 2022 06:06:05 -0700 (PDT)
+        with ESMTP id S244778AbiDRNay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2FE42A19;
+        Mon, 18 Apr 2022 05:55:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 144B5B80E4B;
-        Mon, 18 Apr 2022 13:06:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A30DC385A7;
-        Mon, 18 Apr 2022 13:06:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59B1D6115A;
+        Mon, 18 Apr 2022 12:55:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49AE4C385A1;
+        Mon, 18 Apr 2022 12:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287162;
-        bh=irImO8wglknoczk6ACqX7kSv8W7XF95LuWoDmq1wfTk=;
+        s=korg; t=1650286518;
+        bh=YgEmVX4A3A766D6wWpo2mQbxWZWAWD0HoACV1S8a+Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJBnuetARnn5iLcLjwnY9yJgNyI1zD5rzPcJj3Vqubd9AlcYso6pjSVJbE3lVEMCv
-         axzeaA4IlM1mQGXxypqqA+1SEfqyi2cznPi3PdRlBYPY4SEXXVy5hDT6wYR4l1wivh
-         Vp1YuJooPb2hicdYFYKgDblaVi8fVjUnOzK7gQUA=
+        b=kOP7U5hZMmLSRVDy6gaNT7moAOMu3r/sWyrK1tOisg0N7Z3LQqPd3ldR8KzxzQj/Q
+         UXf6v//mqq3jNQQiTnFAzFOK+Vdujo5kurL6Z5x00yuJuDjVNTo7G16sVCDZUg8GXg
+         ZtdWW1nPZg1DucMeUIq9S5QdDEOicGxMNTBim/qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 074/218] ASoC: dmaengine: do not use a NULL prepare_slave_config() callback
+Subject: [PATCH 4.14 159/284] ACPICA: Avoid walking the ACPI Namespace if it is not there
 Date:   Mon, 18 Apr 2022 14:12:20 +0200
-Message-Id: <20220418121201.726811354@linuxfoundation.org>
+Message-Id: <20220418121216.265246199@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 9a1e13440a4f2e7566fd4c5eae6a53e6400e08a4 ]
+[ Upstream commit 0c9992315e738e7d6e927ef36839a466b080dba6 ]
 
-Even if struct snd_dmaengine_pcm_config is used, prepare_slave_config()
-callback might not be set. Check if this callback is set before using it.
+ACPICA commit b1c3656ef4950098e530be68d4b589584f06cddc
 
-Fixes: fa654e085300 ("ASoC: dmaengine-pcm: Provide default config")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220307122202.2251639-2-codrin.ciubotariu@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Prevent acpi_ns_walk_namespace() from crashing when called with
+start_node equal to ACPI_ROOT_OBJECT if the Namespace has not been
+instantiated yet and acpi_gbl_root_node is NULL.
+
+For instance, this can happen if the kernel is run with "acpi=off"
+in the command line.
+
+Link: https://github.com/acpica/acpica/commit/b1c3656ef4950098e530be68d4b589584f06cddc
+Link: https://lore.kernel.org/linux-acpi/CAJZ5v0hJWW_vZ3wwajE7xT38aWjY7cZyvqMJpXHzUL98-SiCVQ@mail.gmail.com/
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-generic-dmaengine-pcm.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/acpica/nswalk.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/soc-generic-dmaengine-pcm.c b/sound/soc/soc-generic-dmaengine-pcm.c
-index 67d22b4baeb0..61f0c9d6f6dc 100644
---- a/sound/soc/soc-generic-dmaengine-pcm.c
-+++ b/sound/soc/soc-generic-dmaengine-pcm.c
-@@ -98,10 +98,10 @@ static int dmaengine_pcm_hw_params(struct snd_pcm_substream *substream,
+diff --git a/drivers/acpi/acpica/nswalk.c b/drivers/acpi/acpica/nswalk.c
+index 6b6e6f498cff..129fc61f14c4 100644
+--- a/drivers/acpi/acpica/nswalk.c
++++ b/drivers/acpi/acpica/nswalk.c
+@@ -203,6 +203,9 @@ acpi_ns_walk_namespace(acpi_object_type type,
  
- 	memset(&slave_config, 0, sizeof(slave_config));
+ 	if (start_node == ACPI_ROOT_OBJECT) {
+ 		start_node = acpi_gbl_root_node;
++		if (!start_node) {
++			return_ACPI_STATUS(AE_NO_NAMESPACE);
++		}
+ 	}
  
--	if (!pcm->config)
--		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
--	else
-+	if (pcm->config && pcm->config->prepare_slave_config)
- 		prepare_slave_config = pcm->config->prepare_slave_config;
-+	else
-+		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
- 
- 	if (prepare_slave_config) {
- 		ret = prepare_slave_config(substream, params, &slave_config);
+ 	/* Null child means "get first node" */
 -- 
 2.34.1
 
