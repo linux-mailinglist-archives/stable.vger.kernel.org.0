@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0232A5054F1
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32996505113
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241313AbiDRNX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43934 "EHLO
+        id S238950AbiDRMaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241595AbiDRNVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:21:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7E6D3CA41;
-        Mon, 18 Apr 2022 05:52:39 -0700 (PDT)
+        with ESMTP id S238932AbiDRM1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:27:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D681DA45;
+        Mon, 18 Apr 2022 05:20:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FDDAB80D9C;
-        Mon, 18 Apr 2022 12:52:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA03C385A1;
-        Mon, 18 Apr 2022 12:52:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0C31B80EDC;
+        Mon, 18 Apr 2022 12:20:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FB9EC385A7;
+        Mon, 18 Apr 2022 12:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286356;
-        bh=9SmY3vsFLJiywiCwbW8ZphLL+Du/BzQU21k2JG0zFMY=;
+        s=korg; t=1650284455;
+        bh=K5RdTTCq8kAUQ0QefNrXg318RXOD+fZs/EpmbwyeWJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sbA9Rb0UaEtM6Bt7DTCbItYsrQdQrdxF+xRWZyLnw4Mm/H8xB13mV4Oya3e77dEOi
-         tBGH/ZmWHborcN81ETAnXu90IC4IIxDhlj4LntrvNPQVaBddVS+evlKY/ZbLp7oP6e
-         qyGh/CZ79TryeKmxJCBps0VakUJ5sEl7n/OYbPOY=
+        b=RqJULqx367HtI6cfPF6IXBFAFRwOC0OBve4rAUl3NpRbRmb9TWGX/0GCJBP+S0ANo
+         h0obq1EW/jEmnQj2MhwJRfAaLKFocoKsco9bjk1xWv1MrtydPciI6bk/5aV0q2q2eT
+         ET4abcP32s+FBo2GldsrJS2223DSrdyg+qu2dnqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        James Morris <jmorris@namei.org>,
-        Kentaro Takeda <takedakn@nttdata.co.jp>,
-        tomoyo-dev-en@lists.osdn.me, "Serge E. Hallyn" <serge@hallyn.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
+        Mike Snitzer <snitzer@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 109/284] TOMOYO: fix __setup handlers return values
+Subject: [PATCH 5.17 121/219] dm mpath: only use ktime_get_ns() in historical selector
 Date:   Mon, 18 Apr 2022 14:11:30 +0200
-Message-Id: <20220418121214.030053132@linuxfoundation.org>
+Message-Id: <20220418121210.285415471@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,72 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Khazhismel Kumykov <khazhy@google.com>
 
-[ Upstream commit 39844b7e3084baecef52d1498b5fa81afa2cefa9 ]
+[ Upstream commit ce40426fdc3c92acdba6b5ca74bc7277ffaa6a3d ]
 
-__setup() handlers should return 1 if the parameter is handled.
-Returning 0 causes the entire string to be added to init's
-environment strings (limited to 32 strings), unnecessarily polluting it.
+Mixing sched_clock() and ktime_get_ns() usage will give bad results.
 
-Using the documented strings "TOMOYO_loader=string1" and
-"TOMOYO_trigger=string2" causes an Unknown parameter message:
-  Unknown kernel command line parameters
-    "BOOT_IMAGE=/boot/bzImage-517rc5 TOMOYO_loader=string1 \
-     TOMOYO_trigger=string2", will be passed to user space.
+Switch hst_select_path() from using sched_clock() to ktime_get_ns().
+Also rename path_service_time()'s 'sched_now' variable to 'now'.
 
-and these strings are added to init's environment string space:
-  Run /sbin/init as init process
-    with arguments:
-     /sbin/init
-    with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc5
-     TOMOYO_loader=string1
-     TOMOYO_trigger=string2
-
-With this change, these __setup handlers act as expected,
-and init's environment is not polluted with these strings.
-
-Fixes: 0e4ae0e0dec63 ("TOMOYO: Make several options configurable.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: https://lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: James Morris <jmorris@namei.org>
-Cc: Kentaro Takeda <takedakn@nttdata.co.jp>
-Cc: tomoyo-dev-en@lists.osdn.me
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 2613eab11996 ("dm mpath: add Historical Service Time Path Selector")
+Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/tomoyo/load_policy.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm-ps-historical-service-time.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/security/tomoyo/load_policy.c b/security/tomoyo/load_policy.c
-index 81b951652051..f8baef1f3277 100644
---- a/security/tomoyo/load_policy.c
-+++ b/security/tomoyo/load_policy.c
-@@ -24,7 +24,7 @@ static const char *tomoyo_loader;
- static int __init tomoyo_loader_setup(char *str)
+diff --git a/drivers/md/dm-ps-historical-service-time.c b/drivers/md/dm-ps-historical-service-time.c
+index 875bca30a0dd..82f2a06153dc 100644
+--- a/drivers/md/dm-ps-historical-service-time.c
++++ b/drivers/md/dm-ps-historical-service-time.c
+@@ -27,7 +27,6 @@
+ #include <linux/blkdev.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
+-#include <linux/sched/clock.h>
+ 
+ 
+ #define DM_MSG_PREFIX	"multipath historical-service-time"
+@@ -433,7 +432,7 @@ static struct dm_path *hst_select_path(struct path_selector *ps,
  {
- 	tomoyo_loader = str;
--	return 0;
-+	return 1;
+ 	struct selector *s = ps->context;
+ 	struct path_info *pi = NULL, *best = NULL;
+-	u64 time_now = sched_clock();
++	u64 time_now = ktime_get_ns();
+ 	struct dm_path *ret = NULL;
+ 	unsigned long flags;
+ 
+@@ -474,7 +473,7 @@ static int hst_start_io(struct path_selector *ps, struct dm_path *path,
+ 
+ static u64 path_service_time(struct path_info *pi, u64 start_time)
+ {
+-	u64 sched_now = ktime_get_ns();
++	u64 now = ktime_get_ns();
+ 
+ 	/* if a previous disk request has finished after this IO was
+ 	 * sent to the hardware, pretend the submission happened
+@@ -483,11 +482,11 @@ static u64 path_service_time(struct path_info *pi, u64 start_time)
+ 	if (time_after64(pi->last_finish, start_time))
+ 		start_time = pi->last_finish;
+ 
+-	pi->last_finish = sched_now;
+-	if (time_before64(sched_now, start_time))
++	pi->last_finish = now;
++	if (time_before64(now, start_time))
+ 		return 0;
+ 
+-	return sched_now - start_time;
++	return now - start_time;
  }
  
- __setup("TOMOYO_loader=", tomoyo_loader_setup);
-@@ -63,7 +63,7 @@ static const char *tomoyo_trigger;
- static int __init tomoyo_trigger_setup(char *str)
- {
- 	tomoyo_trigger = str;
--	return 0;
-+	return 1;
- }
- 
- __setup("TOMOYO_trigger=", tomoyo_trigger_setup);
+ static int hst_end_io(struct path_selector *ps, struct dm_path *path,
 -- 
-2.34.1
+2.35.1
 
 
 
