@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC3050541D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E9BD505403
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240997AbiDRNEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33008 "EHLO
+        id S239795AbiDRNCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:02:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241671AbiDRNDY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86C8933E28;
-        Mon, 18 Apr 2022 05:44:02 -0700 (PDT)
+        with ESMTP id S242621AbiDRNAN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:00:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CD4831500;
+        Mon, 18 Apr 2022 05:41:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1400AB80E4B;
-        Mon, 18 Apr 2022 12:44:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EA2EC385A1;
-        Mon, 18 Apr 2022 12:43:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2556E60FB6;
+        Mon, 18 Apr 2022 12:41:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B82FC385A1;
+        Mon, 18 Apr 2022 12:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285839;
-        bh=FndZYfUSXaI+j6oH0t5F4btQ64JgEFYgdQQJjXBnm1Y=;
+        s=korg; t=1650285704;
+        bh=TpOrTXLV4U5pm4BdcV8eLd+g6FUlDQpHQ/skxzlTGSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVb1q9YvDPmMUTUiUnNhNaDqDebGnnDe+XQnhFZGihuZXS7TbRYtLTT5FyILAW416
-         D7R5se+PzdpTqtWX+ilNSeiPRYkibEmZdqina/Ctj+8FUo5DudNxQuIRYnWNX6HXzI
-         QO7vqFzWfnO9WaRDqPUhAHuwgdwtZg8aCoCUuCrU=
+        b=SciOf3ZQHI86ipRsT9Dmz73eCcPWxKuOG/YOypWx0kvyA/TZ5BPdBKQcCAe8dQ58/
+         lZmnEpjgshuu5plSslJY8tVfFaiH4x0alxK4QEynW3o9oFOvlq2sF+ando17tEr/EO
+         KciiJHGilruRc+EF064hOOC47VNiSiprABX9+8pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bagas Sanjaya <bagasdotme@gmail.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.4 41/63] ath9k: Properly clear TX status area before reporting to mac80211
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 096/105] scsi: iscsi: Fix endpoint reuse regression
 Date:   Mon, 18 Apr 2022 14:13:38 +0200
-Message-Id: <20220418121136.979138803@linuxfoundation.org>
+Message-Id: <20220418121149.362048140@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@toke.dk>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 037250f0a45cf9ecf5b52d4b9ff8eadeb609c800 upstream.
+commit 0aadafb5c34403a7cced1a8d61877048dc059f70 upstream.
 
-The ath9k driver was not properly clearing the status area in the
-ieee80211_tx_info struct before reporting TX status to mac80211. Instead,
-it was manually filling in fields, which meant that fields introduced later
-were left as-is.
+This patch fixes a bug where when using iSCSI offload we can free an
+endpoint while userspace still thinks it's active. That then causes the
+endpoint ID to be reused for a new connection's endpoint while userspace
+still thinks the ID is for the original connection. Userspace will then end
+up disconnecting a running connection's endpoint or trying to bind to
+another connection's endpoint.
 
-Conveniently, mac80211 actually provides a helper to zero out the status
-area, so use that to make sure we zero everything.
+This bug is a regression added in:
 
-The last commit touching the driver function writing the status information
-seems to have actually been fixing an issue that was also caused by the
-area being uninitialised; but it only added clearing of a single field
-instead of the whole struct. That is now redundant, though, so revert that
-commit and use it as a convenient Fixes tag.
+Commit 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
 
-Fixes: cc591d77aba1 ("ath9k: Make sure to zero status.tx_time before reporting TX status")
-Reported-by: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220330164409.16645-1-toke@toke.dk
+where we added a in kernel ep_disconnect call to fix a bug in:
+
+Commit 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in
+kernel space")
+
+where we would call stop_conn without having done ep_disconnect. This early
+ep_disconnect call will then free the endpoint and it's ID while userspace
+still thinks the ID is valid.
+
+Fix the early release of the ID by having the in kernel recovery code keep
+a reference to the endpoint until userspace has called into the kernel to
+finish cleaning up the endpoint/connection. It requires the previous commit
+"scsi: iscsi: Release endpoint ID when its freed" which moved the freeing
+of the ID until when the endpoint is released.
+
+Link: https://lore.kernel.org/r/20220408001314.5014-5-michael.christie@oracle.com
+Fixes: 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
+Tested-by: Manish Rangankar <mrangankar@marvell.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath9k/xmit.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/ath/ath9k/xmit.c
-+++ b/drivers/net/wireless/ath/ath9k/xmit.c
-@@ -2509,6 +2509,8 @@ static void ath_tx_rc_status(struct ath_
- 	struct ath_hw *ah = sc->sc_ah;
- 	u8 i, tx_rateindex;
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2273,7 +2273,11 @@ static void iscsi_if_disconnect_bound_ep
+ 		mutex_unlock(&conn->ep_mutex);
  
-+	ieee80211_tx_info_clear_status(tx_info);
-+
- 	if (txok)
- 		tx_info->status.ack_signal = ts->ts_rssi;
- 
-@@ -2551,9 +2553,6 @@ static void ath_tx_rc_status(struct ath_
+ 		flush_work(&conn->cleanup_work);
+-
++		/*
++		 * Userspace is now done with the EP so we can release the ref
++		 * iscsi_cleanup_conn_work_fn took.
++		 */
++		iscsi_put_endpoint(ep);
+ 		mutex_lock(&conn->ep_mutex);
+ 	}
+ }
+@@ -2355,6 +2359,12 @@ static void iscsi_cleanup_conn_work_fn(s
+ 		return;
  	}
  
- 	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
--
--	/* we report airtime in ath_tx_count_airtime(), don't report twice */
--	tx_info->status.tx_time = 0;
- }
++	/*
++	 * Get a ref to the ep, so we don't release its ID until after
++	 * userspace is done referencing it in iscsi_if_disconnect_bound_ep.
++	 */
++	if (conn->ep)
++		get_device(&conn->ep->dev);
+ 	iscsi_ep_disconnect(conn, false);
  
- static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
+ 	if (system_state != SYSTEM_RUNNING) {
 
 
