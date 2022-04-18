@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F166F5054F9
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64797505782
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240747AbiDRNVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:21:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45880 "EHLO
+        id S240888AbiDRNzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:55:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243431AbiDRNUf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:20:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B1083C48C;
-        Mon, 18 Apr 2022 05:52:05 -0700 (PDT)
+        with ESMTP id S245260AbiDRNxJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9E345AC0;
+        Mon, 18 Apr 2022 06:02:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAE2AB80EE1;
-        Mon, 18 Apr 2022 12:52:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00137C385A7;
-        Mon, 18 Apr 2022 12:52:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B78560B70;
+        Mon, 18 Apr 2022 13:02:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C71C385A7;
+        Mon, 18 Apr 2022 13:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286322;
-        bh=3N+kYBlQWQFCA/3pPIipzRbP/Z2aAs1+BjbTDH/kDwI=;
+        s=korg; t=1650286955;
+        bh=Os+qxn1DhxDjshDTdAdlcK8Fy8Mz/bgvQq9b255khpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sjvi0umLaWm24maB3R6VCaeOO6HIwH9glKyL4ZbmdPHhku3oT3SqebzImT004srRm
-         uwYdrToBlmBdKLpm5RdeSbI68zloOkIuWK0j8JijAjA1Edg/mFaCwbqAO/LkE8B9Fs
-         Q9AyiFl/fyGl0qBJZ0zZ0RfLi63TCzKO0Q5a1x4g=
+        b=preuBGKJ0mzjpeZSfevrIAMQ9hOReme5yy5Hjfr7Pa0v5wRVMYDXL+oA9UmpfIStP
+         UB7JcyMb2loV/TDGbeZw36jeAkq8jqubC1yV03pPUu1NLdLZgsbaLGNnV75I2aRBOJ
+         Fxj4vTuFpE42M+v2Zv+7kgN/bb+Q4mKijPbtruL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 099/284] power: reset: gemini-poweroff: Fix IRQ check in gemini_poweroff_probe
+        stable@vger.kernel.org, stable@kernel.org,
+        Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.9 014/218] ptrace: Check PTRACE_O_SUSPEND_SECCOMP permission on PTRACE_SEIZE
 Date:   Mon, 18 Apr 2022 14:11:20 +0200
-Message-Id: <20220418121213.517838886@linuxfoundation.org>
+Message-Id: <20220418121159.422178664@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit ba18dad0fb880cd29aa97b6b75560ef14d1061ba ]
+commit ee1fee900537b5d9560e9f937402de5ddc8412f3 upstream.
 
-platform_get_irq() returns negative error number instead 0 on failure.
-And the doc of platform_get_irq() provides a usage example:
+Setting PTRACE_O_SUSPEND_SECCOMP is supposed to be a highly privileged
+operation because it allows the tracee to completely bypass all seccomp
+filters on kernels with CONFIG_CHECKPOINT_RESTORE=y. It is only supposed to
+be settable by a process with global CAP_SYS_ADMIN, and only if that
+process is not subject to any seccomp filters at all.
 
-    int irq = platform_get_irq(pdev, 0);
-    if (irq < 0)
-        return irq;
+However, while these permission checks were done on the PTRACE_SETOPTIONS
+path, they were missing on the PTRACE_SEIZE path, which also sets
+user-specified ptrace flags.
 
-Fix the check of return value to catch errors correctly.
+Move the permissions checks out into a helper function and let both
+ptrace_attach() and ptrace_setoptions() call it.
 
-Fixes: f7a388d6cd1c ("power: reset: Add a driver for the Gemini poweroff")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@kernel.org
+Fixes: 13c4a90119d2 ("seccomp: add ptrace options for suspend/resume")
+Signed-off-by: Jann Horn <jannh@google.com>
+Link: https://lkml.kernel.org/r/20220319010838.1386861-1-jannh@google.com
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/reset/gemini-poweroff.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/ptrace.c |   47 ++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 32 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/power/reset/gemini-poweroff.c b/drivers/power/reset/gemini-poweroff.c
-index ff75af5abbc5..95d48edf0605 100644
---- a/drivers/power/reset/gemini-poweroff.c
-+++ b/drivers/power/reset/gemini-poweroff.c
-@@ -103,8 +103,8 @@ static int gemini_poweroff_probe(struct platform_device *pdev)
- 		return PTR_ERR(gpw->base);
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -371,6 +371,26 @@ bool ptrace_may_access(struct task_struc
+ 	return !err;
+ }
  
- 	irq = platform_get_irq(pdev, 0);
--	if (!irq)
++static int check_ptrace_options(unsigned long data)
++{
++	if (data & ~(unsigned long)PTRACE_O_MASK)
++		return -EINVAL;
++
++	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
++		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
++		    !IS_ENABLED(CONFIG_SECCOMP))
++			return -EINVAL;
++
++		if (!capable(CAP_SYS_ADMIN))
++			return -EPERM;
++
++		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
++		    current->ptrace & PT_SUSPEND_SECCOMP)
++			return -EPERM;
++	}
++	return 0;
++}
++
+ static int ptrace_attach(struct task_struct *task, long request,
+ 			 unsigned long addr,
+ 			 unsigned long flags)
+@@ -382,8 +402,16 @@ static int ptrace_attach(struct task_str
+ 	if (seize) {
+ 		if (addr != 0)
+ 			goto out;
++		/*
++		 * This duplicates the check in check_ptrace_options() because
++		 * ptrace_attach() and ptrace_setoptions() have historically
++		 * used different error codes for unknown ptrace options.
++		 */
+ 		if (flags & ~(unsigned long)PTRACE_O_MASK)
+ 			goto out;
++		retval = check_ptrace_options(flags);
++		if (retval)
++			return retval;
+ 		flags = PT_PTRACED | PT_SEIZED | (flags << PT_OPT_FLAG_SHIFT);
+ 	} else {
+ 		flags = PT_PTRACED;
+@@ -656,22 +684,11 @@ int ptrace_writedata(struct task_struct
+ static int ptrace_setoptions(struct task_struct *child, unsigned long data)
+ {
+ 	unsigned flags;
++	int ret;
+ 
+-	if (data & ~(unsigned long)PTRACE_O_MASK)
 -		return -EINVAL;
-+	if (irq < 0)
-+		return irq;
+-
+-	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
+-		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
+-		    !IS_ENABLED(CONFIG_SECCOMP))
+-			return -EINVAL;
+-
+-		if (!capable(CAP_SYS_ADMIN))
+-			return -EPERM;
+-
+-		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
+-		    current->ptrace & PT_SUSPEND_SECCOMP)
+-			return -EPERM;
+-	}
++	ret = check_ptrace_options(data);
++	if (ret)
++		return ret;
  
- 	gpw->dev = dev;
- 
--- 
-2.34.1
-
+ 	/* Avoid intermediate state when all opts are cleared */
+ 	flags = child->ptrace;
 
 
