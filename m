@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0EB85057C7
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3D76505221
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240431AbiDRN4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:56:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43936 "EHLO
+        id S239310AbiDRMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:40:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245492AbiDRNxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D2B12AA2;
-        Mon, 18 Apr 2022 06:02:50 -0700 (PDT)
+        with ESMTP id S240188AbiDRMiq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BC127B20;
+        Mon, 18 Apr 2022 05:29:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76428B80E44;
-        Mon, 18 Apr 2022 13:02:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BB89C385A7;
-        Mon, 18 Apr 2022 13:02:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65BB960FB6;
+        Mon, 18 Apr 2022 12:29:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22BD7C385A7;
+        Mon, 18 Apr 2022 12:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286968;
-        bh=wN7TAixEkP60Xc/Yu2o4rPXQ48aqjkAib6tQySG+lkU=;
+        s=korg; t=1650284963;
+        bh=NpLIpTM3p+k/Pq4eyAfmOfcE6IHkxg3SbdZtwzxjY5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XSALMJkdTlgqV71KbIZIO5XcmDoF5q9OsVOr85tFDYf8p2SiQmrewDomKFHOAgQ7A
-         ei0hI2JWCgkWGSgeE/Zjyx5kJ6Jw58WFtgyKq7kYmZoC4oXfItdSWuZzi4xqc+QsgW
-         4n5QyC4yym51/y7TZdf3KSj/f199Ji5OwVaABUME=
+        b=A19DacBivfFXo/BZDJ7h60xVNv+r4lC+HrDGim0222oUU2kQbvg26U6rru+r5nAcQ
+         Y6cjIfHd+2z5LYIM3kFtRiaS86mDI0QBmKpuN++7u3rtdbCBV24C6w8pe79cruZedZ
+         +ZM2PjMKaXRhYxEmzvdXDnMt27+H30alS//rUvo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.9 018/218] jffs2: fix use-after-free in jffs2_clear_xattr_subsystem
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 064/189] veth: Ensure eth header is in skbs linear part
 Date:   Mon, 18 Apr 2022 14:11:24 +0200
-Message-Id: <20220418121159.638915986@linuxfoundation.org>
+Message-Id: <20220418121202.326111744@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit 4c7c44ee1650677fbe89d86edbad9497b7679b5c upstream.
+[ Upstream commit 726e2c5929de841fdcef4e2bf995680688ae1b87 ]
 
-When we mount a jffs2 image, assume that the first few blocks of
-the image are normal and contain at least one xattr-related inode,
-but the next block is abnormal. As a result, an error is returned
-in jffs2_scan_eraseblock(). jffs2_clear_xattr_subsystem() is then
-called in jffs2_build_filesystem() and then again in
-jffs2_do_fill_super().
+After feeding a decapsulated packet to a veth device with act_mirred,
+skb_headlen() may be 0. But veth_xmit() calls __dev_forward_skb(),
+which expects at least ETH_HLEN byte of linear data (as
+__dev_forward_skb2() calls eth_type_trans(), which pulls ETH_HLEN bytes
+unconditionally).
 
-Finally we can observe the following report:
- ==================================================================
- BUG: KASAN: use-after-free in jffs2_clear_xattr_subsystem+0x95/0x6ac
- Read of size 8 at addr ffff8881243384e0 by task mount/719
+Use pskb_may_pull() to ensure veth_xmit() respects this constraint.
 
- Call Trace:
-  dump_stack+0x115/0x16b
-  jffs2_clear_xattr_subsystem+0x95/0x6ac
-  jffs2_do_fill_super+0x84f/0xc30
-  jffs2_fill_super+0x2ea/0x4c0
-  mtd_get_sb+0x254/0x400
-  mtd_get_sb_by_nr+0x4f/0xd0
-  get_tree_mtd+0x498/0x840
-  jffs2_get_tree+0x25/0x30
-  vfs_get_tree+0x8d/0x2e0
-  path_mount+0x50f/0x1e50
-  do_mount+0x107/0x130
-  __se_sys_mount+0x1c5/0x2f0
-  __x64_sys_mount+0xc7/0x160
-  do_syscall_64+0x45/0x70
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+kernel BUG at include/linux/skbuff.h:2328!
+RIP: 0010:eth_type_trans+0xcf/0x140
+Call Trace:
+ <IRQ>
+ __dev_forward_skb2+0xe3/0x160
+ veth_xmit+0x6e/0x250 [veth]
+ dev_hard_start_xmit+0xc7/0x200
+ __dev_queue_xmit+0x47f/0x520
+ ? skb_ensure_writable+0x85/0xa0
+ ? skb_mpls_pop+0x98/0x1c0
+ tcf_mirred_act+0x442/0x47e [act_mirred]
+ tcf_action_exec+0x86/0x140
+ fl_classify+0x1d8/0x1e0 [cls_flower]
+ ? dma_pte_clear_level+0x129/0x1a0
+ ? dma_pte_clear_level+0x129/0x1a0
+ ? prb_fill_curr_block+0x2f/0xc0
+ ? skb_copy_bits+0x11a/0x220
+ __tcf_classify+0x58/0x110
+ tcf_classify_ingress+0x6b/0x140
+ __netif_receive_skb_core.constprop.0+0x47d/0xfd0
+ ? __iommu_dma_unmap_swiotlb+0x44/0x90
+ __netif_receive_skb_one_core+0x3d/0xa0
+ netif_receive_skb+0x116/0x170
+ be_process_rx+0x22f/0x330 [be2net]
+ be_poll+0x13c/0x370 [be2net]
+ __napi_poll+0x2a/0x170
+ net_rx_action+0x22f/0x2f0
+ __do_softirq+0xca/0x2a8
+ __irq_exit_rcu+0xc1/0xe0
+ common_interrupt+0x83/0xa0
 
- Allocated by task 719:
-  kasan_save_stack+0x23/0x60
-  __kasan_kmalloc.constprop.0+0x10b/0x120
-  kasan_slab_alloc+0x12/0x20
-  kmem_cache_alloc+0x1c0/0x870
-  jffs2_alloc_xattr_ref+0x2f/0xa0
-  jffs2_scan_medium.cold+0x3713/0x4794
-  jffs2_do_mount_fs.cold+0xa7/0x2253
-  jffs2_do_fill_super+0x383/0xc30
-  jffs2_fill_super+0x2ea/0x4c0
- [...]
-
- Freed by task 719:
-  kmem_cache_free+0xcc/0x7b0
-  jffs2_free_xattr_ref+0x78/0x98
-  jffs2_clear_xattr_subsystem+0xa1/0x6ac
-  jffs2_do_mount_fs.cold+0x5e6/0x2253
-  jffs2_do_fill_super+0x383/0xc30
-  jffs2_fill_super+0x2ea/0x4c0
- [...]
-
- The buggy address belongs to the object at ffff8881243384b8
-  which belongs to the cache jffs2_xattr_ref of size 48
- The buggy address is located 40 bytes inside of
-  48-byte region [ffff8881243384b8, ffff8881243384e8)
- [...]
- ==================================================================
-
-The triggering of the BUG is shown in the following stack:
------------------------------------------------------------
-jffs2_fill_super
-  jffs2_do_fill_super
-    jffs2_do_mount_fs
-      jffs2_build_filesystem
-        jffs2_scan_medium
-          jffs2_scan_eraseblock        <--- ERROR
-        jffs2_clear_xattr_subsystem    <--- free
-    jffs2_clear_xattr_subsystem        <--- free again
------------------------------------------------------------
-
-An error is returned in jffs2_do_mount_fs(). If the error is returned
-by jffs2_sum_init(), the jffs2_clear_xattr_subsystem() does not need to
-be executed. If the error is returned by jffs2_build_filesystem(), the
-jffs2_clear_xattr_subsystem() also does not need to be executed again.
-So move jffs2_clear_xattr_subsystem() from 'out_inohash' to 'out_root'
-to fix this UAF problem.
-
-Fixes: aa98d7cf59b5 ("[JFFS2][XATTR] XATTR support on JFFS2 (version. 5)")
-Cc: stable@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e314dbdc1c0d ("[NET]: Virtual ethernet device driver.")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jffs2/fs.c |    2 +-
+ drivers/net/veth.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/jffs2/fs.c
-+++ b/fs/jffs2/fs.c
-@@ -596,8 +596,8 @@ out_root:
- 	jffs2_free_ino_caches(c);
- 	jffs2_free_raw_node_refs(c);
- 	kvfree(c->blocks);
-- out_inohash:
- 	jffs2_clear_xattr_subsystem(c);
-+ out_inohash:
- 	kfree(c->inocache_list);
-  out_wbuf:
- 	jffs2_flash_cleanup(c);
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index f478fe7e2b82..64fa8e9c0a22 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -327,7 +327,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	rcu_read_lock();
+ 	rcv = rcu_dereference(priv->peer);
+-	if (unlikely(!rcv)) {
++	if (unlikely(!rcv) || !pskb_may_pull(skb, ETH_HLEN)) {
+ 		kfree_skb(skb);
+ 		goto drop;
+ 	}
+-- 
+2.35.1
+
 
 
