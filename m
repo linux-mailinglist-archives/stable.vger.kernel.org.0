@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8774505318
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D844450544B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238164AbiDRMzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:55:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41916 "EHLO
+        id S240265AbiDRNF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:05:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240197AbiDRMzI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 548C72314E;
-        Mon, 18 Apr 2022 05:35:53 -0700 (PDT)
+        with ESMTP id S240870AbiDRNEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:04:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18E1DE090;
+        Mon, 18 Apr 2022 05:45:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A2F1DCE10A1;
-        Mon, 18 Apr 2022 12:35:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93900C385A1;
-        Mon, 18 Apr 2022 12:35:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB6E06124A;
+        Mon, 18 Apr 2022 12:45:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0F56C385A1;
+        Mon, 18 Apr 2022 12:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285350;
-        bh=3bXJTGa4nB+rHVKUU1SwJK0AvYctaHMhW1vyeWrlHhg=;
+        s=korg; t=1650285911;
+        bh=CbIPikTS98zell/omv2T4yTylZp9j5m2kHpnBAFAYvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKW1QqGXkvMK2znhZQGp06CbzpjScO4BiZNOBqf7gfFom+59AI/6YzXLflqywlFoK
-         WlYrROs54+Izb3mfKaQv00SC3lPcjbflXf2LvKi6s0rnEyM5G6/74bz4Li5BTDf9Xz
-         OJGhxMAESrKv1UOh5872o5Mjg0pg1CvtvzFkKzuA=
+        b=D+vfPl2NwLDd1yfCwuMojdXVM2tA7sBI1d1IK7Xzv3dlQmtMepCjhJDfNKdrJL9AY
+         mdDzDvJTxq67pHmDIr+YCDEtQqn1l/ySG2Q8Aqyz/KDQvkIrkkKo/o+sqVkMn1kBBz
+         2ri5xW373M8SDlyfU9YjTdx29Ryi5dWjgj5wC4mA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Larabel <Michael@MichaelLarabel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Subject: [PATCH 5.15 181/189] cpufreq: intel_pstate: ITMT support for overclocked system
-Date:   Mon, 18 Apr 2022 14:13:21 +0200
-Message-Id: <20220418121208.290534383@linuxfoundation.org>
+        stable@vger.kernel.org, Christian Lamparter <chunkeey@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 25/63] ata: libata-core: Disable READ LOG DMA EXT for Samsung 840 EVOs
+Date:   Mon, 18 Apr 2022 14:13:22 +0200
+Message-Id: <20220418121135.816202400@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-commit 03c83982a0278207709143ba78c5a470179febee upstream.
+[ Upstream commit 5399752299396a3c9df6617f4b3c907d7aa4ded8 ]
 
-On systems with overclocking enabled, CPPC Highest Performance can be
-hard coded to 0xff. In this case even if we have cores with different
-highest performance, ITMT can't be enabled as the current implementation
-depends on CPPC Highest Performance.
+Samsung' 840 EVO with the latest firmware (EXT0DB6Q) locks up with
+the a message: "READ LOG DMA EXT failed, trying PIO" during boot.
 
-On such systems we can use MSR_HWP_CAPABILITIES maximum performance field
-when CPPC.Highest Performance is 0xff.
+Initially this was discovered because it caused a crash
+with the sata_dwc_460ex controller on a WD MyBook Live DUO.
 
-Due to legacy reasons, we can't solely depend on MSR_HWP_CAPABILITIES as
-in some older systems CPPC Highest Performance is the only way to identify
-different performing cores.
+The reporter "Tice Rex" which has the unique opportunity that he
+has two Samsung 840 EVO SSD! One with the older firmware "EXT0BB0Q"
+which booted fine and didn't expose "READ LOG DMA EXT". But the
+newer/latest firmware "EXT0DB6Q" caused the headaches.
 
-Reported-by: Michael Larabel <Michael@MichaelLarabel.com>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Tested-by: Michael Larabel <Michael@MichaelLarabel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BugLink: https://github.com/openwrt/openwrt/issues/9505
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/intel_pstate.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/ata/libata-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -335,6 +335,8 @@ static void intel_pstste_sched_itmt_work
- 
- static DECLARE_WORK(sched_itmt_work, intel_pstste_sched_itmt_work_fn);
- 
-+#define CPPC_MAX_PERF	U8_MAX
-+
- static void intel_pstate_set_itmt_prio(int cpu)
- {
- 	struct cppc_perf_caps cppc_perf;
-@@ -346,6 +348,14 @@ static void intel_pstate_set_itmt_prio(i
- 		return;
- 
- 	/*
-+	 * On some systems with overclocking enabled, CPPC.highest_perf is hardcoded to 0xff.
-+	 * In this case we can't use CPPC.highest_perf to enable ITMT.
-+	 * In this case we can look at MSR_HWP_CAPABILITIES bits [8:0] to decide.
-+	 */
-+	if (cppc_perf.highest_perf == CPPC_MAX_PERF)
-+		cppc_perf.highest_perf = HWP_HIGHEST_PERF(READ_ONCE(all_cpu_data[cpu]->hwp_cap_cached));
-+
-+	/*
- 	 * The priorities can be set regardless of whether or not
- 	 * sched_set_itmt_support(true) has been called and it is valid to
- 	 * update them at any time after it has been called.
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index dca1590f295d..af8a1bac9345 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4580,6 +4580,9 @@ static const struct ata_blacklist_entry ata_device_blacklist [] = {
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "Crucial_CT*MX100*",		"MU01",	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
++	{ "Samsung SSD 840 EVO*",	NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
++						ATA_HORKAGE_NO_DMA_LOG |
++						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "Samsung SSD 840*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+ 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+-- 
+2.35.1
+
 
 
