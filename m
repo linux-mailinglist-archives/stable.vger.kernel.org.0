@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 904F0505140
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B88115054A6
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:22:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239087AbiDRMeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54196 "EHLO
+        id S243715AbiDRNVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:21:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239814AbiDRMda (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58B331BE83;
-        Mon, 18 Apr 2022 05:26:41 -0700 (PDT)
+        with ESMTP id S241503AbiDRNQE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:16:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364C23AA41;
+        Mon, 18 Apr 2022 05:51:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8E2560FB0;
-        Mon, 18 Apr 2022 12:26:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0154C385A7;
-        Mon, 18 Apr 2022 12:26:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B633561287;
+        Mon, 18 Apr 2022 12:51:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF746C385A1;
+        Mon, 18 Apr 2022 12:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284800;
-        bh=cjgxeclnMlt0Wf4GDnGqD7fbo9ohrM+9rOQvJXfpy14=;
+        s=korg; t=1650286280;
+        bh=uyKI9NfuAsg1H7QgPgrX80qRQkedSTzgCAc8mfglP2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k7lNRYpo1k6kQLYfiPfH5u2DWWH0yZp+bqcrN2lHDRnUsoR2qNm4J91jsZGx6RBZa
-         jVa4J/zJJJI1b05SpWgmGndnFnY9EUJE+W4BO8mflCaKpo2r//0aQTVreOpa4ItC0o
-         +Fcv2wJfC0mov2SJJhhqDFtAI6JqqxHd9VuRbBC8=
+        b=Jfj/535+N2UrLqDo7EDwnEMs26JqMi6YWMzgTcG99h4+UoDJDCqUQL+TVrEbmXigw
+         C4DYAvG0ex0+4dVmnBkbNXH3kN4PfS8lI4OrsfK44EMaM+lQu7IRIsIyqEeArIBLJJ
+         R3QRHIXNb1SqOryz9To15wcvACT8z+JDZTddcmwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 005/189] cpuidle: PSCI: Move the `has_lpi` check to the beginning of the function
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>
+Subject: [PATCH 4.14 044/284] ARM: dts: exynos: add missing HDMI supplies on SMDK5420
 Date:   Mon, 18 Apr 2022 14:10:25 +0200
-Message-Id: <20220418121200.553515582@linuxfoundation.org>
+Message-Id: <20220418121211.948260093@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 01f6c7338ce267959975da65d86ba34f44d54220 upstream.
+commit 453a24ded415f7fce0499c6b0a2c7b28f84911f2 upstream.
 
-Currently the first thing checked is whether the PCSI cpu_suspend function
-has been initialized.
+Add required VDD supplies to HDMI block on SMDK5420.  Without them, the
+HDMI driver won't probe.  Because of lack of schematics, use same
+supplies as on Arndale Octa and Odroid XU3 boards (voltage matches).
 
-Another change will be overloading `acpi_processor_ffh_lpi_probe` and
-calling it sooner.  So make the `has_lpi` check the first thing checked
-to prepare for that change.
-
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: <stable@vger.kernel.org> # v3.15+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220208171823.226211-3-krzysztof.kozlowski@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpuidle.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/exynos5420-smdk5420.dts |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm64/kernel/cpuidle.c
-+++ b/arch/arm64/kernel/cpuidle.c
-@@ -54,6 +54,9 @@ static int psci_acpi_cpu_init_idle(unsig
- 	struct acpi_lpi_state *lpi;
- 	struct acpi_processor *pr = per_cpu(processors, cpu);
+--- a/arch/arm/boot/dts/exynos5420-smdk5420.dts
++++ b/arch/arm/boot/dts/exynos5420-smdk5420.dts
+@@ -133,6 +133,9 @@
+ 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&hdmi_hpd_irq>;
++	vdd-supply = <&ldo6_reg>;
++	vdd_osc-supply = <&ldo7_reg>;
++	vdd_pll-supply = <&ldo6_reg>;
+ };
  
-+	if (unlikely(!pr || !pr->flags.has_lpi))
-+		return -EINVAL;
-+
- 	/*
- 	 * If the PSCI cpu_suspend function hook has not been initialized
- 	 * idle states must not be enabled, so bail out
-@@ -61,9 +64,6 @@ static int psci_acpi_cpu_init_idle(unsig
- 	if (!psci_ops.cpu_suspend)
- 		return -EOPNOTSUPP;
- 
--	if (unlikely(!pr || !pr->flags.has_lpi))
--		return -EINVAL;
--
- 	count = pr->power.count - 1;
- 	if (count <= 0)
- 		return -ENODEV;
+ &hsi2c_4 {
 
 
