@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A20075053AC
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80152505818
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238741AbiDRNA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32932 "EHLO
+        id S244588AbiDROAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:00:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242468AbiDRM76 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E73573121E;
-        Mon, 18 Apr 2022 05:41:21 -0700 (PDT)
+        with ESMTP id S244404AbiDRN5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0023421823;
+        Mon, 18 Apr 2022 06:07:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFAA4B80EC3;
-        Mon, 18 Apr 2022 12:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F0A2C385A7;
-        Mon, 18 Apr 2022 12:41:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2CD3B80E4B;
+        Mon, 18 Apr 2022 13:07:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAA6AC385A1;
+        Mon, 18 Apr 2022 13:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285678;
-        bh=xVm6RRwV0iebQzfEjV2PEmWJc2EKFy1OV3lmNHvO7uQ=;
+        s=korg; t=1650287246;
+        bh=mkQAaVgmHnq4T5zrCo9Fce6UVrAqge73kNLYMkKhGkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hBnOh1VAq+D8KX7JMaZLUMU5A5jXPxE0gHIRnqjt2P2ZXG9H4xyBGJedhLDScxY9Q
-         3tgJGRTCo/y+okmhStDaMwOXcSi83icOybMawoyVE3NnsGBVxxjYyJOHPa/YkjjLzx
-         5plDFz+grcf40bT+ylV7CZAM4rlTMtTnHCg95o+Q=
+        b=z020u+KvayKd5jOg8p6T4QExItoO4VHrlOEkhAhFfS0vjdV3uxE5TthGb71oU2JEK
+         7dgQ9WEQfh9MGH/BDsvQsiBAH1Xf6ajdUUSxeTzMWQSmwPax8UsNzyUqFBGb5lYb9Y
+         9TnDnWCTMnDhxK3NpLeaO9mh5+wYoRw/q/SvJxmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alvin Lee <Alvin.Lee2@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Alex Hung <alex.hung@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/105] drm/amd/display: fix audio format not updated after edid updated
-Date:   Mon, 18 Apr 2022 14:12:47 +0200
-Message-Id: <20220418121147.759894866@linuxfoundation.org>
+Subject: [PATCH 4.9 102/218] mfd: asic3: Add missing iounmap() on error asic3_mfd_probe
+Date:   Mon, 18 Apr 2022 14:12:48 +0200
+Message-Id: <20220418121202.520953739@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,42 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charlene Liu <Charlene.Liu@amd.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 5e8a71cf13bc9184fee915b2220be71b4c6cac74 ]
+[ Upstream commit e84ee1a75f944a0fe3c277aaa10c426603d2b0bc ]
 
-[why]
-for the case edid change only changed audio format.
-driver still need to update stream.
+Add the missing iounmap() before return from asic3_mfd_probe
+in the error handling case.
 
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Charlene Liu <Charlene.Liu@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 64e8867ba809 ("mfd: tmio_mmc hardware abstraction for CNF area")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220307072947.5369-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/mfd/asic3.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 5c5ccbad9658..1e47afc4ccc1 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1701,8 +1701,8 @@ bool dc_is_stream_unchanged(
- 	if (old_stream->ignore_msa_timing_param != stream->ignore_msa_timing_param)
- 		return false;
+diff --git a/drivers/mfd/asic3.c b/drivers/mfd/asic3.c
+index 0413c8159551..34270e237726 100644
+--- a/drivers/mfd/asic3.c
++++ b/drivers/mfd/asic3.c
+@@ -915,14 +915,14 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
+ 		ret = mfd_add_devices(&pdev->dev, pdev->id,
+ 			&asic3_cell_ds1wm, 1, mem, asic->irq_base, NULL);
+ 		if (ret < 0)
+-			goto out;
++			goto out_unmap;
+ 	}
  
--	// Only Have Audio left to check whether it is same or not. This is a corner case for Tiled sinks
--	if (old_stream->audio_info.mode_count != stream->audio_info.mode_count)
-+	/*compare audio info*/
-+	if (memcmp(&old_stream->audio_info, &stream->audio_info, sizeof(stream->audio_info)) != 0)
- 		return false;
+ 	if (mem_sdio && (irq >= 0)) {
+ 		ret = mfd_add_devices(&pdev->dev, pdev->id,
+ 			&asic3_cell_mmc, 1, mem_sdio, irq, NULL);
+ 		if (ret < 0)
+-			goto out;
++			goto out_unmap;
+ 	}
  
- 	return true;
+ 	ret = 0;
+@@ -936,8 +936,12 @@ static int __init asic3_mfd_probe(struct platform_device *pdev,
+ 		ret = mfd_add_devices(&pdev->dev, 0,
+ 			asic3_cell_leds, ASIC3_NUM_LEDS, NULL, 0, NULL);
+ 	}
++	return ret;
+ 
+- out:
++out_unmap:
++	if (asic->tmio_cnf)
++		iounmap(asic->tmio_cnf);
++out:
+ 	return ret;
+ }
+ 
 -- 
-2.35.1
+2.34.1
 
 
 
