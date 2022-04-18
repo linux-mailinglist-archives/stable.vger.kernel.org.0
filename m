@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5C81505173
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B11505350
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239192AbiDRMex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53928 "EHLO
+        id S236618AbiDRM4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239423AbiDRMdB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1431F26AE8;
-        Mon, 18 Apr 2022 05:24:37 -0700 (PDT)
+        with ESMTP id S240360AbiDRMzi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F25CEC74;
+        Mon, 18 Apr 2022 05:37:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C793B80ED1;
-        Mon, 18 Apr 2022 12:24:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 890CAC385A7;
-        Mon, 18 Apr 2022 12:24:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F5F1611AD;
+        Mon, 18 Apr 2022 12:37:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 996D6C385BA;
+        Mon, 18 Apr 2022 12:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284674;
-        bh=0w5fkYWRq9t9bwKn/65Gjp/8xhsgA6n0+Ym3YnpIS4k=;
+        s=korg; t=1650285446;
+        bh=kjdzpzAkNacLqUU5l4Mkqd7ZNHLTMKmnNuM76nBBmnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qCaJDJDxcx/0llfwk1UEpDzrWxxeX058mpXVz6M87fOGPKmvTz9jamBq1dEhGrJL9
-         Yig9OhL2F5Zr5WJJa1lza9pIqx9et67/2uVHk71xNAH1u5jCv1JAeE632fOYenuSIO
-         fVW4IMjEdrvnaTU3IVkvL+G18u39h5/4ipa36lkw=
+        b=SdVuVAq/uOtQHca5xm5PlUyS4hcokQwL7nrKBUGhCT1P9+xY0yuwiy0Q6sndXCzh5
+         Lt0P/7Xofy68MaL+AHOsG5EgN/q6UO9BvMCnUgCTRu1PIXlqfpzqOASFOHyIrNNq5Z
+         dTZiVUiFOMTRDgjzmp1sBOd9mF5qdNOOr8qOdtWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Frank Li <Frank.li@nxp.com>, Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org,
+        Rameshkumar Sundaram <quic_ramess@quicinc.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 174/219] perf/imx_ddr: Fix undefined behavior due to shift overflowing the constant
+Subject: [PATCH 5.10 021/105] cfg80211: hold bss_lock while updating nontrans_list
 Date:   Mon, 18 Apr 2022 14:12:23 +0200
-Message-Id: <20220418121211.748966891@linuxfoundation.org>
+Message-Id: <20220418121146.704752404@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,54 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Rameshkumar Sundaram <quic_ramess@quicinc.com>
 
-[ Upstream commit d02b4dd84e1a90f7f1444d027c0289bf355b0d5a ]
+[ Upstream commit a5199b5626cd6913cf8776a835bc63d40e0686ad ]
 
-Fix:
+Synchronize additions to nontrans_list of transmitting BSS with
+bss_lock to avoid races. Also when cfg80211_add_nontrans_list() fails
+__cfg80211_unlink_bss() needs bss_lock to be held (has lockdep assert
+on bss_lock). So protect the whole block with bss_lock to avoid
+races and warnings. Found during code review.
 
-  In file included from <command-line>:0:0:
-  In function ‘ddr_perf_counter_enable’,
-      inlined from ‘ddr_perf_irq_handler’ at drivers/perf/fsl_imx8_ddr_perf.c:651:2:
-  ././include/linux/compiler_types.h:352:38: error: call to ‘__compiletime_assert_729’ \
-	declared with attribute error: FIELD_PREP: mask is not constant
-    _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
-...
-
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Frank Li <Frank.li@nxp.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220405151517.29753-10-bp@alien8.de
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Signed-off-by: Rameshkumar Sundaram <quic_ramess@quicinc.com>
+Link: https://lore.kernel.org/r/1649668071-9370-1-git-send-email-quic_ramess@quicinc.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/fsl_imx8_ddr_perf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/scan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/perf/fsl_imx8_ddr_perf.c b/drivers/perf/fsl_imx8_ddr_perf.c
-index 94ebc1ecace7..b1b2a55de77f 100644
---- a/drivers/perf/fsl_imx8_ddr_perf.c
-+++ b/drivers/perf/fsl_imx8_ddr_perf.c
-@@ -29,7 +29,7 @@
- #define CNTL_OVER_MASK		0xFFFFFFFE
+diff --git a/net/wireless/scan.c b/net/wireless/scan.c
+index c1b2655682a8..6dc9b7e22b71 100644
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -1968,11 +1968,13 @@ cfg80211_inform_single_bss_data(struct wiphy *wiphy,
+ 		/* this is a nontransmitting bss, we need to add it to
+ 		 * transmitting bss' list if it is not there
+ 		 */
++		spin_lock_bh(&rdev->bss_lock);
+ 		if (cfg80211_add_nontrans_list(non_tx_data->tx_bss,
+ 					       &res->pub)) {
+ 			if (__cfg80211_unlink_bss(rdev, res))
+ 				rdev->bss_generation++;
+ 		}
++		spin_unlock_bh(&rdev->bss_lock);
+ 	}
  
- #define CNTL_CSV_SHIFT		24
--#define CNTL_CSV_MASK		(0xFF << CNTL_CSV_SHIFT)
-+#define CNTL_CSV_MASK		(0xFFU << CNTL_CSV_SHIFT)
- 
- #define EVENT_CYCLES_ID		0
- #define EVENT_CYCLES_COUNTER	0
+ 	trace_cfg80211_return_bss(&res->pub);
 -- 
 2.35.1
 
