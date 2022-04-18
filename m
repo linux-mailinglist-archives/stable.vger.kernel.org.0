@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 036A250553C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3709505073
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbiDRNOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:14:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53540 "EHLO
+        id S238594AbiDRMZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:25:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235578AbiDRNMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:12:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55ED92D1F4;
-        Mon, 18 Apr 2022 05:50:45 -0700 (PDT)
+        with ESMTP id S238690AbiDRMZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:25:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F58F1D0DE;
+        Mon, 18 Apr 2022 05:19:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 011C3B80E4B;
-        Mon, 18 Apr 2022 12:50:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40E1EC385A7;
-        Mon, 18 Apr 2022 12:50:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C4EC60F0A;
+        Mon, 18 Apr 2022 12:19:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7AF2C385A1;
+        Mon, 18 Apr 2022 12:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286242;
-        bh=FsWshQH8zkPlqgJV6Rgm23aYYDRNwTmQRak3RDzTGdo=;
+        s=korg; t=1650284369;
+        bh=N8CxiVuHzPHJ0BNRM4lnhe/0TLjk3RtN46UbVkEKNtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wSi5utzhqlLOxnlKPWbb132ee0tOb3aJLPytlEaunoavux73i9fHxGDlx91FI13qy
-         sLpC6sdH0WHvLpHSACacVenaMEQKARMBsH8LkcQgR0nVBXAVupvh35pvdUUXk0IMVh
-         On3suFrkr+mQxtWGYLDhjb0D+mxne1RoJZpk7sIs=
+        b=ElVlyqyCaO/tbKCSTsVV4fc0vkIFAneKLdNQPkKvMjfUV44DWIj5N2DG6Oiscewf+
+         +FpfB8avy4kY5epN/dBkvirjrGKsklE4VbclnCIy5+g84Qmh0zgyViq0OAVY4Ep/RA
+         Rhf8keD6NV2ESggOAPXDi+mTzmt7YmoOY+LN12Ww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/284] video: fbdev: smscufx: Fix null-ptr-deref in ufx_usb_probe()
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 084/219] io_uring: flag the fact that linked file assignment is sane
 Date:   Mon, 18 Apr 2022 14:10:53 +0200
-Message-Id: <20220418121212.735308807@linuxfoundation.org>
+Message-Id: <20220418121208.719185493@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 1791f487f877a9e83d81c8677bd3e7b259e7cb27 ]
+[ Upstream commit c4212f3eb89fd5654f0a6ed2ee1d13fcb86cb664 ]
 
-I got a null-ptr-deref report:
+Give applications a way to tell if the kernel supports sane linked files,
+as in files being assigned at the right time to be able to reliably
+do <open file direct into slot X><read file from slot X> while using
+IOSQE_IO_LINK to order them.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-...
-RIP: 0010:fb_destroy_modelist+0x38/0x100
-...
-Call Trace:
- ufx_usb_probe.cold+0x2b5/0xac1 [smscufx]
- usb_probe_interface+0x1aa/0x3c0 [usbcore]
- really_probe+0x167/0x460
-...
- ret_from_fork+0x1f/0x30
+Not really a bug fix, but flag it as such so that it gets pulled in with
+backports of the deferred file assignment.
 
-If fb_alloc_cmap() fails in ufx_usb_probe(), fb_destroy_modelist() will
-be called to destroy modelist in the error handling path. But modelist
-has not been initialized yet, so it will result in null-ptr-deref.
-
-Initialize modelist before calling fb_alloc_cmap() to fix this bug.
-
-Fixes: 3c8a63e22a08 ("Add support for SMSC UFX6000/7000 USB display adapters")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 6bf9c47a3989 ("io_uring: defer file assignment")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/smscufx.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/io_uring.c                 | 3 ++-
+ include/uapi/linux/io_uring.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/smscufx.c b/drivers/video/fbdev/smscufx.c
-index 2275e80b5776..1b244bea24b8 100644
---- a/drivers/video/fbdev/smscufx.c
-+++ b/drivers/video/fbdev/smscufx.c
-@@ -1672,6 +1672,7 @@ static int ufx_usb_probe(struct usb_interface *interface,
- 	info->par = dev;
- 	info->pseudo_palette = dev->pseudo_palette;
- 	info->fbops = &ufx_ops;
-+	INIT_LIST_HEAD(&info->modelist);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 1a9630dc5361..d13f142793f2 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -10566,7 +10566,8 @@ static __cold int io_uring_create(unsigned entries, struct io_uring_params *p,
+ 			IORING_FEAT_CUR_PERSONALITY | IORING_FEAT_FAST_POLL |
+ 			IORING_FEAT_POLL_32BITS | IORING_FEAT_SQPOLL_NONFIXED |
+ 			IORING_FEAT_EXT_ARG | IORING_FEAT_NATIVE_WORKERS |
+-			IORING_FEAT_RSRC_TAGS | IORING_FEAT_CQE_SKIP;
++			IORING_FEAT_RSRC_TAGS | IORING_FEAT_CQE_SKIP |
++			IORING_FEAT_LINKED_FILE;
  
- 	retval = fb_alloc_cmap(&info->cmap, 256, 0);
- 	if (retval < 0) {
-@@ -1682,8 +1683,6 @@ static int ufx_usb_probe(struct usb_interface *interface,
- 	INIT_DELAYED_WORK(&dev->free_framebuffer_work,
- 			  ufx_free_framebuffer_work);
+ 	if (copy_to_user(params, p, sizeof(*p))) {
+ 		ret = -EFAULT;
+diff --git a/include/uapi/linux/io_uring.h b/include/uapi/linux/io_uring.h
+index 787f491f0d2a..1e45368ad33f 100644
+--- a/include/uapi/linux/io_uring.h
++++ b/include/uapi/linux/io_uring.h
+@@ -293,6 +293,7 @@ struct io_uring_params {
+ #define IORING_FEAT_NATIVE_WORKERS	(1U << 9)
+ #define IORING_FEAT_RSRC_TAGS		(1U << 10)
+ #define IORING_FEAT_CQE_SKIP		(1U << 11)
++#define IORING_FEAT_LINKED_FILE		(1U << 12)
  
--	INIT_LIST_HEAD(&info->modelist);
--
- 	retval = ufx_reg_read(dev, 0x3000, &id_rev);
- 	check_warn_goto_error(retval, "error %d reading 0x3000 register from device", retval);
- 	dev_dbg(dev->gdev, "ID_REV register value 0x%08x", id_rev);
+ /*
+  * io_uring_register(2) opcodes and arguments
 -- 
-2.34.1
+2.35.1
 
 
 
