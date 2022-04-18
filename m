@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B742505002
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6165054E1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236196AbiDRMUA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:20:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49438 "EHLO
+        id S241626AbiDRNPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:15:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238300AbiDRMTs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:19:48 -0400
+        with ESMTP id S241689AbiDRNI3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43891BE98;
-        Mon, 18 Apr 2022 05:16:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7599C2B27B;
+        Mon, 18 Apr 2022 05:47:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8281B80ED1;
-        Mon, 18 Apr 2022 12:16:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E797C385A7;
-        Mon, 18 Apr 2022 12:16:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AF3CB80E4B;
+        Mon, 18 Apr 2022 12:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D422C385A7;
+        Mon, 18 Apr 2022 12:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284189;
-        bh=V+OmPu9yX54w8KA9uMNf+LGzMmg24e60JxprMKf1Nhw=;
+        s=korg; t=1650286072;
+        bh=hSjoxYGD0LqCdflEGlp2q8yQwCPWJI2u6IK7aPgXHWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jp5zVLhvNpRFmHIHI5yhamhmk8uWkXaOLBnqATTh+QecwRWdqPh76InWM9dIWxdC9
-         8fsPYTP44sAbH0Q0pamXMmc9wHLMws0+VPbrdblF1mwn8gS17ECdorlA2KL37pgFml
-         U1J/QT8+v1OB0fnf6UVTZhS9DzmZEF3qce/uwdUs=
+        b=yJ/wv0bQ3n6SvaqqklvFdwF9JqaBmbyQUrGe6/3yDT3nDx38BVAXHwLtO8kPxtsaK
+         cdzYt/ZI/DHi0tJxL9oS8555NGBipXK6uG8oc67N3AjSQcbQp9zP+CkgpddMVw/HzP
+         C0h1GFcR+SWjfTOyE3qWEMIq/ti6KkJqEn4WdliA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Zheyu Ma <zheyuma97@gmail.com>
-Subject: [PATCH 5.17 031/219] ALSA: echoaudio: Fix the missing snd_card_free() call at probe error
-Date:   Mon, 18 Apr 2022 14:10:00 +0200
-Message-Id: <20220418121205.143768308@linuxfoundation.org>
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Bagas Sanjaya <bagasdotme@gmail.com>
+Subject: [PATCH 4.14 020/284] Documentation: add link to stable release candidate tree
+Date:   Mon, 18 Apr 2022 14:10:01 +0200
+Message-Id: <20220418121211.271650450@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Bagas Sanjaya <bagasdotme@gmail.com>
 
-commit 313c7e57035125cb7533b53ddd0bc7aa562b433c upstream.
+commit 587d39b260c4d090166314d64be70b1f6a26b0b5 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+There is also stable release candidate tree. Mention it, however with a
+warning that the tree is for testing purposes.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: 9c211bf392bb ("ALSA: echoaudio: Allocate resources with device-managed APIs")
-Reported-and-tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CAMhUBjm2AdyEZ_-EgexdNDN7SvY4f89=4=FwAL+c0Mg0O+X50A@mail.gmail.com
-Link: https://lore.kernel.org/r/20220412093141.8008-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Link: https://lore.kernel.org/r/20220314113329.485372-5-bagasdotme@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/echoaudio/echoaudio.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ Documentation/process/stable-kernel-rules.rst |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/sound/pci/echoaudio/echoaudio.c
-+++ b/sound/pci/echoaudio/echoaudio.c
-@@ -1970,8 +1970,8 @@ static int snd_echo_create(struct snd_ca
- }
+--- a/Documentation/process/stable-kernel-rules.rst
++++ b/Documentation/process/stable-kernel-rules.rst
+@@ -173,6 +173,15 @@ Trees
  
- /* constructor */
--static int snd_echo_probe(struct pci_dev *pci,
--			  const struct pci_device_id *pci_id)
-+static int __snd_echo_probe(struct pci_dev *pci,
-+			    const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -2139,6 +2139,11 @@ static int snd_echo_probe(struct pci_dev
- 	return 0;
- }
+ 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
  
-+static int snd_echo_probe(struct pci_dev *pci,
-+			  const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_echo_probe(pci, pci_id));
-+}
++ - The release candidate of all stable kernel versions can be found at:
++
++        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/
++
++   .. warning::
++      The -stable-rc tree is a snapshot in time of the stable-queue tree and
++      will change frequently, hence will be rebased often. It should only be
++      used for testing purposes (e.g. to be consumed by CI systems).
++
  
- 
- #if defined(CONFIG_PM_SLEEP)
+ Review committee
+ ----------------
 
 
