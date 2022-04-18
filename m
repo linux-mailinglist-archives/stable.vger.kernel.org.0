@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E0E45053C4
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1EF505417
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240875AbiDRNCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:02:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59920 "EHLO
+        id S235457AbiDRNEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:04:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239634AbiDRNAO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:00:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B911B3153A;
-        Mon, 18 Apr 2022 05:41:48 -0700 (PDT)
+        with ESMTP id S241523AbiDRNDJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8BD33A04;
+        Mon, 18 Apr 2022 05:43:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2861C60FB6;
-        Mon, 18 Apr 2022 12:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15E07C385A8;
-        Mon, 18 Apr 2022 12:41:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F9C5B80E4E;
+        Mon, 18 Apr 2022 12:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E08C6C385A1;
+        Mon, 18 Apr 2022 12:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285707;
-        bh=PRKKSlC++3tu0htGySyF7EK6m/IfUhB+bYRdOYfYruw=;
+        s=korg; t=1650285816;
+        bh=zaBTjNkcM8cbUwEEMh6y0TD42PYpHi2M7HAfRYX2IB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aMKbI9dwnPxEWWOfe+ynqFLoB4+1GDXqHoiw+nkoqgiVYk7zZF6uau0DILP973hcW
-         v2F4KYMem8odoR0ladnaWYjFYRrwBlWNwbuJMWazPqkGGu7P6u0P/Ul9e+1OErMOTx
-         cZZiIwr69lazYQKU4bKp8wvAZrf0pKWavWWykm90=
+        b=He9KX69x5fAOqGhFwDgbrKZ9Mw+Cx0wUTtKEHJA5yQtTUthRQsL27250CjLb6Vj9k
+         agSYkboBA1JfsahAWBYdr987UrpLHXwGOwRCz4/ILLEvCdL6B7O6TVKUWxXfU/20tz
+         h7bd49PMUAWQiNbq9MIha68LbgD4yiBUS3WudsZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ming Lei <ming.lei@redhat.com>
-Subject: [PATCH 5.10 088/105] genirq/affinity: Consider that CPUs on nodes can be unbalanced
-Date:   Mon, 18 Apr 2022 14:13:30 +0200
-Message-Id: <20220418121149.133631295@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 34/63] scsi: megaraid_sas: Target with invalid LUN ID is deleted during scan
+Date:   Mon, 18 Apr 2022 14:13:31 +0200
+Message-Id: <20220418121136.492784074@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
+From: Chandrakanth patil <chandrakanth.patil@broadcom.com>
 
-commit 08d835dff916bfe8f45acc7b92c7af6c4081c8a7 upstream.
+[ Upstream commit 56495f295d8e021f77d065b890fc0100e3f9f6d8 ]
 
-If CPUs on a node are offline at boot time, the number of nodes is
-different when building affinity masks for present cpus and when building
-affinity masks for possible cpus. This causes the following problem:
+The megaraid_sas driver supports single LUN for RAID devices. That is LUN
+0. All other LUNs are unsupported. When a device scan on a logical target
+with invalid LUN number is invoked through sysfs, that target ends up
+getting removed.
 
-In the case that the number of vectors is less than the number of nodes
-there are cases where bits of masks for present cpus are overwritten when
-building masks for possible cpus.
+Add LUN ID validation in the slave destroy function to avoid the target
+deletion.
 
-Fix this by excluding CPUs, which are not part of the current build mask
-(present/possible).
-
-[ tglx: Massaged changelog and added comment ]
-
-Fixes: b82592199032 ("genirq/affinity: Spread IRQs to all available NUMA nodes")
-Signed-off-by: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220331003309.10891-1-yamamoto.rei@jp.fujitsu.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220324094711.48833-1-chandrakanth.patil@broadcom.com
+Signed-off-by: Chandrakanth patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/affinity.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas.h      | 3 +++
+ drivers/scsi/megaraid/megaraid_sas_base.c | 7 +++++++
+ 2 files changed, 10 insertions(+)
 
---- a/kernel/irq/affinity.c
-+++ b/kernel/irq/affinity.c
-@@ -269,8 +269,9 @@ static int __irq_build_affinity_masks(un
- 	 */
- 	if (numvecs <= nodes) {
- 		for_each_node_mask(n, nodemsk) {
--			cpumask_or(&masks[curvec].mask, &masks[curvec].mask,
--				   node_to_cpumask[n]);
-+			/* Ensure that only CPUs which are in both masks are set */
-+			cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);
-+			cpumask_or(&masks[curvec].mask, &masks[curvec].mask, nmsk);
- 			if (++curvec == last_affv)
- 				curvec = firstvec;
+diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
+index 3d43ac9772f7..aa62cc8ffd0a 100644
+--- a/drivers/scsi/megaraid/megaraid_sas.h
++++ b/drivers/scsi/megaraid/megaraid_sas.h
+@@ -2551,6 +2551,9 @@ struct megasas_instance_template {
+ #define MEGASAS_IS_LOGICAL(sdev)					\
+ 	((sdev->channel < MEGASAS_MAX_PD_CHANNELS) ? 0 : 1)
+ 
++#define MEGASAS_IS_LUN_VALID(sdev)					\
++	(((sdev)->lun == 0) ? 1 : 0)
++
+ #define MEGASAS_DEV_INDEX(scp)						\
+ 	(((scp->device->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +	\
+ 	scp->device->id)
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 6700d43b12ff..a261ce511e9e 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -2102,6 +2102,9 @@ static int megasas_slave_alloc(struct scsi_device *sdev)
+ 			goto scan_target;
  		}
+ 		return -ENXIO;
++	} else if (!MEGASAS_IS_LUN_VALID(sdev)) {
++		sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
++		return -ENXIO;
+ 	}
+ 
+ scan_target:
+@@ -2132,6 +2135,10 @@ static void megasas_slave_destroy(struct scsi_device *sdev)
+ 	instance = megasas_lookup_instance(sdev->host->host_no);
+ 
+ 	if (MEGASAS_IS_LOGICAL(sdev)) {
++		if (!MEGASAS_IS_LUN_VALID(sdev)) {
++			sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
++			return;
++		}
+ 		ld_tgt_id = MEGASAS_TARGET_ID(sdev);
+ 		instance->ld_tgtid_status[ld_tgt_id] = LD_TARGET_ID_DELETED;
+ 		if (megasas_dbg_lvl & LD_PD_DEBUG)
+-- 
+2.35.1
+
 
 
