@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0EFB50503B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC35505187
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238301AbiDRMXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:23:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48826 "EHLO
+        id S235668AbiDRMfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:35:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238863AbiDRMXC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2DB1AF03;
-        Mon, 18 Apr 2022 05:18:26 -0700 (PDT)
+        with ESMTP id S239903AbiDRMde (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C2B1EC6A;
+        Mon, 18 Apr 2022 05:26:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A41B6B80ED1;
-        Mon, 18 Apr 2022 12:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CEC3C385A7;
-        Mon, 18 Apr 2022 12:18:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBFD460B40;
+        Mon, 18 Apr 2022 12:26:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6757C385A8;
+        Mon, 18 Apr 2022 12:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284303;
-        bh=7pK5U8DB1SfOfjUxdAwgUxoc0AkrGRkjWhwk7zGLpa4=;
+        s=korg; t=1650284817;
+        bh=ySO7GTBaEjzR2TeAio7eXrxjSfOfiGxEe0t48xlU2Xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AV/G9oxifRzV/h17c+iJr+ASRyGP7e/DHek8nfIX9LRAyuqBmkP4SFOjMfJ7++Mte
-         G4HNlkujo+erKrsa1jlDeprpL3S4tydmP0aQ5KNUO/4PE5hxwIr38QCu3T8rdEaUvT
-         zL7snHd7lM0UjEFSUz/WAE6LFruunDUXb0ijQi98=
+        b=YRxKajxUXIWKCbnIwvldumXp49ZKCc3Qlby30hScVVO4FWUIXPs5H75lm2WQ4RMZ0
+         iSShdC3BsKQfzGyqXKzDIaTw0VIoq6oiKZx88WYqrbrslq00BZwA9hvBlBTd0vghrk
+         RW0gBR8maBC7yshS7Q/ombBXvqFNRpIQfE/rB7vE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 069/219] veth: Ensure eth header is in skbs linear part
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 018/189] ALSA: ali5451: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:10:38 +0200
-Message-Id: <20220418121207.705456443@linuxfoundation.org>
+Message-Id: <20220418121201.033545609@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 726e2c5929de841fdcef4e2bf995680688ae1b87 ]
+commit 19401a9441236cfbbbeb1bef4ef4c8668db45dfc upstream.
 
-After feeding a decapsulated packet to a veth device with act_mirred,
-skb_headlen() may be 0. But veth_xmit() calls __dev_forward_skb(),
-which expects at least ETH_HLEN byte of linear data (as
-__dev_forward_skb2() calls eth_type_trans(), which pulls ETH_HLEN bytes
-unconditionally).
+The recent cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-Use pskb_may_pull() to ensure veth_xmit() respects this constraint.
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-kernel BUG at include/linux/skbuff.h:2328!
-RIP: 0010:eth_type_trans+0xcf/0x140
-Call Trace:
- <IRQ>
- __dev_forward_skb2+0xe3/0x160
- veth_xmit+0x6e/0x250 [veth]
- dev_hard_start_xmit+0xc7/0x200
- __dev_queue_xmit+0x47f/0x520
- ? skb_ensure_writable+0x85/0xa0
- ? skb_mpls_pop+0x98/0x1c0
- tcf_mirred_act+0x442/0x47e [act_mirred]
- tcf_action_exec+0x86/0x140
- fl_classify+0x1d8/0x1e0 [cls_flower]
- ? dma_pte_clear_level+0x129/0x1a0
- ? dma_pte_clear_level+0x129/0x1a0
- ? prb_fill_curr_block+0x2f/0xc0
- ? skb_copy_bits+0x11a/0x220
- __tcf_classify+0x58/0x110
- tcf_classify_ingress+0x6b/0x140
- __netif_receive_skb_core.constprop.0+0x47d/0xfd0
- ? __iommu_dma_unmap_swiotlb+0x44/0x90
- __netif_receive_skb_one_core+0x3d/0xa0
- netif_receive_skb+0x116/0x170
- be_process_rx+0x22f/0x330 [be2net]
- be_poll+0x13c/0x370 [be2net]
- __napi_poll+0x2a/0x170
- net_rx_action+0x22f/0x2f0
- __do_softirq+0xca/0x2a8
- __irq_exit_rcu+0xc1/0xe0
- common_interrupt+0x83/0xa0
-
-Fixes: e314dbdc1c0d ("[NET]: Virtual ethernet device driver.")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1f0819979248 ("ALSA: ali5451: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-5-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/veth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/ali5451/ali5451.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index d29fb9759cc9..6c8f4f4dfc8a 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -320,7 +320,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/sound/pci/ali5451/ali5451.c b/sound/pci/ali5451/ali5451.c
+index 92eb59db106d..2378a39abaeb 100644
+--- a/sound/pci/ali5451/ali5451.c
++++ b/sound/pci/ali5451/ali5451.c
+@@ -2124,8 +2124,8 @@ static int snd_ali_create(struct snd_card *card,
+ 	return 0;
+ }
  
- 	rcu_read_lock();
- 	rcv = rcu_dereference(priv->peer);
--	if (unlikely(!rcv)) {
-+	if (unlikely(!rcv) || !pskb_may_pull(skb, ETH_HLEN)) {
- 		kfree_skb(skb);
- 		goto drop;
- 	}
+-static int snd_ali_probe(struct pci_dev *pci,
+-			 const struct pci_device_id *pci_id)
++static int __snd_ali_probe(struct pci_dev *pci,
++			   const struct pci_device_id *pci_id)
+ {
+ 	struct snd_card *card;
+ 	struct snd_ali *codec;
+@@ -2170,6 +2170,12 @@ static int snd_ali_probe(struct pci_dev *pci,
+ 	return 0;
+ }
+ 
++static int snd_ali_probe(struct pci_dev *pci,
++			 const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_ali_probe(pci, pci_id));
++}
++
+ static struct pci_driver ali5451_driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = snd_ali_ids,
 -- 
-2.35.1
+2.35.2
 
 
 
