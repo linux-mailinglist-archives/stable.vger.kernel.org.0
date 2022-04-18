@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C67EF505646
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 234BD5050F9
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242753AbiDRNdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41262 "EHLO
+        id S239009AbiDRMa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:30:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244657AbiDRNaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E4D65AA;
-        Mon, 18 Apr 2022 05:54:58 -0700 (PDT)
+        with ESMTP id S240121AbiDRM3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C883237E9;
+        Mon, 18 Apr 2022 05:23:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83DBFB80EC0;
-        Mon, 18 Apr 2022 12:54:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBFD9C385A1;
-        Mon, 18 Apr 2022 12:54:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3136E60F01;
+        Mon, 18 Apr 2022 12:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 286D4C385A7;
+        Mon, 18 Apr 2022 12:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286496;
-        bh=0U1MH4AX840DC71MLBIHArHoLkvJ7+npJ2kTWvIyvH8=;
+        s=korg; t=1650284597;
+        bh=+ejOrvs9N56pFSmkdeef6otjykKTRwH3KNG1uuMcZYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TgS4OmBTU6mIyvNEm1+j4uWg1zrNP6tg20egnQg1K/NUDGLiXVoR6yJISMQ8xNPpQ
-         1C1phSzjswkAojjs+yy2tZhFd1IinWisS9+DhOC2/ouLaX+f9rZnv0yfQ+nzdeLSU9
-         nfhOHioUfwoBsdwo529WTgEtL8yk4ESs5iTruh80=
+        b=kJtK3qFTYjo9bIioRvdf3jUYHlC8cBfP8ETwx3Kqecn6Xz8ljCGRQtetL29VMZJtM
+         VlOx/hgr8ROa3aQbXTqAiZS9odqP4ow3FBUtuGg9res5uo4z/K2Yb0cNAobNQJoIQr
+         s1Zip1XUv1DIWXR6k5mZfndXvLO7hU1E0XXpHX4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Alex Hung <alex.hung@amd.com>, Roman Li <Roman.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 153/284] NFSv4/pNFS: Fix another issue with a list iterator pointing to the head
+Subject: [PATCH 5.17 165/219] drm/amd/display: Fix allocate_mst_payload assert on resume
 Date:   Mon, 18 Apr 2022 14:12:14 +0200
-Message-Id: <20220418121216.033306116@linuxfoundation.org>
+Message-Id: <20220418121211.501993388@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Roman Li <Roman.Li@amd.com>
 
-[ Upstream commit 7c9d845f0612e5bcd23456a2ec43be8ac43458f1 ]
+[ Upstream commit f4346fb3edf7720db3f7f5e1cab1f667cd024280 ]
 
-In nfs4_callback_devicenotify(), if we don't find a matching entry for
-the deviceid, we're left with a pointer to 'struct nfs_server' that
-actually points to the list of super blocks associated with our struct
-nfs_client.
-Furthermore, even if we have a valid pointer, nothing pins the super
-block, and so the struct nfs_server could end up getting freed while
-we're using it.
+[Why]
+On resume we do link detection for all non-MST connectors.
+MST is handled separately. However the condition for telling
+if connector is on mst branch is not enough for mst hub case.
+Link detection for mst branch link leads to mst topology reset.
+That causes assert in dc_link_allocate_mst_payload()
 
-Since all we want is a pointer to the struct pnfs_layoutdriver_type,
-let's skip all the iteration over super blocks, and just use APIs to
-find the layout driver directly.
+[How]
+Use link type as indicator for mst link.
 
-Reported-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Fixes: 1be5683b03a7 ("pnfs: CB_NOTIFY_DEVICEID")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/callback_proc.c | 27 +++++++++------------------
- fs/nfs/pnfs.c          | 11 +++++++++++
- fs/nfs/pnfs.h          |  2 ++
- 3 files changed, 22 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/callback_proc.c b/fs/nfs/callback_proc.c
-index 3998b432e1b9..825b3166605d 100644
---- a/fs/nfs/callback_proc.c
-+++ b/fs/nfs/callback_proc.c
-@@ -355,12 +355,11 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
- 				  struct cb_process_state *cps)
- {
- 	struct cb_devicenotifyargs *args = argp;
-+	const struct pnfs_layoutdriver_type *ld = NULL;
- 	uint32_t i;
- 	__be32 res = 0;
--	struct nfs_client *clp = cps->clp;
--	struct nfs_server *server = NULL;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 90c017859ad4..24db2297857b 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2693,7 +2693,8 @@ static int dm_resume(void *handle)
+ 		 * this is the case when traversing through already created
+ 		 * MST connectors, should be skipped
+ 		 */
+-		if (aconnector->mst_port)
++		if (aconnector->dc_link &&
++		    aconnector->dc_link->type == dc_connection_mst_branch)
+ 			continue;
  
--	if (!clp) {
-+	if (!cps->clp) {
- 		res = cpu_to_be32(NFS4ERR_OP_NOT_IN_SESSION);
- 		goto out;
- 	}
-@@ -368,23 +367,15 @@ __be32 nfs4_callback_devicenotify(void *argp, void *resp,
- 	for (i = 0; i < args->ndevs; i++) {
- 		struct cb_devicenotifyitem *dev = &args->devs[i];
- 
--		if (!server ||
--		    server->pnfs_curr_ld->id != dev->cbd_layout_type) {
--			rcu_read_lock();
--			list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link)
--				if (server->pnfs_curr_ld &&
--				    server->pnfs_curr_ld->id == dev->cbd_layout_type) {
--					rcu_read_unlock();
--					goto found;
--				}
--			rcu_read_unlock();
--			continue;
-+		if (!ld || ld->id != dev->cbd_layout_type) {
-+			pnfs_put_layoutdriver(ld);
-+			ld = pnfs_find_layoutdriver(dev->cbd_layout_type);
-+			if (!ld)
-+				continue;
- 		}
--
--	found:
--		nfs4_delete_deviceid(server->pnfs_curr_ld, clp, &dev->cbd_dev_id);
-+		nfs4_delete_deviceid(ld, cps->clp, &dev->cbd_dev_id);
- 	}
--
-+	pnfs_put_layoutdriver(ld);
- out:
- 	kfree(args->devs);
- 	return res;
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 619fc5c4c82c..18bbdaefd940 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -91,6 +91,17 @@ find_pnfs_driver(u32 id)
- 	return local;
- }
- 
-+const struct pnfs_layoutdriver_type *pnfs_find_layoutdriver(u32 id)
-+{
-+	return find_pnfs_driver(id);
-+}
-+
-+void pnfs_put_layoutdriver(const struct pnfs_layoutdriver_type *ld)
-+{
-+	if (ld)
-+		module_put(ld->owner);
-+}
-+
- void
- unset_pnfs_layoutdriver(struct nfs_server *nfss)
- {
-diff --git a/fs/nfs/pnfs.h b/fs/nfs/pnfs.h
-index 965d657086c8..3504826c1ee7 100644
---- a/fs/nfs/pnfs.h
-+++ b/fs/nfs/pnfs.h
-@@ -219,6 +219,8 @@ struct pnfs_devicelist {
- 
- extern int pnfs_register_layoutdriver(struct pnfs_layoutdriver_type *);
- extern void pnfs_unregister_layoutdriver(struct pnfs_layoutdriver_type *);
-+extern const struct pnfs_layoutdriver_type *pnfs_find_layoutdriver(u32 id);
-+extern void pnfs_put_layoutdriver(const struct pnfs_layoutdriver_type *ld);
- 
- /* nfs4proc.c */
- extern int nfs4_proc_getdeviceinfo(struct nfs_server *server,
+ 		mutex_lock(&aconnector->hpd_lock);
 -- 
-2.34.1
+2.35.1
 
 
 
