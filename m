@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC2A50521E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F166F5054F9
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236200AbiDRMmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:42:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38016 "EHLO
+        id S240747AbiDRNVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:21:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240053AbiDRMih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:37 -0400
+        with ESMTP id S243431AbiDRNUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:20:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D8C275C2;
-        Mon, 18 Apr 2022 05:29:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B1083C48C;
+        Mon, 18 Apr 2022 05:52:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89656B80EC1;
-        Mon, 18 Apr 2022 12:29:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82AEC385A7;
-        Mon, 18 Apr 2022 12:29:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAE2AB80EE1;
+        Mon, 18 Apr 2022 12:52:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00137C385A7;
+        Mon, 18 Apr 2022 12:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284951;
-        bh=i9onWB9tRvxnJHS7hD+ihyIKDO/WpE3i++NR8WHGdnA=;
+        s=korg; t=1650286322;
+        bh=3N+kYBlQWQFCA/3pPIipzRbP/Z2aAs1+BjbTDH/kDwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aLBK5Bi2wIiS1P1DkdOpwAstoZOHOZ1s964rRUmU2/ECf1cNHR/O+mR0CF7VW+/HK
-         ks1tAMJWOvUcDLbWyBXJgYzHEixJmze4xZ6RaTSTQPg3Eojr5I0QAdKT8LlGasreO/
-         T+006/wrvwXiNGAk/clP5CTnQN5/pdW0ORzbeUCo=
+        b=sjvi0umLaWm24maB3R6VCaeOO6HIwH9glKyL4ZbmdPHhku3oT3SqebzImT004srRm
+         uwYdrToBlmBdKLpm5RdeSbI68zloOkIuWK0j8JijAjA1Edg/mFaCwbqAO/LkE8B9Fs
+         Q9AyiFl/fyGl0qBJZ0zZ0RfLi63TCzKO0Q5a1x4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/189] firmware: arm_scmi: Fix sorting of retrieved clock rates
+Subject: [PATCH 4.14 099/284] power: reset: gemini-poweroff: Fix IRQ check in gemini_poweroff_probe
 Date:   Mon, 18 Apr 2022 14:11:20 +0200
-Message-Id: <20220418121202.213234033@linuxfoundation.org>
+Message-Id: <20220418121213.517838886@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 23274739a5b6166f74d8d9cb5243d7bf6b46aab9 ]
+[ Upstream commit ba18dad0fb880cd29aa97b6b75560ef14d1061ba ]
 
-During SCMI Clock protocol initialization, after having retrieved from the
-SCMI platform all the available discrete rates for a specific clock, the
-clock rates array is sorted, unfortunately using a pointer to its end as
-a base instead of its start, so that sorting does not work.
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Fix invocation of sort() passing as base a pointer to the start of the
-retrieved clock rates array.
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
 
-Link: https://lore.kernel.org/r/20220318092813.49283-1-cristian.marussi@arm.com
-Fixes: dccec73de91d ("firmware: arm_scmi: Keep the discrete clock rates sorted")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fix the check of return value to catch errors correctly.
+
+Fixes: f7a388d6cd1c ("power: reset: Add a driver for the Gemini poweroff")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/clock.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/power/reset/gemini-poweroff.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/clock.c b/drivers/firmware/arm_scmi/clock.c
-index 35b56c8ba0c0..492f3a9197ec 100644
---- a/drivers/firmware/arm_scmi/clock.c
-+++ b/drivers/firmware/arm_scmi/clock.c
-@@ -204,7 +204,8 @@ scmi_clock_describe_rates_get(const struct scmi_protocol_handle *ph, u32 clk_id,
+diff --git a/drivers/power/reset/gemini-poweroff.c b/drivers/power/reset/gemini-poweroff.c
+index ff75af5abbc5..95d48edf0605 100644
+--- a/drivers/power/reset/gemini-poweroff.c
++++ b/drivers/power/reset/gemini-poweroff.c
+@@ -103,8 +103,8 @@ static int gemini_poweroff_probe(struct platform_device *pdev)
+ 		return PTR_ERR(gpw->base);
  
- 	if (rate_discrete && rate) {
- 		clk->list.num_rates = tot_rate_cnt;
--		sort(rate, tot_rate_cnt, sizeof(*rate), rate_cmp_func, NULL);
-+		sort(clk->list.rates, tot_rate_cnt, sizeof(*rate),
-+		     rate_cmp_func, NULL);
- 	}
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq)
+-		return -EINVAL;
++	if (irq < 0)
++		return irq;
  
- 	clk->rate_discrete = rate_discrete;
+ 	gpw->dev = dev;
+ 
 -- 
-2.35.1
+2.34.1
 
 
 
