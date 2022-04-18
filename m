@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF247505619
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94F355050E9
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241994AbiDRNcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:32:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
+        id S235409AbiDRM36 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:29:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242287AbiDRN1h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:27:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1343EB8C;
-        Mon, 18 Apr 2022 05:53:18 -0700 (PDT)
+        with ESMTP id S239937AbiDRM3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 930EB201B3;
+        Mon, 18 Apr 2022 05:22:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52818B80E4E;
-        Mon, 18 Apr 2022 12:53:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 754DFC385A1;
-        Mon, 18 Apr 2022 12:53:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08CB260F01;
+        Mon, 18 Apr 2022 12:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 051DAC385A7;
+        Mon, 18 Apr 2022 12:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286395;
-        bh=YYBpXRePL8X7DjK5YTHKeCMw035l7zTM2kihcEQdxEA=;
+        s=korg; t=1650284574;
+        bh=vw5g965VP8FLCYRwwPQsS1+F0iBPTx9Iey1xGBy+ma4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZeKj9NAFgQ7HyLMMIYe6rsYG18yQNxH2CDJQHKW6+xTXAh1ChmxanTYLMzDz1Ugc2
-         hf4yJX+Sv4/J0fWV3JWx8FdcaHjaNu3kMAAftHo2beZng7R3loPaNlUZeh/XmV86LQ
-         R1ocVMY9JMMZui6Kd9Di07JtaRR5W78RSq9deQQ8=
+        b=f2+HF7BL10V/4Z9lExqTA2loTP4vvI0BhyW+CrAupCp8N25oC1PxlnkU7Obkb64ud
+         mW1R2vQOBTfG0025gOloPALCyUAvDaGtZHhdDhcZ0jmHEH43H5bZhvnTJH7FHUC9sY
+         9NMIVherJhIpsiXAY7r3MnDKc/yJrdg/JaHUuz8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 120/284] mfd: mc13xxx: Add check for mc13xxx_irq_request
+Subject: [PATCH 5.17 132/219] btrfs: do not warn for free space inode in cow_file_range
 Date:   Mon, 18 Apr 2022 14:11:41 +0200
-Message-Id: <20220418121214.522120160@linuxfoundation.org>
+Message-Id: <20220418121210.590174074@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit e477e51a41cb5d6034f3c5ea85a71ad4613996b9 ]
+[ Upstream commit a7d16d9a07bbcb7dcd5214a1bea75c808830bc0d ]
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value of the
-mc13xxx_irq_request() and return error if fails.
+This is a long time leftover from when I originally added the free space
+inode, the point was to catch cases where we weren't honoring the NOCOW
+flag.  However there exists a race with relocation, if we allocate our
+free space inode in a block group that is about to be relocated, we
+could trigger the COW path before the relocation has the opportunity to
+find the extents and delete the free space cache.  In production where
+we have auto-relocation enabled we're seeing this WARN_ON_ONCE() around
+5k times in a 2 week period, so not super common but enough that it's at
+the top of our metrics.
 
-Fixes: 8e00593557c3 ("mfd: Add mc13892 support to mc13xxx")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220224022331.3208275-1-jiasheng@iscas.ac.cn
+We're properly handling the error here, and with us phasing out v1 space
+cache anyway just drop the WARN_ON_ONCE.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/mc13xxx-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/inode.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 75d52034f89d..5b4faebdcae2 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -313,8 +313,10 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
- 		adc1 |= MC13783_ADC1_ATOX;
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 85daae70afda..9547088a9306 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1130,7 +1130,6 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
+ 	int ret = 0;
  
- 	dev_dbg(mc13xxx->dev, "%s: request irq\n", __func__);
--	mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
-+	ret = mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
- 			mc13xxx_handler_adcdone, __func__, &adcdone_data);
-+	if (ret)
-+		goto out;
- 
- 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, adc0);
- 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC1, adc1);
+ 	if (btrfs_is_free_space_inode(inode)) {
+-		WARN_ON_ONCE(1);
+ 		ret = -EINVAL;
+ 		goto out_unlock;
+ 	}
 -- 
-2.34.1
+2.35.1
 
 
 
