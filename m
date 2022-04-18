@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 066A75052CE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0289850513F
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237034AbiDRMx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:53:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36204 "EHLO
+        id S239069AbiDRMeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240311AbiDRMxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:53:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2852DABC;
-        Mon, 18 Apr 2022 05:34:36 -0700 (PDT)
+        with ESMTP id S239743AbiDRMdW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 381F71E3E3;
+        Mon, 18 Apr 2022 05:25:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A0BB60F0A;
-        Mon, 18 Apr 2022 12:34:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71C70C385A7;
-        Mon, 18 Apr 2022 12:34:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71832B80ED1;
+        Mon, 18 Apr 2022 12:25:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7198C385A1;
+        Mon, 18 Apr 2022 12:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285275;
-        bh=CLqasHeB3f/9g8TJ+gJn5N0OM8JBTNVFUB299wDmNJw=;
+        s=korg; t=1650284726;
+        bh=6xnc8GCF0VylzUgLpI+zJ8wz47soPErwv3vp/zZrPmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlFnuI7PCv1QTz+i1K+7IjqZ+FIebMyKXHf1nVriFmiZqHPV3aOBKcCSNIKF+Zvx8
-         QnuQqzkVVVbG9LOrvbLoxGnp7ILvxVZyg+Fql31dN18JBK5jS5gpB9sADziTDd12cs
-         3ZwewxHoDUE4JjnSKrBTKw0U6QcttA7chWYmFpV4=
+        b=GLIO7cFaT19V7lydSyjiKGYxXtz7X1RSuwJPWE9in3Ai3lo/JmhdjVLVbaBjlml/h
+         S/bxatC1APauobPxVS2WmxSlQ0GsAwgCjMCk+AIjrxVLcxPZvL42VbrxnXPxishYhR
+         XrXkaE2VS70n8s0FEMq3IJv4FdEvjVsDds+hJozU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 156/189] btrfs: fix root ref counts in error handling in btrfs_get_root_ref
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 5.17 207/219] dm integrity: fix memory corruption when tag_size is less than digest size
 Date:   Mon, 18 Apr 2022 14:12:56 +0200
-Message-Id: <20220418121206.544212252@linuxfoundation.org>
+Message-Id: <20220418121212.661717902@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 168a2f776b9762f4021421008512dd7ab7474df1 upstream.
+commit 08c1af8f1c13bbf210f1760132f4df24d0ed46d6 upstream.
 
-In btrfs_get_root_ref(), when btrfs_insert_fs_root() fails,
-btrfs_put_root() can happen for two reasons:
+It is possible to set up dm-integrity in such a way that the
+"tag_size" parameter is less than the actual digest size. In this
+situation, a part of the digest beyond tag_size is ignored.
 
-- the root already exists in the tree, in that case it returns the
-  reference obtained in btrfs_lookup_fs_root()
+In this case, dm-integrity would write beyond the end of the
+ic->recalc_tags array and corrupt memory. The corruption happened in
+integrity_recalc->integrity_sector_checksum->crypto_shash_final.
 
-- another error so the cleanup is done in the fail label
+Fix this corruption by increasing the tags array so that it has enough
+padding at the end to accomodate the loop in integrity_recalc() being
+able to write a full digest size for the last member of the tags
+array.
 
-Calling btrfs_put_root() unconditionally would lead to double decrement
-of the root reference possibly freeing it in the second case.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Fixes: bc44d7c4b2b1 ("btrfs: push btrfs_grab_fs_root into btrfs_get_fs_root")
-CC: stable@vger.kernel.org # 5.10+
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/disk-io.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/md/dm-integrity.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -1738,9 +1738,10 @@ again:
- 
- 	ret = btrfs_insert_fs_root(fs_info, root);
- 	if (ret) {
--		btrfs_put_root(root);
--		if (ret == -EEXIST)
-+		if (ret == -EEXIST) {
-+			btrfs_put_root(root);
- 			goto again;
-+		}
- 		goto fail;
+--- a/drivers/md/dm-integrity.c
++++ b/drivers/md/dm-integrity.c
+@@ -4400,6 +4400,7 @@ try_smaller_buffer:
  	}
- 	return root;
+ 
+ 	if (ic->internal_hash) {
++		size_t recalc_tags_size;
+ 		ic->recalc_wq = alloc_workqueue("dm-integrity-recalc", WQ_MEM_RECLAIM, 1);
+ 		if (!ic->recalc_wq ) {
+ 			ti->error = "Cannot allocate workqueue";
+@@ -4413,8 +4414,10 @@ try_smaller_buffer:
+ 			r = -ENOMEM;
+ 			goto bad;
+ 		}
+-		ic->recalc_tags = kvmalloc_array(RECALC_SECTORS >> ic->sb->log2_sectors_per_block,
+-						 ic->tag_size, GFP_KERNEL);
++		recalc_tags_size = (RECALC_SECTORS >> ic->sb->log2_sectors_per_block) * ic->tag_size;
++		if (crypto_shash_digestsize(ic->internal_hash) > ic->tag_size)
++			recalc_tags_size += crypto_shash_digestsize(ic->internal_hash) - ic->tag_size;
++		ic->recalc_tags = kvmalloc(recalc_tags_size, GFP_KERNEL);
+ 		if (!ic->recalc_tags) {
+ 			ti->error = "Cannot allocate tags for recalculating";
+ 			r = -ENOMEM;
 
 
