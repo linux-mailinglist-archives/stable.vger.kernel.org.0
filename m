@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1F3150512B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 609AF50540D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239108AbiDRMeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51036 "EHLO
+        id S240771AbiDRNDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:03:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239805AbiDRMd2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A081B7B6;
-        Mon, 18 Apr 2022 05:26:28 -0700 (PDT)
+        with ESMTP id S241216AbiDRNCz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE30432EC9;
+        Mon, 18 Apr 2022 05:43:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6405B80EC4;
-        Mon, 18 Apr 2022 12:26:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D8CFC385A7;
-        Mon, 18 Apr 2022 12:26:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45DD96101A;
+        Mon, 18 Apr 2022 12:43:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52044C385A1;
+        Mon, 18 Apr 2022 12:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284785;
-        bh=h6KgK4UlLuqt00S7/NelzItnrRfUYPhvikAZc4K9Z2M=;
+        s=korg; t=1650285780;
+        bh=pYN5YaqPMVrIYNkemgBBg6Hg5c93OoTRnwHTBkHfFdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rp2FhIxRUpBi4yq9SCzADl9s+ZGd/BMhoK1oUS57yv5Ys6IlijTrGtqYmw9arUavJ
-         AyYRWVKkSpWP3HE560D6EeK+DcWadfe7i6jnOiJJnhjAa5lAPlPrARGERO0MuxifVe
-         4B0s/J5kllzbBrz8IzFc41hQml/M180WNUxnkFng=
+        b=stvaRkrki0/fU+ND/sedBQv43jsIWMkynl2ftq2HKUrBj+rfHR7oG8goAjb/F6S8S
+         VPNPdGLkB+dIdGm18nxdzDGlK82kob+/0h3Juee3UHUuiXxPiAEZceFpjJ1KxdG18y
+         xxADT4A06pf0Q6NSbXWsLfHGNzi9T7djYDB99/YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Zhaoyang1 <zhaoyang1.wang@intel.com>,
-        Gao Liang <liang.gao@intel.com>, Chao Gao <chao.gao@intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.17 215/219] dma-direct: avoid redundant memory sync for swiotlb
-Date:   Mon, 18 Apr 2022 14:13:04 +0200
-Message-Id: <20220418121212.884196794@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Benedikt Spranger <b.spranger@linutronix.de>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 08/63] net/sched: taprio: Check if socket flags are valid
+Date:   Mon, 18 Apr 2022 14:13:05 +0200
+Message-Id: <20220418121134.709843105@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Gao <chao.gao@intel.com>
+From: Benedikt Spranger <b.spranger@linutronix.de>
 
-commit 9e02977bfad006af328add9434c8bffa40e053bb upstream.
+[ Upstream commit e8a64bbaaad1f6548cec5508297bc6d45e8ab69e ]
 
-When we looked into FIO performance with swiotlb enabled in VM, we found
-swiotlb_bounce() is always called one more time than expected for each DMA
-read request.
+A user may set the SO_TXTIME socket option to ensure a packet is send
+at a given time. The taprio scheduler has to confirm, that it is allowed
+to send a packet at that given time, by a check against the packet time
+schedule. The scheduler drop the packet, if the gates are closed at the
+given send time.
 
-It turns out that the bounce buffer is copied to original DMA buffer twice
-after the completion of a DMA request (one is done by in
-dma_direct_sync_single_for_cpu(), the other by swiotlb_tbl_unmap_single()).
-But the content in bounce buffer actually doesn't change between the two
-rounds of copy. So, one round of copy is redundant.
+The check, if SO_TXTIME is set, may fail since sk_flags are part of an
+union and the union is used otherwise. This happen, if a socket is not
+a full socket, like a request socket for example.
 
-Pass DMA_ATTR_SKIP_CPU_SYNC flag to swiotlb_tbl_unmap_single() to
-skip the memory copy in it.
+Add a check to verify, if the union is used for sk_flags.
 
-This fix increases FIO 64KB sequential read throughput in a guest with
-swiotlb=force by 5.6%.
-
-Fixes: 55897af63091 ("dma-direct: merge swiotlb_dma_ops into the dma_direct code")
-Reported-by: Wang Zhaoyang1 <zhaoyang1.wang@intel.com>
-Reported-by: Gao Liang <liang.gao@intel.com>
-Signed-off-by: Chao Gao <chao.gao@intel.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4cfd5779bd6e ("taprio: Add support for txtime-assist mode")
+Signed-off-by: Benedikt Spranger <b.spranger@linutronix.de>
+Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
+Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/direct.h |    3 ++-
+ net/sched/sch_taprio.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/dma/direct.h
-+++ b/kernel/dma/direct.h
-@@ -114,6 +114,7 @@ static inline void dma_direct_unmap_page
- 		dma_direct_sync_single_for_cpu(dev, addr, size, dir);
+diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
+index b268e6130451..4c26f7fb32b3 100644
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -427,7 +427,8 @@ static int taprio_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	if (unlikely(!child))
+ 		return qdisc_drop(skb, sch, to_free);
  
- 	if (unlikely(is_swiotlb_buffer(dev, phys)))
--		swiotlb_tbl_unmap_single(dev, phys, size, dir, attrs);
-+		swiotlb_tbl_unmap_single(dev, phys, size, dir,
-+					 attrs | DMA_ATTR_SKIP_CPU_SYNC);
- }
- #endif /* _KERNEL_DMA_DIRECT_H */
+-	if (skb->sk && sock_flag(skb->sk, SOCK_TXTIME)) {
++	/* sk_flags are only safe to use on full sockets. */
++	if (skb->sk && sk_fullsock(skb->sk) && sock_flag(skb->sk, SOCK_TXTIME)) {
+ 		if (!is_valid_interval(skb, sch))
+ 			return qdisc_drop(skb, sch, to_free);
+ 	} else if (TXTIME_ASSIST_IS_ENABLED(q->flags)) {
+-- 
+2.35.1
+
 
 
