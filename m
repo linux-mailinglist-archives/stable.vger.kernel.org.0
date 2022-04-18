@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F0E50590F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:14:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDFC2505881
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:02:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241314AbiDROOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:14:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56296 "EHLO
+        id S244860AbiDROEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:04:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245547AbiDROMB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:12:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D16B37012;
-        Mon, 18 Apr 2022 06:11:14 -0700 (PDT)
+        with ESMTP id S245086AbiDROCC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:02:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94070344DE;
+        Mon, 18 Apr 2022 06:09:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3CBD3B80D9C;
-        Mon, 18 Apr 2022 13:11:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 862DEC385A1;
-        Mon, 18 Apr 2022 13:11:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 236D560F16;
+        Mon, 18 Apr 2022 13:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1231BC385BA;
+        Mon, 18 Apr 2022 13:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287472;
-        bh=00BaaALqifgeputLt3fhDdTAt0exxCcxUhpYMgcwAiw=;
+        s=korg; t=1650287337;
+        bh=zZZ8+bt+swbdKgisPUds2B86Lnz7Y1ZXyD/TXnFQ/U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LsAhfoG7oe3NqCveI197y+O4lxD6Fk7r2g4nRTvlKimFqvCMqPRJrEyTZ1N9hxa5o
-         95e5Ydp1tnRPzrEEbXLQIroGBRZy98cGMq+X04xnKL2XhRdfXvIiS/ZvbljwFRSdRU
-         sKJvQAAt5HGsiM9xOlpLCkW7l6clBb3+LoT3jSYw=
+        b=VgeS0APSRDD4K2mLsMnwxSXW1nKL0884VAN/6bE8vLac5aN+yd/gIm41KhUw+W+X5
+         viUJ5ZylHUtEmGlMGveRh3WDRJHJK1w55vbH+A0+h4BVOPNG8oiJGpTFzSpOzE7/rs
+         jBF8aih4BIuisrgcFIwY/u8KhwulvOiFCP3VhyWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 122/218] net/x25: Fix null-ptr-deref caused by x25_disconnect
-Date:   Mon, 18 Apr 2022 14:13:08 +0200
-Message-Id: <20220418121203.083032665@linuxfoundation.org>
+Subject: [PATCH 4.9 123/218] selinux: use correct type for context length
+Date:   Mon, 18 Apr 2022 14:13:09 +0200
+Message-Id: <20220418121203.111822121@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -55,63 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Christian Göttsche <cgzones@googlemail.com>
 
-[ Upstream commit 7781607938c8371d4c2b243527430241c62e39c2 ]
+[ Upstream commit b97df7c098c531010e445da88d02b7bf7bf59ef6 ]
 
-When the link layer is terminating, x25->neighbour will be set to NULL
-in x25_disconnect(). As a result, it could cause null-ptr-deref bugs in
-x25_sendmsg(),x25_recvmsg() and x25_connect(). One of the bugs is
-shown below.
+security_sid_to_context() expects a pointer to an u32 as the address
+where to store the length of the computed context.
 
-    (Thread 1)                 |  (Thread 2)
-x25_link_terminated()          | x25_recvmsg()
- x25_kill_by_neigh()           |  ...
-  x25_disconnect()             |  lock_sock(sk)
-   ...                         |  ...
-   x25->neighbour = NULL //(1) |
-   ...                         |  x25->neighbour->extended //(2)
+Reported by sparse:
 
-The code sets NULL to x25->neighbour in position (1) and dereferences
-x25->neighbour in position (2), which could cause null-ptr-deref bug.
+    security/selinux/xfrm.c:359:39: warning: incorrect type in arg 4
+                                    (different signedness)
+    security/selinux/xfrm.c:359:39:    expected unsigned int
+                                       [usertype] *scontext_len
+    security/selinux/xfrm.c:359:39:    got int *
 
-This patch adds lock_sock() in x25_kill_by_neigh() in order to synchronize
-with x25_sendmsg(), x25_recvmsg() and x25_connect(). What`s more, the
-sock held by lock_sock() is not NULL, because it is extracted from x25_list
-and uses x25_list_lock to synchronize.
-
-Fixes: 4becb7ee5b3d ("net/x25: Fix x25_neigh refcnt leak when x25 disconnect")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+[PM: wrapped commit description]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ security/selinux/xfrm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index c23c04d38a82..cd0c800b9072 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -1795,10 +1795,15 @@ void x25_kill_by_neigh(struct x25_neigh *nb)
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 56e354fcdfc6..5304dd49e054 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -344,7 +344,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
+ 	int rc;
+ 	struct xfrm_sec_ctx *ctx;
+ 	char *ctx_str = NULL;
+-	int str_len;
++	u32 str_len;
  
- 	write_lock_bh(&x25_list_lock);
- 
--	sk_for_each(s, &x25_list)
--		if (x25_sk(s)->neighbour == nb)
-+	sk_for_each(s, &x25_list) {
-+		if (x25_sk(s)->neighbour == nb) {
-+			write_unlock_bh(&x25_list_lock);
-+			lock_sock(s);
- 			x25_disconnect(s, ENETUNREACH, 0, 0);
--
-+			release_sock(s);
-+			write_lock_bh(&x25_list_lock);
-+		}
-+	}
- 	write_unlock_bh(&x25_list_lock);
- 
- 	/* Remove any related forwards */
+ 	if (!polsec)
+ 		return 0;
 -- 
 2.34.1
 
