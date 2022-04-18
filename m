@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36E65505072
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A1E505536
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232257AbiDRMZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:25:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37608 "EHLO
+        id S241710AbiDRNMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:12:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238645AbiDRMYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:24:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FC8E1C11F;
-        Mon, 18 Apr 2022 05:19:20 -0700 (PDT)
+        with ESMTP id S242639AbiDRNJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:09:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 599813614E;
+        Mon, 18 Apr 2022 05:48:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9A8FB80EC1;
-        Mon, 18 Apr 2022 12:19:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13E02C385A1;
-        Mon, 18 Apr 2022 12:19:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AD9460FB6;
+        Mon, 18 Apr 2022 12:48:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7338FC385A1;
+        Mon, 18 Apr 2022 12:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284357;
-        bh=ApGoOgz66fGRiZWE4RhIlY2HYkiD9HnYPV9U5KkGMpk=;
+        s=korg; t=1650286124;
+        bh=6118wY5SUqvaOGFyKq6KoocM37LhFJT1VLYB+36B0Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbomRr/0kgHLWaA38YbT+zQQ8o0eOn8GM7ZxJSwhQTx19Ol1rb93cYA9K+u2YTX2Z
-         deJVH/B3iVt7OibGng2yvRvnkOsQWH6C6BbH7iFNSxMjiNgaolCF/AZX6tbTllyzV4
-         ILVEgDtudqmNtym7EnWvnw59TQKUvB44S0+RTOAk=
+        b=BEGAlTBUDQB6DUBfUPay87sPa3P5Q/NCcbZi8qtUgjVHcI+TDyGQQ7aE3fWFf9INs
+         /3kG9gP9IOCB5wCFj/U/kvu+gLHvsO675jVHLTyM7sbGuDDhDFVxrSTlYODfmGSmBi
+         DR+6L2aqBPcEUCzgs5BcsAgdDVyR+JQsVINxCzzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 047/219] ALSA: oxygen: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 035/284] ALSA: cs4236: fix an incorrect NULL check on list iterator
 Date:   Mon, 18 Apr 2022 14:10:16 +0200
-Message-Id: <20220418121206.205715896@linuxfoundation.org>
+Message-Id: <20220418121211.693125219@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit 6ebc16e206aa82ddb0450c907865c55bcb7c0f43 upstream.
+commit 0112f822f8a6d8039c94e0bc9b264d7ffc5d4704 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+The bug is here:
+	err = snd_card_cs423x_pnp(dev, card->private_data, pdev, cdev);
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+The list iterator value 'cdev' will *always* be set and non-NULL
+by list_for_each_entry(), so it is incorrect to assume that the
+iterator value will be NULL if the list is empty or no element
+is found.
 
-Fixes: 596ae97ab0ce ("ALSA: oxygen: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-35-tiwai@suse.de
+To fix the bug, use a new variable 'iter' as the list iterator,
+while use the original variable 'cdev' as a dedicated pointer
+to point to the found element. And snd_card_cs423x_pnp() itself
+has NULL check for cdev.
+
+Cc: stable@vger.kernel.org
+Fixes: c2b73d1458014 ("ALSA: cs4236: cs4232 and cs4236 driver merge to solve PnP BIOS detection")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220327060822.4735-1-xiam0nd.tong@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/oxygen/oxygen_lib.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ sound/isa/cs423x/cs4236.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/sound/pci/oxygen/oxygen_lib.c
-+++ b/sound/pci/oxygen/oxygen_lib.c
-@@ -576,7 +576,7 @@ static void oxygen_card_free(struct snd_
- 	mutex_destroy(&chip->mutex);
- }
+--- a/sound/isa/cs423x/cs4236.c
++++ b/sound/isa/cs423x/cs4236.c
+@@ -559,7 +559,7 @@ static int snd_cs423x_pnpbios_detect(str
+ 	static int dev;
+ 	int err;
+ 	struct snd_card *card;
+-	struct pnp_dev *cdev;
++	struct pnp_dev *cdev, *iter;
+ 	char cid[PNP_ID_LEN];
  
--int oxygen_pci_probe(struct pci_dev *pci, int index, char *id,
-+static int __oxygen_pci_probe(struct pci_dev *pci, int index, char *id,
- 		     struct module *owner,
- 		     const struct pci_device_id *ids,
- 		     int (*get_model)(struct oxygen *chip,
-@@ -701,6 +701,16 @@ int oxygen_pci_probe(struct pci_dev *pci
- 	pci_set_drvdata(pci, card);
- 	return 0;
- }
-+
-+int oxygen_pci_probe(struct pci_dev *pci, int index, char *id,
-+		     struct module *owner,
-+		     const struct pci_device_id *ids,
-+		     int (*get_model)(struct oxygen *chip,
-+				      const struct pci_device_id *id))
-+{
-+	return snd_card_free_on_error(&pci->dev,
-+				      __oxygen_pci_probe(pci, index, id, owner, ids, get_model));
-+}
- EXPORT_SYMBOL(oxygen_pci_probe);
- 
- #ifdef CONFIG_PM_SLEEP
+ 	if (pnp_device_is_isapnp(pdev))
+@@ -575,9 +575,11 @@ static int snd_cs423x_pnpbios_detect(str
+ 	strcpy(cid, pdev->id[0].id);
+ 	cid[5] = '1';
+ 	cdev = NULL;
+-	list_for_each_entry(cdev, &(pdev->protocol->devices), protocol_list) {
+-		if (!strcmp(cdev->id[0].id, cid))
++	list_for_each_entry(iter, &(pdev->protocol->devices), protocol_list) {
++		if (!strcmp(iter->id[0].id, cid)) {
++			cdev = iter;
+ 			break;
++		}
+ 	}
+ 	err = snd_cs423x_card_new(&pdev->dev, dev, &card);
+ 	if (err < 0)
 
 
