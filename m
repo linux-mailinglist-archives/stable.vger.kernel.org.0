@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1FD550543B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 773C1505697
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240238AbiDRNFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41052 "EHLO
+        id S242180AbiDRNfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:35:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241271AbiDRNC5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC89032EEF;
-        Mon, 18 Apr 2022 05:43:04 -0700 (PDT)
+        with ESMTP id S242112AbiDRNca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:32:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D963220194;
+        Mon, 18 Apr 2022 05:57:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 43AC66101A;
-        Mon, 18 Apr 2022 12:43:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA67C385A1;
-        Mon, 18 Apr 2022 12:43:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50912B80EC0;
+        Mon, 18 Apr 2022 12:57:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78889C385A7;
+        Mon, 18 Apr 2022 12:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285783;
-        bh=kKwtNpqH1eptFQwlenIiu4gKJTeE25b2cy+Q38JetA8=;
+        s=korg; t=1650286665;
+        bh=ic7hdMjA7r9NBmROUJ0WQzteNOVUSZNfdmssxupQJ10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h9q6R+oCH6BSwZO2GZSDKp6dP/e7FI8QG665nwf55hRaYhr4RfFQkv4dtFjz0tO1T
-         dsKCnqX7JMrGvz+8Fky4/yfzAm8c245TIrutVa0k8YJBKwQxG5VgRKO07DodflZQJg
-         SzgYWnfKX2AklA08Gm2/M2DD9DEDVcUZGJRQmOVQ=
+        b=czbS4B748FaVfRCePAc7dDPc0TBPHZ/gCgB9wDxNMFZti9VJBZLReEfuLWw3TIEXb
+         ZVulTQ49ZzdDxKWHFAkMXcoPrm6HnyKZXSbOouFXV4gw3WgUTUqH8UcerC6PD1ZzKD
+         7V4q//3qZJkf/BNXUtDaZjg3EYtV3+G1/wmo6fco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rameshkumar Sundaram <quic_ramess@quicinc.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Ben Dooks <ben-linux@fluff.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, patches@armlinux.org.uk,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/63] cfg80211: hold bss_lock while updating nontrans_list
+Subject: [PATCH 4.14 205/284] ARM: 9187/1: JIVE: fix return value of __setup handler
 Date:   Mon, 18 Apr 2022 14:13:06 +0200
-Message-Id: <20220418121134.779010105@linuxfoundation.org>
+Message-Id: <20220418121217.552143742@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +59,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rameshkumar Sundaram <quic_ramess@quicinc.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit a5199b5626cd6913cf8776a835bc63d40e0686ad ]
+[ Upstream commit 8b2360c7157b462c4870d447d1e65d30ef31f9aa ]
 
-Synchronize additions to nontrans_list of transmitting BSS with
-bss_lock to avoid races. Also when cfg80211_add_nontrans_list() fails
-__cfg80211_unlink_bss() needs bss_lock to be held (has lockdep assert
-on bss_lock). So protect the whole block with bss_lock to avoid
-races and warnings. Found during code review.
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled.
+A return of 0 causes the boot option/value to be listed as an Unknown
+kernel parameter and added to init's (limited) argument or environment
+strings. Also, error return codes don't mean anything to
+obsolete_checksetup() -- only non-zero (usually 1) or zero.
+So return 1 from jive_mtdset().
 
-Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
-Signed-off-by: Rameshkumar Sundaram <quic_ramess@quicinc.com>
-Link: https://lore.kernel.org/r/1649668071-9370-1-git-send-email-quic_ramess@quicinc.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 9db829f485c5 ("[ARM] JIVE: Initial machine support for Logitech Jive")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Ben Dooks <ben-linux@fluff.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: patches@armlinux.org.uk
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/scan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mach-s3c24xx/mach-jive.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/wireless/scan.c b/net/wireless/scan.c
-index 6cefaad3b7f8..6bb9437af28b 100644
---- a/net/wireless/scan.c
-+++ b/net/wireless/scan.c
-@@ -1457,11 +1457,13 @@ cfg80211_inform_single_bss_data(struct wiphy *wiphy,
- 		/* this is a nontransmitting bss, we need to add it to
- 		 * transmitting bss' list if it is not there
- 		 */
-+		spin_lock_bh(&rdev->bss_lock);
- 		if (cfg80211_add_nontrans_list(non_tx_data->tx_bss,
- 					       &res->pub)) {
- 			if (__cfg80211_unlink_bss(rdev, res))
- 				rdev->bss_generation++;
- 		}
-+		spin_unlock_bh(&rdev->bss_lock);
+diff --git a/arch/arm/mach-s3c24xx/mach-jive.c b/arch/arm/mach-s3c24xx/mach-jive.c
+index 17821976f769..5de514940a9c 100644
+--- a/arch/arm/mach-s3c24xx/mach-jive.c
++++ b/arch/arm/mach-s3c24xx/mach-jive.c
+@@ -241,11 +241,11 @@ static int __init jive_mtdset(char *options)
+ 	unsigned long set;
+ 
+ 	if (options == NULL || options[0] == '\0')
+-		return 0;
++		return 1;
+ 
+ 	if (kstrtoul(options, 10, &set)) {
+ 		printk(KERN_ERR "failed to parse mtdset=%s\n", options);
+-		return 0;
++		return 1;
  	}
  
- 	trace_cfg80211_return_bss(&res->pub);
+ 	switch (set) {
+@@ -260,7 +260,7 @@ static int __init jive_mtdset(char *options)
+ 		       "using default.", set);
+ 	}
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ /* parse the mtdset= option given to the kernel command line */
 -- 
 2.35.1
 
