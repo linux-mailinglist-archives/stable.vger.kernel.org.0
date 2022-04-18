@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F7150562D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 946BB505271
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242146AbiDRNce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:32:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41622 "EHLO
+        id S236452AbiDRMou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:44:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244665AbiDRNaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81F26AE74;
-        Mon, 18 Apr 2022 05:55:00 -0700 (PDT)
+        with ESMTP id S240022AbiDRMnf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:43:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B3526561;
+        Mon, 18 Apr 2022 05:32:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 004836115A;
-        Mon, 18 Apr 2022 12:55:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE304C385A7;
-        Mon, 18 Apr 2022 12:54:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C872861033;
+        Mon, 18 Apr 2022 12:32:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B03CAC385A7;
+        Mon, 18 Apr 2022 12:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286499;
-        bh=miqRHSWNMvnPzu+jL7/xPjP28EqRFCnRxSQo4b4ZCfU=;
+        s=korg; t=1650285140;
+        bh=szVwhci6wEG2scB742G2j4/7NAzzTzIVcKJbFqCQBr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=civBfYZngBXn9YjS0gv5KV8HT58gQMV1MePhyzEB4PQjiXSU+9cu3z5oS8CCHa0SH
-         84GMuptB/mF58hz/M8NTj0ebBayX9JStPyTPCH0aEqzeM+sZbi8Jr81lopHiUK81ce
-         20VPAjEl1Z64BA4Og0I5h2l52F9nfOkKOowXX6m4=
+        b=f4oavORV4zCVGE/FT/yStBs6cLBuFiBYxeOJYLpdESaPgaJGo023+zI+DUx7KzPuA
+         Slq/3U8V9dgwRWCJ41CBK2CzrzIBEYa58bVGU7CNV9U3Y01xjVAGxRzAEKBeo3eMn6
+         bc1CWh27jUJkeMeo8uYtJEbx1Nqx5YQt2/eGd7c0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Nash <alnash@fb.com>,
-        Neil Spring <ntspring@fb.com>, Wei Wang <weiwan@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 127/284] tcp: ensure PMTU updates are processed during fastopen
+Subject: [PATCH 5.15 088/189] ALSA: ad1889: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:11:48 +0200
-Message-Id: <20220418121214.847947368@linuxfoundation.org>
+Message-Id: <20220418121203.005286638@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,68 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ed0c99dc0f499ff8b6e75b5ae6092ab42be1ad39 ]
+[ Upstream commit a8e84a5da18e6d786540aa4ceb6f969d5f1a441d ]
 
-tp->rx_opt.mss_clamp is not populated, yet, during TFO send so we
-rise it to the local MSS. tp->mss_cache is not updated, however:
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-tcp_v6_connect():
-  tp->rx_opt.mss_clamp = IPV6_MIN_MTU - headers;
-  tcp_connect():
-     tcp_connect_init():
-       tp->mss_cache = min(mtu, tp->rx_opt.mss_clamp)
-     tcp_send_syn_data():
-       tp->rx_opt.mss_clamp = tp->advmss
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-After recent fixes to ICMPv6 PTB handling we started dropping
-PMTU updates higher than tp->mss_cache. Because of the stale
-tp->mss_cache value PMTU updates during TFO are always dropped.
-
-Thanks to Wei for helping zero in on the problem and the fix!
-
-Fixes: c7bb4b89033b ("ipv6: tcp: drop silly ICMPv6 packet too big messages")
-Reported-by: Andre Nash <alnash@fb.com>
-Reported-by: Neil Spring <ntspring@fb.com>
-Reviewed-by: Wei Wang <weiwan@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220321165957.1769954-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 567f58754109 ("ALSA: ad1889: Allocate resources with device-managed APIs")
+Link: https://lore.kernel.org/r/20220412102636.16000-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_output.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/pci/ad1889.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 99ab936a9cd3..83c0e859bb33 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -3419,6 +3419,7 @@ static void tcp_connect_queue_skb(struct sock *sk, struct sk_buff *skb)
-  */
- static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
+diff --git a/sound/pci/ad1889.c b/sound/pci/ad1889.c
+index bba4dae8dcc7..50e30704bf6f 100644
+--- a/sound/pci/ad1889.c
++++ b/sound/pci/ad1889.c
+@@ -844,8 +844,8 @@ snd_ad1889_create(struct snd_card *card, struct pci_dev *pci)
+ }
+ 
+ static int
+-snd_ad1889_probe(struct pci_dev *pci,
+-		 const struct pci_device_id *pci_id)
++__snd_ad1889_probe(struct pci_dev *pci,
++		   const struct pci_device_id *pci_id)
  {
-+	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct tcp_fastopen_request *fo = tp->fastopen_req;
- 	int space, err = 0;
-@@ -3433,8 +3434,10 @@ static int tcp_send_syn_data(struct sock *sk, struct sk_buff *syn)
- 	 * private TCP options. The cost is reduced data space in SYN :(
- 	 */
- 	tp->rx_opt.mss_clamp = tcp_mss_clamp(tp, tp->rx_opt.mss_clamp);
-+	/* Sync mss_cache after updating the mss_clamp */
-+	tcp_sync_mss(sk, icsk->icsk_pmtu_cookie);
+ 	int err;
+ 	static int devno;
+@@ -904,6 +904,12 @@ snd_ad1889_probe(struct pci_dev *pci,
+ 	return 0;
+ }
  
--	space = __tcp_mtu_to_mss(sk, inet_csk(sk)->icsk_pmtu_cookie) -
-+	space = __tcp_mtu_to_mss(sk, icsk->icsk_pmtu_cookie) -
- 		MAX_TCP_OPTION_SPACE;
- 
- 	space = min_t(size_t, space, fo->size);
++static int snd_ad1889_probe(struct pci_dev *pci,
++			    const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_ad1889_probe(pci, pci_id));
++}
++
+ static const struct pci_device_id snd_ad1889_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_ANALOG_DEVICES, PCI_DEVICE_ID_AD1889JS) },
+ 	{ 0, },
 -- 
-2.34.1
+2.35.1
 
 
 
