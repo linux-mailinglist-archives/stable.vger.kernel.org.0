@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E8E505593
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560A9505546
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241508AbiDRNQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:16:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41340 "EHLO
+        id S240495AbiDRNQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:16:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241517AbiDRNIB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B792AE31;
-        Mon, 18 Apr 2022 05:47:42 -0700 (PDT)
+        with ESMTP id S241533AbiDRNIC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23172B1BA;
+        Mon, 18 Apr 2022 05:47:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0848DB80EC0;
-        Mon, 18 Apr 2022 12:47:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF3FC385A1;
-        Mon, 18 Apr 2022 12:47:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6750461251;
+        Mon, 18 Apr 2022 12:47:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6504BC385A7;
+        Mon, 18 Apr 2022 12:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286059;
-        bh=lFCP5nzLeSmkOcqS5XILgFyL0/GQwVTVtYdNABHyz08=;
+        s=korg; t=1650286062;
+        bh=Hi+qGAM0+K6aRhN2ffkWQJ1vVgUzo9g09tmdPd5/DCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEgSArJLZclO4u5KpkB0AtYDZpoeS8QKqsNaggox764VLWu6zHyClPU9KYdIo94PU
-         6jL+nBaNz0GnZtEMO3Y9M+6uk+OJ6AmEnqZfcG2pikYprSer5W2mu6JYzQ292p6QsK
-         KLEK4vqx1J+gzibU/Bsi+JG+VMqoUsMohe0rpxWY=
+        b=ySL21fj6H1k7yr0sbWl+7Ss+10QH1ly1TeDGGm0Q8anGO0CStPNw7QKQU5NXhsSzB
+         IaSOUPvYDqvQ/wQwTc1hmnUprS28kqA758piTLyjCQrjw5DmEX80TANYlQwZO7gpKB
+         PHyXNTs3mvo+oIs/Bb/WPtmvr8ZkvLWkB0byFbp0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
-        Peter Rosin <peda@axentia.se>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 017/284] iio: inkern: make a best effort on offset calculation
-Date:   Mon, 18 Apr 2022 14:09:58 +0200
-Message-Id: <20220418121211.187957179@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 4.14 018/284] clk: uniphier: Fix fixed-rate initialization
+Date:   Mon, 18 Apr 2022 14:09:59 +0200
+Message-Id: <20220418121211.215907720@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
 References: <20220418121210.689577360@linuxfoundation.org>
@@ -56,68 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Beguin <liambeguin@gmail.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-commit ca85123354e1a65a22170286387b4791997fe864 upstream.
+commit ca85a66710a8a1f6b0719397225c3e9ee0abb692 upstream.
 
-iio_convert_raw_to_processed_unlocked() assumes the offset is an
-integer. Make a best effort to get a valid offset value for fractional
-cases without breaking implicit truncations.
+Fixed-rate clocks in UniPhier don't have any parent clocks, however,
+initial data "init.flags" isn't initialized, so it might be determined
+that there is a parent clock for fixed-rate clock.
 
-Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
-Signed-off-by: Liam Beguin <liambeguin@gmail.com>
-Reviewed-by: Peter Rosin <peda@axentia.se>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20220108205319.2046348-4-liambeguin@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+This sets init.flags to zero as initialization.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 734d82f4a678 ("clk: uniphier: add core support code for UniPhier clock driver")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/1646808918-30899-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/inkern.c |   32 +++++++++++++++++++++++++++-----
- 1 file changed, 27 insertions(+), 5 deletions(-)
+ drivers/clk/uniphier/clk-uniphier-fixed-rate.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/inkern.c
-+++ b/drivers/iio/inkern.c
-@@ -591,13 +591,35 @@ EXPORT_SYMBOL_GPL(iio_read_channel_avera
- static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
- 	int raw, int *processed, unsigned int scale)
- {
--	int scale_type, scale_val, scale_val2, offset;
-+	int scale_type, scale_val, scale_val2;
-+	int offset_type, offset_val, offset_val2;
- 	s64 raw64 = raw;
--	int ret;
+--- a/drivers/clk/uniphier/clk-uniphier-fixed-rate.c
++++ b/drivers/clk/uniphier/clk-uniphier-fixed-rate.c
+@@ -33,6 +33,7 @@ struct clk_hw *uniphier_clk_register_fix
  
--	ret = iio_channel_read(chan, &offset, NULL, IIO_CHAN_INFO_OFFSET);
--	if (ret >= 0)
--		raw64 += offset;
-+	offset_type = iio_channel_read(chan, &offset_val, &offset_val2,
-+				       IIO_CHAN_INFO_OFFSET);
-+	if (offset_type >= 0) {
-+		switch (offset_type) {
-+		case IIO_VAL_INT:
-+			break;
-+		case IIO_VAL_INT_PLUS_MICRO:
-+		case IIO_VAL_INT_PLUS_NANO:
-+			/*
-+			 * Both IIO_VAL_INT_PLUS_MICRO and IIO_VAL_INT_PLUS_NANO
-+			 * implicitely truncate the offset to it's integer form.
-+			 */
-+			break;
-+		case IIO_VAL_FRACTIONAL:
-+			offset_val /= offset_val2;
-+			break;
-+		case IIO_VAL_FRACTIONAL_LOG2:
-+			offset_val >>= offset_val2;
-+			break;
-+		default:
-+			return -EINVAL;
-+		}
-+
-+		raw64 += offset_val;
-+	}
+ 	init.name = name;
+ 	init.ops = &clk_fixed_rate_ops;
++	init.flags = 0;
+ 	init.parent_names = NULL;
+ 	init.num_parents = 0;
  
- 	scale_type = iio_channel_read(chan, &scale_val, &scale_val2,
- 					IIO_CHAN_INFO_SCALE);
 
 
