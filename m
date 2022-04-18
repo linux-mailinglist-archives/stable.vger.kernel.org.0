@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F2350568F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6D65053A5
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243003AbiDRNjU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:39:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57408 "EHLO
+        id S237268AbiDRNAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:00:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244209AbiDRNjD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:39:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB3EA2DD6F;
-        Mon, 18 Apr 2022 05:58:47 -0700 (PDT)
+        with ESMTP id S242360AbiDRM7u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2017C201BB;
+        Mon, 18 Apr 2022 05:40:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 366F1B80E4B;
-        Mon, 18 Apr 2022 12:58:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A6FBC385A7;
-        Mon, 18 Apr 2022 12:58:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53002B80EC3;
+        Mon, 18 Apr 2022 12:40:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F3D2C385A1;
+        Mon, 18 Apr 2022 12:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286724;
-        bh=8WjUyT3To343bMCkCoCZ9Mb730wDZ9RFoD1AdQXgQoA=;
+        s=korg; t=1650285654;
+        bh=U6HJbILbFH/jDdPNi6UJqdpoL9mzb5+SE4t1nR22814=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wl3hVtuVpvKS7nWf7WD5gslsUKCu7ToPsT9w/ng1Y2Q4aen0tOvWFnYbbvZw1Cyag
-         uEOUBWw+Dz3hB/Va9SAn8BkcCcIIjRBNYpfTEnqMTsFn2sZBBZ6gtCD7kKtxUrxOuD
-         EmE4sIsGToc6flia8oyZfQ0rkD6rYLlY5sv/dPJY=
+        b=pcwffEIBtbbgB2GSQG4b2TB3JhirTPHq7SviNptScrMSLTpr2cfAQa0ldGy8f8Nwv
+         W5+dhTifypsdVJfLkZrZ2Lx760jaaltPdC6IEapiT98vcmfTq0GQ/Q03PKupxXenXB
+         ec9ReTEksP1HjyHXRYIR8j9NjSFbtQNkov/m8eiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?S=C3=B6nke=20Huster?= <soenke.huster@eknoes.de>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 226/284] Bluetooth: Fix use after free in hci_send_acl
+        stable@vger.kernel.org, kongweibin <kongweibin2@huawei.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 085/105] ipv6: fix panic when forwarding a pkt with no in6 dev
 Date:   Mon, 18 Apr 2022 14:13:27 +0200
-Message-Id: <20220418121218.138325155@linuxfoundation.org>
+Message-Id: <20220418121149.047517945@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,131 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit f63d24baff787e13b723d86fe036f84bdbc35045 ]
+commit e3fa461d8b0e185b7da8a101fe94dfe6dd500ac0 upstream.
 
-This fixes the following trace caused by receiving
-HCI_EV_DISCONN_PHY_LINK_COMPLETE which does call hci_conn_del without
-first checking if conn->type is in fact AMP_LINK and in case it is
-do properly cleanup upper layers with hci_disconn_cfm:
+kongweibin reported a kernel panic in ip6_forward() when input interface
+has no in6 dev associated.
 
- ==================================================================
-    BUG: KASAN: use-after-free in hci_send_acl+0xaba/0xc50
-    Read of size 8 at addr ffff88800e404818 by task bluetoothd/142
+The following tc commands were used to reproduce this panic:
+tc qdisc del dev vxlan100 root
+tc qdisc add dev vxlan100 root netem corrupt 5%
 
-    CPU: 0 PID: 142 Comm: bluetoothd Not tainted
-    5.17.0-rc5-00006-gda4022eeac1a #7
-    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-    rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-    Call Trace:
-     <TASK>
-     dump_stack_lvl+0x45/0x59
-     print_address_description.constprop.0+0x1f/0x150
-     kasan_report.cold+0x7f/0x11b
-     hci_send_acl+0xaba/0xc50
-     l2cap_do_send+0x23f/0x3d0
-     l2cap_chan_send+0xc06/0x2cc0
-     l2cap_sock_sendmsg+0x201/0x2b0
-     sock_sendmsg+0xdc/0x110
-     sock_write_iter+0x20f/0x370
-     do_iter_readv_writev+0x343/0x690
-     do_iter_write+0x132/0x640
-     vfs_writev+0x198/0x570
-     do_writev+0x202/0x280
-     do_syscall_64+0x38/0x90
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
-    RSP: 002b:00007ffce8a099b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000014
-    Code: 0f 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 f3
-    0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 14 00 00 00 0f 05
-    <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 89 54 24 1c 48 89 74 24 10
-    RDX: 0000000000000001 RSI: 00007ffce8a099e0 RDI: 0000000000000015
-    RAX: ffffffffffffffda RBX: 00007ffce8a099e0 RCX: 00007f788fc3cf77
-    R10: 00007ffce8af7080 R11: 0000000000000246 R12: 000055e4ccf75580
-    RBP: 0000000000000015 R08: 0000000000000002 R09: 0000000000000001
-    </TASK>
-    R13: 000055e4ccf754a0 R14: 000055e4ccf75cd0 R15: 000055e4ccf4a6b0
-
-    Allocated by task 45:
-        kasan_save_stack+0x1e/0x40
-        __kasan_kmalloc+0x81/0xa0
-        hci_chan_create+0x9a/0x2f0
-        l2cap_conn_add.part.0+0x1a/0xdc0
-        l2cap_connect_cfm+0x236/0x1000
-        le_conn_complete_evt+0x15a7/0x1db0
-        hci_le_conn_complete_evt+0x226/0x2c0
-        hci_le_meta_evt+0x247/0x450
-        hci_event_packet+0x61b/0xe90
-        hci_rx_work+0x4d5/0xc50
-        process_one_work+0x8fb/0x15a0
-        worker_thread+0x576/0x1240
-        kthread+0x29d/0x340
-        ret_from_fork+0x1f/0x30
-
-    Freed by task 45:
-        kasan_save_stack+0x1e/0x40
-        kasan_set_track+0x21/0x30
-        kasan_set_free_info+0x20/0x30
-        __kasan_slab_free+0xfb/0x130
-        kfree+0xac/0x350
-        hci_conn_cleanup+0x101/0x6a0
-        hci_conn_del+0x27e/0x6c0
-        hci_disconn_phylink_complete_evt+0xe0/0x120
-        hci_event_packet+0x812/0xe90
-        hci_rx_work+0x4d5/0xc50
-        process_one_work+0x8fb/0x15a0
-        worker_thread+0x576/0x1240
-        kthread+0x29d/0x340
-        ret_from_fork+0x1f/0x30
-
-    The buggy address belongs to the object at ffff88800c0f0500
-    The buggy address is located 24 bytes inside of
-    which belongs to the cache kmalloc-128 of size 128
-    The buggy address belongs to the page:
-    128-byte region [ffff88800c0f0500, ffff88800c0f0580)
-    flags: 0x100000000000200(slab|node=0|zone=1)
-    page:00000000fe45cd86 refcount:1 mapcount:0
-    mapping:0000000000000000 index:0x0 pfn:0xc0f0
-    raw: 0000000000000000 0000000080100010 00000001ffffffff
-    0000000000000000
-    raw: 0100000000000200 ffffea00003a2c80 dead000000000004
-    ffff8880078418c0
-    page dumped because: kasan: bad access detected
-    ffff88800c0f0400: 00 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc
-    Memory state around the buggy address:
-    >ffff88800c0f0500: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-    ffff88800c0f0480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-    ffff88800c0f0580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                                ^
-    ==================================================================
-    ffff88800c0f0600: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-Reported-by: Sönke Huster <soenke.huster@eknoes.de>
-Tested-by: Sönke Huster <soenke.huster@eknoes.de>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: stable@vger.kernel.org
+Fixes: ccd27f05ae7b ("ipv6: fix 'disable_policy' for fwd packets")
+Reported-by: kongweibin <kongweibin2@huawei.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_event.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv6/ip6_output.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 39e222fb3004..4eeba9dfb38f 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4470,8 +4470,9 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
- 	hci_dev_lock(hdev);
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -508,7 +508,7 @@ int ip6_forward(struct sk_buff *skb)
+ 		goto drop;
  
- 	hcon = hci_conn_hash_lookup_handle(hdev, ev->phy_handle);
--	if (hcon) {
-+	if (hcon && hcon->type == AMP_LINK) {
- 		hcon->state = BT_CLOSED;
-+		hci_disconn_cfm(hcon, ev->reason);
- 		hci_conn_del(hcon);
- 	}
- 
--- 
-2.35.1
-
+ 	if (!net->ipv6.devconf_all->disable_policy &&
+-	    !idev->cnf.disable_policy &&
++	    (!idev || !idev->cnf.disable_policy) &&
+ 	    !xfrm6_policy_check(NULL, XFRM_POLICY_FWD, skb)) {
+ 		__IP6_INC_STATS(net, idev, IPSTATS_MIB_INDISCARDS);
+ 		goto drop;
 
 
