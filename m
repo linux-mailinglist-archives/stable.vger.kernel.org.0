@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 236B6505884
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A390505894
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:04:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243846AbiDROEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:04:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59884 "EHLO
+        id S238984AbiDROFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:05:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245679AbiDROD5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:03:57 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C42AC2BD4;
-        Mon, 18 Apr 2022 06:09:50 -0700 (PDT)
+        with ESMTP id S245725AbiDROEB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:04:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AD9629CAC;
+        Mon, 18 Apr 2022 06:09:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 346A1CE10A2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3A1DB80EE8;
+        Mon, 18 Apr 2022 13:09:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D8E7C385A9;
         Mon, 18 Apr 2022 13:09:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B303C385A1;
-        Mon, 18 Apr 2022 13:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287340;
-        bh=ingGZxMaEc9r5alfLYbLed9tPRonczPlahQ4UPFgo+s=;
+        s=korg; t=1650287343;
+        bh=qW1x31HnZxqlWv9yLK7leVGiHSRFHxjgpFRqN+3ePM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swkoQZ9wvvF63t78BCChyqkTPzosfUq+fUNhriMYyc6HmeqWX3bIBUQpjFl5N6tgc
-         vCqthtDfNDkDZ9ZXBpuYDSRcanDMQBoN30i+GgbPFEy0bLTW2QV+hRZ/aTYl1eLGM6
-         PjGyd2ZNfvT9lMTuLYx825yhG4g39lfsOscGGI6M=
+        b=M3YWyUeAy37a9FVlmUl/pJ6Ge6Zbhqal3f8Do9g8Cfn1geaBikdV4wUHyvru4s+M0
+         6D6SKAcEmnSE/LI0wZ4aYdnyK7hJ/v8vdj6zQhVcfMjGiZ4aRTlZxgxrmxvUTWBwVk
+         uK9relBZOIyeZud9YLK5kqT72V4Nvr8OKOSV8T1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3c765c5248797356edaa@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 132/218] ntfs: add sanity check on allocation size
-Date:   Mon, 18 Apr 2022 14:13:18 +0200
-Message-Id: <20220418121203.365116416@linuxfoundation.org>
+        stable@vger.kernel.org, Antonino Daplas <adaplas@gmail.com>,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Tim Gardner <tim.gardner@canonical.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 133/218] video: fbdev: nvidiafb: Use strscpy() to prevent buffer overflow
+Date:   Mon, 18 Apr 2022 14:13:19 +0200
+Message-Id: <20220418121203.393438964@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -58,41 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Tim Gardner <tim.gardner@canonical.com>
 
-[ Upstream commit 714fbf2647b1a33d914edd695d4da92029c7e7c0 ]
+[ Upstream commit 37a1a2e6eeeb101285cd34e12e48a881524701aa ]
 
-ntfs_read_inode_mount invokes ntfs_malloc_nofs with zero allocation
-size.  It triggers one BUG in the __ntfs_malloc function.
+Coverity complains of a possible buffer overflow. However,
+given the 'static' scope of nvidia_setup_i2c_bus() it looks
+like that can't happen after examiniing the call sites.
 
-Fix this by adding sanity check on ni->attr_list_size.
+CID 19036 (#1 of 1): Copy into fixed size buffer (STRING_OVERFLOW)
+1. fixed_size_dest: You might overrun the 48-character fixed-size string
+  chan->adapter.name by copying name without checking the length.
+2. parameter_as_source: Note: This defect has an elevated risk because the
+  source argument is a parameter of the current function.
+ 89        strcpy(chan->adapter.name, name);
 
-Link: https://lkml.kernel.org/r/20220120094914.47736-1-dzm91@hust.edu.cn
-Reported-by: syzbot+3c765c5248797356edaa@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Acked-by: Anton Altaparmakov <anton@tuxera.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fix this warning by using strscpy() which will silence the warning and
+prevent any future buffer overflows should the names used to identify the
+channel become much longer.
+
+Cc: Antonino Daplas <adaplas@gmail.com>
+Cc: linux-fbdev@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ntfs/inode.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/video/fbdev/nvidia/nv_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ntfs/inode.c b/fs/ntfs/inode.c
-index 8cd134750ebb..4150b3633f77 100644
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -1915,6 +1915,10 @@ int ntfs_read_inode_mount(struct inode *vi)
- 		}
- 		/* Now allocate memory for the attribute list. */
- 		ni->attr_list_size = (u32)ntfs_attr_size(a);
-+		if (!ni->attr_list_size) {
-+			ntfs_error(sb, "Attr_list_size is zero");
-+			goto put_err_out;
-+		}
- 		ni->attr_list = ntfs_malloc_nofs(ni->attr_list_size);
- 		if (!ni->attr_list) {
- 			ntfs_error(sb, "Not enough memory to allocate buffer "
+diff --git a/drivers/video/fbdev/nvidia/nv_i2c.c b/drivers/video/fbdev/nvidia/nv_i2c.c
+index d7994a173245..0b48965a6420 100644
+--- a/drivers/video/fbdev/nvidia/nv_i2c.c
++++ b/drivers/video/fbdev/nvidia/nv_i2c.c
+@@ -86,7 +86,7 @@ static int nvidia_setup_i2c_bus(struct nvidia_i2c_chan *chan, const char *name,
+ {
+ 	int rc;
+ 
+-	strcpy(chan->adapter.name, name);
++	strscpy(chan->adapter.name, name, sizeof(chan->adapter.name));
+ 	chan->adapter.owner = THIS_MODULE;
+ 	chan->adapter.class = i2c_class;
+ 	chan->adapter.algo_data = &chan->algo;
 -- 
 2.34.1
 
