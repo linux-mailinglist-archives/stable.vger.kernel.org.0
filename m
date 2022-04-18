@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6719D50520D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA92F50508C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229799AbiDRMkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:40:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38742 "EHLO
+        id S232490AbiDRM0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:26:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239453AbiDRMhS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E360020BEC;
-        Mon, 18 Apr 2022 05:27:52 -0700 (PDT)
+        with ESMTP id S238719AbiDRM0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1990B7F5;
+        Mon, 18 Apr 2022 05:20:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80B0C60FB6;
-        Mon, 18 Apr 2022 12:27:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A264C385A7;
-        Mon, 18 Apr 2022 12:27:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F59960EF4;
+        Mon, 18 Apr 2022 12:20:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05B7EC385A7;
+        Mon, 18 Apr 2022 12:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284871;
-        bh=QWRS/AUjwxtcWUDyIfuSvFkHkDKNENW6IFq4axNs3YU=;
+        s=korg; t=1650284399;
+        bh=RdVROE4Lh6lnDHPlv1aR88ULzX+GC3km3JLh6bS0wgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhdyEUoTba4LNtEXrLdtAmDMQQs286zAYBo5WqFOBdzHNAGm/IwJtxbgHv1ON/3tv
-         5hSmQU/0UiYGHBl52ENJxGkOz86OEnQGm9G5Sufk/AJdtoCIgQICJA6nNzxkDUIMsn
-         B+NJ5vmF/c3Yal2B7d3m46gp7nWGKn1oHyJxqCIY=
+        b=v9t77ZH00aLccZNKh4fzKDJSWLacht3ntjH2jQy5atAwKz0CHo/xhcMNKjqSDmjcw
+         QsoJ0/TmJVsA9+zaL67IPp3eKyf9gIOvkJRgTeHOK6br9T/IEug7p+PWzuIV7o/PZH
+         k7ShOA7sX0p63cafXzQMvRsFtSrUmvDtzj+a+Cqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 034/189] ALSA: es1968: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 085/219] net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link
 Date:   Mon, 18 Apr 2022 14:10:54 +0200
-Message-Id: <20220418121201.483203308@linuxfoundation.org>
+Message-Id: <20220418121208.799292404@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-commit de9a01bc95a9e5e36d0659521bb04579053d8566 upstream.
+[ Upstream commit a6aaa00324240967272b451bfa772547bd576ee6 ]
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+When using a fixed-link, the altr_tse_pcs driver crashes
+due to null-pointer dereference as no phy_device is provided to
+tse_pcs_fix_mac_speed function. Fix this by adding a check for
+phy_dev before calling the tse_pcs_fix_mac_speed() function.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+Also clean up the tse_pcs_fix_mac_speed function a bit. There is
+no need to check for splitter_base and sgmii_adapter_base
+because the driver will fail if these 2 variables are not
+derived from the device tree.
 
-Fixes: a7b4cbfdc701 ("ALSA: es1968: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-16-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fb3bbdb85989 ("net: ethernet: Add TSE PCS support to dwmac-socfpga")
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/es1968.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c  |  8 --------
+ drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h  |  4 ++++
+ drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c | 13 +++++--------
+ 3 files changed, 9 insertions(+), 16 deletions(-)
 
-diff --git a/sound/pci/es1968.c b/sound/pci/es1968.c
-index 6a8a02a9ecf4..4a7e20bb11bc 100644
---- a/sound/pci/es1968.c
-+++ b/sound/pci/es1968.c
-@@ -2741,8 +2741,8 @@ static int snd_es1968_create(struct snd_card *card,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
+index cd478d2cd871..00f6d347eaf7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
++++ b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
+@@ -57,10 +57,6 @@
+ #define TSE_PCS_USE_SGMII_ENA				BIT(0)
+ #define TSE_PCS_IF_USE_SGMII				0x03
  
- /*
-  */
--static int snd_es1968_probe(struct pci_dev *pci,
--			    const struct pci_device_id *pci_id)
-+static int __snd_es1968_probe(struct pci_dev *pci,
-+			      const struct pci_device_id *pci_id)
+-#define SGMII_ADAPTER_CTRL_REG				0x00
+-#define SGMII_ADAPTER_DISABLE				0x0001
+-#define SGMII_ADAPTER_ENABLE				0x0000
+-
+ #define AUTONEGO_LINK_TIMER				20
+ 
+ static int tse_pcs_reset(void __iomem *base, struct tse_pcs *pcs)
+@@ -202,12 +198,8 @@ void tse_pcs_fix_mac_speed(struct tse_pcs *pcs, struct phy_device *phy_dev,
+ 			   unsigned int speed)
  {
- 	static int dev;
- 	struct snd_card *card;
-@@ -2848,6 +2848,12 @@ static int snd_es1968_probe(struct pci_dev *pci,
- 	return 0;
+ 	void __iomem *tse_pcs_base = pcs->tse_pcs_base;
+-	void __iomem *sgmii_adapter_base = pcs->sgmii_adapter_base;
+ 	u32 val;
+ 
+-	writew(SGMII_ADAPTER_ENABLE,
+-	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
+-
+ 	pcs->autoneg = phy_dev->autoneg;
+ 
+ 	if (phy_dev->autoneg == AUTONEG_ENABLE) {
+diff --git a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
+index 442812c0a4bd..694ac25ef426 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
++++ b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
+@@ -10,6 +10,10 @@
+ #include <linux/phy.h>
+ #include <linux/timer.h>
+ 
++#define SGMII_ADAPTER_CTRL_REG		0x00
++#define SGMII_ADAPTER_ENABLE		0x0000
++#define SGMII_ADAPTER_DISABLE		0x0001
++
+ struct tse_pcs {
+ 	struct device *dev;
+ 	void __iomem *tse_pcs_base;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
+index b7c2579c963b..ac9e6c7a33b5 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
+@@ -18,9 +18,6 @@
+ 
+ #include "altr_tse_pcs.h"
+ 
+-#define SGMII_ADAPTER_CTRL_REG                          0x00
+-#define SGMII_ADAPTER_DISABLE                           0x0001
+-
+ #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII 0x0
+ #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII 0x1
+ #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII 0x2
+@@ -62,16 +59,14 @@ static void socfpga_dwmac_fix_mac_speed(void *priv, unsigned int speed)
+ {
+ 	struct socfpga_dwmac *dwmac = (struct socfpga_dwmac *)priv;
+ 	void __iomem *splitter_base = dwmac->splitter_base;
+-	void __iomem *tse_pcs_base = dwmac->pcs.tse_pcs_base;
+ 	void __iomem *sgmii_adapter_base = dwmac->pcs.sgmii_adapter_base;
+ 	struct device *dev = dwmac->dev;
+ 	struct net_device *ndev = dev_get_drvdata(dev);
+ 	struct phy_device *phy_dev = ndev->phydev;
+ 	u32 val;
+ 
+-	if ((tse_pcs_base) && (sgmii_adapter_base))
+-		writew(SGMII_ADAPTER_DISABLE,
+-		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
++	writew(SGMII_ADAPTER_DISABLE,
++	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
+ 
+ 	if (splitter_base) {
+ 		val = readl(splitter_base + EMAC_SPLITTER_CTRL_REG);
+@@ -93,7 +88,9 @@ static void socfpga_dwmac_fix_mac_speed(void *priv, unsigned int speed)
+ 		writel(val, splitter_base + EMAC_SPLITTER_CTRL_REG);
+ 	}
+ 
+-	if (tse_pcs_base && sgmii_adapter_base)
++	writew(SGMII_ADAPTER_ENABLE,
++	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
++	if (phy_dev)
+ 		tse_pcs_fix_mac_speed(&dwmac->pcs, phy_dev, speed);
  }
  
-+static int snd_es1968_probe(struct pci_dev *pci,
-+			    const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_es1968_probe(pci, pci_id));
-+}
-+
- static struct pci_driver es1968_driver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = snd_es1968_ids,
 -- 
-2.35.2
+2.35.1
 
 
 
