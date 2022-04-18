@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC4D505304
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00A92505675
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238062AbiDRMyy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:54:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
+        id S241899AbiDRNfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:35:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239691AbiDRMxh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:53:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929309FD1;
-        Mon, 18 Apr 2022 05:34:53 -0700 (PDT)
+        with ESMTP id S244918AbiDRNbB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:31:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B920226EA;
+        Mon, 18 Apr 2022 05:57:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEF276118A;
-        Mon, 18 Apr 2022 12:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C97FC385A9;
-        Mon, 18 Apr 2022 12:34:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F71FB80D9C;
+        Mon, 18 Apr 2022 12:57:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0EF5C385A1;
+        Mon, 18 Apr 2022 12:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285292;
-        bh=ZlGy41XoiYTBPkFIv0KQQckDyWT4rNi+bI44gK5xc2E=;
+        s=korg; t=1650286649;
+        bh=cOWNMoWg3qlnPk/yhEttGH1oR7VfOw0Ae+GeojOdPBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUnzyHBD4wxoH8qH4elEqWeVa4qhNLIfphsV6AUjWoN/kmX9qRIXWniq15XL0Ifxo
-         jMbQPKGds1xHXxRy7ZH1EgcGi5Diw9dDu8kDkcBIWaX3k0vS2nZI1z4yWx0PSZtF5v
-         BysUc+p9etFStuK+lT0SoOI88XeVBxPuFnSSCv30=
+        b=Ykx2iKiJOrFZ9c4YtTdPBFpxdPxhbuVoHPKcgkVZGzcB/oX3IB5oCrcyoou+F8w0E
+         ZWhR0bBEI2NJpIXWEPwgIhm8761DP7dwBHDMMlLFH5SaHw+ZQah4NOnQDDexPnM6kL
+         VIftuw1oyC6fdiQgnkwCCZJItb/k+99T35TmQbqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 161/189] nl80211: correctly check NL80211_ATTR_REG_ALPHA2 size
+        stable@vger.kernel.org, Kuldeep Singh <singh.kuldeep87k@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.14 200/284] ARM: dts: spear13xx: Update SPI dma properties
 Date:   Mon, 18 Apr 2022 14:13:01 +0200
-Message-Id: <20220418121206.889042319@linuxfoundation.org>
+Message-Id: <20220418121217.414193633@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Kuldeep Singh <singh.kuldeep87k@gmail.com>
 
-commit 6624bb34b4eb19f715db9908cca00122748765d7 upstream.
+commit 31d3687d6017c7ce6061695361598d9cda70807a upstream.
 
-We need this to be at least two bytes, so we can access
-alpha2[0] and alpha2[1]. It may be three in case some
-userspace used NUL-termination since it was NLA_STRING
-(and we also push it out with NUL-termination).
+Reorder dmas and dma-names property for spi controller node to make it
+compliant with bindings.
 
-Cc: stable@vger.kernel.org
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220411114201.fd4a31f06541.Ie7ff4be2cf348d8cc28ed0d626fc54becf7ea799@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 6e8887f60f60 ("ARM: SPEAr13xx: Pass generic DW DMAC platform data from DT")
+Signed-off-by: Kuldeep Singh <singh.kuldeep87k@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20220326042313.97862-2-singh.kuldeep87k@gmail.com'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/nl80211.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/spear13xx.dtsi |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -509,7 +509,8 @@ static const struct nla_policy nl80211_p
- 				   .len = IEEE80211_MAX_MESH_ID_LEN },
- 	[NL80211_ATTR_MPATH_NEXT_HOP] = NLA_POLICY_ETH_ADDR_COMPAT,
+--- a/arch/arm/boot/dts/spear13xx.dtsi
++++ b/arch/arm/boot/dts/spear13xx.dtsi
+@@ -290,9 +290,9 @@
+ 				#size-cells = <0>;
+ 				interrupts = <0 31 0x4>;
+ 				status = "disabled";
+-				dmas = <&dwdma0 4 0 0>,
+-					<&dwdma0 5 0 0>;
+-				dma-names = "tx", "rx";
++				dmas = <&dwdma0 5 0 0>,
++					<&dwdma0 4 0 0>;
++				dma-names = "rx", "tx";
+ 			};
  
--	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
-+	/* allow 3 for NUL-termination, we used to declare this NLA_STRING */
-+	[NL80211_ATTR_REG_ALPHA2] = NLA_POLICY_RANGE(NLA_BINARY, 2, 3),
- 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
- 
- 	[NL80211_ATTR_BSS_CTS_PROT] = { .type = NLA_U8 },
+ 			rtc@e0580000 {
 
 
