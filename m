@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DFB0504E5A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CFFE504E62
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:30:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237499AbiDRJaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 05:30:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
+        id S231946AbiDRJct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 05:32:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237497AbiDRJaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:30:09 -0400
-Received: from mail1.wrs.com (unknown-3-146.windriver.com [147.11.3.146])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC0415FEF
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:27:30 -0700 (PDT)
-Received: from ala-exchng01.corp.ad.wrs.com (ala-exchng01.corp.ad.wrs.com [147.11.82.252])
-        by mail1.wrs.com (8.15.2/8.15.2) with ESMTPS id 23I9RUas005711
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:27:30 -0700
-Received: from otp-dpanait-l2.corp.ad.wrs.com (128.224.125.182) by
- ala-exchng01.corp.ad.wrs.com (147.11.82.252) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.12; Mon, 18 Apr 2022 02:27:29 -0700
-From:   Dragos-Marian Panait <dragos.panait@windriver.com>
-To:     <stable@vger.kernel.org>
-CC:     <dragos.panait@windriver.com>
-Subject: [PATCH 4.19 1/1] can: usb_8dev: usb_8dev_start_xmit(): fix double dev_kfree_skb() in error path
-Date:   Mon, 18 Apr 2022 12:26:42 +0300
-Message-ID: <20220418092642.2351883-2-dragos.panait@windriver.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220418092642.2351883-1-dragos.panait@windriver.com>
-References: <20220418092642.2351883-1-dragos.panait@windriver.com>
+        with ESMTP id S229562AbiDRJct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:32:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB76A15FFE
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:30:10 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76EDC6118F
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:30:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 514CCC385A8;
+        Mon, 18 Apr 2022 09:30:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1650274209;
+        bh=HbzV6yufxAh5iDtggW7509Z475MyhN0TNaCym2qH9lI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SZAoAX9vYwG3Jr4dqR0xX4hy8r9T0YCpnwOjFrnp568ds9uN39m8XJTU2vAii13vP
+         /GeM2/kzgk6qLgL16LEELdeznqpQ4BWeuCV3rlVoqa1mae10VkhIthLPvkJ9ayDYrF
+         hyFj0Oh3vqlM52MLqYhnWa1aAIiKa+mFcjBlHzDE=
+Date:   Mon, 18 Apr 2022 11:30:06 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     keescook@chromium.org, pageexec@freemail.hu, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] gcc-plugins: latent_entropy: use
+ /dev/urandom" failed to apply to 4.9-stable tree
+Message-ID: <Yl0vnls++OCbpGzX@kroah.com>
+References: <16502694453885@kroah.com>
+ <Yl0rFqfaETxNfTgh@zx2c4.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [128.224.125.182]
-X-ClientProxiedBy: ala-exchng01.corp.ad.wrs.com (147.11.82.252) To
- ala-exchng01.corp.ad.wrs.com (147.11.82.252)
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
-        SPF_HELO_NONE,SPF_SOFTFAIL,T_SCC_BODY_TEXT_LINE autolearn=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yl0rFqfaETxNfTgh@zx2c4.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,75 +51,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+On Mon, Apr 18, 2022 at 11:12:11AM +0200, Jason A. Donenfeld wrote:
+> Hi Greg,
+> 
+> On Mon, Apr 18, 2022 at 10:10:45AM +0200, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.9-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > From c40160f2998c897231f8454bf797558d30a20375 Mon Sep 17 00:00:00 2001
+> 
+> Apparently on 4.9.y, applying this commit cleanly also requires
+> 5a45a4c5c3f5e36a03770deb102ca6ba256ff3d7 to be cherry picked first.
 
-commit 3d3925ff6433f98992685a9679613a2cc97f3ce2 upstream.
-
-There is no need to call dev_kfree_skb() when usb_submit_urb() fails
-because can_put_echo_skb() deletes original skb and
-can_free_echo_skb() deletes the cloned skb.
-
-Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
-Link: https://lore.kernel.org/all/20220311080614.45229-1-hbh25y@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[DP: adjusted params of can_free_echo_skb() for 4.19 stable]
-Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
----
- drivers/net/can/usb/usb_8dev.c | 30 ++++++++++++++----------------
- 1 file changed, 14 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/net/can/usb/usb_8dev.c b/drivers/net/can/usb/usb_8dev.c
-index df99354ec12a..232f45f722f0 100644
---- a/drivers/net/can/usb/usb_8dev.c
-+++ b/drivers/net/can/usb/usb_8dev.c
-@@ -681,9 +681,20 @@ static netdev_tx_t usb_8dev_start_xmit(struct sk_buff *skb,
- 	atomic_inc(&priv->active_tx_urbs);
- 
- 	err = usb_submit_urb(urb, GFP_ATOMIC);
--	if (unlikely(err))
--		goto failed;
--	else if (atomic_read(&priv->active_tx_urbs) >= MAX_TX_URBS)
-+	if (unlikely(err)) {
-+		can_free_echo_skb(netdev, context->echo_index);
-+
-+		usb_unanchor_urb(urb);
-+		usb_free_coherent(priv->udev, size, buf, urb->transfer_dma);
-+
-+		atomic_dec(&priv->active_tx_urbs);
-+
-+		if (err == -ENODEV)
-+			netif_device_detach(netdev);
-+		else
-+			netdev_warn(netdev, "failed tx_urb %d\n", err);
-+		stats->tx_dropped++;
-+	} else if (atomic_read(&priv->active_tx_urbs) >= MAX_TX_URBS)
- 		/* Slow down tx path */
- 		netif_stop_queue(netdev);
- 
-@@ -702,19 +713,6 @@ static netdev_tx_t usb_8dev_start_xmit(struct sk_buff *skb,
- 
- 	return NETDEV_TX_BUSY;
- 
--failed:
--	can_free_echo_skb(netdev, context->echo_index);
--
--	usb_unanchor_urb(urb);
--	usb_free_coherent(priv->udev, size, buf, urb->transfer_dma);
--
--	atomic_dec(&priv->active_tx_urbs);
--
--	if (err == -ENODEV)
--		netif_device_detach(netdev);
--	else
--		netdev_warn(netdev, "failed tx_urb %d\n", err);
--
- nomembuf:
- 	usb_free_urb(urb);
- 
-
-base-commit: aaad8e56ca1e56fe34b5a33f30fb6f9279969020
--- 
-2.25.1
-
+That worked, thanks!
