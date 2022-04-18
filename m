@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 000BB505524
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02630504FE7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:16:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241673AbiDRNMs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:12:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39366 "EHLO
+        id S238226AbiDRMTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:19:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241235AbiDRNHA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:07:00 -0400
+        with ESMTP id S238225AbiDRMSk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:18:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6E722A26A;
-        Mon, 18 Apr 2022 05:47:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E13191AD92;
+        Mon, 18 Apr 2022 05:15:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 519B76124A;
-        Mon, 18 Apr 2022 12:47:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59C67C385A1;
-        Mon, 18 Apr 2022 12:47:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8084760F09;
+        Mon, 18 Apr 2022 12:15:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F1ECC385A1;
+        Mon, 18 Apr 2022 12:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286043;
-        bh=ErH+l6hXTN8Q0qGt8gkT3zRW+oYajTQEEk1rs7dX0yU=;
+        s=korg; t=1650284158;
+        bh=RTYJYJslaj/WnB1x3J4ALXHvzU3wR+9bstX5iCVP7jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fyqZHoqrEMGGyn01GN4LT6+i5IyksFOss0N6U4QYtw9fmP9MWYFwkyoUbnmR8kSoD
-         5+52sqfFBAFUPf8Ayg8rIY7O+jw+qyoaTcy5DFuxC4UENE6tGy6444qnr/0/w86WCm
-         BywUXoOlBodEDZIUisqGWS3IT/ykmmcyIDGVtx/k=
+        b=kNft6AFMub5H08gwMpt+WGjD+Vjnju88fFV/TTlrzFQ1DSFqZfQeFD9o2a8Cb7hcF
+         xr/jagxcjM0InwCKDg9r0KPHePo2YmlGf4XKzLJUYXSan9ajlujyv3bDgwBSimaV/y
+         +iOvDPsaA5j6mqf7r26PzEpHpztaMMRtslH9VvEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 012/284] virtio-blk: Use blk_validate_block_size() to validate block size
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 024/219] ALSA: aw2: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:09:53 +0200
-Message-Id: <20220418121211.046677405@linuxfoundation.org>
+Message-Id: <20220418121204.701764021@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 57a13a5b8157d9a8606490aaa1b805bafe6c37e1 upstream.
+commit bf4067e8a19eae67c45659a956c361d59251ba57 upstream.
 
-The block layer can't support a block size larger than
-page size yet. And a block size that's too small or
-not a power of two won't work either. If a misconfigured
-device presents an invalid block size in configuration space,
-it will result in the kernel crash something like below:
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-[  506.154324] BUG: kernel NULL pointer dereference, address: 0000000000000008
-[  506.160416] RIP: 0010:create_empty_buffers+0x24/0x100
-[  506.174302] Call Trace:
-[  506.174651]  create_page_buffers+0x4d/0x60
-[  506.175207]  block_read_full_page+0x50/0x380
-[  506.175798]  ? __mod_lruvec_page_state+0x60/0xa0
-[  506.176412]  ? __add_to_page_cache_locked+0x1b2/0x390
-[  506.177085]  ? blkdev_direct_IO+0x4a0/0x4a0
-[  506.177644]  ? scan_shadow_nodes+0x30/0x30
-[  506.178206]  ? lru_cache_add+0x42/0x60
-[  506.178716]  do_read_cache_page+0x695/0x740
-[  506.179278]  ? read_part_sector+0xe0/0xe0
-[  506.179821]  read_part_sector+0x36/0xe0
-[  506.180337]  adfspart_check_ICS+0x32/0x320
-[  506.180890]  ? snprintf+0x45/0x70
-[  506.181350]  ? read_part_sector+0xe0/0xe0
-[  506.181906]  bdev_disk_changed+0x229/0x5c0
-[  506.182483]  blkdev_get_whole+0x6d/0x90
-[  506.183013]  blkdev_get_by_dev+0x122/0x2d0
-[  506.183562]  device_add_disk+0x39e/0x3c0
-[  506.184472]  virtblk_probe+0x3f8/0x79b [virtio_blk]
-[  506.185461]  virtio_dev_probe+0x15e/0x1d0 [virtio]
+This patch fixes it by calling snd_card_free() manually on the error
+from the probe callback.
 
-So let's use a block layer helper to validate the block size.
-
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Link: https://lore.kernel.org/r/20211026144015.188-5-xieyongji@bytedance.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: 33631012cd06 ("ALSA: aw2: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-32-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/virtio_blk.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ sound/pci/aw2/aw2-alsa.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -822,9 +822,17 @@ static int virtblk_probe(struct virtio_d
- 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
- 				   struct virtio_blk_config, blk_size,
- 				   &blk_size);
--	if (!err)
-+	if (!err) {
-+		err = blk_validate_block_size(blk_size);
-+		if (err) {
-+			dev_err(&vdev->dev,
-+				"virtio_blk: invalid block size: 0x%x\n",
-+				blk_size);
-+			goto out_free_tags;
-+		}
-+
- 		blk_queue_logical_block_size(q, blk_size);
--	else
-+	} else
- 		blk_size = queue_logical_block_size(q);
+--- a/sound/pci/aw2/aw2-alsa.c
++++ b/sound/pci/aw2/aw2-alsa.c
+@@ -275,7 +275,7 @@ static int snd_aw2_probe(struct pci_dev
+ 	/* (3) Create main component */
+ 	err = snd_aw2_create(card, pci);
+ 	if (err < 0)
+-		return err;
++		goto error;
  
- 	/* Use topology information if available */
+ 	/* initialize mutex */
+ 	mutex_init(&chip->mtx);
+@@ -294,13 +294,17 @@ static int snd_aw2_probe(struct pci_dev
+ 	/* (6) Register card instance */
+ 	err = snd_card_register(card);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ 
+ 	/* (7) Set PCI driver data */
+ 	pci_set_drvdata(pci, card);
+ 
+ 	dev++;
+ 	return 0;
++
++ error:
++	snd_card_free(card);
++	return err;
+ }
+ 
+ /* open callback */
 
 
