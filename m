@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC1115051D3
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41CDA5057C5
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232746AbiDRMll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:41:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37964 "EHLO
+        id S244002AbiDRN4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:56:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240270AbiDRMiu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEDD027CE2;
-        Mon, 18 Apr 2022 05:29:31 -0700 (PDT)
+        with ESMTP id S245638AbiDRNxz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D056E46B21;
+        Mon, 18 Apr 2022 06:02:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 286E960F7C;
-        Mon, 18 Apr 2022 12:29:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 033B8C385A1;
-        Mon, 18 Apr 2022 12:29:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15C9060B41;
+        Mon, 18 Apr 2022 13:02:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B1FEC385A1;
+        Mon, 18 Apr 2022 13:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284970;
-        bh=60V9n3F/8YQM6yXHDBJ4XdgIZTw+UUdv3AXJFOGfAVo=;
+        s=korg; t=1650286977;
+        bh=NcRu25js3toUPx0KLfzmrjPtNYkGWmP5Qed61QgN4e4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoH2roBBDqqCwnZOmTqreQ9HIn1IPBr6Gq5YYjTvzhKlrJXQTgicrqTCs4jtvahVY
-         E/KEF0LJ2vTZlXXK/O/DHeMgsN2Sp0/3rIuVgewJGnPZcuo3yvtP4gtwRZkgsBDCvc
-         lNlqqUG/CgxHMeOLOY2jj1qp2xNe0U5hsn7ErSU4=
+        b=VPegGX8me77t8KkPm6HBA2eMpWCeFF2edIfT+zZmG6+jMpw0b1xD/sFd3ur3n4iKJ
+         lzzXeaya8pxEnCwdY27ieHRZQNUHtFL3vrPfuNbRvML94v/K35LRsn+NkhZ8vR4APd
+         x6aXmEmkJWtXBmsfueE4dC1Wiu2tQa5q4ksG7ytI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shyam Prasad N <sprasad@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 066/189] cifs: release cached dentries only if mount is complete
+        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.9 020/218] jffs2: fix memory leak in jffs2_scan_medium
 Date:   Mon, 18 Apr 2022 14:11:26 +0200
-Message-Id: <20220418121202.382430356@linuxfoundation.org>
+Message-Id: <20220418121159.740116443@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +53,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Prasad N <sprasad@microsoft.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit d788e51636462e61c6883f7d96b07b06bc291650 ]
+commit 9cdd3128874f5fe759e2c4e1360ab7fb96a8d1df upstream.
 
-During cifs_kill_sb, we first dput all the dentries that we have cached.
-However this function can also get called for mount failures.
-So dput the cached dentries only if the filesystem mount is complete.
-i.e. cifs_sb->root is populated.
+If an error is returned in jffs2_scan_eraseblock() and some memory
+has been added to the jffs2_summary *s, we can observe the following
+kmemleak report:
 
-Fixes: 5e9c89d43fa6 ("cifs: Grab a reference for the dentry of the cached directory during the lifetime of the cache")
-Signed-off-by: Shyam Prasad N <sprasad@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+--------------------------------------------
+unreferenced object 0xffff88812b889c40 (size 64):
+  comm "mount", pid 692, jiffies 4294838325 (age 34.288s)
+  hex dump (first 32 bytes):
+    40 48 b5 14 81 88 ff ff 01 e0 31 00 00 00 50 00  @H........1...P.
+    00 00 01 00 00 00 01 00 00 00 02 00 00 00 09 08  ................
+  backtrace:
+    [<ffffffffae93a3a3>] __kmalloc+0x613/0x910
+    [<ffffffffaf423b9c>] jffs2_sum_add_dirent_mem+0x5c/0xa0
+    [<ffffffffb0f3afa8>] jffs2_scan_medium.cold+0x36e5/0x4794
+    [<ffffffffb0f3dbe1>] jffs2_do_mount_fs.cold+0xa7/0x2267
+    [<ffffffffaf40acf3>] jffs2_do_fill_super+0x383/0xc30
+    [<ffffffffaf40c00a>] jffs2_fill_super+0x2ea/0x4c0
+    [<ffffffffb0315d64>] mtd_get_sb+0x254/0x400
+    [<ffffffffb0315f5f>] mtd_get_sb_by_nr+0x4f/0xd0
+    [<ffffffffb0316478>] get_tree_mtd+0x498/0x840
+    [<ffffffffaf40bd15>] jffs2_get_tree+0x25/0x30
+    [<ffffffffae9f358d>] vfs_get_tree+0x8d/0x2e0
+    [<ffffffffaea7a98f>] path_mount+0x50f/0x1e50
+    [<ffffffffaea7c3d7>] do_mount+0x107/0x130
+    [<ffffffffaea7c5c5>] __se_sys_mount+0x1c5/0x2f0
+    [<ffffffffaea7c917>] __x64_sys_mount+0xc7/0x160
+    [<ffffffffb10142f5>] do_syscall_64+0x45/0x70
+unreferenced object 0xffff888114b54840 (size 32):
+  comm "mount", pid 692, jiffies 4294838325 (age 34.288s)
+  hex dump (first 32 bytes):
+    c0 75 b5 14 81 88 ff ff 02 e0 02 00 00 00 02 00  .u..............
+    00 00 84 00 00 00 44 00 00 00 6b 6b 6b 6b 6b a5  ......D...kkkkk.
+  backtrace:
+    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
+    [<ffffffffaf423b04>] jffs2_sum_add_inode_mem+0x54/0x90
+    [<ffffffffb0f3bd44>] jffs2_scan_medium.cold+0x4481/0x4794
+    [...]
+unreferenced object 0xffff888114b57280 (size 32):
+  comm "mount", pid 692, jiffies 4294838393 (age 34.357s)
+  hex dump (first 32 bytes):
+    10 d5 6c 11 81 88 ff ff 08 e0 05 00 00 00 01 00  ..l.............
+    00 00 38 02 00 00 28 00 00 00 6b 6b 6b 6b 6b a5  ..8...(...kkkkk.
+  backtrace:
+    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
+    [<ffffffffaf423c34>] jffs2_sum_add_xattr_mem+0x54/0x90
+    [<ffffffffb0f3a24f>] jffs2_scan_medium.cold+0x298c/0x4794
+    [...]
+unreferenced object 0xffff8881116cd510 (size 16):
+  comm "mount", pid 692, jiffies 4294838395 (age 34.355s)
+  hex dump (first 16 bytes):
+    00 00 00 00 00 00 00 00 09 e0 60 02 00 00 6b a5  ..........`...k.
+  backtrace:
+    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
+    [<ffffffffaf423cc4>] jffs2_sum_add_xref_mem+0x54/0x90
+    [<ffffffffb0f3b2e3>] jffs2_scan_medium.cold+0x3a20/0x4794
+    [...]
+--------------------------------------------
+
+Therefore, we should call jffs2_sum_reset_collected(s) on exit to
+release the memory added in s. In addition, a new tag "out_buf" is
+added to prevent the NULL pointer reference caused by s being NULL.
+(thanks to Zhang Yi for this analysis)
+
+Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
+Cc: stable@vger.kernel.org
+Co-developed-with: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsfs.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ fs/jffs2/scan.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index ed220daca3e1..92fd1a7e83dc 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -266,22 +266,24 @@ static void cifs_kill_sb(struct super_block *sb)
- 	 * before we kill the sb.
- 	 */
- 	if (cifs_sb->root) {
-+		node = rb_first(root);
-+		while (node != NULL) {
-+			tlink = rb_entry(node, struct tcon_link, tl_rbnode);
-+			tcon = tlink_tcon(tlink);
-+			cfid = &tcon->crfid;
-+			mutex_lock(&cfid->fid_mutex);
-+			if (cfid->dentry) {
-+				dput(cfid->dentry);
-+				cfid->dentry = NULL;
-+			}
-+			mutex_unlock(&cfid->fid_mutex);
-+			node = rb_next(node);
-+		}
-+
-+		/* finally release root dentry */
- 		dput(cifs_sb->root);
- 		cifs_sb->root = NULL;
+--- a/fs/jffs2/scan.c
++++ b/fs/jffs2/scan.c
+@@ -136,7 +136,7 @@ int jffs2_scan_medium(struct jffs2_sb_in
+ 		if (!s) {
+ 			JFFS2_WARNING("Can't allocate memory for summary\n");
+ 			ret = -ENOMEM;
+-			goto out;
++			goto out_buf;
+ 		}
  	}
--	node = rb_first(root);
--	while (node != NULL) {
--		tlink = rb_entry(node, struct tcon_link, tl_rbnode);
--		tcon = tlink_tcon(tlink);
--		cfid = &tcon->crfid;
--		mutex_lock(&cfid->fid_mutex);
--		if (cfid->dentry) {
--			dput(cfid->dentry);
--			cfid->dentry = NULL;
--		}
--		mutex_unlock(&cfid->fid_mutex);
--		node = rb_next(node);
--	}
  
- 	kill_anon_super(sb);
- 	cifs_umount(cifs_sb);
--- 
-2.35.1
-
+@@ -274,13 +274,15 @@ int jffs2_scan_medium(struct jffs2_sb_in
+ 	}
+ 	ret = 0;
+  out:
++	jffs2_sum_reset_collected(s);
++	kfree(s);
++ out_buf:
+ 	if (buf_size)
+ 		kfree(flashbuf);
+ #ifndef __ECOS
+ 	else
+ 		mtd_unpoint(c->mtd, 0, c->mtd->size);
+ #endif
+-	kfree(s);
+ 	return ret;
+ }
+ 
 
 
