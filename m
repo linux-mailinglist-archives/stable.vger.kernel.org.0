@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99D8E505986
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2579950596A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245089AbiDROUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:20:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56304 "EHLO
+        id S244903AbiDROTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:19:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244239AbiDROQs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:16:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2F53983D;
-        Mon, 18 Apr 2022 06:13:13 -0700 (PDT)
+        with ESMTP id S1344294AbiDROR5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:17:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF6946650;
+        Mon, 18 Apr 2022 06:13:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DBDAB80EC4;
-        Mon, 18 Apr 2022 13:13:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA2E9C385A1;
-        Mon, 18 Apr 2022 13:13:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FFE3B80EE2;
+        Mon, 18 Apr 2022 13:13:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6DE7C385A7;
+        Mon, 18 Apr 2022 13:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287584;
-        bh=rwfGwynTzrNOMEMCE4EK8HwQ70T5W23kbo9jj5fBnoA=;
+        s=korg; t=1650287587;
+        bh=btq5PtiLLaSG5Z1o+XKlEstXkapvQO9CjumUPjapG5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2iUn7FNY8NGGvV3zSfDEWvbJu9esC1Bd0iltZALT9kFHcqmriWMoxMzC2qAvB+2n
-         1JaAVLLN89dnG/SzNDgZC6Lc4yuDZp/Okts/BmNY0rTWXI1UDcRTvqHe1O9DokoVD5
-         +OMYmwjxL7RLod0Skn/fY3eJdm415s/tKVzj0D5E=
+        b=pA/Qp/98NG32q48ca9KqFMxx0sRGzk518U7kF4Wm8LKc+X0stqdxri1fnI08R4lDG
+         dz7z5OCJs81HBkrjoa7mxnRqWSamJeTsiqsDYjmUCuFuZwHlkY9kHbQzZrigt7EP1L
+         UxYnuNNwx5gLHBnQhlT/qNPnbUxDvVqF9f/olaCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 205/218] cifs: potential buffer overflow in handling symlinks
-Date:   Mon, 18 Apr 2022 14:14:31 +0200
-Message-Id: <20220418121207.810235827@linuxfoundation.org>
+Subject: [PATCH 4.9 206/218] drm/amdkfd: Check for potential null return of kmalloc_array()
+Date:   Mon, 18 Apr 2022 14:14:32 +0200
+Message-Id: <20220418121207.878933802@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -56,41 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: QintaoShen <unSimple1993@163.com>
 
-[ Upstream commit 64c4a37ac04eeb43c42d272f6e6c8c12bfcf4304 ]
+[ Upstream commit ebbb7bb9e80305820dc2328a371c1b35679f2667 ]
 
-Smatch printed a warning:
-	arch/x86/crypto/poly1305_glue.c:198 poly1305_update_arch() error:
-	__memcpy() 'dctx->buf' too small (16 vs u32max)
+As the kmalloc_array() may return null, the 'event_waiters[i].wait' would lead to null-pointer dereference.
+Therefore, it is better to check the return value of kmalloc_array() to avoid this confusion.
 
-It's caused because Smatch marks 'link_len' as untrusted since it comes
-from sscanf(). Add a check to ensure that 'link_len' is not larger than
-the size of the 'link_str' buffer.
-
-Fixes: c69c1b6eaea1 ("cifs: implement CIFSParseMFSymlink()")
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: QintaoShen <unSimple1993@163.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/link.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_events.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/cifs/link.c b/fs/cifs/link.c
-index 38d26cbcad07..0c49e2aa7ea4 100644
---- a/fs/cifs/link.c
-+++ b/fs/cifs/link.c
-@@ -119,6 +119,9 @@ parse_mf_symlink(const u8 *buf, unsigned int buf_len, unsigned int *_link_len,
- 	if (rc != 1)
- 		return -EINVAL;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+index 6a3470f84998..732713ff3190 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+@@ -607,6 +607,8 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
+ 	event_waiters = kmalloc_array(num_events,
+ 					sizeof(struct kfd_event_waiter),
+ 					GFP_KERNEL);
++	if (!event_waiters)
++		return NULL;
  
-+	if (link_len > CIFS_MF_SYMLINK_LINK_MAXLEN)
-+		return -EINVAL;
-+
- 	rc = symlink_hash(link_len, link_str, md5_hash);
- 	if (rc) {
- 		cifs_dbg(FYI, "%s: MD5 hash failure: %d\n", __func__, rc);
+ 	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
+ 		INIT_LIST_HEAD(&event_waiters[i].waiters);
 -- 
 2.35.1
 
