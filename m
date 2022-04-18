@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E52D5051A7
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:34:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3515450505B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235457AbiDRMhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37962 "EHLO
+        id S233148AbiDRMY2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:24:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239014AbiDRMfs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:35:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 282F321E13;
-        Mon, 18 Apr 2022 05:27:35 -0700 (PDT)
+        with ESMTP id S238407AbiDRMXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B1E81AD8B;
+        Mon, 18 Apr 2022 05:18:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76B28B80ED6;
-        Mon, 18 Apr 2022 12:27:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB846C385A1;
-        Mon, 18 Apr 2022 12:27:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CBEE60F61;
+        Mon, 18 Apr 2022 12:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A76B9C385A1;
+        Mon, 18 Apr 2022 12:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284845;
-        bh=ZfCISLiTSLnsxsDFoT/2M3LK7HS2N3dM6HsFA4pOOFg=;
+        s=korg; t=1650284334;
+        bh=wSl0RSmMP5FG7F0lSP+jyXCPimrudFUp31FNYCu0rYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnaQwC9wJpynTBEjBqJ/qRKEIQWK5vj+fuuLzx38T7bBTWI5v2yS1ku73d0escIpv
-         QtGcXUyuNs9KUt0EtFfP1EBEDB9kiiR96TJDxz25vaY+KdrKtBp0m8jAkNczpNI8m3
-         rR4yVjclr+wJe9Pp6T1tygJCp/0yE8nUeugVOsyw=
+        b=pKvl+n86lAfIWNKKhMNLQxQYlYONm+YO6j5tVBcZQuN98ZZp93VczLsLjDtN87BNi
+         +jWTYVpUdkbBUuGmkCDpNx6GnEmyiNU6w0lbCmWm4zX3DodstJ9YFvkMW+mNyZI6tB
+         b2cBNyunb7l8sW22LN/3msh1g8lRAEEypMukdI94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 026/189] ALSA: ca0106: Fix the missing snd_card_free() call at probe error
-Date:   Mon, 18 Apr 2022 14:10:46 +0200
-Message-Id: <20220418121201.258705279@linuxfoundation.org>
+        stable@vger.kernel.org, Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        David Howells <dhowells@redhat.com>, linux-cachefs@redhat.com,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 078/219] cachefiles: unmark inode in use in error path
+Date:   Mon, 18 Apr 2022 14:10:47 +0200
+Message-Id: <20220418121208.315766551@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +55,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-commit c79442cc5a38e46597bc647128c8f1de62d80020 upstream.
+[ Upstream commit ea5dc046127e857a7873ae55fd57c866e9e86fb2 ]
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+Unmark inode in use if error encountered. If the in-use flag leakage
+occurs in cachefiles_open_file(), Cachefiles will complain "Inode
+already in use" when later another cookie with the same index key is
+looked up.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+If the in-use flag leakage occurs in cachefiles_create_tmpfile(), though
+the "Inode already in use" warning won't be triggered, fix the leakage
+anyway.
 
-Fixes: 1656fa6ea258 ("ALSA: ca0106: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-10-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Fixes: 1f08c925e7a3 ("cachefiles: Implement backing file wrangling")
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: linux-cachefs@redhat.com
+Link: https://listman.redhat.com/archives/linux-cachefs/2022-March/006615.html # v1
+Link: https://listman.redhat.com/archives/linux-cachefs/2022-March/006618.html # v2
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/ca0106/ca0106_main.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/cachefiles/namei.c | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/sound/pci/ca0106/ca0106_main.c b/sound/pci/ca0106/ca0106_main.c
-index 8577f9fa5ea6..cf1bac7a435f 100644
---- a/sound/pci/ca0106/ca0106_main.c
-+++ b/sound/pci/ca0106/ca0106_main.c
-@@ -1725,8 +1725,8 @@ static int snd_ca0106_midi(struct snd_ca0106 *chip, unsigned int channel)
+diff --git a/fs/cachefiles/namei.c b/fs/cachefiles/namei.c
+index f256c8aff7bb..ca9f3e4ec4b3 100644
+--- a/fs/cachefiles/namei.c
++++ b/fs/cachefiles/namei.c
+@@ -57,6 +57,16 @@ static void __cachefiles_unmark_inode_in_use(struct cachefiles_object *object,
+ 	trace_cachefiles_mark_inactive(object, inode);
  }
  
- 
--static int snd_ca0106_probe(struct pci_dev *pci,
--					const struct pci_device_id *pci_id)
-+static int __snd_ca0106_probe(struct pci_dev *pci,
-+			      const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -1786,6 +1786,12 @@ static int snd_ca0106_probe(struct pci_dev *pci,
- 	return 0;
- }
- 
-+static int snd_ca0106_probe(struct pci_dev *pci,
-+			    const struct pci_device_id *pci_id)
++static void cachefiles_do_unmark_inode_in_use(struct cachefiles_object *object,
++					      struct dentry *dentry)
 +{
-+	return snd_card_free_on_error(&pci->dev, __snd_ca0106_probe(pci, pci_id));
++	struct inode *inode = d_backing_inode(dentry);
++
++	inode_lock(inode);
++	__cachefiles_unmark_inode_in_use(object, dentry);
++	inode_unlock(inode);
 +}
 +
- #ifdef CONFIG_PM_SLEEP
- static int snd_ca0106_suspend(struct device *dev)
- {
+ /*
+  * Unmark a backing inode and tell cachefilesd that there's something that can
+  * be culled.
+@@ -68,9 +78,7 @@ void cachefiles_unmark_inode_in_use(struct cachefiles_object *object,
+ 	struct inode *inode = file_inode(file);
+ 
+ 	if (inode) {
+-		inode_lock(inode);
+-		__cachefiles_unmark_inode_in_use(object, file->f_path.dentry);
+-		inode_unlock(inode);
++		cachefiles_do_unmark_inode_in_use(object, file->f_path.dentry);
+ 
+ 		if (!test_bit(CACHEFILES_OBJECT_USING_TMPFILE, &object->flags)) {
+ 			atomic_long_add(inode->i_blocks, &cache->b_released);
+@@ -484,7 +492,7 @@ struct file *cachefiles_create_tmpfile(struct cachefiles_object *object)
+ 				object, d_backing_inode(path.dentry), ret,
+ 				cachefiles_trace_trunc_error);
+ 			file = ERR_PTR(ret);
+-			goto out_dput;
++			goto out_unuse;
+ 		}
+ 	}
+ 
+@@ -494,15 +502,20 @@ struct file *cachefiles_create_tmpfile(struct cachefiles_object *object)
+ 		trace_cachefiles_vfs_error(object, d_backing_inode(path.dentry),
+ 					   PTR_ERR(file),
+ 					   cachefiles_trace_open_error);
+-		goto out_dput;
++		goto out_unuse;
+ 	}
+ 	if (unlikely(!file->f_op->read_iter) ||
+ 	    unlikely(!file->f_op->write_iter)) {
+ 		fput(file);
+ 		pr_notice("Cache does not support read_iter and write_iter\n");
+ 		file = ERR_PTR(-EINVAL);
++		goto out_unuse;
+ 	}
+ 
++	goto out_dput;
++
++out_unuse:
++	cachefiles_do_unmark_inode_in_use(object, path.dentry);
+ out_dput:
+ 	dput(path.dentry);
+ out:
+@@ -590,14 +603,16 @@ static bool cachefiles_open_file(struct cachefiles_object *object,
+ check_failed:
+ 	fscache_cookie_lookup_negative(object->cookie);
+ 	cachefiles_unmark_inode_in_use(object, file);
+-	if (ret == -ESTALE) {
+-		fput(file);
+-		dput(dentry);
++	fput(file);
++	dput(dentry);
++	if (ret == -ESTALE)
+ 		return cachefiles_create_file(object);
+-	}
++	return false;
++
+ error_fput:
+ 	fput(file);
+ error:
++	cachefiles_do_unmark_inode_in_use(object, dentry);
+ 	dput(dentry);
+ 	return false;
+ }
 -- 
-2.35.2
+2.35.1
 
 
 
