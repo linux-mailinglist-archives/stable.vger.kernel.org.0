@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76452505495
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:22:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 707515056E5
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241204AbiDRNLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:11:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48744 "EHLO
+        id S243332AbiDRNrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240259AbiDRNGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:06:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BFB12A243;
-        Mon, 18 Apr 2022 05:46:47 -0700 (PDT)
+        with ESMTP id S243464AbiDRNqn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:46:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3342C27143;
+        Mon, 18 Apr 2022 06:00:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD06F6101A;
-        Mon, 18 Apr 2022 12:46:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C22A4C385A1;
-        Mon, 18 Apr 2022 12:46:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C28B060B3A;
+        Mon, 18 Apr 2022 13:00:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACC58C385A1;
+        Mon, 18 Apr 2022 13:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286006;
-        bh=ObuRGH4U8Y0QJAW/k3Ut0SeeASlOCKV0F3wi0/hb/es=;
+        s=korg; t=1650286844;
+        bh=G3r+WlNIzMT9anVEDUcHlMm/sERjt+PIsSqzrRHCOTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhbZlUwAgy/XwnrkV/25nDGG4tCqUq/TTRl+qzuHyUfQHsZLCvF6ZS3l8z69uSkCB
-         cQ+WZPiMlRMV03sWyr8GS5L7iei9YT6X8kOz1Ww/DKROC3Yrp3oTN49N5y19XgWFAp
-         VlPvCMKWf68DUphM5x+bf/+syJ/61anekOX/V/Xo=
+        b=OvOFsDUE50FjKk2GvNHpO1NTEq1QhLFBgt94dnOlqMeNvbLWZk+pqYrlrHXO8FX06
+         9AJQV/yh/Zrj6bo//HsOCAZ23X11u44QzVuXahhBxsem+7RjuxTAfLf5rlsweU3fPH
+         PiCnhl5m9JEUH+mHmOluVU2X2PyWmX9zXAQj/HaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Oliver Upton <oupton@google.com>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 4.19 25/32] KVM: Dont create VM debugfs files outside of the VM directory
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 264/284] mlxsw: i2c: Fix initialization error flow
 Date:   Mon, 18 Apr 2022 14:14:05 +0200
-Message-Id: <20220418121127.860908139@linuxfoundation.org>
+Message-Id: <20220418121220.174376447@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
-References: <20220418121127.127656835@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,59 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-commit a44a4cc1c969afec97dbb2aedaf6f38eaa6253bb upstream.
+[ Upstream commit d452088cdfd5a4ad9d96d847d2273fe958d6339b ]
 
-Unfortunately, there is no guarantee that KVM was able to instantiate a
-debugfs directory for a particular VM. To that end, KVM shouldn't even
-attempt to create new debugfs files in this case. If the specified
-parent dentry is NULL, debugfs_create_file() will instantiate files at
-the root of debugfs.
+Add mutex_destroy() call in driver initialization error flow.
 
-For arm64, it is possible to create the vgic-state file outside of a
-VM directory, the file is not cleaned up when a VM is destroyed.
-Nonetheless, the corresponding struct kvm is freed when the VM is
-destroyed.
-
-Nip the problem in the bud for all possible errant debugfs file
-creations by initializing kvm->debugfs_dentry to -ENOENT. In so doing,
-debugfs_create_file() will fail instead of creating the file in the root
-directory.
-
-Cc: stable@kernel.org
-Fixes: 929f45e32499 ("kvm: no need to check return value of debugfs_create functions")
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220406235615.1447180-2-oupton@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6882b0aee180f ("mlxsw: Introduce support for I2C bus")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220407070703.2421076-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlxsw/i2c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -610,7 +610,7 @@ static void kvm_destroy_vm_debugfs(struc
- {
- 	int i;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/i2c.c b/drivers/net/ethernet/mellanox/mlxsw/i2c.c
+index c0dcfa05b077..3d10e6100748 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/i2c.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/i2c.c
+@@ -548,6 +548,7 @@ static int mlxsw_i2c_probe(struct i2c_client *client,
+ 	return 0;
  
--	if (!kvm->debugfs_dentry)
-+	if (IS_ERR(kvm->debugfs_dentry))
- 		return;
+ errout:
++	mutex_destroy(&mlxsw_i2c->cmd.lock);
+ 	i2c_set_clientdata(client, NULL);
  
- 	debugfs_remove_recursive(kvm->debugfs_dentry);
-@@ -628,6 +628,12 @@ static int kvm_create_vm_debugfs(struct
- 	struct kvm_stat_data *stat_data;
- 	struct kvm_stats_debugfs_item *p;
- 
-+	/*
-+	 * Force subsequent debugfs file creations to fail if the VM directory
-+	 * is not created.
-+	 */
-+	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
-+
- 	if (!debugfs_initialized())
- 		return 0;
- 
+ 	return err;
+-- 
+2.35.1
+
 
 
