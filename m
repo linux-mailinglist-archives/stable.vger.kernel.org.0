@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E40505428
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9EB5053D6
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232696AbiDRNEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41104 "EHLO
+        id S240861AbiDRNCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:02:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241609AbiDRNDO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D88633A3B;
-        Mon, 18 Apr 2022 05:43:56 -0700 (PDT)
+        with ESMTP id S242574AbiDRNAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:00:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3891D2612A;
+        Mon, 18 Apr 2022 05:41:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49108B80E4E;
-        Mon, 18 Apr 2022 12:43:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9D9CC385A1;
-        Mon, 18 Apr 2022 12:43:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C811560FB6;
+        Mon, 18 Apr 2022 12:41:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D458AC385A1;
+        Mon, 18 Apr 2022 12:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285834;
-        bh=m6wrNkZWmg7a6xR1Fe3uV67ua/HPGqp18ze6bgN7Ofs=;
+        s=korg; t=1650285698;
+        bh=+bJHROMegmTVcDWC4ZKfPap8cszGveXnm0W1xWIE8ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ElkFRu/h0PD7F0pAbJVKGxKTHEr+Z3bMXWI6QueIuabPoJvJSyjpGn3eCMyI/8iAZ
-         49D/1OMwoJa5ZDpE9CzchEgTRnLoe3VNxHlDTBYgmVPQk+iMCGksUDQo0wvHDS4UVj
-         Uqi7iugQQS8zIczkw2NJiIsjJOSCLzjmec49KEqI=
+        b=bIs2yQXUL950qWWOD6vFsCwuWgJSS572j/OVpjHNknOS3StKy3MfjRt0Faj56HVo8
+         mj0vQ6E0J+DUdDex9CLxw48ou9oGgs9KN1JCwm78JWnl/5bq1ztshNZC+n3WAosJGl
+         xZWTGqW3EYxQ8iSKukisSkHwo0rjrnjo+g3HWD38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Oliver Upton <oupton@google.com>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 39/63] KVM: Dont create VM debugfs files outside of the VM directory
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>
+Subject: [PATCH 5.10 094/105] timers: Fix warning condition in __run_timers()
 Date:   Mon, 18 Apr 2022 14:13:36 +0200
-Message-Id: <20220418121136.835516666@linuxfoundation.org>
+Message-Id: <20220418121149.304352708@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Anna-Maria Behnsen <anna-maria@linutronix.de>
 
-commit a44a4cc1c969afec97dbb2aedaf6f38eaa6253bb upstream.
+commit c54bc0fc84214b203f7a0ebfd1bd308ce2abe920 upstream.
 
-Unfortunately, there is no guarantee that KVM was able to instantiate a
-debugfs directory for a particular VM. To that end, KVM shouldn't even
-attempt to create new debugfs files in this case. If the specified
-parent dentry is NULL, debugfs_create_file() will instantiate files at
-the root of debugfs.
+When the timer base is empty, base::next_expiry is set to base::clk +
+NEXT_TIMER_MAX_DELTA and base::next_expiry_recalc is false. When no timer
+is queued until jiffies reaches base::next_expiry value, the warning for
+not finding any expired timer and base::next_expiry_recalc is false in
+__run_timers() triggers.
 
-For arm64, it is possible to create the vgic-state file outside of a
-VM directory, the file is not cleaned up when a VM is destroyed.
-Nonetheless, the corresponding struct kvm is freed when the VM is
-destroyed.
+To prevent triggering the warning in this valid scenario
+base::timers_pending needs to be added to the warning condition.
 
-Nip the problem in the bud for all possible errant debugfs file
-creations by initializing kvm->debugfs_dentry to -ENOENT. In so doing,
-debugfs_create_file() will fail instead of creating the file in the root
-directory.
-
-Cc: stable@kernel.org
-Fixes: 929f45e32499 ("kvm: no need to check return value of debugfs_create functions")
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220406235615.1447180-2-oupton@google.com
+Fixes: 31cd0e119d50 ("timers: Recalculate next timer interrupt only when necessary")
+Reported-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Link: https://lore.kernel.org/r/20220405191732.7438-3-anna-maria@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/time/timer.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -623,7 +623,7 @@ static void kvm_destroy_vm_debugfs(struc
- {
- 	int i;
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -1738,11 +1738,14 @@ static inline void __run_timers(struct t
+ 	       time_after_eq(jiffies, base->next_expiry)) {
+ 		levels = collect_expired_timers(base, heads);
+ 		/*
+-		 * The only possible reason for not finding any expired
+-		 * timer at this clk is that all matching timers have been
+-		 * dequeued.
++		 * The two possible reasons for not finding any expired
++		 * timer at this clk are that all matching timers have been
++		 * dequeued or no timer has been queued since
++		 * base::next_expiry was set to base::clk +
++		 * NEXT_TIMER_MAX_DELTA.
+ 		 */
+-		WARN_ON_ONCE(!levels && !base->next_expiry_recalc);
++		WARN_ON_ONCE(!levels && !base->next_expiry_recalc
++			     && base->timers_pending);
+ 		base->clk++;
+ 		base->next_expiry = __next_timer_interrupt(base);
  
--	if (!kvm->debugfs_dentry)
-+	if (IS_ERR(kvm->debugfs_dentry))
- 		return;
- 
- 	debugfs_remove_recursive(kvm->debugfs_dentry);
-@@ -643,6 +643,12 @@ static int kvm_create_vm_debugfs(struct
- 	struct kvm_stat_data *stat_data;
- 	struct kvm_stats_debugfs_item *p;
- 
-+	/*
-+	 * Force subsequent debugfs file creations to fail if the VM directory
-+	 * is not created.
-+	 */
-+	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
-+
- 	if (!debugfs_initialized())
- 		return 0;
- 
-@@ -4399,7 +4405,7 @@ static void kvm_uevent_notify_change(uns
- 	}
- 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
- 
--	if (kvm->debugfs_dentry) {
-+	if (!IS_ERR(kvm->debugfs_dentry)) {
- 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
- 
- 		if (p) {
 
 
