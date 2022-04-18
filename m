@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEE6F50529D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DED58505666
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237548AbiDRMuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:50:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34362 "EHLO
+        id S240983AbiDRNes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:34:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240525AbiDRMtk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:49:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D274F21814;
-        Mon, 18 Apr 2022 05:33:54 -0700 (PDT)
+        with ESMTP id S244864AbiDRNa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC2A91EED6;
+        Mon, 18 Apr 2022 05:56:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6589E60F0E;
-        Mon, 18 Apr 2022 12:33:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75DE0C385A1;
-        Mon, 18 Apr 2022 12:33:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B44060FD9;
+        Mon, 18 Apr 2022 12:56:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EC6FC385A7;
+        Mon, 18 Apr 2022 12:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285233;
-        bh=lVrvZ0zmVGxY7DXyD+ZwRZN7Z+2k1WmaffKWdehbdlM=;
+        s=korg; t=1650286592;
+        bh=SGp5aKNkWF7bwgMl1K4wWeG8G9L0uda+KQ4PEeM4IRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e54ws2PiLuI9sUG7ajnWZU0vvYK76+s8IWk+bKccA+zEwSaKHHgp2QBzeShHnJSEb
-         y56xTxiMsZILM3+1NeBQs9BFIdMN6NCCkWPQbIjon25UBy3vPLyrDtqjVBPvsf8niz
-         AH39E2k50+ph5KPom51IOgZESyloCRqbl+S5Aosg=
+        b=v4Zau8MR497HC33Rkq9n+hC9O39rD4zR0lBmc1A9OjvyXJD6vJ43Rm+b7x73jg2C/
+         /y7c2jtG8MPrhBvTvZ/IoFlnplQwiTaXegrdDPOXjEzfwxSWaAj26dxXHvRuEz0alE
+         hPIuqMSFI87h50bRE3hNaLZCLyOAZPzV7a60GCoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>, Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 145/189] mm, page_alloc: fix build_zonerefs_node()
+        stable@vger.kernel.org, Ben Gardon <bgardon@google.com>,
+        David Matlack <dmatlack@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 184/284] KVM: Prevent module exit until all VMs are freed
 Date:   Mon, 18 Apr 2022 14:12:45 +0200
-Message-Id: <20220418121205.784497737@linuxfoundation.org>
+Message-Id: <20220418121216.970237804@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,66 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: David Matlack <dmatlack@google.com>
 
-commit e553f62f10d93551eb883eca227ac54d1a4fad84 upstream.
+commit 5f6de5cbebee925a612856fce6f9182bb3eee0db upstream.
 
-Since commit 6aa303defb74 ("mm, vmscan: only allocate and reclaim from
-zones with pages managed by the buddy allocator") only zones with free
-memory are included in a built zonelist.  This is problematic when e.g.
-all memory of a zone has been ballooned out when zonelists are being
-rebuilt.
+Tie the lifetime the KVM module to the lifetime of each VM via
+kvm.users_count. This way anything that grabs a reference to the VM via
+kvm_get_kvm() cannot accidentally outlive the KVM module.
 
-The decision whether to rebuild the zonelists when onlining new memory
-is done based on populated_zone() returning 0 for the zone the memory
-will be added to.  The new zone is added to the zonelists only, if it
-has free memory pages (managed_zone() returns a non-zero value) after
-the memory has been onlined.  This implies, that onlining memory will
-always free the added pages to the allocator immediately, but this is
-not true in all cases: when e.g. running as a Xen guest the onlined new
-memory will be added only to the ballooned memory list, it will be freed
-only when the guest is being ballooned up afterwards.
+Prior to this commit, the lifetime of the KVM module was tied to the
+lifetime of /dev/kvm file descriptors, VM file descriptors, and vCPU
+file descriptors by their respective file_operations "owner" field.
+This approach is insufficient because references grabbed via
+kvm_get_kvm() do not prevent closing any of the aforementioned file
+descriptors.
 
-Another problem with using managed_zone() for the decision whether a
-zone is being added to the zonelists is, that a zone with all memory
-used will in fact be removed from all zonelists in case the zonelists
-happen to be rebuilt.
+This fixes a long standing theoretical bug in KVM that at least affects
+async page faults. kvm_setup_async_pf() grabs a reference via
+kvm_get_kvm(), and drops it in an asynchronous work callback. Nothing
+prevents the VM file descriptor from being closed and the KVM module
+from being unloaded before this callback runs.
 
-Use populated_zone() when building a zonelist as it has been done before
-that commit.
-
-There was a report that QubesOS (based on Xen) is hitting this problem.
-Xen has switched to use the zone device functionality in kernel 5.9 and
-QubesOS wants to use memory hotplugging for guests in order to be able
-to start a guest with minimal memory and expand it as needed.  This was
-the report leading to the patch.
-
-Link: https://lkml.kernel.org/r/20220407120637.9035-1-jgross@suse.com
-Fixes: 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones with pages managed by the buddy allocator")
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: af585b921e5d ("KVM: Halt vcpu if page it tries to access is swapped out")
+Fixes: 3d3aab1b973b ("KVM: set owner of cpu and vm file operations")
+Cc: stable@vger.kernel.org
+Suggested-by: Ben Gardon <bgardon@google.com>
+[ Based on a patch from Ben implemented for Google's kernel. ]
+Signed-off-by: David Matlack <dmatlack@google.com>
+Message-Id: <20220303183328.1499189-2-dmatlack@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ virt/kvm/kvm_main.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6092,7 +6092,7 @@ static int build_zonerefs_node(pg_data_t
- 	do {
- 		zone_type--;
- 		zone = pgdat->node_zones + zone_type;
--		if (managed_zone(zone)) {
-+		if (populated_zone(zone)) {
- 			zoneref_set_zone(zone, &zonerefs[nr_zones++]);
- 			check_highest_zone(zone_type);
- 		}
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -112,6 +112,8 @@ EXPORT_SYMBOL_GPL(kvm_debugfs_dir);
+ static int kvm_debugfs_num_entries;
+ static const struct file_operations *stat_fops_per_vm[];
+ 
++static struct file_operations kvm_chardev_ops;
++
+ static long kvm_vcpu_ioctl(struct file *file, unsigned int ioctl,
+ 			   unsigned long arg);
+ #ifdef CONFIG_KVM_COMPAT
+@@ -716,6 +718,16 @@ static struct kvm *kvm_create_vm(unsigne
+ 
+ 	preempt_notifier_inc();
+ 
++	/*
++	 * When the fd passed to this ioctl() is opened it pins the module,
++	 * but try_module_get() also prevents getting a reference if the module
++	 * is in MODULE_STATE_GOING (e.g. if someone ran "rmmod --wait").
++	 */
++	if (!try_module_get(kvm_chardev_ops.owner)) {
++		r = -ENODEV;
++		goto out_err;
++	}
++
+ 	return kvm;
+ 
+ out_err:
+@@ -792,6 +804,7 @@ static void kvm_destroy_vm(struct kvm *k
+ 	preempt_notifier_dec();
+ 	hardware_disable_all();
+ 	mmdrop(mm);
++	module_put(kvm_chardev_ops.owner);
+ }
+ 
+ void kvm_get_kvm(struct kvm *kvm)
 
 
