@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8660050523C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5DCF50524C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236192AbiDRMoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:44:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37828 "EHLO
+        id S239268AbiDRMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:40:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239544AbiDRMhu (ORCPT
+        with ESMTP id S239549AbiDRMhu (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 375EE2250D;
-        Mon, 18 Apr 2022 05:28:06 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E8722B3F;
+        Mon, 18 Apr 2022 05:28:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8FC1B80EC1;
-        Mon, 18 Apr 2022 12:28:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57CDAC385A8;
-        Mon, 18 Apr 2022 12:28:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6440160F09;
+        Mon, 18 Apr 2022 12:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D920C385A7;
+        Mon, 18 Apr 2022 12:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284883;
-        bh=TBsmBKPHR3a2OEluS8nNA6Qk+6JCscmP+qNBniiA2Aw=;
+        s=korg; t=1650284886;
+        bh=z6MbFqnabeze3fEj6gTnUhOY3a+2jguxHUnTG0QNRxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=exVbdsDN+3akBf+fV4pnhzMQCnkQzcLMQAEDvFA8xcFvG8/IXgDIx6D6Hbktl9GRZ
-         cFN71mQ2Bx5/HBvSlsPgPfAEFkJz7Xt7pCkXvwiNvUUrPJuO62SP9vHMU8meiXoKqB
-         WOo/rmdtSO51Rurjo/VBkF6Xy6uOCQOiya1C5XLU=
+        b=sBtGQVWMitQEI0ir1FZAhx76UEv9qf0Q3ZTJJEfPaxyiMhgo9QOrzmeiWEd7QcVqd
+         N/2H55QUlIeyqbeL4fvqRzL7ZdYiKjllwwv/590HuUZPbrpYFJsf0crJIykEaIiT+u
+         hswwYceV3MRDke27JRyJOIaQuydYdXWHFWLODYus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 037/189] ALSA: hdsp: Fix the missing snd_card_free() call at probe error
-Date:   Mon, 18 Apr 2022 14:10:57 +0200
-Message-Id: <20220418121201.568085888@linuxfoundation.org>
+Subject: [PATCH 5.15 038/189] ALSA: hdspm: Fix the missing snd_card_free() call at probe error
+Date:   Mon, 18 Apr 2022 14:10:58 +0200
+Message-Id: <20220418121201.595925150@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
 References: <20220418121200.312988959@linuxfoundation.org>
@@ -54,7 +54,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit e2263f0bf7443a200a5c1c418baefd92f1674600 upstream.
+commit eab521aebcdeb1c801009503e3a7f8989e3c6b36 upstream.
 
 The previous cleanup with devres may lead to the incorrect release
 orders at the probe error handling due to the devres's nature.  Until
@@ -65,34 +65,37 @@ release the stuff via card->private_free().
 This patch fixes it by calling snd_card_free() manually on the error
 from the probe callback.
 
-Fixes: d136b8e54f92 ("ALSA: hdsp: Allocate resources with device-managed APIs")
+Fixes: 0195ca5fd1f4 ("ALSA: hdspm: Allocate resources with device-managed APIs")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-36-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220412102636.16000-37-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/rme9652/hdsp.c | 8 ++++++--
+ sound/pci/rme9652/hdspm.c | 8 ++++++--
  1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
-index 96c12dfb24cf..3db641318d3a 100644
---- a/sound/pci/rme9652/hdsp.c
-+++ b/sound/pci/rme9652/hdsp.c
-@@ -5444,17 +5444,21 @@ static int snd_hdsp_probe(struct pci_dev *pci,
- 	hdsp->pci = pci;
- 	err = snd_hdsp_create(card, hdsp);
- 	if (err)
+diff --git a/sound/pci/rme9652/hdspm.c b/sound/pci/rme9652/hdspm.c
+index ff06ee82607c..fa1812e7a49d 100644
+--- a/sound/pci/rme9652/hdspm.c
++++ b/sound/pci/rme9652/hdspm.c
+@@ -6895,7 +6895,7 @@ static int snd_hdspm_probe(struct pci_dev *pci,
+ 
+ 	err = snd_hdspm_create(card, hdspm);
+ 	if (err < 0)
 -		return err;
 +		goto error;
  
- 	strcpy(card->shortname, "Hammerfall DSP");
- 	sprintf(card->longname, "%s at 0x%lx, irq %d", hdsp->card_name,
- 		hdsp->port, hdsp->irq);
+ 	if (hdspm->io_type != MADIface) {
+ 		snprintf(card->shortname, sizeof(card->shortname), "%s_%x",
+@@ -6914,12 +6914,16 @@ static int snd_hdspm_probe(struct pci_dev *pci,
+ 
  	err = snd_card_register(card);
- 	if (err)
+ 	if (err < 0)
 -		return err;
 +		goto error;
+ 
  	pci_set_drvdata(pci, card);
+ 
  	dev++;
  	return 0;
 +
@@ -101,7 +104,7 @@ index 96c12dfb24cf..3db641318d3a 100644
 +	return err;
  }
  
- static struct pci_driver hdsp_driver = {
+ static struct pci_driver hdspm_driver = {
 -- 
 2.35.2
 
