@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F355050E9
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B80505785
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235409AbiDRM36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37724 "EHLO
+        id S244279AbiDRNzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:55:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239937AbiDRM3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 930EB201B3;
-        Mon, 18 Apr 2022 05:22:55 -0700 (PDT)
+        with ESMTP id S1344004AbiDRNyg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:54:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA454926A;
+        Mon, 18 Apr 2022 06:04:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08CB260F01;
-        Mon, 18 Apr 2022 12:22:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 051DAC385A7;
-        Mon, 18 Apr 2022 12:22:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E7ABB80EDF;
+        Mon, 18 Apr 2022 13:04:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57151C385A7;
+        Mon, 18 Apr 2022 13:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284574;
-        bh=vw5g965VP8FLCYRwwPQsS1+F0iBPTx9Iey1xGBy+ma4=;
+        s=korg; t=1650287049;
+        bh=3SzeC/Gz/Ac+TTZClLIUog0e21eiXA/HtE2IFS8FnkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f2+HF7BL10V/4Z9lExqTA2loTP4vvI0BhyW+CrAupCp8N25oC1PxlnkU7Obkb64ud
-         mW1R2vQOBTfG0025gOloPALCyUAvDaGtZHhdDhcZ0jmHEH43H5bZhvnTJH7FHUC9sY
-         9NMIVherJhIpsiXAY7r3MnDKc/yJrdg/JaHUuz8A=
+        b=RTo/m5Ss9NOqA0N9ZqRyywkaqUaPUbn2LZpps7jxZpoeOwu/4hK0qAoD1Ad2cuvtx
+         wWIZPdvnatBoA8Jqe01TABgI2r1ueuUHgkuvF0I4c8WbzPhINB7Q2qrthprRnyd5ED
+         AkRlKsLM/IRh3wdxui1xCVTEQgF0GYAqCMebNe5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 132/219] btrfs: do not warn for free space inode in cow_file_range
+        stable@vger.kernel.org, Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.9 035/218] DEC: Limit PMAX memory probing to R3k systems
 Date:   Mon, 18 Apr 2022 14:11:41 +0200
-Message-Id: <20220418121210.590174074@linuxfoundation.org>
+Message-Id: <20220418121200.461817767@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit a7d16d9a07bbcb7dcd5214a1bea75c808830bc0d ]
+commit 244eae91a94c6dab82b3232967d10eeb9dfa21c6 upstream.
 
-This is a long time leftover from when I originally added the free space
-inode, the point was to catch cases where we weren't honoring the NOCOW
-flag.  However there exists a race with relocation, if we allocate our
-free space inode in a block group that is about to be relocated, we
-could trigger the COW path before the relocation has the opportunity to
-find the extents and delete the free space cache.  In production where
-we have auto-relocation enabled we're seeing this WARN_ON_ONCE() around
-5k times in a 2 week period, so not super common but enough that it's at
-the top of our metrics.
+Recent tightening of the opcode table in binutils so as to consistently
+disallow the assembly or disassembly of CP0 instructions not supported
+by the processor architecture chosen has caused a regression like below:
 
-We're properly handling the error here, and with us phasing out v1 space
-cache anyway just drop the WARN_ON_ONCE.
+arch/mips/dec/prom/locore.S: Assembler messages:
+arch/mips/dec/prom/locore.S:29: Error: opcode not supported on this processor: r4600 (mips3) `rfe'
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+in a piece of code used to probe for memory with PMAX DECstation models,
+which have non-REX firmware.  Those computers always have an R2000 CPU
+and consequently the exception handler used in memory probing uses the
+RFE instruction, which those processors use.
+
+While adding 64-bit support this code was correctly excluded for 64-bit
+configurations, however it should have also been excluded for irrelevant
+32-bit configurations.  Do this now then, and only enable PMAX memory
+probing for R3k systems.
+
+Reported-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org # v2.6.12+
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/mips/dec/prom/Makefile      |    2 +-
+ arch/mips/include/asm/dec/prom.h |   15 +++++----------
+ 2 files changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 85daae70afda..9547088a9306 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -1130,7 +1130,6 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
- 	int ret = 0;
+--- a/arch/mips/dec/prom/Makefile
++++ b/arch/mips/dec/prom/Makefile
+@@ -5,4 +5,4 @@
  
- 	if (btrfs_is_free_space_inode(inode)) {
--		WARN_ON_ONCE(1);
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
--- 
-2.35.1
-
+ lib-y			+= init.o memory.o cmdline.o identify.o console.o
+ 
+-lib-$(CONFIG_32BIT)	+= locore.o
++lib-$(CONFIG_CPU_R3000)	+= locore.o
+--- a/arch/mips/include/asm/dec/prom.h
++++ b/arch/mips/include/asm/dec/prom.h
+@@ -47,16 +47,11 @@
+  */
+ #define REX_PROM_MAGIC		0x30464354
+ 
+-#ifdef CONFIG_64BIT
+-
+-#define prom_is_rex(magic)	1	/* KN04 and KN05 are REX PROMs.  */
+-
+-#else /* !CONFIG_64BIT */
+-
+-#define prom_is_rex(magic)	((magic) == REX_PROM_MAGIC)
+-
+-#endif /* !CONFIG_64BIT */
+-
++/* KN04 and KN05 are REX PROMs, so only do the check for R3k systems.  */
++static inline bool prom_is_rex(u32 magic)
++{
++	return !IS_ENABLED(CONFIG_CPU_R3000) || magic == REX_PROM_MAGIC;
++}
+ 
+ /*
+  * 3MIN/MAXINE PROM entry points for DS5000/1xx's, DS5000/xx's and
 
 
