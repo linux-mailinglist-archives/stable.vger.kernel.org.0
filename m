@@ -2,240 +2,533 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D38505456
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CA35056F3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238644AbiDRNFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59730 "EHLO
+        id S241689AbiDRNpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:45:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240866AbiDRNCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38CA832044;
-        Mon, 18 Apr 2022 05:42:17 -0700 (PDT)
+        with ESMTP id S243707AbiDRNly (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:41:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C48862FFDB;
+        Mon, 18 Apr 2022 05:59:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB8CF6101A;
-        Mon, 18 Apr 2022 12:42:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F3FC385A1;
-        Mon, 18 Apr 2022 12:42:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12E56B80EC0;
+        Mon, 18 Apr 2022 12:59:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1CB2C385A1;
+        Mon, 18 Apr 2022 12:59:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285736;
-        bh=UnaUaKS7zR1rVzW7NJZU3R0dr2MLCMu93KZ5KqM0Yto=;
+        s=korg; t=1650286765;
+        bh=qnvqtnX/m2ZyCEBv8RrIbYsjXMr9I3XZ0E6sGjQtOa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQ14/QO2Q+AtQuHGUTKm+J7mBkxCYU0FY+qr01g5vKwqpbOuGUI4cLcL/eIwEVNyy
-         YXyFH9nQCbj/ikDMfWgaLgkU7iTtZx0woLquB08SPfNvO6BbKJm+yoMLVoiR+e8reV
-         8jaJ1swL/EhT0lu57sLTXy9XFluhebMGzuQIeOK4=
+        b=ew4MW3ccWAG9o1NpUotqx2a96faiz+fY/X/+Jw9IPWi8k2XmQhEdFO7OAqDlvHsb5
+         5xh2BHLHN5SYcbNrgM3YqQg16E29sWYUnRIIIRGAYEnYrhwkEJB5hCQotfPmjjOCh1
+         6GKOgkwOEIfvaK5UyxIa9c1ShjofH5l5HwOTJ9mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Chris Leech <cleech@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.10 097/105] scsi: iscsi: Fix unbound endpoint error handling
+        stable@vger.kernel.org,
+        Mauricio Faria de Oliveira <mfo@canonical.com>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Minchan Kim <minchan@kernel.org>, Yu Zhao <yuzhao@google.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Dan Hill <daniel.hill@canonical.com>,
+        Dan Streetman <dan.streetman@canonical.com>,
+        Dongdong Tao <dongdong.tao@canonical.com>,
+        Gavin Guo <gavin.guo@canonical.com>,
+        Gerald Yang <gerald.yang@canonical.com>,
+        Heitor Alves de Siqueira <halves@canonical.com>,
+        Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        Matthew Ruffell <matthew.ruffell@canonical.com>,
+        Ponnuvel Palaniyappan <ponnuvel.palaniyappan@canonical.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 238/284] mm: fix race between MADV_FREE reclaim and blkdev direct IO read
 Date:   Mon, 18 Apr 2022 14:13:39 +0200
-Message-Id: <20220418121149.391046489@linuxfoundation.org>
+Message-Id: <20220418121218.484233804@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_FILL_THIS_FORM_SHORT,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Mauricio Faria de Oliveira <mfo@canonical.com>
 
-commit 03690d81974535f228e892a14f0d2d44404fe555 upstream.
+commit 6c8e2a256915a223f6289f651d6b926cd7135c9e upstream.
 
-If a driver raises a connection error before the connection is bound, we
-can leave a cleanup_work queued that can later run and disconnect/stop a
-connection that is logged in. The problem is that drivers can call
-iscsi_conn_error_event for endpoints that are connected but not yet bound
-when something like the network port they are using is brought down.
-iscsi_cleanup_conn_work_fn will check for this and exit early, but if the
-cleanup_work is stuck behind other works, it might not get run until after
-userspace has done ep_disconnect. Because the endpoint is not yet bound
-there was no way for ep_disconnect to flush the work.
+Problem:
+=======
 
-The bug of leaving stop_conns queued was added in:
+Userspace might read the zero-page instead of actual data from a direct IO
+read on a block device if the buffers have been called madvise(MADV_FREE)
+on earlier (this is discussed below) due to a race between page reclaim on
+MADV_FREE and blkdev direct IO read.
 
-Commit 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
+- Race condition:
+  ==============
 
-and:
+During page reclaim, the MADV_FREE page check in try_to_unmap_one() checks
+if the page is not dirty, then discards its rmap PTE(s) (vs.  remap back
+if the page is dirty).
 
-Commit 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in
-kernel space")
+However, after try_to_unmap_one() returns to shrink_page_list(), it might
+keep the page _anyway_ if page_ref_freeze() fails (it expects exactly
+_one_ page reference, from the isolation for page reclaim).
 
-was supposed to fix it, but left this case.
+Well, blkdev_direct_IO() gets references for all pages, and on READ
+operations it only sets them dirty _later_.
 
-This patch moves the conn state check to before we even queue the work so
-we can avoid queueing.
+So, if MADV_FREE'd pages (i.e., not dirty) are used as buffers for direct
+IO read from block devices, and page reclaim happens during
+__blkdev_direct_IO[_simple]() exactly AFTER bio_iov_iter_get_pages()
+returns, but BEFORE the pages are set dirty, the situation happens.
 
-Link: https://lore.kernel.org/r/20220408001314.5014-7-michael.christie@oracle.com
-Fixes: 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in kernel space")
-Tested-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@@suse.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The direct IO read eventually completes.  Now, when userspace reads the
+buffers, the PTE is no longer there and the page fault handler
+do_anonymous_page() services that with the zero-page, NOT the data!
+
+A synthetic reproducer is provided.
+
+- Page faults:
+  ===========
+
+If page reclaim happens BEFORE bio_iov_iter_get_pages() the issue doesn't
+happen, because that faults-in all pages as writeable, so
+do_anonymous_page() sets up a new page/rmap/PTE, and that is used by
+direct IO.  The userspace reads don't fault as the PTE is there (thus
+zero-page is not used/setup).
+
+But if page reclaim happens AFTER it / BEFORE setting pages dirty, the PTE
+is no longer there; the subsequent page faults can't help:
+
+The data-read from the block device probably won't generate faults due to
+DMA (no MMU) but even in the case it wouldn't use DMA, that happens on
+different virtual addresses (not user-mapped addresses) because `struct
+bio_vec` stores `struct page` to figure addresses out (which are different
+from user-mapped addresses) for the read.
+
+Thus userspace reads (to user-mapped addresses) still fault, then
+do_anonymous_page() gets another `struct page` that would address/ map to
+other memory than the `struct page` used by `struct bio_vec` for the read.
+(The original `struct page` is not available, since it wasn't freed, as
+page_ref_freeze() failed due to more page refs.  And even if it were
+available, its data cannot be trusted anymore.)
+
+Solution:
+========
+
+One solution is to check for the expected page reference count in
+try_to_unmap_one().
+
+There should be one reference from the isolation (that is also checked in
+shrink_page_list() with page_ref_freeze()) plus one or more references
+from page mapping(s) (put in discard: label).  Further references mean
+that rmap/PTE cannot be unmapped/nuked.
+
+(Note: there might be more than one reference from mapping due to
+fork()/clone() without CLONE_VM, which use the same `struct page` for
+references, until the copy-on-write page gets copied.)
+
+So, additional page references (e.g., from direct IO read) now prevent the
+rmap/PTE from being unmapped/dropped; similarly to the page is not freed
+per shrink_page_list()/page_ref_freeze()).
+
+- Races and Barriers:
+  ==================
+
+The new check in try_to_unmap_one() should be safe in races with
+bio_iov_iter_get_pages() in get_user_pages() fast and slow paths, as it's
+done under the PTE lock.
+
+The fast path doesn't take the lock, but it checks if the PTE has changed
+and if so, it drops the reference and leaves the page for the slow path
+(which does take that lock).
+
+The fast path requires synchronization w/ full memory barrier: it writes
+the page reference count first then it reads the PTE later, while
+try_to_unmap() writes PTE first then it reads page refcount.
+
+And a second barrier is needed, as the page dirty flag should not be read
+before the page reference count (as in __remove_mapping()).  (This can be
+a load memory barrier only; no writes are involved.)
+
+Call stack/comments:
+
+- try_to_unmap_one()
+  - page_vma_mapped_walk()
+    - map_pte()			# see pte_offset_map_lock():
+        pte_offset_map()
+        spin_lock()
+
+  - ptep_get_and_clear()	# write PTE
+  - smp_mb()			# (new barrier) GUP fast path
+  - page_ref_count()		# (new check) read refcount
+
+  - page_vma_mapped_walk_done()	# see pte_unmap_unlock():
+      pte_unmap()
+      spin_unlock()
+
+- bio_iov_iter_get_pages()
+  - __bio_iov_iter_get_pages()
+    - iov_iter_get_pages()
+      - get_user_pages_fast()
+        - internal_get_user_pages_fast()
+
+          # fast path
+          - lockless_pages_from_mm()
+            - gup_{pgd,p4d,pud,pmd,pte}_range()
+                ptep = pte_offset_map()		# not _lock()
+                pte = ptep_get_lockless(ptep)
+
+                page = pte_page(pte)
+                try_grab_compound_head(page)	# inc refcount
+                                            	# (RMW/barrier
+                                             	#  on success)
+
+                if (pte_val(pte) != pte_val(*ptep)) # read PTE
+                        put_compound_head(page) # dec refcount
+                        			# go slow path
+
+          # slow path
+          - __gup_longterm_unlocked()
+            - get_user_pages_unlocked()
+              - __get_user_pages_locked()
+                - __get_user_pages()
+                  - follow_{page,p4d,pud,pmd}_mask()
+                    - follow_page_pte()
+                        ptep = pte_offset_map_lock()
+                        pte = *ptep
+                        page = vm_normal_page(pte)
+                        try_grab_page(page)	# inc refcount
+                        pte_unmap_unlock()
+
+- Huge Pages:
+  ==========
+
+Regarding transparent hugepages, that logic shouldn't change, as MADV_FREE
+(aka lazyfree) pages are PageAnon() && !PageSwapBacked()
+(madvise_free_pte_range() -> mark_page_lazyfree() -> lru_lazyfree_fn())
+thus should reach shrink_page_list() -> split_huge_page_to_list() before
+try_to_unmap[_one](), so it deals with normal pages only.
+
+(And in case unlikely/TTU_SPLIT_HUGE_PMD/split_huge_pmd_address() happens,
+which should not or be rare, the page refcount should be greater than
+mapcount: the head page is referenced by tail pages.  That also prevents
+checking the head `page` then incorrectly call page_remove_rmap(subpage)
+for a tail page, that isn't even in the shrink_page_list()'s page_list (an
+effect of split huge pmd/pmvw), as it might happen today in this unlikely
+scenario.)
+
+MADV_FREE'd buffers:
+===================
+
+So, back to the "if MADV_FREE pages are used as buffers" note.  The case
+is arguable, and subject to multiple interpretations.
+
+The madvise(2) manual page on the MADV_FREE advice value says:
+
+1) 'After a successful MADV_FREE ... data will be lost when
+   the kernel frees the pages.'
+2) 'the free operation will be canceled if the caller writes
+   into the page' / 'subsequent writes ... will succeed and
+   then [the] kernel cannot free those dirtied pages'
+3) 'If there is no subsequent write, the kernel can free the
+   pages at any time.'
+
+Thoughts, questions, considerations... respectively:
+
+1) Since the kernel didn't actually free the page (page_ref_freeze()
+   failed), should the data not have been lost? (on userspace read.)
+2) Should writes performed by the direct IO read be able to cancel
+   the free operation?
+   - Should the direct IO read be considered as 'the caller' too,
+     as it's been requested by 'the caller'?
+   - Should the bio technique to dirty pages on return to userspace
+     (bio_check_pages_dirty() is called/used by __blkdev_direct_IO())
+     be considered in another/special way here?
+3) Should an upcoming write from a previously requested direct IO
+   read be considered as a subsequent write, so the kernel should
+   not free the pages? (as it's known at the time of page reclaim.)
+
+And lastly:
+
+Technically, the last point would seem a reasonable consideration and
+balance, as the madvise(2) manual page apparently (and fairly) seem to
+assume that 'writes' are memory access from the userspace process (not
+explicitly considering writes from the kernel or its corner cases; again,
+fairly)..  plus the kernel fix implementation for the corner case of the
+largely 'non-atomic write' encompassed by a direct IO read operation, is
+relatively simple; and it helps.
+
+Reproducer:
+==========
+
+@ test.c (simplified, but works)
+
+	#define _GNU_SOURCE
+	#include <fcntl.h>
+	#include <stdio.h>
+	#include <unistd.h>
+	#include <sys/mman.h>
+
+	int main() {
+		int fd, i;
+		char *buf;
+
+		fd = open(DEV, O_RDONLY | O_DIRECT);
+
+		buf = mmap(NULL, BUF_SIZE, PROT_READ | PROT_WRITE,
+                	   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+		for (i = 0; i < BUF_SIZE; i += PAGE_SIZE)
+			buf[i] = 1; // init to non-zero
+
+		madvise(buf, BUF_SIZE, MADV_FREE);
+
+		read(fd, buf, BUF_SIZE);
+
+		for (i = 0; i < BUF_SIZE; i += PAGE_SIZE)
+			printf("%p: 0x%x\n", &buf[i], buf[i]);
+
+		return 0;
+	}
+
+@ block/fops.c (formerly fs/block_dev.c)
+
+	+#include <linux/swap.h>
+	...
+	... __blkdev_direct_IO[_simple](...)
+	{
+	...
+	+	if (!strcmp(current->comm, "good"))
+	+		shrink_all_memory(ULONG_MAX);
+	+
+         	ret = bio_iov_iter_get_pages(...);
+	+
+	+	if (!strcmp(current->comm, "bad"))
+	+		shrink_all_memory(ULONG_MAX);
+	...
+	}
+
+@ shell
+
+        # NUM_PAGES=4
+        # PAGE_SIZE=$(getconf PAGE_SIZE)
+
+        # yes | dd of=test.img bs=${PAGE_SIZE} count=${NUM_PAGES}
+        # DEV=$(losetup -f --show test.img)
+
+        # gcc -DDEV=\"$DEV\" \
+              -DBUF_SIZE=$((PAGE_SIZE * NUM_PAGES)) \
+              -DPAGE_SIZE=${PAGE_SIZE} \
+               test.c -o test
+
+        # od -tx1 $DEV
+        0000000 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a 79 0a
+        *
+        0040000
+
+        # mv test good
+        # ./good
+        0x7f7c10418000: 0x79
+        0x7f7c10419000: 0x79
+        0x7f7c1041a000: 0x79
+        0x7f7c1041b000: 0x79
+
+        # mv good bad
+        # ./bad
+        0x7fa1b8050000: 0x0
+        0x7fa1b8051000: 0x0
+        0x7fa1b8052000: 0x0
+        0x7fa1b8053000: 0x0
+
+Note: the issue is consistent on v5.17-rc3, but it's intermittent with the
+support of MADV_FREE on v4.5 (60%-70% error; needs swap).  [wrap
+do_direct_IO() in do_blockdev_direct_IO() @ fs/direct-io.c].
+
+- v5.17-rc3:
+
+        # for i in {1..1000}; do ./good; done \
+            | cut -d: -f2 | sort | uniq -c
+           4000  0x79
+
+        # mv good bad
+        # for i in {1..1000}; do ./bad; done \
+            | cut -d: -f2 | sort | uniq -c
+           4000  0x0
+
+        # free | grep Swap
+        Swap:             0           0           0
+
+- v4.5:
+
+        # for i in {1..1000}; do ./good; done \
+            | cut -d: -f2 | sort | uniq -c
+           4000  0x79
+
+        # mv good bad
+        # for i in {1..1000}; do ./bad; done \
+            | cut -d: -f2 | sort | uniq -c
+           2702  0x0
+           1298  0x79
+
+        # swapoff -av
+        swapoff /swap
+
+        # for i in {1..1000}; do ./bad; done \
+            | cut -d: -f2 | sort | uniq -c
+           4000  0x79
+
+Ceph/TCMalloc:
+=============
+
+For documentation purposes, the use case driving the analysis/fix is Ceph
+on Ubuntu 18.04, as the TCMalloc library there still uses MADV_FREE to
+release unused memory to the system from the mmap'ed page heap (might be
+committed back/used again; it's not munmap'ed.) - PageHeap::DecommitSpan()
+-> TCMalloc_SystemRelease() -> madvise() - PageHeap::CommitSpan() ->
+TCMalloc_SystemCommit() -> do nothing.
+
+Note: TCMalloc switched back to MADV_DONTNEED a few commits after the
+release in Ubuntu 18.04 (google-perftools/gperftools 2.5), so the issue
+just 'disappeared' on Ceph on later Ubuntu releases but is still present
+in the kernel, and can be hit by other use cases.
+
+The observed issue seems to be the old Ceph bug #22464 [1], where checksum
+mismatches are observed (and instrumentation with buffer dumps shows
+zero-pages read from mmap'ed/MADV_FREE'd page ranges).
+
+The issue in Ceph was reasonably deemed a kernel bug (comment #50) and
+mostly worked around with a retry mechanism, but other parts of Ceph could
+still hit that (rocksdb).  Anyway, it's less likely to be hit again as
+TCMalloc switched out of MADV_FREE by default.
+
+(Some kernel versions/reports from the Ceph bug, and relation with
+the MADV_FREE introduction/changes; TCMalloc versions not checked.)
+- 4.4 good
+- 4.5 (madv_free: introduction)
+- 4.9 bad
+- 4.10 good? maybe a swapless system
+- 4.12 (madv_free: no longer free instantly on swapless systems)
+- 4.13 bad
+
+[1] https://tracker.ceph.com/issues/22464
+
+Thanks:
+======
+
+Several people contributed to analysis/discussions/tests/reproducers in
+the first stages when drilling down on ceph/tcmalloc/linux kernel:
+
+- Dan Hill
+- Dan Streetman
+- Dongdong Tao
+- Gavin Guo
+- Gerald Yang
+- Heitor Alves de Siqueira
+- Ioanna Alifieraki
+- Jay Vosburgh
+- Matthew Ruffell
+- Ponnuvel Palaniyappan
+
+Reviews, suggestions, corrections, comments:
+
+- Minchan Kim
+- Yu Zhao
+- Huang, Ying
+- John Hubbard
+- Christoph Hellwig
+
+[mfo@canonical.com: v4]
+  Link: https://lkml.kernel.org/r/20220209202659.183418-1-mfo@canonical.comLink: https://lkml.kernel.org/r/20220131230255.789059-1-mfo@canonical.com
+
+Fixes: 802a3a92ad7a ("mm: reclaim MADV_FREE pages")
+Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
+Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Yu Zhao <yuzhao@google.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Dan Hill <daniel.hill@canonical.com>
+Cc: Dan Streetman <dan.streetman@canonical.com>
+Cc: Dongdong Tao <dongdong.tao@canonical.com>
+Cc: Gavin Guo <gavin.guo@canonical.com>
+Cc: Gerald Yang <gerald.yang@canonical.com>
+Cc: Heitor Alves de Siqueira <halves@canonical.com>
+Cc: Ioanna Alifieraki <ioanna-maria.alifieraki@canonical.com>
+Cc: Jay Vosburgh <jay.vosburgh@canonical.com>
+Cc: Matthew Ruffell <matthew.ruffell@canonical.com>
+Cc: Ponnuvel Palaniyappan <ponnuvel.palaniyappan@canonical.com>
+Cc: <stable@vger.kernel.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[mfo: backport: replace folio/test_flag with page/flag equivalents;
+ mmu_notifier_invalidate_range() is called in the 'discard:' label;
+ real Fixes: 854e9ed09ded ("mm: support madvise(MADV_FREE)") in v4.]
+Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c |   65 +++++++++++++++++++-----------------
- 1 file changed, 36 insertions(+), 29 deletions(-)
+ mm/rmap.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2224,10 +2224,10 @@ static void iscsi_stop_conn(struct iscsi
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 8ed8ec113d5a..65de683e7f7c 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -1564,7 +1564,30 @@ static bool try_to_unmap_one(struct page *page, struct vm_area_struct *vma,
  
- 	switch (flag) {
- 	case STOP_CONN_RECOVER:
--		conn->state = ISCSI_CONN_FAILED;
-+		WRITE_ONCE(conn->state, ISCSI_CONN_FAILED);
- 		break;
- 	case STOP_CONN_TERM:
--		conn->state = ISCSI_CONN_DOWN;
-+		WRITE_ONCE(conn->state, ISCSI_CONN_DOWN);
- 		break;
- 	default:
- 		iscsi_cls_conn_printk(KERN_ERR, conn, "invalid stop flag %d\n",
-@@ -2245,7 +2245,7 @@ static void iscsi_ep_disconnect(struct i
- 	struct iscsi_endpoint *ep;
- 
- 	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep.\n");
--	conn->state = ISCSI_CONN_FAILED;
-+	WRITE_ONCE(conn->state, ISCSI_CONN_FAILED);
- 
- 	if (!conn->ep || !session->transport->ep_disconnect)
- 		return;
-@@ -2345,21 +2345,6 @@ static void iscsi_cleanup_conn_work_fn(s
- 
- 	mutex_lock(&conn->ep_mutex);
- 	/*
--	 * If we are not at least bound there is nothing for us to do. Userspace
--	 * will do a ep_disconnect call if offload is used, but will not be
--	 * doing a stop since there is nothing to clean up, so we have to clear
--	 * the cleanup bit here.
--	 */
--	if (conn->state != ISCSI_CONN_BOUND && conn->state != ISCSI_CONN_UP) {
--		ISCSI_DBG_TRANS_CONN(conn, "Got error while conn is already failed. Ignoring.\n");
--		spin_lock_irq(&conn->lock);
--		clear_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags);
--		spin_unlock_irq(&conn->lock);
--		mutex_unlock(&conn->ep_mutex);
--		return;
--	}
--
--	/*
- 	 * Get a ref to the ep, so we don't release its ID until after
- 	 * userspace is done referencing it in iscsi_if_disconnect_bound_ep.
- 	 */
-@@ -2425,7 +2410,7 @@ iscsi_create_conn(struct iscsi_cls_sessi
- 	INIT_WORK(&conn->cleanup_work, iscsi_cleanup_conn_work_fn);
- 	conn->transport = transport;
- 	conn->cid = cid;
--	conn->state = ISCSI_CONN_DOWN;
-+	WRITE_ONCE(conn->state, ISCSI_CONN_DOWN);
- 
- 	/* this is released in the dev's release function */
- 	if (!get_device(&session->dev))
-@@ -2613,10 +2598,30 @@ void iscsi_conn_error_event(struct iscsi
- 	struct iscsi_internal *priv;
- 	int len = nlmsg_total_size(sizeof(*ev));
- 	unsigned long flags;
-+	int state;
- 
- 	spin_lock_irqsave(&conn->lock, flags);
--	if (!test_and_set_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags))
--		queue_work(iscsi_conn_cleanup_workq, &conn->cleanup_work);
-+	/*
-+	 * Userspace will only do a stop call if we are at least bound. And, we
-+	 * only need to do the in kernel cleanup if in the UP state so cmds can
-+	 * be released to upper layers. If in other states just wait for
-+	 * userspace to avoid races that can leave the cleanup_work queued.
-+	 */
-+	state = READ_ONCE(conn->state);
-+	switch (state) {
-+	case ISCSI_CONN_BOUND:
-+	case ISCSI_CONN_UP:
-+		if (!test_and_set_bit(ISCSI_CLS_CONN_BIT_CLEANUP,
-+				      &conn->flags)) {
-+			queue_work(iscsi_conn_cleanup_workq,
-+				   &conn->cleanup_work);
-+		}
-+		break;
-+	default:
-+		ISCSI_DBG_TRANS_CONN(conn, "Got conn error in state %d\n",
-+				     state);
-+		break;
-+	}
- 	spin_unlock_irqrestore(&conn->lock, flags);
- 
- 	priv = iscsi_if_transport_lookup(conn->transport);
-@@ -2967,7 +2972,7 @@ iscsi_set_param(struct iscsi_transport *
- 	char *data = (char*)ev + sizeof(*ev);
- 	struct iscsi_cls_conn *conn;
- 	struct iscsi_cls_session *session;
--	int err = 0, value = 0;
-+	int err = 0, value = 0, state;
- 
- 	if (ev->u.set_param.len > PAGE_SIZE)
- 		return -EINVAL;
-@@ -2984,8 +2989,8 @@ iscsi_set_param(struct iscsi_transport *
- 			session->recovery_tmo = value;
- 		break;
- 	default:
--		if ((conn->state == ISCSI_CONN_BOUND) ||
--			(conn->state == ISCSI_CONN_UP)) {
-+		state = READ_ONCE(conn->state);
-+		if (state == ISCSI_CONN_BOUND || state == ISCSI_CONN_UP) {
- 			err = transport->set_param(conn, ev->u.set_param.param,
- 					data, ev->u.set_param.len);
- 		} else {
-@@ -3781,7 +3786,7 @@ static int iscsi_if_transport_conn(struc
- 						ev->u.b_conn.transport_eph,
- 						ev->u.b_conn.is_leading);
- 		if (!ev->r.retcode)
--			conn->state = ISCSI_CONN_BOUND;
-+			WRITE_ONCE(conn->state, ISCSI_CONN_BOUND);
- 
- 		if (ev->r.retcode || !transport->ep_connect)
- 			break;
-@@ -3800,7 +3805,8 @@ static int iscsi_if_transport_conn(struc
- 	case ISCSI_UEVENT_START_CONN:
- 		ev->r.retcode = transport->start_conn(conn);
- 		if (!ev->r.retcode)
--			conn->state = ISCSI_CONN_UP;
-+			WRITE_ONCE(conn->state, ISCSI_CONN_UP);
+ 			/* MADV_FREE page check */
+ 			if (!PageSwapBacked(page)) {
+-				if (!PageDirty(page)) {
++				int ref_count, map_count;
 +
- 		break;
- 	case ISCSI_UEVENT_SEND_PDU:
- 		pdu_len = nlh->nlmsg_len - sizeof(*nlh) - sizeof(*ev);
-@@ -4108,10 +4114,11 @@ static ssize_t show_conn_state(struct de
- {
- 	struct iscsi_cls_conn *conn = iscsi_dev_to_conn(dev->parent);
- 	const char *state = "unknown";
-+	int conn_state = READ_ONCE(conn->state);
- 
--	if (conn->state >= 0 &&
--	    conn->state < ARRAY_SIZE(connection_state_names))
--		state = connection_state_names[conn->state];
-+	if (conn_state >= 0 &&
-+	    conn_state < ARRAY_SIZE(connection_state_names))
-+		state = connection_state_names[conn_state];
- 
- 	return sysfs_emit(buf, "%s\n", state);
- }
++				/*
++				 * Synchronize with gup_pte_range():
++				 * - clear PTE; barrier; read refcount
++				 * - inc refcount; barrier; read PTE
++				 */
++				smp_mb();
++
++				ref_count = page_ref_count(page);
++				map_count = page_mapcount(page);
++
++				/*
++				 * Order reads for page refcount and dirty flag
++				 * (see comments in __remove_mapping()).
++				 */
++				smp_rmb();
++
++				/*
++				 * The only page refs must be one from isolation
++				 * plus the rmap(s) (dropped by discard:).
++				 */
++				if (ref_count == 1 + map_count &&
++				    !PageDirty(page)) {
+ 					dec_mm_counter(mm, MM_ANONPAGES);
+ 					goto discard;
+ 				}
+-- 
+2.35.1
+
 
 
