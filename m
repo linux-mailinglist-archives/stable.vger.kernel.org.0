@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F09AB505412
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2765053D1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240825AbiDRNDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:03:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60590 "EHLO
+        id S240793AbiDRNBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241423AbiDRNDG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 249F533375;
-        Mon, 18 Apr 2022 05:43:24 -0700 (PDT)
+        with ESMTP id S242333AbiDRM7t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAA281FCD0;
+        Mon, 18 Apr 2022 05:40:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9CCDB80E59;
-        Mon, 18 Apr 2022 12:43:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D0E0C385A1;
-        Mon, 18 Apr 2022 12:43:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51DF3B80EDB;
+        Mon, 18 Apr 2022 12:40:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F955C385A7;
+        Mon, 18 Apr 2022 12:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285801;
-        bh=VyEcuoF2F0p7x6N4J1cOYrfyEqF00/9kbCYzkjxnbf4=;
+        s=korg; t=1650285648;
+        bh=Ph9hJRhsOem6t2MZ4hC2dNTpwxa/eUuVY6/fsbgX/lU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ztc4Mv8CZ4/IKEsJQe9BWwwjeMSbuekdee1K2y5mEIDzzwY0LkIHX3OAo3AloDSb0
-         G2nr5hV9yOSumFVATGmo2tHx/QqQjDJxn1G++MzDbNbtg5ZixciZIA18lLTCwRLVNU
-         dOhaPRgTR2ncDn2xcZ74rfH25UGtV4ZgUizAkiEI=
+        b=I3+FZ+JH4752/9/dUV5OtQ0O6vplq1MWnFFEB4R9ckw8zkPjnm12wU/lcMV4GAJMu
+         0CLp6hmi4DzhMvGb+wUvl39nGVAy7lIFZc7nVGe8jp0vy7Uj0epv7PWT+KJ4WVlv4o
+         punMkYCwF0tr7lNN7m2gre4nnDVxh2tyzGA3kc7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Steve Capper <steve.capper@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/63] tlb: hugetlb: Add more sizes to tlb_remove_huge_tlb_entry
+        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 084/105] nl80211: correctly check NL80211_ATTR_REG_ALPHA2 size
 Date:   Mon, 18 Apr 2022 14:13:26 +0200
-Message-Id: <20220418121136.019938470@linuxfoundation.org>
+Message-Id: <20220418121149.019557205@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,66 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Capper <steve.capper@arm.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 697a1d44af8ba0477ee729e632f4ade37999249a ]
+commit 6624bb34b4eb19f715db9908cca00122748765d7 upstream.
 
-tlb_remove_huge_tlb_entry only considers PMD_SIZE and PUD_SIZE when
-updating the mmu_gather structure.
+We need this to be at least two bytes, so we can access
+alpha2[0] and alpha2[1]. It may be three in case some
+userspace used NUL-termination since it was NLA_STRING
+(and we also push it out with NUL-termination).
 
-Unfortunately on arm64 there are two additional huge page sizes that
-need to be covered: CONT_PTE_SIZE and CONT_PMD_SIZE. Where an end-user
-attempts to employ contiguous huge pages, a VM_BUG_ON can be experienced
-due to the fact that the tlb structure hasn't been correctly updated by
-the relevant tlb_flush_p.._range() call from tlb_remove_huge_tlb_entry.
-
-This patch adds inequality logic to the generic implementation of
-tlb_remove_huge_tlb_entry s.t. CONT_PTE_SIZE and CONT_PMD_SIZE are
-effectively covered on arm64. Also, as well as ptes, pmds and puds;
-p4ds are now considered too.
-
-Reported-by: David Hildenbrand <david@redhat.com>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/linux-mm/811c5c8e-b3a2-85d2-049c-717f17c3a03a@redhat.com/
-Signed-off-by: Steve Capper <steve.capper@arm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220330112543.863-1-steve.capper@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220411114201.fd4a31f06541.Ie7ff4be2cf348d8cc28ed0d626fc54becf7ea799@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/tlb.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/wireless/nl80211.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 46294ef620ff..268674c1d568 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -547,10 +547,14 @@ static inline void tlb_flush_p4d_range(struct mmu_gather *tlb,
- #define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)	\
- 	do {							\
- 		unsigned long _sz = huge_page_size(h);		\
--		if (_sz == PMD_SIZE)				\
--			tlb_flush_pmd_range(tlb, address, _sz);	\
--		else if (_sz == PUD_SIZE)			\
-+		if (_sz >= P4D_SIZE)				\
-+			tlb_flush_p4d_range(tlb, address, _sz);	\
-+		else if (_sz >= PUD_SIZE)			\
- 			tlb_flush_pud_range(tlb, address, _sz);	\
-+		else if (_sz >= PMD_SIZE)			\
-+			tlb_flush_pmd_range(tlb, address, _sz);	\
-+		else						\
-+			tlb_flush_pte_range(tlb, address, _sz);	\
- 		__tlb_remove_tlb_entry(tlb, ptep, address);	\
- 	} while (0)
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -475,7 +475,8 @@ static const struct nla_policy nl80211_p
+ 				   .len = IEEE80211_MAX_MESH_ID_LEN },
+ 	[NL80211_ATTR_MPATH_NEXT_HOP] = NLA_POLICY_ETH_ADDR_COMPAT,
  
--- 
-2.35.1
-
+-	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
++	/* allow 3 for NUL-termination, we used to declare this NLA_STRING */
++	[NL80211_ATTR_REG_ALPHA2] = NLA_POLICY_RANGE(NLA_BINARY, 2, 3),
+ 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
+ 
+ 	[NL80211_ATTR_BSS_CTS_PROT] = { .type = NLA_U8 },
 
 
