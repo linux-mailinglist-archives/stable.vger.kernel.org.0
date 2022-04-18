@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D5DB505515
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43452505047
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241961AbiDRNNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:13:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54668 "EHLO
+        id S238554AbiDRMXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:23:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243756AbiDRNK0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5BE6172;
-        Mon, 18 Apr 2022 05:49:54 -0700 (PDT)
+        with ESMTP id S238794AbiDRMWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:22:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4E61EED0;
+        Mon, 18 Apr 2022 05:18:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77B23B80E4E;
-        Mon, 18 Apr 2022 12:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B14E1C385A7;
-        Mon, 18 Apr 2022 12:49:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1657960F5F;
+        Mon, 18 Apr 2022 12:18:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 075D0C385A8;
+        Mon, 18 Apr 2022 12:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286179;
-        bh=F3GUFIFxn3xZhMHv+WyQhBku19qiHak4wQw1BJOJxO0=;
+        s=korg; t=1650284297;
+        bh=VHz+JMItJlNxJ/mL/82Bz5jA5c3poz8XFUIXJ7SB86g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhcTdB1Gwta6Zrcrw5fdl1C+PSaNlLc41kcqo1xps/8j6zpZxhJCQpHjtkRWvDrXv
-         Ls6Gr4So9td2e5cefrPm61tZA84BkJKPaBpFLJttpAYe4Jllmwg/5ouSaUACT2ufGR
-         UsimkxXiPH2BEJtE7BO2hzP9yBt638fthqV6P0fc=
+        b=CAdOalXHXViu2WI0vnK13CQdFbLOV1EZ0z6Mr6kq2iYfuOob5ADTyirU0hObgBixL
+         yu0c5RQVl6WOioVJMBve/eAx6dQDKqn+F2MhOZzWgqWL3paK0bO4Yv3chAdbVxgzlZ
+         CLviTbdQXeRp4O5fUBYYUPb2TJ6o2pDHYSkVroIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Paukrt <tomaspaukrt@email.cz>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 054/284] crypto: mxs-dcp - Fix scatterlist processing
-Date:   Mon, 18 Apr 2022 14:10:35 +0200
-Message-Id: <20220418121212.232001320@linuxfoundation.org>
+Subject: [PATCH 5.17 067/219] SUNRPC: Fix the svc_deferred_event trace class
+Date:   Mon, 18 Apr 2022 14:10:36 +0200
+Message-Id: <20220418121207.572204025@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Paukrt <tomaspaukrt@email.cz>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 28e9b6d8199a3f124682b143800c2dacdc3d70dd ]
+[ Upstream commit 4d5004451ab2218eab94a30e1841462c9316ba19 ]
 
-This patch fixes a bug in scatterlist processing that may cause incorrect AES block encryption/decryption.
+Fix a NULL deref crash that occurs when an svc_rqst is deferred
+while the sunrpc tracing subsystem is enabled. svc_revisit() sets
+dr->xprt to NULL, so it can't be relied upon in the tracepoint to
+provide the remote's address.
 
-Fixes: 2e6d793e1bf0 ("crypto: mxs-dcp - Use sg_mapping_iter to copy data")
-Signed-off-by: Tomas Paukrt <tomaspaukrt@email.cz>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Unfortunately we can't revert the "svc_deferred_class" hunk in
+commit ece200ddd54b ("sunrpc: Save remote presentation address in
+svc_xprt for trace events") because there is now a specific check
+of event format specifiers for unsafe dereferences. The warning
+that check emits is:
+
+  event svc_defer_recv has unsafe dereference of argument 1
+
+A "%pISpc" format specifier with a "struct sockaddr *" is indeed
+flagged by this check.
+
+Instead, take the brute-force approach used by the svcrdma_qp_error
+tracepoint. Convert the dr::addr field into a presentation address
+in the TP_fast_assign() arm of the trace event, and store that as
+a string. This fix can be backported to -stable kernels.
+
+In the meantime, commit c6ced22997ad ("tracing: Update print fmt
+check to handle new __get_sockaddr() macro") is now in v5.18, so
+this wonky fix can be replaced with __sockaddr() and friends
+properly during the v5.19 merge window.
+
+Fixes: ece200ddd54b ("sunrpc: Save remote presentation address in svc_xprt for trace events")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/mxs-dcp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/trace/events/sunrpc.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
-index e986be405411..3e4068badffd 100644
---- a/drivers/crypto/mxs-dcp.c
-+++ b/drivers/crypto/mxs-dcp.c
-@@ -328,7 +328,7 @@ static int mxs_dcp_aes_block_crypt(struct crypto_async_request *arq)
- 		memset(key + AES_KEYSIZE_128, 0, AES_KEYSIZE_128);
- 	}
+diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
+index 5be3faf88c1a..06fe47fb3686 100644
+--- a/include/trace/events/sunrpc.h
++++ b/include/trace/events/sunrpc.h
+@@ -1956,17 +1956,18 @@ DECLARE_EVENT_CLASS(svc_deferred_event,
+ 	TP_STRUCT__entry(
+ 		__field(const void *, dr)
+ 		__field(u32, xid)
+-		__string(addr, dr->xprt->xpt_remotebuf)
++		__array(__u8, addr, INET6_ADDRSTRLEN + 10)
+ 	),
  
--	for_each_sg(req->src, src, sg_nents(src), i) {
-+	for_each_sg(req->src, src, sg_nents(req->src), i) {
- 		src_buf = sg_virt(src);
- 		len = sg_dma_len(src);
- 		tlen += len;
+ 	TP_fast_assign(
+ 		__entry->dr = dr;
+ 		__entry->xid = be32_to_cpu(*(__be32 *)(dr->args +
+ 						       (dr->xprt_hlen>>2)));
+-		__assign_str(addr, dr->xprt->xpt_remotebuf);
++		snprintf(__entry->addr, sizeof(__entry->addr) - 1,
++			 "%pISpc", (struct sockaddr *)&dr->addr);
+ 	),
+ 
+-	TP_printk("addr=%s dr=%p xid=0x%08x", __get_str(addr), __entry->dr,
++	TP_printk("addr=%s dr=%p xid=0x%08x", __entry->addr, __entry->dr,
+ 		__entry->xid)
+ );
+ 
 -- 
-2.34.1
+2.35.1
 
 
 
