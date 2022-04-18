@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92BE450544F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8862C505759
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240832AbiDRNFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40962 "EHLO
+        id S242986AbiDRNux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:50:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234791AbiDRNE0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:04:26 -0400
+        with ESMTP id S239972AbiDRNuh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:50:37 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C95F312ABD;
-        Mon, 18 Apr 2022 05:45:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABC943AFE;
+        Mon, 18 Apr 2022 06:01:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B122B80E4E;
-        Mon, 18 Apr 2022 12:45:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5ECDC385A1;
-        Mon, 18 Apr 2022 12:45:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25285B80EC3;
+        Mon, 18 Apr 2022 13:01:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F780C385A7;
+        Mon, 18 Apr 2022 13:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285920;
-        bh=6h+zenz2aJ/yUi8OPrnbYjt4TWXbywz6dvrupYyuBFg=;
+        s=korg; t=1650286910;
+        bh=GR6Dfnbb9uN0r2QYDYz1vhQwHWD3lOdfcpRoWQ+ksZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0sm0TxLUT6M5jhiMKxfzwx3/wa791bM7sW2sjSDlQ7YRcScPqaM7aE/H4a38/8/l+
-         WQ8nAp7a0t5Ltb9yrDN6WDc0qAo8PUP6gHwIF3xmLjubjt6LWz89hUc+RUu3ZfefTQ
-         217l3FtVDtvQFDyZzfNiXx4PIKrm3AoAfzVX1XDA=
+        b=yP1xb6P2ws+Uvo3C+XwyFqJDVA8Oof7xCet1o00FrZUlRWbRLp1dIs3Lliwkh12p0
+         h+RXuz2hrZsdB67zvKJu03t+0vv7woa7go9/9U5UEWU/sUPHN7Gu8SyNtmJ0Mp8q5O
+         9bNd0UpqBS66N49xnIDWNK9DONulvIjujcwhylr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 61/63] ax25: fix NPD bug in ax25_disconnect
+Subject: [PATCH 4.14 257/284] cgroup: Use open-time credentials for process migraton perm checks
 Date:   Mon, 18 Apr 2022 14:13:58 +0200
-Message-Id: <20220418121138.237593195@linuxfoundation.org>
+Message-Id: <20220418121219.735989441@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +56,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Tejun Heo <tj@kernel.org>
 
-commit 7ec02f5ac8a5be5a3f20611731243dc5e1d9ba10 upstream.
+commit 1756d7994ad85c2479af6ae5a9750b92324685af upstream.
 
-The ax25_disconnect() in ax25_kill_by_device() is not
-protected by any locks, thus there is a race condition
-between ax25_disconnect() and ax25_destroy_socket().
-when ax25->sk is assigned as NULL by ax25_destroy_socket(),
-a NULL pointer dereference bug will occur if site (1) or (2)
-dereferences ax25->sk.
+cgroup process migration permission checks are performed at write time as
+whether a given operation is allowed or not is dependent on the content of
+the write - the PID. This currently uses current's credentials which is a
+potential security weakness as it may allow scenarios where a less
+privileged process tricks a more privileged one into writing into a fd that
+it created.
 
-ax25_kill_by_device()                | ax25_release()
-  ax25_disconnect()                  |   ax25_destroy_socket()
-    ...                              |
-    if(ax25->sk != NULL)             |     ...
-      ...                            |     ax25->sk = NULL;
-      bh_lock_sock(ax25->sk); //(1)  |     ...
-      ...                            |
-      bh_unlock_sock(ax25->sk); //(2)|
+This patch makes both cgroup2 and cgroup1 process migration interfaces to
+use the credentials saved at the time of open (file->f_cred) instead of
+current's.
 
-This patch moves ax25_disconnect() into lock_sock(), which can
-synchronize with ax25_destroy_socket() in ax25_release().
-
-Fail log:
-===============================================================
-BUG: kernel NULL pointer dereference, address: 0000000000000088
-...
-RIP: 0010:_raw_spin_lock+0x7e/0xd0
-...
-Call Trace:
-ax25_disconnect+0xf6/0x220
-ax25_device_event+0x187/0x250
-raw_notifier_call_chain+0x5e/0x70
-dev_close_many+0x17d/0x230
-rollback_registered_many+0x1f1/0x950
-unregister_netdevice_queue+0x133/0x200
-unregister_netdev+0x13/0x20
-...
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[OP: backport to 5.4: adjust context]
+Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Fixes: 187fe84067bd ("cgroup: require write perm on common ancestor when moving processes on the default hierarchy")
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[OP: backport to v4.14: apply original __cgroup_procs_write() changes to
+cgroup_threads_write() and cgroup_procs_write()]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ax25/af_ax25.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cgroup-v1.c |    7 ++++---
+ kernel/cgroup/cgroup.c    |   17 ++++++++++++++++-
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -102,8 +102,8 @@ again:
- 				dev_put(ax25_dev->dev);
- 				ax25_dev_put(ax25_dev);
- 			}
--			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
-+			release_sock(sk);
- 			spin_lock_bh(&ax25_list_lock);
- 			sock_put(sk);
- 			/* The entry could have been deleted from the
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -535,10 +535,11 @@ static ssize_t __cgroup1_procs_write(str
+ 		goto out_unlock;
+ 
+ 	/*
+-	 * Even if we're attaching all tasks in the thread group, we only
+-	 * need to check permissions on one of them.
++	 * Even if we're attaching all tasks in the thread group, we only need
++	 * to check permissions on one of them. Check permissions using the
++	 * credentials from file open to protect against inherited fd attacks.
+ 	 */
+-	cred = current_cred();
++	cred = of->file->f_cred;
+ 	tcred = get_task_cred(task);
+ 	if (!uid_eq(cred->euid, GLOBAL_ROOT_UID) &&
+ 	    !uid_eq(cred->euid, tcred->uid) &&
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -4381,6 +4381,7 @@ static ssize_t cgroup_procs_write(struct
+ {
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
++	const struct cred *saved_cred;
+ 	ssize_t ret;
+ 
+ 	dst_cgrp = cgroup_kn_lock_live(of->kn, false);
+@@ -4397,8 +4398,15 @@ static ssize_t cgroup_procs_write(struct
+ 	src_cgrp = task_cgroup_from_root(task, &cgrp_dfl_root);
+ 	spin_unlock_irq(&css_set_lock);
+ 
++	/*
++	 * Process and thread migrations follow same delegation rule. Check
++	 * permissions using the credentials from file open to protect against
++	 * inherited fd attacks.
++	 */
++	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+ 					    of->file->f_path.dentry->d_sb);
++	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+ 
+@@ -4422,6 +4430,7 @@ static ssize_t cgroup_threads_write(stru
+ {
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
++	const struct cred *saved_cred;
+ 	ssize_t ret;
+ 
+ 	buf = strstrip(buf);
+@@ -4440,9 +4449,15 @@ static ssize_t cgroup_threads_write(stru
+ 	src_cgrp = task_cgroup_from_root(task, &cgrp_dfl_root);
+ 	spin_unlock_irq(&css_set_lock);
+ 
+-	/* thread migrations follow the cgroup.procs delegation rule */
++	/*
++	 * Process and thread migrations follow same delegation rule. Check
++	 * permissions using the credentials from file open to protect against
++	 * inherited fd attacks.
++	 */
++	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+ 					    of->file->f_path.dentry->d_sb);
++	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+ 
 
 
