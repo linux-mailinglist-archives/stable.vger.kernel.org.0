@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F4D5050EA
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBB2350563E
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232663AbiDRMaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:30:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49864 "EHLO
+        id S242490AbiDRNcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:32:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239527AbiDRM2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F48E21832;
-        Mon, 18 Apr 2022 05:22:02 -0700 (PDT)
+        with ESMTP id S244842AbiDRNa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 839EA1EC5A;
+        Mon, 18 Apr 2022 05:55:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFE7460EF4;
-        Mon, 18 Apr 2022 12:22:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBD28C385A8;
-        Mon, 18 Apr 2022 12:22:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D11AB80E44;
+        Mon, 18 Apr 2022 12:55:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87E4FC385A7;
+        Mon, 18 Apr 2022 12:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284521;
-        bh=yVc9gM0GvyeesUHCUbbJse0kel0eC1dgwpszLaGwkxs=;
+        s=korg; t=1650286556;
+        bh=Q3w88jQapsjel3TT3enbcYkshX+XJytx1WvOuZLFhqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQdsl9ryeh/oQkayejIuYA+uzlHsI89DHEwKbjEeqTK5QWvCm9KdaBLsHw8r+OCAv
-         wo9MXjBVgX7lHh4Vjb4/4kyJcUhb0tg1PW0bE58wHRAqapufP38WjR0QDI2qrYtUSH
-         sWlzy4mB0dxyXrZcN2XPVtTerpDOokOnMo6A0SUE=
+        b=TTltroFgxzxObv2iyP0l/7wbqDEh1A/Vm2X7JrUb1NQrEAGqsZQlr14gAbQD2b0t7
+         c0b36fO1YsWOMkIQ8r7KmA30qaWYCX0R6qYMIT117FyeJ0nf9CI7vbiaRlRXioxsu0
+         ZM14vXsQ237JUX4b5Eu5o2kbnNozAXEVKywkqLiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 143/219] PCI: hv: Propagate coherence from VMbus device to PCI device
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Marcelo Schmitt <marcelo.schmitt1@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 131/284] staging:iio:adc:ad7280a: Fix handing of device address bit reversing.
 Date:   Mon, 18 Apr 2022 14:11:52 +0200
-Message-Id: <20220418121210.893992320@linuxfoundation.org>
+Message-Id: <20220418121215.031561694@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 8d21732475c637c7efcdb91dc927a4c594e97898 ]
+[ Upstream commit f281e4ddbbc0b60f061bc18a2834e9363ba85f9f ]
 
-PCI pass-thru devices in a Hyper-V VM are represented as a VMBus
-device and as a PCI device.  The coherence of the VMbus device is
-set based on the VMbus node in ACPI, but the PCI device has no
-ACPI node and defaults to not hardware coherent.  This results
-in extra software coherence management overhead on ARM64 when
-devices are hardware coherent.
+The bit reversal was wrong for bits 1 and 3 of the 5 bits.
+Result is driver failure to probe if you have more than 2 daisy-chained
+devices.  Discovered via QEMU based device emulation.
 
-Fix this by setting up the PCI host bus so that normal
-PCI mechanisms will propagate the coherence of the VMbus
-device to the PCI device. There's no effect on x86/x64 where
-devices are always hardware coherent.
+Fixes tag is for when this moved from a macro to a function, but it
+was broken before that.
 
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Acked-by: Boqun Feng <boqun.feng@gmail.com>
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/1648138492-2191-3-git-send-email-mikelley@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 065a7c0b1fec ("Staging: iio: adc: ad7280a.c: Fixed Macro argument reuse")
+Reviewed-by: Marcelo Schmitt <marcelo.schmitt1@gmail.com>
+Link: https://lore.kernel.org/r/20220206190328.333093-2-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/staging/iio/adc/ad7280a.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index ae0bc2fee4ca..88b3b56d0522 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -3404,6 +3404,15 @@ static int hv_pci_probe(struct hv_device *hdev,
- 	hbus->bridge->domain_nr = dom;
- #ifdef CONFIG_X86
- 	hbus->sysdata.domain = dom;
-+#elif defined(CONFIG_ARM64)
-+	/*
-+	 * Set the PCI bus parent to be the corresponding VMbus
-+	 * device. Then the VMbus device will be assigned as the
-+	 * ACPI companion in pcibios_root_bridge_prepare() and
-+	 * pci_dma_configure() will propagate device coherence
-+	 * information to devices created on the bus.
-+	 */
-+	hbus->sysdata.parent = hdev->device.parent;
- #endif
+diff --git a/drivers/staging/iio/adc/ad7280a.c b/drivers/staging/iio/adc/ad7280a.c
+index f17f700ea04f..0b639da562d9 100644
+--- a/drivers/staging/iio/adc/ad7280a.c
++++ b/drivers/staging/iio/adc/ad7280a.c
+@@ -102,9 +102,9 @@
+ static unsigned int ad7280a_devaddr(unsigned int addr)
+ {
+ 	return ((addr & 0x1) << 4) |
+-	       ((addr & 0x2) << 3) |
++	       ((addr & 0x2) << 2) |
+ 	       (addr & 0x4) |
+-	       ((addr & 0x8) >> 3) |
++	       ((addr & 0x8) >> 2) |
+ 	       ((addr & 0x10) >> 4);
+ }
  
- 	hbus->hdev = hdev;
 -- 
-2.35.1
+2.34.1
 
 
 
