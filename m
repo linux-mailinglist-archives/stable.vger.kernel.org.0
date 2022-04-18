@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6F5505862
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F56350587D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244909AbiDROCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:02:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57218 "EHLO
+        id S240925AbiDROEn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:04:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244903AbiDROBp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:01:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246E92CE0B;
-        Mon, 18 Apr 2022 06:09:35 -0700 (PDT)
+        with ESMTP id S245061AbiDROCC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:02:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13148344D9;
+        Mon, 18 Apr 2022 06:09:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB303B80D9C;
-        Mon, 18 Apr 2022 13:09:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37214C385A1;
-        Mon, 18 Apr 2022 13:09:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 714BA60FD2;
+        Mon, 18 Apr 2022 13:09:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6650EC385A8;
+        Mon, 18 Apr 2022 13:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287356;
-        bh=dIgepHg2u5QCwwLh7ZLHSryTO5H5pf0+HHyZ6n09e5I=;
+        s=korg; t=1650287359;
+        bh=yn1hkL3BE7IQP3XQ6XQsGCgxQjHxbrxQVwxQttzJO/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NAxOvLLsPCm/3vaMuUgVbWHk14Zb3LfbNOmIelGOHBiZyo6NPbCgC+WaXhH3TBmbv
-         DlEE3qXaQaG8vjRbkUbaF3xnKbb8sN3pDsn6RjLCBpxUGvod6J8gugHmPDo9gnZzzp
-         Pr+3vnDzmxe99M29h5MEjPrG0PVMZhjxf+y3Gb6M=
+        b=r8+9Wxnu/+bbS6G2YRW0xNWhugZOKbgZZ1TRjVcyaMDmffv3gdxPVZuZkbqLgx8xd
+         VzBnjGNP7czVbnpKM0Kt4UmAoEjDF6ZjkM33b3+u+xJWhGWnRpAYWDuXTY138RRgSV
+         cerPsYsD5s7BON36GB7nKKuUssV8NAVtMyMxCZzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        LogicalErzor <logicalerzor@gmail.com>
-Subject: [PATCH 4.9 137/218] ARM: dts: qcom: fix gic_irq_domain_translate warnings for msm8960
-Date:   Mon, 18 Apr 2022 14:13:23 +0200
-Message-Id: <20220418121203.508317845@linuxfoundation.org>
+        stable@vger.kernel.org, Richard Schleich <rs@noreya.tech>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 138/218] ARM: dts: bcm2837: Add the missing L1/L2 cache information
+Date:   Mon, 18 Apr 2022 14:13:24 +0200
+Message-Id: <20220418121203.537555479@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -55,58 +55,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Richard Schleich <rs@noreya.tech>
 
-[ Upstream commit 6f7e221e7a5cfc3299616543fce42b36e631497b ]
+[ Upstream commit bdf8762da268d2a34abf517c36528413906e9cd5 ]
 
-IRQ types blindly copied from very similar APQ8064.
+This patch fixes the kernel warning
+"cacheinfo: Unable to detect cache hierarchy for CPU 0"
+for the bcm2837 on newer kernel versions.
 
-Fixes warnings as:
-WARNING: CPU: 0 PID: 1 at drivers/irqchip/irq-gic.c:1080 gic_irq_domain_translate+0x118/0x120
-...
-
-Tested-by: LogicalErzor <logicalerzor@gmail.com> # boot-tested on Samsung S3
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220108174229.60384-1-david@ixit.cz
+Signed-off-by: Richard Schleich <rs@noreya.tech>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+[florian: Align and remove comments matching property values]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-msm8960.dtsi | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/broadcom/bcm2837.dtsi | 49 +++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-msm8960.dtsi b/arch/arm/boot/dts/qcom-msm8960.dtsi
-index 288f56e0ccf5..819d0f085f8c 100644
---- a/arch/arm/boot/dts/qcom-msm8960.dtsi
-+++ b/arch/arm/boot/dts/qcom-msm8960.dtsi
-@@ -139,7 +139,9 @@
- 			reg		= <0x108000 0x1000>;
- 			qcom,ipc	= <&l2cc 0x8 2>;
+diff --git a/arch/arm64/boot/dts/broadcom/bcm2837.dtsi b/arch/arm64/boot/dts/broadcom/bcm2837.dtsi
+index c1f719b7097a..95e3cb38474f 100644
+--- a/arch/arm64/boot/dts/broadcom/bcm2837.dtsi
++++ b/arch/arm64/boot/dts/broadcom/bcm2837.dtsi
+@@ -31,12 +31,26 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
  
--			interrupts	= <0 19 0>, <0 21 0>, <0 22 0>;
-+			interrupts	= <GIC_SPI 19 IRQ_TYPE_EDGE_RISING>,
-+					  <GIC_SPI 21 IRQ_TYPE_EDGE_RISING>,
-+					  <GIC_SPI 22 IRQ_TYPE_EDGE_RISING>;
- 			interrupt-names	= "ack", "err", "wakeup";
++		/* Source for d/i-cache-line-size and d/i-cache-sets
++		 * https://developer.arm.com/documentation/ddi0500/e/level-1-memory-system
++		 * /about-the-l1-memory-system?lang=en
++		 *
++		 * Source for d/i-cache-size
++		 * https://magpi.raspberrypi.com/articles/raspberry-pi-3-specs-benchmarks
++		 */
+ 		cpu0: cpu@0 {
+ 			device_type = "cpu";
+ 			compatible = "arm,cortex-a53";
+ 			reg = <0>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000d8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
  
- 			regulators {
-@@ -185,7 +187,7 @@
- 				compatible = "qcom,msm-uartdm-v1.3", "qcom,msm-uartdm";
- 				reg = <0x16440000 0x1000>,
- 				      <0x16400000 0x1000>;
--				interrupts = <0 154 0x0>;
-+				interrupts = <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&gcc GSBI5_UART_CLK>, <&gcc GSBI5_H_CLK>;
- 				clock-names = "core", "iface";
- 				status = "disabled";
-@@ -311,7 +313,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				reg = <0x16080000 0x1000>;
--				interrupts = <0 147 0>;
-+				interrupts = <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH>;
- 				spi-max-frequency = <24000000>;
- 				cs-gpios = <&msmgpio 8 0>;
+ 		cpu1: cpu@1 {
+@@ -45,6 +59,13 @@
+ 			reg = <1>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
  
+ 		cpu2: cpu@2 {
+@@ -53,6 +74,13 @@
+ 			reg = <2>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000e8>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
+ 		};
+ 
+ 		cpu3: cpu@3 {
+@@ -61,6 +89,27 @@
+ 			reg = <3>;
+ 			enable-method = "spin-table";
+ 			cpu-release-addr = <0x0 0x000000f0>;
++			d-cache-size = <0x8000>;
++			d-cache-line-size = <64>;
++			d-cache-sets = <128>; // 32KiB(size)/64(line-size)=512ways/4-way set
++			i-cache-size = <0x8000>;
++			i-cache-line-size = <64>;
++			i-cache-sets = <256>; // 32KiB(size)/64(line-size)=512ways/2-way set
++			next-level-cache = <&l2>;
++		};
++
++		/* Source for cache-line-size + cache-sets
++		 * https://developer.arm.com/documentation/ddi0500
++		 * /e/level-2-memory-system/about-the-l2-memory-system?lang=en
++		 * Source for cache-size
++		 * https://datasheets.raspberrypi.com/cm/cm1-and-cm3-datasheet.pdf
++		 */
++		l2: l2-cache0 {
++			compatible = "cache";
++			cache-size = <0x80000>;
++			cache-line-size = <64>;
++			cache-sets = <512>; // 512KiB(size)/64(line-size)=8192ways/16-way set
++			cache-level = <2>;
+ 		};
+ 	};
+ };
 -- 
 2.34.1
 
