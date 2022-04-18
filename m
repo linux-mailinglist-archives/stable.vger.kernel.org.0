@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43120505834
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3352A5053C2
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240246AbiDROAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:00:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46126 "EHLO
+        id S240752AbiDRNBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244436AbiDRN5Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:16 -0400
+        with ESMTP id S241221AbiDRM63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:29 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42A872AE1E;
-        Mon, 18 Apr 2022 06:07:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 108E22528C;
+        Mon, 18 Apr 2022 05:38:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8FB9DCE10A2;
-        Mon, 18 Apr 2022 13:07:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75C7DC385A7;
-        Mon, 18 Apr 2022 13:07:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 258D8CE10A1;
+        Mon, 18 Apr 2022 12:38:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10A4EC385A7;
+        Mon, 18 Apr 2022 12:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287236;
-        bh=f3e+vqqfFi+yOYOkwD6c5uvOfSo/vM7p0zi3JOoiFoE=;
+        s=korg; t=1650285524;
+        bh=XAaasCX6xCKcbAojcF/CjsO+BPY94+d8knZvBYpjBU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJ605g+4cC/exH2wJBru1ZZmSZE21xGM11gRh6uBWjxPADVaLKRYp4qk/7y+wkqHK
-         6BRU8p2KC3bLHvTbQhV2Y/J9QVTaAewXs9o9CJ2uVjDo9vLBAFYWdfkYJUw2A8wtmr
-         v53nfEttWpv7AhL7JenK5cL55CFv/q7ry7WZspKM=
+        b=auCWTnjnabFlb+jPxNfs75fnj32Qm236+/rFie09tIqpxSvnVJb8ddziwTd2TEvH8
+         P22w6sADtYvyJRYPQ3KGkoPjpCMg6xcOiXjaX0pd0aI9BzfKKFZruFcEXC7Qd0/P2t
+         nO3h1gsCzTkQ5/ewanB0iat8vJ3cY16Ua/QvDn0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 099/218] USB: storage: ums-realtek: fix error code in rts51x_read_mem()
+Subject: [PATCH 5.10 043/105] btrfs: fix fallocate to use file_modified to update permissions consistently
 Date:   Mon, 18 Apr 2022 14:12:45 +0200
-Message-Id: <20220418121202.437054399@linuxfoundation.org>
+Message-Id: <20220418121147.702720468@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit b07cabb8361dc692522538205552b1b9dab134be ]
+[ Upstream commit 05fd9564e9faf0f23b4676385e27d9405cef6637 ]
 
-The rts51x_read_mem() function should return negative error codes.
-Currently if the kmalloc() fails it returns USB_STOR_TRANSPORT_ERROR (3)
-which is treated as success by the callers.
+Since the initial introduction of (posix) fallocate back at the turn of
+the century, it has been possible to use this syscall to change the
+user-visible contents of files.  This can happen by extending the file
+size during a preallocation, or through any of the newer modes (punch,
+zero range).  Because the call can be used to change file contents, we
+should treat it like we do any other modification to a file -- update
+the mtime, and drop set[ug]id privileges/capabilities.
 
-Fixes: 065e60964e29 ("ums_realtek: do not use stack memory for DMA")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20220304073504.GA26464@kili
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The VFS function file_modified() does all this for us if pass it a
+locked inode, so let's make fallocate drop permissions correctly.
+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/realtek_cr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/file.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/storage/realtek_cr.c b/drivers/usb/storage/realtek_cr.c
-index d955761fce6f..d9d69637d614 100644
---- a/drivers/usb/storage/realtek_cr.c
-+++ b/drivers/usb/storage/realtek_cr.c
-@@ -377,7 +377,7 @@ static int rts51x_read_mem(struct us_data *us, u16 addr, u8 *data, u16 len)
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index f59ec55e5feb..416a1b753ff6 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2833,8 +2833,9 @@ int btrfs_replace_file_extents(struct inode *inode, struct btrfs_path *path,
+ 	return ret;
+ }
  
- 	buf = kmalloc(len, GFP_NOIO);
- 	if (buf == NULL)
--		return USB_STOR_TRANSPORT_ERROR;
-+		return -ENOMEM;
+-static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
++static int btrfs_punch_hole(struct file *file, loff_t offset, loff_t len)
+ {
++	struct inode *inode = file_inode(file);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+ 	struct btrfs_root *root = BTRFS_I(inode)->root;
+ 	struct extent_state *cached_state = NULL;
+@@ -2866,6 +2867,10 @@ static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
+ 		goto out_only_mutex;
+ 	}
  
- 	usb_stor_dbg(us, "addr = 0x%x, len = %d\n", addr, len);
++	ret = file_modified(file);
++	if (ret)
++		goto out_only_mutex;
++
+ 	lockstart = round_up(offset, btrfs_inode_sectorsize(BTRFS_I(inode)));
+ 	lockend = round_down(offset + len,
+ 			     btrfs_inode_sectorsize(BTRFS_I(inode))) - 1;
+@@ -3301,7 +3306,7 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 		return -EOPNOTSUPP;
  
+ 	if (mode & FALLOC_FL_PUNCH_HOLE)
+-		return btrfs_punch_hole(inode, offset, len);
++		return btrfs_punch_hole(file, offset, len);
+ 
+ 	/*
+ 	 * Only trigger disk allocation, don't trigger qgroup reserve
+@@ -3323,6 +3328,10 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 			goto out;
+ 	}
+ 
++	ret = file_modified(file);
++	if (ret)
++		goto out;
++
+ 	/*
+ 	 * TODO: Move these two operations after we have checked
+ 	 * accurate reserved space, or fallocate can still fail but
 -- 
-2.34.1
+2.35.1
 
 
 
