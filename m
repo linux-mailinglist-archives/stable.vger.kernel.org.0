@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 373FB5052B1
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F538505368
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:57:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239562AbiDRMuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:50:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59966 "EHLO
+        id S240504AbiDRM5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:57:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240589AbiDRMto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:49:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B122C12E;
-        Mon, 18 Apr 2022 05:33:59 -0700 (PDT)
+        with ESMTP id S240499AbiDRM4K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:56:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ADECE0B7;
+        Mon, 18 Apr 2022 05:37:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E98AB80ED6;
-        Mon, 18 Apr 2022 12:33:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99CEEC385A1;
-        Mon, 18 Apr 2022 12:33:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE28E611CC;
+        Mon, 18 Apr 2022 12:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC84AC385A1;
+        Mon, 18 Apr 2022 12:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285237;
-        bh=EcZIn9B50ER/b5XM1sUKQIjm37ZI2VynoYO5vl94STY=;
+        s=korg; t=1650285465;
+        bh=0nK7dR2ySBPmj9A2wp9FXAQ9MRXguoa2VerPK/upLBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWH2XQeHPaOmtUMMlQ5ltbYCwz0jv8Rs1vBgHvrH99So28tUtQQrbgUEYU5wJj9iA
-         dZBvQf8Zxxud6dNwjd3DGWISsLCra36qoxMrrLPrKObvQyLA0UScrN5VQhGQIrEWF6
-         ka3UGxlFYjUIZVa0BZ4572fnQF+qgwclLfJiLB+o=
+        b=XnO2bB36wi8E/tPp4ckLvkS1NcHM3Wafet8M8VbW7jotgw6Z2Bg8ZsIv9TeRHDvbT
+         dOXhPeRuzFxLWaWLAJ/CqIxc6fBkr4tbjTlef4KaVdoTIjD1VswWpA7AmTNoAqrLxS
+         gQTNlHKjhrKZmuobFBioN07meDDKxD3URf7lPlGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Chiu <andy.chiu@sifive.com>,
-        Greentime Hu <greentime.hu@sifive.com>,
-        Robert Hancock <robert.hancock@calian.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Ajish Koshy <Ajish.Koshy@microchip.com>,
+        Viswas G <Viswas.G@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 128/189] net: axienet: setup mdio unconditionally
+Subject: [PATCH 5.10 026/105] scsi: pm80xx: Enable upper inbound, outbound queues
 Date:   Mon, 18 Apr 2022 14:12:28 +0200
-Message-Id: <20220418121204.671340317@linuxfoundation.org>
+Message-Id: <20220418121147.013981195@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,53 +58,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Chiu <andy.chiu@sifive.com>
+From: Ajish Koshy <Ajish.Koshy@microchip.com>
 
-[ Upstream commit d1c4f93e3f0a023024a6f022a61528c06cf1daa9 ]
+[ Upstream commit bcd8a45223470e00b5f254018174d64a75db4bbe ]
 
-The call to axienet_mdio_setup should not depend on whether "phy-node"
-pressents on the DT. Besides, since `lp->phy_node` is used if PHY is in
-SGMII or 100Base-X modes, move it into the if statement. And the next patch
-will remove `lp->phy_node` from driver's private structure and do an
-of_node_put on it right away after use since it is not used elsewhere.
+Executing driver on servers with more than 32 CPUs were faced with command
+timeouts. This is because we were not geting completions for commands
+submitted on IQ32 - IQ63.
 
-Signed-off-by: Andy Chiu <andy.chiu@sifive.com>
-Reviewed-by: Greentime Hu <greentime.hu@sifive.com>
-Reviewed-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Set E64Q bit to enable upper inbound and outbound queues 32 to 63 in the
+MPI main configuration table.
+
+Added 500ms delay after successful MPI initialization as mentioned in
+controller datasheet.
+
+Link: https://lore.kernel.org/r/20220411064603.668448-3-Ajish.Koshy@microchip.com
+Fixes: 05c6c029a44d ("scsi: pm80xx: Increase number of supported queues")
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Acked-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Ajish Koshy <Ajish.Koshy@microchip.com>
+Signed-off-by: Viswas G <Viswas.G@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index 80637ffcca93..fbbbcfe0e891 100644
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -2127,15 +2127,14 @@ static int axienet_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto cleanup_clk;
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 0543ff3ff1ba..0305c8999ba5 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -765,6 +765,10 @@ static void init_default_table_values(struct pm8001_hba_info *pm8001_ha)
+ 	pm8001_ha->main_cfg_tbl.pm80xx_tbl.pcs_event_log_severity	= 0x01;
+ 	pm8001_ha->main_cfg_tbl.pm80xx_tbl.fatal_err_interrupt		= 0x01;
  
--	lp->phy_node = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
--	if (lp->phy_node) {
--		ret = axienet_mdio_setup(lp);
--		if (ret)
--			dev_warn(&pdev->dev,
--				 "error registering MDIO bus: %d\n", ret);
--	}
-+	ret = axienet_mdio_setup(lp);
-+	if (ret)
-+		dev_warn(&pdev->dev,
-+			 "error registering MDIO bus: %d\n", ret);
++	/* Enable higher IQs and OQs, 32 to 63, bit 16 */
++	if (pm8001_ha->max_q_num > 32)
++		pm8001_ha->main_cfg_tbl.pm80xx_tbl.fatal_err_interrupt |=
++							1 << 16;
+ 	/* Disable end to end CRC checking */
+ 	pm8001_ha->main_cfg_tbl.pm80xx_tbl.crc_core_dump = (0x1 << 16);
+ 
+@@ -1024,6 +1028,13 @@ static int mpi_init_check(struct pm8001_hba_info *pm8001_ha)
+ 	if (0x0000 != gst_len_mpistate)
+ 		return -EBUSY;
+ 
++	/*
++	 *  As per controller datasheet, after successful MPI
++	 *  initialization minimum 500ms delay is required before
++	 *  issuing commands.
++	 */
++	msleep(500);
 +
- 	if (lp->phy_mode == PHY_INTERFACE_MODE_SGMII ||
- 	    lp->phy_mode == PHY_INTERFACE_MODE_1000BASEX) {
-+		lp->phy_node = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
- 		if (!lp->phy_node) {
- 			dev_err(&pdev->dev, "phy-handle required for 1000BaseX/SGMII\n");
- 			ret = -EINVAL;
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
