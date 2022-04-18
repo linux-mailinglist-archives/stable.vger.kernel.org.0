@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F2D505392
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3DB5052B8
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240593AbiDRNAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59862 "EHLO
+        id S239541AbiDRMuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:50:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240920AbiDRM6E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3AE624584;
-        Mon, 18 Apr 2022 05:38:22 -0700 (PDT)
+        with ESMTP id S240333AbiDRMtb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:49:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 362E42AE11;
+        Mon, 18 Apr 2022 05:33:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 516EE60FB6;
-        Mon, 18 Apr 2022 12:38:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59237C385A1;
-        Mon, 18 Apr 2022 12:38:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4285861033;
+        Mon, 18 Apr 2022 12:33:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52965C385A7;
+        Mon, 18 Apr 2022 12:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285501;
-        bh=LPhHKOINSstWKQi+2gwthSkdUK3cVynKL2KKJd2TJDg=;
+        s=korg; t=1650285214;
+        bh=+d1W2Bsbjdk5UQO9pAwyPjGuXlSIBU9LahFxJwAPdzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PagOwU5RS5DMAPfwhAis63yCw2fKsIJl1dqVRHmrC239M9+6Aj4VAf2AA0vMvUjtU
-         CioY2t5EFw4Ry8EzpbCYZlKOYMtY66VNBiFhCSYvXbW+cMAED2XcaG51th8iZ5WePA
-         2WB6dMu2/anKiWaSkluCMHhRo/Je5RSBCnh3efwM=
+        b=pSpED+Vt2LMe3aG4jWGnDaib5t9reWCREHeWEtpqCPNygoufflOhWBR5Nkentitkp
+         1XsEbRqsp3gC7CQJkABjbOGHcX/OYT7EZ9OZ0DQqcAKzSTfsYL0H5kfOYNf76uOfxi
+         edMS7hAAUZpklk7Gia5HXuQfuzKF61r2TpT9Guz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Chandrakanth patil <chandrakanth.patil@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/105] perf tools: Fix misleading add event PMU debug message
+Subject: [PATCH 5.15 139/189] scsi: megaraid_sas: Target with invalid LUN ID is deleted during scan
 Date:   Mon, 18 Apr 2022 14:12:39 +0200
-Message-Id: <20220418121147.514584230@linuxfoundation.org>
+Message-Id: <20220418121205.399072394@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Chandrakanth patil <chandrakanth.patil@broadcom.com>
 
-[ Upstream commit f034fc50d3c7d9385c20d505ab4cf56b8fd18ac7 ]
+[ Upstream commit 56495f295d8e021f77d065b890fc0100e3f9f6d8 ]
 
-Fix incorrect debug message:
+The megaraid_sas driver supports single LUN for RAID devices. That is LUN
+0. All other LUNs are unsupported. When a device scan on a logical target
+with invalid LUN number is invoked through sysfs, that target ends up
+getting removed.
 
-   Attempting to add event pmu 'intel_pt' with '' that may result in
-   non-fatal errors
+Add LUN ID validation in the slave destroy function to avoid the target
+deletion.
 
-which always appears with perf record -vv and intel_pt e.g.
-
-    perf record -vv -e intel_pt//u uname
-
-The message is incorrect because there will never be non-fatal errors.
-
-Suppress the message if the PMU is 'selectable' i.e. meant to be
-selected directly as an event.
-
-Fixes: 4ac22b484d4c79e8 ("perf parse-events: Make add PMU verbose output clearer")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Link: http://lore.kernel.org/lkml/20220411061758.2458417-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://lore.kernel.org/r/20220324094711.48833-1-chandrakanth.patil@broadcom.com
+Signed-off-by: Chandrakanth patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/parse-events.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas.h      | 3 +++
+ drivers/scsi/megaraid/megaraid_sas_base.c | 7 +++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
-index 3b273580fb84..3a0a7930cd10 100644
---- a/tools/perf/util/parse-events.c
-+++ b/tools/perf/util/parse-events.c
-@@ -1442,7 +1442,9 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
- 	bool use_uncore_alias;
- 	LIST_HEAD(config_terms);
+diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
+index 7af2c23652b0..650210d2abb4 100644
+--- a/drivers/scsi/megaraid/megaraid_sas.h
++++ b/drivers/scsi/megaraid/megaraid_sas.h
+@@ -2558,6 +2558,9 @@ struct megasas_instance_template {
+ #define MEGASAS_IS_LOGICAL(sdev)					\
+ 	((sdev->channel < MEGASAS_MAX_PD_CHANNELS) ? 0 : 1)
  
--	if (verbose > 1) {
-+	pmu = parse_state->fake_pmu ?: perf_pmu__find(name);
++#define MEGASAS_IS_LUN_VALID(sdev)					\
++	(((sdev)->lun == 0) ? 1 : 0)
 +
-+	if (verbose > 1 && !(pmu && pmu->selectable)) {
- 		fprintf(stderr, "Attempting to add event pmu '%s' with '",
- 			name);
- 		if (head_config) {
-@@ -1455,7 +1457,6 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
- 		fprintf(stderr, "' that may result in non-fatal errors\n");
+ #define MEGASAS_DEV_INDEX(scp)						\
+ 	(((scp->device->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +	\
+ 	scp->device->id)
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 39d8754e63ac..bb3f78013a13 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -2126,6 +2126,9 @@ static int megasas_slave_alloc(struct scsi_device *sdev)
+ 			goto scan_target;
+ 		}
+ 		return -ENXIO;
++	} else if (!MEGASAS_IS_LUN_VALID(sdev)) {
++		sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
++		return -ENXIO;
  	}
  
--	pmu = parse_state->fake_pmu ?: perf_pmu__find(name);
- 	if (!pmu) {
- 		char *err_str;
+ scan_target:
+@@ -2156,6 +2159,10 @@ static void megasas_slave_destroy(struct scsi_device *sdev)
+ 	instance = megasas_lookup_instance(sdev->host->host_no);
  
+ 	if (MEGASAS_IS_LOGICAL(sdev)) {
++		if (!MEGASAS_IS_LUN_VALID(sdev)) {
++			sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
++			return;
++		}
+ 		ld_tgt_id = MEGASAS_TARGET_ID(sdev);
+ 		instance->ld_tgtid_status[ld_tgt_id] = LD_TARGET_ID_DELETED;
+ 		if (megasas_dbg_lvl & LD_PD_DEBUG)
 -- 
 2.35.1
 
