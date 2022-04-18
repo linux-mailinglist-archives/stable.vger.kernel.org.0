@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E39A9505259
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4485057C4
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235616AbiDRMmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:42:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40100 "EHLO
+        id S244421AbiDRN4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:56:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240320AbiDRMix (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C49324F25;
-        Mon, 18 Apr 2022 05:29:35 -0700 (PDT)
+        with ESMTP id S245656AbiDRNx4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF8446B2B;
+        Mon, 18 Apr 2022 06:03:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A92761033;
-        Mon, 18 Apr 2022 12:29:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76735C385A1;
-        Mon, 18 Apr 2022 12:29:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3103960B41;
+        Mon, 18 Apr 2022 13:03:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC4E2C385A1;
+        Mon, 18 Apr 2022 13:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284973;
-        bh=3GMgtImb+7S5Cm6mxL67P/qzHVn0at/En+PwwCh4UhE=;
+        s=korg; t=1650286980;
+        bh=yJYrJBgNulmR3o/byO7cIXdkdJYN2b1J95qZfq9l2vA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=stGvEdE8M6wTM9YsnQHSpVilK/sEXRLxARh835QybmYLDmU8s1tSHfE5BgQgzsTAP
-         2nbaoSrJfIwkhlij7DK0WOqv3FsKtn6Toc6VmTa8v66RvKqvgdhpwLVCEMVxbdr9t3
-         GwP4TVNrD8T2OKApLJsPV2Di6HWvYCqMNfsx5mks=
+        b=oKc7KkI8d9OzYgThZt1lUNVJzIqt+zc9i7W4LNIaZ+fRaUBvVs9TJM4PD4d+RkJoJ
+         2zoQ9LSG2Iw6T0OnTId4TuZ0ee0CD/waqbWgBXni5qz3CEbAbDo/eaVMNUAqf7cnM9
+         zkjOCbIMIhJsymd6lfAzY7Mm9sxBZP2k3yz2pWHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 067/189] net: mdio: dont defer probe forever if PHY IRQ provider is missing
+        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        John Hubbard <jhubbard@nvidia.com>, Zi Yan <ziy@nvidia.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 021/218] mm/pages_alloc.c: dont create ZONE_MOVABLE beyond the end of a node
 Date:   Mon, 18 Apr 2022 14:11:27 +0200
-Message-Id: <20220418121202.411017860@linuxfoundation.org>
+Message-Id: <20220418121159.794534131@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +59,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Alistair Popple <apopple@nvidia.com>
 
-[ Upstream commit 74befa447e6839cdd90ed541159ec783726946f9 ]
+commit ddbc84f3f595cf1fc8234a191193b5d20ad43938 upstream.
 
-When a driver for an interrupt controller is missing, of_irq_get()
-returns -EPROBE_DEFER ad infinitum, causing
-fwnode_mdiobus_phy_device_register(), and ultimately, the entire
-of_mdiobus_register() call, to fail. In turn, any phy_connect() call
-towards a PHY on this MDIO bus will also fail.
+ZONE_MOVABLE uses the remaining memory in each node.  Its starting pfn
+is also aligned to MAX_ORDER_NR_PAGES.  It is possible for the remaining
+memory in a node to be less than MAX_ORDER_NR_PAGES, meaning there is
+not enough room for ZONE_MOVABLE on that node.
 
-This is not what is expected to happen, because the PHY library falls
-back to poll mode when of_irq_get() returns a hard error code, and the
-MDIO bus, PHY and attached Ethernet controller work fine, albeit
-suboptimally, when the PHY library polls for link status. However,
--EPROBE_DEFER has special handling given the assumption that at some
-point probe deferral will stop, and the driver for the supplier will
-kick in and create the IRQ domain.
+Unfortunately this condition is not checked for.  This leads to
+zone_movable_pfn[] getting set to a pfn greater than the last pfn in a
+node.
 
-Reasons for which the interrupt controller may be missing:
+calculate_node_totalpages() then sets zone->present_pages to be greater
+than zone->spanned_pages which is invalid, as spanned_pages represents
+the maximum number of pages in a zone assuming no holes.
 
-- It is not yet written. This may happen if a more recent DT blob (with
-  an interrupt-parent for the PHY) is used to boot an old kernel where
-  the driver didn't exist, and that kernel worked with the
-  vintage-correct DT blob using poll mode.
+Subsequently it is possible free_area_init_core() will observe a zone of
+size zero with present pages.  In this case it will skip setting up the
+zone, including the initialisation of free_lists[].
 
-- It is compiled out. Behavior is the same as above.
+However populated_zone() checks zone->present_pages to see if a zone has
+memory available.  This is used by iterators such as
+walk_zones_in_node().  pagetypeinfo_showfree() uses this to walk the
+free_list of each zone in each node, which are assumed to be initialised
+due to the zone not being empty.
 
-- It is compiled as a module. The kernel will wait for a number of
-  seconds specified in the "deferred_probe_timeout" boot parameter for
-  user space to load the required module. The current default is 0,
-  which times out at the end of initcalls. It is possible that this
-  might cause regressions unless users adjust this boot parameter.
+As free_area_init_core() never initialised the free_lists[] this results
+in the following kernel crash when trying to read /proc/pagetypeinfo:
 
-The proposed solution is to use the driver_deferred_probe_check_state()
-helper function provided by the driver core, which gives up after some
--EPROBE_DEFER attempts, taking "deferred_probe_timeout" into consideration.
-The return code is changed from -EPROBE_DEFER into -ENODEV or
--ETIMEDOUT, depending on whether the kernel is compiled with support for
-modules or not.
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC NOPTI
+  CPU: 0 PID: 456 Comm: cat Not tainted 5.16.0 #461
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+  RIP: 0010:pagetypeinfo_show+0x163/0x460
+  Code: 9e 82 e8 80 57 0e 00 49 8b 06 b9 01 00 00 00 4c 39 f0 75 16 e9 65 02 00 00 48 83 c1 01 48 81 f9 a0 86 01 00 0f 84 48 02 00 00 <48> 8b 00 4c 39 f0 75 e7 48 c7 c2 80 a2 e2 82 48 c7 c6 79 ef e3 82
+  RSP: 0018:ffffc90001c4bd10 EFLAGS: 00010003
+  RAX: 0000000000000000 RBX: ffff88801105f638 RCX: 0000000000000001
+  RDX: 0000000000000001 RSI: 000000000000068b RDI: ffff8880163dc68b
+  RBP: ffffc90001c4bd90 R08: 0000000000000001 R09: ffff8880163dc67e
+  R10: 656c6261766f6d6e R11: 6c6261766f6d6e55 R12: ffff88807ffb4a00
+  R13: ffff88807ffb49f8 R14: ffff88807ffb4580 R15: ffff88807ffb3000
+  FS:  00007f9c83eff5c0(0000) GS:ffff88807dc00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000000 CR3: 0000000013c8e000 CR4: 0000000000350ef0
+  Call Trace:
+   seq_read_iter+0x128/0x460
+   proc_reg_read_iter+0x51/0x80
+   new_sync_read+0x113/0x1a0
+   vfs_read+0x136/0x1d0
+   ksys_read+0x70/0xf0
+   __x64_sys_read+0x1a/0x20
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 66bdede495c7 ("of_mdio: Fix broken PHY IRQ in case of probe deferral")
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220407165538.4084809-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by checking that the aligned zone_movable_pfn[] does not exceed
+the end of the node, and if it does skip creating a movable zone on this
+node.
+
+Link: https://lkml.kernel.org/r/20220215025831.2113067-1-apopple@nvidia.com
+Fixes: 2a1e274acf0b ("Create the ZONE_MOVABLE zone")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/dd.c              | 1 +
- drivers/net/mdio/fwnode_mdio.c | 5 +++++
- 2 files changed, 6 insertions(+)
+ mm/page_alloc.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 64ce42b6c6b6..95ae347df137 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -296,6 +296,7 @@ int driver_deferred_probe_check_state(struct device *dev)
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6267,10 +6267,17 @@ restart:
  
- 	return -EPROBE_DEFER;
- }
-+EXPORT_SYMBOL_GPL(driver_deferred_probe_check_state);
+ out2:
+ 	/* Align start of ZONE_MOVABLE on all nids to MAX_ORDER_NR_PAGES */
+-	for (nid = 0; nid < MAX_NUMNODES; nid++)
++	for (nid = 0; nid < MAX_NUMNODES; nid++) {
++		unsigned long start_pfn, end_pfn;
++
+ 		zone_movable_pfn[nid] =
+ 			roundup(zone_movable_pfn[nid], MAX_ORDER_NR_PAGES);
  
- static void deferred_probe_timeout_work_func(struct work_struct *work)
- {
-diff --git a/drivers/net/mdio/fwnode_mdio.c b/drivers/net/mdio/fwnode_mdio.c
-index 1becb1a731f6..1c1584fca632 100644
---- a/drivers/net/mdio/fwnode_mdio.c
-+++ b/drivers/net/mdio/fwnode_mdio.c
-@@ -43,6 +43,11 @@ int fwnode_mdiobus_phy_device_register(struct mii_bus *mdio,
- 	int rc;
- 
- 	rc = fwnode_irq_get(child, 0);
-+	/* Don't wait forever if the IRQ provider doesn't become available,
-+	 * just fall back to poll mode
-+	 */
-+	if (rc == -EPROBE_DEFER)
-+		rc = driver_deferred_probe_check_state(&phy->mdio.dev);
- 	if (rc == -EPROBE_DEFER)
- 		return rc;
- 
--- 
-2.35.1
-
++		get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
++		if (zone_movable_pfn[nid] >= end_pfn)
++			zone_movable_pfn[nid] = 0;
++	}
++
+ out:
+ 	/* restore the node_state */
+ 	node_states[N_MEMORY] = saved_node_state;
 
 
