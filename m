@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A12FE505396
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99652505808
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240599AbiDRNAj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59824 "EHLO
+        id S238823AbiDRN7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240901AbiDRM6C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35FE323BD3;
-        Mon, 18 Apr 2022 05:38:19 -0700 (PDT)
+        with ESMTP id S244645AbiDRN5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AECE2AC74;
+        Mon, 18 Apr 2022 06:06:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6442360FB6;
-        Mon, 18 Apr 2022 12:38:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78EEFC385A7;
-        Mon, 18 Apr 2022 12:38:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1900260B42;
+        Mon, 18 Apr 2022 13:06:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2039C385A1;
+        Mon, 18 Apr 2022 13:06:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285498;
-        bh=xb0hS4BrdUP+xSIwy3hBDuYk5Yqiydpc9Eeeprbd1yE=;
+        s=korg; t=1650287212;
+        bh=v+fV2FTUnMcbAmM9fFyazBBSOL7DKbZIxl4aUYPVLSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIVLrzkLvTKWC7E8mi4+NWZDzD0hPDvQlNvG0btPhskn7dfJTKFw+TZaGgwW6nYy4
-         iprG7bWJYtYTOToBM7jY9SiL5L77j5Fzv38pVnTQtls0BN7WxaGleDfsYdnByLViD/
-         TEJUrpnAsC/K3R1ehAGiueF0cQ4oOOFwz83WNPLM=
+        b=XwuGn4XdP1KEwCCy0001GJMGMkyT8tDhJ++Z9ly9kkqwciIEfKJFHxBaNW4dYUyuj
+         3x0LiC8UJkpLQs9DqvcGHxH3H5Zc/ZE3LaMLVDzAo2W7JXOkLmUmymf79Ort23syNk
+         YAcfHr6PuclVJCXL9XpC0MclV88DR2BlnRRENV7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Hou Wenlong <houwenlong.hwl@antgroup.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/105] testing/selftests/mqueue: Fix mq_perf_tests to free the allocated cpu set
+Subject: [PATCH 4.9 092/218] KVM: x86/emulator: Defer not-present segment check in __load_segment_descriptor()
 Date:   Mon, 18 Apr 2022 14:12:38 +0200
-Message-Id: <20220418121147.471586322@linuxfoundation.org>
+Message-Id: <20220418121202.239025018@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,104 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Hou Wenlong <houwenlong.hwl@antgroup.com>
 
-[ Upstream commit ce64763c63854b4079f2e036638aa881a1fb3fbc ]
+[ Upstream commit ca85f002258fdac3762c57d12d5e6e401b6a41af ]
 
-The selftest "mqueue/mq_perf_tests.c" use CPU_ALLOC to allocate
-CPU set. This cpu set is used further in pthread_attr_setaffinity_np
-and by pthread_create in the code. But in current code, allocated
-cpu set is not freed.
+Per Intel's SDM on the "Instruction Set Reference", when
+loading segment descriptor, not-present segment check should
+be after all type and privilege checks. But the emulator checks
+it first, then #NP is triggered instead of #GP if privilege fails
+and segment is not present. Put not-present segment check after
+type and privilege checks in __load_segment_descriptor().
 
-Fix this issue by adding CPU_FREE in the "shutdown" function which
-is called in most of the error/exit path for the cleanup. There are
-few error paths which exit without using shutdown. Add a common goto
-error path with CPU_FREE for these cases.
-
-Fixes: 7820b0715b6f ("tools/selftests: add mq_perf_tests")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: 38ba30ba51a00 (KVM: x86 emulator: Emulate task switch in emulator.c)
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Hou Wenlong <houwenlong.hwl@antgroup.com>
+Message-Id: <52573c01d369f506cadcf7233812427cf7db81a7.1644292363.git.houwenlong.hwl@antgroup.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/mqueue/mq_perf_tests.c  | 25 +++++++++++++------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ arch/x86/kvm/emulate.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/mqueue/mq_perf_tests.c b/tools/testing/selftests/mqueue/mq_perf_tests.c
-index b019e0b8221c..84fda3b49073 100644
---- a/tools/testing/selftests/mqueue/mq_perf_tests.c
-+++ b/tools/testing/selftests/mqueue/mq_perf_tests.c
-@@ -180,6 +180,9 @@ void shutdown(int exit_val, char *err_cause, int line_no)
- 	if (in_shutdown++)
- 		return;
- 
-+	/* Free the cpu_set allocated using CPU_ALLOC in main function */
-+	CPU_FREE(cpu_set);
-+
- 	for (i = 0; i < num_cpus_to_pin; i++)
- 		if (cpu_threads[i]) {
- 			pthread_kill(cpu_threads[i], SIGUSR1);
-@@ -551,6 +554,12 @@ int main(int argc, char *argv[])
- 		perror("sysconf(_SC_NPROCESSORS_ONLN)");
- 		exit(1);
- 	}
-+
-+	if (getuid() != 0)
-+		ksft_exit_skip("Not running as root, but almost all tests "
-+			"require root in order to modify\nsystem settings.  "
-+			"Exiting.\n");
-+
- 	cpus_online = min(MAX_CPUS, sysconf(_SC_NPROCESSORS_ONLN));
- 	cpu_set = CPU_ALLOC(cpus_online);
- 	if (cpu_set == NULL) {
-@@ -589,7 +598,7 @@ int main(int argc, char *argv[])
- 						cpu_set)) {
- 					fprintf(stderr, "Any given CPU may "
- 						"only be given once.\n");
--					exit(1);
-+					goto err_code;
- 				} else
- 					CPU_SET_S(cpus_to_pin[cpu],
- 						  cpu_set_size, cpu_set);
-@@ -607,7 +616,7 @@ int main(int argc, char *argv[])
- 				queue_path = malloc(strlen(option) + 2);
- 				if (!queue_path) {
- 					perror("malloc()");
--					exit(1);
-+					goto err_code;
- 				}
- 				queue_path[0] = '/';
- 				queue_path[1] = 0;
-@@ -622,17 +631,12 @@ int main(int argc, char *argv[])
- 		fprintf(stderr, "Must pass at least one CPU to continuous "
- 			"mode.\n");
- 		poptPrintUsage(popt_context, stderr, 0);
--		exit(1);
-+		goto err_code;
- 	} else if (!continuous_mode) {
- 		num_cpus_to_pin = 1;
- 		cpus_to_pin[0] = cpus_online - 1;
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 2e5553091f90..3edafdffa687 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -1674,11 +1674,6 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 		goto exception;
  	}
  
--	if (getuid() != 0)
--		ksft_exit_skip("Not running as root, but almost all tests "
--			"require root in order to modify\nsystem settings.  "
--			"Exiting.\n");
+-	if (!seg_desc.p) {
+-		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
+-		goto exception;
+-	}
 -
- 	max_msgs = fopen(MAX_MSGS, "r+");
- 	max_msgsize = fopen(MAX_MSGSIZE, "r+");
- 	if (!max_msgs)
-@@ -740,4 +744,9 @@ int main(int argc, char *argv[])
- 			sleep(1);
+ 	dpl = seg_desc.dpl;
+ 
+ 	switch (seg) {
+@@ -1718,6 +1713,10 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 	case VCPU_SREG_TR:
+ 		if (seg_desc.s || (seg_desc.type != 1 && seg_desc.type != 9))
+ 			goto exception;
++		if (!seg_desc.p) {
++			err_vec = NP_VECTOR;
++			goto exception;
++		}
+ 		old_desc = seg_desc;
+ 		seg_desc.type |= 2; /* busy */
+ 		ret = ctxt->ops->cmpxchg_emulated(ctxt, desc_addr, &old_desc, &seg_desc,
+@@ -1742,6 +1741,11 @@ static int __load_segment_descriptor(struct x86_emulate_ctxt *ctxt,
+ 		break;
  	}
- 	shutdown(0, "", 0);
+ 
++	if (!seg_desc.p) {
++		err_vec = (seg == VCPU_SREG_SS) ? SS_VECTOR : NP_VECTOR;
++		goto exception;
++	}
 +
-+err_code:
-+	CPU_FREE(cpu_set);
-+	exit(1);
-+
- }
+ 	if (seg_desc.s) {
+ 		/* mark segment as accessed */
+ 		if (!(seg_desc.type & 1)) {
 -- 
-2.35.1
+2.34.1
 
 
 
