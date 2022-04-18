@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C35505629
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 914F35057BB
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242115AbiDRNca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:32:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33336 "EHLO
+        id S244069AbiDRN4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:56:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243837AbiDRN3I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:08 -0400
+        with ESMTP id S244276AbiDRNyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:54:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF09E3FDBF;
-        Mon, 18 Apr 2022 05:53:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35C1E49909;
+        Mon, 18 Apr 2022 06:04:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5408C61256;
-        Mon, 18 Apr 2022 12:53:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F1EBC385A1;
-        Mon, 18 Apr 2022 12:53:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF57F60B6E;
+        Mon, 18 Apr 2022 13:04:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1BF9C385A1;
+        Mon, 18 Apr 2022 13:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286433;
-        bh=/2x/q4mlIFL9BwYCaIST01f86A6ArGaP8uHZ5o93I1E=;
+        s=korg; t=1650287070;
+        bh=dg3+yoGPi8qGBLxN0RWRW4Fy4x8tFrAICEJV8MCbabA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=na/69LXuqYuvEche5TPOtKghh2NdbAE4MbBdp87un2oSTVauoAAxSb9hD8ssAOiMY
-         c3CSH14QH9qiowR9MGpjSoQ1FiMT60DsIpuXG9pL2FjDwey7PdgYRH1mOfC57BSzRX
-         L/KHcQscFN0wtu8ZpfymBLW9ArajnBEtY6sWj9Qg=
+        b=if7X9XdvETTzW7vWDo/PV0xKiXdiEm4yNGRnuC3OIzega0BsPm4UdWfMrM+CCTSiy
+         G0EICCDC6kjUYBI3u+5UTFvgjOiuB5+G0Q0yKPkHFM1hFDPWoHtVrVdIqblB3LifMV
+         O3ukM8+TRLJQlr+hScfjK4KyTiW9lh2lXlF80Djo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
+        John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 134/284] iio: adc: Add check for devm_request_threaded_irq
+Subject: [PATCH 4.9 049/218] crypto: ccp - ccp_dmaengine_unregister release dma channels
 Date:   Mon, 18 Apr 2022 14:11:55 +0200
-Message-Id: <20220418121215.170464131@linuxfoundation.org>
+Message-Id: <20220418121201.014736647@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Dāvis Mosāns <davispuh@gmail.com>
 
-[ Upstream commit b30537a4cedcacf0ade2f33ebb7610178ed1e7d7 ]
+[ Upstream commit 54cce8ecb9254f971b40a72911c6da403720a2d2 ]
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value and return
-error if fails.
+ccp_dmaengine_register adds dma_chan->device_node to dma_dev->channels list
+but ccp_dmaengine_unregister didn't remove them.
+That can cause crashes in various dmaengine methods that tries to use dma_dev->channels
 
-Fixes: fa659a40b80b ("iio: adc: twl6030-gpadc: Use devm_* API family")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220224062849.3280966-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 58ea8abf4904 ("crypto: ccp - Register the CCP as a DMA...")
+Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
+Acked-by: John Allen <john.allen@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/twl6030-gpadc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/ccp/ccp-dmaengine.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
-index bc0e60b9da45..6a4ec58eb9c5 100644
---- a/drivers/iio/adc/twl6030-gpadc.c
-+++ b/drivers/iio/adc/twl6030-gpadc.c
-@@ -927,6 +927,8 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
- 	ret = devm_request_threaded_irq(dev, irq, NULL,
- 				twl6030_gpadc_irq_handler,
- 				IRQF_ONESHOT, "twl6030_gpadc", indio_dev);
-+	if (ret)
-+		return ret;
+diff --git a/drivers/crypto/ccp/ccp-dmaengine.c b/drivers/crypto/ccp/ccp-dmaengine.c
+index c4581510c3a1..6f9e228fc8ad 100644
+--- a/drivers/crypto/ccp/ccp-dmaengine.c
++++ b/drivers/crypto/ccp/ccp-dmaengine.c
+@@ -621,6 +621,20 @@ static int ccp_terminate_all(struct dma_chan *dma_chan)
+ 	return 0;
+ }
  
- 	ret = twl6030_gpadc_enable_irq(TWL6030_GPADC_RT_SW1_EOC_MASK);
- 	if (ret < 0) {
++static void ccp_dma_release(struct ccp_device *ccp)
++{
++	struct ccp_dma_chan *chan;
++	struct dma_chan *dma_chan;
++	unsigned int i;
++
++	for (i = 0; i < ccp->cmd_q_count; i++) {
++		chan = ccp->ccp_dma_chan + i;
++		dma_chan = &chan->dma_chan;
++		tasklet_kill(&chan->cleanup_tasklet);
++		list_del_rcu(&dma_chan->device_node);
++	}
++}
++
+ int ccp_dmaengine_register(struct ccp_device *ccp)
+ {
+ 	struct ccp_dma_chan *chan;
+@@ -715,6 +729,7 @@ int ccp_dmaengine_register(struct ccp_device *ccp)
+ 	return 0;
+ 
+ err_reg:
++	ccp_dma_release(ccp);
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 
+ err_cache:
+@@ -728,6 +743,7 @@ void ccp_dmaengine_unregister(struct ccp_device *ccp)
+ 	struct dma_device *dma_dev = &ccp->dma_dev;
+ 
+ 	dma_async_device_unregister(dma_dev);
++	ccp_dma_release(ccp);
+ 
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 	kmem_cache_destroy(ccp->dma_cmd_cache);
 -- 
 2.34.1
 
