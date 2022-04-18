@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B12505053
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 904F0505140
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238178AbiDRMYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:24:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49138 "EHLO
+        id S239087AbiDRMeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238461AbiDRMV4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:21:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CDC01D302;
-        Mon, 18 Apr 2022 05:17:40 -0700 (PDT)
+        with ESMTP id S239814AbiDRMda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58B331BE83;
+        Mon, 18 Apr 2022 05:26:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1650B60F0F;
-        Mon, 18 Apr 2022 12:17:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08C2CC385A1;
-        Mon, 18 Apr 2022 12:17:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8E2560FB0;
+        Mon, 18 Apr 2022 12:26:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0154C385A7;
+        Mon, 18 Apr 2022 12:26:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284259;
-        bh=dz40396YIqXB2jepd5Hjs99vJxDVQBUy5fYJDuU3p38=;
+        s=korg; t=1650284800;
+        bh=cjgxeclnMlt0Wf4GDnGqD7fbo9ohrM+9rOQvJXfpy14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzwajjdIzSsaH7NqhHg2LYZKuBF5MXijp7X2MSUa0fdFoXNTDK6HK/enY1cn7RtTx
-         6o0fwpCL3TNWlD3mc3QMe4OCX0CBScUV7GQBI+xDp97M73wFp2kzwq5vjgEQcGAYVt
-         Zc/LVJg0+4aTK2y6EBhveOai8/ACxuZsTcP57dMY=
+        b=k7lNRYpo1k6kQLYfiPfH5u2DWWH0yZp+bqcrN2lHDRnUsoR2qNm4J91jsZGx6RBZa
+         jVa4J/zJJJI1b05SpWgmGndnFnY9EUJE+W4BO8mflCaKpo2r//0aQTVreOpa4ItC0o
+         +Fcv2wJfC0mov2SJJhhqDFtAI6JqqxHd9VuRbBC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 056/219] ALSA: memalloc: Add fallback SG-buffer allocations for x86
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.15 005/189] cpuidle: PSCI: Move the `has_lpi` check to the beginning of the function
 Date:   Mon, 18 Apr 2022 14:10:25 +0200
-Message-Id: <20220418121206.846865273@linuxfoundation.org>
+Message-Id: <20220418121200.553515582@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,210 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit 925ca893b4a65177394581737b95d03fea2660f2 upstream.
+commit 01f6c7338ce267959975da65d86ba34f44d54220 upstream.
 
-The recent change for memory allocator replaced the SG-buffer handling
-helper for x86 with the standard non-contiguous page handler.  This
-works for most cases, but there is a corner case I obviously
-overlooked, namely, the fallback of non-contiguous handler without
-IOMMU.  When the system runs without IOMMU, the core handler tries to
-use the continuous pages with a single SGL entry.  It works nicely for
-most cases, but when the system memory gets fragmented, the large
-allocation may fail frequently.
+Currently the first thing checked is whether the PCSI cpu_suspend function
+has been initialized.
 
-Ideally the non-contig handler could deal with the proper SG pages,
-it's cumbersome to extend for now.  As a workaround, here we add new
-types for (minimalistic) SG allocations, instead, so that the
-allocator falls back to those types automatically when the allocation
-with the standard API failed.
+Another change will be overloading `acpi_processor_ffh_lpi_probe` and
+calling it sooner.  So make the `has_lpi` check the first thing checked
+to prepare for that change.
 
-BTW, one better (but pretty minor) improvement from the previous
-SG-buffer code is that this provides the proper mmap support without
-the PCM's page fault handling.
-
-Fixes: 2c95b92ecd92 ("ALSA: memalloc: Unify x86 SG-buffer handling (take#3)")
-BugLink: https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/2272
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1198248
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220413054808.7547-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/memalloc.h |   5 ++
- sound/core/memalloc.c    | 111 ++++++++++++++++++++++++++++++++++++++-
- 2 files changed, 115 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/cpuidle.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/sound/memalloc.h b/include/sound/memalloc.h
-index 653dfffb3ac8..8d79cebf95f3 100644
---- a/include/sound/memalloc.h
-+++ b/include/sound/memalloc.h
-@@ -51,6 +51,11 @@ struct snd_dma_device {
- #define SNDRV_DMA_TYPE_DEV_SG	SNDRV_DMA_TYPE_DEV /* no SG-buf support */
- #define SNDRV_DMA_TYPE_DEV_WC_SG	SNDRV_DMA_TYPE_DEV_WC
- #endif
-+/* fallback types, don't use those directly */
-+#ifdef CONFIG_SND_DMA_SGBUF
-+#define SNDRV_DMA_TYPE_DEV_SG_FALLBACK		10
-+#define SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK	11
-+#endif
+--- a/arch/arm64/kernel/cpuidle.c
++++ b/arch/arm64/kernel/cpuidle.c
+@@ -54,6 +54,9 @@ static int psci_acpi_cpu_init_idle(unsig
+ 	struct acpi_lpi_state *lpi;
+ 	struct acpi_processor *pr = per_cpu(processors, cpu);
  
- /*
-  * info for buffer allocation
-diff --git a/sound/core/memalloc.c b/sound/core/memalloc.c
-index 6fd763d4d15b..15dc7160ba34 100644
---- a/sound/core/memalloc.c
-+++ b/sound/core/memalloc.c
-@@ -499,6 +499,10 @@ static const struct snd_malloc_ops snd_dma_wc_ops = {
- };
- #endif /* CONFIG_X86 */
++	if (unlikely(!pr || !pr->flags.has_lpi))
++		return -EINVAL;
++
+ 	/*
+ 	 * If the PSCI cpu_suspend function hook has not been initialized
+ 	 * idle states must not be enabled, so bail out
+@@ -61,9 +64,6 @@ static int psci_acpi_cpu_init_idle(unsig
+ 	if (!psci_ops.cpu_suspend)
+ 		return -EOPNOTSUPP;
  
-+#ifdef CONFIG_SND_DMA_SGBUF
-+static void *snd_dma_sg_fallback_alloc(struct snd_dma_buffer *dmab, size_t size);
-+#endif
-+
- /*
-  * Non-contiguous pages allocator
-  */
-@@ -509,8 +513,18 @@ static void *snd_dma_noncontig_alloc(struct snd_dma_buffer *dmab, size_t size)
- 
- 	sgt = dma_alloc_noncontiguous(dmab->dev.dev, size, dmab->dev.dir,
- 				      DEFAULT_GFP, 0);
--	if (!sgt)
-+	if (!sgt) {
-+#ifdef CONFIG_SND_DMA_SGBUF
-+		if (dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG)
-+			dmab->dev.type = SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK;
-+		else
-+			dmab->dev.type = SNDRV_DMA_TYPE_DEV_SG_FALLBACK;
-+		return snd_dma_sg_fallback_alloc(dmab, size);
-+#else
- 		return NULL;
-+#endif
-+	}
-+
- 	dmab->dev.need_sync = dma_need_sync(dmab->dev.dev,
- 					    sg_dma_address(sgt->sgl));
- 	p = dma_vmap_noncontiguous(dmab->dev.dev, size, sgt);
-@@ -633,6 +647,8 @@ static void *snd_dma_sg_wc_alloc(struct snd_dma_buffer *dmab, size_t size)
- 
- 	if (!p)
- 		return NULL;
-+	if (dmab->dev.type != SNDRV_DMA_TYPE_DEV_WC_SG)
-+		return p;
- 	for_each_sgtable_page(sgt, &iter, 0)
- 		set_memory_wc(sg_wc_address(&iter), 1);
- 	return p;
-@@ -665,6 +681,95 @@ static const struct snd_malloc_ops snd_dma_sg_wc_ops = {
- 	.get_page = snd_dma_noncontig_get_page,
- 	.get_chunk_size = snd_dma_noncontig_get_chunk_size,
- };
-+
-+/* Fallback SG-buffer allocations for x86 */
-+struct snd_dma_sg_fallback {
-+	size_t count;
-+	struct page **pages;
-+	dma_addr_t *addrs;
-+};
-+
-+static void __snd_dma_sg_fallback_free(struct snd_dma_buffer *dmab,
-+				       struct snd_dma_sg_fallback *sgbuf)
-+{
-+	size_t i;
-+
-+	if (sgbuf->count && dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK)
-+		set_pages_array_wb(sgbuf->pages, sgbuf->count);
-+	for (i = 0; i < sgbuf->count && sgbuf->pages[i]; i++)
-+		dma_free_coherent(dmab->dev.dev, PAGE_SIZE,
-+				  page_address(sgbuf->pages[i]),
-+				  sgbuf->addrs[i]);
-+	kvfree(sgbuf->pages);
-+	kvfree(sgbuf->addrs);
-+	kfree(sgbuf);
-+}
-+
-+static void *snd_dma_sg_fallback_alloc(struct snd_dma_buffer *dmab, size_t size)
-+{
-+	struct snd_dma_sg_fallback *sgbuf;
-+	struct page **pages;
-+	size_t i, count;
-+	void *p;
-+
-+	sgbuf = kzalloc(sizeof(*sgbuf), GFP_KERNEL);
-+	if (!sgbuf)
-+		return NULL;
-+	count = PAGE_ALIGN(size) >> PAGE_SHIFT;
-+	pages = kvcalloc(count, sizeof(*pages), GFP_KERNEL);
-+	if (!pages)
-+		goto error;
-+	sgbuf->pages = pages;
-+	sgbuf->addrs = kvcalloc(count, sizeof(*sgbuf->addrs), GFP_KERNEL);
-+	if (!sgbuf->addrs)
-+		goto error;
-+
-+	for (i = 0; i < count; sgbuf->count++, i++) {
-+		p = dma_alloc_coherent(dmab->dev.dev, PAGE_SIZE,
-+				       &sgbuf->addrs[i], DEFAULT_GFP);
-+		if (!p)
-+			goto error;
-+		sgbuf->pages[i] = virt_to_page(p);
-+	}
-+
-+	if (dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK)
-+		set_pages_array_wc(pages, count);
-+	p = vmap(pages, count, VM_MAP, PAGE_KERNEL);
-+	if (!p)
-+		goto error;
-+	dmab->private_data = sgbuf;
-+	return p;
-+
-+ error:
-+	__snd_dma_sg_fallback_free(dmab, sgbuf);
-+	return NULL;
-+}
-+
-+static void snd_dma_sg_fallback_free(struct snd_dma_buffer *dmab)
-+{
-+	vunmap(dmab->area);
-+	__snd_dma_sg_fallback_free(dmab, dmab->private_data);
-+}
-+
-+static int snd_dma_sg_fallback_mmap(struct snd_dma_buffer *dmab,
-+				    struct vm_area_struct *area)
-+{
-+	struct snd_dma_sg_fallback *sgbuf = dmab->private_data;
-+
-+	if (dmab->dev.type == SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK)
-+		area->vm_page_prot = pgprot_writecombine(area->vm_page_prot);
-+	return vm_map_pages(area, sgbuf->pages, sgbuf->count);
-+}
-+
-+static const struct snd_malloc_ops snd_dma_sg_fallback_ops = {
-+	.alloc = snd_dma_sg_fallback_alloc,
-+	.free = snd_dma_sg_fallback_free,
-+	.mmap = snd_dma_sg_fallback_mmap,
-+	/* reuse vmalloc helpers */
-+	.get_addr = snd_dma_vmalloc_get_addr,
-+	.get_page = snd_dma_vmalloc_get_page,
-+	.get_chunk_size = snd_dma_vmalloc_get_chunk_size,
-+};
- #endif /* CONFIG_SND_DMA_SGBUF */
- 
- /*
-@@ -736,6 +841,10 @@ static const struct snd_malloc_ops *dma_ops[] = {
- #ifdef CONFIG_GENERIC_ALLOCATOR
- 	[SNDRV_DMA_TYPE_DEV_IRAM] = &snd_dma_iram_ops,
- #endif /* CONFIG_GENERIC_ALLOCATOR */
-+#ifdef CONFIG_SND_DMA_SGBUF
-+	[SNDRV_DMA_TYPE_DEV_SG_FALLBACK] = &snd_dma_sg_fallback_ops,
-+	[SNDRV_DMA_TYPE_DEV_WC_SG_FALLBACK] = &snd_dma_sg_fallback_ops,
-+#endif
- #endif /* CONFIG_HAS_DMA */
- };
- 
--- 
-2.35.2
-
+-	if (unlikely(!pr || !pr->flags.has_lpi))
+-		return -EINVAL;
+-
+ 	count = pr->power.count - 1;
+ 	if (count <= 0)
+ 		return -ENODEV;
 
 
