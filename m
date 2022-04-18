@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6FE25052FF
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31BB850539D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240313AbiDRMyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:54:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36300 "EHLO
+        id S240407AbiDRNAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240404AbiDRMxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:53:21 -0400
+        with ESMTP id S241595AbiDRM6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3A4AF7E;
-        Mon, 18 Apr 2022 05:34:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27C512DD70;
+        Mon, 18 Apr 2022 05:39:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17A4CB80EC1;
-        Mon, 18 Apr 2022 12:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47F90C385A7;
-        Mon, 18 Apr 2022 12:34:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FFA0B80EDB;
+        Mon, 18 Apr 2022 12:39:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D59ECC385A1;
+        Mon, 18 Apr 2022 12:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285285;
-        bh=/XevgFNCFMbPaQIOU7/sUJWIr6xmrXGweCGgSVJZZgo=;
+        s=korg; t=1650285558;
+        bh=Qem81bJBJ4bXuldztS3i1EFkoRvyIMTGFYIioO0Ei+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0cjAADgi4CgZ30HLiIDY1GJn2dXTJ8dzbqEExqR0nr0RwgFuN0aRvoI//Pt43ioV2
-         C1uYJM9H+TY9YJQgTN+htWBaFt0cfK7l+kt7PhWxHivJ46866MFNL6s1YusZQx45DH
-         h75wSDP9hMJmNtx3c18VFRU+6ieZztnACXdw7ac4=
+        b=lDlgUxXaOrcsgZ8O2bBzT4PKeq5OAJIkf7rIFV5aY5gMEgsY3OzQtmyOwqqUgUZ2W
+         Q92lgWGQpeOl+dIs8Un0KkpSkogr1BypJ2xdVCTMqaubKq//f8JEOsx+QaE/yxu6W+
+         vMuOKX+0dP02dzbzXrho/5wHc1l+hhRBSyIF36N0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Jin <tao-j@outlook.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 159/189] ALSA: hda/realtek: add quirk for Lenovo Thinkpad X12 speakers
+        stable@vger.kernel.org, Leo Ruan <tingquan.ruan@cn.bosch.com>,
+        Mark Jonas <mark.jonas@de.bosch.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 057/105] gpu: ipu-v3: Fix dev_dbg frequency output
 Date:   Mon, 18 Apr 2022 14:12:59 +0200
-Message-Id: <20220418121206.758786496@linuxfoundation.org>
+Message-Id: <20220418121148.104674531@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Jin <tao-j@outlook.com>
+From: Leo Ruan <tingquan.ruan@cn.bosch.com>
 
-commit 264fb03497ec1c7841bba872571bcd11beed57a7 upstream.
+[ Upstream commit 070a88fd4a03f921b73a2059e97d55faaa447dab ]
 
-For this specific device on Lenovo Thinkpad X12 tablet, the verbs were
-dumped by qemu running a guest OS that init this codec properly.
-After studying the dump, it turns out that
-the same quirk used by the other Lenovo devices can be reused.
+This commit corrects the printing of the IPU clock error percentage if
+it is between -0.1% to -0.9%. For example, if the pixel clock requested
+is 27.2 MHz but only 27.0 MHz can be achieved the deviation is -0.8%.
+But the fixed point math had a flaw and calculated error of 0.2%.
 
-The patch was tested working against the mainline kernel.
+Before:
+  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
+  IPU clock can give 27000000 with divider 10, error 0.2%
+  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tao Jin <tao-j@outlook.com>
-Link: https://lore.kernel.org/r/CO6PR03MB6241CD73310B37858FE64C85E1E89@CO6PR03MB6241.namprd03.prod.outlook.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After:
+  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
+  IPU clock can give 27000000 with divider 10, error -0.8%
+  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
+
+Signed-off-by: Leo Ruan <tingquan.ruan@cn.bosch.com>
+Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20220207151411.5009-1-mark.jonas@de.bosch.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/ipu-v3/ipu-di.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9060,6 +9060,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x505d, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
- 	SND_PCI_QUIRK(0x17aa, 0x505f, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
- 	SND_PCI_QUIRK(0x17aa, 0x5062, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
-+	SND_PCI_QUIRK(0x17aa, 0x508b, "Thinkpad X12 Gen 1", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x5109, "Thinkpad", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x17aa, 0x511e, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
- 	SND_PCI_QUIRK(0x17aa, 0x511f, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
+index b4a31d506fcc..74eca68891ad 100644
+--- a/drivers/gpu/ipu-v3/ipu-di.c
++++ b/drivers/gpu/ipu-v3/ipu-di.c
+@@ -451,8 +451,9 @@ static void ipu_di_config_clock(struct ipu_di *di,
+ 
+ 		error = rate / (sig->mode.pixelclock / 1000);
+ 
+-		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %d.%u%%\n",
+-			rate, div, (signed)(error - 1000) / 10, error % 10);
++		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %c%d.%d%%\n",
++			rate, div, error < 1000 ? '-' : '+',
++			abs(error - 1000) / 10, abs(error - 1000) % 10);
+ 
+ 		/* Allow a 1% error */
+ 		if (error < 1010 && error >= 990) {
+-- 
+2.35.1
+
 
 
