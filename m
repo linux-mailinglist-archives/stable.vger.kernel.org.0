@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4289504D91
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 10:08:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F05504D96
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 10:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236344AbiDRIKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 04:10:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40370 "EHLO
+        id S237114AbiDRINa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 04:13:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231859AbiDRIKy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 04:10:54 -0400
+        with ESMTP id S237106AbiDRIN3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 04:13:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 486D115FE0
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 01:08:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D61717E07
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 01:10:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0AB23B80E12
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 08:08:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 750CDC385A8;
-        Mon, 18 Apr 2022 08:08:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8DB5B80E16
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 08:10:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEA80C385A8;
+        Mon, 18 Apr 2022 08:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650269293;
-        bh=YR0M5DdOSfe2sQJFAU8mExXB3wMGhZRgmyOBidSbDN4=;
+        s=korg; t=1650269448;
+        bh=SuUrN/1lUMdcuSqob+4ovtHd3w1whLfXLDHgKXYLMqo=;
         h=Subject:To:Cc:From:Date:From;
-        b=XldHBgrZfjWWf6llEia5+qxjqHVtlyr8bwGkmML3+eofd8ewft27kTe8LD2w3bI5h
-         YVKb0uofEbgCLLujZnslxIGylfk6p5GOQhWMdTdEsWxFVcX582jkZvk3SjrDOuSjpi
-         c2FfpKwGjBcjKHBwThhI4i6qj41N5jii+ThCxmSQ=
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Resolve nx_huge_pages when kvm.ko is loaded" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, bgoncalv@redhat.com, jstancek@redhat.com,
-        pbonzini@redhat.com
+        b=1Ij73NPChx9/bWDz2mrlHXIWvgz9RB1l2JUqb4zU6ixRDYVnmrgiWGAPifgC8/py3
+         3arGguFVV5Fu2ey5yQjGb4gVtj5XoejItIY0hSMZudRDbAzMpwJB4f3UcSPxsRd+pV
+         TZOQW11xjcijvUqOOpHFnvW1SAphgtOI2SqHO9gc=
+Subject: FAILED: patch "[PATCH] gcc-plugins: latent_entropy: use /dev/urandom" failed to apply to 4.9-stable tree
+To:     Jason@zx2c4.com, keescook@chromium.org, pageexec@freemail.hu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Apr 2022 10:07:57 +0200
-Message-ID: <1650269277205236@kroah.com>
+Date:   Mon, 18 Apr 2022 10:10:45 +0200
+Message-ID: <16502694453885@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,156 +59,119 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1d0e84806047f38027d7572adb4702ef7c09b317 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Thu, 31 Mar 2022 22:13:59 +0000
-Subject: [PATCH] KVM: x86/mmu: Resolve nx_huge_pages when kvm.ko is loaded
+From c40160f2998c897231f8454bf797558d30a20375 Mon Sep 17 00:00:00 2001
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date: Wed, 6 Apr 2022 00:28:15 +0200
+Subject: [PATCH] gcc-plugins: latent_entropy: use /dev/urandom
 
-Resolve nx_huge_pages to true/false when kvm.ko is loaded, leaving it as
--1 is technically undefined behavior when its value is read out by
-param_get_bool(), as boolean values are supposed to be '0' or '1'.
+While the latent entropy plugin mostly doesn't derive entropy from
+get_random_const() for measuring the call graph, when __latent_entropy is
+applied to a constant, then it's initialized statically to output from
+get_random_const(). In that case, this data is derived from a 64-bit
+seed, which means a buffer of 512 bits doesn't really have that amount
+of compile-time entropy.
 
-Alternatively, KVM could define a custom getter for the param, but the
-auto value doesn't depend on the vendor module in any way, and printing
-"auto" would be unnecessarily unfriendly to the user.
+This patch fixes that shortcoming by just buffering chunks of
+/dev/urandom output and doling it out as requested.
 
-In addition to fixing the undefined behavior, resolving the auto value
-also fixes the scenario where the auto value resolves to N and no vendor
-module is loaded.  Previously, -1 would result in Y being printed even
-though KVM would ultimately disable the mitigation.
+At the same time, it's important that we don't break the use of
+-frandom-seed, for people who want the runtime benefits of the latent
+entropy plugin, while still having compile-time determinism. In that
+case, we detect whether gcc's set_random_seed() has been called by
+making a call to get_random_seed(noinit=true) in the plugin init
+function, which is called after set_random_seed() is called but before
+anything that calls get_random_seed(noinit=false), and seeing if it's
+zero or not. If it's not zero, we're in deterministic mode, and so we
+just generate numbers with a basic xorshift prng.
 
-Rename the existing MMU module init/exit helpers to clarify that they're
-invoked with respect to the vendor module, and add comments to document
-why KVM has two separate "module init" flows.
+Note that we don't detect if -frandom-seed is being used using the
+documented local_tick variable, because it's assigned via:
+   local_tick = (unsigned) tv.tv_sec * 1000 + tv.tv_usec / 1000;
+which may well overflow and become -1 on its own, and so isn't
+reliable: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105171
 
-  =========================================================================
-  UBSAN: invalid-load in kernel/params.c:320:33
-  load of value 255 is not a valid value for type '_Bool'
-  CPU: 6 PID: 892 Comm: tail Not tainted 5.17.0-rc3+ #799
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x34/0x44
-   ubsan_epilogue+0x5/0x40
-   __ubsan_handle_load_invalid_value.cold+0x43/0x48
-   param_get_bool.cold+0xf/0x14
-   param_attr_show+0x55/0x80
-   module_attr_show+0x1c/0x30
-   sysfs_kf_seq_show+0x93/0xc0
-   seq_read_iter+0x11c/0x450
-   new_sync_read+0x11b/0x1a0
-   vfs_read+0xf0/0x190
-   ksys_read+0x5f/0xe0
-   do_syscall_64+0x3b/0xc0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-   </TASK>
-  =========================================================================
+[kees: The 256 byte rnd_buf size was chosen based on average (250),
+ median (64), and std deviation (575) bytes of used entropy for a
+ defconfig x86_64 build]
 
-Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
 Cc: stable@vger.kernel.org
-Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
-Reported-by: Jan Stancek <jstancek@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220331221359.3912754-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: PaX Team <pageexec@freemail.hu>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220405222815.21155-1-Jason@zx2c4.com
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index d23e80a56eb8..0d37ba442de3 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1585,8 +1585,9 @@ static inline int kvm_arch_flush_remote_tlb(struct kvm *kvm)
- #define kvm_arch_pmi_in_guest(vcpu) \
- 	((vcpu) && (vcpu)->arch.handling_intr_from_guest)
+diff --git a/scripts/gcc-plugins/latent_entropy_plugin.c b/scripts/gcc-plugins/latent_entropy_plugin.c
+index 589454bce930..8425da41de0d 100644
+--- a/scripts/gcc-plugins/latent_entropy_plugin.c
++++ b/scripts/gcc-plugins/latent_entropy_plugin.c
+@@ -86,25 +86,31 @@ static struct plugin_info latent_entropy_plugin_info = {
+ 	.help		= "disable\tturn off latent entropy instrumentation\n",
+ };
  
--int kvm_mmu_module_init(void);
--void kvm_mmu_module_exit(void);
-+void kvm_mmu_x86_module_init(void);
-+int kvm_mmu_vendor_module_init(void);
-+void kvm_mmu_vendor_module_exit(void);
- 
- void kvm_mmu_destroy(struct kvm_vcpu *vcpu);
- int kvm_mmu_create(struct kvm_vcpu *vcpu);
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 8f19ea752704..f9080ee50ffa 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -6237,12 +6237,24 @@ static int set_nx_huge_pages(const char *val, const struct kernel_param *kp)
- 	return 0;
- }
- 
--int kvm_mmu_module_init(void)
-+/*
-+ * nx_huge_pages needs to be resolved to true/false when kvm.ko is loaded, as
-+ * its default value of -1 is technically undefined behavior for a boolean.
-+ */
-+void kvm_mmu_x86_module_init(void)
+-static unsigned HOST_WIDE_INT seed;
+-/*
+- * get_random_seed() (this is a GCC function) generates the seed.
+- * This is a simple random generator without any cryptographic security because
+- * the entropy doesn't come from here.
+- */
++static unsigned HOST_WIDE_INT deterministic_seed;
++static unsigned HOST_WIDE_INT rnd_buf[32];
++static size_t rnd_idx = ARRAY_SIZE(rnd_buf);
++static int urandom_fd = -1;
++
+ static unsigned HOST_WIDE_INT get_random_const(void)
  {
--	int ret = -ENOMEM;
+-	unsigned int i;
+-	unsigned HOST_WIDE_INT ret = 0;
 -
- 	if (nx_huge_pages == -1)
- 		__set_nx_huge_pages(get_nx_auto_mode());
-+}
-+
-+/*
-+ * The bulk of the MMU initialization is deferred until the vendor module is
-+ * loaded as many of the masks/values may be modified by VMX or SVM, i.e. need
-+ * to be reset when a potentially different vendor module is loaded.
-+ */
-+int kvm_mmu_vendor_module_init(void)
-+{
-+	int ret = -ENOMEM;
+-	for (i = 0; i < 8 * sizeof(ret); i++) {
+-		ret = (ret << 1) | (seed & 1);
+-		seed >>= 1;
+-		if (ret & 1)
+-			seed ^= 0xD800000000000000ULL;
++	if (deterministic_seed) {
++		unsigned HOST_WIDE_INT w = deterministic_seed;
++		w ^= w << 13;
++		w ^= w >> 7;
++		w ^= w << 17;
++		deterministic_seed = w;
++		return deterministic_seed;
+ 	}
  
- 	/*
- 	 * MMU roles use union aliasing which is, generally speaking, an
-@@ -6290,7 +6302,7 @@ void kvm_mmu_destroy(struct kvm_vcpu *vcpu)
- 	mmu_free_memory_caches(vcpu);
+-	return ret;
++	if (urandom_fd < 0) {
++		urandom_fd = open("/dev/urandom", O_RDONLY);
++		gcc_assert(urandom_fd >= 0);
++	}
++	if (rnd_idx >= ARRAY_SIZE(rnd_buf)) {
++		gcc_assert(read(urandom_fd, rnd_buf, sizeof(rnd_buf)) == sizeof(rnd_buf));
++		rnd_idx = 0;
++	}
++	return rnd_buf[rnd_idx++];
  }
  
--void kvm_mmu_module_exit(void)
-+void kvm_mmu_vendor_module_exit(void)
- {
- 	mmu_destroy_caches();
- 	percpu_counter_destroy(&kvm_total_used_mmu_pages);
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 0c0ca599a353..de49a88df1c2 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8926,7 +8926,7 @@ int kvm_arch_init(void *opaque)
- 	}
- 	kvm_nr_uret_msrs = 0;
+ static tree tree_get_random_const(tree type)
+@@ -537,8 +543,6 @@ static void latent_entropy_start_unit(void *gcc_data __unused,
+ 	tree type, id;
+ 	int quals;
  
--	r = kvm_mmu_module_init();
-+	r = kvm_mmu_vendor_module_init();
- 	if (r)
- 		goto out_free_percpu;
+-	seed = get_random_seed(false);
+-
+ 	if (in_lto_p)
+ 		return;
  
-@@ -8974,7 +8974,7 @@ void kvm_arch_exit(void)
- 	cancel_work_sync(&pvclock_gtod_work);
- #endif
- 	kvm_x86_ops.hardware_enable = NULL;
--	kvm_mmu_module_exit();
-+	kvm_mmu_vendor_module_exit();
- 	free_percpu(user_return_msrs);
- 	kmem_cache_destroy(x86_emulator_cache);
- #ifdef CONFIG_KVM_XEN
-@@ -12986,3 +12986,19 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_vmgexit_enter);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_vmgexit_exit);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_vmgexit_msr_protocol_enter);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_vmgexit_msr_protocol_exit);
-+
-+static int __init kvm_x86_init(void)
-+{
-+	kvm_mmu_x86_module_init();
-+	return 0;
-+}
-+module_init(kvm_x86_init);
-+
-+static void __exit kvm_x86_exit(void)
-+{
+@@ -573,6 +577,12 @@ __visible int plugin_init(struct plugin_name_args *plugin_info,
+ 	const struct plugin_argument * const argv = plugin_info->argv;
+ 	int i;
+ 
 +	/*
-+	 * If module_init() is implemented, module_exit() must also be
-+	 * implemented to allow module unload.
++	 * Call get_random_seed() with noinit=true, so that this returns
++	 * 0 in the case where no seed has been passed via -frandom-seed.
 +	 */
-+}
-+module_exit(kvm_x86_exit);
++	deterministic_seed = get_random_seed(true);
++
+ 	static const struct ggc_root_tab gt_ggc_r_gt_latent_entropy[] = {
+ 		{
+ 			.base = &latent_entropy_decl,
 
