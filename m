@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B49150580F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0C665053A7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244116AbiDRN7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:59:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45840 "EHLO
+        id S240691AbiDRNAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:00:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244335AbiDRN44 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A17872A26F;
-        Mon, 18 Apr 2022 06:05:38 -0700 (PDT)
+        with ESMTP id S241397AbiDRM6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A7D827FF8;
+        Mon, 18 Apr 2022 05:39:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D62E60EFC;
-        Mon, 18 Apr 2022 13:05:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34A6AC385A7;
-        Mon, 18 Apr 2022 13:05:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98CC260FB6;
+        Mon, 18 Apr 2022 12:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AD44C385A1;
+        Mon, 18 Apr 2022 12:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287137;
-        bh=WUAPkXaX+FIRxRV6F+q0jv1YQE4laA/FQC2MJMuYRH0=;
+        s=korg; t=1650285542;
+        bh=RuI6u+OIMxRckoYB0ZZOJmgmVKvMnxAua/PYBTcCYEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zfiaoqo4hUWH3kFwyqYvgi1XDMJH4W2qM6qV10bF0ED6iLT+xudWmvPIxzduBthxS
-         6zotcxulkt4v+CzOqDXaQpEqFFlbxnooaInxujev5KkkAeZlZPkgr7H5/pAaL1kgCq
-         lI5xMcrDyEKSmjU4skN2JoBk8kBTIwODtYdFT5gc=
+        b=oVK8vrB2S9T3vlhTWc3sPcmBwGdE5B0OFzY72btiKcXkoRSJq/hLaAMf453vUF/jy
+         YEbJDa9FB+zXcyfaI2eMK6+W9K2qfArAhfPt6dWGQ3VIOw3MQM41AoiEfkt0osEZoY
+         w+9cUx7WL7TTLo18RGzRw+tWtkRTTLEEkxHpBpFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 067/218] memory: emif: Add check for setup_interrupts
+Subject: [PATCH 5.10 011/105] SUNRPC: Fix the svc_deferred_event trace class
 Date:   Mon, 18 Apr 2022 14:12:13 +0200
-Message-Id: <20220418121201.528689832@linuxfoundation.org>
+Message-Id: <20220418121145.985862344@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit fd7bd80b46373887b390852f490f21b07e209498 ]
+[ Upstream commit 4d5004451ab2218eab94a30e1841462c9316ba19 ]
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value of the
-setup_interrupts() and return error if fails.
+Fix a NULL deref crash that occurs when an svc_rqst is deferred
+while the sunrpc tracing subsystem is enabled. svc_revisit() sets
+dr->xprt to NULL, so it can't be relied upon in the tracepoint to
+provide the remote's address.
 
-Fixes: 68b4aee35d1f ("memory: emif: add interrupt and temperature handling")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220224025444.3256530-1-jiasheng@iscas.ac.cn
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Unfortunately we can't revert the "svc_deferred_class" hunk in
+commit ece200ddd54b ("sunrpc: Save remote presentation address in
+svc_xprt for trace events") because there is now a specific check
+of event format specifiers for unsafe dereferences. The warning
+that check emits is:
+
+  event svc_defer_recv has unsafe dereference of argument 1
+
+A "%pISpc" format specifier with a "struct sockaddr *" is indeed
+flagged by this check.
+
+Instead, take the brute-force approach used by the svcrdma_qp_error
+tracepoint. Convert the dr::addr field into a presentation address
+in the TP_fast_assign() arm of the trace event, and store that as
+a string. This fix can be backported to -stable kernels.
+
+In the meantime, commit c6ced22997ad ("tracing: Update print fmt
+check to handle new __get_sockaddr() macro") is now in v5.18, so
+this wonky fix can be replaced with __sockaddr() and friends
+properly during the v5.19 merge window.
+
+Fixes: ece200ddd54b ("sunrpc: Save remote presentation address in svc_xprt for trace events")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/emif.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/trace/events/sunrpc.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/memory/emif.c b/drivers/memory/emif.c
-index 88c32b8dc88a..ed6c5fcb136f 100644
---- a/drivers/memory/emif.c
-+++ b/drivers/memory/emif.c
-@@ -1517,7 +1517,7 @@ static int __init_or_module emif_probe(struct platform_device *pdev)
- {
- 	struct emif_data	*emif;
- 	struct resource		*res;
--	int			irq;
-+	int			irq, ret;
+diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
+index 23db248a7fdb..ed1bbac004d5 100644
+--- a/include/trace/events/sunrpc.h
++++ b/include/trace/events/sunrpc.h
+@@ -1874,17 +1874,18 @@ DECLARE_EVENT_CLASS(svc_deferred_event,
+ 	TP_STRUCT__entry(
+ 		__field(const void *, dr)
+ 		__field(u32, xid)
+-		__string(addr, dr->xprt->xpt_remotebuf)
++		__array(__u8, addr, INET6_ADDRSTRLEN + 10)
+ 	),
  
- 	if (pdev->dev.of_node)
- 		emif = of_get_memory_device_details(pdev->dev.of_node, &pdev->dev);
-@@ -1551,7 +1551,9 @@ static int __init_or_module emif_probe(struct platform_device *pdev)
- 	emif_onetime_settings(emif);
- 	emif_debugfs_init(emif);
- 	disable_and_clear_all_interrupts(emif);
--	setup_interrupts(emif, irq);
-+	ret = setup_interrupts(emif, irq);
-+	if (ret)
-+		goto error;
+ 	TP_fast_assign(
+ 		__entry->dr = dr;
+ 		__entry->xid = be32_to_cpu(*(__be32 *)(dr->args +
+ 						       (dr->xprt_hlen>>2)));
+-		__assign_str(addr, dr->xprt->xpt_remotebuf);
++		snprintf(__entry->addr, sizeof(__entry->addr) - 1,
++			 "%pISpc", (struct sockaddr *)&dr->addr);
+ 	),
  
- 	/* One-time actions taken on probing the first device */
- 	if (!emif1) {
+-	TP_printk("addr=%s dr=%p xid=0x%08x", __get_str(addr), __entry->dr,
++	TP_printk("addr=%s dr=%p xid=0x%08x", __entry->addr, __entry->dr,
+ 		__entry->xid)
+ );
+ 
 -- 
-2.34.1
+2.35.1
 
 
 
