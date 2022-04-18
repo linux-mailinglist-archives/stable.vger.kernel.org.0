@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF8685058B7
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:09:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D89D5058B0
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:09:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240777AbiDROKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:10:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41594 "EHLO
+        id S238098AbiDROKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:10:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344036AbiDROIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:08:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3AD36B5B;
-        Mon, 18 Apr 2022 06:10:44 -0700 (PDT)
+        with ESMTP id S1343828AbiDROI3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:08:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89F7336334;
+        Mon, 18 Apr 2022 06:10:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33876B80EE4;
-        Mon, 18 Apr 2022 13:10:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32EE8C385A1;
-        Mon, 18 Apr 2022 13:10:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B8B2B80EE6;
+        Mon, 18 Apr 2022 13:10:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90506C385A7;
+        Mon, 18 Apr 2022 13:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287423;
-        bh=101V+6oKB4yshqJK7l/T8aqNH7Hs8kisFnI1Dy/+a1E=;
+        s=korg; t=1650287427;
+        bh=fzk8MKUGqmpclWYl7A30PfvIc3vCf2G+DHGNqab7TAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtGbHkCDYKtJNA/LTWQV2t7zTPP7FlmrliNpLjeh4xPxyxnhJDvdDcB5EqumEXAGN
-         Q4qamlKfGp0S85P/njOy6kBCZAdqlvLYX7bf7qO9Vn27SgqhR6Wo2QoChvQ5z6beAy
-         F2OlHfdBEdUWZnsPl3+ZrS2U+2AVC4JZXCmusBfk=
+        b=wO7Ag/Gp4pLekTjfbkP+By4WJZKHloe20Vnda/zn8FeEuMUnl7XMgZzXWvtbkqeLp
+         nrZtHJVU6hA118b6H8TNzmGAoqQihXD6kEROXNVESFDvilogUCA4/Ze1R1G1qTGe+5
+         0z7Uz1BHAjsUuXCmMmUQ7Tt/qvopoGNgM1C4mLgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 156/218] mm/memcontrol: return 1 from cgroup.memory __setup() handler
-Date:   Mon, 18 Apr 2022 14:13:42 +0200
-Message-Id: <20220418121204.442483803@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.9 157/218] ubi: fastmap: Return error code if memory allocation fails in add_aeb()
+Date:   Mon, 18 Apr 2022 14:13:43 +0200
+Message-Id: <20220418121204.502286242@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -60,55 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit 460a79e18842caca6fa0c415de4a3ac1e671ac50 upstream.
+commit c3c07fc25f37c157fde041b3a0c3dfcb1590cbce upstream.
 
-__setup() handlers should return 1 if the command line option is handled
-and 0 if not (or maybe never return 0; it just pollutes init's
-environment).
+Abort fastmap scanning and return error code if memory allocation fails
+in add_aeb(). Otherwise ubi will get wrong peb statistics information
+after scanning.
 
-The only reason that this particular __setup handler does not pollute
-init's environment is that the setup string contains a '.', as in
-"cgroup.memory".  This causes init/main.c::unknown_boottoption() to
-consider it to be an "Unused module parameter" and ignore it.  (This is
-for parsing of loadable module parameters any time after kernel init.)
-Otherwise the string "cgroup.memory=whatever" would be added to init's
-environment strings.
-
-Instead of relying on this '.' quirk, just return 1 to indicate that the
-boot option has been handled.
-
-Note that there is no warning message if someone enters:
-	cgroup.memory=anything_invalid
-
-Link: https://lkml.kernel.org/r/20220222005811.10672-1-rdunlap@infradead.org
-Fixes: f7e1cb6ec51b0 ("mm: memcontrol: account socket memory in unified hierarchy memory controller")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: dbb7d2a88d2a7b ("UBI: Add fastmap core")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memcontrol.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/ubi/fastmap.c |   28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -5840,7 +5840,7 @@ static int __init cgroup_memory(char *s)
- 		if (!strcmp(token, "nokmem"))
- 			cgroup_memory_nokmem = true;
- 	}
--	return 0;
-+	return 1;
- }
- __setup("cgroup.memory=", cgroup_memory);
+--- a/drivers/mtd/ubi/fastmap.c
++++ b/drivers/mtd/ubi/fastmap.c
+@@ -478,7 +478,9 @@ static int scan_pool(struct ubi_device *
+ 			if (err == UBI_IO_FF_BITFLIPS)
+ 				scrub = 1;
  
+-			add_aeb(ai, free, pnum, ec, scrub);
++			ret = add_aeb(ai, free, pnum, ec, scrub);
++			if (ret)
++				goto out;
+ 			continue;
+ 		} else if (err == 0 || err == UBI_IO_BITFLIPS) {
+ 			dbg_bld("Found non empty PEB:%i in pool", pnum);
+@@ -648,8 +650,10 @@ static int ubi_attach_fastmap(struct ubi
+ 		if (fm_pos >= fm_size)
+ 			goto fail_bad;
+ 
+-		add_aeb(ai, &ai->free, be32_to_cpu(fmec->pnum),
+-			be32_to_cpu(fmec->ec), 0);
++		ret = add_aeb(ai, &ai->free, be32_to_cpu(fmec->pnum),
++			      be32_to_cpu(fmec->ec), 0);
++		if (ret)
++			goto fail;
+ 	}
+ 
+ 	/* read EC values from used list */
+@@ -659,8 +663,10 @@ static int ubi_attach_fastmap(struct ubi
+ 		if (fm_pos >= fm_size)
+ 			goto fail_bad;
+ 
+-		add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
+-			be32_to_cpu(fmec->ec), 0);
++		ret = add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
++			      be32_to_cpu(fmec->ec), 0);
++		if (ret)
++			goto fail;
+ 	}
+ 
+ 	/* read EC values from scrub list */
+@@ -670,8 +676,10 @@ static int ubi_attach_fastmap(struct ubi
+ 		if (fm_pos >= fm_size)
+ 			goto fail_bad;
+ 
+-		add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
+-			be32_to_cpu(fmec->ec), 1);
++		ret = add_aeb(ai, &used, be32_to_cpu(fmec->pnum),
++			      be32_to_cpu(fmec->ec), 1);
++		if (ret)
++			goto fail;
+ 	}
+ 
+ 	/* read EC values from erase list */
+@@ -681,8 +689,10 @@ static int ubi_attach_fastmap(struct ubi
+ 		if (fm_pos >= fm_size)
+ 			goto fail_bad;
+ 
+-		add_aeb(ai, &ai->erase, be32_to_cpu(fmec->pnum),
+-			be32_to_cpu(fmec->ec), 1);
++		ret = add_aeb(ai, &ai->erase, be32_to_cpu(fmec->pnum),
++			      be32_to_cpu(fmec->ec), 1);
++		if (ret)
++			goto fail;
+ 	}
+ 
+ 	ai->mean_ec = div_u64(ai->ec_sum, ai->ec_count);
 
 
