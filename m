@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A81A85057CF
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93E155051E7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243641AbiDRN5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:57:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45946 "EHLO
+        id S239395AbiDRMlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244541AbiDRNzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:55:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325F549CB8;
-        Mon, 18 Apr 2022 06:04:43 -0700 (PDT)
+        with ESMTP id S240873AbiDRMjn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B8BD63E3;
+        Mon, 18 Apr 2022 05:31:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FC0FB80EBA;
-        Mon, 18 Apr 2022 13:04:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBE44C385A1;
-        Mon, 18 Apr 2022 13:04:40 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B8FADCE109F;
+        Mon, 18 Apr 2022 12:31:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD9F4C385A7;
+        Mon, 18 Apr 2022 12:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287081;
-        bh=+XMqqrBb38EBhTzQh3Oh6qV6xs3FM0f4cVtmUcnUl0U=;
+        s=korg; t=1650285080;
+        bh=l7ywPy9WOxnNXRM84kKMPQxICOfShXRpAX2etMq0YZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dv0obRAi08vll18mLHDh2m6RAEpD3gCM4W3YFKrVIuODDqV73Gmg24Ot3A5hP1zIU
-         7jDywbCqNagwyJ8E4gSYPhuDeQ9shH6/Sn5Hx+MIkZ4My9rvSeEb912JS8bWRVUVVE
-         1lK6Uz2y5IyR74gYivC6+NGWdFrEHDj4l3cwQKas=
+        b=jDjazF3rzrt07txWrZAQORr9kWo8LETz63DjdLgyLgLOA1LrRP4tVJ+yp7XHU6/gJ
+         pa1hltbTeARe4FjaiyNUyOm4x+OMsdk6EUTDyXjhUYLU8ARvQt5LgpZWLobKJixhKP
+         SAONlELFxBBEc2o2UAZ4JIA/p+ARMA2a8ZAxiXio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bharata B Rao <bharata@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 052/218] sched/debug: Remove mpol_get/put and task_lock/unlock from sched_show_numa
+        stable@vger.kernel.org, Dylan Hung <dylan_hung@aspeedtech.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 098/189] net: ftgmac100: access hardware register after clock ready
 Date:   Mon, 18 Apr 2022 14:11:58 +0200
-Message-Id: <20220418121201.102275824@linuxfoundation.org>
+Message-Id: <20220418121203.285740100@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharata B Rao <bharata@amd.com>
+From: Dylan Hung <dylan_hung@aspeedtech.com>
 
-[ Upstream commit 28c988c3ec29db74a1dda631b18785958d57df4f ]
+[ Upstream commit 3d2504524531990b32a0629cc984db44f399d161 ]
 
-The older format of /proc/pid/sched printed home node info which
-required the mempolicy and task lock around mpol_get(). However
-the format has changed since then and there is no need for
-sched_show_numa() any more to have mempolicy argument,
-asssociated mpol_get/put and task_lock/unlock. Remove them.
+AST2600 MAC register 0x58 is writable only when the MAC clock is
+enabled.  Usually, the MAC clock is enabled by the bootloader so
+register 0x58 is set normally when the bootloader is involved.  To make
+ast2600 ftgmac100 work without the bootloader, postpone the register
+write until the clock is ready.
 
-Fixes: 397f2378f1361 ("sched/numa: Fix numa balancing stats in /proc/pid/sched")
-Signed-off-by: Bharata B Rao <bharata@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Link: https://lore.kernel.org/r/20220118050515.2973-1-bharata@amd.com
+Fixes: 137d23cea1c0 ("net: ftgmac100: Fix Aspeed ast2600 TX hang issue")
+Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/debug.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/net/ethernet/faraday/ftgmac100.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
-index fa178b62ea79..69c3252d151b 100644
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -836,25 +836,15 @@ void print_numa_stats(struct seq_file *m, int node, unsigned long tsf,
- static void sched_show_numa(struct task_struct *p, struct seq_file *m)
- {
- #ifdef CONFIG_NUMA_BALANCING
--	struct mempolicy *pol;
--
- 	if (p->mm)
- 		P(mm->numa_scan_seq);
+diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
+index ff76e401a014..e1df2dc810a2 100644
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -1817,11 +1817,6 @@ static int ftgmac100_probe(struct platform_device *pdev)
+ 		priv->rxdes0_edorr_mask = BIT(30);
+ 		priv->txdes0_edotr_mask = BIT(30);
+ 		priv->is_aspeed = true;
+-		/* Disable ast2600 problematic HW arbitration */
+-		if (of_device_is_compatible(np, "aspeed,ast2600-mac")) {
+-			iowrite32(FTGMAC100_TM_DEFAULT,
+-				  priv->base + FTGMAC100_OFFSET_TM);
+-		}
+ 	} else {
+ 		priv->rxdes0_edorr_mask = BIT(15);
+ 		priv->txdes0_edotr_mask = BIT(15);
+@@ -1893,6 +1888,11 @@ static int ftgmac100_probe(struct platform_device *pdev)
+ 		err = ftgmac100_setup_clk(priv);
+ 		if (err)
+ 			goto err_phy_connect;
++
++		/* Disable ast2600 problematic HW arbitration */
++		if (of_device_is_compatible(np, "aspeed,ast2600-mac"))
++			iowrite32(FTGMAC100_TM_DEFAULT,
++				  priv->base + FTGMAC100_OFFSET_TM);
+ 	}
  
--	task_lock(p);
--	pol = p->mempolicy;
--	if (pol && !(pol->flags & MPOL_F_MORON))
--		pol = NULL;
--	mpol_get(pol);
--	task_unlock(p);
--
- 	P(numa_pages_migrated);
- 	P(numa_preferred_nid);
- 	P(total_numa_faults);
- 	SEQ_printf(m, "current_node=%d, numa_group_id=%d\n",
- 			task_node(p), task_numa_group_id(p));
- 	show_numa_stats(p, m);
--	mpol_put(pol);
- #endif
- }
- 
+ 	/* Default ring sizes */
 -- 
-2.34.1
+2.35.1
 
 
 
