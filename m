@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5863150574C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D21B5057A7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244376AbiDRNt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:49:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35290 "EHLO
+        id S244441AbiDRNvW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:51:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244537AbiDRNtg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:49:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB2D9433BB;
-        Mon, 18 Apr 2022 06:01:39 -0700 (PDT)
+        with ESMTP id S244445AbiDRNtw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:49:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A68A434A2;
+        Mon, 18 Apr 2022 06:01:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A25660B3C;
-        Mon, 18 Apr 2022 13:01:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B522C385A1;
-        Mon, 18 Apr 2022 13:01:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BB8260B73;
+        Mon, 18 Apr 2022 13:01:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25429C385AB;
+        Mon, 18 Apr 2022 13:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286898;
-        bh=dJzCn9cIQspghMBiSeA+o7H9D+g3/toGnQtHulXDBOU=;
+        s=korg; t=1650286901;
+        bh=v5N7atVabdYmknc+NlpOF9iBuklO7MWoN0onHb00TMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIQwbI0OvzVdm2jtlSjDI95WQV31Lew6cd88fuXPSoqpTKtZBwghs/ekH21wuyuQA
-         Js+Kc4HAO1U5rkgJVQNQvcDrC+G3zbHCpZwQWlFEngUcIc5zDRBt1UgewAWDqeHsIb
-         2O1BJb/cSN1sgdYmChO0ZEVdeFw901idJoPI6Wh8=
+        b=sMbt2K/j8lyekMJIgjK8bhZkqdaxeoHzzxRUV9LS0gVZL1kdZY0Q4LUrMA2VT/cIi
+         ULcWQBfanc/5asmOunrr8bkAOg4agWtRMv/cbMf+GtIye3nT62Vnx+TkTX0vQ2CEeJ
+         Fq0fWqDA+t0Mj0PJhfyTYCp7JwWRx9SYdNgTZrmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, PaX Team <pageexec@freemail.hu>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.14 280/284] gcc-plugins: latent_entropy: use /dev/urandom
-Date:   Mon, 18 Apr 2022 14:14:21 +0200
-Message-Id: <20220418121221.118220161@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        syzbot+205eb15961852c2c5974@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 281/284] ALSA: pcm: Test for "silence" field in struct "pcm_format_data"
+Date:   Mon, 18 Apr 2022 14:14:22 +0200
+Message-Id: <20220418121221.180353013@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
 References: <20220418121210.689577360@linuxfoundation.org>
@@ -54,121 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Fabio M. De Francesco <fmdefrancesco@gmail.com>
 
-commit c40160f2998c897231f8454bf797558d30a20375 upstream.
+commit 2f7a26abb8241a0208c68d22815aa247c5ddacab upstream.
 
-While the latent entropy plugin mostly doesn't derive entropy from
-get_random_const() for measuring the call graph, when __latent_entropy is
-applied to a constant, then it's initialized statically to output from
-get_random_const(). In that case, this data is derived from a 64-bit
-seed, which means a buffer of 512 bits doesn't really have that amount
-of compile-time entropy.
+Syzbot reports "KASAN: null-ptr-deref Write in
+snd_pcm_format_set_silence".[1]
 
-This patch fixes that shortcoming by just buffering chunks of
-/dev/urandom output and doling it out as requested.
+It is due to missing validation of the "silence" field of struct
+"pcm_format_data" in "pcm_formats" array.
 
-At the same time, it's important that we don't break the use of
--frandom-seed, for people who want the runtime benefits of the latent
-entropy plugin, while still having compile-time determinism. In that
-case, we detect whether gcc's set_random_seed() has been called by
-making a call to get_random_seed(noinit=true) in the plugin init
-function, which is called after set_random_seed() is called but before
-anything that calls get_random_seed(noinit=false), and seeing if it's
-zero or not. If it's not zero, we're in deterministic mode, and so we
-just generate numbers with a basic xorshift prng.
+Add a test for valid "pat" and, if it is not so, return -EINVAL.
 
-Note that we don't detect if -frandom-seed is being used using the
-documented local_tick variable, because it's assigned via:
-   local_tick = (unsigned) tv.tv_sec * 1000 + tv.tv_usec / 1000;
-which may well overflow and become -1 on its own, and so isn't
-reliable: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105171
+[1] https://lore.kernel.org/lkml/000000000000d188ef05dc2c7279@google.com/
 
-[kees: The 256 byte rnd_buf size was chosen based on average (250),
- median (64), and std deviation (575) bytes of used entropy for a
- defconfig x86_64 build]
-
-Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
-Cc: stable@vger.kernel.org
-Cc: PaX Team <pageexec@freemail.hu>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220405222815.21155-1-Jason@zx2c4.com
+Reported-and-tested-by: syzbot+205eb15961852c2c5974@syzkaller.appspotmail.com
+Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220409012655.9399-1-fmdefrancesco@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/gcc-plugins/latent_entropy_plugin.c |   44 +++++++++++++++++-----------
- 1 file changed, 27 insertions(+), 17 deletions(-)
+ sound/core/pcm_misc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/scripts/gcc-plugins/latent_entropy_plugin.c
-+++ b/scripts/gcc-plugins/latent_entropy_plugin.c
-@@ -86,25 +86,31 @@ static struct plugin_info latent_entropy
- 	.help		= "disable\tturn off latent entropy instrumentation\n",
- };
- 
--static unsigned HOST_WIDE_INT seed;
--/*
-- * get_random_seed() (this is a GCC function) generates the seed.
-- * This is a simple random generator without any cryptographic security because
-- * the entropy doesn't come from here.
-- */
-+static unsigned HOST_WIDE_INT deterministic_seed;
-+static unsigned HOST_WIDE_INT rnd_buf[32];
-+static size_t rnd_idx = ARRAY_SIZE(rnd_buf);
-+static int urandom_fd = -1;
-+
- static unsigned HOST_WIDE_INT get_random_const(void)
- {
--	unsigned int i;
--	unsigned HOST_WIDE_INT ret = 0;
--
--	for (i = 0; i < 8 * sizeof(ret); i++) {
--		ret = (ret << 1) | (seed & 1);
--		seed >>= 1;
--		if (ret & 1)
--			seed ^= 0xD800000000000000ULL;
-+	if (deterministic_seed) {
-+		unsigned HOST_WIDE_INT w = deterministic_seed;
-+		w ^= w << 13;
-+		w ^= w >> 7;
-+		w ^= w << 17;
-+		deterministic_seed = w;
-+		return deterministic_seed;
- 	}
- 
--	return ret;
-+	if (urandom_fd < 0) {
-+		urandom_fd = open("/dev/urandom", O_RDONLY);
-+		gcc_assert(urandom_fd >= 0);
-+	}
-+	if (rnd_idx >= ARRAY_SIZE(rnd_buf)) {
-+		gcc_assert(read(urandom_fd, rnd_buf, sizeof(rnd_buf)) == sizeof(rnd_buf));
-+		rnd_idx = 0;
-+	}
-+	return rnd_buf[rnd_idx++];
- }
- 
- static tree tree_get_random_const(tree type)
-@@ -549,8 +555,6 @@ static void latent_entropy_start_unit(vo
- 	tree type, id;
- 	int quals;
- 
--	seed = get_random_seed(false);
--
- 	if (in_lto_p)
- 		return;
- 
-@@ -585,6 +589,12 @@ __visible int plugin_init(struct plugin_
- 	const struct plugin_argument * const argv = plugin_info->argv;
- 	int i;
- 
-+	/*
-+	 * Call get_random_seed() with noinit=true, so that this returns
-+	 * 0 in the case where no seed has been passed via -frandom-seed.
-+	 */
-+	deterministic_seed = get_random_seed(true);
-+
- 	static const struct ggc_root_tab gt_ggc_r_gt_latent_entropy[] = {
- 		{
- 			.base = &latent_entropy_decl,
+--- a/sound/core/pcm_misc.c
++++ b/sound/core/pcm_misc.c
+@@ -406,7 +406,7 @@ int snd_pcm_format_set_silence(snd_pcm_f
+ 		return 0;
+ 	width = pcm_formats[(INT)format].phys; /* physical width */
+ 	pat = pcm_formats[(INT)format].silence;
+-	if (! width)
++	if (!width || !pat)
+ 		return -EINVAL;
+ 	/* signed or 1 byte data */
+ 	if (pcm_formats[(INT)format].signd == 1 || width <= 8) {
 
 
