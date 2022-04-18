@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9643450593A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:15:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86447505937
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:15:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245431AbiDROOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:14:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51696 "EHLO
+        id S1343519AbiDROOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:14:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245568AbiDROMB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:12:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F36B637A02;
-        Mon, 18 Apr 2022 06:11:15 -0700 (PDT)
+        with ESMTP id S245733AbiDROM0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:12:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393B238193;
+        Mon, 18 Apr 2022 06:11:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DAF960EFE;
-        Mon, 18 Apr 2022 13:11:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE55C385A7;
-        Mon, 18 Apr 2022 13:11:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ED020B80EC0;
+        Mon, 18 Apr 2022 13:11:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 272BCC385A1;
+        Mon, 18 Apr 2022 13:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287475;
-        bh=IID6F9Ke4JqC9L6vJlF0luQUGFuNBiHgFrpgIgXi2P0=;
+        s=korg; t=1650287510;
+        bh=W5fBvdSqQDEqowO+aB+nEbq+V1H3tEME20ZFZ/vXI+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svH1P9g4ovqY12BUn/7ZuE5qvZcUF+/1SvS4PwN/wf9E33gId7piSE7ps+7JGavU2
-         z/uIrpKM92kmHZkj0ygRMxlANPrJNzDJoPTHUOxu5xUnXkvHMx+qugRy02DSjT2W5B
-         85H5f/IqBSthwUhOHDvJ8VZyaT24ChBEMZMvn5i4=
+        b=yKeivXp/u1cjsalqzpqU2ZI/dEDM647xc1N/EBqop6/CH0gQbxsOANlpD4QofXK4E
+         SGsFKNyVvRny69ldMvs+aI4LQp+r0jTVfFIjvpaD6R6bekn13TcFLId03IrAaUTcMV
+         zhsdQlgnswxQAQmIJfTfXKTy5OgqH7oRk/8g76XM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Yang Guang <yang.guang5@zte.com.cn>,
+        David Yang <davidcomponentone@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 166/218] ath5k: fix OOB in ath5k_eeprom_read_pcal_info_5111
-Date:   Mon, 18 Apr 2022 14:13:52 +0200
-Message-Id: <20220418121205.099108265@linuxfoundation.org>
+Subject: [PATCH 4.9 167/218] ptp: replace snprintf with sysfs_emit
+Date:   Mon, 18 Apr 2022 14:13:53 +0200
+Message-Id: <20220418121205.172538891@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -55,85 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Yang Guang <yang.guang5@zte.com.cn>
 
-[ Upstream commit 564d4eceb97eaf381dd6ef6470b06377bb50c95a ]
+[ Upstream commit e2cf07654efb0fd7bbcb475c6f74be7b5755a8fd ]
 
-The bug was found during fuzzing. Stacktrace locates it in
-ath5k_eeprom_convert_pcal_info_5111.
-When none of the curve is selected in the loop, idx can go
-up to AR5K_EEPROM_N_PD_CURVES. The line makes pd out of bound.
-pd = &chinfo[pier].pd_curves[idx];
+coccinelle report:
+./drivers/ptp/ptp_sysfs.c:17:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/ptp/ptp_sysfs.c:390:8-16:
+WARNING: use scnprintf or sprintf
 
-There are many OOB writes using pd later in the code. So I
-added a sanity check for idx. Checks for other loops involving
-AR5K_EEPROM_N_PD_CURVES are not needed as the loop index is not
-used outside the loops.
+Use sysfs_emit instead of scnprintf or sprintf makes more sense.
 
-The patch is NOT tested with real device.
-
-The following is the fuzzing report
-
-BUG: KASAN: slab-out-of-bounds in ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
-Write of size 1 at addr ffff8880174a4d60 by task modprobe/214
-
-CPU: 0 PID: 214 Comm: modprobe Not tainted 5.6.0 #1
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- __kasan_report.cold+0x37/0x7c
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- kasan_report+0xe/0x20
- ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? ath5k_pci_eeprom_read+0x228/0x3c0 [ath5k]
- ath5k_eeprom_init+0x2513/0x6290 [ath5k]
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? usleep_range+0xb8/0x100
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_read_pcal_info_2413+0x2f20/0x2f20 [ath5k]
- ath5k_hw_init+0xb60/0x1970 [ath5k]
- ath5k_init_ah+0x6fe/0x2530 [ath5k]
- ? kasprintf+0xa6/0xe0
- ? ath5k_stop+0x140/0x140 [ath5k]
- ? _dev_notice+0xf6/0xf6
- ? apic_timer_interrupt+0xa/0x20
- ath5k_pci_probe.cold+0x29a/0x3d6 [ath5k]
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- ? mutex_lock+0x89/0xd0
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- local_pci_probe+0xd3/0x160
- pci_device_probe+0x23f/0x3e0
- ? pci_device_remove+0x280/0x280
- ? pci_device_remove+0x280/0x280
- really_probe+0x209/0x5d0
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/YckvDdj3mtCkDRIt@a-10-27-26-18.dynapool.vpn.nyu.edu
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
+Signed-off-by: David Yang <davidcomponentone@gmail.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath5k/eeprom.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/ptp/ptp_sysfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath5k/eeprom.c b/drivers/net/wireless/ath/ath5k/eeprom.c
-index 94d34ee02265..01163b333945 100644
---- a/drivers/net/wireless/ath/ath5k/eeprom.c
-+++ b/drivers/net/wireless/ath/ath5k/eeprom.c
-@@ -746,6 +746,9 @@ ath5k_eeprom_convert_pcal_info_5111(struct ath5k_hw *ah, int mode,
- 			}
- 		}
+diff --git a/drivers/ptp/ptp_sysfs.c b/drivers/ptp/ptp_sysfs.c
+index 731d0423c8aa..b690621b4fc8 100644
+--- a/drivers/ptp/ptp_sysfs.c
++++ b/drivers/ptp/ptp_sysfs.c
+@@ -26,7 +26,7 @@ static ssize_t clock_name_show(struct device *dev,
+ 			       struct device_attribute *attr, char *page)
+ {
+ 	struct ptp_clock *ptp = dev_get_drvdata(dev);
+-	return snprintf(page, PAGE_SIZE-1, "%s\n", ptp->info->name);
++	return sysfs_emit(page, "%s\n", ptp->info->name);
+ }
+ static DEVICE_ATTR(clock_name, 0444, clock_name_show, NULL);
  
-+		if (idx == AR5K_EEPROM_N_PD_CURVES)
-+			goto err_out;
-+
- 		ee->ee_pd_gains[mode] = 1;
+@@ -240,7 +240,7 @@ static ssize_t ptp_pin_show(struct device *dev, struct device_attribute *attr,
  
- 		pd = &chinfo[pier].pd_curves[idx];
+ 	mutex_unlock(&ptp->pincfg_mux);
+ 
+-	return snprintf(page, PAGE_SIZE, "%u %u\n", func, chan);
++	return sysfs_emit(page, "%u %u\n", func, chan);
+ }
+ 
+ static ssize_t ptp_pin_store(struct device *dev, struct device_attribute *attr,
 -- 
 2.35.1
 
