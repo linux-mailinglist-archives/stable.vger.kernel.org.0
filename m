@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B36505335
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 092AF5053BC
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240469AbiDRM4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:56:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41002 "EHLO
+        id S236446AbiDRNB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240158AbiDRMzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:01 -0400
+        with ESMTP id S240750AbiDRM5r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:57:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4822122BDC;
-        Mon, 18 Apr 2022 05:35:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF9F237C3;
+        Mon, 18 Apr 2022 05:38:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC894B80EC0;
-        Mon, 18 Apr 2022 12:35:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43DF3C385A7;
-        Mon, 18 Apr 2022 12:35:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFF3DB80EDC;
+        Mon, 18 Apr 2022 12:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38A76C385AB;
+        Mon, 18 Apr 2022 12:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285327;
-        bh=TstKqya9ioKeIOZjxHk0+Kpf/TACkNnwELrdZE0cwa0=;
+        s=korg; t=1650285487;
+        bh=RdZeJRexRc5cYyhfz/1ZZRz8dp2B8bRR03bjXvJaztI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W75Oji/ZK8FdBSutjqZMeHl/hAmsSf0ExAsgx7V4xbXcla1lS3lqRS+AEBhWeyPW+
-         7Egm30RCPupITzsT4U6MRTv0jpiDXEU6Tt41XUDqL0/GNCZoNFr2u24gKQX5NUopAi
-         1L9OmF6n0xNP4t1jvIH17Co4TFZ+RzexbiAgk1Ps=
+        b=isiHAfljSsERzfcVnsNLvxYBU6bnfZUeN85ag2pRAV2f1xPX+0+xr2u47xGWyVa3f
+         tqg7NoFQzZ9pCvQMdiwggGybOYWangL5j8+83lTr0ruMVCUvLGCtZxk48WgiIis5Xr
+         +wj2DPUK/2OVqIHQzhlCm+8FnEkUdaPZeevqQaCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
-        Eric Yang <Eric.Yang2@amd.com>, Alex Hung <alex.hung@amd.com>,
-        Roman Li <Roman.Li@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 133/189] drm/amd/display: Enable power gating before init_pipes
-Date:   Mon, 18 Apr 2022 14:12:33 +0200
-Message-Id: <20220418121204.994371024@linuxfoundation.org>
+Subject: [PATCH 5.10 032/105] scsi: iscsi: Move iscsi_ep_disconnect()
+Date:   Mon, 18 Apr 2022 14:12:34 +0200
+Message-Id: <20220418121147.292355847@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,104 +56,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <Roman.Li@amd.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 58e16c752e9540b28a873c44c3bee83e022007c1 ]
+[ Upstream commit c34f95e98d8fb750eefd4f3fe58b4f8b5e89253b ]
 
-[Why]
-In init_hw() we call init_pipes() before enabling power gating.
-init_pipes() tries to power gate dsc but it may fail because
-required force-ons are not released yet.
-As a result with dsc config the following errors observed on resume:
-"REG_WAIT timeout 1us * 1000 tries - dcn20_dsc_pg_control"
-"REG_WAIT timeout 1us * 1000 tries - dcn20_dpp_pg_control"
-"REG_WAIT timeout 1us * 1000 tries - dcn20_hubp_pg_control"
+This patch moves iscsi_ep_disconnect() so it can be called earlier in the
+next patch.
 
-[How]
-Move enable_power_gating_plane() before init_pipes() in init_hw()
-
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Roman Li <Roman.Li@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/r/20220408001314.5014-2-michael.christie@oracle.com
+Tested-by: Manish Rangankar <mrangankar@marvell.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 5 +++--
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c        | 5 +++--
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c        | 5 +++--
- 3 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 38 ++++++++++++++---------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index b3a0499f8554..711b18d96eae 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -1439,6 +1439,9 @@ void dcn10_init_hw(struct dc *dc)
- 		}
- 	}
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 7246f7b2ff03..8f6dc391356d 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2239,6 +2239,25 @@ static void iscsi_stop_conn(struct iscsi_cls_conn *conn, int flag)
+ 	ISCSI_DBG_TRANS_CONN(conn, "Stopping conn done.\n");
+ }
  
-+	if (hws->funcs.enable_power_gating_plane)
-+		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
++static void iscsi_ep_disconnect(struct iscsi_cls_conn *conn, bool is_active)
++{
++	struct iscsi_cls_session *session = iscsi_conn_to_session(conn);
++	struct iscsi_endpoint *ep;
 +
- 	/* If taking control over from VBIOS, we may want to optimize our first
- 	 * mode set, so we need to skip powering down pipes until we know which
- 	 * pipes we want to use.
-@@ -1491,8 +1494,6 @@ void dcn10_init_hw(struct dc *dc)
- 
- 		REG_UPDATE(DCFCLK_CNTL, DCFCLK_GATE_DIS, 0);
- 	}
--	if (hws->funcs.enable_power_gating_plane)
--		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
- 
- 	if (dc->clk_mgr->funcs->notify_wm_ranges)
- 		dc->clk_mgr->funcs->notify_wm_ranges(dc->clk_mgr);
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
-index 0950784bafa4..f83457375811 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
-@@ -570,6 +570,9 @@ void dcn30_init_hw(struct dc *dc)
- 		}
- 	}
- 
-+	if (hws->funcs.enable_power_gating_plane)
-+		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
++	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep.\n");
++	conn->state = ISCSI_CONN_FAILED;
 +
- 	/* If taking control over from VBIOS, we may want to optimize our first
- 	 * mode set, so we need to skip powering down pipes until we know which
- 	 * pipes we want to use.
-@@ -647,8 +650,6 @@ void dcn30_init_hw(struct dc *dc)
- 
- 		REG_UPDATE(DCFCLK_CNTL, DCFCLK_GATE_DIS, 0);
- 	}
--	if (hws->funcs.enable_power_gating_plane)
--		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
- 
- 	if (!dcb->funcs->is_accelerated_mode(dcb) && dc->res_pool->hubbub->funcs->init_watermarks)
- 		dc->res_pool->hubbub->funcs->init_watermarks(dc->res_pool->hubbub);
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
-index 3afa1159a5f7..b72d080b302a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
-@@ -204,6 +204,9 @@ void dcn31_init_hw(struct dc *dc)
- 		}
- 	}
- 
-+	if (hws->funcs.enable_power_gating_plane)
-+		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
++	if (!conn->ep || !session->transport->ep_disconnect)
++		return;
 +
- 	/* If taking control over from VBIOS, we may want to optimize our first
- 	 * mode set, so we need to skip powering down pipes until we know which
- 	 * pipes we want to use.
-@@ -287,8 +290,6 @@ void dcn31_init_hw(struct dc *dc)
++	ep = conn->ep;
++	conn->ep = NULL;
++
++	session->transport->unbind_conn(conn, is_active);
++	session->transport->ep_disconnect(ep);
++	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep done.\n");
++}
++
+ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
+ 			      struct iscsi_uevent *ev)
+ {
+@@ -2279,25 +2298,6 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
+ 	return 0;
+ }
  
- 		REG_UPDATE(DCFCLK_CNTL, DCFCLK_GATE_DIS, 0);
- 	}
--	if (hws->funcs.enable_power_gating_plane)
--		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
- 
- 	if (!dcb->funcs->is_accelerated_mode(dcb) && dc->res_pool->hubbub->funcs->init_watermarks)
- 		dc->res_pool->hubbub->funcs->init_watermarks(dc->res_pool->hubbub);
+-static void iscsi_ep_disconnect(struct iscsi_cls_conn *conn, bool is_active)
+-{
+-	struct iscsi_cls_session *session = iscsi_conn_to_session(conn);
+-	struct iscsi_endpoint *ep;
+-
+-	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep.\n");
+-	conn->state = ISCSI_CONN_FAILED;
+-
+-	if (!conn->ep || !session->transport->ep_disconnect)
+-		return;
+-
+-	ep = conn->ep;
+-	conn->ep = NULL;
+-
+-	session->transport->unbind_conn(conn, is_active);
+-	session->transport->ep_disconnect(ep);
+-	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep done.\n");
+-}
+-
+ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
+ {
+ 	struct iscsi_cls_conn *conn = container_of(work, struct iscsi_cls_conn,
 -- 
 2.35.1
 
