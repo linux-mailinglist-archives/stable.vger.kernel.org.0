@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2E4B5050CE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C25E505647
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234758AbiDRM3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38530 "EHLO
+        id S242853AbiDRNdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:33:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239492AbiDRM2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3231BE98;
-        Mon, 18 Apr 2022 05:21:56 -0700 (PDT)
+        with ESMTP id S244840AbiDRNa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE7E1EC55;
+        Mon, 18 Apr 2022 05:55:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3D5A60FAB;
-        Mon, 18 Apr 2022 12:21:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4427C385A1;
-        Mon, 18 Apr 2022 12:21:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 344B2B80E4B;
+        Mon, 18 Apr 2022 12:55:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E9B4C385A1;
+        Mon, 18 Apr 2022 12:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284515;
-        bh=mfL2CmQ9NoDpEOv1VHHlZ0R3Tzoajclb7F4KvKPCUJ4=;
+        s=korg; t=1650286553;
+        bh=vrr9yOlm8FE3cGTKPSJUOj69XGFkfbaYIYMtWeMhDG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fd2JjUrS2npwGDlp2pKTRwCmsUmJW6dTYdJWDNbsWGSS69kiEgv8gWUrwWd1dJcdS
-         aVbF/5aly+VE1dO6qjblAKiJufm4k0lovDYtYbocLfSjk+0sw7sUxLr5Uj/7+1cySI
-         3XERbD6C2HQT8L/IIcT7CGoGcoesbEhBMm48Lalo=
+        b=WvSvpA77wx38oTxOge8yOWm+WKlgHdxub2P0we4Sl9vBDxmJ1zE8ngdqz1hTPOrwh
+         NkGno/oYq1xTyDk/wOFJ4DtfQurtqAKu7L18w9pUoYK5ktkrhhYQjgv0Xry3dtAOD/
+         KJT1RLIzNLcW5TodNSAnH8c8RkxDsRElsgaO+UaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 141/219] Drivers: hv: vmbus: Deactivate sysctl_record_panic_msg by default in isolated guests
-Date:   Mon, 18 Apr 2022 14:11:50 +0200
-Message-Id: <20220418121210.838543273@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 130/284] pwm: lpc18xx-sct: Initialize driver data and hardware before pwmchip_add()
+Date:   Mon, 18 Apr 2022 14:11:51 +0200
+Message-Id: <20220418121214.985804074@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 9f8b577f7b43b2170628d6c537252785dcc2dcea ]
+[ Upstream commit 0401f24cd238ae200a23a13925f98de3d2c883b8 ]
 
-hv_panic_page might contain guest-sensitive information, do not dump it
-over to Hyper-V by default in isolated guests.
+When a driver calls pwmchip_add() it has to be prepared to immediately
+get its callbacks called. So move allocation of driver data and hardware
+initialization before the call to pwmchip_add().
 
-While at it, update some comments in hyperv_{panic,die}_event().
+This fixes a potential NULL pointer exception and a race condition on
+register writes.
 
-Reported-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Reviewed-by: Dexuan Cui <decui@microsoft.com>
-Link: https://lore.kernel.org/r/20220301141135.2232-1-parri.andrea@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 841e6f90bb78 ("pwm: NXP LPC18xx PWM/SCT driver")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/vmbus_drv.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/pwm/pwm-lpc18xx-sct.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 4bea1dfa41cd..6c057c76c2ca 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -77,8 +77,8 @@ static int hyperv_panic_event(struct notifier_block *nb, unsigned long val,
+diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
+index d7f5f7de030d..8b3aad06e236 100644
+--- a/drivers/pwm/pwm-lpc18xx-sct.c
++++ b/drivers/pwm/pwm-lpc18xx-sct.c
+@@ -406,12 +406,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_LIMIT,
+ 			   BIT(lpc18xx_pwm->period_event));
  
- 	/*
- 	 * Hyper-V should be notified only once about a panic.  If we will be
--	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
--	 * the notification here.
-+	 * doing hv_kmsg_dump() with kmsg data later, don't do the notification
-+	 * here.
- 	 */
- 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE
- 	    && hyperv_report_reg()) {
-@@ -100,8 +100,8 @@ static int hyperv_die_event(struct notifier_block *nb, unsigned long val,
+-	ret = pwmchip_add(&lpc18xx_pwm->chip);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
+-		goto disable_pwmclk;
+-	}
+-
+ 	for (i = 0; i < lpc18xx_pwm->chip.npwm; i++) {
+ 		struct lpc18xx_pwm_data *data;
  
- 	/*
- 	 * Hyper-V should be notified only once about a panic.  If we will be
--	 * doing hyperv_report_panic_msg() later with kmsg data, don't do
--	 * the notification here.
-+	 * doing hv_kmsg_dump() with kmsg data later, don't do the notification
-+	 * here.
- 	 */
- 	if (hyperv_report_reg())
- 		hyperv_report_panic(regs, val, true);
-@@ -1546,14 +1546,20 @@ static int vmbus_bus_init(void)
- 	if (ret)
- 		goto err_connect;
+@@ -421,14 +415,12 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 				    GFP_KERNEL);
+ 		if (!data) {
+ 			ret = -ENOMEM;
+-			goto remove_pwmchip;
++			goto disable_pwmclk;
+ 		}
  
-+	if (hv_is_isolation_supported())
-+		sysctl_record_panic_msg = 0;
+ 		pwm_set_chip_data(pwm, data);
+ 	}
+ 
+-	platform_set_drvdata(pdev, lpc18xx_pwm);
+-
+ 	val = lpc18xx_pwm_readl(lpc18xx_pwm, LPC18XX_PWM_CTRL);
+ 	val &= ~LPC18XX_PWM_BIDIR;
+ 	val &= ~LPC18XX_PWM_CTRL_HALT;
+@@ -436,10 +428,16 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	val |= LPC18XX_PWM_PRE(0);
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_CTRL, val);
+ 
++	ret = pwmchip_add(&lpc18xx_pwm->chip);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
++		goto disable_pwmclk;
++	}
 +
- 	/*
- 	 * Only register if the crash MSRs are available
- 	 */
- 	if (ms_hyperv.misc_features & HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE) {
- 		u64 hyperv_crash_ctl;
- 		/*
--		 * Sysctl registration is not fatal, since by default
--		 * reporting is enabled.
-+		 * Panic message recording (sysctl_record_panic_msg)
-+		 * is enabled by default in non-isolated guests and
-+		 * disabled by default in isolated guests; the panic
-+		 * message recording won't be available in isolated
-+		 * guests should the following registration fail.
- 		 */
- 		hv_ctl_table_hdr = register_sysctl_table(hv_root_table);
- 		if (!hv_ctl_table_hdr)
++	platform_set_drvdata(pdev, lpc18xx_pwm);
++
+ 	return 0;
+ 
+-remove_pwmchip:
+-	pwmchip_remove(&lpc18xx_pwm->chip);
+ disable_pwmclk:
+ 	clk_disable_unprepare(lpc18xx_pwm->pwm_clk);
+ 	return ret;
 -- 
-2.35.1
+2.34.1
 
 
 
