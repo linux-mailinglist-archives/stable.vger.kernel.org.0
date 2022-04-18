@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1ABE50570E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A40FF505421
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244142AbiDRNrI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:47:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45984 "EHLO
+        id S240152AbiDRNES (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:04:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244619AbiDRNpH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:45:07 -0400
+        with ESMTP id S241762AbiDRND1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E34B32043;
-        Mon, 18 Apr 2022 06:00:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C36528E34;
+        Mon, 18 Apr 2022 05:44:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84AFBB80D9C;
-        Mon, 18 Apr 2022 13:00:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF7B8C385A7;
-        Mon, 18 Apr 2022 13:00:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A75BB80EDB;
+        Mon, 18 Apr 2022 12:44:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF9FEC385A1;
+        Mon, 18 Apr 2022 12:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286809;
-        bh=1X3jVFBcdpgqeellWvIrk80zSJ9UX1SgA+Li3Hq5Ql4=;
+        s=korg; t=1650285854;
+        bh=kqCp4Kd1Dcil/DNJrkrnFjYds6a3mXSl6nnJmBPCzWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jlkw6hl+ZGZNpF3ilxXnW3XBfVMQjww75GtPrlyIHVyViAWpqijsJnlquTY52zYk3
-         N6AtcUqIhAhTjCF+lJjacHBczPYxB7Zze62q1yBRgT29r5aaLIMi8O9cLpRc8cpb+E
-         BCS0YzvsAjWgpveUX+dREZOW1Xg7siSGsELbP7N4=
+        b=U1tzouWbro0QOdoA0bSePFtJwbi0Sqg9JVcOc6uE3AlcxfYAeuQtlJl0flprXtqLB
+         omhDRpvy3qH8Z0lh/KJnq1nh3ZyYxSAM819tSxvG5321fWfCWHkRYZxg95A7A5N77+
+         lsZmj5GWd7gHjaYLrB1k48SdMtZxzhSZym/dfY5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Guanghui <zhouguanghui1@huawei.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 215/284] iommu/arm-smmu-v3: fix event handling soft lockup
+        stable@vger.kernel.org, Tushar Patel <tushar.patel@amd.com>,
+        Felix Kuehling <felix.kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 19/63] drm/amdkfd: Fix Incorrect VMIDs passed to HWS
 Date:   Mon, 18 Apr 2022 14:13:16 +0200
-Message-Id: <20220418121217.828612769@linuxfoundation.org>
+Message-Id: <20220418121135.452428065@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Guanghui <zhouguanghui1@huawei.com>
+From: Tushar Patel <tushar.patel@amd.com>
 
-[ Upstream commit 30de2b541af98179780054836b48825fcfba4408 ]
+[ Upstream commit b7dfbd2e601f3fee545bc158feceba4f340fe7cf ]
 
-During event processing, events are read from the event queue one
-by one until the queue is empty.If the master device continuously
-requests address access at the same time and the SMMU generates
-events, the cyclic processing of the event takes a long time and
-softlockup warnings may be reported.
+Compute-only GPUs have more than 8 VMIDs allocated to KFD. Fix
+this by passing correct number of VMIDs to HWS
 
-arm-smmu-v3 arm-smmu-v3.34.auto: event 0x0a received:
-arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00007f220000280a
-arm-smmu-v3 arm-smmu-v3.34.auto: 	0x000010000000007e
-arm-smmu-v3 arm-smmu-v3.34.auto: 	0x00000000034e8670
-watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [irq/268-arm-smm:247]
-Call trace:
- _dev_info+0x7c/0xa0
- arm_smmu_evtq_thread+0x1c0/0x230
- irq_thread_fn+0x30/0x80
- irq_thread+0x128/0x210
- kthread+0x134/0x138
- ret_from_fork+0x10/0x1c
-Kernel panic - not syncing: softlockup: hung tasks
+v2: squash in warning fix (Alex)
 
-Fix this by calling cond_resched() after the event information is
-printed.
-
-Signed-off-by: Zhou Guanghui <zhouguanghui1@huawei.com>
-Link: https://lore.kernel.org/r/20220119070754.26528-1-zhouguanghui1@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Tushar Patel <tushar.patel@amd.com>
+Reviewed-by: Felix Kuehling <felix.kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm-smmu-v3.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |  2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c | 11 +++--------
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index 29feafa8007f..878087b9ddfe 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -1210,6 +1210,7 @@ static irqreturn_t arm_smmu_evtq_thread(int irq, void *dev)
- 				dev_info(smmu->dev, "\t0x%016llx\n",
- 					 (unsigned long long)evt[i]);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index e8e172010416..ffd754713522 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -633,7 +633,7 @@ MODULE_PARM_DESC(sched_policy,
+  * Maximum number of processes that HWS can schedule concurrently. The maximum is the
+  * number of VMIDs assigned to the HWS, which is also the default.
+  */
+-int hws_max_conc_proc = 8;
++int hws_max_conc_proc = -1;
+ module_param(hws_max_conc_proc, int, 0444);
+ MODULE_PARM_DESC(hws_max_conc_proc,
+ 	"Max # processes HWS can execute concurrently when sched_policy=0 (0 = no concurrency, #VMIDs for KFD = Maximum(default))");
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index ad9483b9eea3..60ee1a832112 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -609,15 +609,10 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
+ 			- kfd->vm_info.first_vmid_kfd + 1;
  
-+			cond_resched();
- 		}
+ 	/* Verify module parameters regarding mapped process number*/
+-	if ((hws_max_conc_proc < 0)
+-			|| (hws_max_conc_proc > kfd->vm_info.vmid_num_kfd)) {
+-		dev_err(kfd_device,
+-			"hws_max_conc_proc %d must be between 0 and %d, use %d instead\n",
+-			hws_max_conc_proc, kfd->vm_info.vmid_num_kfd,
+-			kfd->vm_info.vmid_num_kfd);
++	if (hws_max_conc_proc >= 0)
++		kfd->max_proc_per_quantum = min((u32)hws_max_conc_proc, kfd->vm_info.vmid_num_kfd);
++	else
+ 		kfd->max_proc_per_quantum = kfd->vm_info.vmid_num_kfd;
+-	} else
+-		kfd->max_proc_per_quantum = hws_max_conc_proc;
  
- 		/*
+ 	/* Allocate global GWS that is shared by all KFD processes */
+ 	if (hws_gws_support && amdgpu_amdkfd_alloc_gws(kfd->kgd,
 -- 
 2.35.1
 
