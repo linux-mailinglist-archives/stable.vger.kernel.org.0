@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93DE9504FF2
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701C9505005
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238135AbiDRMTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:19:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49168 "EHLO
+        id S233288AbiDRMUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:20:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238148AbiDRMSs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:18:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DA8A1AF02;
-        Mon, 18 Apr 2022 05:16:10 -0700 (PDT)
+        with ESMTP id S238341AbiDRMT4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:19:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F171C92C;
+        Mon, 18 Apr 2022 05:16:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09E5DB80EC1;
-        Mon, 18 Apr 2022 12:16:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E475C385A1;
-        Mon, 18 Apr 2022 12:16:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50AFC60F07;
+        Mon, 18 Apr 2022 12:16:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59FECC385A1;
+        Mon, 18 Apr 2022 12:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284167;
-        bh=Hj2Dd5SFfUupr9lGiG2oXf6mdxYF9masGiB1rrin9bE=;
+        s=korg; t=1650284206;
+        bh=3a2v0mJy0hoCm06UP+LU9YrkWPFsjP8HGnh6ARG1qAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiO3sgS8c6dOJ0WbOFpB1lMyx2y19yHmsdj0Unl38/1E7mmciVdDHIkH0hHxd92BL
-         DNPLJYicUmkpytoiUjDVvvIzmedMGj7+OKSR98rxWSGqWeK7ygJq46oJ3Ev2Hlazz5
-         In1AXy0Zp3e63IeOilC2xZ3TLvaBh6D/NWFIlDbs=
+        b=x1m5o8OZE72Vqsa+C+x2DG+IzZYSFnxNDaIlBvRrhuBRAKX5ugMXO3zAIVcpipgmD
+         w2/R3zEAs3dGQZ87niJNayTbw1SBKmlCsChOSyDOtOUOUR1Ld9uLDs7sp4QjsFZhnV
+         U21ulhCrRSvVGA/FvDkkNPlMvdhSNUp9zz1Vhi4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 009/219] btrfs: remove unused variable in btrfs_{start,write}_dirty_block_groups()
-Date:   Mon, 18 Apr 2022 14:09:38 +0200
-Message-Id: <20220418121203.738055874@linuxfoundation.org>
+        stable@vger.kernel.org, Anup Patel <apatel@ventanamicro.com>,
+        Anup Patel <anup@brainfault.org>
+Subject: [PATCH 5.17 010/219] RISC-V: KVM: Dont clear hgatp CSR in kvm_arch_vcpu_put()
+Date:   Mon, 18 Apr 2022 14:09:39 +0200
+Message-Id: <20220418121203.767117836@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
 References: <20220418121203.462784814@linuxfoundation.org>
@@ -53,68 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Anup Patel <apatel@ventanamicro.com>
 
-commit 6d4a6b515c39f1f8763093e0f828959b2fbc2f45 upstream.
+commit 8c3ce496bd612bd21679e445f75fcabb6be997b2 upstream.
 
-Clang's version of -Wunused-but-set-variable recently gained support for
-unary operations, which reveals two unused variables:
+We might have RISC-V systems (such as QEMU) where VMID is not part
+of the TLB entry tag so these systems will have to flush all TLB
+entries upon any change in hgatp.VMID.
 
-  fs/btrfs/block-group.c:2949:6: error: variable 'num_started' set but not used [-Werror,-Wunused-but-set-variable]
-          int num_started = 0;
-              ^
-  fs/btrfs/block-group.c:3116:6: error: variable 'num_started' set but not used [-Werror,-Wunused-but-set-variable]
-          int num_started = 0;
-              ^
-  2 errors generated.
+Currently, we zero-out hgatp CSR in kvm_arch_vcpu_put() and we
+re-program hgatp CSR in kvm_arch_vcpu_load(). For above described
+systems, this will flush all TLB entries whenever VCPU exits to
+user-space hence reducing performance.
 
-These variables appear to be unused from their introduction, so just
-remove them to silence the warnings.
+This patch fixes above described performance issue by not clearing
+hgatp CSR in kvm_arch_vcpu_put().
 
-Fixes: c9dc4c657850 ("Btrfs: two stage dirty block group writeout")
-Fixes: 1bbc621ef284 ("Btrfs: allow block group cache writeout outside critical section in commit")
-CC: stable@vger.kernel.org # 5.4+
-Link: https://github.com/ClangBuiltLinux/linux/issues/1614
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 34bde9d8b9e6 ("RISC-V: KVM: Implement VCPU world-switch")
+Cc: stable@vger.kernel.org
+Signed-off-by: Anup Patel <apatel@ventanamicro.com>
+Signed-off-by: Anup Patel <anup@brainfault.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/block-group.c |    4 ----
- 1 file changed, 4 deletions(-)
+ arch/riscv/kvm/vcpu.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2922,7 +2922,6 @@ int btrfs_start_dirty_block_groups(struc
- 	struct btrfs_path *path = NULL;
- 	LIST_HEAD(dirty);
- 	struct list_head *io = &cur_trans->io_bgs;
--	int num_started = 0;
- 	int loops = 0;
+--- a/arch/riscv/kvm/vcpu.c
++++ b/arch/riscv/kvm/vcpu.c
+@@ -653,8 +653,6 @@ void kvm_arch_vcpu_put(struct kvm_vcpu *
+ 				     vcpu->arch.isa);
+ 	kvm_riscv_vcpu_host_fp_restore(&vcpu->arch.host_context);
  
- 	spin_lock(&cur_trans->dirty_bgs_lock);
-@@ -2988,7 +2987,6 @@ again:
- 			cache->io_ctl.inode = NULL;
- 			ret = btrfs_write_out_cache(trans, cache, path);
- 			if (ret == 0 && cache->io_ctl.inode) {
--				num_started++;
- 				should_put = 0;
- 
- 				/*
-@@ -3089,7 +3087,6 @@ int btrfs_write_dirty_block_groups(struc
- 	int should_put;
- 	struct btrfs_path *path;
- 	struct list_head *io = &cur_trans->io_bgs;
--	int num_started = 0;
- 
- 	path = btrfs_alloc_path();
- 	if (!path)
-@@ -3147,7 +3144,6 @@ int btrfs_write_dirty_block_groups(struc
- 			cache->io_ctl.inode = NULL;
- 			ret = btrfs_write_out_cache(trans, cache, path);
- 			if (ret == 0 && cache->io_ctl.inode) {
--				num_started++;
- 				should_put = 0;
- 				list_add_tail(&cache->io_list, io);
- 			} else {
+-	csr_write(CSR_HGATP, 0);
+-
+ 	csr->vsstatus = csr_read(CSR_VSSTATUS);
+ 	csr->vsie = csr_read(CSR_VSIE);
+ 	csr->vstvec = csr_read(CSR_VSTVEC);
 
 
