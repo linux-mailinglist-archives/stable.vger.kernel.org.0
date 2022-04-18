@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3628504E49
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:16:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A8B504E4B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232095AbiDRJTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 05:19:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42622 "EHLO
+        id S234556AbiDRJUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 05:20:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230488AbiDRJTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:19:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FA2115A02
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:16:23 -0700 (PDT)
+        with ESMTP id S230488AbiDRJUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:20:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF6361021
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:17:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAFADB80E40
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:16:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25E56C385A1;
-        Mon, 18 Apr 2022 09:16:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B5D661180
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:17:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41E34C385A7;
+        Mon, 18 Apr 2022 09:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650273380;
-        bh=sW95QT6EFkHn8ijOC7sZoHL+FD5oEIwCqxaYVwaKq24=;
+        s=korg; t=1650273447;
+        bh=4CdnzlJ3lsWxijIK0cYMTZQol8h39Cy09I81p4WO2h8=;
         h=Subject:To:Cc:From:Date:From;
-        b=yQCGiO8S6KPid7UuMzcAvKmV6NxjDDQm4W/6r5ddyVIUIIiRKw7o4v+Y9Q2PuA9F3
-         BOdWKWYR4S6k+7PGBVQojU4W2MteWCzdkNZKOA3JCke+SJa5Y+4Q3/hSTiEsRXRwMa
-         Q4qd7kTHUK4zNb4y22/byj9CfliGDAxp2LnvT+5o=
-Subject: FAILED: patch "[PATCH] genirq/affinity: Consider that CPUs on nodes can be" failed to apply to 4.19-stable tree
-To:     yamamoto.rei@jp.fujitsu.com, ming.lei@redhat.com,
-        tglx@linutronix.de
+        b=VTAMfx6GiWtjqBbM/TBUNCskHt+AV1NPRKlsORyk0izXQ3Z/DFO1xKumcuTmcHkqq
+         HWzwTV7hhbbRMtFOykDqMxgmxw74X2RUIs1lsadKLTKcU9Wbv2mW/cLde2zH0a0hQ4
+         csir+MwaqOi+cXyQhUjGlQRzvl+NwFzsudvAGlnY=
+Subject: FAILED: patch "[PATCH] perf tools: Fix segfault accessing sample_id xyarray" failed to apply to 5.17-stable tree
+To:     adrian.hunter@intel.com, acme@redhat.com, irogers@google.com,
+        jolsa@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Apr 2022 11:16:17 +0200
-Message-ID: <1650273377171241@kroah.com>
+Date:   Mon, 18 Apr 2022 11:17:24 +0200
+Message-ID: <1650273444163227@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,46 +60,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 08d835dff916bfe8f45acc7b92c7af6c4081c8a7 Mon Sep 17 00:00:00 2001
-From: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
-Date: Thu, 31 Mar 2022 09:33:09 +0900
-Subject: [PATCH] genirq/affinity: Consider that CPUs on nodes can be
- unbalanced
+From a668cc07f990d2ed19424d5c1a529521a9d1cee1 Mon Sep 17 00:00:00 2001
+From: Adrian Hunter <adrian.hunter@intel.com>
+Date: Wed, 13 Apr 2022 14:42:32 +0300
+Subject: [PATCH] perf tools: Fix segfault accessing sample_id xyarray
 
-If CPUs on a node are offline at boot time, the number of nodes is
-different when building affinity masks for present cpus and when building
-affinity masks for possible cpus. This causes the following problem:
+perf_evsel::sample_id is an xyarray which can cause a segfault when
+accessed beyond its size. e.g.
 
-In the case that the number of vectors is less than the number of nodes
-there are cases where bits of masks for present cpus are overwritten when
-building masks for possible cpus.
+  # perf record -e intel_pt// -C 1 sleep 1
+  Segmentation fault (core dumped)
+  #
 
-Fix this by excluding CPUs, which are not part of the current build mask
-(present/possible).
+That is happening because a dummy event is opened to capture text poke
+events accross all CPUs, however the mmap logic is allocating according
+to the number of user_requested_cpus.
 
-[ tglx: Massaged changelog and added comment ]
+In general, perf sometimes uses the evsel cpus to open events, and
+sometimes the evlist user_requested_cpus. However, it is not necessary
+to determine which case is which because the opened event file
+descriptors are also in an xyarray, the size of whch can be used
+to correctly allocate the size of the sample_id xyarray, because there
+is one ID per file descriptor.
 
-Fixes: b82592199032 ("genirq/affinity: Spread IRQs to all available NUMA nodes")
-Signed-off-by: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220331003309.10891-1-yamamoto.rei@jp.fujitsu.com
+Note, in the affected code path, perf_evsel fd array is subsequently
+used to get the file descriptor for the mmap, so it makes sense for the
+xyarrays to be the same size there.
 
-diff --git a/kernel/irq/affinity.c b/kernel/irq/affinity.c
-index f7ff8919dc9b..fdf170404650 100644
---- a/kernel/irq/affinity.c
-+++ b/kernel/irq/affinity.c
-@@ -269,8 +269,9 @@ static int __irq_build_affinity_masks(unsigned int startvec,
- 	 */
- 	if (numvecs <= nodes) {
- 		for_each_node_mask(n, nodemsk) {
--			cpumask_or(&masks[curvec].mask, &masks[curvec].mask,
--				   node_to_cpumask[n]);
-+			/* Ensure that only CPUs which are in both masks are set */
-+			cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);
-+			cpumask_or(&masks[curvec].mask, &masks[curvec].mask, nmsk);
- 			if (++curvec == last_affv)
- 				curvec = firstvec;
- 		}
+Fixes: d1a177595b3a824c ("libperf: Adopt perf_evlist__mmap()/munmap() from tools/perf")
+Fixes: 246eba8e9041c477 ("perf tools: Add support for PERF_RECORD_TEXT_POKE")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: stable@vger.kernel.org # 5.5+
+Link: https://lore.kernel.org/r/20220413114232.26914-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+
+diff --git a/tools/lib/perf/evlist.c b/tools/lib/perf/evlist.c
+index 1b15ba13c477..a09315538a30 100644
+--- a/tools/lib/perf/evlist.c
++++ b/tools/lib/perf/evlist.c
+@@ -577,7 +577,6 @@ int perf_evlist__mmap_ops(struct perf_evlist *evlist,
+ {
+ 	struct perf_evsel *evsel;
+ 	const struct perf_cpu_map *cpus = evlist->user_requested_cpus;
+-	const struct perf_thread_map *threads = evlist->threads;
+ 
+ 	if (!ops || !ops->get || !ops->mmap)
+ 		return -EINVAL;
+@@ -589,7 +588,7 @@ int perf_evlist__mmap_ops(struct perf_evlist *evlist,
+ 	perf_evlist__for_each_entry(evlist, evsel) {
+ 		if ((evsel->attr.read_format & PERF_FORMAT_ID) &&
+ 		    evsel->sample_id == NULL &&
+-		    perf_evsel__alloc_id(evsel, perf_cpu_map__nr(cpus), threads->nr) < 0)
++		    perf_evsel__alloc_id(evsel, evsel->fd->max_x, evsel->fd->max_y) < 0)
+ 			return -ENOMEM;
+ 	}
+ 
 
