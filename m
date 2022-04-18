@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5AB15055F5
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54BDF5051E1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240485AbiDRNbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:31:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59762 "EHLO
+        id S233016AbiDRMn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:43:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243777AbiDRN3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3476D3FD9C;
-        Mon, 18 Apr 2022 05:53:50 -0700 (PDT)
+        with ESMTP id S239663AbiDRMh6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C40237E2;
+        Mon, 18 Apr 2022 05:28:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAEB4B80D9C;
-        Mon, 18 Apr 2022 12:53:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04CE4C385A1;
-        Mon, 18 Apr 2022 12:53:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15DC860F09;
+        Mon, 18 Apr 2022 12:28:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C58CC385A1;
+        Mon, 18 Apr 2022 12:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286427;
-        bh=NfLqOsrWMbK1jbckB1cgBjgow7qN005MzMxAbj/BOp0=;
+        s=korg; t=1650284903;
+        bh=6m5d5jW3l1iORvtovxkZqeucVqEO9ROgGnlg9LL0ziY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtFndzNP/weUFv73wTUug7yi5ox1PncZzAH3ENzViN6aF1hsl8Lz6sOUxEe24+qop
-         CH9NJPwiW6cKgBXsrYy9CR2T3EOCjEzbE8G2R1M9EpgxLxrrKhaYZZZ2C/aVKq1Myj
-         TbjSoc3lDf3ICHBwOiwipvsQhBoFB5e7UzsBGDqg=
+        b=KYrbzlisR9mOzNruVsXeGk7qI8uwpwebg/186sgn2G2VkX8lJ3mZzYjhzeVm8BsQF
+         k35Z9QlRUWdJo8Th6bXE0SklcdXNZe5tB4LQFCQE0t69x1CUumoULnscSbBwpIDoeG
+         TEtRKFHiTbAORK9HHfyYVNYed4PZi5OS9pb38i20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Borislav Petkov <bp@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        John Ogness <john.ogness@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/284] printk: fix return value of printk.devkmsg __setup handler
-Date:   Mon, 18 Apr 2022 14:11:02 +0200
-Message-Id: <20220418121212.988637818@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 043/189] ALSA: lola: Fix the missing snd_card_free() call at probe error
+Date:   Mon, 18 Apr 2022 14:11:03 +0200
+Message-Id: <20220418121201.735926024@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,70 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b665eae7a788c5e2bc10f9ac3c0137aa0ad1fc97 ]
+commit d04e84b9817c652002f0ee9b42059d41493e9118 upstream.
 
-If an invalid option value is used with "printk.devkmsg=<value>",
-it is silently ignored.
-If a valid option value is used, it is honored but the wrong return
-value (0) is used, indicating that the command line option had an
-error and was not handled. This string is not added to init's
-environment strings due to init/main.c::unknown_bootoption()
-checking for a '.' in the boot option string and then considering
-that string to be an "Unused module parameter".
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-Print a warning message if a bad option string is used.
-Always return 1 from the __setup handler to indicate that the command
-line option has been handled.
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-Fixes: 750afe7babd1 ("printk: add kernel parameter to control writes to /dev/kmsg")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: John Ogness <john.ogness@linutronix.de>
-Reviewed-by: John Ogness <john.ogness@linutronix.de>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20220228220556.23484-1-rdunlap@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 098fe3d6e775 ("ALSA: lola: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-30-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/printk/printk.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/pci/lola/lola.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 31b5e7919d62..11173d0b51bc 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -125,8 +125,10 @@ static int __control_devkmsg(char *str)
- 
- static int __init control_devkmsg(char *str)
- {
--	if (__control_devkmsg(str) < 0)
-+	if (__control_devkmsg(str) < 0) {
-+		pr_warn("printk.devkmsg: bad option string '%s'\n", str);
- 		return 1;
-+	}
- 
- 	/*
- 	 * Set sysctl string accordingly:
-@@ -148,7 +150,7 @@ static int __init control_devkmsg(char *str)
- 	 */
- 	devkmsg_log |= DEVKMSG_LOG_MASK_LOCK;
- 
--	return 0;
-+	return 1;
+diff --git a/sound/pci/lola/lola.c b/sound/pci/lola/lola.c
+index 5269a1d396a5..1aa30e90b86a 100644
+--- a/sound/pci/lola/lola.c
++++ b/sound/pci/lola/lola.c
+@@ -637,8 +637,8 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci, int dev)
+ 	return 0;
  }
- __setup("printk.devkmsg=", control_devkmsg);
  
+-static int lola_probe(struct pci_dev *pci,
+-		      const struct pci_device_id *pci_id)
++static int __lola_probe(struct pci_dev *pci,
++			const struct pci_device_id *pci_id)
+ {
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -687,6 +687,12 @@ static int lola_probe(struct pci_dev *pci,
+ 	return 0;
+ }
+ 
++static int lola_probe(struct pci_dev *pci,
++		      const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __lola_probe(pci, pci_id));
++}
++
+ /* PCI IDs */
+ static const struct pci_device_id lola_ids[] = {
+ 	{ PCI_VDEVICE(DIGIGRAM, 0x0001) },
 -- 
-2.34.1
+2.35.2
 
 
 
