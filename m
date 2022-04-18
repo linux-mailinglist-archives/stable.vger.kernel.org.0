@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F37B505270
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0549505341
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239447AbiDRMor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:44:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47970 "EHLO
+        id S240337AbiDRM4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240100AbiDRMnp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:43:45 -0400
+        with ESMTP id S240284AbiDRMze (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BDC526AC2;
-        Mon, 18 Apr 2022 05:32:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D98DB13;
+        Mon, 18 Apr 2022 05:37:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 192C26118A;
-        Mon, 18 Apr 2022 12:32:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F9DBC385A1;
-        Mon, 18 Apr 2022 12:32:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A04960F0E;
+        Mon, 18 Apr 2022 12:37:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31522C385A1;
+        Mon, 18 Apr 2022 12:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285143;
-        bh=vrvMolG8lo4JH3qqZt9EOT/wyieZIrN3a3HPwwGwYl8=;
+        s=korg; t=1650285419;
+        bh=HICm18fGBgWm5KvYF2B2+IFM7Z6WNKps+wXaamPYpck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExGqEUS2WqpNDOwKmWF//l2wKsBmIl6OiBYPnl0JJ1B0o4vRgmRpyDWog9afb3OPr
-         169fEscZM+DtaqPl9rPtmPD2c8unUJiEQbOLW9QsU7GqGAKcLTLy48q1TchxBt6GVo
-         VvS1g9p0mwAwn5q1ds2mNulSKsBHs8A4E64S6PMM=
+        b=L9mxD4qEKOWECZL+3TPOLBUbpSQGw0zmna/pgGejYJ97TjxQKE3hPv8HLTDHHKqZT
+         vEnmgsqd3SKonb+RbcZw0ObjzvFl9Yygpr0dMHqt0DwnojGKDRwzW9oj95OBvmZeJ8
+         Apx4fmSetG2O7Fvh/XjkKVSZfdmifgiY4S1fDIr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/189] drm/amdkfd: Check for potential null return of kmalloc_array()
+Subject: [PATCH 5.10 013/105] veth: Ensure eth header is in skbs linear part
 Date:   Mon, 18 Apr 2022 14:12:15 +0200
-Message-Id: <20220418121203.762844331@linuxfoundation.org>
+Message-Id: <20220418121146.158734501@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: QintaoShen <unSimple1993@163.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit ebbb7bb9e80305820dc2328a371c1b35679f2667 ]
+[ Upstream commit 726e2c5929de841fdcef4e2bf995680688ae1b87 ]
 
-As the kmalloc_array() may return null, the 'event_waiters[i].wait' would lead to null-pointer dereference.
-Therefore, it is better to check the return value of kmalloc_array() to avoid this confusion.
+After feeding a decapsulated packet to a veth device with act_mirred,
+skb_headlen() may be 0. But veth_xmit() calls __dev_forward_skb(),
+which expects at least ETH_HLEN byte of linear data (as
+__dev_forward_skb2() calls eth_type_trans(), which pulls ETH_HLEN bytes
+unconditionally).
 
-Signed-off-by: QintaoShen <unSimple1993@163.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Use pskb_may_pull() to ensure veth_xmit() respects this constraint.
+
+kernel BUG at include/linux/skbuff.h:2328!
+RIP: 0010:eth_type_trans+0xcf/0x140
+Call Trace:
+ <IRQ>
+ __dev_forward_skb2+0xe3/0x160
+ veth_xmit+0x6e/0x250 [veth]
+ dev_hard_start_xmit+0xc7/0x200
+ __dev_queue_xmit+0x47f/0x520
+ ? skb_ensure_writable+0x85/0xa0
+ ? skb_mpls_pop+0x98/0x1c0
+ tcf_mirred_act+0x442/0x47e [act_mirred]
+ tcf_action_exec+0x86/0x140
+ fl_classify+0x1d8/0x1e0 [cls_flower]
+ ? dma_pte_clear_level+0x129/0x1a0
+ ? dma_pte_clear_level+0x129/0x1a0
+ ? prb_fill_curr_block+0x2f/0xc0
+ ? skb_copy_bits+0x11a/0x220
+ __tcf_classify+0x58/0x110
+ tcf_classify_ingress+0x6b/0x140
+ __netif_receive_skb_core.constprop.0+0x47d/0xfd0
+ ? __iommu_dma_unmap_swiotlb+0x44/0x90
+ __netif_receive_skb_one_core+0x3d/0xa0
+ netif_receive_skb+0x116/0x170
+ be_process_rx+0x22f/0x330 [be2net]
+ be_poll+0x13c/0x370 [be2net]
+ __napi_poll+0x2a/0x170
+ net_rx_action+0x22f/0x2f0
+ __do_softirq+0xca/0x2a8
+ __irq_exit_rcu+0xc1/0xe0
+ common_interrupt+0x83/0xa0
+
+Fixes: e314dbdc1c0d ("[NET]: Virtual ethernet device driver.")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_events.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/veth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-index 3eea4edee355..b8bdd796cd91 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-@@ -531,6 +531,8 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
- 	event_waiters = kmalloc_array(num_events,
- 					sizeof(struct kfd_event_waiter),
- 					GFP_KERNEL);
-+	if (!event_waiters)
-+		return NULL;
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index f7e3eb309a26..5be8ed910553 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -292,7 +292,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
  
- 	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
- 		init_wait(&event_waiters[i].wait);
+ 	rcu_read_lock();
+ 	rcv = rcu_dereference(priv->peer);
+-	if (unlikely(!rcv)) {
++	if (unlikely(!rcv) || !pskb_may_pull(skb, ETH_HLEN)) {
+ 		kfree_skb(skb);
+ 		goto drop;
+ 	}
 -- 
 2.35.1
 
