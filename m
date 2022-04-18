@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0289850513F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F10D25053A3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239069AbiDRMeF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
+        id S238823AbiDRNAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:00:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239743AbiDRMdW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 381F71E3E3;
-        Mon, 18 Apr 2022 05:25:28 -0700 (PDT)
+        with ESMTP id S242427AbiDRM74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A66B26114;
+        Mon, 18 Apr 2022 05:41:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71832B80ED1;
-        Mon, 18 Apr 2022 12:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7198C385A1;
-        Mon, 18 Apr 2022 12:25:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A32761203;
+        Mon, 18 Apr 2022 12:41:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CF6CC385BC;
+        Mon, 18 Apr 2022 12:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284726;
-        bh=6xnc8GCF0VylzUgLpI+zJ8wz47soPErwv3vp/zZrPmk=;
+        s=korg; t=1650285675;
+        bh=s9Rpwm6delKvf/66BvJD66oF5cgx4gOOaaAMGNKINik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLIO7cFaT19V7lydSyjiKGYxXtz7X1RSuwJPWE9in3Ai3lo/JmhdjVLVbaBjlml/h
-         S/bxatC1APauobPxVS2WmxSlQ0GsAwgCjMCk+AIjrxVLcxPZvL42VbrxnXPxishYhR
-         XrXkaE2VS70n8s0FEMq3IJv4FdEvjVsDds+hJozU=
+        b=hpum7N+W18g0k68DZkB1kW5/0O2gHtZ39yAZxHhmVeldMtcAQrsfF+0XbbtAlDEnV
+         pJPsC0JZC6H/skfrI/GNb86AdfhfwtL4Z7ySaEzjmUrNs3AZ+AobG+UqLYivoVI4Io
+         Q3N2vRqp7LbC/R0bPgVJppxlwJ4waKUJuSn01QTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.17 207/219] dm integrity: fix memory corruption when tag_size is less than digest size
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 054/105] scsi: ibmvscsis: Increase INITIAL_SRP_LIMIT to 1024
 Date:   Mon, 18 Apr 2022 14:12:56 +0200
-Message-Id: <20220418121212.661717902@linuxfoundation.org>
+Message-Id: <20220418121148.020490911@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit 08c1af8f1c13bbf210f1760132f4df24d0ed46d6 upstream.
+[ Upstream commit 0bade8e53279157c7cc9dd95d573b7e82223d78a ]
 
-It is possible to set up dm-integrity in such a way that the
-"tag_size" parameter is less than the actual digest size. In this
-situation, a part of the digest beyond tag_size is ignored.
+The adapter request_limit is hardcoded to be INITIAL_SRP_LIMIT which is
+currently an arbitrary value of 800. Increase this value to 1024 which
+better matches the characteristics of the typical IBMi Initiator that
+supports 32 LUNs and a queue depth of 32.
 
-In this case, dm-integrity would write beyond the end of the
-ic->recalc_tags array and corrupt memory. The corruption happened in
-integrity_recalc->integrity_sector_checksum->crypto_shash_final.
+This change also has the secondary benefit of being a power of two as
+required by the kfifo API. Since, Commit ab9bb6318b09 ("Partially revert
+"kfifo: fix kfifo_alloc() and kfifo_init()"") the size of IU pool for each
+target has been rounded down to 512 when attempting to kfifo_init() those
+pools with the current request_limit size of 800.
 
-Fix this corruption by increasing the tags array so that it has enough
-padding at the end to accomodate the loop in integrity_recalc() being
-able to write a full digest size for the last member of the tags
-array.
-
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220322194443.678433-1-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-integrity.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -4400,6 +4400,7 @@ try_smaller_buffer:
- 	}
+diff --git a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
+index cc3908c2d2f9..a3431485def8 100644
+--- a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
++++ b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
+@@ -35,7 +35,7 @@
  
- 	if (ic->internal_hash) {
-+		size_t recalc_tags_size;
- 		ic->recalc_wq = alloc_workqueue("dm-integrity-recalc", WQ_MEM_RECLAIM, 1);
- 		if (!ic->recalc_wq ) {
- 			ti->error = "Cannot allocate workqueue";
-@@ -4413,8 +4414,10 @@ try_smaller_buffer:
- 			r = -ENOMEM;
- 			goto bad;
- 		}
--		ic->recalc_tags = kvmalloc_array(RECALC_SECTORS >> ic->sb->log2_sectors_per_block,
--						 ic->tag_size, GFP_KERNEL);
-+		recalc_tags_size = (RECALC_SECTORS >> ic->sb->log2_sectors_per_block) * ic->tag_size;
-+		if (crypto_shash_digestsize(ic->internal_hash) > ic->tag_size)
-+			recalc_tags_size += crypto_shash_digestsize(ic->internal_hash) - ic->tag_size;
-+		ic->recalc_tags = kvmalloc(recalc_tags_size, GFP_KERNEL);
- 		if (!ic->recalc_tags) {
- 			ti->error = "Cannot allocate tags for recalculating";
- 			r = -ENOMEM;
+ #define IBMVSCSIS_VERSION	"v0.2"
+ 
+-#define	INITIAL_SRP_LIMIT	800
++#define	INITIAL_SRP_LIMIT	1024
+ #define	DEFAULT_MAX_SECTORS	256
+ #define MAX_TXU			1024 * 1024
+ 
+-- 
+2.35.1
+
 
 
