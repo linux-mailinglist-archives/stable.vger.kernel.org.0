@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8777A505130
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB9E50569C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238975AbiDRMd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:33:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53978 "EHLO
+        id S242435AbiDRNjP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:39:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239161AbiDRMcb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:32:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 818FF25C7F;
-        Mon, 18 Apr 2022 05:24:19 -0700 (PDT)
+        with ESMTP id S243078AbiDRNha (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:37:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FC5275EB;
+        Mon, 18 Apr 2022 05:58:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8B7260FB0;
-        Mon, 18 Apr 2022 12:24:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D11F4C385AB;
-        Mon, 18 Apr 2022 12:24:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB7D4612BB;
+        Mon, 18 Apr 2022 12:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC8F4C385A1;
+        Mon, 18 Apr 2022 12:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284658;
-        bh=m9viVS1D+NUit2asz3mAmwwfeEnNpj04FNw9SDwXsWk=;
+        s=korg; t=1650286693;
+        bh=+9tDQgM+/axT2d6rke1s+6yyXgquHpFdu21IBqWpF5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMluKMGrhUKe4zD6KVHac4WFhX/K6nXW6lTvFAW/Vn9K2Kqa7mELZhFAdoFCDMl/U
-         6DXGXVFcR7ZPpnGTm3nd8IryjhbsD0UR238EmCYdwUcKyq61sy60hkGCxsNVh8bM7n
-         vW7MEX/oelJhEWdTmMWomW0QW6iaezCCjABMzwhM=
+        b=JsjakfSmvCXTmnQt1BHZNb9QgjBd/6iF5VI94p2hxgrPPTP/ZlNh0jJTEMtJkDPTw
+         YRFCndFFgW2VX0SmlWdr7ssEFfFkkD/bRKyGER705qiBNBoiwrdzrR3+u3/LP3A7QF
+         QjlCKWcGZ0a0326skxkDpqssBDg65vOoT82ATGr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Xiaoli Feng <xifeng@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.17 187/219] cifs: verify that tcon is valid before dereference in cifs_kill_sb
+        stable@vger.kernel.org,
+        Richard Leitner <richard.leitner@skidata.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 175/284] ARM: tegra: tamonten: Fix I2C3 pad setting
 Date:   Mon, 18 Apr 2022 14:12:36 +0200
-Message-Id: <20220418121212.112167732@linuxfoundation.org>
+Message-Id: <20220418121216.716903978@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Richard Leitner <richard.leitner@skidata.com>
 
-commit 8b6c58458ee3206dde345fce327a4cb83e69caf9 upstream.
+[ Upstream commit 0092c25b541a5422d7e71892a13c55ee91abc34b ]
 
-On umount, cifs_sb->tlink_tree might contain entries that do not represent
-a valid tcon.
-Check the tcon for error before we dereference it.
+This patch fixes the tristate configuration for i2c3 function assigned
+to the dtf pins on the Tamonten Tegra20 SoM.
 
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Reported-by: Xiaoli Feng <xifeng@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c |    6 +++---
+ arch/arm/boot/dts/tegra20-tamonten.dtsi | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -266,10 +266,11 @@ static void cifs_kill_sb(struct super_bl
- 	 * before we kill the sb.
- 	 */
- 	if (cifs_sb->root) {
--		node = rb_first(root);
--		while (node != NULL) {
-+		for (node = rb_first(root); node; node = rb_next(node)) {
- 			tlink = rb_entry(node, struct tcon_link, tl_rbnode);
- 			tcon = tlink_tcon(tlink);
-+			if (IS_ERR(tcon))
-+				continue;
- 			cfid = &tcon->crfid;
- 			mutex_lock(&cfid->fid_mutex);
- 			if (cfid->dentry) {
-@@ -277,7 +278,6 @@ static void cifs_kill_sb(struct super_bl
- 				cfid->dentry = NULL;
- 			}
- 			mutex_unlock(&cfid->fid_mutex);
--			node = rb_next(node);
- 		}
- 
- 		/* finally release root dentry */
+diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+index 4d69d67792d1..b919ca29bb78 100644
+--- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
++++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+@@ -183,8 +183,8 @@
+ 			};
+ 			conf_ata {
+ 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
+-					"cdev1", "cdev2", "dap1", "dtb", "gma",
+-					"gmb", "gmc", "gmd", "gme", "gpu7",
++					"cdev1", "cdev2", "dap1", "dtb", "dtf",
++					"gma", "gmb", "gmc", "gmd", "gme", "gpu7",
+ 					"gpv", "i2cp", "irrx", "irtx", "pta",
+ 					"rm", "slxa", "slxk", "spia", "spib",
+ 					"uac";
+@@ -203,7 +203,7 @@
+ 			};
+ 			conf_crtp {
+ 				nvidia,pins = "crtp", "dap2", "dap3", "dap4",
+-					"dtc", "dte", "dtf", "gpu", "sdio1",
++					"dtc", "dte", "gpu", "sdio1",
+ 					"slxc", "slxd", "spdi", "spdo", "spig",
+ 					"uda";
+ 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+-- 
+2.34.1
+
 
 
