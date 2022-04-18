@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E0F505989
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45AC550598F
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344095AbiDROUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37142 "EHLO
+        id S1344298AbiDROUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:20:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344984AbiDROSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B234BB92;
-        Mon, 18 Apr 2022 06:14:26 -0700 (PDT)
+        with ESMTP id S1344649AbiDROSM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6FAA4AE06;
+        Mon, 18 Apr 2022 06:14:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 041C3B80EC0;
-        Mon, 18 Apr 2022 13:13:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CF04C385A1;
-        Mon, 18 Apr 2022 13:13:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1CD0B80ED9;
+        Mon, 18 Apr 2022 13:14:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E179EC385A1;
+        Mon, 18 Apr 2022 13:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287637;
-        bh=jlbYAnne9Y+hPCHXuiK/M0vgClZgsk1PxnfMkIar79I=;
+        s=korg; t=1650287641;
+        bh=qt6zVlScKlgp/UWRwAPjnLop5XpVwyg8xY7P3/aVvDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=naUnvBqPP0M8F9rX96Qg4zuizsA3TKAJUUQ4Uj2Z3S624XXUDZDy0A/K/8C7SuGt8
-         kvMHSuiotGq5J0ECL8XNi2OPIJy2D4/AA+1HVaMts1SlUfqdUNEt1lF7mwt8eSYCfZ
-         uWWUYOjMM/XwX14LvPFeEwENujLeCw3mkG0SVKRw=
+        b=nnJ+57sQLw9TTWi6ZLCIS85lyH4woaMMUSSsAu275DVhtNex7QseKDJS4tubirERM
+         WhEGz4EURSL58aVLHg2l0LOCbS64XjPUHbwu/eghY5IOS/gMJWwVqdeGmPSwOp6Ont
+         jO9HxVYZtSbAOkVmLdgfE6rIjrfdOgCTWgJdEOLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.9 216/218] smp: Fix offline cpu check in flush_smp_call_function_queue()
-Date:   Mon, 18 Apr 2022 14:14:42 +0200
-Message-Id: <20220418121208.532799769@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
+        Sven Peter <sven@svenpeter.dev>, Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.9 217/218] i2c: pasemi: Wait for write xfers to finish
+Date:   Mon, 18 Apr 2022 14:14:43 +0200
+Message-Id: <20220418121208.591340114@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -53,42 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Martin Povišer <povik+lin@cutebit.org>
 
-commit 9e949a3886356fe9112c6f6f34a6e23d1d35407f upstream.
+commit bd8963e602c77adc76dbbbfc3417c3cf14fed76b upstream.
 
-The check in flush_smp_call_function_queue() for callbacks that are sent
-to offline CPUs currently checks whether the queue is empty.
+Wait for completion of write transfers before returning from the driver.
+At first sight it may seem advantageous to leave write transfers queued
+for the controller to carry out on its own time, but there's a couple of
+issues with it:
 
-However, flush_smp_call_function_queue() has just deleted all the
-callbacks from the queue and moved all the entries into a local list.
-This checks would only be positive if some callbacks were added in the
-short time after llist_del_all() was called. This does not seem to be
-the intention of this check.
+ * Driver doesn't check for FIFO space.
 
-Change the check to look at the local list to which the entries were
-moved instead of the queue from which all the callbacks were just
-removed.
+ * The queued writes can complete while the driver is in its I2C read
+   transfer path which means it will get confused by the raising of
+   XEN (the 'transaction ended' signal). This can cause a spurious
+   ENODATA error due to premature reading of the MRXFIFO register.
 
-Fixes: 8d056c48e4862 ("CPU hotplug, smp: flush any pending IPI callbacks before CPU offline")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20220319072015.1495036-1-namit@vmware.com
+Adding the wait fixes some unreliability issues with the driver. There's
+some efficiency cost to it (especially with pasemi_smb_waitready doing
+its polling), but that will be alleviated once the driver receives
+interrupt support.
+
+Fixes: beb58aa39e6e ("i2c: PA Semi SMBus driver")
+Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
+Reviewed-by: Sven Peter <sven@svenpeter.dev>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/smp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-pasemi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -209,7 +209,7 @@ static void flush_smp_call_function_queu
+--- a/drivers/i2c/busses/i2c-pasemi.c
++++ b/drivers/i2c/busses/i2c-pasemi.c
+@@ -145,6 +145,12 @@ static int pasemi_i2c_xfer_msg(struct i2
  
- 	/* There shouldn't be any pending callbacks on an offline CPU. */
- 	if (unlikely(warn_cpu_offline && !cpu_online(smp_processor_id()) &&
--		     !warned && !llist_empty(head))) {
-+		     !warned && entry != NULL)) {
- 		warned = true;
- 		WARN(1, "IPI on offline CPU %d\n", smp_processor_id());
+ 		TXFIFO_WR(smbus, msg->buf[msg->len-1] |
+ 			  (stop ? MTXFIFO_STOP : 0));
++
++		if (stop) {
++			err = pasemi_smb_waitready(smbus);
++			if (err)
++				goto reset_out;
++		}
+ 	}
  
+ 	return 0;
 
 
