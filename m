@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 386495050E5
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06C35505629
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234267AbiDRM3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38430 "EHLO
+        id S242115AbiDRNca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:32:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239584AbiDRM2e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C771FCFC;
-        Mon, 18 Apr 2022 05:22:08 -0700 (PDT)
+        with ESMTP id S243837AbiDRN3I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF09E3FDBF;
+        Mon, 18 Apr 2022 05:53:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E383D60F0C;
-        Mon, 18 Apr 2022 12:22:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBCA1C385A7;
-        Mon, 18 Apr 2022 12:22:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5408C61256;
+        Mon, 18 Apr 2022 12:53:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F1EBC385A1;
+        Mon, 18 Apr 2022 12:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284527;
-        bh=Ac1i+RF0ABR8FrSNXf/01Y/H4o1qgHwU85zwiKBQmvw=;
+        s=korg; t=1650286433;
+        bh=/2x/q4mlIFL9BwYCaIST01f86A6ArGaP8uHZ5o93I1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H/clvQQ73WMn2pudcLsAvAFoLGiFr6OBStkvmp8zYO1+MnG0tvfx1a0BJRQdKqYIc
-         HDRpfHvVO8u4zqouHgMbbPWA32ILjxD4iXznPj9gDNGdoJiwp8cy9cZIwxVq+BISWs
-         6TlJpwAPX96lLO3hAlJYdvZTzixsxe/TeISy41Lk=
+        b=na/69LXuqYuvEche5TPOtKghh2NdbAE4MbBdp87un2oSTVauoAAxSb9hD8ssAOiMY
+         c3CSH14QH9qiowR9MGpjSoQ1FiMT60DsIpuXG9pL2FjDwey7PdgYRH1mOfC57BSzRX
+         L/KHcQscFN0wtu8ZpfymBLW9ArajnBEtY6sWj9Qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodo Stroesser <bostroesser@gmail.com>,
-        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 145/219] scsi: target: tcmu: Fix possible page UAF
-Date:   Mon, 18 Apr 2022 14:11:54 +0200
-Message-Id: <20220418121210.948801997@linuxfoundation.org>
+Subject: [PATCH 4.14 134/284] iio: adc: Add check for devm_request_threaded_irq
+Date:   Mon, 18 Apr 2022 14:11:55 +0200
+Message-Id: <20220418121215.170464131@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit a6968f7a367f128d120447360734344d5a3d5336 ]
+[ Upstream commit b30537a4cedcacf0ade2f33ebb7610178ed1e7d7 ]
 
-tcmu_try_get_data_page() looks up pages under cmdr_lock, but it does not
-take refcount properly and just returns page pointer. When
-tcmu_try_get_data_page() returns, the returned page may have been freed by
-tcmu_blocks_release().
+As the potential failure of the devm_request_threaded_irq(),
+it should be better to check the return value and return
+error if fails.
 
-We need to get_page() under cmdr_lock to avoid concurrent
-tcmu_blocks_release().
-
-Link: https://lore.kernel.org/r/20220311132206.24515-1-xiaoguang.wang@linux.alibaba.com
-Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: fa659a40b80b ("iio: adc: twl6030-gpadc: Use devm_* API family")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220224062849.3280966-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_user.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/adc/twl6030-gpadc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-index 7b2a89a67cdb..06a5c4086551 100644
---- a/drivers/target/target_core_user.c
-+++ b/drivers/target/target_core_user.c
-@@ -1820,6 +1820,7 @@ static struct page *tcmu_try_get_data_page(struct tcmu_dev *udev, uint32_t dpi)
- 	mutex_lock(&udev->cmdr_lock);
- 	page = xa_load(&udev->data_pages, dpi);
- 	if (likely(page)) {
-+		get_page(page);
- 		mutex_unlock(&udev->cmdr_lock);
- 		return page;
- 	}
-@@ -1876,6 +1877,7 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
- 		/* For the vmalloc()ed cmd area pages */
- 		addr = (void *)(unsigned long)info->mem[mi].addr + offset;
- 		page = vmalloc_to_page(addr);
-+		get_page(page);
- 	} else {
- 		uint32_t dpi;
+diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
+index bc0e60b9da45..6a4ec58eb9c5 100644
+--- a/drivers/iio/adc/twl6030-gpadc.c
++++ b/drivers/iio/adc/twl6030-gpadc.c
+@@ -927,6 +927,8 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
+ 	ret = devm_request_threaded_irq(dev, irq, NULL,
+ 				twl6030_gpadc_irq_handler,
+ 				IRQF_ONESHOT, "twl6030_gpadc", indio_dev);
++	if (ret)
++		return ret;
  
-@@ -1886,7 +1888,6 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
- 			return VM_FAULT_SIGBUS;
- 	}
- 
--	get_page(page);
- 	vmf->page = page;
- 	return 0;
- }
+ 	ret = twl6030_gpadc_enable_irq(TWL6030_GPADC_RT_SW1_EOC_MASK);
+ 	if (ret < 0) {
 -- 
-2.35.1
+2.34.1
 
 
 
