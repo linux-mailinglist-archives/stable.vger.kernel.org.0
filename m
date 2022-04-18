@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00DBC505302
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F3150512B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240242AbiDRMzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
+        id S239108AbiDRMeW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240309AbiDRMyr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:54:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 410F013F36;
-        Mon, 18 Apr 2022 05:35:02 -0700 (PDT)
+        with ESMTP id S239805AbiDRMd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A081B7B6;
+        Mon, 18 Apr 2022 05:26:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C947E611C9;
-        Mon, 18 Apr 2022 12:35:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B961EC385A7;
-        Mon, 18 Apr 2022 12:35:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6405B80EC4;
+        Mon, 18 Apr 2022 12:26:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D8CFC385A7;
+        Mon, 18 Apr 2022 12:26:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285301;
-        bh=f9YULfdDdfUm3+QZ9PxqPMzL3D8AJK7//f2Q9oOG6b8=;
+        s=korg; t=1650284785;
+        bh=h6KgK4UlLuqt00S7/NelzItnrRfUYPhvikAZc4K9Z2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jd4NfeYCyzbQhiFaXRpjnlTbUM5XFRkK8GMS7GONu6jAy8Q4SAEJ/8p8FhGkOdV3d
-         m6Taz8upYtcEZr5eYEbqBXB6g3aew7Ng+dVv46b/McsXHbVs48AopWf76igeoi2YfS
-         yXQ6jwlxK/U+lMWCrHD7lU6E4ezacAOXLu4gDb6Q=
+        b=rp2FhIxRUpBi4yq9SCzADl9s+ZGd/BMhoK1oUS57yv5Ys6IlijTrGtqYmw9arUavJ
+         AyYRWVKkSpWP3HE560D6EeK+DcWadfe7i6jnOiJJnhjAa5lAPlPrARGERO0MuxifVe
+         4B0s/J5kllzbBrz8IzFc41hQml/M180WNUxnkFng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Tomasz=20Mo=C5=84?= <desowin@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 164/189] drm/amdgpu: Enable gfxoff quirk on MacBook Pro
+        stable@vger.kernel.org, Wang Zhaoyang1 <zhaoyang1.wang@intel.com>,
+        Gao Liang <liang.gao@intel.com>, Chao Gao <chao.gao@intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.17 215/219] dma-direct: avoid redundant memory sync for swiotlb
 Date:   Mon, 18 Apr 2022 14:13:04 +0200
-Message-Id: <20220418121207.074886389@linuxfoundation.org>
+Message-Id: <20220418121212.884196794@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Moń <desowin@gmail.com>
+From: Chao Gao <chao.gao@intel.com>
 
-commit 4593c1b6d159f1e5c35c07a7f125e79e5a864302 upstream.
+commit 9e02977bfad006af328add9434c8bffa40e053bb upstream.
 
-Enabling gfxoff quirk results in perfectly usable graphical user
-interface on MacBook Pro (15-inch, 2019) with Radeon Pro Vega 20 4 GB.
+When we looked into FIO performance with swiotlb enabled in VM, we found
+swiotlb_bounce() is always called one more time than expected for each DMA
+read request.
 
-Without the quirk, X server is completely unusable as every few seconds
-there is gpu reset due to ring gfx timeout.
+It turns out that the bounce buffer is copied to original DMA buffer twice
+after the completion of a DMA request (one is done by in
+dma_direct_sync_single_for_cpu(), the other by swiotlb_tbl_unmap_single()).
+But the content in bounce buffer actually doesn't change between the two
+rounds of copy. So, one round of copy is redundant.
 
-Signed-off-by: Tomasz Moń <desowin@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Pass DMA_ATTR_SKIP_CPU_SYNC flag to swiotlb_tbl_unmap_single() to
+skip the memory copy in it.
+
+This fix increases FIO 64KB sequential read throughput in a guest with
+swiotlb=force by 5.6%.
+
+Fixes: 55897af63091 ("dma-direct: merge swiotlb_dma_ops into the dma_direct code")
+Reported-by: Wang Zhaoyang1 <zhaoyang1.wang@intel.com>
+Reported-by: Gao Liang <liang.gao@intel.com>
+Signed-off-by: Chao Gao <chao.gao@intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/dma/direct.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -1272,6 +1272,8 @@ static const struct amdgpu_gfxoff_quirk
- 	{ 0x1002, 0x15dd, 0x103c, 0x83e7, 0xd3 },
- 	/* GFXOFF is unstable on C6 parts with a VBIOS 113-RAVEN-114 */
- 	{ 0x1002, 0x15dd, 0x1002, 0x15dd, 0xc6 },
-+	/* Apple MacBook Pro (15-inch, 2019) Radeon Pro Vega 20 4 GB */
-+	{ 0x1002, 0x69af, 0x106b, 0x019a, 0xc0 },
- 	{ 0, 0, 0, 0, 0 },
- };
+--- a/kernel/dma/direct.h
++++ b/kernel/dma/direct.h
+@@ -114,6 +114,7 @@ static inline void dma_direct_unmap_page
+ 		dma_direct_sync_single_for_cpu(dev, addr, size, dir);
  
+ 	if (unlikely(is_swiotlb_buffer(dev, phys)))
+-		swiotlb_tbl_unmap_single(dev, phys, size, dir, attrs);
++		swiotlb_tbl_unmap_single(dev, phys, size, dir,
++					 attrs | DMA_ATTR_SKIP_CPU_SYNC);
+ }
+ #endif /* _KERNEL_DMA_DIRECT_H */
 
 
