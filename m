@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14C7D50543E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E863505474
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:04:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241201AbiDRNFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32916 "EHLO
+        id S241273AbiDRNHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:07:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238792AbiDRNDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DE9F62E7;
-        Mon, 18 Apr 2022 05:44:57 -0700 (PDT)
+        with ESMTP id S240987AbiDRNFX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C848340D9;
+        Mon, 18 Apr 2022 05:45:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE700611E4;
-        Mon, 18 Apr 2022 12:44:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09811C385A1;
-        Mon, 18 Apr 2022 12:44:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EEA40B80E44;
+        Mon, 18 Apr 2022 12:45:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44704C385A8;
+        Mon, 18 Apr 2022 12:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285896;
-        bh=4t+GxwbZUYIHcVXu+SdU9OHfL9PQT/NKdgNLyhswu+Y=;
+        s=korg; t=1650285954;
+        bh=cYzXXg1Vy1q7vvQEVY1rET2xsZpGFJS5PCjsVVvLFiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbVWgp8UpOQ9oWO42c7hbXZOwGlXamGb12eQby3BT5ohG5N0cJwL/yf9FFluXtYcD
-         wIKRF0C67oCHKe737OUv4KjbR0u8+cy3pWIDdyDUP1hiLWOa8NcCePp2B5s5L4ni4y
-         0coDn3F+JFbMuURDaJdGzj5YKCLh9AiBL1Cx2y8c=
+        b=gnYDa95tyqeimFxmucWAB2redUxgG+/JnewToGUUk0b8ZGYfgckCwC9LXU6w+m1A3
+         FKY6zZ/Z5Gc0AzQ9hXnu0KOizVmHGCPdCRKIYQv5s1xYoInHaAP+MrAIHg0iAPl2Eb
+         RWvCcIUZMW7Vdh4w2i4vQ/ar76dzxz8xIdptYUvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Duoming Zhou <duoming@zju.edu.cn>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
         "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 58/63] ax25: fix UAF bugs of net_device caused by rebinding operation
-Date:   Mon, 18 Apr 2022 14:13:55 +0200
-Message-Id: <20220418121138.047689464@linuxfoundation.org>
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 16/32] net: micrel: fix KS8851_MLL Kconfig
+Date:   Mon, 18 Apr 2022 14:13:56 +0200
+Message-Id: <20220418121127.601803311@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit feef318c855a361a1eccd880f33e88c460eb63b4 upstream.
+[ Upstream commit c3efcedd272aa6dd5929e20cf902a52ddaa1197a ]
 
-The ax25_kill_by_device() will set s->ax25_dev = NULL and
-call ax25_disconnect() to change states of ax25_cb and
-sock, if we call ax25_bind() before ax25_kill_by_device().
+KS8851_MLL selects MICREL_PHY, which depends on PTP_1588_CLOCK_OPTIONAL,
+so make KS8851_MLL also depend on PTP_1588_CLOCK_OPTIONAL since
+'select' does not follow any dependency chains.
 
-However, if we call ax25_bind() again between the window of
-ax25_kill_by_device() and ax25_dev_device_down(), the values
-and states changed by ax25_kill_by_device() will be reassigned.
+Fixes kconfig warning and build errors:
 
-Finally, ax25_dev_device_down() will deallocate net_device.
-If we dereference net_device in syscall functions such as
-ax25_release(), ax25_sendmsg(), ax25_getsockopt(), ax25_getname()
-and ax25_info_show(), a UAF bug will occur.
+WARNING: unmet direct dependencies detected for MICREL_PHY
+  Depends on [m]: NETDEVICES [=y] && PHYLIB [=y] && PTP_1588_CLOCK_OPTIONAL [=m]
+  Selected by [y]:
+  - KS8851_MLL [=y] && NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_MICREL [=y] && HAS_IOMEM [=y]
 
-One of the possible race conditions is shown below:
+ld: drivers/net/phy/micrel.o: in function `lan8814_ts_info':
+micrel.c:(.text+0xb35): undefined reference to `ptp_clock_index'
+ld: drivers/net/phy/micrel.o: in function `lan8814_probe':
+micrel.c:(.text+0x2586): undefined reference to `ptp_clock_register'
 
-      (USE)                   |      (FREE)
-ax25_bind()                   |
-                              |  ax25_kill_by_device()
-ax25_bind()                   |
-ax25_connect()                |    ...
-                              |  ax25_dev_device_down()
-                              |    ...
-                              |    dev_put_track(dev, ...) //FREE
-ax25_release()                |    ...
-  ax25_send_control()         |
-    alloc_skb()      //USE    |
-
-the corresponding fail log is shown below:
-===============================================================
-BUG: KASAN: use-after-free in ax25_send_control+0x43/0x210
-...
-Call Trace:
-  ...
-  ax25_send_control+0x43/0x210
-  ax25_release+0x2db/0x3b0
-  __sock_release+0x6d/0x120
-  sock_close+0xf/0x20
-  __fput+0x11f/0x420
-  ...
-Allocated by task 1283:
-  ...
-  __kasan_kmalloc+0x81/0xa0
-  alloc_netdev_mqs+0x5a/0x680
-  mkiss_open+0x6c/0x380
-  tty_ldisc_open+0x55/0x90
-  ...
-Freed by task 1969:
-  ...
-  kfree+0xa3/0x2c0
-  device_release+0x54/0xe0
-  kobject_put+0xa5/0x120
-  tty_ldisc_kill+0x3e/0x80
-  ...
-
-In order to fix these UAF bugs caused by rebinding operation,
-this patch adds dev_hold_track() into ax25_bind() and
-corresponding dev_put_track() into ax25_kill_by_device().
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-[OP: backport to 5.4: adjust dev_put_track()->dev_put() and
-dev_hold_track()->dev_hold()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/micrel/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -98,6 +98,7 @@ again:
- 			spin_unlock_bh(&ax25_list_lock);
- 			lock_sock(sk);
- 			s->ax25_dev = NULL;
-+			dev_put(ax25_dev->dev);
- 			ax25_dev_put(ax25_dev);
- 			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
-@@ -1122,8 +1123,10 @@ static int ax25_bind(struct socket *sock
- 		}
- 	}
- 
--	if (ax25_dev != NULL)
-+	if (ax25_dev) {
- 		ax25_fillin_cb(ax25, ax25_dev);
-+		dev_hold(ax25_dev->dev);
-+	}
- 
- done:
- 	ax25_cb_add(ax25);
+diff --git a/drivers/net/ethernet/micrel/Kconfig b/drivers/net/ethernet/micrel/Kconfig
+index b7e2f49696b7..aa12bace8673 100644
+--- a/drivers/net/ethernet/micrel/Kconfig
++++ b/drivers/net/ethernet/micrel/Kconfig
+@@ -45,6 +45,7 @@ config KS8851
+ config KS8851_MLL
+ 	tristate "Micrel KS8851 MLL"
+ 	depends on HAS_IOMEM
++	depends on PTP_1588_CLOCK_OPTIONAL
+ 	select MII
+ 	---help---
+ 	  This platform driver is for Micrel KS8851 Address/data bus
+-- 
+2.35.1
+
 
 
