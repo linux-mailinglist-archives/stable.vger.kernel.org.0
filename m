@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ADBC505388
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C7F95053F8
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235699AbiDRNAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59856 "EHLO
+        id S240422AbiDRNDl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:03:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242066AbiDRM7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67AB61D0DB;
-        Mon, 18 Apr 2022 05:39:54 -0700 (PDT)
+        with ESMTP id S241030AbiDRNCf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE178326F7;
+        Mon, 18 Apr 2022 05:42:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3FCEB80EC0;
-        Mon, 18 Apr 2022 12:39:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0795C385A7;
-        Mon, 18 Apr 2022 12:39:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4205B80EDB;
+        Mon, 18 Apr 2022 12:42:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6554C385A7;
+        Mon, 18 Apr 2022 12:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285592;
-        bh=Uu7VIrb7ME9y2Ns26nkZF0NerK26h//hTrPsKXDKuPU=;
+        s=korg; t=1650285752;
+        bh=xb0hS4BrdUP+xSIwy3hBDuYk5Yqiydpc9Eeeprbd1yE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BznI/IyGTKAxLRAIheAPmhzPpXpKYbz/mfpcajaTT1FQbbTYLDS0/PkUCJM5Ic+LW
-         AWkBrk2rPLJCm46kJMQNfQfJCazFoQzoT5kMM0NOdqlFYU7KO8cQSdcto/d/BexNnG
-         HAjDFthRQHJzWupE9bWV8tbNMAI9XBaH4eHi+4zA=
+        b=Lh/r3Y/BjpzewcspVSycNOkfQJ0826VpjMkiZMFvrUKqkKqDpm4I/w2kYkdhSjAjs
+         Iu92u5WnRCda5ioi8fAP5PkZxoJAGMpMO9PqqlHjg+0C8x/emuJ6ePJJ0K97wuE0O4
+         53Rwcp0nM7qeQB1ES/0aWcwpFKZprMUA9yMC72N0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chandrakanth patil <chandrakanth.patil@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/105] scsi: megaraid_sas: Target with invalid LUN ID is deleted during scan
-Date:   Mon, 18 Apr 2022 14:13:09 +0200
-Message-Id: <20220418121148.391815880@linuxfoundation.org>
+Subject: [PATCH 5.4 13/63] testing/selftests/mqueue: Fix mq_perf_tests to free the allocated cpu set
+Date:   Mon, 18 Apr 2022 14:13:10 +0200
+Message-Id: <20220418121135.027937801@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandrakanth patil <chandrakanth.patil@broadcom.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 56495f295d8e021f77d065b890fc0100e3f9f6d8 ]
+[ Upstream commit ce64763c63854b4079f2e036638aa881a1fb3fbc ]
 
-The megaraid_sas driver supports single LUN for RAID devices. That is LUN
-0. All other LUNs are unsupported. When a device scan on a logical target
-with invalid LUN number is invoked through sysfs, that target ends up
-getting removed.
+The selftest "mqueue/mq_perf_tests.c" use CPU_ALLOC to allocate
+CPU set. This cpu set is used further in pthread_attr_setaffinity_np
+and by pthread_create in the code. But in current code, allocated
+cpu set is not freed.
 
-Add LUN ID validation in the slave destroy function to avoid the target
-deletion.
+Fix this issue by adding CPU_FREE in the "shutdown" function which
+is called in most of the error/exit path for the cleanup. There are
+few error paths which exit without using shutdown. Add a common goto
+error path with CPU_FREE for these cases.
 
-Link: https://lore.kernel.org/r/20220324094711.48833-1-chandrakanth.patil@broadcom.com
-Signed-off-by: Chandrakanth patil <chandrakanth.patil@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 7820b0715b6f ("tools/selftests: add mq_perf_tests")
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas.h      | 3 +++
- drivers/scsi/megaraid/megaraid_sas_base.c | 7 +++++++
- 2 files changed, 10 insertions(+)
+ .../testing/selftests/mqueue/mq_perf_tests.c  | 25 +++++++++++++------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
-index 6b8ec57e8bdf..c088a848776e 100644
---- a/drivers/scsi/megaraid/megaraid_sas.h
-+++ b/drivers/scsi/megaraid/megaraid_sas.h
-@@ -2554,6 +2554,9 @@ struct megasas_instance_template {
- #define MEGASAS_IS_LOGICAL(sdev)					\
- 	((sdev->channel < MEGASAS_MAX_PD_CHANNELS) ? 0 : 1)
+diff --git a/tools/testing/selftests/mqueue/mq_perf_tests.c b/tools/testing/selftests/mqueue/mq_perf_tests.c
+index b019e0b8221c..84fda3b49073 100644
+--- a/tools/testing/selftests/mqueue/mq_perf_tests.c
++++ b/tools/testing/selftests/mqueue/mq_perf_tests.c
+@@ -180,6 +180,9 @@ void shutdown(int exit_val, char *err_cause, int line_no)
+ 	if (in_shutdown++)
+ 		return;
  
-+#define MEGASAS_IS_LUN_VALID(sdev)					\
-+	(((sdev)->lun == 0) ? 1 : 0)
++	/* Free the cpu_set allocated using CPU_ALLOC in main function */
++	CPU_FREE(cpu_set);
 +
- #define MEGASAS_DEV_INDEX(scp)						\
- 	(((scp->device->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) +	\
- 	scp->device->id)
-diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 1a70cc995c28..84a2e9292fd0 100644
---- a/drivers/scsi/megaraid/megaraid_sas_base.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -2111,6 +2111,9 @@ static int megasas_slave_alloc(struct scsi_device *sdev)
- 			goto scan_target;
- 		}
- 		return -ENXIO;
-+	} else if (!MEGASAS_IS_LUN_VALID(sdev)) {
-+		sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
-+		return -ENXIO;
+ 	for (i = 0; i < num_cpus_to_pin; i++)
+ 		if (cpu_threads[i]) {
+ 			pthread_kill(cpu_threads[i], SIGUSR1);
+@@ -551,6 +554,12 @@ int main(int argc, char *argv[])
+ 		perror("sysconf(_SC_NPROCESSORS_ONLN)");
+ 		exit(1);
+ 	}
++
++	if (getuid() != 0)
++		ksft_exit_skip("Not running as root, but almost all tests "
++			"require root in order to modify\nsystem settings.  "
++			"Exiting.\n");
++
+ 	cpus_online = min(MAX_CPUS, sysconf(_SC_NPROCESSORS_ONLN));
+ 	cpu_set = CPU_ALLOC(cpus_online);
+ 	if (cpu_set == NULL) {
+@@ -589,7 +598,7 @@ int main(int argc, char *argv[])
+ 						cpu_set)) {
+ 					fprintf(stderr, "Any given CPU may "
+ 						"only be given once.\n");
+-					exit(1);
++					goto err_code;
+ 				} else
+ 					CPU_SET_S(cpus_to_pin[cpu],
+ 						  cpu_set_size, cpu_set);
+@@ -607,7 +616,7 @@ int main(int argc, char *argv[])
+ 				queue_path = malloc(strlen(option) + 2);
+ 				if (!queue_path) {
+ 					perror("malloc()");
+-					exit(1);
++					goto err_code;
+ 				}
+ 				queue_path[0] = '/';
+ 				queue_path[1] = 0;
+@@ -622,17 +631,12 @@ int main(int argc, char *argv[])
+ 		fprintf(stderr, "Must pass at least one CPU to continuous "
+ 			"mode.\n");
+ 		poptPrintUsage(popt_context, stderr, 0);
+-		exit(1);
++		goto err_code;
+ 	} else if (!continuous_mode) {
+ 		num_cpus_to_pin = 1;
+ 		cpus_to_pin[0] = cpus_online - 1;
  	}
  
- scan_target:
-@@ -2141,6 +2144,10 @@ static void megasas_slave_destroy(struct scsi_device *sdev)
- 	instance = megasas_lookup_instance(sdev->host->host_no);
- 
- 	if (MEGASAS_IS_LOGICAL(sdev)) {
-+		if (!MEGASAS_IS_LUN_VALID(sdev)) {
-+			sdev_printk(KERN_INFO, sdev, "%s: invalid LUN\n", __func__);
-+			return;
-+		}
- 		ld_tgt_id = MEGASAS_TARGET_ID(sdev);
- 		instance->ld_tgtid_status[ld_tgt_id] = LD_TARGET_ID_DELETED;
- 		if (megasas_dbg_lvl & LD_PD_DEBUG)
+-	if (getuid() != 0)
+-		ksft_exit_skip("Not running as root, but almost all tests "
+-			"require root in order to modify\nsystem settings.  "
+-			"Exiting.\n");
+-
+ 	max_msgs = fopen(MAX_MSGS, "r+");
+ 	max_msgsize = fopen(MAX_MSGSIZE, "r+");
+ 	if (!max_msgs)
+@@ -740,4 +744,9 @@ int main(int argc, char *argv[])
+ 			sleep(1);
+ 	}
+ 	shutdown(0, "", 0);
++
++err_code:
++	CPU_FREE(cpu_set);
++	exit(1);
++
+ }
 -- 
 2.35.1
 
