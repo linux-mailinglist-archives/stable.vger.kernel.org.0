@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F36505430
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD08C50546F
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241150AbiDRNEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41142 "EHLO
+        id S240781AbiDRNHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:07:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241834AbiDRNDb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2617433EB9;
-        Mon, 18 Apr 2022 05:44:44 -0700 (PDT)
+        with ESMTP id S240744AbiDRNFR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3592340C5;
+        Mon, 18 Apr 2022 05:45:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D839CB80E44;
-        Mon, 18 Apr 2022 12:44:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA686C385A7;
-        Mon, 18 Apr 2022 12:44:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EC61B80D9C;
+        Mon, 18 Apr 2022 12:45:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0B03C385A1;
+        Mon, 18 Apr 2022 12:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285881;
-        bh=X0t+T/PV6H7afRr7VxLAQykE69EkNrL4/q4ZlSkuoE4=;
+        s=korg; t=1650285942;
+        bh=tmI8DtT+P3Q0cz3cFyD1ov7gqSYR/gsjP5W2IKO1sgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V73wlpNNVRqlRYGaXdxye+6g2Br/YrVha17Cn9O6AnOT1HFCN4McI9bRxKvS6NEFx
-         CoVgCfPKFWEtNGCpRuvX5UhhOl2wODmlXh699umW2ayEoBtPWRFLnntbimONB1zUZ0
-         dQU94RMrF6NlAVy7/HrKubOio4wn2s/rV70vupkI=
+        b=spzAozREkbCEKar7rdk8kRFlBMz3RUFTf8hEL9PBR5nVnE5kD9cM9ncLYcvAvOt8x
+         45+kCl7kDolLotSC8Uyns1HEYrysS1oNapWIq37XwqLKziKnkjV3QjOZtyVT80WD2g
+         0IE5t2hJ62OsWHKXsmOMFGSr7KtnNB+JXu3aRgr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Sven Peter <sven@svenpeter.dev>, Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.4 54/63] i2c: pasemi: Wait for write xfers to finish
-Date:   Mon, 18 Apr 2022 14:13:51 +0200
-Message-Id: <20220418121137.806448460@linuxfoundation.org>
+        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 12/32] drm/amdkfd: Check for potential null return of kmalloc_array()
+Date:   Mon, 18 Apr 2022 14:13:52 +0200
+Message-Id: <20220418121127.486269842@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: QintaoShen <unSimple1993@163.com>
 
-commit bd8963e602c77adc76dbbbfc3417c3cf14fed76b upstream.
+[ Upstream commit ebbb7bb9e80305820dc2328a371c1b35679f2667 ]
 
-Wait for completion of write transfers before returning from the driver.
-At first sight it may seem advantageous to leave write transfers queued
-for the controller to carry out on its own time, but there's a couple of
-issues with it:
+As the kmalloc_array() may return null, the 'event_waiters[i].wait' would lead to null-pointer dereference.
+Therefore, it is better to check the return value of kmalloc_array() to avoid this confusion.
 
- * Driver doesn't check for FIFO space.
-
- * The queued writes can complete while the driver is in its I2C read
-   transfer path which means it will get confused by the raising of
-   XEN (the 'transaction ended' signal). This can cause a spurious
-   ENODATA error due to premature reading of the MRXFIFO register.
-
-Adding the wait fixes some unreliability issues with the driver. There's
-some efficiency cost to it (especially with pasemi_smb_waitready doing
-its polling), but that will be alleviated once the driver receives
-interrupt support.
-
-Fixes: beb58aa39e6e ("i2c: PA Semi SMBus driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Reviewed-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: QintaoShen <unSimple1993@163.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pasemi.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/amdkfd/kfd_events.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/i2c/busses/i2c-pasemi.c
-+++ b/drivers/i2c/busses/i2c-pasemi.c
-@@ -137,6 +137,12 @@ static int pasemi_i2c_xfer_msg(struct i2
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+index e9f0e0a1b41c..892077377339 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+@@ -532,6 +532,8 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
+ 	event_waiters = kmalloc_array(num_events,
+ 					sizeof(struct kfd_event_waiter),
+ 					GFP_KERNEL);
++	if (!event_waiters)
++		return NULL;
  
- 		TXFIFO_WR(smbus, msg->buf[msg->len-1] |
- 			  (stop ? MTXFIFO_STOP : 0));
-+
-+		if (stop) {
-+			err = pasemi_smb_waitready(smbus);
-+			if (err)
-+				goto reset_out;
-+		}
- 	}
- 
- 	return 0;
+ 	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
+ 		init_wait(&event_waiters[i].wait);
+-- 
+2.35.1
+
 
 
