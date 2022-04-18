@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D18D5053C3
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B8CE5056C2
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240774AbiDRNBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:01:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59826 "EHLO
+        id S242968AbiDRNgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:36:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241948AbiDRM72 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7FF6B7C1;
-        Mon, 18 Apr 2022 05:39:51 -0700 (PDT)
+        with ESMTP id S243556AbiDRNeC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:34:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A502240AA;
+        Mon, 18 Apr 2022 05:58:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CCFCB80EDB;
-        Mon, 18 Apr 2022 12:39:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5EB1C385A1;
-        Mon, 18 Apr 2022 12:39:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C53A4B80E4B;
+        Mon, 18 Apr 2022 12:57:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F85BC385A8;
+        Mon, 18 Apr 2022 12:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285589;
-        bh=xukcHtLpxHrdsA4nZAemtS+kGBMlnhaTnD9PbJpFc+0=;
+        s=korg; t=1650286677;
+        bh=4jTFIdE/RLeE76gCMMXu6/RBZIRcmWv8WEiWwMjmKIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLnIQ2jqI6g3UF1NzXXHMACokSD31T9D5G/wbKjH0x3vvaRtQxvoZN15RvorWtDcM
-         tFebI8u5OMgpNzFWRJHNtDz/4IYeWplBaQSld/7lJ9Azj1xsIQgN5xeCWHmUBNP3cw
-         VJHgUL3RxDDPNIJa/xP7tvd0LmssyijXTSOt/j+s=
+        b=JuqKFRykhPqagGT5xnkDmpNnIzAF/XiZOdaZ+8gJbmR7LxYZdBKoz/sHLl5xAeDiP
+         TaUNCQSddWLojtIQqbFt7/xrnOu4NQ2qeAT7y0gNSSmD1O35lCKYYKLAkKeedgS8v3
+         AI8ND+Oqx8V0StFGvwEFrE/PS8vanaUuCu2qfpdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Galakhov <agalakhov@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Yang Guang <yang.guang5@zte.com.cn>,
+        David Yang <davidcomponentone@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/105] scsi: mvsas: Add PCI ID of RocketRaid 2640
-Date:   Mon, 18 Apr 2022 14:13:08 +0200
-Message-Id: <20220418121148.363727596@linuxfoundation.org>
+Subject: [PATCH 4.14 208/284] ptp: replace snprintf with sysfs_emit
+Date:   Mon, 18 Apr 2022 14:13:09 +0200
+Message-Id: <20220418121217.635183809@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Galakhov <agalakhov@gmail.com>
+From: Yang Guang <yang.guang5@zte.com.cn>
 
-[ Upstream commit 5f2bce1e222028dc1c15f130109a17aa654ae6e8 ]
+[ Upstream commit e2cf07654efb0fd7bbcb475c6f74be7b5755a8fd ]
 
-The HighPoint RocketRaid 2640 is a low-cost SAS controller based on Marvell
-chip. The chip in question was already supported by the kernel, just the
-PCI ID of this particular board was missing.
+coccinelle report:
+./drivers/ptp/ptp_sysfs.c:17:8-16:
+WARNING: use scnprintf or sprintf
+./drivers/ptp/ptp_sysfs.c:390:8-16:
+WARNING: use scnprintf or sprintf
 
-Link: https://lore.kernel.org/r/20220309212535.402987-1-agalakhov@gmail.com
-Signed-off-by: Alexey Galakhov <agalakhov@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Use sysfs_emit instead of scnprintf or sprintf makes more sense.
+
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
+Signed-off-by: David Yang <davidcomponentone@gmail.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mvsas/mv_init.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/ptp/ptp_sysfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
-index 0cfea7b2ab13..85ca8421fb86 100644
---- a/drivers/scsi/mvsas/mv_init.c
-+++ b/drivers/scsi/mvsas/mv_init.c
-@@ -646,6 +646,7 @@ static struct pci_device_id mvs_pci_table[] = {
- 	{ PCI_VDEVICE(ARECA, PCI_DEVICE_ID_ARECA_1300), chip_1300 },
- 	{ PCI_VDEVICE(ARECA, PCI_DEVICE_ID_ARECA_1320), chip_1320 },
- 	{ PCI_VDEVICE(ADAPTEC2, 0x0450), chip_6440 },
-+	{ PCI_VDEVICE(TTI, 0x2640), chip_6440 },
- 	{ PCI_VDEVICE(TTI, 0x2710), chip_9480 },
- 	{ PCI_VDEVICE(TTI, 0x2720), chip_9480 },
- 	{ PCI_VDEVICE(TTI, 0x2721), chip_9480 },
+diff --git a/drivers/ptp/ptp_sysfs.c b/drivers/ptp/ptp_sysfs.c
+index 48401dfcd999..f97a5eefa2e2 100644
+--- a/drivers/ptp/ptp_sysfs.c
++++ b/drivers/ptp/ptp_sysfs.c
+@@ -26,7 +26,7 @@ static ssize_t clock_name_show(struct device *dev,
+ 			       struct device_attribute *attr, char *page)
+ {
+ 	struct ptp_clock *ptp = dev_get_drvdata(dev);
+-	return snprintf(page, PAGE_SIZE-1, "%s\n", ptp->info->name);
++	return sysfs_emit(page, "%s\n", ptp->info->name);
+ }
+ static DEVICE_ATTR_RO(clock_name);
+ 
+@@ -240,7 +240,7 @@ static ssize_t ptp_pin_show(struct device *dev, struct device_attribute *attr,
+ 
+ 	mutex_unlock(&ptp->pincfg_mux);
+ 
+-	return snprintf(page, PAGE_SIZE, "%u %u\n", func, chan);
++	return sysfs_emit(page, "%u %u\n", func, chan);
+ }
+ 
+ static ssize_t ptp_pin_store(struct device *dev, struct device_attribute *attr,
 -- 
 2.35.1
 
