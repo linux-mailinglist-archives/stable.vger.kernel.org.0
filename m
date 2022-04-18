@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D17675052F2
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DBA550517A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240052AbiDRMyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:54:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42410 "EHLO
+        id S239196AbiDRMfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:35:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240372AbiDRMxU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:53:20 -0400
+        with ESMTP id S239778AbiDRMd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7752DD47;
-        Mon, 18 Apr 2022 05:34:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3281B78F;
+        Mon, 18 Apr 2022 05:26:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4601B6116E;
-        Mon, 18 Apr 2022 12:34:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37957C385A9;
-        Mon, 18 Apr 2022 12:34:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0D3660FB6;
+        Mon, 18 Apr 2022 12:26:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF8F8C385A7;
+        Mon, 18 Apr 2022 12:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285282;
-        bh=gS4lCrLy9Ke0NYXYAEZO3ZEnbzbn6edVQDjA5QkHjsA=;
+        s=korg; t=1650284732;
+        bh=tBpwUdixRcwh0wUsFNynhdOn/ivLTX5IRZZzK9fsF6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmyOTYJ9zrzzP9io+7yllQ13Ye5pWM65ipOCiHdGSsAS4LaV31pdTycCipUesAH6a
-         YxZgwUOWRJqlL2LmSsqg7v7EeMcNU4DvjcA9tLDMzGGWgJ9TjAVbHdLHv8OpTgO3Sw
-         xDUlpGXKEy6ytgsKPvR0RijrZms9SLd98lmo+16Y=
+        b=0Rgmj8buU2drCi5x/zv2zv5WqJtnaIApK6tJzdOYsscffmnQMy59TXevA9b6pFEoZ
+         L62wRA5iLqdte6qCrwyqASlP4LQH2NmXn5hXdv+3y8AY5Qjz4n28e6yy1Ga+uOaHOu
+         oK8L/hdfsreMjXEMVwcvikc+NKxsQGVTHWS/rTeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 158/189] ALSA: hda/realtek: Add quirk for Clevo PD50PNT
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.17 209/219] Revert "net: dsa: setup master before ports"
 Date:   Mon, 18 Apr 2022 14:12:58 +0200
-Message-Id: <20220418121206.689468977@linuxfoundation.org>
+Message-Id: <20220418121212.717936708@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,30 +53,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Crawford <tcrawford@system76.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 9eb6f5c388060d8cef3c8b616cc31b765e022359 upstream.
+commit 762c2998c9625f642f0d23da7d3f7e4f90665fdf upstream.
 
-Fixes speaker output and headset detection on Clevo PD50PNT.
+This reverts commit 11fd667dac315ea3f2469961f6d2869271a46cae.
 
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220405182029.27431-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+dsa_slave_change_mtu() updates the MTU of the DSA master and of the
+associated CPU port, but only if it detects a change to the master MTU.
+
+The blamed commit in the Fixes: tag below addressed a regression where
+dsa_slave_change_mtu() would return early and not do anything due to
+ds->ops->port_change_mtu() not being implemented.
+
+However, that commit also had the effect that the master MTU got set up
+to the correct value by dsa_master_setup(), but the associated CPU port's
+MTU did not get updated. This causes breakage for drivers that rely on
+the ->port_change_mtu() DSA call to account for the tagging overhead on
+the CPU port, and don't set up the initial MTU during the setup phase.
+
+Things actually worked before because they were in a fragile equilibrium
+where dsa_slave_change_mtu() was called before dsa_master_setup() was.
+So dsa_slave_change_mtu() could actually detect a change and update the
+CPU port MTU too.
+
+Restore the code to the way things used to work by reverting the reorder
+of dsa_tree_setup_master() and dsa_tree_setup_ports(). That change did
+not have a concrete motivation going for it anyway, it just looked
+better.
+
+Fixes: 066dfc429040 ("Revert "net: dsa: stop updating master MTU from master.c"")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/dsa/dsa2.c |   23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2614,6 +2614,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1558, 0x65e1, "Clevo PB51[ED][DF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65f1, "Clevo PC50HS", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x65f5, "Clevo PD50PN[NRT]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+--- a/net/dsa/dsa2.c
++++ b/net/dsa/dsa2.c
+@@ -561,7 +561,6 @@ static void dsa_port_teardown(struct dsa
+ 	struct devlink_port *dlp = &dp->devlink_port;
+ 	struct dsa_switch *ds = dp->ds;
+ 	struct dsa_mac_addr *a, *tmp;
+-	struct net_device *slave;
+ 
+ 	if (!dp->setup)
+ 		return;
+@@ -583,11 +582,9 @@ static void dsa_port_teardown(struct dsa
+ 		dsa_port_link_unregister_of(dp);
+ 		break;
+ 	case DSA_PORT_TYPE_USER:
+-		slave = dp->slave;
+-
+-		if (slave) {
++		if (dp->slave) {
++			dsa_slave_destroy(dp->slave);
+ 			dp->slave = NULL;
+-			dsa_slave_destroy(slave);
+ 		}
+ 		break;
+ 	}
+@@ -1137,17 +1134,17 @@ static int dsa_tree_setup(struct dsa_swi
+ 	if (err)
+ 		goto teardown_cpu_ports;
+ 
+-	err = dsa_tree_setup_master(dst);
++	err = dsa_tree_setup_ports(dst);
+ 	if (err)
+ 		goto teardown_switches;
+ 
+-	err = dsa_tree_setup_ports(dst);
++	err = dsa_tree_setup_master(dst);
+ 	if (err)
+-		goto teardown_master;
++		goto teardown_ports;
+ 
+ 	err = dsa_tree_setup_lags(dst);
+ 	if (err)
+-		goto teardown_ports;
++		goto teardown_master;
+ 
+ 	dst->setup = true;
+ 
+@@ -1155,10 +1152,10 @@ static int dsa_tree_setup(struct dsa_swi
+ 
+ 	return 0;
+ 
+-teardown_ports:
+-	dsa_tree_teardown_ports(dst);
+ teardown_master:
+ 	dsa_tree_teardown_master(dst);
++teardown_ports:
++	dsa_tree_teardown_ports(dst);
+ teardown_switches:
+ 	dsa_tree_teardown_switches(dst);
+ teardown_cpu_ports:
+@@ -1176,10 +1173,10 @@ static void dsa_tree_teardown(struct dsa
+ 
+ 	dsa_tree_teardown_lags(dst);
+ 
+-	dsa_tree_teardown_ports(dst);
+-
+ 	dsa_tree_teardown_master(dst);
+ 
++	dsa_tree_teardown_ports(dst);
++
+ 	dsa_tree_teardown_switches(dst);
+ 
+ 	dsa_tree_teardown_cpu_ports(dst);
 
 
