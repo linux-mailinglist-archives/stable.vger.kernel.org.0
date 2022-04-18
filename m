@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A90845057BE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15899505206
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240152AbiDRNzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:55:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45686 "EHLO
+        id S235427AbiDRMlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343696AbiDRNyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:54:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62F4047AFE;
-        Mon, 18 Apr 2022 06:03:27 -0700 (PDT)
+        with ESMTP id S240659AbiDRMj0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B48312AA3;
+        Mon, 18 Apr 2022 05:30:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 306CF60B35;
-        Mon, 18 Apr 2022 13:03:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27106C385A1;
-        Mon, 18 Apr 2022 13:03:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8C1CB80EC0;
+        Mon, 18 Apr 2022 12:30:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A86BC385A7;
+        Mon, 18 Apr 2022 12:30:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287006;
-        bh=BG6+ol7tstZEZfMzxUu8U5+g5hiNZCpTOjP+NXtT7/A=;
+        s=korg; t=1650285001;
+        bh=eVtYDTBmxFuv+Xved2iAQEP6AKTHEepLKoeFsRZqxlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lR9Q0Fg8xRfAp+JHVAK+kicxpuLIPD6d6ZmWacx9xFxXOFe/q5qGgjeecEHSa7n7p
-         YFBbO6x6gPdoi3zBNlp1wT8mR+VeCBljKsFD+NBJYwmIP56s56ZgT5ZctMu8Qan0dq
-         LKw1lFxMm75vCcX488qFmhisF4g0YfGTHc8cJE7E=
+        b=uDKbhBghjvgPdb0IO50PfF1gtvV9FaobGa/71D5bFlFHE2mxPL4XCZX9tlIcPjRaW
+         Mzs3XAgzSsFSuW6xTdT6MDp9dGAqcWeStolfOaiJh5Xb0Kbm4ghlAjfhYuYgtFs4Wo
+         L0oVrL1g091b+IMMpBbzQaGq1zNETQqDH1Wci1KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>
-Subject: [PATCH 4.9 029/218] ARM: dts: exynos: fix UART3 pins configuration in Exynos5250
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 075/189] drm/msm: Fix range size vs end confusion
 Date:   Mon, 18 Apr 2022 14:11:35 +0200
-Message-Id: <20220418121200.188287849@linuxfoundation.org>
+Message-Id: <20220418121202.637999742@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Rob Clark <robdclark@chromium.org>
 
-commit 372d7027fed43c8570018e124cf78b89523a1f8e upstream.
+[ Upstream commit 537fef808be5ea56f6fc06932162550819a3b3c3 ]
 
-The gpa1-4 pin was put twice in UART3 pin configuration of Exynos5250,
-instead of proper pin gpa1-5.
+The fourth param is size, rather than range_end.
 
-Fixes: f8bfe2b050f3 ("ARM: dts: add pin state information in client nodes for Exynos5 platforms")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Link: https://lore.kernel.org/r/20211230195325.328220-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that we could increase the address space size if we had a way to
+prevent buffers from spanning a 4G split, mostly just to avoid fw bugs
+with 64b math.
+
+Fixes: 84c31ee16f90 ("drm/msm/a6xx: Add support for per-instance pagetables")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: https://lore.kernel.org/r/20220407202836.1211268-1-robdclark@gmail.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5250-pinctrl.dtsi |    2 +-
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
-@@ -257,7 +257,7 @@
- 	};
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index f54bfdb1ebff..9b41e2f82fc2 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1711,7 +1711,7 @@ a6xx_create_private_address_space(struct msm_gpu *gpu)
+ 		return ERR_CAST(mmu);
  
- 	uart3_data: uart3-data {
--		samsung,pins = "gpa1-4", "gpa1-4";
-+		samsung,pins = "gpa1-4", "gpa1-5";
- 		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
- 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
- 		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
+ 	return msm_gem_address_space_create(mmu,
+-		"gpu", 0x100000000ULL, 0x1ffffffffULL);
++		"gpu", 0x100000000ULL, SZ_4G);
+ }
+ 
+ static uint32_t a6xx_get_rptr(struct msm_gpu *gpu, struct msm_ringbuffer *ring)
+-- 
+2.35.1
+
 
 
