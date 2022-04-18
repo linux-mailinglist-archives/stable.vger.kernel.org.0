@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4E7505476
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1AC15057A4
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241053AbiDRNHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:07:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41176 "EHLO
+        id S244470AbiDRNvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:51:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241051AbiDRNF2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:28 -0400
+        with ESMTP id S244656AbiDRNuu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:50:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 053F429828;
-        Mon, 18 Apr 2022 05:46:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1257443F7;
+        Mon, 18 Apr 2022 06:02:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5A80B80E4B;
-        Mon, 18 Apr 2022 12:46:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CF8BC385A7;
-        Mon, 18 Apr 2022 12:46:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BD00B80EDC;
+        Mon, 18 Apr 2022 13:02:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1577C385A1;
+        Mon, 18 Apr 2022 13:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285963;
-        bh=h9/5KSj6OJA2aQ/9/6+/e4MfRq0HbHkAqRzBeWOfW0Q=;
+        s=korg; t=1650286920;
+        bh=0c1wzjzdCckmhAYOoRg1y/jRpjgntM2jVZjWBC9E3BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjU+LTz4eLWgfy59wHFLaBhJHYK0R8RR0RQ7lrgu3SB6TG/31+qk3hXoX0avZM+6z
-         L2FvokOe4OI7lz8v83N1NMMBx2fsbj07CPC5pU21p7S1W8t9mDrtSi22sdKSetVebB
-         4pu6c9sIj8o5i/vcoONrc8yGx59QaNWLB3kq0SXY=
+        b=iKATwCC5x/Jp/gyIUKdMAG0nmwTp8CmWUGWCMqWMweg44z0dgldjP8ocpeaVRbhNI
+         6PTi2ttj66oDe7p/iaDl+aRRhtqgFooy1Ey4Ol7ltMaoQKBm5fOdPFRF6poHUwRDtz
+         zxyKU3EMU6OO+kfB5yDbkO4w+ZGTG8NVoOw8rnf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joey Gouly <joey.gouly@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/32] arm64: alternatives: mark patch_alternative() as `noinstr`
-Date:   Mon, 18 Apr 2022 14:13:59 +0200
-Message-Id: <20220418121127.688055795@linuxfoundation.org>
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com,
+        Tejun Heo <tj@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 259/284] cgroup: Use open-time cgroup namespace for process migration perm checks
+Date:   Mon, 18 Apr 2022 14:14:00 +0200
+Message-Id: <20220418121219.855654899@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
-References: <20220418121127.127656835@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +58,154 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joey Gouly <joey.gouly@arm.com>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit a2c0b0fbe01419f8f5d1c0b9c581631f34ffce8b ]
+commit e57457641613fef0d147ede8bd6a3047df588b95 upstream.
 
-The alternatives code must be `noinstr` such that it does not patch itself,
-as the cache invalidation is only performed after all the alternatives have
-been applied.
+cgroup process migration permission checks are performed at write time as
+whether a given operation is allowed or not is dependent on the content of
+the write - the PID. This currently uses current's cgroup namespace which is
+a potential security weakness as it may allow scenarios where a less
+privileged process tricks a more privileged one into writing into a fd that
+it created.
 
-Mark patch_alternative() as `noinstr`. Mark branch_insn_requires_update()
-and get_alt_insn() with `__always_inline` since they are both only called
-through patch_alternative().
+This patch makes cgroup remember the cgroup namespace at the time of open
+and uses it for migration permission checks instad of current's. Note that
+this only applies to cgroup2 as cgroup1 doesn't have namespace support.
 
-Booting a kernel in QEMU TCG with KCSAN=y and ARM64_USE_LSE_ATOMICS=y caused
-a boot hang:
-[    0.241121] CPU: All CPU(s) started at EL2
+This also fixes a use-after-free bug on cgroupns reported in
 
-The alternatives code was patching the atomics in __tsan_read4() from LL/SC
-atomics to LSE atomics.
+ https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
 
-The following fragment is using LL/SC atomics in the .text section:
-  | <__tsan_unaligned_read4+304>:     ldxr    x6, [x2]
-  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
-  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
-  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
+Note that backporting this fix also requires the preceding patch.
 
-This LL/SC atomic sequence was to be replaced with LSE atomics. However since
-the alternatives code was instrumentable, __tsan_read4() was being called after
-only the first instruction was replaced, which led to the following code in memory:
-  | <__tsan_unaligned_read4+304>:     ldadd   x5, x6, [x2]
-  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
-  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
-  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
-
-This caused an infinite loop as the `stxr` instruction never completed successfully,
-so `w7` was always 0.
-
-Signed-off-by: Joey Gouly <joey.gouly@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20220405104733.11476-1-joey.gouly@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Cc: Michal Koutný <mkoutny@suse.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Reported-by: syzbot+50f5cf33a284ce738b62@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/00000000000048c15c05d0083397@google.com
+Fixes: 5136f6365ce3 ("cgroup: implement "nsdelegate" mount option")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+[mkoutny: v5.10: duplicate ns check in procs/threads write handler, adjust context]
+Signed-off-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[OP: backport to v4.14: drop changes to cgroup_attach_permissions() and
+cgroup_css_set_fork(), adjust cgroup_procs_write_permission() calls]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/alternative.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/cgroup/cgroup-internal.h |    2 ++
+ kernel/cgroup/cgroup.c          |   24 +++++++++++++++++-------
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
-index 0d345622bbba..3747c8d87bdb 100644
---- a/arch/arm64/kernel/alternative.c
-+++ b/arch/arm64/kernel/alternative.c
-@@ -42,7 +42,7 @@ struct alt_region {
- /*
-  * Check if the target PC is within an alternative block.
-  */
--static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
-+static __always_inline bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
- {
- 	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
- 	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
-@@ -50,7 +50,7 @@ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+--- a/kernel/cgroup/cgroup-internal.h
++++ b/kernel/cgroup/cgroup-internal.h
+@@ -11,6 +11,8 @@
+ struct cgroup_pidlist;
  
- #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
+ struct cgroup_file_ctx {
++	struct cgroup_namespace	*ns;
++
+ 	struct {
+ 		void			*trigger;
+ 	} psi;
+--- a/kernel/cgroup/cgroup.c
++++ b/kernel/cgroup/cgroup.c
+@@ -3370,14 +3370,19 @@ static int cgroup_file_open(struct kernf
+ 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+ 		return -ENOMEM;
++
++	ctx->ns = current->nsproxy->cgroup_ns;
++	get_cgroup_ns(ctx->ns);
+ 	of->priv = ctx;
  
--static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
-+static __always_inline u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
- {
- 	u32 insn;
+ 	if (!cft->open)
+ 		return 0;
  
-@@ -95,7 +95,7 @@ static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnp
- 	return insn;
+ 	ret = cft->open(of);
+-	if (ret)
++	if (ret) {
++		put_cgroup_ns(ctx->ns);
+ 		kfree(ctx);
++	}
+ 	return ret;
  }
  
--static void patch_alternative(struct alt_instr *alt,
-+static noinstr void patch_alternative(struct alt_instr *alt,
- 			      __le32 *origptr, __le32 *updptr, int nr_inst)
+@@ -3388,13 +3393,14 @@ static void cgroup_file_release(struct k
+ 
+ 	if (cft->release)
+ 		cft->release(of);
++	put_cgroup_ns(ctx->ns);
+ 	kfree(ctx);
+ }
+ 
+ static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
+ 				 size_t nbytes, loff_t off)
  {
- 	__le32 *replptr;
--- 
-2.35.1
-
+-	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *cgrp = of->kn->parent->priv;
+ 	struct cftype *cft = of->kn->priv;
+ 	struct cgroup_subsys_state *css;
+@@ -3408,7 +3414,7 @@ static ssize_t cgroup_file_write(struct
+ 	 */
+ 	if ((cgrp->root->flags & CGRP_ROOT_NS_DELEGATE) &&
+ 	    !(cft->flags & CFTYPE_NS_DELEGATABLE) &&
+-	    ns != &init_cgroup_ns && ns->root_cset->dfl_cgrp == cgrp)
++	    ctx->ns != &init_cgroup_ns && ctx->ns->root_cset->dfl_cgrp == cgrp)
+ 		return -EPERM;
+ 
+ 	if (cft->write)
+@@ -4351,9 +4357,9 @@ static int cgroup_procs_show(struct seq_
+ 
+ static int cgroup_procs_write_permission(struct cgroup *src_cgrp,
+ 					 struct cgroup *dst_cgrp,
+-					 struct super_block *sb)
++					 struct super_block *sb,
++					 struct cgroup_namespace *ns)
+ {
+-	struct cgroup_namespace *ns = current->nsproxy->cgroup_ns;
+ 	struct cgroup *com_cgrp = src_cgrp;
+ 	struct inode *inode;
+ 	int ret;
+@@ -4389,6 +4395,7 @@ static int cgroup_procs_write_permission
+ static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
+ 				  char *buf, size_t nbytes, loff_t off)
+ {
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+@@ -4415,7 +4422,8 @@ static ssize_t cgroup_procs_write(struct
+ 	 */
+ 	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+-					    of->file->f_path.dentry->d_sb);
++					    of->file->f_path.dentry->d_sb,
++					    ctx->ns);
+ 	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
+@@ -4438,6 +4446,7 @@ static void *cgroup_threads_start(struct
+ static ssize_t cgroup_threads_write(struct kernfs_open_file *of,
+ 				    char *buf, size_t nbytes, loff_t off)
+ {
++	struct cgroup_file_ctx *ctx = of->priv;
+ 	struct cgroup *src_cgrp, *dst_cgrp;
+ 	struct task_struct *task;
+ 	const struct cred *saved_cred;
+@@ -4466,7 +4475,8 @@ static ssize_t cgroup_threads_write(stru
+ 	 */
+ 	saved_cred = override_creds(of->file->f_cred);
+ 	ret = cgroup_procs_write_permission(src_cgrp, dst_cgrp,
+-					    of->file->f_path.dentry->d_sb);
++					    of->file->f_path.dentry->d_sb,
++					    ctx->ns);
+ 	revert_creds(saved_cred);
+ 	if (ret)
+ 		goto out_finish;
 
 
