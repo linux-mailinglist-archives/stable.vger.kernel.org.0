@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 308835053EE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EB8505708
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238854AbiDRNCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:02:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32932 "EHLO
+        id S241494AbiDRNpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240587AbiDRNAh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:00:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51D7B3192A;
-        Mon, 18 Apr 2022 05:42:01 -0700 (PDT)
+        with ESMTP id S244190AbiDRNnd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:43:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D56231504;
+        Mon, 18 Apr 2022 05:59:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C9EB561014;
-        Mon, 18 Apr 2022 12:42:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBDA2C385A1;
-        Mon, 18 Apr 2022 12:41:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE319B80D9C;
+        Mon, 18 Apr 2022 12:59:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A259C385A7;
+        Mon, 18 Apr 2022 12:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285720;
-        bh=Bgfz/3+RT7gpooYXFmsclpEyjumlYjpaLsK+AJi+rK8=;
+        s=korg; t=1650286780;
+        bh=Cie9xTbHTERLmiPE7EPVmZETpno/5UZwrKY6N28oaNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jzrph/KYPjf7YotaGmvG5s7huyBJ06dtrqrIHlmMBUcT1GkVZVvikjKmuqSzLBlPQ
-         Greezsg/LAh28XnhO7ysdcLnobuuo5uikFAzSbieJZArcuyb3RO+GSpSeZ3/Em3RPt
-         alNtZu49/ZKy/4cPLz/QmYz/z5ffzzCRqo3bJhMY=
+        b=LV5rc88M0hwh+DBOm/hVJN6Cj+jgfJaXEuuNk1OqZcXHIpfiuMcDN8nku0Vjr1SMI
+         bpc8ic1pWp68RT+7EAfv7iyctZUAgDMReBXzHUUDXhiCM9q9fEkFnv0V0PS2sJs64b
+         kU5yMmBah1Zm5kss9yqXbcPRtLldBX5ccK53pdvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Osterried <thomas@osterried.de>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.10 101/105] ax25: Fix refcount leaks caused by ax25_cb_del()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 242/284] drm/imx: Fix memory leak in imx_pd_connector_get_modes
 Date:   Mon, 18 Apr 2022 14:13:43 +0200
-Message-Id: <20220418121149.506042116@linuxfoundation.org>
+Message-Id: <20220418121218.900232250@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,100 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: José Expósito <jose.exposito89@gmail.com>
 
-commit 9fd75b66b8f68498454d685dc4ba13192ae069b0 upstream.
+[ Upstream commit bce81feb03a20fca7bbdd1c4af16b4e9d5c0e1d3 ]
 
-The previous commit d01ffb9eee4a ("ax25: add refcount in ax25_dev to
-avoid UAF bugs") and commit feef318c855a ("ax25: fix UAF bugs of
-net_device caused by rebinding operation") increase the refcounts of
-ax25_dev and net_device in ax25_bind() and decrease the matching refcounts
-in ax25_kill_by_device() in order to prevent UAF bugs, but there are
-reference count leaks.
+Avoid leaking the display mode variable if of_get_drm_display_mode
+fails.
 
-The root cause of refcount leaks is shown below:
-
-     (Thread 1)                      |      (Thread 2)
-ax25_bind()                          |
- ...                                 |
- ax25_addr_ax25dev()                 |
-  ax25_dev_hold()   //(1)            |
-  ...                                |
- dev_hold_track()   //(2)            |
- ...                                 | ax25_destroy_socket()
-                                     |  ax25_cb_del()
-                                     |   ...
-                                     |   hlist_del_init() //(3)
-                                     |
-                                     |
-     (Thread 3)                      |
-ax25_kill_by_device()                |
- ...                                 |
- ax25_for_each(s, &ax25_list) {      |
-  if (s->ax25_dev == ax25_dev) //(4) |
-   ...                               |
-
-Firstly, we use ax25_bind() to increase the refcount of ax25_dev in
-position (1) and increase the refcount of net_device in position (2).
-Then, we use ax25_cb_del() invoked by ax25_destroy_socket() to delete
-ax25_cb in hlist in position (3) before calling ax25_kill_by_device().
-Finally, the decrements of refcounts in ax25_kill_by_device() will not
-be executed, because no s->ax25_dev equals to ax25_dev in position (4).
-
-This patch adds decrements of refcounts in ax25_release() and use
-lock_sock() to do synchronization. If refcounts decrease in ax25_release(),
-the decrements of refcounts in ax25_kill_by_device() will not be
-executed and vice versa.
-
-Fixes: d01ffb9eee4a ("ax25: add refcount in ax25_dev to avoid UAF bugs")
-Fixes: 87563a043cef ("ax25: fix reference count leaks of ax25_dev")
-Fixes: feef318c855a ("ax25: fix UAF bugs of net_device caused by rebinding operation")
-Reported-by: Thomas Osterried <thomas@osterried.de>
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[OP: backport to 5.10: adjust dev_put_track()->dev_put()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 76ecd9c9fb24 ("drm/imx: parallel-display: check return code from of_get_drm_display_mode()")
+Addresses-Coverity-ID: 1443943 ("Resource leak")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20220108165230.44610-1-jose.exposito89@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/imx/parallel-display.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -98,8 +98,10 @@ again:
- 			spin_unlock_bh(&ax25_list_lock);
- 			lock_sock(sk);
- 			s->ax25_dev = NULL;
--			dev_put(ax25_dev->dev);
--			ax25_dev_put(ax25_dev);
-+			if (sk->sk_socket) {
-+				dev_put(ax25_dev->dev);
-+				ax25_dev_put(ax25_dev);
-+			}
- 			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
- 			spin_lock_bh(&ax25_list_lock);
-@@ -978,14 +980,20 @@ static int ax25_release(struct socket *s
- {
- 	struct sock *sk = sock->sk;
- 	ax25_cb *ax25;
-+	ax25_dev *ax25_dev;
+diff --git a/drivers/gpu/drm/imx/parallel-display.c b/drivers/gpu/drm/imx/parallel-display.c
+index 8def97d75030..6420dec6cc00 100644
+--- a/drivers/gpu/drm/imx/parallel-display.c
++++ b/drivers/gpu/drm/imx/parallel-display.c
+@@ -77,8 +77,10 @@ static int imx_pd_connector_get_modes(struct drm_connector *connector)
+ 		ret = of_get_drm_display_mode(np, &imxpd->mode,
+ 					      &imxpd->bus_flags,
+ 					      OF_USE_NATIVE_MODE);
+-		if (ret)
++		if (ret) {
++			drm_mode_destroy(connector->dev, mode);
+ 			return ret;
++		}
  
- 	if (sk == NULL)
- 		return 0;
- 
- 	sock_hold(sk);
--	sock_orphan(sk);
- 	lock_sock(sk);
-+	sock_orphan(sk);
- 	ax25 = sk_to_ax25(sk);
-+	ax25_dev = ax25->ax25_dev;
-+	if (ax25_dev) {
-+		dev_put(ax25_dev->dev);
-+		ax25_dev_put(ax25_dev);
-+	}
- 
- 	if (sk->sk_type == SOCK_SEQPACKET) {
- 		switch (ax25->state) {
+ 		drm_mode_copy(mode, &imxpd->mode);
+ 		mode->type |= DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED,
+-- 
+2.35.1
+
 
 
