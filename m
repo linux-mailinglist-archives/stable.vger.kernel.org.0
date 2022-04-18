@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CBE5058AA
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA1F95058AC
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:08:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245175AbiDROG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:06:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37480 "EHLO
+        id S244801AbiDROLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:11:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245608AbiDROFk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:05:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C38135266;
-        Mon, 18 Apr 2022 06:10:09 -0700 (PDT)
+        with ESMTP id S1344160AbiDROJN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:09:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682C536B72;
+        Mon, 18 Apr 2022 06:10:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34A0E60F0C;
-        Mon, 18 Apr 2022 13:10:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29532C385A7;
-        Mon, 18 Apr 2022 13:10:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAC01B80EDF;
+        Mon, 18 Apr 2022 13:10:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6AB2C385A7;
+        Mon, 18 Apr 2022 13:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287408;
-        bh=DKxsw4JmfpR/Bg/dltox9tnnAlydmzRJ553cHujidoY=;
+        s=korg; t=1650287443;
+        bh=/NKQc/i2EtPguCbWqU+pLA0gE+pcVnSy/5UslyQ6ho8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bidyGG/PAr/fV2K8HYJkIOKrubNCEbkwcdufNzLO7XQUG8UtRmlslTihgHXhPau3
-         9UyHRc+yUs5lOoX6lCVanV5iyJzfT/+OGh+4TKoBy+MIL1XQPJJPcnPTFb++yxu2lA
-         HwVbHyzl7+mBa61g7L0BBgcuvVO2+E6stJFio4h0=
+        b=AvdeZ+Cz/hp5Qq5Y2qcP3+N343AIAU2Nky8DduCTumE/6yIdY4aJuhDHJZ2jgN/An
+         DUonlKD59Ck6rY+VaZpFr2NrPWAhJujI+gkFCMoFctnp9rEJjeqSzqAX98Ehf7cSeW
+         DrnPcGFK1ONhdNTyNJh9TNo4kiLR8Vpd6Et+wxo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 125/218] Fix incorrect type in assignment of ipv6 port for audit
-Date:   Mon, 18 Apr 2022 14:13:11 +0200
-Message-Id: <20220418121203.167819076@linuxfoundation.org>
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Souptick Joarder (HPE)" <jrdr.linux@gmail.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 126/218] irqchip/nvic: Release nvic_base upon failure
+Date:   Mon, 18 Apr 2022 14:13:12 +0200
+Message-Id: <20220418121203.196409899@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,33 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Casey Schaufler <casey@schaufler-ca.com>
+From: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
 
-[ Upstream commit a5cd1ab7ab679d252a6d2f483eee7d45ebf2040c ]
+[ Upstream commit e414c25e3399b2b3d7337dc47abccab5c71b7c8f ]
 
-Remove inappropriate use of ntohs() and assign the
-port value directly.
+smatch warning was reported as below ->
+
+smatch warnings:
+drivers/irqchip/irq-nvic.c:131 nvic_of_init()
+warn: 'nvic_base' not released on lines: 97.
+
+Release nvic_base upon failure.
 
 Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Souptick Joarder (HPE) <jrdr.linux@gmail.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220218163303.33344-1-jrdr.linux@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smack_lsm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-nvic.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 589c1c2ae6db..84ed47195cdd 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -2567,7 +2567,7 @@ static int smk_ipv6_check(struct smack_known *subject,
- #ifdef CONFIG_AUDIT
- 	smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
- 	ad.a.u.net->family = PF_INET6;
--	ad.a.u.net->dport = ntohs(address->sin6_port);
-+	ad.a.u.net->dport = address->sin6_port;
- 	if (act == SMK_RECEIVING)
- 		ad.a.u.net->v6info.saddr = address->sin6_addr;
- 	else
+diff --git a/drivers/irqchip/irq-nvic.c b/drivers/irqchip/irq-nvic.c
+index 9694529b709d..330beb62d015 100644
+--- a/drivers/irqchip/irq-nvic.c
++++ b/drivers/irqchip/irq-nvic.c
+@@ -108,6 +108,7 @@ static int __init nvic_of_init(struct device_node *node,
+ 
+ 	if (!nvic_irq_domain) {
+ 		pr_warn("Failed to allocate irq domain\n");
++		iounmap(nvic_base);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -117,6 +118,7 @@ static int __init nvic_of_init(struct device_node *node,
+ 	if (ret) {
+ 		pr_warn("Failed to allocate irq chips\n");
+ 		irq_domain_remove(nvic_irq_domain);
++		iounmap(nvic_base);
+ 		return ret;
+ 	}
+ 
 -- 
 2.34.1
 
