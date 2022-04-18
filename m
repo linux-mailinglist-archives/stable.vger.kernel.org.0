@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8CE5056C2
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D42A50533C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242968AbiDRNgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:36:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41288 "EHLO
+        id S240500AbiDRM4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243556AbiDRNeC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:34:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A502240AA;
-        Mon, 18 Apr 2022 05:58:00 -0700 (PDT)
+        with ESMTP id S240340AbiDRMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B963ADC;
+        Mon, 18 Apr 2022 05:36:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C53A4B80E4B;
-        Mon, 18 Apr 2022 12:57:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F85BC385A8;
-        Mon, 18 Apr 2022 12:57:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DF89B80EC4;
+        Mon, 18 Apr 2022 12:36:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7EFBC385A7;
+        Mon, 18 Apr 2022 12:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286677;
-        bh=4jTFIdE/RLeE76gCMMXu6/RBZIRcmWv8WEiWwMjmKIM=;
+        s=korg; t=1650285403;
+        bh=8aq8etiejXnzTulB0gCT3uDujb/HFTZyXETxFWIJ2lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JuqKFRykhPqagGT5xnkDmpNnIzAF/XiZOdaZ+8gJbmR7LxYZdBKoz/sHLl5xAeDiP
-         TaUNCQSddWLojtIQqbFt7/xrnOu4NQ2qeAT7y0gNSSmD1O35lCKYYKLAkKeedgS8v3
-         AI8ND+Oqx8V0StFGvwEFrE/PS8vanaUuCu2qfpdA=
+        b=0ryLOcdD04cQEp8BBwxxoDzvd7BWUJJvloMSF1jYmtGohuz+S9Z1ltZC7/mZP75Mm
+         0mDujGJFkF/2e0vS8lCHp22pGBSZwrcGOgojP0i+LeBWnrLCiyEOA+4U6tsdhvCM5q
+         uX8P+xrScgaShYaZe6eWZjOe412LV2k/4/k4jUCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Yang Guang <yang.guang5@zte.com.cn>,
-        David Yang <davidcomponentone@gmail.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 208/284] ptp: replace snprintf with sysfs_emit
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 5.15 169/189] ARM: davinci: da850-evm: Avoid NULL pointer dereference
 Date:   Mon, 18 Apr 2022 14:13:09 +0200
-Message-Id: <20220418121217.635183809@linuxfoundation.org>
+Message-Id: <20220418121207.420006715@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Guang <yang.guang5@zte.com.cn>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit e2cf07654efb0fd7bbcb475c6f74be7b5755a8fd ]
+commit 83a1cde5c74bfb44b49cb2a940d044bb2380f4ea upstream.
 
-coccinelle report:
-./drivers/ptp/ptp_sysfs.c:17:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/ptp/ptp_sysfs.c:390:8-16:
-WARNING: use scnprintf or sprintf
+With newer versions of GCC, there is a panic in da850_evm_config_emac()
+when booting multi_v5_defconfig in QEMU under the palmetto-bmc machine:
 
-Use sysfs_emit instead of scnprintf or sprintf makes more sense.
+Unable to handle kernel NULL pointer dereference at virtual address 00000020
+pgd = (ptrval)
+[00000020] *pgd=00000000
+Internal error: Oops: 5 [#1] PREEMPT ARM
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.15.0 #1
+Hardware name: Generic DT based system
+PC is at da850_evm_config_emac+0x1c/0x120
+LR is at do_one_initcall+0x50/0x1e0
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
-Signed-off-by: David Yang <davidcomponentone@gmail.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The emac_pdata pointer in soc_info is NULL because davinci_soc_info only
+gets populated on davinci machines but da850_evm_config_emac() is called
+on all machines via device_initcall().
+
+Move the rmii_en assignment below the machine check so that it is only
+dereferenced when running on a supported SoC.
+
+Fixes: bae105879f2f ("davinci: DA850/OMAP-L138 EVM: implement autodetect of RMII PHY")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/YcS4xVWs6bQlQSPC@archlinux-ax161/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ptp/ptp_sysfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-davinci/board-da850-evm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ptp/ptp_sysfs.c b/drivers/ptp/ptp_sysfs.c
-index 48401dfcd999..f97a5eefa2e2 100644
---- a/drivers/ptp/ptp_sysfs.c
-+++ b/drivers/ptp/ptp_sysfs.c
-@@ -26,7 +26,7 @@ static ssize_t clock_name_show(struct device *dev,
- 			       struct device_attribute *attr, char *page)
- {
- 	struct ptp_clock *ptp = dev_get_drvdata(dev);
--	return snprintf(page, PAGE_SIZE-1, "%s\n", ptp->info->name);
-+	return sysfs_emit(page, "%s\n", ptp->info->name);
- }
- static DEVICE_ATTR_RO(clock_name);
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -1101,11 +1101,13 @@ static int __init da850_evm_config_emac(
+ 	int ret;
+ 	u32 val;
+ 	struct davinci_soc_info *soc_info = &davinci_soc_info;
+-	u8 rmii_en = soc_info->emac_pdata->rmii_en;
++	u8 rmii_en;
  
-@@ -240,7 +240,7 @@ static ssize_t ptp_pin_show(struct device *dev, struct device_attribute *attr,
+ 	if (!machine_is_davinci_da850_evm())
+ 		return 0;
  
- 	mutex_unlock(&ptp->pincfg_mux);
++	rmii_en = soc_info->emac_pdata->rmii_en;
++
+ 	cfg_chip3_base = DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP3_REG);
  
--	return snprintf(page, PAGE_SIZE, "%u %u\n", func, chan);
-+	return sysfs_emit(page, "%u %u\n", func, chan);
- }
- 
- static ssize_t ptp_pin_store(struct device *dev, struct device_attribute *attr,
--- 
-2.35.1
-
+ 	val = __raw_readl(cfg_chip3_base);
 
 
