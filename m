@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 291BD505839
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE35150510D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244174AbiDRN75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:59:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52110 "EHLO
+        id S238777AbiDRMa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:30:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244606AbiDRN4y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493DF2A734;
-        Mon, 18 Apr 2022 06:05:35 -0700 (PDT)
+        with ESMTP id S240090AbiDRM3T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB75C23174;
+        Mon, 18 Apr 2022 05:23:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB71060B42;
-        Mon, 18 Apr 2022 13:05:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC88FC385A7;
-        Mon, 18 Apr 2022 13:05:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DCC7B80ED6;
+        Mon, 18 Apr 2022 12:23:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BCEFC385A8;
+        Mon, 18 Apr 2022 12:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287134;
-        bh=3CgcAMqJTWG/rh9tZWq/btmcwy2kL2QhkhYPfFqd/YQ=;
+        s=korg; t=1650284591;
+        bh=Baju3h8I6ftmB2znulzDklc3kpii9XeoY0YmYHSSxk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbfIvT80L1tqFq1qJ1l4FatscWm4vlvmYjICSgdZB2r+NIkR3vNdf67nyVStSfK3E
-         BqpFg0eWisayuPTbVXYo6I97EOyYPv8FeoD8NRzsLGWtZq3AHOgtsikUeLerl9Akuh
-         5jxiRsDp3tHcvP8dFsuuYKninq29xRM+wtyS2/Ao=
+        b=QZliK3l4liWjTMUNNASSTvbfOAaFf0G90TduOGXVoUTzNMnXbrxS2Tr+5LWI6d94e
+         FjljkXXMl2hu9An1U1EihWH0jDOVG1yKQIa5Zh3bSoGiwmnMM4eE55s3ja+0pHm1qb
+         gKMAz2QmAF8dV+r/rUzySepB90eb1mlHG7VUnHOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
+        Eric Yang <Eric.Yang2@amd.com>, Alex Hung <alex.hung@amd.com>,
+        Roman Li <Roman.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 066/218] ASoC: atmel_ssc_dai: Handle errors for clk_enable
+Subject: [PATCH 5.17 163/219] drm/amd/display: Enable power gating before init_pipes
 Date:   Mon, 18 Apr 2022 14:12:12 +0200
-Message-Id: <20220418121201.500077886@linuxfoundation.org>
+Message-Id: <20220418121211.446404520@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +57,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Roman Li <Roman.Li@amd.com>
 
-[ Upstream commit f9e2ca0640e59d19af0ff285ee5591ed39069b09 ]
+[ Upstream commit 58e16c752e9540b28a873c44c3bee83e022007c1 ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error if fals.
+[Why]
+In init_hw() we call init_pipes() before enabling power gating.
+init_pipes() tries to power gate dsc but it may fail because
+required force-ons are not released yet.
+As a result with dsc config the following errors observed on resume:
+"REG_WAIT timeout 1us * 1000 tries - dcn20_dsc_pg_control"
+"REG_WAIT timeout 1us * 1000 tries - dcn20_dpp_pg_control"
+"REG_WAIT timeout 1us * 1000 tries - dcn20_hubp_pg_control"
 
-Fixes: cbaadf0f90d6 ("ASoC: atmel_ssc_dai: refactor the startup and shutdown")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220301090637.3776558-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[How]
+Move enable_power_gating_plane() before init_pipes() in init_hw()
+
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/atmel_ssc_dai.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 5 +++--
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c        | 5 +++--
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c        | 5 +++--
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/atmel/atmel_ssc_dai.c b/sound/soc/atmel/atmel_ssc_dai.c
-index 16e459aedffe..5958aafac8eb 100644
---- a/sound/soc/atmel/atmel_ssc_dai.c
-+++ b/sound/soc/atmel/atmel_ssc_dai.c
-@@ -296,7 +296,10 @@ static int atmel_ssc_startup(struct snd_pcm_substream *substream,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index a6703d17fcb6..c6a0daa56fa0 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -1501,6 +1501,9 @@ void dcn10_init_hw(struct dc *dc)
+ 	if (dc->config.power_down_display_on_boot)
+ 		dc_link_blank_all_dp_displays(dc);
  
- 	/* Enable PMC peripheral clock for this SSC */
- 	pr_debug("atmel_ssc_dai: Starting clock\n");
--	clk_enable(ssc_p->ssc->clk);
-+	ret = clk_enable(ssc_p->ssc->clk);
-+	if (ret)
-+		return ret;
++	if (hws->funcs.enable_power_gating_plane)
++		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
 +
- 	ssc_p->mck_rate = clk_get_rate(ssc_p->ssc->clk);
+ 	/* If taking control over from VBIOS, we may want to optimize our first
+ 	 * mode set, so we need to skip powering down pipes until we know which
+ 	 * pipes we want to use.
+@@ -1553,8 +1556,6 @@ void dcn10_init_hw(struct dc *dc)
  
- 	/* Reset the SSC unless initialized to keep it in a clean state */
+ 		REG_UPDATE(DCFCLK_CNTL, DCFCLK_GATE_DIS, 0);
+ 	}
+-	if (hws->funcs.enable_power_gating_plane)
+-		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
+ 
+ 	if (dc->clk_mgr->funcs->notify_wm_ranges)
+ 		dc->clk_mgr->funcs->notify_wm_ranges(dc->clk_mgr);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+index 1db1ca19411d..05dc0a3ae2a3 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+@@ -548,6 +548,9 @@ void dcn30_init_hw(struct dc *dc)
+ 	if (dc->config.power_down_display_on_boot)
+ 		dc_link_blank_all_dp_displays(dc);
+ 
++	if (hws->funcs.enable_power_gating_plane)
++		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
++
+ 	/* If taking control over from VBIOS, we may want to optimize our first
+ 	 * mode set, so we need to skip powering down pipes until we know which
+ 	 * pipes we want to use.
+@@ -625,8 +628,6 @@ void dcn30_init_hw(struct dc *dc)
+ 
+ 		REG_UPDATE(DCFCLK_CNTL, DCFCLK_GATE_DIS, 0);
+ 	}
+-	if (hws->funcs.enable_power_gating_plane)
+-		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
+ 
+ 	if (!dcb->funcs->is_accelerated_mode(dcb) && dc->res_pool->hubbub->funcs->init_watermarks)
+ 		dc->res_pool->hubbub->funcs->init_watermarks(dc->res_pool->hubbub);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
+index 1e156f398065..bdc4467b40d7 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hwseq.c
+@@ -200,6 +200,9 @@ void dcn31_init_hw(struct dc *dc)
+ 	if (dc->config.power_down_display_on_boot)
+ 		dc_link_blank_all_dp_displays(dc);
+ 
++	if (hws->funcs.enable_power_gating_plane)
++		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
++
+ 	/* If taking control over from VBIOS, we may want to optimize our first
+ 	 * mode set, so we need to skip powering down pipes until we know which
+ 	 * pipes we want to use.
+@@ -249,8 +252,6 @@ void dcn31_init_hw(struct dc *dc)
+ 
+ 		REG_UPDATE(DCFCLK_CNTL, DCFCLK_GATE_DIS, 0);
+ 	}
+-	if (hws->funcs.enable_power_gating_plane)
+-		hws->funcs.enable_power_gating_plane(dc->hwseq, true);
+ 
+ 	if (!dcb->funcs->is_accelerated_mode(dcb) && dc->res_pool->hubbub->funcs->init_watermarks)
+ 		dc->res_pool->hubbub->funcs->init_watermarks(dc->res_pool->hubbub);
 -- 
-2.34.1
+2.35.1
 
 
 
