@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3467F5054FF
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1823D505222
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239650AbiDRNVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:21:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33606 "EHLO
+        id S236301AbiDRMlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242531AbiDRNSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:18:50 -0400
+        with ESMTP id S240804AbiDRMji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEE5A3BA5B;
-        Mon, 18 Apr 2022 05:51:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94AD42FD;
+        Mon, 18 Apr 2022 05:30:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D116E61257;
-        Mon, 18 Apr 2022 12:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C95A8C385A7;
-        Mon, 18 Apr 2022 12:51:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 306D260F04;
+        Mon, 18 Apr 2022 12:30:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161F7C385A1;
+        Mon, 18 Apr 2022 12:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286306;
-        bh=KBgLSDBc//2y/L9zqSx0+5aitd2ZUJZnb7pq1fsgObs=;
+        s=korg; t=1650285040;
+        bh=8OKQIQQZsaln7GT2sWzd5OsKT2yNQHkboQCMYcljvFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RhZgoXYuGCzRunO3PNGLqpUL2EEzlkxMb1T73bkU16BJ5J/DYOFquvJM+px+bL5T7
-         maAwPpWpDBsu+EWlFQAcPDgoGSyPPGaUtyzfM9girXPbaXta5ttKddjBgWYGh/V6dB
-         WNq24E9c/Vi5XyD1qy8Tt3YC+7THvUl9bpGw5rrY=
+        b=MIaPRZItuzOEIGBC76F0w/XnT9GkUCYG3skFS91IcZWt0e/EYqrf8G9r3rVtHr54h
+         S1SQ3x9d2yw1Hg75fTjvHl4jkfPpGbegXDNkGqVVsAqJGshJaLMUOAa56wE0cBUY9Z
+         xMOs60l6esD8715uvpS3H4HLt714psBC7Ghup3Ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Wensheng <wangwensheng4@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 094/284] ASoC: imx-es8328: Fix error return code in imx_es8328_probe()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 055/189] ALSA: nm256: Dont call card private_free at probe error path
 Date:   Mon, 18 Apr 2022 14:11:15 +0200
-Message-Id: <20220418121213.358415885@linuxfoundation.org>
+Message-Id: <20220418121202.073042721@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 3b891513f95cba3944e72c1139ea706d04f3781b ]
+commit f20ae5074dfb38f23b0c07c62bdf8e7254a0acf8 upstream.
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+The card destructor of nm256 driver does merely stopping the running
+streams, and it's superfluous for the probe error handling.  Moreover,
+calling this via the previous devres change would lead to another
+problem due to the reverse call order.
 
-Fixes: 7e7292dba215 ("ASoC: fsl: add imx-es8328 machine driver")
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Link: https://lore.kernel.org/r/20220310091902.129299-1-wangwensheng4@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch moves the setup of the private_free callback after the card
+registration, so that it can be used only after fully set up.
+
+Fixes: c19935f04784 ("ALSA: nm256: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-40-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/imx-es8328.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/nm256/nm256.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/fsl/imx-es8328.c b/sound/soc/fsl/imx-es8328.c
-index 9953438086e4..735693274f49 100644
---- a/sound/soc/fsl/imx-es8328.c
-+++ b/sound/soc/fsl/imx-es8328.c
-@@ -93,6 +93,7 @@ static int imx_es8328_probe(struct platform_device *pdev)
- 	if (int_port > MUX_PORT_MAX || int_port == 0) {
- 		dev_err(dev, "mux-int-port: hardware only has %d mux ports\n",
- 			MUX_PORT_MAX);
-+		ret = -EINVAL;
- 		goto fail;
- 	}
+diff --git a/sound/pci/nm256/nm256.c b/sound/pci/nm256/nm256.c
+index c9c178504959..f99a1e96e923 100644
+--- a/sound/pci/nm256/nm256.c
++++ b/sound/pci/nm256/nm256.c
+@@ -1573,7 +1573,6 @@ snd_nm256_create(struct snd_card *card, struct pci_dev *pci)
+ 	chip->coeffs_current = 0;
  
+ 	snd_nm256_init_chip(chip);
+-	card->private_free = snd_nm256_free;
+ 
+ 	// pci_set_master(pci); /* needed? */
+ 	return 0;
+@@ -1680,6 +1679,7 @@ static int snd_nm256_probe(struct pci_dev *pci,
+ 	err = snd_card_register(card);
+ 	if (err < 0)
+ 		return err;
++	card->private_free = snd_nm256_free;
+ 
+ 	pci_set_drvdata(pci, card);
+ 	return 0;
 -- 
-2.34.1
+2.35.2
 
 
 
