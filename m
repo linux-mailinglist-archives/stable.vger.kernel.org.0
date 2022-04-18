@@ -2,110 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC5B2505096
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3AB50519C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:34:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238835AbiDRM0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33520 "EHLO
+        id S234518AbiDRMfs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:35:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233937AbiDRM0M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:12 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A60766A;
-        Mon, 18 Apr 2022 05:19:56 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id r13so26554340ejd.5;
-        Mon, 18 Apr 2022 05:19:56 -0700 (PDT)
+        with ESMTP id S239095AbiDRMeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:34:19 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6774220F7E
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 05:27:25 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id md20-20020a17090b23d400b001cb70ef790dso17116870pjb.5
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 05:27:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bPi1M4TpdIF35hZ6pGwoTFeZJUCgotNcWVS0tlq5Gy0=;
-        b=mWBRchCaMLmzqclRE3NU5WjLz7A7l7uKIZbpLiuae6iFeHIgrmuXM7rl1R3GlpYFEM
-         ///hkpMzhtANLw7rxbrSgN08RvqMYAZ3sjLUZInh/y0drfYcYI/Bs9zjbTHtMxa5X+aN
-         1WxXLWR0nhwUayIePh+RunzOtBllTHgbA1IkRq9ME8fQjdqNwte3L8LMCGaPVGwVoMNq
-         +4bxQfbHNz/YyGJ2FZ6c1olp+ainFaMRcC0M2coEUONZJIoujnwZX4jBr2RfWGLt0vrA
-         9gq2+vC+FjaEdsBcUO8VJKz30bX8hU5crDBJ8OjlXg5h4Ko8y3/+MiGFYgL6V6HZuI9c
-         rzdw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=DRYO/GpT7XQFzb5pdMCrbo3hEelaj+N4K+Hcxt4ctQ0=;
+        b=mN3Yo0JCHD90jY3mcEVuu3XDfe7mQJBdiDSuZU2p6G9hZW/fcCn0+TGWZ3we8S4uDx
+         bsXIDwwT5LZSQaiegouKM9ecIscgNNuaAwNr4kphptx5ZOakNBlmkgYwxlzet1uH60xo
+         m+t8oBqQqnXPbVVknWDoGbvPgCQZ0H+ErVgkDygk2EO0T0v3uwQTf19mj3Y7hrJA56uE
+         gjVjvbqW8tCaNJXCkgLE5/afRiJiROcvL0Ha3i6o7sgjZNaAkQu/k4MKSxYFrnP0QLJ7
+         E8acNQDSxSMA8/WF0KPvBFTdPKkYyxbyu1nnDtgU3/zs2ZgjW/LzEtTQxU5c1LzDOuw2
+         SkUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bPi1M4TpdIF35hZ6pGwoTFeZJUCgotNcWVS0tlq5Gy0=;
-        b=uYUOw6SKlR62m5VDEk5pWyGasyzO+uC8gibSSWVarCujDjpXlyBKciiV/JpPD6MYdN
-         0DUHRH9g1w1dO2BzkhsiZFrK/GYa0KYtGyVb/7cCKFPk70bDJt5jeEF8pYrMvolGgUxY
-         0MOYVHgz5Ae5UQsMTty3n5Mg+bVlPqfPacH6O7EgOtUUMtj93rU+i/Egycpf0HfqA99N
-         uv+9XCSsFy09N/mdABZrKc9Vvi2ABm6S4DVFSXKYx8ufWOZSDfcZbrs9kvRQEE+qS920
-         zOyzjQ7laTANOOcI8ZbgS941p0sDcAl9JStbcM/vis2gb+TFs9EjC89k3CjOC39gBEF9
-         Ny3Q==
-X-Gm-Message-State: AOAM532v4VCKifsuVZhG5WmwQC7ynI0TIECAWWdTQ+ohX52RV4xEU6v5
-        sgz/OItfCd+7hGRbA87bZadezwdhgZVKWsdLIjeo0I5Dc1WH6w==
-X-Google-Smtp-Source: ABdhPJyPD6AIcVEj5ia6EDgEOLP4lzMXX7ielqUjla1STAukjxOqTZDEkgeuUuCFmmwrz2TlQNzd6QJLK/SqD3RDRTQ=
-X-Received: by 2002:a17:906:1cd1:b0:6ec:c59:6a1d with SMTP id
- i17-20020a1709061cd100b006ec0c596a1dmr8086964ejh.77.1650284395249; Mon, 18
- Apr 2022 05:19:55 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=DRYO/GpT7XQFzb5pdMCrbo3hEelaj+N4K+Hcxt4ctQ0=;
+        b=LGEsoqj41lIwLhCI+fgeqGXisAMMkeh1hP/+ILb45Sy0iBmAyzjhyv4JYnaUVoRX7p
+         Ni04uFZGf5QXOAeJmTeV50ybkkn0Z4t6DqQ5ZFm36rlifSrdubGnDIenXFjmxVAlgnJQ
+         F+b4cFe4AMFgN08z/2F4l3CUNCqPSUoDf6QvpQouTMZ+7fGHJ7nxP3DH7svWTlR2YWdA
+         nJ+IlIH/QzfqC0eqoLUApFPc6BRS7o1Hfa0JAXjvwDd2gxfD12POuguSIBi8GyYrbY5B
+         2r6ItRwVZEI977OIZnQLOetfkqAaHVLtnVxM6V1EJf4a4Gl6pnIEOUZ5GPOBcuMlBKtG
+         1G1Q==
+X-Gm-Message-State: AOAM531oSauAIoOWSh7ZMaOcImIBnk97Js1osN/kfeSs0iEDKgm7NVYj
+        LdoCT4vplVcWXGJr2D2R3AScPt5q+pBu7YNz
+X-Google-Smtp-Source: ABdhPJz57lCe8cLHZVK8gG15pSdUC7N6CDy2eZpVZ9MHWviR6dn/myWsj114PXs2iwCsg02C9vwisA==
+X-Received: by 2002:a17:902:e552:b0:156:9cdc:e6cf with SMTP id n18-20020a170902e55200b001569cdce6cfmr10799769plf.78.1650284840383;
+        Mon, 18 Apr 2022 05:27:20 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j13-20020a056a00130d00b004f1025a4361sm13406763pfu.202.2022.04.18.05.27.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Apr 2022 05:27:20 -0700 (PDT)
+Message-ID: <625d5928.1c69fb81.e9bc3.e9e2@mx.google.com>
+Date:   Mon, 18 Apr 2022 05:27:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <alpine.DEB.2.21.2204161848030.9383@angie.orcam.me.uk> <alpine.DEB.2.21.2204162156340.9383@angie.orcam.me.uk>
-In-Reply-To: <alpine.DEB.2.21.2204162156340.9383@angie.orcam.me.uk>
-From:   Andy Shevchenko <andy.shevchenko@gmail.com>
-Date:   Mon, 18 Apr 2022 15:19:19 +0300
-Message-ID: <CAHp75VccGqH-peGQHnM+guu8KfkGo6-R3wwGUPKRWKqQZid7AA@mail.gmail.com>
-Subject: Re: [PATCH v4 4/5] serial: 8250: Also set sticky MCR bits in console restoration
-To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        "open list:SERIAL DRIVERS" <linux-serial@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.275-277-gda5c0b6bebbb1
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 103 runs,
+ 1 regressions (v4.14.275-277-gda5c0b6bebbb1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 18, 2022 at 2:02 AM Maciej W. Rozycki <macro@orcam.me.uk> wrote:
->
-> Sticky MCR bits are lost in console restoration if console suspending
-> has been disabled.  This currently affects the AFE bit, which works in
-> combination with RTS which we set, so we want to make sure the UART
-> retains control of its FIFO where previously requested.  Also specific
-> drivers may need other bits in the future.
+stable-rc/queue/4.14 baseline: 103 runs, 1 regressions (v4.14.275-277-gda5c=
+0b6bebbb1)
 
-Since it's a fix it should be moved to the beginning of the series.
+Regressions Summary
+-------------------
 
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
+     =
 
-> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-> Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
-> Cc: stable@vger.kernel.org # v4.0+
-> ---
-> New change in v4, factored out from 5/5.
-> ---
->  drivers/tty/serial/8250/8250_port.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> linux-serial-8250-mcr-restore.diff
-> Index: linux-macro/drivers/tty/serial/8250/8250_port.c
-> ===================================================================
-> --- linux-macro.orig/drivers/tty/serial/8250/8250_port.c
-> +++ linux-macro/drivers/tty/serial/8250/8250_port.c
-> @@ -3308,7 +3308,7 @@ static void serial8250_console_restore(s
->
->         serial8250_set_divisor(port, baud, quot, frac);
->         serial_port_out(port, UART_LCR, up->lcr);
-> -       serial8250_out_MCR(up, UART_MCR_DTR | UART_MCR_RTS);
-> +       serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
->  }
->
->  /*
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.275-277-gda5c0b6bebbb1/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.275-277-gda5c0b6bebbb1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      da5c0b6bebbb169d4ee28cc561b4bb4ea48fdd53 =
 
 
 
--- 
-With Best Regards,
-Andy Shevchenko
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig | regres=
+sions
+---------------------+-------+--------------+----------+-----------+-------=
+-----
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig | 1     =
+     =
+
+
+  Details:     https://kernelci.org/test/plan/id/625d298ab512aece70ae0681
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-277-gda5c0b6bebbb1/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-=
+s905d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-277-gda5c0b6bebbb1/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-=
+s905d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220401.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625d298ab512aece70ae0=
+682
+        failing since 12 days (last pass: v4.14.271-23-g28704797a540, first=
+ fail: v4.14.275-206-gfa920f352ff15) =
+
+ =20
