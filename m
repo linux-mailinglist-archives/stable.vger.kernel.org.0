@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 202905051C8
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 776105057B8
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231476AbiDRMkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:40:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38038 "EHLO
+        id S239310AbiDRNzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:55:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240505AbiDRMjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:18 -0400
+        with ESMTP id S1343508AbiDRNyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:54:02 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90654DD3;
-        Mon, 18 Apr 2022 05:29:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7B584739D;
+        Mon, 18 Apr 2022 06:03:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F767B80EDE;
-        Mon, 18 Apr 2022 12:29:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3352C385A8;
-        Mon, 18 Apr 2022 12:29:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE5B8B80D9C;
+        Mon, 18 Apr 2022 13:03:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41852C385A7;
+        Mon, 18 Apr 2022 13:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284986;
-        bh=990psWNqzMEthyxJ902dzVHKuK4BQOc2qlF34o1P3pg=;
+        s=korg; t=1650286990;
+        bh=jBMyn2i7pYWv70T0Hw+HO5NaUB2lR2dmLPcZMm+pnfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CxKzzU7M7gDKXQnGmzH4/WXu1LA/9SNMooyq6RwXXLnu4mqGxXXC1svhYWuv0h0Vk
-         dKxd34k/0Y2jBlzvIc9DtvN5U7HPPvKFN7GrXIZjnqR+4+KFuK2IZE9zOdi0u3Hc3R
-         QMrzlRadtl6qhyuVgl4wRLwayc/jof8D84Cjr1Q0=
+        b=DhjCvHr7pFnVdhdKZRkJnprkjEkspKMqlOZ95wHmmN+ZD2SKx+Ze6ztfLDEzhTUOf
+         TQTIkst040jVsXfCTy7bKDLBFQ5aVmgaV5WNKJOLMWn/eNDkaCF340eV+LBgGrGclE
+         2hu8aq6O5ckfbGs7vqxTsG5V/StzkVEvLorpu5ZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 070/189] net: dsa: felix: suppress -EPROBE_DEFER errors
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 024/218] Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
 Date:   Mon, 18 Apr 2022 14:11:30 +0200
-Message-Id: <20220418121202.495473719@linuxfoundation.org>
+Message-Id: <20220418121159.949497174@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit e6934e4048c91502efcb21da92b7ae37cd8fa741 ]
+commit 8b188fba75195745026e11d408e4a7e94e01d701 upstream.
 
-The DSA master might not have been probed yet in which case the probe of
-the felix switch fails with -EPROBE_DEFER:
-[    4.435305] mscc_felix 0000:00:00.5: Failed to register DSA switch: -517
+This reverts commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40.
 
-It is not an error. Use dev_err_probe() to demote this particular error
-to a debug message.
+The touchpad present in the Dell Precision 7550 and 7750 laptops
+reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
+the device is not a clickpad, it is a touchpad with physical buttons.
 
-Fixes: 56051948773e ("net: dsa: ocelot: add driver for Felix switch family")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220408101521.281886-1-michael@walle.cc
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In order to fix this issue, a quirk for the device was introduced in
+libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
+
+	[Precision 7x50 Touchpad]
+	MatchBus=i2c
+	MatchUdevType=touchpad
+	MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
+	AttrInputPropDisable=INPUT_PROP_BUTTONPAD
+
+However, because of the change introduced in 37ef4c19b4 ("Input: clear
+BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
+anymore breaking the device right click button and making impossible to
+workaround it in user space.
+
+In order to avoid breakage on other present or future devices, revert
+the patch causing the issue.
+
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220321184404.20025-1-jose.exposito89@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/ocelot/felix_vsc9959.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/input.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
-index e53ad283e259..a9c7ada890d8 100644
---- a/drivers/net/dsa/ocelot/felix_vsc9959.c
-+++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
-@@ -1455,7 +1455,7 @@ static int felix_pci_probe(struct pci_dev *pdev,
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2112,12 +2112,6 @@ int input_register_device(struct input_d
+ 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
+ 	__clear_bit(KEY_RESERVED, dev->keybit);
  
- 	err = dsa_register_switch(ds);
- 	if (err) {
--		dev_err(&pdev->dev, "Failed to register DSA switch: %d\n", err);
-+		dev_err_probe(&pdev->dev, err, "Failed to register DSA switch\n");
- 		goto err_register_ds;
- 	}
+-	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
+-	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
+-		__clear_bit(BTN_RIGHT, dev->keybit);
+-		__clear_bit(BTN_MIDDLE, dev->keybit);
+-	}
+-
+ 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
+ 	input_cleanse_bitmasks(dev);
  
--- 
-2.35.1
-
 
 
