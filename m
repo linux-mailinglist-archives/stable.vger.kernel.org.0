@@ -2,65 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CAD1504D45
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 09:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE99A504D8A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 10:05:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237003AbiDRHwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 03:52:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53954 "EHLO
+        id S237091AbiDRIIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 04:08:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235573AbiDRHv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 03:51:59 -0400
-Received: from alexa-out-sd-02.qualcomm.com (alexa-out-sd-02.qualcomm.com [199.106.114.39])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 062F218B31;
-        Mon, 18 Apr 2022 00:49:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1650268161; x=1681804161;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=+b7sMuVrhE2xcVZCj89jhTc84kw5gn+2n+NDEiHiBg8=;
-  b=aDrbiP+wHgkXkDLJzIIgVPKEnIdU5VYa8qK0UYQqhn+BjuQLWXmsXbLA
-   5BH+F0RscJFX57C+NtLpWvOUin8bl4AB1RiuSjLwzeEAYHq7aQ9mzJ7P4
-   8oNqz+TowfmJysXpWsHxq8YUu1MhruOvHvkeq3wQSCxtMCvEy0C9tRYKO
-   4=;
-Received: from unknown (HELO ironmsg02-sd.qualcomm.com) ([10.53.140.142])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 18 Apr 2022 00:49:20 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg02-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Apr 2022 00:49:19 -0700
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Mon, 18 Apr 2022 00:49:19 -0700
-Received: from [10.201.2.159] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Mon, 18 Apr
- 2022 00:49:16 -0700
-Message-ID: <710afd8c-b96a-6ab0-2b97-5ac9a3810506@quicinc.com>
-Date:   Mon, 18 Apr 2022 13:19:13 +0530
+        with ESMTP id S237089AbiDRIIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 04:08:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 843E9BC9E
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 01:05:21 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 412ACB80E12
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 08:05:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65573C385A1;
+        Mon, 18 Apr 2022 08:05:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1650269119;
+        bh=1T5NWkpq/2TuqhAnh3AufJYofMHJUwFROOEsbOOmUDQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=AtWTYGIYnnKrDCDhwSrcM78FXR8GEiANnW0KYz9MUaOcb2dqS0h2NrcOhSIxqwfXc
+         qc3YYbUgcy2xdbgti7QzHO0Cnm0oI52fwx89y7S96dsaG49OimgYXoNbCaTc3YAyjy
+         4Wizul6BNetjpaCe/eQwR4rmvIlnEnTD4suWDAp0=
+Subject: FAILED: patch "[PATCH] mm: fix unexpected zeroed page mapping with zram swap" failed to apply to 5.4-stable tree
+To:     minchan@kernel.org, akpm@linux-foundation.org, axboe@kernel.dk,
+        david@redhat.com, ivan@cloudflare.com, ngupta@vflare.org,
+        senozhatsky@chromium.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Apr 2022 10:05:15 +0200
+Message-ID: <16502691151480@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH V4] mtd: rawnand: qcom: fix memory corruption that causes
- panic
-Content-Language: en-US
-To:     Manivannan Sadhasivam <mani@kernel.org>
-CC:     <miquel.raynal@bootlin.com>, <richard@nod.at>, <vigneshr@ti.com>,
-        <linux-mtd@lists.infradead.org>, <linux-arm-msm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <konrad.dybcio@somainline.org>,
-        <quic_srichara@quicinc.com>, <stable@vger.kernel.org>
-References: <1650262991-21588-1-git-send-email-quic_mdalam@quicinc.com>
- <20220418063630.GJ7431@thinkpad>
-From:   Md Sadre Alam <quic_mdalam@quicinc.com>
-In-Reply-To: <20220418063630.GJ7431@thinkpad>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-Spam-Status: No, score=-7.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,152 +51,165 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 4/18/2022 12:06 PM, Manivannan Sadhasivam wrote:
-> On Mon, Apr 18, 2022 at 11:53:11AM +0530, Md Sadre Alam wrote:
->> This patch fixes a memory corruption that occurred in the
->> nand_scan() path for Hynix nand device.
->>
->> On boot, for Hynix nand device will panic at a weird place:
->> | Unable to handle kernel NULL pointer dereference at virtual
->>    address 00000070
->> | [00000070] *pgd=00000000
->> | Internal error: Oops: 5 [#1] PREEMPT SMP ARM
->> | Modules linked in:
->> | CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.17.0-01473-g13ae1769cfb0
->>    #38
->> | Hardware name: Generic DT based system
->> | PC is at nandc_set_reg+0x8/0x1c
->> | LR is at qcom_nandc_command+0x20c/0x5d0
->> | pc : [<c088b74c>]    lr : [<c088d9c8>]    psr: 00000113
->> | sp : c14adc50  ip : c14ee208  fp : c0cc970c
->> | r10: 000000a3  r9 : 00000000  r8 : 00000040
->> | r7 : c16f6a00  r6 : 00000090  r5 : 00000004  r4 :c14ee040
->> | r3 : 00000000  r2 : 0000000b  r1 : 00000000  r0 :c14ee040
->> | Flags: nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM Segment none
->> | Control: 10c5387d  Table: 8020406a  DAC: 00000051
->> | Register r0 information: slab kmalloc-2k start c14ee000 pointer offset
->>    64 size 2048
->> | Process swapper/0 (pid: 1, stack limit = 0x(ptrval))
->> | nandc_set_reg from qcom_nandc_command+0x20c/0x5d0
->> | qcom_nandc_command from nand_readid_op+0x198/0x1e8
->> | nand_readid_op from hynix_nand_has_valid_jedecid+0x30/0x78
->> | hynix_nand_has_valid_jedecid from hynix_nand_init+0xb8/0x454
->> | hynix_nand_init from nand_scan_with_ids+0xa30/0x14a8
->> | nand_scan_with_ids from qcom_nandc_probe+0x648/0x7b0
->> | qcom_nandc_probe from platform_probe+0x58/0xac
->>
->> The problem is that the nand_scan()'s qcom_nand_attach_chip callback
->> is updating the nandc->max_cwperpage from 1 to 4 or 8 based on page size.
->> This causes the sg_init_table of clear_bam_transaction() in the driver's
->> qcom_nandc_command() to memset much more than what was initially
->> allocated by alloc_bam_transaction().
->>
->> This patch will update nandc->max_cwperpage 1 to 4 or 8 based on page
->> size in qcom_nand_attach_chip call back after freeing the previously
->> allocated memory for bam txn as per nandc->max_cwperpage = 1 and then
->> again allocating bam txn as per nandc->max_cwperpage = 4 or 8 based on
->> page size in qcom_nand_attach_chip call back itself.
->>
->> Cc: stable@vger.kernel.org
->> Fixes: 6a3cec64f18c ("mtd: rawnand: qcom: convert driver to nand_scan()")
->> Reported-by: Konrad Dybcio <konrad.dybcio@somainline.org>
->> Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
->> Signed-off-by: Sricharan R <quic_srichara@quicinc.com>
-> I know that you and Sri were involved in creating this patch. So there should
-> be a co-developed-by tag for Sri and your signed-off-by should be the last one.
-> Like below,
-     Updated in V5 patch.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 6a3cec64f18c ("mtd: rawnand: qcom: convert driver to nand_scan()")
-> Reported-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-> Co-developed-by: Sricharan R <quic_srichara@quicinc.com>
-> Signed-off-by: Sricharan R <quic_srichara@quicinc.com>
-> Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
->
-> With that,
->
-> Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
+thanks,
 
-   Updated in V5 patch.
+greg k-h
 
->
-> Thanks,
-> Mani
->
->> ---
->> Changes in V4:
->>
->>   * Incorporated "commit log wrong" comment from Mani
->>   * Updated commit log
->>
->> Changes in V3:
->>
->>   * Incorporated "Fixes tags are missing" comment from Miquèl
->>   * Added Fixes tag Fixes:6a3cec64f18c ("mtd: rawnand: qcom: convert driver to nand_scan()")
->>   * Incorporated "stable tag missing" comment from Miquèl
->>   * Added stable tag Cc: stable@vger.kernel.org
->>   * Incorporated "Reported-by tag missing" comment from Mani
->>   * Added Reported-by tag Reported-by: Konrad Dybcio <konrad.dybcio@somainline.org>
->>
->> Changes in V2:
->>
->>   * Incorporated "alloc_bam_transaction inside qcom_nand_attach_chip" suggestion from Mani
->>   * Freed previously alloacted memory for bam txn before updating max_cwperpage inside
->>     qcom_nand_attach_chip().
->>   * Moved alloc_bam_transaction() inside qcom_nand_attach_chip(). after upding max_cwperpage
->>     4 or 8 based on page size.
->>
->>   drivers/mtd/nand/raw/qcom_nandc.c | 24 +++++++++++++-----------
->>   1 file changed, 13 insertions(+), 11 deletions(-)
->>
->> diff --git a/drivers/mtd/nand/raw/qcom_nandc.c b/drivers/mtd/nand/raw/qcom_nandc.c
->> index 1a77542..048b255 100644
->> --- a/drivers/mtd/nand/raw/qcom_nandc.c
->> +++ b/drivers/mtd/nand/raw/qcom_nandc.c
->> @@ -2651,10 +2651,23 @@ static int qcom_nand_attach_chip(struct nand_chip *chip)
->>   	ecc->engine_type = NAND_ECC_ENGINE_TYPE_ON_HOST;
->>   
->>   	mtd_set_ooblayout(mtd, &qcom_nand_ooblayout_ops);
->> +	/* Free the initially allocated BAM transaction for reading the ONFI params */
->> +	if (nandc->props->is_bam)
->> +		free_bam_transaction(nandc);
->>   
->>   	nandc->max_cwperpage = max_t(unsigned int, nandc->max_cwperpage,
->>   				     cwperpage);
->>   
->> +	/* Now allocate the BAM transaction based on updated max_cwperpage */
->> +	if (nandc->props->is_bam) {
->> +		nandc->bam_txn = alloc_bam_transaction(nandc);
->> +		if (!nandc->bam_txn) {
->> +			dev_err(nandc->dev,
->> +				"failed to allocate bam transaction\n");
->> +			return -ENOMEM;
->> +		}
->> +	}
->> +
->>   	/*
->>   	 * DATA_UD_BYTES varies based on whether the read/write command protects
->>   	 * spare data with ECC too. We protect spare data by default, so we set
->> @@ -2955,17 +2968,6 @@ static int qcom_nand_host_init_and_register(struct qcom_nand_controller *nandc,
->>   	if (ret)
->>   		return ret;
->>   
->> -	if (nandc->props->is_bam) {
->> -		free_bam_transaction(nandc);
->> -		nandc->bam_txn = alloc_bam_transaction(nandc);
->> -		if (!nandc->bam_txn) {
->> -			dev_err(nandc->dev,
->> -				"failed to allocate bam transaction\n");
->> -			nand_cleanup(chip);
->> -			return -ENOMEM;
->> -		}
->> -	}
->> -
->>   	ret = mtd_device_parse_register(mtd, probes, NULL, NULL, 0);
->>   	if (ret)
->>   		nand_cleanup(chip);
->> -- 
->> 2.7.4
->>
+------------------ original commit in Linus's tree ------------------
+
+From e914d8f00391520ecc4495dd0ca0124538ab7119 Mon Sep 17 00:00:00 2001
+From: Minchan Kim <minchan@kernel.org>
+Date: Thu, 14 Apr 2022 19:13:46 -0700
+Subject: [PATCH] mm: fix unexpected zeroed page mapping with zram swap
+
+Two processes under CLONE_VM cloning, user process can be corrupted by
+seeing zeroed page unexpectedly.
+
+      CPU A                        CPU B
+
+  do_swap_page                do_swap_page
+  SWP_SYNCHRONOUS_IO path     SWP_SYNCHRONOUS_IO path
+  swap_readpage valid data
+    swap_slot_free_notify
+      delete zram entry
+                              swap_readpage zeroed(invalid) data
+                              pte_lock
+                              map the *zero data* to userspace
+                              pte_unlock
+  pte_lock
+  if (!pte_same)
+    goto out_nomap;
+  pte_unlock
+  return and next refault will
+  read zeroed data
+
+The swap_slot_free_notify is bogus for CLONE_VM case since it doesn't
+increase the refcount of swap slot at copy_mm so it couldn't catch up
+whether it's safe or not to discard data from backing device.  In the
+case, only the lock it could rely on to synchronize swap slot freeing is
+page table lock.  Thus, this patch gets rid of the swap_slot_free_notify
+function.  With this patch, CPU A will see correct data.
+
+      CPU A                        CPU B
+
+  do_swap_page                do_swap_page
+  SWP_SYNCHRONOUS_IO path     SWP_SYNCHRONOUS_IO path
+                              swap_readpage original data
+                              pte_lock
+                              map the original data
+                              swap_free
+                                swap_range_free
+                                  bd_disk->fops->swap_slot_free_notify
+  swap_readpage read zeroed data
+                              pte_unlock
+  pte_lock
+  if (!pte_same)
+    goto out_nomap;
+  pte_unlock
+  return
+  on next refault will see mapped data by CPU B
+
+The concern of the patch would increase memory consumption since it
+could keep wasted memory with compressed form in zram as well as
+uncompressed form in address space.  However, most of cases of zram uses
+no readahead and do_swap_page is followed by swap_free so it will free
+the compressed form from in zram quickly.
+
+Link: https://lkml.kernel.org/r/YjTVVxIAsnKAXjTd@google.com
+Fixes: 0bcac06f27d7 ("mm, swap: skip swapcache for swapin of synchronous device")
+Reported-by: Ivan Babrou <ivan@cloudflare.com>
+Tested-by: Ivan Babrou <ivan@cloudflare.com>
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Cc: Nitin Gupta <ngupta@vflare.org>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/page_io.c b/mm/page_io.c
+index b417f000b49e..89fbf3cae30f 100644
+--- a/mm/page_io.c
++++ b/mm/page_io.c
+@@ -51,54 +51,6 @@ void end_swap_bio_write(struct bio *bio)
+ 	bio_put(bio);
+ }
+ 
+-static void swap_slot_free_notify(struct page *page)
+-{
+-	struct swap_info_struct *sis;
+-	struct gendisk *disk;
+-	swp_entry_t entry;
+-
+-	/*
+-	 * There is no guarantee that the page is in swap cache - the software
+-	 * suspend code (at least) uses end_swap_bio_read() against a non-
+-	 * swapcache page.  So we must check PG_swapcache before proceeding with
+-	 * this optimization.
+-	 */
+-	if (unlikely(!PageSwapCache(page)))
+-		return;
+-
+-	sis = page_swap_info(page);
+-	if (data_race(!(sis->flags & SWP_BLKDEV)))
+-		return;
+-
+-	/*
+-	 * The swap subsystem performs lazy swap slot freeing,
+-	 * expecting that the page will be swapped out again.
+-	 * So we can avoid an unnecessary write if the page
+-	 * isn't redirtied.
+-	 * This is good for real swap storage because we can
+-	 * reduce unnecessary I/O and enhance wear-leveling
+-	 * if an SSD is used as the as swap device.
+-	 * But if in-memory swap device (eg zram) is used,
+-	 * this causes a duplicated copy between uncompressed
+-	 * data in VM-owned memory and compressed data in
+-	 * zram-owned memory.  So let's free zram-owned memory
+-	 * and make the VM-owned decompressed page *dirty*,
+-	 * so the page should be swapped out somewhere again if
+-	 * we again wish to reclaim it.
+-	 */
+-	disk = sis->bdev->bd_disk;
+-	entry.val = page_private(page);
+-	if (disk->fops->swap_slot_free_notify && __swap_count(entry) == 1) {
+-		unsigned long offset;
+-
+-		offset = swp_offset(entry);
+-
+-		SetPageDirty(page);
+-		disk->fops->swap_slot_free_notify(sis->bdev,
+-				offset);
+-	}
+-}
+-
+ static void end_swap_bio_read(struct bio *bio)
+ {
+ 	struct page *page = bio_first_page_all(bio);
+@@ -114,7 +66,6 @@ static void end_swap_bio_read(struct bio *bio)
+ 	}
+ 
+ 	SetPageUptodate(page);
+-	swap_slot_free_notify(page);
+ out:
+ 	unlock_page(page);
+ 	WRITE_ONCE(bio->bi_private, NULL);
+@@ -394,11 +345,6 @@ int swap_readpage(struct page *page, bool synchronous)
+ 	if (sis->flags & SWP_SYNCHRONOUS_IO) {
+ 		ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
+ 		if (!ret) {
+-			if (trylock_page(page)) {
+-				swap_slot_free_notify(page);
+-				unlock_page(page);
+-			}
+-
+ 			count_vm_event(PSWPIN);
+ 			goto out;
+ 		}
+
