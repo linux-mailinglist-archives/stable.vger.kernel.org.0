@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D66C7505458
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3569C5054CD
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231803AbiDRNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41224 "EHLO
+        id S233437AbiDRNL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:11:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241172AbiDRNEw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:04:52 -0400
+        with ESMTP id S241062AbiDRNF2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56D8313CEF;
-        Mon, 18 Apr 2022 05:45:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F56D340E3;
+        Mon, 18 Apr 2022 05:46:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2342B80EC0;
-        Mon, 18 Apr 2022 12:45:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 356DEC385A7;
-        Mon, 18 Apr 2022 12:45:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8245B80E44;
+        Mon, 18 Apr 2022 12:46:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F3BAC385A7;
+        Mon, 18 Apr 2022 12:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285926;
-        bh=mojVL1QzffXoVVdfe87igzvxcXwQsQdaFZO8jKOu6gc=;
+        s=korg; t=1650285969;
+        bh=fBiJyIkwIGXT7bYdXeNj91aQs0MwIyY2qcwRtMPl48s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IjPATnPFlOJDeut9xLTj64/n7fmeMz4S6joINKB84HqZNotDK/jJEqQFlQxx6LsWj
-         Uym56wxNl571CgJVLiFdCUUXfAdEJNRl2iSywrYYHJVAAtyKuZjbLo76CIDdMY08D/
-         E2qUwYFRRpS1Wg0iXt88pZ/vhFbLV5AIXPXEpREc=
+        b=r/J6u/Y6cg0X6AzWisPQRZP7KTvM9kjfyUmuNlpbsQWPzXPcoqvwNpXn3HFDsQR+/
+         dI07pp9MQBFvtf4EDy6b+BV6k1owOKzfhTW/V4XFZbsvQ6tnpkDIfZovBJwbekpUmq
+         BnpGqC5D/OI2UfhWTLsKh1FG3+r+HVEmkOJMnak8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 63/63] ax25: Fix UAF bugs in ax25 timers
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Alex Hung <alex.hung@amd.com>, Roman Li <Roman.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/32] drm/amd/display: Fix allocate_mst_payload assert on resume
 Date:   Mon, 18 Apr 2022 14:14:00 +0200
-Message-Id: <20220418121138.364771542@linuxfoundation.org>
+Message-Id: <20220418121127.717387020@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,78 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Roman Li <Roman.Li@amd.com>
 
-commit 82e31755e55fbcea6a9dfaae5fe4860ade17cbc0 upstream.
+[ Upstream commit f4346fb3edf7720db3f7f5e1cab1f667cd024280 ]
 
-There are race conditions that may lead to UAF bugs in
-ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
-ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we call
-ax25_release() to deallocate ax25_dev.
+[Why]
+On resume we do link detection for all non-MST connectors.
+MST is handled separately. However the condition for telling
+if connector is on mst branch is not enough for mst hub case.
+Link detection for mst branch link leads to mst topology reset.
+That causes assert in dc_link_allocate_mst_payload()
 
-One of the UAF bugs caused by ax25_release() is shown below:
+[How]
+Use link type as indicator for mst link.
 
-      (Thread 1)                    |      (Thread 2)
-ax25_dev_device_up() //(1)          |
-...                                 | ax25_kill_by_device()
-ax25_bind()          //(2)          |
-ax25_connect()                      | ...
- ax25_std_establish_data_link()     |
-  ax25_start_t1timer()              | ax25_dev_device_down() //(3)
-   mod_timer(&ax25->t1timer,..)     |
-                                    | ax25_release()
-   (wait a time)                    |  ...
-                                    |  ax25_dev_put(ax25_dev) //(4)FREE
-   ax25_t1timer_expiry()            |
-    ax25->ax25_dev->values[..] //USE|  ...
-     ...                            |
-
-We increase the refcount of ax25_dev in position (1) and (2), and
-decrease the refcount of ax25_dev in position (3) and (4).
-The ax25_dev will be freed in position (4) and be used in
-ax25_t1timer_expiry().
-
-The fail log is shown below:
-==============================================================
-
-[  106.116942] BUG: KASAN: use-after-free in ax25_t1timer_expiry+0x1c/0x60
-[  106.116942] Read of size 8 at addr ffff88800bda9028 by task swapper/0/0
-[  106.116942] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-06123-g0905eec574
-[  106.116942] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-14
-[  106.116942] Call Trace:
-...
-[  106.116942]  ax25_t1timer_expiry+0x1c/0x60
-[  106.116942]  call_timer_fn+0x122/0x3d0
-[  106.116942]  __run_timers.part.0+0x3f6/0x520
-[  106.116942]  run_timer_softirq+0x4f/0xb0
-[  106.116942]  __do_softirq+0x1c2/0x651
-...
-
-This patch adds del_timer_sync() in ax25_release(), which could ensure
-that all timers stop before we deallocate ax25_dev.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-[OP: backport to 5.4: adjust context]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1052,6 +1052,11 @@ static int ax25_release(struct socket *s
- 		ax25_destroy_socket(ax25);
- 	}
- 	if (ax25_dev) {
-+		del_timer_sync(&ax25->timer);
-+		del_timer_sync(&ax25->t1timer);
-+		del_timer_sync(&ax25->t2timer);
-+		del_timer_sync(&ax25->t3timer);
-+		del_timer_sync(&ax25->idletimer);
- 		dev_put(ax25_dev->dev);
- 		ax25_dev_put(ax25_dev);
- 	}
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index b2835cd41d3e..57678e6dcdc4 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -777,7 +777,8 @@ static int dm_resume(void *handle)
+ 		 * this is the case when traversing through already created
+ 		 * MST connectors, should be skipped
+ 		 */
+-		if (aconnector->mst_port)
++		if (aconnector->dc_link &&
++		    aconnector->dc_link->type == dc_connection_mst_branch)
+ 			continue;
+ 
+ 		mutex_lock(&aconnector->hpd_lock);
+-- 
+2.35.1
+
 
 
