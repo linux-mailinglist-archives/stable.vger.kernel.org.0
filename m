@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1334505529
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833E150520A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241741AbiDRNWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:22:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45900 "EHLO
+        id S233422AbiDRMk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:40:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243464AbiDRNUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:20:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23929D67;
-        Mon, 18 Apr 2022 05:52:08 -0700 (PDT)
+        with ESMTP id S240096AbiDRMik (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:40 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5F9F2528E;
+        Mon, 18 Apr 2022 05:29:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BA12B80EC0;
-        Mon, 18 Apr 2022 12:52:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D544AC385A7;
-        Mon, 18 Apr 2022 12:52:04 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D9409CE1099;
+        Mon, 18 Apr 2022 12:29:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BABFEC385A1;
+        Mon, 18 Apr 2022 12:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286325;
-        bh=1hBGvoDUQ8oK2e2NrWc1/JduXPO8/pqmlEm+Me1KFmM=;
+        s=korg; t=1650284954;
+        bh=AVO+MOL+bqK/XmS+YnMfmQ7LUvClj07a1xA0LE9tqAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEwhY/DWQeQZUQtY+GLrDEQ9bK0PwAmmXFqDFH4zvQZA1V3ihK8fgkYeggHoKhw1q
-         2MCoCa7WDDYyTafvxDNJPvJLinrW/y3snlAnGLVFya3xCxYiPzRICy7qYBgHeFpsHo
-         vwO2qcSFxeOp/e42RWQ0ZqlicKY2gN6fa7eq2+6w=
+        b=PEihDcDk2ULAOvB27uYwexCbdWNEhsgvt26j24OHnsv/3EVe0K46VaroOQ8bMOuPm
+         tH6TtrhVk1qc6uQHfmR1s/EYNnA8J1PFuDH9HSj1ue9suuIu3i67RzKx7eod/F8spA
+         BR0po25784pAhfPCON1BBLC56pW/plo97/DqImKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 100/284] ray_cs: Check ioremap return value
+        stable@vger.kernel.org, Dragan Simic <dragan.simic@gmail.com>,
+        Kyle Copperfield <kmcopper@danwin1210.me>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 061/189] media: rockchip/rga: do proper error checking in probe
 Date:   Mon, 18 Apr 2022 14:11:21 +0200
-Message-Id: <20220418121213.614449852@linuxfoundation.org>
+Message-Id: <20220418121202.241741556@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Kyle Copperfield <kmcopper@danwin1210.me>
 
-[ Upstream commit 7e4760713391ee46dc913194b33ae234389a174e ]
+[ Upstream commit 6150f276073a1480030242a7e006a89e161d6cd6 ]
 
-As the possible failure of the ioremap(), the 'local->sram' and other
-two could be NULL.
-Therefore it should be better to check it in order to avoid the later
-dev_dbg.
+The latest fix for probe error handling contained a typo that causes
+probing to fail with the following message:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20211230022926.1846757-1-jiasheng@iscas.ac.cn
+  rockchip-rga: probe of ff680000.rga failed with error -12
+
+This patch fixes the typo.
+
+Fixes: e58430e1d4fd (media: rockchip/rga: fix error handling in probe)
+Reviewed-by: Dragan Simic <dragan.simic@gmail.com>
+Signed-off-by: Kyle Copperfield <kmcopper@danwin1210.me>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ray_cs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/media/platform/rockchip/rga/rga.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ray_cs.c b/drivers/net/wireless/ray_cs.c
-index 170cd504e8ff..1ee150563260 100644
---- a/drivers/net/wireless/ray_cs.c
-+++ b/drivers/net/wireless/ray_cs.c
-@@ -395,6 +395,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->sram = ioremap(link->resource[2]->start,
- 			resource_size(link->resource[2]));
-+	if (!local->sram)
-+		goto failed;
- 
- /*** Set up 16k window for shared memory (receive buffer) ***************/
- 	link->resource[3]->flags |=
-@@ -409,6 +411,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->rmem = ioremap(link->resource[3]->start,
- 			resource_size(link->resource[3]));
-+	if (!local->rmem)
-+		goto failed;
- 
- /*** Set up window for attribute memory ***********************************/
- 	link->resource[4]->flags |=
-@@ -423,6 +427,8 @@ static int ray_config(struct pcmcia_device *link)
- 		goto failed;
- 	local->amem = ioremap(link->resource[4]->start,
- 			resource_size(link->resource[4]));
-+	if (!local->amem)
-+		goto failed;
- 
- 	dev_dbg(&link->dev, "ray_config sram=%p\n", local->sram);
- 	dev_dbg(&link->dev, "ray_config rmem=%p\n", local->rmem);
+diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
+index 6759091b15e0..d99ea8973b67 100644
+--- a/drivers/media/platform/rockchip/rga/rga.c
++++ b/drivers/media/platform/rockchip/rga/rga.c
+@@ -895,7 +895,7 @@ static int rga_probe(struct platform_device *pdev)
+ 	}
+ 	rga->dst_mmu_pages =
+ 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
+-	if (rga->dst_mmu_pages) {
++	if (!rga->dst_mmu_pages) {
+ 		ret = -ENOMEM;
+ 		goto free_src_pages;
+ 	}
 -- 
-2.34.1
+2.35.1
 
 
 
