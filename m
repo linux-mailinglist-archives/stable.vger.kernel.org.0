@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6C8850505C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 671D35054C1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238569AbiDRMYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:24:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49200 "EHLO
+        id S242769AbiDRNOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:14:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238495AbiDRMXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:23 -0400
+        with ESMTP id S240524AbiDRNKz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC2881BE86;
-        Mon, 18 Apr 2022 05:18:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA06439815;
+        Mon, 18 Apr 2022 05:50:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5458C60F01;
-        Mon, 18 Apr 2022 12:18:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65372C385A1;
-        Mon, 18 Apr 2022 12:18:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A92D61257;
+        Mon, 18 Apr 2022 12:50:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44E62C385A8;
+        Mon, 18 Apr 2022 12:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284336;
-        bh=BAY7BvL+3ZQxQmWytA/czDFBqyn2lJXnPslvkiwTo7Y=;
+        s=korg; t=1650286227;
+        bh=n4XZKIqAnxf38ktFeInvlW1RzeqznHZYpBRS8tv0/98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pu1QchYxUjHMLHwLYswjeQVdeihVpiGN+G1ofjsSLEEXsTil88hxGxRhqxGJQcO2e
-         S/EsqzdZB0GlqUK5/jGHc0mfFFDgF5jqkLjh7BkiLQ6Bf9LsIYduknU33X9EjHiijr
-         XraP2HEl6Wb4mkCF1kryzt0yBFoNM+VnQyHjFOp0=
+        b=mdX0f0wz6LR71ubo++dzfnASesPaoxClnXZ+nm29qvnzY3fh+VyXqwOmd+a7ueU/Y
+         6QqfI8DkxrhwrlZbYcsQjbRBM5IyTONbym/T4G1jeKJW4+lOu9KoG9pmkh1+kdXXb4
+         XmChR/PPxgX2aee8pjhTS9P/Aato1XnbGTtuQ7U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
-        David Howells <dhowells@redhat.com>, linux-cachefs@redhat.com,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 079/219] cachefiles: Fix KASAN slab-out-of-bounds in cachefiles_set_volume_xattr
+Subject: [PATCH 4.14 067/284] clocksource: acpi_pm: fix return value of __setup handler
 Date:   Mon, 18 Apr 2022 14:10:48 +0200
-Message-Id: <20220418121208.383594279@linuxfoundation.org>
+Message-Id: <20220418121212.595244590@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 7b2f6c306601240635c72caa61f682e74d4591b2 ]
+[ Upstream commit 6a861abceecb68497dd82a324fee45a5332dcece ]
 
-Use the actual length of volume coherency data when setting the
-xattr to avoid the following KASAN report.
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled.
+A return of 0 causes the boot option/value to be listed as an Unknown
+kernel parameter and added to init's (limited) environment strings.
 
- BUG: KASAN: slab-out-of-bounds in cachefiles_set_volume_xattr+0xa0/0x350 [cachefiles]
- Write of size 4 at addr ffff888101e02af4 by task kworker/6:0/1347
+The __setup() handler interface isn't meant to handle negative return
+values -- they are non-zero, so they mean "handled" (like a return
+value of 1 does), but that's just a quirk. So return 1 from
+parse_pmtmr(). Also print a warning message if kstrtouint() returns
+an error.
 
- CPU: 6 PID: 1347 Comm: kworker/6:0 Kdump: loaded Not tainted 5.18.0-rc1-nfs-fscache-netfs+ #13
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
- Workqueue: events fscache_create_volume_work [fscache]
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x45/0x5a
-  print_report.cold+0x5e/0x5db
-  ? __lock_text_start+0x8/0x8
-  ? cachefiles_set_volume_xattr+0xa0/0x350 [cachefiles]
-  kasan_report+0xab/0x120
-  ? cachefiles_set_volume_xattr+0xa0/0x350 [cachefiles]
-  kasan_check_range+0xf5/0x1d0
-  memcpy+0x39/0x60
-  cachefiles_set_volume_xattr+0xa0/0x350 [cachefiles]
-  cachefiles_acquire_volume+0x2be/0x500 [cachefiles]
-  ? __cachefiles_free_volume+0x90/0x90 [cachefiles]
-  fscache_create_volume_work+0x68/0x160 [fscache]
-  process_one_work+0x3b7/0x6a0
-  worker_thread+0x2c4/0x650
-  ? process_one_work+0x6a0/0x6a0
-  kthread+0x16c/0x1a0
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x22/0x30
-  </TASK>
-
- Allocated by task 1347:
-  kasan_save_stack+0x1e/0x40
-  __kasan_kmalloc+0x81/0xa0
-  cachefiles_set_volume_xattr+0x76/0x350 [cachefiles]
-  cachefiles_acquire_volume+0x2be/0x500 [cachefiles]
-  fscache_create_volume_work+0x68/0x160 [fscache]
-  process_one_work+0x3b7/0x6a0
-  worker_thread+0x2c4/0x650
-  kthread+0x16c/0x1a0
-  ret_from_fork+0x22/0x30
-
- The buggy address belongs to the object at ffff888101e02af0
- which belongs to the cache kmalloc-8 of size 8
- The buggy address is located 4 bytes inside of
- 8-byte region [ffff888101e02af0, ffff888101e02af8)
-
- The buggy address belongs to the physical page:
- page:00000000a2292d70 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x101e02
- flags: 0x17ffffc0000200(slab|node=0|zone=2|lastcpupid=0x1fffff)
- raw: 0017ffffc0000200 0000000000000000 dead000000000001 ffff888100042280
- raw: 0000000000000000 0000000080660066 00000001ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
- ffff888101e02980: fc 00 fc fc fc fc 00 fc fc fc fc 00 fc fc fc fc
- ffff888101e02a00: 00 fc fc fc fc 00 fc fc fc fc 00 fc fc fc fc 00
- >ffff888101e02a80: fc fc fc fc 00 fc fc fc fc 00 fc fc fc fc 04 fc
-                                                            ^
- ffff888101e02b00: fc fc fc 00 fc fc fc fc 00 fc fc fc fc 00 fc fc
- ffff888101e02b80: fc fc 00 fc fc fc fc 00 fc fc fc fc 00 fc fc fc
- ==================================================================
-
-Fixes: 413a4a6b0b55 "cachefiles: Fix volume coherency attribute"
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: linux-cachefs@redhat.com
-Link: https://lore.kernel.org/r/20220405134649.6579-1-dwysocha@redhat.com/ # v1
-Link: https://lore.kernel.org/r/20220405142810.8208-1-dwysocha@redhat.com/ # Incorrect v2
+Fixes: 6b148507d3d0 ("pmtmr: allow command line override of ioport")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cachefiles/xattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clocksource/acpi_pm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/cachefiles/xattr.c b/fs/cachefiles/xattr.c
-index 35465109d9c4..00b087c14995 100644
---- a/fs/cachefiles/xattr.c
-+++ b/fs/cachefiles/xattr.c
-@@ -203,7 +203,7 @@ bool cachefiles_set_volume_xattr(struct cachefiles_volume *volume)
- 	if (!buf)
- 		return false;
- 	buf->reserved = cpu_to_be32(0);
--	memcpy(buf->data, p, len);
-+	memcpy(buf->data, p, volume->vcookie->coherency_len);
+diff --git a/drivers/clocksource/acpi_pm.c b/drivers/clocksource/acpi_pm.c
+index 1961e3539b57..05cc8d4e49ad 100644
+--- a/drivers/clocksource/acpi_pm.c
++++ b/drivers/clocksource/acpi_pm.c
+@@ -230,8 +230,10 @@ static int __init parse_pmtmr(char *arg)
+ 	int ret;
  
- 	ret = cachefiles_inject_write_error();
- 	if (ret == 0)
+ 	ret = kstrtouint(arg, 16, &base);
+-	if (ret)
+-		return ret;
++	if (ret) {
++		pr_warn("PMTMR: invalid 'pmtmr=' value: '%s'\n", arg);
++		return 1;
++	}
+ 
+ 	pr_info("PMTMR IOPort override: 0x%04x -> 0x%04x\n", pmtmr_ioport,
+ 		base);
 -- 
-2.35.1
+2.34.1
 
 
 
