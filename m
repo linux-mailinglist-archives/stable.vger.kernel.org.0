@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B140C5056C3
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2710505409
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242954AbiDRNga (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:36:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41324 "EHLO
+        id S240392AbiDRNDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:03:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243655AbiDRNeL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:34:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01E9624593;
-        Mon, 18 Apr 2022 05:58:01 -0700 (PDT)
+        with ESMTP id S241097AbiDRNCu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DA0332984;
+        Mon, 18 Apr 2022 05:42:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C9EA612D1;
-        Mon, 18 Apr 2022 12:58:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30288C385AB;
-        Mon, 18 Apr 2022 12:57:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3CEEB80EDD;
+        Mon, 18 Apr 2022 12:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3404AC385A1;
+        Mon, 18 Apr 2022 12:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286680;
-        bh=WPAAcC7kSapU3mc21ao52WZ8etMOXiQhVcSzwi8OGu4=;
+        s=korg; t=1650285755;
+        bh=6biAhcl32magJsmehny9mD3VcYgZj55tuscesgx9IEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ROEg/I5UOk/XYba1m3y/l/ygAgP6bSFX9Pq5D0XaSmu/dakyLmLiJUD50aaiwyQeo
-         gxUJxYH8qSsufLd1HKDmZv4RFTFkrJJLsY9HBieLz5YhDVasXfIulVwsOi1WTrL2Cg
-         2VR3hD2ZNUvxGRtmufLu198evuHWRRcUlOm7uFSk=
+        b=CUCsf91qtzvCWgKoMWYvxdJM+4LHYCJ9MWBWB721GHLp1JeNMGFFoiWI3SwWLN2E4
+         xou8vfDjnoJgiXREZEuJsvzwf5JVltE6sfswTMpjzrr1cGnVXEBm7ieZmPh8QlndK4
+         O9NgDviY437PmaZwbEmco0+DV1mB/GiMEv2Vmwks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
-        Maxim Kochetkov <fido_max@inbox.ru>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 209/284] powerpc: dts: t104xrdb: fix phy type for FMAN 4/5
-Date:   Mon, 18 Apr 2022 14:13:10 +0200
-Message-Id: <20220418121217.663317087@linuxfoundation.org>
+Subject: [PATCH 5.4 14/63] nfc: nci: add flush_workqueue to prevent uaf
+Date:   Mon, 18 Apr 2022 14:13:11 +0200
+Message-Id: <20220418121135.100406490@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +55,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kiselev <bigunclemax@gmail.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 17846485dff91acce1ad47b508b633dffc32e838 ]
+[ Upstream commit ef27324e2cb7bb24542d6cb2571740eefe6b00dc ]
 
-T1040RDB has two RTL8211E-VB phys which requires setting
-of internal delays for correct work.
+Our detector found a concurrent use-after-free bug when detaching an
+NCI device. The main reason for this bug is the unexpected scheduling
+between the used delayed mechanism (timer and workqueue).
 
-Changing the phy-connection-type property to `rgmii-id`
-will fix this issue.
+The race can be demonstrated below:
 
-Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
-Reviewed-by: Maxim Kochetkov <fido_max@inbox.ru>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211230151123.1258321-1-bigunclemax@gmail.com
+Thread-1                           Thread-2
+                                 | nci_dev_up()
+                                 |   nci_open_device()
+                                 |     __nci_request(nci_reset_req)
+                                 |       nci_send_cmd
+                                 |         queue_work(cmd_work)
+nci_unregister_device()          |
+  nci_close_device()             | ...
+    del_timer_sync(cmd_timer)[1] |
+...                              | Worker
+nci_free_device()                | nci_cmd_work()
+  kfree(ndev)[3]                 |   mod_timer(cmd_timer)[2]
+
+In short, the cleanup routine thought that the cmd_timer has already
+been detached by [1] but the mod_timer can re-attach the timer [2], even
+it is already released [3], resulting in UAF.
+
+This UAF is easy to trigger, crash trace by POC is like below
+
+[   66.703713] ==================================================================
+[   66.703974] BUG: KASAN: use-after-free in enqueue_timer+0x448/0x490
+[   66.703974] Write of size 8 at addr ffff888009fb7058 by task kworker/u4:1/33
+[   66.703974]
+[   66.703974] CPU: 1 PID: 33 Comm: kworker/u4:1 Not tainted 5.18.0-rc2 #5
+[   66.703974] Workqueue: nfc2_nci_cmd_wq nci_cmd_work
+[   66.703974] Call Trace:
+[   66.703974]  <TASK>
+[   66.703974]  dump_stack_lvl+0x57/0x7d
+[   66.703974]  print_report.cold+0x5e/0x5db
+[   66.703974]  ? enqueue_timer+0x448/0x490
+[   66.703974]  kasan_report+0xbe/0x1c0
+[   66.703974]  ? enqueue_timer+0x448/0x490
+[   66.703974]  enqueue_timer+0x448/0x490
+[   66.703974]  __mod_timer+0x5e6/0xb80
+[   66.703974]  ? mark_held_locks+0x9e/0xe0
+[   66.703974]  ? try_to_del_timer_sync+0xf0/0xf0
+[   66.703974]  ? lockdep_hardirqs_on_prepare+0x17b/0x410
+[   66.703974]  ? queue_work_on+0x61/0x80
+[   66.703974]  ? lockdep_hardirqs_on+0xbf/0x130
+[   66.703974]  process_one_work+0x8bb/0x1510
+[   66.703974]  ? lockdep_hardirqs_on_prepare+0x410/0x410
+[   66.703974]  ? pwq_dec_nr_in_flight+0x230/0x230
+[   66.703974]  ? rwlock_bug.part.0+0x90/0x90
+[   66.703974]  ? _raw_spin_lock_irq+0x41/0x50
+[   66.703974]  worker_thread+0x575/0x1190
+[   66.703974]  ? process_one_work+0x1510/0x1510
+[   66.703974]  kthread+0x2a0/0x340
+[   66.703974]  ? kthread_complete_and_exit+0x20/0x20
+[   66.703974]  ret_from_fork+0x22/0x30
+[   66.703974]  </TASK>
+[   66.703974]
+[   66.703974] Allocated by task 267:
+[   66.703974]  kasan_save_stack+0x1e/0x40
+[   66.703974]  __kasan_kmalloc+0x81/0xa0
+[   66.703974]  nci_allocate_device+0xd3/0x390
+[   66.703974]  nfcmrvl_nci_register_dev+0x183/0x2c0
+[   66.703974]  nfcmrvl_nci_uart_open+0xf2/0x1dd
+[   66.703974]  nci_uart_tty_ioctl+0x2c3/0x4a0
+[   66.703974]  tty_ioctl+0x764/0x1310
+[   66.703974]  __x64_sys_ioctl+0x122/0x190
+[   66.703974]  do_syscall_64+0x3b/0x90
+[   66.703974]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   66.703974]
+[   66.703974] Freed by task 406:
+[   66.703974]  kasan_save_stack+0x1e/0x40
+[   66.703974]  kasan_set_track+0x21/0x30
+[   66.703974]  kasan_set_free_info+0x20/0x30
+[   66.703974]  __kasan_slab_free+0x108/0x170
+[   66.703974]  kfree+0xb0/0x330
+[   66.703974]  nfcmrvl_nci_unregister_dev+0x90/0xd0
+[   66.703974]  nci_uart_tty_close+0xdf/0x180
+[   66.703974]  tty_ldisc_kill+0x73/0x110
+[   66.703974]  tty_ldisc_hangup+0x281/0x5b0
+[   66.703974]  __tty_hangup.part.0+0x431/0x890
+[   66.703974]  tty_release+0x3a8/0xc80
+[   66.703974]  __fput+0x1f0/0x8c0
+[   66.703974]  task_work_run+0xc9/0x170
+[   66.703974]  exit_to_user_mode_prepare+0x194/0x1a0
+[   66.703974]  syscall_exit_to_user_mode+0x19/0x50
+[   66.703974]  do_syscall_64+0x48/0x90
+[   66.703974]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+To fix the UAF, this patch adds flush_workqueue() to ensure the
+nci_cmd_work is finished before the following del_timer_sync.
+This combination will promise the timer is actually detached.
+
+Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/t104xrdb.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/nfc/nci/core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
-index 5fdddbd2a62b..b0a9beab1c26 100644
---- a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
-@@ -139,12 +139,12 @@
- 		fman@400000 {
- 			ethernet@e6000 {
- 				phy-handle = <&phy_rgmii_0>;
--				phy-connection-type = "rgmii";
-+				phy-connection-type = "rgmii-id";
- 			};
+diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
+index b8ecb002e623..b2e922fcc70d 100644
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -548,6 +548,10 @@ static int nci_close_device(struct nci_dev *ndev)
+ 	mutex_lock(&ndev->req_lock);
  
- 			ethernet@e8000 {
- 				phy-handle = <&phy_rgmii_1>;
--				phy-connection-type = "rgmii";
-+				phy-connection-type = "rgmii-id";
- 			};
- 
- 			mdio0: mdio@fc000 {
+ 	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
++		/* Need to flush the cmd wq in case
++		 * there is a queued/running cmd_work
++		 */
++		flush_workqueue(ndev->cmd_wq);
+ 		del_timer_sync(&ndev->cmd_timer);
+ 		del_timer_sync(&ndev->data_timer);
+ 		mutex_unlock(&ndev->req_lock);
 -- 
 2.35.1
 
