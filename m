@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD915056F2
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B93C55054DE
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236212AbiDRNpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:45:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
+        id S241604AbiDRNMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:12:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244194AbiDRNnd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:43:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC6EB31215;
-        Mon, 18 Apr 2022 05:59:44 -0700 (PDT)
+        with ESMTP id S241071AbiDRNF2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61042340E8;
+        Mon, 18 Apr 2022 05:46:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F24CD609FB;
-        Mon, 18 Apr 2022 12:59:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0836AC385A1;
-        Mon, 18 Apr 2022 12:59:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 258F0B80E44;
+        Mon, 18 Apr 2022 12:46:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867D5C385A1;
+        Mon, 18 Apr 2022 12:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286783;
-        bh=vns65YgFNpk2RTJcX9xl/9i1ZG30HoLNtWa7xOgct1w=;
+        s=korg; t=1650285985;
+        bh=9XKXzyrtWXOZdWGEu+wkDPOgdSs9WB4Lo30G4Sm5GvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnUaPY4CVZNF5GJ59q+Mp+HY0jUXmqRkFZtvV6aRXJ0fgnYTLFhbowPOIeMSXPHgj
-         YmZYxXRsB/28xikCOt/2oO64wmEtu1lnbW76IXF/7XO/5vov8JY6AX+OxJqbkEBzN/
-         uCci+V+Es9HQzFCxbg5NhomU0N9Fq82vKdvjLKkQ=
+        b=moeM2Fyzl3nrbNC/4sLqYySnmI+AdtgsSuJTjfYvh50Ks7rIfAPfeY6gYK4ZHCfzN
+         kbUVB4m4MOfW+JwV/4/72NoOJS7BZ5UE3CZj50slA+4eLP4IQslggPulzoetlrxh1f
+         ozHcKldOCydbie9inrDAnS8Zq0WNJXQgV/XDQ/3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
-        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 243/284] drbd: Fix five use after free bugs in get_initial_state
+Subject: [PATCH 4.19 04/32] gpiolib: acpi: use correct format characters
 Date:   Mon, 18 Apr 2022 14:13:44 +0200
-Message-Id: <20220418121218.968741769@linuxfoundation.org>
+Message-Id: <20220418121127.256386009@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,339 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit aadb22ba2f656581b2f733deb3a467c48cc618f6 ]
+[ Upstream commit 213d266ebfb1621aab79cfe63388facc520a1381 ]
 
-In get_initial_state, it calls notify_initial_state_done(skb,..) if
-cb->args[5]==1. If genlmsg_put() failed in notify_initial_state_done(),
-the skb will be freed by nlmsg_free(skb).
-Then get_initial_state will goto out and the freed skb will be used by
-return value skb->len, which is a uaf bug.
+When compiling with -Wformat, clang emits the following warning:
 
-What's worse, the same problem goes even further: skb can also be
-freed in the notify_*_state_change -> notify_*_state calls below.
-Thus 4 additional uaf bugs happened.
+  gpiolib-acpi.c:393:4: warning: format specifies type 'unsigned char' but the argument has type 'int' [-Wformat]
+                        pin);
+                        ^~~
 
-My patch lets the problem callee functions: notify_initial_state_done
-and notify_*_state_change return an error code if errors happen.
-So that the error codes could be propagated and the uaf bugs can be avoid.
+So warning that '%hhX' is paired with an 'int' is all just completely
+mindless and wrong. Sadly, I can see a different bogus warning reason
+why people would want to use '%02hhX'.
 
-v2 reports a compilation warning. This v3 fixed this warning and built
-successfully in my local environment with no additional warnings.
-v2: https://lore.kernel.org/patchwork/patch/1435218/
+Again, the *sane* thing from a human perspective is to use '%02X. But
+if the compiler doesn't do any range analysis at all, it could decide
+that "Oh, that print format could need up to 8 bytes of space in the
+result". Using '%02hhX' would cut that down to two.
 
-Fixes: a29728463b254 ("drbd: Backport the "events2" command")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Reviewed-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+And since we use
+
+        char ev_name[5];
+
+and currently use "_%c%02hhX" as the format string, even a compiler
+that doesn't notice that "pin <= 255" test that guards this all will
+go "OK, that's at most 4 bytes and the final NUL termination, so it's
+fine".
+
+While a compiler - like gcc - that only sees that the original source
+of the 'pin' value is a 'unsigned short' array, and then doesn't take
+the "pin <= 255" into account, will warn like this:
+
+  gpiolib-acpi.c: In function 'acpi_gpiochip_request_interrupt':
+  gpiolib-acpi.c:206:24: warning: '%02X' directive writing between 2 and 4 bytes into a region of size 3 [-Wformat-overflow=]
+       sprintf(ev_name, "_%c%02X",
+                            ^~~~
+  gpiolib-acpi.c:206:20: note: directive argument in the range [0, 65535]
+
+because gcc isn't being very good at that argument range analysis either.
+
+In other words, the original use of 'hhx' was bogus to begin with, and
+due to *another* compiler warning being bad, and we had that bad code
+being written back in 2016 to work around _that_ compiler warning
+(commit e40a3ae1f794: "gpio: acpi: work around false-positive
+-Wstring-overflow warning").
+
+Sadly, two different bad compiler warnings together does not make for
+one good one.
+
+It just makes for even more pain.
+
+End result: I think the simplest and cleanest option is simply the
+proposed change which undoes that '%hhX' change for gcc, and replaces
+it with just using a slightly bigger stack allocation. It's not like
+a 5-byte allocation is in any way likely to have saved any actual stack,
+since all the other variables in that function are 'int' or bigger.
+
+False-positive compiler warnings really do make people write worse
+code, and that's a problem. But on a scale of bad code, I feel that
+extending the buffer trivially is better than adding a pointless cast
+that literally makes no sense.
+
+At least in this case the end result isn't unreadable or buggy. We've
+had several cases of bad compiler warnings that caused changes that
+were actually horrendously wrong.
+
+Fixes: e40a3ae1f794 ("gpio: acpi: work around false-positive -Wstring-overflow warning")
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_int.h          |  8 ++---
- drivers/block/drbd/drbd_nl.c           | 41 ++++++++++++++++----------
- drivers/block/drbd/drbd_state.c        | 18 +++++------
- drivers/block/drbd/drbd_state_change.h |  8 ++---
- 4 files changed, 42 insertions(+), 33 deletions(-)
+ drivers/gpio/gpiolib-acpi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/drbd/drbd_int.h b/drivers/block/drbd/drbd_int.h
-index 7e8589ce631c..204b4a84bdbb 100644
---- a/drivers/block/drbd/drbd_int.h
-+++ b/drivers/block/drbd/drbd_int.h
-@@ -1690,22 +1690,22 @@ struct sib_info {
- };
- void drbd_bcast_event(struct drbd_device *device, const struct sib_info *sib);
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 47cdc1f89e3f..6afe833031e3 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -278,8 +278,8 @@ static acpi_status acpi_gpiochip_alloc_event(struct acpi_resource *ares,
+ 	pin = agpio->pin_table[0];
  
--extern void notify_resource_state(struct sk_buff *,
-+extern int notify_resource_state(struct sk_buff *,
- 				  unsigned int,
- 				  struct drbd_resource *,
- 				  struct resource_info *,
- 				  enum drbd_notification_type);
--extern void notify_device_state(struct sk_buff *,
-+extern int notify_device_state(struct sk_buff *,
- 				unsigned int,
- 				struct drbd_device *,
- 				struct device_info *,
- 				enum drbd_notification_type);
--extern void notify_connection_state(struct sk_buff *,
-+extern int notify_connection_state(struct sk_buff *,
- 				    unsigned int,
- 				    struct drbd_connection *,
- 				    struct connection_info *,
- 				    enum drbd_notification_type);
--extern void notify_peer_device_state(struct sk_buff *,
-+extern int notify_peer_device_state(struct sk_buff *,
- 				     unsigned int,
- 				     struct drbd_peer_device *,
- 				     struct peer_device_info *,
-diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
-index 31d7fe4480af..5543876ec0e2 100644
---- a/drivers/block/drbd/drbd_nl.c
-+++ b/drivers/block/drbd/drbd_nl.c
-@@ -4598,7 +4598,7 @@ static int nla_put_notification_header(struct sk_buff *msg,
- 	return drbd_notification_header_to_skb(msg, &nh, true);
- }
- 
--void notify_resource_state(struct sk_buff *skb,
-+int notify_resource_state(struct sk_buff *skb,
- 			   unsigned int seq,
- 			   struct drbd_resource *resource,
- 			   struct resource_info *resource_info,
-@@ -4640,16 +4640,17 @@ void notify_resource_state(struct sk_buff *skb,
- 		if (err && err != -ESRCH)
- 			goto failed;
- 	}
--	return;
-+	return 0;
- 
- nla_put_failure:
- 	nlmsg_free(skb);
- failed:
- 	drbd_err(resource, "Error %d while broadcasting event. Event seq:%u\n",
- 			err, seq);
-+	return err;
- }
- 
--void notify_device_state(struct sk_buff *skb,
-+int notify_device_state(struct sk_buff *skb,
- 			 unsigned int seq,
- 			 struct drbd_device *device,
- 			 struct device_info *device_info,
-@@ -4689,16 +4690,17 @@ void notify_device_state(struct sk_buff *skb,
- 		if (err && err != -ESRCH)
- 			goto failed;
- 	}
--	return;
-+	return 0;
- 
- nla_put_failure:
- 	nlmsg_free(skb);
- failed:
- 	drbd_err(device, "Error %d while broadcasting event. Event seq:%u\n",
- 		 err, seq);
-+	return err;
- }
- 
--void notify_connection_state(struct sk_buff *skb,
-+int notify_connection_state(struct sk_buff *skb,
- 			     unsigned int seq,
- 			     struct drbd_connection *connection,
- 			     struct connection_info *connection_info,
-@@ -4738,16 +4740,17 @@ void notify_connection_state(struct sk_buff *skb,
- 		if (err && err != -ESRCH)
- 			goto failed;
- 	}
--	return;
-+	return 0;
- 
- nla_put_failure:
- 	nlmsg_free(skb);
- failed:
- 	drbd_err(connection, "Error %d while broadcasting event. Event seq:%u\n",
- 		 err, seq);
-+	return err;
- }
- 
--void notify_peer_device_state(struct sk_buff *skb,
-+int notify_peer_device_state(struct sk_buff *skb,
- 			      unsigned int seq,
- 			      struct drbd_peer_device *peer_device,
- 			      struct peer_device_info *peer_device_info,
-@@ -4788,13 +4791,14 @@ void notify_peer_device_state(struct sk_buff *skb,
- 		if (err && err != -ESRCH)
- 			goto failed;
- 	}
--	return;
-+	return 0;
- 
- nla_put_failure:
- 	nlmsg_free(skb);
- failed:
- 	drbd_err(peer_device, "Error %d while broadcasting event. Event seq:%u\n",
- 		 err, seq);
-+	return err;
- }
- 
- void notify_helper(enum drbd_notification_type type,
-@@ -4845,7 +4849,7 @@ void notify_helper(enum drbd_notification_type type,
- 		 err, seq);
- }
- 
--static void notify_initial_state_done(struct sk_buff *skb, unsigned int seq)
-+static int notify_initial_state_done(struct sk_buff *skb, unsigned int seq)
- {
- 	struct drbd_genlmsghdr *dh;
- 	int err;
-@@ -4859,11 +4863,12 @@ static void notify_initial_state_done(struct sk_buff *skb, unsigned int seq)
- 	if (nla_put_notification_header(skb, NOTIFY_EXISTS))
- 		goto nla_put_failure;
- 	genlmsg_end(skb, dh);
--	return;
-+	return 0;
- 
- nla_put_failure:
- 	nlmsg_free(skb);
- 	pr_err("Error %d sending event. Event seq:%u\n", err, seq);
-+	return err;
- }
- 
- static void free_state_changes(struct list_head *list)
-@@ -4890,6 +4895,7 @@ static int get_initial_state(struct sk_buff *skb, struct netlink_callback *cb)
- 	unsigned int seq = cb->args[2];
- 	unsigned int n;
- 	enum drbd_notification_type flags = 0;
-+	int err = 0;
- 
- 	/* There is no need for taking notification_mutex here: it doesn't
- 	   matter if the initial state events mix with later state chage
-@@ -4898,32 +4904,32 @@ static int get_initial_state(struct sk_buff *skb, struct netlink_callback *cb)
- 
- 	cb->args[5]--;
- 	if (cb->args[5] == 1) {
--		notify_initial_state_done(skb, seq);
-+		err = notify_initial_state_done(skb, seq);
- 		goto out;
- 	}
- 	n = cb->args[4]++;
- 	if (cb->args[4] < cb->args[3])
- 		flags |= NOTIFY_CONTINUES;
- 	if (n < 1) {
--		notify_resource_state_change(skb, seq, state_change->resource,
-+		err = notify_resource_state_change(skb, seq, state_change->resource,
- 					     NOTIFY_EXISTS | flags);
- 		goto next;
- 	}
- 	n--;
- 	if (n < state_change->n_connections) {
--		notify_connection_state_change(skb, seq, &state_change->connections[n],
-+		err = notify_connection_state_change(skb, seq, &state_change->connections[n],
- 					       NOTIFY_EXISTS | flags);
- 		goto next;
- 	}
- 	n -= state_change->n_connections;
- 	if (n < state_change->n_devices) {
--		notify_device_state_change(skb, seq, &state_change->devices[n],
-+		err = notify_device_state_change(skb, seq, &state_change->devices[n],
- 					   NOTIFY_EXISTS | flags);
- 		goto next;
- 	}
- 	n -= state_change->n_devices;
- 	if (n < state_change->n_devices * state_change->n_connections) {
--		notify_peer_device_state_change(skb, seq, &state_change->peer_devices[n],
-+		err = notify_peer_device_state_change(skb, seq, &state_change->peer_devices[n],
- 						NOTIFY_EXISTS | flags);
- 		goto next;
- 	}
-@@ -4938,7 +4944,10 @@ static int get_initial_state(struct sk_buff *skb, struct netlink_callback *cb)
- 		cb->args[4] = 0;
- 	}
- out:
--	return skb->len;
-+	if (err)
-+		return err;
-+	else
-+		return skb->len;
- }
- 
- int drbd_adm_get_initial_state(struct sk_buff *skb, struct netlink_callback *cb)
-diff --git a/drivers/block/drbd/drbd_state.c b/drivers/block/drbd/drbd_state.c
-index b452359b6aae..1474250f9440 100644
---- a/drivers/block/drbd/drbd_state.c
-+++ b/drivers/block/drbd/drbd_state.c
-@@ -1549,7 +1549,7 @@ int drbd_bitmap_io_from_worker(struct drbd_device *device,
- 	return rv;
- }
- 
--void notify_resource_state_change(struct sk_buff *skb,
-+int notify_resource_state_change(struct sk_buff *skb,
- 				  unsigned int seq,
- 				  struct drbd_resource_state_change *resource_state_change,
- 				  enum drbd_notification_type type)
-@@ -1562,10 +1562,10 @@ void notify_resource_state_change(struct sk_buff *skb,
- 		.res_susp_fen = resource_state_change->susp_fen[NEW],
- 	};
- 
--	notify_resource_state(skb, seq, resource, &resource_info, type);
-+	return notify_resource_state(skb, seq, resource, &resource_info, type);
- }
- 
--void notify_connection_state_change(struct sk_buff *skb,
-+int notify_connection_state_change(struct sk_buff *skb,
- 				    unsigned int seq,
- 				    struct drbd_connection_state_change *connection_state_change,
- 				    enum drbd_notification_type type)
-@@ -1576,10 +1576,10 @@ void notify_connection_state_change(struct sk_buff *skb,
- 		.conn_role = connection_state_change->peer_role[NEW],
- 	};
- 
--	notify_connection_state(skb, seq, connection, &connection_info, type);
-+	return notify_connection_state(skb, seq, connection, &connection_info, type);
- }
- 
--void notify_device_state_change(struct sk_buff *skb,
-+int notify_device_state_change(struct sk_buff *skb,
- 				unsigned int seq,
- 				struct drbd_device_state_change *device_state_change,
- 				enum drbd_notification_type type)
-@@ -1589,10 +1589,10 @@ void notify_device_state_change(struct sk_buff *skb,
- 		.dev_disk_state = device_state_change->disk_state[NEW],
- 	};
- 
--	notify_device_state(skb, seq, device, &device_info, type);
-+	return notify_device_state(skb, seq, device, &device_info, type);
- }
- 
--void notify_peer_device_state_change(struct sk_buff *skb,
-+int notify_peer_device_state_change(struct sk_buff *skb,
- 				     unsigned int seq,
- 				     struct drbd_peer_device_state_change *p,
- 				     enum drbd_notification_type type)
-@@ -1606,7 +1606,7 @@ void notify_peer_device_state_change(struct sk_buff *skb,
- 		.peer_resync_susp_dependency = p->resync_susp_dependency[NEW],
- 	};
- 
--	notify_peer_device_state(skb, seq, peer_device, &peer_device_info, type);
-+	return notify_peer_device_state(skb, seq, peer_device, &peer_device_info, type);
- }
- 
- static void broadcast_state_change(struct drbd_state_change *state_change)
-@@ -1614,7 +1614,7 @@ static void broadcast_state_change(struct drbd_state_change *state_change)
- 	struct drbd_resource_state_change *resource_state_change = &state_change->resource[0];
- 	bool resource_state_has_changed;
- 	unsigned int n_device, n_connection, n_peer_device, n_peer_devices;
--	void (*last_func)(struct sk_buff *, unsigned int, void *,
-+	int (*last_func)(struct sk_buff *, unsigned int, void *,
- 			  enum drbd_notification_type) = NULL;
- 	void *uninitialized_var(last_arg);
- 
-diff --git a/drivers/block/drbd/drbd_state_change.h b/drivers/block/drbd/drbd_state_change.h
-index ba80f612d6ab..d5b0479bc9a6 100644
---- a/drivers/block/drbd/drbd_state_change.h
-+++ b/drivers/block/drbd/drbd_state_change.h
-@@ -44,19 +44,19 @@ extern struct drbd_state_change *remember_old_state(struct drbd_resource *, gfp_
- extern void copy_old_to_new_state_change(struct drbd_state_change *);
- extern void forget_state_change(struct drbd_state_change *);
- 
--extern void notify_resource_state_change(struct sk_buff *,
-+extern int notify_resource_state_change(struct sk_buff *,
- 					 unsigned int,
- 					 struct drbd_resource_state_change *,
- 					 enum drbd_notification_type type);
--extern void notify_connection_state_change(struct sk_buff *,
-+extern int notify_connection_state_change(struct sk_buff *,
- 					   unsigned int,
- 					   struct drbd_connection_state_change *,
- 					   enum drbd_notification_type type);
--extern void notify_device_state_change(struct sk_buff *,
-+extern int notify_device_state_change(struct sk_buff *,
- 				       unsigned int,
- 				       struct drbd_device_state_change *,
- 				       enum drbd_notification_type type);
--extern void notify_peer_device_state_change(struct sk_buff *,
-+extern int notify_peer_device_state_change(struct sk_buff *,
- 					    unsigned int,
- 					    struct drbd_peer_device_state_change *,
- 					    enum drbd_notification_type type);
+ 	if (pin <= 255) {
+-		char ev_name[5];
+-		sprintf(ev_name, "_%c%02hhX",
++		char ev_name[8];
++		sprintf(ev_name, "_%c%02X",
+ 			agpio->triggering == ACPI_EDGE_SENSITIVE ? 'E' : 'L',
+ 			pin);
+ 		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
 -- 
 2.35.1
 
