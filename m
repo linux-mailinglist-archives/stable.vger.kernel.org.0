@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6EB2505051
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1BB6505577
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237467AbiDRMXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:23:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49292 "EHLO
+        id S240833AbiDRNOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:14:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238962AbiDRMXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:15 -0400
+        with ESMTP id S243948AbiDRNKi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 752C31FA43;
-        Mon, 18 Apr 2022 05:18:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFD503917F;
+        Mon, 18 Apr 2022 05:50:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3153B80ED1;
-        Mon, 18 Apr 2022 12:18:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40CD0C385A7;
-        Mon, 18 Apr 2022 12:18:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3C73B80E4B;
+        Mon, 18 Apr 2022 12:50:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29AFAC385A7;
+        Mon, 18 Apr 2022 12:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284315;
-        bh=zKAiTjL+WGwwoZIl9d1+M9fK1pFOz38qGV6vE3uaR6A=;
+        s=korg; t=1650286201;
+        bh=YTVxqVxYQM8WIfXeWtG3qYntEBSl/XW6V02J/yT4i6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8Gi3qw9/DW31BMH6sFyPtlpP3K/SXUbVHQ+tZtvY8mcp6JnfiQwizBx6v+NMHJEg
-         Nr0RR54bhaWPPSFjb1V8racWxN4RrizhcaYkHNmSrzyW5yaHfRUfAn7FFUhOmQqO0L
-         fY7NMoCgcqZJv7SxTW3TL9idVy8is31vhCYnYzSA=
+        b=EfpRxqR1vnXPryg/f2mqNCPUdbMKGZbTHPTX+BTLXC3d0XXmGR0rBpLdZ94XGiTZR
+         4g0lTf3z3yCdzYQTIHnLhcrGFzksmnFWgwcNXW8J3/9+NYitP4EzDdmuiSly6+ec4V
+         08yJKl6cytWkPog5lgMW09vzfu1mJ97CRxETid50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Vecera <ivecera@redhat.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 072/219] ice: arfs: fix use-after-free when freeing @rx_cpu_rmap
+Subject: [PATCH 4.14 060/284] PM: hibernate: fix __setup handler error handling
 Date:   Mon, 18 Apr 2022 14:10:41 +0200
-Message-Id: <20220418121207.904787783@linuxfoundation.org>
+Message-Id: <20220418121212.398792645@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,192 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit d7442f512b71fc63a99c8a801422dde4fbbf9f93 ]
+[ Upstream commit ba7ffcd4c4da374b0f64666354eeeda7d3827131 ]
 
-The CI testing bots triggered the following splat:
+If an invalid value is used in "resumedelay=<seconds>", it is
+silently ignored. Add a warning message and then let the __setup
+handler return 1 to indicate that the kernel command line option
+has been handled.
 
-[  718.203054] BUG: KASAN: use-after-free in free_irq_cpu_rmap+0x53/0x80
-[  718.206349] Read of size 4 at addr ffff8881bd127e00 by task sh/20834
-[  718.212852] CPU: 28 PID: 20834 Comm: sh Kdump: loaded Tainted: G S      W IOE     5.17.0-rc8_nextqueue-devqueue-02643-g23f3121aca93 #1
-[  718.219695] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0012.070720200218 07/07/2020
-[  718.223418] Call Trace:
-[  718.227139]
-[  718.230783]  dump_stack_lvl+0x33/0x42
-[  718.234431]  print_address_description.constprop.9+0x21/0x170
-[  718.238177]  ? free_irq_cpu_rmap+0x53/0x80
-[  718.241885]  ? free_irq_cpu_rmap+0x53/0x80
-[  718.245539]  kasan_report.cold.18+0x7f/0x11b
-[  718.249197]  ? free_irq_cpu_rmap+0x53/0x80
-[  718.252852]  free_irq_cpu_rmap+0x53/0x80
-[  718.256471]  ice_free_cpu_rx_rmap.part.11+0x37/0x50 [ice]
-[  718.260174]  ice_remove_arfs+0x5f/0x70 [ice]
-[  718.263810]  ice_rebuild_arfs+0x3b/0x70 [ice]
-[  718.267419]  ice_rebuild+0x39c/0xb60 [ice]
-[  718.270974]  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
-[  718.274472]  ? ice_init_phy_user_cfg+0x360/0x360 [ice]
-[  718.278033]  ? delay_tsc+0x4a/0xb0
-[  718.281513]  ? preempt_count_sub+0x14/0xc0
-[  718.284984]  ? delay_tsc+0x8f/0xb0
-[  718.288463]  ice_do_reset+0x92/0xf0 [ice]
-[  718.292014]  ice_pci_err_resume+0x91/0xf0 [ice]
-[  718.295561]  pci_reset_function+0x53/0x80
-<...>
-[  718.393035] Allocated by task 690:
-[  718.433497] Freed by task 20834:
-[  718.495688] Last potentially related work creation:
-[  718.568966] The buggy address belongs to the object at ffff8881bd127e00
-                which belongs to the cache kmalloc-96 of size 96
-[  718.574085] The buggy address is located 0 bytes inside of
-                96-byte region [ffff8881bd127e00, ffff8881bd127e60)
-[  718.579265] The buggy address belongs to the page:
-[  718.598905] Memory state around the buggy address:
-[  718.601809]  ffff8881bd127d00: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-[  718.604796]  ffff8881bd127d80: 00 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc
-[  718.607794] >ffff8881bd127e00: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-[  718.610811]                    ^
-[  718.613819]  ffff8881bd127e80: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
-[  718.617107]  ffff8881bd127f00: fa fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-
-This is due to that free_irq_cpu_rmap() is always being called
-*after* (devm_)free_irq() and thus it tries to work with IRQ descs
-already freed. For example, on device reset the driver frees the
-rmap right before allocating a new one (the splat above).
-Make rmap creation and freeing function symmetrical with
-{request,free}_irq() calls i.e. do that on ifup/ifdown instead
-of device probe/remove/resume. These operations can be performed
-independently from the actual device aRFS configuration.
-Also, make sure ice_vsi_free_irq() clears IRQ affinity notifiers
-only when aRFS is disabled -- otherwise, CPU rmap sets and clears
-its own and they must not be touched manually.
-
-Fixes: 28bf26724fdb0 ("ice: Implement aRFS")
-Co-developed-by: Ivan Vecera <ivecera@redhat.com>
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Tested-by: Ivan Vecera <ivecera@redhat.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 317cf7e5e85e3 ("PM / hibernate: convert simple_strtoul to kstrtoul")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_arfs.c |  9 ++-------
- drivers/net/ethernet/intel/ice/ice_lib.c  |  5 ++++-
- drivers/net/ethernet/intel/ice/ice_main.c | 18 ++++++++----------
- 3 files changed, 14 insertions(+), 18 deletions(-)
+ kernel/power/hibernate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_arfs.c b/drivers/net/ethernet/intel/ice/ice_arfs.c
-index 5daade32ea62..fba178e07600 100644
---- a/drivers/net/ethernet/intel/ice/ice_arfs.c
-+++ b/drivers/net/ethernet/intel/ice/ice_arfs.c
-@@ -577,7 +577,7 @@ void ice_free_cpu_rx_rmap(struct ice_vsi *vsi)
- {
- 	struct net_device *netdev;
+diff --git a/kernel/power/hibernate.c b/kernel/power/hibernate.c
+index e68b1c20ad3d..f4ecb23c9194 100644
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -1186,7 +1186,7 @@ static int __init resumedelay_setup(char *str)
+ 	int rc = kstrtouint(str, 0, &resume_delay);
  
--	if (!vsi || vsi->type != ICE_VSI_PF || !vsi->arfs_fltr_list)
-+	if (!vsi || vsi->type != ICE_VSI_PF)
- 		return;
- 
- 	netdev = vsi->netdev;
-@@ -599,7 +599,7 @@ int ice_set_cpu_rx_rmap(struct ice_vsi *vsi)
- 	int base_idx, i;
- 
- 	if (!vsi || vsi->type != ICE_VSI_PF)
--		return -EINVAL;
-+		return 0;
- 
- 	pf = vsi->back;
- 	netdev = vsi->netdev;
-@@ -636,7 +636,6 @@ void ice_remove_arfs(struct ice_pf *pf)
- 	if (!pf_vsi)
- 		return;
- 
--	ice_free_cpu_rx_rmap(pf_vsi);
- 	ice_clear_arfs(pf_vsi);
+ 	if (rc)
+-		return rc;
++		pr_warn("resumedelay: bad option string '%s'\n", str);
+ 	return 1;
  }
  
-@@ -653,9 +652,5 @@ void ice_rebuild_arfs(struct ice_pf *pf)
- 		return;
- 
- 	ice_remove_arfs(pf);
--	if (ice_set_cpu_rx_rmap(pf_vsi)) {
--		dev_err(ice_pf_to_dev(pf), "Failed to rebuild aRFS\n");
--		return;
--	}
- 	ice_init_arfs(pf_vsi);
- }
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index 5fd2bbeab2d1..15bb6f001a04 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -2869,6 +2869,8 @@ void ice_vsi_free_irq(struct ice_vsi *vsi)
- 		return;
- 
- 	vsi->irqs_ready = false;
-+	ice_free_cpu_rx_rmap(vsi);
-+
- 	ice_for_each_q_vector(vsi, i) {
- 		u16 vector = i + base;
- 		int irq_num;
-@@ -2882,7 +2884,8 @@ void ice_vsi_free_irq(struct ice_vsi *vsi)
- 			continue;
- 
- 		/* clear the affinity notifier in the IRQ descriptor */
--		irq_set_affinity_notifier(irq_num, NULL);
-+		if (!IS_ENABLED(CONFIG_RFS_ACCEL))
-+			irq_set_affinity_notifier(irq_num, NULL);
- 
- 		/* clear the affinity_mask in the IRQ descriptor */
- 		irq_set_affinity_hint(irq_num, NULL);
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index db2e02e673a7..2de2bbbca1e9 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2494,6 +2494,13 @@ static int ice_vsi_req_irq_msix(struct ice_vsi *vsi, char *basename)
- 		irq_set_affinity_hint(irq_num, &q_vector->affinity_mask);
- 	}
- 
-+	err = ice_set_cpu_rx_rmap(vsi);
-+	if (err) {
-+		netdev_err(vsi->netdev, "Failed to setup CPU RMAP on VSI %u: %pe\n",
-+			   vsi->vsi_num, ERR_PTR(err));
-+		goto free_q_irqs;
-+	}
-+
- 	vsi->irqs_ready = true;
- 	return 0;
- 
-@@ -3605,20 +3612,12 @@ static int ice_setup_pf_sw(struct ice_pf *pf)
- 	 */
- 	ice_napi_add(vsi);
- 
--	status = ice_set_cpu_rx_rmap(vsi);
--	if (status) {
--		dev_err(dev, "Failed to set CPU Rx map VSI %d error %d\n",
--			vsi->vsi_num, status);
--		goto unroll_napi_add;
--	}
- 	status = ice_init_mac_fltr(pf);
- 	if (status)
--		goto free_cpu_rx_map;
-+		goto unroll_napi_add;
- 
- 	return 0;
- 
--free_cpu_rx_map:
--	ice_free_cpu_rx_rmap(vsi);
- unroll_napi_add:
- 	ice_tc_indir_block_unregister(vsi);
- unroll_cfg_netdev:
-@@ -5076,7 +5075,6 @@ static int __maybe_unused ice_suspend(struct device *dev)
- 			continue;
- 		ice_vsi_free_q_vectors(pf->vsi[v]);
- 	}
--	ice_free_cpu_rx_rmap(ice_get_main_vsi(pf));
- 	ice_clear_interrupt_scheme(pf);
- 
- 	pci_save_state(pdev);
 -- 
-2.35.1
+2.34.1
 
 
 
