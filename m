@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F34A50538A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E514B505170
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238749AbiDRNAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59692 "EHLO
+        id S239186AbiDRMer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240985AbiDRM6P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E83245BE;
-        Mon, 18 Apr 2022 05:38:28 -0700 (PDT)
+        with ESMTP id S239395AbiDRMc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:32:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C4112755;
+        Mon, 18 Apr 2022 05:24:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A8096CE10A8;
-        Mon, 18 Apr 2022 12:38:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83FDBC385A7;
-        Mon, 18 Apr 2022 12:38:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59DA6B80ED7;
+        Mon, 18 Apr 2022 12:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E19EC385A1;
+        Mon, 18 Apr 2022 12:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285505;
-        bh=AirU343CxNtqZLncGkKyVI4Lv0hgeDUndqqP9Ap/MfI=;
+        s=korg; t=1650284671;
+        bh=NXGaI5IJ/qzbG2ytbzRFB2c1VafrslVJuy6Y/WpT9eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbiS8H2JxbQ9cnrD9JDM7Sjmk0Tng0MxJ/cxczTc6WGHqOYNHMMPccBGOnGZzd2mz
-         JDYvacU3qcG2d/RTgVYmL345w1cQWVObiGg+rlL49AmXQT8eJheV6pSIfyYh/68JQ7
-         eIHJTugEtC3GQXIkFpdD1jqaZXyse7USVohsxC6U=
+        b=JLLWDMHg06BvG8Fy4Cf5OqEu7rK45wHl9U/ZKo89ivVR2lU1qKP0hwBFQ3+o2UZ6B
+         TK14b5TLEKILIEbigHBWFMpOZuGBAwCehMCamh7gvSQLNn//mRTJrMbcC5HszflSuO
+         3ADd7yMn9dgjKU9OsflJOHWdwqf3PdgdMMKav4i0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/105] nfc: nci: add flush_workqueue to prevent uaf
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.17 191/219] btrfs: zoned: activate block group only for extent allocation
 Date:   Mon, 18 Apr 2022 14:12:40 +0200
-Message-Id: <20220418121147.550992267@linuxfoundation.org>
+Message-Id: <20220418121212.221607002@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,128 +55,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit ef27324e2cb7bb24542d6cb2571740eefe6b00dc ]
+commit 760e69c4c2e2f475a812bdd414b62758215ce9cb upstream.
 
-Our detector found a concurrent use-after-free bug when detaching an
-NCI device. The main reason for this bug is the unexpected scheduling
-between the used delayed mechanism (timer and workqueue).
+In btrfs_make_block_group(), we activate the allocated block group,
+expecting that the block group is soon used for allocation. However, the
+chunk allocation from flush_space() context broke the assumption. There
+can be a large time gap between the chunk allocation time and the extent
+allocation time from the chunk.
 
-The race can be demonstrated below:
+Activating the empty block groups pre-allocated from flush_space()
+context can exhaust the active zone counter of a device. Once we use all
+the active zone counts for empty pre-allocated block groups, we cannot
+activate new block group for the other things: metadata, tree-log, or
+data relocation block group.  That failure results in a fake -ENOSPC.
 
-Thread-1                           Thread-2
-                                 | nci_dev_up()
-                                 |   nci_open_device()
-                                 |     __nci_request(nci_reset_req)
-                                 |       nci_send_cmd
-                                 |         queue_work(cmd_work)
-nci_unregister_device()          |
-  nci_close_device()             | ...
-    del_timer_sync(cmd_timer)[1] |
-...                              | Worker
-nci_free_device()                | nci_cmd_work()
-  kfree(ndev)[3]                 |   mod_timer(cmd_timer)[2]
+This patch introduces CHUNK_ALLOC_FORCE_FOR_EXTENT to distinguish the
+chunk allocation from find_free_extent(). Now, the new block group is
+activated only in that context.
 
-In short, the cleanup routine thought that the cmd_timer has already
-been detached by [1] but the mod_timer can re-attach the timer [2], even
-it is already released [3], resulting in UAF.
-
-This UAF is easy to trigger, crash trace by POC is like below
-
-[   66.703713] ==================================================================
-[   66.703974] BUG: KASAN: use-after-free in enqueue_timer+0x448/0x490
-[   66.703974] Write of size 8 at addr ffff888009fb7058 by task kworker/u4:1/33
-[   66.703974]
-[   66.703974] CPU: 1 PID: 33 Comm: kworker/u4:1 Not tainted 5.18.0-rc2 #5
-[   66.703974] Workqueue: nfc2_nci_cmd_wq nci_cmd_work
-[   66.703974] Call Trace:
-[   66.703974]  <TASK>
-[   66.703974]  dump_stack_lvl+0x57/0x7d
-[   66.703974]  print_report.cold+0x5e/0x5db
-[   66.703974]  ? enqueue_timer+0x448/0x490
-[   66.703974]  kasan_report+0xbe/0x1c0
-[   66.703974]  ? enqueue_timer+0x448/0x490
-[   66.703974]  enqueue_timer+0x448/0x490
-[   66.703974]  __mod_timer+0x5e6/0xb80
-[   66.703974]  ? mark_held_locks+0x9e/0xe0
-[   66.703974]  ? try_to_del_timer_sync+0xf0/0xf0
-[   66.703974]  ? lockdep_hardirqs_on_prepare+0x17b/0x410
-[   66.703974]  ? queue_work_on+0x61/0x80
-[   66.703974]  ? lockdep_hardirqs_on+0xbf/0x130
-[   66.703974]  process_one_work+0x8bb/0x1510
-[   66.703974]  ? lockdep_hardirqs_on_prepare+0x410/0x410
-[   66.703974]  ? pwq_dec_nr_in_flight+0x230/0x230
-[   66.703974]  ? rwlock_bug.part.0+0x90/0x90
-[   66.703974]  ? _raw_spin_lock_irq+0x41/0x50
-[   66.703974]  worker_thread+0x575/0x1190
-[   66.703974]  ? process_one_work+0x1510/0x1510
-[   66.703974]  kthread+0x2a0/0x340
-[   66.703974]  ? kthread_complete_and_exit+0x20/0x20
-[   66.703974]  ret_from_fork+0x22/0x30
-[   66.703974]  </TASK>
-[   66.703974]
-[   66.703974] Allocated by task 267:
-[   66.703974]  kasan_save_stack+0x1e/0x40
-[   66.703974]  __kasan_kmalloc+0x81/0xa0
-[   66.703974]  nci_allocate_device+0xd3/0x390
-[   66.703974]  nfcmrvl_nci_register_dev+0x183/0x2c0
-[   66.703974]  nfcmrvl_nci_uart_open+0xf2/0x1dd
-[   66.703974]  nci_uart_tty_ioctl+0x2c3/0x4a0
-[   66.703974]  tty_ioctl+0x764/0x1310
-[   66.703974]  __x64_sys_ioctl+0x122/0x190
-[   66.703974]  do_syscall_64+0x3b/0x90
-[   66.703974]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   66.703974]
-[   66.703974] Freed by task 406:
-[   66.703974]  kasan_save_stack+0x1e/0x40
-[   66.703974]  kasan_set_track+0x21/0x30
-[   66.703974]  kasan_set_free_info+0x20/0x30
-[   66.703974]  __kasan_slab_free+0x108/0x170
-[   66.703974]  kfree+0xb0/0x330
-[   66.703974]  nfcmrvl_nci_unregister_dev+0x90/0xd0
-[   66.703974]  nci_uart_tty_close+0xdf/0x180
-[   66.703974]  tty_ldisc_kill+0x73/0x110
-[   66.703974]  tty_ldisc_hangup+0x281/0x5b0
-[   66.703974]  __tty_hangup.part.0+0x431/0x890
-[   66.703974]  tty_release+0x3a8/0xc80
-[   66.703974]  __fput+0x1f0/0x8c0
-[   66.703974]  task_work_run+0xc9/0x170
-[   66.703974]  exit_to_user_mode_prepare+0x194/0x1a0
-[   66.703974]  syscall_exit_to_user_mode+0x19/0x50
-[   66.703974]  do_syscall_64+0x48/0x90
-[   66.703974]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-To fix the UAF, this patch adds flush_workqueue() to ensure the
-nci_cmd_work is finished before the following del_timer_sync.
-This combination will promise the timer is actually detached.
-
-Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: eb66a010d518 ("btrfs: zoned: activate new block group")
+CC: stable@vger.kernel.org # 5.16+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Tested-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/nci/core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/block-group.c |   24 ++++++++++++++++--------
+ fs/btrfs/block-group.h |    4 ++++
+ fs/btrfs/extent-tree.c |    2 +-
+ 3 files changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
-index e38719e2ee58..2cfff70f70e0 100644
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -548,6 +548,10 @@ static int nci_close_device(struct nci_dev *ndev)
- 	mutex_lock(&ndev->req_lock);
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -2479,12 +2479,6 @@ struct btrfs_block_group *btrfs_make_blo
+ 		return ERR_PTR(ret);
+ 	}
  
- 	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
-+		/* Need to flush the cmd wq in case
-+		 * there is a queued/running cmd_work
+-	/*
+-	 * New block group is likely to be used soon. Try to activate it now.
+-	 * Failure is OK for now.
+-	 */
+-	btrfs_zone_activate(cache);
+-
+ 	ret = exclude_super_stripes(cache);
+ 	if (ret) {
+ 		/* We may have excluded something, so call this just in case */
+@@ -3636,8 +3630,14 @@ int btrfs_chunk_alloc(struct btrfs_trans
+ 	struct btrfs_block_group *ret_bg;
+ 	bool wait_for_alloc = false;
+ 	bool should_alloc = false;
++	bool from_extent_allocation = false;
+ 	int ret = 0;
+ 
++	if (force == CHUNK_ALLOC_FORCE_FOR_EXTENT) {
++		from_extent_allocation = true;
++		force = CHUNK_ALLOC_FORCE;
++	}
++
+ 	/* Don't re-enter if we're already allocating a chunk */
+ 	if (trans->allocating_chunk)
+ 		return -ENOSPC;
+@@ -3730,9 +3730,17 @@ int btrfs_chunk_alloc(struct btrfs_trans
+ 	ret_bg = do_chunk_alloc(trans, flags);
+ 	trans->allocating_chunk = false;
+ 
+-	if (IS_ERR(ret_bg))
++	if (IS_ERR(ret_bg)) {
+ 		ret = PTR_ERR(ret_bg);
+-	else
++	} else if (from_extent_allocation) {
++		/*
++		 * New block group is likely to be used soon. Try to activate
++		 * it now. Failure is OK for now.
 +		 */
-+		flush_workqueue(ndev->cmd_wq);
- 		del_timer_sync(&ndev->cmd_timer);
- 		del_timer_sync(&ndev->data_timer);
- 		mutex_unlock(&ndev->req_lock);
--- 
-2.35.1
-
++		btrfs_zone_activate(ret_bg);
++	}
++
++	if (!ret)
+ 		btrfs_put_block_group(ret_bg);
+ 
+ 	spin_lock(&space_info->lock);
+--- a/fs/btrfs/block-group.h
++++ b/fs/btrfs/block-group.h
+@@ -35,11 +35,15 @@ enum btrfs_discard_state {
+  * the FS with empty chunks
+  *
+  * CHUNK_ALLOC_FORCE means it must try to allocate one
++ *
++ * CHUNK_ALLOC_FORCE_FOR_EXTENT like CHUNK_ALLOC_FORCE but called from
++ * find_free_extent() that also activaes the zone
+  */
+ enum btrfs_chunk_alloc_enum {
+ 	CHUNK_ALLOC_NO_FORCE,
+ 	CHUNK_ALLOC_LIMITED,
+ 	CHUNK_ALLOC_FORCE,
++	CHUNK_ALLOC_FORCE_FOR_EXTENT,
+ };
+ 
+ struct btrfs_caching_control {
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4087,7 +4087,7 @@ static int find_free_extent_update_loop(
+ 			}
+ 
+ 			ret = btrfs_chunk_alloc(trans, ffe_ctl->flags,
+-						CHUNK_ALLOC_FORCE);
++						CHUNK_ALLOC_FORCE_FOR_EXTENT);
+ 
+ 			/* Do not bail out on ENOSPC since we can do more. */
+ 			if (ret == -ENOSPC)
 
 
