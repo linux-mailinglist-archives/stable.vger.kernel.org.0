@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7642D5051D7
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 260F95055FC
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236551AbiDRMlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:41:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38080 "EHLO
+        id S241582AbiDRNba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239833AbiDRMiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10656240BD;
-        Mon, 18 Apr 2022 05:28:44 -0700 (PDT)
+        with ESMTP id S243523AbiDRN3B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B9E3F8A0;
+        Mon, 18 Apr 2022 05:53:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72B4D60B40;
-        Mon, 18 Apr 2022 12:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B044C385A1;
-        Mon, 18 Apr 2022 12:28:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D50BB80E4E;
+        Mon, 18 Apr 2022 12:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5837C385A7;
+        Mon, 18 Apr 2022 12:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284922;
-        bh=Ax4pNkg7lo0baEl4IIg+lzBbn4lt6rQz3Gz0GRLZcU0=;
+        s=korg; t=1650286418;
+        bh=Mxyy2IOXUPf2iM//BLdhEiiBFVu/DEOgTF/d6se7YIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRJHAI5zEFnS/udL3rFdckFyEwZxH/Cg+L+cxi7YsHuSauvogfpWdCE10Qu5bCqdo
-         WkkjT5PbQdEtGlKX4vUDvhYOdVB/0iRZpJUBNUFW73lWhEPos1FGf+KyEYyFzqTVOX
-         /EDkntp9MJDNKqt82+T0V3YbtGvZ/6SonOw6YKEM=
+        b=zD+PfAMgCziajkveR5ot3Z1eljddmf6yZZkhsXZlfpZTmnUVu/h7MXEIBToObJH2q
+         Yx0yJGCjxF8YBhWtXSSllopvPEgMB5sUD/abUUaDrfINHhlD7XLOOitWfDHtRP9pWL
+         5L/NIGzP9Jv08RzLh0iI326LYS9fCIg8Gv8S97h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 048/189] ALSA: rme32: Fix the missing snd_card_free() call at probe error
-Date:   Mon, 18 Apr 2022 14:11:08 +0200
-Message-Id: <20220418121201.876834986@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 088/284] ASoC: atmel: Add missing of_node_put() in at91sam9g20ek_audio_probe
+Date:   Mon, 18 Apr 2022 14:11:09 +0200
+Message-Id: <20220418121213.188014065@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 55d2d046b23b9bcb907f6b3e38e52113d55085eb upstream.
+[ Upstream commit f590797fa3c1bccdd19e55441592a23b46aef449 ]
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+This node pointer is returned by of_parse_phandle() with refcount
+incremented in this function.
+Calling of_node_put() to avoid the refcount leak.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: 102e6156ded2 ("ALSA: rme32: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-23-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 531f67e41dcd ("ASoC: at91sam9g20ek-wm8731: convert to dt support")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20220307124539.1743-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme32.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ sound/soc/atmel/sam9g20_wm8731.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/rme32.c
-+++ b/sound/pci/rme32.c
-@@ -1875,7 +1875,7 @@ static void snd_rme32_card_free(struct s
- }
- 
- static int
--snd_rme32_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
-+__snd_rme32_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct rme32 *rme32;
-@@ -1927,6 +1927,12 @@ snd_rme32_probe(struct pci_dev *pci, con
- 	return 0;
- }
- 
-+static int
-+snd_rme32_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_rme32_probe(pci, pci_id));
-+}
-+
- static struct pci_driver rme32_driver = {
- 	.name =		KBUILD_MODNAME,
- 	.id_table =	snd_rme32_ids,
+diff --git a/sound/soc/atmel/sam9g20_wm8731.c b/sound/soc/atmel/sam9g20_wm8731.c
+index d7469cdd90dc..39365319c351 100644
+--- a/sound/soc/atmel/sam9g20_wm8731.c
++++ b/sound/soc/atmel/sam9g20_wm8731.c
+@@ -226,6 +226,7 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
+ 	cpu_np = of_parse_phandle(np, "atmel,ssc-controller", 0);
+ 	if (!cpu_np) {
+ 		dev_err(&pdev->dev, "dai and pcm info missing\n");
++		of_node_put(codec_np);
+ 		return -EINVAL;
+ 	}
+ 	at91sam9g20ek_dai.cpu_of_node = cpu_np;
+-- 
+2.34.1
+
 
 
