@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E9350559E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF03C5050A9
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241336AbiDRNVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:21:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45872 "EHLO
+        id S238888AbiDRM1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243607AbiDRNUp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:20:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B558C101C9;
-        Mon, 18 Apr 2022 05:52:20 -0700 (PDT)
+        with ESMTP id S238800AbiDRM03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD5B012636;
+        Mon, 18 Apr 2022 05:20:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47A5AB80D9C;
-        Mon, 18 Apr 2022 12:52:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DD9DC385A7;
-        Mon, 18 Apr 2022 12:52:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5943360F7C;
+        Mon, 18 Apr 2022 12:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E8A4C385A1;
+        Mon, 18 Apr 2022 12:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286337;
-        bh=4DzzX0WzJVjW6boSYS3W+arhKlppk9cW+qJ5wqH51FA=;
+        s=korg; t=1650284437;
+        bh=5ZEo4nk6eol9dr+q6xJOK2Se7Yn1Aa8Wh5aKhVCsr84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SpBsiXe7RVno9YY87FacTEmwPwBb9JDkw4zdld7PCWWA58v8P+Uzh6ZoEQLb9eDnO
-         9rqhQWQJ2jJgh2H9OQDXhKlsG5n/ZeRoFVk8PJuf/0+aVjMqBYMzRJQGEHeFIwOBBK
-         QwR4AOtyDbfQ7/esHSl5qt1zptK1TXvHkfDc59g4=
+        b=J/coWclxKotbaoG9lVvq3Ss869pkIuWPTpYg4tMi0BKzycZsF8o38EM42Ww+UstNL
+         0jy7a65Tgr5sOpyeZdGowYJEFNIquNVv81345SITS4qEajjnGISr/xTMGpqO94B4nT
+         so1HRfeR2sT/lHRR5tSyizeXdt1OqIwK9BJQeM2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 103/284] iwlwifi: Fix -EIO error code that is never returned
+Subject: [PATCH 5.17 115/219] ALSA: usb-audio: Limit max buffer and period sizes per time
 Date:   Mon, 18 Apr 2022 14:11:24 +0200
-Message-Id: <20220418121213.775492380@linuxfoundation.org>
+Message-Id: <20220418121210.118991567@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +53,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c305c94bdc18e45b5ad1db54da4269f8cbfdff6b ]
+[ Upstream commit 24d0c9f0e7de95fe3e3e0067cbea1cd5d413244b ]
 
-Currently the error -EIO is being assinged to variable ret when
-the READY_BIT is not set but the function iwlagn_mac_start returns
-0 rather than ret. Fix this by returning ret instead of 0.
+In the previous fix, we increased the max buffer bytes from 1MB to 4MB
+so that we can use bigger buffers for the modern HiFi devices with
+higher rates, more channels and wider formats.  OTOH, extending this
+has a concern that too big buffer is allowed for the lower rates, less
+channels and narrower formats; when an application tries to allocate
+as big buffer as possible, it'll lead to unexpectedly too huge size.
 
-Addresses-Coverity: ("Unused value")
-Fixes: 7335613ae27a ("iwlwifi: move all mac80211 related functions to one place")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210907104658.14706-1-colin.king@canonical.com
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Also, we had a problem about the inconsistent max buffer and period
+bytes for the implicit feedback mode when both streams have different
+channels.  This was fixed by the (relatively complex) patch to reduce
+the max buffer and period bytes accordingly.
+
+This is an alternative fix for those, a patch to kill two birds with
+one stone (*): instead of increasing the max buffer bytes blindly and
+applying the reduction per channels, we simply use the hw constraints
+for the buffer and period "time".  Meanwhile the max buffer and period
+bytes are set unlimited instead.
+
+Since the inconsistency of buffer (and period) bytes comes from the
+difference of the channels in the tied streams, as long as we care
+only about the buffer (and period) time, it doesn't matter; the buffer
+time is same for different channels, although we still allow higher
+buffer size.  Similarly, this will allow more buffer bytes for HiFi
+devices while it also keeps the reasonable size for the legacy
+devices, too.
+
+As of this patch, the max period and buffer time are set to 1 and 2
+seconds, which should be large enough for all possible use cases.
+
+(*) No animals were harmed in the making of this patch.
+
+Fixes: 98c27add5d96 ("ALSA: usb-audio: Cap upper limits of buffer/period bytes for implicit fb")
+Fixes: fee2ec8cceb3 ("ALSA: usb-audio: Increase max buffer size")
+Link: https://lore.kernel.org/r/20220412130740.18933-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/pcm.c | 101 +++++++-----------------------------------------
+ 1 file changed, 14 insertions(+), 87 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-index 82caae02dd09..f2e0cfa2f4a2 100644
---- a/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/dvm/mac80211.c
-@@ -317,7 +317,7 @@ static int iwlagn_mac_start(struct ieee80211_hw *hw)
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index 37ee6df8b15a..6d699065e81a 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -659,9 +659,6 @@ static int snd_usb_pcm_prepare(struct snd_pcm_substream *substream)
+ #define hwc_debug(fmt, args...) do { } while(0)
+ #endif
  
- 	priv->is_open = 1;
- 	IWL_DEBUG_MAC80211(priv, "leave\n");
--	return 0;
-+	return ret;
+-#define MAX_BUFFER_BYTES	(4 * 1024 * 1024)
+-#define MAX_PERIOD_BYTES	(512 * 1024)
+-
+ static const struct snd_pcm_hardware snd_usb_hardware =
+ {
+ 	.info =			SNDRV_PCM_INFO_MMAP |
+@@ -672,9 +669,9 @@ static const struct snd_pcm_hardware snd_usb_hardware =
+ 				SNDRV_PCM_INFO_PAUSE,
+ 	.channels_min =		1,
+ 	.channels_max =		256,
+-	.buffer_bytes_max =	MAX_BUFFER_BYTES,
++	.buffer_bytes_max =	INT_MAX, /* limited by BUFFER_TIME later */
+ 	.period_bytes_min =	64,
+-	.period_bytes_max =	MAX_PERIOD_BYTES,
++	.period_bytes_max =	INT_MAX, /* limited by PERIOD_TIME later */
+ 	.periods_min =		2,
+ 	.periods_max =		1024,
+ };
+@@ -974,78 +971,6 @@ static int hw_rule_periods_implicit_fb(struct snd_pcm_hw_params *params,
+ 				      ep->cur_buffer_periods);
  }
  
- static void iwlagn_mac_stop(struct ieee80211_hw *hw)
+-/* get the adjusted max buffer (or period) bytes that can fit with the
+- * paired format for implicit fb
+- */
+-static unsigned int
+-get_adjusted_max_bytes(struct snd_usb_substream *subs,
+-		       struct snd_usb_substream *pair,
+-		       struct snd_pcm_hw_params *params,
+-		       unsigned int max_bytes,
+-		       bool reverse_map)
+-{
+-	const struct audioformat *fp, *pp;
+-	unsigned int rmax = 0, r;
+-
+-	list_for_each_entry(fp, &subs->fmt_list, list) {
+-		if (!fp->implicit_fb)
+-			continue;
+-		if (!reverse_map &&
+-		    !hw_check_valid_format(subs, params, fp))
+-			continue;
+-		list_for_each_entry(pp, &pair->fmt_list, list) {
+-			if (pp->iface != fp->sync_iface ||
+-			    pp->altsetting != fp->sync_altsetting ||
+-			    pp->ep_idx != fp->sync_ep_idx)
+-				continue;
+-			if (reverse_map &&
+-			    !hw_check_valid_format(pair, params, pp))
+-				break;
+-			if (!reverse_map && pp->channels > fp->channels)
+-				r = max_bytes * fp->channels / pp->channels;
+-			else if (reverse_map && pp->channels < fp->channels)
+-				r = max_bytes * pp->channels / fp->channels;
+-			else
+-				r = max_bytes;
+-			rmax = max(rmax, r);
+-			break;
+-		}
+-	}
+-	return rmax;
+-}
+-
+-/* Reduce the period or buffer bytes depending on the paired substream;
+- * when a paired configuration for implicit fb has a higher number of channels,
+- * we need to reduce the max size accordingly, otherwise it may become unusable
+- */
+-static int hw_rule_bytes_implicit_fb(struct snd_pcm_hw_params *params,
+-				     struct snd_pcm_hw_rule *rule)
+-{
+-	struct snd_usb_substream *subs = rule->private;
+-	struct snd_usb_substream *pair;
+-	struct snd_interval *it;
+-	unsigned int max_bytes;
+-	unsigned int rmax;
+-
+-	pair = &subs->stream->substream[!subs->direction];
+-	if (!pair->ep_num)
+-		return 0;
+-
+-	if (rule->var == SNDRV_PCM_HW_PARAM_PERIOD_BYTES)
+-		max_bytes = MAX_PERIOD_BYTES;
+-	else
+-		max_bytes = MAX_BUFFER_BYTES;
+-
+-	rmax = get_adjusted_max_bytes(subs, pair, params, max_bytes, false);
+-	if (!rmax)
+-		rmax = get_adjusted_max_bytes(pair, subs, params, max_bytes, true);
+-	if (!rmax)
+-		return 0;
+-
+-	it = hw_param_interval(params, rule->var);
+-	return apply_hw_params_minmax(it, 0, rmax);
+-}
+-
+ /*
+  * set up the runtime hardware information.
+  */
+@@ -1139,6 +1064,18 @@ static int setup_hw_info(struct snd_pcm_runtime *runtime, struct snd_usb_substre
+ 			return err;
+ 	}
+ 
++	/* set max period and buffer sizes for 1 and 2 seconds, respectively */
++	err = snd_pcm_hw_constraint_minmax(runtime,
++					   SNDRV_PCM_HW_PARAM_PERIOD_TIME,
++					   0, 1000000);
++	if (err < 0)
++		return err;
++	err = snd_pcm_hw_constraint_minmax(runtime,
++					   SNDRV_PCM_HW_PARAM_BUFFER_TIME,
++					   0, 2000000);
++	if (err < 0)
++		return err;
++
+ 	/* additional hw constraints for implicit fb */
+ 	err = snd_pcm_hw_rule_add(runtime, 0, SNDRV_PCM_HW_PARAM_FORMAT,
+ 				  hw_rule_format_implicit_fb, subs,
+@@ -1160,16 +1097,6 @@ static int setup_hw_info(struct snd_pcm_runtime *runtime, struct snd_usb_substre
+ 				  SNDRV_PCM_HW_PARAM_PERIODS, -1);
+ 	if (err < 0)
+ 		return err;
+-	err = snd_pcm_hw_rule_add(runtime, 0, SNDRV_PCM_HW_PARAM_BUFFER_BYTES,
+-				  hw_rule_bytes_implicit_fb, subs,
+-				  SNDRV_PCM_HW_PARAM_BUFFER_BYTES, -1);
+-	if (err < 0)
+-		return err;
+-	err = snd_pcm_hw_rule_add(runtime, 0, SNDRV_PCM_HW_PARAM_PERIOD_BYTES,
+-				  hw_rule_bytes_implicit_fb, subs,
+-				  SNDRV_PCM_HW_PARAM_PERIOD_BYTES, -1);
+-	if (err < 0)
+-		return err;
+ 
+ 	list_for_each_entry(fp, &subs->fmt_list, list) {
+ 		if (fp->implicit_fb) {
 -- 
-2.34.1
+2.35.1
 
 
 
