@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A38B850535C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D554F505838
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240573AbiDRM44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:56:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50980 "EHLO
+        id S242112AbiDROAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:00:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240441AbiDRMzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:45 -0400
+        with ESMTP id S244628AbiDRN73 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:59:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29A64E0B1;
-        Mon, 18 Apr 2022 05:37:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C222B26E;
+        Mon, 18 Apr 2022 06:08:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A79AE611CC;
-        Mon, 18 Apr 2022 12:37:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE24EC385A1;
-        Mon, 18 Apr 2022 12:37:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4986860F5D;
+        Mon, 18 Apr 2022 13:08:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26DE0C385A7;
+        Mon, 18 Apr 2022 13:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285462;
-        bh=RSKVNnoqxfmMZybfBYToySTA/cVvPDlog7YmfbBL73w=;
+        s=korg; t=1650287301;
+        bh=um47YWGyCqvH9FgQD9icRJ5irpy90iVAj61xMwEcStQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BNVOcS9/x41RTAb1d33uCPZNuvMPTbSkyDA9RHMCxQpMoaOsnY4JFU8CDGCItvZtQ
-         wc0zIsVjPaaBRuxTC3AMA0mYMQY2lnc/jFh4IM5rsD1gCzv5dGqDA6EGqCvT5xhpsA
-         hAACpDlNhsbbB0blaos+AkglEk2sywhzRjHWSOy4=
+        b=HgmdGY34AvjJXlsS2vsh4JkeazcP4cph5Wwn3PUUYPrDhd1E9+ms25VWcNlN8APpT
+         6hMUWX8l8gAdanlJIu3lESqhQGygG6lYDOfagHhndD37vesPwKQBnaaWbJkjxGFjsm
+         5dxoXidkjTlERppuxoOUwtUgt1YPqBgDBDZBmGRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Ajish Koshy <Ajish.Koshy@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 025/105] scsi: pm80xx: Mask and unmask upper interrupt vectors 32-63
-Date:   Mon, 18 Apr 2022 14:12:27 +0200
-Message-Id: <20220418121146.941739869@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 082/218] HID: i2c-hid: fix GET/SET_REPORT for unnumbered reports
+Date:   Mon, 18 Apr 2022 14:12:28 +0200
+Message-Id: <20220418121201.952066075@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,73 +55,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajish Koshy <Ajish.Koshy@microchip.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 294080eacf92a0781e6d43663448a55001ec8c64 ]
+[ Upstream commit a5e5e03e94764148a01757b2fa4737d3445c13a6 ]
 
-When upper inbound and outbound queues 32-63 are enabled, we see upper
-vectors 32-63 in interrupt service routine. We need corresponding registers
-to handle masking and unmasking of these upper interrupts.
+Internally kernel prepends all report buffers, for both numbered and
+unnumbered reports, with report ID, therefore to properly handle unnumbered
+reports we should prepend it ourselves.
 
-To achieve this, we use registers MSGU_ODMR_U(0x34) to mask and
-MSGU_ODMR_CLR_U(0x3C) to unmask the interrupts. In these registers bit 0-31
-represents interrupt vectors 32-63.
+For the same reason we should skip the first byte of the buffer when
+calling i2c_hid_set_or_send_report() which then will take care of properly
+formatting the transfer buffer based on its separate report ID argument
+along with report payload.
 
-Link: https://lore.kernel.org/r/20220411064603.668448-2-Ajish.Koshy@microchip.com
-Fixes: 05c6c029a44d ("scsi: pm80xx: Increase number of supported queues")
-Reviewed-by: John Garry <john.garry@huawei.com>
-Acked-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Ajish Koshy <Ajish.Koshy@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[jkosina@suse.cz: finalize trimmed sentence in changelog as spotted by Benjamin]
+Fixes: 9b5a9ae88573 ("HID: i2c-hid: implement ll_driver transport-layer callbacks")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm80xx_hwi.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 32 ++++++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 4c03bf08b543..0543ff3ff1ba 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -1682,10 +1682,11 @@ static void
- pm80xx_chip_interrupt_enable(struct pm8001_hba_info *pm8001_ha, u8 vec)
- {
- #ifdef PM8001_USE_MSIX
--	u32 mask;
--	mask = (u32)(1 << vec);
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 518ccf15188e..26c7701fb188 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -643,6 +643,17 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
+ 	if (report_type == HID_OUTPUT_REPORT)
+ 		return -EINVAL;
+ 
++	/*
++	 * In case of unnumbered reports the response from the device will
++	 * not have the report ID that the upper layers expect, so we need
++	 * to stash it the buffer ourselves and adjust the data size.
++	 */
++	if (!report_number) {
++		buf[0] = 0;
++		buf++;
++		count--;
++	}
++
+ 	/* +2 bytes to include the size of the reply in the query buffer */
+ 	ask_count = min(count + 2, (size_t)ihid->bufsize);
+ 
+@@ -664,6 +675,9 @@ static int i2c_hid_get_raw_report(struct hid_device *hid,
+ 	count = min(count, ret_count - 2);
+ 	memcpy(buf, ihid->rawbuf + 2, count);
+ 
++	if (!report_number)
++		count++;
++
+ 	return count;
+ }
+ 
+@@ -680,17 +694,19 @@ static int i2c_hid_output_raw_report(struct hid_device *hid, __u8 *buf,
+ 
+ 	mutex_lock(&ihid->reset_lock);
+ 
+-	if (report_id) {
+-		buf++;
+-		count--;
+-	}
 -
--	pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_CLR, (u32)(mask & 0xFFFFFFFF));
-+	if (vec < 32)
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_CLR, 1U << vec);
-+	else
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_CLR_U,
-+			    1U << (vec - 32));
- 	return;
- #endif
- 	pm80xx_chip_intx_interrupt_enable(pm8001_ha);
-@@ -1701,12 +1702,15 @@ static void
- pm80xx_chip_interrupt_disable(struct pm8001_hba_info *pm8001_ha, u8 vec)
- {
- #ifdef PM8001_USE_MSIX
--	u32 mask;
--	if (vec == 0xFF)
--		mask = 0xFFFFFFFF;
-+	if (vec == 0xFF) {
-+		/* disable all vectors 0-31, 32-63 */
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR, 0xFFFFFFFF);
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_U, 0xFFFFFFFF);
-+	} else if (vec < 32)
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR, 1U << vec);
- 	else
--		mask = (u32)(1 << vec);
--	pm8001_cw32(pm8001_ha, 0, MSGU_ODMR, (u32)(mask & 0xFFFFFFFF));
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_U,
-+			    1U << (vec - 32));
- 	return;
- #endif
- 	pm80xx_chip_intx_interrupt_disable(pm8001_ha);
++	/*
++	 * Note that both numbered and unnumbered reports passed here
++	 * are supposed to have report ID stored in the 1st byte of the
++	 * buffer, so we strip it off unconditionally before passing payload
++	 * to i2c_hid_set_or_send_report which takes care of encoding
++	 * everything properly.
++	 */
+ 	ret = i2c_hid_set_or_send_report(client,
+ 				report_type == HID_FEATURE_REPORT ? 0x03 : 0x02,
+-				report_id, buf, count, use_data);
++				report_id, buf + 1, count - 1, use_data);
+ 
+-	if (report_id && ret >= 0)
+-		ret++; /* add report_id to the number of transfered bytes */
++	if (ret >= 0)
++		ret++; /* add report_id to the number of transferred bytes */
+ 
+ 	mutex_unlock(&ihid->reset_lock);
+ 
 -- 
-2.35.1
+2.34.1
 
 
 
