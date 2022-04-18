@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E514B505170
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC299505853
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239186AbiDRMer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51114 "EHLO
+        id S244185AbiDRN7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239395AbiDRMc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:32:58 -0400
+        with ESMTP id S244654AbiDRN5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C4112755;
-        Mon, 18 Apr 2022 05:24:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABBC2AE03;
+        Mon, 18 Apr 2022 06:07:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59DA6B80ED7;
-        Mon, 18 Apr 2022 12:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E19EC385A1;
-        Mon, 18 Apr 2022 12:24:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49C17B80D9C;
+        Mon, 18 Apr 2022 13:07:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97705C385A1;
+        Mon, 18 Apr 2022 13:06:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284671;
-        bh=NXGaI5IJ/qzbG2ytbzRFB2c1VafrslVJuy6Y/WpT9eE=;
+        s=korg; t=1650287219;
+        bh=zbOjmukFhLaNSC8fxpQLme7WyQLHc3/uok31bMzHGdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JLLWDMHg06BvG8Fy4Cf5OqEu7rK45wHl9U/ZKo89ivVR2lU1qKP0hwBFQ3+o2UZ6B
-         TK14b5TLEKILIEbigHBWFMpOZuGBAwCehMCamh7gvSQLNn//mRTJrMbcC5HszflSuO
-         3ADd7yMn9dgjKU9OsflJOHWdwqf3PdgdMMKav4i0=
+        b=vE8MA1hMy0C1hJltkm1xdH4NB/T/JkeTF8yxRZkDMj8SDCiXr4CTmXbF9XEFst6s0
+         2g8chw10Q7LWrtD0r0kWSMQK/k8e6oMvo1/GNDncvZ6pgSDJLYeLh+3U8N3kMOrrzf
+         jpLIaInzyGUTXHsgQEBGlK7P6gCKVG8NS7TL2e60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 191/219] btrfs: zoned: activate block group only for extent allocation
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 094/218] power: supply: wm8350-power: Handle error for wm8350_register_irq
 Date:   Mon, 18 Apr 2022 14:12:40 +0200
-Message-Id: <20220418121212.221607002@linuxfoundation.org>
+Message-Id: <20220418121202.295462073@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,117 +55,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 760e69c4c2e2f475a812bdd414b62758215ce9cb upstream.
+[ Upstream commit b0b14b5ba11bec56fad344a4a0b2e16449cc8b94 ]
 
-In btrfs_make_block_group(), we activate the allocated block group,
-expecting that the block group is soon used for allocation. However, the
-chunk allocation from flush_space() context broke the assumption. There
-can be a large time gap between the chunk allocation time and the extent
-allocation time from the chunk.
+As the potential failure of the wm8350_register_irq(),
+it should be better to check it and return error if fails.
+Also, use 'free_' in order to avoid same code.
 
-Activating the empty block groups pre-allocated from flush_space()
-context can exhaust the active zone counter of a device. Once we use all
-the active zone counts for empty pre-allocated block groups, we cannot
-activate new block group for the other things: metadata, tree-log, or
-data relocation block group.  That failure results in a fake -ENOSPC.
-
-This patch introduces CHUNK_ALLOC_FORCE_FOR_EXTENT to distinguish the
-chunk allocation from find_free_extent(). Now, the new block group is
-activated only in that context.
-
-Fixes: eb66a010d518 ("btrfs: zoned: activate new block group")
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Tested-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 14431aa0c5a4 ("power_supply: Add support for WM8350 PMU")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/block-group.c |   24 ++++++++++++++++--------
- fs/btrfs/block-group.h |    4 ++++
- fs/btrfs/extent-tree.c |    2 +-
- 3 files changed, 21 insertions(+), 9 deletions(-)
+ drivers/power/supply/wm8350_power.c | 96 ++++++++++++++++++++++++-----
+ 1 file changed, 82 insertions(+), 14 deletions(-)
 
---- a/fs/btrfs/block-group.c
-+++ b/fs/btrfs/block-group.c
-@@ -2479,12 +2479,6 @@ struct btrfs_block_group *btrfs_make_blo
- 		return ERR_PTR(ret);
- 	}
+diff --git a/drivers/power/supply/wm8350_power.c b/drivers/power/supply/wm8350_power.c
+index 5c5880664e09..b6062d8cbd0f 100644
+--- a/drivers/power/supply/wm8350_power.c
++++ b/drivers/power/supply/wm8350_power.c
+@@ -410,44 +410,112 @@ static const struct power_supply_desc wm8350_usb_desc = {
+  *		Initialisation
+  *********************************************************************/
  
--	/*
--	 * New block group is likely to be used soon. Try to activate it now.
--	 * Failure is OK for now.
--	 */
--	btrfs_zone_activate(cache);
--
- 	ret = exclude_super_stripes(cache);
- 	if (ret) {
- 		/* We may have excluded something, so call this just in case */
-@@ -3636,8 +3630,14 @@ int btrfs_chunk_alloc(struct btrfs_trans
- 	struct btrfs_block_group *ret_bg;
- 	bool wait_for_alloc = false;
- 	bool should_alloc = false;
-+	bool from_extent_allocation = false;
- 	int ret = 0;
- 
-+	if (force == CHUNK_ALLOC_FORCE_FOR_EXTENT) {
-+		from_extent_allocation = true;
-+		force = CHUNK_ALLOC_FORCE;
-+	}
+-static void wm8350_init_charger(struct wm8350 *wm8350)
++static int wm8350_init_charger(struct wm8350 *wm8350)
+ {
++	int ret;
 +
- 	/* Don't re-enter if we're already allocating a chunk */
- 	if (trans->allocating_chunk)
- 		return -ENOSPC;
-@@ -3730,9 +3730,17 @@ int btrfs_chunk_alloc(struct btrfs_trans
- 	ret_bg = do_chunk_alloc(trans, flags);
- 	trans->allocating_chunk = false;
- 
--	if (IS_ERR(ret_bg))
-+	if (IS_ERR(ret_bg)) {
- 		ret = PTR_ERR(ret_bg);
--	else
-+	} else if (from_extent_allocation) {
-+		/*
-+		 * New block group is likely to be used soon. Try to activate
-+		 * it now. Failure is OK for now.
-+		 */
-+		btrfs_zone_activate(ret_bg);
-+	}
+ 	/* register our interest in charger events */
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
+ 			    wm8350_charger_handler, 0, "Battery hot", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
++	if (ret)
++		goto err;
 +
-+	if (!ret)
- 		btrfs_put_block_group(ret_bg);
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
+ 			    wm8350_charger_handler, 0, "Battery cold", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
++	if (ret)
++		goto free_chg_bat_hot;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
+ 			    wm8350_charger_handler, 0, "Battery fail", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
++	if (ret)
++		goto free_chg_bat_cold;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charger timeout", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
++	if (ret)
++		goto free_chg_bat_fail;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charge end", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
++	if (ret)
++		goto free_chg_to;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charge start", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
++	if (ret)
++		goto free_chg_end;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
+ 			    wm8350_charger_handler, 0,
+ 			    "Fast charge ready", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
++	if (ret)
++		goto free_chg_start;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <3.9V", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
++	if (ret)
++		goto free_chg_fast_rdy;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <3.1V", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
++	if (ret)
++		goto free_chg_vbatt_lt_3p9;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <2.85V", wm8350);
++	if (ret)
++		goto free_chg_vbatt_lt_3p1;
  
- 	spin_lock(&space_info->lock);
---- a/fs/btrfs/block-group.h
-+++ b/fs/btrfs/block-group.h
-@@ -35,11 +35,15 @@ enum btrfs_discard_state {
-  * the FS with empty chunks
-  *
-  * CHUNK_ALLOC_FORCE means it must try to allocate one
-+ *
-+ * CHUNK_ALLOC_FORCE_FOR_EXTENT like CHUNK_ALLOC_FORCE but called from
-+ * find_free_extent() that also activaes the zone
-  */
- enum btrfs_chunk_alloc_enum {
- 	CHUNK_ALLOC_NO_FORCE,
- 	CHUNK_ALLOC_LIMITED,
- 	CHUNK_ALLOC_FORCE,
-+	CHUNK_ALLOC_FORCE_FOR_EXTENT,
- };
+ 	/* and supply change events */
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
+ 			    wm8350_charger_handler, 0, "USB", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
++	if (ret)
++		goto free_chg_vbatt_lt_2p85;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
+ 			    wm8350_charger_handler, 0, "Wall", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
++	if (ret)
++		goto free_ext_usb_fb;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
+ 			    wm8350_charger_handler, 0, "Battery", wm8350);
++	if (ret)
++		goto free_ext_wall_fb;
++
++	return 0;
++
++free_ext_wall_fb:
++	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_WALL_FB, wm8350);
++free_ext_usb_fb:
++	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_USB_FB, wm8350);
++free_chg_vbatt_lt_2p85:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
++free_chg_vbatt_lt_3p1:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
++free_chg_vbatt_lt_3p9:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
++free_chg_fast_rdy:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
++free_chg_start:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
++free_chg_end:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
++free_chg_to:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
++free_chg_bat_fail:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL, wm8350);
++free_chg_bat_cold:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD, wm8350);
++free_chg_bat_hot:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT, wm8350);
++err:
++	return ret;
+ }
  
- struct btrfs_caching_control {
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -4087,7 +4087,7 @@ static int find_free_extent_update_loop(
- 			}
- 
- 			ret = btrfs_chunk_alloc(trans, ffe_ctl->flags,
--						CHUNK_ALLOC_FORCE);
-+						CHUNK_ALLOC_FORCE_FOR_EXTENT);
- 
- 			/* Do not bail out on ENOSPC since we can do more. */
- 			if (ret == -ENOSPC)
+ static void free_charger_irq(struct wm8350 *wm8350)
+-- 
+2.34.1
+
 
 
