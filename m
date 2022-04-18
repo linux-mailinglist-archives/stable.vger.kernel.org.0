@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 945AE50553E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B742505002
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241101AbiDRNLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:11:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54000 "EHLO
+        id S236196AbiDRMUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241601AbiDRNIZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A98421827;
-        Mon, 18 Apr 2022 05:47:47 -0700 (PDT)
+        with ESMTP id S238300AbiDRMTs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:19:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E43891BE98;
+        Mon, 18 Apr 2022 05:16:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 832FA6124A;
-        Mon, 18 Apr 2022 12:47:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76BDFC385A7;
-        Mon, 18 Apr 2022 12:47:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8281B80ED1;
+        Mon, 18 Apr 2022 12:16:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E797C385A7;
+        Mon, 18 Apr 2022 12:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286065;
-        bh=0EpLQqBQHjcTpSODKHXy71hIZ4eq3bpxMs0J0sqKlmw=;
+        s=korg; t=1650284189;
+        bh=V+OmPu9yX54w8KA9uMNf+LGzMmg24e60JxprMKf1Nhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pxoe6HbxlLIdeEwGWUswFcDpFBqeuF9iOR5VSsujzqWCcM4QLtYzbBAeYtMFuoBZY
-         SUTgaFJZvsPXwGfv/6aowBrSLPVclJNsRdkpSfo9Fadb+LTf26zWR0zgQunypWGGhm
-         JH/Lqp2w/+LdpKPBxramBtrbMdx/A04elIqKzn84=
+        b=jp5zVLhvNpRFmHIHI5yhamhmk8uWkXaOLBnqATTh+QecwRWdqPh76InWM9dIWxdC9
+         8fsPYTP44sAbH0Q0pamXMmc9wHLMws0+VPbrdblF1mwn8gS17ECdorlA2KL37pgFml
+         U1J/QT8+v1OB0fnf6UVTZhS9DzmZEF3qce/uwdUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jann Horn <jannh@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4.14 019/284] ptrace: Check PTRACE_O_SUSPEND_SECCOMP permission on PTRACE_SEIZE
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Zheyu Ma <zheyuma97@gmail.com>
+Subject: [PATCH 5.17 031/219] ALSA: echoaudio: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:10:00 +0200
-Message-Id: <20220418121211.243931743@linuxfoundation.org>
+Message-Id: <20220418121205.143768308@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ee1fee900537b5d9560e9f937402de5ddc8412f3 upstream.
+commit 313c7e57035125cb7533b53ddd0bc7aa562b433c upstream.
 
-Setting PTRACE_O_SUSPEND_SECCOMP is supposed to be a highly privileged
-operation because it allows the tracee to completely bypass all seccomp
-filters on kernels with CONFIG_CHECKPOINT_RESTORE=y. It is only supposed to
-be settable by a process with global CAP_SYS_ADMIN, and only if that
-process is not subject to any seccomp filters at all.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-However, while these permission checks were done on the PTRACE_SETOPTIONS
-path, they were missing on the PTRACE_SEIZE path, which also sets
-user-specified ptrace flags.
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-Move the permissions checks out into a helper function and let both
-ptrace_attach() and ptrace_setoptions() call it.
-
-Cc: stable@kernel.org
-Fixes: 13c4a90119d2 ("seccomp: add ptrace options for suspend/resume")
-Signed-off-by: Jann Horn <jannh@google.com>
-Link: https://lkml.kernel.org/r/20220319010838.1386861-1-jannh@google.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Fixes: 9c211bf392bb ("ALSA: echoaudio: Allocate resources with device-managed APIs")
+Reported-and-tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CAMhUBjm2AdyEZ_-EgexdNDN7SvY4f89=4=FwAL+c0Mg0O+X50A@mail.gmail.com
+Link: https://lore.kernel.org/r/20220412093141.8008-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/ptrace.c |   47 ++++++++++++++++++++++++++++++++---------------
- 1 file changed, 32 insertions(+), 15 deletions(-)
+ sound/pci/echoaudio/echoaudio.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -370,6 +370,26 @@ bool ptrace_may_access(struct task_struc
- 	return !err;
+--- a/sound/pci/echoaudio/echoaudio.c
++++ b/sound/pci/echoaudio/echoaudio.c
+@@ -1970,8 +1970,8 @@ static int snd_echo_create(struct snd_ca
  }
  
-+static int check_ptrace_options(unsigned long data)
-+{
-+	if (data & ~(unsigned long)PTRACE_O_MASK)
-+		return -EINVAL;
-+
-+	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
-+		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
-+		    !IS_ENABLED(CONFIG_SECCOMP))
-+			return -EINVAL;
-+
-+		if (!capable(CAP_SYS_ADMIN))
-+			return -EPERM;
-+
-+		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
-+		    current->ptrace & PT_SUSPEND_SECCOMP)
-+			return -EPERM;
-+	}
-+	return 0;
-+}
-+
- static int ptrace_attach(struct task_struct *task, long request,
- 			 unsigned long addr,
- 			 unsigned long flags)
-@@ -381,8 +401,16 @@ static int ptrace_attach(struct task_str
- 	if (seize) {
- 		if (addr != 0)
- 			goto out;
-+		/*
-+		 * This duplicates the check in check_ptrace_options() because
-+		 * ptrace_attach() and ptrace_setoptions() have historically
-+		 * used different error codes for unknown ptrace options.
-+		 */
- 		if (flags & ~(unsigned long)PTRACE_O_MASK)
- 			goto out;
-+		retval = check_ptrace_options(flags);
-+		if (retval)
-+			return retval;
- 		flags = PT_PTRACED | PT_SEIZED | (flags << PT_OPT_FLAG_SHIFT);
- 	} else {
- 		flags = PT_PTRACED;
-@@ -655,22 +683,11 @@ int ptrace_writedata(struct task_struct
- static int ptrace_setoptions(struct task_struct *child, unsigned long data)
+ /* constructor */
+-static int snd_echo_probe(struct pci_dev *pci,
+-			  const struct pci_device_id *pci_id)
++static int __snd_echo_probe(struct pci_dev *pci,
++			    const struct pci_device_id *pci_id)
  {
- 	unsigned flags;
-+	int ret;
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -2139,6 +2139,11 @@ static int snd_echo_probe(struct pci_dev
+ 	return 0;
+ }
  
--	if (data & ~(unsigned long)PTRACE_O_MASK)
--		return -EINVAL;
--
--	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
--		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
--		    !IS_ENABLED(CONFIG_SECCOMP))
--			return -EINVAL;
--
--		if (!capable(CAP_SYS_ADMIN))
--			return -EPERM;
--
--		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
--		    current->ptrace & PT_SUSPEND_SECCOMP)
--			return -EPERM;
--	}
-+	ret = check_ptrace_options(data);
-+	if (ret)
-+		return ret;
++static int snd_echo_probe(struct pci_dev *pci,
++			  const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_echo_probe(pci, pci_id));
++}
  
- 	/* Avoid intermediate state when all opts are cleared */
- 	flags = child->ptrace;
+ 
+ #if defined(CONFIG_PM_SLEEP)
 
 
