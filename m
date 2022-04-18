@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B67FA50558B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59B7450570D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241263AbiDRNLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:11:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41516 "EHLO
+        id S241517AbiDRNpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:45:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238742AbiDRNFp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7922A240;
-        Mon, 18 Apr 2022 05:46:37 -0700 (PDT)
+        with ESMTP id S244449AbiDRNo1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:44:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BAED3F33B;
+        Mon, 18 Apr 2022 05:59:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 395806124A;
-        Mon, 18 Apr 2022 12:46:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49677C385A7;
-        Mon, 18 Apr 2022 12:46:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C3C2B80E44;
+        Mon, 18 Apr 2022 12:59:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D2B8C385A1;
+        Mon, 18 Apr 2022 12:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285996;
-        bh=xb0hS4BrdUP+xSIwy3hBDuYk5Yqiydpc9Eeeprbd1yE=;
+        s=korg; t=1650286796;
+        bh=1m3xIrLcO5FIijhI2wj1F439x8Le5NCM2hWe+oEGa6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FRa1FF2+8ERyePHg250v1YPFfQqy69lbyJkDejfXo+3XHbaRPft6fTH7fNp/k9Tjq
-         Pdgd8QQDXe7xRU+QA3GcrghwJqlGDVc5XbYCNIcz9L//jDVCxm3x3kq/cZRbcAogDR
-         gkrKTouIWQe0zYQijlshOSByUzxcoHWzNL3h3cSQ=
+        b=Fm20q065B9sfyYAMC2+g25FnrZ8yj0du2/kDTVdMh1cUMejUrLb57jdI2+GNgNOrk
+         hbtIpkF1Od2j8QRONCHSMgMdlmdIUvlSes7Irq6RBmUAVQto9K2300UN8YtSTTsxaI
+         KczD8ugvAOzpuqTK3yadkSfmlWUP15Q9mc3d+wZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/32] testing/selftests/mqueue: Fix mq_perf_tests to free the allocated cpu set
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 247/284] x86/pm: Save the MSR validity status at context setup
 Date:   Mon, 18 Apr 2022 14:13:48 +0200
-Message-Id: <20220418121127.371185312@linuxfoundation.org>
+Message-Id: <20220418121219.177917828@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
-References: <20220418121127.127656835@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,104 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-[ Upstream commit ce64763c63854b4079f2e036638aa881a1fb3fbc ]
+commit 73924ec4d560257004d5b5116b22a3647661e364 upstream.
 
-The selftest "mqueue/mq_perf_tests.c" use CPU_ALLOC to allocate
-CPU set. This cpu set is used further in pthread_attr_setaffinity_np
-and by pthread_create in the code. But in current code, allocated
-cpu set is not freed.
+The mechanism to save/restore MSRs during S3 suspend/resume checks for
+the MSR validity during suspend, and only restores the MSR if its a
+valid MSR.  This is not optimal, as an invalid MSR will unnecessarily
+throw an exception for every suspend cycle.  The more invalid MSRs,
+higher the impact will be.
 
-Fix this issue by adding CPU_FREE in the "shutdown" function which
-is called in most of the error/exit path for the cleanup. There are
-few error paths which exit without using shutdown. Add a common goto
-error path with CPU_FREE for these cases.
+Check and save the MSR validity at setup.  This ensures that only valid
+MSRs that are guaranteed to not throw an exception will be attempted
+during suspend.
 
-Fixes: 7820b0715b6f ("tools/selftests: add mq_perf_tests")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7a9c2dd08ead ("x86/pm: Introduce quirk framework to save/restore extra MSR registers around suspend/resume")
+Suggested-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../testing/selftests/mqueue/mq_perf_tests.c  | 25 +++++++++++++------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ arch/x86/power/cpu.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/mqueue/mq_perf_tests.c b/tools/testing/selftests/mqueue/mq_perf_tests.c
-index b019e0b8221c..84fda3b49073 100644
---- a/tools/testing/selftests/mqueue/mq_perf_tests.c
-+++ b/tools/testing/selftests/mqueue/mq_perf_tests.c
-@@ -180,6 +180,9 @@ void shutdown(int exit_val, char *err_cause, int line_no)
- 	if (in_shutdown++)
- 		return;
+--- a/arch/x86/power/cpu.c
++++ b/arch/x86/power/cpu.c
+@@ -41,7 +41,8 @@ static void msr_save_context(struct save
+ 	struct saved_msr *end = msr + ctxt->saved_msrs.num;
  
-+	/* Free the cpu_set allocated using CPU_ALLOC in main function */
-+	CPU_FREE(cpu_set);
-+
- 	for (i = 0; i < num_cpus_to_pin; i++)
- 		if (cpu_threads[i]) {
- 			pthread_kill(cpu_threads[i], SIGUSR1);
-@@ -551,6 +554,12 @@ int main(int argc, char *argv[])
- 		perror("sysconf(_SC_NPROCESSORS_ONLN)");
- 		exit(1);
+ 	while (msr < end) {
+-		msr->valid = !rdmsrl_safe(msr->info.msr_no, &msr->info.reg.q);
++		if (msr->valid)
++			rdmsrl(msr->info.msr_no, msr->info.reg.q);
+ 		msr++;
  	}
-+
-+	if (getuid() != 0)
-+		ksft_exit_skip("Not running as root, but almost all tests "
-+			"require root in order to modify\nsystem settings.  "
-+			"Exiting.\n");
-+
- 	cpus_online = min(MAX_CPUS, sysconf(_SC_NPROCESSORS_ONLN));
- 	cpu_set = CPU_ALLOC(cpus_online);
- 	if (cpu_set == NULL) {
-@@ -589,7 +598,7 @@ int main(int argc, char *argv[])
- 						cpu_set)) {
- 					fprintf(stderr, "Any given CPU may "
- 						"only be given once.\n");
--					exit(1);
-+					goto err_code;
- 				} else
- 					CPU_SET_S(cpus_to_pin[cpu],
- 						  cpu_set_size, cpu_set);
-@@ -607,7 +616,7 @@ int main(int argc, char *argv[])
- 				queue_path = malloc(strlen(option) + 2);
- 				if (!queue_path) {
- 					perror("malloc()");
--					exit(1);
-+					goto err_code;
- 				}
- 				queue_path[0] = '/';
- 				queue_path[1] = 0;
-@@ -622,17 +631,12 @@ int main(int argc, char *argv[])
- 		fprintf(stderr, "Must pass at least one CPU to continuous "
- 			"mode.\n");
- 		poptPrintUsage(popt_context, stderr, 0);
--		exit(1);
-+		goto err_code;
- 	} else if (!continuous_mode) {
- 		num_cpus_to_pin = 1;
- 		cpus_to_pin[0] = cpus_online - 1;
- 	}
- 
--	if (getuid() != 0)
--		ksft_exit_skip("Not running as root, but almost all tests "
--			"require root in order to modify\nsystem settings.  "
--			"Exiting.\n");
--
- 	max_msgs = fopen(MAX_MSGS, "r+");
- 	max_msgsize = fopen(MAX_MSGSIZE, "r+");
- 	if (!max_msgs)
-@@ -740,4 +744,9 @@ int main(int argc, char *argv[])
- 			sleep(1);
- 	}
- 	shutdown(0, "", 0);
-+
-+err_code:
-+	CPU_FREE(cpu_set);
-+	exit(1);
-+
  }
--- 
-2.35.1
-
+@@ -426,8 +427,10 @@ static int msr_build_context(const u32 *
+ 	}
+ 
+ 	for (i = saved_msrs->num, j = 0; i < total_num; i++, j++) {
++		u64 dummy;
++
+ 		msr_array[i].info.msr_no	= msr_id[j];
+-		msr_array[i].valid		= false;
++		msr_array[i].valid		= !rdmsrl_safe(msr_id[j], &dummy);
+ 		msr_array[i].info.reg.q		= 0;
+ 	}
+ 	saved_msrs->num   = total_num;
 
 
