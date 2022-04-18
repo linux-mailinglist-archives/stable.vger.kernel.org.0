@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2389A505807
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91CBE505171
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244471AbiDRN7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:59:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44766 "EHLO
+        id S236447AbiDRMev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244633AbiDRN5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 964FE2AE00;
-        Mon, 18 Apr 2022 06:06:56 -0700 (PDT)
+        with ESMTP id S239342AbiDRMcz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:32:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A88512636;
+        Mon, 18 Apr 2022 05:24:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3009960EFC;
-        Mon, 18 Apr 2022 13:06:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23F6BC385A7;
-        Mon, 18 Apr 2022 13:06:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02637B80ED6;
+        Mon, 18 Apr 2022 12:24:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31953C385A1;
+        Mon, 18 Apr 2022 12:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287215;
-        bh=V6x3mgFpAhOQdQ5rry5hOTG/r7H9GPulgqpOH15EtB4=;
+        s=korg; t=1650284667;
+        bh=V8V5mAr7zBx9cxmrp+J0vEBBBiURzpMjSAMqXAV01lQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WG6WATQpx65rUzIRfWz5+fs8AeSn6py2vMl1EBc8DIaLG2J5clNnePjca4ADNQIye
-         UsHAGbV7/LE616qot800sDaCoiJwmEPB1iBWhSTFSFYFvl+kxMyWodmmO2C6gLKBP7
-         But4tDoRQyV6y+vwsqcW3/JIgxmvJgkc9OtqcqtI=
+        b=1DKfXpuLEGkXeYBri3+hi3epgWbfUQ8OYvd7fYcvFPlH03CNnCvCxj26xzwD/oZYF
+         x7g34VMInvE1aSB9kQwmVIgarEsSmYwa4q7YrY44N17w6npRs8icJJquLvj8O7Ap9c
+         RG9Fq36v6Yee6P8ynuw+GeBG0uc2nLKd7O6VI9W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 093/218] i2c: xiic: Make bus names unique
+        stable@vger.kernel.org, Peter Seiderer <ps.report@gmx.net>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.17 190/219] ath9k: Fix usage of driver-private space in tx_info
 Date:   Mon, 18 Apr 2022 14:12:39 +0200
-Message-Id: <20220418121202.267295546@linuxfoundation.org>
+Message-Id: <20220418121212.194099689@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 1d366c2f9df8279df2adbb60471f86fc40a1c39e ]
+commit 5a6b06f5927c940fa44026695779c30b7536474c upstream.
 
-This driver is for an FPGA logic core, so there can be arbitrarily many
-instances of the bus on a given system. Previously all of the I2C bus
-names were "xiic-i2c" which caused issues with lm_sensors when trying to
-map human-readable names to sensor inputs because it could not properly
-distinguish the busses, for example. Append the platform device name to
-the I2C bus name so it is unique between different instances.
+The ieee80211_tx_info_clear_status() helper also clears the rate counts and
+the driver-private part of struct ieee80211_tx_info, so using it breaks
+quite a few other things. So back out of using it, and instead define a
+ath-internal helper that only clears the area between the
+status_driver_data and the rates info. Combined with moving the
+ath_frame_info struct to status_driver_data, this avoids clearing anything
+we shouldn't be, and so we can keep the existing code for handling the rate
+information.
 
-Fixes: e1d5b6598cdc ("i2c: Add support for Xilinx XPS IIC Bus Interface")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Tested-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+While fixing this I also noticed that the setting of
+tx_info->status.rates[tx_rateindex].count on hardware underrun errors was
+always immediately overridden by the normal setting of the same fields, so
+rearrange the code so that the underrun detection actually takes effect.
+
+The new helper could be generalised to a 'memset_between()' helper, but
+leave it as a driver-internal helper for now since this needs to go to
+stable.
+
+Cc: stable@vger.kernel.org
+Reported-by: Peter Seiderer <ps.report@gmx.net>
+Fixes: 037250f0a45c ("ath9k: Properly clear TX status area before reporting to mac80211")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Reviewed-by: Peter Seiderer <ps.report@gmx.net>
+Tested-by: Peter Seiderer <ps.report@gmx.net>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220404204800.2681133-1-toke@toke.dk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-xiic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/main.c |    2 +-
+ drivers/net/wireless/ath/ath9k/xmit.c |   30 ++++++++++++++++++++----------
+ 2 files changed, 21 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index b72cf2f8da5c..c65a5d0af555 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -727,7 +727,6 @@ static const struct i2c_algorithm xiic_algorithm = {
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -839,7 +839,7 @@ static bool ath9k_txq_list_has_key(struc
+ 			continue;
  
- static struct i2c_adapter xiic_adapter = {
- 	.owner = THIS_MODULE,
--	.name = DRIVER_NAME,
- 	.class = I2C_CLASS_DEPRECATED,
- 	.algo = &xiic_algorithm,
- };
-@@ -763,6 +762,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	i2c_set_adapdata(&i2c->adap, i2c);
- 	i2c->adap.dev.parent = &pdev->dev;
- 	i2c->adap.dev.of_node = pdev->dev.of_node;
-+	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
-+		 DRIVER_NAME " %s", pdev->name);
+ 		txinfo = IEEE80211_SKB_CB(bf->bf_mpdu);
+-		fi = (struct ath_frame_info *)&txinfo->rate_driver_data[0];
++		fi = (struct ath_frame_info *)&txinfo->status.status_driver_data[0];
+ 		if (fi->keyix == keyix)
+ 			return true;
+ 	}
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -141,8 +141,8 @@ static struct ath_frame_info *get_frame_
+ {
+ 	struct ieee80211_tx_info *tx_info = IEEE80211_SKB_CB(skb);
+ 	BUILD_BUG_ON(sizeof(struct ath_frame_info) >
+-		     sizeof(tx_info->rate_driver_data));
+-	return (struct ath_frame_info *) &tx_info->rate_driver_data[0];
++		     sizeof(tx_info->status.status_driver_data));
++	return (struct ath_frame_info *) &tx_info->status.status_driver_data[0];
+ }
  
- 	mutex_init(&i2c->lock);
- 	init_waitqueue_head(&i2c->wait);
--- 
-2.34.1
-
+ static void ath_send_bar(struct ath_atx_tid *tid, u16 seqno)
+@@ -2542,6 +2542,16 @@ skip_tx_complete:
+ 	spin_unlock_irqrestore(&sc->tx.txbuflock, flags);
+ }
+ 
++static void ath_clear_tx_status(struct ieee80211_tx_info *tx_info)
++{
++	void *ptr = &tx_info->status;
++
++	memset(ptr + sizeof(tx_info->status.rates), 0,
++	       sizeof(tx_info->status) -
++	       sizeof(tx_info->status.rates) -
++	       sizeof(tx_info->status.status_driver_data));
++}
++
+ static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
+ 			     struct ath_tx_status *ts, int nframes, int nbad,
+ 			     int txok)
+@@ -2553,7 +2563,7 @@ static void ath_tx_rc_status(struct ath_
+ 	struct ath_hw *ah = sc->sc_ah;
+ 	u8 i, tx_rateindex;
+ 
+-	ieee80211_tx_info_clear_status(tx_info);
++	ath_clear_tx_status(tx_info);
+ 
+ 	if (txok)
+ 		tx_info->status.ack_signal = ts->ts_rssi;
+@@ -2569,6 +2579,13 @@ static void ath_tx_rc_status(struct ath_
+ 	tx_info->status.ampdu_len = nframes;
+ 	tx_info->status.ampdu_ack_len = nframes - nbad;
+ 
++	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
++
++	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
++		tx_info->status.rates[i].count = 0;
++		tx_info->status.rates[i].idx = -1;
++	}
++
+ 	if ((ts->ts_status & ATH9K_TXERR_FILT) == 0 &&
+ 	    (tx_info->flags & IEEE80211_TX_CTL_NO_ACK) == 0) {
+ 		/*
+@@ -2590,13 +2607,6 @@ static void ath_tx_rc_status(struct ath_
+ 			tx_info->status.rates[tx_rateindex].count =
+ 				hw->max_rate_tries;
+ 	}
+-
+-	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
+-		tx_info->status.rates[i].count = 0;
+-		tx_info->status.rates[i].idx = -1;
+-	}
+-
+-	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
+ }
+ 
+ static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
 
 
