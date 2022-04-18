@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B64505303
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CA7E5053C0
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240027AbiDRMy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43864 "EHLO
+        id S238984AbiDRNBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240031AbiDRMyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:54:20 -0400
+        with ESMTP id S241683AbiDRM66 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A248DDEFB;
-        Mon, 18 Apr 2022 05:34:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 327162E686;
+        Mon, 18 Apr 2022 05:39:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2E4261033;
-        Mon, 18 Apr 2022 12:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA5CC385A7;
-        Mon, 18 Apr 2022 12:34:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D716611AD;
+        Mon, 18 Apr 2022 12:39:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E088C385A7;
+        Mon, 18 Apr 2022 12:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285295;
-        bh=vvHpU+KgIweUqNvKAilXjclDlU910lIZwZVqcIdTsFQ=;
+        s=korg; t=1650285567;
+        bh=FxXsQ/0pA/79CvGYTRmab7Da+yVjb4SEgBgD6c/awrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6uQY2eET8SDrpDXQBl+ihfhOVdynkdP+xCPman1wPWtHvec6MLMHBWDpySk2C2Oy
-         7JMSRPsQ542S/vMea7lA8hbRfmkyYdZIptZkgqwStjmLzMefz5CreZjfXdTeM7KOGl
-         9Mm+8yza+c/NoEC7kdLZu/EoSwGI+cT2bDQ+nv14=
+        b=n23plHYSzx2wu8vW+1Wig0D3BG93EanN7HG1uw7+FzddDGzqS0Uts3v663yQvTqkA
+         TvIWoNbmxeGQx0tA8T82n+Ro6XjKS2T9r8OL5lFxLN1tBnAp61rs3Ey+veHlLsz0dP
+         +z+ZmigWpZvRaF+45n7396Yz2CVtS07HFxKGe3gA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kongweibin <kongweibin2@huawei.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 162/189] ipv6: fix panic when forwarding a pkt with no in6 dev
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Steve Capper <steve.capper@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 060/105] tlb: hugetlb: Add more sizes to tlb_remove_huge_tlb_entry
 Date:   Mon, 18 Apr 2022 14:13:02 +0200
-Message-Id: <20220418121206.952686849@linuxfoundation.org>
+Message-Id: <20220418121148.191339785@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +58,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Steve Capper <steve.capper@arm.com>
 
-commit e3fa461d8b0e185b7da8a101fe94dfe6dd500ac0 upstream.
+[ Upstream commit 697a1d44af8ba0477ee729e632f4ade37999249a ]
 
-kongweibin reported a kernel panic in ip6_forward() when input interface
-has no in6 dev associated.
+tlb_remove_huge_tlb_entry only considers PMD_SIZE and PUD_SIZE when
+updating the mmu_gather structure.
 
-The following tc commands were used to reproduce this panic:
-tc qdisc del dev vxlan100 root
-tc qdisc add dev vxlan100 root netem corrupt 5%
+Unfortunately on arm64 there are two additional huge page sizes that
+need to be covered: CONT_PTE_SIZE and CONT_PMD_SIZE. Where an end-user
+attempts to employ contiguous huge pages, a VM_BUG_ON can be experienced
+due to the fact that the tlb structure hasn't been correctly updated by
+the relevant tlb_flush_p.._range() call from tlb_remove_huge_tlb_entry.
 
-CC: stable@vger.kernel.org
-Fixes: ccd27f05ae7b ("ipv6: fix 'disable_policy' for fwd packets")
-Reported-by: kongweibin <kongweibin2@huawei.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch adds inequality logic to the generic implementation of
+tlb_remove_huge_tlb_entry s.t. CONT_PTE_SIZE and CONT_PMD_SIZE are
+effectively covered on arm64. Also, as well as ptes, pmds and puds;
+p4ds are now considered too.
+
+Reported-by: David Hildenbrand <david@redhat.com>
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/linux-mm/811c5c8e-b3a2-85d2-049c-717f17c3a03a@redhat.com/
+Signed-off-by: Steve Capper <steve.capper@arm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220330112543.863-1-steve.capper@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_output.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/asm-generic/tlb.h | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -485,7 +485,7 @@ int ip6_forward(struct sk_buff *skb)
- 		goto drop;
+diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
+index 6661ee1cff47..a0c4b99d2899 100644
+--- a/include/asm-generic/tlb.h
++++ b/include/asm-generic/tlb.h
+@@ -563,10 +563,14 @@ static inline void tlb_flush_p4d_range(struct mmu_gather *tlb,
+ #define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)	\
+ 	do {							\
+ 		unsigned long _sz = huge_page_size(h);		\
+-		if (_sz == PMD_SIZE)				\
+-			tlb_flush_pmd_range(tlb, address, _sz);	\
+-		else if (_sz == PUD_SIZE)			\
++		if (_sz >= P4D_SIZE)				\
++			tlb_flush_p4d_range(tlb, address, _sz);	\
++		else if (_sz >= PUD_SIZE)			\
+ 			tlb_flush_pud_range(tlb, address, _sz);	\
++		else if (_sz >= PMD_SIZE)			\
++			tlb_flush_pmd_range(tlb, address, _sz);	\
++		else						\
++			tlb_flush_pte_range(tlb, address, _sz);	\
+ 		__tlb_remove_tlb_entry(tlb, ptep, address);	\
+ 	} while (0)
  
- 	if (!net->ipv6.devconf_all->disable_policy &&
--	    !idev->cnf.disable_policy &&
-+	    (!idev || !idev->cnf.disable_policy) &&
- 	    !xfrm6_policy_check(NULL, XFRM_POLICY_FWD, skb)) {
- 		__IP6_INC_STATS(net, idev, IPSTATS_MIB_INDISCARDS);
- 		goto drop;
+-- 
+2.35.1
+
 
 
