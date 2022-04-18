@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2579950596A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0B950596E
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:17:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244903AbiDROTr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:19:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34590 "EHLO
+        id S1343735AbiDROT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:19:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344294AbiDROR5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:17:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF6946650;
-        Mon, 18 Apr 2022 06:13:46 -0700 (PDT)
+        with ESMTP id S1344268AbiDRORz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:17:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E483FBFB;
+        Mon, 18 Apr 2022 06:13:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FFE3B80EE2;
-        Mon, 18 Apr 2022 13:13:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6DE7C385A7;
-        Mon, 18 Apr 2022 13:13:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDDFC60AAD;
+        Mon, 18 Apr 2022 13:13:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08BF6C385A7;
+        Mon, 18 Apr 2022 13:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287587;
-        bh=btq5PtiLLaSG5Z1o+XKlEstXkapvQO9CjumUPjapG5k=;
+        s=korg; t=1650287590;
+        bh=t7Ek2bfIGx3XDB9l3vX26eAquej9L1q8mFbYIgiCgz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pA/Qp/98NG32q48ca9KqFMxx0sRGzk518U7kF4Wm8LKc+X0stqdxri1fnI08R4lDG
-         dz7z5OCJs81HBkrjoa7mxnRqWSamJeTsiqsDYjmUCuFuZwHlkY9kHbQzZrigt7EP1L
-         UxYnuNNwx5gLHBnQhlT/qNPnbUxDvVqF9f/olaCc=
+        b=UnoRbZ6D/52Zr6Y2TMjZaMH/HbijDlerncx9FcKm/i87me43l9gxmsDtO9WToXFMb
+         0hso9u4gyQ8HgT82fjYn5QWx9PzeLt36Haii4TyUXOVbj5TLcvgv84ZHFW2IK7fdD6
+         7NWTGA95L45/vU6yB7M2tMj5zM6UWyz16kuBXysA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 206/218] drm/amdkfd: Check for potential null return of kmalloc_array()
-Date:   Mon, 18 Apr 2022 14:14:32 +0200
-Message-Id: <20220418121207.878933802@linuxfoundation.org>
+Subject: [PATCH 4.9 207/218] scsi: ibmvscsis: Increase INITIAL_SRP_LIMIT to 1024
+Date:   Mon, 18 Apr 2022 14:14:33 +0200
+Message-Id: <20220418121207.950378846@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,33 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: QintaoShen <unSimple1993@163.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit ebbb7bb9e80305820dc2328a371c1b35679f2667 ]
+[ Upstream commit 0bade8e53279157c7cc9dd95d573b7e82223d78a ]
 
-As the kmalloc_array() may return null, the 'event_waiters[i].wait' would lead to null-pointer dereference.
-Therefore, it is better to check the return value of kmalloc_array() to avoid this confusion.
+The adapter request_limit is hardcoded to be INITIAL_SRP_LIMIT which is
+currently an arbitrary value of 800. Increase this value to 1024 which
+better matches the characteristics of the typical IBMi Initiator that
+supports 32 LUNs and a queue depth of 32.
 
-Signed-off-by: QintaoShen <unSimple1993@163.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This change also has the secondary benefit of being a power of two as
+required by the kfifo API. Since, Commit ab9bb6318b09 ("Partially revert
+"kfifo: fix kfifo_alloc() and kfifo_init()"") the size of IU pool for each
+target has been rounded down to 512 when attempting to kfifo_init() those
+pools with the current request_limit size of 800.
+
+Link: https://lore.kernel.org/r/20220322194443.678433-1-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_events.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-index 6a3470f84998..732713ff3190 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-@@ -607,6 +607,8 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
- 	event_waiters = kmalloc_array(num_events,
- 					sizeof(struct kfd_event_waiter),
- 					GFP_KERNEL);
-+	if (!event_waiters)
-+		return NULL;
+diff --git a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
+index 5ed28111c3c3..569b662e19e7 100644
+--- a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
++++ b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
+@@ -43,7 +43,7 @@
  
- 	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
- 		INIT_LIST_HEAD(&event_waiters[i].waiters);
+ #define IBMVSCSIS_VERSION	"v0.2"
+ 
+-#define	INITIAL_SRP_LIMIT	800
++#define	INITIAL_SRP_LIMIT	1024
+ #define	DEFAULT_MAX_SECTORS	256
+ #define MAX_TXU			1024 * 1024
+ 
 -- 
 2.35.1
 
