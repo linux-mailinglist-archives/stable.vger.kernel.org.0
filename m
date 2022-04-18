@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 052DF505811
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 066A75052CE
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244713AbiDROAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:00:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
+        id S237034AbiDRMx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:53:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244697AbiDRN5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FC7910A;
-        Mon, 18 Apr 2022 06:07:56 -0700 (PDT)
+        with ESMTP id S240311AbiDRMxM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:53:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2852DABC;
+        Mon, 18 Apr 2022 05:34:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DFD960F16;
-        Mon, 18 Apr 2022 13:07:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DDC8C385A1;
-        Mon, 18 Apr 2022 13:07:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A0BB60F0A;
+        Mon, 18 Apr 2022 12:34:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71C70C385A7;
+        Mon, 18 Apr 2022 12:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287275;
-        bh=BRuUqAYpx7hVvQbjyAKSFqWzC7BwgXQsQmdvFvhsVmc=;
+        s=korg; t=1650285275;
+        bh=CLqasHeB3f/9g8TJ+gJn5N0OM8JBTNVFUB299wDmNJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kv4HiisFiJjEmZuZJEXf/UFUOfAxNq7OHsHFChYW000CuKI/DpTnY45Jkee1CUj+o
-         nqhfYMiMoxhXBZnUv5UcUIcWhoey5VoZcOSmFFD5i1lcyhooyUYAFtQ/WNwCPdy+rv
-         SNn7nXG+F2Ce1W6SBLsy7KIevvosLRd/92ZiuLyQ=
+        b=FlFnuI7PCv1QTz+i1K+7IjqZ+FIebMyKXHf1nVriFmiZqHPV3aOBKcCSNIKF+Zvx8
+         QnuQqzkVVVbG9LOrvbLoxGnp7ILvxVZyg+Fql31dN18JBK5jS5gpB9sADziTDd12cs
+         3ZwewxHoDUE4JjnSKrBTKw0U6QcttA7chWYmFpV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 110/218] clk: tegra: tegra124-emc: Fix missing put_device() call in emc_ensure_emc_driver
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 156/189] btrfs: fix root ref counts in error handling in btrfs_get_root_ref
 Date:   Mon, 18 Apr 2022 14:12:56 +0200
-Message-Id: <20220418121202.745675031@linuxfoundation.org>
+Message-Id: <20220418121206.544212252@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 6d6ef58c2470da85a99119f74d34216c8074b9f0 ]
+commit 168a2f776b9762f4021421008512dd7ab7474df1 upstream.
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+In btrfs_get_root_ref(), when btrfs_insert_fs_root() fails,
+btrfs_put_root() can happen for two reasons:
 
-Fixes: 2db04f16b589 ("clk: tegra: Add EMC clock driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20220112104501.30655-1-linmq006@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- the root already exists in the tree, in that case it returns the
+  reference obtained in btrfs_lookup_fs_root()
+
+- another error so the cleanup is done in the fail label
+
+Calling btrfs_put_root() unconditionally would lead to double decrement
+of the root reference possibly freeing it in the second case.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Fixes: bc44d7c4b2b1 ("btrfs: push btrfs_grab_fs_root into btrfs_get_fs_root")
+CC: stable@vger.kernel.org # 5.10+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/tegra/clk-emc.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/disk-io.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-emc.c b/drivers/clk/tegra/clk-emc.c
-index 74e7544f861b..348e7196b7b9 100644
---- a/drivers/clk/tegra/clk-emc.c
-+++ b/drivers/clk/tegra/clk-emc.c
-@@ -190,6 +190,7 @@ static struct tegra_emc *emc_ensure_emc_driver(struct tegra_clk_emc *tegra)
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -1738,9 +1738,10 @@ again:
  
- 	tegra->emc = platform_get_drvdata(pdev);
- 	if (!tegra->emc) {
-+		put_device(&pdev->dev);
- 		pr_err("%s: cannot find EMC driver\n", __func__);
- 		return NULL;
+ 	ret = btrfs_insert_fs_root(fs_info, root);
+ 	if (ret) {
+-		btrfs_put_root(root);
+-		if (ret == -EEXIST)
++		if (ret == -EEXIST) {
++			btrfs_put_root(root);
+ 			goto again;
++		}
+ 		goto fail;
  	}
--- 
-2.34.1
-
+ 	return root;
 
 
