@@ -2,45 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B94D95055F7
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2B850512D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241073AbiDRNb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:31:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41312 "EHLO
+        id S232773AbiDRMeP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244853AbiDRNa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 202B31EC6D;
-        Mon, 18 Apr 2022 05:56:10 -0700 (PDT)
+        with ESMTP id S239790AbiDRMd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F811B795;
+        Mon, 18 Apr 2022 05:26:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96FA560FD9;
-        Mon, 18 Apr 2022 12:56:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F9F6C385A1;
-        Mon, 18 Apr 2022 12:56:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2773B80EDA;
+        Mon, 18 Apr 2022 12:26:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F56C385A7;
+        Mon, 18 Apr 2022 12:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286569;
-        bh=5DhYdPpy5hGpue8wLGlBJX3nNYuxCqm2NqDqAHyvBQI=;
+        s=korg; t=1650284767;
+        bh=Wctk2aoKj6BsmYLzjRR1rdJ2Gp0EagRN1YyBjezrbPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GWwoNpsoZ6j5mQz943jgYwuPTvFKxmBatQMJNRAOzKwaVKpN3A5ofcBYnMAqNdamv
-         XrWiAE+PKTSjUERDyYxdoYPfk9GtptCQ8o/uxYFW7qfq5v9oAT/xporQ5gK+WqVNma
-         qRebzwM8d3r3djWrAHXEbpLi5ggn/NIo9ZmeQ9uI=
+        b=Xe9Hb3N0fGXC/7oKlNjBbj6J9aPWnHJySCOISJs2twLej8tPmkrm95NTvdkuZBV9B
+         HNnJJVCLHaktI8jgxOVHCsYQUfXqOa+akSIEOeqaeN3XaqIR+ZKJwkmeoGd2GGOKzX
+         oDIK4Yhm4OXAS9oP69ZBZ7d2y0ybe9rOKtA6FYW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        LogicalErzor <logicalerzor@gmail.com>
-Subject: [PATCH 4.14 169/284] ARM: dts: qcom: fix gic_irq_domain_translate warnings for msm8960
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Chris Kennelly <ckennelly@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Fangrui Song <maskray@google.com>,
+        "H.J. Lu" <hjl.tools@gmail.com>, Hugh Dickins <hughd@google.com>,
+        Ian Rogers <irogers@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Sandeep Patil <sspatil@google.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 181/219] revert "fs/binfmt_elf: use PT_LOAD p_align values for static PIE"
 Date:   Mon, 18 Apr 2022 14:12:30 +0200
-Message-Id: <20220418121216.549181286@linuxfoundation.org>
+Message-Id: <20220418121211.943564222@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +69,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Andrew Morton <akpm@linux-foundation.org>
 
-[ Upstream commit 6f7e221e7a5cfc3299616543fce42b36e631497b ]
+commit aeb7923733d100b86c6bc68e7ae32913b0cec9d8 upstream.
 
-IRQ types blindly copied from very similar APQ8064.
+Despite Mike's attempted fix (925346c129da117122), regressions reports
+continue:
 
-Fixes warnings as:
-WARNING: CPU: 0 PID: 1 at drivers/irqchip/irq-gic.c:1080 gic_irq_domain_translate+0x118/0x120
-...
+  https://lore.kernel.org/lkml/cb5b81bd-9882-e5dc-cd22-54bdbaaefbbc@leemhuis.info/
+  https://bugzilla.kernel.org/show_bug.cgi?id=215720
+  https://lkml.kernel.org/r/b685f3d0-da34-531d-1aa9-479accd3e21b@leemhuis.info
 
-Tested-by: LogicalErzor <logicalerzor@gmail.com> # boot-tested on Samsung S3
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220108174229.60384-1-david@ixit.cz
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So revert this patch.
+
+Fixes: 9630f0d60fec ("fs/binfmt_elf: use PT_LOAD p_align values for static PIE")
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Chris Kennelly <ckennelly@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Fangrui Song <maskray@google.com>
+Cc: H.J. Lu <hjl.tools@gmail.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Sandeep Patil <sspatil@google.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: Thorsten Leemhuis <regressions@leemhuis.info>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/qcom-msm8960.dtsi | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/binfmt_elf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom-msm8960.dtsi b/arch/arm/boot/dts/qcom-msm8960.dtsi
-index 1733d8f40ab1..b256fda0f5ea 100644
---- a/arch/arm/boot/dts/qcom-msm8960.dtsi
-+++ b/arch/arm/boot/dts/qcom-msm8960.dtsi
-@@ -140,7 +140,9 @@
- 			reg		= <0x108000 0x1000>;
- 			qcom,ipc	= <&l2cc 0x8 2>;
- 
--			interrupts	= <0 19 0>, <0 21 0>, <0 22 0>;
-+			interrupts	= <GIC_SPI 19 IRQ_TYPE_EDGE_RISING>,
-+					  <GIC_SPI 21 IRQ_TYPE_EDGE_RISING>,
-+					  <GIC_SPI 22 IRQ_TYPE_EDGE_RISING>;
- 			interrupt-names	= "ack", "err", "wakeup";
- 
- 			regulators {
-@@ -186,7 +188,7 @@
- 				compatible = "qcom,msm-uartdm-v1.3", "qcom,msm-uartdm";
- 				reg = <0x16440000 0x1000>,
- 				      <0x16400000 0x1000>;
--				interrupts = <0 154 0x0>;
-+				interrupts = <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>;
- 				clocks = <&gcc GSBI5_UART_CLK>, <&gcc GSBI5_H_CLK>;
- 				clock-names = "core", "iface";
- 				status = "disabled";
-@@ -312,7 +314,7 @@
- 				#address-cells = <1>;
- 				#size-cells = <0>;
- 				reg = <0x16080000 0x1000>;
--				interrupts = <0 147 0>;
-+				interrupts = <GIC_SPI 147 IRQ_TYPE_LEVEL_HIGH>;
- 				spi-max-frequency = <24000000>;
- 				cs-gpios = <&msmgpio 8 0>;
- 
--- 
-2.34.1
-
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -1116,11 +1116,11 @@ out_free_interp:
+ 			 * independently randomized mmap region (0 load_bias
+ 			 * without MAP_FIXED nor MAP_FIXED_NOREPLACE).
+ 			 */
+-			alignment = maximum_alignment(elf_phdata, elf_ex->e_phnum);
+-			if (alignment > ELF_MIN_ALIGN) {
++			if (interpreter) {
+ 				load_bias = ELF_ET_DYN_BASE;
+ 				if (current->flags & PF_RANDOMIZE)
+ 					load_bias += arch_mmap_rnd();
++				alignment = maximum_alignment(elf_phdata, elf_ex->e_phnum);
+ 				if (alignment)
+ 					load_bias &= ~(alignment - 1);
+ 				elf_flags |= MAP_FIXED_NOREPLACE;
 
 
