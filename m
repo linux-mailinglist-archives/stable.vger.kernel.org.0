@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64797505782
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 985AD5050DE
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240888AbiDRNzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:55:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34946 "EHLO
+        id S231682AbiDRM3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:29:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245260AbiDRNxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9E345AC0;
-        Mon, 18 Apr 2022 06:02:36 -0700 (PDT)
+        with ESMTP id S239369AbiDRM2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D09A21241;
+        Mon, 18 Apr 2022 05:21:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B78560B70;
-        Mon, 18 Apr 2022 13:02:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C71C385A7;
-        Mon, 18 Apr 2022 13:02:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE623B80ED6;
+        Mon, 18 Apr 2022 12:21:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 256C9C385A7;
+        Mon, 18 Apr 2022 12:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286955;
-        bh=Os+qxn1DhxDjshDTdAdlcK8Fy8Mz/bgvQq9b255khpM=;
+        s=korg; t=1650284499;
+        bh=zDfn1lGmLBtYBMqJBS6fF6HQOhZA5RF7ZoQrvNcctxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=preuBGKJ0mzjpeZSfevrIAMQ9hOReme5yy5Hjfr7Pa0v5wRVMYDXL+oA9UmpfIStP
-         UB7JcyMb2loV/TDGbeZw36jeAkq8jqubC1yV03pPUu1NLdLZgsbaLGNnV75I2aRBOJ
-         Fxj4vTuFpE42M+v2Zv+7kgN/bb+Q4mKijPbtruL8=
+        b=MUfTNBUxlh2d8by2COw+0wCeRuiPr9MExJGO52CJmYLLR1/i44llYqcsWQkpTXjGg
+         6dc7qkZi/0euOIok7A7Wmi5o0mb5+RKQSxY886BOEkaIH4IIuX5CXQz8vwKi7ZVLqr
+         g8wzT618LMawV5gTX2iYjwC4QQcUWVO5EKHHGYug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Jann Horn <jannh@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4.9 014/218] ptrace: Check PTRACE_O_SUSPEND_SECCOMP permission on PTRACE_SEIZE
+        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 111/219] io_uring: verify that resv2 is 0 in io_uring_rsrc_update2
 Date:   Mon, 18 Apr 2022 14:11:20 +0200
-Message-Id: <20220418121159.422178664@linuxfoundation.org>
+Message-Id: <20220418121210.006355712@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Dylan Yudaken <dylany@fb.com>
 
-commit ee1fee900537b5d9560e9f937402de5ddc8412f3 upstream.
+[ Upstream commit d8a3ba9c143bf89c032deced8a686ffa53b46098 ]
 
-Setting PTRACE_O_SUSPEND_SECCOMP is supposed to be a highly privileged
-operation because it allows the tracee to completely bypass all seccomp
-filters on kernels with CONFIG_CHECKPOINT_RESTORE=y. It is only supposed to
-be settable by a process with global CAP_SYS_ADMIN, and only if that
-process is not subject to any seccomp filters at all.
+Verify that the user does not pass in anything but 0 for this field.
 
-However, while these permission checks were done on the PTRACE_SETOPTIONS
-path, they were missing on the PTRACE_SEIZE path, which also sets
-user-specified ptrace flags.
-
-Move the permissions checks out into a helper function and let both
-ptrace_attach() and ptrace_setoptions() call it.
-
-Cc: stable@kernel.org
-Fixes: 13c4a90119d2 ("seccomp: add ptrace options for suspend/resume")
-Signed-off-by: Jann Horn <jannh@google.com>
-Link: https://lkml.kernel.org/r/20220319010838.1386861-1-jannh@google.com
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 992da01aa932 ("io_uring: change registration/upd/rsrc tagging ABI")
+Signed-off-by: Dylan Yudaken <dylany@fb.com>
+Link: https://lore.kernel.org/r/20220412163042.2788062-3-dylany@fb.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/ptrace.c |   47 ++++++++++++++++++++++++++++++++---------------
- 1 file changed, 32 insertions(+), 15 deletions(-)
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -371,6 +371,26 @@ bool ptrace_may_access(struct task_struc
- 	return !err;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7da6fddaef4d..2838bc6cdbc8 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6466,6 +6466,7 @@ static int io_files_update(struct io_kiocb *req, unsigned int issue_flags)
+ 	up.nr = 0;
+ 	up.tags = 0;
+ 	up.resv = 0;
++	up.resv2 = 0;
+ 
+ 	io_ring_submit_lock(ctx, needs_lock);
+ 	ret = __io_register_rsrc_update(ctx, IORING_RSRC_FILE,
+@@ -10809,7 +10810,7 @@ static int io_register_files_update(struct io_ring_ctx *ctx, void __user *arg,
+ 	memset(&up, 0, sizeof(up));
+ 	if (copy_from_user(&up, arg, sizeof(struct io_uring_rsrc_update)))
+ 		return -EFAULT;
+-	if (up.resv)
++	if (up.resv || up.resv2)
+ 		return -EINVAL;
+ 	return __io_register_rsrc_update(ctx, IORING_RSRC_FILE, &up, nr_args);
  }
- 
-+static int check_ptrace_options(unsigned long data)
-+{
-+	if (data & ~(unsigned long)PTRACE_O_MASK)
-+		return -EINVAL;
-+
-+	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
-+		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
-+		    !IS_ENABLED(CONFIG_SECCOMP))
-+			return -EINVAL;
-+
-+		if (!capable(CAP_SYS_ADMIN))
-+			return -EPERM;
-+
-+		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
-+		    current->ptrace & PT_SUSPEND_SECCOMP)
-+			return -EPERM;
-+	}
-+	return 0;
-+}
-+
- static int ptrace_attach(struct task_struct *task, long request,
- 			 unsigned long addr,
- 			 unsigned long flags)
-@@ -382,8 +402,16 @@ static int ptrace_attach(struct task_str
- 	if (seize) {
- 		if (addr != 0)
- 			goto out;
-+		/*
-+		 * This duplicates the check in check_ptrace_options() because
-+		 * ptrace_attach() and ptrace_setoptions() have historically
-+		 * used different error codes for unknown ptrace options.
-+		 */
- 		if (flags & ~(unsigned long)PTRACE_O_MASK)
- 			goto out;
-+		retval = check_ptrace_options(flags);
-+		if (retval)
-+			return retval;
- 		flags = PT_PTRACED | PT_SEIZED | (flags << PT_OPT_FLAG_SHIFT);
- 	} else {
- 		flags = PT_PTRACED;
-@@ -656,22 +684,11 @@ int ptrace_writedata(struct task_struct
- static int ptrace_setoptions(struct task_struct *child, unsigned long data)
- {
- 	unsigned flags;
-+	int ret;
- 
--	if (data & ~(unsigned long)PTRACE_O_MASK)
--		return -EINVAL;
--
--	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
--		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
--		    !IS_ENABLED(CONFIG_SECCOMP))
--			return -EINVAL;
--
--		if (!capable(CAP_SYS_ADMIN))
--			return -EPERM;
--
--		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
--		    current->ptrace & PT_SUSPEND_SECCOMP)
--			return -EPERM;
--	}
-+	ret = check_ptrace_options(data);
-+	if (ret)
-+		return ret;
- 
- 	/* Avoid intermediate state when all opts are cleared */
- 	flags = child->ptrace;
+@@ -10823,7 +10824,7 @@ static int io_register_rsrc_update(struct io_ring_ctx *ctx, void __user *arg,
+ 		return -EINVAL;
+ 	if (copy_from_user(&up, arg, sizeof(up)))
+ 		return -EFAULT;
+-	if (!up.nr || up.resv)
++	if (!up.nr || up.resv || up.resv2)
+ 		return -EINVAL;
+ 	return __io_register_rsrc_update(ctx, type, &up, up.nr);
+ }
+-- 
+2.35.1
+
 
 
