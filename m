@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41A485053AE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DBC505302
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240695AbiDRNA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59730 "EHLO
+        id S240242AbiDRMzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241769AbiDRM7B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14CDF2E9D0;
-        Mon, 18 Apr 2022 05:39:34 -0700 (PDT)
+        with ESMTP id S240309AbiDRMyr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:54:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 410F013F36;
+        Mon, 18 Apr 2022 05:35:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DBC06101A;
-        Mon, 18 Apr 2022 12:39:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 557F7C385A1;
-        Mon, 18 Apr 2022 12:39:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C947E611C9;
+        Mon, 18 Apr 2022 12:35:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B961EC385A7;
+        Mon, 18 Apr 2022 12:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285573;
-        bh=qZSXjs+NYLT5X2fXq/fCtnOcsC+b4SBYHJgC+XXRr28=;
+        s=korg; t=1650285301;
+        bh=f9YULfdDdfUm3+QZ9PxqPMzL3D8AJK7//f2Q9oOG6b8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQX/F+5Yt4an6cF348JyiHsqqNzklxSIPv7vUx9TjADV1JxopwnzxV8pC0rMGK5Wi
-         AyIdZnWtm6ogYO3CB331BsIDW1P58kxxn+gRseN0JSEco4vbjwrrJjx2jRmjrmsEEN
-         W/DjUq/fupmUoPpPycROZpkmiySYGKAhkXuRqqgc=
+        b=Jd4NfeYCyzbQhiFaXRpjnlTbUM5XFRkK8GMS7GONu6jAy8Q4SAEJ/8p8FhGkOdV3d
+         m6Taz8upYtcEZr5eYEbqBXB6g3aew7Ng+dVv46b/McsXHbVs48AopWf76igeoi2YfS
+         yXQ6jwlxK/U+lMWCrHD7lU6E4ezacAOXLu4gDb6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcin Kozlowski <marcinguy@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/105] net: usb: aqc111: Fix out-of-bounds accesses in RX fixup
+        stable@vger.kernel.org,
+        =?UTF-8?q?Tomasz=20Mo=C5=84?= <desowin@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 164/189] drm/amdgpu: Enable gfxoff quirk on MacBook Pro
 Date:   Mon, 18 Apr 2022 14:13:04 +0200
-Message-Id: <20220418121148.249605680@linuxfoundation.org>
+Message-Id: <20220418121207.074886389@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcin Kozlowski <marcinguy@gmail.com>
+From: Tomasz Moń <desowin@gmail.com>
 
-[ Upstream commit afb8e246527536848b9b4025b40e613edf776a9d ]
+commit 4593c1b6d159f1e5c35c07a7f125e79e5a864302 upstream.
 
-aqc111_rx_fixup() contains several out-of-bounds accesses that can be
-triggered by a malicious (or defective) USB device, in particular:
+Enabling gfxoff quirk results in perfectly usable graphical user
+interface on MacBook Pro (15-inch, 2019) with Radeon Pro Vega 20 4 GB.
 
- - The metadata array (desc_offset..desc_offset+2*pkt_count) can be out of bounds,
-   causing OOB reads and (on big-endian systems) OOB endianness flips.
- - A packet can overlap the metadata array, causing a later OOB
-   endianness flip to corrupt data used by a cloned SKB that has already
-   been handed off into the network stack.
- - A packet SKB can be constructed whose tail is far beyond its end,
-   causing out-of-bounds heap data to be considered part of the SKB's
-   data.
+Without the quirk, X server is completely unusable as every few seconds
+there is gpu reset due to ring gfx timeout.
 
-Found doing variant analysis. Tested it with another driver (ax88179_178a), since
-I don't have a aqc111 device to test it, but the code looks very similar.
-
-Signed-off-by: Marcin Kozlowski <marcinguy@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tomasz Moń <desowin@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/aqc111.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/usb/aqc111.c b/drivers/net/usb/aqc111.c
-index 0717c18015c9..c9c409518174 100644
---- a/drivers/net/usb/aqc111.c
-+++ b/drivers/net/usb/aqc111.c
-@@ -1102,10 +1102,15 @@ static int aqc111_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 	if (start_of_descs != desc_offset)
- 		goto err;
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -1272,6 +1272,8 @@ static const struct amdgpu_gfxoff_quirk
+ 	{ 0x1002, 0x15dd, 0x103c, 0x83e7, 0xd3 },
+ 	/* GFXOFF is unstable on C6 parts with a VBIOS 113-RAVEN-114 */
+ 	{ 0x1002, 0x15dd, 0x1002, 0x15dd, 0xc6 },
++	/* Apple MacBook Pro (15-inch, 2019) Radeon Pro Vega 20 4 GB */
++	{ 0x1002, 0x69af, 0x106b, 0x019a, 0xc0 },
+ 	{ 0, 0, 0, 0, 0 },
+ };
  
--	/* self check desc_offset from header*/
--	if (desc_offset >= skb_len)
-+	/* self check desc_offset from header and make sure that the
-+	 * bounds of the metadata array are inside the SKB
-+	 */
-+	if (pkt_count * 2 + desc_offset >= skb_len)
- 		goto err;
- 
-+	/* Packets must not overlap the metadata array */
-+	skb_trim(skb, desc_offset);
-+
- 	if (pkt_count == 0)
- 		goto err;
- 
--- 
-2.35.1
-
 
 
