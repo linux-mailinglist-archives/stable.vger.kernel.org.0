@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03A16505236
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D43BC5055CE
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233409AbiDRMlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:41:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
+        id S241589AbiDRN05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:26:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240612AbiDRMjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:23 -0400
+        with ESMTP id S241879AbiDRNZl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:25:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0FCA11A33;
-        Mon, 18 Apr 2022 05:29:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D78023D1E7;
+        Mon, 18 Apr 2022 05:52:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31B3660FB6;
-        Mon, 18 Apr 2022 12:29:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F83C385A7;
-        Mon, 18 Apr 2022 12:29:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B109E612AB;
+        Mon, 18 Apr 2022 12:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A274AC385A1;
+        Mon, 18 Apr 2022 12:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284998;
-        bh=G++U9rtoxfQSlDamiCXkUBLmwjBH2Lkb15OC1vNC2oE=;
+        s=korg; t=1650286372;
+        bh=YgaaXn8L+J0QNN2LrURmoLOQzivUOwU+l9C8Qdd+nFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/VvbUXqmhln07+JuWlQWW3LougpKCD7lVGyyrBejKOZ/A3nAkucROovapA8onpyv
-         oS7AP33DJexFZBso4nxBtOeNhc8+dHpMaaDGfE6PI/PRCK9CcEKD/r09Qes/B3won0
-         GRBfQzT6FW7UiIAy7VZ7Aoe4B9O3nkW7hnKREd1c=
+        b=0pxWAcft1FAGbvZm5Lmf0JlE8tzOAvg6yswWYRFxchcNh7oHozIA+V+ph+tpF+hUi
+         mnlio93LaSawASDsYss5J8eHGdqrSgLHs21nYbEbf0ZW/F7wKvkWKPKAXyCuOH6VYA
+         At8/60JBjUGmG/KRO9qsCnv+3L1ScuynFl1aU4lc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Topi Miettinen <toiwoton@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Zhenzhong Duan <zhenzhong.duan@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 074/189] netfilter: nft_socket: make cgroup match work in input too
+Subject: [PATCH 4.14 113/284] KVM: x86: Fix emulation in writing cr8
 Date:   Mon, 18 Apr 2022 14:11:34 +0200
-Message-Id: <20220418121202.610066540@linuxfoundation.org>
+Message-Id: <20220418121214.202313915@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Zhenzhong Duan <zhenzhong.duan@intel.com>
 
-[ Upstream commit 05ae2fba821c4d122ab4ba3e52144e21586c4010 ]
+[ Upstream commit f66af9f222f08d5b11ea41c1bd6c07a0f12daa07 ]
 
-cgroupv2 helper function ignores the already-looked up sk
-and uses skb->sk instead.
+In emulation of writing to cr8, one of the lowest four bits in TPR[3:0]
+is kept.
 
-Just pass sk from the calling function instead; this will
-make cgroup matching work for udp and tcp in input even when
-edemux did not set skb->sk already.
+According to Intel SDM 10.8.6.1(baremetal scenario):
+"APIC.TPR[bits 7:4] = CR8[bits 3:0], APIC.TPR[bits 3:0] = 0";
 
-Fixes: e0bb96db96f8 ("netfilter: nft_socket: add support for cgroupsv2")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Tested-by: Topi Miettinen <toiwoton@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+and SDM 28.3(use TPR shadow):
+"MOV to CR8. The instruction stores bits 3:0 of its source operand into
+bits 7:4 of VTPR; the remainder of VTPR (bits 3:0 and bits 31:8) are
+cleared.";
+
+and AMD's APM 16.6.4:
+"Task Priority Sub-class (TPS)-Bits 3 : 0. The TPS field indicates the
+current sub-priority to be used when arbitrating lowest-priority messages.
+This field is written with zero when TPR is written using the architectural
+CR8 register.";
+
+so in KVM emulated scenario, clear TPR[3:0] to make a consistent behavior
+as in other scenarios.
+
+This doesn't impact evaluation and delivery of pending virtual interrupts
+because processor does not use the processor-priority sub-class to
+determine which interrupts to delivery and which to inhibit.
+
+Sub-class is used by hardware to arbitrate lowest priority interrupts,
+but KVM just does a round-robin style delivery.
+
+Fixes: b93463aa59d6 ("KVM: Accelerated apic support")
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@intel.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220210094506.20181-1-zhenzhong.duan@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_socket.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/x86/kvm/lapic.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nft_socket.c b/net/netfilter/nft_socket.c
-index d601974c9d2e..b8f011145765 100644
---- a/net/netfilter/nft_socket.c
-+++ b/net/netfilter/nft_socket.c
-@@ -36,12 +36,11 @@ static void nft_socket_wildcard(const struct nft_pktinfo *pkt,
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index d4fdf0e52144..99b3fa3a29bf 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -1929,10 +1929,7 @@ void kvm_set_lapic_tscdeadline_msr(struct kvm_vcpu *vcpu, u64 data)
  
- #ifdef CONFIG_SOCK_CGROUP_DATA
- static noinline bool
--nft_sock_get_eval_cgroupv2(u32 *dest, const struct nft_pktinfo *pkt, u32 level)
-+nft_sock_get_eval_cgroupv2(u32 *dest, struct sock *sk, const struct nft_pktinfo *pkt, u32 level)
+ void kvm_lapic_set_tpr(struct kvm_vcpu *vcpu, unsigned long cr8)
  {
--	struct sock *sk = skb_to_full_sk(pkt->skb);
- 	struct cgroup *cgrp;
+-	struct kvm_lapic *apic = vcpu->arch.apic;
+-
+-	apic_set_tpr(apic, ((cr8 & 0x0f) << 4)
+-		     | (kvm_lapic_get_reg(apic, APIC_TASKPRI) & 4));
++	apic_set_tpr(vcpu->arch.apic, (cr8 & 0x0f) << 4);
+ }
  
--	if (!sk || !sk_fullsock(sk) || !net_eq(nft_net(pkt), sock_net(sk)))
-+	if (!sk_fullsock(sk))
- 		return false;
- 
- 	cgrp = sock_cgroup_ptr(&sk->sk_cgrp_data);
-@@ -108,7 +107,7 @@ static void nft_socket_eval(const struct nft_expr *expr,
- 		break;
- #ifdef CONFIG_SOCK_CGROUP_DATA
- 	case NFT_SOCKET_CGROUPV2:
--		if (!nft_sock_get_eval_cgroupv2(dest, pkt, priv->level)) {
-+		if (!nft_sock_get_eval_cgroupv2(dest, sk, pkt, priv->level)) {
- 			regs->verdict.code = NFT_BREAK;
- 			return;
- 		}
+ u64 kvm_lapic_get_cr8(struct kvm_vcpu *vcpu)
 -- 
-2.35.1
+2.34.1
 
 
 
