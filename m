@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC42E50522B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC45D5057E3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231189AbiDRMmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
+        id S244231AbiDRN5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239421AbiDRMkW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:40:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 335B51EEE9;
-        Mon, 18 Apr 2022 05:31:56 -0700 (PDT)
+        with ESMTP id S244520AbiDRN4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11350B84D;
+        Mon, 18 Apr 2022 06:05:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B3F3B80EDE;
-        Mon, 18 Apr 2022 12:31:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8172C385A7;
-        Mon, 18 Apr 2022 12:31:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98E6D60F16;
+        Mon, 18 Apr 2022 13:05:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F35C385A1;
+        Mon, 18 Apr 2022 13:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285113;
-        bh=8nW6a3rDYio70rAaKujXP3Zx0pxGwoqaU63B55HBSO8=;
+        s=korg; t=1650287114;
+        bh=wMNVF021LBL6XlxaibP3h0LlARBOuPXuyFPyS+lytso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0m7rcCveBR/RQL9cqdTp0Op5ljr9p1pj22z8GYm1TJghLQYLGhO91mYgyWG05nQTF
-         rTMShtbZ4gXSv9EvYJUoWluSC6J8DSDeLU2vDQGHKjhxme6IR3D5/3RrAasevNFkJe
-         jXaOJJhJnaQtAqG7pMiPCqlpH++qzSavZrPdYiFs=
+        b=JfQ2jJLNJ6YTSF8xmWGmgXcAnyCjIgj8zN3evE4jG2Nnulkc+Lz9bVjxlbxt7aTQT
+         CHH9GrXVG67Zc8S4i32nPR4sYrnjAJVv8N7Ar0tmvMeNfWd3Xez2YpATqJbrjOSYxG
+         mH5MGuz23tyhYUJfh2y768wtq1bvtdlXa/5QMXdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 107/189] btrfs: do not warn for free space inode in cow_file_range
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 061/218] ALSA: spi: Add check for clk_enable()
 Date:   Mon, 18 Apr 2022 14:12:07 +0200
-Message-Id: <20220418121203.538470775@linuxfoundation.org>
+Message-Id: <20220418121201.358407522@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit a7d16d9a07bbcb7dcd5214a1bea75c808830bc0d ]
+[ Upstream commit ca1697eb09208f0168d94b88b72f57505339cbe5 ]
 
-This is a long time leftover from when I originally added the free space
-inode, the point was to catch cases where we weren't honoring the NOCOW
-flag.  However there exists a race with relocation, if we allocate our
-free space inode in a block group that is about to be relocated, we
-could trigger the COW path before the relocation has the opportunity to
-find the extents and delete the free space cache.  In production where
-we have auto-relocation enabled we're seeing this WARN_ON_ONCE() around
-5k times in a 2 week period, so not super common but enough that it's at
-the top of our metrics.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-We're properly handling the error here, and with us phasing out v1 space
-cache anyway just drop the WARN_ON_ONCE.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 3568459a5113 ("ALSA: at73c213: manage SSC clock")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220228022839.3547266-1-jiasheng@iscas.ac.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 1 -
- 1 file changed, 1 deletion(-)
+ sound/spi/at73c213.c | 27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 7465ef012e22..6266a706bff7 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -1075,7 +1075,6 @@ static noinline int cow_file_range(struct btrfs_inode *inode,
- 	int ret = 0;
+diff --git a/sound/spi/at73c213.c b/sound/spi/at73c213.c
+index fac7e6eb9529..671b4516d930 100644
+--- a/sound/spi/at73c213.c
++++ b/sound/spi/at73c213.c
+@@ -221,7 +221,9 @@ static int snd_at73c213_pcm_open(struct snd_pcm_substream *substream)
+ 	runtime->hw = snd_at73c213_playback_hw;
+ 	chip->substream = substream;
  
- 	if (btrfs_is_free_space_inode(inode)) {
--		WARN_ON_ONCE(1);
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
+-	clk_enable(chip->ssc->clk);
++	err = clk_enable(chip->ssc->clk);
++	if (err)
++		return err;
+ 
+ 	return 0;
+ }
+@@ -787,7 +789,9 @@ static int snd_at73c213_chip_init(struct snd_at73c213 *chip)
+ 		goto out;
+ 
+ 	/* Enable DAC master clock. */
+-	clk_enable(chip->board->dac_clk);
++	retval = clk_enable(chip->board->dac_clk);
++	if (retval)
++		goto out;
+ 
+ 	/* Initialize at73c213 on SPI bus. */
+ 	retval = snd_at73c213_write_reg(chip, DAC_RST, 0x04);
+@@ -900,7 +904,9 @@ static int snd_at73c213_dev_init(struct snd_card *card,
+ 	chip->card = card;
+ 	chip->irq = -1;
+ 
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->ssc->clk);
++	if (retval)
++		return retval;
+ 
+ 	retval = request_irq(irq, snd_at73c213_interrupt, 0, "at73c213", chip);
+ 	if (retval) {
+@@ -1019,7 +1025,9 @@ static int snd_at73c213_remove(struct spi_device *spi)
+ 	int retval;
+ 
+ 	/* Stop playback. */
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->ssc->clk);
++	if (retval)
++		goto out;
+ 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXDIS));
+ 	clk_disable(chip->ssc->clk);
+ 
+@@ -1099,9 +1107,16 @@ static int snd_at73c213_resume(struct device *dev)
+ {
+ 	struct snd_card *card = dev_get_drvdata(dev);
+ 	struct snd_at73c213 *chip = card->private_data;
++	int retval;
+ 
+-	clk_enable(chip->board->dac_clk);
+-	clk_enable(chip->ssc->clk);
++	retval = clk_enable(chip->board->dac_clk);
++	if (retval)
++		return retval;
++	retval = clk_enable(chip->ssc->clk);
++	if (retval) {
++		clk_disable(chip->board->dac_clk);
++		return retval;
++	}
+ 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXEN));
+ 
+ 	return 0;
 -- 
-2.35.1
+2.34.1
 
 
 
