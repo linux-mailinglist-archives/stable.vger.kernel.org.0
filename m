@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F62505142
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 112CD505843
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239006AbiDRMeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
+        id S245013AbiDROAa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:00:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239576AbiDRMdP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10755CC1;
-        Mon, 18 Apr 2022 05:24:53 -0700 (PDT)
+        with ESMTP id S244426AbiDRN5Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B262AE1F;
+        Mon, 18 Apr 2022 06:07:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BA9C60B40;
-        Mon, 18 Apr 2022 12:24:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DDEAC385A7;
-        Mon, 18 Apr 2022 12:24:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D42BB80EDF;
+        Mon, 18 Apr 2022 13:07:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B381C385A1;
+        Mon, 18 Apr 2022 13:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284691;
-        bh=uaW8DEnT4sb0/ybCYpcyrSkLQYz8E36Brq7Wd8H8Qlo=;
+        s=korg; t=1650287240;
+        bh=DIc246/X8wYTM5k2axiagUIBH36M/LUB6zhxhna5S8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQ0mDwiwFejfZ1H25RIcnW6U47aei4FzWq/lX7ml8N6EMrWD0nYDsyRVaGFUai/ms
-         +LILsdku7m7JizyxGt/jD9IbWERcvovup3BJYJgCCBwXVYsDyfm/g5Jup0qm/kR+ul
-         h6QFsXjAkTp8J1QrS2gUC+pyzbZkGY9dvz054Kjw=
+        b=USEWtSjiZR7TFQ1L//tktJy1xldolqjzfpWY3j0jmNcTZ+y5zIQ5CeknZq1IBwapY
+         wDhS1WxqNYOv/TMPlvLVzKN8PzMUFQLZiGEa5Ne47+i/aIsDen5JEL46lIJX8QYtZU
+         2m1B/QJndUiYuy5MILkTrKmF2KqMAkNoZIMvn8Ts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.17 197/219] nl80211: correctly check NL80211_ATTR_REG_ALPHA2 size
+        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 100/218] af_netlink: Fix shift out of bounds in group mask calculation
 Date:   Mon, 18 Apr 2022 14:12:46 +0200
-Message-Id: <20220418121212.387687704@linuxfoundation.org>
+Message-Id: <20220418121202.465021832@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Petr Machata <petrm@nvidia.com>
 
-commit 6624bb34b4eb19f715db9908cca00122748765d7 upstream.
+[ Upstream commit 0caf6d9922192dd1afa8dc2131abfb4df1443b9f ]
 
-We need this to be at least two bytes, so we can access
-alpha2[0] and alpha2[1]. It may be three in case some
-userspace used NUL-termination since it was NLA_STRING
-(and we also push it out with NUL-termination).
+When a netlink message is received, netlink_recvmsg() fills in the address
+of the sender. One of the fields is the 32-bit bitfield nl_groups, which
+carries the multicast group on which the message was received. The least
+significant bit corresponds to group 1, and therefore the highest group
+that the field can represent is 32. Above that, the UB sanitizer flags the
+out-of-bounds shift attempts.
 
-Cc: stable@vger.kernel.org
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220411114201.fd4a31f06541.Ie7ff4be2cf348d8cc28ed0d626fc54becf7ea799@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Which bits end up being set in such case is implementation defined, but
+it's either going to be a wrong non-zero value, or zero, which is at least
+not misleading. Make the latter choice deterministic by always setting to 0
+for higher-numbered multicast groups.
+
+To get information about membership in groups >= 32, userspace is expected
+to use nl_pktinfo control messages[0], which are enabled by NETLINK_PKTINFO
+socket option.
+[0] https://lwn.net/Articles/147608/
+
+The way to trigger this issue is e.g. through monitoring the BRVLAN group:
+
+	# bridge monitor vlan &
+	# ip link add name br type bridge
+
+Which produces the following citation:
+
+	UBSAN: shift-out-of-bounds in net/netlink/af_netlink.c:162:19
+	shift exponent 32 is too large for 32-bit type 'int'
+
+Fixes: f7fa9b10edbb ("[NETLINK]: Support dynamic number of multicast groups per netlink family")
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/2bef6aabf201d1fc16cca139a744700cff9dcb04.1647527635.git.petrm@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netlink/af_netlink.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -519,7 +519,8 @@ static const struct nla_policy nl80211_p
- 				   .len = IEEE80211_MAX_MESH_ID_LEN },
- 	[NL80211_ATTR_MPATH_NEXT_HOP] = NLA_POLICY_ETH_ADDR_COMPAT,
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 13d69cbd14c2..8aef475fef31 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -161,6 +161,8 @@ static const struct rhashtable_params netlink_rhashtable_params;
  
--	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
-+	/* allow 3 for NUL-termination, we used to declare this NLA_STRING */
-+	[NL80211_ATTR_REG_ALPHA2] = NLA_POLICY_RANGE(NLA_BINARY, 2, 3),
- 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
+ static inline u32 netlink_group_mask(u32 group)
+ {
++	if (group > 32)
++		return 0;
+ 	return group ? 1 << (group - 1) : 0;
+ }
  
- 	[NL80211_ATTR_BSS_CTS_PROT] = { .type = NLA_U8 },
+-- 
+2.34.1
+
 
 
