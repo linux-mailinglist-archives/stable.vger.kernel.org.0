@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA10D5055F4
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 668995051E9
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239721AbiDRNbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:31:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41212 "EHLO
+        id S233586AbiDRMmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:42:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244553AbiDRNai (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92DB1427F7;
-        Mon, 18 Apr 2022 05:54:44 -0700 (PDT)
+        with ESMTP id S239456AbiDRMkX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:40:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB6C61F601;
+        Mon, 18 Apr 2022 05:31:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E6EDB80E44;
-        Mon, 18 Apr 2022 12:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3EF2C385A7;
-        Mon, 18 Apr 2022 12:54:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49D18610F4;
+        Mon, 18 Apr 2022 12:31:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD23FC385D0;
+        Mon, 18 Apr 2022 12:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286478;
-        bh=ofJ4spLJs3LiYL83YZiZiU6lv3R1zdUaKtVleqjM0Us=;
+        s=korg; t=1650285116;
+        bh=Ya7afj+D7KNw3CZW5DvBGMDCxih98osk7a0l9Chxy6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JbChApY9B5un/u/+BhCTWRhRbcptz0ATSFoYCaNSc3hsyJPbdgHgws84C4bNkxE4m
-         e4gQ53L7xQnQjoVbBqdcAv8V1eVoBCGEep5rjZJtJ6ndWKKcllzr6QWvtcjjkNuMYh
-         LIo4XOG9KHJX4TboR8jzc+tZfvUXSsfuESG9asnY=
+        b=N1F1ejZ7H1KQfPcKqymBQCyP8Iqs67f8V92jrka3jLprUjwefmVIymype7Z7Qhzbp
+         7+75qmbZEcfivkASgEAhZYyTUWXBCJQMnLRCaNoa6zrx9n5moUuTZHoCbjVVzBiKhZ
+         uLdF7lG+2IwDa2g4YlcBR8vZEIjvJHbyz7EqgeLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 147/284] jfs: fix divide error in dbNextAG
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 108/189] drm/amdgpu: conduct a proper cleanup of PDB bo
 Date:   Mon, 18 Apr 2022 14:12:08 +0200
-Message-Id: <20220418121215.766250246@linuxfoundation.org>
+Message-Id: <20220418121203.566541869@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Guchun Chen <guchun.chen@amd.com>
 
-[ Upstream commit 2cc7cc01c15f57d056318c33705647f87dcd4aab ]
+[ Upstream commit 2d505453f38e18d42ba7d5428aaa17aaa7752c65 ]
 
-Syzbot reported divide error in dbNextAG(). The problem was in missing
-validation check for malicious image.
+Use amdgpu_bo_free_kernel instead of amdgpu_bo_unref to
+perform a proper cleanup of PDB bo.
 
-Syzbot crafted an image with bmp->db_numag equal to 0. There wasn't any
-validation checks, but dbNextAG() blindly use bmp->db_numag in divide
-expression
+v2: update subject to be more accurate
 
-Fix it by validating bmp->db_numag in dbMount() and return an error if
-image is malicious
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index 9ff510a489cb..6dac48e29d28 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -161,6 +161,7 @@ static const s8 budtab[256] = {
-  *	0	- success
-  *	-ENOMEM	- insufficient memory
-  *	-EIO	- i/o error
-+ *	-EINVAL - wrong bmap data
-  */
- int dbMount(struct inode *ipbmap)
- {
-@@ -192,6 +193,12 @@ int dbMount(struct inode *ipbmap)
- 	bmp->db_nfree = le64_to_cpu(dbmp_le->dn_nfree);
- 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
- 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
-+	if (!bmp->db_numag) {
-+		release_metapage(mp);
-+		kfree(bmp);
-+		return -EINVAL;
-+	}
-+
- 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
- 	bmp->db_maxag = le32_to_cpu(dbmp_le->dn_maxag);
- 	bmp->db_agpref = le32_to_cpu(dbmp_le->dn_agpref);
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+index c67e21244342..6dc16ccf6c81 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+@@ -1652,7 +1652,7 @@ static int gmc_v9_0_sw_fini(void *handle)
+ 	amdgpu_gem_force_release(adev);
+ 	amdgpu_vm_manager_fini(adev);
+ 	amdgpu_gart_table_vram_free(adev);
+-	amdgpu_bo_unref(&adev->gmc.pdb0_bo);
++	amdgpu_bo_free_kernel(&adev->gmc.pdb0_bo, NULL, &adev->gmc.ptr_pdb0);
+ 	amdgpu_bo_fini(adev);
+ 
+ 	return 0;
 -- 
-2.34.1
+2.35.1
 
 
 
