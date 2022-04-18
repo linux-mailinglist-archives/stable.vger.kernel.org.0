@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CDA505748
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8774505318
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244211AbiDRNrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:47:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53594 "EHLO
+        id S238164AbiDRMzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242361AbiDRNqA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:46:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F02E26AF3;
-        Mon, 18 Apr 2022 06:00:37 -0700 (PDT)
+        with ESMTP id S240197AbiDRMzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:08 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 548C72314E;
+        Mon, 18 Apr 2022 05:35:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F0E6B80E59;
-        Mon, 18 Apr 2022 13:00:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65C79C385A8;
-        Mon, 18 Apr 2022 13:00:34 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A2F1DCE10A1;
+        Mon, 18 Apr 2022 12:35:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93900C385A1;
+        Mon, 18 Apr 2022 12:35:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286834;
-        bh=qrkvQeMpr0ey3HLw1OJ8GVC0W/w0tk3it/LT1Se4FDc=;
+        s=korg; t=1650285350;
+        bh=3bXJTGa4nB+rHVKUU1SwJK0AvYctaHMhW1vyeWrlHhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiwmNzDYtvxizm95Le6N8DCM4CywPgPyXesyRoKJrQe9u3nP8eXwS13XDFjoRDtFE
-         IDa2nJW4Z/vyUMgDXMKRxRXAv6qDMY0oLkaEkTLNjAz+ijnirqKXWae6WoSHlQvpoW
-         bQNr/KZDO6uYtz1urpG5PcP2s0mwSXFZ5qe/1Bs8=
+        b=SKW1QqGXkvMK2znhZQGp06CbzpjScO4BiZNOBqf7gfFom+59AI/6YzXLflqywlFoK
+         WlYrROs54+Izb3mfKaQv00SC3lPcjbflXf2LvKi6s0rnEyM5G6/74bz4Li5BTDf9Xz
+         OJGhxMAESrKv1UOh5872o5Mjg0pg1CvtvzFkKzuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Leonardo=20M=C3=B6rlein?= <freifunk@irrelefant.net>,
-        Sven Eckelmann <sven@narfation.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 220/284] macvtap: advertise link netns via netlink
+        Michael Larabel <Michael@MichaelLarabel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Subject: [PATCH 5.15 181/189] cpufreq: intel_pstate: ITMT support for overclocked system
 Date:   Mon, 18 Apr 2022 14:13:21 +0200
-Message-Id: <20220418121217.968808267@linuxfoundation.org>
+Message-Id: <20220418121208.290534383@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +56,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit a02192151b7dbf855084c38dca380d77c7658353 ]
+commit 03c83982a0278207709143ba78c5a470179febee upstream.
 
-Assign rtnl_link_ops->get_link_net() callback so that IFLA_LINK_NETNSID is
-added to rtnetlink messages. This fixes iproute2 which otherwise resolved
-the link interface to an interface in the wrong namespace.
+On systems with overclocking enabled, CPPC Highest Performance can be
+hard coded to 0xff. In this case even if we have cores with different
+highest performance, ITMT can't be enabled as the current implementation
+depends on CPPC Highest Performance.
 
-Test commands:
+On such systems we can use MSR_HWP_CAPABILITIES maximum performance field
+when CPPC.Highest Performance is 0xff.
 
-  ip netns add nst
-  ip link add dummy0 type dummy
-  ip link add link macvtap0 link dummy0 type macvtap
-  ip link set macvtap0 netns nst
-  ip -netns nst link show macvtap0
+Due to legacy reasons, we can't solely depend on MSR_HWP_CAPABILITIES as
+in some older systems CPPC Highest Performance is the only way to identify
+different performing cores.
 
-Before:
-
-  10: macvtap0@gre0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 500
-      link/ether 5e:8f:ae:1d:60:50 brd ff:ff:ff:ff:ff:ff
-
-After:
-
-  10: macvtap0@if2: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 500
-      link/ether 5e:8f:ae:1d:60:50 brd ff:ff:ff:ff:ff:ff link-netnsid 0
-
-Reported-by: Leonardo Mörlein <freifunk@irrelefant.net>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Link: https://lore.kernel.org/r/20220228003240.1337426-1-sven@narfation.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Michael Larabel <Michael@MichaelLarabel.com>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Tested-by: Michael Larabel <Michael@MichaelLarabel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macvtap.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/cpufreq/intel_pstate.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/macvtap.c b/drivers/net/macvtap.c
-index cba5cb3b849a..dc89019ca876 100644
---- a/drivers/net/macvtap.c
-+++ b/drivers/net/macvtap.c
-@@ -132,11 +132,17 @@ static void macvtap_setup(struct net_device *dev)
- 	dev->tx_queue_len = TUN_READQ_SIZE;
- }
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -335,6 +335,8 @@ static void intel_pstste_sched_itmt_work
  
-+static struct net *macvtap_link_net(const struct net_device *dev)
-+{
-+	return dev_net(macvlan_dev_real_dev(dev));
-+}
+ static DECLARE_WORK(sched_itmt_work, intel_pstste_sched_itmt_work_fn);
+ 
++#define CPPC_MAX_PERF	U8_MAX
 +
- static struct rtnl_link_ops macvtap_link_ops __read_mostly = {
- 	.kind		= "macvtap",
- 	.setup		= macvtap_setup,
- 	.newlink	= macvtap_newlink,
- 	.dellink	= macvtap_dellink,
-+	.get_link_net	= macvtap_link_net,
- 	.priv_size      = sizeof(struct macvtap_dev),
- };
+ static void intel_pstate_set_itmt_prio(int cpu)
+ {
+ 	struct cppc_perf_caps cppc_perf;
+@@ -346,6 +348,14 @@ static void intel_pstate_set_itmt_prio(i
+ 		return;
  
--- 
-2.35.1
-
+ 	/*
++	 * On some systems with overclocking enabled, CPPC.highest_perf is hardcoded to 0xff.
++	 * In this case we can't use CPPC.highest_perf to enable ITMT.
++	 * In this case we can look at MSR_HWP_CAPABILITIES bits [8:0] to decide.
++	 */
++	if (cppc_perf.highest_perf == CPPC_MAX_PERF)
++		cppc_perf.highest_perf = HWP_HIGHEST_PERF(READ_ONCE(all_cpu_data[cpu]->hwp_cap_cached));
++
++	/*
+ 	 * The priorities can be set regardless of whether or not
+ 	 * sched_set_itmt_support(true) has been called and it is valid to
+ 	 * update them at any time after it has been called.
 
 
