@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD1A505453
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E605505314
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240335AbiDRNFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59826 "EHLO
+        id S239687AbiDRMzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240952AbiDRNCY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D180A26ACB;
-        Mon, 18 Apr 2022 05:42:25 -0700 (PDT)
+        with ESMTP id S239669AbiDRMy6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:54:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2C3415735;
+        Mon, 18 Apr 2022 05:35:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12F02B80EDD;
-        Mon, 18 Apr 2022 12:42:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D522C385A1;
-        Mon, 18 Apr 2022 12:42:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B8A6611CF;
+        Mon, 18 Apr 2022 12:35:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CA03C385A8;
+        Mon, 18 Apr 2022 12:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285742;
-        bh=5x/hr0RTqZjcqu+gwHu6SeQi/Y//QzF22XW4sumoa3M=;
+        s=korg; t=1650285314;
+        bh=PRKKSlC++3tu0htGySyF7EK6m/IfUhB+bYRdOYfYruw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wtKs3G+OBkZuf61B0eZw09WE6Y/TRjqZKU4uEubDB/cDTeP/ifQYZCj5icJx1hDa3
-         BUwsb8C7iPnvLWOCdNvh5ZflwQH4G+c/aQXCfDuGQMYSTTH30Fj9oUFC59B1E3NApo
-         ZA4LELNik23ajVz9jV8d3MhBmWD933d5TSEay44A=
+        b=AYXdgOs2Q+MX9i2xhwFcbxq2hJaPkQvj0U9rp9Ix5/XSpsiPO/kMlpprVgdruKmoU
+         DsaYC8CAj8Td4UmsuP/3hjeyl3QitD9htbmhxjLHzBztacge4Am2rOhipG9NcDGUye
+         IrrSRK1djAxfX0jRR0O0fTwGSx5+G7tTxqvvk+b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 10/63] drm/msm/dsi: Use connector directly in msm_dsi_manager_connector_init()
+        stable@vger.kernel.org, Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ming Lei <ming.lei@redhat.com>
+Subject: [PATCH 5.15 167/189] genirq/affinity: Consider that CPUs on nodes can be unbalanced
 Date:   Mon, 18 Apr 2022 14:13:07 +0200
-Message-Id: <20220418121134.839290788@linuxfoundation.org>
+Message-Id: <20220418121207.280635229@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,44 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
 
-[ Upstream commit 47b7de6b88b962ef339a2427a023d2a23d161654 ]
+commit 08d835dff916bfe8f45acc7b92c7af6c4081c8a7 upstream.
 
-The member 'msm_dsi->connector' isn't assigned until
-msm_dsi_manager_connector_init() returns (see msm_dsi_modeset_init() and
-how it assigns the return value). Therefore this pointer is going to be
-NULL here. Let's use 'connector' which is what was intended.
+If CPUs on a node are offline at boot time, the number of nodes is
+different when building affinity masks for present cpus and when building
+affinity masks for possible cpus. This causes the following problem:
 
-Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: Sean Paul <seanpaul@chromium.org>
-Fixes: 6d5e78406991 ("drm/msm/dsi: Move dsi panel init into modeset init path")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/478693/
-Link: https://lore.kernel.org/r/20220318000731.2823718-1-swboyd@chromium.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In the case that the number of vectors is less than the number of nodes
+there are cases where bits of masks for present cpus are overwritten when
+building masks for possible cpus.
+
+Fix this by excluding CPUs, which are not part of the current build mask
+(present/possible).
+
+[ tglx: Massaged changelog and added comment ]
+
+Fixes: b82592199032 ("genirq/affinity: Spread IRQs to all available NUMA nodes")
+Signed-off-by: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220331003309.10891-1-yamamoto.rei@jp.fujitsu.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_manager.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/irq/affinity.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-index 73127948f54d..f3ff2cdc288b 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-@@ -625,7 +625,7 @@ struct drm_connector *msm_dsi_manager_connector_init(u8 id)
- 	return connector;
- 
- fail:
--	connector->funcs->destroy(msm_dsi->connector);
-+	connector->funcs->destroy(connector);
- 	return ERR_PTR(ret);
- }
- 
--- 
-2.35.1
-
+--- a/kernel/irq/affinity.c
++++ b/kernel/irq/affinity.c
+@@ -269,8 +269,9 @@ static int __irq_build_affinity_masks(un
+ 	 */
+ 	if (numvecs <= nodes) {
+ 		for_each_node_mask(n, nodemsk) {
+-			cpumask_or(&masks[curvec].mask, &masks[curvec].mask,
+-				   node_to_cpumask[n]);
++			/* Ensure that only CPUs which are in both masks are set */
++			cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);
++			cpumask_or(&masks[curvec].mask, &masks[curvec].mask, nmsk);
+ 			if (++curvec == last_affv)
+ 				curvec = firstvec;
+ 		}
 
 
