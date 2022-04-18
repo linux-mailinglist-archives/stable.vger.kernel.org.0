@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE59505157
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E438505349
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234818AbiDRMcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:32:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54142 "EHLO
+        id S239757AbiDRM42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239027AbiDRMbi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:31:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EBD7252AB;
-        Mon, 18 Apr 2022 05:24:03 -0700 (PDT)
+        with ESMTP id S240355AbiDRMzi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6DCE85;
+        Mon, 18 Apr 2022 05:37:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DA664CE1099;
-        Mon, 18 Apr 2022 12:24:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDF49C385A8;
-        Mon, 18 Apr 2022 12:23:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B0D4B80EE0;
+        Mon, 18 Apr 2022 12:37:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BBE7C385C7;
+        Mon, 18 Apr 2022 12:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284640;
-        bh=saIBfUiOO9oi8JxUXD5UmunFw+zU/h9YE0bVKwbuzVI=;
+        s=korg; t=1650285442;
+        bh=c/sNApAjIfvKZjBOD9lHw5Vy4puycdYaf128XhAsIiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJjt9ybm6uIqFWWHCsodVV6FJkCNVyOezB1A+DoJtImZEMu11qgZ1Vt5IlsVCPYlM
-         xVTL4hNJJ0+YGxUg+m/EgnNp9VyHBHcPGL9kNjIxxeM+2P0yYY6lt9KdlKRc9lU4vO
-         +8ZTETrROtFBG1ExG8GBrjpSbgfU8K/paKQTotGs=
+        b=BXcqdwPKeMwbmVJ13HSb1W5DfCJMFnU89KgDk8ZGFZAMYCqIL6TSZWURBXqhxYac8
+         A6jJa4roUHrGMZjsrOt6NuffvnPD7wJNDEAKMhBgJKKcPKwDF9AxF8a+vD6DFYT4dZ
+         +RyBZW2w6AHUFo3JgIZ9/IxV55ukNM7hGict8d9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 173/219] io_uring: use nospec annotation for more indexes
+        stable@vger.kernel.org,
+        Benedikt Spranger <b.spranger@linutronix.de>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 020/105] net/sched: taprio: Check if socket flags are valid
 Date:   Mon, 18 Apr 2022 14:12:22 +0200
-Message-Id: <20220418121211.721539889@linuxfoundation.org>
+Message-Id: <20220418121146.637026720@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Benedikt Spranger <b.spranger@linutronix.de>
 
-[ Upstream commit 4cdd158be9d09223737df83136a1fb65269d809a ]
+[ Upstream commit e8a64bbaaad1f6548cec5508297bc6d45e8ab69e ]
 
-There are still several places that using pre array_index_nospec()
-indexes, fix them up.
+A user may set the SO_TXTIME socket option to ensure a packet is send
+at a given time. The taprio scheduler has to confirm, that it is allowed
+to send a packet at that given time, by a check against the packet time
+schedule. The scheduler drop the packet, if the gates are closed at the
+given send time.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/b01ef5ee83f72ed35ad525912370b729f5d145f4.1649336342.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+The check, if SO_TXTIME is set, may fail since sk_flags are part of an
+union and the union is used otherwise. This happen, if a socket is not
+a full socket, like a request socket for example.
+
+Add a check to verify, if the union is used for sk_flags.
+
+Fixes: 4cfd5779bd6e ("taprio: Add support for txtime-assist mode")
+Signed-off-by: Benedikt Spranger <b.spranger@linutronix.de>
+Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
+Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ net/sched/sch_taprio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 53b20d8b1129..f0febb2cb016 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8613,7 +8613,7 @@ static int io_close_fixed(struct io_kiocb *req, unsigned int issue_flags)
- 	bool needs_lock = issue_flags & IO_URING_F_UNLOCKED;
- 	struct io_fixed_file *file_slot;
- 	struct file *file;
--	int ret, i;
-+	int ret;
+diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
+index 806babdd838d..eca525791013 100644
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -427,7 +427,8 @@ static int taprio_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	if (unlikely(!child))
+ 		return qdisc_drop(skb, sch, to_free);
  
- 	io_ring_submit_lock(ctx, needs_lock);
- 	ret = -ENXIO;
-@@ -8626,8 +8626,8 @@ static int io_close_fixed(struct io_kiocb *req, unsigned int issue_flags)
- 	if (ret)
- 		goto out;
- 
--	i = array_index_nospec(offset, ctx->nr_user_files);
--	file_slot = io_fixed_file_slot(&ctx->file_table, i);
-+	offset = array_index_nospec(offset, ctx->nr_user_files);
-+	file_slot = io_fixed_file_slot(&ctx->file_table, offset);
- 	ret = -EBADF;
- 	if (!file_slot->file_ptr)
- 		goto out;
-@@ -8683,8 +8683,7 @@ static int __io_sqe_files_update(struct io_ring_ctx *ctx,
- 
- 		if (file_slot->file_ptr) {
- 			file = (struct file *)(file_slot->file_ptr & FFS_MASK);
--			err = io_queue_rsrc_removal(data, up->offset + done,
--						    ctx->rsrc_node, file);
-+			err = io_queue_rsrc_removal(data, i, ctx->rsrc_node, file);
- 			if (err)
- 				break;
- 			file_slot->file_ptr = 0;
-@@ -9357,7 +9356,7 @@ static int __io_sqe_buffers_update(struct io_ring_ctx *ctx,
- 
- 		i = array_index_nospec(offset, ctx->nr_user_bufs);
- 		if (ctx->user_bufs[i] != ctx->dummy_ubuf) {
--			err = io_queue_rsrc_removal(ctx->buf_data, offset,
-+			err = io_queue_rsrc_removal(ctx->buf_data, i,
- 						    ctx->rsrc_node, ctx->user_bufs[i]);
- 			if (unlikely(err)) {
- 				io_buffer_unmap(ctx, &imu);
+-	if (skb->sk && sock_flag(skb->sk, SOCK_TXTIME)) {
++	/* sk_flags are only safe to use on full sockets. */
++	if (skb->sk && sk_fullsock(skb->sk) && sock_flag(skb->sk, SOCK_TXTIME)) {
+ 		if (!is_valid_interval(skb, sch))
+ 			return qdisc_drop(skb, sch, to_free);
+ 	} else if (TXTIME_ASSIST_IS_ENABLED(q->flags)) {
 -- 
 2.35.1
 
