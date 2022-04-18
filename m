@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A19995057E1
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C179505244
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244351AbiDRN5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:57:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45486 "EHLO
+        id S234812AbiDRMlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38796 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244519AbiDRN4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380CCA1AF;
-        Mon, 18 Apr 2022 06:05:10 -0700 (PDT)
+        with ESMTP id S241014AbiDRMjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 458701EAD5;
+        Mon, 18 Apr 2022 05:31:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3AF3B80EC4;
-        Mon, 18 Apr 2022 13:05:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19F6EC385A1;
-        Mon, 18 Apr 2022 13:05:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7AF960FB6;
+        Mon, 18 Apr 2022 12:31:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB314C385A1;
+        Mon, 18 Apr 2022 12:31:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287107;
-        bh=wq+2Jo2ycQGQ6rd/zMFPBA3/65ZNrOu88pNHJPRppgI=;
+        s=korg; t=1650285107;
+        bh=tGzXzQhqgL+alx1Q6zWeqj7q4zL1AuwH2it+jAec/5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/ucsbKigkJz99bRbsL+9/40AIhwQGQq+eJa2InRg59JCpJjwWYZ9Iplpvt35H5Ua
-         2bSPZGtjYqTQE63COA6/l/amKMADIT6S1h2n09fz5RBWXABDb5qFxVROmopEivfPVu
-         kXXSJ6ifSqFKTjMC1obwfnERyVHs4nv1iZOwe+fI=
+        b=jShaV9Hj5DCCnrJAZRo/Rmw8XE60D0yWqX7rWIHAwlQfJovSR++o39sjwEMjswT5N
+         no0BZDi6jikpMujHpe8inh9caNZIN4AP/tzSiTI6P80LAB2xuIvVamkPx8LpUtiuI+
+         tD0g5bREoLkvQoYDXNQup5mPXuCkWBDO1IFfyfv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 059/218] media: usb: go7007: s2250-board: fix leak in probe()
+Subject: [PATCH 5.15 105/189] drm/amd: Add USBC connector ID
 Date:   Mon, 18 Apr 2022 14:12:05 +0200
-Message-Id: <20220418121201.302202028@linuxfoundation.org>
+Message-Id: <20220418121203.482500430@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit 67e4550ecd6164bfbdff54c169e5bbf9ccfaf14d ]
+[ Upstream commit c5c948aa894a831f96fccd025e47186b1ee41615 ]
 
-Call i2c_unregister_device(audio) on this error path.
+[Why&How] Add a dedicated AMDGPU specific ID for use with
+newer ASICs that support USB-C output
 
-Fixes: d3b2ccd9e307 ("[media] s2250: convert to the control framework")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/s2250-board.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/ObjectID.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/usb/go7007/s2250-board.c b/drivers/media/usb/go7007/s2250-board.c
-index 1466db150d82..625e77f4dbd2 100644
---- a/drivers/media/usb/go7007/s2250-board.c
-+++ b/drivers/media/usb/go7007/s2250-board.c
-@@ -512,6 +512,7 @@ static int s2250_probe(struct i2c_client *client,
- 	u8 *data;
- 	struct go7007 *go = i2c_get_adapdata(adapter);
- 	struct go7007_usb *usb = go->hpi_context;
-+	int err = -EIO;
+diff --git a/drivers/gpu/drm/amd/amdgpu/ObjectID.h b/drivers/gpu/drm/amd/amdgpu/ObjectID.h
+index 5b393622f592..a0f0a17e224f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/ObjectID.h
++++ b/drivers/gpu/drm/amd/amdgpu/ObjectID.h
+@@ -119,6 +119,7 @@
+ #define CONNECTOR_OBJECT_ID_eDP                   0x14
+ #define CONNECTOR_OBJECT_ID_MXM                   0x15
+ #define CONNECTOR_OBJECT_ID_LVDS_eDP              0x16
++#define CONNECTOR_OBJECT_ID_USBC                  0x17
  
- 	audio = i2c_new_dummy(adapter, TLV320_ADDRESS >> 1);
- 	if (audio == NULL)
-@@ -540,11 +541,8 @@ static int s2250_probe(struct i2c_client *client,
- 		V4L2_CID_HUE, -512, 511, 1, 0);
- 	sd->ctrl_handler = &state->hdl;
- 	if (state->hdl.error) {
--		int err = state->hdl.error;
--
--		v4l2_ctrl_handler_free(&state->hdl);
--		kfree(state);
--		return err;
-+		err = state->hdl.error;
-+		goto fail;
- 	}
+ /* deleted */
  
- 	state->std = V4L2_STD_NTSC;
-@@ -608,7 +606,7 @@ static int s2250_probe(struct i2c_client *client,
- 	i2c_unregister_device(audio);
- 	v4l2_ctrl_handler_free(&state->hdl);
- 	kfree(state);
--	return -EIO;
-+	return err;
- }
- 
- static int s2250_remove(struct i2c_client *client)
 -- 
-2.34.1
+2.35.1
 
 
 
