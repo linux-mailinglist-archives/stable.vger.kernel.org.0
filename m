@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2837D50504A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 376AC50525A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238480AbiDRMXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:23:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49122 "EHLO
+        id S239666AbiDRMmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:42:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238753AbiDRMWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:22:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F791CB11;
-        Mon, 18 Apr 2022 05:18:13 -0700 (PDT)
+        with ESMTP id S239951AbiDRMiW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:22 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2674B7644;
+        Mon, 18 Apr 2022 05:29:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80B6FB80ED6;
-        Mon, 18 Apr 2022 12:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D824DC385A7;
-        Mon, 18 Apr 2022 12:18:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 70104CE1077;
+        Mon, 18 Apr 2022 12:29:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FEFEC385A7;
+        Mon, 18 Apr 2022 12:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284291;
-        bh=VDtuTGtW9TG1KsudYMu8TsB/oEOwXA+9S2Gy2KFrkQw=;
+        s=korg; t=1650284938;
+        bh=jhYVlAq+c39CVsH+sSlPV4y+433+nEv9z7fvwQl2K7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNshYoBd8tjwsxCg4soX1d+6icsJuPme5IYeXZnFTPGZxDr8NYbkznqe65IfNS0G0
-         ejhRO+h9itQcK/77sYOHZ/0fPhDNHU5XGf6mqn3vrM0gFG8BMF/KIuGRnC5mMJ3Gnb
-         on+tvQ1YPKWEEa0uHyv0a+hwXGFv/yw+lwH2/YLM=
+        b=GuQHPO75TK4GeQUqGMZKy+ZCW1nCbDGGUgMVHHXD62Ifoz4t4Pu2FzJaOF/AqoOt/
+         UbHGMh2GFz9FO6qqoZZGU7D8kqwCKHCb+4VhXhEMoZmkwDNwo3wN5yDyD4FCzZ0tZ5
+         K1PjWPYerscr9e2C384Nxy461taLjAfd8Rjj2xYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Oliver Upton <oupton@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 065/219] KVM: arm64: Generalise VM features into a set of flags
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 014/189] net: ipa: request IPA register values be retained
 Date:   Mon, 18 Apr 2022 14:10:34 +0200
-Message-Id: <20220418121207.461356165@linuxfoundation.org>
+Message-Id: <20220418121200.906114631@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,129 +53,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit 06394531b425794dc56f3d525b7994d25b8072f7 ]
+commit 34a081761e4e3c35381cbfad609ebae2962fe2f8 upstream.
 
-We currently deal with a set of booleans for VM features,
-while they could be better represented as set of flags
-contained in an unsigned long, similarily to what we are
-doing on the CPU side.
+In some cases, the IPA hardware needs to request the always-on
+subsystem (AOSS) to coordinate with the IPA microcontroller to
+retain IPA register values at power collapse.  This is done by
+issuing a QMP request to the AOSS microcontroller.  A similar
+request ondoes that request.
 
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-[Oliver: Flag-ify the 'ran_once' boolean]
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220311174001.605719-2-oupton@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We must get and hold the "QMP" handle early, because we might get
+back EPROBE_DEFER for that.  But the actual request should be sent
+while we know the IPA clock is active, and when we know the
+microcontroller is operational.
+
+Fixes: 1aac309d3207 ("net: ipa: use autosuspend")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/kvm_host.h | 15 +++++++++------
- arch/arm64/kvm/arm.c              |  7 ++++---
- arch/arm64/kvm/mmio.c             |  3 ++-
- arch/arm64/kvm/pmu-emul.c         |  2 +-
- 4 files changed, 16 insertions(+), 11 deletions(-)
+ drivers/net/ipa/ipa_power.c |   52 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/net/ipa/ipa_power.h |    7 +++++
+ drivers/net/ipa/ipa_uc.c    |    5 ++++
+ 3 files changed, 64 insertions(+)
 
-diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 8234626a945a..2619fda42ca2 100644
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -122,7 +122,12 @@ struct kvm_arch {
- 	 * should) opt in to this feature if KVM_CAP_ARM_NISV_TO_USER is
- 	 * supported.
- 	 */
--	bool return_nisv_io_abort_to_user;
-+#define KVM_ARCH_FLAG_RETURN_NISV_IO_ABORT_TO_USER	0
-+	/* Memory Tagging Extension enabled for the guest */
-+#define KVM_ARCH_FLAG_MTE_ENABLED			1
-+	/* At least one vCPU has ran in the VM */
-+#define KVM_ARCH_FLAG_HAS_RAN_ONCE			2
-+	unsigned long flags;
+--- a/drivers/net/ipa/ipa_power.c
++++ b/drivers/net/ipa/ipa_power.c
+@@ -11,6 +11,8 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/bitops.h>
  
- 	/*
- 	 * VM-wide PMU filter, implemented as a bitmap and big enough for
-@@ -133,10 +138,6 @@ struct kvm_arch {
++#include "linux/soc/qcom/qcom_aoss.h"
++
+ #include "ipa.h"
+ #include "ipa_power.h"
+ #include "ipa_endpoint.h"
+@@ -64,6 +66,7 @@ enum ipa_power_flag {
+  * struct ipa_power - IPA power management information
+  * @dev:		IPA device pointer
+  * @core:		IPA core clock
++ * @qmp:		QMP handle for AOSS communication
+  * @spinlock:		Protects modem TX queue enable/disable
+  * @flags:		Boolean state flags
+  * @interconnect_count:	Number of elements in interconnect[]
+@@ -72,6 +75,7 @@ enum ipa_power_flag {
+ struct ipa_power {
+ 	struct device *dev;
+ 	struct clk *core;
++	struct qmp *qmp;
+ 	spinlock_t spinlock;	/* used with STOPPED/STARTED power flags */
+ 	DECLARE_BITMAP(flags, IPA_POWER_FLAG_COUNT);
+ 	u32 interconnect_count;
+@@ -382,6 +386,47 @@ void ipa_power_modem_queue_active(struct
+ 	clear_bit(IPA_POWER_FLAG_STARTED, ipa->power->flags);
+ }
  
- 	u8 pfr0_csv2;
- 	u8 pfr0_csv3;
--
--	/* Memory Tagging Extension enabled for the guest */
--	bool mte_enabled;
--	bool ran_once;
- };
++static int ipa_power_retention_init(struct ipa_power *power)
++{
++	struct qmp *qmp = qmp_get(power->dev);
++
++	if (IS_ERR(qmp)) {
++		if (PTR_ERR(qmp) == -EPROBE_DEFER)
++			return -EPROBE_DEFER;
++
++		/* We assume any other error means it's not defined/needed */
++		qmp = NULL;
++	}
++	power->qmp = qmp;
++
++	return 0;
++}
++
++static void ipa_power_retention_exit(struct ipa_power *power)
++{
++	qmp_put(power->qmp);
++	power->qmp = NULL;
++}
++
++/* Control register retention on power collapse */
++void ipa_power_retention(struct ipa *ipa, bool enable)
++{
++	static const char fmt[] = "{ class: bcm, res: ipa_pc, val: %c }";
++	struct ipa_power *power = ipa->power;
++	char buf[36];	/* Exactly enough for fmt[]; size a multiple of 4 */
++	int ret;
++
++	if (!power->qmp)
++		return;		/* Not needed on this platform */
++
++	(void)snprintf(buf, sizeof(buf), fmt, enable ? '1' : '0');
++
++	ret = qmp_send(power->qmp, buf, sizeof(buf));
++	if (ret)
++		dev_err(power->dev, "error %d sending QMP %sable request\n",
++			ret, enable ? "en" : "dis");
++}
++
+ int ipa_power_setup(struct ipa *ipa)
+ {
+ 	int ret;
+@@ -438,12 +483,18 @@ ipa_power_init(struct device *dev, const
+ 	if (ret)
+ 		goto err_kfree;
  
- struct kvm_vcpu_fault_info {
-@@ -792,7 +793,9 @@ bool kvm_arm_vcpu_is_finalized(struct kvm_vcpu *vcpu);
- #define kvm_arm_vcpu_sve_finalized(vcpu) \
- 	((vcpu)->arch.flags & KVM_ARM64_VCPU_SVE_FINALIZED)
++	ret = ipa_power_retention_init(power);
++	if (ret)
++		goto err_interconnect_exit;
++
+ 	pm_runtime_set_autosuspend_delay(dev, IPA_AUTOSUSPEND_DELAY);
+ 	pm_runtime_use_autosuspend(dev);
+ 	pm_runtime_enable(dev);
  
--#define kvm_has_mte(kvm) (system_supports_mte() && (kvm)->arch.mte_enabled)
-+#define kvm_has_mte(kvm)					\
-+	(system_supports_mte() &&				\
-+	 test_bit(KVM_ARCH_FLAG_MTE_ENABLED, &(kvm)->arch.flags))
- #define kvm_vcpu_has_pmu(vcpu)					\
- 	(test_bit(KVM_ARM_VCPU_PMU_V3, (vcpu)->arch.features))
+ 	return power;
  
-diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index 85a2a75f4498..25d8aff273a1 100644
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -89,7 +89,8 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
- 	switch (cap->cap) {
- 	case KVM_CAP_ARM_NISV_TO_USER:
- 		r = 0;
--		kvm->arch.return_nisv_io_abort_to_user = true;
-+		set_bit(KVM_ARCH_FLAG_RETURN_NISV_IO_ABORT_TO_USER,
-+			&kvm->arch.flags);
- 		break;
- 	case KVM_CAP_ARM_MTE:
- 		mutex_lock(&kvm->lock);
-@@ -97,7 +98,7 @@ int kvm_vm_ioctl_enable_cap(struct kvm *kvm,
- 			r = -EINVAL;
- 		} else {
- 			r = 0;
--			kvm->arch.mte_enabled = true;
-+			set_bit(KVM_ARCH_FLAG_MTE_ENABLED, &kvm->arch.flags);
- 		}
- 		mutex_unlock(&kvm->lock);
- 		break;
-@@ -635,7 +636,7 @@ int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu)
- 		kvm_call_hyp_nvhe(__pkvm_vcpu_init_traps, vcpu);
++err_interconnect_exit:
++	ipa_interconnect_exit(power);
+ err_kfree:
+ 	kfree(power);
+ err_clk_put:
+@@ -460,6 +511,7 @@ void ipa_power_exit(struct ipa_power *po
  
- 	mutex_lock(&kvm->lock);
--	kvm->arch.ran_once = true;
-+	set_bit(KVM_ARCH_FLAG_HAS_RAN_ONCE, &kvm->arch.flags);
- 	mutex_unlock(&kvm->lock);
+ 	pm_runtime_disable(dev);
+ 	pm_runtime_dont_use_autosuspend(dev);
++	ipa_power_retention_exit(power);
+ 	ipa_interconnect_exit(power);
+ 	kfree(power);
+ 	clk_put(clk);
+--- a/drivers/net/ipa/ipa_power.h
++++ b/drivers/net/ipa/ipa_power.h
+@@ -41,6 +41,13 @@ void ipa_power_modem_queue_wake(struct i
+ void ipa_power_modem_queue_active(struct ipa *ipa);
  
- 	return ret;
-diff --git a/arch/arm64/kvm/mmio.c b/arch/arm64/kvm/mmio.c
-index 3e2d8ba11a02..3dd38a151d2a 100644
---- a/arch/arm64/kvm/mmio.c
-+++ b/arch/arm64/kvm/mmio.c
-@@ -135,7 +135,8 @@ int io_mem_abort(struct kvm_vcpu *vcpu, phys_addr_t fault_ipa)
- 	 * volunteered to do so, and bail out otherwise.
- 	 */
- 	if (!kvm_vcpu_dabt_isvalid(vcpu)) {
--		if (vcpu->kvm->arch.return_nisv_io_abort_to_user) {
-+		if (test_bit(KVM_ARCH_FLAG_RETURN_NISV_IO_ABORT_TO_USER,
-+			     &vcpu->kvm->arch.flags)) {
- 			run->exit_reason = KVM_EXIT_ARM_NISV;
- 			run->arm_nisv.esr_iss = kvm_vcpu_dabt_iss_nisv_sanitized(vcpu);
- 			run->arm_nisv.fault_ipa = fault_ipa;
-diff --git a/arch/arm64/kvm/pmu-emul.c b/arch/arm64/kvm/pmu-emul.c
-index bc771bc1a041..fc6ee6f02fec 100644
---- a/arch/arm64/kvm/pmu-emul.c
-+++ b/arch/arm64/kvm/pmu-emul.c
-@@ -982,7 +982,7 @@ int kvm_arm_pmu_v3_set_attr(struct kvm_vcpu *vcpu, struct kvm_device_attr *attr)
+ /**
++ * ipa_power_retention() - Control register retention on power collapse
++ * @ipa:	IPA pointer
++ * @enable:	Whether retention should be enabled or disabled
++ */
++void ipa_power_retention(struct ipa *ipa, bool enable);
++
++/**
+  * ipa_power_setup() - Set up IPA power management
+  * @ipa:	IPA pointer
+  *
+--- a/drivers/net/ipa/ipa_uc.c
++++ b/drivers/net/ipa/ipa_uc.c
+@@ -11,6 +11,7 @@
  
- 		mutex_lock(&kvm->lock);
+ #include "ipa.h"
+ #include "ipa_uc.h"
++#include "ipa_power.h"
  
--		if (kvm->arch.ran_once) {
-+		if (test_bit(KVM_ARCH_FLAG_HAS_RAN_ONCE, &kvm->arch.flags)) {
- 			mutex_unlock(&kvm->lock);
- 			return -EBUSY;
- 		}
--- 
-2.35.1
-
+ /**
+  * DOC:  The IPA embedded microcontroller
+@@ -154,6 +155,7 @@ static void ipa_uc_response_hdlr(struct
+ 	case IPA_UC_RESPONSE_INIT_COMPLETED:
+ 		if (ipa->uc_powered) {
+ 			ipa->uc_loaded = true;
++			ipa_power_retention(ipa, true);
+ 			pm_runtime_mark_last_busy(dev);
+ 			(void)pm_runtime_put_autosuspend(dev);
+ 			ipa->uc_powered = false;
+@@ -184,6 +186,9 @@ void ipa_uc_deconfig(struct ipa *ipa)
+ 
+ 	ipa_interrupt_remove(ipa->interrupt, IPA_IRQ_UC_1);
+ 	ipa_interrupt_remove(ipa->interrupt, IPA_IRQ_UC_0);
++	if (ipa->uc_loaded)
++		ipa_power_retention(ipa, false);
++
+ 	if (!ipa->uc_powered)
+ 		return;
+ 
 
 
