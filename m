@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DF850527A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 470225057FE
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235809AbiDRMpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:45:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55574 "EHLO
+        id S235699AbiDRN7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236618AbiDRMoD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:44:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97F2205DA;
-        Mon, 18 Apr 2022 05:32:30 -0700 (PDT)
+        with ESMTP id S244560AbiDRN5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53D472AC43;
+        Mon, 18 Apr 2022 06:05:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BE8F61014;
-        Mon, 18 Apr 2022 12:32:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 325F1C385A8;
-        Mon, 18 Apr 2022 12:32:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E72D6B80EC0;
+        Mon, 18 Apr 2022 13:05:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B120C385A7;
+        Mon, 18 Apr 2022 13:05:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285149;
-        bh=r+v799nWtFiuZKGvekvzbaSWQmR+uO4fCieBqjFyk18=;
+        s=korg; t=1650287153;
+        bh=lSJcNQdo0UgwYrG3zYfemBAVszoq8o1xW2OWKp5LwW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kG2mWXjTFD3anq5Jpv3OjUwXQkmxivmM00KuXnyHuvCU365FT+P4F6sj/MLeMiYi3
-         GQBNW5Opn8Mvc+tCfwjQ5PT3WfqLCwalGg/qRux4UXAE+09y2wVv0fqpZq+ez9/Hw1
-         xTmGYrqrXSfEOz6L04KQFLFw5JPlB0MJKjCYNSss=
+        b=tPlX73AqPQuFOdnrl0PASMsGsX4JnXix+ZXqDqspNmAqFApBAXppkYbi6AOA0gGBI
+         a3YrGWr2Ia61TacUJVxhATp11w8Y8wGthXNIp41CObiC20hl3HIpm8UA9EW48Z72iz
+         Pyalt/8VitEYeD0p9cclwIe/77810ERGhYxklrfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 117/189] PCI: hv: Propagate coherence from VMbus device to PCI device
-Date:   Mon, 18 Apr 2022 14:12:17 +0200
-Message-Id: <20220418121203.818036092@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 072/218] ASoC: fsi: Add check for clk_enable
+Date:   Mon, 18 Apr 2022 14:12:18 +0200
+Message-Id: <20220418121201.670344765@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 8d21732475c637c7efcdb91dc927a4c594e97898 ]
+[ Upstream commit 405afed8a728f23cfaa02f75bbc8bdd6b7322123 ]
 
-PCI pass-thru devices in a Hyper-V VM are represented as a VMBus
-device and as a PCI device.  The coherence of the VMbus device is
-set based on the VMbus node in ACPI, but the PCI device has no
-ACPI node and defaults to not hardware coherent.  This results
-in extra software coherence management overhead on ARM64 when
-devices are hardware coherent.
+As the potential failure of the clk_enable(),
+it should be better to check it and return error
+if fails.
 
-Fix this by setting up the PCI host bus so that normal
-PCI mechanisms will propagate the coherence of the VMbus
-device to the PCI device. There's no effect on x86/x64 where
-devices are always hardware coherent.
-
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Acked-by: Boqun Feng <boqun.feng@gmail.com>
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/1648138492-2191-3-git-send-email-mikelley@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: ab6f6d85210c ("ASoC: fsi: add master clock control functions")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220302062844.46869-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/sh/fsi.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index 9dd4502d32a4..5b156c563e3a 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -3148,6 +3148,15 @@ static int hv_pci_probe(struct hv_device *hdev,
- 	hbus->bridge->domain_nr = dom;
- #ifdef CONFIG_X86
- 	hbus->sysdata.domain = dom;
-+#elif defined(CONFIG_ARM64)
-+	/*
-+	 * Set the PCI bus parent to be the corresponding VMbus
-+	 * device. Then the VMbus device will be assigned as the
-+	 * ACPI companion in pcibios_root_bridge_prepare() and
-+	 * pci_dma_configure() will propagate device coherence
-+	 * information to devices created on the bus.
-+	 */
-+	hbus->sysdata.parent = hdev->device.parent;
- #endif
+diff --git a/sound/soc/sh/fsi.c b/sound/soc/sh/fsi.c
+index ead520182e26..29be45285274 100644
+--- a/sound/soc/sh/fsi.c
++++ b/sound/soc/sh/fsi.c
+@@ -821,14 +821,27 @@ static int fsi_clk_enable(struct device *dev,
+ 			return ret;
+ 		}
  
- 	hbus->hdev = hdev;
+-		clk_enable(clock->xck);
+-		clk_enable(clock->ick);
+-		clk_enable(clock->div);
++		ret = clk_enable(clock->xck);
++		if (ret)
++			goto err;
++		ret = clk_enable(clock->ick);
++		if (ret)
++			goto disable_xck;
++		ret = clk_enable(clock->div);
++		if (ret)
++			goto disable_ick;
+ 
+ 		clock->count++;
+ 	}
+ 
+ 	return ret;
++
++disable_ick:
++	clk_disable(clock->ick);
++disable_xck:
++	clk_disable(clock->xck);
++err:
++	return ret;
+ }
+ 
+ static int fsi_clk_disable(struct device *dev,
 -- 
-2.35.1
+2.34.1
 
 
 
