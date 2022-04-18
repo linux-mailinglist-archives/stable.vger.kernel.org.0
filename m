@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD67D50504E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7406E505526
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238604AbiDRMXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49044 "EHLO
+        id S242151AbiDRNOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:14:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238743AbiDRMWr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:22:47 -0400
+        with ESMTP id S243438AbiDRNKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98EB41EEC3;
-        Mon, 18 Apr 2022 05:18:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FCF237BFF;
+        Mon, 18 Apr 2022 05:49:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 50AEEB80ED6;
-        Mon, 18 Apr 2022 12:18:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94616C385A1;
-        Mon, 18 Apr 2022 12:18:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 253DAB80D9C;
+        Mon, 18 Apr 2022 12:49:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7095EC385A9;
+        Mon, 18 Apr 2022 12:49:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284288;
-        bh=DC7RGW7TlXPwWdtO/BTt0iavJEYKJ2Rg0B/NHcdSQzk=;
+        s=korg; t=1650286172;
+        bh=sBAlfitv7a3m15anPihIPdD3jKEWTRAgL6gHf+iR2EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+PLHkA+YlUb2G+P1BOSa+1/IqZcEtCZjXvnGFEo21pTgmeolkxGcnVdUpKol9DCo
-         fMcZ4uE9YBVVZq+6nEBkD/qhskNfX9ixZB080mflk/PNkrJhHpDeB1vbnIOw4GS9FK
-         0TkJuipba90+u3YMzTc+Xz5BNFytEmnsu0jJxjjc=
+        b=TxsF93e5RLHypZZ8AOZHMboIjrlL6pn7VVTBXjPMxHiFejCFAzCVkuIXG0AJqiy0f
+         uI4ZlV3nnwj3LFhXxTveACDMBDlTH2rvkTlVCzUeM5akPZjg6HUrairzRJSQsMdTS8
+         lyvIp1ebZUrXzTeme3bFHkINDcnPOQ8T4VMs9zpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dragan Simic <dragan.simic@gmail.com>,
-        Kyle Copperfield <kmcopper@danwin1210.me>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 064/219] media: rockchip/rga: do proper error checking in probe
+        stable@vger.kernel.org,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 4.14 052/284] PCI: pciehp: Clear cmd_busy bit in polling mode
 Date:   Mon, 18 Apr 2022 14:10:33 +0200
-Message-Id: <20220418121207.390409830@linuxfoundation.org>
+Message-Id: <20220418121212.175619271@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,44 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Copperfield <kmcopper@danwin1210.me>
+From: Liguang Zhang <zhangliguang@linux.alibaba.com>
 
-[ Upstream commit 6150f276073a1480030242a7e006a89e161d6cd6 ]
+commit 92912b175178c7e895f5e5e9f1e30ac30319162b upstream.
 
-The latest fix for probe error handling contained a typo that causes
-probing to fail with the following message:
+Writes to a Downstream Port's Slot Control register are PCIe hotplug
+"commands."  If the Port supports Command Completed events, software must
+wait for a command to complete before writing to Slot Control again.
 
-  rockchip-rga: probe of ff680000.rga failed with error -12
+pcie_do_write_cmd() sets ctrl->cmd_busy when it writes to Slot Control.  If
+software notification is enabled, i.e., PCI_EXP_SLTCTL_HPIE and
+PCI_EXP_SLTCTL_CCIE are set, ctrl->cmd_busy is cleared by pciehp_isr().
 
-This patch fixes the typo.
+But when software notification is disabled, as it is when pcie_init()
+powers off an empty slot, pcie_wait_cmd() uses pcie_poll_cmd() to poll for
+command completion, and it neglects to clear ctrl->cmd_busy, which leads to
+spurious timeouts:
 
-Fixes: e58430e1d4fd (media: rockchip/rga: fix error handling in probe)
-Reviewed-by: Dragan Simic <dragan.simic@gmail.com>
-Signed-off-by: Kyle Copperfield <kmcopper@danwin1210.me>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x01c0 (issued 2264 msec ago)
+  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x05c0 (issued 2288 msec ago)
+
+Clear ctrl->cmd_busy in pcie_poll_cmd() when it detects a Command Completed
+event (PCI_EXP_SLTSTA_CC).
+
+[bhelgaas: commit log]
+Fixes: a5dd4b4b0570 ("PCI: pciehp: Wait for hotplug command completion where necessary")
+Link: https://lore.kernel.org/r/20211111054258.7309-1-zhangliguang@linux.alibaba.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215143
+Link: https://lore.kernel.org/r/20211126173309.GA12255@wunner.de
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org	# v4.19+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/rockchip/rga/rga.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/hotplug/pciehp_hpc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
-index 4de5e8d2b261..3d3d1062e212 100644
---- a/drivers/media/platform/rockchip/rga/rga.c
-+++ b/drivers/media/platform/rockchip/rga/rga.c
-@@ -892,7 +892,7 @@ static int rga_probe(struct platform_device *pdev)
- 	}
- 	rga->dst_mmu_pages =
- 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
--	if (rga->dst_mmu_pages) {
-+	if (!rga->dst_mmu_pages) {
- 		ret = -ENOMEM;
- 		goto free_src_pages;
- 	}
--- 
-2.35.1
-
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -120,6 +120,8 @@ static int pcie_poll_cmd(struct controll
+ 		if (slot_status & PCI_EXP_SLTSTA_CC) {
+ 			pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
+ 						   PCI_EXP_SLTSTA_CC);
++			ctrl->cmd_busy = 0;
++			smp_mb();
+ 			return 1;
+ 		}
+ 		if (timeout < 0)
 
 
