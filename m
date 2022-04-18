@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B30A505320
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B37505446
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240298AbiDRMzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:55:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
+        id S240657AbiDRNFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239858AbiDRMzI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEFBD20F4F;
-        Mon, 18 Apr 2022 05:35:47 -0700 (PDT)
+        with ESMTP id S239214AbiDRNDw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17AC3BF5A;
+        Mon, 18 Apr 2022 05:45:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4924F61014;
-        Mon, 18 Apr 2022 12:35:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F71C385A1;
-        Mon, 18 Apr 2022 12:35:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F96611E4;
+        Mon, 18 Apr 2022 12:45:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2DF8C385A7;
+        Mon, 18 Apr 2022 12:45:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285346;
-        bh=tCeOiBqGrp+xpXOvWNxrImRBzOezrzh5RKwZ8svsIrI=;
+        s=korg; t=1650285905;
+        bh=pZ9Cg/z8ut/ZxUUywIWgSASIaLci26urQY/3V/R3ssw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYMyyx21CatBmqeUfDodF+W4HhJCOrgvw+2aNqysI8w5RDyizP2yi3e2kYXKCGF16
-         kHqSB7zr8ifwalIVd2wIqopAH1JPII5OvIeQUSGnN+9GqQyJkdPa1gnWZkt47u9UZD
-         qDA3QO9ulZWbYNhAQ4muLyva+4LqS5hZtrO3RjD4=
+        b=2qBKOOuiboO77/EcxeOa++Edd1y32Zg2uG2g0wf3imON+pxTEOPtLPSY8xWXQbv8Z
+         Kn+SNFV7vCb7EKCiaja06t9YZnNzdkm64hgcYaHVRM5WpuqbopwFCF856ac441vjNP
+         NujLQ5NH7JTFwB1h1ECvKBF0LFurs2MSU51Dpq78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 180/189] net: ipa: fix a build dependency
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 23/63] scsi: ibmvscsis: Increase INITIAL_SRP_LIMIT to 1024
 Date:   Mon, 18 Apr 2022 14:13:20 +0200
-Message-Id: <20220418121208.223621522@linuxfoundation.org>
+Message-Id: <20220418121135.701345639@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit caef14b7530c065fb85d54492768fa48fdb5093e upstream.
+[ Upstream commit 0bade8e53279157c7cc9dd95d573b7e82223d78a ]
 
-An IPA build problem arose in the linux-next tree the other day.
-The problem is that a recent commit adds a new dependency on some
-code, and the Kconfig file for IPA doesn't reflect that dependency.
-As a result, some configurations can fail to build (particularly
-when COMPILE_TEST is enabled).
+The adapter request_limit is hardcoded to be INITIAL_SRP_LIMIT which is
+currently an arbitrary value of 800. Increase this value to 1024 which
+better matches the characteristics of the typical IBMi Initiator that
+supports 32 LUNs and a queue depth of 32.
 
-The recent patch adds calls to qmp_get(), qmp_put(), and qmp_send(),
-and those are built based on the QCOM_AOSS_QMP config option.  If
-that symbol is not defined, stubs are defined, so we just need to
-ensure QCOM_AOSS_QMP is compatible with QCOM_IPA, or it's not
-defined.
+This change also has the secondary benefit of being a power of two as
+required by the kfifo API. Since, Commit ab9bb6318b09 ("Partially revert
+"kfifo: fix kfifo_alloc() and kfifo_init()"") the size of IU pool for each
+target has been rounded down to 512 when attempting to kfifo_init() those
+pools with the current request_limit size of 800.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Fixes: 34a081761e4e3 ("net: ipa: request IPA register values be retained")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220322194443.678433-1-tyreld@linux.ibm.com
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ipa/Kconfig
-+++ b/drivers/net/ipa/Kconfig
-@@ -4,6 +4,7 @@ config QCOM_IPA
- 	depends on ARCH_QCOM || COMPILE_TEST
- 	depends on INTERCONNECT
- 	depends on QCOM_RPROC_COMMON || (QCOM_RPROC_COMMON=n && COMPILE_TEST)
-+	depends on QCOM_AOSS_QMP || QCOM_AOSS_QMP=n
- 	select QCOM_MDT_LOADER if ARCH_QCOM
- 	select QCOM_SCM
- 	select QCOM_QMI_HELPERS
+diff --git a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
+index a929fe76102b..d5b2917aea44 100644
+--- a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
++++ b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
+@@ -35,7 +35,7 @@
+ 
+ #define IBMVSCSIS_VERSION	"v0.2"
+ 
+-#define	INITIAL_SRP_LIMIT	800
++#define	INITIAL_SRP_LIMIT	1024
+ #define	DEFAULT_MAX_SECTORS	256
+ #define MAX_TXU			1024 * 1024
+ 
+-- 
+2.35.1
+
 
 
