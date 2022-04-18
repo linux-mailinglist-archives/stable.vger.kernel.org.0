@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28179505860
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:02:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB92505696
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244018AbiDROCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:02:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57324 "EHLO
+        id S242285AbiDRNfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:35:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245044AbiDROAy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:00:54 -0400
+        with ESMTP id S243102AbiDRNdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:33:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B15522C66B;
-        Mon, 18 Apr 2022 06:09:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4CB237E4;
+        Mon, 18 Apr 2022 05:57:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 798DEB80EE4;
-        Mon, 18 Apr 2022 13:08:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD526C385A1;
-        Mon, 18 Apr 2022 13:08:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84D21B80E59;
+        Mon, 18 Apr 2022 12:57:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB95AC385A1;
+        Mon, 18 Apr 2022 12:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287314;
-        bh=MQ80TICDoU0k4gTgTnLQ3uHrBBGBTGfzc7zcAeNUXYA=;
+        s=korg; t=1650286671;
+        bh=IID6F9Ke4JqC9L6vJlF0luQUGFuNBiHgFrpgIgXi2P0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BeFzdhQcqk/rJr3RE7csAbb8ZrpsTHZo7D8Bub/L+LAAUZkNpC3Hn4EBarp2Bn6o0
-         PnXMbrpvibz0QhhPKyegt9w8gXI3KD0g7ZkacnBiM29zCmZyVnsSbJY7mM9UQq9Row
-         qtbAowGrQxYNG29RP0viruvC+b5Kb35RgQvuEVw4=
+        b=DtrobiNu3pA+/Jp1d3/Zw0OWstPzTQ0/v2+1yxRNWk5Ic6oFOnjEWtEo5RkQGfv2e
+         BMX6GS1y1rYmwZh7uJHfwrtG1V0ELudpVXGeCrtGm8eLz+hRDR//2x2DLejXfm8DPp
+         IqveiGwk/trcEZU7vMNq+qkC8Vajoxr/8QfX3vQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
+        Zekun Shen <bruceshenzk@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 121/218] qlcnic: dcb: default to returning -EOPNOTSUPP
-Date:   Mon, 18 Apr 2022 14:13:07 +0200
-Message-Id: <20220418121203.054580796@linuxfoundation.org>
+Subject: [PATCH 4.14 207/284] ath5k: fix OOB in ath5k_eeprom_read_pcal_info_5111
+Date:   Mon, 18 Apr 2022 14:13:08 +0200
+Message-Id: <20220418121217.607631203@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,81 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit 1521db37f0d42334a88e8ff28198a27d1ed5cd7b ]
+[ Upstream commit 564d4eceb97eaf381dd6ef6470b06377bb50c95a ]
 
-Clang static analysis reports this issue
-qlcnic_dcb.c:382:10: warning: Assigned value is
-  garbage or undefined
-  mbx_out = *val;
-          ^ ~~~~
+The bug was found during fuzzing. Stacktrace locates it in
+ath5k_eeprom_convert_pcal_info_5111.
+When none of the curve is selected in the loop, idx can go
+up to AR5K_EEPROM_N_PD_CURVES. The line makes pd out of bound.
+pd = &chinfo[pier].pd_curves[idx];
 
-val is set in the qlcnic_dcb_query_hw_capability() wrapper.
-If there is no query_hw_capability op in dcp, success is
-returned without setting the val.
+There are many OOB writes using pd later in the code. So I
+added a sanity check for idx. Checks for other loops involving
+AR5K_EEPROM_N_PD_CURVES are not needed as the loop index is not
+used outside the loops.
 
-For this and similar wrappers, return -EOPNOTSUPP.
+The patch is NOT tested with real device.
 
-Fixes: 14d385b99059 ("qlcnic: dcb: Query adapter DCB capabilities.")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The following is the fuzzing report
+
+BUG: KASAN: slab-out-of-bounds in ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+Write of size 1 at addr ffff8880174a4d60 by task modprobe/214
+
+CPU: 0 PID: 214 Comm: modprobe Not tainted 5.6.0 #1
+Call Trace:
+ dump_stack+0x76/0xa0
+ print_address_description.constprop.0+0x16/0x200
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ __kasan_report.cold+0x37/0x7c
+ ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ kasan_report+0xe/0x20
+ ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
+ ? apic_timer_interrupt+0xa/0x20
+ ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
+ ? ath5k_pci_eeprom_read+0x228/0x3c0 [ath5k]
+ ath5k_eeprom_init+0x2513/0x6290 [ath5k]
+ ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
+ ? usleep_range+0xb8/0x100
+ ? apic_timer_interrupt+0xa/0x20
+ ? ath5k_eeprom_read_pcal_info_2413+0x2f20/0x2f20 [ath5k]
+ ath5k_hw_init+0xb60/0x1970 [ath5k]
+ ath5k_init_ah+0x6fe/0x2530 [ath5k]
+ ? kasprintf+0xa6/0xe0
+ ? ath5k_stop+0x140/0x140 [ath5k]
+ ? _dev_notice+0xf6/0xf6
+ ? apic_timer_interrupt+0xa/0x20
+ ath5k_pci_probe.cold+0x29a/0x3d6 [ath5k]
+ ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
+ ? mutex_lock+0x89/0xd0
+ ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
+ local_pci_probe+0xd3/0x160
+ pci_device_probe+0x23f/0x3e0
+ ? pci_device_remove+0x280/0x280
+ ? pci_device_remove+0x280/0x280
+ really_probe+0x209/0x5d0
+
+Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/YckvDdj3mtCkDRIt@a-10-27-26-18.dynapool.vpn.nyu.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ath5k/eeprom.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-index f4aa6331b367..0a9d24e86715 100644
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
-@@ -52,7 +52,7 @@ static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
- 	if (dcb && dcb->ops->get_hw_capability)
- 		return dcb->ops->get_hw_capability(dcb);
+diff --git a/drivers/net/wireless/ath/ath5k/eeprom.c b/drivers/net/wireless/ath/ath5k/eeprom.c
+index 94d34ee02265..01163b333945 100644
+--- a/drivers/net/wireless/ath/ath5k/eeprom.c
++++ b/drivers/net/wireless/ath/ath5k/eeprom.c
+@@ -746,6 +746,9 @@ ath5k_eeprom_convert_pcal_info_5111(struct ath5k_hw *ah, int mode,
+ 			}
+ 		}
  
--	return 0;
-+	return -EOPNOTSUPP;
- }
++		if (idx == AR5K_EEPROM_N_PD_CURVES)
++			goto err_out;
++
+ 		ee->ee_pd_gains[mode] = 1;
  
- static inline void qlcnic_dcb_free(struct qlcnic_dcb *dcb)
-@@ -66,7 +66,7 @@ static inline int qlcnic_dcb_attach(struct qlcnic_dcb *dcb)
- 	if (dcb && dcb->ops->attach)
- 		return dcb->ops->attach(dcb);
- 
--	return 0;
-+	return -EOPNOTSUPP;
- }
- 
- static inline int
-@@ -75,7 +75,7 @@ qlcnic_dcb_query_hw_capability(struct qlcnic_dcb *dcb, char *buf)
- 	if (dcb && dcb->ops->query_hw_capability)
- 		return dcb->ops->query_hw_capability(dcb, buf);
- 
--	return 0;
-+	return -EOPNOTSUPP;
- }
- 
- static inline void qlcnic_dcb_get_info(struct qlcnic_dcb *dcb)
-@@ -90,7 +90,7 @@ qlcnic_dcb_query_cee_param(struct qlcnic_dcb *dcb, char *buf, u8 type)
- 	if (dcb && dcb->ops->query_cee_param)
- 		return dcb->ops->query_cee_param(dcb, buf, type);
- 
--	return 0;
-+	return -EOPNOTSUPP;
- }
- 
- static inline int qlcnic_dcb_get_cee_cfg(struct qlcnic_dcb *dcb)
-@@ -98,7 +98,7 @@ static inline int qlcnic_dcb_get_cee_cfg(struct qlcnic_dcb *dcb)
- 	if (dcb && dcb->ops->get_cee_cfg)
- 		return dcb->ops->get_cee_cfg(dcb);
- 
--	return 0;
-+	return -EOPNOTSUPP;
- }
- 
- static inline void qlcnic_dcb_aen_handler(struct qlcnic_dcb *dcb, void *msg)
+ 		pd = &chinfo[pier].pd_curves[idx];
 -- 
-2.34.1
+2.35.1
 
 
 
