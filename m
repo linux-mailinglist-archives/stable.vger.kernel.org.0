@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 167CB50557C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C413E50509B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241561AbiDRNPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:15:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33604 "EHLO
+        id S238546AbiDRM0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:26:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242381AbiDRNNv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:13:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DE7E3A5CE;
-        Mon, 18 Apr 2022 05:51:05 -0700 (PDT)
+        with ESMTP id S238645AbiDRM0V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6487911156;
+        Mon, 18 Apr 2022 05:20:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEBD761287;
-        Mon, 18 Apr 2022 12:51:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2D6DC385A7;
-        Mon, 18 Apr 2022 12:51:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27060B80ED7;
+        Mon, 18 Apr 2022 12:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68094C385A9;
+        Mon, 18 Apr 2022 12:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286264;
-        bh=NAcl7/luNxaqo7WGAyVzIXBeNq36zhOZfxuDr7K0cYA=;
+        s=korg; t=1650284416;
+        bh=wEqibby7SYUMkpvEnUyHpNDzShDLniGv9sMnw42cP9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MdIiIToDS3bnu3JYhYYBlQ8LUToBnrR701BVCx1aaqB5IpeOXCp5/HdB/vPKeCuT8
-         O3aaIEjZZTXQsg4N/q9LRQBB2pULn8ZTCcAhyr/I6OfzsxsrCoIaamql/WqvTTEakD
-         UED9buqAUOtxkBlpSGeCZm7LGsA0mfxjCW0V0w50=
+        b=ZgvaTJh9+LigtGyg66NAR5yhabTW35bAf39sHgN63vzH2OB30nIIw2FSEHLq5qkY0
+         xynXq7a6lDa/YjdPRKY4k/PU76bxjz76POyPT+6TyFxq+b9NTx+y9TS1rT8IsppjF4
+         BZptR1VGCbR2oYhJPCIoKkaOt5GJsOUTbN+CYMPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 078/284] ALSA: spi: Add check for clk_enable()
-Date:   Mon, 18 Apr 2022 14:10:59 +0200
-Message-Id: <20220418121212.904487633@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 091/219] drm/msm/dsi: Use connector directly in msm_dsi_manager_connector_init()
+Date:   Mon, 18 Apr 2022 14:11:00 +0200
+Message-Id: <20220418121209.149093580@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,92 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit ca1697eb09208f0168d94b88b72f57505339cbe5 ]
+[ Upstream commit 47b7de6b88b962ef339a2427a023d2a23d161654 ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error
-if fails.
+The member 'msm_dsi->connector' isn't assigned until
+msm_dsi_manager_connector_init() returns (see msm_dsi_modeset_init() and
+how it assigns the return value). Therefore this pointer is going to be
+NULL here. Let's use 'connector' which is what was intended.
 
-Fixes: 3568459a5113 ("ALSA: at73c213: manage SSC clock")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220228022839.3547266-1-jiasheng@iscas.ac.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: Sean Paul <seanpaul@chromium.org>
+Fixes: 6d5e78406991 ("drm/msm/dsi: Move dsi panel init into modeset init path")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/478693/
+Link: https://lore.kernel.org/r/20220318000731.2823718-1-swboyd@chromium.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/spi/at73c213.c | 27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_manager.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/spi/at73c213.c b/sound/spi/at73c213.c
-index 1ef52edeb538..3763f06ed784 100644
---- a/sound/spi/at73c213.c
-+++ b/sound/spi/at73c213.c
-@@ -221,7 +221,9 @@ static int snd_at73c213_pcm_open(struct snd_pcm_substream *substream)
- 	runtime->hw = snd_at73c213_playback_hw;
- 	chip->substream = substream;
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+index f19bae475c96..cd7b41b7d518 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+@@ -641,7 +641,7 @@ struct drm_connector *msm_dsi_manager_connector_init(u8 id)
+ 	return connector;
  
--	clk_enable(chip->ssc->clk);
-+	err = clk_enable(chip->ssc->clk);
-+	if (err)
-+		return err;
- 
- 	return 0;
+ fail:
+-	connector->funcs->destroy(msm_dsi->connector);
++	connector->funcs->destroy(connector);
+ 	return ERR_PTR(ret);
  }
-@@ -787,7 +789,9 @@ static int snd_at73c213_chip_init(struct snd_at73c213 *chip)
- 		goto out;
  
- 	/* Enable DAC master clock. */
--	clk_enable(chip->board->dac_clk);
-+	retval = clk_enable(chip->board->dac_clk);
-+	if (retval)
-+		goto out;
- 
- 	/* Initialize at73c213 on SPI bus. */
- 	retval = snd_at73c213_write_reg(chip, DAC_RST, 0x04);
-@@ -900,7 +904,9 @@ static int snd_at73c213_dev_init(struct snd_card *card,
- 	chip->card = card;
- 	chip->irq = -1;
- 
--	clk_enable(chip->ssc->clk);
-+	retval = clk_enable(chip->ssc->clk);
-+	if (retval)
-+		return retval;
- 
- 	retval = request_irq(irq, snd_at73c213_interrupt, 0, "at73c213", chip);
- 	if (retval) {
-@@ -1019,7 +1025,9 @@ static int snd_at73c213_remove(struct spi_device *spi)
- 	int retval;
- 
- 	/* Stop playback. */
--	clk_enable(chip->ssc->clk);
-+	retval = clk_enable(chip->ssc->clk);
-+	if (retval)
-+		goto out;
- 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXDIS));
- 	clk_disable(chip->ssc->clk);
- 
-@@ -1099,9 +1107,16 @@ static int snd_at73c213_resume(struct device *dev)
- {
- 	struct snd_card *card = dev_get_drvdata(dev);
- 	struct snd_at73c213 *chip = card->private_data;
-+	int retval;
- 
--	clk_enable(chip->board->dac_clk);
--	clk_enable(chip->ssc->clk);
-+	retval = clk_enable(chip->board->dac_clk);
-+	if (retval)
-+		return retval;
-+	retval = clk_enable(chip->ssc->clk);
-+	if (retval) {
-+		clk_disable(chip->board->dac_clk);
-+		return retval;
-+	}
- 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXEN));
- 
- 	return 0;
 -- 
-2.34.1
+2.35.1
 
 
 
