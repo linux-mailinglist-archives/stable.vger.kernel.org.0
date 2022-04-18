@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E31E1504E8C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C8D7504E8D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229636AbiDRJ4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 05:56:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35926 "EHLO
+        id S231138AbiDRJ4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 05:56:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231138AbiDRJ4g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:56:36 -0400
+        with ESMTP id S231559AbiDRJ4j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:56:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB46D167CA
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:53:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7987C167CF
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:54:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 748A1611A5
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:53:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14F89C385A9;
-        Mon, 18 Apr 2022 09:53:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 06A41611AB
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:54:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE3F5C385A7;
+        Mon, 18 Apr 2022 09:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650275636;
-        bh=L/9YDvRw+psk7eouXXV6kOeQZ60cXJJQvfN+40y58Dw=;
+        s=korg; t=1650275640;
+        bh=EmgUFJkAlfBQgM1UlTXXTSCdgNFtj2FBA4GALGfYc1o=;
         h=Subject:To:Cc:From:Date:From;
-        b=h0C+JRMkJbDpQ4fNYRfYd1C0THKkKW2tBwyMxUCmliYAGe6LXhGjhkmCRJPuBHML3
-         k5Fyz7ADNdtl4JE6f48R78kuRJSQCYTfUOMEbDH6zfaCk7smsf5a4zJDezXG4bc7YQ
-         6ZfhQOOBzED36yNNNPYPQgvGR1/srAuo+0QuUa04=
-Subject: FAILED: patch "[PATCH] perf tools: Fix segfault accessing sample_id xyarray" failed to apply to 5.10-stable tree
+        b=w6e3B4dJMDdfUk27T34CuLHHZw83ZNKc1eF3k3xmLkcSxJNkVtW/et2bEkJkwbmPk
+         G3/tgnOk/bekX2HOIL0I8NowbylKancyGLA/4VbGHIUmyFC4iFVjwkjAotYOWDH7ii
+         Xik9kbgG/z4gQ/rFLIr8D8QWwqQ3yPr6S+eFvcLM=
+Subject: FAILED: patch "[PATCH] perf tools: Fix segfault accessing sample_id xyarray" failed to apply to 5.15-stable tree
 To:     adrian.hunter@intel.com, acme@redhat.com, irogers@google.com,
         jolsa@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Apr 2022 11:53:52 +0200
-Message-ID: <1650275632197199@kroah.com>
+Date:   Mon, 18 Apr 2022 11:53:57 +0200
+Message-ID: <16502756372552@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
