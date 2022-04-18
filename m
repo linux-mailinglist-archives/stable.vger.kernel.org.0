@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D57CB50587F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC335058BB
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:09:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243696AbiDROEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:04:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57254 "EHLO
+        id S245060AbiDROG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:06:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245384AbiDROCv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:02:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A995194;
-        Mon, 18 Apr 2022 06:09:46 -0700 (PDT)
+        with ESMTP id S245685AbiDROFm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:05:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A47235861;
+        Mon, 18 Apr 2022 06:10:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 964F060EFE;
-        Mon, 18 Apr 2022 13:09:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8810DC385A1;
-        Mon, 18 Apr 2022 13:09:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1328F60F17;
+        Mon, 18 Apr 2022 13:09:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03072C385A7;
+        Mon, 18 Apr 2022 13:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287370;
-        bh=i4LvtJMYs5t9UOhjaHJspxXRS2kYwM/x4i+LuKPkDHQ=;
+        s=korg; t=1650287376;
+        bh=JNB0ox2IAOZfzRXVAXo4eWspjGDe62bw5yVCsUBIspQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbSYX9nHhKN5IjOcD1ItVKkPOYsmguiT5J1KqmYr4G/RQ0nX8xV+fHSD+2RjRgMR9
-         W3+zhvLK9Ns8ZJoZ3wMyC7FAnp167gNERDfKXC67/6oF24wdx8hvNw6z8WFTTny3hS
-         +8Llk1T+9DPMjQzlk/gQnoJjpUWoIEgt5o124sxs=
+        b=DHmuDxVA5l2gewt1UlfhNnumKlyJpnNOcRHIYF3mpyC9VRLG/lLnOMAngKPWkwEMb
+         /XK+SOn/MAkSTs4oY1/8b/M3tieM1Q1wPPqouT2RRpQMI17v2IkFLT/+UYZvrfGEyD
+         KWZhJ37cbWho5A00jFiPOxE8/72qa2H9GMnt/eEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Daniel=20Gonz=C3=A1lez=20Cabanelas?= <dgcbueu@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 141/218] ASoC: soc-core: skip zero num_dai component in searching dai name
-Date:   Mon, 18 Apr 2022 14:13:27 +0200
-Message-Id: <20220418121203.622609235@linuxfoundation.org>
+Subject: [PATCH 4.9 142/218] media: cx88-mpeg: clear interrupt status register before streaming video
+Date:   Mon, 18 Apr 2022 14:13:28 +0200
+Message-Id: <20220418121203.653850945@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,45 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Daniel González Cabanelas <dgcbueu@gmail.com>
 
-[ Upstream commit f7d344a2bd5ec81fbd1ce76928fd059e57ec9bea ]
+[ Upstream commit 56cb61f70e547e1b0cdfe6ff5a1f1ce6242e6d96 ]
 
-In the case like dmaengine which's not a dai but as a component, the
-num_dai is zero, dmaengine component has the same component_of_node
-as cpu dai, when cpu dai component is not ready, but dmaengine component
-is ready, try to get cpu dai name, the snd_soc_get_dai_name() return
--EINVAL, not -EPROBE_DEFER, that cause below error:
+Some cx88 video cards may have transport stream status interrupts set
+to 1 from cold start, causing errors like this:
 
-asoc-simple-card <card name>: parse error -22
-asoc-simple-card: probe of <card name> failed with error -22
+  cx88xx: cx88_print_irqbits: core:irq mpeg  [0x100000] ts_err?*
+  cx8802: cx8802_mpeg_irq: mpeg:general errors: 0x00100000
 
-The sound card failed to probe.
+According to CX2388x datasheet, the interrupt status register should be
+cleared before enabling IRQs to stream video.
 
-So this patch fixes the issue above by skipping the zero num_dai
-component in searching dai name.
+Fix it by clearing the Transport Stream Interrupt Status register.
 
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1644491952-7457-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Daniel González Cabanelas <dgcbueu@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/pci/cx88/cx88-mpeg.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 0344d4423167..81c3aa167038 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3799,7 +3799,7 @@ static int snd_soc_get_dai_name(struct of_phandle_args *args,
- 		if (!component_of_node && pos->dev->parent)
- 			component_of_node = pos->dev->parent->of_node;
+diff --git a/drivers/media/pci/cx88/cx88-mpeg.c b/drivers/media/pci/cx88/cx88-mpeg.c
+index 245357adbc25..37d4512f3eb8 100644
+--- a/drivers/media/pci/cx88/cx88-mpeg.c
++++ b/drivers/media/pci/cx88/cx88-mpeg.c
+@@ -175,6 +175,9 @@ int cx8802_start_dma(struct cx8802_dev    *dev,
+ 	cx_write(MO_TS_GPCNTRL, GP_COUNT_CONTROL_RESET);
+ 	q->count = 0;
  
--		if (component_of_node != args->np)
-+		if (component_of_node != args->np || !pos->num_dai)
- 			continue;
- 
- 		if (pos->driver->of_xlate_dai_name) {
++	/* clear interrupt status register */
++	cx_write(MO_TS_INTSTAT,  0x1f1111);
++
+ 	/* enable irqs */
+ 	dprintk( 1, "setting the interrupt mask\n" );
+ 	cx_set(MO_PCI_INTMSK, core->pci_irqmask | PCI_INT_TSINT);
 -- 
 2.34.1
 
