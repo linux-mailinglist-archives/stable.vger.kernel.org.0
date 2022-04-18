@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5727E5053CA
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26063505854
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239064AbiDRNBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:01:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32930 "EHLO
+        id S244085AbiDROAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:00:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242336AbiDRM7t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:49 -0400
+        with ESMTP id S244473AbiDRN5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 183AB2019E;
-        Mon, 18 Apr 2022 05:40:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26AED2182A;
+        Mon, 18 Apr 2022 06:07:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A807760FB6;
-        Mon, 18 Apr 2022 12:40:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A115DC385A7;
-        Mon, 18 Apr 2022 12:40:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4F8860B42;
+        Mon, 18 Apr 2022 13:07:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A915FC385A7;
+        Mon, 18 Apr 2022 13:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285651;
-        bh=+c2FCMYkIhAQb6pTpNufiCaP0nYl95lV9Tb0t+9Od+o=;
+        s=korg; t=1650287256;
+        bh=vtTbVCi71M/vupRdG1i2l/f6E5cOBsbYNAh9OHVODNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FGfDPFHK0DOuH+MQyJNuITiZvG57XrwhsVtNJNan7tNQxyXKDKNnFEjKAPMfmws1S
-         s9HnDMkUqWRZIE5PTNI5iJbkCJD3GcyN2GCxMAq1cTGq6VsMp8bfCv+ezI9nL0Vf9f
-         ckYgg+W+v1AzXSjtFf8cNhHYjsNIK1VIPrTNKOX8=
+        b=CrJrNWCKyj40VYfvZiPVHq2v8jOCpAu1Ih29J2T5S97QBAe8itdDT7kjhk1W1Nz+P
+         syAxgiFLNjEHEZmJKCaLQO2yQ+fGtQYZkFktLBk79Hn967W+fXtw0lUFQ9GFEWm8QO
+         +fw4+OLt+Vdk1ttAcbBvkWxJJERHufh2p9kv0nyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Tianci Yin <tianci.yin@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/105] drm/amdgpu/vcn: improve vcn dpg stop procedure
+Subject: [PATCH 4.9 105/218] iio: adc: Add check for devm_request_threaded_irq
 Date:   Mon, 18 Apr 2022 14:12:51 +0200
-Message-Id: <20220418121147.873655891@linuxfoundation.org>
+Message-Id: <20220418121202.605159703@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianci Yin <tianci.yin@amd.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 6ea239adc2a712eb318f04f5c29b018ba65ea38a ]
+[ Upstream commit b30537a4cedcacf0ade2f33ebb7610178ed1e7d7 ]
 
-Prior to disabling dpg, VCN need unpausing dpg mode, or VCN will hang in
-S3 resuming.
+As the potential failure of the devm_request_threaded_irq(),
+it should be better to check the return value and return
+error if fails.
 
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Signed-off-by: Tianci Yin <tianci.yin@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: fa659a40b80b ("iio: adc: twl6030-gpadc: Use devm_* API family")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220224062849.3280966-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/iio/adc/twl6030-gpadc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-index 2099f6ebd833..bdb8e596bda6 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-@@ -1429,8 +1429,11 @@ static int vcn_v3_0_start_sriov(struct amdgpu_device *adev)
+diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
+index becbb0aef232..5075f594d97f 100644
+--- a/drivers/iio/adc/twl6030-gpadc.c
++++ b/drivers/iio/adc/twl6030-gpadc.c
+@@ -927,6 +927,8 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
+ 	ret = devm_request_threaded_irq(dev, irq, NULL,
+ 				twl6030_gpadc_irq_handler,
+ 				IRQF_ONESHOT, "twl6030_gpadc", indio_dev);
++	if (ret)
++		return ret;
  
- static int vcn_v3_0_stop_dpg_mode(struct amdgpu_device *adev, int inst_idx)
- {
-+	struct dpg_pause_state state = {.fw_based = VCN_DPG_STATE__UNPAUSE};
- 	uint32_t tmp;
- 
-+	vcn_v3_0_pause_dpg_mode(adev, 0, &state);
-+
- 	/* Wait for power status to be 1 */
- 	SOC15_WAIT_ON_RREG(VCN, inst_idx, mmUVD_POWER_STATUS, 1,
- 		UVD_POWER_STATUS__UVD_POWER_STATUS_MASK);
+ 	ret = twl6030_gpadc_enable_irq(TWL6030_GPADC_RT_SW1_EOC_MASK);
+ 	if (ret < 0) {
 -- 
-2.35.1
+2.34.1
 
 
 
