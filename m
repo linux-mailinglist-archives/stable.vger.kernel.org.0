@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 898035056CA
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA95F505322
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243135AbiDRNjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:39:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34702 "EHLO
+        id S238192AbiDRMzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244085AbiDRNiz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:38:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8380286ED;
-        Mon, 18 Apr 2022 05:58:33 -0700 (PDT)
+        with ESMTP id S240238AbiDRMzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2409EC;
+        Mon, 18 Apr 2022 05:35:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDCBD60FD9;
-        Mon, 18 Apr 2022 12:58:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB0DAC385A1;
-        Mon, 18 Apr 2022 12:58:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DDA4B80EC0;
+        Mon, 18 Apr 2022 12:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB003C385A1;
+        Mon, 18 Apr 2022 12:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286712;
-        bh=OMEkBi2Yh78hs1KZHQ0dps6++JvaP+vknaTQMkvUoIk=;
+        s=korg; t=1650285356;
+        bh=VI9Foz3En1CUBOWJ92LcoqS4sV5QPZbjlBR3ximDqko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Flef61+LDDj+kZV+O9VVJ3COzCPJu/JzKIgJk6WLT8P+U5wCffQ3xrBX2myWh3q26
-         VFfcGH3NegfKH9BaXNaI57U9oRybRfYNPwPumCRGtXXKswkTRQIaYBBVrZiR5BW2gd
-         bonuRX7L+3N7JwD507rkcINT1kmv1MvI0fWkTrZs=
+        b=Heh54kFaJglD2ji8CYWXhnRyCxBMbbS8mttCKpEMlviAWeYKQeXMthl/BloL5kqyu
+         +xUUAEQsMh0sX+Jm90x1Cld5eE2omKs2FLWTwjUbfVIsR3VQh6GXrdPEnBL/5eMsUs
+         S6cMkYL3ysGEvnPtlvsU/QOpwp0xD2e/TIEr2SAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 222/284] MIPS: fix fortify panic when copying asm exception handlers
+        Duoming Zhou <duoming@zju.edu.cn>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.15 183/189] ax25: fix reference count leaks of ax25_dev
 Date:   Mon, 18 Apr 2022 14:13:23 +0200
-Message-Id: <20220418121218.024668063@linuxfoundation.org>
+Message-Id: <20220418121208.415056015@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,99 +55,237 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit d17b66417308996e7e64b270a3c7f3c1fbd4cfc8 ]
+commit 87563a043cef044fed5db7967a75741cc16ad2b1 upstream.
 
-With KCFLAGS="-O3", I was able to trigger a fortify-source
-memcpy() overflow panic on set_vi_srs_handler().
-Although O3 level is not supported in the mainline, under some
-conditions that may've happened with any optimization settings,
-it's just a matter of inlining luck. The panic itself is correct,
-more precisely, 50/50 false-positive and not at the same time.
->From the one side, no real overflow happens. Exception handler
-defined in asm just gets copied to some reserved places in the
-memory.
-But the reason behind is that C code refers to that exception
-handler declares it as `char`, i.e. something of 1 byte length.
-It's obvious that the asm function itself is way more than 1 byte,
-so fortify logics thought we are going to past the symbol declared.
-The standard way to refer to asm symbols from C code which is not
-supposed to be called from C is to declare them as
-`extern const u8[]`. This is fully correct from any point of view,
-as any code itself is just a bunch of bytes (including 0 as it is
-for syms like _stext/_etext/etc.), and the exact size is not known
-at the moment of compilation.
-Adjust the type of the except_vec_vi_*() and related variables.
-Make set_handler() take `const` as a second argument to avoid
-cast-away warnings and give a little more room for optimization.
+The previous commit d01ffb9eee4a ("ax25: add refcount in ax25_dev
+to avoid UAF bugs") introduces refcount into ax25_dev, but there
+are reference leak paths in ax25_ctl_ioctl(), ax25_fwd_ioctl(),
+ax25_rt_add(), ax25_rt_del() and ax25_rt_opt().
 
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch uses ax25_dev_put() and adjusts the position of
+ax25_addr_ax25dev() to fix reference cout leaks of ax25_dev.
+
+Fixes: d01ffb9eee4a ("ax25: add refcount in ax25_dev to avoid UAF bugs")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220203150811.42256-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[OP: backport to 5.15: adjust context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/setup.h |  2 +-
- arch/mips/kernel/traps.c      | 22 +++++++++++-----------
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ include/net/ax25.h    |    8 +++++---
+ net/ax25/af_ax25.c    |   12 ++++++++----
+ net/ax25/ax25_dev.c   |   24 +++++++++++++++++-------
+ net/ax25/ax25_route.c |   16 +++++++++++-----
+ 4 files changed, 41 insertions(+), 19 deletions(-)
 
-diff --git a/arch/mips/include/asm/setup.h b/arch/mips/include/asm/setup.h
-index d49d247d48a1..d48a5f18a267 100644
---- a/arch/mips/include/asm/setup.h
-+++ b/arch/mips/include/asm/setup.h
-@@ -14,7 +14,7 @@ static inline void setup_8250_early_printk_port(unsigned long base,
- 	unsigned int reg_shift, unsigned int timeout) {}
- #endif
- 
--extern void set_handler(unsigned long offset, void *addr, unsigned long len);
-+void set_handler(unsigned long offset, const void *addr, unsigned long len);
- extern void set_uncached_handler(unsigned long offset, void *addr, unsigned long len);
- 
- typedef void (*vi_handler_t)(void);
-diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
-index 4a23d89e251c..abbc64788008 100644
---- a/arch/mips/kernel/traps.c
-+++ b/arch/mips/kernel/traps.c
-@@ -2017,19 +2017,19 @@ static void *set_vi_srs_handler(int n, vi_handler_t addr, int srs)
- 		 * If no shadow set is selected then use the default handler
- 		 * that does normal register saving and standard interrupt exit
- 		 */
--		extern char except_vec_vi, except_vec_vi_lui;
--		extern char except_vec_vi_ori, except_vec_vi_end;
--		extern char rollback_except_vec_vi;
--		char *vec_start = using_rollback_handler() ?
--			&rollback_except_vec_vi : &except_vec_vi;
-+		extern const u8 except_vec_vi[], except_vec_vi_lui[];
-+		extern const u8 except_vec_vi_ori[], except_vec_vi_end[];
-+		extern const u8 rollback_except_vec_vi[];
-+		const u8 *vec_start = using_rollback_handler() ?
-+				      rollback_except_vec_vi : except_vec_vi;
- #if defined(CONFIG_CPU_MICROMIPS) || defined(CONFIG_CPU_BIG_ENDIAN)
--		const int lui_offset = &except_vec_vi_lui - vec_start + 2;
--		const int ori_offset = &except_vec_vi_ori - vec_start + 2;
-+		const int lui_offset = except_vec_vi_lui - vec_start + 2;
-+		const int ori_offset = except_vec_vi_ori - vec_start + 2;
- #else
--		const int lui_offset = &except_vec_vi_lui - vec_start;
--		const int ori_offset = &except_vec_vi_ori - vec_start;
-+		const int lui_offset = except_vec_vi_lui - vec_start;
-+		const int ori_offset = except_vec_vi_ori - vec_start;
- #endif
--		const int handler_len = &except_vec_vi_end - vec_start;
-+		const int handler_len = except_vec_vi_end - vec_start;
- 
- 		if (handler_len > VECTORSPACING) {
- 			/*
-@@ -2249,7 +2249,7 @@ void per_cpu_trap_init(bool is_boot_cpu)
+--- a/include/net/ax25.h
++++ b/include/net/ax25.h
+@@ -291,10 +291,12 @@ static __inline__ void ax25_cb_put(ax25_
+ 	}
  }
  
- /* Install CPU exception handler */
--void set_handler(unsigned long offset, void *addr, unsigned long size)
-+void set_handler(unsigned long offset, const void *addr, unsigned long size)
+-#define ax25_dev_hold(__ax25_dev) \
+-	refcount_inc(&((__ax25_dev)->refcount))
++static inline void ax25_dev_hold(ax25_dev *ax25_dev)
++{
++	refcount_inc(&ax25_dev->refcount);
++}
+ 
+-static __inline__ void ax25_dev_put(ax25_dev *ax25_dev)
++static inline void ax25_dev_put(ax25_dev *ax25_dev)
  {
- #ifdef CONFIG_CPU_MICROMIPS
- 	memcpy((void *)(ebase + offset), ((unsigned char *)addr - 1), size);
--- 
-2.35.1
-
+ 	if (refcount_dec_and_test(&ax25_dev->refcount)) {
+ 		kfree(ax25_dev);
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -366,21 +366,25 @@ static int ax25_ctl_ioctl(const unsigned
+ 	if (copy_from_user(&ax25_ctl, arg, sizeof(ax25_ctl)))
+ 		return -EFAULT;
+ 
+-	if ((ax25_dev = ax25_addr_ax25dev(&ax25_ctl.port_addr)) == NULL)
+-		return -ENODEV;
+-
+ 	if (ax25_ctl.digi_count > AX25_MAX_DIGIS)
+ 		return -EINVAL;
+ 
+ 	if (ax25_ctl.arg > ULONG_MAX / HZ && ax25_ctl.cmd != AX25_KILL)
+ 		return -EINVAL;
+ 
++	ax25_dev = ax25_addr_ax25dev(&ax25_ctl.port_addr);
++	if (!ax25_dev)
++		return -ENODEV;
++
+ 	digi.ndigi = ax25_ctl.digi_count;
+ 	for (k = 0; k < digi.ndigi; k++)
+ 		digi.calls[k] = ax25_ctl.digi_addr[k];
+ 
+-	if ((ax25 = ax25_find_cb(&ax25_ctl.source_addr, &ax25_ctl.dest_addr, &digi, ax25_dev->dev)) == NULL)
++	ax25 = ax25_find_cb(&ax25_ctl.source_addr, &ax25_ctl.dest_addr, &digi, ax25_dev->dev);
++	if (!ax25) {
++		ax25_dev_put(ax25_dev);
+ 		return -ENOTCONN;
++	}
+ 
+ 	switch (ax25_ctl.cmd) {
+ 	case AX25_KILL:
+--- a/net/ax25/ax25_dev.c
++++ b/net/ax25/ax25_dev.c
+@@ -85,8 +85,8 @@ void ax25_dev_device_up(struct net_devic
+ 	spin_lock_bh(&ax25_dev_lock);
+ 	ax25_dev->next = ax25_dev_list;
+ 	ax25_dev_list  = ax25_dev;
+-	ax25_dev_hold(ax25_dev);
+ 	spin_unlock_bh(&ax25_dev_lock);
++	ax25_dev_hold(ax25_dev);
+ 
+ 	ax25_register_dev_sysctl(ax25_dev);
+ }
+@@ -115,8 +115,8 @@ void ax25_dev_device_down(struct net_dev
+ 
+ 	if ((s = ax25_dev_list) == ax25_dev) {
+ 		ax25_dev_list = s->next;
+-		ax25_dev_put(ax25_dev);
+ 		spin_unlock_bh(&ax25_dev_lock);
++		ax25_dev_put(ax25_dev);
+ 		dev->ax25_ptr = NULL;
+ 		dev_put(dev);
+ 		ax25_dev_put(ax25_dev);
+@@ -126,8 +126,8 @@ void ax25_dev_device_down(struct net_dev
+ 	while (s != NULL && s->next != NULL) {
+ 		if (s->next == ax25_dev) {
+ 			s->next = ax25_dev->next;
+-			ax25_dev_put(ax25_dev);
+ 			spin_unlock_bh(&ax25_dev_lock);
++			ax25_dev_put(ax25_dev);
+ 			dev->ax25_ptr = NULL;
+ 			dev_put(dev);
+ 			ax25_dev_put(ax25_dev);
+@@ -150,25 +150,35 @@ int ax25_fwd_ioctl(unsigned int cmd, str
+ 
+ 	switch (cmd) {
+ 	case SIOCAX25ADDFWD:
+-		if ((fwd_dev = ax25_addr_ax25dev(&fwd->port_to)) == NULL)
++		fwd_dev = ax25_addr_ax25dev(&fwd->port_to);
++		if (!fwd_dev) {
++			ax25_dev_put(ax25_dev);
+ 			return -EINVAL;
+-		if (ax25_dev->forward != NULL)
++		}
++		if (ax25_dev->forward) {
++			ax25_dev_put(fwd_dev);
++			ax25_dev_put(ax25_dev);
+ 			return -EINVAL;
++		}
+ 		ax25_dev->forward = fwd_dev->dev;
+ 		ax25_dev_put(fwd_dev);
++		ax25_dev_put(ax25_dev);
+ 		break;
+ 
+ 	case SIOCAX25DELFWD:
+-		if (ax25_dev->forward == NULL)
++		if (!ax25_dev->forward) {
++			ax25_dev_put(ax25_dev);
+ 			return -EINVAL;
++		}
+ 		ax25_dev->forward = NULL;
++		ax25_dev_put(ax25_dev);
+ 		break;
+ 
+ 	default:
++		ax25_dev_put(ax25_dev);
+ 		return -EINVAL;
+ 	}
+ 
+-	ax25_dev_put(ax25_dev);
+ 	return 0;
+ }
+ 
+--- a/net/ax25/ax25_route.c
++++ b/net/ax25/ax25_route.c
+@@ -75,11 +75,13 @@ static int __must_check ax25_rt_add(stru
+ 	ax25_dev *ax25_dev;
+ 	int i;
+ 
+-	if ((ax25_dev = ax25_addr_ax25dev(&route->port_addr)) == NULL)
+-		return -EINVAL;
+ 	if (route->digi_count > AX25_MAX_DIGIS)
+ 		return -EINVAL;
+ 
++	ax25_dev = ax25_addr_ax25dev(&route->port_addr);
++	if (!ax25_dev)
++		return -EINVAL;
++
+ 	write_lock_bh(&ax25_route_lock);
+ 
+ 	ax25_rt = ax25_route_list;
+@@ -91,6 +93,7 @@ static int __must_check ax25_rt_add(stru
+ 			if (route->digi_count != 0) {
+ 				if ((ax25_rt->digipeat = kmalloc(sizeof(ax25_digi), GFP_ATOMIC)) == NULL) {
+ 					write_unlock_bh(&ax25_route_lock);
++					ax25_dev_put(ax25_dev);
+ 					return -ENOMEM;
+ 				}
+ 				ax25_rt->digipeat->lastrepeat = -1;
+@@ -101,6 +104,7 @@ static int __must_check ax25_rt_add(stru
+ 				}
+ 			}
+ 			write_unlock_bh(&ax25_route_lock);
++			ax25_dev_put(ax25_dev);
+ 			return 0;
+ 		}
+ 		ax25_rt = ax25_rt->next;
+@@ -108,6 +112,7 @@ static int __must_check ax25_rt_add(stru
+ 
+ 	if ((ax25_rt = kmalloc(sizeof(ax25_route), GFP_ATOMIC)) == NULL) {
+ 		write_unlock_bh(&ax25_route_lock);
++		ax25_dev_put(ax25_dev);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -116,11 +121,11 @@ static int __must_check ax25_rt_add(stru
+ 	ax25_rt->dev          = ax25_dev->dev;
+ 	ax25_rt->digipeat     = NULL;
+ 	ax25_rt->ip_mode      = ' ';
+-	ax25_dev_put(ax25_dev);
+ 	if (route->digi_count != 0) {
+ 		if ((ax25_rt->digipeat = kmalloc(sizeof(ax25_digi), GFP_ATOMIC)) == NULL) {
+ 			write_unlock_bh(&ax25_route_lock);
+ 			kfree(ax25_rt);
++			ax25_dev_put(ax25_dev);
+ 			return -ENOMEM;
+ 		}
+ 		ax25_rt->digipeat->lastrepeat = -1;
+@@ -133,6 +138,7 @@ static int __must_check ax25_rt_add(stru
+ 	ax25_rt->next   = ax25_route_list;
+ 	ax25_route_list = ax25_rt;
+ 	write_unlock_bh(&ax25_route_lock);
++	ax25_dev_put(ax25_dev);
+ 
+ 	return 0;
+ }
+@@ -173,8 +179,8 @@ static int ax25_rt_del(struct ax25_route
+ 			}
+ 		}
+ 	}
+-	ax25_dev_put(ax25_dev);
+ 	write_unlock_bh(&ax25_route_lock);
++	ax25_dev_put(ax25_dev);
+ 
+ 	return 0;
+ }
+@@ -216,8 +222,8 @@ static int ax25_rt_opt(struct ax25_route
+ 	}
+ 
+ out:
+-	ax25_dev_put(ax25_dev);
+ 	write_unlock_bh(&ax25_route_lock);
++	ax25_dev_put(ax25_dev);
+ 	return err;
+ }
+ 
 
 
