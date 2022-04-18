@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB70850550F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 965215051AA
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:34:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242766AbiDRNOk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:14:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53246 "EHLO
+        id S239102AbiDRMhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:37:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240920AbiDRNK4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:56 -0400
+        with ESMTP id S239318AbiDRMft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:35:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24AF63982F;
-        Mon, 18 Apr 2022 05:50:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD1F721E23;
+        Mon, 18 Apr 2022 05:27:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80D236124D;
-        Mon, 18 Apr 2022 12:50:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7090BC385A7;
-        Mon, 18 Apr 2022 12:50:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B36E860FD6;
+        Mon, 18 Apr 2022 12:27:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA84FC385A9;
+        Mon, 18 Apr 2022 12:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286230;
-        bh=Apzs0Kbg3O1yu1X8bywMUmaib7PZAYfI8Xg4iJER7UA=;
+        s=korg; t=1650284855;
+        bh=yhqizx3gca0zFUFeB4WDKfSfCi/Dfv4/i+Tzx8VhRRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHw/ui3b2YGrDgBZGO8VW21SKHhHgFjgVBqpVTfeGflRYk2d07NkpTN3PqFsF9P2h
-         8/sYoghzZObUwGTJ4RIj917uykmTeRK0kZTAqigWrVtLCsEips74VfPFwl8EmPyU8U
-         rRkTBWZvwJiWMuScEwDATQrcOnyrO0l5fhGxHt2s=
+        b=z/o06OYVJFr+f5jHZJRQ1VegFWBpWGP57i1PH3jC6JODjA41IAuumeF4XNZkKTVZB
+         rPeD4sB3v64CBhdQzivvCjHO/cmLda2g4bwbi1T8B98CMx0n39H5fjFhkXq0ZOYt+f
+         OdBwrSWqj7s6qb4RZxIkbsYWVfCaRZ6AnomC0rRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bharata B Rao <bharata@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 068/284] sched/debug: Remove mpol_get/put and task_lock/unlock from sched_show_numa
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 029/189] ALSA: cs5535audio: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:10:49 +0200
-Message-Id: <20220418121212.623312922@linuxfoundation.org>
+Message-Id: <20220418121201.342062813@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharata B Rao <bharata@amd.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 28c988c3ec29db74a1dda631b18785958d57df4f ]
+commit 2a56314798e0227cf51e3d1d184a419dc07bc173 upstream.
 
-The older format of /proc/pid/sched printed home node info which
-required the mempolicy and task lock around mpol_get(). However
-the format has changed since then and there is no need for
-sched_show_numa() any more to have mempolicy argument,
-asssociated mpol_get/put and task_lock/unlock. Remove them.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-Fixes: 397f2378f1361 ("sched/numa: Fix numa balancing stats in /proc/pid/sched")
-Signed-off-by: Bharata B Rao <bharata@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Link: https://lore.kernel.org/r/20220118050515.2973-1-bharata@amd.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5eba4c646dfe ("ALSA: cs5535audio: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-12-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/debug.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ sound/pci/cs5535audio/cs5535audio.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
-index 187c04a34ba1..053c480f5382 100644
---- a/kernel/sched/debug.c
-+++ b/kernel/sched/debug.c
-@@ -899,25 +899,15 @@ void print_numa_stats(struct seq_file *m, int node, unsigned long tsf,
- static void sched_show_numa(struct task_struct *p, struct seq_file *m)
- {
- #ifdef CONFIG_NUMA_BALANCING
--	struct mempolicy *pol;
--
- 	if (p->mm)
- 		P(mm->numa_scan_seq);
- 
--	task_lock(p);
--	pol = p->mempolicy;
--	if (pol && !(pol->flags & MPOL_F_MORON))
--		pol = NULL;
--	mpol_get(pol);
--	task_unlock(p);
--
- 	P(numa_pages_migrated);
- 	P(numa_preferred_nid);
- 	P(total_numa_faults);
- 	SEQ_printf(m, "current_node=%d, numa_group_id=%d\n",
- 			task_node(p), task_numa_group_id(p));
- 	show_numa_stats(p, m);
--	mpol_put(pol);
- #endif
+diff --git a/sound/pci/cs5535audio/cs5535audio.c b/sound/pci/cs5535audio/cs5535audio.c
+index 499fa0148f9a..440b8f9b40c9 100644
+--- a/sound/pci/cs5535audio/cs5535audio.c
++++ b/sound/pci/cs5535audio/cs5535audio.c
+@@ -281,8 +281,8 @@ static int snd_cs5535audio_create(struct snd_card *card,
+ 	return 0;
  }
  
+-static int snd_cs5535audio_probe(struct pci_dev *pci,
+-				 const struct pci_device_id *pci_id)
++static int __snd_cs5535audio_probe(struct pci_dev *pci,
++				   const struct pci_device_id *pci_id)
+ {
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -331,6 +331,12 @@ static int snd_cs5535audio_probe(struct pci_dev *pci,
+ 	return 0;
+ }
+ 
++static int snd_cs5535audio_probe(struct pci_dev *pci,
++				 const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_cs5535audio_probe(pci, pci_id));
++}
++
+ static struct pci_driver cs5535audio_driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = snd_cs5535audio_ids,
 -- 
-2.34.1
+2.35.2
 
 
 
