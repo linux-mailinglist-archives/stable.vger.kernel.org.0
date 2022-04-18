@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D7B5505601
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 789345057CC
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241751AbiDRNbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:31:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41296 "EHLO
+        id S244382AbiDRN46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244315AbiDRNaT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85FD1DFDD;
-        Mon, 18 Apr 2022 05:54:21 -0700 (PDT)
+        with ESMTP id S244615AbiDRNz4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:55:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C603644E;
+        Mon, 18 Apr 2022 06:05:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA806B80E44;
-        Mon, 18 Apr 2022 12:54:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24496C385A7;
-        Mon, 18 Apr 2022 12:54:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D389E60B41;
+        Mon, 18 Apr 2022 13:05:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB252C385A7;
+        Mon, 18 Apr 2022 13:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286458;
-        bh=VlG41S13f5/y/g0ypMqTWN26Ydn3eIe8IP0Nqf/LCcI=;
+        s=korg; t=1650287100;
+        bh=i+JI9UrSlJ9lR9oXzCCtQFELKsXp9qJxUUkEM8ZK+xY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uf4epUu8vfRqzyLEgp6lbRVan4jGV6D8Mfbr7KLT/osp072aWdvD6HvcJGZp4zRrz
-         CwEU3lpsRlZMkfHb0/syBZ6HwKZ0fUZaGTtIrva2vDqAPJujIORn2YzuHjuJBw8jo7
-         iFm+rxe48AlYSBy+hAh5LaWsnObEsEm1sbU4sUDg=
+        b=d/Q9gyZHLDzngseVrE3TNHNri6p6fnfjspNPQvWDw4LgSkCvLguUzuDcMr+SpaoHM
+         atMK33vf1cCtrw9uK9asGs9BEAofyiznYanx9HYkL5C+MWzpcmmzTjF5Sa44ZQjfpq
+         Nka/hJfXKsahaNrNhawQQlbFFz9Zy084e2phFC6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 142/284] pinctrl: nomadik: Add missing of_node_put() in nmk_pinctrl_probe
+        stable@vger.kernel.org, Pavel Kubelun <be.dissent@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Christian Lamparter <chunkeey@gmail.com>
+Subject: [PATCH 4.9 057/218] ARM: dts: qcom: ipq4019: fix sleep clock
 Date:   Mon, 18 Apr 2022 14:12:03 +0200
-Message-Id: <20220418121215.533813754@linuxfoundation.org>
+Message-Id: <20220418121201.244491447@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Pavel Kubelun <be.dissent@gmail.com>
 
-[ Upstream commit c09ac191b1f97cfa06f394dbfd7a5db07986cefc ]
+[ Upstream commit 3d7e7980993d2c1ae42d3d314040fc2de6a9c45f ]
 
-This node pointer is returned by of_parse_phandle() with refcount
-incremented in this function. Calling of_node_put() to avoid
-the refcount leak.
+It seems like sleep_clk was copied from ipq806x.
+Fix ipq40xx sleep_clk to the value QSDK defines.
 
-Fixes: 32e67eee670e ("pinctrl: nomadik: Allow prcm_base to be extracted from Device Tree")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220307115116.25316-1-linmq006@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://source.codeaurora.org/quic/qsdk/oss/kernel/linux-msm/commit/?id=d92ec59973484acc86dd24b67f10f8911b4b4b7d
+Link: https://patchwork.kernel.org/comment/22721613/
+Fixes: bec6ba4cdf2a ("qcom: ipq4019: Add basic board/dts support for IPQ4019 SoC")
+Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org> (clock-output-names)
+Signed-off-by: Pavel Kubelun <be.dissent@gmail.com>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com> (removed clock rename)
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211220170352.34591-1-chunkeey@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/nomadik/pinctrl-nomadik.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-ipq4019.dtsi | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/nomadik/pinctrl-nomadik.c b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
-index a53f1a9b1ed2..69c702b366bc 100644
---- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
-+++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
-@@ -1916,8 +1916,10 @@ static int nmk_pinctrl_probe(struct platform_device *pdev)
- 	}
- 
- 	prcm_np = of_parse_phandle(np, "prcm", 0);
--	if (prcm_np)
-+	if (prcm_np) {
- 		npct->prcm_base = of_iomap(prcm_np, 0);
-+		of_node_put(prcm_np);
-+	}
- 	if (!npct->prcm_base) {
- 		if (version == PINCTRL_NMK_STN8815) {
- 			dev_info(&pdev->dev,
+diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+index 5ee84e3cb3e9..1fd63f485d3b 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+@@ -93,7 +93,8 @@
+ 	clocks {
+ 		sleep_clk: sleep_clk {
+ 			compatible = "fixed-clock";
+-			clock-frequency = <32768>;
++			clock-frequency = <32000>;
++			clock-output-names = "gcc_sleep_clk_src";
+ 			#clock-cells = <0>;
+ 		};
+ 	};
 -- 
 2.34.1
 
