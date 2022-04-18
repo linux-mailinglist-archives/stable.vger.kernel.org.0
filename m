@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D3F750540F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13DDD50532D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238858AbiDRNDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:03:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32984 "EHLO
+        id S240077AbiDRMz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241326AbiDRNC7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A30AE26AEF;
-        Mon, 18 Apr 2022 05:43:10 -0700 (PDT)
+        with ESMTP id S240335AbiDRMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9299AE5C;
+        Mon, 18 Apr 2022 05:36:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 247D06101A;
-        Mon, 18 Apr 2022 12:43:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33EA3C385A7;
-        Mon, 18 Apr 2022 12:43:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BD33B80EDB;
+        Mon, 18 Apr 2022 12:36:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D77AAC385A8;
+        Mon, 18 Apr 2022 12:36:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285789;
-        bh=5//ejySP/m8Za6V1mX4cfBY+Hy8DJlrANs1FjbVt1rg=;
+        s=korg; t=1650285387;
+        bh=pNqvtigH1UvR7xszdOOR5JgxaJmqI6f+QEhS7rm9qFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x7TzXAsP2Pi8M7amluLUEJ51bkoGjHBFpn09XU2boO4B6Vb0SMlHvjes1ubsJP2Gy
-         yb58075lSXrpPBQuZJ4Wuo9vQSXw9j/4rFMh7qSwIfxRBxIP6roakQFf7yZHYPBae6
-         2JiIV3brx4A+RcAvs5ZkZC3NEGI9sbwLaW23ODwU=
+        b=tXizCNydTmbm7zf1XtmwQq6/3Ti75WSXh75mxKvI+n2+lvJoOXmieZ9oAXLYzo92/
+         bE/xmgn8krad5iJ8jf35Rpi932a0Q794Nl4Kj6jzFmhPp9SWem11oK8Ar0m26/jPw2
+         GyPMyy9yOhS6lucdZcsIHvYoYNNNw60j7kAQBLNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alvin Lee <Alvin.Lee2@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Alex Hung <alex.hung@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/63] drm/amd/display: fix audio format not updated after edid updated
+        stable@vger.kernel.org, Dongjin Yang <dj76.yang@samsung.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.15 174/189] dt-bindings: net: snps: remove duplicate name
 Date:   Mon, 18 Apr 2022 14:13:14 +0200
-Message-Id: <20220418121135.320393409@linuxfoundation.org>
+Message-Id: <20220418121207.801781560@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,42 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charlene Liu <Charlene.Liu@amd.com>
+From: Dongjin Yang <dj76.yang@samsung.com>
 
-[ Upstream commit 5e8a71cf13bc9184fee915b2220be71b4c6cac74 ]
+commit ce8b3ad1071b764e963d9b08ac34ffddddf12da6 upstream.
 
-[why]
-for the case edid change only changed audio format.
-driver still need to update stream.
+snps,dwmac has duplicated name for loongson,ls2k-dwmac and
+loongson,ls7a-dwmac.
 
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Charlene Liu <Charlene.Liu@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Dongjin Yang <dj76.yang@samsung.com>
+Fixes: 68277749a013 ("dt-bindings: dwmac: Add bindings for new Loongson SoC and bridge chip")
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220404022857epcms1p6e6af1a6a86569f339e50c318abde7d3c@epcms1p6
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/net/snps,dwmac.yaml |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 95a5310e9e66..de246e183d6b 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1546,8 +1546,8 @@ bool dc_is_stream_unchanged(
- 	if (old_stream->ignore_msa_timing_param != stream->ignore_msa_timing_param)
- 		return false;
- 
--	// Only Have Audio left to check whether it is same or not. This is a corner case for Tiled sinks
--	if (old_stream->audio_info.mode_count != stream->audio_info.mode_count)
-+	/*compare audio info*/
-+	if (memcmp(&old_stream->audio_info, &stream->audio_info, sizeof(stream->audio_info)) != 0)
- 		return false;
- 
- 	return true;
--- 
-2.35.1
-
+--- a/Documentation/devicetree/bindings/net/snps,dwmac.yaml
++++ b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
+@@ -53,20 +53,18 @@ properties:
+         - allwinner,sun8i-r40-emac
+         - allwinner,sun8i-v3s-emac
+         - allwinner,sun50i-a64-emac
+-        - loongson,ls2k-dwmac
+-        - loongson,ls7a-dwmac
+         - amlogic,meson6-dwmac
+         - amlogic,meson8b-dwmac
+         - amlogic,meson8m2-dwmac
+         - amlogic,meson-gxbb-dwmac
+         - amlogic,meson-axg-dwmac
+-        - loongson,ls2k-dwmac
+-        - loongson,ls7a-dwmac
+         - ingenic,jz4775-mac
+         - ingenic,x1000-mac
+         - ingenic,x1600-mac
+         - ingenic,x1830-mac
+         - ingenic,x2000-mac
++        - loongson,ls2k-dwmac
++        - loongson,ls7a-dwmac
+         - rockchip,px30-gmac
+         - rockchip,rk3128-gmac
+         - rockchip,rk3228-gmac
 
 
