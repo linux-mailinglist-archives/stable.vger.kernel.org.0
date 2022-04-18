@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BD4E50577D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11DDC50549F
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:22:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244962AbiDRNvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:51:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35286 "EHLO
+        id S240182AbiDRNKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:10:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244981AbiDRNvF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:51:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7EE444A06;
-        Mon, 18 Apr 2022 06:02:09 -0700 (PDT)
+        with ESMTP id S241060AbiDRNF2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB8A1340E4;
+        Mon, 18 Apr 2022 05:46:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FA19B80E4B;
-        Mon, 18 Apr 2022 13:02:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D6DCC385A8;
-        Mon, 18 Apr 2022 13:02:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6892D6101A;
+        Mon, 18 Apr 2022 12:46:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE21C385A1;
+        Mon, 18 Apr 2022 12:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286927;
-        bh=1e+kMqmuq0XgPzihm05kZ+rHyIgwe3Ceg9otdTGMBhY=;
+        s=korg; t=1650285975;
+        bh=ftfRvsqoajCyKutSd0dv98JYYA4Uww2asayNWgdSWZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KbH0CF1ue9YS1wzx2Mqz3HoawYruPKouEI/MevVPbsTsFSnUXGz2bZBDcXv6iJEut
-         PGZYQhN5X44IEu38PGEUog7E5DV9ja5Dys/XR1eqv8kJqoORvbfzuKYArA6/XIV8D6
-         C1b/o4KDkKYqKZfyAd3xGPi2vbbT/xw/1Gr76XBE=
+        b=Oc7S5eQC2WBLKs8WMD+64wny0QnaopR0HVa7/rigkvZITJu1zOr9C2TZBsTSoYg+t
+         x403Jx/UuhVVWuRzA4utpg59aAgGgibSG1vtDXU6qOmdQfvlkzGF+AYtyF+7NVcWe/
+         AWahcMmpoUyanUblYguJFK8LGOP5NhB7def9oqhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 261/284] memory: atmel-ebi: Fix missing of_node_put in atmel_ebi_probe
+Subject: [PATCH 4.19 22/32] drivers: net: slip: fix NPD bug in sl_tx_timeout()
 Date:   Mon, 18 Apr 2022 14:14:02 +0200
-Message-Id: <20220418121219.998650141@linuxfoundation.org>
+Message-Id: <20220418121127.774958311@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,72 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 6f296a9665ba5ac68937bf11f96214eb9de81baa ]
+[ Upstream commit ec4eb8a86ade4d22633e1da2a7d85a846b7d1798 ]
 
-The device_node pointer is returned by of_parse_phandle() with refcount
-incremented. We should use of_node_put() on it when done.
+When a slip driver is detaching, the slip_close() will act to
+cleanup necessary resources and sl->tty is set to NULL in
+slip_close(). Meanwhile, the packet we transmit is blocked,
+sl_tx_timeout() will be called. Although slip_close() and
+sl_tx_timeout() use sl->lock to synchronize, we don`t judge
+whether sl->tty equals to NULL in sl_tx_timeout() and the
+null pointer dereference bug will happen.
 
-Fixes: 87108dc78eb8 ("memory: atmel-ebi: Enable the SMC clock if specified")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220309110144.22412-1-linmq006@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+   (Thread 1)                 |      (Thread 2)
+                              | slip_close()
+                              |   spin_lock_bh(&sl->lock)
+                              |   ...
+...                           |   sl->tty = NULL //(1)
+sl_tx_timeout()               |   spin_unlock_bh(&sl->lock)
+  spin_lock(&sl->lock);       |
+  ...                         |   ...
+  tty_chars_in_buffer(sl->tty)|
+    if (tty->ops->..) //(2)   |
+    ...                       |   synchronize_rcu()
+
+We set NULL to sl->tty in position (1) and dereference sl->tty
+in position (2).
+
+This patch adds check in sl_tx_timeout(). If sl->tty equals to
+NULL, sl_tx_timeout() will goto out.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20220405132206.55291-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/atmel-ebi.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ drivers/net/slip/slip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/atmel-ebi.c b/drivers/memory/atmel-ebi.c
-index 2b9283d4fcb1..8e7b5a1d2983 100644
---- a/drivers/memory/atmel-ebi.c
-+++ b/drivers/memory/atmel-ebi.c
-@@ -524,20 +524,27 @@ static int atmel_ebi_probe(struct platform_device *pdev)
- 	smc_np = of_parse_phandle(dev->of_node, "atmel,smc", 0);
+diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
+index 5d864f812955..3ec8d16a4633 100644
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -471,7 +471,7 @@ static void sl_tx_timeout(struct net_device *dev)
+ 	spin_lock(&sl->lock);
  
- 	ebi->smc.regmap = syscon_node_to_regmap(smc_np);
--	if (IS_ERR(ebi->smc.regmap))
--		return PTR_ERR(ebi->smc.regmap);
-+	if (IS_ERR(ebi->smc.regmap)) {
-+		ret = PTR_ERR(ebi->smc.regmap);
-+		goto put_node;
-+	}
+ 	if (netif_queue_stopped(dev)) {
+-		if (!netif_running(dev))
++		if (!netif_running(dev) || !sl->tty)
+ 			goto out;
  
- 	ebi->smc.layout = atmel_hsmc_get_reg_layout(smc_np);
--	if (IS_ERR(ebi->smc.layout))
--		return PTR_ERR(ebi->smc.layout);
-+	if (IS_ERR(ebi->smc.layout)) {
-+		ret = PTR_ERR(ebi->smc.layout);
-+		goto put_node;
-+	}
- 
- 	ebi->smc.clk = of_clk_get(smc_np, 0);
- 	if (IS_ERR(ebi->smc.clk)) {
--		if (PTR_ERR(ebi->smc.clk) != -ENOENT)
--			return PTR_ERR(ebi->smc.clk);
-+		if (PTR_ERR(ebi->smc.clk) != -ENOENT) {
-+			ret = PTR_ERR(ebi->smc.clk);
-+			goto put_node;
-+		}
- 
- 		ebi->smc.clk = NULL;
- 	}
-+	of_node_put(smc_np);
- 	ret = clk_prepare_enable(ebi->smc.clk);
- 	if (ret)
- 		return ret;
-@@ -587,6 +594,10 @@ static int atmel_ebi_probe(struct platform_device *pdev)
- 	}
- 
- 	return of_platform_populate(np, NULL, NULL, dev);
-+
-+put_node:
-+	of_node_put(smc_np);
-+	return ret;
- }
- 
- static __maybe_unused int atmel_ebi_resume(struct device *dev)
+ 		/* May be we must check transmitter timeout here ?
 -- 
 2.35.1
 
