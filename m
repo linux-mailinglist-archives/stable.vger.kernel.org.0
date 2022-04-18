@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C5450572E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F81C505461
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:04:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243767AbiDRNqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:46:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46106 "EHLO
+        id S240976AbiDRNHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:07:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244626AbiDRNpK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:45:10 -0400
+        with ESMTP id S239762AbiDRNFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3808B31DF5;
-        Mon, 18 Apr 2022 06:00:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEE819017;
+        Mon, 18 Apr 2022 05:45:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C81236097A;
-        Mon, 18 Apr 2022 13:00:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF00BC385A7;
-        Mon, 18 Apr 2022 13:00:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0671E6124D;
+        Mon, 18 Apr 2022 12:45:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB30FC385A7;
+        Mon, 18 Apr 2022 12:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286812;
-        bh=4EkoxEUV+IdLa5MyNpD/AR455m8vghf+mXa9Xk9Yw+4=;
+        s=korg; t=1650285945;
+        bh=h7wCG4XjaYle+ieR3ESj44+7lHbRR0+fYce5PBuCF8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TEy+o2civ/gwWq2xyRykitti5LJczyUzXJixQLgqdPhTcmO2dVhSE+g+eh7SXfomY
-         oQog4FeLk+s0hx1HK/bNErcQpaJpO5voh4ykVfs1Y/SET5WUPOWX6KW0s2wnH/mfCP
-         aWTip7ZVeYVQnuqK0DB1ja5fe/Vw6N3PIOuZ/+6w=
+        b=PVvEEHRY7u5ChLhf2rBwoBdhhBeikv3quzMxFrjGsbOOjuVYIfVVD437yrGIU/egK
+         Us4NudR38hsoinGrc5dJVGecG5I55xwLDUHpOUWfPV/RiWM4/gSMJTpuw1ICgulZjk
+         Qc16j5LEzeRxJ0AJUOrKC6+pUO08+Bbd/1NsrC1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.14 251/284] perf: qcom_l2_pmu: fix an incorrect NULL check on list iterator
-Date:   Mon, 18 Apr 2022 14:13:52 +0200
-Message-Id: <20220418121219.396089387@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/32] Drivers: hv: vmbus: Prevent load re-ordering when reading ring buffer
+Date:   Mon, 18 Apr 2022 14:13:53 +0200
+Message-Id: <20220418121127.515948805@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-commit 2012a9e279013933885983cbe0a5fe828052563b upstream.
+[ Upstream commit b6cae15b5710c8097aad26a2e5e752c323ee5348 ]
 
-The bug is here:
-	return cluster;
+When reading a packet from a host-to-guest ring buffer, there is no
+memory barrier between reading the write index (to see if there is
+a packet to read) and reading the contents of the packet. The Hyper-V
+host uses store-release when updating the write index to ensure that
+writes of the packet data are completed first. On the guest side,
+the processor can reorder and read the packet data before the write
+index, and sometimes get stale packet data. Getting such stale packet
+data has been observed in a reproducible case in a VM on ARM64.
 
-The list iterator value 'cluster' will *always* be set and non-NULL
-by list_for_each_entry(), so it is incorrect to assume that the
-iterator value will be NULL if the list is empty or no element
-is found.
+Fix this by using virt_load_acquire() to read the write index,
+ensuring that reads of the packet data cannot be reordered
+before it. Preventing such reordering is logically correct, and
+with this change, getting stale data can no longer be reproduced.
 
-To fix the bug, return 'cluster' when found, otherwise return NULL.
-
-Cc: stable@vger.kernel.org
-Fixes: 21bdbb7102ed ("perf: add qcom l2 cache perf events driver")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220327055733.4070-1-xiam0nd.tong@gmail.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Link: https://lore.kernel.org/r/1648394710-33480-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/qcom_l2_pmu.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hv/ring_buffer.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/perf/qcom_l2_pmu.c
-+++ b/drivers/perf/qcom_l2_pmu.c
-@@ -744,7 +744,7 @@ static struct cluster_pmu *l2_cache_asso
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 6cb45f256107..d97b30af9e03 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -365,7 +365,16 @@ int hv_ringbuffer_read(struct vmbus_channel *channel,
+ static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info *rbi)
  {
- 	u64 mpidr;
- 	int cpu_cluster_id;
--	struct cluster_pmu *cluster = NULL;
-+	struct cluster_pmu *cluster;
+ 	u32 priv_read_loc = rbi->priv_read_index;
+-	u32 write_loc = READ_ONCE(rbi->ring_buffer->write_index);
++	u32 write_loc;
++
++	/*
++	 * The Hyper-V host writes the packet data, then uses
++	 * store_release() to update the write_index.  Use load_acquire()
++	 * here to prevent loads of the packet data from being re-ordered
++	 * before the read of the write_index and potentially getting
++	 * stale data.
++	 */
++	write_loc = virt_load_acquire(&rbi->ring_buffer->write_index);
  
- 	/*
- 	 * This assumes that the cluster_id is in MPIDR[aff1] for
-@@ -766,10 +766,10 @@ static struct cluster_pmu *l2_cache_asso
- 			 cluster->cluster_id);
- 		cpumask_set_cpu(cpu, &cluster->cluster_cpus);
- 		*per_cpu_ptr(l2cache_pmu->pmu_cluster, cpu) = cluster;
--		break;
-+		return cluster;
- 	}
- 
--	return cluster;
-+	return NULL;
- }
- 
- static int l2cache_pmu_online_cpu(unsigned int cpu, struct hlist_node *node)
+ 	if (write_loc >= priv_read_loc)
+ 		return write_loc - priv_read_loc;
+-- 
+2.35.1
+
 
 
