@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97C9250513E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 784085053C7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239060AbiDRMeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53144 "EHLO
+        id S240743AbiDRNBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239718AbiDRMdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 737B065BD;
-        Mon, 18 Apr 2022 05:25:15 -0700 (PDT)
+        with ESMTP id S242391AbiDRM7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA1A30F5A;
+        Mon, 18 Apr 2022 05:41:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3BBF60B40;
-        Mon, 18 Apr 2022 12:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BACFEC385A7;
-        Mon, 18 Apr 2022 12:25:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A72EB80EC3;
+        Mon, 18 Apr 2022 12:41:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B01EC385A1;
+        Mon, 18 Apr 2022 12:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284714;
-        bh=PRKKSlC++3tu0htGySyF7EK6m/IfUhB+bYRdOYfYruw=;
+        s=korg; t=1650285662;
+        bh=F744J9Wch+6CYGO7v0bbvWisdqdhidN8eTq9iIl7cEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TjogNQiGu4TeiPDMrslnTQyeZHKnXHrACpA1OJi8MM8qQZo4GkXHQZpftAC4pIJXP
-         HtW5bT5GoEWDVVoa9emqZKHOowNMBo4KnDaYBgZfULJiE2PxnlWq4FoIIsPxqEO/NO
-         Xe+flkSB+AZana9Dz+p5DppmiSKn3KNc3YAL3H3k=
+        b=VkNhazi0syHTqSzhyTx0umdmncVVAybTjLY/fVG6pxA+5BURrWkTORWaWUgPQ+9PX
+         UrvLLnmElsnGjEyjESbnxk0bIjcSLtwSTd94tCfsJKXuj1q5qipSSPnktuh+r18JqD
+         CF8HkpR6A4rioM7WCaob5FHQzSHhLAaSCSuwBzXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ming Lei <ming.lei@redhat.com>
-Subject: [PATCH 5.17 203/219] genirq/affinity: Consider that CPUs on nodes can be unbalanced
+        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 050/105] drm/amdkfd: Check for potential null return of kmalloc_array()
 Date:   Mon, 18 Apr 2022 14:12:52 +0200
-Message-Id: <20220418121212.552659088@linuxfoundation.org>
+Message-Id: <20220418121147.902154714@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
+From: QintaoShen <unSimple1993@163.com>
 
-commit 08d835dff916bfe8f45acc7b92c7af6c4081c8a7 upstream.
+[ Upstream commit ebbb7bb9e80305820dc2328a371c1b35679f2667 ]
 
-If CPUs on a node are offline at boot time, the number of nodes is
-different when building affinity masks for present cpus and when building
-affinity masks for possible cpus. This causes the following problem:
+As the kmalloc_array() may return null, the 'event_waiters[i].wait' would lead to null-pointer dereference.
+Therefore, it is better to check the return value of kmalloc_array() to avoid this confusion.
 
-In the case that the number of vectors is less than the number of nodes
-there are cases where bits of masks for present cpus are overwritten when
-building masks for possible cpus.
-
-Fix this by excluding CPUs, which are not part of the current build mask
-(present/possible).
-
-[ tglx: Massaged changelog and added comment ]
-
-Fixes: b82592199032 ("genirq/affinity: Spread IRQs to all available NUMA nodes")
-Signed-off-by: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220331003309.10891-1-yamamoto.rei@jp.fujitsu.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: QintaoShen <unSimple1993@163.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/affinity.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_events.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/irq/affinity.c
-+++ b/kernel/irq/affinity.c
-@@ -269,8 +269,9 @@ static int __irq_build_affinity_masks(un
- 	 */
- 	if (numvecs <= nodes) {
- 		for_each_node_mask(n, nodemsk) {
--			cpumask_or(&masks[curvec].mask, &masks[curvec].mask,
--				   node_to_cpumask[n]);
-+			/* Ensure that only CPUs which are in both masks are set */
-+			cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);
-+			cpumask_or(&masks[curvec].mask, &masks[curvec].mask, nmsk);
- 			if (++curvec == last_affv)
- 				curvec = firstvec;
- 		}
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+index ba2c2ce0c55a..159be13ef20b 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+@@ -531,6 +531,8 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
+ 	event_waiters = kmalloc_array(num_events,
+ 					sizeof(struct kfd_event_waiter),
+ 					GFP_KERNEL);
++	if (!event_waiters)
++		return NULL;
+ 
+ 	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
+ 		init_wait(&event_waiters[i].wait);
+-- 
+2.35.1
+
 
 
