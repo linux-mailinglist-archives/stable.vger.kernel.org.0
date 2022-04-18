@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EDF05058A2
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EEAD5058C0
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240793AbiDROKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:10:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41594 "EHLO
+        id S244995AbiDROG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:06:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343848AbiDROIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:08:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D866B36687;
-        Mon, 18 Apr 2022 06:10:32 -0700 (PDT)
+        with ESMTP id S245737AbiDROGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:06:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A03A35A96;
+        Mon, 18 Apr 2022 06:10:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38F6B60F16;
-        Mon, 18 Apr 2022 13:10:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F282C385A7;
-        Mon, 18 Apr 2022 13:10:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C450DB80E4B;
+        Mon, 18 Apr 2022 13:10:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26682C385A1;
+        Mon, 18 Apr 2022 13:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287405;
-        bh=6zzab+vG1hj1AoxyJGCAEgwcCW1UYCoYMppPmAT/4hc=;
+        s=korg; t=1650287411;
+        bh=7HJbMF3zmLCagiZkdwJEMsz4drTw9nF5Gup7f1gKG20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z4XqKYWuIxxcYmql2a/x1jHcmL2Rv79M6BnDzA+o6JSLidELi21n679XE/0mo2Y4T
-         FMh7A7nCzJ2nNdKPwEUQwyUJ8gXcveOPZb8VnEz4wtXSDh7Vp/gj3yEuHycuVENXtj
-         wB1sz1bRMZtD6HxHHcHVEfgdFKIEkizgU7+iNIRs=
+        b=0UjFiWuNgNlQqnn+2/34/TFSgqkMXcy34hr3xIfLMgJ0/lmgYvZDpjI8CBjElSY7E
+         jIBOTjybFv3qXNW1ACGG4w4/5ousocqj4rzj+R06av87P69oH8KB/jELS76RR/iXsQ
+         M7JF0QT9cNUdYwkWKQ4AjievaLzyKfOhwOuFPwxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.9 151/218] ubifs: setflags: Make dirtied_ino_d 8 bytes aligned
-Date:   Mon, 18 Apr 2022 14:13:37 +0200
-Message-Id: <20220418121203.955120512@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Price <anprice@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 4.9 152/218] gfs2: Make sure FITRIM minlen is rounded up to fs block size
+Date:   Mon, 18 Apr 2022 14:13:38 +0200
+Message-Id: <20220418121204.068608704@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -53,38 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Andrew Price <anprice@redhat.com>
 
-commit 1b83ec057db16b4d0697dc21ef7a9743b6041f72 upstream.
+commit 27ca8273fda398638ca994a207323a85b6d81190 upstream.
 
-Make 'ui->data_len' aligned with 8 bytes before it is assigned to
-dirtied_ino_d. Since 8871d84c8f8b0c6b("ubifs: convert to fileattr")
-applied, 'setflags()' only affects regular files and directories, only
-xattr inode, symlink inode and special inode(pipe/char_dev/block_dev)
-have none- zero 'ui->data_len' field, so assertion
-'!(req->dirtied_ino_d & 7)' cannot fail in ubifs_budget_space().
-To avoid assertion fails in future evolution(eg. setflags can operate
-special inodes), it's better to make dirtied_ino_d 8 bytes aligned,
-after all aligned size is still zero for regular files.
+Per fstrim(8) we must round up the minlen argument to the fs block size.
+The current calculation doesn't take into account devices that have a
+discard granularity and requested minlen less than 1 fs block, so the
+value can get shifted away to zero in the translation to fs blocks.
 
-Fixes: 1e51764a3c2ac05a ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+The zero minlen passed to gfs2_rgrp_send_discards() then allows
+sb_issue_discard() to be called with nr_sects == 0 which returns -EINVAL
+and results in gfs2_rgrp_send_discards() returning -EIO.
+
+Make sure minlen is never < 1 fs block by taking the max of the
+requested minlen and the fs block size before comparing to the device's
+discard granularity and shifting to fs blocks.
+
+Fixes: 076f0faa764ab ("GFS2: Fix FITRIM argument handling")
+Signed-off-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/rgrp.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ubifs/ioctl.c
-+++ b/fs/ubifs/ioctl.c
-@@ -105,7 +105,7 @@ static int setflags(struct inode *inode,
- 	struct ubifs_inode *ui = ubifs_inode(inode);
- 	struct ubifs_info *c = inode->i_sb->s_fs_info;
- 	struct ubifs_budget_req req = { .dirtied_ino = 1,
--					.dirtied_ino_d = ui->data_len };
-+			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -1390,7 +1390,8 @@ int gfs2_fitrim(struct file *filp, void
  
- 	err = ubifs_budget_space(c, &req);
- 	if (err)
+ 	start = r.start >> bs_shift;
+ 	end = start + (r.len >> bs_shift);
+-	minlen = max_t(u64, r.minlen,
++	minlen = max_t(u64, r.minlen, sdp->sd_sb.sb_bsize);
++	minlen = max_t(u64, minlen,
+ 		       q->limits.discard_granularity) >> bs_shift;
+ 
+ 	if (end <= start || minlen > sdp->sd_max_rg_data)
 
 
