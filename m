@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D76505221
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE175050AD
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239310AbiDRMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38042 "EHLO
+        id S238895AbiDRM1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240188AbiDRMiq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BC127B20;
-        Mon, 18 Apr 2022 05:29:25 -0700 (PDT)
+        with ESMTP id S237083AbiDRM0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC27D12760;
+        Mon, 18 Apr 2022 05:20:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65BB960FB6;
-        Mon, 18 Apr 2022 12:29:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22BD7C385A7;
-        Mon, 18 Apr 2022 12:29:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5561F60F0A;
+        Mon, 18 Apr 2022 12:20:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E62BC385A1;
+        Mon, 18 Apr 2022 12:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284963;
-        bh=NpLIpTM3p+k/Pq4eyAfmOfcE6IHkxg3SbdZtwzxjY5I=;
+        s=korg; t=1650284440;
+        bh=WQwPEHSCem5xKkdX+CUKjM6gepLC47qMUwijbu0hyO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A19DacBivfFXo/BZDJ7h60xVNv+r4lC+HrDGim0222oUU2kQbvg26U6rru+r5nAcQ
-         Y6cjIfHd+2z5LYIM3kFtRiaS86mDI0QBmKpuN++7u3rtdbCBV24C6w8pe79cruZedZ
-         +ZM2PjMKaXRhYxEmzvdXDnMt27+H30alS//rUvo8=
+        b=lnixXNmPhPQo7NDLjQtujQHhWHyDEolAvkJHEINt2ZeYtZbA2QSBT6T8LgPhWmRHt
+         A3AGtVGzlyct0z/kHOS6fNoHx4wsTJILMbWxcTQoYhSHmve7PoXe4I+DajIN/jR+7+
+         NR1RYRX/LVFUsmB31Th45SrjnxNulTH04mvCB81c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 064/189] veth: Ensure eth header is in skbs linear part
-Date:   Mon, 18 Apr 2022 14:11:24 +0200
-Message-Id: <20220418121202.326111744@linuxfoundation.org>
+Subject: [PATCH 5.17 116/219] perf tools: Fix misleading add event PMU debug message
+Date:   Mon, 18 Apr 2022 14:11:25 +0200
+Message-Id: <20220418121210.146768167@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 726e2c5929de841fdcef4e2bf995680688ae1b87 ]
+[ Upstream commit f034fc50d3c7d9385c20d505ab4cf56b8fd18ac7 ]
 
-After feeding a decapsulated packet to a veth device with act_mirred,
-skb_headlen() may be 0. But veth_xmit() calls __dev_forward_skb(),
-which expects at least ETH_HLEN byte of linear data (as
-__dev_forward_skb2() calls eth_type_trans(), which pulls ETH_HLEN bytes
-unconditionally).
+Fix incorrect debug message:
 
-Use pskb_may_pull() to ensure veth_xmit() respects this constraint.
+   Attempting to add event pmu 'intel_pt' with '' that may result in
+   non-fatal errors
 
-kernel BUG at include/linux/skbuff.h:2328!
-RIP: 0010:eth_type_trans+0xcf/0x140
-Call Trace:
- <IRQ>
- __dev_forward_skb2+0xe3/0x160
- veth_xmit+0x6e/0x250 [veth]
- dev_hard_start_xmit+0xc7/0x200
- __dev_queue_xmit+0x47f/0x520
- ? skb_ensure_writable+0x85/0xa0
- ? skb_mpls_pop+0x98/0x1c0
- tcf_mirred_act+0x442/0x47e [act_mirred]
- tcf_action_exec+0x86/0x140
- fl_classify+0x1d8/0x1e0 [cls_flower]
- ? dma_pte_clear_level+0x129/0x1a0
- ? dma_pte_clear_level+0x129/0x1a0
- ? prb_fill_curr_block+0x2f/0xc0
- ? skb_copy_bits+0x11a/0x220
- __tcf_classify+0x58/0x110
- tcf_classify_ingress+0x6b/0x140
- __netif_receive_skb_core.constprop.0+0x47d/0xfd0
- ? __iommu_dma_unmap_swiotlb+0x44/0x90
- __netif_receive_skb_one_core+0x3d/0xa0
- netif_receive_skb+0x116/0x170
- be_process_rx+0x22f/0x330 [be2net]
- be_poll+0x13c/0x370 [be2net]
- __napi_poll+0x2a/0x170
- net_rx_action+0x22f/0x2f0
- __do_softirq+0xca/0x2a8
- __irq_exit_rcu+0xc1/0xe0
- common_interrupt+0x83/0xa0
+which always appears with perf record -vv and intel_pt e.g.
 
-Fixes: e314dbdc1c0d ("[NET]: Virtual ethernet device driver.")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    perf record -vv -e intel_pt//u uname
+
+The message is incorrect because there will never be non-fatal errors.
+
+Suppress the message if the PMU is 'selectable' i.e. meant to be
+selected directly as an event.
+
+Fixes: 4ac22b484d4c79e8 ("perf parse-events: Make add PMU verbose output clearer")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Link: http://lore.kernel.org/lkml/20220411061758.2458417-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/veth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/parse-events.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index f478fe7e2b82..64fa8e9c0a22 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -327,7 +327,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/tools/perf/util/parse-events.c b/tools/perf/util/parse-events.c
+index 24997925ae00..dd84fed698a3 100644
+--- a/tools/perf/util/parse-events.c
++++ b/tools/perf/util/parse-events.c
+@@ -1523,7 +1523,9 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
+ 	bool use_uncore_alias;
+ 	LIST_HEAD(config_terms);
  
- 	rcu_read_lock();
- 	rcv = rcu_dereference(priv->peer);
--	if (unlikely(!rcv)) {
-+	if (unlikely(!rcv) || !pskb_may_pull(skb, ETH_HLEN)) {
- 		kfree_skb(skb);
- 		goto drop;
+-	if (verbose > 1) {
++	pmu = parse_state->fake_pmu ?: perf_pmu__find(name);
++
++	if (verbose > 1 && !(pmu && pmu->selectable)) {
+ 		fprintf(stderr, "Attempting to add event pmu '%s' with '",
+ 			name);
+ 		if (head_config) {
+@@ -1536,7 +1538,6 @@ int parse_events_add_pmu(struct parse_events_state *parse_state,
+ 		fprintf(stderr, "' that may result in non-fatal errors\n");
  	}
+ 
+-	pmu = parse_state->fake_pmu ?: perf_pmu__find(name);
+ 	if (!pmu) {
+ 		char *err_str;
+ 
 -- 
 2.35.1
 
