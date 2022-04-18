@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B8CD505676
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB1B505431
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241973AbiDRNfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:35:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41398 "EHLO
+        id S240249AbiDRNEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:04:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244922AbiDRNbB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:31:01 -0400
+        with ESMTP id S241161AbiDRNCw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE3425F7A;
-        Mon, 18 Apr 2022 05:57:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6776D329B6;
+        Mon, 18 Apr 2022 05:42:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76E01B80E44;
-        Mon, 18 Apr 2022 12:57:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B31FBC385A1;
-        Mon, 18 Apr 2022 12:57:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D779B80EE2;
+        Mon, 18 Apr 2022 12:42:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60184C385A1;
+        Mon, 18 Apr 2022 12:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286652;
-        bh=BDHcUQSNa1S0BCOI9hvVcHxRA8beiJyH0ZTyLXXOohY=;
+        s=korg; t=1650285771;
+        bh=gY0Qt1XeyyVXBqWlXeogsn6jG66hFxrQ/NBv4zRBgCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TIVwER6vXkvT1NTOlx603d2hdnRik3f8qV8xBafOfr4Yf1hGnDHvBfPPRrDgXSxvX
-         FvQQDoRA0X440BU5+A1O9C+C+1qKQOITQ5w7qN7mr7WAD+InnZ3lQU+5c00RE6Qy6X
-         gK3A3XcnQCA4A5l3lXz1ReNrUi+K9fJ54acOUe3k=
+        b=YKrBj5fUrRa26vf6rVokvB2IweXkY5pKT1ZaGNTkwqgBloiasWZ5ac8XeKiBZVxh4
+         Gv5/V+cSY9MH4/ujb5Q3Frta2ww9fCJqy3jsGJpBndnEGovejuwdE7vHR0pAwwFw4H
+         CY/W1Q8xauaOZaO89NB5xzkJ0UHDQaz8RGf1p9vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Varghese <martin.varghese@nokia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 4.14 201/284] openvswitch: Fixed nd target mask field in the flow dump.
+        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 05/63] mlxsw: i2c: Fix initialization error flow
 Date:   Mon, 18 Apr 2022 14:13:02 +0200
-Message-Id: <20220418121217.441844751@linuxfoundation.org>
+Message-Id: <20220418121134.509255024@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Varghese <martin.varghese@nokia.com>
+From: Vadim Pasternak <vadimp@nvidia.com>
 
-commit f19c44452b58a84d95e209b847f5495d91c9983a upstream.
+[ Upstream commit d452088cdfd5a4ad9d96d847d2273fe958d6339b ]
 
-IPv6 nd target mask was not getting populated in flow dump.
+Add mutex_destroy() call in driver initialization error flow.
 
-In the function __ovs_nla_put_key the icmp code mask field was checked
-instead of icmp code key field to classify the flow as neighbour discovery.
-
-ufid:bdfbe3e5-60c2-43b0-a5ff-dfcac1c37328, recirc_id(0),dp_hash(0/0),
-skb_priority(0/0),in_port(ovs-nm1),skb_mark(0/0),ct_state(0/0),
-ct_zone(0/0),ct_mark(0/0),ct_label(0/0),
-eth(src=00:00:00:00:00:00/00:00:00:00:00:00,
-dst=00:00:00:00:00:00/00:00:00:00:00:00),
-eth_type(0x86dd),
-ipv6(src=::/::,dst=::/::,label=0/0,proto=58,tclass=0/0,hlimit=0/0,frag=no),
-icmpv6(type=135,code=0),
-nd(target=2001::2/::,
-sll=00:00:00:00:00:00/00:00:00:00:00:00,
-tll=00:00:00:00:00:00/00:00:00:00:00:00),
-packets:10, bytes:860, used:0.504s, dp:ovs, actions:ovs-nm2
-
-Fixes: e64457191a25 (openvswitch: Restructure datapath.c and flow.c)
-Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
-Link: https://lore.kernel.org/r/20220328054148.3057-1-martinvarghesenokia@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6882b0aee180f ("mlxsw: Introduce support for I2C bus")
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220407070703.2421076-1-idosch@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/flow_netlink.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/i2c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -1827,8 +1827,8 @@ static int __ovs_nla_put_key(const struc
- 			icmpv6_key->icmpv6_type = ntohs(output->tp.src);
- 			icmpv6_key->icmpv6_code = ntohs(output->tp.dst);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/i2c.c b/drivers/net/ethernet/mellanox/mlxsw/i2c.c
+index 95f408d0e103..7cc4c30af1a7 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/i2c.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/i2c.c
+@@ -649,6 +649,7 @@ static int mlxsw_i2c_probe(struct i2c_client *client,
+ 	return 0;
  
--			if (icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_SOLICITATION ||
--			    icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_ADVERTISEMENT) {
-+			if (swkey->tp.src == htons(NDISC_NEIGHBOUR_SOLICITATION) ||
-+			    swkey->tp.src == htons(NDISC_NEIGHBOUR_ADVERTISEMENT)) {
- 				struct ovs_key_nd *nd_key;
+ errout:
++	mutex_destroy(&mlxsw_i2c->cmd.lock);
+ 	i2c_set_clientdata(client, NULL);
  
- 				nla = nla_reserve(skb, OVS_KEY_ATTR_ND, sizeof(*nd_key));
+ 	return err;
+-- 
+2.35.1
+
 
 
