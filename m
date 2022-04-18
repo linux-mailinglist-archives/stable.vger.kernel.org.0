@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6C02505199
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E58505049
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238935AbiDRMgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:36:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54012 "EHLO
+        id S231946AbiDRMXo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:23:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239259AbiDRMfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:35:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8624E20BCD;
-        Mon, 18 Apr 2022 05:27:30 -0700 (PDT)
+        with ESMTP id S239025AbiDRMXS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DAFF1FA5E;
+        Mon, 18 Apr 2022 05:18:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A3CAB80ED7;
-        Mon, 18 Apr 2022 12:27:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBDC0C385A8;
-        Mon, 18 Apr 2022 12:27:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6853760F01;
+        Mon, 18 Apr 2022 12:18:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74EE9C385A1;
+        Mon, 18 Apr 2022 12:18:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284839;
-        bh=/uZNh/M4gUDMNnNFTD4XbALCipDR1PYR9QCqnjx+Epc=;
+        s=korg; t=1650284327;
+        bh=CsCTfSsNjHS16QQ1DIkCgSALfrwY92Y131KIND27RZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NP2ZbCKCHV626T5WlomplBf+VNbJsrP6bAvwX4zY2KILnIp3c+x0RujiPu5PLn/K5
-         oEk4ozyl/Cw+kW6VwZ2TL1sboG7Enjrt8twq5NfxqvFScoUXcR01Pp/e+Cdon54Nx8
-         WQ2pHLElpPO3Nop4o68L+LcKoc43q4Q3zm1465YQ=
+        b=VGN8+KmQolXWpXwlROHJiGI7Y4bofTsZyB6OQgcZcnL1J/UwImWtIPs6kRo0pxR67
+         xYhhUng9U9wRMyen+8Zd/GUaO3EOn68fFbHemwJjI16Uuy2EC7EhbaRiaMLjookbjU
+         moMQFi7fsto7WjLT4GInjoRz77TRNWqPsc2cT+hQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 025/189] ALSA: bt87x: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Yi Chen <yiche@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 076/219] sctp: use the correct skb for security_sctp_assoc_request
 Date:   Mon, 18 Apr 2022 14:10:45 +0200
-Message-Id: <20220418121201.230495831@linuxfoundation.org>
+Message-Id: <20220418121208.176976872@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +57,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit f0438155273f057fec9818bc9d1b782ba35cf6a1 upstream.
+[ Upstream commit e2d88f9ce678cd33763826ae2f0412f181251314 ]
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+Yi Chen reported an unexpected sctp connection abort, and it occurred when
+COOKIE_ECHO is bundled with DATA Fragment by SCTP HW GSO. As the IP header
+is included in chunk->head_skb instead of chunk->skb, it failed to check
+IP header version in security_sctp_assoc_request().
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+According to Ondrej, SELinux only looks at IP header (address and IPsec
+options) and XFRM state data, and these are all included in head_skb for
+SCTP HW GSO packets. So fix it by using head_skb when calling
+security_sctp_assoc_request() in processing COOKIE_ECHO.
 
-Fixes: 9e80ed64a006 ("ALSA: bt87x: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-29-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+v1->v2:
+  - As Ondrej noticed, chunk->head_skb should also be used for
+    security_sctp_assoc_established() in sctp_sf_do_5_1E_ca().
+
+Fixes: e215dab1c490 ("security: call security_sctp_assoc_request in sctp_sf_do_5_1D_ce")
+Reported-by: Yi Chen <yiche@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Link: https://lore.kernel.org/r/71becb489e51284edf0c11fc15246f4ed4cef5b6.1649337862.git.lucien.xin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/bt87x.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ net/sctp/sm_statefuns.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/pci/bt87x.c b/sound/pci/bt87x.c
-index d23f93163841..621985bfee5d 100644
---- a/sound/pci/bt87x.c
-+++ b/sound/pci/bt87x.c
-@@ -805,8 +805,8 @@ static int snd_bt87x_detect_card(struct pci_dev *pci)
- 	return SND_BT87X_BOARD_UNKNOWN;
- }
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index 7f342bc12735..52edee1322fc 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -781,7 +781,7 @@ enum sctp_disposition sctp_sf_do_5_1D_ce(struct net *net,
+ 		}
+ 	}
  
--static int snd_bt87x_probe(struct pci_dev *pci,
--			   const struct pci_device_id *pci_id)
-+static int __snd_bt87x_probe(struct pci_dev *pci,
-+			     const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -889,6 +889,12 @@ static int snd_bt87x_probe(struct pci_dev *pci,
- 	return 0;
- }
+-	if (security_sctp_assoc_request(new_asoc, chunk->skb)) {
++	if (security_sctp_assoc_request(new_asoc, chunk->head_skb ?: chunk->skb)) {
+ 		sctp_association_free(new_asoc);
+ 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+ 	}
+@@ -932,7 +932,7 @@ enum sctp_disposition sctp_sf_do_5_1E_ca(struct net *net,
  
-+static int snd_bt87x_probe(struct pci_dev *pci,
-+			   const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_bt87x_probe(pci, pci_id));
-+}
-+
- /* default entries for all Bt87x cards - it's not exported */
- /* driver_data is set to 0 to call detection */
- static const struct pci_device_id snd_bt87x_default_ids[] = {
+ 	/* Set peer label for connection. */
+ 	if (security_sctp_assoc_established((struct sctp_association *)asoc,
+-					    chunk->skb))
++					    chunk->head_skb ?: chunk->skb))
+ 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+ 
+ 	/* Verify that the chunk length for the COOKIE-ACK is OK.
+@@ -2262,7 +2262,7 @@ enum sctp_disposition sctp_sf_do_5_2_4_dupcook(
+ 	}
+ 
+ 	/* Update socket peer label if first association. */
+-	if (security_sctp_assoc_request(new_asoc, chunk->skb)) {
++	if (security_sctp_assoc_request(new_asoc, chunk->head_skb ?: chunk->skb)) {
+ 		sctp_association_free(new_asoc);
+ 		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+ 	}
 -- 
-2.35.2
+2.35.1
 
 
 
