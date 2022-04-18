@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6C97505093
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C2C505202
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238624AbiDRM03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37108 "EHLO
+        id S237549AbiDRMlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238757AbiDRMZm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:25:42 -0400
+        with ESMTP id S239793AbiDRMiH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14DBD26D6;
-        Mon, 18 Apr 2022 05:19:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E49AF2408A;
+        Mon, 18 Apr 2022 05:28:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7800E60F0F;
-        Mon, 18 Apr 2022 12:19:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE92C385A1;
-        Mon, 18 Apr 2022 12:19:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8085B60F7C;
+        Mon, 18 Apr 2022 12:28:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E160C385A7;
+        Mon, 18 Apr 2022 12:28:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284386;
-        bh=M6RhXLMmz2S6qMvA0PcSqI2yybCtTdtl2N6YoFyDWec=;
+        s=korg; t=1650284918;
+        bh=pYtm2dbmC92LZ/bPGvxlaEV7lY/z9cVqpR60PaMEEqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoEQwgSRWEURfxsFbqrdmYKwOBJEk/z7o2s5P+cNzcHM22zCVigYlkO5tLHlZroGm
-         0ngt865wqbA8SOThRjm7PmmYm53XsXHQgwjXFD06XEmjzuzUI6dEEoB71L7zbp1FsM
-         zK1Fx1PyXDp2I1njZeWO67Us3DAflq3BFsDHZcY8=
+        b=Ewb7/uq0HU0EMa3xa43aXWalGf6qm3Y5Sq2yx8rSAG+xknm9t2pl79vcNzrkGQR9j
+         TD1Et/vpbNBRIY5l9ZJZ8FOrEOTpLCVZ5JsPRfzO0eqATH/6D4pKQtmP8G5tj/JHVz
+         KXN7qqIbtwGySzyRlZXoAqlWKIawt42fLZRryYW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 098/219] scsi: iscsi: Move iscsi_ep_disconnect()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 047/189] ALSA: riptide: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:11:07 +0200
-Message-Id: <20220418121209.542546532@linuxfoundation.org>
+Message-Id: <20220418121201.848545106@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c34f95e98d8fb750eefd4f3fe58b4f8b5e89253b ]
+commit 348f08de55b149e41a05111d1a713c4484e5a426 upstream.
 
-This patch moves iscsi_ep_disconnect() so it can be called earlier in the
-next patch.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-Link: https://lore.kernel.org/r/20220408001314.5014-2-michael.christie@oracle.com
-Tested-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
+
+Fixes: 546c201a891e ("ALSA: riptide: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-22-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 38 ++++++++++++++---------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ sound/pci/riptide/riptide.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 554b6f784223..126f6f23bffa 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2236,6 +2236,25 @@ static void iscsi_stop_conn(struct iscsi_cls_conn *conn, int flag)
- 	ISCSI_DBG_TRANS_CONN(conn, "Stopping conn done.\n");
- }
+diff --git a/sound/pci/riptide/riptide.c b/sound/pci/riptide/riptide.c
+index 5a987c683c41..b37c877c2c16 100644
+--- a/sound/pci/riptide/riptide.c
++++ b/sound/pci/riptide/riptide.c
+@@ -2023,7 +2023,7 @@ static void snd_riptide_joystick_remove(struct pci_dev *pci)
+ #endif
  
-+static void iscsi_ep_disconnect(struct iscsi_cls_conn *conn, bool is_active)
-+{
-+	struct iscsi_cls_session *session = iscsi_conn_to_session(conn);
-+	struct iscsi_endpoint *ep;
-+
-+	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep.\n");
-+	conn->state = ISCSI_CONN_FAILED;
-+
-+	if (!conn->ep || !session->transport->ep_disconnect)
-+		return;
-+
-+	ep = conn->ep;
-+	conn->ep = NULL;
-+
-+	session->transport->unbind_conn(conn, is_active);
-+	session->transport->ep_disconnect(ep);
-+	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep done.\n");
-+}
-+
- static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 			      struct iscsi_uevent *ev)
+ static int
+-snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
++__snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
  {
-@@ -2276,25 +2295,6 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -2124,6 +2124,12 @@ snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
  	return 0;
  }
  
--static void iscsi_ep_disconnect(struct iscsi_cls_conn *conn, bool is_active)
--{
--	struct iscsi_cls_session *session = iscsi_conn_to_session(conn);
--	struct iscsi_endpoint *ep;
--
--	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep.\n");
--	conn->state = ISCSI_CONN_FAILED;
--
--	if (!conn->ep || !session->transport->ep_disconnect)
--		return;
--
--	ep = conn->ep;
--	conn->ep = NULL;
--
--	session->transport->unbind_conn(conn, is_active);
--	session->transport->ep_disconnect(ep);
--	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep done.\n");
--}
--
- static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
- {
- 	struct iscsi_cls_conn *conn = container_of(work, struct iscsi_cls_conn,
++static int
++snd_card_riptide_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_card_riptide_probe(pci, pci_id));
++}
++
+ static struct pci_driver driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = snd_riptide_ids,
 -- 
-2.35.1
+2.35.2
 
 
 
