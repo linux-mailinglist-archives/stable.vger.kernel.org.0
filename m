@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE3950511B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E08E1505857
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239011AbiDRMb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:31:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53724 "EHLO
+        id S244918AbiDRN7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239042AbiDRMa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:30:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7020BBF;
-        Mon, 18 Apr 2022 05:23:48 -0700 (PDT)
+        with ESMTP id S244562AbiDRN5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EB521830;
+        Mon, 18 Apr 2022 06:06:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 16201CE1077;
-        Mon, 18 Apr 2022 12:23:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BAE1C385A1;
-        Mon, 18 Apr 2022 12:23:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F30660EFC;
+        Mon, 18 Apr 2022 13:06:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5093FC385A7;
+        Mon, 18 Apr 2022 13:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284625;
-        bh=kHv6hQD5t7JI2Qskfwudj9tOHcppLAkN/iiMY1xPhck=;
+        s=korg; t=1650287159;
+        bh=f0ejtz1VbQR2ee6gMUcAPGybOxm/7cBJRa+AnVWjD0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anzIyJEEYmo0ZmydHfhAci23rTNMQl1HSiEDgz8d4JTXetQkHO6MolWAQdD2Qnfkn
-         oo0W00cI6AVkuOKR+ahWtnVf6bZM8tIkjvwnq6XAh1mLgMC8ADXEzhxhttZlqzqBtU
-         DvLcv9uM21z+KbfXYADA9qa8ZTEfciI1ZzP6Tr8A=
+        b=ePZOIfBEifPnOKf0kXh1OrCyK6WcnlgZzHFKZ+3XQX6YNfjxqh9smM12NvEb2xylF
+         3MAk8f4qDl5sxGjFdp+i6k3OaXfP/XM32Y7jcGgBPEOGN/6QmZ0oqg178VvZPt3Ftv
+         b7O1UwQ26q89QMb8TqzDEbeUTM4APLsiIqUDJNls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alvin Lee <Alvin.Lee2@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Alex Hung <alex.hung@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 135/219] drm/amd/display: fix audio format not updated after edid updated
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hector Martin <marcan@marcan.st>, Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.9 038/218] brcmfmac: pcie: Replace brcmf_pcie_copy_mem_todev with memcpy_toio
 Date:   Mon, 18 Apr 2022 14:11:44 +0200
-Message-Id: <20220418121210.673122656@linuxfoundation.org>
+Message-Id: <20220418121200.598148023@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,42 +55,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charlene Liu <Charlene.Liu@amd.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 5e8a71cf13bc9184fee915b2220be71b4c6cac74 ]
+commit 9466987f246758eb7e9071ae58005253f631271e upstream.
 
-[why]
-for the case edid change only changed audio format.
-driver still need to update stream.
+The alignment check was wrong (e.g. & 4 instead of & 3), and the logic
+was also inefficient if the length was not a multiple of 4, since it
+would needlessly fall back to copying the entire buffer bytewise.
 
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Charlene Liu <Charlene.Liu@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We already have a perfectly good memcpy_toio function, so just call that
+instead of rolling our own copy logic here. brcmf_pcie_init_ringbuffers
+was already using it anyway.
+
+Fixes: 9e37f045d5e7 ("brcmfmac: Adding PCIe bus layer support.")
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220131160713.245637-6-marcan@marcan.st
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c |   48 +---------------
+ 1 file changed, 4 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index ac3071e38e4a..f0a97b82c33a 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1667,8 +1667,8 @@ bool dc_is_stream_unchanged(
- 	if (old_stream->ignore_msa_timing_param != stream->ignore_msa_timing_param)
- 		return false;
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -22,6 +22,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/bcma/bcma.h>
+ #include <linux/sched.h>
++#include <linux/io.h>
+ #include <asm/unaligned.h>
  
--	// Only Have Audio left to check whether it is same or not. This is a corner case for Tiled sinks
--	if (old_stream->audio_info.mode_count != stream->audio_info.mode_count)
-+	/*compare audio info*/
-+	if (memcmp(&old_stream->audio_info, &stream->audio_info, sizeof(stream->audio_info)) != 0)
- 		return false;
+ #include <soc.h>
+@@ -407,47 +408,6 @@ brcmf_pcie_write_ram32(struct brcmf_pcie
  
- 	return true;
--- 
-2.35.1
-
+ 
+ static void
+-brcmf_pcie_copy_mem_todev(struct brcmf_pciedev_info *devinfo, u32 mem_offset,
+-			  void *srcaddr, u32 len)
+-{
+-	void __iomem *address = devinfo->tcm + mem_offset;
+-	__le32 *src32;
+-	__le16 *src16;
+-	u8 *src8;
+-
+-	if (((ulong)address & 4) || ((ulong)srcaddr & 4) || (len & 4)) {
+-		if (((ulong)address & 2) || ((ulong)srcaddr & 2) || (len & 2)) {
+-			src8 = (u8 *)srcaddr;
+-			while (len) {
+-				iowrite8(*src8, address);
+-				address++;
+-				src8++;
+-				len--;
+-			}
+-		} else {
+-			len = len / 2;
+-			src16 = (__le16 *)srcaddr;
+-			while (len) {
+-				iowrite16(le16_to_cpu(*src16), address);
+-				address += 2;
+-				src16++;
+-				len--;
+-			}
+-		}
+-	} else {
+-		len = len / 4;
+-		src32 = (__le32 *)srcaddr;
+-		while (len) {
+-			iowrite32(le32_to_cpu(*src32), address);
+-			address += 4;
+-			src32++;
+-			len--;
+-		}
+-	}
+-}
+-
+-
+-static void
+ brcmf_pcie_copy_dev_tomem(struct brcmf_pciedev_info *devinfo, u32 mem_offset,
+ 			  void *dstaddr, u32 len)
+ {
+@@ -1422,8 +1382,8 @@ static int brcmf_pcie_download_fw_nvram(
+ 		return err;
+ 
+ 	brcmf_dbg(PCIE, "Download FW %s\n", devinfo->fw_name);
+-	brcmf_pcie_copy_mem_todev(devinfo, devinfo->ci->rambase,
+-				  (void *)fw->data, fw->size);
++	memcpy_toio(devinfo->tcm + devinfo->ci->rambase,
++		    (void *)fw->data, fw->size);
+ 
+ 	resetintr = get_unaligned_le32(fw->data);
+ 	release_firmware(fw);
+@@ -1437,7 +1397,7 @@ static int brcmf_pcie_download_fw_nvram(
+ 		brcmf_dbg(PCIE, "Download NVRAM %s\n", devinfo->nvram_name);
+ 		address = devinfo->ci->rambase + devinfo->ci->ramsize -
+ 			  nvram_len;
+-		brcmf_pcie_copy_mem_todev(devinfo, address, nvram, nvram_len);
++		memcpy_toio(devinfo->tcm + address, nvram, nvram_len);
+ 		brcmf_fw_nvram_free(nvram);
+ 	} else {
+ 		brcmf_dbg(PCIE, "No matching NVRAM file found %s\n",
 
 
