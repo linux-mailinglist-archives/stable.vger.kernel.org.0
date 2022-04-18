@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED857504E90
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:55:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2DA9504E92
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:55:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237565AbiDRJ5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 05:57:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37198 "EHLO
+        id S234555AbiDRJ5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 05:57:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237556AbiDRJ5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:57:35 -0400
+        with ESMTP id S236357AbiDRJ5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:57:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5810ABC1
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:54:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88778BC34
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:55:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CC94B80E5E
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:54:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49A50C385A7;
-        Mon, 18 Apr 2022 09:54:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4313CB80E5D
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:55:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8886CC385A1;
+        Mon, 18 Apr 2022 09:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650275694;
-        bh=7urFRbHIWHXPjV0fcF4y8mQ2wFPUtvMDdY8pbKcybDo=;
+        s=korg; t=1650275704;
+        bh=3J2r9YMnwbNY+mVPNV9TF+ME7aK67SPGYAY90fKlsqc=;
         h=Subject:To:Cc:From:Date:From;
-        b=m2sJXIbDxJN2ZGHqbA2B7YDcB9sidEIMAN6QqMsocxuCUA4xTiucGhsK72yCUyGxk
-         Hb/nE43MfK70pm0SlAROfaHdUQ9BJlkMIiJ7/0ur3KAGhqDuORuZAzGt0F07j6IcZj
-         qPqKug4Uf+RrbZBuzQ2lT74POBccB+dz9Eyf8qxs=
-Subject: FAILED: patch "[PATCH] io_uring: fix poll file assign deadlock" failed to apply to 5.17-stable tree
+        b=UR78MuoIF1zWiKbSJc+nqhOrFEA8z8JZzzKumAH5LvAxG/enqj3guE8d62R004UuI
+         myPZFVO7IVORDXwCd27wMC+ynoazuAHF16qRB9Hn6LupCmBWT+dplZX3V3z3jc2Tw6
+         pgr/iS528cmWxZNc69O8mm+PnBe9K9HvcMgdeao8=
+Subject: FAILED: patch "[PATCH] io_uring: fix poll error reporting" failed to apply to 5.17-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Apr 2022 11:54:51 +0200
-Message-ID: <1650275691196214@kroah.com>
+Date:   Mon, 18 Apr 2022 11:55:01 +0200
+Message-ID: <1650275701176229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,32 +59,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cce64ef01308b677a687d90927fc2b2e0e1cba67 Mon Sep 17 00:00:00 2001
+From 7179c3ce3dbff646c55f7cd664a895f462f049e5 Mon Sep 17 00:00:00 2001
 From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Wed, 13 Apr 2022 16:10:34 +0100
-Subject: [PATCH] io_uring: fix poll file assign deadlock
+Date: Wed, 13 Apr 2022 16:10:35 +0100
+Subject: [PATCH] io_uring: fix poll error reporting
 
-We pass "unlocked" into io_assign_file() in io_poll_check_events(),
-which can lead to double locking.
+We should not return an error code in req->result in
+io_poll_check_events(), because it may get mangled and returned as
+success. Just return the error code directly, the callers will fail the
+request or proceed accordingly.
 
 Fixes: 6bf9c47a3989 ("io_uring: defer file assignment")
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/2476d4ae46554324b599ee4055447b105f20a75a.1649862516.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/5f03514ee33324dc811fb93df84aee0f695fb044.1649862516.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3d6cbf77c89d..d06f1952fdfa 100644
+index d06f1952fdfa..ab674a0d269b 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5858,8 +5858,9 @@ static int io_poll_check_events(struct io_kiocb *req, bool locked)
+@@ -5861,9 +5861,8 @@ static int io_poll_check_events(struct io_kiocb *req, bool locked)
+ 			unsigned flags = locked ? 0 : IO_URING_F_UNLOCKED;
  
- 		if (!req->result) {
- 			struct poll_table_struct pt = { ._key = req->apoll_events };
-+			unsigned flags = locked ? 0 : IO_URING_F_UNLOCKED;
+ 			if (unlikely(!io_assign_file(req, flags)))
+-				req->result = -EBADF;
+-			else
+-				req->result = vfs_poll(req->file, &pt) & req->apoll_events;
++				return -EBADF;
++			req->result = vfs_poll(req->file, &pt) & req->apoll_events;
+ 		}
  
--			if (unlikely(!io_assign_file(req, IO_URING_F_UNLOCKED)))
-+			if (unlikely(!io_assign_file(req, flags)))
- 				req->result = -EBADF;
- 			else
- 				req->result = vfs_poll(req->file, &pt) & req->apoll_events;
+ 		/* multishot, just fill an CQE and proceed */
 
