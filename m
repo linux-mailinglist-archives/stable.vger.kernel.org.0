@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EB92505696
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4444F505184
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242285AbiDRNfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:35:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41272 "EHLO
+        id S239235AbiDRMfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:35:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243102AbiDRNdY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:33:24 -0400
+        with ESMTP id S239801AbiDRMd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4CB237E4;
-        Mon, 18 Apr 2022 05:57:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F3D81AD9A;
+        Mon, 18 Apr 2022 05:26:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84D21B80E59;
-        Mon, 18 Apr 2022 12:57:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB95AC385A1;
-        Mon, 18 Apr 2022 12:57:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C342CB80ED6;
+        Mon, 18 Apr 2022 12:26:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39784C385A7;
+        Mon, 18 Apr 2022 12:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286671;
-        bh=IID6F9Ke4JqC9L6vJlF0luQUGFuNBiHgFrpgIgXi2P0=;
+        s=korg; t=1650284782;
+        bh=xFu/6ps/FGImg4czfVwgAz8kQ3cZkCR6wTgoeNmSRaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DtrobiNu3pA+/Jp1d3/Zw0OWstPzTQ0/v2+1yxRNWk5Ic6oFOnjEWtEo5RkQGfv2e
-         BMX6GS1y1rYmwZh7uJHfwrtG1V0ELudpVXGeCrtGm8eLz+hRDR//2x2DLejXfm8DPp
-         IqveiGwk/trcEZU7vMNq+qkC8Vajoxr/8QfX3vQU=
+        b=qpwSFwDA9uSxg7bDH9mUmBgbCR/QcfAssNxTIvMWmfo6IdbkA/RrJT6UhxUbrlVnh
+         bEH6T8hHZ/Jw2ZX6HdnbAtxeirMN8X2A+Ix8XiGk/HuPPPPl9zOWkqpwSRfCxxgjbR
+         AFwJsv9lbiYKc1Qbz8HWkhWKmIQFUVmGIPQYigIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 207/284] ath5k: fix OOB in ath5k_eeprom_read_pcal_info_5111
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.17 219/219] ax25: Fix UAF bugs in ax25 timers
 Date:   Mon, 18 Apr 2022 14:13:08 +0200
-Message-Id: <20220418121217.607631203@linuxfoundation.org>
+Message-Id: <20220418121212.996027075@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,87 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 564d4eceb97eaf381dd6ef6470b06377bb50c95a ]
+commit 82e31755e55fbcea6a9dfaae5fe4860ade17cbc0 upstream.
 
-The bug was found during fuzzing. Stacktrace locates it in
-ath5k_eeprom_convert_pcal_info_5111.
-When none of the curve is selected in the loop, idx can go
-up to AR5K_EEPROM_N_PD_CURVES. The line makes pd out of bound.
-pd = &chinfo[pier].pd_curves[idx];
+There are race conditions that may lead to UAF bugs in
+ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
+ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we call
+ax25_release() to deallocate ax25_dev.
 
-There are many OOB writes using pd later in the code. So I
-added a sanity check for idx. Checks for other loops involving
-AR5K_EEPROM_N_PD_CURVES are not needed as the loop index is not
-used outside the loops.
+One of the UAF bugs caused by ax25_release() is shown below:
 
-The patch is NOT tested with real device.
+      (Thread 1)                    |      (Thread 2)
+ax25_dev_device_up() //(1)          |
+...                                 | ax25_kill_by_device()
+ax25_bind()          //(2)          |
+ax25_connect()                      | ...
+ ax25_std_establish_data_link()     |
+  ax25_start_t1timer()              | ax25_dev_device_down() //(3)
+   mod_timer(&ax25->t1timer,..)     |
+                                    | ax25_release()
+   (wait a time)                    |  ...
+                                    |  ax25_dev_put(ax25_dev) //(4)FREE
+   ax25_t1timer_expiry()            |
+    ax25->ax25_dev->values[..] //USE|  ...
+     ...                            |
 
-The following is the fuzzing report
+We increase the refcount of ax25_dev in position (1) and (2), and
+decrease the refcount of ax25_dev in position (3) and (4).
+The ax25_dev will be freed in position (4) and be used in
+ax25_t1timer_expiry().
 
-BUG: KASAN: slab-out-of-bounds in ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
-Write of size 1 at addr ffff8880174a4d60 by task modprobe/214
+The fail log is shown below:
+==============================================================
 
-CPU: 0 PID: 214 Comm: modprobe Not tainted 5.6.0 #1
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- __kasan_report.cold+0x37/0x7c
- ? ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- kasan_report+0xe/0x20
- ath5k_eeprom_read_pcal_info_5111+0x126a/0x1390 [ath5k]
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? ath5k_pci_eeprom_read+0x228/0x3c0 [ath5k]
- ath5k_eeprom_init+0x2513/0x6290 [ath5k]
- ? ath5k_eeprom_init_11a_pcal_freq+0xbc0/0xbc0 [ath5k]
- ? usleep_range+0xb8/0x100
- ? apic_timer_interrupt+0xa/0x20
- ? ath5k_eeprom_read_pcal_info_2413+0x2f20/0x2f20 [ath5k]
- ath5k_hw_init+0xb60/0x1970 [ath5k]
- ath5k_init_ah+0x6fe/0x2530 [ath5k]
- ? kasprintf+0xa6/0xe0
- ? ath5k_stop+0x140/0x140 [ath5k]
- ? _dev_notice+0xf6/0xf6
- ? apic_timer_interrupt+0xa/0x20
- ath5k_pci_probe.cold+0x29a/0x3d6 [ath5k]
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- ? mutex_lock+0x89/0xd0
- ? ath5k_pci_eeprom_read+0x3c0/0x3c0 [ath5k]
- local_pci_probe+0xd3/0x160
- pci_device_probe+0x23f/0x3e0
- ? pci_device_remove+0x280/0x280
- ? pci_device_remove+0x280/0x280
- really_probe+0x209/0x5d0
+[  106.116942] BUG: KASAN: use-after-free in ax25_t1timer_expiry+0x1c/0x60
+[  106.116942] Read of size 8 at addr ffff88800bda9028 by task swapper/0/0
+[  106.116942] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-06123-g0905eec574
+[  106.116942] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-14
+[  106.116942] Call Trace:
+...
+[  106.116942]  ax25_t1timer_expiry+0x1c/0x60
+[  106.116942]  call_timer_fn+0x122/0x3d0
+[  106.116942]  __run_timers.part.0+0x3f6/0x520
+[  106.116942]  run_timer_softirq+0x4f/0xb0
+[  106.116942]  __do_softirq+0x1c2/0x651
+...
 
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/YckvDdj3mtCkDRIt@a-10-27-26-18.dynapool.vpn.nyu.edu
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch adds del_timer_sync() in ax25_release(), which could ensure
+that all timers stop before we deallocate ax25_dev.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath5k/eeprom.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/ax25/af_ax25.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath5k/eeprom.c b/drivers/net/wireless/ath/ath5k/eeprom.c
-index 94d34ee02265..01163b333945 100644
---- a/drivers/net/wireless/ath/ath5k/eeprom.c
-+++ b/drivers/net/wireless/ath/ath5k/eeprom.c
-@@ -746,6 +746,9 @@ ath5k_eeprom_convert_pcal_info_5111(struct ath5k_hw *ah, int mode,
- 			}
- 		}
- 
-+		if (idx == AR5K_EEPROM_N_PD_CURVES)
-+			goto err_out;
-+
- 		ee->ee_pd_gains[mode] = 1;
- 
- 		pd = &chinfo[pier].pd_curves[idx];
--- 
-2.35.1
-
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1053,6 +1053,11 @@ static int ax25_release(struct socket *s
+ 		ax25_destroy_socket(ax25);
+ 	}
+ 	if (ax25_dev) {
++		del_timer_sync(&ax25->timer);
++		del_timer_sync(&ax25->t1timer);
++		del_timer_sync(&ax25->t2timer);
++		del_timer_sync(&ax25->t3timer);
++		del_timer_sync(&ax25->idletimer);
+ 		dev_put_track(ax25_dev->dev, &ax25_dev->dev_tracker);
+ 		ax25_dev_put(ax25_dev);
+ 	}
 
 
