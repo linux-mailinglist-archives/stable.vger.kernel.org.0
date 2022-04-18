@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77047505424
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6386D5053D3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240822AbiDRNEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41084 "EHLO
+        id S229595AbiDRNDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:03:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241787AbiDRND2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B20B42981F;
-        Mon, 18 Apr 2022 05:44:27 -0700 (PDT)
+        with ESMTP id S240772AbiDRNBe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:01:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B40D31DF9;
+        Mon, 18 Apr 2022 05:42:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EE1E6124B;
-        Mon, 18 Apr 2022 12:44:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DC26C385A7;
-        Mon, 18 Apr 2022 12:44:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97400B80EDC;
+        Mon, 18 Apr 2022 12:42:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1D17C385A7;
+        Mon, 18 Apr 2022 12:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285866;
-        bh=PRKKSlC++3tu0htGySyF7EK6m/IfUhB+bYRdOYfYruw=;
+        s=korg; t=1650285729;
+        bh=wMhghypNB1I3TPQXVLSPKEVFTYAOHRDPNoEgE+ttDMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0s69OaIovdAnARIKXz5C3zkQDzse135CS2nEKj2XaFsfyF9GadxGchXicPj0Ij8K
-         v4UFBRHIP/GVI2wWWsHbVyLzRgmd/QWolus7U9mO0XXWbDOjLSp0nOqGhOLTvOfw0h
-         69kjiSJZw83CiypfCEx1MGjtOPWpCu+6lh71OTP8=
+        b=VV73LBnZcP0DrX787jjQ0XP9NYnnG8kkW59s3AXkR+QyazXeABeN4il7KZeYux8W5
+         j4y4qSJlEluwy0lY8BqIpO6jmUp54X2nVV013L+h3K0dn+v2A3vgF6g0FENKa8DqL1
+         f9bjhMZajqJy9g4v8bsfe9sleyGQsdOnkMY2IQIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ming Lei <ming.lei@redhat.com>
-Subject: [PATCH 5.4 49/63] genirq/affinity: Consider that CPUs on nodes can be unbalanced
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 104/105] ax25: Fix NULL pointer dereferences in ax25 timers
 Date:   Mon, 18 Apr 2022 14:13:46 +0200
-Message-Id: <20220418121137.485442263@linuxfoundation.org>
+Message-Id: <20220418121149.591140798@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 08d835dff916bfe8f45acc7b92c7af6c4081c8a7 upstream.
+commit fc6d01ff9ef03b66d4a3a23b46fc3c3d8cf92009 upstream.
 
-If CPUs on a node are offline at boot time, the number of nodes is
-different when building affinity masks for present cpus and when building
-affinity masks for possible cpus. This causes the following problem:
+The previous commit 7ec02f5ac8a5 ("ax25: fix NPD bug in ax25_disconnect")
+move ax25_disconnect into lock_sock() in order to prevent NPD bugs. But
+there are race conditions that may lead to null pointer dereferences in
+ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
+ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we use
+ax25_kill_by_device() to detach the ax25 device.
 
-In the case that the number of vectors is less than the number of nodes
-there are cases where bits of masks for present cpus are overwritten when
-building masks for possible cpus.
+One of the race conditions that cause null pointer dereferences can be
+shown as below:
 
-Fix this by excluding CPUs, which are not part of the current build mask
-(present/possible).
+      (Thread 1)                    |      (Thread 2)
+ax25_connect()                      |
+ ax25_std_establish_data_link()     |
+  ax25_start_t1timer()              |
+   mod_timer(&ax25->t1timer,..)     |
+                                    | ax25_kill_by_device()
+   (wait a time)                    |  ...
+                                    |  s->ax25_dev = NULL; //(1)
+   ax25_t1timer_expiry()            |
+    ax25->ax25_dev->values[..] //(2)|  ...
+     ...                            |
 
-[ tglx: Massaged changelog and added comment ]
+We set null to ax25_cb->ax25_dev in position (1) and dereference
+the null pointer in position (2).
 
-Fixes: b82592199032 ("genirq/affinity: Spread IRQs to all available NUMA nodes")
-Signed-off-by: Rei Yamamoto <yamamoto.rei@jp.fujitsu.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220331003309.10891-1-yamamoto.rei@jp.fujitsu.com
+The corresponding fail log is shown below:
+===============================================================
+BUG: kernel NULL pointer dereference, address: 0000000000000050
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.17.0-rc6-00794-g45690b7d0
+RIP: 0010:ax25_t1timer_expiry+0x12/0x40
+...
+Call Trace:
+ call_timer_fn+0x21/0x120
+ __run_timers.part.0+0x1ca/0x250
+ run_timer_softirq+0x2c/0x60
+ __do_softirq+0xef/0x2f3
+ irq_exit_rcu+0xb6/0x100
+ sysvec_apic_timer_interrupt+0xa2/0xd0
+...
+
+This patch moves ax25_disconnect() before s->ax25_dev = NULL
+and uses del_timer_sync() to delete timers in ax25_disconnect().
+If ax25_disconnect() is called by ax25_kill_by_device() or
+ax25->ax25_dev is NULL, the reason in ax25_disconnect() will be
+equal to ENETUNREACH, it will wait all timers to stop before we
+set null to s->ax25_dev in ax25_kill_by_device().
+
+Fixes: 7ec02f5ac8a5 ("ax25: fix NPD bug in ax25_disconnect")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: backport to 5.10: adjust context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/affinity.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/ax25/af_ax25.c   |    4 ++--
+ net/ax25/ax25_subr.c |   20 ++++++++++++++------
+ 2 files changed, 16 insertions(+), 8 deletions(-)
 
---- a/kernel/irq/affinity.c
-+++ b/kernel/irq/affinity.c
-@@ -269,8 +269,9 @@ static int __irq_build_affinity_masks(un
- 	 */
- 	if (numvecs <= nodes) {
- 		for_each_node_mask(n, nodemsk) {
--			cpumask_or(&masks[curvec].mask, &masks[curvec].mask,
--				   node_to_cpumask[n]);
-+			/* Ensure that only CPUs which are in both masks are set */
-+			cpumask_and(nmsk, cpu_mask, node_to_cpumask[n]);
-+			cpumask_or(&masks[curvec].mask, &masks[curvec].mask, nmsk);
- 			if (++curvec == last_affv)
- 				curvec = firstvec;
- 		}
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -89,20 +89,20 @@ again:
+ 			sk = s->sk;
+ 			if (!sk) {
+ 				spin_unlock_bh(&ax25_list_lock);
+-				s->ax25_dev = NULL;
+ 				ax25_disconnect(s, ENETUNREACH);
++				s->ax25_dev = NULL;
+ 				spin_lock_bh(&ax25_list_lock);
+ 				goto again;
+ 			}
+ 			sock_hold(sk);
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
++			ax25_disconnect(s, ENETUNREACH);
+ 			s->ax25_dev = NULL;
+ 			if (sk->sk_socket) {
+ 				dev_put(ax25_dev->dev);
+ 				ax25_dev_put(ax25_dev);
+ 			}
+-			ax25_disconnect(s, ENETUNREACH);
+ 			release_sock(sk);
+ 			spin_lock_bh(&ax25_list_lock);
+ 			sock_put(sk);
+--- a/net/ax25/ax25_subr.c
++++ b/net/ax25/ax25_subr.c
+@@ -261,12 +261,20 @@ void ax25_disconnect(ax25_cb *ax25, int
+ {
+ 	ax25_clear_queues(ax25);
+ 
+-	if (!ax25->sk || !sock_flag(ax25->sk, SOCK_DESTROY))
+-		ax25_stop_heartbeat(ax25);
+-	ax25_stop_t1timer(ax25);
+-	ax25_stop_t2timer(ax25);
+-	ax25_stop_t3timer(ax25);
+-	ax25_stop_idletimer(ax25);
++	if (reason == ENETUNREACH) {
++		del_timer_sync(&ax25->timer);
++		del_timer_sync(&ax25->t1timer);
++		del_timer_sync(&ax25->t2timer);
++		del_timer_sync(&ax25->t3timer);
++		del_timer_sync(&ax25->idletimer);
++	} else {
++		if (!ax25->sk || !sock_flag(ax25->sk, SOCK_DESTROY))
++			ax25_stop_heartbeat(ax25);
++		ax25_stop_t1timer(ax25);
++		ax25_stop_t2timer(ax25);
++		ax25_stop_t3timer(ax25);
++		ax25_stop_idletimer(ax25);
++	}
+ 
+ 	ax25->state = AX25_STATE_0;
+ 
 
 
