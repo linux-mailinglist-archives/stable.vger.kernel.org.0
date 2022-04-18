@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBA3A5050AE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C4DB505269
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238865AbiDRM05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38624 "EHLO
+        id S239001AbiDRMoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:44:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235646AbiDRM0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D85120AC;
-        Mon, 18 Apr 2022 05:20:22 -0700 (PDT)
+        with ESMTP id S239657AbiDRMh5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EE03237CE;
+        Mon, 18 Apr 2022 05:28:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A112B80EC1;
-        Mon, 18 Apr 2022 12:20:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8805FC385A7;
-        Mon, 18 Apr 2022 12:20:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF2F360F3E;
+        Mon, 18 Apr 2022 12:28:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF0EEC385A1;
+        Mon, 18 Apr 2022 12:28:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284419;
-        bh=Z312GWuKS4gZczWVD5SgB+XVRD8xoudifk5v/Tyvvbo=;
+        s=korg; t=1650284900;
+        bh=x/mJsS/dEh4ui5wXGCfPfuVnNBwxOh1tFE8mnT+9/5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEwwjDq0WmsWJPwHkN00cHimuku3W+22ApHw3L5ccp7YaEVTstshEhWMRhK+S/8rh
-         8UUrT+21iAYoXf9osM++0pLzFZ1GkXth8vFy+iEhGvpXphFVOgjYMqQigL9inVoxGK
-         C/jB9cSunFrKmpVKhCxTPOfwXvWVwCxPLiYz+mPA=
+        b=ldp8FCeZ/qqheKZSbgGmYkyE4FZX7nNNyfioTfz5B0M0av8sG/dDZFmFYQNZDmnTe
+         hWfL/+F+e98jKh1iHr/jsxiaDHONdcrgbKwatHaRjC6X+mOprPhTVnSxBgCk174k9c
+         EU/8/gxW1SiDxOxg7l/3DK5WjNTq9hq5EBlhO0uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 092/219] drm/msm/dp: add fail safe mode outside of event_mutex context
-Date:   Mon, 18 Apr 2022 14:11:01 +0200
-Message-Id: <20220418121209.213540496@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 042/189] ALSA: korg1212: Fix the missing snd_card_free() call at probe error
+Date:   Mon, 18 Apr 2022 14:11:02 +0200
+Message-Id: <20220418121201.708018902@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,235 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 8b2c181e3dcf7562445af6702ee94aaedcbe13c8 ]
+commit c01b723a56ce18ae66ff18c5803942badc15fbcd upstream.
 
-There is possible circular locking dependency detected on event_mutex
-(see below logs). This is due to set fail safe mode is done at
-dp_panel_read_sink_caps() within event_mutex scope. To break this
-possible circular locking, this patch move setting fail safe mode
-out of event_mutex scope.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-[   23.958078] ======================================================
-[   23.964430] WARNING: possible circular locking dependency detected
-[   23.970777] 5.17.0-rc2-lockdep-00088-g05241de1f69e #148 Not tainted
-[   23.977219] ------------------------------------------------------
-[   23.983570] DrmThread/1574 is trying to acquire lock:
-[   23.988763] ffffff808423aab0 (&dp->event_mutex){+.+.}-{3:3}, at: msm_dp_displ                                                                             ay_enable+0x58/0x164
-[   23.997895]
-[   23.997895] but task is already holding lock:
-[   24.003895] ffffff808420b280 (&kms->commit_lock[i]/1){+.+.}-{3:3}, at: lock_c                                                                             rtcs+0x80/0x8c
-[   24.012495]
-[   24.012495] which lock already depends on the new lock.
-[   24.012495]
-[   24.020886]
-[   24.020886] the existing dependency chain (in reverse order) is:
-[   24.028570]
-[   24.028570] -> #5 (&kms->commit_lock[i]/1){+.+.}-{3:3}:
-[   24.035472]        __mutex_lock+0xc8/0x384
-[   24.039695]        mutex_lock_nested+0x54/0x74
-[   24.044272]        lock_crtcs+0x80/0x8c
-[   24.048222]        msm_atomic_commit_tail+0x1e8/0x3d0
-[   24.053413]        commit_tail+0x7c/0xfc
-[   24.057452]        drm_atomic_helper_commit+0x158/0x15c
-[   24.062826]        drm_atomic_commit+0x60/0x74
-[   24.067403]        drm_mode_atomic_ioctl+0x6b0/0x908
-[   24.072508]        drm_ioctl_kernel+0xe8/0x168
-[   24.077086]        drm_ioctl+0x320/0x370
-[   24.081123]        drm_compat_ioctl+0x40/0xdc
-[   24.085602]        __arm64_compat_sys_ioctl+0xe0/0x150
-[   24.090895]        invoke_syscall+0x80/0x114
-[   24.095294]        el0_svc_common.constprop.3+0xc4/0xf8
-[   24.100668]        do_el0_svc_compat+0x2c/0x54
-[   24.105242]        el0_svc_compat+0x4c/0xe4
-[   24.109548]        el0t_32_sync_handler+0xc4/0xf4
-[   24.114381]        el0t_32_sync+0x178
-[   24.118688]
-[   24.118688] -> #4 (&kms->commit_lock[i]){+.+.}-{3:3}:
-[   24.125408]        __mutex_lock+0xc8/0x384
-[   24.129628]        mutex_lock_nested+0x54/0x74
-[   24.134204]        lock_crtcs+0x80/0x8c
-[   24.138155]        msm_atomic_commit_tail+0x1e8/0x3d0
-[   24.143345]        commit_tail+0x7c/0xfc
-[   24.147382]        drm_atomic_helper_commit+0x158/0x15c
-[   24.152755]        drm_atomic_commit+0x60/0x74
-[   24.157323]        drm_atomic_helper_set_config+0x68/0x90
-[   24.162869]        drm_mode_setcrtc+0x394/0x648
-[   24.167535]        drm_ioctl_kernel+0xe8/0x168
-[   24.172102]        drm_ioctl+0x320/0x370
-[   24.176135]        drm_compat_ioctl+0x40/0xdc
-[   24.180621]        __arm64_compat_sys_ioctl+0xe0/0x150
-[   24.185904]        invoke_syscall+0x80/0x114
-[   24.190302]        el0_svc_common.constprop.3+0xc4/0xf8
-[   24.195673]        do_el0_svc_compat+0x2c/0x54
-[   24.200241]        el0_svc_compat+0x4c/0xe4
-[   24.204544]        el0t_32_sync_handler+0xc4/0xf4
-[   24.209378]        el0t_32_sync+0x174/0x178
-[   24.213680] -> #3 (crtc_ww_class_mutex){+.+.}-{3:3}:
-[   24.220308]        __ww_mutex_lock.constprop.20+0xe8/0x878
-[   24.225951]        ww_mutex_lock+0x60/0xd0
-[   24.230166]        modeset_lock+0x190/0x19c
-[   24.234467]        drm_modeset_lock+0x34/0x54
-[   24.238953]        drmm_mode_config_init+0x550/0x764
-[   24.244065]        msm_drm_bind+0x170/0x59c
-[   24.248374]        try_to_bring_up_master+0x244/0x294
-[   24.253572]        __component_add+0xf4/0x14c
-[   24.258057]        component_add+0x2c/0x38
-[   24.262273]        dsi_dev_attach+0x2c/0x38
-[   24.266575]        dsi_host_attach+0xc4/0x120
-[   24.271060]        mipi_dsi_attach+0x34/0x48
-[   24.275456]        devm_mipi_dsi_attach+0x28/0x68
-[   24.280298]        ti_sn_bridge_probe+0x2b4/0x2dc
-[   24.285137]        auxiliary_bus_probe+0x78/0x90
-[   24.289893]        really_probe+0x1e4/0x3d8
-[   24.294194]        __driver_probe_device+0x14c/0x164
-[   24.299298]        driver_probe_device+0x54/0xf8
-[   24.304043]        __device_attach_driver+0xb4/0x118
-[   24.309145]        bus_for_each_drv+0xb0/0xd4
-[   24.313628]        __device_attach+0xcc/0x158
-[   24.318112]        device_initial_probe+0x24/0x30
-[   24.322954]        bus_probe_device+0x38/0x9c
-[   24.327439]        deferred_probe_work_func+0xd4/0xf0
-[   24.332628]        process_one_work+0x2f0/0x498
-[   24.337289]        process_scheduled_works+0x44/0x48
-[   24.342391]        worker_thread+0x1e4/0x26c
-[   24.346788]        kthread+0xe4/0xf4
-[   24.350470]        ret_from_fork+0x10/0x20
-[   24.354683]
-[   24.354683]
-[   24.354683] -> #2 (crtc_ww_class_acquire){+.+.}-{0:0}:
-[   24.361489]        drm_modeset_acquire_init+0xe4/0x138
-[   24.366777]        drm_helper_probe_detect_ctx+0x44/0x114
-[   24.372327]        check_connector_changed+0xbc/0x198
-[   24.377517]        drm_helper_hpd_irq_event+0xcc/0x11c
-[   24.382804]        dsi_hpd_worker+0x24/0x30
-[   24.387104]        process_one_work+0x2f0/0x498
-[   24.391762]        worker_thread+0x1d0/0x26c
-[   24.396158]        kthread+0xe4/0xf4
-[   24.399840]        ret_from_fork+0x10/0x20
-[   24.404053]
-[   24.404053] -> #1 (&dev->mode_config.mutex){+.+.}-{3:3}:
-[   24.411032]        __mutex_lock+0xc8/0x384
-[   24.415247]        mutex_lock_nested+0x54/0x74
-[   24.419819]        dp_panel_read_sink_caps+0x23c/0x26c
-[   24.425108]        dp_display_process_hpd_high+0x34/0xd4
-[   24.430570]        dp_display_usbpd_configure_cb+0x30/0x3c
-[   24.436205]        hpd_event_thread+0x2ac/0x550
-[   24.440864]        kthread+0xe4/0xf4
-[   24.444544]        ret_from_fork+0x10/0x20
-[   24.448757]
-[   24.448757] -> #0 (&dp->event_mutex){+.+.}-{3:3}:
-[   24.455116]        __lock_acquire+0xe2c/0x10d8
-[   24.459690]        lock_acquire+0x1ac/0x2d0
-[   24.463988]        __mutex_lock+0xc8/0x384
-[   24.468201]        mutex_lock_nested+0x54/0x74
-[   24.472773]        msm_dp_display_enable+0x58/0x164
-[   24.477789]        dp_bridge_enable+0x24/0x30
-[   24.482273]        drm_atomic_bridge_chain_enable+0x78/0x9c
-[   24.488006]        drm_atomic_helper_commit_modeset_enables+0x1bc/0x244
-[   24.494801]        msm_atomic_commit_tail+0x248/0x3d0
-[   24.499992]        commit_tail+0x7c/0xfc
-[   24.504031]        drm_atomic_helper_commit+0x158/0x15c
-[   24.509404]        drm_atomic_commit+0x60/0x74
-[   24.513976]        drm_mode_atomic_ioctl+0x6b0/0x908
-[   24.519079]        drm_ioctl_kernel+0xe8/0x168
-[   24.523650]        drm_ioctl+0x320/0x370
-[   24.527689]        drm_compat_ioctl+0x40/0xdc
-[   24.532175]        __arm64_compat_sys_ioctl+0xe0/0x150
-[   24.537463]        invoke_syscall+0x80/0x114
-[   24.541861]        el0_svc_common.constprop.3+0xc4/0xf8
-[   24.547235]        do_el0_svc_compat+0x2c/0x54
-[   24.551806]        el0_svc_compat+0x4c/0xe4
-[   24.556106]        el0t_32_sync_handler+0xc4/0xf4
-[   24.560948]        el0t_32_sync+0x174/0x178
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-Changes in v2:
--- add circular lockiing trace
-
-Fixes: d4aca422539c ("drm/msm/dp:  always add fail-safe mode into connector mode list")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/481396/
-Link: https://lore.kernel.org/r/1649451894-554-1-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b5cde369b618 ("ALSA: korg1212: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-20-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c |  6 ++++++
- drivers/gpu/drm/msm/dp/dp_panel.c   | 20 ++++++++++----------
- drivers/gpu/drm/msm/dp/dp_panel.h   |  1 +
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ sound/pci/korg1212/korg1212.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 1d7f82e6eafe..af9c09c30860 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -551,6 +551,12 @@ static int dp_hpd_plug_handle(struct dp_display_private *dp, u32 data)
+diff --git a/sound/pci/korg1212/korg1212.c b/sound/pci/korg1212/korg1212.c
+index 5c9e240ff6a9..33b4f95d65b3 100644
+--- a/sound/pci/korg1212/korg1212.c
++++ b/sound/pci/korg1212/korg1212.c
+@@ -2355,7 +2355,7 @@ snd_korg1212_probe(struct pci_dev *pci,
  
- 	mutex_unlock(&dp->event_mutex);
+ 	err = snd_korg1212_create(card, pci);
+ 	if (err < 0)
+-		return err;
++		goto error;
  
-+	/*
-+	 * add fail safe mode outside event_mutex scope
-+	 * to avoid potiential circular lock with drm thread
-+	 */
-+	dp_panel_add_fail_safe_mode(dp->dp_display.connector);
-+
- 	/* uevent will complete connection part */
+ 	strcpy(card->driver, "korg1212");
+ 	strcpy(card->shortname, "korg1212");
+@@ -2366,10 +2366,14 @@ snd_korg1212_probe(struct pci_dev *pci,
+ 
+ 	err = snd_card_register(card);
+ 	if (err < 0)
+-		return err;
++		goto error;
+ 	pci_set_drvdata(pci, card);
+ 	dev++;
  	return 0;
- };
-diff --git a/drivers/gpu/drm/msm/dp/dp_panel.c b/drivers/gpu/drm/msm/dp/dp_panel.c
-index f1418722c549..26c3653c99ec 100644
---- a/drivers/gpu/drm/msm/dp/dp_panel.c
-+++ b/drivers/gpu/drm/msm/dp/dp_panel.c
-@@ -151,6 +151,15 @@ static int dp_panel_update_modes(struct drm_connector *connector,
- 	return rc;
++
++ error:
++	snd_card_free(card);
++	return err;
  }
  
-+void dp_panel_add_fail_safe_mode(struct drm_connector *connector)
-+{
-+	/* fail safe edid */
-+	mutex_lock(&connector->dev->mode_config.mutex);
-+	if (drm_add_modes_noedid(connector, 640, 480))
-+		drm_set_preferred_mode(connector, 640, 480);
-+	mutex_unlock(&connector->dev->mode_config.mutex);
-+}
-+
- int dp_panel_read_sink_caps(struct dp_panel *dp_panel,
- 	struct drm_connector *connector)
- {
-@@ -207,16 +216,7 @@ int dp_panel_read_sink_caps(struct dp_panel *dp_panel,
- 			goto end;
- 		}
- 
--		/* fail safe edid */
--		mutex_lock(&connector->dev->mode_config.mutex);
--		if (drm_add_modes_noedid(connector, 640, 480))
--			drm_set_preferred_mode(connector, 640, 480);
--		mutex_unlock(&connector->dev->mode_config.mutex);
--	} else {
--		/* always add fail-safe mode as backup mode */
--		mutex_lock(&connector->dev->mode_config.mutex);
--		drm_add_modes_noedid(connector, 640, 480);
--		mutex_unlock(&connector->dev->mode_config.mutex);
-+		dp_panel_add_fail_safe_mode(connector);
- 	}
- 
- 	if (panel->aux_cfg_update_done) {
-diff --git a/drivers/gpu/drm/msm/dp/dp_panel.h b/drivers/gpu/drm/msm/dp/dp_panel.h
-index 9023e5bb4b8b..99739ea679a7 100644
---- a/drivers/gpu/drm/msm/dp/dp_panel.h
-+++ b/drivers/gpu/drm/msm/dp/dp_panel.h
-@@ -59,6 +59,7 @@ int dp_panel_init_panel_info(struct dp_panel *dp_panel);
- int dp_panel_deinit(struct dp_panel *dp_panel);
- int dp_panel_timing_cfg(struct dp_panel *dp_panel);
- void dp_panel_dump_regs(struct dp_panel *dp_panel);
-+void dp_panel_add_fail_safe_mode(struct drm_connector *connector);
- int dp_panel_read_sink_caps(struct dp_panel *dp_panel,
- 		struct drm_connector *connector);
- u32 dp_panel_get_mode_bpp(struct dp_panel *dp_panel, u32 mode_max_bpp,
+ static struct pci_driver korg1212_driver = {
 -- 
-2.35.1
+2.35.2
 
 
 
