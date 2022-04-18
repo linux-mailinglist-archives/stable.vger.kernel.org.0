@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D813350537E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B140C5056C3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240431AbiDRNAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59866 "EHLO
+        id S242954AbiDRNga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:36:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242073AbiDRM7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C8EC2497A;
-        Mon, 18 Apr 2022 05:39:57 -0700 (PDT)
+        with ESMTP id S243655AbiDRNeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:34:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01E9624593;
+        Mon, 18 Apr 2022 05:58:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85607B80EDD;
-        Mon, 18 Apr 2022 12:39:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E66A7C385A1;
-        Mon, 18 Apr 2022 12:39:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C9EA612D1;
+        Mon, 18 Apr 2022 12:58:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30288C385AB;
+        Mon, 18 Apr 2022 12:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285595;
-        bh=N/9Rui6mpSwGeDNpe/xTbHy8TO3O88n/9VixNIN9aiA=;
+        s=korg; t=1650286680;
+        bh=WPAAcC7kSapU3mc21ao52WZ8etMOXiQhVcSzwi8OGu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiMkxIOBG60TCr/JphLkRN+WuGTVWNwXz7nT+fRqZ1akwJgAfjvOE1EMLiFNAnmjS
-         2uUbRawgkN1kIxjF06o2eUPwTS8bYIswELZL6QodzfmlMo684HxrCPFx3gtdR4tggG
-         OsCFXlZ9srMo4mCKITVcvmQEArQyzxfN4lqVd82c=
+        b=ROEg/I5UOk/XYba1m3y/l/ygAgP6bSFX9Pq5D0XaSmu/dakyLmLiJUD50aaiwyQeo
+         gxUJxYH8qSsufLd1HKDmZv4RFTFkrJJLsY9HBieLz5YhDVasXfIulVwsOi1WTrL2Cg
+         2VR3hD2ZNUvxGRtmufLu198evuHWRRcUlOm7uFSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Maxim Kochetkov <fido_max@inbox.ru>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/105] drivers: net: slip: fix NPD bug in sl_tx_timeout()
+Subject: [PATCH 4.14 209/284] powerpc: dts: t104xrdb: fix phy type for FMAN 4/5
 Date:   Mon, 18 Apr 2022 14:13:10 +0200
-Message-Id: <20220418121148.421376150@linuxfoundation.org>
+Message-Id: <20220418121217.663317087@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,58 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-[ Upstream commit ec4eb8a86ade4d22633e1da2a7d85a846b7d1798 ]
+[ Upstream commit 17846485dff91acce1ad47b508b633dffc32e838 ]
 
-When a slip driver is detaching, the slip_close() will act to
-cleanup necessary resources and sl->tty is set to NULL in
-slip_close(). Meanwhile, the packet we transmit is blocked,
-sl_tx_timeout() will be called. Although slip_close() and
-sl_tx_timeout() use sl->lock to synchronize, we don`t judge
-whether sl->tty equals to NULL in sl_tx_timeout() and the
-null pointer dereference bug will happen.
+T1040RDB has two RTL8211E-VB phys which requires setting
+of internal delays for correct work.
 
-   (Thread 1)                 |      (Thread 2)
-                              | slip_close()
-                              |   spin_lock_bh(&sl->lock)
-                              |   ...
-...                           |   sl->tty = NULL //(1)
-sl_tx_timeout()               |   spin_unlock_bh(&sl->lock)
-  spin_lock(&sl->lock);       |
-  ...                         |   ...
-  tty_chars_in_buffer(sl->tty)|
-    if (tty->ops->..) //(2)   |
-    ...                       |   synchronize_rcu()
+Changing the phy-connection-type property to `rgmii-id`
+will fix this issue.
 
-We set NULL to sl->tty in position (1) and dereference sl->tty
-in position (2).
-
-This patch adds check in sl_tx_timeout(). If sl->tty equals to
-NULL, sl_tx_timeout() will goto out.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20220405132206.55291-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Reviewed-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211230151123.1258321-1-bigunclemax@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/slip/slip.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/boot/dts/fsl/t104xrdb.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
-index f81fb0b13a94..369bd30fed35 100644
---- a/drivers/net/slip/slip.c
-+++ b/drivers/net/slip/slip.c
-@@ -468,7 +468,7 @@ static void sl_tx_timeout(struct net_device *dev, unsigned int txqueue)
- 	spin_lock(&sl->lock);
+diff --git a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
+index 5fdddbd2a62b..b0a9beab1c26 100644
+--- a/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
++++ b/arch/powerpc/boot/dts/fsl/t104xrdb.dtsi
+@@ -139,12 +139,12 @@
+ 		fman@400000 {
+ 			ethernet@e6000 {
+ 				phy-handle = <&phy_rgmii_0>;
+-				phy-connection-type = "rgmii";
++				phy-connection-type = "rgmii-id";
+ 			};
  
- 	if (netif_queue_stopped(dev)) {
--		if (!netif_running(dev))
-+		if (!netif_running(dev) || !sl->tty)
- 			goto out;
+ 			ethernet@e8000 {
+ 				phy-handle = <&phy_rgmii_1>;
+-				phy-connection-type = "rgmii";
++				phy-connection-type = "rgmii-id";
+ 			};
  
- 		/* May be we must check transmitter timeout here ?
+ 			mdio0: mdio@fc000 {
 -- 
 2.35.1
 
