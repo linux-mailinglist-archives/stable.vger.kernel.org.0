@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5D20505976
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 319F5505964
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344020AbiDROUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:20:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34994 "EHLO
+        id S244404AbiDROTn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:19:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344967AbiDROSh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89FCC4B422;
-        Mon, 18 Apr 2022 06:14:20 -0700 (PDT)
+        with ESMTP id S1344402AbiDROSC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C2649FBD;
+        Mon, 18 Apr 2022 06:13:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A2FFB80EE4;
-        Mon, 18 Apr 2022 13:13:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E326C385A1;
-        Mon, 18 Apr 2022 13:13:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90211B80EE5;
+        Mon, 18 Apr 2022 13:13:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C06CEC385A1;
+        Mon, 18 Apr 2022 13:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287628;
-        bh=Ad/y4l6gf6HTJhsNzTXKsG3+/lIXlLPYuNEBR6aEp8U=;
+        s=korg; t=1650287631;
+        bh=3emzYE6OqH2X4RboyukyTjyLdp+12K93UJSU5EGJ9Eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nG++YZsHq1cpe/+ayIo4T9SUeznbTcamTjluu9K1Z/DxRXpM95Iu6rVOOQRmmLPCc
-         Ccbhzjs3ACAWMEfptw2lZfKk2lGNe5en5hOjjj1py9dnbhExLbKADctpMHCWgieQE1
-         Euu1nLc5nI79YM6aaij1ZXofE2tBeObatYRzCm1I=
+        b=sfr+w1N+0Nsfw+ThL683ILA5kqJa9BtuqHMJpIAcm8ghbIfq7JL6ShPbkQ+wpnDoa
+         2krFyGHbkQVOTbSQISU20KNe5o9ymBMtxnwBFGO+D91pgC3vlupeVbtYn4mSa8ega9
+         RzoRQV3RrhWfJKhCT79MgxzphjP1pO24AkdBtSo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Wang <patrick.wang.shcn@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 213/218] mm: kmemleak: take a full lowmem check in kmemleak_*_phys()
-Date:   Mon, 18 Apr 2022 14:14:39 +0200
-Message-Id: <20220418121208.346046307@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        syzbot+205eb15961852c2c5974@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 214/218] ALSA: pcm: Test for "silence" field in struct "pcm_format_data"
+Date:   Mon, 18 Apr 2022 14:14:40 +0200
+Message-Id: <20220418121208.408395990@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -55,96 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Wang <patrick.wang.shcn@gmail.com>
+From: Fabio M. De Francesco <fmdefrancesco@gmail.com>
 
-commit 23c2d497de21f25898fbea70aeb292ab8acc8c94 upstream.
+commit 2f7a26abb8241a0208c68d22815aa247c5ddacab upstream.
 
-The kmemleak_*_phys() apis do not check the address for lowmem's min
-boundary, while the caller may pass an address below lowmem, which will
-trigger an oops:
+Syzbot reports "KASAN: null-ptr-deref Write in
+snd_pcm_format_set_silence".[1]
 
-  # echo scan > /sys/kernel/debug/kmemleak
-  Unable to handle kernel paging request at virtual address ff5fffffffe00000
-  Oops [#1]
-  Modules linked in:
-  CPU: 2 PID: 134 Comm: bash Not tainted 5.18.0-rc1-next-20220407 #33
-  Hardware name: riscv-virtio,qemu (DT)
-  epc : scan_block+0x74/0x15c
-   ra : scan_block+0x72/0x15c
-  epc : ffffffff801e5806 ra : ffffffff801e5804 sp : ff200000104abc30
-   gp : ffffffff815cd4e8 tp : ff60000004cfa340 t0 : 0000000000000200
-   t1 : 00aaaaaac23954cc t2 : 00000000000003ff s0 : ff200000104abc90
-   s1 : ffffffff81b0ff28 a0 : 0000000000000000 a1 : ff5fffffffe01000
-   a2 : ffffffff81b0ff28 a3 : 0000000000000002 a4 : 0000000000000001
-   a5 : 0000000000000000 a6 : ff200000104abd7c a7 : 0000000000000005
-   s2 : ff5fffffffe00ff9 s3 : ffffffff815cd998 s4 : ffffffff815d0e90
-   s5 : ffffffff81b0ff28 s6 : 0000000000000020 s7 : ffffffff815d0eb0
-   s8 : ffffffffffffffff s9 : ff5fffffffe00000 s10: ff5fffffffe01000
-   s11: 0000000000000022 t3 : 00ffffffaa17db4c t4 : 000000000000000f
-   t5 : 0000000000000001 t6 : 0000000000000000
-  status: 0000000000000100 badaddr: ff5fffffffe00000 cause: 000000000000000d
-    scan_gray_list+0x12e/0x1a6
-    kmemleak_scan+0x2aa/0x57e
-    kmemleak_write+0x32a/0x40c
-    full_proxy_write+0x56/0x82
-    vfs_write+0xa6/0x2a6
-    ksys_write+0x6c/0xe2
-    sys_write+0x22/0x2a
-    ret_from_syscall+0x0/0x2
+It is due to missing validation of the "silence" field of struct
+"pcm_format_data" in "pcm_formats" array.
 
-The callers may not quite know the actual address they pass(e.g. from
-devicetree).  So the kmemleak_*_phys() apis should guarantee the address
-they finally use is in lowmem range, so check the address for lowmem's
-min boundary.
+Add a test for valid "pat" and, if it is not so, return -EINVAL.
 
-Link: https://lkml.kernel.org/r/20220413122925.33856-1-patrick.wang.shcn@gmail.com
-Signed-off-by: Patrick Wang <patrick.wang.shcn@gmail.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+[1] https://lore.kernel.org/lkml/000000000000d188ef05dc2c7279@google.com/
+
+Reported-and-tested-by: syzbot+205eb15961852c2c5974@syzkaller.appspotmail.com
+Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20220409012655.9399-1-fmdefrancesco@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kmemleak.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/core/pcm_misc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -1130,7 +1130,7 @@ EXPORT_SYMBOL(kmemleak_no_scan);
- void __ref kmemleak_alloc_phys(phys_addr_t phys, size_t size, int min_count,
- 			       gfp_t gfp)
- {
--	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
-+	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_alloc(__va(phys), size, min_count, gfp);
- }
- EXPORT_SYMBOL(kmemleak_alloc_phys);
-@@ -1141,7 +1141,7 @@ EXPORT_SYMBOL(kmemleak_alloc_phys);
-  */
- void __ref kmemleak_free_part_phys(phys_addr_t phys, size_t size)
- {
--	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
-+	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_free_part(__va(phys), size);
- }
- EXPORT_SYMBOL(kmemleak_free_part_phys);
-@@ -1152,7 +1152,7 @@ EXPORT_SYMBOL(kmemleak_free_part_phys);
-  */
- void __ref kmemleak_not_leak_phys(phys_addr_t phys)
- {
--	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
-+	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_not_leak(__va(phys));
- }
- EXPORT_SYMBOL(kmemleak_not_leak_phys);
-@@ -1163,7 +1163,7 @@ EXPORT_SYMBOL(kmemleak_not_leak_phys);
-  */
- void __ref kmemleak_ignore_phys(phys_addr_t phys)
- {
--	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
-+	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_ignore(__va(phys));
- }
- EXPORT_SYMBOL(kmemleak_ignore_phys);
+--- a/sound/core/pcm_misc.c
++++ b/sound/core/pcm_misc.c
+@@ -412,7 +412,7 @@ int snd_pcm_format_set_silence(snd_pcm_f
+ 		return 0;
+ 	width = pcm_formats[(INT)format].phys; /* physical width */
+ 	pat = pcm_formats[(INT)format].silence;
+-	if (! width)
++	if (!width || !pat)
+ 		return -EINVAL;
+ 	/* signed or 1 byte data */
+ 	if (pcm_formats[(INT)format].signd == 1 || width <= 8) {
 
 
