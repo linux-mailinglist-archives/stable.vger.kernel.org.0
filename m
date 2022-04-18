@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8BB5051C2
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:41:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3035D5057E4
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236278AbiDRMl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:41:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38346 "EHLO
+        id S244496AbiDRN5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:57:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240988AbiDRMjw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373B41D0D0;
-        Mon, 18 Apr 2022 05:31:42 -0700 (PDT)
+        with ESMTP id S244447AbiDRN4v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6266A7659;
+        Mon, 18 Apr 2022 06:05:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C88B1610F4;
-        Mon, 18 Apr 2022 12:31:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8414C385A9;
-        Mon, 18 Apr 2022 12:31:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFB3D60EFC;
+        Mon, 18 Apr 2022 13:05:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FAAFC385A7;
+        Mon, 18 Apr 2022 13:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285101;
-        bh=t7MW28y9bnZxfYQjVUSmpEWDf75vE61ViCQNbKTnzN8=;
+        s=korg; t=1650287104;
+        bh=GGrkfxQJtWp/0SeDfaJWxZOvk7/7VEfsdbqZjyvAJiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TsgYJaxN1OLevYTbK93xklrHdhjkENcqPMpzBlRuID1Pdk0lJVtFKrlOh6xL4U6on
-         pbxj8Qaa+Rndlbm8VTjg6mDjKXvGO4INjLWiYMXo881xjlvZDlt7AL8ZRCbrRuvT/u
-         GaOKWtlRQsWh6eYFGbKnHwOzpen3F9NqIK0Ar2uo=
+        b=elsUgkWAiFRsO4tNhvFP4onxlXCTYeCXAEDF5HrpzAsG2b4XDa8ytCg01RVG4KQ/I
+         YxaR7/4zsyx5pXx6WTCFlWW+vWJL85xzsfOJxJhuUsr9DwpSao9F60Tc0SIhA1TM7j
+         j2T1q9rGewElTGNmRwdKtAe2KfunN8k4qCna3k5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/189] block: fix offset/size check in bio_trim()
+Subject: [PATCH 4.9 058/218] soc: ti: wkup_m3_ipc: Fix IRQ check in wkup_m3_ipc_probe
 Date:   Mon, 18 Apr 2022 14:12:04 +0200
-Message-Id: <20220418121203.454230323@linuxfoundation.org>
+Message-Id: <20220418121201.273640743@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 8535c0185d14ea41f0efd6a357961b05daf6687e ]
+[ Upstream commit c3d66a164c726cc3b072232d3b6d87575d194084 ]
 
-Unit of bio->bi_iter.bi_size is bytes, but unit of offset/size
-is sector.
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Fix the above issue in checking offset/size in bio_trim().
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
 
-Fixes: e83502ca5f1e ("block: fix argument type of bio_trim()")
-Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20220414084443.1736850-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix the check of return value to catch errors correctly.
+
+Fixes: cdd5de500b2c ("soc: ti: Add wkup_m3_ipc driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Acked-by: Dave Gerlach <d-gerlach@ti.com>
+Link: https://lore.kernel.org/r/20220114062840.16620-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/ti/wkup_m3_ipc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 25f1ed261100..8906c9856a7d 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1552,7 +1552,7 @@ EXPORT_SYMBOL(bio_split);
- void bio_trim(struct bio *bio, sector_t offset, sector_t size)
- {
- 	if (WARN_ON_ONCE(offset > BIO_MAX_SECTORS || size > BIO_MAX_SECTORS ||
--			 offset + size > bio->bi_iter.bi_size))
-+			 offset + size > bio_sectors(bio)))
- 		return;
+diff --git a/drivers/soc/ti/wkup_m3_ipc.c b/drivers/soc/ti/wkup_m3_ipc.c
+index fc33bfdc957c..ead96fe2e7f5 100644
+--- a/drivers/soc/ti/wkup_m3_ipc.c
++++ b/drivers/soc/ti/wkup_m3_ipc.c
+@@ -405,9 +405,9 @@ static int wkup_m3_ipc_probe(struct platform_device *pdev)
+ 	}
  
- 	size <<= 9;
+ 	irq = platform_get_irq(pdev, 0);
+-	if (!irq) {
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no irq resource\n");
+-		return -ENXIO;
++		return irq;
+ 	}
+ 
+ 	ret = devm_request_irq(dev, irq, wkup_m3_txev_handler,
 -- 
-2.35.1
+2.34.1
 
 
 
