@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C047505081
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D91850507E
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238720AbiDRM0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33520 "EHLO
+        id S238661AbiDRM0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:26:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238655AbiDRMZg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:25:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4662520BEC;
-        Mon, 18 Apr 2022 05:19:36 -0700 (PDT)
+        with ESMTP id S238734AbiDRMZj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:25:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E6A20F49;
+        Mon, 18 Apr 2022 05:19:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EE8A60F0A;
-        Mon, 18 Apr 2022 12:19:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 990EFC385A1;
-        Mon, 18 Apr 2022 12:19:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A798B80EC1;
+        Mon, 18 Apr 2022 12:19:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83CE8C385A1;
+        Mon, 18 Apr 2022 12:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284375;
-        bh=nPwFMTObJZF4cTLhVCXsSyXs7ixQvWyzMUK/7568deg=;
+        s=korg; t=1650284377;
+        bh=0Ymae+/lWrCSGLRGJd05hbVEKxQU9VlRVBkRnq+xuC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oifCUZBIJtIaBI0/OLYdQ6/lYfCg5X02ewUSR7DkSIABB2FidCnpljgFswg4+irh0
-         OmHLBCK6iXuIegShMPWZAWr0zIoM1l1kyQUtVw0r54PMr+UaVlEYuuv/jwtrD0Ld1d
-         CGtIOFcrfkeOn2wF+JvKRhn9Qc+JhR0nmRou/How=
+        b=FEjQedCju+69FNVzt/0Csv3tV8oJRyOYvUxd947Ww2V3oSZh43F4T4+DCi4rArYB4
+         tA84/1PSaCXVGwHBug2Hueg/Na08JSb/AxgxGszPCqaDUZLKLQimAF7svKshYefA7g
+         DYYcnRMbVVOJzojgXeU1ZgZAZIFjCvGQSuNbqZiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
+        stable@vger.kernel.org,
+        syzbot+03e3e228510223dabd34@syzkaller.appspotmail.com,
+        Karsten Graul <kgraul@linux.ibm.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 094/219] net/smc: use memcpy instead of snprintf to avoid out of bounds read
-Date:   Mon, 18 Apr 2022 14:11:03 +0200
-Message-Id: <20220418121209.336563326@linuxfoundation.org>
+Subject: [PATCH 5.17 095/219] net/smc: Fix NULL pointer dereference in smc_pnet_find_ib()
+Date:   Mon, 18 Apr 2022 14:11:04 +0200
+Message-Id: <20220418121209.388218330@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
 References: <20220418121203.462784814@linuxfoundation.org>
@@ -56,46 +58,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Karsten Graul <kgraul@linux.ibm.com>
 
-[ Upstream commit b1871fd48efc567650dbdc974e5a2342a03fe0d2 ]
+[ Upstream commit d22f4f977236f97e01255a80bca2ea93a8094fc8 ]
 
-Using snprintf() to convert not null-terminated strings to null
-terminated strings may cause out of bounds read in the source string.
-Therefore use memcpy() and terminate the target string with a null
-afterwards.
+dev_name() was called with dev.parent as argument but without to
+NULL-check it before.
+Solve this by checking the pointer before the call to dev_name().
 
-Fixes: fa0866625543 ("net/smc: add support for user defined EIDs")
-Fixes: 3c572145c24e ("net/smc: add generic netlink support for system EID")
+Fixes: af5f60c7e3d5 ("net/smc: allow PCI IDs as ib device names in the pnet table")
+Reported-by: syzbot+03e3e228510223dabd34@syzkaller.appspotmail.com
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_clc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/smc/smc_pnet.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index ce27399b38b1..f9f3f59c79de 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -191,7 +191,8 @@ static int smc_nl_ueid_dumpinfo(struct sk_buff *skb, u32 portid, u32 seq,
- 			  flags, SMC_NETLINK_DUMP_UEID);
- 	if (!hdr)
- 		return -ENOMEM;
--	snprintf(ueid_str, sizeof(ueid_str), "%s", ueid);
-+	memcpy(ueid_str, ueid, SMC_MAX_EID_LEN);
-+	ueid_str[SMC_MAX_EID_LEN] = 0;
- 	if (nla_put_string(skb, SMC_NLA_EID_TABLE_ENTRY, ueid_str)) {
- 		genlmsg_cancel(skb, hdr);
- 		return -EMSGSIZE;
-@@ -252,7 +253,8 @@ int smc_nl_dump_seid(struct sk_buff *skb, struct netlink_callback *cb)
- 		goto end;
- 
- 	smc_ism_get_system_eid(&seid);
--	snprintf(seid_str, sizeof(seid_str), "%s", seid);
-+	memcpy(seid_str, seid, SMC_MAX_EID_LEN);
-+	seid_str[SMC_MAX_EID_LEN] = 0;
- 	if (nla_put_string(skb, SMC_NLA_SEID_ENTRY, seid_str))
- 		goto err;
- 	read_lock(&smc_clc_eid_table.lock);
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 29f0a559d884..4769f76505af 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -311,8 +311,9 @@ static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
+ 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
+ 		if (!strncmp(ibdev->ibdev->name, ib_name,
+ 			     sizeof(ibdev->ibdev->name)) ||
+-		    !strncmp(dev_name(ibdev->ibdev->dev.parent), ib_name,
+-			     IB_DEVICE_NAME_MAX - 1)) {
++		    (ibdev->ibdev->dev.parent &&
++		     !strncmp(dev_name(ibdev->ibdev->dev.parent), ib_name,
++			     IB_DEVICE_NAME_MAX - 1))) {
+ 			goto out;
+ 		}
+ 	}
 -- 
 2.35.1
 
