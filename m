@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F21B850508D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F6F505090
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238826AbiDRM0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38456 "EHLO
+        id S238854AbiDRM0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:26:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234555AbiDRM0K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:10 -0400
+        with ESMTP id S238714AbiDRM0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:13 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCB66AE77;
-        Mon, 18 Apr 2022 05:19:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3FE65E5;
+        Mon, 18 Apr 2022 05:19:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74309B80EC1;
-        Mon, 18 Apr 2022 12:19:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC1E8C385A1;
-        Mon, 18 Apr 2022 12:19:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B19CB80EC4;
+        Mon, 18 Apr 2022 12:19:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6527C385A1;
+        Mon, 18 Apr 2022 12:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284393;
-        bh=hGsffzSflV0Zcd6vbMjc21DkqfkVDRAZ+jfyzuDs23Q=;
+        s=korg; t=1650284396;
+        bh=Wx4NCEWlH2dKwa1cDmSNLQyZi3kQ6S5UPpNLcHYn7bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2/BVx1QIbZnxtNU/YAv+AtZi6Pi1mFRUosIBWMiP4btDZJl00kSymkvt+WcWFjQI
-         3+EUP1yu9m09yemA+s82Pmz4OuG6wtxBBKnPGsUgNcAVC5av3kYYb/0V5Ggfh4tq2G
-         RCKsrNsNd3sdSJ1O/CUT9yM+AONpawZBzofL16sw=
+        b=b2eJLMrzSBQbNNZO6fHf5Fj+s8Zca0mlYsXuIVSDju07dAzvKTRtvmJfHhxeuSyPB
+         wTl0HSgrjGYfolQPzNW5chh4w+M6ezAu/8GcvlvrXpXUGEOY0dlDr8WWmFYAFXYZSp
+         VeyJR6ejeXVjFj9gL5a2vLzKSrjoawD52O5KAjFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 100/219] scsi: iscsi: Fix endpoint reuse regression
-Date:   Mon, 18 Apr 2022 14:11:09 +0200
-Message-Id: <20220418121209.637878903@linuxfoundation.org>
+Subject: [PATCH 5.17 101/219] scsi: iscsi: Fix conn cleanup and stop race during iscsid restart
+Date:   Mon, 18 Apr 2022 14:11:10 +0200
+Message-Id: <20220418121209.680843067@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
 References: <20220418121203.462784814@linuxfoundation.org>
@@ -58,36 +58,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 0aadafb5c34403a7cced1a8d61877048dc059f70 ]
+[ Upstream commit 7c6e99c18167ed89729bf167ccb4a7e3ab3115ba ]
 
-This patch fixes a bug where when using iSCSI offload we can free an
-endpoint while userspace still thinks it's active. That then causes the
-endpoint ID to be reused for a new connection's endpoint while userspace
-still thinks the ID is for the original connection. Userspace will then end
-up disconnecting a running connection's endpoint or trying to bind to
-another connection's endpoint.
+If iscsid is doing a stop_conn at the same time the kernel is starting
+error recovery we can hit a race that allows the cleanup work to run on a
+valid connection. In the race, iscsi_if_stop_conn sees the cleanup bit set,
+but it calls flush_work on the clean_work before iscsi_conn_error_event has
+queued it. The flush then returns before the queueing and so the
+cleanup_work can run later and disconnect/stop a conn while it's in a
+connected state.
 
-This bug is a regression added in:
-
-Commit 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
-
-where we added a in kernel ep_disconnect call to fix a bug in:
+The patch:
 
 Commit 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in
 kernel space")
 
-where we would call stop_conn without having done ep_disconnect. This early
-ep_disconnect call will then free the endpoint and it's ID while userspace
-still thinks the ID is valid.
+added the late stop_conn call bug originally, and the patch:
 
-Fix the early release of the ID by having the in kernel recovery code keep
-a reference to the endpoint until userspace has called into the kernel to
-finish cleaning up the endpoint/connection. It requires the previous commit
-"scsi: iscsi: Release endpoint ID when its freed" which moved the freeing
-of the ID until when the endpoint is released.
+Commit 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
 
-Link: https://lore.kernel.org/r/20220408001314.5014-5-michael.christie@oracle.com
-Fixes: 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
+attempted to fix it but only fixed the normal EH case and left the above
+race for the iscsid restart case. For the normal EH case we don't hit the
+race because we only signal userspace to start recovery after we have done
+the queueing, so the flush will always catch the queued work or see it
+completed.
+
+For iscsid restart cases like boot, we can hit the race because iscsid will
+call down to the kernel before the kernel has signaled any error, so both
+code paths can be running at the same time. This adds a lock around the
+setting of the cleanup bit and queueing so they happen together.
+
+Link: https://lore.kernel.org/r/20220408001314.5014-6-michael.christie@oracle.com
+Fixes: 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in kernel space")
 Tested-by: Manish Rangankar <mrangankar@marvell.com>
 Reviewed-by: Lee Duncan <lduncan@suse.com>
 Reviewed-by: Chris Leech <cleech@redhat.com>
@@ -95,39 +97,109 @@ Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_transport_iscsi.c | 17 +++++++++++++++++
+ include/scsi/scsi_transport_iscsi.h |  2 ++
+ 2 files changed, 19 insertions(+)
 
 diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 03cda2da80ef..4fa2fd7f4c72 100644
+index 4fa2fd7f4c72..ed289e1242c9 100644
 --- a/drivers/scsi/scsi_transport_iscsi.c
 +++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2267,7 +2267,11 @@ static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
+@@ -2260,9 +2260,12 @@ static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
+ 					 bool is_active)
+ {
+ 	/* Check if this was a conn error and the kernel took ownership */
++	spin_lock_irq(&conn->lock);
+ 	if (!test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
++		spin_unlock_irq(&conn->lock);
+ 		iscsi_ep_disconnect(conn, is_active);
+ 	} else {
++		spin_unlock_irq(&conn->lock);
+ 		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
  		mutex_unlock(&conn->ep_mutex);
  
- 		flush_work(&conn->cleanup_work);
--
-+		/*
-+		 * Userspace is now done with the EP so we can release the ref
-+		 * iscsi_cleanup_conn_work_fn took.
-+		 */
-+		iscsi_put_endpoint(ep);
- 		mutex_lock(&conn->ep_mutex);
+@@ -2309,9 +2312,12 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
+ 		/*
+ 		 * Figure out if it was the kernel or userspace initiating this.
+ 		 */
++		spin_lock_irq(&conn->lock);
+ 		if (!test_and_set_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
++			spin_unlock_irq(&conn->lock);
+ 			iscsi_stop_conn(conn, flag);
+ 		} else {
++			spin_unlock_irq(&conn->lock);
+ 			ISCSI_DBG_TRANS_CONN(conn,
+ 					     "flush kernel conn cleanup.\n");
+ 			flush_work(&conn->cleanup_work);
+@@ -2320,7 +2326,9 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
+ 		 * Only clear for recovery to avoid extra cleanup runs during
+ 		 * termination.
+ 		 */
++		spin_lock_irq(&conn->lock);
+ 		clear_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags);
++		spin_unlock_irq(&conn->lock);
  	}
- }
-@@ -2342,6 +2346,12 @@ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
+ 	ISCSI_DBG_TRANS_CONN(conn, "iscsi if conn stop done.\n");
+ 	return 0;
+@@ -2341,7 +2349,9 @@ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
+ 	 */
+ 	if (conn->state != ISCSI_CONN_BOUND && conn->state != ISCSI_CONN_UP) {
+ 		ISCSI_DBG_TRANS_CONN(conn, "Got error while conn is already failed. Ignoring.\n");
++		spin_lock_irq(&conn->lock);
+ 		clear_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags);
++		spin_unlock_irq(&conn->lock);
+ 		mutex_unlock(&conn->ep_mutex);
  		return;
  	}
+@@ -2407,6 +2417,7 @@ iscsi_create_conn(struct iscsi_cls_session *session, int dd_size, uint32_t cid)
+ 		conn->dd_data = &conn[1];
  
-+	/*
-+	 * Get a ref to the ep, so we don't release its ID until after
-+	 * userspace is done referencing it in iscsi_if_disconnect_bound_ep.
-+	 */
-+	if (conn->ep)
-+		get_device(&conn->ep->dev);
- 	iscsi_ep_disconnect(conn, false);
+ 	mutex_init(&conn->ep_mutex);
++	spin_lock_init(&conn->lock);
+ 	INIT_LIST_HEAD(&conn->conn_list);
+ 	INIT_WORK(&conn->cleanup_work, iscsi_cleanup_conn_work_fn);
+ 	conn->transport = transport;
+@@ -2598,9 +2609,12 @@ void iscsi_conn_error_event(struct iscsi_cls_conn *conn, enum iscsi_err error)
+ 	struct iscsi_uevent *ev;
+ 	struct iscsi_internal *priv;
+ 	int len = nlmsg_total_size(sizeof(*ev));
++	unsigned long flags;
  
- 	if (system_state != SYSTEM_RUNNING) {
++	spin_lock_irqsave(&conn->lock, flags);
+ 	if (!test_and_set_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags))
+ 		queue_work(iscsi_conn_cleanup_workq, &conn->cleanup_work);
++	spin_unlock_irqrestore(&conn->lock, flags);
+ 
+ 	priv = iscsi_if_transport_lookup(conn->transport);
+ 	if (!priv)
+@@ -3743,11 +3757,14 @@ static int iscsi_if_transport_conn(struct iscsi_transport *transport,
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&conn->ep_mutex);
++	spin_lock_irq(&conn->lock);
+ 	if (test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
++		spin_unlock_irq(&conn->lock);
+ 		mutex_unlock(&conn->ep_mutex);
+ 		ev->r.retcode = -ENOTCONN;
+ 		return 0;
+ 	}
++	spin_unlock_irq(&conn->lock);
+ 
+ 	switch (nlh->nlmsg_type) {
+ 	case ISCSI_UEVENT_BIND_CONN:
+diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
+index c5d7810fd792..037c77fb5dc5 100644
+--- a/include/scsi/scsi_transport_iscsi.h
++++ b/include/scsi/scsi_transport_iscsi.h
+@@ -211,6 +211,8 @@ struct iscsi_cls_conn {
+ 	struct mutex ep_mutex;
+ 	struct iscsi_endpoint *ep;
+ 
++	/* Used when accessing flags and queueing work. */
++	spinlock_t lock;
+ 	unsigned long flags;
+ 	struct work_struct cleanup_work;
+ 
 -- 
 2.35.1
 
