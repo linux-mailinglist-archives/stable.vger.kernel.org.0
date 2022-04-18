@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11A67505773
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DDF8505457
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244993AbiDRNvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:51:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
+        id S237761AbiDRNFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:05:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245088AbiDRNuk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:50:40 -0400
+        with ESMTP id S241166AbiDRNEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:04:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A507443C6;
-        Mon, 18 Apr 2022 06:02:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B77CD13CDE;
+        Mon, 18 Apr 2022 05:45:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66BD7B80E4B;
-        Mon, 18 Apr 2022 13:01:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7BBAC385A7;
-        Mon, 18 Apr 2022 13:01:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0691B80E4B;
+        Mon, 18 Apr 2022 12:45:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CBFFC385A1;
+        Mon, 18 Apr 2022 12:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286917;
-        bh=nnjzcSjkXQkY+cXRR8C6gfM50YpYpyXjcjEUFdjf0e0=;
+        s=korg; t=1650285923;
+        bh=aB2grxo82eSSMEAM6CaepTwOHhA0YDudYnxtqcMn5/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yd+M4enWfMNJMwpMjWuYb4GePqeKIwgml/CwzL5wvEVnOoLpSjHiNYnfXXq1L1OBg
-         fPCfQvcLelC5LyOpSKt4QeBT4NC7bKrKajwM0+YMnIqaydYWyVuy8/MN3uk2RTkQRt
-         FYDLOFAGkzikldoLSuB0JGC/VmwI9gSySvRo3kfM=
+        b=gsEOMWmbSZZmysQ60GqXDqXlAFXbvon9Kxb1wPoey8/fGofqrmm8qNPj1ElwqVm1i
+         0qyN4zx+PMOEvQnAjKefgeav00ub8V/780Qc4Z7HVFS8NmSusnCTZ4oUfqJpuHPHYx
+         oJD9QC9Pxgev4LRACTaJxz/4g8/qP7aIqxTCzH/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Tejun Heo <tj@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 258/284] cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv
+Subject: [PATCH 5.4 62/63] ax25: Fix NULL pointer dereferences in ax25 timers
 Date:   Mon, 18 Apr 2022 14:13:59 +0200
-Message-Id: <20220418121219.794680750@linuxfoundation.org>
+Message-Id: <20220418121138.296778536@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,223 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 0d2b5955b36250a9428c832664f2079cbf723bec upstream.
+commit fc6d01ff9ef03b66d4a3a23b46fc3c3d8cf92009 upstream.
 
-of->priv is currently used by each interface file implementation to store
-private information. This patch collects the current two private data usages
-into struct cgroup_file_ctx which is allocated and freed by the common path.
-This allows generic private data which applies to multiple files, which will
-be used to in the following patch.
+The previous commit 7ec02f5ac8a5 ("ax25: fix NPD bug in ax25_disconnect")
+move ax25_disconnect into lock_sock() in order to prevent NPD bugs. But
+there are race conditions that may lead to null pointer dereferences in
+ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
+ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we use
+ax25_kill_by_device() to detach the ax25 device.
 
-Note that cgroup_procs iterator is now embedded as procs.iter in the new
-cgroup_file_ctx so that it doesn't need to be allocated and freed
-separately.
+One of the race conditions that cause null pointer dereferences can be
+shown as below:
 
-v2: union dropped from cgroup_file_ctx and the procs iterator is embedded in
-    cgroup_file_ctx as suggested by Linus.
+      (Thread 1)                    |      (Thread 2)
+ax25_connect()                      |
+ ax25_std_establish_data_link()     |
+  ax25_start_t1timer()              |
+   mod_timer(&ax25->t1timer,..)     |
+                                    | ax25_kill_by_device()
+   (wait a time)                    |  ...
+                                    |  s->ax25_dev = NULL; //(1)
+   ax25_t1timer_expiry()            |
+    ax25->ax25_dev->values[..] //(2)|  ...
+     ...                            |
 
-v3: Michal pointed out that cgroup1's procs pidlist uses of->priv too.
-    Converted. Didn't change to embedded allocation as cgroup1 pidlists get
-    stored for caching.
+We set null to ax25_cb->ax25_dev in position (1) and dereference
+the null pointer in position (2).
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-[mkoutny: v5.10: modify cgroup.pressure handlers, adjust context]
-Signed-off-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[OP: backport to v4.14: drop changes to cgroup_pressure_*() functions]
+The corresponding fail log is shown below:
+===============================================================
+BUG: kernel NULL pointer dereference, address: 0000000000000050
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.17.0-rc6-00794-g45690b7d0
+RIP: 0010:ax25_t1timer_expiry+0x12/0x40
+...
+Call Trace:
+ call_timer_fn+0x21/0x120
+ __run_timers.part.0+0x1ca/0x250
+ run_timer_softirq+0x2c/0x60
+ __do_softirq+0xef/0x2f3
+ irq_exit_rcu+0xb6/0x100
+ sysvec_apic_timer_interrupt+0xa2/0xd0
+...
+
+This patch moves ax25_disconnect() before s->ax25_dev = NULL
+and uses del_timer_sync() to delete timers in ax25_disconnect().
+If ax25_disconnect() is called by ax25_kill_by_device() or
+ax25->ax25_dev is NULL, the reason in ax25_disconnect() will be
+equal to ENETUNREACH, it will wait all timers to stop before we
+set null to s->ax25_dev in ax25_kill_by_device().
+
+Fixes: 7ec02f5ac8a5 ("ax25: fix NPD bug in ax25_disconnect")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: backport to 5.4: adjust context]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-internal.h |   17 ++++++++++++++++
- kernel/cgroup/cgroup-v1.c       |   26 +++++++++++++-----------
- kernel/cgroup/cgroup.c          |   42 ++++++++++++++++++++++++----------------
- 3 files changed, 57 insertions(+), 28 deletions(-)
+ net/ax25/af_ax25.c   |    4 ++--
+ net/ax25/ax25_subr.c |   20 ++++++++++++++------
+ 2 files changed, 16 insertions(+), 8 deletions(-)
 
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -8,6 +8,23 @@
- #include <linux/list.h>
- #include <linux/refcount.h>
- 
-+struct cgroup_pidlist;
-+
-+struct cgroup_file_ctx {
-+	struct {
-+		void			*trigger;
-+	} psi;
-+
-+	struct {
-+		bool			started;
-+		struct css_task_iter	iter;
-+	} procs;
-+
-+	struct {
-+		struct cgroup_pidlist	*pidlist;
-+	} procs1;
-+};
-+
- /*
-  * A cgroup can be associated with multiple css_sets as different tasks may
-  * belong to different cgroups on different hierarchies.  In the other
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -426,6 +426,7 @@ static void *cgroup_pidlist_start(struct
- 	 * next pid to display, if any
- 	 */
- 	struct kernfs_open_file *of = s->private;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *cgrp = seq_css(s)->cgroup;
- 	struct cgroup_pidlist *l;
- 	enum cgroup_filetype type = seq_cft(s)->private;
-@@ -435,25 +436,24 @@ static void *cgroup_pidlist_start(struct
- 	mutex_lock(&cgrp->pidlist_mutex);
- 
- 	/*
--	 * !NULL @of->priv indicates that this isn't the first start()
--	 * after open.  If the matching pidlist is around, we can use that.
--	 * Look for it.  Note that @of->priv can't be used directly.  It
--	 * could already have been destroyed.
-+	 * !NULL @ctx->procs1.pidlist indicates that this isn't the first
-+	 * start() after open. If the matching pidlist is around, we can use
-+	 * that. Look for it. Note that @ctx->procs1.pidlist can't be used
-+	 * directly. It could already have been destroyed.
- 	 */
--	if (of->priv)
--		of->priv = cgroup_pidlist_find(cgrp, type);
-+	if (ctx->procs1.pidlist)
-+		ctx->procs1.pidlist = cgroup_pidlist_find(cgrp, type);
- 
- 	/*
- 	 * Either this is the first start() after open or the matching
- 	 * pidlist has been destroyed inbetween.  Create a new one.
- 	 */
--	if (!of->priv) {
--		ret = pidlist_array_load(cgrp, type,
--					 (struct cgroup_pidlist **)&of->priv);
-+	if (!ctx->procs1.pidlist) {
-+		ret = pidlist_array_load(cgrp, type, &ctx->procs1.pidlist);
- 		if (ret)
- 			return ERR_PTR(ret);
- 	}
--	l = of->priv;
-+	l = ctx->procs1.pidlist;
- 
- 	if (pid) {
- 		int end = l->length;
-@@ -481,7 +481,8 @@ static void *cgroup_pidlist_start(struct
- static void cgroup_pidlist_stop(struct seq_file *s, void *v)
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -89,20 +89,20 @@ again:
+ 			sk = s->sk;
+ 			if (!sk) {
+ 				spin_unlock_bh(&ax25_list_lock);
+-				s->ax25_dev = NULL;
+ 				ax25_disconnect(s, ENETUNREACH);
++				s->ax25_dev = NULL;
+ 				spin_lock_bh(&ax25_list_lock);
+ 				goto again;
+ 			}
+ 			sock_hold(sk);
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
++			ax25_disconnect(s, ENETUNREACH);
+ 			s->ax25_dev = NULL;
+ 			if (sk->sk_socket) {
+ 				dev_put(ax25_dev->dev);
+ 				ax25_dev_put(ax25_dev);
+ 			}
+-			ax25_disconnect(s, ENETUNREACH);
+ 			release_sock(sk);
+ 			spin_lock_bh(&ax25_list_lock);
+ 			sock_put(sk);
+--- a/net/ax25/ax25_subr.c
++++ b/net/ax25/ax25_subr.c
+@@ -261,12 +261,20 @@ void ax25_disconnect(ax25_cb *ax25, int
  {
- 	struct kernfs_open_file *of = s->private;
--	struct cgroup_pidlist *l = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
+ 	ax25_clear_queues(ax25);
  
- 	if (l)
- 		mod_delayed_work(cgroup_pidlist_destroy_wq, &l->destroy_dwork,
-@@ -492,7 +493,8 @@ static void cgroup_pidlist_stop(struct s
- static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct cgroup_pidlist *l = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
- 	pid_t *p = v;
- 	pid_t *end = l->list + l->length;
- 	/*
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -3364,18 +3364,31 @@ static int cgroup_stat_show(struct seq_f
- static int cgroup_file_open(struct kernfs_open_file *of)
- {
- 	struct cftype *cft = of->kn->priv;
-+	struct cgroup_file_ctx *ctx;
-+	int ret;
+-	if (!ax25->sk || !sock_flag(ax25->sk, SOCK_DESTROY))
+-		ax25_stop_heartbeat(ax25);
+-	ax25_stop_t1timer(ax25);
+-	ax25_stop_t2timer(ax25);
+-	ax25_stop_t3timer(ax25);
+-	ax25_stop_idletimer(ax25);
++	if (reason == ENETUNREACH) {
++		del_timer_sync(&ax25->timer);
++		del_timer_sync(&ax25->t1timer);
++		del_timer_sync(&ax25->t2timer);
++		del_timer_sync(&ax25->t3timer);
++		del_timer_sync(&ax25->idletimer);
++	} else {
++		if (!ax25->sk || !sock_flag(ax25->sk, SOCK_DESTROY))
++			ax25_stop_heartbeat(ax25);
++		ax25_stop_t1timer(ax25);
++		ax25_stop_t2timer(ax25);
++		ax25_stop_t3timer(ax25);
++		ax25_stop_idletimer(ax25);
++	}
  
--	if (cft->open)
--		return cft->open(of);
--	return 0;
-+	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
-+	if (!ctx)
-+		return -ENOMEM;
-+	of->priv = ctx;
-+
-+	if (!cft->open)
-+		return 0;
-+
-+	ret = cft->open(of);
-+	if (ret)
-+		kfree(ctx);
-+	return ret;
- }
+ 	ax25->state = AX25_STATE_0;
  
- static void cgroup_file_release(struct kernfs_open_file *of)
- {
- 	struct cftype *cft = of->kn->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 
- 	if (cft->release)
- 		cft->release(of);
-+	kfree(ctx);
- }
- 
- static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
-@@ -4270,21 +4283,21 @@ void css_task_iter_end(struct css_task_i
- 
- static void cgroup_procs_release(struct kernfs_open_file *of)
- {
--	if (of->priv) {
--		css_task_iter_end(of->priv);
--		kfree(of->priv);
--	}
-+	struct cgroup_file_ctx *ctx = of->priv;
-+
-+	if (ctx->procs.started)
-+		css_task_iter_end(&ctx->procs.iter);
- }
- 
- static void *cgroup_procs_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct css_task_iter *it = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 
- 	if (pos)
- 		(*pos)++;
- 
--	return css_task_iter_next(it);
-+	return css_task_iter_next(&ctx->procs.iter);
- }
- 
- static void *__cgroup_procs_start(struct seq_file *s, loff_t *pos,
-@@ -4292,21 +4305,18 @@ static void *__cgroup_procs_start(struct
- {
- 	struct kernfs_open_file *of = s->private;
- 	struct cgroup *cgrp = seq_css(s)->cgroup;
--	struct css_task_iter *it = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct css_task_iter *it = &ctx->procs.iter;
- 
- 	/*
- 	 * When a seq_file is seeked, it's always traversed sequentially
- 	 * from position 0, so we can simply keep iterating on !0 *pos.
- 	 */
--	if (!it) {
-+	if (!ctx->procs.started) {
- 		if (WARN_ON_ONCE((*pos)))
- 			return ERR_PTR(-EINVAL);
--
--		it = kzalloc(sizeof(*it), GFP_KERNEL);
--		if (!it)
--			return ERR_PTR(-ENOMEM);
--		of->priv = it;
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
-+		ctx->procs.started = true;
- 	} else if (!(*pos)) {
- 		css_task_iter_end(it);
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
 
 
