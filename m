@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E3450517E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76CCA5052A1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239205AbiDRMfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:35:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51068 "EHLO
+        id S237572AbiDRMq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239699AbiDRMdV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3839064C7;
-        Mon, 18 Apr 2022 05:25:09 -0700 (PDT)
+        with ESMTP id S239589AbiDRMpv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:45:51 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C97EA28E38;
+        Mon, 18 Apr 2022 05:32:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5F1160B40;
-        Mon, 18 Apr 2022 12:25:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2874C385A1;
-        Mon, 18 Apr 2022 12:25:07 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0104FCE10A2;
+        Mon, 18 Apr 2022 12:32:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBEDFC385A7;
+        Mon, 18 Apr 2022 12:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284708;
-        bh=PVzG1MWzkJT1O9czAbwBC3AKAl6ssTuVyBQ1P7VACoc=;
+        s=korg; t=1650285172;
+        bh=h3/4h0H471UJtADRLo2a8XhpcTHhAAbQKbJpOEoncW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JiaucOZ9AqEYirYCFIWhqRLDwu37BMTR997C495c9Hko+rJDaKzRzUMBCPUXeHVaw
-         JB/bplPbtLrcDefFX4Ie8/scQvqZylMavK3ngEI8q8G7TKXaq1QMbPYvRXNmeYRgZe
-         2Hziq8xl31/dkFhXIZSaYhni3B8sXJYwzPCN+eNY=
+        b=QANXYxXPqftzPW/2TwIopWHM3r620oqxiDjf8sg9A1v3HwGOoAAj0QcDM0+YwkeL2
+         zPwU2nlENo3MFHleEzcVngzQ+BLXNWr7zGGxgazycP6LmzASdxoogJkOZSXOcX2lTy
+         rKfdxW7tPs2yEXod+uOdfPKbOIcw79h7IPBVmywo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Rasmussen <axelrasmussen@google.com>,
-        Mike Rapoport <rppt@kernel.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 175/219] mm/secretmem: fix panic when growing a memfd_secret
+        stable@vger.kernel.org, Leo Ruan <tingquan.ruan@cn.bosch.com>,
+        Mark Jonas <mark.jonas@de.bosch.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 124/189] gpu: ipu-v3: Fix dev_dbg frequency output
 Date:   Mon, 18 Apr 2022 14:12:24 +0200
-Message-Id: <20220418121211.776725349@linuxfoundation.org>
+Message-Id: <20220418121204.388596778@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,130 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Rasmussen <axelrasmussen@google.com>
+From: Leo Ruan <tingquan.ruan@cn.bosch.com>
 
-commit f9b141f93659e09a52e28791ccbaf69c273b8e92 upstream.
+[ Upstream commit 070a88fd4a03f921b73a2059e97d55faaa447dab ]
 
-When one tries to grow an existing memfd_secret with ftruncate, one gets
-a panic [1].  For example, doing the following reliably induces the
-panic:
+This commit corrects the printing of the IPU clock error percentage if
+it is between -0.1% to -0.9%. For example, if the pixel clock requested
+is 27.2 MHz but only 27.0 MHz can be achieved the deviation is -0.8%.
+But the fixed point math had a flaw and calculated error of 0.2%.
 
-    fd = memfd_secret();
+Before:
+  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
+  IPU clock can give 27000000 with divider 10, error 0.2%
+  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
 
-    ftruncate(fd, 10);
-    ptr = mmap(NULL, 10, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    strcpy(ptr, "123456789");
+After:
+  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
+  IPU clock can give 27000000 with divider 10, error -0.8%
+  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
 
-    munmap(ptr, 10);
-    ftruncate(fd, 20);
-
-The basic reason for this is, when we grow with ftruncate, we call down
-into simple_setattr, and then truncate_inode_pages_range, and eventually
-we try to zero part of the memory.  The normal truncation code does this
-via the direct map (i.e., it calls page_address() and hands that to
-memset()).
-
-For memfd_secret though, we specifically don't map our pages via the
-direct map (i.e.  we call set_direct_map_invalid_noflush() on every
-fault).  So the address returned by page_address() isn't useful, and
-when we try to memset() with it we panic.
-
-This patch avoids the panic by implementing a custom setattr for
-memfd_secret, which detects resizes specifically (setting the size for
-the first time works just fine, since there are no existing pages to try
-to zero), and rejects them with EINVAL.
-
-One could argue growing should be supported, but I think that will
-require a significantly more lengthy change.  So, I propose a minimal
-fix for the benefit of stable kernels, and then perhaps to extend
-memfd_secret to support growing in a separate patch.
-
-[1]:
-
-  BUG: unable to handle page fault for address: ffffa0a889277028
-  #PF: supervisor write access in kernel mode
-  #PF: error_code(0x0002) - not-present page
-  PGD afa01067 P4D afa01067 PUD 83f909067 PMD 83f8bf067 PTE 800ffffef6d88060
-  Oops: 0002 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
-  CPU: 0 PID: 281 Comm: repro Not tainted 5.17.0-dbg-DEV #1
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
-  RIP: 0010:memset_erms+0x9/0x10
-  Code: c1 e9 03 40 0f b6 f6 48 b8 01 01 01 01 01 01 01 01 48 0f af c6 f3 48 ab 89 d1 f3 aa 4c 89 c8 c3 90 49 89 f9 40 88 f0 48 89 d1 <f3> aa 4c 89 c8 c3 90 49 89 fa 40 0f b6 ce 48 b8 01 01 01 01 01 01
-  RSP: 0018:ffffb932c09afbf0 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffffda63c4249dc0 RCX: 0000000000000fd8
-  RDX: 0000000000000fd8 RSI: 0000000000000000 RDI: ffffa0a889277028
-  RBP: ffffb932c09afc00 R08: 0000000000001000 R09: ffffa0a889277028
-  R10: 0000000000020023 R11: 0000000000000000 R12: ffffda63c4249dc0
-  R13: ffffa0a890d70d98 R14: 0000000000000028 R15: 0000000000000fd8
-  FS:  00007f7294899580(0000) GS:ffffa0af9bc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffffa0a889277028 CR3: 0000000107ef6006 CR4: 0000000000370ef0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   ? zero_user_segments+0x82/0x190
-   truncate_inode_partial_folio+0xd4/0x2a0
-   truncate_inode_pages_range+0x380/0x830
-   truncate_setsize+0x63/0x80
-   simple_setattr+0x37/0x60
-   notify_change+0x3d8/0x4d0
-   do_sys_ftruncate+0x162/0x1d0
-   __x64_sys_ftruncate+0x1c/0x20
-   do_syscall_64+0x44/0xa0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  Modules linked in: xhci_pci xhci_hcd virtio_net net_failover failover virtio_blk virtio_balloon uhci_hcd ohci_pci ohci_hcd evdev ehci_pci ehci_hcd 9pnet_virtio 9p netfs 9pnet
-  CR2: ffffa0a889277028
-
-[lkp@intel.com: secretmem_iops can be static]
-  Signed-off-by: kernel test robot <lkp@intel.com>
-[axelrasmussen@google.com: return EINVAL]
-
-Link: https://lkml.kernel.org/r/20220324210909.1843814-1-axelrasmussen@google.com
-Link: https://lkml.kernel.org/r/20220412193023.279320-1-axelrasmussen@google.com
-Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Cc: kernel test robot <lkp@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Leo Ruan <tingquan.ruan@cn.bosch.com>
+Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20220207151411.5009-1-mark.jonas@de.bosch.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/secretmem.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/gpu/ipu-v3/ipu-di.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/mm/secretmem.c
-+++ b/mm/secretmem.c
-@@ -158,6 +158,22 @@ const struct address_space_operations se
- 	.isolate_page	= secretmem_isolate_page,
- };
+diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
+index 666223c6bec4..0a34e0ab4fe6 100644
+--- a/drivers/gpu/ipu-v3/ipu-di.c
++++ b/drivers/gpu/ipu-v3/ipu-di.c
+@@ -447,8 +447,9 @@ static void ipu_di_config_clock(struct ipu_di *di,
  
-+static int secretmem_setattr(struct user_namespace *mnt_userns,
-+			     struct dentry *dentry, struct iattr *iattr)
-+{
-+	struct inode *inode = d_inode(dentry);
-+	unsigned int ia_valid = iattr->ia_valid;
-+
-+	if ((ia_valid & ATTR_SIZE) && inode->i_size)
-+		return -EINVAL;
-+
-+	return simple_setattr(mnt_userns, dentry, iattr);
-+}
-+
-+static const struct inode_operations secretmem_iops = {
-+	.setattr = secretmem_setattr,
-+};
-+
- static struct vfsmount *secretmem_mnt;
+ 		error = rate / (sig->mode.pixelclock / 1000);
  
- static struct file *secretmem_file_create(unsigned long flags)
-@@ -177,6 +193,7 @@ static struct file *secretmem_file_creat
- 	mapping_set_gfp_mask(inode->i_mapping, GFP_HIGHUSER);
- 	mapping_set_unevictable(inode->i_mapping);
+-		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %d.%u%%\n",
+-			rate, div, (signed)(error - 1000) / 10, error % 10);
++		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %c%d.%d%%\n",
++			rate, div, error < 1000 ? '-' : '+',
++			abs(error - 1000) / 10, abs(error - 1000) % 10);
  
-+	inode->i_op = &secretmem_iops;
- 	inode->i_mapping->a_ops = &secretmem_aops;
- 
- 	/* pretend we are a normal file with zero size */
+ 		/* Allow a 1% error */
+ 		if (error < 1010 && error >= 990) {
+-- 
+2.35.1
+
 
 
