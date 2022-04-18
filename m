@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66F855057E2
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC495051D8
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244370AbiDRN5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:57:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45996 "EHLO
+        id S239650AbiDRMl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244512AbiDRN4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6893BAE50;
-        Mon, 18 Apr 2022 06:05:13 -0700 (PDT)
+        with ESMTP id S237028AbiDRMkR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:40:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D34491EC53;
+        Mon, 18 Apr 2022 05:31:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 133A1B80EDC;
-        Mon, 18 Apr 2022 13:05:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ED9FC385A7;
-        Mon, 18 Apr 2022 13:05:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89699B80ED6;
+        Mon, 18 Apr 2022 12:31:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8CFEC385A1;
+        Mon, 18 Apr 2022 12:31:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287110;
-        bh=FJARBZBjsKTFIZCwEbBcLJQp8/d4yzz5kJwdbs6GYbI=;
+        s=korg; t=1650285110;
+        bh=ogGjmCDq5QrMaH3jBGzB1qxKHkMwVdOZIsCxhf3tPrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpkOXp/HNRSzRxaeO1PEmcbVa4lb233q6PteJ8ErlYPtg6An4R93OujgSW94LL2tH
-         y/+cqry7YEU8WBJqzGI4y+3tFPzq3iw9NvginDOa0oBrxLNaxFQUIjRrDawLffYkrl
-         K5Vr9yd9XBWb+FB9LotGbHLxDCeSUrqcr6576CZU=
+        b=P+C3BQCtmfu4DZTinspYQW5HZpeHYTsxZre/XA30BgoB7sqwUjV9+xQhenYDOz1he
+         V9VQ1qWQo5vBkNk1DwLP558Z6wg7zmkfbvb1nAC38yeskhKV111npXFTS9MxhTi1lL
+         jvF7iL0Tb7Bxa2yQ3d/z/FzoaENsyx9v2eWr3BgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 060/218] ASoC: ti: davinci-i2s: Add check for clk_enable()
+Subject: [PATCH 5.15 106/189] btrfs: fix fallocate to use file_modified to update permissions consistently
 Date:   Mon, 18 Apr 2022 14:12:06 +0200
-Message-Id: <20220418121201.330094241@linuxfoundation.org>
+Message-Id: <20220418121203.510546204@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit ed7c9fef11931fc5d32a83d68017ff390bf5c280 ]
+[ Upstream commit 05fd9564e9faf0f23b4676385e27d9405cef6637 ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error
-if fails.
+Since the initial introduction of (posix) fallocate back at the turn of
+the century, it has been possible to use this syscall to change the
+user-visible contents of files.  This can happen by extending the file
+size during a preallocation, or through any of the newer modes (punch,
+zero range).  Because the call can be used to change file contents, we
+should treat it like we do any other modification to a file -- update
+the mtime, and drop set[ug]id privileges/capabilities.
 
-Fixes: 5f9a50c3e55e ("ASoC: Davinci: McBSP: add device tree support for McBSP")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20220228031540.3571959-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The VFS function file_modified() does all this for us if pass it a
+locked inode, so let's make fallocate drop permissions correctly.
+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/davinci/davinci-i2s.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/btrfs/file.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/davinci/davinci-i2s.c b/sound/soc/davinci/davinci-i2s.c
-index 384961651904..e5f61f1499c6 100644
---- a/sound/soc/davinci/davinci-i2s.c
-+++ b/sound/soc/davinci/davinci-i2s.c
-@@ -719,7 +719,9 @@ static int davinci_i2s_probe(struct platform_device *pdev)
- 	dev->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(dev->clk))
- 		return -ENODEV;
--	clk_enable(dev->clk);
-+	ret = clk_enable(dev->clk);
-+	if (ret)
-+		goto err_put_clk;
- 
- 	dev->dev = &pdev->dev;
- 	dev_set_drvdata(&pdev->dev, dev);
-@@ -741,6 +743,7 @@ static int davinci_i2s_probe(struct platform_device *pdev)
- 	snd_soc_unregister_component(&pdev->dev);
- err_release_clk:
- 	clk_disable(dev->clk);
-+err_put_clk:
- 	clk_put(dev->clk);
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index a1762363f61f..dc1e4d1b7291 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2878,8 +2878,9 @@ int btrfs_replace_file_extents(struct btrfs_inode *inode,
  	return ret;
  }
+ 
+-static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
++static int btrfs_punch_hole(struct file *file, loff_t offset, loff_t len)
+ {
++	struct inode *inode = file_inode(file);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+ 	struct btrfs_root *root = BTRFS_I(inode)->root;
+ 	struct extent_state *cached_state = NULL;
+@@ -2911,6 +2912,10 @@ static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
+ 		goto out_only_mutex;
+ 	}
+ 
++	ret = file_modified(file);
++	if (ret)
++		goto out_only_mutex;
++
+ 	lockstart = round_up(offset, btrfs_inode_sectorsize(BTRFS_I(inode)));
+ 	lockend = round_down(offset + len,
+ 			     btrfs_inode_sectorsize(BTRFS_I(inode))) - 1;
+@@ -3351,7 +3356,7 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 		return -EOPNOTSUPP;
+ 
+ 	if (mode & FALLOC_FL_PUNCH_HOLE)
+-		return btrfs_punch_hole(inode, offset, len);
++		return btrfs_punch_hole(file, offset, len);
+ 
+ 	/*
+ 	 * Only trigger disk allocation, don't trigger qgroup reserve
+@@ -3373,6 +3378,10 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 			goto out;
+ 	}
+ 
++	ret = file_modified(file);
++	if (ret)
++		goto out;
++
+ 	/*
+ 	 * TODO: Move these two operations after we have checked
+ 	 * accurate reserved space, or fallocate can still fail but
 -- 
-2.34.1
+2.35.1
 
 
 
