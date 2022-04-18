@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 560A9505546
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98545504FFD
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240495AbiDRNQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:16:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53832 "EHLO
+        id S238248AbiDRMUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:20:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241533AbiDRNIC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23172B1BA;
-        Mon, 18 Apr 2022 05:47:43 -0700 (PDT)
+        with ESMTP id S238293AbiDRMTr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:19:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B7F1AD82;
+        Mon, 18 Apr 2022 05:16:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6750461251;
-        Mon, 18 Apr 2022 12:47:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6504BC385A7;
-        Mon, 18 Apr 2022 12:47:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBE0CB80ED7;
+        Mon, 18 Apr 2022 12:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4119AC385A7;
+        Mon, 18 Apr 2022 12:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286062;
-        bh=Hi+qGAM0+K6aRhN2ffkWQJ1vVgUzo9g09tmdPd5/DCc=;
+        s=korg; t=1650284186;
+        bh=EZMe7uLrGbWSPYQn3i6lEKA3laK3wH5AEgSfDubv4Tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySL21fj6H1k7yr0sbWl+7Ss+10QH1ly1TeDGGm0Q8anGO0CStPNw7QKQU5NXhsSzB
-         IaSOUPvYDqvQ/wQwTc1hmnUprS28kqA758piTLyjCQrjw5DmEX80TANYlQwZO7gpKB
-         PHyXNTs3mvo+oIs/Bb/WPtmvr8ZkvLWkB0byFbp0=
+        b=Ypx3IEepbadPpHuT36C7Au9XgvPSa5RLiTgEY4X+XgL/sfY8+LK/T2odexNhEd+EX
+         FjdSfJqe1cIkzsnfJqGDT0aNNpIMwdG4U74/C8zvUnWfzQNVi/44UrRjIHDaV7qXGD
+         CM1T1djVI6BD2kOpqR/YVlyGd2vmqLg7tyvXnFQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 4.14 018/284] clk: uniphier: Fix fixed-rate initialization
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 030/219] ALSA: cs5535audio: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:09:59 +0200
-Message-Id: <20220418121211.215907720@linuxfoundation.org>
+Message-Id: <20220418121205.081892124@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ca85a66710a8a1f6b0719397225c3e9ee0abb692 upstream.
+commit 2a56314798e0227cf51e3d1d184a419dc07bc173 upstream.
 
-Fixed-rate clocks in UniPhier don't have any parent clocks, however,
-initial data "init.flags" isn't initialized, so it might be determined
-that there is a parent clock for fixed-rate clock.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-This sets init.flags to zero as initialization.
-
+Fixes: 5eba4c646dfe ("ALSA: cs5535audio: Allocate resources with device-managed APIs")
 Cc: <stable@vger.kernel.org>
-Fixes: 734d82f4a678 ("clk: uniphier: add core support code for UniPhier clock driver")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/1646808918-30899-1-git-send-email-hayashi.kunihiko@socionext.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-12-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/uniphier/clk-uniphier-fixed-rate.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/cs5535audio/cs5535audio.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/uniphier/clk-uniphier-fixed-rate.c
-+++ b/drivers/clk/uniphier/clk-uniphier-fixed-rate.c
-@@ -33,6 +33,7 @@ struct clk_hw *uniphier_clk_register_fix
+--- a/sound/pci/cs5535audio/cs5535audio.c
++++ b/sound/pci/cs5535audio/cs5535audio.c
+@@ -281,8 +281,8 @@ static int snd_cs5535audio_create(struct
+ 	return 0;
+ }
  
- 	init.name = name;
- 	init.ops = &clk_fixed_rate_ops;
-+	init.flags = 0;
- 	init.parent_names = NULL;
- 	init.num_parents = 0;
+-static int snd_cs5535audio_probe(struct pci_dev *pci,
+-				 const struct pci_device_id *pci_id)
++static int __snd_cs5535audio_probe(struct pci_dev *pci,
++				   const struct pci_device_id *pci_id)
+ {
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -331,6 +331,12 @@ static int snd_cs5535audio_probe(struct
+ 	return 0;
+ }
  
++static int snd_cs5535audio_probe(struct pci_dev *pci,
++				 const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_cs5535audio_probe(pci, pci_id));
++}
++
+ static struct pci_driver cs5535audio_driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = snd_cs5535audio_ids,
 
 
