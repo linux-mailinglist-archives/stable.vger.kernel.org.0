@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94505505401
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC3050541D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239601AbiDRNCF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:02:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32984 "EHLO
+        id S240997AbiDRNEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:04:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242600AbiDRNAM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:00:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 648F82654A;
-        Mon, 18 Apr 2022 05:41:42 -0700 (PDT)
+        with ESMTP id S241671AbiDRNDY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86C8933E28;
+        Mon, 18 Apr 2022 05:44:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB13460FB6;
-        Mon, 18 Apr 2022 12:41:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBBEC385A7;
-        Mon, 18 Apr 2022 12:41:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1400AB80E4B;
+        Mon, 18 Apr 2022 12:44:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EA2EC385A1;
+        Mon, 18 Apr 2022 12:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285701;
-        bh=Odt4DJtsfZ7z8p8zyvoADS1a7B/5C/8yhLV1aaCq0Ak=;
+        s=korg; t=1650285839;
+        bh=FndZYfUSXaI+j6oH0t5F4btQ64JgEFYgdQQJjXBnm1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMDLisGjlo+KkrzHZL0EBleZot6ofZlkHbKlLUyCr5h1Lfo6wX/r3tIY8IyoywGn9
-         f97g++lGIMmYT+rg5msdST1MF7PtcxcVNyIDuf5QwnHosQmDIOJwjoK5x3iZvMM0GZ
-         /PXaKsDb/ecA/HIrbDqQVOsHuGZ4H7M+hSSnkU9A=
+        b=xVb1q9YvDPmMUTUiUnNhNaDqDebGnnDe+XQnhFZGihuZXS7TbRYtLTT5FyILAW416
+         D7R5se+PzdpTqtWX+ilNSeiPRYkibEmZdqina/Ctj+8FUo5DudNxQuIRYnWNX6HXzI
+         QO7vqFzWfnO9WaRDqPUhAHuwgdwtZg8aCoCUuCrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Zhaoyang1 <zhaoyang1.wang@intel.com>,
-        Gao Liang <liang.gao@intel.com>, Chao Gao <chao.gao@intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.10 095/105] dma-direct: avoid redundant memory sync for swiotlb
-Date:   Mon, 18 Apr 2022 14:13:37 +0200
-Message-Id: <20220418121149.333362237@linuxfoundation.org>
+        stable@vger.kernel.org, Bagas Sanjaya <bagasdotme@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.4 41/63] ath9k: Properly clear TX status area before reporting to mac80211
+Date:   Mon, 18 Apr 2022 14:13:38 +0200
+Message-Id: <20220418121136.979138803@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Gao <chao.gao@intel.com>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-commit 9e02977bfad006af328add9434c8bffa40e053bb upstream.
+commit 037250f0a45cf9ecf5b52d4b9ff8eadeb609c800 upstream.
 
-When we looked into FIO performance with swiotlb enabled in VM, we found
-swiotlb_bounce() is always called one more time than expected for each DMA
-read request.
+The ath9k driver was not properly clearing the status area in the
+ieee80211_tx_info struct before reporting TX status to mac80211. Instead,
+it was manually filling in fields, which meant that fields introduced later
+were left as-is.
 
-It turns out that the bounce buffer is copied to original DMA buffer twice
-after the completion of a DMA request (one is done by in
-dma_direct_sync_single_for_cpu(), the other by swiotlb_tbl_unmap_single()).
-But the content in bounce buffer actually doesn't change between the two
-rounds of copy. So, one round of copy is redundant.
+Conveniently, mac80211 actually provides a helper to zero out the status
+area, so use that to make sure we zero everything.
 
-Pass DMA_ATTR_SKIP_CPU_SYNC flag to swiotlb_tbl_unmap_single() to
-skip the memory copy in it.
+The last commit touching the driver function writing the status information
+seems to have actually been fixing an issue that was also caused by the
+area being uninitialised; but it only added clearing of a single field
+instead of the whole struct. That is now redundant, though, so revert that
+commit and use it as a convenient Fixes tag.
 
-This fix increases FIO 64KB sequential read throughput in a guest with
-swiotlb=force by 5.6%.
-
-Fixes: 55897af63091 ("dma-direct: merge swiotlb_dma_ops into the dma_direct code")
-Reported-by: Wang Zhaoyang1 <zhaoyang1.wang@intel.com>
-Reported-by: Gao Liang <liang.gao@intel.com>
-Signed-off-by: Chao Gao <chao.gao@intel.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: cc591d77aba1 ("ath9k: Make sure to zero status.tx_time before reporting TX status")
+Reported-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220330164409.16645-1-toke@toke.dk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/direct.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/xmit.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/kernel/dma/direct.h
-+++ b/kernel/dma/direct.h
-@@ -114,6 +114,7 @@ static inline void dma_direct_unmap_page
- 		dma_direct_sync_single_for_cpu(dev, addr, size, dir);
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -2509,6 +2509,8 @@ static void ath_tx_rc_status(struct ath_
+ 	struct ath_hw *ah = sc->sc_ah;
+ 	u8 i, tx_rateindex;
  
- 	if (unlikely(is_swiotlb_buffer(phys)))
--		swiotlb_tbl_unmap_single(dev, phys, size, size, dir, attrs);
-+		swiotlb_tbl_unmap_single(dev, phys, size, size, dir,
-+					 attrs | DMA_ATTR_SKIP_CPU_SYNC);
++	ieee80211_tx_info_clear_status(tx_info);
++
+ 	if (txok)
+ 		tx_info->status.ack_signal = ts->ts_rssi;
+ 
+@@ -2551,9 +2553,6 @@ static void ath_tx_rc_status(struct ath_
+ 	}
+ 
+ 	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
+-
+-	/* we report airtime in ath_tx_count_airtime(), don't report twice */
+-	tx_info->status.tx_time = 0;
  }
- #endif /* _KERNEL_DMA_DIRECT_H */
+ 
+ static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
 
 
