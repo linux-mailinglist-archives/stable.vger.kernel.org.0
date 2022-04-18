@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DDD50532D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6FFA5056C0
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240077AbiDRMz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:55:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50980 "EHLO
+        id S242816AbiDRNkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:40:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240335AbiDRMzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:10 -0400
+        with ESMTP id S242837AbiDRNjS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:39:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9299AE5C;
-        Mon, 18 Apr 2022 05:36:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 244A62E9E9;
+        Mon, 18 Apr 2022 05:59:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BD33B80EDB;
-        Mon, 18 Apr 2022 12:36:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D77AAC385A8;
-        Mon, 18 Apr 2022 12:36:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E679B80E4B;
+        Mon, 18 Apr 2022 12:59:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B0FCC385A1;
+        Mon, 18 Apr 2022 12:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285387;
-        bh=pNqvtigH1UvR7xszdOOR5JgxaJmqI6f+QEhS7rm9qFk=;
+        s=korg; t=1650286740;
+        bh=OL2qBroa8H4S4r4WkLyUvw6h5L+SRO+M+4N64HvPoGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tXizCNydTmbm7zf1XtmwQq6/3Ti75WSXh75mxKvI+n2+lvJoOXmieZ9oAXLYzo92/
-         bE/xmgn8krad5iJ8jf35Rpi932a0Q794Nl4Kj6jzFmhPp9SWem11oK8Ar0m26/jPw2
-         GyPMyy9yOhS6lucdZcsIHvYoYNNNw60j7kAQBLNQ=
+        b=yZsi01j+L+jFAYoxeK4Vt8PYf7TW85JdehHn+XNxSaxUhseLOS0kkg4jjXv4K17Cm
+         cJa8MRKZ3dq8dGXj/fs5jDmQ2jivcDI4wALv4I7vms/dRg7sIoZAcQ40XPHlNovky/
+         RZKs6sIkCOxaUSvKZzh18ie4BV4opoZSOqPAqgzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongjin Yang <dj76.yang@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.15 174/189] dt-bindings: net: snps: remove duplicate name
+        stable@vger.kernel.org, Abdul haleem <abdhalee@linux.vnet.ibm.com>,
+        Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 213/284] powerpc: Set crashkernel offset to mid of RMA region
 Date:   Mon, 18 Apr 2022 14:13:14 +0200
-Message-Id: <20220418121207.801781560@linuxfoundation.org>
+Message-Id: <20220418121217.773575377@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongjin Yang <dj76.yang@samsung.com>
+From: Sourabh Jain <sourabhjain@linux.ibm.com>
 
-commit ce8b3ad1071b764e963d9b08ac34ffddddf12da6 upstream.
+[ Upstream commit 7c5ed82b800d8615cdda00729e7b62e5899f0b13 ]
 
-snps,dwmac has duplicated name for loongson,ls2k-dwmac and
-loongson,ls7a-dwmac.
+On large config LPARs (having 192 and more cores), Linux fails to boot
+due to insufficient memory in the first memblock. It is due to the
+memory reservation for the crash kernel which starts at 128MB offset of
+the first memblock. This memory reservation for the crash kernel doesn't
+leave enough space in the first memblock to accommodate other essential
+system resources.
 
-Signed-off-by: Dongjin Yang <dj76.yang@samsung.com>
-Fixes: 68277749a013 ("dt-bindings: dwmac: Add bindings for new Loongson SoC and bridge chip")
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220404022857epcms1p6e6af1a6a86569f339e50c318abde7d3c@epcms1p6
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The crash kernel start address was set to 128MB offset by default to
+ensure that the crash kernel get some memory below the RMA region which
+is used to be of size 256MB. But given that the RMA region size can be
+512MB or more, setting the crash kernel offset to mid of RMA size will
+leave enough space for the kernel to allocate memory for other system
+resources.
+
+Since the above crash kernel offset change is only applicable to the LPAR
+platform, the LPAR feature detection is pushed before the crash kernel
+reservation. The rest of LPAR specific initialization will still
+be done during pseries_probe_fw_features as usual.
+
+This patch is dependent on changes to paca allocation for boot CPU. It
+expect boot CPU to discover 1T segment support which is introduced by
+the patch posted here:
+https://lists.ozlabs.org/pipermail/linuxppc-dev/2022-January/239175.html
+
+Reported-by: Abdul haleem <abdhalee@linux.vnet.ibm.com>
+Signed-off-by: Sourabh Jain <sourabhjain@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220204085601.107257-1-sourabhjain@linux.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/net/snps,dwmac.yaml |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/machine_kexec.c | 15 +++++++++++----
+ arch/powerpc/kernel/rtas.c          |  6 ++++++
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
---- a/Documentation/devicetree/bindings/net/snps,dwmac.yaml
-+++ b/Documentation/devicetree/bindings/net/snps,dwmac.yaml
-@@ -53,20 +53,18 @@ properties:
-         - allwinner,sun8i-r40-emac
-         - allwinner,sun8i-v3s-emac
-         - allwinner,sun50i-a64-emac
--        - loongson,ls2k-dwmac
--        - loongson,ls7a-dwmac
-         - amlogic,meson6-dwmac
-         - amlogic,meson8b-dwmac
-         - amlogic,meson8m2-dwmac
-         - amlogic,meson-gxbb-dwmac
-         - amlogic,meson-axg-dwmac
--        - loongson,ls2k-dwmac
--        - loongson,ls7a-dwmac
-         - ingenic,jz4775-mac
-         - ingenic,x1000-mac
-         - ingenic,x1600-mac
-         - ingenic,x1830-mac
-         - ingenic,x2000-mac
-+        - loongson,ls2k-dwmac
-+        - loongson,ls7a-dwmac
-         - rockchip,px30-gmac
-         - rockchip,rk3128-gmac
-         - rockchip,rk3228-gmac
+diff --git a/arch/powerpc/kernel/machine_kexec.c b/arch/powerpc/kernel/machine_kexec.c
+index cb4d6cd949fc..101b0fb7a80e 100644
+--- a/arch/powerpc/kernel/machine_kexec.c
++++ b/arch/powerpc/kernel/machine_kexec.c
+@@ -145,11 +145,18 @@ void __init reserve_crashkernel(void)
+ 	if (!crashk_res.start) {
+ #ifdef CONFIG_PPC64
+ 		/*
+-		 * On 64bit we split the RMO in half but cap it at half of
+-		 * a small SLB (128MB) since the crash kernel needs to place
+-		 * itself and some stacks to be in the first segment.
++		 * On the LPAR platform place the crash kernel to mid of
++		 * RMA size (512MB or more) to ensure the crash kernel
++		 * gets enough space to place itself and some stack to be
++		 * in the first segment. At the same time normal kernel
++		 * also get enough space to allocate memory for essential
++		 * system resource in the first segment. Keep the crash
++		 * kernel starts at 128MB offset on other platforms.
+ 		 */
+-		crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
++		if (firmware_has_feature(FW_FEATURE_LPAR))
++			crashk_res.start = ppc64_rma_size / 2;
++		else
++			crashk_res.start = min(0x8000000ULL, (ppc64_rma_size / 2));
+ #else
+ 		crashk_res.start = KDUMP_KERNELBASE;
+ #endif
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 55b266d7afe1..912e7f69266e 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -1356,6 +1356,12 @@ int __init early_init_dt_scan_rtas(unsigned long node,
+ 	entryp = of_get_flat_dt_prop(node, "linux,rtas-entry", NULL);
+ 	sizep  = of_get_flat_dt_prop(node, "rtas-size", NULL);
+ 
++#ifdef CONFIG_PPC64
++	/* need this feature to decide the crashkernel offset */
++	if (of_get_flat_dt_prop(node, "ibm,hypertas-functions", NULL))
++		powerpc_firmware_features |= FW_FEATURE_LPAR;
++#endif
++
+ 	if (basep && entryp && sizep) {
+ 		rtas.base = *basep;
+ 		rtas.entry = *entryp;
+-- 
+2.35.1
+
 
 
