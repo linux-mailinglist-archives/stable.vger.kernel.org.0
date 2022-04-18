@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 489405053C5
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC892505129
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238950AbiDRNB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:01:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59820 "EHLO
+        id S232696AbiDRMdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:33:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240754AbiDRM5r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:57:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 341561EAE1;
-        Mon, 18 Apr 2022 05:38:11 -0700 (PDT)
+        with ESMTP id S239129AbiDRMca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:32:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03BB425C63;
+        Mon, 18 Apr 2022 05:24:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C45F0611C9;
-        Mon, 18 Apr 2022 12:38:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC17FC385A1;
-        Mon, 18 Apr 2022 12:38:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8057DB80EDC;
+        Mon, 18 Apr 2022 12:24:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1627C385A8;
+        Mon, 18 Apr 2022 12:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285490;
-        bh=i7p1YOA6p0fYT/6rbcn2SjUD3Aoez1I2BKuR2Y8Sbf8=;
+        s=korg; t=1650284655;
+        bh=3bHy/wYQTMAAnmXKp8hsCqv0GdHuis91S7ttaakptnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gy7Od/FRNmMlYOnPMekhz2LOpNjolo7iQki+gdCbXWlYrjU8Rdg/oITSmv1xNxlLp
-         kjHFTpEWE0x9QqPuVtKaF/0P/GN4tuu9pek1/QONhm3lFdL8yD1antJRiHlEskNIj9
-         0Tu/TgL5N5zJQZ9dPYdn3XYjlPQ5NABnOktY+/Fg=
+        b=JJSrVOnisbw873t5LLTsHKWrmoNl3JIH1Cc8C0TUW5go8LMJ5Vu0BuBOggp6xBpev
+         aVZexuCcbnnR1PhWWjTbzdZoB4PFOghaV9IAf4T0euFtnUQ/g9REnhib8cdQur/of+
+         C2ygbksQk4vUWGGhO2QMJV4da6ml7Sef48Nw4b/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/105] scsi: iscsi: Fix offload conn cleanup when iscsid restarts
+        stable@vger.kernel.org, PaX Team <pageexec@freemail.hu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.17 186/219] gcc-plugins: latent_entropy: use /dev/urandom
 Date:   Mon, 18 Apr 2022 14:12:35 +0200
-Message-Id: <20220418121147.335723112@linuxfoundation.org>
+Message-Id: <20220418121212.085302880@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,115 +54,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit cbd2283aaf47fef4ded4b29124b1ef3beb515f3a ]
+commit c40160f2998c897231f8454bf797558d30a20375 upstream.
 
-When userspace restarts during boot or upgrades it won't know about the
-offload driver's endpoint and connection mappings. iscsid will start by
-cleaning up the old session by doing a stop_conn call. Later, if we are
-able to create a new connection, we clean up the old endpoint during the
-binding stage. The problem is that if we do stop_conn before doing the
-ep_disconnect call offload, drivers can still be executing I/O. We then
-might free tasks from the under the card/driver.
+While the latent entropy plugin mostly doesn't derive entropy from
+get_random_const() for measuring the call graph, when __latent_entropy is
+applied to a constant, then it's initialized statically to output from
+get_random_const(). In that case, this data is derived from a 64-bit
+seed, which means a buffer of 512 bits doesn't really have that amount
+of compile-time entropy.
 
-This moves the ep_disconnect call to before we do the stop_conn call for
-this case. It will then work and look like a normal recovery/cleanup
-procedure from the driver's point of view.
+This patch fixes that shortcoming by just buffering chunks of
+/dev/urandom output and doling it out as requested.
 
-Link: https://lore.kernel.org/r/20220408001314.5014-3-michael.christie@oracle.com
-Tested-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+At the same time, it's important that we don't break the use of
+-frandom-seed, for people who want the runtime benefits of the latent
+entropy plugin, while still having compile-time determinism. In that
+case, we detect whether gcc's set_random_seed() has been called by
+making a call to get_random_seed(noinit=true) in the plugin init
+function, which is called after set_random_seed() is called but before
+anything that calls get_random_seed(noinit=false), and seeing if it's
+zero or not. If it's not zero, we're in deterministic mode, and so we
+just generate numbers with a basic xorshift prng.
+
+Note that we don't detect if -frandom-seed is being used using the
+documented local_tick variable, because it's assigned via:
+   local_tick = (unsigned) tv.tv_sec * 1000 + tv.tv_usec / 1000;
+which may well overflow and become -1 on its own, and so isn't
+reliable: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105171
+
+[kees: The 256 byte rnd_buf size was chosen based on average (250),
+ median (64), and std deviation (575) bytes of used entropy for a
+ defconfig x86_64 build]
+
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Cc: stable@vger.kernel.org
+Cc: PaX Team <pageexec@freemail.hu>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220405222815.21155-1-Jason@zx2c4.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 48 +++++++++++++++++------------
- 1 file changed, 28 insertions(+), 20 deletions(-)
+ scripts/gcc-plugins/latent_entropy_plugin.c |   44 +++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 8f6dc391356d..38abc3a15692 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2258,6 +2258,23 @@ static void iscsi_ep_disconnect(struct iscsi_cls_conn *conn, bool is_active)
- 	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep done.\n");
- }
+--- a/scripts/gcc-plugins/latent_entropy_plugin.c
++++ b/scripts/gcc-plugins/latent_entropy_plugin.c
+@@ -86,25 +86,31 @@ static struct plugin_info latent_entropy
+ 	.help		= "disable\tturn off latent entropy instrumentation\n",
+ };
  
-+static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
-+					 struct iscsi_endpoint *ep,
-+					 bool is_active)
-+{
-+	/* Check if this was a conn error and the kernel took ownership */
-+	if (!test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
-+		iscsi_ep_disconnect(conn, is_active);
-+	} else {
-+		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
-+		mutex_unlock(&conn->ep_mutex);
+-static unsigned HOST_WIDE_INT seed;
+-/*
+- * get_random_seed() (this is a GCC function) generates the seed.
+- * This is a simple random generator without any cryptographic security because
+- * the entropy doesn't come from here.
+- */
++static unsigned HOST_WIDE_INT deterministic_seed;
++static unsigned HOST_WIDE_INT rnd_buf[32];
++static size_t rnd_idx = ARRAY_SIZE(rnd_buf);
++static int urandom_fd = -1;
 +
-+		flush_work(&conn->cleanup_work);
-+
-+		mutex_lock(&conn->ep_mutex);
-+	}
-+}
-+
- static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 			      struct iscsi_uevent *ev)
+ static unsigned HOST_WIDE_INT get_random_const(void)
  {
-@@ -2278,6 +2295,16 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 		cancel_work_sync(&conn->cleanup_work);
- 		iscsi_stop_conn(conn, flag);
- 	} else {
-+		/*
-+		 * For offload, when iscsid is restarted it won't know about
-+		 * existing endpoints so it can't do a ep_disconnect. We clean
-+		 * it up here for userspace.
-+		 */
-+		mutex_lock(&conn->ep_mutex);
-+		if (conn->ep)
-+			iscsi_if_disconnect_bound_ep(conn, conn->ep, true);
-+		mutex_unlock(&conn->ep_mutex);
-+
- 		/*
- 		 * Figure out if it was the kernel or userspace initiating this.
- 		 */
-@@ -3006,16 +3033,7 @@ static int iscsi_if_ep_disconnect(struct iscsi_transport *transport,
+-	unsigned int i;
+-	unsigned HOST_WIDE_INT ret = 0;
+-
+-	for (i = 0; i < 8 * sizeof(ret); i++) {
+-		ret = (ret << 1) | (seed & 1);
+-		seed >>= 1;
+-		if (ret & 1)
+-			seed ^= 0xD800000000000000ULL;
++	if (deterministic_seed) {
++		unsigned HOST_WIDE_INT w = deterministic_seed;
++		w ^= w << 13;
++		w ^= w >> 7;
++		w ^= w << 17;
++		deterministic_seed = w;
++		return deterministic_seed;
  	}
  
- 	mutex_lock(&conn->ep_mutex);
--	/* Check if this was a conn error and the kernel took ownership */
--	if (test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
--		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
--		mutex_unlock(&conn->ep_mutex);
--
--		flush_work(&conn->cleanup_work);
--		goto put_ep;
--	}
--
--	iscsi_ep_disconnect(conn, false);
-+	iscsi_if_disconnect_bound_ep(conn, ep, false);
- 	mutex_unlock(&conn->ep_mutex);
- put_ep:
- 	iscsi_put_endpoint(ep);
-@@ -3726,16 +3744,6 @@ static int iscsi_if_transport_conn(struct iscsi_transport *transport,
+-	return ret;
++	if (urandom_fd < 0) {
++		urandom_fd = open("/dev/urandom", O_RDONLY);
++		gcc_assert(urandom_fd >= 0);
++	}
++	if (rnd_idx >= ARRAY_SIZE(rnd_buf)) {
++		gcc_assert(read(urandom_fd, rnd_buf, sizeof(rnd_buf)) == sizeof(rnd_buf));
++		rnd_idx = 0;
++	}
++	return rnd_buf[rnd_idx++];
+ }
  
- 	switch (nlh->nlmsg_type) {
- 	case ISCSI_UEVENT_BIND_CONN:
--		if (conn->ep) {
--			/*
--			 * For offload boot support where iscsid is restarted
--			 * during the pivot root stage, the ep will be intact
--			 * here when the new iscsid instance starts up and
--			 * reconnects.
--			 */
--			iscsi_ep_disconnect(conn, true);
--		}
+ static tree tree_get_random_const(tree type)
+@@ -537,8 +543,6 @@ static void latent_entropy_start_unit(vo
+ 	tree type, id;
+ 	int quals;
+ 
+-	seed = get_random_seed(false);
 -
- 		session = iscsi_session_lookup(ev->u.b_conn.sid);
- 		if (!session) {
- 			err = -EINVAL;
--- 
-2.35.1
-
+ 	if (in_lto_p)
+ 		return;
+ 
+@@ -573,6 +577,12 @@ __visible int plugin_init(struct plugin_
+ 	const struct plugin_argument * const argv = plugin_info->argv;
+ 	int i;
+ 
++	/*
++	 * Call get_random_seed() with noinit=true, so that this returns
++	 * 0 in the case where no seed has been passed via -frandom-seed.
++	 */
++	deterministic_seed = get_random_seed(true);
++
+ 	static const struct ggc_root_tab gt_ggc_r_gt_latent_entropy[] = {
+ 		{
+ 			.base = &latent_entropy_decl,
 
 
