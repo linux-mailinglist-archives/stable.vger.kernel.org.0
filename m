@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A05A50509C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8660050523C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236177AbiDRM0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38538 "EHLO
+        id S236192AbiDRMoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:44:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238780AbiDRM0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:14 -0400
+        with ESMTP id S239544AbiDRMhu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A967EE03D;
-        Mon, 18 Apr 2022 05:20:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 375EE2250D;
+        Mon, 18 Apr 2022 05:28:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 529BDB80ED6;
-        Mon, 18 Apr 2022 12:20:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A73D0C385A1;
-        Mon, 18 Apr 2022 12:20:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8FC1B80EC1;
+        Mon, 18 Apr 2022 12:28:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57CDAC385A8;
+        Mon, 18 Apr 2022 12:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284408;
-        bh=O0gvCtnZhBJtodvmay0VSXZVJisqZkVG+Lo2qywGmHQ=;
+        s=korg; t=1650284883;
+        bh=TBsmBKPHR3a2OEluS8nNA6Qk+6JCscmP+qNBniiA2Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n9STqwmKj4+OFb548ZLrr46NlOrgKlWcKzGO9nzXFuFfwyaIL/qm5+FE4vUh1NbfY
-         PtrjsVbJfs6O7Krj3de6SkMtmLZwQ+C++vFMd1JuCseIqMiclJeqU9UVhl0UVQ4b1K
-         txJER9PTfVnlo9IlD4B/uZ3JCBmvimR2fDaEMCiI=
+        b=exVbdsDN+3akBf+fV4pnhzMQCnkQzcLMQAEDvFA8xcFvG8/IXgDIx6D6Hbktl9GRZ
+         cFN71mQ2Bx5/HBvSlsPgPfAEFkJz7Xt7pCkXvwiNvUUrPJuO62SP9vHMU8meiXoKqB
+         WOo/rmdtSO51Rurjo/VBkF6Xy6uOCQOiya1C5XLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 088/219] mac80211: fix ht_capa printout in debugfs
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 037/189] ALSA: hdsp: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:10:57 +0200
-Message-Id: <20220418121208.976039363@linuxfoundation.org>
+Message-Id: <20220418121201.568085888@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Greear <greearb@candelatech.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit fb4bccd863ccccd36ad000601856609e259a1859 ]
+commit e2263f0bf7443a200a5c1c418baefd92f1674600 upstream.
 
-Don't use sizeof(pointer) when calculating scnprintf offset.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-Fixes: 01f84f0ed3b4 ("mac80211: reduce stack usage in debugfs")
-Signed-off-by: Ben Greear <greearb@candelatech.com>
-Link: https://lore.kernel.org/r/20220406175659.20611-1-greearb@candelatech.com
-[correct the Fixes tag]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes it by calling snd_card_free() manually on the error
+from the probe callback.
+
+Fixes: d136b8e54f92 ("ALSA: hdsp: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-36-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/debugfs_sta.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/rme9652/hdsp.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/debugfs_sta.c b/net/mac80211/debugfs_sta.c
-index 9479f2787ea7..88d9cc945a21 100644
---- a/net/mac80211/debugfs_sta.c
-+++ b/net/mac80211/debugfs_sta.c
-@@ -441,7 +441,7 @@ static ssize_t sta_ht_capa_read(struct file *file, char __user *userbuf,
- #define PRINT_HT_CAP(_cond, _str) \
- 	do { \
- 	if (_cond) \
--			p += scnprintf(p, sizeof(buf)+buf-p, "\t" _str "\n"); \
-+			p += scnprintf(p, bufsz + buf - p, "\t" _str "\n"); \
- 	} while (0)
- 	char *buf, *p;
- 	int i;
+diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+index 96c12dfb24cf..3db641318d3a 100644
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -5444,17 +5444,21 @@ static int snd_hdsp_probe(struct pci_dev *pci,
+ 	hdsp->pci = pci;
+ 	err = snd_hdsp_create(card, hdsp);
+ 	if (err)
+-		return err;
++		goto error;
+ 
+ 	strcpy(card->shortname, "Hammerfall DSP");
+ 	sprintf(card->longname, "%s at 0x%lx, irq %d", hdsp->card_name,
+ 		hdsp->port, hdsp->irq);
+ 	err = snd_card_register(card);
+ 	if (err)
+-		return err;
++		goto error;
+ 	pci_set_drvdata(pci, card);
+ 	dev++;
+ 	return 0;
++
++ error:
++	snd_card_free(card);
++	return err;
+ }
+ 
+ static struct pci_driver hdsp_driver = {
 -- 
-2.35.1
+2.35.2
 
 
 
