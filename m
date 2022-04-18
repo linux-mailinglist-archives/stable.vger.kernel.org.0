@@ -2,78 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C71504E43
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A06D504E44
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232855AbiDRJO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 05:14:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39582 "EHLO
+        id S234812AbiDRJQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 05:16:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232095AbiDRJO6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:14:58 -0400
+        with ESMTP id S232095AbiDRJQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:16:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412DE6444
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:12:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456A66444
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:13:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C849B80E54
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:12:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A649C385A7;
-        Mon, 18 Apr 2022 09:12:17 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="biIla/Ix"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1650273135;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=5PqsBAwviynO1wxTCIN8hv3iyO/eGasN07/aheG7rD4=;
-        b=biIla/IxtZ5YEdOhAwOm1mpwR/45lzvZ6OssP9F+MIg52oRgFLr8Kc1/I313WZOE3xj6kC
-        pR2krJAWS3ltJLE+NWV6zfKlqDqmcKFo7KuoaopvvdQTQPs6f/+5nTiGoA4HHUElwE+pZ7
-        JC+Z/kriV+TmC9HJ3bGxISEJ7jlQY/g=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id eb5e1d47 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Mon, 18 Apr 2022 09:12:15 +0000 (UTC)
-Date:   Mon, 18 Apr 2022 11:12:11 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     gregkh@linuxfoundation.org
-Cc:     keescook@chromium.org, pageexec@freemail.hu, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] gcc-plugins: latent_entropy: use
- /dev/urandom" failed to apply to 4.9-stable tree
-Message-ID: <Yl0rFqfaETxNfTgh@zx2c4.com>
-References: <16502694453885@kroah.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01DB5B80E40
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:13:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DF8C385A1;
+        Mon, 18 Apr 2022 09:13:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1650273229;
+        bh=ApW5ND1X+7OvuI5xOhY7rnkPnvKe5ZYXOFR8L1ZoEWM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=IVGKXIUC4CU+sWOVjpS4A5hf/JsVwdYx+cOFDUiDCljlfo3oQX9jn2IKydEhVpsNY
+         VjyYdYFTDr7ddc0rIfWnRmZrE8v4XbOstai7vpH6yijdiPwzaLyxkgt/PPnwmY1fcF
+         1KoYpcTIIlcRwM7Cmr7ZQppFYuQcYgbguJfshs9Y=
+Subject: FAILED: patch "[PATCH] btrfs: mark resumed async balance as writing" failed to apply to 4.9-stable tree
+To:     naohiro.aota@wdc.com, dsterba@suse.com, fdmanana@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Apr 2022 11:13:46 +0200
+Message-ID: <16502732261951@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <16502694453885@kroah.com>
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
 
-On Mon, Apr 18, 2022 at 10:10:45AM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From c40160f2998c897231f8454bf797558d30a20375 Mon Sep 17 00:00:00 2001
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Apparently on 4.9.y, applying this commit cleanly also requires
-5a45a4c5c3f5e36a03770deb102ca6ba256ff3d7 to be cherry picked first.
+thanks,
 
-Jason
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From a690e5f2db4d1dca742ce734aaff9f3112d63764 Mon Sep 17 00:00:00 2001
+From: Naohiro Aota <naohiro.aota@wdc.com>
+Date: Tue, 29 Mar 2022 15:55:58 +0900
+Subject: [PATCH] btrfs: mark resumed async balance as writing
+
+When btrfs balance is interrupted with umount, the background balance
+resumes on the next mount. There is a potential deadlock with FS freezing
+here like as described in commit 26559780b953 ("btrfs: zoned: mark
+relocation as writing"). Mark the process as sb_writing to avoid it.
+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 2cfbc74a3b4e..a8cc736731fd 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4430,10 +4430,12 @@ static int balance_kthread(void *data)
+ 	struct btrfs_fs_info *fs_info = data;
+ 	int ret = 0;
+ 
++	sb_start_write(fs_info->sb);
+ 	mutex_lock(&fs_info->balance_mutex);
+ 	if (fs_info->balance_ctl)
+ 		ret = btrfs_balance(fs_info, fs_info->balance_ctl, NULL);
+ 	mutex_unlock(&fs_info->balance_mutex);
++	sb_end_write(fs_info->sb);
+ 
+ 	return ret;
+ }
+
