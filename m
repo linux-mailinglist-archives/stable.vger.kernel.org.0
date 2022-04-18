@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC17B505422
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45E0A5053C8
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241021AbiDRNET (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41060 "EHLO
+        id S238763AbiDRNCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:02:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241761AbiDRND1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E31A28E33;
-        Mon, 18 Apr 2022 05:44:12 -0700 (PDT)
+        with ESMTP id S238720AbiDRNAd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:00:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37153191A;
+        Mon, 18 Apr 2022 05:41:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1715A60FB6;
-        Mon, 18 Apr 2022 12:44:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21CE2C385A1;
-        Mon, 18 Apr 2022 12:44:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EC46B80EC3;
+        Mon, 18 Apr 2022 12:41:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F6CCC385A1;
+        Mon, 18 Apr 2022 12:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285851;
-        bh=/MTiFzhPPBzBmRP6KphVyG6z6NjGrTicjIvssdJrpQs=;
+        s=korg; t=1650285716;
+        bh=ssH+O5U6Zc+kQBJr13MbIlhhEg3a9HKg/eM3zo7oJFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rW2v9zG93PzB0reFQZ95GjAANLEhMBcqhzV9lJ5cl+piFYiX2Q1DyxHqsQnvFmm4t
-         ivalAe9VZ10fNejPxmXVGqP6bAySdSSdnBlT8uZXrsuPz8dxM5IWAertGEPujgy+pO
-         p4EogSSEeyZssNHn9EX3n6DlSPtQBkTm6dzlJtok=
+        b=obCwdtsEz7pC+NOg0TF/9fSK4ckWG0NYXIeh2vSDsiyzEo2HVZWU1v0+2DG6fFfgh
+         r0iw1VoUI+YxvckvtufgFlZJf72w/k/81xzr2afODjDrZ8/ume5icM8OSTrJjGGb4h
+         zynOmeH0q/byEctpW4nCURVB4YA7nZmrve/TNGmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 45/63] ALSA: hda/realtek: Add quirk for Clevo PD50PNT
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 100/105] ax25: fix UAF bugs of net_device caused by rebinding operation
 Date:   Mon, 18 Apr 2022 14:13:42 +0200
-Message-Id: <20220418121137.243846810@linuxfoundation.org>
+Message-Id: <20220418121149.477791070@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,30 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Crawford <tcrawford@system76.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 9eb6f5c388060d8cef3c8b616cc31b765e022359 upstream.
+commit feef318c855a361a1eccd880f33e88c460eb63b4 upstream.
 
-Fixes speaker output and headset detection on Clevo PD50PNT.
+The ax25_kill_by_device() will set s->ax25_dev = NULL and
+call ax25_disconnect() to change states of ax25_cb and
+sock, if we call ax25_bind() before ax25_kill_by_device().
 
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220405182029.27431-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+However, if we call ax25_bind() again between the window of
+ax25_kill_by_device() and ax25_dev_device_down(), the values
+and states changed by ax25_kill_by_device() will be reassigned.
+
+Finally, ax25_dev_device_down() will deallocate net_device.
+If we dereference net_device in syscall functions such as
+ax25_release(), ax25_sendmsg(), ax25_getsockopt(), ax25_getname()
+and ax25_info_show(), a UAF bug will occur.
+
+One of the possible race conditions is shown below:
+
+      (USE)                   |      (FREE)
+ax25_bind()                   |
+                              |  ax25_kill_by_device()
+ax25_bind()                   |
+ax25_connect()                |    ...
+                              |  ax25_dev_device_down()
+                              |    ...
+                              |    dev_put_track(dev, ...) //FREE
+ax25_release()                |    ...
+  ax25_send_control()         |
+    alloc_skb()      //USE    |
+
+the corresponding fail log is shown below:
+===============================================================
+BUG: KASAN: use-after-free in ax25_send_control+0x43/0x210
+...
+Call Trace:
+  ...
+  ax25_send_control+0x43/0x210
+  ax25_release+0x2db/0x3b0
+  __sock_release+0x6d/0x120
+  sock_close+0xf/0x20
+  __fput+0x11f/0x420
+  ...
+Allocated by task 1283:
+  ...
+  __kasan_kmalloc+0x81/0xa0
+  alloc_netdev_mqs+0x5a/0x680
+  mkiss_open+0x6c/0x380
+  tty_ldisc_open+0x55/0x90
+  ...
+Freed by task 1969:
+  ...
+  kfree+0xa3/0x2c0
+  device_release+0x54/0xe0
+  kobject_put+0xa5/0x120
+  tty_ldisc_kill+0x3e/0x80
+  ...
+
+In order to fix these UAF bugs caused by rebinding operation,
+this patch adds dev_hold_track() into ax25_bind() and
+corresponding dev_put_track() into ax25_kill_by_device().
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: backport to 5.10: adjust dev_put_track()->dev_put() and
+dev_hold_track()->dev_hold()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ax25/af_ax25.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -2568,6 +2568,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x1558, 0x65e1, "Clevo PB51[ED][DF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x65f1, "Clevo PC50HS", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
-+	SND_PCI_QUIRK(0x1558, 0x65f5, "Clevo PD50PN[NRT]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
- 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -98,6 +98,7 @@ again:
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
+ 			s->ax25_dev = NULL;
++			dev_put(ax25_dev->dev);
+ 			ax25_dev_put(ax25_dev);
+ 			release_sock(sk);
+ 			ax25_disconnect(s, ENETUNREACH);
+@@ -1122,8 +1123,10 @@ static int ax25_bind(struct socket *sock
+ 		}
+ 	}
+ 
+-	if (ax25_dev != NULL)
++	if (ax25_dev) {
+ 		ax25_fillin_cb(ax25, ax25_dev);
++		dev_hold(ax25_dev->dev);
++	}
+ 
+ done:
+ 	ax25_cb_add(ax25);
 
 
