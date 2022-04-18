@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABFCB50541C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDBF505700
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240968AbiDRNEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41054 "EHLO
+        id S240134AbiDRNpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241735AbiDRND0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5090028E24;
-        Mon, 18 Apr 2022 05:44:11 -0700 (PDT)
+        with ESMTP id S243782AbiDRNmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:42:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C9830F7B;
+        Mon, 18 Apr 2022 05:59:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01E56B80E4E;
-        Mon, 18 Apr 2022 12:44:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F23FC385A7;
-        Mon, 18 Apr 2022 12:44:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D17CB80D9C;
+        Mon, 18 Apr 2022 12:59:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D03C385A1;
+        Mon, 18 Apr 2022 12:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285848;
-        bh=W8Qgew+xVsT4zAeS8SnOsUkxaVYgAcTrbSpslSyck9s=;
+        s=korg; t=1650286772;
+        bh=oDeTHARGZEfrXPcCeIWg2xEfZgIW08C61yBMEcE/0AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wn+PJ0Kl+ANRs63R0wiqn5d/r6eAZewk+q+NfRkKD50wZqzos+XWJLSikT2tWJZ85
-         2iAJe40i/CkTfgDLHameIRChcfTZAHnAamOSNHFe9UajT0xUdwgxfNxxKUVx6N3I3d
-         nkFsj+jzj92go77YnVFj6CaUWs7Uly1kWflQTJoQ=
+        b=h3GjPj8Wf4Erj3AodwolM18FBjE0obxre4aN6JrogFagVRqjdv9kW8C4kRoi0zexx
+         603sJmo+XrSAH5Y8wJAEt0Bu9c/zn1yixZtjl+VbbKCeyC52dMmAqM+p17e080gAoZ
+         T3XRURRWoewiPQ/Qkknse9IvLPmIoQswAQtnFh7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 44/63] btrfs: mark resumed async balance as writing
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 240/284] scsi: zorro7xx: Fix a resource leak in zorro7xx_remove_one()
 Date:   Mon, 18 Apr 2022 14:13:41 +0200
-Message-Id: <20220418121137.174176151@linuxfoundation.org>
+Message-Id: <20220418121218.623771234@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit a690e5f2db4d1dca742ce734aaff9f3112d63764 upstream.
+[ Upstream commit 16ed828b872d12ccba8f07bcc446ae89ba662f9c ]
 
-When btrfs balance is interrupted with umount, the background balance
-resumes on the next mount. There is a potential deadlock with FS freezing
-here like as described in commit 26559780b953 ("btrfs: zoned: mark
-relocation as writing"). Mark the process as sb_writing to avoid it.
+The error handling path of the probe releases a resource that is not freed
+in the remove function. In some cases, a ioremap() must be undone.
 
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add the missing iounmap() call in the remove function.
+
+Link: https://lore.kernel.org/r/247066a3104d25f9a05de8b3270fc3c848763bcc.1647673264.git.christophe.jaillet@wanadoo.fr
+Fixes: 45804fbb00ee ("[SCSI] 53c700: Amiga Zorro NCR53c710 SCSI")
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    2 ++
+ drivers/scsi/zorro7xx.c | 2 ++
  1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -4320,10 +4320,12 @@ static int balance_kthread(void *data)
- 	struct btrfs_fs_info *fs_info = data;
- 	int ret = 0;
+diff --git a/drivers/scsi/zorro7xx.c b/drivers/scsi/zorro7xx.c
+index aff31991aea9..ee6d97473853 100644
+--- a/drivers/scsi/zorro7xx.c
++++ b/drivers/scsi/zorro7xx.c
+@@ -158,6 +158,8 @@ static void zorro7xx_remove_one(struct zorro_dev *z)
+ 	scsi_remove_host(host);
  
-+	sb_start_write(fs_info->sb);
- 	mutex_lock(&fs_info->balance_mutex);
- 	if (fs_info->balance_ctl)
- 		ret = btrfs_balance(fs_info, fs_info->balance_ctl, NULL);
- 	mutex_unlock(&fs_info->balance_mutex);
-+	sb_end_write(fs_info->sb);
- 
- 	return ret;
- }
+ 	NCR_700_release(host);
++	if (host->base > 0x01000000)
++		iounmap(hostdata->base);
+ 	kfree(hostdata);
+ 	free_irq(host->irq, host);
+ 	zorro_release_device(z);
+-- 
+2.35.1
+
 
 
