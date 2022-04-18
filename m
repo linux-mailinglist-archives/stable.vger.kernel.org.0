@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 319F5505964
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:17:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD9D9505993
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244404AbiDROTn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:19:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
+        id S1344408AbiDROVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344402AbiDROSC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15C2649FBD;
-        Mon, 18 Apr 2022 06:13:53 -0700 (PDT)
+        with ESMTP id S1344485AbiDROSG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FAF44A3E9;
+        Mon, 18 Apr 2022 06:13:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90211B80EE5;
-        Mon, 18 Apr 2022 13:13:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C06CEC385A1;
-        Mon, 18 Apr 2022 13:13:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5D0FB80EC4;
+        Mon, 18 Apr 2022 13:13:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 298EFC385A7;
+        Mon, 18 Apr 2022 13:13:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287631;
-        bh=3emzYE6OqH2X4RboyukyTjyLdp+12K93UJSU5EGJ9Eg=;
+        s=korg; t=1650287634;
+        bh=K4hybNuQ7tcwDht7og9wNoGnXsejT7br8Yb0bMkFw/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sfr+w1N+0Nsfw+ThL683ILA5kqJa9BtuqHMJpIAcm8ghbIfq7JL6ShPbkQ+wpnDoa
-         2krFyGHbkQVOTbSQISU20KNe5o9ymBMtxnwBFGO+D91pgC3vlupeVbtYn4mSa8ega9
-         RzoRQV3RrhWfJKhCT79MgxzphjP1pO24AkdBtSo8=
+        b=DJtXtg2FdSqSPJdXPkjclUJIAQMTlus1g21G98emv2ASldW9JmUGGkU70EH/qqIMq
+         dlYw/rptM7fncSdHqYb69zmFHwAI8tPSV/p6+H7w3Qo6bEvINP9gcy4BS/AfkkgjRo
+         T5Em9cULVlWro5wOP3KsrrrghqUp9l8nQHBmwhog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        syzbot+205eb15961852c2c5974@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 214/218] ALSA: pcm: Test for "silence" field in struct "pcm_format_data"
-Date:   Mon, 18 Apr 2022 14:14:40 +0200
-Message-Id: <20220418121208.408395990@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 4.9 215/218] ARM: davinci: da850-evm: Avoid NULL pointer dereference
+Date:   Mon, 18 Apr 2022 14:14:41 +0200
+Message-Id: <20220418121208.475925351@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -55,40 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 2f7a26abb8241a0208c68d22815aa247c5ddacab upstream.
+commit 83a1cde5c74bfb44b49cb2a940d044bb2380f4ea upstream.
 
-Syzbot reports "KASAN: null-ptr-deref Write in
-snd_pcm_format_set_silence".[1]
+With newer versions of GCC, there is a panic in da850_evm_config_emac()
+when booting multi_v5_defconfig in QEMU under the palmetto-bmc machine:
 
-It is due to missing validation of the "silence" field of struct
-"pcm_format_data" in "pcm_formats" array.
+Unable to handle kernel NULL pointer dereference at virtual address 00000020
+pgd = (ptrval)
+[00000020] *pgd=00000000
+Internal error: Oops: 5 [#1] PREEMPT ARM
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.15.0 #1
+Hardware name: Generic DT based system
+PC is at da850_evm_config_emac+0x1c/0x120
+LR is at do_one_initcall+0x50/0x1e0
 
-Add a test for valid "pat" and, if it is not so, return -EINVAL.
+The emac_pdata pointer in soc_info is NULL because davinci_soc_info only
+gets populated on davinci machines but da850_evm_config_emac() is called
+on all machines via device_initcall().
 
-[1] https://lore.kernel.org/lkml/000000000000d188ef05dc2c7279@google.com/
+Move the rmii_en assignment below the machine check so that it is only
+dereferenced when running on a supported SoC.
 
-Reported-and-tested-by: syzbot+205eb15961852c2c5974@syzkaller.appspotmail.com
-Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220409012655.9399-1-fmdefrancesco@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: bae105879f2f ("davinci: DA850/OMAP-L138 EVM: implement autodetect of RMII PHY")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/YcS4xVWs6bQlQSPC@archlinux-ax161/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_misc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-davinci/board-da850-evm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/core/pcm_misc.c
-+++ b/sound/core/pcm_misc.c
-@@ -412,7 +412,7 @@ int snd_pcm_format_set_silence(snd_pcm_f
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -1043,11 +1043,13 @@ static int __init da850_evm_config_emac(
+ 	int ret;
+ 	u32 val;
+ 	struct davinci_soc_info *soc_info = &davinci_soc_info;
+-	u8 rmii_en = soc_info->emac_pdata->rmii_en;
++	u8 rmii_en;
+ 
+ 	if (!machine_is_davinci_da850_evm())
  		return 0;
- 	width = pcm_formats[(INT)format].phys; /* physical width */
- 	pat = pcm_formats[(INT)format].silence;
--	if (! width)
-+	if (!width || !pat)
- 		return -EINVAL;
- 	/* signed or 1 byte data */
- 	if (pcm_formats[(INT)format].signd == 1 || width <= 8) {
+ 
++	rmii_en = soc_info->emac_pdata->rmii_en;
++
+ 	cfg_chip3_base = DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP3_REG);
+ 
+ 	val = __raw_readl(cfg_chip3_base);
 
 
