@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1E7950526B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 986FB505613
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239184AbiDRMoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:44:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48928 "EHLO
+        id S242013AbiDRNbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:31:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239928AbiDRMn2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:43:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A7B92613A;
-        Mon, 18 Apr 2022 05:32:14 -0700 (PDT)
+        with ESMTP id S244600AbiDRNal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5326060D1;
+        Mon, 18 Apr 2022 05:54:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C2FDB80ED7;
-        Mon, 18 Apr 2022 12:32:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EC89C385A1;
-        Mon, 18 Apr 2022 12:32:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9615160FE8;
+        Mon, 18 Apr 2022 12:54:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998B0C385A1;
+        Mon, 18 Apr 2022 12:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285131;
-        bh=okAbp2v/Y4eqFaui4seYNyJOzyps1nqQznQq5s+nF1Q=;
+        s=korg; t=1650286490;
+        bh=MQ80TICDoU0k4gTgTnLQ3uHrBBGBTGfzc7zcAeNUXYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m1oX90WoqWkFuEe/+O3exLSLPOKreEfSVdSSGPsyjEbiCNzRYs+eqwk2lrhVOeo1S
-         kEjlebUq8ezodIzKm5LiGZek09OpMSsXdRM1/KYJxg4PvPgGpzc/Rw0L97n30n0SDP
-         4PvrmSrZth0s1lqACPTGPJRADc0tFK8ZHGjCm3+U=
+        b=1hnN7toMmJHHDLCGUIEzR1TW1SFlXGyTgDg2B4ZlhtRKvGfhpy0tcF5lSH8r2Sx5c
+         baoEVkFIEmHu+Q2uAsn/EL+GHtHEPvleA8JFagkMQ3IukyTUR+5eVaKLHqbAnQZmFb
+         uMJbfMCnblq4JHHenf4I+SNHWQs2MfavzI6oyEJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Park <Chris.Park@amd.com>,
-        Alex Hung <alex.hung@amd.com>,
-        "Leo (Hanghong) Ma" <hanghong.ma@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 112/189] drm/amd/display: Update VTEM Infopacket definition
+Subject: [PATCH 4.14 151/284] qlcnic: dcb: default to returning -EOPNOTSUPP
 Date:   Mon, 18 Apr 2022 14:12:12 +0200
-Message-Id: <20220418121203.679495975@linuxfoundation.org>
+Message-Id: <20220418121215.947789489@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo (Hanghong) Ma <hanghong.ma@amd.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit c9fbf6435162ed5fb7201d1d4adf6585c6a8c327 ]
+[ Upstream commit 1521db37f0d42334a88e8ff28198a27d1ed5cd7b ]
 
-[Why & How]
-The latest HDMI SPEC has updated the VTEM packet structure,
-so change the VTEM Infopacket defined in the driver side to align
-with the SPEC.
+Clang static analysis reports this issue
+qlcnic_dcb.c:382:10: warning: Assigned value is
+  garbage or undefined
+  mbx_out = *val;
+          ^ ~~~~
 
-Reviewed-by: Chris Park <Chris.Park@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Leo (Hanghong) Ma <hanghong.ma@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+val is set in the qlcnic_dcb_query_hw_capability() wrapper.
+If there is no query_hw_capability op in dcp, success is
+returned without setting the val.
+
+For this and similar wrappers, return -EOPNOTSUPP.
+
+Fixes: 14d385b99059 ("qlcnic: dcb: Query adapter DCB capabilities.")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/modules/info_packet/info_packet.c    | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c b/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-index 57f198de5e2c..4e075b01d48b 100644
---- a/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-+++ b/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-@@ -100,7 +100,8 @@ enum vsc_packet_revision {
- //PB7 = MD0
- #define MASK_VTEM_MD0__VRR_EN         0x01
- #define MASK_VTEM_MD0__M_CONST        0x02
--#define MASK_VTEM_MD0__RESERVED2      0x0C
-+#define MASK_VTEM_MD0__QMS_EN         0x04
-+#define MASK_VTEM_MD0__RESERVED2      0x08
- #define MASK_VTEM_MD0__FVA_FACTOR_M1  0xF0
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+index f4aa6331b367..0a9d24e86715 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.h
+@@ -52,7 +52,7 @@ static inline int qlcnic_dcb_get_hw_capability(struct qlcnic_dcb *dcb)
+ 	if (dcb && dcb->ops->get_hw_capability)
+ 		return dcb->ops->get_hw_capability(dcb);
  
- //MD1
-@@ -109,7 +110,7 @@ enum vsc_packet_revision {
- //MD2
- #define MASK_VTEM_MD2__BASE_REFRESH_RATE_98  0x03
- #define MASK_VTEM_MD2__RB                    0x04
--#define MASK_VTEM_MD2__RESERVED3             0xF8
-+#define MASK_VTEM_MD2__NEXT_TFR              0xF8
+-	return 0;
++	return -EOPNOTSUPP;
+ }
  
- //MD3
- #define MASK_VTEM_MD3__BASE_REFRESH_RATE_07  0xFF
+ static inline void qlcnic_dcb_free(struct qlcnic_dcb *dcb)
+@@ -66,7 +66,7 @@ static inline int qlcnic_dcb_attach(struct qlcnic_dcb *dcb)
+ 	if (dcb && dcb->ops->attach)
+ 		return dcb->ops->attach(dcb);
+ 
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline int
+@@ -75,7 +75,7 @@ qlcnic_dcb_query_hw_capability(struct qlcnic_dcb *dcb, char *buf)
+ 	if (dcb && dcb->ops->query_hw_capability)
+ 		return dcb->ops->query_hw_capability(dcb, buf);
+ 
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline void qlcnic_dcb_get_info(struct qlcnic_dcb *dcb)
+@@ -90,7 +90,7 @@ qlcnic_dcb_query_cee_param(struct qlcnic_dcb *dcb, char *buf, u8 type)
+ 	if (dcb && dcb->ops->query_cee_param)
+ 		return dcb->ops->query_cee_param(dcb, buf, type);
+ 
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline int qlcnic_dcb_get_cee_cfg(struct qlcnic_dcb *dcb)
+@@ -98,7 +98,7 @@ static inline int qlcnic_dcb_get_cee_cfg(struct qlcnic_dcb *dcb)
+ 	if (dcb && dcb->ops->get_cee_cfg)
+ 		return dcb->ops->get_cee_cfg(dcb);
+ 
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ 
+ static inline void qlcnic_dcb_aen_handler(struct qlcnic_dcb *dcb, void *msg)
 -- 
-2.35.1
+2.34.1
 
 
 
