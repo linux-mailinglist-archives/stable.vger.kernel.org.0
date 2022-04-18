@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6726050581F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C6C505123
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244885AbiDRN7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:59:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42952 "EHLO
+        id S237501AbiDRMbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:31:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244625AbiDRN5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE7E2AC5F;
-        Mon, 18 Apr 2022 06:06:21 -0700 (PDT)
+        with ESMTP id S238966AbiDRMac (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:30:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D36DA24F07;
+        Mon, 18 Apr 2022 05:23:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6393EB80EC0;
-        Mon, 18 Apr 2022 13:06:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EFC9C385A8;
-        Mon, 18 Apr 2022 13:06:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 700CCB80EDC;
+        Mon, 18 Apr 2022 12:23:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C89B7C385A1;
+        Mon, 18 Apr 2022 12:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287179;
-        bh=ciq4+saILnSmTUYpZqah/8kv/Mj2SHY40js+mmtBP7k=;
+        s=korg; t=1650284631;
+        bh=okAbp2v/Y4eqFaui4seYNyJOzyps1nqQznQq5s+nF1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqxtJeQIvh/nvL89TNhPSnYtf380aaf7J6HDtBCkUBI745tFuzSSwdIRS8zv3CXbG
-         SuyB3uzN4RsJMESLM9VoX7NFKSDs2sACmiF3oKdawAzfIQ4RdhF7IgBecfr6qgz4Kv
-         jCCccGr5Zz2dd1PCO+ZptRW1ywDjCCDjDWAIoOtA=
+        b=ljHpefv4PrYqWCTYfQ2T0gHD2/ee6K/mSsCTDhkj4mlNK8mbG8jrxvLT72ADLcISJ
+         DBhIwJlbwxPm4tlm0aQ9v0pKFnZ+//wcWx/NUQb1Qw/k0tyXfNLr4fAnah141OdLbV
+         Q6izd0OekOeMaIH4WU1lCM4JC3Rq2A8tyr6CDJug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Chris Park <Chris.Park@amd.com>,
+        Alex Hung <alex.hung@amd.com>,
+        "Leo (Hanghong) Ma" <hanghong.ma@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 040/218] crypto: authenc - Fix sleep in atomic context in decrypt_tail
+Subject: [PATCH 5.17 137/219] drm/amd/display: Update VTEM Infopacket definition
 Date:   Mon, 18 Apr 2022 14:11:46 +0200
-Message-Id: <20220418121200.681096033@linuxfoundation.org>
+Message-Id: <20220418121210.728543143@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +57,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Leo (Hanghong) Ma <hanghong.ma@amd.com>
 
-[ Upstream commit 66eae850333d639fc278d6f915c6fc01499ea893 ]
+[ Upstream commit c9fbf6435162ed5fb7201d1d4adf6585c6a8c327 ]
 
-The function crypto_authenc_decrypt_tail discards its flags
-argument and always relies on the flags from the original request
-when starting its sub-request.
+[Why & How]
+The latest HDMI SPEC has updated the VTEM packet structure,
+so change the VTEM Infopacket defined in the driver side to align
+with the SPEC.
 
-This is clearly wrong as it may cause the SLEEPABLE flag to be
-set when it shouldn't.
-
-Fixes: 92d95ba91772 ("crypto: authenc - Convert to new AEAD interface")
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Chris Park <Chris.Park@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Leo (Hanghong) Ma <hanghong.ma@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/authenc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../gpu/drm/amd/display/modules/info_packet/info_packet.c    | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/crypto/authenc.c b/crypto/authenc.c
-index 6bfec690ca5b..f9ab04aa6dd5 100644
---- a/crypto/authenc.c
-+++ b/crypto/authenc.c
-@@ -268,7 +268,7 @@ static int crypto_authenc_decrypt_tail(struct aead_request *req,
- 		dst = scatterwalk_ffwd(areq_ctx->dst, req->dst, req->assoclen);
+diff --git a/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c b/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
+index 57f198de5e2c..4e075b01d48b 100644
+--- a/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
++++ b/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
+@@ -100,7 +100,8 @@ enum vsc_packet_revision {
+ //PB7 = MD0
+ #define MASK_VTEM_MD0__VRR_EN         0x01
+ #define MASK_VTEM_MD0__M_CONST        0x02
+-#define MASK_VTEM_MD0__RESERVED2      0x0C
++#define MASK_VTEM_MD0__QMS_EN         0x04
++#define MASK_VTEM_MD0__RESERVED2      0x08
+ #define MASK_VTEM_MD0__FVA_FACTOR_M1  0xF0
  
- 	skcipher_request_set_tfm(skreq, ctx->enc);
--	skcipher_request_set_callback(skreq, aead_request_flags(req),
-+	skcipher_request_set_callback(skreq, flags,
- 				      req->base.complete, req->base.data);
- 	skcipher_request_set_crypt(skreq, src, dst,
- 				   req->cryptlen - authsize, req->iv);
+ //MD1
+@@ -109,7 +110,7 @@ enum vsc_packet_revision {
+ //MD2
+ #define MASK_VTEM_MD2__BASE_REFRESH_RATE_98  0x03
+ #define MASK_VTEM_MD2__RB                    0x04
+-#define MASK_VTEM_MD2__RESERVED3             0xF8
++#define MASK_VTEM_MD2__NEXT_TFR              0xF8
+ 
+ //MD3
+ #define MASK_VTEM_MD3__BASE_REFRESH_RATE_07  0xFF
 -- 
-2.34.1
+2.35.1
 
 
 
