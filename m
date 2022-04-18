@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E55D550506F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 412725054C7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230443AbiDRMZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:25:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38578 "EHLO
+        id S240301AbiDRNPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238616AbiDRMYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:24:35 -0400
+        with ESMTP id S242605AbiDRNJP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:09:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2F5C1BEAB;
-        Mon, 18 Apr 2022 05:19:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5D9135DF4;
+        Mon, 18 Apr 2022 05:48:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9787FB80EC1;
-        Mon, 18 Apr 2022 12:19:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0589BC385A7;
-        Mon, 18 Apr 2022 12:19:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8973B80E59;
+        Mon, 18 Apr 2022 12:48:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 488DEC385A1;
+        Mon, 18 Apr 2022 12:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284354;
-        bh=T3l+nBRWE/HRSu/F8b10tw5kEWQkayHiXDidjQZgrxg=;
+        s=korg; t=1650286121;
+        bh=dVNejMXjJk3oR17huPBy37qYuDa6sLu0pwHocqLu2mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmxA2PJ6kYLrdlfHTI5l27ycXd0o3FuIQYDYEatUsL8MhnjyQ5o0z1bCVp0UGnQ+V
-         zhGo2Q89eDat6zIjAdHnnNpMuCqQ11G7JiU7IEFOWyDo1OFRqTl+0XiTbTj/aa6LEG
-         M0U/G34ptJEaK5XH4yN2meZHmBqUi7CmtbQALUzc=
+        b=VADiWZC+4xZBG8O9IAUUIw4SqurNT3d+qb6ZdjZvBSg4pX/9SupFOqNgWof41Ya/i
+         ej18jH8vGQn9RyGY+yAAoICVidMKp6Qhv6fQqfwCOxe63LK0SsFI8GgsQesRQzFEE6
+         F3Ng8QSs6CzJeUN0MAa9kKTdR2kWVaAaGL3OBmUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 046/219] ALSA: maestro3: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 034/284] Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
 Date:   Mon, 18 Apr 2022 14:10:15 +0200
-Message-Id: <20220418121206.142253368@linuxfoundation.org>
+Message-Id: <20220418121211.665171937@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: José Expósito <jose.exposito89@gmail.com>
 
-commit ae86bf5c2a8d81418eadf1c31dd9253b609e3093 upstream.
+commit 8b188fba75195745026e11d408e4a7e94e01d701 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+This reverts commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+The touchpad present in the Dell Precision 7550 and 7750 laptops
+reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
+the device is not a clickpad, it is a touchpad with physical buttons.
 
-Fixes: 5c0939253c3c ("ALSA: maestro3: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-21-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+In order to fix this issue, a quirk for the device was introduced in
+libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
+
+	[Precision 7x50 Touchpad]
+	MatchBus=i2c
+	MatchUdevType=touchpad
+	MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
+	AttrInputPropDisable=INPUT_PROP_BUTTONPAD
+
+However, because of the change introduced in 37ef4c19b4 ("Input: clear
+BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
+anymore breaking the device right click button and making impossible to
+workaround it in user space.
+
+In order to avoid breakage on other present or future devices, revert
+the patch causing the issue.
+
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220321184404.20025-1-jose.exposito89@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/maestro3.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/input/input.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/sound/pci/maestro3.c
-+++ b/sound/pci/maestro3.c
-@@ -2637,7 +2637,7 @@ snd_m3_create(struct snd_card *card, str
- /*
-  */
- static int
--snd_m3_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
-+__snd_m3_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -2702,6 +2702,12 @@ snd_m3_probe(struct pci_dev *pci, const
- 	return 0;
- }
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2120,12 +2120,6 @@ int input_register_device(struct input_d
+ 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
+ 	__clear_bit(KEY_RESERVED, dev->keybit);
  
-+static int
-+snd_m3_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_m3_probe(pci, pci_id));
-+}
-+
- static struct pci_driver m3_driver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = snd_m3_ids,
+-	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
+-	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
+-		__clear_bit(BTN_RIGHT, dev->keybit);
+-		__clear_bit(BTN_MIDDLE, dev->keybit);
+-	}
+-
+ 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
+ 	input_cleanse_bitmasks(dev);
+ 
 
 
