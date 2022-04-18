@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E769B505188
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADBF75053AF
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230466AbiDRMfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:35:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51072 "EHLO
+        id S238816AbiDRNBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239691AbiDRMdU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9009B63E7;
-        Mon, 18 Apr 2022 05:25:06 -0700 (PDT)
+        with ESMTP id S242186AbiDRM7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF1A2FE5E;
+        Mon, 18 Apr 2022 05:40:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC40460E97;
-        Mon, 18 Apr 2022 12:25:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFA30C385A1;
-        Mon, 18 Apr 2022 12:25:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D7ECB80EDD;
+        Mon, 18 Apr 2022 12:40:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6230C385A7;
+        Mon, 18 Apr 2022 12:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284705;
-        bh=PR1E3ZPlJQI92WZdb6Vzp2GTXD7XvS1wO5FB00WKHTs=;
+        s=korg; t=1650285617;
+        bh=hnSeruQ5WyddU9pPERbn+e7vShbePPJJ1EYBzggJ3bY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+X3dsiXCf7WemyjZBMQ/fUeNis8fTiBnyUsP5zjktQp6VqBnMBY0g3vXSJ2Scjn8
-         rsnb+qWsg7fIf5S9fr9vNW1T8Eja5QfpxfE47VCEHRVzFSyfZFUKREup0rYkq6t5IQ
-         zK4xweQpHG7jySFdoNYWk//xntn52nmXrmczcwMU=
+        b=kOxwiLTxVPGmJaLw7pmKAB4NRFpfIxBVoZWXNw4nF6tMI0zcRoWZ1+EmD+OmW0ZnL
+         mDFuD2ZwjJn4C/vSUtFxeigUjIPE1RWgGuWw4e5fxjGKhgr9rpgvozYEldB5XPw56E
+         d2E1SX9Xtop685uh4OjVMVtlTS5LFo7nqY19OSs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Neelima Krishnan <neelima.krishnan@intel.com>
-Subject: [PATCH 5.17 201/219] x86/tsx: Use MSR_TSX_CTRL to clear CPUID bits
+        stable@vger.kernel.org, Tushar Patel <tushar.patel@amd.com>,
+        Felix Kuehling <felix.kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 048/105] drm/amdkfd: Fix Incorrect VMIDs passed to HWS
 Date:   Mon, 18 Apr 2022 14:12:50 +0200
-Message-Id: <20220418121212.497100194@linuxfoundation.org>
+Message-Id: <20220418121147.846266718@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,123 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Tushar Patel <tushar.patel@amd.com>
 
-commit 258f3b8c3210b03386e4ad92b4bd8652b5c1beb3 upstream.
+[ Upstream commit b7dfbd2e601f3fee545bc158feceba4f340fe7cf ]
 
-tsx_clear_cpuid() uses MSR_TSX_FORCE_ABORT to clear CPUID.RTM and
-CPUID.HLE. Not all CPUs support MSR_TSX_FORCE_ABORT, alternatively use
-MSR_IA32_TSX_CTRL when supported.
+Compute-only GPUs have more than 8 VMIDs allocated to KFD. Fix
+this by passing correct number of VMIDs to HWS
 
-  [ bp: Document how and why TSX gets disabled. ]
+v2: squash in warning fix (Alex)
 
-Fixes: 293649307ef9 ("x86/tsx: Clear CPUID bits when TSX always force aborts")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/5b323e77e251a9c8bcdda498c5cc0095be1e1d3c.1646943780.git.pawan.kumar.gupta@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tushar Patel <tushar.patel@amd.com>
+Reviewed-by: Felix Kuehling <felix.kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/intel.c |    1 
- arch/x86/kernel/cpu/tsx.c   |   54 ++++++++++++++++++++++++++++++++++++++------
- 2 files changed, 48 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |  2 +-
+ drivers/gpu/drm/amd/amdkfd/kfd_device.c | 11 +++--------
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
---- a/arch/x86/kernel/cpu/intel.c
-+++ b/arch/x86/kernel/cpu/intel.c
-@@ -722,6 +722,7 @@ static void init_intel(struct cpuinfo_x8
- 	else if (tsx_ctrl_state == TSX_CTRL_DISABLE)
- 		tsx_disable();
- 	else if (tsx_ctrl_state == TSX_CTRL_RTM_ALWAYS_ABORT)
-+		/* See comment over that function for more details. */
- 		tsx_clear_cpuid();
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index ed13a2f76884..30659c1776e8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -632,7 +632,7 @@ MODULE_PARM_DESC(sched_policy,
+  * Maximum number of processes that HWS can schedule concurrently. The maximum is the
+  * number of VMIDs assigned to the HWS, which is also the default.
+  */
+-int hws_max_conc_proc = 8;
++int hws_max_conc_proc = -1;
+ module_param(hws_max_conc_proc, int, 0444);
+ MODULE_PARM_DESC(hws_max_conc_proc,
+ 	"Max # processes HWS can execute concurrently when sched_policy=0 (0 = no concurrency, #VMIDs for KFD = Maximum(default))");
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+index 84313135c2ea..148e43dee657 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
+@@ -664,15 +664,10 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
+ 			- kfd->vm_info.first_vmid_kfd + 1;
  
- 	split_lock_init();
---- a/arch/x86/kernel/cpu/tsx.c
-+++ b/arch/x86/kernel/cpu/tsx.c
-@@ -58,7 +58,7 @@ void tsx_enable(void)
- 	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
- }
+ 	/* Verify module parameters regarding mapped process number*/
+-	if ((hws_max_conc_proc < 0)
+-			|| (hws_max_conc_proc > kfd->vm_info.vmid_num_kfd)) {
+-		dev_err(kfd_device,
+-			"hws_max_conc_proc %d must be between 0 and %d, use %d instead\n",
+-			hws_max_conc_proc, kfd->vm_info.vmid_num_kfd,
+-			kfd->vm_info.vmid_num_kfd);
++	if (hws_max_conc_proc >= 0)
++		kfd->max_proc_per_quantum = min((u32)hws_max_conc_proc, kfd->vm_info.vmid_num_kfd);
++	else
+ 		kfd->max_proc_per_quantum = kfd->vm_info.vmid_num_kfd;
+-	} else
+-		kfd->max_proc_per_quantum = hws_max_conc_proc;
  
--static bool __init tsx_ctrl_is_supported(void)
-+static bool tsx_ctrl_is_supported(void)
- {
- 	u64 ia32_cap = x86_read_arch_cap_msr();
- 
-@@ -84,6 +84,44 @@ static enum tsx_ctrl_states x86_get_tsx_
- 	return TSX_CTRL_ENABLE;
- }
- 
-+/*
-+ * Disabling TSX is not a trivial business.
-+ *
-+ * First of all, there's a CPUID bit: X86_FEATURE_RTM_ALWAYS_ABORT
-+ * which says that TSX is practically disabled (all transactions are
-+ * aborted by default). When that bit is set, the kernel unconditionally
-+ * disables TSX.
-+ *
-+ * In order to do that, however, it needs to dance a bit:
-+ *
-+ * 1. The first method to disable it is through MSR_TSX_FORCE_ABORT and
-+ * the MSR is present only when *two* CPUID bits are set:
-+ *
-+ * - X86_FEATURE_RTM_ALWAYS_ABORT
-+ * - X86_FEATURE_TSX_FORCE_ABORT
-+ *
-+ * 2. The second method is for CPUs which do not have the above-mentioned
-+ * MSR: those use a different MSR - MSR_IA32_TSX_CTRL and disable TSX
-+ * through that one. Those CPUs can also have the initially mentioned
-+ * CPUID bit X86_FEATURE_RTM_ALWAYS_ABORT set and for those the same strategy
-+ * applies: TSX gets disabled unconditionally.
-+ *
-+ * When either of the two methods are present, the kernel disables TSX and
-+ * clears the respective RTM and HLE feature flags.
-+ *
-+ * An additional twist in the whole thing presents late microcode loading
-+ * which, when done, may cause for the X86_FEATURE_RTM_ALWAYS_ABORT CPUID
-+ * bit to be set after the update.
-+ *
-+ * A subsequent hotplug operation on any logical CPU except the BSP will
-+ * cause for the supported CPUID feature bits to get re-detected and, if
-+ * RTM and HLE get cleared all of a sudden, but, userspace did consult
-+ * them before the update, then funny explosions will happen. Long story
-+ * short: the kernel doesn't modify CPUID feature bits after booting.
-+ *
-+ * That's why, this function's call in init_intel() doesn't clear the
-+ * feature flags.
-+ */
- void tsx_clear_cpuid(void)
- {
- 	u64 msr;
-@@ -97,6 +135,10 @@ void tsx_clear_cpuid(void)
- 		rdmsrl(MSR_TSX_FORCE_ABORT, msr);
- 		msr |= MSR_TFA_TSX_CPUID_CLEAR;
- 		wrmsrl(MSR_TSX_FORCE_ABORT, msr);
-+	} else if (tsx_ctrl_is_supported()) {
-+		rdmsrl(MSR_IA32_TSX_CTRL, msr);
-+		msr |= TSX_CTRL_CPUID_CLEAR;
-+		wrmsrl(MSR_IA32_TSX_CTRL, msr);
- 	}
- }
- 
-@@ -106,13 +148,11 @@ void __init tsx_init(void)
- 	int ret;
- 
- 	/*
--	 * Hardware will always abort a TSX transaction if both CPUID bits
--	 * RTM_ALWAYS_ABORT and TSX_FORCE_ABORT are set. In this case, it is
--	 * better not to enumerate CPUID.RTM and CPUID.HLE bits. Clear them
--	 * here.
-+	 * Hardware will always abort a TSX transaction when the CPUID bit
-+	 * RTM_ALWAYS_ABORT is set. In this case, it is better not to enumerate
-+	 * CPUID.RTM and CPUID.HLE bits. Clear them here.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_RTM_ALWAYS_ABORT) &&
--	    boot_cpu_has(X86_FEATURE_TSX_FORCE_ABORT)) {
-+	if (boot_cpu_has(X86_FEATURE_RTM_ALWAYS_ABORT)) {
- 		tsx_ctrl_state = TSX_CTRL_RTM_ALWAYS_ABORT;
- 		tsx_clear_cpuid();
- 		setup_clear_cpu_cap(X86_FEATURE_RTM);
+ 	/* calculate max size of mqds needed for queues */
+ 	size = max_num_of_queues_per_device *
+-- 
+2.35.1
+
 
 
