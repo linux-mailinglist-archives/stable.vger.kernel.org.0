@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E70E5052E3
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:51:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21758505828
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239721AbiDRMwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:52:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36200 "EHLO
+        id S244423AbiDROAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:00:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239700AbiDRMuk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:50:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105852182B;
-        Mon, 18 Apr 2022 05:34:17 -0700 (PDT)
+        with ESMTP id S244689AbiDRN5f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E20352182B;
+        Mon, 18 Apr 2022 06:07:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83F876118A;
-        Mon, 18 Apr 2022 12:34:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 796D2C385A9;
-        Mon, 18 Apr 2022 12:34:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1046B80EE2;
+        Mon, 18 Apr 2022 13:07:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA42CC385A1;
+        Mon, 18 Apr 2022 13:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285256;
-        bh=piDCdJIsOanLRbuPzjT1fciiBHfwiEVjteIk2mJjuNQ=;
+        s=korg; t=1650287259;
+        bh=JpK687OQyMCDkefz8lJtZr4Mo9lS9BzszGhx5l2dl7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hsyOyr6nTi3POrtNbStL8Uh39LVQFIjHU7q8SQfdwwosS3d7T68Y3MtjY4CtneMiK
-         TH3Gy9bg2oPkO0q/NYdHnez+jFxzQNw1n3lFOld8BVSvQIOHaatp8wQe5b9aXyLYKS
-         xPzPe/sErAoEIM2Cz+bqB11tDX2Vrz8fYybg01Fk=
+        b=wJdF0gswdBUmfpCYXX3xeioPo0FOpOIAYFozqpeU7QUsHK/+aRBZbr69SC6pGDGy6
+         SmKTFRTlHjqHIWV+p9oxd/M9kSWJObqWdPLy5IWUJIq0MbhBTnXdWYagKl0v9ZzYt6
+         FNVCOoVBsJkiE3R1e18d8//pg6r+V1UPmG5ESZJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Johan Hovold <johan@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 5.15 151/189] memory: renesas-rpc-if: fix platform-device leak in error path
-Date:   Mon, 18 Apr 2022 14:12:51 +0200
-Message-Id: <20220418121206.196511725@linuxfoundation.org>
+        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 106/218] clk: qcom: clk-rcg2: Update the frac table for pixel clock
+Date:   Mon, 18 Apr 2022 14:12:52 +0200
+Message-Id: <20220418121202.633349741@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Taniya Das <tdas@codeaurora.org>
 
-commit b452dbf24d7d9a990d70118462925f6ee287d135 upstream.
+[ Upstream commit b527358cb4cd58a8279c9062b0786f1fab628fdc ]
 
-Make sure to free the flash platform device in the event that
-registration fails during probe.
+Support the new numerator and denominator for pixel clock on SM8350 and
+support rgb101010, RGB888 use cases on SM8450.
 
-Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
-Cc: stable@vger.kernel.org      # 5.8
-Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20220303180632.3194-1-johan@kernel.org
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 99cbd064b059f ("clk: qcom: Support display RCG clocks")
+Signed-off-by: Taniya Das <tdas@codeaurora.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220227175536.3131-2-tdas@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/renesas-rpc-if.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/clk/qcom/clk-rcg2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/memory/renesas-rpc-if.c
-+++ b/drivers/memory/renesas-rpc-if.c
-@@ -579,6 +579,7 @@ static int rpcif_probe(struct platform_d
- 	struct platform_device *vdev;
- 	struct device_node *flash;
- 	const char *name;
-+	int ret;
+diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
+index 29abb600d7e1..e4d605dcc03d 100644
+--- a/drivers/clk/qcom/clk-rcg2.c
++++ b/drivers/clk/qcom/clk-rcg2.c
+@@ -644,6 +644,7 @@ static const struct frac_entry frac_table_pixel[] = {
+ 	{ 2, 9 },
+ 	{ 4, 9 },
+ 	{ 1, 1 },
++	{ 2, 3 },
+ 	{ }
+ };
  
- 	flash = of_get_next_child(pdev->dev.of_node, NULL);
- 	if (!flash) {
-@@ -602,7 +603,14 @@ static int rpcif_probe(struct platform_d
- 		return -ENOMEM;
- 	vdev->dev.parent = &pdev->dev;
- 	platform_set_drvdata(pdev, vdev);
--	return platform_device_add(vdev);
-+
-+	ret = platform_device_add(vdev);
-+	if (ret) {
-+		platform_device_put(vdev);
-+		return ret;
-+	}
-+
-+	return 0;
- }
- 
- static int rpcif_remove(struct platform_device *pdev)
+-- 
+2.34.1
+
 
 
