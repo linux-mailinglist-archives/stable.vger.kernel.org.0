@@ -2,42 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B6E50501E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03F7E505545
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236183AbiDRMVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:21:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48900 "EHLO
+        id S236835AbiDRNPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:15:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235802AbiDRMVN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:21:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F2CE1B791;
-        Mon, 18 Apr 2022 05:17:19 -0700 (PDT)
+        with ESMTP id S242194AbiDRNIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBBD34BB7;
+        Mon, 18 Apr 2022 05:48:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1E2560F39;
-        Mon, 18 Apr 2022 12:17:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D058DC385A1;
-        Mon, 18 Apr 2022 12:17:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DB6EB80EC3;
+        Mon, 18 Apr 2022 12:48:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C992C385A1;
+        Mon, 18 Apr 2022 12:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284238;
-        bh=VE0w32us6RxHOKpYaFbYWnYgYVNbP3MaTohL/xDfP0E=;
+        s=korg; t=1650286101;
+        bh=oiI2TiSaTV9kIrqX9NLfq5KU0LaWl0CGs/l2tECg9zU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GitfBgroJn2dYy9Ybr2EkfAuSXmDo+cYohjOV1TjjpA70USFd+fYPukWmm7KITzAc
-         fgDTKX+puuWDMRBGZftIt9mXm/FuM34MIqtoNAaZlgOC2X9Fmn6DnuOQx1axkCDwXZ
-         +ECgbsCxqoAF5vyyW7zaL4nxbOotgp2Ax4BjcKtM=
+        b=V4xXJNUzwQvZJQC4lpjemw+ZckyFZENbj+zfSyP+2+1iSDEHDcqeojE9km6lzhJl5
+         cOGyxF4lcCtpvE/jirD8aSntMpG5F+ywdGZnjsXdm9orI4Zejz2wh0m+vSTNGdJ8BW
+         BpbZuB7i/fLzCDOgE+uE3RhsNnNZXWKmFYv3exX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 041/219] ALSA: intel8x0: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        John Hubbard <jhubbard@nvidia.com>, Zi Yan <ziy@nvidia.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 029/284] mm/pages_alloc.c: dont create ZONE_MOVABLE beyond the end of a node
 Date:   Mon, 18 Apr 2022 14:10:10 +0200
-Message-Id: <20220418121205.804110130@linuxfoundation.org>
+Message-Id: <20220418121211.524286151@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,80 +59,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alistair Popple <apopple@nvidia.com>
 
-commit 71b21f5f8970a87f034138454ebeff0608d24875 upstream.
+commit ddbc84f3f595cf1fc8234a191193b5d20ad43938 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+ZONE_MOVABLE uses the remaining memory in each node.  Its starting pfn
+is also aligned to MAX_ORDER_NR_PAGES.  It is possible for the remaining
+memory in a node to be less than MAX_ORDER_NR_PAGES, meaning there is
+not enough room for ZONE_MOVABLE on that node.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+Unfortunately this condition is not checked for.  This leads to
+zone_movable_pfn[] getting set to a pfn greater than the last pfn in a
+node.
 
-Fixes: 7835e0901e24 ("ALSA: intel8x0: Allocate resources with device-managed APIs")
+calculate_node_totalpages() then sets zone->present_pages to be greater
+than zone->spanned_pages which is invalid, as spanned_pages represents
+the maximum number of pages in a zone assuming no holes.
+
+Subsequently it is possible free_area_init_core() will observe a zone of
+size zero with present pages.  In this case it will skip setting up the
+zone, including the initialisation of free_lists[].
+
+However populated_zone() checks zone->present_pages to see if a zone has
+memory available.  This is used by iterators such as
+walk_zones_in_node().  pagetypeinfo_showfree() uses this to walk the
+free_list of each zone in each node, which are assumed to be initialised
+due to the zone not being empty.
+
+As free_area_init_core() never initialised the free_lists[] this results
+in the following kernel crash when trying to read /proc/pagetypeinfo:
+
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC NOPTI
+  CPU: 0 PID: 456 Comm: cat Not tainted 5.16.0 #461
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+  RIP: 0010:pagetypeinfo_show+0x163/0x460
+  Code: 9e 82 e8 80 57 0e 00 49 8b 06 b9 01 00 00 00 4c 39 f0 75 16 e9 65 02 00 00 48 83 c1 01 48 81 f9 a0 86 01 00 0f 84 48 02 00 00 <48> 8b 00 4c 39 f0 75 e7 48 c7 c2 80 a2 e2 82 48 c7 c6 79 ef e3 82
+  RSP: 0018:ffffc90001c4bd10 EFLAGS: 00010003
+  RAX: 0000000000000000 RBX: ffff88801105f638 RCX: 0000000000000001
+  RDX: 0000000000000001 RSI: 000000000000068b RDI: ffff8880163dc68b
+  RBP: ffffc90001c4bd90 R08: 0000000000000001 R09: ffff8880163dc67e
+  R10: 656c6261766f6d6e R11: 6c6261766f6d6e55 R12: ffff88807ffb4a00
+  R13: ffff88807ffb49f8 R14: ffff88807ffb4580 R15: ffff88807ffb3000
+  FS:  00007f9c83eff5c0(0000) GS:ffff88807dc00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000000 CR3: 0000000013c8e000 CR4: 0000000000350ef0
+  Call Trace:
+   seq_read_iter+0x128/0x460
+   proc_reg_read_iter+0x51/0x80
+   new_sync_read+0x113/0x1a0
+   vfs_read+0x136/0x1d0
+   ksys_read+0x70/0xf0
+   __x64_sys_read+0x1a/0x20
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fix this by checking that the aligned zone_movable_pfn[] does not exceed
+the end of the node, and if it does skip creating a movable zone on this
+node.
+
+Link: https://lkml.kernel.org/r/20220215025831.2113067-1-apopple@nvidia.com
+Fixes: 2a1e274acf0b ("Create the ZONE_MOVABLE zone")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-19-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/intel8x0.c  |   10 ++++++++--
- sound/pci/intel8x0m.c |   10 ++++++++--
- 2 files changed, 16 insertions(+), 4 deletions(-)
+ mm/page_alloc.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/sound/pci/intel8x0.c
-+++ b/sound/pci/intel8x0.c
-@@ -3109,8 +3109,8 @@ static int check_default_spdif_aclink(st
- 	return 0;
- }
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6502,10 +6502,17 @@ restart:
  
--static int snd_intel8x0_probe(struct pci_dev *pci,
--			      const struct pci_device_id *pci_id)
-+static int __snd_intel8x0_probe(struct pci_dev *pci,
-+				const struct pci_device_id *pci_id)
- {
- 	struct snd_card *card;
- 	struct intel8x0 *chip;
-@@ -3189,6 +3189,12 @@ static int snd_intel8x0_probe(struct pci
- 	return 0;
- }
- 
-+static int snd_intel8x0_probe(struct pci_dev *pci,
-+			      const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_intel8x0_probe(pci, pci_id));
-+}
+ out2:
+ 	/* Align start of ZONE_MOVABLE on all nids to MAX_ORDER_NR_PAGES */
+-	for (nid = 0; nid < MAX_NUMNODES; nid++)
++	for (nid = 0; nid < MAX_NUMNODES; nid++) {
++		unsigned long start_pfn, end_pfn;
 +
- static struct pci_driver intel8x0_driver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = snd_intel8x0_ids,
---- a/sound/pci/intel8x0m.c
-+++ b/sound/pci/intel8x0m.c
-@@ -1178,8 +1178,8 @@ static struct shortname_table {
- 	{ 0 },
- };
+ 		zone_movable_pfn[nid] =
+ 			roundup(zone_movable_pfn[nid], MAX_ORDER_NR_PAGES);
  
--static int snd_intel8x0m_probe(struct pci_dev *pci,
--			       const struct pci_device_id *pci_id)
-+static int __snd_intel8x0m_probe(struct pci_dev *pci,
-+				 const struct pci_device_id *pci_id)
- {
- 	struct snd_card *card;
- 	struct intel8x0m *chip;
-@@ -1225,6 +1225,12 @@ static int snd_intel8x0m_probe(struct pc
- 	return 0;
- }
- 
-+static int snd_intel8x0m_probe(struct pci_dev *pci,
-+			       const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_intel8x0m_probe(pci, pci_id));
-+}
++		get_pfn_range_for_nid(nid, &start_pfn, &end_pfn);
++		if (zone_movable_pfn[nid] >= end_pfn)
++			zone_movable_pfn[nid] = 0;
++	}
 +
- static struct pci_driver intel8x0m_driver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = snd_intel8x0m_ids,
+ out:
+ 	/* restore the node_state */
+ 	node_states[N_MEMORY] = saved_node_state;
 
 
