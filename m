@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2E405050D6
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D33505824
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234709AbiDRM3p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38590 "EHLO
+        id S244875AbiDRN7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239689AbiDRM2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EED7201A6;
-        Mon, 18 Apr 2022 05:22:22 -0700 (PDT)
+        with ESMTP id S244631AbiDRN5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718352AC69;
+        Mon, 18 Apr 2022 06:06:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C65EEB80EDE;
-        Mon, 18 Apr 2022 12:22:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F948C385A7;
-        Mon, 18 Apr 2022 12:22:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C89560EF6;
+        Mon, 18 Apr 2022 13:06:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F30CFC385A1;
+        Mon, 18 Apr 2022 13:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284539;
-        bh=qQSYxwQ0a1zzq3hdUWO+WEoi8GCOsoUpjcM8TqNU80Q=;
+        s=korg; t=1650287192;
+        bh=LMlQNGlYN3hy8CPToMdfFBPok9Av3xw6NjdEtCImleg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LL7XocXYd4vG563boaAwKIV2w7qnbwd+4pfPxisMcpA4BgzT+qPycpzhB/ZSFqRMY
-         doSavBsDWO4kfcO1A1101DwncCw0AHlTeGbEE+rwUeCQwxQ3UhPFhed98ZfG8Bcm9N
-         nttEN6c2WYqd/0lt7udYxEUEK8jkfLbWjx3EkQBU=
+        b=JYicHKyMTS8RqkCJ1mznjUKwmx2ImTK2DFqvkLJ5gNfqwrn5VRe0FBC/xyyFl7Vao
+         l2RLhmhjeoV0/zdDAekugJhlYpWLBY9ohL79ofllIznvdVq26o05D2OjslC/XcP0Vc
+         5i8l8RCZUn6XHqeZRuvBOY8nLdzNoNmknSDhf8lI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 131/219] btrfs: fix fallocate to use file_modified to update permissions consistently
+        stable@vger.kernel.org,
+        =?UTF-8?q?Dirk=20M=C3=BCller?= <dmueller@suse.de>,
+        Paul Menzel <pmenzel@molgen.mpg.de>, Song Liu <song@kernel.org>
+Subject: [PATCH 4.9 034/218] lib/raid6/test: fix multiple definition linking error
 Date:   Mon, 18 Apr 2022 14:11:40 +0200
-Message-Id: <20220418121210.562765021@linuxfoundation.org>
+Message-Id: <20220418121200.417020033@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Dirk Müller <dmueller@suse.de>
 
-[ Upstream commit 05fd9564e9faf0f23b4676385e27d9405cef6637 ]
+commit a5359ddd052860bacf957e65fe819c63e974b3a6 upstream.
 
-Since the initial introduction of (posix) fallocate back at the turn of
-the century, it has been possible to use this syscall to change the
-user-visible contents of files.  This can happen by extending the file
-size during a preallocation, or through any of the newer modes (punch,
-zero range).  Because the call can be used to change file contents, we
-should treat it like we do any other modification to a file -- update
-the mtime, and drop set[ug]id privileges/capabilities.
+GCC 10+ defaults to -fno-common, which enforces proper declaration of
+external references using "extern". without this change a link would
+fail with:
 
-The VFS function file_modified() does all this for us if pass it a
-locked inode, so let's make fallocate drop permissions correctly.
+  lib/raid6/test/algos.c:28: multiple definition of `raid6_call';
+  lib/raid6/test/test.c:22: first defined here
 
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+the pq.h header that is included already includes an extern declaration
+so we can just remove the redundant one here.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dirk Müller <dmueller@suse.de>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ lib/raid6/test/test.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index a0179cc62913..28ddd9cf2069 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2918,8 +2918,9 @@ int btrfs_replace_file_extents(struct btrfs_inode *inode,
- 	return ret;
- }
+--- a/lib/raid6/test/test.c
++++ b/lib/raid6/test/test.c
+@@ -22,7 +22,6 @@
+ #define NDISKS		16	/* Including P and Q */
  
--static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
-+static int btrfs_punch_hole(struct file *file, loff_t offset, loff_t len)
- {
-+	struct inode *inode = file_inode(file);
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_root *root = BTRFS_I(inode)->root;
- 	struct extent_state *cached_state = NULL;
-@@ -2951,6 +2952,10 @@ static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
- 		goto out_only_mutex;
- 	}
+ const char raid6_empty_zero_page[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+-struct raid6_calls raid6_call;
  
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_only_mutex;
-+
- 	lockstart = round_up(offset, btrfs_inode_sectorsize(BTRFS_I(inode)));
- 	lockend = round_down(offset + len,
- 			     btrfs_inode_sectorsize(BTRFS_I(inode))) - 1;
-@@ -3391,7 +3396,7 @@ static long btrfs_fallocate(struct file *file, int mode,
- 		return -EOPNOTSUPP;
- 
- 	if (mode & FALLOC_FL_PUNCH_HOLE)
--		return btrfs_punch_hole(inode, offset, len);
-+		return btrfs_punch_hole(file, offset, len);
- 
- 	/*
- 	 * Only trigger disk allocation, don't trigger qgroup reserve
-@@ -3413,6 +3418,10 @@ static long btrfs_fallocate(struct file *file, int mode,
- 			goto out;
- 	}
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out;
-+
- 	/*
- 	 * TODO: Move these two operations after we have checked
- 	 * accurate reserved space, or fallocate can still fail but
--- 
-2.35.1
-
+ char *dataptrs[NDISKS];
+ char data[NDISKS][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
 
 
