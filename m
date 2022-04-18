@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CC9505345
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6891505279
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240022AbiDRM4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43948 "EHLO
+        id S230359AbiDRMpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:45:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240296AbiDRMzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCA37FB;
-        Mon, 18 Apr 2022 05:37:11 -0700 (PDT)
+        with ESMTP id S237490AbiDRMoT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:44:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB4926AEA;
+        Mon, 18 Apr 2022 05:32:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98B6BB80EDC;
-        Mon, 18 Apr 2022 12:37:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A180CC385A7;
-        Mon, 18 Apr 2022 12:37:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F03EEB80EC0;
+        Mon, 18 Apr 2022 12:32:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC64C385A1;
+        Mon, 18 Apr 2022 12:32:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285429;
-        bh=lPXSw59v08NPSWuDxS3W0dFUB6XP8tMGUG8g+kBOXB8=;
+        s=korg; t=1650285152;
+        bh=Y+mN8yxB8UYnXBTzQwry6M5BRV4I9UhvtQahWGKhiB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yPf8s2OAJUI7XOCFR3bdiK6J3xT5+V8uwszWDbgCl11785z+vl49VckQNfgX+hiFE
-         HOrQk4ZiFRfzW28rbkpNj+2/CrHsEW6okOiqCBUd/iXxOfB++Zx36Iaz2gb4XUPoJa
-         WQbbytQs+/DjgiWn5pv1xgQJfx+FhFL3uuuk+soo=
+        b=v1ZZvtB9020U/ZWt/gDMgqTDYWrTGR3/cgve3HKrhwhYncjPb0Upeaf1g73DrApaA
+         LR/t4XTkPG7FfEyoIp8E5YvoCcOKhUZth52Z/8wjK1fcpAEJbISIS2/DYk+s5AKCqn
+         wkftYfbe29oX/5Dj+cDl+jx6brh+BieUp/vpuieE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 016/105] mlxsw: i2c: Fix initialization error flow
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 118/189] Drivers: hv: vmbus: Prevent load re-ordering when reading ring buffer
 Date:   Mon, 18 Apr 2022 14:12:18 +0200
-Message-Id: <20220418121146.386580868@linuxfoundation.org>
+Message-Id: <20220418121203.846698225@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@nvidia.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit d452088cdfd5a4ad9d96d847d2273fe958d6339b ]
+[ Upstream commit b6cae15b5710c8097aad26a2e5e752c323ee5348 ]
 
-Add mutex_destroy() call in driver initialization error flow.
+When reading a packet from a host-to-guest ring buffer, there is no
+memory barrier between reading the write index (to see if there is
+a packet to read) and reading the contents of the packet. The Hyper-V
+host uses store-release when updating the write index to ensure that
+writes of the packet data are completed first. On the guest side,
+the processor can reorder and read the packet data before the write
+index, and sometimes get stale packet data. Getting such stale packet
+data has been observed in a reproducible case in a VM on ARM64.
 
-Fixes: 6882b0aee180f ("mlxsw: Introduce support for I2C bus")
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20220407070703.2421076-1-idosch@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fix this by using virt_load_acquire() to read the write index,
+ensuring that reads of the packet data cannot be reordered
+before it. Preventing such reordering is logically correct, and
+with this change, getting stale data can no longer be reproduced.
+
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Reviewed-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+Link: https://lore.kernel.org/r/1648394710-33480-1-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/i2c.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hv/ring_buffer.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/i2c.c b/drivers/net/ethernet/mellanox/mlxsw/i2c.c
-index 939b692ffc33..ce843ea91464 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/i2c.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/i2c.c
-@@ -650,6 +650,7 @@ static int mlxsw_i2c_probe(struct i2c_client *client,
- 	return 0;
+diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
+index 314015d9e912..f4091143213b 100644
+--- a/drivers/hv/ring_buffer.c
++++ b/drivers/hv/ring_buffer.c
+@@ -408,7 +408,16 @@ int hv_ringbuffer_read(struct vmbus_channel *channel,
+ static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info *rbi)
+ {
+ 	u32 priv_read_loc = rbi->priv_read_index;
+-	u32 write_loc = READ_ONCE(rbi->ring_buffer->write_index);
++	u32 write_loc;
++
++	/*
++	 * The Hyper-V host writes the packet data, then uses
++	 * store_release() to update the write_index.  Use load_acquire()
++	 * here to prevent loads of the packet data from being re-ordered
++	 * before the read of the write_index and potentially getting
++	 * stale data.
++	 */
++	write_loc = virt_load_acquire(&rbi->ring_buffer->write_index);
  
- errout:
-+	mutex_destroy(&mlxsw_i2c->cmd.lock);
- 	i2c_set_clientdata(client, NULL);
- 
- 	return err;
+ 	if (write_loc >= priv_read_loc)
+ 		return write_loc - priv_read_loc;
 -- 
 2.35.1
 
