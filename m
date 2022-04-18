@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D8650529C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E9350580B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239549AbiDRMrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60482 "EHLO
+        id S244538AbiDRN71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239634AbiDRMqr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:46:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE1129823;
-        Mon, 18 Apr 2022 05:33:00 -0700 (PDT)
+        with ESMTP id S244651AbiDRN5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D13B02AC6E;
+        Mon, 18 Apr 2022 06:06:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ED0F61014;
-        Mon, 18 Apr 2022 12:32:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77467C385A8;
-        Mon, 18 Apr 2022 12:32:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CA3D60EF6;
+        Mon, 18 Apr 2022 13:06:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B7A9C385A1;
+        Mon, 18 Apr 2022 13:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285178;
-        bh=PdqZVzizgk6/NDj9Gpg1f+LUl/smdkF9TxT+ushn/pk=;
+        s=korg; t=1650287195;
+        bh=tYhwpHAAbEJTRnjWi+1xyQiT2rwpUUSSZnyi6C/dVvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VQAiG0sQ3yfCc+15vAtVXoyQ5idV9mlWcjU+1f6hHrZIbSIHkT2/KQXrGZSN5QqYF
-         lZcYOe2NNxJaz2CdVqV36jK02hpC1l21VlE0ovRSl216uAnDHsn5VxK0PCvX6bilbC
-         ocoh8c6VOKkUwtyeQgH/nD+DUHRTxkEFderM5q8s=
+        b=nYnqmvcBfaUybroC4vYF3wB2DKZ+8bXGlZqp2PyX8WTiPjTajkez8oZnidYfKQ6OU
+         onzP2Yb32cW6JxXux3Ae5hNMVJXbPjbIdxWB55EIjVPt01Zuz+pW5Z1FMoqnfdRvZm
+         NSjy8CjKDRwoRyQnh29CbptymOMyfxU9nHHVAE4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot+f83a1df1ed4f67e8d8ad@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 125/189] regulator: wm8994: Add an off-on delay for WM8994 variant
+Subject: [PATCH 4.9 079/218] ath9k_htc: fix uninit value bugs
 Date:   Mon, 18 Apr 2022 14:12:25 +0200
-Message-Id: <20220418121204.476721313@linuxfoundation.org>
+Message-Id: <20220418121201.867248006@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,94 +56,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 92d96b603738ec4f35cde7198c303ae264dd47cb ]
+[ Upstream commit d1e0df1c57bd30871dd1c855742a7c346dbca853 ]
 
-As per Table 130 of the wm8994 datasheet at [1], there is an off-on
-delay for LDO1 and LDO2.  In the wm8958 datasheet [2], I could not
-find any reference to it.  I could not find a wm1811 datasheet to
-double-check there, but as no one has complained presumably it works
-without it.
+Syzbot reported 2 KMSAN bugs in ath9k. All of them are caused by missing
+field initialization.
 
-This solves the issue on Samsung Aries boards with a wm8994 where
-register writes fail when the device is powered off and back-on
-quickly.
+In htc_connect_service() svc_meta_len and pad are not initialized. Based
+on code it looks like in current skb there is no service data, so simply
+initialize svc_meta_len to 0.
 
-[1] https://statics.cirrus.com/pubs/proDatasheet/WM8994_Rev4.6.pdf
-[2] https://statics.cirrus.com/pubs/proDatasheet/WM8958_v3.5.pdf
+htc_issue_send() does not initialize htc_frame_hdr::control array. Based
+on firmware code, it will initialize it by itself, so simply zero whole
+array to make KMSAN happy
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/CY4PR04MB056771CFB80DC447C30D5A31CB1D9@CY4PR04MB0567.namprd04.prod.outlook.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fail logs:
+
+BUG: KMSAN: kernel-usb-infoleak in usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
+ usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
+ hif_usb_send_regout drivers/net/wireless/ath/ath9k/hif_usb.c:127 [inline]
+ hif_usb_send+0x5f0/0x16f0 drivers/net/wireless/ath/ath9k/hif_usb.c:479
+ htc_issue_send drivers/net/wireless/ath/ath9k/htc_hst.c:34 [inline]
+ htc_connect_service+0x143e/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:275
+...
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1126 [inline]
+ htc_connect_service+0x1029/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:258
+...
+
+Bytes 4-7 of 18 are uninitialized
+Memory access of size 18 starts at ffff888027377e00
+
+BUG: KMSAN: kernel-usb-infoleak in usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
+ usb_submit_urb+0x6c1/0x2aa0 drivers/usb/core/urb.c:430
+ hif_usb_send_regout drivers/net/wireless/ath/ath9k/hif_usb.c:127 [inline]
+ hif_usb_send+0x5f0/0x16f0 drivers/net/wireless/ath/ath9k/hif_usb.c:479
+ htc_issue_send drivers/net/wireless/ath/ath9k/htc_hst.c:34 [inline]
+ htc_connect_service+0x143e/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:275
+...
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1126 [inline]
+ htc_connect_service+0x1029/0x1960 drivers/net/wireless/ath/ath9k/htc_hst.c:258
+...
+
+Bytes 16-17 of 18 are uninitialized
+Memory access of size 18 starts at ffff888027377e00
+
+Fixes: fb9987d0f748 ("ath9k_htc: Support for AR9271 chipset.")
+Reported-by: syzbot+f83a1df1ed4f67e8d8ad@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220115122733.11160-1-paskripkin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/wm8994-regulator.c | 42 ++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc_hst.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/regulator/wm8994-regulator.c b/drivers/regulator/wm8994-regulator.c
-index cadea0344486..40befdd9dfa9 100644
---- a/drivers/regulator/wm8994-regulator.c
-+++ b/drivers/regulator/wm8994-regulator.c
-@@ -71,6 +71,35 @@ static const struct regulator_ops wm8994_ldo2_ops = {
- };
+diff --git a/drivers/net/wireless/ath/ath9k/htc_hst.c b/drivers/net/wireless/ath/ath9k/htc_hst.c
+index 625823e45d8f..06a6e7443550 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_hst.c
++++ b/drivers/net/wireless/ath/ath9k/htc_hst.c
+@@ -31,6 +31,7 @@ static int htc_issue_send(struct htc_target *target, struct sk_buff* skb,
+ 	hdr->endpoint_id = epid;
+ 	hdr->flags = flags;
+ 	hdr->payload_len = cpu_to_be16(len);
++	memset(hdr->control, 0, sizeof(hdr->control));
  
- static const struct regulator_desc wm8994_ldo_desc[] = {
-+	{
-+		.name = "LDO1",
-+		.id = 1,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = WM8994_LDO1_MAX_SELECTOR + 1,
-+		.vsel_reg = WM8994_LDO_1,
-+		.vsel_mask = WM8994_LDO1_VSEL_MASK,
-+		.ops = &wm8994_ldo1_ops,
-+		.min_uV = 2400000,
-+		.uV_step = 100000,
-+		.enable_time = 3000,
-+		.off_on_delay = 36000,
-+		.owner = THIS_MODULE,
-+	},
-+	{
-+		.name = "LDO2",
-+		.id = 2,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = WM8994_LDO2_MAX_SELECTOR + 1,
-+		.vsel_reg = WM8994_LDO_2,
-+		.vsel_mask = WM8994_LDO2_VSEL_MASK,
-+		.ops = &wm8994_ldo2_ops,
-+		.enable_time = 3000,
-+		.off_on_delay = 36000,
-+		.owner = THIS_MODULE,
-+	},
-+};
+ 	status = target->hif->send(target->hif_dev, endpoint->ul_pipeid, skb);
+ 
+@@ -278,6 +279,10 @@ int htc_connect_service(struct htc_target *target,
+ 	conn_msg->dl_pipeid = endpoint->dl_pipeid;
+ 	conn_msg->ul_pipeid = endpoint->ul_pipeid;
+ 
++	/* To prevent infoleak */
++	conn_msg->svc_meta_len = 0;
++	conn_msg->pad = 0;
 +
-+static const struct regulator_desc wm8958_ldo_desc[] = {
- 	{
- 		.name = "LDO1",
- 		.id = 1,
-@@ -172,9 +201,16 @@ static int wm8994_ldo_probe(struct platform_device *pdev)
- 	 * regulator core and we need not worry about it on the
- 	 * error path.
- 	 */
--	ldo->regulator = devm_regulator_register(&pdev->dev,
--						 &wm8994_ldo_desc[id],
--						 &config);
-+	if (ldo->wm8994->type == WM8994) {
-+		ldo->regulator = devm_regulator_register(&pdev->dev,
-+							 &wm8994_ldo_desc[id],
-+							 &config);
-+	} else {
-+		ldo->regulator = devm_regulator_register(&pdev->dev,
-+							 &wm8958_ldo_desc[id],
-+							 &config);
-+	}
-+
- 	if (IS_ERR(ldo->regulator)) {
- 		ret = PTR_ERR(ldo->regulator);
- 		dev_err(wm8994->dev, "Failed to register LDO%d: %d\n",
+ 	ret = htc_issue_send(target, skb, skb->len, 0, ENDPOINT0);
+ 	if (ret)
+ 		goto err;
 -- 
-2.35.1
+2.34.1
 
 
 
