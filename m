@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 960EF505968
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A37E50596D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244996AbiDROTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:19:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38530 "EHLO
+        id S1343746AbiDROT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:19:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344062AbiDROQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:16:55 -0400
+        with ESMTP id S1344085AbiDRORf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:17:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53D0439BBA;
-        Mon, 18 Apr 2022 06:13:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF69C3A1AD;
+        Mon, 18 Apr 2022 06:13:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9521B80ED9;
-        Mon, 18 Apr 2022 13:12:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C07C385A1;
-        Mon, 18 Apr 2022 13:12:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 026DDB80EE5;
+        Mon, 18 Apr 2022 13:12:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50D5CC385A7;
+        Mon, 18 Apr 2022 13:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287574;
-        bh=bhBr6JOiDPhKy1HZTSHQqBxspXQdtyDJJepm5zjDgxw=;
+        s=korg; t=1650287577;
+        bh=2X054I721Z00ymUe9y1tZN0FVB/oy5dHB3h/KaeNAGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmCK+EZgRZ4Zz3uTG/DJhARqpfGJU13YXyPWjtWhybUVMg3aFXSV4zI7kbmJt/xq5
-         amIzJaaVOi+mr6usfFXKpy9S7YkDXxB3a/rHwn65+cKCxieaOK0WEUzZ/oogKQUb9p
-         ocl68qR3Se+zBWrCykYKqA9OpoDXXZr71V9daYtw=
+        b=nYfaEVgFndxla26PHRK7F2AknF6PQMa7x44mWBsvV63HJ8Xq5lMSpAjVjVkGitZnb
+         jiwjtES9Uttk6STIYVuBrhh/cdBfYJKBdAO96GrpfJcqBpcmUabsrSIwihq7kPXAlZ
+         tGD8mT7Jdoi72ImHeqANELFtRkeF5cLedcJ10fIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 203/218] net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link
-Date:   Mon, 18 Apr 2022 14:14:29 +0200
-Message-Id: <20220418121207.656513812@linuxfoundation.org>
+Subject: [PATCH 4.9 204/218] nfc: nci: add flush_workqueue to prevent uaf
+Date:   Mon, 18 Apr 2022 14:14:30 +0200
+Message-Id: <20220418121207.737646123@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,117 +55,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit a6aaa00324240967272b451bfa772547bd576ee6 ]
+[ Upstream commit ef27324e2cb7bb24542d6cb2571740eefe6b00dc ]
 
-When using a fixed-link, the altr_tse_pcs driver crashes
-due to null-pointer dereference as no phy_device is provided to
-tse_pcs_fix_mac_speed function. Fix this by adding a check for
-phy_dev before calling the tse_pcs_fix_mac_speed() function.
+Our detector found a concurrent use-after-free bug when detaching an
+NCI device. The main reason for this bug is the unexpected scheduling
+between the used delayed mechanism (timer and workqueue).
 
-Also clean up the tse_pcs_fix_mac_speed function a bit. There is
-no need to check for splitter_base and sgmii_adapter_base
-because the driver will fail if these 2 variables are not
-derived from the device tree.
+The race can be demonstrated below:
 
-Fixes: fb3bbdb85989 ("net: ethernet: Add TSE PCS support to dwmac-socfpga")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Thread-1                           Thread-2
+                                 | nci_dev_up()
+                                 |   nci_open_device()
+                                 |     __nci_request(nci_reset_req)
+                                 |       nci_send_cmd
+                                 |         queue_work(cmd_work)
+nci_unregister_device()          |
+  nci_close_device()             | ...
+    del_timer_sync(cmd_timer)[1] |
+...                              | Worker
+nci_free_device()                | nci_cmd_work()
+  kfree(ndev)[3]                 |   mod_timer(cmd_timer)[2]
+
+In short, the cleanup routine thought that the cmd_timer has already
+been detached by [1] but the mod_timer can re-attach the timer [2], even
+it is already released [3], resulting in UAF.
+
+This UAF is easy to trigger, crash trace by POC is like below
+
+[   66.703713] ==================================================================
+[   66.703974] BUG: KASAN: use-after-free in enqueue_timer+0x448/0x490
+[   66.703974] Write of size 8 at addr ffff888009fb7058 by task kworker/u4:1/33
+[   66.703974]
+[   66.703974] CPU: 1 PID: 33 Comm: kworker/u4:1 Not tainted 5.18.0-rc2 #5
+[   66.703974] Workqueue: nfc2_nci_cmd_wq nci_cmd_work
+[   66.703974] Call Trace:
+[   66.703974]  <TASK>
+[   66.703974]  dump_stack_lvl+0x57/0x7d
+[   66.703974]  print_report.cold+0x5e/0x5db
+[   66.703974]  ? enqueue_timer+0x448/0x490
+[   66.703974]  kasan_report+0xbe/0x1c0
+[   66.703974]  ? enqueue_timer+0x448/0x490
+[   66.703974]  enqueue_timer+0x448/0x490
+[   66.703974]  __mod_timer+0x5e6/0xb80
+[   66.703974]  ? mark_held_locks+0x9e/0xe0
+[   66.703974]  ? try_to_del_timer_sync+0xf0/0xf0
+[   66.703974]  ? lockdep_hardirqs_on_prepare+0x17b/0x410
+[   66.703974]  ? queue_work_on+0x61/0x80
+[   66.703974]  ? lockdep_hardirqs_on+0xbf/0x130
+[   66.703974]  process_one_work+0x8bb/0x1510
+[   66.703974]  ? lockdep_hardirqs_on_prepare+0x410/0x410
+[   66.703974]  ? pwq_dec_nr_in_flight+0x230/0x230
+[   66.703974]  ? rwlock_bug.part.0+0x90/0x90
+[   66.703974]  ? _raw_spin_lock_irq+0x41/0x50
+[   66.703974]  worker_thread+0x575/0x1190
+[   66.703974]  ? process_one_work+0x1510/0x1510
+[   66.703974]  kthread+0x2a0/0x340
+[   66.703974]  ? kthread_complete_and_exit+0x20/0x20
+[   66.703974]  ret_from_fork+0x22/0x30
+[   66.703974]  </TASK>
+[   66.703974]
+[   66.703974] Allocated by task 267:
+[   66.703974]  kasan_save_stack+0x1e/0x40
+[   66.703974]  __kasan_kmalloc+0x81/0xa0
+[   66.703974]  nci_allocate_device+0xd3/0x390
+[   66.703974]  nfcmrvl_nci_register_dev+0x183/0x2c0
+[   66.703974]  nfcmrvl_nci_uart_open+0xf2/0x1dd
+[   66.703974]  nci_uart_tty_ioctl+0x2c3/0x4a0
+[   66.703974]  tty_ioctl+0x764/0x1310
+[   66.703974]  __x64_sys_ioctl+0x122/0x190
+[   66.703974]  do_syscall_64+0x3b/0x90
+[   66.703974]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   66.703974]
+[   66.703974] Freed by task 406:
+[   66.703974]  kasan_save_stack+0x1e/0x40
+[   66.703974]  kasan_set_track+0x21/0x30
+[   66.703974]  kasan_set_free_info+0x20/0x30
+[   66.703974]  __kasan_slab_free+0x108/0x170
+[   66.703974]  kfree+0xb0/0x330
+[   66.703974]  nfcmrvl_nci_unregister_dev+0x90/0xd0
+[   66.703974]  nci_uart_tty_close+0xdf/0x180
+[   66.703974]  tty_ldisc_kill+0x73/0x110
+[   66.703974]  tty_ldisc_hangup+0x281/0x5b0
+[   66.703974]  __tty_hangup.part.0+0x431/0x890
+[   66.703974]  tty_release+0x3a8/0xc80
+[   66.703974]  __fput+0x1f0/0x8c0
+[   66.703974]  task_work_run+0xc9/0x170
+[   66.703974]  exit_to_user_mode_prepare+0x194/0x1a0
+[   66.703974]  syscall_exit_to_user_mode+0x19/0x50
+[   66.703974]  do_syscall_64+0x48/0x90
+[   66.703974]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+To fix the UAF, this patch adds flush_workqueue() to ensure the
+nci_cmd_work is finished before the following del_timer_sync.
+This combination will promise the timer is actually detached.
+
+Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c  |  8 --------
- drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h  |  4 ++++
- drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c | 13 +++++--------
- 3 files changed, 9 insertions(+), 16 deletions(-)
+ net/nfc/nci/core.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
-index 6a9c954492f2..6ca428a702f1 100644
---- a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
-@@ -68,10 +68,6 @@
- #define TSE_PCS_USE_SGMII_ENA				BIT(0)
- #define TSE_PCS_IF_USE_SGMII				0x03
+diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
+index 84eedbd5716d..df90872fcf90 100644
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -561,6 +561,10 @@ static int nci_close_device(struct nci_dev *ndev)
+ 	mutex_lock(&ndev->req_lock);
  
--#define SGMII_ADAPTER_CTRL_REG				0x00
--#define SGMII_ADAPTER_DISABLE				0x0001
--#define SGMII_ADAPTER_ENABLE				0x0000
--
- #define AUTONEGO_LINK_TIMER				20
- 
- static int tse_pcs_reset(void __iomem *base, struct tse_pcs *pcs)
-@@ -215,12 +211,8 @@ void tse_pcs_fix_mac_speed(struct tse_pcs *pcs, struct phy_device *phy_dev,
- 			   unsigned int speed)
- {
- 	void __iomem *tse_pcs_base = pcs->tse_pcs_base;
--	void __iomem *sgmii_adapter_base = pcs->sgmii_adapter_base;
- 	u32 val;
- 
--	writew(SGMII_ADAPTER_ENABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
--
- 	pcs->autoneg = phy_dev->autoneg;
- 
- 	if (phy_dev->autoneg == AUTONEG_ENABLE) {
-diff --git a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
-index 2f5882450b06..254199f2efdb 100644
---- a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
-@@ -21,6 +21,10 @@
- #include <linux/phy.h>
- #include <linux/timer.h>
- 
-+#define SGMII_ADAPTER_CTRL_REG		0x00
-+#define SGMII_ADAPTER_ENABLE		0x0000
-+#define SGMII_ADAPTER_DISABLE		0x0001
-+
- struct tse_pcs {
- 	struct device *dev;
- 	void __iomem *tse_pcs_base;
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-index c3a78c113424..b138968b8672 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-@@ -29,9 +29,6 @@
- 
- #include "altr_tse_pcs.h"
- 
--#define SGMII_ADAPTER_CTRL_REG                          0x00
--#define SGMII_ADAPTER_DISABLE                           0x0001
--
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII 0x0
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII 0x1
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII 0x2
-@@ -65,16 +62,14 @@ static void socfpga_dwmac_fix_mac_speed(void *priv, unsigned int speed)
- {
- 	struct socfpga_dwmac *dwmac = (struct socfpga_dwmac *)priv;
- 	void __iomem *splitter_base = dwmac->splitter_base;
--	void __iomem *tse_pcs_base = dwmac->pcs.tse_pcs_base;
- 	void __iomem *sgmii_adapter_base = dwmac->pcs.sgmii_adapter_base;
- 	struct device *dev = dwmac->dev;
- 	struct net_device *ndev = dev_get_drvdata(dev);
- 	struct phy_device *phy_dev = ndev->phydev;
- 	u32 val;
- 
--	if ((tse_pcs_base) && (sgmii_adapter_base))
--		writew(SGMII_ADAPTER_DISABLE,
--		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+	writew(SGMII_ADAPTER_DISABLE,
-+	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
- 
- 	if (splitter_base) {
- 		val = readl(splitter_base + EMAC_SPLITTER_CTRL_REG);
-@@ -96,7 +91,9 @@ static void socfpga_dwmac_fix_mac_speed(void *priv, unsigned int speed)
- 		writel(val, splitter_base + EMAC_SPLITTER_CTRL_REG);
- 	}
- 
--	if (tse_pcs_base && sgmii_adapter_base)
-+	writew(SGMII_ADAPTER_ENABLE,
-+	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+	if (phy_dev)
- 		tse_pcs_fix_mac_speed(&dwmac->pcs, phy_dev, speed);
- }
- 
+ 	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
++		/* Need to flush the cmd wq in case
++		 * there is a queued/running cmd_work
++		 */
++		flush_workqueue(ndev->cmd_wq);
+ 		del_timer_sync(&ndev->cmd_timer);
+ 		del_timer_sync(&ndev->data_timer);
+ 		mutex_unlock(&ndev->req_lock);
 -- 
 2.35.1
 
