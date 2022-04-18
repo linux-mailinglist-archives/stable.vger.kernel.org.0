@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A2E5054BC
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A65A6505003
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241540AbiDRNMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:12:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53776 "EHLO
+        id S238247AbiDRMUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:20:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241707AbiDRNI3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8DB42BB2E;
-        Mon, 18 Apr 2022 05:47:59 -0700 (PDT)
+        with ESMTP id S238320AbiDRMTy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:19:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A394D1C125;
+        Mon, 18 Apr 2022 05:16:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 859EE6101A;
-        Mon, 18 Apr 2022 12:47:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A0C9C385B9;
-        Mon, 18 Apr 2022 12:47:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34A2BB80EDC;
+        Mon, 18 Apr 2022 12:16:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B227C385A1;
+        Mon, 18 Apr 2022 12:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286079;
-        bh=amW2hFM92tvyuVZjGN5xY5lUXYySeaJjV+QHyK7Jlms=;
+        s=korg; t=1650284198;
+        bh=G9ItEzenN+2uKLak/gGAlo13Cdy/IJBDH5i38StQZy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iVEofAvA+qZkSKSP2Htd93gIBImNVH4YDB0x+GJCOjsBFZR4G4vwww0GWo1aU3Pe3
-         /ArckrUazXFwjqQbC3AuB+7yUAFp2FAbgXXBiCbYBnEw0wHcfPxcM8gr6+v/V49nFN
-         d5tb+QE8ZieY5+S6S2bbKOjtqtZbkfXtoUFzPqco=
+        b=uOHt73xtJK8RF8+++7HpQ++i12kGinZWomDgPaknYpbiGymj1RIfIIYHLOmKHrMPy
+         barTukM9PF06gbbBvTUkV7Q/6ajs6j5uuYGh/JGSK/UAIU1ejC41YvU9kI/kB+teOF
+         E1XuNBM0OtnH9w7V+g6RJddC+lp3PrcfWR6Bb0QI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 022/284] SUNRPC: avoid race between mod_timer() and del_timer_sync()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 034/219] ALSA: es1938: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:10:03 +0200
-Message-Id: <20220418121211.327937970@linuxfoundation.org>
+Message-Id: <20220418121205.338427123@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3848e96edf4788f772d83990022fa7023a233d83 upstream.
+commit bc22628591e5913e67edb3c2a89b97849e30a8f8 upstream.
 
-xprt_destory() claims XPRT_LOCKED and then calls del_timer_sync().
-Both xprt_unlock_connect() and xprt_release() call
- ->release_xprt()
-which drops XPRT_LOCKED and *then* xprt_schedule_autodisconnect()
-which calls mod_timer().
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-This may result in mod_timer() being called *after* del_timer_sync().
-When this happens, the timer may fire long after the xprt has been freed,
-and run_timer_softirq() will probably crash.
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-The pairing of ->release_xprt() and xprt_schedule_autodisconnect() is
-always called under ->transport_lock.  So if we take ->transport_lock to
-call del_timer_sync(), we can be sure that mod_timer() will run first
-(if it runs at all).
-
-Cc: stable@vger.kernel.org
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 08e9d3ab4cc1 ("ALSA: es1938: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-15-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xprt.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/pci/es1938.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1520,7 +1520,14 @@ static void xprt_destroy(struct rpc_xprt
- 	 */
- 	wait_on_bit_lock(&xprt->state, XPRT_LOCKED, TASK_UNINTERRUPTIBLE);
+--- a/sound/pci/es1938.c
++++ b/sound/pci/es1938.c
+@@ -1716,8 +1716,8 @@ static int snd_es1938_mixer(struct es193
+ }
+        
  
-+	/*
-+	 * xprt_schedule_autodisconnect() can run after XPRT_LOCKED
-+	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
-+	 * can only run *before* del_time_sync(), never after.
-+	 */
-+	spin_lock(&xprt->transport_lock);
- 	del_timer_sync(&xprt->timer);
-+	spin_unlock(&xprt->transport_lock);
+-static int snd_es1938_probe(struct pci_dev *pci,
+-			    const struct pci_device_id *pci_id)
++static int __snd_es1938_probe(struct pci_dev *pci,
++			      const struct pci_device_id *pci_id)
+ {
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -1796,6 +1796,12 @@ static int snd_es1938_probe(struct pci_d
+ 	return 0;
+ }
  
- 	/*
- 	 * Destroy sockets etc from the system workqueue so they can
++static int snd_es1938_probe(struct pci_dev *pci,
++			    const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_es1938_probe(pci, pci_id));
++}
++
+ static struct pci_driver es1938_driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = snd_es1938_ids,
 
 
