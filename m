@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 784085053C7
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07ADE505664
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240743AbiDRNBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:01:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59826 "EHLO
+        id S240866AbiDRNeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:34:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242391AbiDRM7w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCA1A30F5A;
-        Mon, 18 Apr 2022 05:41:05 -0700 (PDT)
+        with ESMTP id S244880AbiDRNbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:31:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC8D32A5;
+        Mon, 18 Apr 2022 05:56:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A72EB80EC3;
-        Mon, 18 Apr 2022 12:41:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B01EC385A1;
-        Mon, 18 Apr 2022 12:41:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87D11612BB;
+        Mon, 18 Apr 2022 12:56:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B388C385A9;
+        Mon, 18 Apr 2022 12:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285662;
-        bh=F744J9Wch+6CYGO7v0bbvWisdqdhidN8eTq9iIl7cEI=;
+        s=korg; t=1650286617;
+        bh=ASvl4kzOlN2JBFPVcDkp6qC7onoQI+kOPopbQo3QmCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VkNhazi0syHTqSzhyTx0umdmncVVAybTjLY/fVG6pxA+5BURrWkTORWaWUgPQ+9PX
-         UrvLLnmElsnGjEyjESbnxk0bIjcSLtwSTd94tCfsJKXuj1q5qipSSPnktuh+r18JqD
-         CF8HkpR6A4rioM7WCaob5FHQzSHhLAaSCSuwBzXs=
+        b=lQX+TmUTToZ5sfVUS/vL60b8Cc2mKayvZkYWw+xqjnbTuzIUCR7QtGJ8EKmW3L8HS
+         ZV4r7DgDsGmGWxfS74DiviQRznIV3rWgL8Ng0x5X0qLmtx3Nr6ERHCykg8o7Ix03J3
+         RFPOvV0C6EWXCCq2zYFjJmCa6QCURv7zKaL/fgxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/105] drm/amdkfd: Check for potential null return of kmalloc_array()
+        stable@vger.kernel.org, Andrew Price <anprice@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 4.14 191/284] gfs2: Make sure FITRIM minlen is rounded up to fs block size
 Date:   Mon, 18 Apr 2022 14:12:52 +0200
-Message-Id: <20220418121147.902154714@linuxfoundation.org>
+Message-Id: <20220418121217.165187102@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: QintaoShen <unSimple1993@163.com>
+From: Andrew Price <anprice@redhat.com>
 
-[ Upstream commit ebbb7bb9e80305820dc2328a371c1b35679f2667 ]
+commit 27ca8273fda398638ca994a207323a85b6d81190 upstream.
 
-As the kmalloc_array() may return null, the 'event_waiters[i].wait' would lead to null-pointer dereference.
-Therefore, it is better to check the return value of kmalloc_array() to avoid this confusion.
+Per fstrim(8) we must round up the minlen argument to the fs block size.
+The current calculation doesn't take into account devices that have a
+discard granularity and requested minlen less than 1 fs block, so the
+value can get shifted away to zero in the translation to fs blocks.
 
-Signed-off-by: QintaoShen <unSimple1993@163.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The zero minlen passed to gfs2_rgrp_send_discards() then allows
+sb_issue_discard() to be called with nr_sects == 0 which returns -EINVAL
+and results in gfs2_rgrp_send_discards() returning -EIO.
+
+Make sure minlen is never < 1 fs block by taking the max of the
+requested minlen and the fs block size before comparing to the device's
+discard granularity and shifting to fs blocks.
+
+Fixes: 076f0faa764ab ("GFS2: Fix FITRIM argument handling")
+Signed-off-by: Andrew Price <anprice@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_events.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/gfs2/rgrp.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-index ba2c2ce0c55a..159be13ef20b 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
-@@ -531,6 +531,8 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
- 	event_waiters = kmalloc_array(num_events,
- 					sizeof(struct kfd_event_waiter),
- 					GFP_KERNEL);
-+	if (!event_waiters)
-+		return NULL;
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -1380,7 +1380,8 @@ int gfs2_fitrim(struct file *filp, void
  
- 	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
- 		init_wait(&event_waiters[i].wait);
--- 
-2.35.1
-
+ 	start = r.start >> bs_shift;
+ 	end = start + (r.len >> bs_shift);
+-	minlen = max_t(u64, r.minlen,
++	minlen = max_t(u64, r.minlen, sdp->sd_sb.sb_bsize);
++	minlen = max_t(u64, minlen,
+ 		       q->limits.discard_granularity) >> bs_shift;
+ 
+ 	if (end <= start || minlen > sdp->sd_max_rg_data)
 
 
