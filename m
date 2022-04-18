@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A1F5052B7
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 632BF5050E0
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234792AbiDRMq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:46:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55024 "EHLO
+        id S235646AbiDRM3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239259AbiDRMpy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:45:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEF4229800;
-        Mon, 18 Apr 2022 05:32:56 -0700 (PDT)
+        with ESMTP id S239464AbiDRM22 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 307CF21825;
+        Mon, 18 Apr 2022 05:21:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 415AD60F0A;
-        Mon, 18 Apr 2022 12:32:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E62C385A1;
-        Mon, 18 Apr 2022 12:32:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADE3E60F0C;
+        Mon, 18 Apr 2022 12:21:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1438C385A1;
+        Mon, 18 Apr 2022 12:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285175;
-        bh=p7NdsMGXXKY2Y4BdmKFIYeZ2BS38rKxgfbm27drUnCI=;
+        s=korg; t=1650284512;
+        bh=65Kk+qldAVoXasIuRHp7X0cnQR6pzfjYHtj7UyV3JM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBi5/3VVT7bnUghf5ba5tEwTlE/B9oOHZmXu9LzcpO/2ai/eGercxnkxvpynNV4C3
-         9DpvuqtGazUJjuPOguJza+/R8/v/Blv5uE9iKrz2RYEpREMkOuw4JFraneyt1SCPae
-         7TM7kbcY491Mg6NwhD/aq/5VkGIrboCUkbjV18Uo=
+        b=k2hWUgKji47BOZrgJKtmCHBEFY9haO4FfHTOM9HxTfZ+bMAMWagCOJ5i/vy3vcLB2
+         JY6qq4WUmZxz7AuWi97O3635ZRbZA+X9b6ANDoRPOM/eriD5FxojvyejcS+Jbvh+R+
+         bffkA2afGPnkxf68Pb+rE00ZNHhTSGZmXziceims=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, QintaoShen <unSimple1993@163.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 089/189] ALSA: mtpav: Dont call card private_free at probe error path
+Subject: [PATCH 5.17 140/219] drm/amdkfd: Check for potential null return of kmalloc_array()
 Date:   Mon, 18 Apr 2022 14:11:49 +0200
-Message-Id: <20220418121203.033282830@linuxfoundation.org>
+Message-Id: <20220418121210.811287033@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,48 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: QintaoShen <unSimple1993@163.com>
 
-[ Upstream commit 4fb27190879b82e48ce89a56e9d6c04437dbc065 ]
+[ Upstream commit ebbb7bb9e80305820dc2328a371c1b35679f2667 ]
 
-The card destructor of nm256 driver does merely stopping the running
-timer, and it's superfluous for the probe error handling.  Moreover,
-calling this via the previous devres change would lead to another
-problem due to the reverse call order.
+As the kmalloc_array() may return null, the 'event_waiters[i].wait' would lead to null-pointer dereference.
+Therefore, it is better to check the return value of kmalloc_array() to avoid this confusion.
 
-This patch moves the setup of the private_free callback after the card
-registration, so that it can be used only after fully set up.
-
-Fixes: aa92050f10f0 ("ALSA: mtpav: Allocate resources with device-managed APIs")
-Link: https://lore.kernel.org/r/20220412102636.16000-39-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: QintaoShen <unSimple1993@163.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/drivers/mtpav.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_events.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/drivers/mtpav.c b/sound/drivers/mtpav.c
-index 11235baaf6fa..f212f233ea61 100644
---- a/sound/drivers/mtpav.c
-+++ b/sound/drivers/mtpav.c
-@@ -693,8 +693,6 @@ static int snd_mtpav_probe(struct platform_device *dev)
- 	mtp_card->outmidihwport = 0xffffffff;
- 	timer_setup(&mtp_card->timer, snd_mtpav_output_timer, 0);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_events.c b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+index afe72dd11325..6ca7e12bdab8 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_events.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_events.c
+@@ -531,6 +531,8 @@ static struct kfd_event_waiter *alloc_event_waiters(uint32_t num_events)
+ 	event_waiters = kmalloc_array(num_events,
+ 					sizeof(struct kfd_event_waiter),
+ 					GFP_KERNEL);
++	if (!event_waiters)
++		return NULL;
  
--	card->private_free = snd_mtpav_free;
--
- 	err = snd_mtpav_get_RAWMIDI(mtp_card);
- 	if (err < 0)
- 		return err;
-@@ -716,6 +714,8 @@ static int snd_mtpav_probe(struct platform_device *dev)
- 	if (err < 0)
- 		return err;
- 
-+	card->private_free = snd_mtpav_free;
-+
- 	platform_set_drvdata(dev, card);
- 	printk(KERN_INFO "Motu MidiTimePiece on parallel port irq: %d ioport: 0x%lx\n", irq, port);
- 	return 0;
+ 	for (i = 0; (event_waiters) && (i < num_events) ; i++) {
+ 		init_wait(&event_waiters[i].wait);
 -- 
 2.35.1
 
