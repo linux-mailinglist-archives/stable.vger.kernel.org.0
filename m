@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E10985050DF
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A81A85057CF
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234232AbiDRM3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38600 "EHLO
+        id S243641AbiDRN5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:57:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239710AbiDRM2m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:42 -0400
+        with ESMTP id S244541AbiDRNzd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:55:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81D09201A9;
-        Mon, 18 Apr 2022 05:22:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325F549CB8;
+        Mon, 18 Apr 2022 06:04:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C998EB80EC4;
-        Mon, 18 Apr 2022 12:22:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A730C385A1;
-        Mon, 18 Apr 2022 12:22:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FC0FB80EBA;
+        Mon, 18 Apr 2022 13:04:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBE44C385A1;
+        Mon, 18 Apr 2022 13:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284542;
-        bh=+Xd3EYsE54NRnjPktOTOQq1qGWDsUlebxiZdA2bq+tQ=;
+        s=korg; t=1650287081;
+        bh=+XMqqrBb38EBhTzQh3Oh6qV6xs3FM0f4cVtmUcnUl0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbMdng3lnVxpi7LIxW93Q5OhOjXPZ9dFrIjTf3ULagwDH8BCWQggGvdkhnXjYU4tv
-         ZTm1ElMEujdZFoEM2VQrgCENUH1AQYTP+UP5TcAQP/ZmYuGbHSopf7O2/suJxrBtek
-         3XBGRAIJp6P5Ldl7Hr7XVKhxrIka1cfEpq3jdWeM=
+        b=dv0obRAi08vll18mLHDh2m6RAEpD3gCM4W3YFKrVIuODDqV73Gmg24Ot3A5hP1zIU
+         7jDywbCqNagwyJ8E4gSYPhuDeQ9shH6/Sn5Hx+MIkZ4My9rvSeEb912JS8bWRVUVVE
+         1lK6Uz2y5IyR74gYivC6+NGWdFrEHDj4l3cwQKas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 149/219] scsi: ibmvscsis: Increase INITIAL_SRP_LIMIT to 1024
+        stable@vger.kernel.org, Bharata B Rao <bharata@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Mel Gorman <mgorman@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 052/218] sched/debug: Remove mpol_get/put and task_lock/unlock from sched_show_numa
 Date:   Mon, 18 Apr 2022 14:11:58 +0200
-Message-Id: <20220418121211.058527039@linuxfoundation.org>
+Message-Id: <20220418121201.102275824@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Bharata B Rao <bharata@amd.com>
 
-[ Upstream commit 0bade8e53279157c7cc9dd95d573b7e82223d78a ]
+[ Upstream commit 28c988c3ec29db74a1dda631b18785958d57df4f ]
 
-The adapter request_limit is hardcoded to be INITIAL_SRP_LIMIT which is
-currently an arbitrary value of 800. Increase this value to 1024 which
-better matches the characteristics of the typical IBMi Initiator that
-supports 32 LUNs and a queue depth of 32.
+The older format of /proc/pid/sched printed home node info which
+required the mempolicy and task lock around mpol_get(). However
+the format has changed since then and there is no need for
+sched_show_numa() any more to have mempolicy argument,
+asssociated mpol_get/put and task_lock/unlock. Remove them.
 
-This change also has the secondary benefit of being a power of two as
-required by the kfifo API. Since, Commit ab9bb6318b09 ("Partially revert
-"kfifo: fix kfifo_alloc() and kfifo_init()"") the size of IU pool for each
-target has been rounded down to 512 when attempting to kfifo_init() those
-pools with the current request_limit size of 800.
-
-Link: https://lore.kernel.org/r/20220322194443.678433-1-tyreld@linux.ibm.com
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 397f2378f1361 ("sched/numa: Fix numa balancing stats in /proc/pid/sched")
+Signed-off-by: Bharata B Rao <bharata@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Mel Gorman <mgorman@suse.de>
+Link: https://lore.kernel.org/r/20220118050515.2973-1-bharata@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/debug.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-index 61f06f6885a5..89b9fbce7488 100644
---- a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-+++ b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-@@ -36,7 +36,7 @@
+diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
+index fa178b62ea79..69c3252d151b 100644
+--- a/kernel/sched/debug.c
++++ b/kernel/sched/debug.c
+@@ -836,25 +836,15 @@ void print_numa_stats(struct seq_file *m, int node, unsigned long tsf,
+ static void sched_show_numa(struct task_struct *p, struct seq_file *m)
+ {
+ #ifdef CONFIG_NUMA_BALANCING
+-	struct mempolicy *pol;
+-
+ 	if (p->mm)
+ 		P(mm->numa_scan_seq);
  
- #define IBMVSCSIS_VERSION	"v0.2"
- 
--#define	INITIAL_SRP_LIMIT	800
-+#define	INITIAL_SRP_LIMIT	1024
- #define	DEFAULT_MAX_SECTORS	256
- #define MAX_TXU			1024 * 1024
+-	task_lock(p);
+-	pol = p->mempolicy;
+-	if (pol && !(pol->flags & MPOL_F_MORON))
+-		pol = NULL;
+-	mpol_get(pol);
+-	task_unlock(p);
+-
+ 	P(numa_pages_migrated);
+ 	P(numa_preferred_nid);
+ 	P(total_numa_faults);
+ 	SEQ_printf(m, "current_node=%d, numa_group_id=%d\n",
+ 			task_node(p), task_numa_group_id(p));
+ 	show_numa_stats(p, m);
+-	mpol_put(pol);
+ #endif
+ }
  
 -- 
-2.35.1
+2.34.1
 
 
 
