@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD65504FF8
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82E31505544
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238117AbiDRMUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:20:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48898 "EHLO
+        id S241497AbiDRNM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:12:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238338AbiDRMT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:19:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720EF1C11E;
-        Mon, 18 Apr 2022 05:16:46 -0700 (PDT)
+        with ESMTP id S241937AbiDRNIi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E910340F6;
+        Mon, 18 Apr 2022 05:48:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DA5BB80ED1;
-        Mon, 18 Apr 2022 12:16:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8399BC385A1;
-        Mon, 18 Apr 2022 12:16:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6136961254;
+        Mon, 18 Apr 2022 12:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D5CCC385A7;
+        Mon, 18 Apr 2022 12:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284203;
-        bh=VSl405wzeGrLkbHvJE8eUmQ+SnasEyF1pCykKc8qOG8=;
+        s=korg; t=1650286088;
+        bh=A4b2a4onVwfZ3Z/PUXwNCCP2ru+RSO2yvt2SPsiVLO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g8mCyr2igpgTTDUK8cFHiXPGJZ5R3q2Y+a/+AdI8/urT4aEpnZVcF75HzJtShgu3T
-         mIVIzfmjOa1rZkJQ9yJMpq3pWaWc1pvK3fp6YGdQy87uZZKT6nmm8i8LsIDwwHPpOG
-         oppeCu9oI8wLtQcGuDC6KZrBhhyvCFEF8WfmG7gs=
+        b=vZUiAURXMoVqIk2BzNb69/bW+mXjHeNW8hOVboFrSsqIsRyfOjnxRevjUul2xYtmH
+         sTtdacnpJUUVW2ah+lWNd/Dv2kBavLM01L2fNS+4NKd0RO+iBN132dPJwpHCsfQHXI
+         KsSKsVG3jvLnqkUOoZh8gdnrDp8mTXH+2mLsSm1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 036/219] ALSA: fm801: Fix the missing snd_card_free() call at probe error
-Date:   Mon, 18 Apr 2022 14:10:05 +0200
-Message-Id: <20220418121205.463780926@linuxfoundation.org>
+        stable@vger.kernel.org, Sebastian Haas <haas@ems-wuensche.com>,
+        Hangyu Hua <hbh25y@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.14 025/284] can: ems_usb: ems_usb_start_xmit(): fix double dev_kfree_skb() in error path
+Date:   Mon, 18 Apr 2022 14:10:06 +0200
+Message-Id: <20220418121211.412923013@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 7f611274a3d1657a67b3fa8cd0cec1dee00e02b4 upstream.
+commit c70222752228a62135cee3409dccefd494a24646 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+There is no need to call dev_kfree_skb() when usb_submit_urb() fails
+beacause can_put_echo_skb() deletes the original skb and
+can_free_echo_skb() deletes the cloned skb.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: 47c413395376 ("ALSA: fm801: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-17-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/all/20220228083639.38183-1-hbh25y@gmail.com
+Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
+Cc: stable@vger.kernel.org
+Cc: Sebastian Haas <haas@ems-wuensche.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/fm801.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/can/usb/ems_usb.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/sound/pci/fm801.c
-+++ b/sound/pci/fm801.c
-@@ -1268,8 +1268,8 @@ static int snd_fm801_create(struct snd_c
- 	return 0;
- }
+--- a/drivers/net/can/usb/ems_usb.c
++++ b/drivers/net/can/usb/ems_usb.c
+@@ -834,7 +834,6 @@ static netdev_tx_t ems_usb_start_xmit(st
  
--static int snd_card_fm801_probe(struct pci_dev *pci,
--				const struct pci_device_id *pci_id)
-+static int __snd_card_fm801_probe(struct pci_dev *pci,
-+				  const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -1333,6 +1333,12 @@ static int snd_card_fm801_probe(struct p
- 	return 0;
- }
+ 		usb_unanchor_urb(urb);
+ 		usb_free_coherent(dev->udev, size, buf, urb->transfer_dma);
+-		dev_kfree_skb(skb);
  
-+static int snd_card_fm801_probe(struct pci_dev *pci,
-+				const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_card_fm801_probe(pci, pci_id));
-+}
-+
- #ifdef CONFIG_PM_SLEEP
- static const unsigned char saved_regs[] = {
- 	FM801_PCM_VOL, FM801_I2S_VOL, FM801_FM_VOL, FM801_REC_SRC,
+ 		atomic_dec(&dev->active_tx_urbs);
+ 
 
 
