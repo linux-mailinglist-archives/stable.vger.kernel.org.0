@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA596505849
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4B350516B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243880AbiDRN77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:59:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52826 "EHLO
+        id S236631AbiDRMep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244661AbiDRN5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
+        with ESMTP id S239485AbiDRMdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:06 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D7C2AE0F;
-        Mon, 18 Apr 2022 06:07:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E599926AD5;
+        Mon, 18 Apr 2022 05:24:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1C1760F16;
-        Mon, 18 Apr 2022 13:07:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4B1BC385A7;
-        Mon, 18 Apr 2022 13:07:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44CCA60B40;
+        Mon, 18 Apr 2022 12:24:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E8B8C385A1;
+        Mon, 18 Apr 2022 12:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287228;
-        bh=YYBpXRePL8X7DjK5YTHKeCMw035l7zTM2kihcEQdxEA=;
+        s=korg; t=1650284682;
+        bh=yleHHuiUouJoSYtfLf/AHcCqc54A63eqmV3ypVAOJuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6zjl4t6BMIKaiRWaSoUx3HmfdK1EyKW7F9z5TtyVivZEjyDNwyVZ913hZ2J/qpnQ
-         Eq8H8gc1DvCcXJ8AZft2fad/oLA9mGh83j7dG5myIiujOalmL7EkxoX85GmooVXv5k
-         kQLat5fezI0Sdl1vTMdlxOfF4IlkFgow0H+hmbQc=
+        b=fyAJhtmVLNIxdTm0GczTFDQSBvq0xGKzzFMKlJGCN/V1M5bgsCzkGn7/8SdpXYwAJ
+         6ocnFGVeX+f2zmCfTL2L1ysIILKuNLFfDIGdGbzUH7XdDzA/NQsdOKkNZa86y2TEwO
+         fbcCtFPCZnU8fTrljflP+UHNjh9sG+g+R3PIy06s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 097/218] mfd: mc13xxx: Add check for mc13xxx_irq_request
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 194/219] ALSA: hda/realtek: Add quirk for Clevo PD50PNT
 Date:   Mon, 18 Apr 2022 14:12:43 +0200
-Message-Id: <20220418121202.380669745@linuxfoundation.org>
+Message-Id: <20220418121212.305646685@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Tim Crawford <tcrawford@system76.com>
 
-[ Upstream commit e477e51a41cb5d6034f3c5ea85a71ad4613996b9 ]
+commit 9eb6f5c388060d8cef3c8b616cc31b765e022359 upstream.
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value of the
-mc13xxx_irq_request() and return error if fails.
+Fixes speaker output and headset detection on Clevo PD50PNT.
 
-Fixes: 8e00593557c3 ("mfd: Add mc13892 support to mc13xxx")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20220224022331.3208275-1-jiasheng@iscas.ac.cn
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220405182029.27431-1-tcrawford@system76.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/mc13xxx-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 75d52034f89d..5b4faebdcae2 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -313,8 +313,10 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
- 		adc1 |= MC13783_ADC1_ATOX;
- 
- 	dev_dbg(mc13xxx->dev, "%s: request irq\n", __func__);
--	mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
-+	ret = mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
- 			mc13xxx_handler_adcdone, __func__, &adcdone_data);
-+	if (ret)
-+		goto out;
- 
- 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, adc0);
- 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC1, adc1);
--- 
-2.34.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2619,6 +2619,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1558, 0x65e1, "Clevo PB51[ED][DF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x65e5, "Clevo PC50D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x65f1, "Clevo PC50HS", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
++	SND_PCI_QUIRK(0x1558, 0x65f5, "Clevo PD50PN[NRT]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67d1, "Clevo PB71[ER][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e1, "Clevo PB71[DE][CDF]", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
+ 	SND_PCI_QUIRK(0x1558, 0x67e5, "Clevo PC70D[PRS](?:-D|-G)?", ALC1220_FIXUP_CLEVO_PB51ED_PINS),
 
 
