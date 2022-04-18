@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF1FA505046
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2478D505508
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238496AbiDRMXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:23:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48836 "EHLO
+        id S233781AbiDRNVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:21:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238500AbiDRMWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:22:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A43F61DA60;
-        Mon, 18 Apr 2022 05:17:46 -0700 (PDT)
+        with ESMTP id S241766AbiDRNQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:16:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F9F3B2A4;
+        Mon, 18 Apr 2022 05:51:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4143C60F01;
-        Mon, 18 Apr 2022 12:17:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C576C385A7;
-        Mon, 18 Apr 2022 12:17:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 081066124E;
+        Mon, 18 Apr 2022 12:51:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAFF0C385A1;
+        Mon, 18 Apr 2022 12:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284265;
-        bh=umFTfXUjPTfRuZWvVFLcMfF4nfy/Jnjf1wlhjM1N+Fw=;
+        s=korg; t=1650286286;
+        bh=ougz0A3GVQnfqTBVPOaUoq+OCwWMjMUSH082GbCyOXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EZgIiIjWX8IbD0O626ofbNZByvszfVs62hwh/a+1r60YBVZki4tEossx0WlMlF690
-         Tvmw2bZcA9RRZ44SWFUgzO2gqYnN25ydY2lLUVsM+sYXFvgtzY0DztErSDDlQL3k4m
-         bQ13Qcz+AStzgQ5LzUrWM9gRBjXxpWwUviOhtQzE=
+        b=Otd9kC6fR/nTvGvsSrXTxvAuQqMCU+a53EFhfqI2VgkeHJqloNkhGPlAxxAke74FT
+         8O484v+WPeIC1AYciCNpOWGYy5ymSusTommMurPoIjRZjH0mmM/0NNST+W0RVuhzng
+         DrPswGRgKrTkNoTTROU5TVft+ct+aVM/NBxE5y0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 058/219] drm/msm: Add missing put_task_struct() in debugfs path
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 046/284] thermal: int340x: Increase bitmap size
 Date:   Mon, 18 Apr 2022 14:10:27 +0200
-Message-Id: <20220418121206.991520017@linuxfoundation.org>
+Message-Id: <20220418121212.005004311@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-[ Upstream commit ac3e4f42d5ec459f701743debd9c1ad2f2247402 ]
+commit 668f69a5f863b877bc3ae129efe9a80b6f055141 upstream.
 
-Fixes: 25faf2f2e065 ("drm/msm: Show process names in gem_describe")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Link: https://lore.kernel.org/r/20220317184550.227991-1-robdclark@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The number of policies are 10, so can't be supported by the bitmap size
+of u8.
+
+Even though there are no platfoms with these many policies, but
+for correctness increase to u32.
+
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Fixes: 16fc8eca1975 ("thermal/int340x_thermal: Add additional UUIDs")
+Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/msm_gem.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/thermal/int340x_thermal/int3400_thermal.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
-index 02b9ae65a96a..a4f61972667b 100644
---- a/drivers/gpu/drm/msm/msm_gem.c
-+++ b/drivers/gpu/drm/msm/msm_gem.c
-@@ -926,6 +926,7 @@ void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m,
- 					get_pid_task(aspace->pid, PIDTYPE_PID);
- 				if (task) {
- 					comm = kstrdup(task->comm, GFP_KERNEL);
-+					put_task_struct(task);
- 				} else {
- 					comm = NULL;
- 				}
--- 
-2.35.1
-
+--- a/drivers/thermal/int340x_thermal/int3400_thermal.c
++++ b/drivers/thermal/int340x_thermal/int3400_thermal.c
+@@ -53,7 +53,7 @@ struct int3400_thermal_priv {
+ 	struct art *arts;
+ 	int trt_count;
+ 	struct trt *trts;
+-	u8 uuid_bitmap;
++	u32 uuid_bitmap;
+ 	int rel_misc_dev_res;
+ 	int current_uuid_index;
+ };
 
 
