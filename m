@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F739505309
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3F7505678
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240269AbiDRMzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:55:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41178 "EHLO
+        id S242031AbiDRNfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:35:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240240AbiDRMyr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:54:47 -0400
+        with ESMTP id S244923AbiDRNbB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:31:01 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF18B12ABA;
-        Mon, 18 Apr 2022 05:34:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F5CBDF66;
+        Mon, 18 Apr 2022 05:57:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF0D0611A9;
-        Mon, 18 Apr 2022 12:34:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7F49C385A7;
-        Mon, 18 Apr 2022 12:34:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9F4360FD9;
+        Mon, 18 Apr 2022 12:57:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCFF8C385A1;
+        Mon, 18 Apr 2022 12:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285298;
-        bh=pJfrW3zZPhq6NUsLDJ0MlaigPRNzH9Yv9ppEgEo0WAQ=;
+        s=korg; t=1650286655;
+        bh=hiYEUHsjVTfyC/Qj6abe6K8KOS/q552yo4+BC+2Uqcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQ7L2K/UhbGLjQlOxZDALj9E2dTGI0X9yTKq2F2wjsXf15EAv0BkJN4WIlj1DxojG
-         ndLjPqQOY3od9rD8680Ncxawm6EEdkIiOOtthJmeMb7CLOmNplQMC/ntsU9LIiYEZ9
-         OSyni5upGGqozEL+P/hVdlkBUVp5/Lonuwen/VVU=
+        b=tAPZ3SwD60OS7eMd03Snybt3DnmmyaPT0sB8qD9Rx//VaD6PZ1DuXd5Gr8ThgYkoR
+         Myo3RETJ1Y0HkIzyl+LoV6ABiOO988Bi6WLmeASTyPpFdVzXCiV9XlKBJirYTTh45n
+         N3LPAAtQVGgExQcVJkKtY6fuXxIMNaJewkv31uY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Melissa Wen <mwen@igalia.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Simon Ser <contact@emersion.fr>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 163/189] drm/amd/display: dont ignore alpha property on pre-multiplied mode
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 202/284] KVM: x86: Forbid VMM to set SYNIC/STIMER MSRs when SynIC wasnt activated
 Date:   Mon, 18 Apr 2022 14:13:03 +0200
-Message-Id: <20220418121207.012373130@linuxfoundation.org>
+Message-Id: <20220418121217.469428260@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,97 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Melissa Wen <mwen@igalia.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit e4f1541caf60fcbe5a59e9d25805c0b5865e546a upstream.
+commit b1e34d325397a33d97d845e312d7cf2a8b646b44 upstream.
 
-"Pre-multiplied" is the default pixel blend mode for KMS/DRM, as
-documented in supported_modes of drm_plane_create_blend_mode_property():
-https://cgit.freedesktop.org/drm/drm-misc/tree/drivers/gpu/drm/drm_blend.c
+Setting non-zero values to SYNIC/STIMER MSRs activates certain features,
+this should not happen when KVM_CAP_HYPERV_SYNIC{,2} was not activated.
 
-In this mode, both 'pixel alpha' and 'plane alpha' participate in the
-calculation, as described by the pixel blend mode formula in KMS/DRM
-documentation:
+Note, it would've been better to forbid writing anything to SYNIC/STIMER
+MSRs, including zeroes, however, at least QEMU tries clearing
+HV_X64_MSR_STIMER0_CONFIG without SynIC. HV_X64_MSR_EOM MSR is somewhat
+'special' as writing zero there triggers an action, this also should not
+happen when SynIC wasn't activated.
 
-out.rgb = plane_alpha * fg.rgb +
-          (1 - (plane_alpha * fg.alpha)) * bg.rgb
-
-Considering the blend config mechanisms we have in the driver so far,
-the alpha mode that better fits this blend mode is the
-_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN, where the value for global_gain
-is the plane alpha (global_alpha).
-
-With this change, alpha property stops to be ignored. It also addresses
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1734
-
-v2:
- * keep the 8-bit value for global_alpha_value (Nicholas)
- * correct the logical ordering for combined global gain (Nicholas)
- * apply to dcn10 too (Nicholas)
-
-Signed-off-by: Melissa Wen <mwen@igalia.com>
-Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Tested-by: Simon Ser <contact@emersion.fr>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20220325132140.25650-4-vkuznets@redhat.com>
 Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c |   14 +++++++++-----
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c        |   14 +++++++++-----
- 2 files changed, 18 insertions(+), 10 deletions(-)
+ arch/x86/kvm/hyperv.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -2460,14 +2460,18 @@ void dcn10_update_mpcc(struct dc *dc, st
- 	struct mpc *mpc = dc->res_pool->mpc;
- 	struct mpc_tree *mpc_tree_params = &(pipe_ctx->stream_res.opp->mpc_tree_params);
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -260,6 +260,9 @@ static int synic_set_msr(struct kvm_vcpu
+ 	case HV_X64_MSR_EOM: {
+ 		int i;
  
--	if (per_pixel_alpha)
--		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
--	else
--		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
--
- 	blnd_cfg.overlap_only = false;
- 	blnd_cfg.global_gain = 0xff;
- 
-+	if (per_pixel_alpha && pipe_ctx->plane_state->global_alpha) {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN;
-+		blnd_cfg.global_gain = pipe_ctx->plane_state->global_alpha_value;
-+	} else if (per_pixel_alpha) {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
-+	} else {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
-+	}
++		if (!synic->active)
++			break;
 +
- 	if (pipe_ctx->plane_state->global_alpha)
- 		blnd_cfg.global_alpha = pipe_ctx->plane_state->global_alpha_value;
- 	else
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -2297,14 +2297,18 @@ void dcn20_update_mpcc(struct dc *dc, st
- 	struct mpc *mpc = dc->res_pool->mpc;
- 	struct mpc_tree *mpc_tree_params = &(pipe_ctx->stream_res.opp->mpc_tree_params);
- 
--	if (per_pixel_alpha)
--		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
--	else
--		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
--
- 	blnd_cfg.overlap_only = false;
- 	blnd_cfg.global_gain = 0xff;
- 
-+	if (per_pixel_alpha && pipe_ctx->plane_state->global_alpha) {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN;
-+		blnd_cfg.global_gain = pipe_ctx->plane_state->global_alpha_value;
-+	} else if (per_pixel_alpha) {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
-+	} else {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
-+	}
+ 		for (i = 0; i < ARRAY_SIZE(synic->sint); i++)
+ 			kvm_hv_notify_acked_sint(vcpu, i);
+ 		break;
+@@ -520,6 +523,12 @@ static int stimer_start(struct kvm_vcpu_
+ static int stimer_set_config(struct kvm_vcpu_hv_stimer *stimer, u64 config,
+ 			     bool host)
+ {
++	struct kvm_vcpu *vcpu = stimer_to_vcpu(stimer);
++	struct kvm_vcpu_hv_synic *synic = vcpu_to_synic(vcpu);
 +
- 	if (pipe_ctx->plane_state->global_alpha)
- 		blnd_cfg.global_alpha = pipe_ctx->plane_state->global_alpha_value;
- 	else
++	if (!synic->active && (!host || config))
++		return 1;
++
+ 	trace_kvm_hv_stimer_set_config(stimer_to_vcpu(stimer)->vcpu_id,
+ 				       stimer->index, config, host);
+ 
+@@ -534,6 +543,12 @@ static int stimer_set_config(struct kvm_
+ static int stimer_set_count(struct kvm_vcpu_hv_stimer *stimer, u64 count,
+ 			    bool host)
+ {
++	struct kvm_vcpu *vcpu = stimer_to_vcpu(stimer);
++	struct kvm_vcpu_hv_synic *synic = vcpu_to_synic(vcpu);
++
++	if (!synic->active && (!host || count))
++		return 1;
++
+ 	trace_kvm_hv_stimer_set_count(stimer_to_vcpu(stimer)->vcpu_id,
+ 				      stimer->index, count, host);
+ 
 
 
