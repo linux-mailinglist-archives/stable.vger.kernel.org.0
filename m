@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80927505563
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B22B45051A0
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239104AbiDRNOf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:14:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46452 "EHLO
+        id S239214AbiDRMgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243485AbiDRNKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07D8937BE3;
-        Mon, 18 Apr 2022 05:49:36 -0700 (PDT)
+        with ESMTP id S239244AbiDRMfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:35:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8688620BDC;
+        Mon, 18 Apr 2022 05:27:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33B1EB80E59;
-        Mon, 18 Apr 2022 12:49:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 669A8C385A9;
-        Mon, 18 Apr 2022 12:49:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A114660FB6;
+        Mon, 18 Apr 2022 12:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A40E2C385A1;
+        Mon, 18 Apr 2022 12:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286156;
-        bh=LMlQNGlYN3hy8CPToMdfFBPok9Av3xw6NjdEtCImleg=;
+        s=korg; t=1650284842;
+        bh=xoOqNW8QnXGo22oABOGmUCbKg4y5PZ8xL4qAa94Km+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPVOlaCKADZVVNekCzlfb0TNxDAgrzY9bW6aip/6mqypSBxeak0IShYUeZ+7Bsww1
-         bnRSDpBMYPsiss5MwlLY2xjPXIb8bPYddsJdH5TWUXbgG5DAruBGCN1t7M2N1myf5t
-         EsKg28B+UE/d/pDYbiLB4N8VYKN5dL9iDSzm73Co=
+        b=dIpWT/kiS0n65dfSvHSLfVej3QTKbAt1gPk5XdkSNX58pWjDOaslbKU2r6U0dzMlH
+         yWpNiyZPrjOmDRAkq7su3dw6kWXEMFTjk4RG6RcGjk3goePAqtlD1NzoQHakGlFl5i
+         WK+JUHwIXIJlMR695NLx/WZdYiazzJiHiRLis5Os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Dirk=20M=C3=BCller?= <dmueller@suse.de>,
-        Paul Menzel <pmenzel@molgen.mpg.de>, Song Liu <song@kernel.org>
-Subject: [PATCH 4.14 047/284] lib/raid6/test: fix multiple definition linking error
+        stable@vger.kernel.org, Woody Suwalski <wsuwalski@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 5.15 008/189] ACPI: processor: idle: fix lockup regression on 32-bit ThinkPad T40
 Date:   Mon, 18 Apr 2022 14:10:28 +0200
-Message-Id: <20220418121212.034023729@linuxfoundation.org>
+Message-Id: <20220418121200.682225683@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Müller <dmueller@suse.de>
+From: Woody Suwalski <wsuwalski@gmail.com>
 
-commit a5359ddd052860bacf957e65fe819c63e974b3a6 upstream.
+commit bfe55a1f7fd6bfede16078bf04c6250fbca11588 upstream.
 
-GCC 10+ defaults to -fno-common, which enforces proper declaration of
-external references using "extern". without this change a link would
-fail with:
+Add and ACPI idle power level limit for 32-bit ThinkPad T40.
 
-  lib/raid6/test/algos.c:28: multiple definition of `raid6_call';
-  lib/raid6/test/test.c:22: first defined here
+There is a regression on T40 introduced by commit d6b88ce2, starting
+with kernel 5.16:
 
-the pq.h header that is included already includes an extern declaration
-so we can just remove the redundant one here.
+commit d6b88ce2eb9d2698eb24451eb92c0a1649b17bb1
+Author: Richard Gong <richard.gong@amd.com>
+Date:   Wed Sep 22 08:31:16 2021 -0500
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dirk Müller <dmueller@suse.de>
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Song Liu <song@kernel.org>
+  ACPI: processor idle: Allow playing dead in C3 state
+
+The above patch is trying to enter C3 state during init, what is causing
+a T40 system freeze. I have not found a similar issue on any other of my
+32-bit machines.
+
+The fix is to add another exception to the processor_power_dmi_table[] list.
+As a result the dmesg shows as expected:
+
+[2.155398] ACPI: IBM ThinkPad T40 detected - limiting to C2 max_cstate. Override with "processor.max_cstate=9"
+[2.155404] ACPI: processor limited to max C-state 2
+
+The fix is trivial and affects only vintage T40 systems.
+
+Fixes: d6b88ce2eb9d ("CPI: processor idle: Allow playing dead in C3 state")
+Signed-off-by: Woody Suwalski <wsuwalski@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Cc: 5.16+ <stable@vger.kernel.org> # 5.16+
+[ rjw: New subject ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/raid6/test/test.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/acpi/processor_idle.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/lib/raid6/test/test.c
-+++ b/lib/raid6/test/test.c
-@@ -22,7 +22,6 @@
- #define NDISKS		16	/* Including P and Q */
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -95,6 +95,11 @@ static const struct dmi_system_id proces
+ 	  DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK Computer Inc."),
+ 	  DMI_MATCH(DMI_PRODUCT_NAME,"L8400B series Notebook PC")},
+ 	 (void *)1},
++	/* T40 can not handle C3 idle state */
++	{ set_max_cstate, "IBM ThinkPad T40", {
++	  DMI_MATCH(DMI_SYS_VENDOR, "IBM"),
++	  DMI_MATCH(DMI_PRODUCT_NAME, "23737CU")},
++	 (void *)2},
+ 	{},
+ };
  
- const char raid6_empty_zero_page[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
--struct raid6_calls raid6_call;
- 
- char *dataptrs[NDISKS];
- char data[NDISKS][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
 
 
