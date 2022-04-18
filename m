@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6D65053A5
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D74C5053A9
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237268AbiDRNAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59740 "EHLO
+        id S231682AbiDRNAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242360AbiDRM7u (ORCPT
+        with ESMTP id S242365AbiDRM7u (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2017C201BB;
-        Mon, 18 Apr 2022 05:40:56 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6E9201BF;
+        Mon, 18 Apr 2022 05:40:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53002B80EC3;
-        Mon, 18 Apr 2022 12:40:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F3D2C385A1;
-        Mon, 18 Apr 2022 12:40:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86928611FE;
+        Mon, 18 Apr 2022 12:40:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91101C385A9;
+        Mon, 18 Apr 2022 12:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285654;
-        bh=U6HJbILbFH/jDdPNi6UJqdpoL9mzb5+SE4t1nR22814=;
+        s=korg; t=1650285657;
+        bh=X1NBGVEBB4H5wW2n3F/zW1shQ120PbUXesGnU0MJgW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcwffEIBtbbgB2GSQG4b2TB3JhirTPHq7SviNptScrMSLTpr2cfAQa0ldGy8f8Nwv
-         W5+dhTifypsdVJfLkZrZ2Lx760jaaltPdC6IEapiT98vcmfTq0GQ/Q03PKupxXenXB
-         ec9ReTEksP1HjyHXRYIR8j9NjSFbtQNkov/m8eiE=
+        b=2hvtBPBa6ExS0ndzkGcn7LSHoysc1V4ThGku8s2CpmAnwpDNUmrfsT6q91Gqk30lM
+         GOrAmKgvT5qG8OX0wYDH8Pz1gzjeL4HU3xDVcD8RNvEDwSjV9vcBmZoLjdOKQSaFWA
+         X+YSw3YAWsly0W3++18lSjQco26vhNncrMYK9kyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kongweibin <kongweibin2@huawei.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 085/105] ipv6: fix panic when forwarding a pkt with no in6 dev
-Date:   Mon, 18 Apr 2022 14:13:27 +0200
-Message-Id: <20220418121149.047517945@linuxfoundation.org>
+        stable@vger.kernel.org, Melissa Wen <mwen@igalia.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Simon Ser <contact@emersion.fr>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 086/105] drm/amd/display: dont ignore alpha property on pre-multiplied mode
+Date:   Mon, 18 Apr 2022 14:13:28 +0200
+Message-Id: <20220418121149.076222948@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
 References: <20220418121145.140991388@linuxfoundation.org>
@@ -55,38 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Melissa Wen <mwen@igalia.com>
 
-commit e3fa461d8b0e185b7da8a101fe94dfe6dd500ac0 upstream.
+commit e4f1541caf60fcbe5a59e9d25805c0b5865e546a upstream.
 
-kongweibin reported a kernel panic in ip6_forward() when input interface
-has no in6 dev associated.
+"Pre-multiplied" is the default pixel blend mode for KMS/DRM, as
+documented in supported_modes of drm_plane_create_blend_mode_property():
+https://cgit.freedesktop.org/drm/drm-misc/tree/drivers/gpu/drm/drm_blend.c
 
-The following tc commands were used to reproduce this panic:
-tc qdisc del dev vxlan100 root
-tc qdisc add dev vxlan100 root netem corrupt 5%
+In this mode, both 'pixel alpha' and 'plane alpha' participate in the
+calculation, as described by the pixel blend mode formula in KMS/DRM
+documentation:
 
-CC: stable@vger.kernel.org
-Fixes: ccd27f05ae7b ("ipv6: fix 'disable_policy' for fwd packets")
-Reported-by: kongweibin <kongweibin2@huawei.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+out.rgb = plane_alpha * fg.rgb +
+          (1 - (plane_alpha * fg.alpha)) * bg.rgb
+
+Considering the blend config mechanisms we have in the driver so far,
+the alpha mode that better fits this blend mode is the
+_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN, where the value for global_gain
+is the plane alpha (global_alpha).
+
+With this change, alpha property stops to be ignored. It also addresses
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1734
+
+v2:
+ * keep the 8-bit value for global_alpha_value (Nicholas)
+ * correct the logical ordering for combined global gain (Nicholas)
+ * apply to dcn10 too (Nicholas)
+
+Signed-off-by: Melissa Wen <mwen@igalia.com>
+Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Tested-by: Simon Ser <contact@emersion.fr>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_output.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c |   14 +++++++++-----
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c        |   14 +++++++++-----
+ 2 files changed, 18 insertions(+), 10 deletions(-)
 
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -508,7 +508,7 @@ int ip6_forward(struct sk_buff *skb)
- 		goto drop;
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -2387,14 +2387,18 @@ void dcn10_update_mpcc(struct dc *dc, st
+ 				&blnd_cfg.black_color);
+ 	}
  
- 	if (!net->ipv6.devconf_all->disable_policy &&
--	    !idev->cnf.disable_policy &&
-+	    (!idev || !idev->cnf.disable_policy) &&
- 	    !xfrm6_policy_check(NULL, XFRM_POLICY_FWD, skb)) {
- 		__IP6_INC_STATS(net, idev, IPSTATS_MIB_INDISCARDS);
- 		goto drop;
+-	if (per_pixel_alpha)
+-		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
+-	else
+-		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
+-
+ 	blnd_cfg.overlap_only = false;
+ 	blnd_cfg.global_gain = 0xff;
+ 
++	if (per_pixel_alpha && pipe_ctx->plane_state->global_alpha) {
++		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN;
++		blnd_cfg.global_gain = pipe_ctx->plane_state->global_alpha_value;
++	} else if (per_pixel_alpha) {
++		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
++	} else {
++		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
++	}
++
+ 	if (pipe_ctx->plane_state->global_alpha)
+ 		blnd_cfg.global_alpha = pipe_ctx->plane_state->global_alpha_value;
+ 	else
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -2270,14 +2270,18 @@ void dcn20_update_mpcc(struct dc *dc, st
+ 				pipe_ctx, &blnd_cfg.black_color);
+ 	}
+ 
+-	if (per_pixel_alpha)
+-		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
+-	else
+-		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
+-
+ 	blnd_cfg.overlap_only = false;
+ 	blnd_cfg.global_gain = 0xff;
+ 
++	if (per_pixel_alpha && pipe_ctx->plane_state->global_alpha) {
++		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN;
++		blnd_cfg.global_gain = pipe_ctx->plane_state->global_alpha_value;
++	} else if (per_pixel_alpha) {
++		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
++	} else {
++		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
++	}
++
+ 	if (pipe_ctx->plane_state->global_alpha)
+ 		blnd_cfg.global_alpha = pipe_ctx->plane_state->global_alpha_value;
+ 	else
 
 
