@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB20D5058EE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57578505901
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:11:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241410AbiDROME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:12:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50470 "EHLO
+        id S1343936AbiDRONq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:13:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344593AbiDROKh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:10:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C431D37019;
-        Mon, 18 Apr 2022 06:10:52 -0700 (PDT)
+        with ESMTP id S1344620AbiDROKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:10:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8CDF3702B;
+        Mon, 18 Apr 2022 06:10:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92AA060EFE;
-        Mon, 18 Apr 2022 13:10:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 825AFC385A8;
-        Mon, 18 Apr 2022 13:10:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61897B80EE2;
+        Mon, 18 Apr 2022 13:10:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CABEC385A1;
+        Mon, 18 Apr 2022 13:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287450;
-        bh=+W1pEGywuuq5Q/lFubko9EnaErPbouRfVAZBn4hNui4=;
+        s=korg; t=1650287453;
+        bh=y0nY1AxcVH6qREXVvFRbjPUxs41iCOgXpjvkKiZmOZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=afHYvjYGN1K6jBzFyBY3fE0P4/IjKpupu6B43eLP8Nqcy987LzEddnBvE7pzxPPs0
-         ot4c+Pp+SRNkpJG45qCefWICTcharF6vJtIiGey7iAmbqnaV3sHIZPPq7qDe46S2vf
-         z14fl3xD7lXuVAd8HH1ehsIrpe+9t2TM81SGqPu4=
+        b=NQr2jS5AX7bgf3+vQ3eSN9t1kgcFBs9RN1Bsjuqf5wmcDnqEe5dIj2cuU5uPtRKez
+         st5TGp+4mgshW2ILo2Y3EzS4dQDnpXYrlTloM5zIoUQ3innVKXTgVI+8oybLkC56rU
+         Ur/oma8rshOgs1pPgFguouJZlzz02fi7GKvXQJjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Ben Dooks <ben-linux@fluff.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, patches@armlinux.org.uk,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 163/218] rtc: wm8350: Handle error for wm8350_register_irq
-Date:   Mon, 18 Apr 2022 14:13:49 +0200
-Message-Id: <20220418121204.890836467@linuxfoundation.org>
+Subject: [PATCH 4.9 164/218] ARM: 9187/1: JIVE: fix return value of __setup handler
+Date:   Mon, 18 Apr 2022 14:13:50 +0200
+Message-Id: <20220418121204.963691045@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -55,53 +59,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 43f0269b6b89c1eec4ef83c48035608f4dcdd886 ]
+[ Upstream commit 8b2360c7157b462c4870d447d1e65d30ef31f9aa ]
 
-As the potential failure of the wm8350_register_irq(),
-it should be better to check it and return error if fails.
-Also, it need not free 'wm_rtc->rtc' since it will be freed
-automatically.
+__setup() handlers should return 1 to obsolete_checksetup() in
+init/main.c to indicate that the boot option has been handled.
+A return of 0 causes the boot option/value to be listed as an Unknown
+kernel parameter and added to init's (limited) argument or environment
+strings. Also, error return codes don't mean anything to
+obsolete_checksetup() -- only non-zero (usually 1) or zero.
+So return 1 from jive_mtdset().
 
-Fixes: 077eaf5b40ec ("rtc: rtc-wm8350: add support for WM8350 RTC")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220303085030.291793-1-jiasheng@iscas.ac.cn
+Fixes: 9db829f485c5 ("[ARM] JIVE: Initial machine support for Logitech Jive")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Ben Dooks <ben-linux@fluff.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: patches@armlinux.org.uk
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-wm8350.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/arm/mach-s3c24xx/mach-jive.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-wm8350.c b/drivers/rtc/rtc-wm8350.c
-index fa247deb9cf4..b45d7d9b8c06 100644
---- a/drivers/rtc/rtc-wm8350.c
-+++ b/drivers/rtc/rtc-wm8350.c
-@@ -443,14 +443,21 @@ static int wm8350_rtc_probe(struct platform_device *pdev)
- 		return ret;
+diff --git a/arch/arm/mach-s3c24xx/mach-jive.c b/arch/arm/mach-s3c24xx/mach-jive.c
+index 7d99fe8f6157..5d43733ee7d6 100644
+--- a/arch/arm/mach-s3c24xx/mach-jive.c
++++ b/arch/arm/mach-s3c24xx/mach-jive.c
+@@ -240,11 +240,11 @@ static int __init jive_mtdset(char *options)
+ 	unsigned long set;
+ 
+ 	if (options == NULL || options[0] == '\0')
+-		return 0;
++		return 1;
+ 
+ 	if (kstrtoul(options, 10, &set)) {
+ 		printk(KERN_ERR "failed to parse mtdset=%s\n", options);
+-		return 0;
++		return 1;
  	}
  
--	wm8350_register_irq(wm8350, WM8350_IRQ_RTC_SEC,
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_RTC_SEC,
- 			    wm8350_rtc_update_handler, 0,
- 			    "RTC Seconds", wm8350);
-+	if (ret)
-+		return ret;
-+
- 	wm8350_mask_irq(wm8350, WM8350_IRQ_RTC_SEC);
+ 	switch (set) {
+@@ -259,7 +259,7 @@ static int __init jive_mtdset(char *options)
+ 		       "using default.", set);
+ 	}
  
--	wm8350_register_irq(wm8350, WM8350_IRQ_RTC_ALM,
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_RTC_ALM,
- 			    wm8350_rtc_alarm_handler, 0,
- 			    "RTC Alarm", wm8350);
-+	if (ret) {
-+		wm8350_free_irq(wm8350, WM8350_IRQ_RTC_SEC, wm8350);
-+		return ret;
-+	}
- 
- 	return 0;
+-	return 0;
++	return 1;
  }
+ 
+ /* parse the mtdset= option given to the kernel command line */
 -- 
 2.35.1
 
