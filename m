@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A06D504E44
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B866504E45
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:14:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234812AbiDRJQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 05:16:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39998 "EHLO
+        id S237423AbiDRJQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 05:16:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232095AbiDRJQd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:16:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456A66444
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:13:52 -0700 (PDT)
+        with ESMTP id S232095AbiDRJQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:16:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31B2B6444
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:13:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01DB5B80E40
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:13:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DF8C385A1;
-        Mon, 18 Apr 2022 09:13:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0BE361175
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E2F2C385A7;
+        Mon, 18 Apr 2022 09:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650273229;
-        bh=ApW5ND1X+7OvuI5xOhY7rnkPnvKe5ZYXOFR8L1ZoEWM=;
+        s=korg; t=1650273238;
+        bh=mlLciD7khCwf0drLEOI5bdHRJb6IIWQF3qWo9UniPus=;
         h=Subject:To:Cc:From:Date:From;
-        b=IVGKXIUC4CU+sWOVjpS4A5hf/JsVwdYx+cOFDUiDCljlfo3oQX9jn2IKydEhVpsNY
-         VjyYdYFTDr7ddc0rIfWnRmZrE8v4XbOstai7vpH6yijdiPwzaLyxkgt/PPnwmY1fcF
-         1KoYpcTIIlcRwM7Cmr7ZQppFYuQcYgbguJfshs9Y=
-Subject: FAILED: patch "[PATCH] btrfs: mark resumed async balance as writing" failed to apply to 4.9-stable tree
+        b=14k30EsaGOLWC+0ddJR+ySkCoHxn5Wz39BBSdh9LAqe3fnJR91+7DhKHoi4JbmwSQ
+         wj131Er2yu4hCHymKpNOKTqfOn19ht+hQuaSUyvV1JeXKNWmbsH1Phv1eqXLU0y/l6
+         Y+5TiSDqYGINzXY4zpgUaFaG8ZCHnhGJB08XXl8Y=
+Subject: FAILED: patch "[PATCH] btrfs: mark resumed async balance as writing" failed to apply to 4.14-stable tree
 To:     naohiro.aota@wdc.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 18 Apr 2022 11:13:46 +0200
-Message-ID: <16502732261951@kroah.com>
+Message-ID: <1650273226135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
