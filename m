@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B5A505227
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B564C505611
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237896AbiDRMl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:41:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44386 "EHLO
+        id S241965AbiDRNbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:31:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240822AbiDRMjj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:39 -0400
+        with ESMTP id S243594AbiDRN3C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:02 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E072BF9;
-        Mon, 18 Apr 2022 05:30:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38CA3FBC6;
+        Mon, 18 Apr 2022 05:53:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE72460F04;
-        Mon, 18 Apr 2022 12:30:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC8BC385A7;
-        Mon, 18 Apr 2022 12:30:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE2716129D;
+        Mon, 18 Apr 2022 12:53:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0048C385B5;
+        Mon, 18 Apr 2022 12:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285055;
-        bh=E3d15w7RgC9OkRukB1YAWsbpXjPeSSQyE0CQCeK1vTM=;
+        s=korg; t=1650286421;
+        bh=awb9tY5AraIwovx/J0x9nNAEUbVyHajbQHy7kYxnBsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e1ss9fDpxgvo505X9wtWLd9lL7+1LKhhNRqhzoVlDApTqRMyQbrMCmLHHVDEyxPyT
-         06RagDyAdrnMO6Z++6Tz6I+opma7Dob2JHxx+clXbjohAgVRYasbd5uveT/LS8I9xk
-         EMgIhVZxUilDSkLK5UgpQBXZIc+eVX2DqG5JW1cA=
+        b=ydgjqqvbPm7aV14wKTpIF6yeqNH7ldasFNmoM9GZja/k6nLwHgE3oaMUbPf8yLDqS
+         DMLy6OBA7j8OOU8AqclTaD9jpIG1+oOBnyY0XYODsPoDyYH+dyT51z2kQ91EAqJIjU
+         Hl8iVtVX0tr9vhfwB9Irve3BAruHOR8bQumSntKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 050/189] ALSA: rme96: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 089/284] ASoC: wm8350: Handle error for wm8350_register_irq
 Date:   Mon, 18 Apr 2022 14:11:10 +0200
-Message-Id: <20220418121201.932931967@linuxfoundation.org>
+Message-Id: <20220418121213.217053752@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit 93b884f8d82f08c7af542703a724cc23cd2d5bfc upstream.
+[ Upstream commit db0350da8084ad549bca16cc0486c11cc70a1f9b ]
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+As the potential failure of the wm8350_register_irq(),
+it should be better to check it and return error if fails.
+Also, use 'free_' in order to avoid the same code.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: df06df7cc997 ("ALSA: rme96: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-24-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a6ba2b2dabb5 ("ASoC: Implement WM8350 headphone jack detection")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220304023821.391936-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme96.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm8350.c | 28 ++++++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/sound/pci/rme96.c b/sound/pci/rme96.c
-index 8fc811504920..bccb7e0d3d11 100644
---- a/sound/pci/rme96.c
-+++ b/sound/pci/rme96.c
-@@ -2430,8 +2430,8 @@ static void snd_rme96_card_free(struct snd_card *card)
- }
+diff --git a/sound/soc/codecs/wm8350.c b/sound/soc/codecs/wm8350.c
+index 2efc5b41ad0f..6d719392cdbe 100644
+--- a/sound/soc/codecs/wm8350.c
++++ b/sound/soc/codecs/wm8350.c
+@@ -1536,18 +1536,38 @@ static  int wm8350_codec_probe(struct snd_soc_codec *codec)
+ 	wm8350_clear_bits(wm8350, WM8350_JACK_DETECT,
+ 			  WM8350_JDL_ENA | WM8350_JDR_ENA);
  
- static int
--snd_rme96_probe(struct pci_dev *pci,
--		const struct pci_device_id *pci_id)
-+__snd_rme96_probe(struct pci_dev *pci,
-+		  const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct rme96 *rme96;
-@@ -2498,6 +2498,12 @@ snd_rme96_probe(struct pci_dev *pci,
- 	return 0;
- }
- 
-+static int snd_rme96_probe(struct pci_dev *pci,
-+			   const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_rme96_probe(pci, pci_id));
-+}
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L,
+ 			    wm8350_hpl_jack_handler, 0, "Left jack detect",
+ 			    priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
++	if (ret != 0)
++		goto err;
 +
- static struct pci_driver rme96_driver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = snd_rme96_ids,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R,
+ 			    wm8350_hpr_jack_handler, 0, "Right jack detect",
+ 			    priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
++	if (ret != 0)
++		goto free_jck_det_l;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICSCD,
+ 			    wm8350_mic_handler, 0, "Microphone short", priv);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
++	if (ret != 0)
++		goto free_jck_det_r;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CODEC_MICD,
+ 			    wm8350_mic_handler, 0, "Microphone detect", priv);
++	if (ret != 0)
++		goto free_micscd;
+ 
+ 	return 0;
++
++free_micscd:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_MICSCD, priv);
++free_jck_det_r:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_R, priv);
++free_jck_det_l:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CODEC_JCK_DET_L, priv);
++err:
++	return ret;
+ }
+ 
+ static int  wm8350_codec_remove(struct snd_soc_codec *codec)
 -- 
-2.35.2
+2.34.1
 
 
 
