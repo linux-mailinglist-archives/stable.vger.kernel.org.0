@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFFE55050E4
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C087450562E
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237083AbiDRM3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38578 "EHLO
+        id S242189AbiDRNcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239614AbiDRM2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7745C1FCEB;
-        Mon, 18 Apr 2022 05:22:11 -0700 (PDT)
+        with ESMTP id S243901AbiDRN3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 809DE403E7;
+        Mon, 18 Apr 2022 05:53:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E931E60FA4;
-        Mon, 18 Apr 2022 12:22:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECABCC385A1;
-        Mon, 18 Apr 2022 12:22:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3104BB80D9C;
+        Mon, 18 Apr 2022 12:53:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E854C385A8;
+        Mon, 18 Apr 2022 12:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284530;
-        bh=Qa3MHyUb3NQ1WmeDVqlzP9ytk8NeN1D0NjNDlPS/kOc=;
+        s=korg; t=1650286436;
+        bh=WzYIqXqByWHCrwmyZ4RHJr/fXLMPS+3t8jJ7fa2r+80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SMVHKx0TF78X13s7uOAvZbnRaLG6bjZjvXJsGjANAF2i6mmMmVKdquvVdihUGfw3C
-         UHh6kxVUyzJJqjM4QfNrg8ek7+lP/ktpZefLG/fOgQy4dsCeIDBZNC4Wv3PLSNTsc5
-         aV6GriRo+8CtNC81/Tb89ctcgqhGt/KMD9tDzJ6c=
+        b=gBzPQTm2GntKVDojf1f6S0mTth0YFFVjndsWuzKVpyTf3h81QRkKED2FpDpUiRArL
+         nvOP4PuPVvfwoQ62pJlCbtYlSnzaa36zQhGULk86bKHI0IxI5OI7tz52VZ8jcNrYqT
+         94m2cjzKOTScqIZJTDbfeGHTOwP5Fe/bbU2VWTRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 146/219] scsi: lpfc: Improve PCI EEH Error and Recovery Handling
-Date:   Mon, 18 Apr 2022 14:11:55 +0200
-Message-Id: <20220418121210.976578406@linuxfoundation.org>
+Subject: [PATCH 4.14 135/284] clk: qcom: clk-rcg2: Update the frac table for pixel clock
+Date:   Mon, 18 Apr 2022 14:11:56 +0200
+Message-Id: <20220418121215.214865498@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,603 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Taniya Das <tdas@codeaurora.org>
 
-[ Upstream commit 35ed9613d83f3c1f011877d591fd7d36f2666106 ]
+[ Upstream commit b527358cb4cd58a8279c9062b0786f1fab628fdc ]
 
-Following EEH errors, the driver can crash or hang when deleting the
-localport or when attempting to unload.
+Support the new numerator and denominator for pixel clock on SM8350 and
+support rgb101010, RGB888 use cases on SM8450.
 
-The EEH handlers in the driver did not notify the NVMe-FC transport before
-tearing the driver down. This was delayed until the resume steps. This
-worked for SCSI because lpfc_block_scsi() would notify the
-scsi_fc_transport that the target was not available but it would not clean
-up all the references to the ndlp.
-
-The SLI3 prep for dev reset handler did the lpfc_offline_prep() and
-lpfc_offline() calls to get the port stopped before restarting. The SLI4
-version of the prep for dev reset just destroyed the queues and did not
-stop NVMe from continuing.  Also because the port was not really stopped
-the localport destroy would hang because the transport was still waiting
-for I/O. Additionally, a devloss tmo can fire and post events to a stopped
-worker thread creating another hang condition.
-
-lpfc_sli4_prep_dev_for_reset() is modified to call lpfc_offline_prep() and
-lpfc_offline() rather than just lpfc_scsi_dev_block() to ensure both SCSI
-and NVMe transports are notified to block I/O to the driver.
-
-Logic is added to devloss handler and worker thread to clean up ndlp
-references and quiesce appropriately.
-
-Link: https://lore.kernel.org/r/20220317032737.45308-2-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 99cbd064b059f ("clk: qcom: Support display RCG clocks")
+Signed-off-by: Taniya Das <tdas@codeaurora.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220227175536.3131-2-tdas@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc.h         |   7 +-
- drivers/scsi/lpfc/lpfc_crtn.h    |   3 +
- drivers/scsi/lpfc/lpfc_hbadisc.c | 119 +++++++++++++++++++++++++------
- drivers/scsi/lpfc/lpfc_init.c    |  60 ++++++++++------
- drivers/scsi/lpfc/lpfc_nvme.c    |  11 ++-
- drivers/scsi/lpfc/lpfc_sli.c     |  15 ++--
- 6 files changed, 157 insertions(+), 58 deletions(-)
+ drivers/clk/qcom/clk-rcg2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
-index 98cabe09c040..8748c5996478 100644
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -897,6 +897,11 @@ enum lpfc_irq_chann_mode {
- 	NHT_MODE,
+diff --git a/drivers/clk/qcom/clk-rcg2.c b/drivers/clk/qcom/clk-rcg2.c
+index 6091d9b6a27b..9743af6ae84f 100644
+--- a/drivers/clk/qcom/clk-rcg2.c
++++ b/drivers/clk/qcom/clk-rcg2.c
+@@ -702,6 +702,7 @@ static const struct frac_entry frac_table_pixel[] = {
+ 	{ 2, 9 },
+ 	{ 4, 9 },
+ 	{ 1, 1 },
++	{ 2, 3 },
+ 	{ }
  };
  
-+enum lpfc_hba_bit_flags {
-+	FABRIC_COMANDS_BLOCKED,
-+	HBA_PCI_ERR,
-+};
-+
- struct lpfc_hba {
- 	/* SCSI interface function jump table entries */
- 	struct lpfc_io_buf * (*lpfc_get_scsi_buf)
-@@ -1025,7 +1030,6 @@ struct lpfc_hba {
- 					 * Firmware supports Forced Link Speed
- 					 * capability
- 					 */
--#define HBA_PCI_ERR		0x80000 /* The PCI slot is offline */
- #define HBA_FLOGI_ISSUED	0x100000 /* FLOGI was issued */
- #define HBA_SHORT_CMF		0x200000 /* shorter CMF timer routine */
- #define HBA_CGN_DAY_WRAP	0x400000 /* HBA Congestion info day wraps */
-@@ -1335,7 +1339,6 @@ struct lpfc_hba {
- 	atomic_t fabric_iocb_count;
- 	struct timer_list fabric_block_timer;
- 	unsigned long bit_flags;
--#define	FABRIC_COMANDS_BLOCKED	0
- 	atomic_t num_rsrc_err;
- 	atomic_t num_cmd_success;
- 	unsigned long last_rsrc_error_time;
-diff --git a/drivers/scsi/lpfc/lpfc_crtn.h b/drivers/scsi/lpfc/lpfc_crtn.h
-index 89e36bf14d8f..d4340e5a3aac 100644
---- a/drivers/scsi/lpfc/lpfc_crtn.h
-+++ b/drivers/scsi/lpfc/lpfc_crtn.h
-@@ -652,3 +652,6 @@ struct lpfc_vmid *lpfc_get_vmid_from_hashtable(struct lpfc_vport *vport,
- 					      uint32_t hash, uint8_t *buf);
- void lpfc_vmid_vport_cleanup(struct lpfc_vport *vport);
- int lpfc_issue_els_qfpa(struct lpfc_vport *vport);
-+
-+void lpfc_sli_rpi_release(struct lpfc_vport *vport,
-+			  struct lpfc_nodelist *ndlp);
-diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
-index 816fc406135b..e10371611ef8 100644
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -109,8 +109,8 @@ lpfc_rport_invalid(struct fc_rport *rport)
- 
- 	ndlp = rdata->pnode;
- 	if (!rdata->pnode) {
--		pr_err("**** %s: NULL ndlp on rport x%px SID x%x\n",
--		       __func__, rport, rport->scsi_target_id);
-+		pr_info("**** %s: NULL ndlp on rport x%px SID x%x\n",
-+			__func__, rport, rport->scsi_target_id);
- 		return -EINVAL;
- 	}
- 
-@@ -169,9 +169,10 @@ lpfc_dev_loss_tmo_callbk(struct fc_rport *rport)
- 
- 	lpfc_printf_vlog(ndlp->vport, KERN_INFO, LOG_NODE,
- 			 "3181 dev_loss_callbk x%06x, rport x%px flg x%x "
--			 "load_flag x%x refcnt %d\n",
-+			 "load_flag x%x refcnt %d state %d xpt x%x\n",
- 			 ndlp->nlp_DID, ndlp->rport, ndlp->nlp_flag,
--			 vport->load_flag, kref_read(&ndlp->kref));
-+			 vport->load_flag, kref_read(&ndlp->kref),
-+			 ndlp->nlp_state, ndlp->fc4_xpt_flags);
- 
- 	/* Don't schedule a worker thread event if the vport is going down.
- 	 * The teardown process cleans up the node via lpfc_drop_node.
-@@ -181,6 +182,11 @@ lpfc_dev_loss_tmo_callbk(struct fc_rport *rport)
- 		ndlp->rport = NULL;
- 
- 		ndlp->fc4_xpt_flags &= ~SCSI_XPT_REGD;
-+		/* clear the NLP_XPT_REGD if the node is not registered
-+		 * with nvme-fc
-+		 */
-+		if (ndlp->fc4_xpt_flags == NLP_XPT_REGD)
-+			ndlp->fc4_xpt_flags &= ~NLP_XPT_REGD;
- 
- 		/* Remove the node reference from remote_port_add now.
- 		 * The driver will not call remote_port_delete.
-@@ -225,18 +231,36 @@ lpfc_dev_loss_tmo_callbk(struct fc_rport *rport)
- 	ndlp->rport = NULL;
- 	spin_unlock_irqrestore(&ndlp->lock, iflags);
- 
--	/* We need to hold the node by incrementing the reference
--	 * count until this queued work is done
--	 */
--	evtp->evt_arg1 = lpfc_nlp_get(ndlp);
-+	if (phba->worker_thread) {
-+		/* We need to hold the node by incrementing the reference
-+		 * count until this queued work is done
-+		 */
-+		evtp->evt_arg1 = lpfc_nlp_get(ndlp);
-+
-+		spin_lock_irqsave(&phba->hbalock, iflags);
-+		if (evtp->evt_arg1) {
-+			evtp->evt = LPFC_EVT_DEV_LOSS;
-+			list_add_tail(&evtp->evt_listp, &phba->work_list);
-+			lpfc_worker_wake_up(phba);
-+		}
-+		spin_unlock_irqrestore(&phba->hbalock, iflags);
-+	} else {
-+		lpfc_printf_vlog(ndlp->vport, KERN_INFO, LOG_NODE,
-+				 "3188 worker thread is stopped %s x%06x, "
-+				 " rport x%px flg x%x load_flag x%x refcnt "
-+				 "%d\n", __func__, ndlp->nlp_DID,
-+				 ndlp->rport, ndlp->nlp_flag,
-+				 vport->load_flag, kref_read(&ndlp->kref));
-+		if (!(ndlp->fc4_xpt_flags & NVME_XPT_REGD)) {
-+			spin_lock_irqsave(&ndlp->lock, iflags);
-+			/* Node is in dev loss.  No further transaction. */
-+			ndlp->nlp_flag &= ~NLP_IN_DEV_LOSS;
-+			spin_unlock_irqrestore(&ndlp->lock, iflags);
-+			lpfc_disc_state_machine(vport, ndlp, NULL,
-+						NLP_EVT_DEVICE_RM);
-+		}
- 
--	spin_lock_irqsave(&phba->hbalock, iflags);
--	if (evtp->evt_arg1) {
--		evtp->evt = LPFC_EVT_DEV_LOSS;
--		list_add_tail(&evtp->evt_listp, &phba->work_list);
--		lpfc_worker_wake_up(phba);
- 	}
--	spin_unlock_irqrestore(&phba->hbalock, iflags);
- 
- 	return;
- }
-@@ -503,11 +527,12 @@ lpfc_dev_loss_tmo_handler(struct lpfc_nodelist *ndlp)
- 		lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
- 				 "0203 Devloss timeout on "
- 				 "WWPN %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x "
--				 "NPort x%06x Data: x%x x%x x%x\n",
-+				 "NPort x%06x Data: x%x x%x x%x refcnt %d\n",
- 				 *name, *(name+1), *(name+2), *(name+3),
- 				 *(name+4), *(name+5), *(name+6), *(name+7),
- 				 ndlp->nlp_DID, ndlp->nlp_flag,
--				 ndlp->nlp_state, ndlp->nlp_rpi);
-+				 ndlp->nlp_state, ndlp->nlp_rpi,
-+				 kref_read(&ndlp->kref));
- 	} else {
- 		lpfc_printf_vlog(vport, KERN_INFO, LOG_TRACE_EVENT,
- 				 "0204 Devloss timeout on "
-@@ -755,18 +780,22 @@ lpfc_work_list_done(struct lpfc_hba *phba)
- 	int free_evt;
- 	int fcf_inuse;
- 	uint32_t nlp_did;
-+	bool hba_pci_err;
- 
- 	spin_lock_irq(&phba->hbalock);
- 	while (!list_empty(&phba->work_list)) {
- 		list_remove_head((&phba->work_list), evtp, typeof(*evtp),
- 				 evt_listp);
- 		spin_unlock_irq(&phba->hbalock);
-+		hba_pci_err = test_bit(HBA_PCI_ERR, &phba->bit_flags);
- 		free_evt = 1;
- 		switch (evtp->evt) {
- 		case LPFC_EVT_ELS_RETRY:
- 			ndlp = (struct lpfc_nodelist *) (evtp->evt_arg1);
--			lpfc_els_retry_delay_handler(ndlp);
--			free_evt = 0; /* evt is part of ndlp */
-+			if (!hba_pci_err) {
-+				lpfc_els_retry_delay_handler(ndlp);
-+				free_evt = 0; /* evt is part of ndlp */
-+			}
- 			/* decrement the node reference count held
- 			 * for this queued work
- 			 */
-@@ -788,8 +817,10 @@ lpfc_work_list_done(struct lpfc_hba *phba)
- 			break;
- 		case LPFC_EVT_RECOVER_PORT:
- 			ndlp = (struct lpfc_nodelist *)(evtp->evt_arg1);
--			lpfc_sli_abts_recover_port(ndlp->vport, ndlp);
--			free_evt = 0;
-+			if (!hba_pci_err) {
-+				lpfc_sli_abts_recover_port(ndlp->vport, ndlp);
-+				free_evt = 0;
-+			}
- 			/* decrement the node reference count held for
- 			 * this queued work
- 			 */
-@@ -859,14 +890,18 @@ lpfc_work_done(struct lpfc_hba *phba)
- 	struct lpfc_vport **vports;
- 	struct lpfc_vport *vport;
- 	int i;
-+	bool hba_pci_err;
- 
-+	hba_pci_err = test_bit(HBA_PCI_ERR, &phba->bit_flags);
- 	spin_lock_irq(&phba->hbalock);
- 	ha_copy = phba->work_ha;
- 	phba->work_ha = 0;
- 	spin_unlock_irq(&phba->hbalock);
-+	if (hba_pci_err)
-+		ha_copy = 0;
- 
- 	/* First, try to post the next mailbox command to SLI4 device */
--	if (phba->pci_dev_grp == LPFC_PCI_DEV_OC)
-+	if (phba->pci_dev_grp == LPFC_PCI_DEV_OC && !hba_pci_err)
- 		lpfc_sli4_post_async_mbox(phba);
- 
- 	if (ha_copy & HA_ERATT) {
-@@ -886,7 +921,7 @@ lpfc_work_done(struct lpfc_hba *phba)
- 		lpfc_handle_latt(phba);
- 
- 	/* Handle VMID Events */
--	if (lpfc_is_vmid_enabled(phba)) {
-+	if (lpfc_is_vmid_enabled(phba) && !hba_pci_err) {
- 		if (phba->pport->work_port_events &
- 		    WORKER_CHECK_VMID_ISSUE_QFPA) {
- 			lpfc_check_vmid_qfpa_issue(phba);
-@@ -936,6 +971,8 @@ lpfc_work_done(struct lpfc_hba *phba)
- 			work_port_events = vport->work_port_events;
- 			vport->work_port_events &= ~work_port_events;
- 			spin_unlock_irq(&vport->work_port_lock);
-+			if (hba_pci_err)
-+				continue;
- 			if (work_port_events & WORKER_DISC_TMO)
- 				lpfc_disc_timeout_handler(vport);
- 			if (work_port_events & WORKER_ELS_TMO)
-@@ -1173,12 +1210,14 @@ lpfc_linkdown(struct lpfc_hba *phba)
- 	struct lpfc_vport **vports;
- 	LPFC_MBOXQ_t          *mb;
- 	int i;
-+	int offline;
- 
- 	if (phba->link_state == LPFC_LINK_DOWN)
- 		return 0;
- 
- 	/* Block all SCSI stack I/Os */
- 	lpfc_scsi_dev_block(phba);
-+	offline = pci_channel_offline(phba->pcidev);
- 
- 	phba->defer_flogi_acc_flag = false;
- 
-@@ -1219,7 +1258,7 @@ lpfc_linkdown(struct lpfc_hba *phba)
- 	lpfc_destroy_vport_work_array(phba, vports);
- 
- 	/* Clean up any SLI3 firmware default rpi's */
--	if (phba->sli_rev > LPFC_SLI_REV3)
-+	if (phba->sli_rev > LPFC_SLI_REV3 || offline)
- 		goto skip_unreg_did;
- 
- 	mb = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
-@@ -4712,6 +4751,11 @@ lpfc_nlp_unreg_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
- 	spin_lock_irqsave(&ndlp->lock, iflags);
- 	if (!(ndlp->fc4_xpt_flags & NLP_XPT_REGD)) {
- 		spin_unlock_irqrestore(&ndlp->lock, iflags);
-+		lpfc_printf_vlog(vport, KERN_INFO, LOG_SLI,
-+				 "0999 %s Not regd: ndlp x%px rport x%px DID "
-+				 "x%x FLG x%x XPT x%x\n",
-+				  __func__, ndlp, ndlp->rport, ndlp->nlp_DID,
-+				  ndlp->nlp_flag, ndlp->fc4_xpt_flags);
- 		return;
- 	}
- 
-@@ -4722,6 +4766,13 @@ lpfc_nlp_unreg_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
- 	    ndlp->fc4_xpt_flags & SCSI_XPT_REGD) {
- 		vport->phba->nport_event_cnt++;
- 		lpfc_unregister_remote_port(ndlp);
-+	} else if (!ndlp->rport) {
-+		lpfc_printf_vlog(vport, KERN_INFO, LOG_SLI,
-+				 "1999 %s NDLP in devloss x%px DID x%x FLG x%x"
-+				 " XPT x%x refcnt %d\n",
-+				 __func__, ndlp, ndlp->nlp_DID, ndlp->nlp_flag,
-+				 ndlp->fc4_xpt_flags,
-+				 kref_read(&ndlp->kref));
- 	}
- 
- 	if (ndlp->fc4_xpt_flags & NVME_XPT_REGD) {
-@@ -6089,12 +6140,34 @@ lpfc_disc_flush_list(struct lpfc_vport *vport)
- 	}
- }
- 
-+/*
-+ * lpfc_notify_xport_npr - notifies xport of node disappearance
-+ * @vport: Pointer to Virtual Port object.
-+ *
-+ * Transitions all ndlps to NPR state.  When lpfc_nlp_set_state
-+ * calls lpfc_nlp_state_cleanup, the ndlp->rport is unregistered
-+ * and transport notified that the node is gone.
-+ * Return Code:
-+ *	none
-+ */
-+static void
-+lpfc_notify_xport_npr(struct lpfc_vport *vport)
-+{
-+	struct lpfc_nodelist *ndlp, *next_ndlp;
-+
-+	list_for_each_entry_safe(ndlp, next_ndlp, &vport->fc_nodes,
-+				 nlp_listp) {
-+		lpfc_nlp_set_state(vport, ndlp, NLP_STE_NPR_NODE);
-+	}
-+}
- void
- lpfc_cleanup_discovery_resources(struct lpfc_vport *vport)
- {
- 	lpfc_els_flush_rscn(vport);
- 	lpfc_els_flush_cmd(vport);
- 	lpfc_disc_flush_list(vport);
-+	if (pci_channel_offline(vport->phba->pcidev))
-+		lpfc_notify_xport_npr(vport);
- }
- 
- /*****************************************************************************/
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 558f7d2559c4..fe9a04b2df3e 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -1652,7 +1652,7 @@ lpfc_sli4_offline_eratt(struct lpfc_hba *phba)
- {
- 	spin_lock_irq(&phba->hbalock);
- 	if (phba->link_state == LPFC_HBA_ERROR &&
--	    phba->hba_flag & HBA_PCI_ERR) {
-+		test_bit(HBA_PCI_ERR, &phba->bit_flags)) {
- 		spin_unlock_irq(&phba->hbalock);
- 		return;
- 	}
-@@ -3692,7 +3692,8 @@ lpfc_offline_prep(struct lpfc_hba *phba, int mbx_action)
- 	struct lpfc_vport **vports;
- 	struct Scsi_Host *shost;
- 	int i;
--	int offline = 0;
-+	int offline;
-+	bool hba_pci_err;
- 
- 	if (vport->fc_flag & FC_OFFLINE_MODE)
- 		return;
-@@ -3702,6 +3703,7 @@ lpfc_offline_prep(struct lpfc_hba *phba, int mbx_action)
- 	lpfc_linkdown(phba);
- 
- 	offline =  pci_channel_offline(phba->pcidev);
-+	hba_pci_err = test_bit(HBA_PCI_ERR, &phba->bit_flags);
- 
- 	/* Issue an unreg_login to all nodes on all vports */
- 	vports = lpfc_create_vport_work_array(phba);
-@@ -3725,11 +3727,14 @@ lpfc_offline_prep(struct lpfc_hba *phba, int mbx_action)
- 				ndlp->nlp_flag &= ~NLP_NPR_ADISC;
- 				spin_unlock_irq(&ndlp->lock);
- 
--				if (offline) {
-+				if (offline || hba_pci_err) {
- 					spin_lock_irq(&ndlp->lock);
- 					ndlp->nlp_flag &= ~(NLP_UNREG_INP |
- 							    NLP_RPI_REGISTERED);
- 					spin_unlock_irq(&ndlp->lock);
-+					if (phba->sli_rev == LPFC_SLI_REV4)
-+						lpfc_sli_rpi_release(vports[i],
-+								     ndlp);
- 				} else {
- 					lpfc_unreg_rpi(vports[i], ndlp);
- 				}
-@@ -13386,15 +13391,12 @@ lpfc_sli4_hba_unset(struct lpfc_hba *phba)
- 	/* Disable FW logging to host memory */
- 	lpfc_ras_stop_fwlog(phba);
- 
--	/* Unset the queues shared with the hardware then release all
--	 * allocated resources.
--	 */
--	lpfc_sli4_queue_unset(phba);
--	lpfc_sli4_queue_destroy(phba);
--
- 	/* Reset SLI4 HBA FCoE function */
- 	lpfc_pci_function_reset(phba);
- 
-+	/* release all queue allocated resources. */
-+	lpfc_sli4_queue_destroy(phba);
-+
- 	/* Free RAS DMA memory */
- 	if (phba->ras_fwlog.ras_enabled)
- 		lpfc_sli4_ras_dma_free(phba);
-@@ -15069,24 +15071,28 @@ lpfc_sli4_prep_dev_for_recover(struct lpfc_hba *phba)
- static void
- lpfc_sli4_prep_dev_for_reset(struct lpfc_hba *phba)
- {
--	lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
--			"2826 PCI channel disable preparing for reset\n");
-+	int offline =  pci_channel_offline(phba->pcidev);
-+
-+	lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
-+			"2826 PCI channel disable preparing for reset offline"
-+			" %d\n", offline);
- 
- 	/* Block any management I/Os to the device */
- 	lpfc_block_mgmt_io(phba, LPFC_MBX_NO_WAIT);
- 
--	/* Block all SCSI devices' I/Os on the host */
--	lpfc_scsi_dev_block(phba);
- 
-+	/* HBA_PCI_ERR was set in io_error_detect */
-+	lpfc_offline_prep(phba, LPFC_MBX_NO_WAIT);
- 	/* Flush all driver's outstanding I/Os as we are to reset */
- 	lpfc_sli_flush_io_rings(phba);
-+	lpfc_offline(phba);
- 
- 	/* stop all timers */
- 	lpfc_stop_hba_timers(phba);
- 
-+	lpfc_sli4_queue_destroy(phba);
- 	/* Disable interrupt and pci device */
- 	lpfc_sli4_disable_intr(phba);
--	lpfc_sli4_queue_destroy(phba);
- 	pci_disable_device(phba->pcidev);
- }
- 
-@@ -15135,6 +15141,7 @@ lpfc_io_error_detected_s4(struct pci_dev *pdev, pci_channel_state_t state)
- {
- 	struct Scsi_Host *shost = pci_get_drvdata(pdev);
- 	struct lpfc_hba *phba = ((struct lpfc_vport *)shost->hostdata)->phba;
-+	bool hba_pci_err;
- 
- 	switch (state) {
- 	case pci_channel_io_normal:
-@@ -15142,17 +15149,24 @@ lpfc_io_error_detected_s4(struct pci_dev *pdev, pci_channel_state_t state)
- 		lpfc_sli4_prep_dev_for_recover(phba);
- 		return PCI_ERS_RESULT_CAN_RECOVER;
- 	case pci_channel_io_frozen:
--		phba->hba_flag |= HBA_PCI_ERR;
-+		hba_pci_err = test_and_set_bit(HBA_PCI_ERR, &phba->bit_flags);
- 		/* Fatal error, prepare for slot reset */
--		lpfc_sli4_prep_dev_for_reset(phba);
-+		if (!hba_pci_err)
-+			lpfc_sli4_prep_dev_for_reset(phba);
-+		else
-+			lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
-+					"2832  Already handling PCI error "
-+					"state: x%x\n", state);
- 		return PCI_ERS_RESULT_NEED_RESET;
- 	case pci_channel_io_perm_failure:
--		phba->hba_flag |= HBA_PCI_ERR;
-+		set_bit(HBA_PCI_ERR, &phba->bit_flags);
- 		/* Permanent failure, prepare for device down */
- 		lpfc_sli4_prep_dev_for_perm_failure(phba);
- 		return PCI_ERS_RESULT_DISCONNECT;
- 	default:
--		phba->hba_flag |= HBA_PCI_ERR;
-+		hba_pci_err = test_and_set_bit(HBA_PCI_ERR, &phba->bit_flags);
-+		if (!hba_pci_err)
-+			lpfc_sli4_prep_dev_for_reset(phba);
- 		/* Unknown state, prepare and request slot reset */
- 		lpfc_printf_log(phba, KERN_ERR, LOG_TRACE_EVENT,
- 				"2825 Unknown PCI error state: x%x\n", state);
-@@ -15186,17 +15200,21 @@ lpfc_io_slot_reset_s4(struct pci_dev *pdev)
- 	struct lpfc_hba *phba = ((struct lpfc_vport *)shost->hostdata)->phba;
- 	struct lpfc_sli *psli = &phba->sli;
- 	uint32_t intr_mode;
-+	bool hba_pci_err;
- 
- 	dev_printk(KERN_INFO, &pdev->dev, "recovering from a slot reset.\n");
- 	if (pci_enable_device_mem(pdev)) {
- 		printk(KERN_ERR "lpfc: Cannot re-enable "
--			"PCI device after reset.\n");
-+		       "PCI device after reset.\n");
- 		return PCI_ERS_RESULT_DISCONNECT;
- 	}
- 
- 	pci_restore_state(pdev);
- 
--	phba->hba_flag &= ~HBA_PCI_ERR;
-+	hba_pci_err = test_and_clear_bit(HBA_PCI_ERR, &phba->bit_flags);
-+	if (!hba_pci_err)
-+		dev_info(&pdev->dev,
-+			 "hba_pci_err was not set, recovering slot reset.\n");
- 	/*
- 	 * As the new kernel behavior of pci_restore_state() API call clears
- 	 * device saved_state flag, need to save the restored state again.
-@@ -15251,8 +15269,6 @@ lpfc_io_resume_s4(struct pci_dev *pdev)
- 	 */
- 	if (!(phba->sli.sli_flag & LPFC_SLI_ACTIVE)) {
- 		/* Perform device reset */
--		lpfc_offline_prep(phba, LPFC_MBX_WAIT);
--		lpfc_offline(phba);
- 		lpfc_sli_brdrestart(phba);
- 		/* Bring the device back online */
- 		lpfc_online(phba);
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index 9601edd838e1..8983f6440858 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -2169,8 +2169,7 @@ lpfc_nvme_lport_unreg_wait(struct lpfc_vport *vport,
- 			abts_nvme = 0;
- 			for (i = 0; i < phba->cfg_hdw_queue; i++) {
- 				qp = &phba->sli4_hba.hdwq[i];
--				if (!vport || !vport->localport ||
--				    !qp || !qp->io_wq)
-+				if (!vport->localport || !qp || !qp->io_wq)
- 					return;
- 
- 				pring = qp->io_wq->pring;
-@@ -2180,8 +2179,9 @@ lpfc_nvme_lport_unreg_wait(struct lpfc_vport *vport,
- 				abts_scsi += qp->abts_scsi_io_bufs;
- 				abts_nvme += qp->abts_nvme_io_bufs;
- 			}
--			if (!vport || !vport->localport ||
--			    vport->phba->hba_flag & HBA_PCI_ERR)
-+			if (!vport->localport ||
-+			    test_bit(HBA_PCI_ERR, &vport->phba->bit_flags) ||
-+			    vport->load_flag & FC_UNLOADING)
- 				return;
- 
- 			lpfc_printf_vlog(vport, KERN_ERR, LOG_TRACE_EVENT,
-@@ -2541,8 +2541,7 @@ lpfc_nvme_unregister_port(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
- 		 * return values is ignored.  The upcall is a courtesy to the
- 		 * transport.
- 		 */
--		if (vport->load_flag & FC_UNLOADING ||
--		    unlikely(vport->phba->hba_flag & HBA_PCI_ERR))
-+		if (vport->load_flag & FC_UNLOADING)
- 			(void)nvme_fc_set_remoteport_devloss(remoteport, 0);
- 
- 		ret = nvme_fc_unregister_remoteport(remoteport);
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 430abebf99f1..661ed0999f1c 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -2833,6 +2833,12 @@ __lpfc_sli_rpi_release(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
- 	ndlp->nlp_flag &= ~NLP_UNREG_INP;
- }
- 
-+void
-+lpfc_sli_rpi_release(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
-+{
-+	__lpfc_sli_rpi_release(vport, ndlp);
-+}
-+
- /**
-  * lpfc_sli_def_mbox_cmpl - Default mailbox completion handler
-  * @phba: Pointer to HBA context object.
-@@ -4554,11 +4560,6 @@ lpfc_sli_flush_io_rings(struct lpfc_hba *phba)
- 	struct lpfc_iocbq *piocb, *next_iocb;
- 
- 	spin_lock_irq(&phba->hbalock);
--	if (phba->hba_flag & HBA_IOQ_FLUSH ||
--	    !phba->sli4_hba.hdwq) {
--		spin_unlock_irq(&phba->hbalock);
--		return;
--	}
- 	/* Indicate the I/O queues are flushed */
- 	phba->hba_flag |= HBA_IOQ_FLUSH;
- 	spin_unlock_irq(&phba->hbalock);
-@@ -11235,6 +11236,10 @@ lpfc_sli_issue_iocb(struct lpfc_hba *phba, uint32_t ring_number,
- 	unsigned long iflags;
- 	int rc;
- 
-+	/* If the PCI channel is in offline state, do not post iocbs. */
-+	if (unlikely(pci_channel_offline(phba->pcidev)))
-+		return IOCB_ERROR;
-+
- 	if (phba->sli_rev == LPFC_SLI_REV4) {
- 		eq = phba->sli4_hba.hdwq[piocb->hba_wqidx].hba_eq;
- 
 -- 
-2.35.1
+2.34.1
 
 
 
