@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A11EE50563B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F362F5053A4
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242467AbiDRNcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:32:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41354 "EHLO
+        id S240670AbiDRNAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:00:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244483AbiDRNac (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:32 -0400
+        with ESMTP id S240680AbiDRM5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:57:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8614424B7;
-        Mon, 18 Apr 2022 05:54:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D8861EACF;
+        Mon, 18 Apr 2022 05:38:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C63A60FD9;
-        Mon, 18 Apr 2022 12:54:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43BFAC385A9;
-        Mon, 18 Apr 2022 12:54:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 683AB60FB6;
+        Mon, 18 Apr 2022 12:38:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C17C385A7;
+        Mon, 18 Apr 2022 12:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286474;
-        bh=QMcp877Zax0IjNCX3CTenXmlpZoqiZ2TdkvZcP7v3a0=;
+        s=korg; t=1650285484;
+        bh=umetmjBoZN3k5LTEYhounpHhZT/+4J5l6xef5aPbhLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMjGvZHkaPNLcBr8XgWa3YfJY8UryNNNAQydiGCH5lCqTP7PZwH9410jb/C3HtKQ5
-         pWpixTzZtNiitAZbD9/HHXNfkpvSbPb/2/j/O0BDJad8xv4+KY5bbctqIMn+X0Eago
-         uqDL5oJoAMlt1J0pBuKFL43ZTtqRefOYnz9ETmDU=
+        b=IKev81Q//bLR1SaxmtPHGyuLgAOtXfy/InAKu6BvpZ6Fi+ybwRoAF90Hu84ggMffF
+         Z/y2dkOZJhmu7GrV2jGHuUBskP3j/4jJohzXi9AUGRZsM4IdiSekXFdaHdAEVMgCmK
+         SukoE9U4zYSYrW9229ohme0IKRuBr1OhEYoWRDk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net,
-        Jason Wessel <jason.wessel@windriver.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 146/284] kgdbts: fix return value of __setup handler
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 005/105] ACPI: processor idle: Check for architectural support for LPI
 Date:   Mon, 18 Apr 2022 14:12:07 +0200
-Message-Id: <20220418121215.724241110@linuxfoundation.org>
+Message-Id: <20220418121145.500350849@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,65 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 96c9e802c64014a7716865332d732cc9c7f24593 ]
+commit eb087f305919ee8169ad65665610313e74260463 upstream.
 
-__setup() handlers should return 1 to indicate that the boot option
-has been handled. A return of 0 causes the boot option/value to be
-listed as an Unknown kernel parameter and added to init's (limited)
-environment strings. So return 1 from kgdbts_option_setup().
+When `osc_pc_lpi_support_confirmed` is set through `_OSC` and `_LPI` is
+populated then the cpuidle driver assumes that LPI is fully functional.
 
-Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc7
-  kgdboc=kbd kgdbts=", will be passed to user space.
+However currently the kernel only provides architectural support for LPI
+on ARM.  This leads to high power consumption on X86 platforms that
+otherwise try to enable LPI.
 
- Run /sbin/init as init process
-   with arguments:
-     /sbin/init
-   with environment:
-     HOME=/
-     TERM=linux
-     BOOT_IMAGE=/boot/bzImage-517rc7
-     kgdboc=kbd
-     kgdbts=
+So probe whether or not LPI support is implemented before enabling LPI in
+the kernel.  This is done by overloading `acpi_processor_ffh_lpi_probe` to
+check whether it returns `-EOPNOTSUPP`. It also means that all future
+implementations of `acpi_processor_ffh_lpi_probe` will need to follow
+these semantics as well.
 
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Fixes: e8d31c204e36 ("kgdb: add kgdb internal test suite")
-Cc: kgdb-bugreport@lists.sourceforge.net
-Cc: Jason Wessel <jason.wessel@windriver.com>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Link: https://lore.kernel.org/r/20220308033255.22118-1-rdunlap@infradead.org
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/kgdbts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/processor_idle.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
-index aa70e22e247b..d14b4b0a1d7c 100644
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -1068,10 +1068,10 @@ static int kgdbts_option_setup(char *opt)
- {
- 	if (strlen(opt) >= MAX_CONFIG_LEN) {
- 		printk(KERN_ERR "kgdbts: config string too long\n");
--		return -ENOSPC;
-+		return 1;
- 	}
- 	strcpy(config, opt);
--	return 0;
-+	return 1;
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -1080,6 +1080,11 @@ static int flatten_lpi_states(struct acp
+ 	return 0;
  }
  
- __setup("kgdbts=", kgdbts_option_setup);
--- 
-2.34.1
-
++int __weak acpi_processor_ffh_lpi_probe(unsigned int cpu)
++{
++	return -EOPNOTSUPP;
++}
++
+ static int acpi_processor_get_lpi_info(struct acpi_processor *pr)
+ {
+ 	int ret, i;
+@@ -1088,6 +1093,11 @@ static int acpi_processor_get_lpi_info(s
+ 	struct acpi_device *d = NULL;
+ 	struct acpi_lpi_states_array info[2], *tmp, *prev, *curr;
+ 
++	/* make sure our architecture has support */
++	ret = acpi_processor_ffh_lpi_probe(pr->id);
++	if (ret == -EOPNOTSUPP)
++		return ret;
++
+ 	if (!osc_pc_lpi_support_confirmed)
+ 		return -EOPNOTSUPP;
+ 
+@@ -1139,11 +1149,6 @@ static int acpi_processor_get_lpi_info(s
+ 	return 0;
+ }
+ 
+-int __weak acpi_processor_ffh_lpi_probe(unsigned int cpu)
+-{
+-	return -ENODEV;
+-}
+-
+ int __weak acpi_processor_ffh_lpi_enter(struct acpi_lpi_state *lpi)
+ {
+ 	return -ENODEV;
 
 
