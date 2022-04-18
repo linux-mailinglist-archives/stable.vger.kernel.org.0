@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3109750562C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B781250510F
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242123AbiDRNcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:32:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57214 "EHLO
+        id S235704AbiDRMaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:30:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242879AbiDRN2q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:28:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E8E3ED12;
-        Mon, 18 Apr 2022 05:53:23 -0700 (PDT)
+        with ESMTP id S238894AbiDRMaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:30:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA482458E;
+        Mon, 18 Apr 2022 05:23:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F3386124E;
-        Mon, 18 Apr 2022 12:53:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58382C385A1;
-        Mon, 18 Apr 2022 12:53:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B73DD60FB6;
+        Mon, 18 Apr 2022 12:23:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFFAC385A1;
+        Mon, 18 Apr 2022 12:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286401;
-        bh=L+U2PjbOPSfXSjNB64PGA1oFCZtfSLRYyyvwrXR+O0Q=;
+        s=korg; t=1650284610;
+        bh=bjCjhv8haIP+MHw/BiUZCXR2FoFiviSuC5QqBleHCf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sl9FkzPmvdhNgVWVvJW0vPSLdvHze3qDY2HoNUNTnowqMQLbKIgklZnfpgPbkVNkA
-         TK13yAudBJWRHBrUjeVXeEkLXi67F3CRWmOe+5jl6qmukn3G4HEYZRHRZIh74MVad6
-         vqfdzPPubl1TeDELI1WKuBkf/8r38/jMnB7sIhpc=
+        b=p4pZX3nDQwv789XLOKKFXUBLfVoQGJdv7QFWKsxri31bPpHd6snxODgxVguTj1p/B
+         b58CM2ord8+TZiAkm6IFeMj5UDiFrSbXqb6th2WTIWX131Urvw9nauVGt95NnvoJ3g
+         W200j89S4H2INhYqlcICGayG8aqvBIM6kGzZCFxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 121/284] vxcan: enable local echo for sent CAN frames
+Subject: [PATCH 5.17 133/219] drm/amdgpu: conduct a proper cleanup of PDB bo
 Date:   Mon, 18 Apr 2022 14:11:42 +0200
-Message-Id: <20220418121214.565347809@linuxfoundation.org>
+Message-Id: <20220418121210.617946033@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Guchun Chen <guchun.chen@amd.com>
 
-[ Upstream commit 259bdba27e32368b4404f69d613b1c1014c07cbf ]
+[ Upstream commit 2d505453f38e18d42ba7d5428aaa17aaa7752c65 ]
 
-The vxcan driver provides a pair of virtual CAN interfaces to exchange
-CAN traffic between different namespaces - analogue to veth.
+Use amdgpu_bo_free_kernel instead of amdgpu_bo_unref to
+perform a proper cleanup of PDB bo.
 
-In opposite to the vcan driver the local sent CAN traffic on this interface
-is not echo'ed back but only sent to the remote peer. This is unusual and
-can be easily fixed by removing IFF_ECHO from the netdevice flags that
-are set for vxcan interfaces by default at startup.
+v2: update subject to be more accurate
 
-Without IFF_ECHO set on driver level, the local sent CAN frames are echo'ed
-in af_can.c in can_send(). This patch makes vxcan interfaces adopt the
-same local echo behavior and procedures as known from the vcan interfaces.
-
-Fixes: a8f820a380a2 ("can: add Virtual CAN Tunnel driver (vxcan)")
-Link: https://lore.kernel.org/all/20220309120416.83514-5-socketcan@hartkopp.net
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/vxcan.c | 2 +-
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/vxcan.c b/drivers/net/can/vxcan.c
-index fc9197f14a3f..4b5355226f58 100644
---- a/drivers/net/can/vxcan.c
-+++ b/drivers/net/can/vxcan.c
-@@ -156,7 +156,7 @@ static void vxcan_setup(struct net_device *dev)
- 	dev->hard_header_len	= 0;
- 	dev->addr_len		= 0;
- 	dev->tx_queue_len	= 0;
--	dev->flags		= (IFF_NOARP|IFF_ECHO);
-+	dev->flags		= IFF_NOARP;
- 	dev->netdev_ops		= &vxcan_netdev_ops;
- 	dev->needs_free_netdev	= true;
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+index 88c1eb9ad068..34ee75cf7954 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+@@ -1684,7 +1684,7 @@ static int gmc_v9_0_sw_fini(void *handle)
+ 	amdgpu_gem_force_release(adev);
+ 	amdgpu_vm_manager_fini(adev);
+ 	amdgpu_gart_table_vram_free(adev);
+-	amdgpu_bo_unref(&adev->gmc.pdb0_bo);
++	amdgpu_bo_free_kernel(&adev->gmc.pdb0_bo, NULL, &adev->gmc.ptr_pdb0);
+ 	amdgpu_bo_fini(adev);
+ 
+ 	return 0;
 -- 
-2.34.1
+2.35.1
 
 
 
