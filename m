@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF0F250515E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AD1A505453
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239052AbiDRMec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54198 "EHLO
+        id S240335AbiDRNFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:05:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239794AbiDRMd2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360FD1B7A3;
-        Mon, 18 Apr 2022 05:26:22 -0700 (PDT)
+        with ESMTP id S240952AbiDRNCY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:02:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D180A26ACB;
+        Mon, 18 Apr 2022 05:42:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE404B80EC4;
-        Mon, 18 Apr 2022 12:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 383B4C385A1;
-        Mon, 18 Apr 2022 12:26:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12F02B80EDD;
+        Mon, 18 Apr 2022 12:42:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D522C385A1;
+        Mon, 18 Apr 2022 12:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284779;
-        bh=xNVqXF/CJGdj4dmUuJDXx7TyQ41i5yaL833R072XBEY=;
+        s=korg; t=1650285742;
+        bh=5x/hr0RTqZjcqu+gwHu6SeQi/Y//QzF22XW4sumoa3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjwKf8aBANEQwyfj4AH3VQQFiViwOm8XG4m2QpPqNYM5JKqwDOyLFzkjmNXOTUbm5
-         9uByyusbDMzYxEsq5zzWj/Alqu2fDYJUrbCKMAL+HYS1uL5ulOjcsadxWRdVA3uc9Q
-         s5d9UQQ7aaBLsnn35HHZRy+WzS1jiD+kW2btf2Xs=
+        b=wtKs3G+OBkZuf61B0eZw09WE6Y/TRjqZKU4uEubDB/cDTeP/ifQYZCj5icJx1hDa3
+         BUwsb8C7iPnvLWOCdNvh5ZflwQH4G+c/aQXCfDuGQMYSTTH30Fj9oUFC59B1E3NApo
+         ZA4LELNik23ajVz9jV8d3MhBmWD933d5TSEay44A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.17 218/219] cpu/hotplug: Remove the cpu member of cpuhp_cpu_state
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/63] drm/msm/dsi: Use connector directly in msm_dsi_manager_connector_init()
 Date:   Mon, 18 Apr 2022 14:13:07 +0200
-Message-Id: <20220418121212.968801198@linuxfoundation.org>
+Message-Id: <20220418121134.839290788@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,169 +57,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit b7ba6d8dc3569e49800ef0136799f26f43e237e8 upstream.
+[ Upstream commit 47b7de6b88b962ef339a2427a023d2a23d161654 ]
 
-Currently the setting of the 'cpu' member of struct cpuhp_cpu_state in
-cpuhp_create() is too late as it is used earlier in _cpu_up().
+The member 'msm_dsi->connector' isn't assigned until
+msm_dsi_manager_connector_init() returns (see msm_dsi_modeset_init() and
+how it assigns the return value). Therefore this pointer is going to be
+NULL here. Let's use 'connector' which is what was intended.
 
-If kzalloc_node() in __smpboot_create_thread() fails then the rollback will
-be done with st->cpu==0 causing CPU0 to be erroneously set to be dying,
-causing the scheduler to get mightily confused and throw its toys out of
-the pram.
-
-However the cpu number is actually available directly, so simply remove
-the 'cpu' member and avoid the problem in the first place.
-
-Fixes: 2ea46c6fc945 ("cpumask/hotplug: Fix cpu_dying() state tracking")
-Signed-off-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20220411152233.474129-2-steven.price@arm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc: Sean Paul <seanpaul@chromium.org>
+Fixes: 6d5e78406991 ("drm/msm/dsi: Move dsi panel init into modeset init path")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/478693/
+Link: https://lore.kernel.org/r/20220318000731.2823718-1-swboyd@chromium.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu.c |   36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_manager.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -70,7 +70,6 @@ struct cpuhp_cpu_state {
- 	bool			rollback;
- 	bool			single;
- 	bool			bringup;
--	int			cpu;
- 	struct hlist_node	*node;
- 	struct hlist_node	*last;
- 	enum cpuhp_state	cb_state;
-@@ -474,7 +473,7 @@ static inline bool cpu_smt_allowed(unsig
- #endif
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+index 73127948f54d..f3ff2cdc288b 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
+@@ -625,7 +625,7 @@ struct drm_connector *msm_dsi_manager_connector_init(u8 id)
+ 	return connector;
  
- static inline enum cpuhp_state
--cpuhp_set_state(struct cpuhp_cpu_state *st, enum cpuhp_state target)
-+cpuhp_set_state(int cpu, struct cpuhp_cpu_state *st, enum cpuhp_state target)
- {
- 	enum cpuhp_state prev_state = st->state;
- 	bool bringup = st->state < target;
-@@ -485,14 +484,15 @@ cpuhp_set_state(struct cpuhp_cpu_state *
- 	st->target = target;
- 	st->single = false;
- 	st->bringup = bringup;
--	if (cpu_dying(st->cpu) != !bringup)
--		set_cpu_dying(st->cpu, !bringup);
-+	if (cpu_dying(cpu) != !bringup)
-+		set_cpu_dying(cpu, !bringup);
- 
- 	return prev_state;
+ fail:
+-	connector->funcs->destroy(msm_dsi->connector);
++	connector->funcs->destroy(connector);
+ 	return ERR_PTR(ret);
  }
  
- static inline void
--cpuhp_reset_state(struct cpuhp_cpu_state *st, enum cpuhp_state prev_state)
-+cpuhp_reset_state(int cpu, struct cpuhp_cpu_state *st,
-+		  enum cpuhp_state prev_state)
- {
- 	bool bringup = !st->bringup;
- 
-@@ -519,8 +519,8 @@ cpuhp_reset_state(struct cpuhp_cpu_state
- 	}
- 
- 	st->bringup = bringup;
--	if (cpu_dying(st->cpu) != !bringup)
--		set_cpu_dying(st->cpu, !bringup);
-+	if (cpu_dying(cpu) != !bringup)
-+		set_cpu_dying(cpu, !bringup);
- }
- 
- /* Regular hotplug invocation of the AP hotplug thread */
-@@ -540,15 +540,16 @@ static void __cpuhp_kick_ap(struct cpuhp
- 	wait_for_ap_thread(st, st->bringup);
- }
- 
--static int cpuhp_kick_ap(struct cpuhp_cpu_state *st, enum cpuhp_state target)
-+static int cpuhp_kick_ap(int cpu, struct cpuhp_cpu_state *st,
-+			 enum cpuhp_state target)
- {
- 	enum cpuhp_state prev_state;
- 	int ret;
- 
--	prev_state = cpuhp_set_state(st, target);
-+	prev_state = cpuhp_set_state(cpu, st, target);
- 	__cpuhp_kick_ap(st);
- 	if ((ret = st->result)) {
--		cpuhp_reset_state(st, prev_state);
-+		cpuhp_reset_state(cpu, st, prev_state);
- 		__cpuhp_kick_ap(st);
- 	}
- 
-@@ -580,7 +581,7 @@ static int bringup_wait_for_ap(unsigned
- 	if (st->target <= CPUHP_AP_ONLINE_IDLE)
- 		return 0;
- 
--	return cpuhp_kick_ap(st, st->target);
-+	return cpuhp_kick_ap(cpu, st, st->target);
- }
- 
- static int bringup_cpu(unsigned int cpu)
-@@ -703,7 +704,7 @@ static int cpuhp_up_callbacks(unsigned i
- 			 ret, cpu, cpuhp_get_step(st->state)->name,
- 			 st->state);
- 
--		cpuhp_reset_state(st, prev_state);
-+		cpuhp_reset_state(cpu, st, prev_state);
- 		if (can_rollback_cpu(st))
- 			WARN_ON(cpuhp_invoke_callback_range(false, cpu, st,
- 							    prev_state));
-@@ -720,7 +721,6 @@ static void cpuhp_create(unsigned int cp
- 
- 	init_completion(&st->done_up);
- 	init_completion(&st->done_down);
--	st->cpu = cpu;
- }
- 
- static int cpuhp_should_run(unsigned int cpu)
-@@ -874,7 +874,7 @@ static int cpuhp_kick_ap_work(unsigned i
- 	cpuhp_lock_release(true);
- 
- 	trace_cpuhp_enter(cpu, st->target, prev_state, cpuhp_kick_ap_work);
--	ret = cpuhp_kick_ap(st, st->target);
-+	ret = cpuhp_kick_ap(cpu, st, st->target);
- 	trace_cpuhp_exit(cpu, st->state, prev_state, ret);
- 
- 	return ret;
-@@ -1106,7 +1106,7 @@ static int cpuhp_down_callbacks(unsigned
- 			 ret, cpu, cpuhp_get_step(st->state)->name,
- 			 st->state);
- 
--		cpuhp_reset_state(st, prev_state);
-+		cpuhp_reset_state(cpu, st, prev_state);
- 
- 		if (st->state < prev_state)
- 			WARN_ON(cpuhp_invoke_callback_range(true, cpu, st,
-@@ -1133,7 +1133,7 @@ static int __ref _cpu_down(unsigned int
- 
- 	cpuhp_tasks_frozen = tasks_frozen;
- 
--	prev_state = cpuhp_set_state(st, target);
-+	prev_state = cpuhp_set_state(cpu, st, target);
- 	/*
- 	 * If the current CPU state is in the range of the AP hotplug thread,
- 	 * then we need to kick the thread.
-@@ -1164,7 +1164,7 @@ static int __ref _cpu_down(unsigned int
- 	ret = cpuhp_down_callbacks(cpu, st, target);
- 	if (ret && st->state < prev_state) {
- 		if (st->state == CPUHP_TEARDOWN_CPU) {
--			cpuhp_reset_state(st, prev_state);
-+			cpuhp_reset_state(cpu, st, prev_state);
- 			__cpuhp_kick_ap(st);
- 		} else {
- 			WARN(1, "DEAD callback error for CPU%d", cpu);
-@@ -1351,7 +1351,7 @@ static int _cpu_up(unsigned int cpu, int
- 
- 	cpuhp_tasks_frozen = tasks_frozen;
- 
--	cpuhp_set_state(st, target);
-+	cpuhp_set_state(cpu, st, target);
- 	/*
- 	 * If the current CPU state is in the range of the AP hotplug thread,
- 	 * then we need to kick the thread once more.
+-- 
+2.35.1
+
 
 
