@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3F61505082
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34E37505210
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238726AbiDRM0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38578 "EHLO
+        id S235245AbiDRMle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238736AbiDRMZk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:25:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7E4620F4E;
-        Mon, 18 Apr 2022 05:19:41 -0700 (PDT)
+        with ESMTP id S239736AbiDRMiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33A9F23BDB;
+        Mon, 18 Apr 2022 05:28:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81C0960EF4;
-        Mon, 18 Apr 2022 12:19:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76031C385B5;
-        Mon, 18 Apr 2022 12:19:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB8A2B80EC4;
+        Mon, 18 Apr 2022 12:28:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13289C385A7;
+        Mon, 18 Apr 2022 12:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284380;
-        bh=agCDIBbbtk1c65NvNmNwBPTDas9g5rHHdEy1c5V0PVQ=;
+        s=korg; t=1650284909;
+        bh=6yRikiXgifF7TJwpdBeWfSQIjgxtM8EHGIus7nzIZwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIhXbkjolvcgYRMATDHJVqp/VYcJlxjyIn85WHuWpUoHoffftFMYKhFW7weBP8trp
-         tIW/F2PW3De7KpTjfn6RGRovA6MZjFy+NPHvKXh9EUHLHCexrv1lVeRk/tsPnvg063
-         9lU8OmkBjJwpY3Og8Xdk9NBS8IIDQm8S0pR/SzI8=
+        b=cTZwfQvWqXZzB5om1DgoolE5RY//vW4PhXmNCcWrnabTSfdOEEqLtGK6F6ppX22K6
+         BZAKYU9LNoFke0wGkjBMLy3qYA0bvWm1tu7Q9hKKkSyHQZV22LHVxvP5Eg+3gKfjmH
+         ZLnL3e1Bi7oipBYIH3TkNnKe8kOboOAIkyZGY3RE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Ajish Koshy <Ajish.Koshy@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 096/219] scsi: pm80xx: Mask and unmask upper interrupt vectors 32-63
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 045/189] ALSA: maestro3: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:11:05 +0200
-Message-Id: <20220418121209.440553367@linuxfoundation.org>
+Message-Id: <20220418121201.792916152@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,73 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajish Koshy <Ajish.Koshy@microchip.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 294080eacf92a0781e6d43663448a55001ec8c64 ]
+commit ae86bf5c2a8d81418eadf1c31dd9253b609e3093 upstream.
 
-When upper inbound and outbound queues 32-63 are enabled, we see upper
-vectors 32-63 in interrupt service routine. We need corresponding registers
-to handle masking and unmasking of these upper interrupts.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-To achieve this, we use registers MSGU_ODMR_U(0x34) to mask and
-MSGU_ODMR_CLR_U(0x3C) to unmask the interrupts. In these registers bit 0-31
-represents interrupt vectors 32-63.
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-Link: https://lore.kernel.org/r/20220411064603.668448-2-Ajish.Koshy@microchip.com
-Fixes: 05c6c029a44d ("scsi: pm80xx: Increase number of supported queues")
-Reviewed-by: John Garry <john.garry@huawei.com>
-Acked-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Ajish Koshy <Ajish.Koshy@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5c0939253c3c ("ALSA: maestro3: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-21-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/pm8001/pm80xx_hwi.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ sound/pci/maestro3.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 55163469030d..2dea48933ef9 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -1734,10 +1734,11 @@ static void
- pm80xx_chip_interrupt_enable(struct pm8001_hba_info *pm8001_ha, u8 vec)
+diff --git a/sound/pci/maestro3.c b/sound/pci/maestro3.c
+index 056838ead21d..261850775c80 100644
+--- a/sound/pci/maestro3.c
++++ b/sound/pci/maestro3.c
+@@ -2637,7 +2637,7 @@ snd_m3_create(struct snd_card *card, struct pci_dev *pci,
+ /*
+  */
+ static int
+-snd_m3_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
++__snd_m3_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
  {
- #ifdef PM8001_USE_MSIX
--	u32 mask;
--	mask = (u32)(1 << vec);
--
--	pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_CLR, (u32)(mask & 0xFFFFFFFF));
-+	if (vec < 32)
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_CLR, 1U << vec);
-+	else
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_CLR_U,
-+			    1U << (vec - 32));
- 	return;
- #endif
- 	pm80xx_chip_intx_interrupt_enable(pm8001_ha);
-@@ -1753,12 +1754,15 @@ static void
- pm80xx_chip_interrupt_disable(struct pm8001_hba_info *pm8001_ha, u8 vec)
- {
- #ifdef PM8001_USE_MSIX
--	u32 mask;
--	if (vec == 0xFF)
--		mask = 0xFFFFFFFF;
-+	if (vec == 0xFF) {
-+		/* disable all vectors 0-31, 32-63 */
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR, 0xFFFFFFFF);
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_U, 0xFFFFFFFF);
-+	} else if (vec < 32)
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR, 1U << vec);
- 	else
--		mask = (u32)(1 << vec);
--	pm8001_cw32(pm8001_ha, 0, MSGU_ODMR, (u32)(mask & 0xFFFFFFFF));
-+		pm8001_cw32(pm8001_ha, 0, MSGU_ODMR_U,
-+			    1U << (vec - 32));
- 	return;
- #endif
- 	pm80xx_chip_intx_interrupt_disable(pm8001_ha);
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -2702,6 +2702,12 @@ snd_m3_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+ 	return 0;
+ }
+ 
++static int
++snd_m3_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_m3_probe(pci, pci_id));
++}
++
+ static struct pci_driver m3_driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = snd_m3_ids,
 -- 
-2.35.1
+2.35.2
 
 
 
