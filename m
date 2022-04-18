@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C661505887
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CBE5058AA
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:08:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238730AbiDROFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:05:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41574 "EHLO
+        id S245175AbiDROG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:06:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245730AbiDROEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:04:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5D796300;
-        Mon, 18 Apr 2022 06:09:52 -0700 (PDT)
+        with ESMTP id S245608AbiDROFk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:05:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C38135266;
+        Mon, 18 Apr 2022 06:10:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95B64B80E4B;
-        Mon, 18 Apr 2022 13:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E48ACC385A1;
-        Mon, 18 Apr 2022 13:09:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34A0E60F0C;
+        Mon, 18 Apr 2022 13:10:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29532C385A7;
+        Mon, 18 Apr 2022 13:10:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287373;
-        bh=f33bEnVh+8N/Rz8/d6j1iSz6hPzJh5PCzK3Nlal1e2c=;
+        s=korg; t=1650287408;
+        bh=DKxsw4JmfpR/Bg/dltox9tnnAlydmzRJ553cHujidoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKLd/NzlrrSahZVE4CBikUmob5e+bykVANGDCIv5xCNjUBjDnm4PI4Wemmkxbh6ea
-         Rw7+SuSa9B3wZaTgco84hQ8oNJva6GyiFnUBd2rPRNs4Ptmn7m5F4mTiHjKfhjSQFD
-         0V92mzfD0fMpgzzWlCL64k37i38Do1pylVoOCtkY=
+        b=2bidyGG/PAr/fV2K8HYJkIOKrubNCEbkwcdufNzLO7XQUG8UtRmlslTihgHXhPau3
+         9UyHRc+yUs5lOoX6lCVanV5iyJzfT/+OGh+4TKoBy+MIL1XQPJJPcnPTFb++yxu2lA
+         HwVbHyzl7+mBa61g7L0BBgcuvVO2+E6stJFio4h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaitanya Kulkarni <kch@nvidia.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 124/218] loop: use sysfs_emit() in the sysfs xxx show()
-Date:   Mon, 18 Apr 2022 14:13:10 +0200
-Message-Id: <20220418121203.140059438@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 125/218] Fix incorrect type in assignment of ipv6 port for audit
+Date:   Mon, 18 Apr 2022 14:13:11 +0200
+Message-Id: <20220418121203.167819076@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,71 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <kch@nvidia.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
 
-[ Upstream commit b27824d31f09ea7b4a6ba2c1b18bd328df3e8bed ]
+[ Upstream commit a5cd1ab7ab679d252a6d2f483eee7d45ebf2040c ]
 
-sprintf does not know the PAGE_SIZE maximum of the temporary buffer
-used for outputting sysfs content and it's possible to overrun the
-PAGE_SIZE buffer length.
+Remove inappropriate use of ntohs() and assign the
+port value directly.
 
-Use a generic sysfs_emit function that knows the size of the
-temporary buffer and ensures that no overrun is done for offset
-attribute in
-loop_attr_[offset|sizelimit|autoclear|partscan|dio]_show() callbacks.
-
-Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Link: https://lore.kernel.org/r/20220215213310.7264-2-kch@nvidia.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ security/smack/smack_lsm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index f236b7984b94..2ff17b397cd2 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -773,33 +773,33 @@ static ssize_t loop_attr_backing_file_show(struct loop_device *lo, char *buf)
- 
- static ssize_t loop_attr_offset_show(struct loop_device *lo, char *buf)
- {
--	return sprintf(buf, "%llu\n", (unsigned long long)lo->lo_offset);
-+	return sysfs_emit(buf, "%llu\n", (unsigned long long)lo->lo_offset);
- }
- 
- static ssize_t loop_attr_sizelimit_show(struct loop_device *lo, char *buf)
- {
--	return sprintf(buf, "%llu\n", (unsigned long long)lo->lo_sizelimit);
-+	return sysfs_emit(buf, "%llu\n", (unsigned long long)lo->lo_sizelimit);
- }
- 
- static ssize_t loop_attr_autoclear_show(struct loop_device *lo, char *buf)
- {
- 	int autoclear = (lo->lo_flags & LO_FLAGS_AUTOCLEAR);
- 
--	return sprintf(buf, "%s\n", autoclear ? "1" : "0");
-+	return sysfs_emit(buf, "%s\n", autoclear ? "1" : "0");
- }
- 
- static ssize_t loop_attr_partscan_show(struct loop_device *lo, char *buf)
- {
- 	int partscan = (lo->lo_flags & LO_FLAGS_PARTSCAN);
- 
--	return sprintf(buf, "%s\n", partscan ? "1" : "0");
-+	return sysfs_emit(buf, "%s\n", partscan ? "1" : "0");
- }
- 
- static ssize_t loop_attr_dio_show(struct loop_device *lo, char *buf)
- {
- 	int dio = (lo->lo_flags & LO_FLAGS_DIRECT_IO);
- 
--	return sprintf(buf, "%s\n", dio ? "1" : "0");
-+	return sysfs_emit(buf, "%s\n", dio ? "1" : "0");
- }
- 
- LOOP_ATTR_RO(backing_file);
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 589c1c2ae6db..84ed47195cdd 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2567,7 +2567,7 @@ static int smk_ipv6_check(struct smack_known *subject,
+ #ifdef CONFIG_AUDIT
+ 	smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
+ 	ad.a.u.net->family = PF_INET6;
+-	ad.a.u.net->dport = ntohs(address->sin6_port);
++	ad.a.u.net->dport = address->sin6_port;
+ 	if (act == SMK_RECEIVING)
+ 		ad.a.u.net->v6info.saddr = address->sin6_addr;
+ 	else
 -- 
 2.34.1
 
