@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 179785050A4
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA6550579C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235699AbiDRM0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37744 "EHLO
+        id S244459AbiDRNy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:54:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238741AbiDRM0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 123B81261C;
-        Mon, 18 Apr 2022 05:20:30 -0700 (PDT)
+        with ESMTP id S245361AbiDRNx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E5DD6583;
+        Mon, 18 Apr 2022 06:02:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A22AA60F0A;
-        Mon, 18 Apr 2022 12:20:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C591C385A9;
-        Mon, 18 Apr 2022 12:20:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CF7660B70;
+        Mon, 18 Apr 2022 13:02:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DBE1C385A8;
+        Mon, 18 Apr 2022 13:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284429;
-        bh=X/2BiOYQf0Z+0ANkLJl9DPyLmi79vzg8bV9C5ksUvPc=;
+        s=korg; t=1650286958;
+        bh=j1ibkf07OPqJJuH+STE0U3Yp+RdmbtTkDExfewtsS1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rggj/U84T8lDs2trufusEq9lcdtJV1uJiTRHGUOHZs8unlzVAU1DgV2hIvXxGhKWZ
-         h31Cr6mDdFD5xqPhFVn2UOmF1WTsydQBZCv4B4xgyXLOtCFoUhEi9WeVwUfEYZvCJW
-         OB4Q0j3RdOQFRr4KHb2J+wVWLrg6YRHeSaiw7MNc=
+        b=W1JH7E6Pf82vxD+tKdIkI6c5zSfGo5T03Zt0GCxAwvx0UNBE2MxSmswstxaUgGWSz
+         +SEUn+0FJ5+e7v4/ZtA37ifdgGqjzvWswWGAPjRl4CYFdKSgIsQGWwjHLfLq6sVR8B
+         zd88NTGaRMjzTD6bPUdZqtco7EOFcefzsgFSCJFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dylan Yudaken <dylany@fb.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 112/219] io_uring: verify pad field is 0 in io_get_ext_arg
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.9 015/218] SUNRPC: avoid race between mod_timer() and del_timer_sync()
 Date:   Mon, 18 Apr 2022 14:11:21 +0200
-Message-Id: <20220418121210.034580519@linuxfoundation.org>
+Message-Id: <20220418121159.475432000@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Yudaken <dylany@fb.com>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit d2347b9695dafe5c388a5f9aeb70e27a7a4d29cf ]
+commit 3848e96edf4788f772d83990022fa7023a233d83 upstream.
 
-Ensure that only 0 is passed for pad here.
+xprt_destory() claims XPRT_LOCKED and then calls del_timer_sync().
+Both xprt_unlock_connect() and xprt_release() call
+ ->release_xprt()
+which drops XPRT_LOCKED and *then* xprt_schedule_autodisconnect()
+which calls mod_timer().
 
-Fixes: c73ebb685fb6 ("io_uring: add timeout support for io_uring_enter()")
-Signed-off-by: Dylan Yudaken <dylany@fb.com>
-Link: https://lore.kernel.org/r/20220412163042.2788062-5-dylany@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This may result in mod_timer() being called *after* del_timer_sync().
+When this happens, the timer may fire long after the xprt has been freed,
+and run_timer_softirq() will probably crash.
+
+The pairing of ->release_xprt() and xprt_schedule_autodisconnect() is
+always called under ->transport_lock.  So if we take ->transport_lock to
+call del_timer_sync(), we can be sure that mod_timer() will run first
+(if it runs at all).
+
+Cc: stable@vger.kernel.org
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sunrpc/xprt.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2838bc6cdbc8..7a652c8eeed2 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -10109,6 +10109,8 @@ static int io_get_ext_arg(unsigned flags, const void __user *argp, size_t *argsz
- 		return -EINVAL;
- 	if (copy_from_user(&arg, argp, sizeof(arg)))
- 		return -EFAULT;
-+	if (arg.pad)
-+		return -EINVAL;
- 	*sig = u64_to_user_ptr(arg.sigmask);
- 	*argsz = arg.sigmask_sz;
- 	*ts = u64_to_user_ptr(arg.ts);
--- 
-2.35.1
-
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1446,7 +1446,14 @@ static void xprt_destroy(struct rpc_xprt
+ 	/* Exclude transport connect/disconnect handlers */
+ 	wait_on_bit_lock(&xprt->state, XPRT_LOCKED, TASK_UNINTERRUPTIBLE);
+ 
++	/*
++	 * xprt_schedule_autodisconnect() can run after XPRT_LOCKED
++	 * is cleared.  We use ->transport_lock to ensure the mod_timer()
++	 * can only run *before* del_time_sync(), never after.
++	 */
++	spin_lock(&xprt->transport_lock);
+ 	del_timer_sync(&xprt->timer);
++	spin_unlock(&xprt->transport_lock);
+ 
+ 	rpc_xprt_debugfs_unregister(xprt);
+ 	rpc_destroy_wait_queue(&xprt->binding);
 
 
