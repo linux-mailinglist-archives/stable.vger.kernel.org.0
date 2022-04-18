@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 184BA50563C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBDC25050D7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242463AbiDRNcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:32:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
+        id S238736AbiDRM3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:29:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242089AbiDRN0l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:26:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8D943E0F2;
-        Mon, 18 Apr 2022 05:53:08 -0700 (PDT)
+        with ESMTP id S239104AbiDRM1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:27:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CC321EC65;
+        Mon, 18 Apr 2022 05:21:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24B65B80E4E;
-        Mon, 18 Apr 2022 12:53:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F85FC385A1;
-        Mon, 18 Apr 2022 12:53:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C513B80ED6;
+        Mon, 18 Apr 2022 12:21:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BC30C385A7;
+        Mon, 18 Apr 2022 12:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286381;
-        bh=3NzfD2UjOx0eI3knVHB5Oq9qjUPNX2f6riZbUbbtJCc=;
+        s=korg; t=1650284478;
+        bh=8SqvZhAm9GgYk4tLt5NL2+jGirUP/h3bRxJS6zUKqhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQqSdtNmXqkOLoRiOvRWSznNQPwm7mbvZWkTOYzNnEzfFHOFmRGIR/tdmPDxodAmc
-         PwCVrb1O25H/hRyF83NX3fppLZo9V3ZcRyf5uQPAqAFLmQdTgrXc+TBBikJLaWAuI1
-         JyEeR5gtJ/nrYbxYSdfFB62X9Q9MaOTu0dzRMD8w=
+        b=VBWglDbNh6IybCv1gPKAR438rxQJkPq/2d7Tc2WBVoP7IeuiRzVLPf/bYwaMNAk67
+         DW3zpIN3WE5HrIAdaKIoh72fVzepm8mpZJX+5VlEb+Xo0U3DmFBXS6asMrqJXFmEfV
+         UMa3NtoQQ1OyYPfNHfgXD6JCadsNI0YcSLPEF1sA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 116/284] power: supply: wm8350-power: Handle error for wm8350_register_irq
+        stable@vger.kernel.org,
+        syzbot+60c52ca98513a8760a91@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 128/219] io_uring: abort file assignment prior to assigning creds
 Date:   Mon, 18 Apr 2022 14:11:37 +0200
-Message-Id: <20220418121214.339332027@linuxfoundation.org>
+Message-Id: <20220418121210.479578704@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,156 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit b0b14b5ba11bec56fad344a4a0b2e16449cc8b94 ]
+[ Upstream commit 701521403cfb228536b3947035c8a6eca40d8e58 ]
 
-As the potential failure of the wm8350_register_irq(),
-it should be better to check it and return error if fails.
-Also, use 'free_' in order to avoid same code.
+We need to either restore creds properly if we fail on the file
+assignment, or just do the file assignment first instead. Let's do
+the latter as it's simpler, should make no difference here for
+file assignment.
 
-Fixes: 14431aa0c5a4 ("power_supply: Add support for WM8350 PMU")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://lore.kernel.org/lkml/000000000000a7edb305dca75a50@google.com/
+Reported-by: syzbot+60c52ca98513a8760a91@syzkaller.appspotmail.com
+Fixes: 6bf9c47a3989 ("io_uring: defer file assignment")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/wm8350_power.c | 96 ++++++++++++++++++++++++-----
- 1 file changed, 82 insertions(+), 14 deletions(-)
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/wm8350_power.c b/drivers/power/supply/wm8350_power.c
-index a2740cf57ad3..c2a62e6568c6 100644
---- a/drivers/power/supply/wm8350_power.c
-+++ b/drivers/power/supply/wm8350_power.c
-@@ -410,44 +410,112 @@ static const struct power_supply_desc wm8350_usb_desc = {
-  *		Initialisation
-  *********************************************************************/
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 7a652c8eeed2..6f93bff7633c 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6729,13 +6729,14 @@ static int io_issue_sqe(struct io_kiocb *req, unsigned int issue_flags)
+ 	const struct cred *creds = NULL;
+ 	int ret;
  
--static void wm8350_init_charger(struct wm8350 *wm8350)
-+static int wm8350_init_charger(struct wm8350 *wm8350)
- {
-+	int ret;
++	if (unlikely(!io_assign_file(req, issue_flags)))
++		return -EBADF;
 +
- 	/* register our interest in charger events */
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
- 			    wm8350_charger_handler, 0, "Battery hot", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
-+	if (ret)
-+		goto err;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
- 			    wm8350_charger_handler, 0, "Battery cold", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
-+	if (ret)
-+		goto free_chg_bat_hot;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
- 			    wm8350_charger_handler, 0, "Battery fail", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
-+	if (ret)
-+		goto free_chg_bat_cold;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
- 			    wm8350_charger_handler, 0,
- 			    "Charger timeout", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
-+	if (ret)
-+		goto free_chg_bat_fail;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
- 			    wm8350_charger_handler, 0,
- 			    "Charge end", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
-+	if (ret)
-+		goto free_chg_to;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
- 			    wm8350_charger_handler, 0,
- 			    "Charge start", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
-+	if (ret)
-+		goto free_chg_end;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
- 			    wm8350_charger_handler, 0,
- 			    "Fast charge ready", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
-+	if (ret)
-+		goto free_chg_start;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
- 			    wm8350_charger_handler, 0,
- 			    "Battery <3.9V", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
-+	if (ret)
-+		goto free_chg_fast_rdy;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
- 			    wm8350_charger_handler, 0,
- 			    "Battery <3.1V", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
-+	if (ret)
-+		goto free_chg_vbatt_lt_3p9;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
- 			    wm8350_charger_handler, 0,
- 			    "Battery <2.85V", wm8350);
-+	if (ret)
-+		goto free_chg_vbatt_lt_3p1;
+ 	if (unlikely((req->flags & REQ_F_CREDS) && req->creds != current_cred()))
+ 		creds = override_creds(req->creds);
  
- 	/* and supply change events */
--	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
- 			    wm8350_charger_handler, 0, "USB", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
-+	if (ret)
-+		goto free_chg_vbatt_lt_2p85;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
- 			    wm8350_charger_handler, 0, "Wall", wm8350);
--	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
-+	if (ret)
-+		goto free_ext_usb_fb;
-+
-+	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
- 			    wm8350_charger_handler, 0, "Battery", wm8350);
-+	if (ret)
-+		goto free_ext_wall_fb;
-+
-+	return 0;
-+
-+free_ext_wall_fb:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_WALL_FB, wm8350);
-+free_ext_usb_fb:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_USB_FB, wm8350);
-+free_chg_vbatt_lt_2p85:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
-+free_chg_vbatt_lt_3p1:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
-+free_chg_vbatt_lt_3p9:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
-+free_chg_fast_rdy:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
-+free_chg_start:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
-+free_chg_end:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
-+free_chg_to:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
-+free_chg_bat_fail:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL, wm8350);
-+free_chg_bat_cold:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD, wm8350);
-+free_chg_bat_hot:
-+	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT, wm8350);
-+err:
-+	return ret;
- }
+ 	if (!io_op_defs[req->opcode].audit_skip)
+ 		audit_uring_entry(req->opcode);
+-	if (unlikely(!io_assign_file(req, issue_flags)))
+-		return -EBADF;
  
- static void free_charger_irq(struct wm8350 *wm8350)
+ 	switch (req->opcode) {
+ 	case IORING_OP_NOP:
 -- 
-2.34.1
+2.35.1
 
 
 
