@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3136505940
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E04650593C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:15:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245728AbiDROO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:14:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51740 "EHLO
+        id S245717AbiDROO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:14:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245681AbiDROMW (ORCPT
+        with ESMTP id S245689AbiDROMW (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:12:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 294AC38196;
-        Mon, 18 Apr 2022 06:11:45 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 507502DA9C;
+        Mon, 18 Apr 2022 06:11:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B863E60EFC;
-        Mon, 18 Apr 2022 13:11:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD37EC385A7;
-        Mon, 18 Apr 2022 13:11:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF7D560EFC;
+        Mon, 18 Apr 2022 13:11:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B10C385A7;
+        Mon, 18 Apr 2022 13:11:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287504;
-        bh=o3Y4MUM+DNhjUjNVPBgOfK2l3qJrVw3f+XAyqWVhVyE=;
+        s=korg; t=1650287507;
+        bh=aTsPRX5/WJ1HvRc07tnexMiO5xugUFEjbetBNdwdVAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xe7zgu+iF9L6XClbPNW2piycnCtfOeDJYnUy38Ddg8tdaHddW0merwUaKYiZSPqgi
-         q9fkM7G4OWAopisTXPE7e6HIpnCP8C7V35QJXgx4WkSebEIZ6xJAcCdqWaEhnmIIN8
-         mZ9JDxB4yN0ZU87FBMFe8kAQ0dfNkD/fRAR+hylg=
+        b=Y6GhhaaFMp8+Kvpof6h7fMsmxhQzd59AWd1Vq/OxKbhabA7HoS8WmLRigFRPOX8vH
+         Vx10Ew/fHF28gF5eN4R4mjVodLOV+HhJmFYp4GMpB10ZQENf3IOEsmdFK12HeuLMDj
+         5AjMuwT5YMRwJGyTUeWGF62VJqV98vdHY422/7LM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 183/218] SUNRPC/call_alloc: async tasks mustnt block waiting for memory
-Date:   Mon, 18 Apr 2022 14:14:09 +0200
-Message-Id: <20220418121206.237161544@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Abraham <thomas.abraham@linaro.org>,
+        Kyungmin Park <kyungmin.park@samsung.com>,
+        Hyeonkook Kim <hk619.kim@samsung.com>,
+        Jiri Slaby <jslaby@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 184/218] serial: samsung_tty: do not unlock port->lock for uart_write_wakeup()
+Date:   Mon, 18 Apr 2022 14:14:10 +0200
+Message-Id: <20220418121206.303533332@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,63 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit c487216bec83b0c5a8803e5c61433d33ad7b104d ]
+[ Upstream commit 988c7c00691008ea1daaa1235680a0da49dab4e8 ]
 
-When memory is short, new worker threads cannot be created and we depend
-on the minimum one rpciod thread to be able to handle everything.
-So it must not block waiting for memory.
+The commit c15c3747ee32 (serial: samsung: fix potential soft lockup
+during uart write) added an unlock of port->lock before
+uart_write_wakeup() and a lock after it. It was always problematic to
+write data from tty_ldisc_ops::write_wakeup and it was even documented
+that way. We fixed the line disciplines to conform to this recently.
+So if there is still a missed one, we should fix them instead of this
+workaround.
 
-mempools are particularly a problem as memory can only be released back
-to the mempool by an async rpc task running.  If all available
-workqueue threads are waiting on the mempool, no thread is available to
-return anything.
+On the top of that, s3c24xx_serial_tx_dma_complete() in this driver
+still holds the port->lock while calling uart_write_wakeup().
 
-rpc_malloc() can block, and this might cause deadlocks.
-So check RPC_IS_ASYNC(), rather than RPC_IS_SWAPPER() to determine if
-blocking is acceptable.
+So revert the wrap added by the commit above.
 
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Thomas Abraham <thomas.abraham@linaro.org>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Hyeonkook Kim <hk619.kim@samsung.com>
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Link: https://lore.kernel.org/r/20220308115153.4225-1-jslaby@suse.cz
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sched.c              | 4 +++-
- net/sunrpc/xprtrdma/transport.c | 4 +++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/tty/serial/samsung.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
-index 00d95fefdc6f..ccb9fa5812d8 100644
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -883,8 +883,10 @@ int rpc_malloc(struct rpc_task *task)
- 	struct rpc_buffer *buf;
- 	gfp_t gfp = GFP_NOIO | __GFP_NOWARN;
+diff --git a/drivers/tty/serial/samsung.c b/drivers/tty/serial/samsung.c
+index 8c89697c5357..15b9bf35457b 100644
+--- a/drivers/tty/serial/samsung.c
++++ b/drivers/tty/serial/samsung.c
+@@ -764,11 +764,8 @@ static irqreturn_t s3c24xx_serial_tx_chars(int irq, void *id)
+ 		goto out;
+ 	}
  
-+	if (RPC_IS_ASYNC(task))
-+		gfp = GFP_NOWAIT | __GFP_NOWARN;
- 	if (RPC_IS_SWAPPER(task))
--		gfp = __GFP_MEMALLOC | GFP_NOWAIT | __GFP_NOWARN;
-+		gfp |= __GFP_MEMALLOC;
+-	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS) {
+-		spin_unlock(&port->lock);
++	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
+ 		uart_write_wakeup(port);
+-		spin_lock(&port->lock);
+-	}
  
- 	size += sizeof(struct rpc_buffer);
- 	if (size <= RPC_BUFFER_MAXSIZE)
-diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
-index 3ea3bb64b6d5..f308f286e9aa 100644
---- a/net/sunrpc/xprtrdma/transport.c
-+++ b/net/sunrpc/xprtrdma/transport.c
-@@ -577,8 +577,10 @@ xprt_rdma_allocate(struct rpc_task *task)
- 		return -ENOMEM;
- 
- 	flags = RPCRDMA_DEF_GFP;
-+	if (RPC_IS_ASYNC(task))
-+		flags = GFP_NOWAIT | __GFP_NOWARN;
- 	if (RPC_IS_SWAPPER(task))
--		flags = __GFP_MEMALLOC | GFP_NOWAIT | __GFP_NOWARN;
-+		flags |= __GFP_MEMALLOC;
- 
- 	if (!rpcrdma_get_rdmabuf(r_xprt, req, flags))
- 		goto out_fail;
+ 	if (uart_circ_empty(xmit))
+ 		s3c24xx_serial_stop_tx(port);
 -- 
 2.35.1
 
