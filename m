@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DDF50558E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA7F5051F5
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240959AbiDRNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:21:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36502 "EHLO
+        id S236147AbiDRMlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242698AbiDRNSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:18:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 811173BBD0;
-        Mon, 18 Apr 2022 05:51:53 -0700 (PDT)
+        with ESMTP id S240811AbiDRMji (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FBCBB8;
+        Mon, 18 Apr 2022 05:30:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2037C612A3;
-        Mon, 18 Apr 2022 12:51:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 108C2C385A1;
-        Mon, 18 Apr 2022 12:51:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70DCBB80EC1;
+        Mon, 18 Apr 2022 12:30:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDB99C385A1;
+        Mon, 18 Apr 2022 12:30:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286312;
-        bh=UQMJBEqSEzRA2WC3QzBiQD3uGBerdW8gVgMOUOvXT4U=;
+        s=korg; t=1650285047;
+        bh=u2vTfM59zCoYXkVZjjnb6Jnt62iRrSVgGWuK04ScvMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XUIBuyxcJp/e2NwBGYdOV2lbqOIqg/U4TdtAHQfxjuFj5UF1xisouxRNXw5hQhu/8
-         oMTbJAD8Zy2gu7SnLT6G/DHdQx0gpcVkGDMYHhuvWxPzjbjnNG+NY0pZCSxzcDBRYi
-         eRl+vMMGDhvsxGOREPrF3WseOuGCS+0jDfCtzJxo=
+        b=ogFcfkpMMnW5dkkWLbCVshbMe50x7DHS4kY1md32Oz6bE3+8ssVTLb3TVYNluX4zD
+         ulN/sqR6v0G14G4qwvCbLNR8pqFLc6Sq0Btt9L+crzwzZ+OI8um6zqKpB/VH1ODapk
+         9b1uFbWmf0vaG7jF5lSiWFjylgFRUjv3ynSZqBKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/284] mtd: onenand: Check for error irq
+Subject: [PATCH 5.15 057/189] firmware: arm_scmi: Remove clear channel call on the TX channel
 Date:   Mon, 18 Apr 2022 14:11:17 +0200
-Message-Id: <20220418121213.415372840@linuxfoundation.org>
+Message-Id: <20220418121202.128702482@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 3e68f331c8c759c0daa31cc92c3449b23119a215 ]
+[ Upstream commit 98f0d68f94ea21541e0050cc64fa108ade779839 ]
 
-For the possible failure of the platform_get_irq(), the returned irq
-could be error number and will finally cause the failure of the
-request_irq().
-Consider that platform_get_irq() can now in certain cases return
--EPROBE_DEFER, and the consequences of letting request_irq() effectively
-convert that into -EINVAL, even at probe time rather than later on.
-So it might be better to check just now.
+On SCMI transports whose channels are based on a shared resource the TX
+channel area has to be acquired by the agent before placing the desired
+command into the channel and it will be then relinquished by the platform
+once the related reply has been made available into the channel.
+On an RX channel the logic is reversed with the platform acquiring the
+channel area and the agent reliquishing it once done by calling the
+scmi_clear_channel() helper.
 
-Fixes: 2c22120fbd01 ("MTD: OneNAND: interrupt based wait support")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220104162658.1988142-1-jiasheng@iscas.ac.cn
+As a consequence, even in case of error, the agent must never try to clear
+a TX channel from its side: restrict the existing clear channel call on the
+the reply path only to delayed responses since they are indeed coming from
+the RX channel.
+
+Link: https://lore.kernel.org/r/20220224152404.12877-1-cristian.marussi@arm.com
+Fixes: e9b21c96181c ("firmware: arm_scmi: Make .clear_channel optional")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/onenand/generic.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/firmware/arm_scmi/driver.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/onenand/generic.c b/drivers/mtd/onenand/generic.c
-index 125da34d8ff9..23a878e7974e 100644
---- a/drivers/mtd/onenand/generic.c
-+++ b/drivers/mtd/onenand/generic.c
-@@ -58,7 +58,12 @@ static int generic_onenand_probe(struct platform_device *pdev)
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index d76bab3aaac4..e815b8f98739 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -652,7 +652,8 @@ static void scmi_handle_response(struct scmi_chan_info *cinfo,
+ 
+ 	xfer = scmi_xfer_command_acquire(cinfo, msg_hdr);
+ 	if (IS_ERR(xfer)) {
+-		scmi_clear_channel(info, cinfo);
++		if (MSG_XTRACT_TYPE(msg_hdr) == MSG_TYPE_DELAYED_RESP)
++			scmi_clear_channel(info, cinfo);
+ 		return;
  	}
  
- 	info->onenand.mmcontrol = pdata ? pdata->mmcontrol : NULL;
--	info->onenand.irq = platform_get_irq(pdev, 0);
-+
-+	err = platform_get_irq(pdev, 0);
-+	if (err < 0)
-+		goto out_iounmap;
-+
-+	info->onenand.irq = err;
- 
- 	info->mtd.dev.parent = &pdev->dev;
- 	info->mtd.priv = &info->onenand;
 -- 
-2.34.1
+2.35.1
 
 
 
