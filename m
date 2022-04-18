@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26063505854
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 732CC505665
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244085AbiDROAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:00:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52024 "EHLO
+        id S240922AbiDRNer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:34:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244473AbiDRN5S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:18 -0400
+        with ESMTP id S244877AbiDRNa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26AED2182A;
-        Mon, 18 Apr 2022 06:07:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1255198;
+        Mon, 18 Apr 2022 05:56:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4F8860B42;
-        Mon, 18 Apr 2022 13:07:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A915FC385A7;
-        Mon, 18 Apr 2022 13:07:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46A5160FE8;
+        Mon, 18 Apr 2022 12:56:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58FB6C385A1;
+        Mon, 18 Apr 2022 12:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287256;
-        bh=vtTbVCi71M/vupRdG1i2l/f6E5cOBsbYNAh9OHVODNM=;
+        s=korg; t=1650286613;
+        bh=Mx8zchDa9SkluUW/ZUzXsfByOdpqXSxIFW/g17wQSzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrJrNWCKyj40VYfvZiPVHq2v8jOCpAu1Ih29J2T5S97QBAe8itdDT7kjhk1W1Nz+P
-         syAxgiFLNjEHEZmJKCaLQO2yQ+fGtQYZkFktLBk79Hn967W+fXtw0lUFQ9GFEWm8QO
-         +fw4+OLt+Vdk1ttAcbBvkWxJJERHufh2p9kv0nyE=
+        b=PWQQiqGbmQM1f4/kg+kZzCYB1aTjV9IrYDXRMq8stis+xQhv51paZ6ZP0xMBlyWuZ
+         Ul9pPZMDfaiPEtEWSsDeZ2YNPCZ/6KcZbNpOGLE0n6oKj3SqljE1+WtaXbALaESBgl
+         m77XnnVxdD46x58w800HZQRJi11D5DCBYMR1Ibas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 105/218] iio: adc: Add check for devm_request_threaded_irq
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        syzbot+3bc1dce0cc0052d60fde@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 190/284] can: mcba_usb: properly check endpoint type
 Date:   Mon, 18 Apr 2022 14:12:51 +0200
-Message-Id: <20220418121202.605159703@linuxfoundation.org>
+Message-Id: <20220418121217.137508291@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit b30537a4cedcacf0ade2f33ebb7610178ed1e7d7 ]
+commit 136bed0bfd3bc9c95c88aafff2d22ecb3a919f23 upstream.
 
-As the potential failure of the devm_request_threaded_irq(),
-it should be better to check the return value and return
-error if fails.
+Syzbot reported warning in usb_submit_urb() which is caused by wrong
+endpoint type. We should check that in endpoint is actually present to
+prevent this warning.
 
-Fixes: fa659a40b80b ("iio: adc: twl6030-gpadc: Use devm_* API family")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220224062849.3280966-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Found pipes are now saved to struct mcba_priv and code uses them
+directly instead of making pipes in place.
+
+Fail log:
+
+| usb 5-1: BOGUS urb xfer, pipe 3 != type 1
+| WARNING: CPU: 1 PID: 49 at drivers/usb/core/urb.c:502 usb_submit_urb+0xed2/0x18a0 drivers/usb/core/urb.c:502
+| Modules linked in:
+| CPU: 1 PID: 49 Comm: kworker/1:2 Not tainted 5.17.0-rc6-syzkaller-00184-g38f80f42147f #0
+| Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+| Workqueue: usb_hub_wq hub_event
+| RIP: 0010:usb_submit_urb+0xed2/0x18a0 drivers/usb/core/urb.c:502
+| ...
+| Call Trace:
+|  <TASK>
+|  mcba_usb_start drivers/net/can/usb/mcba_usb.c:662 [inline]
+|  mcba_usb_probe+0x8a3/0xc50 drivers/net/can/usb/mcba_usb.c:858
+|  usb_probe_interface+0x315/0x7f0 drivers/usb/core/driver.c:396
+|  call_driver_probe drivers/base/dd.c:517 [inline]
+
+Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
+Link: https://lore.kernel.org/all/20220313100903.10868-1-paskripkin@gmail.com
+Reported-and-tested-by: syzbot+3bc1dce0cc0052d60fde@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/twl6030-gpadc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/usb/mcba_usb.c |   26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
-index becbb0aef232..5075f594d97f 100644
---- a/drivers/iio/adc/twl6030-gpadc.c
-+++ b/drivers/iio/adc/twl6030-gpadc.c
-@@ -927,6 +927,8 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
- 	ret = devm_request_threaded_irq(dev, irq, NULL,
- 				twl6030_gpadc_irq_handler,
- 				IRQF_ONESHOT, "twl6030_gpadc", indio_dev);
-+	if (ret)
-+		return ret;
+--- a/drivers/net/can/usb/mcba_usb.c
++++ b/drivers/net/can/usb/mcba_usb.c
+@@ -44,10 +44,6 @@
+ #define MCBA_USB_RX_BUFF_SIZE 64
+ #define MCBA_USB_TX_BUFF_SIZE (sizeof(struct mcba_usb_msg))
  
- 	ret = twl6030_gpadc_enable_irq(TWL6030_GPADC_RT_SW1_EOC_MASK);
- 	if (ret < 0) {
--- 
-2.34.1
-
+-/* MCBA endpoint numbers */
+-#define MCBA_USB_EP_IN 1
+-#define MCBA_USB_EP_OUT 1
+-
+ /* Microchip command id */
+ #define MBCA_CMD_RECEIVE_MESSAGE 0xE3
+ #define MBCA_CMD_I_AM_ALIVE_FROM_CAN 0xF5
+@@ -95,6 +91,8 @@ struct mcba_priv {
+ 	atomic_t free_ctx_cnt;
+ 	void *rxbuf[MCBA_MAX_RX_URBS];
+ 	dma_addr_t rxbuf_dma[MCBA_MAX_RX_URBS];
++	int rx_pipe;
++	int tx_pipe;
+ };
+ 
+ /* CAN frame */
+@@ -283,10 +281,8 @@ static netdev_tx_t mcba_usb_xmit(struct
+ 
+ 	memcpy(buf, usb_msg, MCBA_USB_TX_BUFF_SIZE);
+ 
+-	usb_fill_bulk_urb(urb, priv->udev,
+-			  usb_sndbulkpipe(priv->udev, MCBA_USB_EP_OUT), buf,
+-			  MCBA_USB_TX_BUFF_SIZE, mcba_usb_write_bulk_callback,
+-			  ctx);
++	usb_fill_bulk_urb(urb, priv->udev, priv->tx_pipe, buf, MCBA_USB_TX_BUFF_SIZE,
++			  mcba_usb_write_bulk_callback, ctx);
+ 
+ 	urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 	usb_anchor_urb(urb, &priv->tx_submitted);
+@@ -621,7 +617,7 @@ static void mcba_usb_read_bulk_callback(
+ resubmit_urb:
+ 
+ 	usb_fill_bulk_urb(urb, priv->udev,
+-			  usb_rcvbulkpipe(priv->udev, MCBA_USB_EP_OUT),
++			  priv->rx_pipe,
+ 			  urb->transfer_buffer, MCBA_USB_RX_BUFF_SIZE,
+ 			  mcba_usb_read_bulk_callback, priv);
+ 
+@@ -666,7 +662,7 @@ static int mcba_usb_start(struct mcba_pr
+ 		urb->transfer_dma = buf_dma;
+ 
+ 		usb_fill_bulk_urb(urb, priv->udev,
+-				  usb_rcvbulkpipe(priv->udev, MCBA_USB_EP_IN),
++				  priv->rx_pipe,
+ 				  buf, MCBA_USB_RX_BUFF_SIZE,
+ 				  mcba_usb_read_bulk_callback, priv);
+ 		urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+@@ -820,6 +816,13 @@ static int mcba_usb_probe(struct usb_int
+ 	struct mcba_priv *priv;
+ 	int err = -ENOMEM;
+ 	struct usb_device *usbdev = interface_to_usbdev(intf);
++	struct usb_endpoint_descriptor *in, *out;
++
++	err = usb_find_common_endpoints(intf->cur_altsetting, &in, &out, NULL, NULL);
++	if (err) {
++		dev_err(&intf->dev, "Can't find endpoints\n");
++		return err;
++	}
+ 
+ 	netdev = alloc_candev(sizeof(struct mcba_priv), MCBA_MAX_TX_URBS);
+ 	if (!netdev) {
+@@ -865,6 +868,9 @@ static int mcba_usb_probe(struct usb_int
+ 		goto cleanup_free_candev;
+ 	}
+ 
++	priv->rx_pipe = usb_rcvbulkpipe(priv->udev, in->bEndpointAddress);
++	priv->tx_pipe = usb_sndbulkpipe(priv->udev, out->bEndpointAddress);
++
+ 	devm_can_led_init(netdev);
+ 
+ 	/* Start USB dev only if we have successfully registered CAN device */
 
 
