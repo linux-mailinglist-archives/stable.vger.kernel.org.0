@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE239505668
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F62505142
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241039AbiDRNev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:34:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59736 "EHLO
+        id S239006AbiDRMeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244862AbiDRNa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F091EEDC;
-        Mon, 18 Apr 2022 05:56:37 -0700 (PDT)
+        with ESMTP id S239576AbiDRMdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10755CC1;
+        Mon, 18 Apr 2022 05:24:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55A62B80E4B;
-        Mon, 18 Apr 2022 12:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A721AC385A1;
-        Mon, 18 Apr 2022 12:56:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BA9C60B40;
+        Mon, 18 Apr 2022 12:24:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DDEAC385A7;
+        Mon, 18 Apr 2022 12:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286595;
-        bh=iRQ85mKRYsLY19ccm6GGr38/D0y0r84yIinqT47YiAI=;
+        s=korg; t=1650284691;
+        bh=uaW8DEnT4sb0/ybCYpcyrSkLQYz8E36Brq7Wd8H8Qlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=stWWYssXEL9NMPPHuxBxI1+RtrZ+KDx4x65SPHjVXrv3sDaa0HpSUW1k2zBzXMiSC
-         MEmBXVybZaVYRjqbol2FeTr0wwIBnfcGuDc9yJNo4PgiEjr9hKmWE6WPWHTQ9zkkVV
-         xjUFnBesAi996LFbb6zw84n5WHy2NNR1PvKW3d7I=
+        b=VQ0mDwiwFejfZ1H25RIcnW6U47aei4FzWq/lX7ml8N6EMrWD0nYDsyRVaGFUai/ms
+         +LILsdku7m7JizyxGt/jD9IbWERcvovup3BJYJgCCBwXVYsDyfm/g5Jup0qm/kR+ul
+         h6QFsXjAkTp8J1QrS2gUC+pyzbZkGY9dvz054Kjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.14 185/284] ubifs: rename_whiteout: Fix double free for whiteout_ui->data
+        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.17 197/219] nl80211: correctly check NL80211_ATTR_REG_ALPHA2 size
 Date:   Mon, 18 Apr 2022 14:12:46 +0200
-Message-Id: <20220418121216.997971246@linuxfoundation.org>
+Message-Id: <20220418121212.387687704@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 40a8f0d5e7b3999f096570edab71c345da812e3e upstream.
+commit 6624bb34b4eb19f715db9908cca00122748765d7 upstream.
 
-'whiteout_ui->data' will be freed twice if space budget fail for
-rename whiteout operation as following process:
+We need this to be at least two bytes, so we can access
+alpha2[0] and alpha2[1]. It may be three in case some
+userspace used NUL-termination since it was NLA_STRING
+(and we also push it out with NUL-termination).
 
-rename_whiteout
-  dev = kmalloc
-  whiteout_ui->data = dev
-  kfree(whiteout_ui->data)  // Free first time
-  iput(whiteout)
-    ubifs_free_inode
-      kfree(ui->data)	    // Double free!
-
-KASAN reports:
-==================================================================
-BUG: KASAN: double-free or invalid-free in ubifs_free_inode+0x4f/0x70
-Call Trace:
-  kfree+0x117/0x490
-  ubifs_free_inode+0x4f/0x70 [ubifs]
-  i_callback+0x30/0x60
-  rcu_do_batch+0x366/0xac0
-  __do_softirq+0x133/0x57f
-
-Allocated by task 1506:
-  kmem_cache_alloc_trace+0x3c2/0x7a0
-  do_rename+0x9b7/0x1150 [ubifs]
-  ubifs_rename+0x106/0x1f0 [ubifs]
-  do_syscall_64+0x35/0x80
-
-Freed by task 1506:
-  kfree+0x117/0x490
-  do_rename.cold+0x53/0x8a [ubifs]
-  ubifs_rename+0x106/0x1f0 [ubifs]
-  do_syscall_64+0x35/0x80
-
-The buggy address belongs to the object at ffff88810238bed8 which
-belongs to the cache kmalloc-8 of size 8
-==================================================================
-
-Let ubifs_free_inode() free 'whiteout_ui->data'. BTW, delete unused
-assignment 'whiteout_ui->data_len = 0', process 'ubifs_evict_inode()
--> ubifs_jnl_delete_inode() -> ubifs_jnl_write_inode()' doesn't need it
-(because 'inc_nlink(whiteout)' won't be excuted by 'goto out_release',
- and the nlink of whiteout inode is 0).
-
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Cc: stable@vger.kernel.org
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220411114201.fd4a31f06541.Ie7ff4be2cf348d8cc28ed0d626fc54becf7ea799@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/dir.c |    2 --
- 1 file changed, 2 deletions(-)
+ net/wireless/nl80211.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1496,8 +1496,6 @@ static int do_rename(struct inode *old_d
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -519,7 +519,8 @@ static const struct nla_policy nl80211_p
+ 				   .len = IEEE80211_MAX_MESH_ID_LEN },
+ 	[NL80211_ATTR_MPATH_NEXT_HOP] = NLA_POLICY_ETH_ADDR_COMPAT,
  
- 		err = ubifs_budget_space(c, &wht_req);
- 		if (err) {
--			kfree(whiteout_ui->data);
--			whiteout_ui->data_len = 0;
- 			iput(whiteout);
- 			goto out_release;
- 		}
+-	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
++	/* allow 3 for NUL-termination, we used to declare this NLA_STRING */
++	[NL80211_ATTR_REG_ALPHA2] = NLA_POLICY_RANGE(NLA_BINARY, 2, 3),
+ 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
+ 
+ 	[NL80211_ATTR_BSS_CTS_PROT] = { .type = NLA_U8 },
 
 
