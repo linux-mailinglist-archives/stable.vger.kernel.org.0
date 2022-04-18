@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94B37505446
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E5D5053B0
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240657AbiDRNFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41104 "EHLO
+        id S240696AbiDRNBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239214AbiDRNDw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17AC3BF5A;
-        Mon, 18 Apr 2022 05:45:06 -0700 (PDT)
+        with ESMTP id S242264AbiDRM7p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4240420181;
+        Mon, 18 Apr 2022 05:40:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6F96611E4;
-        Mon, 18 Apr 2022 12:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2DF8C385A7;
-        Mon, 18 Apr 2022 12:45:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC8A4B80EC0;
+        Mon, 18 Apr 2022 12:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E604C385A1;
+        Mon, 18 Apr 2022 12:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285905;
-        bh=pZ9Cg/z8ut/ZxUUywIWgSASIaLci26urQY/3V/R3ssw=;
+        s=korg; t=1650285629;
+        bh=zfFhwuW+2QehhZz510GLnDsyoSabLcv+Oi0qhLXKq+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2qBKOOuiboO77/EcxeOa++Edd1y32Zg2uG2g0wf3imON+pxTEOPtLPSY8xWXQbv8Z
-         Kn+SNFV7vCb7EKCiaja06t9YZnNzdkm64hgcYaHVRM5WpuqbopwFCF856ac441vjNP
-         NujLQ5NH7JTFwB1h1ECvKBF0LFurs2MSU51Dpq78=
+        b=JkGXa1SktDPIybrOwKM20Lc9p2xy+pF3AjGSpqHIa0OYVdMRwAtclUSumDhpMfBTj
+         TliWrIvPd2/2gI2di6V3OSWbg9jNd0bp0W+gm54XgcYkflldXpTHg3FrWReHfAP7+i
+         WrflHcDtddHgR2hAT3vsLeDc8O/5sAIc8WLO+Dd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/63] scsi: ibmvscsis: Increase INITIAL_SRP_LIMIT to 1024
+        stable@vger.kernel.org, Peter Seiderer <ps.report@gmx.net>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.10 078/105] ath9k: Fix usage of driver-private space in tx_info
 Date:   Mon, 18 Apr 2022 14:13:20 +0200
-Message-Id: <20220418121135.701345639@linuxfoundation.org>
+Message-Id: <20220418121148.847148334@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tyrel Datwyler <tyreld@linux.ibm.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 0bade8e53279157c7cc9dd95d573b7e82223d78a ]
+commit 5a6b06f5927c940fa44026695779c30b7536474c upstream.
 
-The adapter request_limit is hardcoded to be INITIAL_SRP_LIMIT which is
-currently an arbitrary value of 800. Increase this value to 1024 which
-better matches the characteristics of the typical IBMi Initiator that
-supports 32 LUNs and a queue depth of 32.
+The ieee80211_tx_info_clear_status() helper also clears the rate counts and
+the driver-private part of struct ieee80211_tx_info, so using it breaks
+quite a few other things. So back out of using it, and instead define a
+ath-internal helper that only clears the area between the
+status_driver_data and the rates info. Combined with moving the
+ath_frame_info struct to status_driver_data, this avoids clearing anything
+we shouldn't be, and so we can keep the existing code for handling the rate
+information.
 
-This change also has the secondary benefit of being a power of two as
-required by the kfifo API. Since, Commit ab9bb6318b09 ("Partially revert
-"kfifo: fix kfifo_alloc() and kfifo_init()"") the size of IU pool for each
-target has been rounded down to 512 when attempting to kfifo_init() those
-pools with the current request_limit size of 800.
+While fixing this I also noticed that the setting of
+tx_info->status.rates[tx_rateindex].count on hardware underrun errors was
+always immediately overridden by the normal setting of the same fields, so
+rearrange the code so that the underrun detection actually takes effect.
 
-Link: https://lore.kernel.org/r/20220322194443.678433-1-tyreld@linux.ibm.com
-Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The new helper could be generalised to a 'memset_between()' helper, but
+leave it as a driver-internal helper for now since this needs to go to
+stable.
+
+Cc: stable@vger.kernel.org
+Reported-by: Peter Seiderer <ps.report@gmx.net>
+Fixes: 037250f0a45c ("ath9k: Properly clear TX status area before reporting to mac80211")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Reviewed-by: Peter Seiderer <ps.report@gmx.net>
+Tested-by: Peter Seiderer <ps.report@gmx.net>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220404204800.2681133-1-toke@toke.dk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/main.c |    2 +-
+ drivers/net/wireless/ath/ath9k/xmit.c |   30 ++++++++++++++++++++----------
+ 2 files changed, 21 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-index a929fe76102b..d5b2917aea44 100644
---- a/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-+++ b/drivers/scsi/ibmvscsi_tgt/ibmvscsi_tgt.c
-@@ -35,7 +35,7 @@
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -839,7 +839,7 @@ static bool ath9k_txq_list_has_key(struc
+ 			continue;
  
- #define IBMVSCSIS_VERSION	"v0.2"
+ 		txinfo = IEEE80211_SKB_CB(bf->bf_mpdu);
+-		fi = (struct ath_frame_info *)&txinfo->rate_driver_data[0];
++		fi = (struct ath_frame_info *)&txinfo->status.status_driver_data[0];
+ 		if (fi->keyix == keyix)
+ 			return true;
+ 	}
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -141,8 +141,8 @@ static struct ath_frame_info *get_frame_
+ {
+ 	struct ieee80211_tx_info *tx_info = IEEE80211_SKB_CB(skb);
+ 	BUILD_BUG_ON(sizeof(struct ath_frame_info) >
+-		     sizeof(tx_info->rate_driver_data));
+-	return (struct ath_frame_info *) &tx_info->rate_driver_data[0];
++		     sizeof(tx_info->status.status_driver_data));
++	return (struct ath_frame_info *) &tx_info->status.status_driver_data[0];
+ }
  
--#define	INITIAL_SRP_LIMIT	800
-+#define	INITIAL_SRP_LIMIT	1024
- #define	DEFAULT_MAX_SECTORS	256
- #define MAX_TXU			1024 * 1024
+ static void ath_send_bar(struct ath_atx_tid *tid, u16 seqno)
+@@ -2501,6 +2501,16 @@ skip_tx_complete:
+ 	spin_unlock_irqrestore(&sc->tx.txbuflock, flags);
+ }
  
--- 
-2.35.1
-
++static void ath_clear_tx_status(struct ieee80211_tx_info *tx_info)
++{
++	void *ptr = &tx_info->status;
++
++	memset(ptr + sizeof(tx_info->status.rates), 0,
++	       sizeof(tx_info->status) -
++	       sizeof(tx_info->status.rates) -
++	       sizeof(tx_info->status.status_driver_data));
++}
++
+ static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
+ 			     struct ath_tx_status *ts, int nframes, int nbad,
+ 			     int txok)
+@@ -2512,7 +2522,7 @@ static void ath_tx_rc_status(struct ath_
+ 	struct ath_hw *ah = sc->sc_ah;
+ 	u8 i, tx_rateindex;
+ 
+-	ieee80211_tx_info_clear_status(tx_info);
++	ath_clear_tx_status(tx_info);
+ 
+ 	if (txok)
+ 		tx_info->status.ack_signal = ts->ts_rssi;
+@@ -2528,6 +2538,13 @@ static void ath_tx_rc_status(struct ath_
+ 	tx_info->status.ampdu_len = nframes;
+ 	tx_info->status.ampdu_ack_len = nframes - nbad;
+ 
++	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
++
++	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
++		tx_info->status.rates[i].count = 0;
++		tx_info->status.rates[i].idx = -1;
++	}
++
+ 	if ((ts->ts_status & ATH9K_TXERR_FILT) == 0 &&
+ 	    (tx_info->flags & IEEE80211_TX_CTL_NO_ACK) == 0) {
+ 		/*
+@@ -2549,13 +2566,6 @@ static void ath_tx_rc_status(struct ath_
+ 			tx_info->status.rates[tx_rateindex].count =
+ 				hw->max_rate_tries;
+ 	}
+-
+-	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
+-		tx_info->status.rates[i].count = 0;
+-		tx_info->status.rates[i].idx = -1;
+-	}
+-
+-	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
+ }
+ 
+ static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
 
 
