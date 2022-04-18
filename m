@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 568EA50566B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 152F65053B3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241153AbiDRNex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:34:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41354 "EHLO
+        id S240714AbiDRNBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244885AbiDRNbA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:31:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C3BBB40;
-        Mon, 18 Apr 2022 05:57:09 -0700 (PDT)
+        with ESMTP id S242416AbiDRM7x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A61126111;
+        Mon, 18 Apr 2022 05:41:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7295B80D9C;
-        Mon, 18 Apr 2022 12:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5178BC385A1;
-        Mon, 18 Apr 2022 12:57:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3578960FB6;
+        Mon, 18 Apr 2022 12:41:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27E91C385A1;
+        Mon, 18 Apr 2022 12:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286626;
-        bh=CtgnVmjO7n35BM1i49bLL7QIy1XlXumsaStrof2QA5E=;
+        s=korg; t=1650285672;
+        bh=frfWCP/WFjSy1bdWI3vnHvvSGgCADe10jnfJswe0OCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcV0zCs5H3Bykpzs6qYLHgW+oT3/Oe34aBiUqY+4lCOhNfXASZ7qHytmdQh78g+zC
-         6GpUjSYdLPXm1ECy4vPLbat/u+EqF0VPuK1NOfe84wVu0Xv+I/Yt5VRLWWMWtYFX87
-         TPKxo2UAz6u9ESXtRGUeLEsGoO2gwReJo06uelWY=
+        b=zph4xvoIoWJXwKWBHxAjkTAhaq1ScJiT1KjVziWlVmcCRvU3WpJPX8fNMUyiicomM
+         Evp2foBgS614A9/OYa9Dzm/ElmhCrE/NQ9mpNjAP+mEtKIdBBYCqeBaH+sQoV90tx6
+         cmzn8aQhsSFyIuKCdMdZdzNvfHSCStFtolDYdRrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Huang Rui <ray.huang@amd.com>
-Subject: [PATCH 4.14 194/284] ACPI: CPPC: Avoid out of bounds access when parsing _CPC data
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 053/105] scsi: lpfc: Fix queue failures when recovering from PCI parity error
 Date:   Mon, 18 Apr 2022 14:12:55 +0200
-Message-Id: <20220418121217.247611588@linuxfoundation.org>
+Message-Id: <20220418121147.989206538@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 40d8abf364bcab23bc715a9221a3c8623956257b upstream.
+[ Upstream commit df0101197c4d9596682901631f3ee193ed354873 ]
 
-If the NumEntries field in the _CPC return package is less than 2, do
-not attempt to access the "Revision" element of that package, because
-it may not be present then.
+When recovering from a pci-parity error the driver is failing to re-create
+queues, causing recovery to fail. Looking deeper, it was found that the
+interrupt vector count allocated on the recovery was fewer than the vectors
+originally allocated. This disparity resulted in CPU map entries with stale
+information. When the driver tries to re-create the queues, it attempts to
+use the stale information which indicates an eq/interrupt vector that was
+no longer created.
 
-Fixes: 337aadff8e45 ("ACPI: Introduce CPU performance controls using CPPC")
-BugLink: https://lore.kernel.org/lkml/20220322143534.GC32582@xsang-OptiPlex-9020/
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix by clearng the cpup map array before enabling and requesting the IRQs
+in the lpfc_sli_reset_slot_s4 routine().
+
+Link: https://lore.kernel.org/r/20220317032737.45308-4-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/cppc_acpi.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/scsi/lpfc/lpfc_init.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -678,6 +678,11 @@ int acpi_cppc_processor_probe(struct acp
- 	cpc_obj = &out_obj->package.elements[0];
- 	if (cpc_obj->type == ACPI_TYPE_INTEGER)	{
- 		num_ent = cpc_obj->integer.value;
-+		if (num_ent <= 1) {
-+			pr_debug("Unexpected _CPC NumEntries value (%d) for CPU:%d\n",
-+				 num_ent, pr->id);
-+			goto out_free;
-+		}
- 	} else {
- 		pr_debug("Unexpected entry type(%d) for NumEntries\n",
- 				cpc_obj->type);
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 1149bfc42fe6..134e4ee5dc48 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -13614,6 +13614,8 @@ lpfc_io_slot_reset_s4(struct pci_dev *pdev)
+ 	psli->sli_flag &= ~LPFC_SLI_ACTIVE;
+ 	spin_unlock_irq(&phba->hbalock);
+ 
++	/* Init cpu_map array */
++	lpfc_cpu_map_array_init(phba);
+ 	/* Configure and enable interrupt */
+ 	intr_mode = lpfc_sli4_enable_intr(phba, phba->intr_mode);
+ 	if (intr_mode == LPFC_INTR_ERROR) {
+-- 
+2.35.1
+
 
 
