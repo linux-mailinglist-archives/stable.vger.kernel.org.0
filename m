@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89FA55057C1
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D14185054D6
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245034AbiDRNvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:51:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57300 "EHLO
+        id S241221AbiDRNLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245042AbiDRNvJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:51:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B246544A15;
-        Mon, 18 Apr 2022 06:02:11 -0700 (PDT)
+        with ESMTP id S241073AbiDRNF2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C241829CBE;
+        Mon, 18 Apr 2022 05:46:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B34260B35;
-        Mon, 18 Apr 2022 13:02:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10859C385BA;
-        Mon, 18 Apr 2022 13:02:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D0AF6101A;
+        Mon, 18 Apr 2022 12:46:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EBC3C385A7;
+        Mon, 18 Apr 2022 12:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286930;
-        bh=9ptb2AvgTBNjYtiIEWQIWRJ+tyGVOrbHjqVSdH81hVY=;
+        s=korg; t=1650285978;
+        bh=wsagDQ7SkGETtshHChyp71f71NeF0jC7jKoo5xGRCSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwvrW72ruZBC3/RtuCPgl5lD/GjKyit7GbElNcTGd+MTO/A3OkESbnix23UOdZ7mF
-         tW1Aml1rt48P2goj/WwN8xMG16sxtH7TTw6JJ25M4CsrQoQFYACJ9dXHrcQR6dXabm
-         Y1W0swl/U3QYQMLXwcJoAPZxa+lLVXOLzOFXCzmA=
+        b=Oyba9eerVku2Ww91i7XvGV0wgSTT22VcNDvPpLxOB2ApwZP09v4LWr0/XSHjXilPP
+         oORyIm+1ukygBp4LS+Da7sF0obFLnRm/X5x8btsgkbSdYIvlX8QIv85uAtFpMgh++W
+         hQWz9h6Q9J+MTw6Z7LSsNJ/i8oWES/1W91Xh8Y10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 262/284] veth: Ensure eth header is in skbs linear part
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>, Michal Hocko <mhocko@suse.com>,
+        David Hildenbrand <david@redhat.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 23/32] mm, page_alloc: fix build_zonerefs_node()
 Date:   Mon, 18 Apr 2022 14:14:03 +0200
-Message-Id: <20220418121220.057568533@linuxfoundation.org>
+Message-Id: <20220418121127.802858339@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +58,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 726e2c5929de841fdcef4e2bf995680688ae1b87 ]
+commit e553f62f10d93551eb883eca227ac54d1a4fad84 upstream.
 
-After feeding a decapsulated packet to a veth device with act_mirred,
-skb_headlen() may be 0. But veth_xmit() calls __dev_forward_skb(),
-which expects at least ETH_HLEN byte of linear data (as
-__dev_forward_skb2() calls eth_type_trans(), which pulls ETH_HLEN bytes
-unconditionally).
+Since commit 6aa303defb74 ("mm, vmscan: only allocate and reclaim from
+zones with pages managed by the buddy allocator") only zones with free
+memory are included in a built zonelist.  This is problematic when e.g.
+all memory of a zone has been ballooned out when zonelists are being
+rebuilt.
 
-Use pskb_may_pull() to ensure veth_xmit() respects this constraint.
+The decision whether to rebuild the zonelists when onlining new memory
+is done based on populated_zone() returning 0 for the zone the memory
+will be added to.  The new zone is added to the zonelists only, if it
+has free memory pages (managed_zone() returns a non-zero value) after
+the memory has been onlined.  This implies, that onlining memory will
+always free the added pages to the allocator immediately, but this is
+not true in all cases: when e.g. running as a Xen guest the onlined new
+memory will be added only to the ballooned memory list, it will be freed
+only when the guest is being ballooned up afterwards.
 
-kernel BUG at include/linux/skbuff.h:2328!
-RIP: 0010:eth_type_trans+0xcf/0x140
-Call Trace:
- <IRQ>
- __dev_forward_skb2+0xe3/0x160
- veth_xmit+0x6e/0x250 [veth]
- dev_hard_start_xmit+0xc7/0x200
- __dev_queue_xmit+0x47f/0x520
- ? skb_ensure_writable+0x85/0xa0
- ? skb_mpls_pop+0x98/0x1c0
- tcf_mirred_act+0x442/0x47e [act_mirred]
- tcf_action_exec+0x86/0x140
- fl_classify+0x1d8/0x1e0 [cls_flower]
- ? dma_pte_clear_level+0x129/0x1a0
- ? dma_pte_clear_level+0x129/0x1a0
- ? prb_fill_curr_block+0x2f/0xc0
- ? skb_copy_bits+0x11a/0x220
- __tcf_classify+0x58/0x110
- tcf_classify_ingress+0x6b/0x140
- __netif_receive_skb_core.constprop.0+0x47d/0xfd0
- ? __iommu_dma_unmap_swiotlb+0x44/0x90
- __netif_receive_skb_one_core+0x3d/0xa0
- netif_receive_skb+0x116/0x170
- be_process_rx+0x22f/0x330 [be2net]
- be_poll+0x13c/0x370 [be2net]
- __napi_poll+0x2a/0x170
- net_rx_action+0x22f/0x2f0
- __do_softirq+0xca/0x2a8
- __irq_exit_rcu+0xc1/0xe0
- common_interrupt+0x83/0xa0
+Another problem with using managed_zone() for the decision whether a
+zone is being added to the zonelists is, that a zone with all memory
+used will in fact be removed from all zonelists in case the zonelists
+happen to be rebuilt.
 
-Fixes: e314dbdc1c0d ("[NET]: Virtual ethernet device driver.")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Use populated_zone() when building a zonelist as it has been done before
+that commit.
+
+There was a report that QubesOS (based on Xen) is hitting this problem.
+Xen has switched to use the zone device functionality in kernel 5.9 and
+QubesOS wants to use memory hotplugging for guests in order to be able
+to start a guest with minimal memory and expand it as needed.  This was
+the report leading to the patch.
+
+Link: https://lkml.kernel.org/r/20220407120637.9035-1-jgross@suse.com
+Fixes: 6aa303defb74 ("mm, vmscan: only allocate and reclaim from zones with pages managed by the buddy allocator")
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reported-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+Reviewed-by: Wei Yang <richard.weiyang@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/veth.c | 2 +-
+ mm/page_alloc.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/veth.c b/drivers/net/veth.c
-index a69ad39ee57e..f0b26768a639 100644
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -106,7 +106,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	rcu_read_lock();
- 	rcv = rcu_dereference(priv->peer);
--	if (unlikely(!rcv)) {
-+	if (unlikely(!rcv) || !pskb_may_pull(skb, ETH_HLEN)) {
- 		kfree_skb(skb);
- 		goto drop;
- 	}
--- 
-2.35.1
-
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5091,7 +5091,7 @@ static int build_zonerefs_node(pg_data_t
+ 	do {
+ 		zone_type--;
+ 		zone = pgdat->node_zones + zone_type;
+-		if (managed_zone(zone)) {
++		if (populated_zone(zone)) {
+ 			zoneref_set_zone(zone, &zonerefs[nr_zones++]);
+ 			check_highest_zone(zone_type);
+ 		}
 
 
