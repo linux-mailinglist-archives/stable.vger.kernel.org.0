@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A98D550585D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 731AC50530C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245159AbiDROCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:02:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51960 "EHLO
+        id S240090AbiDRMzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245145AbiDROBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:01:42 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4E2F2CCA5;
-        Mon, 18 Apr 2022 06:09:31 -0700 (PDT)
+        with ESMTP id S240368AbiDRMyu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:54:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B281140D3;
+        Mon, 18 Apr 2022 05:35:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A1555CE10AC;
-        Mon, 18 Apr 2022 13:08:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 646C9C385A1;
-        Mon, 18 Apr 2022 13:08:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B85EAB80EDD;
+        Mon, 18 Apr 2022 12:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E252DC385A1;
+        Mon, 18 Apr 2022 12:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287321;
-        bh=I9+hmMEX95nBcS2rDU1DWsybxkUdrLHSzo3sdWdHvhs=;
+        s=korg; t=1650285308;
+        bh=v6yuNXdoFIyZYpzpbSX09Y32GwEic8VWpyIkKO0cXjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfpBC1xwV2nDcKAWEukGLlaBX6g9W4f6ZBW3qT4kycGQI2TViuNNUw522QIsThPwo
-         vajjmv+6xFY8Ya1xKn3Yt92kui4gy9kczvQ5YNBovd02OCn2lhF9Ri6jVNtOOW1lW6
-         csXvrthyqDtR5Vz94JGARH/9D3kK97QaTZRikPpM=
+        b=i6VlJjY1RvLLFAMXaF1ng8NlGJ1ZyUpBKtvR4u3Lit4IF7fU7wBZmCICsj1umkI9l
+         /WsAB2LGGqb/bZ2xercg6oLBpDwCAd1vOM0fC1gx+xMvFse25cmchMisWahhIbaTKX
+         UEp+SMfXw1juT2P7WMLW3srckStgr8MDEahfBjKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Marcin Kozlowski <marcinguy@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 084/218] scsi: pm8001: Fix command initialization in pm80XX_send_read_log()
+Subject: [PATCH 5.15 130/189] net: usb: aqc111: Fix out-of-bounds accesses in RX fixup
 Date:   Mon, 18 Apr 2022 14:12:30 +0200
-Message-Id: <20220418121202.010200013@linuxfoundation.org>
+Message-Id: <20220418121204.791949082@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Marcin Kozlowski <marcinguy@gmail.com>
 
-[ Upstream commit 1a37b6738b58d86f6b144b3fc754ace0f2e0166d ]
+[ Upstream commit afb8e246527536848b9b4025b40e613edf776a9d ]
 
-Since the sata_cmd struct is zeroed out before its fields are initialized,
-there is no need for using "|=" to initialize the ncqtag_atap_dir_m
-field. Using a standard assignment removes the sparse warning:
+aqc111_rx_fixup() contains several out-of-bounds accesses that can be
+triggered by a malicious (or defective) USB device, in particular:
 
-warning: invalid assignment: |=
+ - The metadata array (desc_offset..desc_offset+2*pkt_count) can be out of bounds,
+   causing OOB reads and (on big-endian systems) OOB endianness flips.
+ - A packet can overlap the metadata array, causing a later OOB
+   endianness flip to corrupt data used by a cloned SKB that has already
+   been handed off into the network stack.
+ - A packet SKB can be constructed whose tail is far beyond its end,
+   causing out-of-bounds heap data to be considered part of the SKB's
+   data.
 
-Also, since the ncqtag_atap_dir_m field has type __le32, use cpu_to_le32()
-to generate the assigned value.
+Found doing variant analysis. Tested it with another driver (ax88179_178a), since
+I don't have a aqc111 device to test it, but the code looks very similar.
 
-Link: https://lore.kernel.org/r/20220220031810.738362-5-damien.lemoal@opensource.wdc.com
-Fixes: c6b9ef5779c3 ("[SCSI] pm80xx: NCQ error handling changes")
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Marcin Kozlowski <marcinguy@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c | 2 +-
- drivers/scsi/pm8001/pm80xx_hwi.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/usb/aqc111.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index f374abfb7f1f..853dba857239 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -1826,7 +1826,7 @@ static void pm8001_send_read_log(struct pm8001_hba_info *pm8001_ha,
+diff --git a/drivers/net/usb/aqc111.c b/drivers/net/usb/aqc111.c
+index 73b97f4cc1ec..e8d49886d695 100644
+--- a/drivers/net/usb/aqc111.c
++++ b/drivers/net/usb/aqc111.c
+@@ -1102,10 +1102,15 @@ static int aqc111_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 	if (start_of_descs != desc_offset)
+ 		goto err;
  
- 	sata_cmd.tag = cpu_to_le32(ccb_tag);
- 	sata_cmd.device_id = cpu_to_le32(pm8001_ha_dev->device_id);
--	sata_cmd.ncqtag_atap_dir_m |= ((0x1 << 7) | (0x5 << 9));
-+	sata_cmd.ncqtag_atap_dir_m = cpu_to_le32((0x1 << 7) | (0x5 << 9));
- 	memcpy(&sata_cmd.sata_fis, &fis, sizeof(struct host_to_dev_fis));
+-	/* self check desc_offset from header*/
+-	if (desc_offset >= skb_len)
++	/* self check desc_offset from header and make sure that the
++	 * bounds of the metadata array are inside the SKB
++	 */
++	if (pkt_count * 2 + desc_offset >= skb_len)
+ 		goto err;
  
- 	res = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &sata_cmd, 0);
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index df5f0bc29587..162b819f3a89 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -1504,7 +1504,7 @@ static void pm80xx_send_read_log(struct pm8001_hba_info *pm8001_ha,
++	/* Packets must not overlap the metadata array */
++	skb_trim(skb, desc_offset);
++
+ 	if (pkt_count == 0)
+ 		goto err;
  
- 	sata_cmd.tag = cpu_to_le32(ccb_tag);
- 	sata_cmd.device_id = cpu_to_le32(pm8001_ha_dev->device_id);
--	sata_cmd.ncqtag_atap_dir_m_dad |= ((0x1 << 7) | (0x5 << 9));
-+	sata_cmd.ncqtag_atap_dir_m_dad = cpu_to_le32(((0x1 << 7) | (0x5 << 9)));
- 	memcpy(&sata_cmd.sata_fis, &fis, sizeof(struct host_to_dev_fis));
- 
- 	res = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &sata_cmd, 0);
 -- 
-2.34.1
+2.35.1
 
 
 
