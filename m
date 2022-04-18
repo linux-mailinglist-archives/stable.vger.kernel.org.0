@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B93C55054DE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 004A95053D5
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241604AbiDRNMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:12:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37042 "EHLO
+        id S234232AbiDRNCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:02:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241071AbiDRNF2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61042340E8;
-        Mon, 18 Apr 2022 05:46:27 -0700 (PDT)
+        with ESMTP id S236411AbiDRNAy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:00:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A2F231DDE;
+        Mon, 18 Apr 2022 05:42:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 258F0B80E44;
-        Mon, 18 Apr 2022 12:46:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867D5C385A1;
-        Mon, 18 Apr 2022 12:46:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA72F60FB6;
+        Mon, 18 Apr 2022 12:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7A54C385A1;
+        Mon, 18 Apr 2022 12:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285985;
-        bh=9XKXzyrtWXOZdWGEu+wkDPOgdSs9WB4Lo30G4Sm5GvM=;
+        s=korg; t=1650285723;
+        bh=Hsx+XDhKuSQxY+nQbguScR7itzsktnoERT/oXIEtSj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moeM2Fyzl3nrbNC/4sLqYySnmI+AdtgsSuJTjfYvh50Ks7rIfAPfeY6gYK4ZHCfzN
-         kbUVB4m4MOfW+JwV/4/72NoOJS7BZ5UE3CZj50slA+4eLP4IQslggPulzoetlrxh1f
-         ozHcKldOCydbie9inrDAnS8Zq0WNJXQgV/XDQ/3g=
+        b=buNbcGP4gT6eXJ8IwvgqdGSrn4kvNjDT2iYw6eSY+1peONvGHvq6KtOAYbV/QmYK2
+         o/RLrPKznnTLhGlJ387mgTae1s+a6nU1nZjHhRL2JSh4OGQ0iXYSVASPWIQD72XcnS
+         KvzTc99gn7DR1KJGFsrNir7pwq+h8QuIXlAGvXHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/32] gpiolib: acpi: use correct format characters
+        Duoming Zhou <duoming@zju.edu.cn>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 102/105] ax25: fix UAF bug in ax25_send_control()
 Date:   Mon, 18 Apr 2022 14:13:44 +0200
-Message-Id: <20220418121127.256386009@linuxfoundation.org>
+Message-Id: <20220418121149.534449844@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
-References: <20220418121127.127656835@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,97 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 213d266ebfb1621aab79cfe63388facc520a1381 ]
+commit 5352a761308397a0e6250fdc629bb3f615b94747 upstream.
 
-When compiling with -Wformat, clang emits the following warning:
+There are UAF bugs in ax25_send_control(), when we call ax25_release()
+to deallocate ax25_dev. The possible race condition is shown below:
 
-  gpiolib-acpi.c:393:4: warning: format specifies type 'unsigned char' but the argument has type 'int' [-Wformat]
-                        pin);
-                        ^~~
+      (Thread 1)              |     (Thread 2)
+ax25_dev_device_up() //(1)    |
+                              | ax25_kill_by_device()
+ax25_bind()          //(2)    |
+ax25_connect()                | ...
+ ax25->state = AX25_STATE_1   |
+ ...                          | ax25_dev_device_down() //(3)
 
-So warning that '%hhX' is paired with an 'int' is all just completely
-mindless and wrong. Sadly, I can see a different bogus warning reason
-why people would want to use '%02hhX'.
+      (Thread 3)
+ax25_release()                |
+ ax25_dev_put()  //(4) FREE   |
+ case AX25_STATE_1:           |
+  ax25_send_control()         |
+   alloc_skb()       //USE    |
 
-Again, the *sane* thing from a human perspective is to use '%02X. But
-if the compiler doesn't do any range analysis at all, it could decide
-that "Oh, that print format could need up to 8 bytes of space in the
-result". Using '%02hhX' would cut that down to two.
+The refcount of ax25_dev increases in position (1) and (2), and
+decreases in position (3) and (4). The ax25_dev will be freed
+before dereference sites in ax25_send_control().
 
-And since we use
+The following is part of the report:
 
-        char ev_name[5];
+[  102.297448] BUG: KASAN: use-after-free in ax25_send_control+0x33/0x210
+[  102.297448] Read of size 8 at addr ffff888009e6e408 by task ax25_close/602
+[  102.297448] Call Trace:
+[  102.303751]  ax25_send_control+0x33/0x210
+[  102.303751]  ax25_release+0x356/0x450
+[  102.305431]  __sock_release+0x6d/0x120
+[  102.305431]  sock_close+0xf/0x20
+[  102.305431]  __fput+0x11f/0x420
+[  102.305431]  task_work_run+0x86/0xd0
+[  102.307130]  get_signal+0x1075/0x1220
+[  102.308253]  arch_do_signal_or_restart+0x1df/0xc00
+[  102.308253]  exit_to_user_mode_prepare+0x150/0x1e0
+[  102.308253]  syscall_exit_to_user_mode+0x19/0x50
+[  102.308253]  do_syscall_64+0x48/0x90
+[  102.308253]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  102.308253] RIP: 0033:0x405ae7
 
-and currently use "_%c%02hhX" as the format string, even a compiler
-that doesn't notice that "pin <= 255" test that guards this all will
-go "OK, that's at most 4 bytes and the final NUL termination, so it's
-fine".
+This patch defers the free operation of ax25_dev and net_device after
+all corresponding dereference sites in ax25_release() to avoid UAF.
 
-While a compiler - like gcc - that only sees that the original source
-of the 'pin' value is a 'unsigned short' array, and then doesn't take
-the "pin <= 255" into account, will warn like this:
-
-  gpiolib-acpi.c: In function 'acpi_gpiochip_request_interrupt':
-  gpiolib-acpi.c:206:24: warning: '%02X' directive writing between 2 and 4 bytes into a region of size 3 [-Wformat-overflow=]
-       sprintf(ev_name, "_%c%02X",
-                            ^~~~
-  gpiolib-acpi.c:206:20: note: directive argument in the range [0, 65535]
-
-because gcc isn't being very good at that argument range analysis either.
-
-In other words, the original use of 'hhx' was bogus to begin with, and
-due to *another* compiler warning being bad, and we had that bad code
-being written back in 2016 to work around _that_ compiler warning
-(commit e40a3ae1f794: "gpio: acpi: work around false-positive
--Wstring-overflow warning").
-
-Sadly, two different bad compiler warnings together does not make for
-one good one.
-
-It just makes for even more pain.
-
-End result: I think the simplest and cleanest option is simply the
-proposed change which undoes that '%hhX' change for gcc, and replaces
-it with just using a slightly bigger stack allocation. It's not like
-a 5-byte allocation is in any way likely to have saved any actual stack,
-since all the other variables in that function are 'int' or bigger.
-
-False-positive compiler warnings really do make people write worse
-code, and that's a problem. But on a scale of bad code, I feel that
-extending the buffer trivially is better than adding a pointless cast
-that literally makes no sense.
-
-At least in this case the end result isn't unreadable or buggy. We've
-had several cases of bad compiler warnings that caused changes that
-were actually horrendously wrong.
-
-Fixes: e40a3ae1f794 ("gpio: acpi: work around false-positive -Wstring-overflow warning")
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9fd75b66b8f6 ("ax25: Fix refcount leaks caused by ax25_cb_del()")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+[OP: backport to 5.10: adjust dev_put_track()->dev_put()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpiolib-acpi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ax25/af_ax25.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 47cdc1f89e3f..6afe833031e3 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -278,8 +278,8 @@ static acpi_status acpi_gpiochip_alloc_event(struct acpi_resource *ares,
- 	pin = agpio->pin_table[0];
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -990,10 +990,6 @@ static int ax25_release(struct socket *s
+ 	sock_orphan(sk);
+ 	ax25 = sk_to_ax25(sk);
+ 	ax25_dev = ax25->ax25_dev;
+-	if (ax25_dev) {
+-		dev_put(ax25_dev->dev);
+-		ax25_dev_put(ax25_dev);
+-	}
  
- 	if (pin <= 255) {
--		char ev_name[5];
--		sprintf(ev_name, "_%c%02hhX",
-+		char ev_name[8];
-+		sprintf(ev_name, "_%c%02X",
- 			agpio->triggering == ACPI_EDGE_SENSITIVE ? 'E' : 'L',
- 			pin);
- 		if (ACPI_SUCCESS(acpi_get_handle(handle, ev_name, &evt_handle)))
--- 
-2.35.1
-
+ 	if (sk->sk_type == SOCK_SEQPACKET) {
+ 		switch (ax25->state) {
+@@ -1055,6 +1051,10 @@ static int ax25_release(struct socket *s
+ 		sk->sk_state_change(sk);
+ 		ax25_destroy_socket(ax25);
+ 	}
++	if (ax25_dev) {
++		dev_put(ax25_dev->dev);
++		ax25_dev_put(ax25_dev);
++	}
+ 
+ 	sock->sk   = NULL;
+ 	release_sock(sk);
 
 
