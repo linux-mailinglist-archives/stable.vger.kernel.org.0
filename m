@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F22575057A5
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B43C50553D
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240520AbiDRNzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45686 "EHLO
+        id S243277AbiDRNX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:23:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245717AbiDRNx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:59 -0400
+        with ESMTP id S242138AbiDRNVR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:21:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB4A013CDE;
-        Mon, 18 Apr 2022 06:03:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7B693C720;
+        Mon, 18 Apr 2022 05:52:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6827CB80E44;
-        Mon, 18 Apr 2022 13:03:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC6B7C385A7;
-        Mon, 18 Apr 2022 13:03:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C96EB80EC4;
+        Mon, 18 Apr 2022 12:52:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AF3EC385A7;
+        Mon, 18 Apr 2022 12:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286984;
-        bh=qE8UWPbT8RelWyN+oYq7RD4XhY8JxIrrtUCXbV049Zw=;
+        s=korg; t=1650286353;
+        bh=K2R+WIJWqbpCaufCB52wkjcA91D8s92Xua3AxRowpNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpIzJfmydQ4IvAhJv+7BNdaFeJOTwjHhH7rLdFPR5yXl07P7LzTmbp8ohCJkzRDbG
-         PMoEa853ICbaUGsHCqs/hOtbl1i1rb/NapxIRr6Xj7/kLDbILtnk2Gb/YGzrMTvaoJ
-         ov/kfEz19R37Rmrj87MbsNhTkE+xHtlFfJGkAO2g=
+        b=Nx6lAwUUDo4CL8kq4aArkx/SIoXwdy3GH5+tr8UU18ivvzfpa7g9ZShRoYztjEQHj
+         T7d8VxVWyATgl5VflAOa1px57jXFq4wqoCpq47+XvsvB+MhNjOSByXCo2gV7lrnRIR
+         T/QZjvYLiJqeLS62HRHhGn4AQakLbHCBYgPbbvzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugh Dickins <hughd@google.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 022/218] mempolicy: mbind_range() set_policy() after vma_merge()
-Date:   Mon, 18 Apr 2022 14:11:28 +0200
-Message-Id: <20220418121159.849894095@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 108/284] scsi: pm8001: Fix abort all task initialization
+Date:   Mon, 18 Apr 2022 14:11:29 +0200
+Message-Id: <20220418121213.987183258@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,79 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugh Dickins <hughd@google.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 4e0906008cdb56381638aa17d9c32734eae6d37a upstream.
+[ Upstream commit 7f12845c8389855dbcc67baa068b6832dc4a396e ]
 
-v2.6.34 commit 9d8cebd4bcd7 ("mm: fix mbind vma merge problem") introduced
-vma_merge() to mbind_range(); but unlike madvise, mlock and mprotect, it
-put a "continue" to next vma where its precedents go to update flags on
-current vma before advancing: that left vma with the wrong setting in the
-infamous vma_merge() case 8.
+In pm80xx_send_abort_all(), the n_elem field of the ccb used is not
+initialized to 0. This missing initialization sometimes lead to the task
+completion path seeing the ccb with a non-zero n_elem resulting in the
+execution of invalid dma_unmap_sg() calls in pm8001_ccb_task_free(),
+causing a crash such as:
 
-v3.10 commit 1444f92c8498 ("mm: merging memory blocks resets mempolicy")
-tried to fix that in vma_adjust(), without fully understanding the issue.
+[  197.676341] RIP: 0010:iommu_dma_unmap_sg+0x6d/0x280
+[  197.700204] RSP: 0018:ffff889bbcf89c88 EFLAGS: 00010012
+[  197.705485] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff83d0bda0
+[  197.712687] RDX: 0000000000000002 RSI: 0000000000000000 RDI: ffff88810dffc0d0
+[  197.719887] RBP: 0000000000000000 R08: 0000000000000000 R09: ffff8881c790098b
+[  197.727089] R10: ffffed1038f20131 R11: 0000000000000001 R12: 0000000000000000
+[  197.734296] R13: ffff88810dffc0d0 R14: 0000000000000010 R15: 0000000000000000
+[  197.741493] FS:  0000000000000000(0000) GS:ffff889bbcf80000(0000) knlGS:0000000000000000
+[  197.749659] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  197.755459] CR2: 00007f16c1b42734 CR3: 0000000004814000 CR4: 0000000000350ee0
+[  197.762656] Call Trace:
+[  197.765127]  <IRQ>
+[  197.767162]  pm8001_ccb_task_free+0x5f1/0x820 [pm80xx]
+[  197.772364]  ? do_raw_spin_unlock+0x54/0x220
+[  197.776680]  pm8001_mpi_task_abort_resp+0x2ce/0x4f0 [pm80xx]
+[  197.782406]  process_oq+0xe85/0x7890 [pm80xx]
+[  197.786817]  ? lock_acquire+0x194/0x490
+[  197.790697]  ? handle_irq_event+0x10e/0x1b0
+[  197.794920]  ? mpi_sata_completion+0x2d70/0x2d70 [pm80xx]
+[  197.800378]  ? __wake_up_bit+0x100/0x100
+[  197.804340]  ? lock_is_held_type+0x98/0x110
+[  197.808565]  pm80xx_chip_isr+0x94/0x130 [pm80xx]
+[  197.813243]  tasklet_action_common.constprop.0+0x24b/0x2f0
+[  197.818785]  __do_softirq+0x1b5/0x82d
+[  197.822485]  ? do_raw_spin_unlock+0x54/0x220
+[  197.826799]  __irq_exit_rcu+0x17e/0x1e0
+[  197.830678]  irq_exit_rcu+0xa/0x20
+[  197.834114]  common_interrupt+0x78/0x90
+[  197.840051]  </IRQ>
+[  197.844236]  <TASK>
+[  197.848397]  asm_common_interrupt+0x1e/0x40
 
-v3.11 commit 3964acd0dbec ("mm: mempolicy: fix mbind_range() &&
-vma_adjust() interaction") reverted that, and went about the fix in the
-right way, but chose to optimize out an unnecessary mpol_dup() with a
-prior mpol_equal() test.  But on tmpfs, that also pessimized out the vital
-call to its ->set_policy(), leaving the new mbind unenforced.
+Avoid this issue by always initializing the ccb n_elem field to 0 in
+pm8001_send_abort_all(), pm8001_send_read_log() and
+pm80xx_send_abort_all().
 
-The user visible effect was that the pages got allocated on the local
-node (happened to be 0), after the mbind() caller had specifically
-asked for them to be allocated on node 1.  There was not any page
-migration involved in the case reported: the pages simply got allocated
-on the wrong node.
-
-Just delete that optimization now (though it could be made conditional on
-vma not having a set_policy).  Also remove the "next" variable: it turned
-out to be blameless, but also pointless.
-
-Link: https://lkml.kernel.org/r/319e4db9-64ae-4bca-92f0-ade85d342ff@google.com
-Fixes: 3964acd0dbec ("mm: mempolicy: fix mbind_range() && vma_adjust() interaction")
-Signed-off-by: Hugh Dickins <hughd@google.com>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Reviewed-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20220220031810.738362-17-damien.lemoal@opensource.wdc.com
+Fixes: c6b9ef5779c3 ("[SCSI] pm80xx: NCQ error handling changes")
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mempolicy.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 2 ++
+ drivers/scsi/pm8001/pm80xx_hwi.c | 1 +
+ 2 files changed, 3 insertions(+)
 
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -734,7 +734,6 @@ static int vma_replace_policy(struct vm_
- static int mbind_range(struct mm_struct *mm, unsigned long start,
- 		       unsigned long end, struct mempolicy *new_pol)
- {
--	struct vm_area_struct *next;
- 	struct vm_area_struct *prev;
- 	struct vm_area_struct *vma;
- 	int err = 0;
-@@ -750,8 +749,7 @@ static int mbind_range(struct mm_struct
- 	if (start > vma->vm_start)
- 		prev = vma;
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 2889717a770e..b44bf34499a9 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -1748,6 +1748,7 @@ static void pm8001_send_abort_all(struct pm8001_hba_info *pm8001_ha,
+ 	ccb->device = pm8001_ha_dev;
+ 	ccb->ccb_tag = ccb_tag;
+ 	ccb->task = task;
++	ccb->n_elem = 0;
  
--	for (; vma && vma->vm_start < end; prev = vma, vma = next) {
--		next = vma->vm_next;
-+	for (; vma && vma->vm_start < end; prev = vma, vma = vma->vm_next) {
- 		vmstart = max(start, vma->vm_start);
- 		vmend   = min(end, vma->vm_end);
+ 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
  
-@@ -765,10 +763,6 @@ static int mbind_range(struct mm_struct
- 				 new_pol, vma->vm_userfaultfd_ctx);
- 		if (prev) {
- 			vma = prev;
--			next = vma->vm_next;
--			if (mpol_equal(vma_policy(vma), new_pol))
--				continue;
--			/* vma_merge() joined vma && vma->next, case 8 */
- 			goto replace;
- 		}
- 		if (vma->vm_start != vmstart) {
+@@ -1810,6 +1811,7 @@ static void pm8001_send_read_log(struct pm8001_hba_info *pm8001_ha,
+ 	ccb->device = pm8001_ha_dev;
+ 	ccb->ccb_tag = ccb_tag;
+ 	ccb->task = task;
++	ccb->n_elem = 0;
+ 	pm8001_ha_dev->id |= NCQ_READ_LOG_FLAG;
+ 	pm8001_ha_dev->id |= NCQ_2ND_RLE_FLAG;
+ 
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index cf037e076235..4eae727ccfbc 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -1426,6 +1426,7 @@ static void pm80xx_send_abort_all(struct pm8001_hba_info *pm8001_ha,
+ 	ccb->device = pm8001_ha_dev;
+ 	ccb->ccb_tag = ccb_tag;
+ 	ccb->task = task;
++	ccb->n_elem = 0;
+ 
+ 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
+ 
+-- 
+2.34.1
+
 
 
