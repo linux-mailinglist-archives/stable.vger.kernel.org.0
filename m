@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9EEA50533B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D7B5505601
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240488AbiDRM4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:56:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43290 "EHLO
+        id S241751AbiDRNbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:31:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240344AbiDRMzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA336322;
-        Mon, 18 Apr 2022 05:36:47 -0700 (PDT)
+        with ESMTP id S244315AbiDRNaT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85FD1DFDD;
+        Mon, 18 Apr 2022 05:54:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4462B6118A;
-        Mon, 18 Apr 2022 12:36:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38611C385A1;
-        Mon, 18 Apr 2022 12:36:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA806B80E44;
+        Mon, 18 Apr 2022 12:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24496C385A7;
+        Mon, 18 Apr 2022 12:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285406;
-        bh=zH/7jHL6dugySW0mO3c1m2IWKyPePtsE1XQOH3B06Ns=;
+        s=korg; t=1650286458;
+        bh=VlG41S13f5/y/g0ypMqTWN26Ydn3eIe8IP0Nqf/LCcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfYWN+f3r/HygpbJZONm3VfwgXt8THEDwmxGwgoaz1XnwlJkDqRlUxxiqrhPQwsRl
-         Bk8uqOh3IMOsdjikIXvIosCaOuT3zoCeAaX9eOMjBks6oYuDY2GVu7wdeKXQosrz0u
-         zm44JK2ArF09JZZH4vYIVDNCUZLnAknsxPSHXmo0=
+        b=uf4epUu8vfRqzyLEgp6lbRVan4jGV6D8Mfbr7KLT/osp072aWdvD6HvcJGZp4zRrz
+         CwEU3lpsRlZMkfHb0/syBZ6HwKZ0fUZaGTtIrva2vDqAPJujIORn2YzuHjuJBw8jo7
+         iFm+rxe48AlYSBy+hAh5LaWsnObEsEm1sbU4sUDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Philip Yang <philip.yang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.10 001/105] drm/amdkfd: Use drm_priv to pass VM from KFD to amdgpu
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 142/284] pinctrl: nomadik: Add missing of_node_put() in nmk_pinctrl_probe
 Date:   Mon, 18 Apr 2022 14:12:03 +0200
-Message-Id: <20220418121145.230114351@linuxfoundation.org>
+Message-Id: <20220418121215.533813754@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,45 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit b40a6ab2cf9213923bf8e821ce7fa7f6a0a26990 upstream.
+[ Upstream commit c09ac191b1f97cfa06f394dbfd7a5db07986cefc ]
 
-amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu needs the drm_priv to allow mmap
-to access the BO through the corresponding file descriptor. The VM can
-also be extracted from drm_priv, so drm_priv can replace the vm parameter
-in the kfd2kgd interface.
+This node pointer is returned by of_parse_phandle() with refcount
+incremented in this function. Calling of_node_put() to avoid
+the refcount leak.
 
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Philip Yang <philip.yang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-[This is a partial cherry-pick of the upstream commit.]
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 32e67eee670e ("pinctrl: nomadik: Allow prcm_base to be extracted from Device Tree")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220307115116.25316-1-linmq006@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/pinctrl/nomadik/pinctrl-nomadik.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -1024,11 +1024,15 @@ int amdgpu_amdkfd_gpuvm_acquire_process_
- 					   struct dma_fence **ef)
- {
- 	struct amdgpu_device *adev = get_amdgpu_device(kgd);
--	struct drm_file *drm_priv = filp->private_data;
--	struct amdgpu_fpriv *drv_priv = drm_priv->driver_priv;
--	struct amdgpu_vm *avm = &drv_priv->vm;
-+	struct amdgpu_fpriv *drv_priv;
-+	struct amdgpu_vm *avm;
- 	int ret;
+diff --git a/drivers/pinctrl/nomadik/pinctrl-nomadik.c b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+index a53f1a9b1ed2..69c702b366bc 100644
+--- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
++++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
+@@ -1916,8 +1916,10 @@ static int nmk_pinctrl_probe(struct platform_device *pdev)
+ 	}
  
-+	ret = amdgpu_file_to_fpriv(filp, &drv_priv);
-+	if (ret)
-+		return ret;
-+	avm = &drv_priv->vm;
-+
- 	/* Already a compute VM? */
- 	if (avm->process_info)
- 		return -EINVAL;
+ 	prcm_np = of_parse_phandle(np, "prcm", 0);
+-	if (prcm_np)
++	if (prcm_np) {
+ 		npct->prcm_base = of_iomap(prcm_np, 0);
++		of_node_put(prcm_np);
++	}
+ 	if (!npct->prcm_base) {
+ 		if (version == PINCTRL_NMK_STN8815) {
+ 			dev_info(&pdev->dev,
+-- 
+2.34.1
+
 
 
