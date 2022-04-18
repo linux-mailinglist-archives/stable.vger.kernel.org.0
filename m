@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34BB2505840
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24CCC505662
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244949AbiDROAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:00:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43936 "EHLO
+        id S240476AbiDRNep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:34:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244443AbiDRN5S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B63221825;
-        Mon, 18 Apr 2022 06:07:32 -0700 (PDT)
+        with ESMTP id S244875AbiDRNa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 642341F601;
+        Mon, 18 Apr 2022 05:56:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E628CB80E4B;
-        Mon, 18 Apr 2022 13:07:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CB4AC385A1;
-        Mon, 18 Apr 2022 13:07:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F3F4B80E44;
+        Mon, 18 Apr 2022 12:56:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82C44C385A7;
+        Mon, 18 Apr 2022 12:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287249;
-        bh=QTMR+iTwWx3TH8JNnc6RFZQ0bZ/kDUjI0lmCGDKk1zU=;
+        s=korg; t=1650286610;
+        bh=jpf1n49PwEk7KXAiKU/xbsttVCN7nX+VUnABwoWLeKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgkt/DfVzrAB8WQbZGa3WGgT1mYnxVAjM1Oxrlp5kSIzxgBn89u84IK0oGiaYNmVN
-         jg3A7il5vvGM8jQH3hjn00Q5GFimcPwH6ndG+HrbdEK2DWoYt++3HC5rFjkJVhMc7Q
-         fpmUhIHYOYoCvqGx/iClzDQ9+1gerrc7wZUVIu4o=
+        b=mw/TEFT4eT+URZ1P8+Tv8mf1p9wJvqD2kCtFadh5pDrQRnJ2UnkbkRrXu3wjWJTI0
+         mmnntDv4Qb7ctISgqxVvKkaXah9Wjcap0Vy1gyqo1uC+LNBRSEmpKSMTUxt6+pgLXH
+         Ow7PHkl5yzMabCGglosl0KtWu4mzHpnaMLiH+724=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 103/218] mxser: fix xmit_buf leak in activate when LSR == 0xff
-Date:   Mon, 18 Apr 2022 14:12:49 +0200
-Message-Id: <20220418121202.549234868@linuxfoundation.org>
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.14 189/284] can: mcba_usb: mcba_usb_start_xmit(): fix double dev_kfree_skb in error path
+Date:   Mon, 18 Apr 2022 14:12:50 +0200
+Message-Id: <20220418121217.109843903@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit cd3a4907ee334b40d7aa880c7ab310b154fd5cd4 ]
+commit 04c9b00ba83594a29813d6b1fb8fdc93a3915174 upstream.
 
-When LSR is 0xff in ->activate() (rather unlike), we return an error.
-Provided ->shutdown() is not called when ->activate() fails, nothing
-actually frees the buffer in this case.
+There is no need to call dev_kfree_skb() when usb_submit_urb() fails
+because can_put_echo_skb() deletes original skb and
+can_free_echo_skb() deletes the cloned skb.
 
-Fix this by properly freeing the buffer in a designated label. We jump
-there also from the "!info->type" if now too.
-
-Fixes: 6769140d3047 ("tty: mxser: use the tty_port_open method")
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220124071430.14907-6-jslaby@suse.cz
+Fixes: 51f3baad7de9 ("can: mcba_usb: Add support for Microchip CAN BUS Analyzer")
+Link: https://lore.kernel.org/all/20220311080208.45047-1-hbh25y@gmail.com
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/mxser.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/net/can/usb/mcba_usb.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
-index 69294ae154be..ea7f4af85d58 100644
---- a/drivers/tty/mxser.c
-+++ b/drivers/tty/mxser.c
-@@ -860,6 +860,7 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
- 	struct mxser_port *info = container_of(port, struct mxser_port, port);
- 	unsigned long page;
- 	unsigned long flags;
-+	int ret;
+--- a/drivers/net/can/usb/mcba_usb.c
++++ b/drivers/net/can/usb/mcba_usb.c
+@@ -379,7 +379,6 @@ static netdev_tx_t mcba_usb_start_xmit(s
+ xmit_failed:
+ 	can_free_echo_skb(priv->netdev, ctx->ndx);
+ 	mcba_usb_free_ctx(ctx);
+-	dev_kfree_skb(skb);
+ 	stats->tx_dropped++;
  
- 	page = __get_free_page(GFP_KERNEL);
- 	if (!page)
-@@ -869,9 +870,9 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
- 
- 	if (!info->ioaddr || !info->type) {
- 		set_bit(TTY_IO_ERROR, &tty->flags);
--		free_page(page);
- 		spin_unlock_irqrestore(&info->slock, flags);
--		return 0;
-+		ret = 0;
-+		goto err_free_xmit;
- 	}
- 	info->port.xmit_buf = (unsigned char *) page;
- 
-@@ -897,8 +898,10 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
- 		if (capable(CAP_SYS_ADMIN)) {
- 			set_bit(TTY_IO_ERROR, &tty->flags);
- 			return 0;
--		} else
--			return -ENODEV;
-+		}
-+
-+		ret = -ENODEV;
-+		goto err_free_xmit;
- 	}
- 
- 	/*
-@@ -943,6 +946,10 @@ static int mxser_activate(struct tty_port *port, struct tty_struct *tty)
- 	spin_unlock_irqrestore(&info->slock, flags);
- 
- 	return 0;
-+err_free_xmit:
-+	free_page(page);
-+	info->port.xmit_buf = NULL;
-+	return ret;
- }
- 
- /*
--- 
-2.34.1
-
+ 	return NETDEV_TX_OK;
 
 
