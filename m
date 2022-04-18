@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 498575058DE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:09:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D9555058B3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:09:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244386AbiDROLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:11:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42024 "EHLO
+        id S244448AbiDROLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:11:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343986AbiDROIp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:08:45 -0400
+        with ESMTP id S1344126AbiDROJG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:09:06 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD6C7369FB;
-        Mon, 18 Apr 2022 06:10:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 783632DAA0;
+        Mon, 18 Apr 2022 06:10:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05C41B80E4B;
-        Mon, 18 Apr 2022 13:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38435C385A1;
-        Mon, 18 Apr 2022 13:10:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CEA4B80EC0;
+        Mon, 18 Apr 2022 13:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61470C385A1;
+        Mon, 18 Apr 2022 13:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287436;
-        bh=7T3lsy2fYnnK1p1WKecsb7SoIbMqMTQ4ZR258hMvdwU=;
+        s=korg; t=1650287439;
+        bh=TRhQBaTq1RQU2v5XrX/ErsuO7w61TcFszWCKZwcjYQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W9UggCGqL7A98Tlt+CoJYZ9HBqvVV67IZJxOxGuuqXlTKZqa3iduMbmG8EUKGdgVk
-         Oy5nHUuhDEK/g4FFDmA41hBKe7E574EWCxrdyAzNRQm6U3pb8cb78WvxL3EBoa4SsP
-         RXa3zrLHI2/XGFwMTMMf56bIpryfOrHlzg2wBQog=
+        b=mY6Y/p+oJzn2O3fGJqDcKQuleyDEErcbxQglkbDbiTnJlclRsfKYaJIqmxE61abFd
+         ov3DSxcntnqaUY7oUrAkyWKEAbhsOjZ0wQBZRHMRG9YUEDdlTU1ekUfTIAr9k2nHxs
+         SXCKoUwKGLKsDWm6AsheVtbpLbWSaHGU97zC2dFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuldeep Singh <singh.kuldeep87k@gmail.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.9 160/218] ARM: dts: spear13xx: Update SPI dma properties
-Date:   Mon, 18 Apr 2022 14:13:46 +0200
-Message-Id: <20220418121204.706585415@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Martin Varghese <martin.varghese@nokia.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 4.9 161/218] openvswitch: Fixed nd target mask field in the flow dump.
+Date:   Mon, 18 Apr 2022 14:13:47 +0200
+Message-Id: <20220418121204.775752309@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,37 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuldeep Singh <singh.kuldeep87k@gmail.com>
+From: Martin Varghese <martin.varghese@nokia.com>
 
-commit 31d3687d6017c7ce6061695361598d9cda70807a upstream.
+commit f19c44452b58a84d95e209b847f5495d91c9983a upstream.
 
-Reorder dmas and dma-names property for spi controller node to make it
-compliant with bindings.
+IPv6 nd target mask was not getting populated in flow dump.
 
-Fixes: 6e8887f60f60 ("ARM: SPEAr13xx: Pass generic DW DMAC platform data from DT")
-Signed-off-by: Kuldeep Singh <singh.kuldeep87k@gmail.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Link: https://lore.kernel.org/r/20220326042313.97862-2-singh.kuldeep87k@gmail.com'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+In the function __ovs_nla_put_key the icmp code mask field was checked
+instead of icmp code key field to classify the flow as neighbour discovery.
+
+ufid:bdfbe3e5-60c2-43b0-a5ff-dfcac1c37328, recirc_id(0),dp_hash(0/0),
+skb_priority(0/0),in_port(ovs-nm1),skb_mark(0/0),ct_state(0/0),
+ct_zone(0/0),ct_mark(0/0),ct_label(0/0),
+eth(src=00:00:00:00:00:00/00:00:00:00:00:00,
+dst=00:00:00:00:00:00/00:00:00:00:00:00),
+eth_type(0x86dd),
+ipv6(src=::/::,dst=::/::,label=0/0,proto=58,tclass=0/0,hlimit=0/0,frag=no),
+icmpv6(type=135,code=0),
+nd(target=2001::2/::,
+sll=00:00:00:00:00:00/00:00:00:00:00:00,
+tll=00:00:00:00:00:00/00:00:00:00:00:00),
+packets:10, bytes:860, used:0.504s, dp:ovs, actions:ovs-nm2
+
+Fixes: e64457191a25 (openvswitch: Restructure datapath.c and flow.c)
+Signed-off-by: Martin Varghese <martin.varghese@nokia.com>
+Link: https://lore.kernel.org/r/20220328054148.3057-1-martinvarghesenokia@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/spear13xx.dtsi |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/openvswitch/flow_netlink.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/spear13xx.dtsi
-+++ b/arch/arm/boot/dts/spear13xx.dtsi
-@@ -288,9 +288,9 @@
- 				#size-cells = <0>;
- 				interrupts = <0 31 0x4>;
- 				status = "disabled";
--				dmas = <&dwdma0 4 0 0>,
--					<&dwdma0 5 0 0>;
--				dma-names = "tx", "rx";
-+				dmas = <&dwdma0 5 0 0>,
-+					<&dwdma0 4 0 0>;
-+				dma-names = "rx", "tx";
- 			};
+--- a/net/openvswitch/flow_netlink.c
++++ b/net/openvswitch/flow_netlink.c
+@@ -1713,8 +1713,8 @@ static int __ovs_nla_put_key(const struc
+ 			icmpv6_key->icmpv6_type = ntohs(output->tp.src);
+ 			icmpv6_key->icmpv6_code = ntohs(output->tp.dst);
  
- 			rtc@e0580000 {
+-			if (icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_SOLICITATION ||
+-			    icmpv6_key->icmpv6_type == NDISC_NEIGHBOUR_ADVERTISEMENT) {
++			if (swkey->tp.src == htons(NDISC_NEIGHBOUR_SOLICITATION) ||
++			    swkey->tp.src == htons(NDISC_NEIGHBOUR_ADVERTISEMENT)) {
+ 				struct ovs_key_nd *nd_key;
+ 
+ 				nla = nla_reserve(skb, OVS_KEY_ATTR_ND, sizeof(*nd_key));
 
 
