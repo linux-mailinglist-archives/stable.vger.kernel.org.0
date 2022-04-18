@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54FF9504FD5
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:15:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95795504FD3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:15:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238102AbiDRMSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:18:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46986 "EHLO
+        id S238105AbiDRMSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:18:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238123AbiDRMSA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:18:00 -0400
+        with ESMTP id S238103AbiDRMSF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:18:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEA16E0F4;
-        Mon, 18 Apr 2022 05:15:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F2FADF52;
+        Mon, 18 Apr 2022 05:15:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79A7860F09;
-        Mon, 18 Apr 2022 12:15:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AD09C385A1;
-        Mon, 18 Apr 2022 12:15:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D4EA60F0A;
+        Mon, 18 Apr 2022 12:15:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85247C385A1;
+        Mon, 18 Apr 2022 12:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284119;
-        bh=2dPRE+Zv1VmQOig1vPhXOzPvKQh29twZf5djrYUW3kE=;
+        s=korg; t=1650284122;
+        bh=xj7rmIHa3DqHO1ZkEeNlhLMTLTbRNDQMJSGBCoqnNtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U9xERDq3C+VjCBsfECAwLp0DAPfb+G15wPuxApsxFA9CBu+OiYhJYpRglttWCvWoT
-         oRv8eqZldCvBxpHAOeJTkpdBwtxOO0hT4OwSsV2pLvwn82IdLikXBMXctF/C7o9GLV
-         iSrgOKtVzsujmqVHB/s5cEznv1Y5EaCb/BZxicc0=
+        b=PXbRsPdA/QlcxcVdKQCkqjVEsAC6N+O0jvz2oiJxgrpuBMjb3jWxxxJddyNkZ2Ko+
+         aKtfYn42uEbGjAXWFP7K7Wj04gEi30HvUk3CBkRP6pFKtumum9vHR7+J+Adc2vomsi
+         AoX+tTaULN5+zNwq9NSHNQ57EzTvdEJrq5N81kZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>,
+        Luiz Angelo Daros de Luca <luizluca@gmail.com>,
         =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
         Vladimir Oltean <olteanv@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.17 005/219] net: dsa: realtek: allow subdrivers to externally lock regmap
-Date:   Mon, 18 Apr 2022 14:09:34 +0200
-Message-Id: <20220418121203.623778576@linuxfoundation.org>
+Subject: [PATCH 5.17 006/219] net: dsa: realtek: rtl8365mb: serialize indirect PHY register access
+Date:   Mon, 18 Apr 2022 14:09:35 +0200
+Message-Id: <20220418121203.651496793@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
 References: <20220418121203.462784814@linuxfoundation.org>
@@ -57,146 +60,258 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-commit 907e772f6f6debb610ea28298ab57b31019a4edb upstream.
+commit 2796728460b822d549841e0341752b263dc265c4 upstream.
 
-Currently there is no way for Realtek DSA subdrivers to serialize
-consecutive regmap accesses. In preparation for a bugfix relating to
-indirect PHY register access - which involves a series of regmap
-reads and writes - add a facility for subdrivers to serialize their
-regmap access.
+Realtek switches in the rtl8365mb family can access the PHY registers of
+the internal PHYs via the switch registers. This method is called
+indirect access. At a high level, the indirect PHY register access
+method involves reading and writing some special switch registers in a
+particular sequence. This works for both SMI and MDIO connected
+switches.
 
-Specifically, a mutex is added to the driver private data structure and
-the standard regmap is initialized with custom lock/unlock ops which use
-this mutex. Then, a "nolock" variant of the regmap is added, which is
-functionally equivalent to the existing regmap except that regmap
-locking is disabled. Functions that wish to serialize a sequence of
-regmap accesses may then lock the newly introduced driver-owned mutex
-before using the nolock regmap.
+Currently the rtl8365mb driver does not take any care to serialize the
+aforementioned access to the switch registers. In particular, it is
+permitted for other driver code to access other switch registers while
+the indirect PHY register access is ongoing. Locking is only done at the
+regmap level. This, however, is a bug: concurrent register access, even
+to unrelated switch registers, risks corrupting the PHY register value
+read back via the indirect access method described above.
 
-Doing things this way means that subdriver code that doesn't care about
-serialized register access - i.e. the vast majority of code - needn't
-worry about synchronizing register access with an external lock: it can
-just continue to use the original regmap.
+Arınç reported that the switch sometimes returns nonsense data when
+reading the PHY registers. In particular, a value of 0 causes the
+kernel's PHY subsystem to think that the link is down, but since most
+reads return correct data, the link then flip-flops between up and down
+over a period of time.
 
-Another advantage of this design is that, while regmaps with locking
-disabled do not expose a debugfs interface for obvious reasons, there
-still exists the original regmap which does expose this interface. This
-interface remains safe to use even combined with driver codepaths that
-use the nolock regmap, because said codepaths will use the same mutex
-to synchronize access.
+The aforementioned bug can be readily observed by:
 
-With respect to disadvantages, it can be argued that having
-near-duplicate regmaps is confusing. However, the naming is rather
-explicit, and examples will abound.
+ 1. Enabling ftrace events for regmap and mdio
+ 2. Polling BSMR PHY register for a connected port;
+    it should always read the same (e.g. 0x79ed)
+ 3. Wait for step 2 to give a different value
 
-Finally, while we are at it, rename realtek_smi_mdio_regmap_config to
-realtek_smi_regmap_config. This makes it consistent with the naming
-realtek_mdio_regmap_config in realtek-mdio.c.
+Example command for step 2:
 
+    while true; do phytool read swp2/2/0x01; done
+
+On my i.MX8MM, the above steps will yield a bogus value for the BSMR PHY
+register within a matter of seconds. The interleaved register access it
+then evident in the trace log:
+
+ kworker/3:4-70      [003] .......  1927.139849: regmap_reg_write: ethernet-switch reg=1004 val=bd
+     phytool-16816   [002] .......  1927.139979: regmap_reg_read: ethernet-switch reg=1f01 val=0
+ kworker/3:4-70      [003] .......  1927.140381: regmap_reg_read: ethernet-switch reg=1005 val=0
+     phytool-16816   [002] .......  1927.140468: regmap_reg_read: ethernet-switch reg=1d15 val=a69
+ kworker/3:4-70      [003] .......  1927.140864: regmap_reg_read: ethernet-switch reg=1003 val=0
+     phytool-16816   [002] .......  1927.140955: regmap_reg_write: ethernet-switch reg=1f02 val=2041
+ kworker/3:4-70      [003] .......  1927.141390: regmap_reg_read: ethernet-switch reg=1002 val=0
+     phytool-16816   [002] .......  1927.141479: regmap_reg_write: ethernet-switch reg=1f00 val=1
+ kworker/3:4-70      [003] .......  1927.142311: regmap_reg_write: ethernet-switch reg=1004 val=be
+     phytool-16816   [002] .......  1927.142410: regmap_reg_read: ethernet-switch reg=1f01 val=0
+ kworker/3:4-70      [003] .......  1927.142534: regmap_reg_read: ethernet-switch reg=1005 val=0
+     phytool-16816   [002] .......  1927.142618: regmap_reg_read: ethernet-switch reg=1f04 val=0
+     phytool-16816   [002] .......  1927.142641: mdio_access: SMI-0 read  phy:0x02 reg:0x01 val:0x0000 <- ?!
+ kworker/3:4-70      [003] .......  1927.143037: regmap_reg_read: ethernet-switch reg=1001 val=0
+ kworker/3:4-70      [003] .......  1927.143133: regmap_reg_read: ethernet-switch reg=1000 val=2d89
+ kworker/3:4-70      [003] .......  1927.143213: regmap_reg_write: ethernet-switch reg=1004 val=be
+ kworker/3:4-70      [003] .......  1927.143291: regmap_reg_read: ethernet-switch reg=1005 val=0
+ kworker/3:4-70      [003] .......  1927.143368: regmap_reg_read: ethernet-switch reg=1003 val=0
+ kworker/3:4-70      [003] .......  1927.143443: regmap_reg_read: ethernet-switch reg=1002 val=6
+
+The kworker here is polling MIB counters for stats, as evidenced by the
+register 0x1004 that we are writing to (RTL8365MB_MIB_ADDRESS_REG). This
+polling is performed every 3 seconds, but is just one example of such
+unsynchronized access. In Arınç's case, the driver was not using the
+switch IRQ, so the PHY subsystem was itself doing polling analogous to
+phytool in the above example.
+
+A test module was created [see second Link] to simulate such spurious
+switch register accesses while performing indirect PHY register reads
+and writes. Realtek was also consulted to confirm whether this is a
+known issue or not. The conclusion of these lines of inquiry is as
+follows:
+
+1. Reading of PHY registers via indirect access will be aborted if,
+   after executing the read operation (via a write to the
+   INDIRECT_ACCESS_CTRL_REG), any register is accessed, other than
+   INDIRECT_ACCESS_STATUS_REG.
+
+2. The PHY register indirect read is only complete when
+   INDIRECT_ACCESS_STATUS_REG reads zero.
+
+3. The INDIRECT_ACCESS_DATA_REG, which is read to get the result of the
+   PHY read, will contain the result of the last successful read
+   operation. If there was spurious register access and the indirect
+   read was aborted, then this register is not guaranteed to hold
+   anything meaningful and the PHY read will silently fail.
+
+4. PHY writes do not appear to be affected by this mechanism.
+
+5. Other similar access routines, such as for MIB counters, although
+   similar to the PHY indirect access method, are actually table access.
+   Table access is not affected by spurious reads or writes of other
+   registers. However, concurrent table access is not allowed. Currently
+   this is protected via mib_lock, so there is nothing to fix.
+
+The above statements are corroborated both via the test module and
+through consultation with Realtek. In particular, Realtek states that
+this is simply a property of the hardware design and is not a hardware
+bug.
+
+To fix this problem, one must guard against regmap access while the
+PHY indirect register read is executing. Fix this by using the newly
+introduced "nolock" regmap in all PHY-related functions, and by aquiring
+the regmap mutex at the top level of the PHY register access callbacks.
+Although no issue has been observed with PHY register _writes_, this
+change also serializes the indirect access method there. This is done
+purely as a matter of convenience and for reasons of symmetry.
+
+Fixes: 4af2950c50c8 ("net: dsa: realtek-smi: add rtl8365mb subdriver for RTL8365MB-VC")
+Link: https://lore.kernel.org/netdev/CAJq09z5FCgG-+jVT7uxh1a-0CiiFsoKoHYsAWJtiKwv7LXKofQ@mail.gmail.com/
+Link: https://lore.kernel.org/netdev/871qzwjmtv.fsf@bang-olufsen.dk/
+Reported-by: Arınç ÜNAL <arinc.unal@arinc9.com>
+Reported-by: Luiz Angelo Daros de Luca <luizluca@gmail.com>
 Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
 Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-[alsi: backport to 5.16: s/priv/smi/g and remove realtek-mdio changes]
+[alsi: backport to 5.16: s/priv/smi/g]
+Cc: stable@vger.kernel.org # v5.16+
 Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/realtek/realtek-smi-core.c |   48 +++++++++++++++++++++++++++--
- drivers/net/dsa/realtek/realtek-smi-core.h |    2 +
- 2 files changed, 47 insertions(+), 3 deletions(-)
+ drivers/net/dsa/realtek/rtl8365mb.c |   54 ++++++++++++++++++++++--------------
+ 1 file changed, 33 insertions(+), 21 deletions(-)
 
---- a/drivers/net/dsa/realtek/realtek-smi-core.c
-+++ b/drivers/net/dsa/realtek/realtek-smi-core.c
-@@ -315,7 +315,21 @@ static int realtek_smi_read(void *ctx, u
- 	return realtek_smi_read_reg(smi, reg, val);
+--- a/drivers/net/dsa/realtek/rtl8365mb.c
++++ b/drivers/net/dsa/realtek/rtl8365mb.c
+@@ -565,7 +565,7 @@ static int rtl8365mb_phy_poll_busy(struc
+ {
+ 	u32 val;
+ 
+-	return regmap_read_poll_timeout(smi->map,
++	return regmap_read_poll_timeout(smi->map_nolock,
+ 					RTL8365MB_INDIRECT_ACCESS_STATUS_REG,
+ 					val, !val, 10, 100);
  }
+@@ -579,7 +579,7 @@ static int rtl8365mb_phy_ocp_prepare(str
+ 	/* Set OCP prefix */
+ 	val = FIELD_GET(RTL8365MB_PHY_OCP_ADDR_PREFIX_MASK, ocp_addr);
+ 	ret = regmap_update_bits(
+-		smi->map, RTL8365MB_GPHY_OCP_MSB_0_REG,
++		smi->map_nolock, RTL8365MB_GPHY_OCP_MSB_0_REG,
+ 		RTL8365MB_GPHY_OCP_MSB_0_CFG_CPU_OCPADR_MASK,
+ 		FIELD_PREP(RTL8365MB_GPHY_OCP_MSB_0_CFG_CPU_OCPADR_MASK, val));
+ 	if (ret)
+@@ -592,8 +592,8 @@ static int rtl8365mb_phy_ocp_prepare(str
+ 			  ocp_addr >> 1);
+ 	val |= FIELD_PREP(RTL8365MB_INDIRECT_ACCESS_ADDRESS_OCPADR_9_6_MASK,
+ 			  ocp_addr >> 6);
+-	ret = regmap_write(smi->map, RTL8365MB_INDIRECT_ACCESS_ADDRESS_REG,
+-			   val);
++	ret = regmap_write(smi->map_nolock,
++			   RTL8365MB_INDIRECT_ACCESS_ADDRESS_REG, val);
+ 	if (ret)
+ 		return ret;
  
--static const struct regmap_config realtek_smi_mdio_regmap_config = {
-+static void realtek_smi_lock(void *ctx)
-+{
-+	struct realtek_smi *smi = ctx;
-+
-+	mutex_lock(&smi->map_lock);
-+}
-+
-+static void realtek_smi_unlock(void *ctx)
-+{
-+	struct realtek_smi *smi = ctx;
-+
-+	mutex_unlock(&smi->map_lock);
-+}
-+
-+static const struct regmap_config realtek_smi_regmap_config = {
- 	.reg_bits = 10, /* A4..A0 R4..R0 */
- 	.val_bits = 16,
- 	.reg_stride = 1,
-@@ -325,6 +339,21 @@ static const struct regmap_config realte
- 	.reg_read = realtek_smi_read,
- 	.reg_write = realtek_smi_write,
- 	.cache_type = REGCACHE_NONE,
-+	.lock = realtek_smi_lock,
-+	.unlock = realtek_smi_unlock,
-+};
-+
-+static const struct regmap_config realtek_smi_nolock_regmap_config = {
-+	.reg_bits = 10, /* A4..A0 R4..R0 */
-+	.val_bits = 16,
-+	.reg_stride = 1,
-+	/* PHY regs are at 0x8000 */
-+	.max_register = 0xffff,
-+	.reg_format_endian = REGMAP_ENDIAN_BIG,
-+	.reg_read = realtek_smi_read,
-+	.reg_write = realtek_smi_write,
-+	.cache_type = REGCACHE_NONE,
-+	.disable_locking = true,
- };
- 
- static int realtek_smi_mdio_read(struct mii_bus *bus, int addr, int regnum)
-@@ -388,6 +417,7 @@ static int realtek_smi_probe(struct plat
- 	const struct realtek_smi_variant *var;
- 	struct device *dev = &pdev->dev;
- 	struct realtek_smi *smi;
-+	struct regmap_config rc;
- 	struct device_node *np;
+@@ -606,36 +606,42 @@ static int rtl8365mb_phy_ocp_read(struct
+ 	u32 val;
  	int ret;
  
-@@ -398,13 +428,25 @@ static int realtek_smi_probe(struct plat
- 	if (!smi)
- 		return -ENOMEM;
- 	smi->chip_data = (void *)smi + sizeof(*smi);
--	smi->map = devm_regmap_init(dev, NULL, smi,
--				    &realtek_smi_mdio_regmap_config);
++	mutex_lock(&smi->map_lock);
 +
-+	mutex_init(&smi->map_lock);
-+
-+	rc = realtek_smi_regmap_config;
-+	rc.lock_arg = smi;
-+	smi->map = devm_regmap_init(dev, NULL, smi, &rc);
- 	if (IS_ERR(smi->map)) {
- 		ret = PTR_ERR(smi->map);
- 		dev_err(dev, "regmap init failed: %d\n", ret);
- 		return ret;
- 	}
-+
-+	rc = realtek_smi_nolock_regmap_config;
-+	smi->map_nolock = devm_regmap_init(dev, NULL, smi, &rc);
-+	if (IS_ERR(smi->map_nolock)) {
-+		ret = PTR_ERR(smi->map_nolock);
-+		dev_err(dev, "regmap init failed: %d\n", ret);
-+		return ret;
-+	}
+ 	ret = rtl8365mb_phy_poll_busy(smi);
+ 	if (ret)
+-		return ret;
++		goto out;
  
- 	/* Link forward and backward */
- 	smi->dev = dev;
---- a/drivers/net/dsa/realtek/realtek-smi-core.h
-+++ b/drivers/net/dsa/realtek/realtek-smi-core.h
-@@ -49,6 +49,8 @@ struct realtek_smi {
- 	struct gpio_desc	*mdc;
- 	struct gpio_desc	*mdio;
- 	struct regmap		*map;
-+	struct regmap		*map_nolock;
-+	struct mutex		map_lock;
- 	struct mii_bus		*slave_mii_bus;
+ 	ret = rtl8365mb_phy_ocp_prepare(smi, phy, ocp_addr);
+ 	if (ret)
+-		return ret;
++		goto out;
  
- 	unsigned int		clk_delay;
+ 	/* Execute read operation */
+ 	val = FIELD_PREP(RTL8365MB_INDIRECT_ACCESS_CTRL_CMD_MASK,
+ 			 RTL8365MB_INDIRECT_ACCESS_CTRL_CMD_VALUE) |
+ 	      FIELD_PREP(RTL8365MB_INDIRECT_ACCESS_CTRL_RW_MASK,
+ 			 RTL8365MB_INDIRECT_ACCESS_CTRL_RW_READ);
+-	ret = regmap_write(smi->map, RTL8365MB_INDIRECT_ACCESS_CTRL_REG, val);
++	ret = regmap_write(smi->map_nolock, RTL8365MB_INDIRECT_ACCESS_CTRL_REG,
++			   val);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	ret = rtl8365mb_phy_poll_busy(smi);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	/* Get PHY register data */
+-	ret = regmap_read(smi->map, RTL8365MB_INDIRECT_ACCESS_READ_DATA_REG,
+-			  &val);
++	ret = regmap_read(smi->map_nolock,
++			  RTL8365MB_INDIRECT_ACCESS_READ_DATA_REG, &val);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	*data = val & 0xFFFF;
+ 
+-	return 0;
++out:
++	mutex_unlock(&smi->map_lock);
++
++	return ret;
+ }
+ 
+ static int rtl8365mb_phy_ocp_write(struct realtek_smi *smi, int phy,
+@@ -644,32 +650,38 @@ static int rtl8365mb_phy_ocp_write(struc
+ 	u32 val;
+ 	int ret;
+ 
++	mutex_lock(&smi->map_lock);
++
+ 	ret = rtl8365mb_phy_poll_busy(smi);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	ret = rtl8365mb_phy_ocp_prepare(smi, phy, ocp_addr);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	/* Set PHY register data */
+-	ret = regmap_write(smi->map, RTL8365MB_INDIRECT_ACCESS_WRITE_DATA_REG,
+-			   data);
++	ret = regmap_write(smi->map_nolock,
++			   RTL8365MB_INDIRECT_ACCESS_WRITE_DATA_REG, data);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	/* Execute write operation */
+ 	val = FIELD_PREP(RTL8365MB_INDIRECT_ACCESS_CTRL_CMD_MASK,
+ 			 RTL8365MB_INDIRECT_ACCESS_CTRL_CMD_VALUE) |
+ 	      FIELD_PREP(RTL8365MB_INDIRECT_ACCESS_CTRL_RW_MASK,
+ 			 RTL8365MB_INDIRECT_ACCESS_CTRL_RW_WRITE);
+-	ret = regmap_write(smi->map, RTL8365MB_INDIRECT_ACCESS_CTRL_REG, val);
++	ret = regmap_write(smi->map_nolock, RTL8365MB_INDIRECT_ACCESS_CTRL_REG,
++			   val);
+ 	if (ret)
+-		return ret;
++		goto out;
+ 
+ 	ret = rtl8365mb_phy_poll_busy(smi);
+ 	if (ret)
+-		return ret;
++		goto out;
++
++out:
++	mutex_unlock(&smi->map_lock);
+ 
+ 	return 0;
+ }
 
 
