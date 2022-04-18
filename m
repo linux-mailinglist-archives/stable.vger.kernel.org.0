@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC45D5057E3
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA10D5055F4
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244231AbiDRN5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51998 "EHLO
+        id S239721AbiDRNbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:31:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244520AbiDRN4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11350B84D;
-        Mon, 18 Apr 2022 06:05:15 -0700 (PDT)
+        with ESMTP id S244553AbiDRNai (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92DB1427F7;
+        Mon, 18 Apr 2022 05:54:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98E6D60F16;
-        Mon, 18 Apr 2022 13:05:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88F35C385A1;
-        Mon, 18 Apr 2022 13:05:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E6EDB80E44;
+        Mon, 18 Apr 2022 12:54:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3EF2C385A7;
+        Mon, 18 Apr 2022 12:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287114;
-        bh=wMNVF021LBL6XlxaibP3h0LlARBOuPXuyFPyS+lytso=;
+        s=korg; t=1650286478;
+        bh=ofJ4spLJs3LiYL83YZiZiU6lv3R1zdUaKtVleqjM0Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfQ2jJLNJ6YTSF8xmWGmgXcAnyCjIgj8zN3evE4jG2Nnulkc+Lz9bVjxlbxt7aTQT
-         CHH9GrXVG67Zc8S4i32nPR4sYrnjAJVv8N7Ar0tmvMeNfWd3Xez2YpATqJbrjOSYxG
-         mH5MGuz23tyhYUJfh2y768wtq1bvtdlXa/5QMXdg=
+        b=JbChApY9B5un/u/+BhCTWRhRbcptz0ATSFoYCaNSc3hsyJPbdgHgws84C4bNkxE4m
+         e4gQ53L7xQnQjoVbBqdcAv8V1eVoBCGEep5rjZJtJ6ndWKKcllzr6QWvtcjjkNuMYh
+         LIo4XOG9KHJX4TboR8jzc+tZfvUXSsfuESG9asnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 061/218] ALSA: spi: Add check for clk_enable()
-Date:   Mon, 18 Apr 2022 14:12:07 +0200
-Message-Id: <20220418121201.358407522@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 147/284] jfs: fix divide error in dbNextAG
+Date:   Mon, 18 Apr 2022 14:12:08 +0200
+Message-Id: <20220418121215.766250246@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,90 +55,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit ca1697eb09208f0168d94b88b72f57505339cbe5 ]
+[ Upstream commit 2cc7cc01c15f57d056318c33705647f87dcd4aab ]
 
-As the potential failure of the clk_enable(),
-it should be better to check it and return error
-if fails.
+Syzbot reported divide error in dbNextAG(). The problem was in missing
+validation check for malicious image.
 
-Fixes: 3568459a5113 ("ALSA: at73c213: manage SSC clock")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20220228022839.3547266-1-jiasheng@iscas.ac.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Syzbot crafted an image with bmp->db_numag equal to 0. There wasn't any
+validation checks, but dbNextAG() blindly use bmp->db_numag in divide
+expression
+
+Fix it by validating bmp->db_numag in dbMount() and return an error if
+image is malicious
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-and-tested-by: syzbot+46f5c25af73eb8330eb6@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/spi/at73c213.c | 27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ fs/jfs/jfs_dmap.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/sound/spi/at73c213.c b/sound/spi/at73c213.c
-index fac7e6eb9529..671b4516d930 100644
---- a/sound/spi/at73c213.c
-+++ b/sound/spi/at73c213.c
-@@ -221,7 +221,9 @@ static int snd_at73c213_pcm_open(struct snd_pcm_substream *substream)
- 	runtime->hw = snd_at73c213_playback_hw;
- 	chip->substream = substream;
- 
--	clk_enable(chip->ssc->clk);
-+	err = clk_enable(chip->ssc->clk);
-+	if (err)
-+		return err;
- 
- 	return 0;
- }
-@@ -787,7 +789,9 @@ static int snd_at73c213_chip_init(struct snd_at73c213 *chip)
- 		goto out;
- 
- 	/* Enable DAC master clock. */
--	clk_enable(chip->board->dac_clk);
-+	retval = clk_enable(chip->board->dac_clk);
-+	if (retval)
-+		goto out;
- 
- 	/* Initialize at73c213 on SPI bus. */
- 	retval = snd_at73c213_write_reg(chip, DAC_RST, 0x04);
-@@ -900,7 +904,9 @@ static int snd_at73c213_dev_init(struct snd_card *card,
- 	chip->card = card;
- 	chip->irq = -1;
- 
--	clk_enable(chip->ssc->clk);
-+	retval = clk_enable(chip->ssc->clk);
-+	if (retval)
-+		return retval;
- 
- 	retval = request_irq(irq, snd_at73c213_interrupt, 0, "at73c213", chip);
- 	if (retval) {
-@@ -1019,7 +1025,9 @@ static int snd_at73c213_remove(struct spi_device *spi)
- 	int retval;
- 
- 	/* Stop playback. */
--	clk_enable(chip->ssc->clk);
-+	retval = clk_enable(chip->ssc->clk);
-+	if (retval)
-+		goto out;
- 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXDIS));
- 	clk_disable(chip->ssc->clk);
- 
-@@ -1099,9 +1107,16 @@ static int snd_at73c213_resume(struct device *dev)
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index 9ff510a489cb..6dac48e29d28 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -161,6 +161,7 @@ static const s8 budtab[256] = {
+  *	0	- success
+  *	-ENOMEM	- insufficient memory
+  *	-EIO	- i/o error
++ *	-EINVAL - wrong bmap data
+  */
+ int dbMount(struct inode *ipbmap)
  {
- 	struct snd_card *card = dev_get_drvdata(dev);
- 	struct snd_at73c213 *chip = card->private_data;
-+	int retval;
- 
--	clk_enable(chip->board->dac_clk);
--	clk_enable(chip->ssc->clk);
-+	retval = clk_enable(chip->board->dac_clk);
-+	if (retval)
-+		return retval;
-+	retval = clk_enable(chip->ssc->clk);
-+	if (retval) {
-+		clk_disable(chip->board->dac_clk);
-+		return retval;
+@@ -192,6 +193,12 @@ int dbMount(struct inode *ipbmap)
+ 	bmp->db_nfree = le64_to_cpu(dbmp_le->dn_nfree);
+ 	bmp->db_l2nbperpage = le32_to_cpu(dbmp_le->dn_l2nbperpage);
+ 	bmp->db_numag = le32_to_cpu(dbmp_le->dn_numag);
++	if (!bmp->db_numag) {
++		release_metapage(mp);
++		kfree(bmp);
++		return -EINVAL;
 +	}
- 	ssc_writel(chip->ssc->regs, CR, SSC_BIT(CR_TXEN));
- 
- 	return 0;
++
+ 	bmp->db_maxlevel = le32_to_cpu(dbmp_le->dn_maxlevel);
+ 	bmp->db_maxag = le32_to_cpu(dbmp_le->dn_maxag);
+ 	bmp->db_agpref = le32_to_cpu(dbmp_le->dn_agpref);
 -- 
 2.34.1
 
