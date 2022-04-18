@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8202B50559C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB7E505026
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242176AbiDRNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:13:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
+        id S238203AbiDRMVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:21:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243686AbiDRNKX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:23 -0400
+        with ESMTP id S238337AbiDRMV2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:21:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1AE2114C;
-        Mon, 18 Apr 2022 05:49:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36A81C107;
+        Mon, 18 Apr 2022 05:17:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0A3F8B80E4B;
-        Mon, 18 Apr 2022 12:49:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41891C385A1;
-        Mon, 18 Apr 2022 12:49:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7909CB80ED1;
+        Mon, 18 Apr 2022 12:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1FAFC385A8;
+        Mon, 18 Apr 2022 12:17:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286188;
-        bh=Cw2NlYAm/sub3uTEA3b2qIyrR3JDeMkKrC26amsoKtQ=;
+        s=korg; t=1650284244;
+        bh=mbkGRJei19FeSvQ7nvbV2M3t8MbJ7JywBOUTGXyzuPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ts/rh33Lvr1y1PinEXLgkc31/cfbM0VOwmScVuMPmhq33fKUupYcUdLpsBN0VURcn
-         U1v7PbTU1kTQxJNhpId0RIx3vt3G/jwSTGnFtzrIJR0NLnXZySxOoFo3PovirdLaKE
-         bJZkx4cs6SyhuirVfvRdnIuO1fTwcCPgMEEXeQH8=
+        b=B65ZyMGx5WfZ3GNnS69jDy4VEyCTj9WOLTfWwzNfdhMokSfOLXLInLZ5f3KOZd/X5
+         nBCzqt151rm4MkiS2CmaE9EF96XwgP0dq6YdxAlqp35fWqPuLFXJpp+jRa/67UY9oT
+         gMomvZ/BPZRkWK8ZAqgo9i9eWKbMW4RxuTPUGekg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 039/284] video: fbdev: sm712fb: Fix crash in smtcfb_read()
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 051/219] ALSA: rme96: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:10:20 +0200
-Message-Id: <20220418121211.806496442@linuxfoundation.org>
+Message-Id: <20220418121206.489897084@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit bd771cf5c4254511cc4abb88f3dab3bd58bdf8e8 upstream.
+commit 93b884f8d82f08c7af542703a724cc23cd2d5bfc upstream.
 
-Zheyu Ma reported this crash in the sm712fb driver when reading
-three bytes from the framebuffer:
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
- BUG: unable to handle page fault for address: ffffc90001ffffff
- RIP: 0010:smtcfb_read+0x230/0x3e0
- Call Trace:
-  vfs_read+0x198/0xa00
-  ? do_sys_openat2+0x27d/0x350
-  ? __fget_light+0x54/0x340
-  ksys_read+0xce/0x190
-  do_syscall_64+0x43/0x90
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-Fix it by removing the open-coded endianess fixup-code and
-by moving the pointer post decrement out the fb_readl() function.
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Cc: stable@vger.kernel.org
+Fixes: df06df7cc997 ("ALSA: rme96: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-24-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/sm712fb.c |   25 +++++++------------------
- 1 file changed, 7 insertions(+), 18 deletions(-)
+ sound/pci/rme96.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1047,7 +1047,7 @@ static ssize_t smtcfb_read(struct fb_inf
- 	if (count + p > total_size)
- 		count = total_size - p;
+--- a/sound/pci/rme96.c
++++ b/sound/pci/rme96.c
+@@ -2430,8 +2430,8 @@ static void snd_rme96_card_free(struct s
+ }
  
--	buffer = kmalloc((count > PAGE_SIZE) ? PAGE_SIZE : count, GFP_KERNEL);
-+	buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
+ static int
+-snd_rme96_probe(struct pci_dev *pci,
+-		const struct pci_device_id *pci_id)
++__snd_rme96_probe(struct pci_dev *pci,
++		  const struct pci_device_id *pci_id)
+ {
+ 	static int dev;
+ 	struct rme96 *rme96;
+@@ -2498,6 +2498,12 @@ snd_rme96_probe(struct pci_dev *pci,
+ 	return 0;
+ }
  
-@@ -1059,25 +1059,14 @@ static ssize_t smtcfb_read(struct fb_inf
- 	while (count) {
- 		c = (count > PAGE_SIZE) ? PAGE_SIZE : count;
- 		dst = buffer;
--		for (i = c >> 2; i--;) {
--			*dst = fb_readl(src++);
--			*dst = big_swap(*dst);
-+		for (i = (c + 3) >> 2; i--;) {
-+			u32 val;
++static int snd_rme96_probe(struct pci_dev *pci,
++			   const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_rme96_probe(pci, pci_id));
++}
 +
-+			val = fb_readl(src);
-+			*dst = big_swap(val);
-+			src++;
- 			dst++;
- 		}
--		if (c & 3) {
--			u8 *dst8 = (u8 *)dst;
--			u8 __iomem *src8 = (u8 __iomem *)src;
--
--			for (i = c & 3; i--;) {
--				if (i & 1) {
--					*dst8++ = fb_readb(++src8);
--				} else {
--					*dst8++ = fb_readb(--src8);
--					src8 += 2;
--				}
--			}
--			src = (u32 __iomem *)src8;
--		}
- 
- 		if (copy_to_user(buf, buffer, c)) {
- 			err = -EFAULT;
+ static struct pci_driver rme96_driver = {
+ 	.name = KBUILD_MODNAME,
+ 	.id_table = snd_rme96_ids,
 
 
