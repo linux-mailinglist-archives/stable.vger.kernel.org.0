@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B781250510F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96C675051D2
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235704AbiDRMaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:30:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53712 "EHLO
+        id S230144AbiDRMke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:40:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238894AbiDRMaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:30:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EA482458E;
-        Mon, 18 Apr 2022 05:23:31 -0700 (PDT)
+        with ESMTP id S240776AbiDRMjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B89EF12772;
+        Mon, 18 Apr 2022 05:30:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B73DD60FB6;
-        Mon, 18 Apr 2022 12:23:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFFAC385A1;
-        Mon, 18 Apr 2022 12:23:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64C51B80ED6;
+        Mon, 18 Apr 2022 12:30:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A7CC385A1;
+        Mon, 18 Apr 2022 12:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284610;
-        bh=bjCjhv8haIP+MHw/BiUZCXR2FoFiviSuC5QqBleHCf0=;
+        s=korg; t=1650285030;
+        bh=hGsffzSflV0Zcd6vbMjc21DkqfkVDRAZ+jfyzuDs23Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4pZX3nDQwv789XLOKKFXUBLfVoQGJdv7QFWKsxri31bPpHd6snxODgxVguTj1p/B
-         b58CM2ord8+TZiAkm6IFeMj5UDiFrSbXqb6th2WTIWX131Urvw9nauVGt95NnvoJ3g
-         W200j89S4H2INhYqlcICGayG8aqvBIM6kGzZCFxM=
+        b=nYVdHyz3rbnLP0xoswKR36uS9t5EstnKMga+nmlL/tGPhMgRevmUUWILfrTFczFeA
+         f3klwqfrzDnSkGCOBDEFibAPPmlexHBALAdrGQAnC/RPeGCX8dlCghp5k5vedHdhJn
+         tmQ062RAyniOTmM57ToTDZPltV4wiViFjFOh4/Kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 133/219] drm/amdgpu: conduct a proper cleanup of PDB bo
-Date:   Mon, 18 Apr 2022 14:11:42 +0200
-Message-Id: <20220418121210.617946033@linuxfoundation.org>
+Subject: [PATCH 5.15 083/189] scsi: iscsi: Fix endpoint reuse regression
+Date:   Mon, 18 Apr 2022 14:11:43 +0200
+Message-Id: <20220418121202.863814974@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +56,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 2d505453f38e18d42ba7d5428aaa17aaa7752c65 ]
+[ Upstream commit 0aadafb5c34403a7cced1a8d61877048dc059f70 ]
 
-Use amdgpu_bo_free_kernel instead of amdgpu_bo_unref to
-perform a proper cleanup of PDB bo.
+This patch fixes a bug where when using iSCSI offload we can free an
+endpoint while userspace still thinks it's active. That then causes the
+endpoint ID to be reused for a new connection's endpoint while userspace
+still thinks the ID is for the original connection. Userspace will then end
+up disconnecting a running connection's endpoint or trying to bind to
+another connection's endpoint.
 
-v2: update subject to be more accurate
+This bug is a regression added in:
 
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Commit 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
+
+where we added a in kernel ep_disconnect call to fix a bug in:
+
+Commit 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in
+kernel space")
+
+where we would call stop_conn without having done ep_disconnect. This early
+ep_disconnect call will then free the endpoint and it's ID while userspace
+still thinks the ID is valid.
+
+Fix the early release of the ID by having the in kernel recovery code keep
+a reference to the endpoint until userspace has called into the kernel to
+finish cleaning up the endpoint/connection. It requires the previous commit
+"scsi: iscsi: Release endpoint ID when its freed" which moved the freeing
+of the ID until when the endpoint is released.
+
+Link: https://lore.kernel.org/r/20220408001314.5014-5-michael.christie@oracle.com
+Fixes: 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
+Tested-by: Manish Rangankar <mrangankar@marvell.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_transport_iscsi.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-index 88c1eb9ad068..34ee75cf7954 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-@@ -1684,7 +1684,7 @@ static int gmc_v9_0_sw_fini(void *handle)
- 	amdgpu_gem_force_release(adev);
- 	amdgpu_vm_manager_fini(adev);
- 	amdgpu_gart_table_vram_free(adev);
--	amdgpu_bo_unref(&adev->gmc.pdb0_bo);
-+	amdgpu_bo_free_kernel(&adev->gmc.pdb0_bo, NULL, &adev->gmc.ptr_pdb0);
- 	amdgpu_bo_fini(adev);
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 03cda2da80ef..4fa2fd7f4c72 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2267,7 +2267,11 @@ static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
+ 		mutex_unlock(&conn->ep_mutex);
  
- 	return 0;
+ 		flush_work(&conn->cleanup_work);
+-
++		/*
++		 * Userspace is now done with the EP so we can release the ref
++		 * iscsi_cleanup_conn_work_fn took.
++		 */
++		iscsi_put_endpoint(ep);
+ 		mutex_lock(&conn->ep_mutex);
+ 	}
+ }
+@@ -2342,6 +2346,12 @@ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
+ 		return;
+ 	}
+ 
++	/*
++	 * Get a ref to the ep, so we don't release its ID until after
++	 * userspace is done referencing it in iscsi_if_disconnect_bound_ep.
++	 */
++	if (conn->ep)
++		get_device(&conn->ep->dev);
+ 	iscsi_ep_disconnect(conn, false);
+ 
+ 	if (system_state != SYSTEM_RUNNING) {
 -- 
 2.35.1
 
