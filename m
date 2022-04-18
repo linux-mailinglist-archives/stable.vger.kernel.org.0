@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F7DA505415
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CEF350532C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240903AbiDRNED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41140 "EHLO
+        id S240143AbiDRMz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241476AbiDRNDH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E167338A9;
-        Mon, 18 Apr 2022 05:43:31 -0700 (PDT)
+        with ESMTP id S240318AbiDRMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB737644;
+        Mon, 18 Apr 2022 05:36:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CA4D60FB6;
-        Mon, 18 Apr 2022 12:43:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D4CC385A7;
-        Mon, 18 Apr 2022 12:43:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 173C4B80EC4;
+        Mon, 18 Apr 2022 12:36:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B7F8C385A7;
+        Mon, 18 Apr 2022 12:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285810;
-        bh=YM5jbNuYoDJbbdPNVsAyxItLgFYeipZZZly7PYJXEZs=;
+        s=korg; t=1650285377;
+        bh=4hjNYSm6Wj/1vPSJiNLmluQsl5jfLcqmtgk+7KExBpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNppVUgLb/+pZmBz3oQNbvmS4975LmHlHRB9Nl6mUpEubsHdk0N4BKcW8y051Lm69
-         1Djg537sA0OB1gZkiDuuHW0XqNkJh6To8VAhc7lT+LyUAUIBGW8cyT1nNF2erz3rwU
-         /AL+/dBj+RKMEvwTTXJb24cPrBzyXF0MaQ8Vlsrw=
+        b=k7XLMQ7bRpItoIdBjAMjZZ6Pak5cRoRZApTWgfrKcUuyq3MTgcfHYsWeNHf1VK27I
+         ywt6VPb685MrD6Qu/r/21mRbAhvDyJArJUBVVFTmgAbDMlr9DDHRKl6/IwMlOVgOzQ
+         HBJU7eQcZgBptGgfc/2KZiQ7VXzgMOuyQf4RC8qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/63] powerpc: Fix virt_addr_valid() for 64-bit Book3E & 32-bit
+        Duoming Zhou <duoming@zju.edu.cn>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.15 189/189] ax25: Fix UAF bugs in ax25 timers
 Date:   Mon, 18 Apr 2022 14:13:29 +0200
-Message-Id: <20220418121136.316682264@linuxfoundation.org>
+Message-Id: <20220418121208.834969824@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit ffa0b64e3be58519ae472ea29a1a1ad681e32f48 ]
+commit 82e31755e55fbcea6a9dfaae5fe4860ade17cbc0 upstream.
 
-mpe: On 64-bit Book3E vmalloc space starts at 0x8000000000000000.
+There are race conditions that may lead to UAF bugs in
+ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
+ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we call
+ax25_release() to deallocate ax25_dev.
 
-Because of the way __pa() works we have:
-  __pa(0x8000000000000000) == 0, and therefore
-  virt_to_pfn(0x8000000000000000) == 0, and therefore
-  virt_addr_valid(0x8000000000000000) == true
+One of the UAF bugs caused by ax25_release() is shown below:
 
-Which is wrong, virt_addr_valid() should be false for vmalloc space.
-In fact all vmalloc addresses that alias with a valid PFN will return
-true from virt_addr_valid(). That can cause bugs with hardened usercopy
-as described below by Kefeng Wang:
+      (Thread 1)                    |      (Thread 2)
+ax25_dev_device_up() //(1)          |
+...                                 | ax25_kill_by_device()
+ax25_bind()          //(2)          |
+ax25_connect()                      | ...
+ ax25_std_establish_data_link()     |
+  ax25_start_t1timer()              | ax25_dev_device_down() //(3)
+   mod_timer(&ax25->t1timer,..)     |
+                                    | ax25_release()
+   (wait a time)                    |  ...
+                                    |  ax25_dev_put(ax25_dev) //(4)FREE
+   ax25_t1timer_expiry()            |
+    ax25->ax25_dev->values[..] //USE|  ...
+     ...                            |
 
-  When running ethtool eth0 on 64-bit Book3E, a BUG occurred:
+We increase the refcount of ax25_dev in position (1) and (2), and
+decrease the refcount of ax25_dev in position (3) and (4).
+The ax25_dev will be freed in position (4) and be used in
+ax25_t1timer_expiry().
 
-    usercopy: Kernel memory exposure attempt detected from SLUB object not in SLUB page?! (offset 0, size 1048)!
-    kernel BUG at mm/usercopy.c:99
-    ...
-    usercopy_abort+0x64/0xa0 (unreliable)
-    __check_heap_object+0x168/0x190
-    __check_object_size+0x1a0/0x200
-    dev_ethtool+0x2494/0x2b20
-    dev_ioctl+0x5d0/0x770
-    sock_do_ioctl+0xf0/0x1d0
-    sock_ioctl+0x3ec/0x5a0
-    __se_sys_ioctl+0xf0/0x160
-    system_call_exception+0xfc/0x1f0
-    system_call_common+0xf8/0x200
+The fail log is shown below:
+==============================================================
 
-  The code shows below,
+[  106.116942] BUG: KASAN: use-after-free in ax25_t1timer_expiry+0x1c/0x60
+[  106.116942] Read of size 8 at addr ffff88800bda9028 by task swapper/0/0
+[  106.116942] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-06123-g0905eec574
+[  106.116942] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-14
+[  106.116942] Call Trace:
+...
+[  106.116942]  ax25_t1timer_expiry+0x1c/0x60
+[  106.116942]  call_timer_fn+0x122/0x3d0
+[  106.116942]  __run_timers.part.0+0x3f6/0x520
+[  106.116942]  run_timer_softirq+0x4f/0xb0
+[  106.116942]  __do_softirq+0x1c2/0x651
+...
 
-    data = vzalloc(array_size(gstrings.len, ETH_GSTRING_LEN));
-    copy_to_user(useraddr, data, gstrings.len * ETH_GSTRING_LEN))
+This patch adds del_timer_sync() in ax25_release(), which could ensure
+that all timers stop before we deallocate ax25_dev.
 
-  The data is alloced by vmalloc(), virt_addr_valid(ptr) will return true
-  on 64-bit Book3E, which leads to the panic.
-
-  As commit 4dd7554a6456 ("powerpc/64: Add VIRTUAL_BUG_ON checks for __va
-  and __pa addresses") does, make sure the virt addr above PAGE_OFFSET in
-  the virt_addr_valid() for 64-bit, also add upper limit check to make
-  sure the virt is below high_memory.
-
-  Meanwhile, for 32-bit PAGE_OFFSET is the virtual address of the start
-  of lowmem, high_memory is the upper low virtual address, the check is
-  suitable for 32-bit, this will fix the issue mentioned in commit
-  602946ec2f90 ("powerpc: Set max_mapnr correctly") too.
-
-On 32-bit there is a similar problem with high memory, that was fixed in
-commit 602946ec2f90 ("powerpc: Set max_mapnr correctly"), but that
-commit breaks highmem and needs to be reverted.
-
-We can't easily fix __pa(), we have code that relies on its current
-behaviour. So for now add extra checks to virt_addr_valid().
-
-For 64-bit Book3S the extra checks are not necessary, the combination of
-virt_to_pfn() and pfn_valid() should yield the correct result, but they
-are harmless.
-
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Add additional change log detail]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220406145802.538416-1-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+[OP: backport to 5.15: adjust context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/page.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/ax25/af_ax25.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/page.h b/arch/powerpc/include/asm/page.h
-index 6ba5adb96a3b..0d8f9246ce15 100644
---- a/arch/powerpc/include/asm/page.h
-+++ b/arch/powerpc/include/asm/page.h
-@@ -132,7 +132,11 @@ static inline bool pfn_valid(unsigned long pfn)
- #define virt_to_page(kaddr)	pfn_to_page(virt_to_pfn(kaddr))
- #define pfn_to_kaddr(pfn)	__va((pfn) << PAGE_SHIFT)
- 
--#define virt_addr_valid(kaddr)	pfn_valid(virt_to_pfn(kaddr))
-+#define virt_addr_valid(vaddr)	({					\
-+	unsigned long _addr = (unsigned long)vaddr;			\
-+	_addr >= PAGE_OFFSET && _addr < (unsigned long)high_memory &&	\
-+	pfn_valid(virt_to_pfn(_addr));					\
-+})
- 
- /*
-  * On Book-E parts we need __va to parse the device tree and we can't
--- 
-2.35.1
-
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -1053,6 +1053,11 @@ static int ax25_release(struct socket *s
+ 		ax25_destroy_socket(ax25);
+ 	}
+ 	if (ax25_dev) {
++		del_timer_sync(&ax25->timer);
++		del_timer_sync(&ax25->t1timer);
++		del_timer_sync(&ax25->t2timer);
++		del_timer_sync(&ax25->t3timer);
++		del_timer_sync(&ax25->idletimer);
+ 		dev_put(ax25_dev->dev);
+ 		ax25_dev_put(ax25_dev);
+ 	}
 
 
