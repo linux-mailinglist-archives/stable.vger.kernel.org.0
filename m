@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE24C505177
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 362955052E2
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239107AbiDRMe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53930 "EHLO
+        id S240485AbiDRMxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:53:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239728AbiDRMdW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77EA913DCE;
-        Mon, 18 Apr 2022 05:25:22 -0700 (PDT)
+        with ESMTP id S240084AbiDRMw2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:52:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67ABD2D1FE;
+        Mon, 18 Apr 2022 05:34:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CAFDB80ED6;
-        Mon, 18 Apr 2022 12:25:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3C4CC385A7;
-        Mon, 18 Apr 2022 12:25:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F27A7611D1;
+        Mon, 18 Apr 2022 12:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0B61C385A1;
+        Mon, 18 Apr 2022 12:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284720;
-        bh=8aq8etiejXnzTulB0gCT3uDujb/HFTZyXETxFWIJ2lg=;
+        s=korg; t=1650285266;
+        bh=epETK8RMdi/qHauVcO3oyZYPjLD8fCCYT0QAkxHcJgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+3Q8AB9lg6UMUk1gpEH2LCoPM6CXp1H5QJoQ1Ht+4+tzFtx3ozt6WF0EbyIpaq7/
-         zl2OzQCx1kqpC0th1xBvkuTucQnGbvzFgSxOMFKACxyNsAISSCbwvw7YUuSp9w7IQe
-         RMaG1P+dQT3KWP9i3Y8eH+3cI8kIKKUxnqCtJqX0=
+        b=RM7sZPCP+YmyC1ZMsz0/2JpdGU/94X8psuasxV3hid7fFoKFVrTc0y1TjVUshFFEJ
+         FzCFVILrZXHyk1ETxjtx5/DfzzR11Hw2A++134N7bw5YpzgBADDex5nWym95YDgH2m
+         tgDEQ7Q0EGexp2ezdqshHOjDEwJhcClhukfIB/x0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.17 205/219] ARM: davinci: da850-evm: Avoid NULL pointer dereference
+        stable@vger.kernel.org, Bagas Sanjaya <bagasdotme@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 5.15 154/189] ath9k: Properly clear TX status area before reporting to mac80211
 Date:   Mon, 18 Apr 2022 14:12:54 +0200
-Message-Id: <20220418121212.607071973@linuxfoundation.org>
+Message-Id: <20220418121206.392831461@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Toke Høiland-Jørgensen <toke@toke.dk>
 
-commit 83a1cde5c74bfb44b49cb2a940d044bb2380f4ea upstream.
+commit 037250f0a45cf9ecf5b52d4b9ff8eadeb609c800 upstream.
 
-With newer versions of GCC, there is a panic in da850_evm_config_emac()
-when booting multi_v5_defconfig in QEMU under the palmetto-bmc machine:
+The ath9k driver was not properly clearing the status area in the
+ieee80211_tx_info struct before reporting TX status to mac80211. Instead,
+it was manually filling in fields, which meant that fields introduced later
+were left as-is.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000020
-pgd = (ptrval)
-[00000020] *pgd=00000000
-Internal error: Oops: 5 [#1] PREEMPT ARM
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.15.0 #1
-Hardware name: Generic DT based system
-PC is at da850_evm_config_emac+0x1c/0x120
-LR is at do_one_initcall+0x50/0x1e0
+Conveniently, mac80211 actually provides a helper to zero out the status
+area, so use that to make sure we zero everything.
 
-The emac_pdata pointer in soc_info is NULL because davinci_soc_info only
-gets populated on davinci machines but da850_evm_config_emac() is called
-on all machines via device_initcall().
+The last commit touching the driver function writing the status information
+seems to have actually been fixing an issue that was also caused by the
+area being uninitialised; but it only added clearing of a single field
+instead of the whole struct. That is now redundant, though, so revert that
+commit and use it as a convenient Fixes tag.
 
-Move the rmii_en assignment below the machine check so that it is only
-dereferenced when running on a supported SoC.
-
-Fixes: bae105879f2f ("davinci: DA850/OMAP-L138 EVM: implement autodetect of RMII PHY")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/YcS4xVWs6bQlQSPC@archlinux-ax161/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: cc591d77aba1 ("ath9k: Make sure to zero status.tx_time before reporting TX status")
+Reported-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220330164409.16645-1-toke@toke.dk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-davinci/board-da850-evm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/xmit.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -1101,11 +1101,13 @@ static int __init da850_evm_config_emac(
- 	int ret;
- 	u32 val;
- 	struct davinci_soc_info *soc_info = &davinci_soc_info;
--	u8 rmii_en = soc_info->emac_pdata->rmii_en;
-+	u8 rmii_en;
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -2512,6 +2512,8 @@ static void ath_tx_rc_status(struct ath_
+ 	struct ath_hw *ah = sc->sc_ah;
+ 	u8 i, tx_rateindex;
  
- 	if (!machine_is_davinci_da850_evm())
- 		return 0;
- 
-+	rmii_en = soc_info->emac_pdata->rmii_en;
++	ieee80211_tx_info_clear_status(tx_info);
 +
- 	cfg_chip3_base = DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP3_REG);
+ 	if (txok)
+ 		tx_info->status.ack_signal = ts->ts_rssi;
  
- 	val = __raw_readl(cfg_chip3_base);
+@@ -2554,9 +2556,6 @@ static void ath_tx_rc_status(struct ath_
+ 	}
+ 
+ 	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
+-
+-	/* we report airtime in ath_tx_count_airtime(), don't report twice */
+-	tx_info->status.tx_time = 0;
+ }
+ 
+ static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
 
 
