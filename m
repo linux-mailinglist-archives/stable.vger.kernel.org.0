@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E5CD505846
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 620AD505158
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244972AbiDROAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:00:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45526 "EHLO
+        id S239081AbiDRMeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244843AbiDRN57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C620E0A;
-        Mon, 18 Apr 2022 06:08:06 -0700 (PDT)
+        with ESMTP id S239765AbiDRMdY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1ACB1EACE;
+        Mon, 18 Apr 2022 05:25:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACC7760B41;
-        Mon, 18 Apr 2022 13:08:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3834C385B7;
-        Mon, 18 Apr 2022 13:08:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99B9AB80ED6;
+        Mon, 18 Apr 2022 12:25:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9092C385A1;
+        Mon, 18 Apr 2022 12:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287285;
-        bh=Huw4QjVEokonEiJdubj4pjRrSnu/+1KgJw3o/eDiWOA=;
+        s=korg; t=1650284735;
+        bh=OheKLmfXH/0ETv6AsmLPpvnGotO5nZR5o2vxS0ci7Fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqnhnS7/2+ywopUYSIxYxW+w06233QSdE3cComR337FTBh0MlAFfrrVCrwmXrhr1B
-         uWZqCFp7D5X+U0odDnxKPEW3alspjKaVTUpSk2PHRMMh85zP6Y5MEbduPRldaVfg0D
-         ti1X2n2ru16RYywbXYUmWhBFnegkRuyMqEYGFMj4=
+        b=AuwHufPjomyMb7lTLMdJDK5W8CyJtiihdnkkgtjTbEH8IS0JYBueWurCvWxCSdsGY
+         A79ZAmkL708y02glhaqlpseGH2PSv1l/GNHmA05mknGcwcQKVQOuxd0C2Fk63NYS23
+         WPtBiYjyqbmLCMAawBTYyIC2nluQHw6umQZLhkE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 113/218] pinctrl: nomadik: Add missing of_node_put() in nmk_pinctrl_probe
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.17 210/219] smp: Fix offline cpu check in flush_smp_call_function_queue()
 Date:   Mon, 18 Apr 2022 14:12:59 +0200
-Message-Id: <20220418121202.829787704@linuxfoundation.org>
+Message-Id: <20220418121212.746298475@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Nadav Amit <namit@vmware.com>
 
-[ Upstream commit c09ac191b1f97cfa06f394dbfd7a5db07986cefc ]
+commit 9e949a3886356fe9112c6f6f34a6e23d1d35407f upstream.
 
-This node pointer is returned by of_parse_phandle() with refcount
-incremented in this function. Calling of_node_put() to avoid
-the refcount leak.
+The check in flush_smp_call_function_queue() for callbacks that are sent
+to offline CPUs currently checks whether the queue is empty.
 
-Fixes: 32e67eee670e ("pinctrl: nomadik: Allow prcm_base to be extracted from Device Tree")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220307115116.25316-1-linmq006@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, flush_smp_call_function_queue() has just deleted all the
+callbacks from the queue and moved all the entries into a local list.
+This checks would only be positive if some callbacks were added in the
+short time after llist_del_all() was called. This does not seem to be
+the intention of this check.
+
+Change the check to look at the local list to which the entries were
+moved instead of the queue from which all the callbacks were just
+removed.
+
+Fixes: 8d056c48e4862 ("CPU hotplug, smp: flush any pending IPI callbacks before CPU offline")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20220319072015.1495036-1-namit@vmware.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/nomadik/pinctrl-nomadik.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/smp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/nomadik/pinctrl-nomadik.c b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
-index d318ca055489..6e237c46e1bd 100644
---- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
-+++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
-@@ -1916,8 +1916,10 @@ static int nmk_pinctrl_probe(struct platform_device *pdev)
- 	}
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -579,7 +579,7 @@ static void flush_smp_call_function_queu
  
- 	prcm_np = of_parse_phandle(np, "prcm", 0);
--	if (prcm_np)
-+	if (prcm_np) {
- 		npct->prcm_base = of_iomap(prcm_np, 0);
-+		of_node_put(prcm_np);
-+	}
- 	if (!npct->prcm_base) {
- 		if (version == PINCTRL_NMK_STN8815) {
- 			dev_info(&pdev->dev,
--- 
-2.34.1
-
+ 	/* There shouldn't be any pending callbacks on an offline CPU. */
+ 	if (unlikely(warn_cpu_offline && !cpu_online(smp_processor_id()) &&
+-		     !warned && !llist_empty(head))) {
++		     !warned && entry != NULL)) {
+ 		warned = true;
+ 		WARN(1, "IPI on offline CPU %d\n", smp_processor_id());
+ 
 
 
