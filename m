@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A05E50542C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DB5C505334
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240250AbiDRNEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:04:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41062 "EHLO
+        id S240452AbiDRM4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241562AbiDRNDL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B123233A01;
-        Mon, 18 Apr 2022 05:43:44 -0700 (PDT)
+        with ESMTP id S240328AbiDRMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E4A8B7F5;
+        Mon, 18 Apr 2022 05:36:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53B13B80E4B;
-        Mon, 18 Apr 2022 12:43:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96C9AC385A7;
-        Mon, 18 Apr 2022 12:43:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1913061033;
+        Mon, 18 Apr 2022 12:36:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C889C385A7;
+        Mon, 18 Apr 2022 12:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285822;
-        bh=F/OZBsf7gsEVsuEtLus6uNoNHf2ItOqfNd80QgQ8Ig4=;
+        s=korg; t=1650285390;
+        bh=bGYkXoPOnvp4MwQT0EEyeTjnTv8wsS679jpaRsBAs/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cx2wF4GnFOov0Hic/SQ4T4IJ5yKq0wrto/KTwliiC+TVzsTexTj0mqctsMwL05O8t
-         J0CM9oZGuCetGYen1BXNj5jHJRErf2pgmJBxUje64GWnYNFdoP3WWxnTdQxg6Sgjki
-         HeIxNTbVKIl2e84Gc1swLuPEamF7qo+ngszhRU18=
+        b=0CD8BR/CN2w1vNcU6iQRAHFNxYSLFnerDlp3oypZLOvS6dR2L3qjuAmqK9Li2Ix7D
+         0c+fI/DsBx7jDnylJC32n6x4Cx9+EK2wFXoOKU9v2PuRD3ZlMwrwpsM0ZdSGe156Zl
+         7YbGsaZcAIUAXpEmOpR3n0YinM4hThGc+o72k4H0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Park <Chris.Park@amd.com>,
-        Alex Hung <alex.hung@amd.com>,
-        "Leo (Hanghong) Ma" <hanghong.ma@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/63] drm/amd/display: Update VTEM Infopacket definition
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>
+Subject: [PATCH 5.15 175/189] timers: Fix warning condition in __run_timers()
 Date:   Mon, 18 Apr 2022 14:13:15 +0200
-Message-Id: <20220418121135.388319503@linuxfoundation.org>
+Message-Id: <20220418121207.873707302@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,50 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo (Hanghong) Ma <hanghong.ma@amd.com>
+From: Anna-Maria Behnsen <anna-maria@linutronix.de>
 
-[ Upstream commit c9fbf6435162ed5fb7201d1d4adf6585c6a8c327 ]
+commit c54bc0fc84214b203f7a0ebfd1bd308ce2abe920 upstream.
 
-[Why & How]
-The latest HDMI SPEC has updated the VTEM packet structure,
-so change the VTEM Infopacket defined in the driver side to align
-with the SPEC.
+When the timer base is empty, base::next_expiry is set to base::clk +
+NEXT_TIMER_MAX_DELTA and base::next_expiry_recalc is false. When no timer
+is queued until jiffies reaches base::next_expiry value, the warning for
+not finding any expired timer and base::next_expiry_recalc is false in
+__run_timers() triggers.
 
-Reviewed-by: Chris Park <Chris.Park@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Leo (Hanghong) Ma <hanghong.ma@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To prevent triggering the warning in this valid scenario
+base::timers_pending needs to be added to the warning condition.
+
+Fixes: 31cd0e119d50 ("timers: Recalculate next timer interrupt only when necessary")
+Reported-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Link: https://lore.kernel.org/r/20220405191732.7438-3-anna-maria@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../gpu/drm/amd/display/modules/info_packet/info_packet.c    | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/time/timer.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c b/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-index d885d642ed7f..537736713598 100644
---- a/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-+++ b/drivers/gpu/drm/amd/display/modules/info_packet/info_packet.c
-@@ -85,7 +85,8 @@
- //PB7 = MD0
- #define MASK_VTEM_MD0__VRR_EN         0x01
- #define MASK_VTEM_MD0__M_CONST        0x02
--#define MASK_VTEM_MD0__RESERVED2      0x0C
-+#define MASK_VTEM_MD0__QMS_EN         0x04
-+#define MASK_VTEM_MD0__RESERVED2      0x08
- #define MASK_VTEM_MD0__FVA_FACTOR_M1  0xF0
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -1722,11 +1722,14 @@ static inline void __run_timers(struct t
+ 	       time_after_eq(jiffies, base->next_expiry)) {
+ 		levels = collect_expired_timers(base, heads);
+ 		/*
+-		 * The only possible reason for not finding any expired
+-		 * timer at this clk is that all matching timers have been
+-		 * dequeued.
++		 * The two possible reasons for not finding any expired
++		 * timer at this clk are that all matching timers have been
++		 * dequeued or no timer has been queued since
++		 * base::next_expiry was set to base::clk +
++		 * NEXT_TIMER_MAX_DELTA.
+ 		 */
+-		WARN_ON_ONCE(!levels && !base->next_expiry_recalc);
++		WARN_ON_ONCE(!levels && !base->next_expiry_recalc
++			     && base->timers_pending);
+ 		base->clk++;
+ 		base->next_expiry = __next_timer_interrupt(base);
  
- //MD1
-@@ -94,7 +95,7 @@
- //MD2
- #define MASK_VTEM_MD2__BASE_REFRESH_RATE_98  0x03
- #define MASK_VTEM_MD2__RB                    0x04
--#define MASK_VTEM_MD2__RESERVED3             0xF8
-+#define MASK_VTEM_MD2__NEXT_TFR              0xF8
- 
- //MD3
- #define MASK_VTEM_MD3__BASE_REFRESH_RATE_07  0xFF
--- 
-2.35.1
-
 
 
