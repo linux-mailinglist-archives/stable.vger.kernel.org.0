@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82E40505408
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D409750572F
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240858AbiDRNCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32982 "EHLO
+        id S243627AbiDRNli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:41:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242571AbiDRNAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:00:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C7C31368;
-        Mon, 18 Apr 2022 05:41:37 -0700 (PDT)
+        with ESMTP id S243416AbiDRNkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:40:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FD032F03F;
+        Mon, 18 Apr 2022 05:59:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A028B80EDE;
-        Mon, 18 Apr 2022 12:41:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA20AC385A1;
-        Mon, 18 Apr 2022 12:41:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12FBB612D4;
+        Mon, 18 Apr 2022 12:59:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 137F5C385A7;
+        Mon, 18 Apr 2022 12:59:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285695;
-        bh=X0t+T/PV6H7afRr7VxLAQykE69EkNrL4/q4ZlSkuoE4=;
+        s=korg; t=1650286753;
+        bh=G1cCzSEmSyEJgD7avDuvFKb78yXZro2e0oLgp9BKbiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=poeKVeqaXl3ARTvZrpqkaVTT4btJArzFmSW1PsLK3MCjJWfdK0bIkft6xAzcH4RAe
-         64LUsvSsGHq7Q+v7GbL0rT4Rng7Yqu22Rgp7O2h7p8/ywCpkHDGFWcdHhOAWmuHDbu
-         A4eJOYozOsxSGt1pEAwwjvnBK0fgNIZ2H47WN50g=
+        b=xiFFt4PkCBBAxWNPuszFVbptYJENM9NiS0WV8X/KNSsHNmnVGkBinejtu9O5idRvn
+         O4l9p70KlRHNwpzSWwMLtd8fVzufg4Vb189a7RzyPBX0g6NxnkDOtfmnvBCVAmQuok
+         CgOzFCqljv6s1YEWJX7ijdO45KRSo43r4Ts0wfTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Sven Peter <sven@svenpeter.dev>, Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.10 093/105] i2c: pasemi: Wait for write xfers to finish
+        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
+        Haimin Zhang <tcs_kernel@tencent.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 234/284] jfs: prevent NULL deref in diFree
 Date:   Mon, 18 Apr 2022 14:13:35 +0200
-Message-Id: <20220418121149.276158364@linuxfoundation.org>
+Message-Id: <20220418121218.366890470@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Haimin Zhang <tcs_kernel@tencent.com>
 
-commit bd8963e602c77adc76dbbbfc3417c3cf14fed76b upstream.
+[ Upstream commit a53046291020ec41e09181396c1e829287b48d47 ]
 
-Wait for completion of write transfers before returning from the driver.
-At first sight it may seem advantageous to leave write transfers queued
-for the controller to carry out on its own time, but there's a couple of
-issues with it:
+Add validation check for JFS_IP(ipimap)->i_imap to prevent a NULL deref
+in diFree since diFree uses it without do any validations.
+When function jfs_mount calls diMount to initialize fileset inode
+allocation map, it can fail and JFS_IP(ipimap)->i_imap won't be
+initialized. Then it calls diFreeSpecial to close fileset inode allocation
+map inode and it will flow into jfs_evict_inode. Function jfs_evict_inode
+just validates JFS_SBI(inode->i_sb)->ipimap, then calls diFree. diFree use
+JFS_IP(ipimap)->i_imap directly, then it will cause a NULL deref.
 
- * Driver doesn't check for FIFO space.
-
- * The queued writes can complete while the driver is in its I2C read
-   transfer path which means it will get confused by the raising of
-   XEN (the 'transaction ended' signal). This can cause a spurious
-   ENODATA error due to premature reading of the MRXFIFO register.
-
-Adding the wait fixes some unreliability issues with the driver. There's
-some efficiency cost to it (especially with pasemi_smb_waitready doing
-its polling), but that will be alleviated once the driver receives
-interrupt support.
-
-Fixes: beb58aa39e6e ("i2c: PA Semi SMBus driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Reviewed-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: TCS Robot <tcs_robot@tencent.com>
+Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-pasemi.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/jfs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-pasemi.c
-+++ b/drivers/i2c/busses/i2c-pasemi.c
-@@ -137,6 +137,12 @@ static int pasemi_i2c_xfer_msg(struct i2
+diff --git a/fs/jfs/inode.c b/fs/jfs/inode.c
+index 87b41edc800d..68779cc3609a 100644
+--- a/fs/jfs/inode.c
++++ b/fs/jfs/inode.c
+@@ -156,12 +156,13 @@ void jfs_evict_inode(struct inode *inode)
+ 		dquot_initialize(inode);
  
- 		TXFIFO_WR(smbus, msg->buf[msg->len-1] |
- 			  (stop ? MTXFIFO_STOP : 0));
-+
-+		if (stop) {
-+			err = pasemi_smb_waitready(smbus);
-+			if (err)
-+				goto reset_out;
-+		}
- 	}
+ 		if (JFS_IP(inode)->fileset == FILESYSTEM_I) {
++			struct inode *ipimap = JFS_SBI(inode->i_sb)->ipimap;
+ 			truncate_inode_pages_final(&inode->i_data);
  
- 	return 0;
+ 			if (test_cflag(COMMIT_Freewmap, inode))
+ 				jfs_free_zero_link(inode);
+ 
+-			if (JFS_SBI(inode->i_sb)->ipimap)
++			if (ipimap && JFS_IP(ipimap)->i_imap)
+ 				diFree(inode);
+ 
+ 			/*
+-- 
+2.35.1
+
 
 
