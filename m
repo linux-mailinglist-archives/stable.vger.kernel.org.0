@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CF925050FD
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCC8A5055C9
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239075AbiDRMab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:30:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38586 "EHLO
+        id S241308AbiDRN0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:26:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239052AbiDRM1l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:27:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 604101EAD4;
-        Mon, 18 Apr 2022 05:21:13 -0700 (PDT)
+        with ESMTP id S241826AbiDRN0I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:26:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FECF3D4A0;
+        Mon, 18 Apr 2022 05:53:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CD5E60F5E;
-        Mon, 18 Apr 2022 12:21:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87021C385AB;
-        Mon, 18 Apr 2022 12:21:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3017B80EDB;
+        Mon, 18 Apr 2022 12:52:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC125C385AB;
+        Mon, 18 Apr 2022 12:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284472;
-        bh=HBOleFK0d5W1x+uOvPz9btdF/LbqfYF/mI57FVMzAdY=;
+        s=korg; t=1650286378;
+        bh=O34HfqQmSB8Ffe9PET8fc6aq5j5lIAnMeD0GOTv4ips=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vD1tO03k8z9ddJcjj9RSRPAJSgRDmzd/j8LSCVQ4Cnu88B8tjaFUO7pIxd4pesDMk
-         cY2EmXII3yZoi77Pgj42g1qEXAM6n1XkceWsl70voFe/TNArdoqM1ok4VDH1qvNbBa
-         9465AtOStMk8DcT6w66AtmR1GLI60/CQGHmr8hQM=
+        b=ummj0U42CU6ZcztEZH/5ARTv6swAmdukoCmUabXV3Nqc5dVillVghVo/gL3+ZPEj6
+         t+XELs6I9y28YlPsxmYlk92jhIE8S29DDa3fn4sBSgHEAYT1qu6xDK7l6JMffNMtvl
+         b7wQzYjgEr/bbw0mq290iypau/6uPIpGFgDsR/Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 126/219] block: fix offset/size check in bio_trim()
-Date:   Mon, 18 Apr 2022 14:11:35 +0200
-Message-Id: <20220418121210.423946873@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 115/284] i2c: xiic: Make bus names unique
+Date:   Mon, 18 Apr 2022 14:11:36 +0200
+Message-Id: <20220418121214.296108828@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit 8535c0185d14ea41f0efd6a357961b05daf6687e ]
+[ Upstream commit 1d366c2f9df8279df2adbb60471f86fc40a1c39e ]
 
-Unit of bio->bi_iter.bi_size is bytes, but unit of offset/size
-is sector.
+This driver is for an FPGA logic core, so there can be arbitrarily many
+instances of the bus on a given system. Previously all of the I2C bus
+names were "xiic-i2c" which caused issues with lm_sensors when trying to
+map human-readable names to sensor inputs because it could not properly
+distinguish the busses, for example. Append the platform device name to
+the I2C bus name so it is unique between different instances.
 
-Fix the above issue in checking offset/size in bio_trim().
-
-Fixes: e83502ca5f1e ("block: fix argument type of bio_trim()")
-Cc: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20220414084443.1736850-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e1d5b6598cdc ("i2c: Add support for Xilinx XPS IIC Bus Interface")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Tested-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-xiic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 1be1e360967d..342b1cf5d713 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -1570,7 +1570,7 @@ EXPORT_SYMBOL(bio_split);
- void bio_trim(struct bio *bio, sector_t offset, sector_t size)
- {
- 	if (WARN_ON_ONCE(offset > BIO_MAX_SECTORS || size > BIO_MAX_SECTORS ||
--			 offset + size > bio->bi_iter.bi_size))
-+			 offset + size > bio_sectors(bio)))
- 		return;
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 5a94f732049e..da526cc471cc 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -731,7 +731,6 @@ static const struct i2c_adapter_quirks xiic_quirks = {
  
- 	size <<= 9;
+ static const struct i2c_adapter xiic_adapter = {
+ 	.owner = THIS_MODULE,
+-	.name = DRIVER_NAME,
+ 	.class = I2C_CLASS_DEPRECATED,
+ 	.algo = &xiic_algorithm,
+ 	.quirks = &xiic_quirks,
+@@ -768,6 +767,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
++	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
++		 DRIVER_NAME " %s", pdev->name);
+ 
+ 	mutex_init(&i2c->lock);
+ 	init_waitqueue_head(&i2c->wait);
 -- 
-2.35.1
+2.34.1
 
 
 
