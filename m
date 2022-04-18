@@ -2,128 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA55505F71
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 23:37:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E0C505F81
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 23:56:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbiDRVjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 17:39:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50696 "EHLO
+        id S229777AbiDRVza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 17:55:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230011AbiDRVjc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 17:39:32 -0400
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6DF52E9FB
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 14:36:52 -0700 (PDT)
-Received: by mail-pg1-x534.google.com with SMTP id k14so21212414pga.0
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 14:36:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6i4b7qifUtfRUdKABaytQPYOppmk5e4gwIQKX129jCI=;
-        b=npUnpXZBtdJVCxtZYUJSRc/cnowB9I9iGWRLeJ0zqWcg03/LUX3oGJg3tpeeHSXpEw
-         NouobMZU+53Pko5OZDmfcwOg9SY4fCikj21fWCH9KrNRH/WnF/qRnKEnkEvGOBq4A7TL
-         SQr73YsTkcqIES2rTCvrgqCaZb0430Z4+TaEBOf1qumoypBHe5WaNOe5DzQ3+ju2jORm
-         Q6tZVf3XCHfrStZv1OyuiXWVu2RLBNjup+hXaZgtZ1lh3ukWwmEKVg//Xd81ajB8HiAB
-         OyO4RC5IkBfCPEmQKXL7k60z6p9Mt0JVa3Ym4oZ5to2rod/STsYHmgPOSqPGlenkclhx
-         wnNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6i4b7qifUtfRUdKABaytQPYOppmk5e4gwIQKX129jCI=;
-        b=7TDzQZSaWX/pRTSsZBelOoDK0oZvNM2Pb/Myq4BwLI8jYNWU0XONiClPcp8IOBUQqY
-         ehvrgHH5R2sXfLPA2ruK92EqeS8KB8uHm4zqCxIk7kQyDP6Ij9emtETCSQRYtHQuqEgK
-         nas4J4szbXHZUrB6G7Vq75XXng2/LSb5Vo6UCQ0ES8VzcutY/v5ucXk7Jag8XKX8wF9c
-         eypyeBfdWYCC3E5QRhOVG7jEO3IUixY7UZcb7PmO9YZQE4EkAi7i7tqG0DnGSYtEpSv/
-         ymtHlei3WsjSPEhfNjiUDexC1oRQmbHzXVc0gYr65GJFaG4kgf908a3kRXLhi+Rks5UI
-         6kQQ==
-X-Gm-Message-State: AOAM533/1zQfGca1lgXJJ61hGBQwxp8g6BvFm/l4G/1CCI1uUaX/r0Mg
-        f/RoLvsKpDmUh5zht22UhUTj4p0DIqPDNKTG
-X-Google-Smtp-Source: ABdhPJwI2YjjHkzALlHTZdGcEbTZhx/TOjjIbRznWzLYClw2CIqAqdSdHKaSGFTZKt2263aZSDKFQg==
-X-Received: by 2002:a65:4947:0:b0:3a4:dd71:be90 with SMTP id q7-20020a654947000000b003a4dd71be90mr10798209pgs.449.1650317812073;
-        Mon, 18 Apr 2022 14:36:52 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x20-20020aa79574000000b005061f4782c5sm13430420pfq.183.2022.04.18.14.36.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Apr 2022 14:36:51 -0700 (PDT)
-Message-ID: <625dd9f3.1c69fb81.97fcf.fdb0@mx.google.com>
-Date:   Mon, 18 Apr 2022 14:36:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229667AbiDRVza (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 17:55:30 -0400
+Received: from mail.itouring.de (mail.itouring.de [IPv6:2a01:4f8:a0:4463::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FBDC101E3
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 14:52:49 -0700 (PDT)
+Received: from tux.applied-asynchrony.com (p5ddd7616.dip0.t-ipconnect.de [93.221.118.22])
+        by mail.itouring.de (Postfix) with ESMTPSA id DD46A124EC0;
+        Mon, 18 Apr 2022 23:52:47 +0200 (CEST)
+Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
+        by tux.applied-asynchrony.com (Postfix) with ESMTP id 9AA22F01601;
+        Mon, 18 Apr 2022 23:52:47 +0200 (CEST)
+Subject: Re: 5.15 request: properly backport VFS/XFS syncfs error handling
+To:     "Darrick J. Wong" <djwong@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+References: <8997252f-0196-97aa-659e-34524b7b3593@applied-asynchrony.com>
+ <Yl1PQkQDfnA0Jauv@kroah.com> <20220418203146.GB17059@magnolia>
+From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
+Organization: Applied Asynchrony, Inc.
+Message-ID: <25475a69-e31b-f51e-69a6-ac06adc6d4ac@applied-asynchrony.com>
+Date:   Mon, 18 Apr 2022 23:52:47 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.310-219-g6c5f018242b95
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.9.y baseline: 60 runs,
- 1 regressions (v4.9.310-219-g6c5f018242b95)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220418203146.GB17059@magnolia>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 60 runs, 1 regressions (v4.9.310-219-g6c5f0=
-18242b95)
+On 2022-04-18 22:31, Darrick J. Wong wrote:
+> On Mon, Apr 18, 2022 at 01:45:06PM +0200, Greg KH wrote:
+>> On Fri, Apr 15, 2022 at 02:10:46PM +0200, Holger Hoffstätte wrote:
+>>>
+>>> I noticed that our autobot recently backported parts of a series which
+>>> fixed XFS syncfs error handling [1]. Unfortunately - due to missing
+>>> requirements - it only managed to merge those patches which do not
+>>> actually fix anything.
+>>>
+>>> This can be repaired by applying the prerequisites and then the missing
+>>> parts of the original series, namely in order:
+>>>
+>>>    9a208ba5c9af fs: remove __sync_filesystem
+>>>    70164eb6ccb7 block: remove __sync_blockdev
+>>>    1e03a36bdff4 block: simplify the block device syncing code
+>>>    5679897eb104 vfs: make sync_filesystem return errors from ->sync_fs
+>>>    2d86293c7075 xfs: return errors in xfs_fs_sync_fs
+>>>
+>>> With all that we could also put a cherry on top and merge:
+>>>
+>>>    b97cca3ba909 xfs: only bother with sync_filesystem during readonly remount
+>>>
+>>> but that's just a touchup and not a real bugfix, so probably optional.
+>>
+>> Can we get an ack from the XFS developers that this is ok to do?
+>> Without that, we can't apply xfs patches to the stable trees.
+> 
+> You might consider adding these two other patches:
+> 
+> 2719c7160dcf ("vfs: make freeze_super abort when sync_filesystem returns error")
+> dd5532a4994b ("quota: make dquot_quota_sync return errors from ->sync_fs")
+> 
+> to the pile, but otherwise that looks ok to me.
+> 
+> --D
 
-Regressions Summary
--------------------
+Those two are the ones from the series that were already merged into 5.15.x,
+some time back in February. Looks like we have them all.
 
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.310-219-g6c5f018242b95/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.310-219-g6c5f018242b95
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6c5f018242b95dfc19fc76393fd4a89a2be197eb =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625da880d30ee89f48ae067c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.310=
--219-g6c5f018242b95/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb=
--p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.310=
--219-g6c5f018242b95/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb=
--p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220411.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625da880d30ee89f48ae0=
-67d
-        failing since 12 days (last pass: v4.9.307-12-g40127e05a1b8, first =
-fail: v4.9.307-17-g9edf1c247ba2) =
-
- =20
+cheers
+Holger
