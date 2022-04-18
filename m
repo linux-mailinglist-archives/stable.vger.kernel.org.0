@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE20550505A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE0BD505574
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238560AbiDRMY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:24:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
+        id S242336AbiDRNOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:14:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238398AbiDRMXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D659A1B797;
-        Mon, 18 Apr 2022 05:18:53 -0700 (PDT)
+        with ESMTP id S243985AbiDRNKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5608B39681;
+        Mon, 18 Apr 2022 05:50:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C47CB80EDA;
-        Mon, 18 Apr 2022 12:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C85AFC385AB;
-        Mon, 18 Apr 2022 12:18:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2460E61254;
+        Mon, 18 Apr 2022 12:50:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C4F3C385A1;
+        Mon, 18 Apr 2022 12:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284331;
-        bh=qChVbIlFtuidMZRuxLHN8CXCO/NsypRaqy9iBBV8y0w=;
+        s=korg; t=1650286217;
+        bh=VJ0BUAhS3wNyh0DC82txMyIdsjCD3fgIBqLn4GwapDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0ctSg5TEwWBS1hw/465mEUH7r9KRlwM74CzYaTHTXvttGYs5spkOuPsHIF3yKGSc
-         CxH2IRTnhWWO00ZhT6/ZuJw234dxGdvAg+2Wn80QDiPiH6tyaMuoEMK2RpqpQuEJ0H
-         97HJ3095JbVj5VAkk7+80LivKBiW1ZkSS8AJUoGI=
+        b=ZrLjJ/j+b0lla1hjMxMzs+n5498+r1zaVr88eAd6O0NJWH2VzJ0ztxawvxYMQjaNH
+         JwTz6KkdkMVUrvvIgYBLNVkPRHn8YRVYznv54iF7TZvXCTez7AiJF0Bvi5cbwfikHr
+         e7cjJx1SJS0uBI9ARS3ZZShdxpmozEZAa4C/tz3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        =?UTF-8?q?D=C4=81vis=20Mos=C4=81ns?= <davispuh@gmail.com>,
+        John Allen <john.allen@amd.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 077/219] net/sched: fix initialization order when updating chain 0 head
+Subject: [PATCH 4.14 065/284] crypto: ccp - ccp_dmaengine_unregister release dma channels
 Date:   Mon, 18 Apr 2022 14:10:46 +0200
-Message-Id: <20220418121208.242608101@linuxfoundation.org>
+Message-Id: <20220418121212.539249298@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,66 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: Dāvis Mosāns <davispuh@gmail.com>
 
-[ Upstream commit e65812fd22eba32f11abe28cb377cbd64cfb1ba0 ]
+[ Upstream commit 54cce8ecb9254f971b40a72911c6da403720a2d2 ]
 
-Currently, when inserting a new filter that needs to sit at the head
-of chain 0, it will first update the heads pointer on all devices using
-the (shared) block, and only then complete the initialization of the new
-element so that it has a "next" element.
+ccp_dmaengine_register adds dma_chan->device_node to dma_dev->channels list
+but ccp_dmaengine_unregister didn't remove them.
+That can cause crashes in various dmaengine methods that tries to use dma_dev->channels
 
-This can lead to a situation that the chain 0 head is propagated to
-another CPU before the "next" initialization is done. When this race
-condition is triggered, packets being matched on that CPU will simply
-miss all other filters, and will flow through the stack as if there were
-no other filters installed. If the system is using OVS + TC, such
-packets will get handled by vswitchd via upcall, which results in much
-higher latency and reordering. For other applications it may result in
-packet drops.
-
-This is reproducible with a tc only setup, but it varies from system to
-system. It could be reproduced with a shared block amongst 10 veth
-tunnels, and an ingress filter mirroring packets to another veth.
-That's because using the last added veth tunnel to the shared block to
-do the actual traffic, it makes the race window bigger and easier to
-trigger.
-
-The fix is rather simple, to just initialize the next pointer of the new
-filter instance (tp) before propagating the head change.
-
-The fixes tag is pointing to the original code though this issue should
-only be observed when using it unlocked.
-
-Fixes: 2190d1d0944f ("net: sched: introduce helpers to work with filter chains")
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Reviewed-by: Davide Caratti <dcaratti@redhat.com>
-Link: https://lore.kernel.org/r/b97d5f4eaffeeb9d058155bcab63347527261abf.1649341369.git.marcelo.leitner@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 58ea8abf4904 ("crypto: ccp - Register the CCP as a DMA...")
+Signed-off-by: Dāvis Mosāns <davispuh@gmail.com>
+Acked-by: John Allen <john.allen@amd.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/ccp/ccp-dmaengine.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 5ce1208a6ea3..130b5fda9c51 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1653,10 +1653,10 @@ static int tcf_chain_tp_insert(struct tcf_chain *chain,
- 	if (chain->flushing)
- 		return -EAGAIN;
- 
-+	RCU_INIT_POINTER(tp->next, tcf_chain_tp_prev(chain, chain_info));
- 	if (*chain_info->pprev == chain->filter_chain)
- 		tcf_chain0_head_change(chain, tp);
- 	tcf_proto_get(tp);
--	RCU_INIT_POINTER(tp->next, tcf_chain_tp_prev(chain, chain_info));
- 	rcu_assign_pointer(*chain_info->pprev, tp);
- 
+diff --git a/drivers/crypto/ccp/ccp-dmaengine.c b/drivers/crypto/ccp/ccp-dmaengine.c
+index df82af3dd970..27a738c57119 100644
+--- a/drivers/crypto/ccp/ccp-dmaengine.c
++++ b/drivers/crypto/ccp/ccp-dmaengine.c
+@@ -632,6 +632,20 @@ static int ccp_terminate_all(struct dma_chan *dma_chan)
  	return 0;
+ }
+ 
++static void ccp_dma_release(struct ccp_device *ccp)
++{
++	struct ccp_dma_chan *chan;
++	struct dma_chan *dma_chan;
++	unsigned int i;
++
++	for (i = 0; i < ccp->cmd_q_count; i++) {
++		chan = ccp->ccp_dma_chan + i;
++		dma_chan = &chan->dma_chan;
++		tasklet_kill(&chan->cleanup_tasklet);
++		list_del_rcu(&dma_chan->device_node);
++	}
++}
++
+ int ccp_dmaengine_register(struct ccp_device *ccp)
+ {
+ 	struct ccp_dma_chan *chan;
+@@ -733,6 +747,7 @@ int ccp_dmaengine_register(struct ccp_device *ccp)
+ 	return 0;
+ 
+ err_reg:
++	ccp_dma_release(ccp);
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 
+ err_cache:
+@@ -746,6 +761,7 @@ void ccp_dmaengine_unregister(struct ccp_device *ccp)
+ 	struct dma_device *dma_dev = &ccp->dma_dev;
+ 
+ 	dma_async_device_unregister(dma_dev);
++	ccp_dma_release(ccp);
+ 
+ 	kmem_cache_destroy(ccp->dma_desc_cache);
+ 	kmem_cache_destroy(ccp->dma_cmd_cache);
 -- 
-2.35.1
+2.34.1
 
 
 
