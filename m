@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54BDF5051E1
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F8F50553A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233016AbiDRMn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:43:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37846 "EHLO
+        id S240713AbiDRNVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:21:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239663AbiDRMh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C40237E2;
-        Mon, 18 Apr 2022 05:28:24 -0700 (PDT)
+        with ESMTP id S241543AbiDRNR1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:17:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B46743B3F3;
+        Mon, 18 Apr 2022 05:51:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15DC860F09;
-        Mon, 18 Apr 2022 12:28:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C58CC385A1;
-        Mon, 18 Apr 2022 12:28:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8551561254;
+        Mon, 18 Apr 2022 12:51:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95491C385A9;
+        Mon, 18 Apr 2022 12:51:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284903;
-        bh=6m5d5jW3l1iORvtovxkZqeucVqEO9ROgGnlg9LL0ziY=;
+        s=korg; t=1650286293;
+        bh=uL8gsqBp9qxoVBEHIUetvCQwCqbDjLIqa0SXOg5/iJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYrbzlisR9mOzNruVsXeGk7qI8uwpwebg/186sgn2G2VkX8lJ3mZzYjhzeVm8BsQF
-         k35Z9QlRUWdJo8Th6bXE0SklcdXNZe5tB4LQFCQE0t69x1CUumoULnscSbBwpIDoeG
-         TEtRKFHiTbAORK9HHfyYVNYed4PZi5OS9pb38i20=
+        b=x5UArXw+10r7bV5PHDoFK1qcN8mCqX3L6FsLS2ZPX+GoSRcDFoqRuF2SrvrQXvpfz
+         8JpiZXpXhg5iodlyNIlHHzNNDXTpaDu21xDUh98bbUcj7KJX0pS95M498u8z0zg8Ut
+         /hLQmdafVr2r73vhV1zOu7JdT8W6wADqceQEHoGg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 043/189] ALSA: lola: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 082/284] ASoC: mxs-saif: Handle errors for clk_enable
 Date:   Mon, 18 Apr 2022 14:11:03 +0200
-Message-Id: <20220418121201.735926024@linuxfoundation.org>
+Message-Id: <20220418121213.017075916@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,58 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit d04e84b9817c652002f0ee9b42059d41493e9118 upstream.
+[ Upstream commit 2ecf362d220317debf5da376e0390e9f7a3f7b29 ]
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+As the potential failure of the clk_enable(),
+it should be better to check it, like mxs_saif_trigger().
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: 098fe3d6e775 ("ALSA: lola: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-30-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d0ba4c014934 ("ASoC: mxs-saif: set a base clock rate for EXTMASTER mode work")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220301081717.3727190-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/lola/lola.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/soc/mxs/mxs-saif.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/lola/lola.c b/sound/pci/lola/lola.c
-index 5269a1d396a5..1aa30e90b86a 100644
---- a/sound/pci/lola/lola.c
-+++ b/sound/pci/lola/lola.c
-@@ -637,8 +637,8 @@ static int lola_create(struct snd_card *card, struct pci_dev *pci, int dev)
- 	return 0;
- }
- 
--static int lola_probe(struct pci_dev *pci,
--		      const struct pci_device_id *pci_id)
-+static int __lola_probe(struct pci_dev *pci,
-+			const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -687,6 +687,12 @@ static int lola_probe(struct pci_dev *pci,
- 	return 0;
- }
- 
-+static int lola_probe(struct pci_dev *pci,
-+		      const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __lola_probe(pci, pci_id));
-+}
+diff --git a/sound/soc/mxs/mxs-saif.c b/sound/soc/mxs/mxs-saif.c
+index 156aa7c00787..93c019670199 100644
+--- a/sound/soc/mxs/mxs-saif.c
++++ b/sound/soc/mxs/mxs-saif.c
+@@ -467,7 +467,10 @@ static int mxs_saif_hw_params(struct snd_pcm_substream *substream,
+ 		* basic clock which should be fast enough for the internal
+ 		* logic.
+ 		*/
+-		clk_enable(saif->clk);
++		ret = clk_enable(saif->clk);
++		if (ret)
++			return ret;
 +
- /* PCI IDs */
- static const struct pci_device_id lola_ids[] = {
- 	{ PCI_VDEVICE(DIGIGRAM, 0x0001) },
+ 		ret = clk_set_rate(saif->clk, 24000000);
+ 		clk_disable(saif->clk);
+ 		if (ret)
 -- 
-2.35.2
+2.34.1
 
 
 
