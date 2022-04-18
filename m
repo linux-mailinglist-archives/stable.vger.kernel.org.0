@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91CBE505171
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8C7E5055F3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236447AbiDRMev (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50950 "EHLO
+        id S239184AbiDRNbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:31:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239342AbiDRMcz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:32:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A88512636;
-        Mon, 18 Apr 2022 05:24:30 -0700 (PDT)
+        with ESMTP id S244852AbiDRNa6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E780E1EC6F;
+        Mon, 18 Apr 2022 05:56:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02637B80ED6;
-        Mon, 18 Apr 2022 12:24:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31953C385A1;
-        Mon, 18 Apr 2022 12:24:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 849B46115A;
+        Mon, 18 Apr 2022 12:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93ED2C385A1;
+        Mon, 18 Apr 2022 12:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284667;
-        bh=V8V5mAr7zBx9cxmrp+J0vEBBBiURzpMjSAMqXAV01lQ=;
+        s=korg; t=1650286572;
+        bh=gSOR0VhRFEQOIqboEnoDscB2wnkYJYjrcn2qd10imhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1DKfXpuLEGkXeYBri3+hi3epgWbfUQ8OYvd7fYcvFPlH03CNnCvCxj26xzwD/oZYF
-         x7g34VMInvE1aSB9kQwmVIgarEsSmYwa4q7YrY44N17w6npRs8icJJquLvj8O7Ap9c
-         RG9Fq36v6Yee6P8ynuw+GeBG0uc2nLKd7O6VI9W0=
+        b=gJDaOMqKC6jXgmmkjbTDcQ4XVTeZQ7Is+tKCDnntE7bwMZWpGPLNQzevDyCGkU5Qp
+         dYx5IJ2qHnYa7kgyhAZxFZUceAsKmyLfVQ7zeDe/dKdYpWwAgvpc5ICOXTrd4yb8Jm
+         7dSaj9sKecl1gjsSBonWgYwgcX5t8ZX5aYndLvgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Seiderer <ps.report@gmx.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.17 190/219] ath9k: Fix usage of driver-private space in tx_info
+        stable@vger.kernel.org, syzkaller <syzkaller@googlegroups.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 178/284] media: hdpvr: initialize dev->worker at hdpvr_register_videodev
 Date:   Mon, 18 Apr 2022 14:12:39 +0200
-Message-Id: <20220418121212.194099689@linuxfoundation.org>
+Message-Id: <20220418121216.800320945@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 5a6b06f5927c940fa44026695779c30b7536474c upstream.
+[ Upstream commit 07922937e9a580825f9965c46fd15e23ba5754b6 ]
 
-The ieee80211_tx_info_clear_status() helper also clears the rate counts and
-the driver-private part of struct ieee80211_tx_info, so using it breaks
-quite a few other things. So back out of using it, and instead define a
-ath-internal helper that only clears the area between the
-status_driver_data and the rates info. Combined with moving the
-ath_frame_info struct to status_driver_data, this avoids clearing anything
-we shouldn't be, and so we can keep the existing code for handling the rate
-information.
+hdpvr_register_videodev is responsible to initialize a worker in
+hdpvr_device. However, the worker is only initialized at
+hdpvr_start_streaming other than hdpvr_register_videodev.
+When hdpvr_probe does not initialize its worker, the hdpvr_disconnect
+will encounter one WARN in flush_work.The stack trace is as follows:
 
-While fixing this I also noticed that the setting of
-tx_info->status.rates[tx_rateindex].count on hardware underrun errors was
-always immediately overridden by the normal setting of the same fields, so
-rearrange the code so that the underrun detection actually takes effect.
+ hdpvr_disconnect+0xb8/0xf2 drivers/media/usb/hdpvr/hdpvr-core.c:425
+ usb_unbind_interface+0xbf/0x3a0 drivers/usb/core/driver.c:458
+ __device_release_driver drivers/base/dd.c:1206 [inline]
+ device_release_driver_internal+0x22a/0x230 drivers/base/dd.c:1237
+ bus_remove_device+0x108/0x160 drivers/base/bus.c:529
+ device_del+0x1fe/0x510 drivers/base/core.c:3592
+ usb_disable_device+0xd1/0x1d0 drivers/usb/core/message.c:1419
+ usb_disconnect+0x109/0x330 drivers/usb/core/hub.c:2228
 
-The new helper could be generalised to a 'memset_between()' helper, but
-leave it as a driver-internal helper for now since this needs to go to
-stable.
+Fix this by moving the initialization of dev->worker to the starting of
+hdpvr_register_videodev
 
-Cc: stable@vger.kernel.org
-Reported-by: Peter Seiderer <ps.report@gmx.net>
-Fixes: 037250f0a45c ("ath9k: Properly clear TX status area before reporting to mac80211")
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Reviewed-by: Peter Seiderer <ps.report@gmx.net>
-Tested-by: Peter Seiderer <ps.report@gmx.net>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220404204800.2681133-1-toke@toke.dk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/main.c |    2 +-
- drivers/net/wireless/ath/ath9k/xmit.c |   30 ++++++++++++++++++++----------
- 2 files changed, 21 insertions(+), 11 deletions(-)
+ drivers/media/usb/hdpvr/hdpvr-video.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/ath/ath9k/main.c
-+++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -839,7 +839,7 @@ static bool ath9k_txq_list_has_key(struc
- 			continue;
+diff --git a/drivers/media/usb/hdpvr/hdpvr-video.c b/drivers/media/usb/hdpvr/hdpvr-video.c
+index 991f820a4530..1cecb37e16d2 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-video.c
++++ b/drivers/media/usb/hdpvr/hdpvr-video.c
+@@ -312,7 +312,6 @@ static int hdpvr_start_streaming(struct hdpvr_device *dev)
  
- 		txinfo = IEEE80211_SKB_CB(bf->bf_mpdu);
--		fi = (struct ath_frame_info *)&txinfo->rate_driver_data[0];
-+		fi = (struct ath_frame_info *)&txinfo->status.status_driver_data[0];
- 		if (fi->keyix == keyix)
- 			return true;
- 	}
---- a/drivers/net/wireless/ath/ath9k/xmit.c
-+++ b/drivers/net/wireless/ath/ath9k/xmit.c
-@@ -141,8 +141,8 @@ static struct ath_frame_info *get_frame_
- {
- 	struct ieee80211_tx_info *tx_info = IEEE80211_SKB_CB(skb);
- 	BUILD_BUG_ON(sizeof(struct ath_frame_info) >
--		     sizeof(tx_info->rate_driver_data));
--	return (struct ath_frame_info *) &tx_info->rate_driver_data[0];
-+		     sizeof(tx_info->status.status_driver_data));
-+	return (struct ath_frame_info *) &tx_info->status.status_driver_data[0];
- }
+ 	dev->status = STATUS_STREAMING;
  
- static void ath_send_bar(struct ath_atx_tid *tid, u16 seqno)
-@@ -2542,6 +2542,16 @@ skip_tx_complete:
- 	spin_unlock_irqrestore(&sc->tx.txbuflock, flags);
- }
+-	INIT_WORK(&dev->worker, hdpvr_transmit_buffers);
+ 	schedule_work(&dev->worker);
  
-+static void ath_clear_tx_status(struct ieee80211_tx_info *tx_info)
-+{
-+	void *ptr = &tx_info->status;
+ 	v4l2_dbg(MSG_BUFFER, hdpvr_debug, &dev->v4l2_dev,
+@@ -1175,6 +1174,9 @@ int hdpvr_register_videodev(struct hdpvr_device *dev, struct device *parent,
+ 	bool ac3 = dev->flags & HDPVR_FLAG_AC3_CAP;
+ 	int res;
+ 
++	// initialize dev->worker
++	INIT_WORK(&dev->worker, hdpvr_transmit_buffers);
 +
-+	memset(ptr + sizeof(tx_info->status.rates), 0,
-+	       sizeof(tx_info->status) -
-+	       sizeof(tx_info->status.rates) -
-+	       sizeof(tx_info->status.status_driver_data));
-+}
-+
- static void ath_tx_rc_status(struct ath_softc *sc, struct ath_buf *bf,
- 			     struct ath_tx_status *ts, int nframes, int nbad,
- 			     int txok)
-@@ -2553,7 +2563,7 @@ static void ath_tx_rc_status(struct ath_
- 	struct ath_hw *ah = sc->sc_ah;
- 	u8 i, tx_rateindex;
- 
--	ieee80211_tx_info_clear_status(tx_info);
-+	ath_clear_tx_status(tx_info);
- 
- 	if (txok)
- 		tx_info->status.ack_signal = ts->ts_rssi;
-@@ -2569,6 +2579,13 @@ static void ath_tx_rc_status(struct ath_
- 	tx_info->status.ampdu_len = nframes;
- 	tx_info->status.ampdu_ack_len = nframes - nbad;
- 
-+	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
-+
-+	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
-+		tx_info->status.rates[i].count = 0;
-+		tx_info->status.rates[i].idx = -1;
-+	}
-+
- 	if ((ts->ts_status & ATH9K_TXERR_FILT) == 0 &&
- 	    (tx_info->flags & IEEE80211_TX_CTL_NO_ACK) == 0) {
- 		/*
-@@ -2590,13 +2607,6 @@ static void ath_tx_rc_status(struct ath_
- 			tx_info->status.rates[tx_rateindex].count =
- 				hw->max_rate_tries;
- 	}
--
--	for (i = tx_rateindex + 1; i < hw->max_rates; i++) {
--		tx_info->status.rates[i].count = 0;
--		tx_info->status.rates[i].idx = -1;
--	}
--
--	tx_info->status.rates[tx_rateindex].count = ts->ts_longretry + 1;
- }
- 
- static void ath_tx_processq(struct ath_softc *sc, struct ath_txq *txq)
+ 	dev->cur_std = V4L2_STD_525_60;
+ 	dev->width = 720;
+ 	dev->height = 480;
+-- 
+2.34.1
+
 
 
