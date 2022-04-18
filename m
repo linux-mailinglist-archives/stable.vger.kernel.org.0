@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B519F505640
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 813955051FF
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242526AbiDRNc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:32:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55972 "EHLO
+        id S234549AbiDRMkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:40:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243810AbiDRN3H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:07 -0400
+        with ESMTP id S240824AbiDRMjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32AB72183;
-        Mon, 18 Apr 2022 05:53:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 005AEC0A;
+        Mon, 18 Apr 2022 05:31:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8601B80E44;
-        Mon, 18 Apr 2022 12:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22286C385A7;
-        Mon, 18 Apr 2022 12:53:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C656B80ED6;
+        Mon, 18 Apr 2022 12:30:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1CB2C385A1;
+        Mon, 18 Apr 2022 12:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286430;
-        bh=imPm8s3163js/UbzvT+fhP1EWKFf3vbLroPYzRpbxfQ=;
+        s=korg; t=1650285058;
+        bh=rA8OICJvC+vLZzHg5hHD8kepodIPft98BGpeRXaRoeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ly8JZqrQVoIFgcHyNmbzX8OxLvJegTdCw3AX5AIa67qacl7B/y+MtqMLobP8SpLsj
-         u7H+9asZuzaCppIOnQC1idUKfjBNeZL+B0NsyNAwE0uoQg4duzIHiFbg+oTKZb7abv
-         bLzIeRLDWhxUlr2InY2yP58NHwqEDFXDMCfucjok=
+        b=RtKrfw/E215Fi5aoCZjS+8isdkkov2ShXsyA1IBY93vBzDKLNXw9D/LZbqqrAVTfS
+         iFPWz6iP8jAq9jWWGjp/DKsL+t6Xf82kZugyDL57mPi9qYoAYiRhx+5BDKsKSzf9Dj
+         SIXW5G6xhB1ljH0Fs72auhLBCpbr614h+Qcihj/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
+        stable@vger.kernel.org, Petr Malat <oss@malat.biz>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 125/284] af_netlink: Fix shift out of bounds in group mask calculation
+Subject: [PATCH 5.15 086/189] sctp: Initialize daddr on peeled off socket
 Date:   Mon, 18 Apr 2022 14:11:46 +0200
-Message-Id: <20220418121214.755164993@linuxfoundation.org>
+Message-Id: <20220418121202.948615989@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Petr Malat <oss@malat.biz>
 
-[ Upstream commit 0caf6d9922192dd1afa8dc2131abfb4df1443b9f ]
+[ Upstream commit 8467dda0c26583547731e7f3ea73fc3856bae3bf ]
 
-When a netlink message is received, netlink_recvmsg() fills in the address
-of the sender. One of the fields is the 32-bit bitfield nl_groups, which
-carries the multicast group on which the message was received. The least
-significant bit corresponds to group 1, and therefore the highest group
-that the field can represent is 32. Above that, the UB sanitizer flags the
-out-of-bounds shift attempts.
+Function sctp_do_peeloff() wrongly initializes daddr of the original
+socket instead of the peeled off socket, which makes getpeername()
+return zeroes instead of the primary address. Initialize the new socket
+instead.
 
-Which bits end up being set in such case is implementation defined, but
-it's either going to be a wrong non-zero value, or zero, which is at least
-not misleading. Make the latter choice deterministic by always setting to 0
-for higher-numbered multicast groups.
-
-To get information about membership in groups >= 32, userspace is expected
-to use nl_pktinfo control messages[0], which are enabled by NETLINK_PKTINFO
-socket option.
-[0] https://lwn.net/Articles/147608/
-
-The way to trigger this issue is e.g. through monitoring the BRVLAN group:
-
-	# bridge monitor vlan &
-	# ip link add name br type bridge
-
-Which produces the following citation:
-
-	UBSAN: shift-out-of-bounds in net/netlink/af_netlink.c:162:19
-	shift exponent 32 is too large for 32-bit type 'int'
-
-Fixes: f7fa9b10edbb ("[NETLINK]: Support dynamic number of multicast groups per netlink family")
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/2bef6aabf201d1fc16cca139a744700cff9dcb04.1647527635.git.petrm@nvidia.com
+Fixes: d570ee490fb1 ("[SCTP]: Correctly set daddr for IPv6 sockets during peeloff")
+Signed-off-by: Petr Malat <oss@malat.biz>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Link: https://lore.kernel.org/r/20220409063611.673193-1-oss@malat.biz
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sctp/socket.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 0563b4d34eae..24e8ac2b724e 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -154,6 +154,8 @@ static const struct rhashtable_params netlink_rhashtable_params;
+diff --git a/net/sctp/socket.c b/net/sctp/socket.c
+index 6b3c32264cbc..5f6e6a6e91b3 100644
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -5641,7 +5641,7 @@ int sctp_do_peeloff(struct sock *sk, sctp_assoc_t id, struct socket **sockp)
+ 	 * Set the daddr and initialize id to something more random and also
+ 	 * copy over any ip options.
+ 	 */
+-	sp->pf->to_sk_daddr(&asoc->peer.primary_addr, sk);
++	sp->pf->to_sk_daddr(&asoc->peer.primary_addr, sock->sk);
+ 	sp->pf->copy_ip_options(sk, sock->sk);
  
- static inline u32 netlink_group_mask(u32 group)
- {
-+	if (group > 32)
-+		return 0;
- 	return group ? 1 << (group - 1) : 0;
- }
- 
+ 	/* Populate the fields of the newsk from the oldsk and migrate the
 -- 
-2.34.1
+2.35.1
 
 
 
