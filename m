@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 579935053F5
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37440505339
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240229AbiDRNBm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:01:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59810 "EHLO
+        id S240477AbiDRM4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242151AbiDRM7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:39 -0400
+        with ESMTP id S240350AbiDRMzK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E1F2F3AB;
-        Mon, 18 Apr 2022 05:40:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE4220BFE;
+        Mon, 18 Apr 2022 05:36:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B3A36101A;
-        Mon, 18 Apr 2022 12:40:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9069DC385A9;
-        Mon, 18 Apr 2022 12:40:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A06E60F0E;
+        Mon, 18 Apr 2022 12:36:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3665BC385A7;
+        Mon, 18 Apr 2022 12:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285614;
-        bh=5k8FW0xfgGxI6vUMlHLTkoJOHhqS69JmSk5lxa58BJ0=;
+        s=korg; t=1650285393;
+        bh=h6KgK4UlLuqt00S7/NelzItnrRfUYPhvikAZc4K9Z2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W01ore2y11CYw1abn/b6jdmnQVxH38VXEB9Bn/0d0ubOhE/c+5bNT81u/oZI26vnq
-         uk7QPj3kFqlmi4Ov5Lyj8Z+oZT0jTAy0xqfI0M5+bTQPoEik3gW3DEgZMslCWT+wi4
-         luT3rvV/PjM/FD5Lb1/Hmnu5hWZD3SGn4Il0J81s=
+        b=GtSm1Rwt4DcGG0J3uahZOD+O1ZeNEijqChWejOxCacUZSLT+TFYUM7XIPnRXHd5a3
+         CDIsGuDJVwiDoBTfGa8ZtJkWIXDjc6VkteX2WsXS9Zlab+Xr7zV41QTf1JJW4G/Ibq
+         Y8274t6t8rDrRfPBpnEcSbGX6nBYHuxyIxvKtsOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Oliver Upton <oupton@google.com>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 074/105] KVM: Dont create VM debugfs files outside of the VM directory
+        stable@vger.kernel.org, Wang Zhaoyang1 <zhaoyang1.wang@intel.com>,
+        Gao Liang <liang.gao@intel.com>, Chao Gao <chao.gao@intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.15 176/189] dma-direct: avoid redundant memory sync for swiotlb
 Date:   Mon, 18 Apr 2022 14:13:16 +0200
-Message-Id: <20220418121148.729694346@linuxfoundation.org>
+Message-Id: <20220418121207.935479247@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Chao Gao <chao.gao@intel.com>
 
-commit a44a4cc1c969afec97dbb2aedaf6f38eaa6253bb upstream.
+commit 9e02977bfad006af328add9434c8bffa40e053bb upstream.
 
-Unfortunately, there is no guarantee that KVM was able to instantiate a
-debugfs directory for a particular VM. To that end, KVM shouldn't even
-attempt to create new debugfs files in this case. If the specified
-parent dentry is NULL, debugfs_create_file() will instantiate files at
-the root of debugfs.
+When we looked into FIO performance with swiotlb enabled in VM, we found
+swiotlb_bounce() is always called one more time than expected for each DMA
+read request.
 
-For arm64, it is possible to create the vgic-state file outside of a
-VM directory, the file is not cleaned up when a VM is destroyed.
-Nonetheless, the corresponding struct kvm is freed when the VM is
-destroyed.
+It turns out that the bounce buffer is copied to original DMA buffer twice
+after the completion of a DMA request (one is done by in
+dma_direct_sync_single_for_cpu(), the other by swiotlb_tbl_unmap_single()).
+But the content in bounce buffer actually doesn't change between the two
+rounds of copy. So, one round of copy is redundant.
 
-Nip the problem in the bud for all possible errant debugfs file
-creations by initializing kvm->debugfs_dentry to -ENOENT. In so doing,
-debugfs_create_file() will fail instead of creating the file in the root
-directory.
+Pass DMA_ATTR_SKIP_CPU_SYNC flag to swiotlb_tbl_unmap_single() to
+skip the memory copy in it.
 
-Cc: stable@kernel.org
-Fixes: 929f45e32499 ("kvm: no need to check return value of debugfs_create functions")
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220406235615.1447180-2-oupton@google.com
+This fix increases FIO 64KB sequential read throughput in a guest with
+swiotlb=force by 5.6%.
+
+Fixes: 55897af63091 ("dma-direct: merge swiotlb_dma_ops into the dma_direct code")
+Reported-by: Wang Zhaoyang1 <zhaoyang1.wang@intel.com>
+Reported-by: Gao Liang <liang.gao@intel.com>
+Signed-off-by: Chao Gao <chao.gao@intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/dma/direct.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -673,7 +673,7 @@ static void kvm_destroy_vm_debugfs(struc
- {
- 	int i;
+--- a/kernel/dma/direct.h
++++ b/kernel/dma/direct.h
+@@ -114,6 +114,7 @@ static inline void dma_direct_unmap_page
+ 		dma_direct_sync_single_for_cpu(dev, addr, size, dir);
  
--	if (!kvm->debugfs_dentry)
-+	if (IS_ERR(kvm->debugfs_dentry))
- 		return;
- 
- 	debugfs_remove_recursive(kvm->debugfs_dentry);
-@@ -693,6 +693,12 @@ static int kvm_create_vm_debugfs(struct
- 	struct kvm_stat_data *stat_data;
- 	struct kvm_stats_debugfs_item *p;
- 
-+	/*
-+	 * Force subsequent debugfs file creations to fail if the VM directory
-+	 * is not created.
-+	 */
-+	kvm->debugfs_dentry = ERR_PTR(-ENOENT);
-+
- 	if (!debugfs_initialized())
- 		return 0;
- 
-@@ -4731,7 +4737,7 @@ static void kvm_uevent_notify_change(uns
- 	}
- 	add_uevent_var(env, "PID=%d", kvm->userspace_pid);
- 
--	if (kvm->debugfs_dentry) {
-+	if (!IS_ERR(kvm->debugfs_dentry)) {
- 		char *tmp, *p = kmalloc(PATH_MAX, GFP_KERNEL_ACCOUNT);
- 
- 		if (p) {
+ 	if (unlikely(is_swiotlb_buffer(dev, phys)))
+-		swiotlb_tbl_unmap_single(dev, phys, size, dir, attrs);
++		swiotlb_tbl_unmap_single(dev, phys, size, dir,
++					 attrs | DMA_ATTR_SKIP_CPU_SYNC);
+ }
+ #endif /* _KERNEL_DMA_DIRECT_H */
 
 
