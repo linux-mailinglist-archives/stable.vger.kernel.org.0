@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E8D6505494
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:22:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C05585050C6
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240376AbiDRNVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:21:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44872 "EHLO
+        id S238848AbiDRM3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:29:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242923AbiDRNTW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:19:22 -0400
+        with ESMTP id S239283AbiDRM2P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D293BBE7;
-        Mon, 18 Apr 2022 05:51:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80701EEDC;
+        Mon, 18 Apr 2022 05:21:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 957776124E;
-        Mon, 18 Apr 2022 12:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A458C385A1;
-        Mon, 18 Apr 2022 12:51:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3159260F0C;
+        Mon, 18 Apr 2022 12:21:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C7DC385A1;
+        Mon, 18 Apr 2022 12:21:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286316;
-        bh=luolgdRdNezRFdRU8stCyi6yMoHa8o9Q/CaE4WYl7Yk=;
+        s=korg; t=1650284493;
+        bh=p7NdsMGXXKY2Y4BdmKFIYeZ2BS38rKxgfbm27drUnCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KoXJb4iAp1qT92wQhfs3L4+OhbzuV0N/5UwxNnWG0zTuqXRz8jF9S+ayX3MfEXus4
-         8H3jG2K7S53ZXlLMX60LdLMPaWNTbN0IwmOfQvu26A++9bt2oyd6f5xmQEPwWANTjT
-         GqFlVeGfNgewyLGXRz/UPXXoyCDo5olntg8yqVaQ=
+        b=C13KDllqz9UFfVKIeYzjIgzs6DI/9qRO4Eagu+HMzBy3I6DW8vcfZvPz38+Xm3ja7
+         0fEq+VB3vQ5DCFNMVASiIxS4lWycqOXn1qnPLtHaG17bLLe4DzJ266d0+6Z4/kVyS/
+         Y6aXHrExXJ/XCctszav3xoAP8rC/kE39zrDaPMx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 097/284] drm/edid: Dont clear formats if using deep color
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 109/219] ALSA: mtpav: Dont call card private_free at probe error path
 Date:   Mon, 18 Apr 2022 14:11:18 +0200
-Message-Id: <20220418121213.443650085@linuxfoundation.org>
+Message-Id: <20220418121209.950400644@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,73 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 75478b3b393bcbdca4e6da76fe3a9f1a4133ec5d ]
+[ Upstream commit 4fb27190879b82e48ce89a56e9d6c04437dbc065 ]
 
-The current code, when parsing the EDID Deep Color depths, that the
-YUV422 cannot be used, referring to the HDMI 1.3 Specification.
+The card destructor of nm256 driver does merely stopping the running
+timer, and it's superfluous for the probe error handling.  Moreover,
+calling this via the previous devres change would lead to another
+problem due to the reverse call order.
 
-This specification, in its section 6.2.4, indeed states:
+This patch moves the setup of the private_free callback after the card
+registration, so that it can be used only after fully set up.
 
-  For each supported Deep Color mode, RGB 4:4:4 shall be supported and
-  optionally YCBCR 4:4:4 may be supported.
-
-  YCBCR 4:2:2 is not permitted for any Deep Color mode.
-
-This indeed can be interpreted like the code does, but the HDMI 1.4
-specification further clarifies that statement in its section 6.2.4:
-
-  For each supported Deep Color mode, RGB 4:4:4 shall be supported and
-  optionally YCBCR 4:4:4 may be supported.
-
-  YCBCR 4:2:2 is also 36-bit mode but does not require the further use
-  of the Deep Color modes described in section 6.5.2 and 6.5.3.
-
-This means that, even though YUV422 can be used with 12 bit per color,
-it shouldn't be treated as a deep color mode.
-
-This is also broken with YUV444 if it's supported by the display, but
-DRM_EDID_HDMI_DC_Y444 isn't set. In such a case, the code will clear
-color_formats of the YUV444 support set previously in
-drm_parse_cea_ext(), but will not set it back.
-
-Since the formats supported are already setup properly in
-drm_parse_cea_ext(), let's just remove the code modifying the formats in
-drm_parse_hdmi_deep_color_info()
-
-Fixes: d0c94692e0a3 ("drm/edid: Parse and handle HDMI deep color modes.")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220120151625.594595-3-maxime@cerno.tech
+Fixes: aa92050f10f0 ("ALSA: mtpav: Allocate resources with device-managed APIs")
+Link: https://lore.kernel.org/r/20220412102636.16000-39-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_edid.c | 8 --------
- 1 file changed, 8 deletions(-)
+ sound/drivers/mtpav.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index 4824c775dd7d..de5fc79379e8 100644
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -4319,16 +4319,8 @@ static void drm_parse_hdmi_deep_color_info(struct drm_connector *connector,
- 		  connector->name, dc_bpc);
- 	info->bpc = dc_bpc;
+diff --git a/sound/drivers/mtpav.c b/sound/drivers/mtpav.c
+index 11235baaf6fa..f212f233ea61 100644
+--- a/sound/drivers/mtpav.c
++++ b/sound/drivers/mtpav.c
+@@ -693,8 +693,6 @@ static int snd_mtpav_probe(struct platform_device *dev)
+ 	mtp_card->outmidihwport = 0xffffffff;
+ 	timer_setup(&mtp_card->timer, snd_mtpav_output_timer, 0);
  
--	/*
--	 * Deep color support mandates RGB444 support for all video
--	 * modes and forbids YCRCB422 support for all video modes per
--	 * HDMI 1.3 spec.
--	 */
--	info->color_formats = DRM_COLOR_FORMAT_RGB444;
+-	card->private_free = snd_mtpav_free;
 -
- 	/* YCRCB444 is optional according to spec. */
- 	if (hdmi[6] & DRM_EDID_HDMI_DC_Y444) {
--		info->color_formats |= DRM_COLOR_FORMAT_YCRCB444;
- 		DRM_DEBUG("%s: HDMI sink does YCRCB444 in deep color.\n",
- 			  connector->name);
- 	}
+ 	err = snd_mtpav_get_RAWMIDI(mtp_card);
+ 	if (err < 0)
+ 		return err;
+@@ -716,6 +714,8 @@ static int snd_mtpav_probe(struct platform_device *dev)
+ 	if (err < 0)
+ 		return err;
+ 
++	card->private_free = snd_mtpav_free;
++
+ 	platform_set_drvdata(dev, card);
+ 	printk(KERN_INFO "Motu MidiTimePiece on parallel port irq: %d ioport: 0x%lx\n", irq, port);
+ 	return 0;
 -- 
-2.34.1
+2.35.1
 
 
 
