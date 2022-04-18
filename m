@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02188505452
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8121505475
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:04:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240641AbiDRNFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41138 "EHLO
+        id S241277AbiDRNHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:07:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241092AbiDRNEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:04:21 -0400
+        with ESMTP id S239374AbiDRNF2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 394FF11C12;
-        Mon, 18 Apr 2022 05:45:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91853340DE;
+        Mon, 18 Apr 2022 05:46:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B57106124A;
-        Mon, 18 Apr 2022 12:45:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8FEBC385A7;
-        Mon, 18 Apr 2022 12:45:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D88E6124F;
+        Mon, 18 Apr 2022 12:46:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAF1C385A1;
+        Mon, 18 Apr 2022 12:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285917;
-        bh=jRFNtK5UFQUSCCnXr9EJi7wlu1AKbloGOIeMmQoALFI=;
+        s=korg; t=1650285960;
+        bh=rHmNXuzeV8iJKUzH6+x3ln2ySZEFmVKkG1uO2fuHIks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgLc85TLv4NHJgzjev+1mzqiA+xL6MZ+BsQ2avrd1FYsz721qsrhaaw5DhQn8fYEl
-         zu+qt27xrhLSZt5dpbs7o57/5FJFdBx/73+ypnYqAcTGKo3YqaP9Nmnw+J/Ygp+cgq
-         85hc3jyqY6bdYNtVFep+RJ/eo5oKLLfT8RQc+dNQ=
+        b=XwrszLyjtTIGc56s8LrwtnCl4FY0eBde2xGy1KociSaeC8yAkRIujHjqU43cslK2y
+         InwI2KoKNCewma5x+LvJw4AyS2P6z0N+M53vQe4K8pPE+FlAciKPFFBIOSsZAD+x6A
+         0eoTwO6IshQlz7kH6wVlIWurDDoEMALhONizzpfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 60/63] ax25: fix UAF bug in ax25_send_control()
-Date:   Mon, 18 Apr 2022 14:13:57 +0200
-Message-Id: <20220418121138.178322705@linuxfoundation.org>
+        stable@vger.kernel.org, Leo Ruan <tingquan.ruan@cn.bosch.com>,
+        Mark Jonas <mark.jonas@de.bosch.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 18/32] gpu: ipu-v3: Fix dev_dbg frequency output
+Date:   Mon, 18 Apr 2022 14:13:58 +0200
+Message-Id: <20220418121127.659107387@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Leo Ruan <tingquan.ruan@cn.bosch.com>
 
-commit 5352a761308397a0e6250fdc629bb3f615b94747 upstream.
+[ Upstream commit 070a88fd4a03f921b73a2059e97d55faaa447dab ]
 
-There are UAF bugs in ax25_send_control(), when we call ax25_release()
-to deallocate ax25_dev. The possible race condition is shown below:
+This commit corrects the printing of the IPU clock error percentage if
+it is between -0.1% to -0.9%. For example, if the pixel clock requested
+is 27.2 MHz but only 27.0 MHz can be achieved the deviation is -0.8%.
+But the fixed point math had a flaw and calculated error of 0.2%.
 
-      (Thread 1)              |     (Thread 2)
-ax25_dev_device_up() //(1)    |
-                              | ax25_kill_by_device()
-ax25_bind()          //(2)    |
-ax25_connect()                | ...
- ax25->state = AX25_STATE_1   |
- ...                          | ax25_dev_device_down() //(3)
+Before:
+  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
+  IPU clock can give 27000000 with divider 10, error 0.2%
+  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
 
-      (Thread 3)
-ax25_release()                |
- ax25_dev_put()  //(4) FREE   |
- case AX25_STATE_1:           |
-  ax25_send_control()         |
-   alloc_skb()       //USE    |
+After:
+  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
+  IPU clock can give 27000000 with divider 10, error -0.8%
+  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
 
-The refcount of ax25_dev increases in position (1) and (2), and
-decreases in position (3) and (4). The ax25_dev will be freed
-before dereference sites in ax25_send_control().
-
-The following is part of the report:
-
-[  102.297448] BUG: KASAN: use-after-free in ax25_send_control+0x33/0x210
-[  102.297448] Read of size 8 at addr ffff888009e6e408 by task ax25_close/602
-[  102.297448] Call Trace:
-[  102.303751]  ax25_send_control+0x33/0x210
-[  102.303751]  ax25_release+0x356/0x450
-[  102.305431]  __sock_release+0x6d/0x120
-[  102.305431]  sock_close+0xf/0x20
-[  102.305431]  __fput+0x11f/0x420
-[  102.305431]  task_work_run+0x86/0xd0
-[  102.307130]  get_signal+0x1075/0x1220
-[  102.308253]  arch_do_signal_or_restart+0x1df/0xc00
-[  102.308253]  exit_to_user_mode_prepare+0x150/0x1e0
-[  102.308253]  syscall_exit_to_user_mode+0x19/0x50
-[  102.308253]  do_syscall_64+0x48/0x90
-[  102.308253]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  102.308253] RIP: 0033:0x405ae7
-
-This patch defers the free operation of ax25_dev and net_device after
-all corresponding dereference sites in ax25_release() to avoid UAF.
-
-Fixes: 9fd75b66b8f6 ("ax25: Fix refcount leaks caused by ax25_cb_del()")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-[OP: backport to 5.4: adjust dev_put_track()->dev_put()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Leo Ruan <tingquan.ruan@cn.bosch.com>
+Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Link: https://lore.kernel.org/r/20220207151411.5009-1-mark.jonas@de.bosch.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/ipu-v3/ipu-di.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -990,10 +990,6 @@ static int ax25_release(struct socket *s
- 	sock_orphan(sk);
- 	ax25 = sk_to_ax25(sk);
- 	ax25_dev = ax25->ax25_dev;
--	if (ax25_dev) {
--		dev_put(ax25_dev->dev);
--		ax25_dev_put(ax25_dev);
--	}
+diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
+index d2f1bd9d3deb..c498dc7d8838 100644
+--- a/drivers/gpu/ipu-v3/ipu-di.c
++++ b/drivers/gpu/ipu-v3/ipu-di.c
+@@ -460,8 +460,9 @@ static void ipu_di_config_clock(struct ipu_di *di,
  
- 	if (sk->sk_type == SOCK_SEQPACKET) {
- 		switch (ax25->state) {
-@@ -1055,6 +1051,10 @@ static int ax25_release(struct socket *s
- 		sk->sk_state_change(sk);
- 		ax25_destroy_socket(ax25);
- 	}
-+	if (ax25_dev) {
-+		dev_put(ax25_dev->dev);
-+		ax25_dev_put(ax25_dev);
-+	}
+ 		error = rate / (sig->mode.pixelclock / 1000);
  
- 	sock->sk   = NULL;
- 	release_sock(sk);
+-		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %d.%u%%\n",
+-			rate, div, (signed)(error - 1000) / 10, error % 10);
++		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %c%d.%d%%\n",
++			rate, div, error < 1000 ? '-' : '+',
++			abs(error - 1000) / 10, abs(error - 1000) % 10);
+ 
+ 		/* Allow a 1% error */
+ 		if (error < 1010 && error >= 990) {
+-- 
+2.35.1
+
 
 
