@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F55C50537D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D35505301
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240101AbiDRNAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59686 "EHLO
+        id S239580AbiDRMy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:54:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241632AbiDRM64 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AA2E2DD4E;
-        Mon, 18 Apr 2022 05:39:24 -0700 (PDT)
+        with ESMTP id S240463AbiDRMxY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:53:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CAC45F68;
+        Mon, 18 Apr 2022 05:34:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3A96B80EDC;
-        Mon, 18 Apr 2022 12:39:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E97FC385A1;
-        Mon, 18 Apr 2022 12:39:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79A676116E;
+        Mon, 18 Apr 2022 12:34:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D04C385A9;
+        Mon, 18 Apr 2022 12:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285561;
-        bh=PdqZVzizgk6/NDj9Gpg1f+LUl/smdkF9TxT+ushn/pk=;
+        s=korg; t=1650285288;
+        bh=c/3SbLS1EA2AxoaIQFhF0FgLVJKgO8/XqZhIPUJY6TY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwhbjXLFJVyb1K7YNtPNhGG5o70mwbLJIjhzQC3gguifqyxC/4g8l1nBXkG0ESRZd
-         59GScqI0oQIjhDkQLHz+dPVGS/kRUayBOn388C0e3EO7Dyu0UctmFLGmEOHLccOdxf
-         4FsuebWimq03QqdpZ2AMAQlLA5Sv23AZCmlngU1Y=
+        b=xVZBzUuPlpTJZ3rGN8DEkVu789IK+K3/eK8st0jvbM/bljmR2TlnI35Esc3boJy4c
+         Gq09q/cFdbM0plBhcF/9+q5x+e7NKAEv3k6bx3+i2TE+77Zj4wDIVxc5AN3IOaHKEw
+         hNUmAxmQm+ggFiosmgInhmRzAmyk+m7Ffb51XqlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Bakker <xc-racer2@live.ca>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/105] regulator: wm8994: Add an off-on delay for WM8994 variant
+        stable@vger.kernel.org,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        syzbot+205eb15961852c2c5974@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 160/189] ALSA: pcm: Test for "silence" field in struct "pcm_format_data"
 Date:   Mon, 18 Apr 2022 14:13:00 +0200
-Message-Id: <20220418121148.134499476@linuxfoundation.org>
+Message-Id: <20220418121206.822429347@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,94 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Bakker <xc-racer2@live.ca>
+From: Fabio M. De Francesco <fmdefrancesco@gmail.com>
 
-[ Upstream commit 92d96b603738ec4f35cde7198c303ae264dd47cb ]
+commit 2f7a26abb8241a0208c68d22815aa247c5ddacab upstream.
 
-As per Table 130 of the wm8994 datasheet at [1], there is an off-on
-delay for LDO1 and LDO2.  In the wm8958 datasheet [2], I could not
-find any reference to it.  I could not find a wm1811 datasheet to
-double-check there, but as no one has complained presumably it works
-without it.
+Syzbot reports "KASAN: null-ptr-deref Write in
+snd_pcm_format_set_silence".[1]
 
-This solves the issue on Samsung Aries boards with a wm8994 where
-register writes fail when the device is powered off and back-on
-quickly.
+It is due to missing validation of the "silence" field of struct
+"pcm_format_data" in "pcm_formats" array.
 
-[1] https://statics.cirrus.com/pubs/proDatasheet/WM8994_Rev4.6.pdf
-[2] https://statics.cirrus.com/pubs/proDatasheet/WM8958_v3.5.pdf
+Add a test for valid "pat" and, if it is not so, return -EINVAL.
 
-Signed-off-by: Jonathan Bakker <xc-racer2@live.ca>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/CY4PR04MB056771CFB80DC447C30D5A31CB1D9@CY4PR04MB0567.namprd04.prod.outlook.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[1] https://lore.kernel.org/lkml/000000000000d188ef05dc2c7279@google.com/
+
+Reported-and-tested-by: syzbot+205eb15961852c2c5974@syzkaller.appspotmail.com
+Signed-off-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220409012655.9399-1-fmdefrancesco@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/wm8994-regulator.c | 42 ++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 3 deletions(-)
+ sound/core/pcm_misc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/wm8994-regulator.c b/drivers/regulator/wm8994-regulator.c
-index cadea0344486..40befdd9dfa9 100644
---- a/drivers/regulator/wm8994-regulator.c
-+++ b/drivers/regulator/wm8994-regulator.c
-@@ -71,6 +71,35 @@ static const struct regulator_ops wm8994_ldo2_ops = {
- };
- 
- static const struct regulator_desc wm8994_ldo_desc[] = {
-+	{
-+		.name = "LDO1",
-+		.id = 1,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = WM8994_LDO1_MAX_SELECTOR + 1,
-+		.vsel_reg = WM8994_LDO_1,
-+		.vsel_mask = WM8994_LDO1_VSEL_MASK,
-+		.ops = &wm8994_ldo1_ops,
-+		.min_uV = 2400000,
-+		.uV_step = 100000,
-+		.enable_time = 3000,
-+		.off_on_delay = 36000,
-+		.owner = THIS_MODULE,
-+	},
-+	{
-+		.name = "LDO2",
-+		.id = 2,
-+		.type = REGULATOR_VOLTAGE,
-+		.n_voltages = WM8994_LDO2_MAX_SELECTOR + 1,
-+		.vsel_reg = WM8994_LDO_2,
-+		.vsel_mask = WM8994_LDO2_VSEL_MASK,
-+		.ops = &wm8994_ldo2_ops,
-+		.enable_time = 3000,
-+		.off_on_delay = 36000,
-+		.owner = THIS_MODULE,
-+	},
-+};
-+
-+static const struct regulator_desc wm8958_ldo_desc[] = {
- 	{
- 		.name = "LDO1",
- 		.id = 1,
-@@ -172,9 +201,16 @@ static int wm8994_ldo_probe(struct platform_device *pdev)
- 	 * regulator core and we need not worry about it on the
- 	 * error path.
- 	 */
--	ldo->regulator = devm_regulator_register(&pdev->dev,
--						 &wm8994_ldo_desc[id],
--						 &config);
-+	if (ldo->wm8994->type == WM8994) {
-+		ldo->regulator = devm_regulator_register(&pdev->dev,
-+							 &wm8994_ldo_desc[id],
-+							 &config);
-+	} else {
-+		ldo->regulator = devm_regulator_register(&pdev->dev,
-+							 &wm8958_ldo_desc[id],
-+							 &config);
-+	}
-+
- 	if (IS_ERR(ldo->regulator)) {
- 		ret = PTR_ERR(ldo->regulator);
- 		dev_err(wm8994->dev, "Failed to register LDO%d: %d\n",
--- 
-2.35.1
-
+--- a/sound/core/pcm_misc.c
++++ b/sound/core/pcm_misc.c
+@@ -433,7 +433,7 @@ int snd_pcm_format_set_silence(snd_pcm_f
+ 		return 0;
+ 	width = pcm_formats[(INT)format].phys; /* physical width */
+ 	pat = pcm_formats[(INT)format].silence;
+-	if (! width)
++	if (!width || !pat)
+ 		return -EINVAL;
+ 	/* signed or 1 byte data */
+ 	if (pcm_formats[(INT)format].signd == 1 || width <= 8) {
 
 
