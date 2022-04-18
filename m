@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 671D35054C1
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A71815051A8
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242769AbiDRNOl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:14:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54002 "EHLO
+        id S238998AbiDRMhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:37:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240524AbiDRNKz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA06439815;
-        Mon, 18 Apr 2022 05:50:28 -0700 (PDT)
+        with ESMTP id S239012AbiDRMfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:35:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFFB21E16;
+        Mon, 18 Apr 2022 05:27:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A92D61257;
-        Mon, 18 Apr 2022 12:50:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44E62C385A8;
-        Mon, 18 Apr 2022 12:50:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 666E1B80EDB;
+        Mon, 18 Apr 2022 12:27:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 679E7C385A7;
+        Mon, 18 Apr 2022 12:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286227;
-        bh=n4XZKIqAnxf38ktFeInvlW1RzeqznHZYpBRS8tv0/98=;
+        s=korg; t=1650284852;
+        bh=z+yaSlfMDjN4pH/GJQfoxMVXZ7yQUqxOrLJPPyZpIKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdX0f0wz6LR71ubo++dzfnASesPaoxClnXZ+nm29qvnzY3fh+VyXqwOmd+a7ueU/Y
-         6QqfI8DkxrhwrlZbYcsQjbRBM5IyTONbym/T4G1jeKJW4+lOu9KoG9pmkh1+kdXXb4
-         XmChR/PPxgX2aee8pjhTS9P/Aato1XnbGTtuQ7U0=
+        b=hzdpNGyEAzzoMJOxR/pjXJJOBcuuSi+Efsq9mk35QRrjhH9De44FRNeZYF+JxNV2y
+         yFhNlilhZIVmozWAWkDmbXDGkcnQLwnROXtn7MuDHtjbqcEpkQsr54W4SNwnCqJ7gh
+         dXB92jDjRMRzd3iOl4diEeUowui/zV7U7gAwpSpA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 067/284] clocksource: acpi_pm: fix return value of __setup handler
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 028/189] ALSA: cs4281: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:10:48 +0200
-Message-Id: <20220418121212.595244590@linuxfoundation.org>
+Message-Id: <20220418121201.313786182@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6a861abceecb68497dd82a324fee45a5332dcece ]
+commit 9bf5ed9a4e623583f15202d99f4521bc39050f61 upstream.
 
-__setup() handlers should return 1 to obsolete_checksetup() in
-init/main.c to indicate that the boot option has been handled.
-A return of 0 causes the boot option/value to be listed as an Unknown
-kernel parameter and added to init's (limited) environment strings.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-The __setup() handler interface isn't meant to handle negative return
-values -- they are non-zero, so they mean "handled" (like a return
-value of 1 does), but that's just a quirk. So return 1 from
-parse_pmtmr(). Also print a warning message if kstrtouint() returns
-an error.
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-Fixes: 6b148507d3d0 ("pmtmr: allow command line override of ioport")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 99041fea70d0 ("ALSA: cs4281: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-11-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/acpi_pm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/pci/cs4281.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/acpi_pm.c b/drivers/clocksource/acpi_pm.c
-index 1961e3539b57..05cc8d4e49ad 100644
---- a/drivers/clocksource/acpi_pm.c
-+++ b/drivers/clocksource/acpi_pm.c
-@@ -230,8 +230,10 @@ static int __init parse_pmtmr(char *arg)
- 	int ret;
+diff --git a/sound/pci/cs4281.c b/sound/pci/cs4281.c
+index e7367402b84a..0c9cadf7b3b8 100644
+--- a/sound/pci/cs4281.c
++++ b/sound/pci/cs4281.c
+@@ -1827,8 +1827,8 @@ static void snd_cs4281_opl3_command(struct snd_opl3 *opl3, unsigned short cmd,
+ 	spin_unlock_irqrestore(&opl3->reg_lock, flags);
+ }
  
- 	ret = kstrtouint(arg, 16, &base);
--	if (ret)
--		return ret;
-+	if (ret) {
-+		pr_warn("PMTMR: invalid 'pmtmr=' value: '%s'\n", arg);
-+		return 1;
-+	}
+-static int snd_cs4281_probe(struct pci_dev *pci,
+-			    const struct pci_device_id *pci_id)
++static int __snd_cs4281_probe(struct pci_dev *pci,
++			      const struct pci_device_id *pci_id)
+ {
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -1888,6 +1888,12 @@ static int snd_cs4281_probe(struct pci_dev *pci,
+ 	return 0;
+ }
  
- 	pr_info("PMTMR IOPort override: 0x%04x -> 0x%04x\n", pmtmr_ioport,
- 		base);
++static int snd_cs4281_probe(struct pci_dev *pci,
++			    const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_cs4281_probe(pci, pci_id));
++}
++
+ /*
+  * Power Management
+  */
 -- 
-2.34.1
+2.35.2
 
 
 
