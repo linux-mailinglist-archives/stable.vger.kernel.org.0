@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78839504FE8
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 395AD5054EF
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238239AbiDRMTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:19:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48824 "EHLO
+        id S241666AbiDRNMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238223AbiDRMSk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:18:40 -0400
+        with ESMTP id S241215AbiDRNG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:06:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 099331B79D;
-        Mon, 18 Apr 2022 05:15:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0FEA2A254;
+        Mon, 18 Apr 2022 05:47:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 961BF60F07;
-        Mon, 18 Apr 2022 12:15:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA867C385A8;
-        Mon, 18 Apr 2022 12:15:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D4BE6101A;
+        Mon, 18 Apr 2022 12:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48FEFC385A1;
+        Mon, 18 Apr 2022 12:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284156;
-        bh=BZX6audibro97uCmaO6HcMI9G8asr2tb6YpClv7yebQ=;
+        s=korg; t=1650286040;
+        bh=bDq4CJx1GKP2PLiTe4/HEQW+6US9MEefoAoHfnXwjMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QeBLy1GT6Tswic+L59RpK/Birxg5k9JQbX3drh4jHLL7905Ep4rUK8mt4vwrLPCFB
-         c7wywPEBgw5MzHfRKsOecsLDxQ/8wn6huugEVHc2XokPLZDVfs7w+aZFsa7MguqX4a
-         aj2JCWMg2z2wzxPcEGc18Hg46nMwheBCgJhnFvG8=
+        b=LYNJXzGGcW0VVR3BzgZ87GUrJrlUDIv56iNYMB+z3S4sP65ZWmsce7pInK1sLtNdO
+         JksW+mT2I334I/OduF1SZvwbUXAK+kd4C+UWiW9iUgoyscvcwa0ohCB7I2RO75Abi8
+         j/SXBBWTp8D0sGTflukeug0kLBLj5ewINT6p6l74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 023/219] ALSA: au88x0: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jens Axboe <axboe@kernel.dk>, Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.14 011/284] block: Add a helper to validate the block size
 Date:   Mon, 18 Apr 2022 14:09:52 +0200
-Message-Id: <20220418121204.643720303@linuxfoundation.org>
+Message-Id: <20220418121211.018253515@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,51 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-commit b093de145bc8769c6e9207947afad9efe102f4f6 upstream.
+commit 570b1cac477643cbf01a45fa5d018430a1fddbce upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+There are some duplicated codes to validate the block
+size in block drivers. This limitation actually comes
+from block layer, so this patch tries to add a new block
+layer helper for that.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: e44b5b440609 ("ALSA: au88x0: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-8-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: https://lore.kernel.org/r/20211026144015.188-2-xieyongji@bytedance.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/au88x0/au88x0.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ include/linux/blkdev.h |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/sound/pci/au88x0/au88x0.c
-+++ b/sound/pci/au88x0/au88x0.c
-@@ -193,7 +193,7 @@ snd_vortex_create(struct snd_card *card,
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -56,6 +56,14 @@ struct blk_stat_callback;
+  */
+ #define BLKCG_MAX_POLS		3
  
- // constructor -- see "Constructor" sub-section
- static int
--snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
-+__snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -310,6 +310,12 @@ snd_vortex_probe(struct pci_dev *pci, co
- 	return 0;
- }
- 
-+static int
-+snd_vortex_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
++static inline int blk_validate_block_size(unsigned int bsize)
 +{
-+	return snd_card_free_on_error(&pci->dev, __snd_vortex_probe(pci, pci_id));
++	if (bsize < 512 || bsize > PAGE_SIZE || !is_power_of_2(bsize))
++		return -EINVAL;
++
++	return 0;
 +}
 +
- // pci_driver definition
- static struct pci_driver vortex_driver = {
- 	.name = KBUILD_MODNAME,
+ typedef void (rq_end_io_fn)(struct request *, blk_status_t);
+ 
+ #define BLK_RL_SYNCFULL		(1U << 0)
 
 
