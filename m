@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA4675050A1
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBDD450525B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238774AbiDRM0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38524 "EHLO
+        id S232816AbiDRMkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:40:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238773AbiDRM0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E50CBC35;
-        Mon, 18 Apr 2022 05:20:03 -0700 (PDT)
+        with ESMTP id S239368AbiDRMhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A3C222A8;
+        Mon, 18 Apr 2022 05:27:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A48B60F01;
-        Mon, 18 Apr 2022 12:20:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23EE0C385A7;
-        Mon, 18 Apr 2022 12:20:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F2A0B80ED6;
+        Mon, 18 Apr 2022 12:27:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A8EEC385AE;
+        Mon, 18 Apr 2022 12:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284402;
-        bh=EawFOWZdFf7a32J8RZPjASL5p+3DXEbvcgrIUmEARdU=;
+        s=korg; t=1650284874;
+        bh=QFTRQt+UgYTy/jS01Q0+XiCAEMbdg9veDOH4iPIK744=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsTZti9y0QlFTG+Dp9CLr0ZUSTvqim0JX1aLgH5nzaQgnaQrlPGTljWqqRtCbh4b4
-         eHDcKk64y2tLzSQ4M/trTvv5mUPS89DO2WEPIVKrW0C03kCh7npIwt8+IDzW2J5YJm
-         cPVUUxDvbespssBYaMVFDR7hpgfhjGpyutHSKfns=
+        b=eSIS0qWvyMcD6yq282kIu9n1CWtTGjmcfAXfripDkaXpp090TcwbEOBXf9Yl3OSAj
+         XD1biTP8kE/b+JZANx0Nj82Rq47buOh44wG5LgUfMy+/NotLN1gfyQtBLn7mA2//KT
+         ticziM+2gubN9oUHPg9+PfGBopkxMlE6X0UltXfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benedikt Spranger <b.spranger@linutronix.de>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 086/219] net/sched: taprio: Check if socket flags are valid
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 035/189] ALSA: fm801: Fix the missing snd_card_free() call at probe error
 Date:   Mon, 18 Apr 2022 14:10:55 +0200
-Message-Id: <20220418121208.859257415@linuxfoundation.org>
+Message-Id: <20220418121201.511484968@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,48 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benedikt Spranger <b.spranger@linutronix.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit e8a64bbaaad1f6548cec5508297bc6d45e8ab69e ]
+commit 7f611274a3d1657a67b3fa8cd0cec1dee00e02b4 upstream.
 
-A user may set the SO_TXTIME socket option to ensure a packet is send
-at a given time. The taprio scheduler has to confirm, that it is allowed
-to send a packet at that given time, by a check against the packet time
-schedule. The scheduler drop the packet, if the gates are closed at the
-given send time.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-The check, if SO_TXTIME is set, may fail since sk_flags are part of an
-union and the union is used otherwise. This happen, if a socket is not
-a full socket, like a request socket for example.
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
 
-Add a check to verify, if the union is used for sk_flags.
-
-Fixes: 4cfd5779bd6e ("taprio: Add support for txtime-assist mode")
-Signed-off-by: Benedikt Spranger <b.spranger@linutronix.de>
-Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 47c413395376 ("ALSA: fm801: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-17-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_taprio.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/fm801.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 377f896bdedc..b9c71a304d39 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -417,7 +417,8 @@ static int taprio_enqueue_one(struct sk_buff *skb, struct Qdisc *sch,
- {
- 	struct taprio_sched *q = qdisc_priv(sch);
+diff --git a/sound/pci/fm801.c b/sound/pci/fm801.c
+index 9c22ff19e56d..62b3cb126c6d 100644
+--- a/sound/pci/fm801.c
++++ b/sound/pci/fm801.c
+@@ -1268,8 +1268,8 @@ static int snd_fm801_create(struct snd_card *card,
+ 	return 0;
+ }
  
--	if (skb->sk && sock_flag(skb->sk, SOCK_TXTIME)) {
-+	/* sk_flags are only safe to use on full sockets. */
-+	if (skb->sk && sk_fullsock(skb->sk) && sock_flag(skb->sk, SOCK_TXTIME)) {
- 		if (!is_valid_interval(skb, sch))
- 			return qdisc_drop(skb, sch, to_free);
- 	} else if (TXTIME_ASSIST_IS_ENABLED(q->flags)) {
+-static int snd_card_fm801_probe(struct pci_dev *pci,
+-				const struct pci_device_id *pci_id)
++static int __snd_card_fm801_probe(struct pci_dev *pci,
++				  const struct pci_device_id *pci_id)
+ {
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -1333,6 +1333,12 @@ static int snd_card_fm801_probe(struct pci_dev *pci,
+ 	return 0;
+ }
+ 
++static int snd_card_fm801_probe(struct pci_dev *pci,
++				const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_card_fm801_probe(pci, pci_id));
++}
++
+ #ifdef CONFIG_PM_SLEEP
+ static const unsigned char saved_regs[] = {
+ 	FM801_PCM_VOL, FM801_I2S_VOL, FM801_FM_VOL, FM801_REC_SRC,
 -- 
-2.35.1
+2.35.2
 
 
 
