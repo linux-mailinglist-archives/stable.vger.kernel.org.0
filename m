@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C675051D2
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 810345057FA
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230144AbiDRMke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:40:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38744 "EHLO
+        id S244397AbiDRN7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240776AbiDRMjh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B89EF12772;
-        Mon, 18 Apr 2022 05:30:32 -0700 (PDT)
+        with ESMTP id S244239AbiDRN4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDDCE2A726;
+        Mon, 18 Apr 2022 06:05:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64C51B80ED6;
-        Mon, 18 Apr 2022 12:30:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A7CC385A1;
-        Mon, 18 Apr 2022 12:30:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D49DB80EC0;
+        Mon, 18 Apr 2022 13:05:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0DC0C385A1;
+        Mon, 18 Apr 2022 13:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285030;
-        bh=hGsffzSflV0Zcd6vbMjc21DkqfkVDRAZ+jfyzuDs23Q=;
+        s=korg; t=1650287124;
+        bh=3ONAA+db7xXX+XCtiELFowQDfk4co1geMc+6o3v+NJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nYVdHyz3rbnLP0xoswKR36uS9t5EstnKMga+nmlL/tGPhMgRevmUUWILfrTFczFeA
-         f3klwqfrzDnSkGCOBDEFibAPPmlexHBALAdrGQAnC/RPeGCX8dlCghp5k5vedHdhJn
-         tmQ062RAyniOTmM57ToTDZPltV4wiViFjFOh4/Kk=
+        b=Z5hwdcB5Ry+hjphoQutvfq6bVq5WTH6+Pvvtk66dI92cvD9UiCaB2hPc28ePCt4Vt
+         ScefNzqPn6i3yOiRVDOK9nLLoAWvI9F0U+hMHDPLBGV7WFjdNh+s9ZfFKMRJ3f34IR
+         QJzt4xLpAtW5jAkC0wyY1rqDt381UWj4fpBCl/Qs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 083/189] scsi: iscsi: Fix endpoint reuse regression
+        stable@vger.kernel.org,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Hector Martin <marcan@marcan.st>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.9 037/218] brcmfmac: firmware: Allocate space for default boardrev in nvram
 Date:   Mon, 18 Apr 2022 14:11:43 +0200
-Message-Id: <20220418121202.863814974@linuxfoundation.org>
+Message-Id: <20220418121200.553446871@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,80 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 0aadafb5c34403a7cced1a8d61877048dc059f70 ]
+commit d19d8e3ba256f81ea4a27209dbbd1f0a00ef1903 upstream.
 
-This patch fixes a bug where when using iSCSI offload we can free an
-endpoint while userspace still thinks it's active. That then causes the
-endpoint ID to be reused for a new connection's endpoint while userspace
-still thinks the ID is for the original connection. Userspace will then end
-up disconnecting a running connection's endpoint or trying to bind to
-another connection's endpoint.
+If boardrev is missing from the NVRAM we add a default one, but this
+might need more space in the output buffer than was allocated. Ensure
+we have enough padding for this in the buffer.
 
-This bug is a regression added in:
-
-Commit 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
-
-where we added a in kernel ep_disconnect call to fix a bug in:
-
-Commit 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in
-kernel space")
-
-where we would call stop_conn without having done ep_disconnect. This early
-ep_disconnect call will then free the endpoint and it's ID while userspace
-still thinks the ID is valid.
-
-Fix the early release of the ID by having the in kernel recovery code keep
-a reference to the endpoint until userspace has called into the kernel to
-finish cleaning up the endpoint/connection. It requires the previous commit
-"scsi: iscsi: Release endpoint ID when its freed" which moved the freeing
-of the ID until when the endpoint is released.
-
-Link: https://lore.kernel.org/r/20220408001314.5014-5-michael.christie@oracle.com
-Fixes: 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
-Tested-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 46f2b38a91b0 ("brcmfmac: insert default boardrev in nvram data if missing")
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220131160713.245637-3-marcan@marcan.st
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 03cda2da80ef..4fa2fd7f4c72 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2267,7 +2267,11 @@ static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
- 		mutex_unlock(&conn->ep_mutex);
- 
- 		flush_work(&conn->cleanup_work);
--
-+		/*
-+		 * Userspace is now done with the EP so we can release the ref
-+		 * iscsi_cleanup_conn_work_fn took.
-+		 */
-+		iscsi_put_endpoint(ep);
- 		mutex_lock(&conn->ep_mutex);
- 	}
- }
-@@ -2342,6 +2346,12 @@ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
- 		return;
- 	}
- 
-+	/*
-+	 * Get a ref to the ep, so we don't release its ID until after
-+	 * userspace is done referencing it in iscsi_if_disconnect_bound_ep.
-+	 */
-+	if (conn->ep)
-+		get_device(&conn->ep->dev);
- 	iscsi_ep_disconnect(conn, false);
- 
- 	if (system_state != SYSTEM_RUNNING) {
--- 
-2.35.1
-
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+@@ -216,6 +216,8 @@ static int brcmf_init_nvram_parser(struc
+ 		size = BRCMF_FW_MAX_NVRAM_SIZE;
+ 	else
+ 		size = data_len;
++	/* Add space for properties we may add */
++	size += strlen(BRCMF_FW_DEFAULT_BOARDREV) + 1;
+ 	/* Alloc for extra 0 byte + roundup by 4 + length field */
+ 	size += 1 + 3 + sizeof(u32);
+ 	nvp->nvram = kzalloc(size, GFP_KERNEL);
 
 
