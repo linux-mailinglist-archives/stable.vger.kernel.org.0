@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B273750565D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 897815053BD
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235668AbiDRNel (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:34:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41352 "EHLO
+        id S229527AbiDRNBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244867AbiDRNa7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 785631EEEF;
-        Mon, 18 Apr 2022 05:56:42 -0700 (PDT)
+        with ESMTP id S241474AbiDRM6r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35F3C286FB;
+        Mon, 18 Apr 2022 05:39:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2BB26115A;
-        Mon, 18 Apr 2022 12:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5F1FC385A1;
-        Mon, 18 Apr 2022 12:56:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2421B80EDF;
+        Mon, 18 Apr 2022 12:39:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10DA0C385A7;
+        Mon, 18 Apr 2022 12:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286601;
-        bh=A/6IH/eVbD7pC1jgqsxa90n8fT6Oo4kz+pG3eQZ/lBo=;
+        s=korg; t=1650285548;
+        bh=w7aXpuwOrzhppGfZ0NAyhIFazOsTIW/sc7x6w0mpvO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3DwvvqAY606eE03kTZfhXxflHiuxEycdenqQ7yRIUKltuceK5KB6bnNpFnOhauyN
-         0jree+UZLLqjJpyIU+wsEVQoNg2SiFDkxqdubEgsf7kGnEldQospE94nuNf+HSqxEF
-         JDgbJX/NfJ0NLpyXo6n4bSKGi/mT1iGSEkmREdhs=
+        b=efcOvuTwCCX2zfnznnA4Fmq56I3JRA9lK/PJ9MszPf2FxBZPvr7bGGcq/Sp7xYGDj
+         ptHQUERiOREmYcY1nEZEoXDDR7KnfRniymLbZJT1dS8vOrLcFlnzKcboVvjqd6mloE
+         WWwJPAJPVGfReK9Na1amlD52kNIIxN+jqGHrWGYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.14 187/284] ubifs: setflags: Make dirtied_ino_d 8 bytes aligned
+        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
+        Alex Hung <alex.hung@amd.com>,
+        Chiawen Huang <chiawen.huang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 046/105] drm/amd/display: FEC check in timing validation
 Date:   Mon, 18 Apr 2022 14:12:48 +0200
-Message-Id: <20220418121217.054752068@linuxfoundation.org>
+Message-Id: <20220418121147.788986359@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Chiawen Huang <chiawen.huang@amd.com>
 
-commit 1b83ec057db16b4d0697dc21ef7a9743b6041f72 upstream.
+[ Upstream commit 7d56a154e22ffb3613fdebf83ec34d5225a22993 ]
 
-Make 'ui->data_len' aligned with 8 bytes before it is assigned to
-dirtied_ino_d. Since 8871d84c8f8b0c6b("ubifs: convert to fileattr")
-applied, 'setflags()' only affects regular files and directories, only
-xattr inode, symlink inode and special inode(pipe/char_dev/block_dev)
-have none- zero 'ui->data_len' field, so assertion
-'!(req->dirtied_ino_d & 7)' cannot fail in ubifs_budget_space().
-To avoid assertion fails in future evolution(eg. setflags can operate
-special inodes), it's better to make dirtied_ino_d 8 bytes aligned,
-after all aligned size is still zero for regular files.
+[Why]
+disable/enable leads FEC mismatch between hw/sw FEC state.
 
-Fixes: 1e51764a3c2ac05a ("UBIFS: add new flash file system")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[How]
+check FEC status to fastboot on/off.
+
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Chiawen Huang <chiawen.huang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/ubifs/ioctl.c
-+++ b/fs/ubifs/ioctl.c
-@@ -110,7 +110,7 @@ static int setflags(struct inode *inode,
- 	struct ubifs_inode *ui = ubifs_inode(inode);
- 	struct ubifs_info *c = inode->i_sb->s_fs_info;
- 	struct ubifs_budget_req req = { .dirtied_ino = 1,
--					.dirtied_ino_d = ui->data_len };
-+			.dirtied_ino_d = ALIGN(ui->data_len, 8) };
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 93f5229c303e..ac5323596c65 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -1173,6 +1173,10 @@ bool dc_validate_seamless_boot_timing(const struct dc *dc,
+ 	if (!link->link_enc->funcs->is_dig_enabled(link->link_enc))
+ 		return false;
  
- 	err = ubifs_budget_space(c, &req);
- 	if (err)
++	/* Check for FEC status*/
++	if (link->link_enc->funcs->fec_is_active(link->link_enc))
++		return false;
++
+ 	enc_inst = link->link_enc->funcs->get_dig_frontend(link->link_enc);
+ 
+ 	if (enc_inst == ENGINE_ID_UNKNOWN)
+-- 
+2.35.1
+
 
 
