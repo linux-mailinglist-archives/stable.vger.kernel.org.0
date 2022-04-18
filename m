@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B49505548
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 662EB505234
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242009AbiDRNNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:13:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54616 "EHLO
+        id S239578AbiDRMmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:42:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243707AbiDRNKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A07DD26DE;
-        Mon, 18 Apr 2022 05:49:53 -0700 (PDT)
+        with ESMTP id S239994AbiDRMid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABCC5F40;
+        Mon, 18 Apr 2022 05:29:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 613F7B80EE1;
-        Mon, 18 Apr 2022 12:49:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C81C385A8;
-        Mon, 18 Apr 2022 12:49:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8989B80ED1;
+        Mon, 18 Apr 2022 12:29:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 510D8C385A1;
+        Mon, 18 Apr 2022 12:29:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286176;
-        bh=jSmZMcvSkSe1LBly2aT57pfhxF45RhCNh/KbiUBO+tw=;
+        s=korg; t=1650284941;
+        bh=E7/1BbysndzDFVbdCTayQBPnTXaL+5SZ72S1P3tDG0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vy4bwrnYISuvWwKwfO7p1TLc1gv9M7OKAucsHyrWPjdwURYO6bFkd0ny7TU8tv6L8
-         Fq9YmyYWaJIm6PVUvtmNwahaUbHIJh0XNKOr8bpTNvyvBK5jUeoVqQb8ag/U7pPRYK
-         NOumCVJUKIeR9vZm+HI8zZhT1yjTEHI/xY9Sdyyo=
+        b=0KVYlQ21cjjVBftITEM345TRD2x/O6gaAavVEYlSMAUidd1fASytx47jxIdFPoi8T
+         79peDWAGsd7pnxvmCDmZBsHYjB/RAmzrxkmAx5im8WylBRG1D6Netbcu4jhTGMdtai
+         OLEn6UCNJht7r0opj7TDD5eUN3qj3c77F10nyHOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 053/284] crypto: authenc - Fix sleep in atomic context in decrypt_tail
-Date:   Mon, 18 Apr 2022 14:10:34 +0200
-Message-Id: <20220418121212.204177542@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 015/189] btrfs: release correct delalloc amount in direct IO write path
+Date:   Mon, 18 Apr 2022 14:10:35 +0200
+Message-Id: <20220418121200.941209603@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +56,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-[ Upstream commit 66eae850333d639fc278d6f915c6fc01499ea893 ]
+commit 6d82ad13c4110e73c7b0392f00534a1502a1b520 upstream.
 
-The function crypto_authenc_decrypt_tail discards its flags
-argument and always relies on the flags from the original request
-when starting its sub-request.
+Running generic/406 causes the following WARNING in btrfs_destroy_inode()
+which tells there are outstanding extents left.
 
-This is clearly wrong as it may cause the SLEEPABLE flag to be
-set when it shouldn't.
+In btrfs_get_blocks_direct_write(), we reserve a temporary outstanding
+extents with btrfs_delalloc_reserve_metadata() (or indirectly from
+btrfs_delalloc_reserve_space(()). We then release the outstanding extents
+with btrfs_delalloc_release_extents(). However, the "len" can be modified
+in the COW case, which releases fewer outstanding extents than expected.
 
-Fixes: 92d95ba91772 ("crypto: authenc - Convert to new AEAD interface")
-Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix it by calling btrfs_delalloc_release_extents() for the original length.
+
+To reproduce the warning, the filesystem should be 1 GiB.  It's
+triggering a short-write, due to not being able to allocate a large
+extent and instead allocating a smaller one.
+
+  WARNING: CPU: 0 PID: 757 at fs/btrfs/inode.c:8848 btrfs_destroy_inode+0x1e6/0x210 [btrfs]
+  Modules linked in: btrfs blake2b_generic xor lzo_compress
+  lzo_decompress raid6_pq zstd zstd_decompress zstd_compress xxhash zram
+  zsmalloc
+  CPU: 0 PID: 757 Comm: umount Not tainted 5.17.0-rc8+ #101
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS d55cb5a 04/01/2014
+  RIP: 0010:btrfs_destroy_inode+0x1e6/0x210 [btrfs]
+  RSP: 0018:ffffc9000327bda8 EFLAGS: 00010206
+  RAX: 0000000000000000 RBX: ffff888100548b78 RCX: 0000000000000000
+  RDX: 0000000000026900 RSI: 0000000000000000 RDI: ffff888100548b78
+  RBP: ffff888100548940 R08: 0000000000000000 R09: ffff88810b48aba8
+  R10: 0000000000000001 R11: ffff8881004eb240 R12: ffff88810b48a800
+  R13: ffff88810b48ec08 R14: ffff88810b48ed00 R15: ffff888100490c68
+  FS:  00007f8549ea0b80(0000) GS:ffff888237c00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f854a09e733 CR3: 000000010a2e9003 CR4: 0000000000370eb0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   <TASK>
+   destroy_inode+0x33/0x70
+   dispose_list+0x43/0x60
+   evict_inodes+0x161/0x1b0
+   generic_shutdown_super+0x2d/0x110
+   kill_anon_super+0xf/0x20
+   btrfs_kill_super+0xd/0x20 [btrfs]
+   deactivate_locked_super+0x27/0x90
+   cleanup_mnt+0x12c/0x180
+   task_work_run+0x54/0x80
+   exit_to_user_mode_prepare+0x152/0x160
+   syscall_exit_to_user_mode+0x12/0x30
+   do_syscall_64+0x42/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+   RIP: 0033:0x7f854a000fb7
+
+Fixes: f0bfa76a11e9 ("btrfs: fix ENOSPC failure when attempting direct IO write into NOCOW range")
+CC: stable@vger.kernel.org # 5.17
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Tested-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/authenc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/inode.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/crypto/authenc.c b/crypto/authenc.c
-index 053287dfad65..533e811a0899 100644
---- a/crypto/authenc.c
-+++ b/crypto/authenc.c
-@@ -268,7 +268,7 @@ static int crypto_authenc_decrypt_tail(struct aead_request *req,
- 		dst = scatterwalk_ffwd(areq_ctx->dst, req->dst, req->assoclen);
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -7772,6 +7772,7 @@ static int btrfs_get_blocks_direct_write
+ 	u64 block_start, orig_start, orig_block_len, ram_bytes;
+ 	bool can_nocow = false;
+ 	bool space_reserved = false;
++	u64 prev_len;
+ 	int ret = 0;
  
- 	skcipher_request_set_tfm(skreq, ctx->enc);
--	skcipher_request_set_callback(skreq, aead_request_flags(req),
-+	skcipher_request_set_callback(skreq, flags,
- 				      req->base.complete, req->base.data);
- 	skcipher_request_set_crypt(skreq, src, dst,
- 				   req->cryptlen - authsize, req->iv);
--- 
-2.34.1
-
+ 	/*
+@@ -7799,6 +7800,7 @@ static int btrfs_get_blocks_direct_write
+ 			can_nocow = true;
+ 	}
+ 
++	prev_len = len;
+ 	if (can_nocow) {
+ 		struct extent_map *em2;
+ 
+@@ -7828,8 +7830,6 @@ static int btrfs_get_blocks_direct_write
+ 			goto out;
+ 		}
+ 	} else {
+-		const u64 prev_len = len;
+-
+ 		/* Our caller expects us to free the input extent map. */
+ 		free_extent_map(em);
+ 		*map = NULL;
+@@ -7860,7 +7860,7 @@ static int btrfs_get_blocks_direct_write
+ 	 * We have created our ordered extent, so we can now release our reservation
+ 	 * for an outstanding extent.
+ 	 */
+-	btrfs_delalloc_release_extents(BTRFS_I(inode), len);
++	btrfs_delalloc_release_extents(BTRFS_I(inode), prev_len);
+ 
+ 	/*
+ 	 * Need to update the i_size under the extent lock so buffered
 
 
