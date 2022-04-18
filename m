@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9571D5051C9
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3109750562C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230309AbiDRMkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:40:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38014 "EHLO
+        id S242123AbiDRNcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:32:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240768AbiDRMjg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:36 -0400
+        with ESMTP id S242879AbiDRN2q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:28:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50CFB12A86;
-        Mon, 18 Apr 2022 05:30:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E8E3ED12;
+        Mon, 18 Apr 2022 05:53:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E08A260F04;
-        Mon, 18 Apr 2022 12:30:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECAEBC385A7;
-        Mon, 18 Apr 2022 12:30:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F3386124E;
+        Mon, 18 Apr 2022 12:53:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58382C385A1;
+        Mon, 18 Apr 2022 12:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285027;
-        bh=X7qBUUgV1LaOs2vD6Ys+38lRH+s//Ob0CYGiP9aS3nI=;
+        s=korg; t=1650286401;
+        bh=L+U2PjbOPSfXSjNB64PGA1oFCZtfSLRYyyvwrXR+O0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9hGPNhm22shkrIWhIRDYTy3OMN1/MSUDQaI6HvUaOrtmdfue/Q99PmPYVEYwQ7T5
-         CfZxFG80GKM5Drh7A5a0dqeGg5yuVWHa0JfXro89q/1v4hJaYsSa2kdZgguS8QW+14
-         oen6kjh/lY7alPQ4UA73D2uU3p/fCuXmjq7ERUX8=
+        b=Sl9FkzPmvdhNgVWVvJW0vPSLdvHze3qDY2HoNUNTnowqMQLbKIgklZnfpgPbkVNkA
+         TK13yAudBJWRHBrUjeVXeEkLXi67F3CRWmOe+5jl6qmukn3G4HEYZRHRZIh74MVad6
+         vqfdzPPubl1TeDELI1WKuBkf/8r38/jMnB7sIhpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 082/189] scsi: iscsi: Fix offload conn cleanup when iscsid restarts
+Subject: [PATCH 4.14 121/284] vxcan: enable local echo for sent CAN frames
 Date:   Mon, 18 Apr 2022 14:11:42 +0200
-Message-Id: <20220418121202.835906512@linuxfoundation.org>
+Message-Id: <20220418121214.565347809@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,115 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit cbd2283aaf47fef4ded4b29124b1ef3beb515f3a ]
+[ Upstream commit 259bdba27e32368b4404f69d613b1c1014c07cbf ]
 
-When userspace restarts during boot or upgrades it won't know about the
-offload driver's endpoint and connection mappings. iscsid will start by
-cleaning up the old session by doing a stop_conn call. Later, if we are
-able to create a new connection, we clean up the old endpoint during the
-binding stage. The problem is that if we do stop_conn before doing the
-ep_disconnect call offload, drivers can still be executing I/O. We then
-might free tasks from the under the card/driver.
+The vxcan driver provides a pair of virtual CAN interfaces to exchange
+CAN traffic between different namespaces - analogue to veth.
 
-This moves the ep_disconnect call to before we do the stop_conn call for
-this case. It will then work and look like a normal recovery/cleanup
-procedure from the driver's point of view.
+In opposite to the vcan driver the local sent CAN traffic on this interface
+is not echo'ed back but only sent to the remote peer. This is unusual and
+can be easily fixed by removing IFF_ECHO from the netdevice flags that
+are set for vxcan interfaces by default at startup.
 
-Link: https://lore.kernel.org/r/20220408001314.5014-3-michael.christie@oracle.com
-Tested-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Without IFF_ECHO set on driver level, the local sent CAN frames are echo'ed
+in af_can.c in can_send(). This patch makes vxcan interfaces adopt the
+same local echo behavior and procedures as known from the vcan interfaces.
+
+Fixes: a8f820a380a2 ("can: add Virtual CAN Tunnel driver (vxcan)")
+Link: https://lore.kernel.org/all/20220309120416.83514-5-socketcan@hartkopp.net
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 48 +++++++++++++++++------------
- 1 file changed, 28 insertions(+), 20 deletions(-)
+ drivers/net/can/vxcan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 126f6f23bffa..03cda2da80ef 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2255,6 +2255,23 @@ static void iscsi_ep_disconnect(struct iscsi_cls_conn *conn, bool is_active)
- 	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep done.\n");
+diff --git a/drivers/net/can/vxcan.c b/drivers/net/can/vxcan.c
+index fc9197f14a3f..4b5355226f58 100644
+--- a/drivers/net/can/vxcan.c
++++ b/drivers/net/can/vxcan.c
+@@ -156,7 +156,7 @@ static void vxcan_setup(struct net_device *dev)
+ 	dev->hard_header_len	= 0;
+ 	dev->addr_len		= 0;
+ 	dev->tx_queue_len	= 0;
+-	dev->flags		= (IFF_NOARP|IFF_ECHO);
++	dev->flags		= IFF_NOARP;
+ 	dev->netdev_ops		= &vxcan_netdev_ops;
+ 	dev->needs_free_netdev	= true;
  }
- 
-+static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
-+					 struct iscsi_endpoint *ep,
-+					 bool is_active)
-+{
-+	/* Check if this was a conn error and the kernel took ownership */
-+	if (!test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
-+		iscsi_ep_disconnect(conn, is_active);
-+	} else {
-+		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
-+		mutex_unlock(&conn->ep_mutex);
-+
-+		flush_work(&conn->cleanup_work);
-+
-+		mutex_lock(&conn->ep_mutex);
-+	}
-+}
-+
- static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 			      struct iscsi_uevent *ev)
- {
-@@ -2275,6 +2292,16 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 		cancel_work_sync(&conn->cleanup_work);
- 		iscsi_stop_conn(conn, flag);
- 	} else {
-+		/*
-+		 * For offload, when iscsid is restarted it won't know about
-+		 * existing endpoints so it can't do a ep_disconnect. We clean
-+		 * it up here for userspace.
-+		 */
-+		mutex_lock(&conn->ep_mutex);
-+		if (conn->ep)
-+			iscsi_if_disconnect_bound_ep(conn, conn->ep, true);
-+		mutex_unlock(&conn->ep_mutex);
-+
- 		/*
- 		 * Figure out if it was the kernel or userspace initiating this.
- 		 */
-@@ -3003,16 +3030,7 @@ static int iscsi_if_ep_disconnect(struct iscsi_transport *transport,
- 	}
- 
- 	mutex_lock(&conn->ep_mutex);
--	/* Check if this was a conn error and the kernel took ownership */
--	if (test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
--		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
--		mutex_unlock(&conn->ep_mutex);
--
--		flush_work(&conn->cleanup_work);
--		goto put_ep;
--	}
--
--	iscsi_ep_disconnect(conn, false);
-+	iscsi_if_disconnect_bound_ep(conn, ep, false);
- 	mutex_unlock(&conn->ep_mutex);
- put_ep:
- 	iscsi_put_endpoint(ep);
-@@ -3723,16 +3741,6 @@ static int iscsi_if_transport_conn(struct iscsi_transport *transport,
- 
- 	switch (nlh->nlmsg_type) {
- 	case ISCSI_UEVENT_BIND_CONN:
--		if (conn->ep) {
--			/*
--			 * For offload boot support where iscsid is restarted
--			 * during the pivot root stage, the ep will be intact
--			 * here when the new iscsid instance starts up and
--			 * reconnects.
--			 */
--			iscsi_ep_disconnect(conn, true);
--		}
--
- 		session = iscsi_session_lookup(ev->u.b_conn.sid);
- 		if (!session) {
- 			err = -EINVAL;
 -- 
-2.35.1
+2.34.1
 
 
 
