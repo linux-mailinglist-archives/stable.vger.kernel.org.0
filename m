@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBDD450525B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7057A505242
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232816AbiDRMkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:40:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40038 "EHLO
+        id S239505AbiDRMkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:40:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239368AbiDRMhY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80A3C222A8;
-        Mon, 18 Apr 2022 05:27:57 -0700 (PDT)
+        with ESMTP id S239540AbiDRMhu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:50 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3289422B32;
+        Mon, 18 Apr 2022 05:28:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F2A0B80ED6;
-        Mon, 18 Apr 2022 12:27:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A8EEC385AE;
-        Mon, 18 Apr 2022 12:27:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6BA74CE106E;
+        Mon, 18 Apr 2022 12:28:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A9A7C385A1;
+        Mon, 18 Apr 2022 12:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284874;
-        bh=QFTRQt+UgYTy/jS01Q0+XiCAEMbdg9veDOH4iPIK744=;
+        s=korg; t=1650284880;
+        bh=1+mHDbx/2APMySnQ2Nnve3ZYUelcYmW+MeHsO0mit48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eSIS0qWvyMcD6yq282kIu9n1CWtTGjmcfAXfripDkaXpp090TcwbEOBXf9Yl3OSAj
-         XD1biTP8kE/b+JZANx0Nj82Rq47buOh44wG5LgUfMy+/NotLN1gfyQtBLn7mA2//KT
-         ticziM+2gubN9oUHPg9+PfGBopkxMlE6X0UltXfw=
+        b=b7pYnf7skrn5LaA3PaZ1r3gVFmVM+PXWaaN1wyWiEkGZyr4cgBzsA2XVodmQcFLUV
+         GTkqm/Jfuaz5NxXWp9htWi9CZ161PmHd9EQ6vdXgXuw6XRSI2RHpsp7LW/t79tk1R1
+         PipNnsX/cKoTclaDQRYSsRzsg7h5ve0dvM11Rw9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 035/189] ALSA: fm801: Fix the missing snd_card_free() call at probe error
-Date:   Mon, 18 Apr 2022 14:10:55 +0200
-Message-Id: <20220418121201.511484968@linuxfoundation.org>
+Subject: [PATCH 5.15 036/189] ALSA: galaxy: Fix the missing snd_card_free() call at probe error
+Date:   Mon, 18 Apr 2022 14:10:56 +0200
+Message-Id: <20220418121201.539623125@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
 References: <20220418121200.312988959@linuxfoundation.org>
@@ -54,7 +54,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 7f611274a3d1657a67b3fa8cd0cec1dee00e02b4 upstream.
+commit 10b1881a97be240126891cb384bd3bc1869f52d8 upstream.
 
 The previous cleanup with devres may lead to the incorrect release
 orders at the probe error handling due to the devres's nature.  Until
@@ -65,43 +65,40 @@ release the stuff via card->private_free().
 This patch fixes it by calling snd_card_free() on the error from the
 probe callback using a new helper function.
 
-Fixes: 47c413395376 ("ALSA: fm801: Allocate resources with device-managed APIs")
+Fixes: 35a245ec0619 ("ALSA: galaxy: Allocate resources with device-managed APIs")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-17-tiwai@suse.de
+Link: https://lore.kernel.org/r/20220412102636.16000-2-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/fm801.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/isa/galaxy/galaxy.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/fm801.c b/sound/pci/fm801.c
-index 9c22ff19e56d..62b3cb126c6d 100644
---- a/sound/pci/fm801.c
-+++ b/sound/pci/fm801.c
-@@ -1268,8 +1268,8 @@ static int snd_fm801_create(struct snd_card *card,
- 	return 0;
+diff --git a/sound/isa/galaxy/galaxy.c b/sound/isa/galaxy/galaxy.c
+index ea001c80149d..3164eb8510fa 100644
+--- a/sound/isa/galaxy/galaxy.c
++++ b/sound/isa/galaxy/galaxy.c
+@@ -478,7 +478,7 @@ static void snd_galaxy_free(struct snd_card *card)
+ 		galaxy_set_config(galaxy, galaxy->config);
  }
  
--static int snd_card_fm801_probe(struct pci_dev *pci,
--				const struct pci_device_id *pci_id)
-+static int __snd_card_fm801_probe(struct pci_dev *pci,
-+				  const struct pci_device_id *pci_id)
+-static int snd_galaxy_probe(struct device *dev, unsigned int n)
++static int __snd_galaxy_probe(struct device *dev, unsigned int n)
  {
- 	static int dev;
- 	struct snd_card *card;
-@@ -1333,6 +1333,12 @@ static int snd_card_fm801_probe(struct pci_dev *pci,
+ 	struct snd_galaxy *galaxy;
+ 	struct snd_wss *chip;
+@@ -598,6 +598,11 @@ static int snd_galaxy_probe(struct device *dev, unsigned int n)
  	return 0;
  }
  
-+static int snd_card_fm801_probe(struct pci_dev *pci,
-+				const struct pci_device_id *pci_id)
++static int snd_galaxy_probe(struct device *dev, unsigned int n)
 +{
-+	return snd_card_free_on_error(&pci->dev, __snd_card_fm801_probe(pci, pci_id));
++	return snd_card_free_on_error(dev, __snd_galaxy_probe(dev, n));
 +}
 +
- #ifdef CONFIG_PM_SLEEP
- static const unsigned char saved_regs[] = {
- 	FM801_PCM_VOL, FM801_I2S_VOL, FM801_FM_VOL, FM801_REC_SRC,
+ static struct isa_driver snd_galaxy_driver = {
+ 	.match		= snd_galaxy_match,
+ 	.probe		= snd_galaxy_probe,
 -- 
 2.35.2
 
