@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2523A505985
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A907505975
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343999AbiDROUL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:20:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34852 "EHLO
+        id S1344013AbiDROUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:20:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344950AbiDROSg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB634B859;
-        Mon, 18 Apr 2022 06:14:20 -0700 (PDT)
+        with ESMTP id S1344205AbiDRORw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:17:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6D93BFBB;
+        Mon, 18 Apr 2022 06:13:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51F6E60EFE;
-        Mon, 18 Apr 2022 13:13:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F3EC385A7;
-        Mon, 18 Apr 2022 13:13:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B92760F56;
+        Mon, 18 Apr 2022 13:13:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71E50C385A7;
+        Mon, 18 Apr 2022 13:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287618;
-        bh=cYFrpU1xBAInY8sq95fLYHNoghUpYzfJfqaK6oFSPxU=;
+        s=korg; t=1650287621;
+        bh=GEnbYpG+qlLDkKaghPTF8kMswkCQsM5G0G3tZu8Jsos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r0q9b71SLrJM+67zgSx2dNiOORcp95Gd+JF1O+LvzoHBp5IVoe6Nm+69EyeOa+lbm
-         wpgQSZSZeMtiXibaJtvdkW7re9M3UkLyhkVAeoE2z18h6bCH12QK/wwhReT951b9F5
-         WMfKymodG9Z9EoafyFp2WMskhzAh/FlEwgGTqa6M=
+        b=mJmm2lkVTw4iN5H+cF4GnjbIKxs4kX9/AabShZHhDEtEwdvjvmsLt/4ewegL1+P5D
+         z4KPQA8PoUOt83hAmLWuRzp7Qz2hmeDJQu1WfO2BbnnE6Vw2n7jI6l8w1w4DnZwBdE
+         G2Jr19JFAU+/5GfsCFvonxvbLrP6MG3pCuHNAzZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Galakhov <agalakhov@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 210/218] scsi: mvsas: Add PCI ID of RocketRaid 2640
-Date:   Mon, 18 Apr 2022 14:14:36 +0200
-Message-Id: <20220418121208.142690187@linuxfoundation.org>
+Subject: [PATCH 4.9 211/218] drivers: net: slip: fix NPD bug in sl_tx_timeout()
+Date:   Mon, 18 Apr 2022 14:14:37 +0200
+Message-Id: <20220418121208.203615584@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,34 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Galakhov <agalakhov@gmail.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 5f2bce1e222028dc1c15f130109a17aa654ae6e8 ]
+[ Upstream commit ec4eb8a86ade4d22633e1da2a7d85a846b7d1798 ]
 
-The HighPoint RocketRaid 2640 is a low-cost SAS controller based on Marvell
-chip. The chip in question was already supported by the kernel, just the
-PCI ID of this particular board was missing.
+When a slip driver is detaching, the slip_close() will act to
+cleanup necessary resources and sl->tty is set to NULL in
+slip_close(). Meanwhile, the packet we transmit is blocked,
+sl_tx_timeout() will be called. Although slip_close() and
+sl_tx_timeout() use sl->lock to synchronize, we don`t judge
+whether sl->tty equals to NULL in sl_tx_timeout() and the
+null pointer dereference bug will happen.
 
-Link: https://lore.kernel.org/r/20220309212535.402987-1-agalakhov@gmail.com
-Signed-off-by: Alexey Galakhov <agalakhov@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+   (Thread 1)                 |      (Thread 2)
+                              | slip_close()
+                              |   spin_lock_bh(&sl->lock)
+                              |   ...
+...                           |   sl->tty = NULL //(1)
+sl_tx_timeout()               |   spin_unlock_bh(&sl->lock)
+  spin_lock(&sl->lock);       |
+  ...                         |   ...
+  tty_chars_in_buffer(sl->tty)|
+    if (tty->ops->..) //(2)   |
+    ...                       |   synchronize_rcu()
+
+We set NULL to sl->tty in position (1) and dereference sl->tty
+in position (2).
+
+This patch adds check in sl_tx_timeout(). If sl->tty equals to
+NULL, sl_tx_timeout() will goto out.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20220405132206.55291-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mvsas/mv_init.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/slip/slip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
-index 230697f9df78..359fd39c6345 100644
---- a/drivers/scsi/mvsas/mv_init.c
-+++ b/drivers/scsi/mvsas/mv_init.c
-@@ -679,6 +679,7 @@ static struct pci_device_id mvs_pci_table[] = {
- 	{ PCI_VDEVICE(ARECA, PCI_DEVICE_ID_ARECA_1300), chip_1300 },
- 	{ PCI_VDEVICE(ARECA, PCI_DEVICE_ID_ARECA_1320), chip_1320 },
- 	{ PCI_VDEVICE(ADAPTEC2, 0x0450), chip_6440 },
-+	{ PCI_VDEVICE(TTI, 0x2640), chip_6440 },
- 	{ PCI_VDEVICE(TTI, 0x2710), chip_9480 },
- 	{ PCI_VDEVICE(TTI, 0x2720), chip_9480 },
- 	{ PCI_VDEVICE(TTI, 0x2721), chip_9480 },
+diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
+index f870396e05e1..ba26fa0ceba8 100644
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -471,7 +471,7 @@ static void sl_tx_timeout(struct net_device *dev)
+ 	spin_lock(&sl->lock);
+ 
+ 	if (netif_queue_stopped(dev)) {
+-		if (!netif_running(dev))
++		if (!netif_running(dev) || !sl->tty)
+ 			goto out;
+ 
+ 		/* May be we must check transmitter timeout here ?
 -- 
 2.35.1
 
