@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4FD35050BD
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A19995057E1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238834AbiDRM3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38208 "EHLO
+        id S244351AbiDRN5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:57:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239866AbiDRM3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E367422B20;
-        Mon, 18 Apr 2022 05:22:45 -0700 (PDT)
+        with ESMTP id S244519AbiDRN4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380CCA1AF;
+        Mon, 18 Apr 2022 06:05:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E6CB60F01;
-        Mon, 18 Apr 2022 12:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 602ECC385A1;
-        Mon, 18 Apr 2022 12:22:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3AF3B80EC4;
+        Mon, 18 Apr 2022 13:05:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19F6EC385A1;
+        Mon, 18 Apr 2022 13:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284564;
-        bh=k0wSfYR0ig7xQ4rb/4er1kpUOZcttmdGmeX4lBcM9V8=;
+        s=korg; t=1650287107;
+        bh=wq+2Jo2ycQGQ6rd/zMFPBA3/65ZNrOu88pNHJPRppgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ka0mtetC+Gt9mujAUWqefhBFET7MGnXYoNuESNnx/6AGmE6FuLbHEzxl8OSq8riq3
-         Ef/NZQsYdymeS7NGsVB0cYCRmrIPOOTiljsbYP4GdDt2j4YUX6KkbnGCggdKwTXFjq
-         DGxmX7gc7r7UINlMhtkveCEy2GEco0/5iaZ6xUns=
+        b=T/ucsbKigkJz99bRbsL+9/40AIhwQGQq+eJa2InRg59JCpJjwWYZ9Iplpvt35H5Ua
+         2bSPZGtjYqTQE63COA6/l/amKMADIT6S1h2n09fz5RBWXABDb5qFxVROmopEivfPVu
+         kXXSJ6ifSqFKTjMC1obwfnERyVHs4nv1iZOwe+fI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Steve Capper <steve.capper@arm.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 156/219] tlb: hugetlb: Add more sizes to tlb_remove_huge_tlb_entry
+Subject: [PATCH 4.9 059/218] media: usb: go7007: s2250-board: fix leak in probe()
 Date:   Mon, 18 Apr 2022 14:12:05 +0200
-Message-Id: <20220418121211.251947230@linuxfoundation.org>
+Message-Id: <20220418121201.302202028@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,66 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Capper <steve.capper@arm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 697a1d44af8ba0477ee729e632f4ade37999249a ]
+[ Upstream commit 67e4550ecd6164bfbdff54c169e5bbf9ccfaf14d ]
 
-tlb_remove_huge_tlb_entry only considers PMD_SIZE and PUD_SIZE when
-updating the mmu_gather structure.
+Call i2c_unregister_device(audio) on this error path.
 
-Unfortunately on arm64 there are two additional huge page sizes that
-need to be covered: CONT_PTE_SIZE and CONT_PMD_SIZE. Where an end-user
-attempts to employ contiguous huge pages, a VM_BUG_ON can be experienced
-due to the fact that the tlb structure hasn't been correctly updated by
-the relevant tlb_flush_p.._range() call from tlb_remove_huge_tlb_entry.
-
-This patch adds inequality logic to the generic implementation of
-tlb_remove_huge_tlb_entry s.t. CONT_PTE_SIZE and CONT_PMD_SIZE are
-effectively covered on arm64. Also, as well as ptes, pmds and puds;
-p4ds are now considered too.
-
-Reported-by: David Hildenbrand <david@redhat.com>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/linux-mm/811c5c8e-b3a2-85d2-049c-717f17c3a03a@redhat.com/
-Signed-off-by: Steve Capper <steve.capper@arm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220330112543.863-1-steve.capper@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: d3b2ccd9e307 ("[media] s2250: convert to the control framework")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/asm-generic/tlb.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/media/usb/go7007/s2250-board.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/include/asm-generic/tlb.h b/include/asm-generic/tlb.h
-index 2c68a545ffa7..71942a1c642d 100644
---- a/include/asm-generic/tlb.h
-+++ b/include/asm-generic/tlb.h
-@@ -565,10 +565,14 @@ static inline void tlb_flush_p4d_range(struct mmu_gather *tlb,
- #define tlb_remove_huge_tlb_entry(h, tlb, ptep, address)	\
- 	do {							\
- 		unsigned long _sz = huge_page_size(h);		\
--		if (_sz == PMD_SIZE)				\
--			tlb_flush_pmd_range(tlb, address, _sz);	\
--		else if (_sz == PUD_SIZE)			\
-+		if (_sz >= P4D_SIZE)				\
-+			tlb_flush_p4d_range(tlb, address, _sz);	\
-+		else if (_sz >= PUD_SIZE)			\
- 			tlb_flush_pud_range(tlb, address, _sz);	\
-+		else if (_sz >= PMD_SIZE)			\
-+			tlb_flush_pmd_range(tlb, address, _sz);	\
-+		else						\
-+			tlb_flush_pte_range(tlb, address, _sz);	\
- 		__tlb_remove_tlb_entry(tlb, ptep, address);	\
- 	} while (0)
+diff --git a/drivers/media/usb/go7007/s2250-board.c b/drivers/media/usb/go7007/s2250-board.c
+index 1466db150d82..625e77f4dbd2 100644
+--- a/drivers/media/usb/go7007/s2250-board.c
++++ b/drivers/media/usb/go7007/s2250-board.c
+@@ -512,6 +512,7 @@ static int s2250_probe(struct i2c_client *client,
+ 	u8 *data;
+ 	struct go7007 *go = i2c_get_adapdata(adapter);
+ 	struct go7007_usb *usb = go->hpi_context;
++	int err = -EIO;
  
+ 	audio = i2c_new_dummy(adapter, TLV320_ADDRESS >> 1);
+ 	if (audio == NULL)
+@@ -540,11 +541,8 @@ static int s2250_probe(struct i2c_client *client,
+ 		V4L2_CID_HUE, -512, 511, 1, 0);
+ 	sd->ctrl_handler = &state->hdl;
+ 	if (state->hdl.error) {
+-		int err = state->hdl.error;
+-
+-		v4l2_ctrl_handler_free(&state->hdl);
+-		kfree(state);
+-		return err;
++		err = state->hdl.error;
++		goto fail;
+ 	}
+ 
+ 	state->std = V4L2_STD_NTSC;
+@@ -608,7 +606,7 @@ static int s2250_probe(struct i2c_client *client,
+ 	i2c_unregister_device(audio);
+ 	v4l2_ctrl_handler_free(&state->hdl);
+ 	kfree(state);
+-	return -EIO;
++	return err;
+ }
+ 
+ static int s2250_remove(struct i2c_client *client)
 -- 
-2.35.1
+2.34.1
 
 
 
