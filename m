@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD0F95051F8
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2E405050D6
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232643AbiDRMlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:41:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
+        id S234709AbiDRM3p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:29:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240750AbiDRMjg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6241252BD;
-        Mon, 18 Apr 2022 05:30:22 -0700 (PDT)
+        with ESMTP id S239689AbiDRM2l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EED7201A6;
+        Mon, 18 Apr 2022 05:22:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7BF58B80EC0;
-        Mon, 18 Apr 2022 12:30:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C25C385A9;
-        Mon, 18 Apr 2022 12:30:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C65EEB80EDE;
+        Mon, 18 Apr 2022 12:22:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F948C385A7;
+        Mon, 18 Apr 2022 12:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285020;
-        bh=ehPeAqHSgyACVdtGXHUmHK684ZF6aL+6T9g8dqRUzh0=;
+        s=korg; t=1650284539;
+        bh=qQSYxwQ0a1zzq3hdUWO+WEoi8GCOsoUpjcM8TqNU80Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E1gpzvr5itJ9Iw5Axo58j20X4g/mU7S9LouEdJJAhrGSBJR42fDrJ1vIvCVSGpMOS
-         iYBMhBIz+oP5oY8QW0YbETn78SXeH8ClcuHVEdCT9VzultOwPze55XFje25y1uLSze
-         9wh5GPWsX73tl+lvhwwL2hgm3jLVuf/BZf22P56A=
+        b=LL7XocXYd4vG563boaAwKIV2w7qnbwd+4pfPxisMcpA4BgzT+qPycpzhB/ZSFqRMY
+         doSavBsDWO4kfcO1A1101DwncCw0AHlTeGbEE+rwUeCQwxQ3UhPFhed98ZfG8Bcm9N
+         nttEN6c2WYqd/0lt7udYxEUEK8jkfLbWjx3EkQBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Ajish Koshy <Ajish.Koshy@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 080/189] scsi: pm80xx: Enable upper inbound, outbound queues
+Subject: [PATCH 5.17 131/219] btrfs: fix fallocate to use file_modified to update permissions consistently
 Date:   Mon, 18 Apr 2022 14:11:40 +0200
-Message-Id: <20220418121202.778740814@linuxfoundation.org>
+Message-Id: <20220418121210.562765021@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,61 +55,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajish Koshy <Ajish.Koshy@microchip.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit bcd8a45223470e00b5f254018174d64a75db4bbe ]
+[ Upstream commit 05fd9564e9faf0f23b4676385e27d9405cef6637 ]
 
-Executing driver on servers with more than 32 CPUs were faced with command
-timeouts. This is because we were not geting completions for commands
-submitted on IQ32 - IQ63.
+Since the initial introduction of (posix) fallocate back at the turn of
+the century, it has been possible to use this syscall to change the
+user-visible contents of files.  This can happen by extending the file
+size during a preallocation, or through any of the newer modes (punch,
+zero range).  Because the call can be used to change file contents, we
+should treat it like we do any other modification to a file -- update
+the mtime, and drop set[ug]id privileges/capabilities.
 
-Set E64Q bit to enable upper inbound and outbound queues 32 to 63 in the
-MPI main configuration table.
+The VFS function file_modified() does all this for us if pass it a
+locked inode, so let's make fallocate drop permissions correctly.
 
-Added 500ms delay after successful MPI initialization as mentioned in
-controller datasheet.
-
-Link: https://lore.kernel.org/r/20220411064603.668448-3-Ajish.Koshy@microchip.com
-Fixes: 05c6c029a44d ("scsi: pm80xx: Increase number of supported queues")
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Acked-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Ajish Koshy <Ajish.Koshy@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm80xx_hwi.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/btrfs/file.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index aa6f114be064..04746df26c6c 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -765,6 +765,10 @@ static void init_default_table_values(struct pm8001_hba_info *pm8001_ha)
- 	pm8001_ha->main_cfg_tbl.pm80xx_tbl.pcs_event_log_severity	= 0x01;
- 	pm8001_ha->main_cfg_tbl.pm80xx_tbl.fatal_err_interrupt		= 0x01;
- 
-+	/* Enable higher IQs and OQs, 32 to 63, bit 16 */
-+	if (pm8001_ha->max_q_num > 32)
-+		pm8001_ha->main_cfg_tbl.pm80xx_tbl.fatal_err_interrupt |=
-+							1 << 16;
- 	/* Disable end to end CRC checking */
- 	pm8001_ha->main_cfg_tbl.pm80xx_tbl.crc_core_dump = (0x1 << 16);
- 
-@@ -1026,6 +1030,13 @@ static int mpi_init_check(struct pm8001_hba_info *pm8001_ha)
- 	if (0x0000 != gst_len_mpistate)
- 		return -EBUSY;
- 
-+	/*
-+	 *  As per controller datasheet, after successful MPI
-+	 *  initialization minimum 500ms delay is required before
-+	 *  issuing commands.
-+	 */
-+	msleep(500);
-+
- 	return 0;
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index a0179cc62913..28ddd9cf2069 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2918,8 +2918,9 @@ int btrfs_replace_file_extents(struct btrfs_inode *inode,
+ 	return ret;
  }
  
+-static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
++static int btrfs_punch_hole(struct file *file, loff_t offset, loff_t len)
+ {
++	struct inode *inode = file_inode(file);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+ 	struct btrfs_root *root = BTRFS_I(inode)->root;
+ 	struct extent_state *cached_state = NULL;
+@@ -2951,6 +2952,10 @@ static int btrfs_punch_hole(struct inode *inode, loff_t offset, loff_t len)
+ 		goto out_only_mutex;
+ 	}
+ 
++	ret = file_modified(file);
++	if (ret)
++		goto out_only_mutex;
++
+ 	lockstart = round_up(offset, btrfs_inode_sectorsize(BTRFS_I(inode)));
+ 	lockend = round_down(offset + len,
+ 			     btrfs_inode_sectorsize(BTRFS_I(inode))) - 1;
+@@ -3391,7 +3396,7 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 		return -EOPNOTSUPP;
+ 
+ 	if (mode & FALLOC_FL_PUNCH_HOLE)
+-		return btrfs_punch_hole(inode, offset, len);
++		return btrfs_punch_hole(file, offset, len);
+ 
+ 	/*
+ 	 * Only trigger disk allocation, don't trigger qgroup reserve
+@@ -3413,6 +3418,10 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 			goto out;
+ 	}
+ 
++	ret = file_modified(file);
++	if (ret)
++		goto out;
++
+ 	/*
+ 	 * TODO: Move these two operations after we have checked
+ 	 * accurate reserved space, or fallocate can still fail but
 -- 
 2.35.1
 
