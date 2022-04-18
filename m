@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D09EC505649
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1FE505293
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242892AbiDRNdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:33:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41324 "EHLO
+        id S239406AbiDRMuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:50:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244855AbiDRNa6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:58 -0400
+        with ESMTP id S240369AbiDRMtd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:49:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755691EC73;
-        Mon, 18 Apr 2022 05:56:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7272AE3E;
+        Mon, 18 Apr 2022 05:33:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 349F1B80E44;
-        Mon, 18 Apr 2022 12:56:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65ACBC385A7;
-        Mon, 18 Apr 2022 12:56:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16A00B80EC0;
+        Mon, 18 Apr 2022 12:33:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C5AEC385A1;
+        Mon, 18 Apr 2022 12:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286574;
-        bh=TjnvLi83cOFFJf6NtahCnNbN2EUZK9664M/61JhVXLI=;
+        s=korg; t=1650285217;
+        bh=wGDd1DgJlG3tYf/4Bdpf9xiaoMr7SoRx3JYSlpBk7xQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IcjOBfFIzBfvrSIxdmx+CnXUvDanq6IsaKIxEaTtBvgvU2BgIeHZPEEzAOfz5Yafs
-         dVQiOgh0GrVDo37e6MjttfBc09PeSdw2kuAXmKoK7FCt3fcRwgcqzwUdFJO3V4qGTe
-         NBi1EiMVtmnzYEJJd4P6VCUxQfU2qaCsd7AlEyAE=
+        b=BqchcZ3iR10wjmcmfnDimN0SxNpNepCOvrRpzf61AFhJPQPVBoOGfhjT84YkWYgAy
+         Es3nCxKTLpdEMGmUDYAxgNVfGXJI7/xug4xbmrPhmi7SHuKdKZsiZmR3XWw18+z53a
+         p3qkh0kMKiNh8ruoF6stHV4nueEaZirTwfAcgQlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 179/284] mmc: host: Return an error when ->enable_sdio_irq() ops is missing
+Subject: [PATCH 5.15 140/189] drivers: net: slip: fix NPD bug in sl_tx_timeout()
 Date:   Mon, 18 Apr 2022 14:12:40 +0200
-Message-Id: <20220418121216.828086987@linuxfoundation.org>
+Message-Id: <20220418121205.466467473@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,60 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit d6c9219ca1139b74541b2a98cee47a3426d754a9 ]
+[ Upstream commit ec4eb8a86ade4d22633e1da2a7d85a846b7d1798 ]
 
-Even if the current WARN() notifies the user that something is severely
-wrong, we can still end up in a PANIC() when trying to invoke the missing
-->enable_sdio_irq() ops. Therefore, let's also return an error code and
-prevent the host from being added.
+When a slip driver is detaching, the slip_close() will act to
+cleanup necessary resources and sl->tty is set to NULL in
+slip_close(). Meanwhile, the packet we transmit is blocked,
+sl_tx_timeout() will be called. Although slip_close() and
+sl_tx_timeout() use sl->lock to synchronize, we don`t judge
+whether sl->tty equals to NULL in sl_tx_timeout() and the
+null pointer dereference bug will happen.
 
-While at it, move the code into a separate function to prepare for
-subsequent changes and for further host caps validations.
+   (Thread 1)                 |      (Thread 2)
+                              | slip_close()
+                              |   spin_lock_bh(&sl->lock)
+                              |   ...
+...                           |   sl->tty = NULL //(1)
+sl_tx_timeout()               |   spin_unlock_bh(&sl->lock)
+  spin_lock(&sl->lock);       |
+  ...                         |   ...
+  tty_chars_in_buffer(sl->tty)|
+    if (tty->ops->..) //(2)   |
+    ...                       |   synchronize_rcu()
 
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20220303165142.129745-1-ulf.hansson@linaro.org
+We set NULL to sl->tty in position (1) and dereference sl->tty
+in position (2).
+
+This patch adds check in sl_tx_timeout(). If sl->tty equals to
+NULL, sl_tx_timeout() will goto out.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20220405132206.55291-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/host.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/net/slip/slip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
-index 3740fb0052a4..4da2bcfd0649 100644
---- a/drivers/mmc/core/host.c
-+++ b/drivers/mmc/core/host.c
-@@ -401,6 +401,16 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
+diff --git a/drivers/net/slip/slip.c b/drivers/net/slip/slip.c
+index 5435b5689ce6..2a3892528ec3 100644
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -469,7 +469,7 @@ static void sl_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ 	spin_lock(&sl->lock);
  
- EXPORT_SYMBOL(mmc_alloc_host);
+ 	if (netif_queue_stopped(dev)) {
+-		if (!netif_running(dev))
++		if (!netif_running(dev) || !sl->tty)
+ 			goto out;
  
-+static int mmc_validate_host_caps(struct mmc_host *host)
-+{
-+	if (host->caps & MMC_CAP_SDIO_IRQ && !host->ops->enable_sdio_irq) {
-+		dev_warn(host->parent, "missing ->enable_sdio_irq() ops\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  *	mmc_add_host - initialise host hardware
-  *	@host: mmc host
-@@ -413,8 +423,9 @@ int mmc_add_host(struct mmc_host *host)
- {
- 	int err;
- 
--	WARN_ON((host->caps & MMC_CAP_SDIO_IRQ) &&
--		!host->ops->enable_sdio_irq);
-+	err = mmc_validate_host_caps(host);
-+	if (err)
-+		return err;
- 
- 	err = device_add(&host->class_dev);
- 	if (err)
+ 		/* May be we must check transmitter timeout here ?
 -- 
-2.34.1
+2.35.1
 
 
 
