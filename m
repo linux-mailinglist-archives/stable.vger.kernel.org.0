@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADBF75053AF
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1039E50582C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238816AbiDRNBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:01:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59864 "EHLO
+        id S244940AbiDROAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:00:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242186AbiDRM7l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF1A2FE5E;
-        Mon, 18 Apr 2022 05:40:19 -0700 (PDT)
+        with ESMTP id S244108AbiDRN5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E7F2182F;
+        Mon, 18 Apr 2022 06:07:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D7ECB80EDD;
-        Mon, 18 Apr 2022 12:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6230C385A7;
-        Mon, 18 Apr 2022 12:40:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7560A60B42;
+        Mon, 18 Apr 2022 13:07:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 647C3C385A7;
+        Mon, 18 Apr 2022 13:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285617;
-        bh=hnSeruQ5WyddU9pPERbn+e7vShbePPJJ1EYBzggJ3bY=;
+        s=korg; t=1650287252;
+        bh=vrr9yOlm8FE3cGTKPSJUOj69XGFkfbaYIYMtWeMhDG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOxwiLTxVPGmJaLw7pmKAB4NRFpfIxBVoZWXNw4nF6tMI0zcRoWZ1+EmD+OmW0ZnL
-         mDFuD2ZwjJn4C/vSUtFxeigUjIPE1RWgGuWw4e5fxjGKhgr9rpgvozYEldB5XPw56E
-         d2E1SX9Xtop685uh4OjVMVtlTS5LFo7nqY19OSs0=
+        b=xtPmY6C6wL/H+APcT3Q2lwHGwXpnpadEMm2NyKrK9SwGyw7bn7+73Vn/NM58k3As0
+         nSHDjWvL+7Mw3i7plU3D0596fr3+b7cuM8Xx3qPyJHpo9z2hZaTbY1EhuQDrZnxj5B
+         3YFw+rgGBoMS2FFRjpuZfHt3ssWTVc8Qk1tScFJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tushar Patel <tushar.patel@amd.com>,
-        Felix Kuehling <felix.kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/105] drm/amdkfd: Fix Incorrect VMIDs passed to HWS
+Subject: [PATCH 4.9 104/218] pwm: lpc18xx-sct: Initialize driver data and hardware before pwmchip_add()
 Date:   Mon, 18 Apr 2022 14:12:50 +0200
-Message-Id: <20220418121147.846266718@linuxfoundation.org>
+Message-Id: <20220418121202.577132110@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tushar Patel <tushar.patel@amd.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b7dfbd2e601f3fee545bc158feceba4f340fe7cf ]
+[ Upstream commit 0401f24cd238ae200a23a13925f98de3d2c883b8 ]
 
-Compute-only GPUs have more than 8 VMIDs allocated to KFD. Fix
-this by passing correct number of VMIDs to HWS
+When a driver calls pwmchip_add() it has to be prepared to immediately
+get its callbacks called. So move allocation of driver data and hardware
+initialization before the call to pwmchip_add().
 
-v2: squash in warning fix (Alex)
+This fixes a potential NULL pointer exception and a race condition on
+register writes.
 
-Signed-off-by: Tushar Patel <tushar.patel@amd.com>
-Reviewed-by: Felix Kuehling <felix.kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 841e6f90bb78 ("pwm: NXP LPC18xx PWM/SCT driver")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |  2 +-
- drivers/gpu/drm/amd/amdkfd/kfd_device.c | 11 +++--------
- 2 files changed, 4 insertions(+), 9 deletions(-)
+ drivers/pwm/pwm-lpc18xx-sct.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index ed13a2f76884..30659c1776e8 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -632,7 +632,7 @@ MODULE_PARM_DESC(sched_policy,
-  * Maximum number of processes that HWS can schedule concurrently. The maximum is the
-  * number of VMIDs assigned to the HWS, which is also the default.
-  */
--int hws_max_conc_proc = 8;
-+int hws_max_conc_proc = -1;
- module_param(hws_max_conc_proc, int, 0444);
- MODULE_PARM_DESC(hws_max_conc_proc,
- 	"Max # processes HWS can execute concurrently when sched_policy=0 (0 = no concurrency, #VMIDs for KFD = Maximum(default))");
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device.c b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-index 84313135c2ea..148e43dee657 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device.c
-@@ -664,15 +664,10 @@ bool kgd2kfd_device_init(struct kfd_dev *kfd,
- 			- kfd->vm_info.first_vmid_kfd + 1;
+diff --git a/drivers/pwm/pwm-lpc18xx-sct.c b/drivers/pwm/pwm-lpc18xx-sct.c
+index d7f5f7de030d..8b3aad06e236 100644
+--- a/drivers/pwm/pwm-lpc18xx-sct.c
++++ b/drivers/pwm/pwm-lpc18xx-sct.c
+@@ -406,12 +406,6 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_LIMIT,
+ 			   BIT(lpc18xx_pwm->period_event));
  
- 	/* Verify module parameters regarding mapped process number*/
--	if ((hws_max_conc_proc < 0)
--			|| (hws_max_conc_proc > kfd->vm_info.vmid_num_kfd)) {
--		dev_err(kfd_device,
--			"hws_max_conc_proc %d must be between 0 and %d, use %d instead\n",
--			hws_max_conc_proc, kfd->vm_info.vmid_num_kfd,
--			kfd->vm_info.vmid_num_kfd);
-+	if (hws_max_conc_proc >= 0)
-+		kfd->max_proc_per_quantum = min((u32)hws_max_conc_proc, kfd->vm_info.vmid_num_kfd);
-+	else
- 		kfd->max_proc_per_quantum = kfd->vm_info.vmid_num_kfd;
--	} else
--		kfd->max_proc_per_quantum = hws_max_conc_proc;
+-	ret = pwmchip_add(&lpc18xx_pwm->chip);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
+-		goto disable_pwmclk;
+-	}
+-
+ 	for (i = 0; i < lpc18xx_pwm->chip.npwm; i++) {
+ 		struct lpc18xx_pwm_data *data;
  
- 	/* calculate max size of mqds needed for queues */
- 	size = max_num_of_queues_per_device *
+@@ -421,14 +415,12 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 				    GFP_KERNEL);
+ 		if (!data) {
+ 			ret = -ENOMEM;
+-			goto remove_pwmchip;
++			goto disable_pwmclk;
+ 		}
+ 
+ 		pwm_set_chip_data(pwm, data);
+ 	}
+ 
+-	platform_set_drvdata(pdev, lpc18xx_pwm);
+-
+ 	val = lpc18xx_pwm_readl(lpc18xx_pwm, LPC18XX_PWM_CTRL);
+ 	val &= ~LPC18XX_PWM_BIDIR;
+ 	val &= ~LPC18XX_PWM_CTRL_HALT;
+@@ -436,10 +428,16 @@ static int lpc18xx_pwm_probe(struct platform_device *pdev)
+ 	val |= LPC18XX_PWM_PRE(0);
+ 	lpc18xx_pwm_writel(lpc18xx_pwm, LPC18XX_PWM_CTRL, val);
+ 
++	ret = pwmchip_add(&lpc18xx_pwm->chip);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "pwmchip_add failed: %d\n", ret);
++		goto disable_pwmclk;
++	}
++
++	platform_set_drvdata(pdev, lpc18xx_pwm);
++
+ 	return 0;
+ 
+-remove_pwmchip:
+-	pwmchip_remove(&lpc18xx_pwm->chip);
+ disable_pwmclk:
+ 	clk_disable_unprepare(lpc18xx_pwm->pwm_clk);
+ 	return ret;
 -- 
-2.35.1
+2.34.1
 
 
 
