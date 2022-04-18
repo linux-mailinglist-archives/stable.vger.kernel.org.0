@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 260D25056E0
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 682D7505325
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244046AbiDRNrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:47:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54150 "EHLO
+        id S240134AbiDRMzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244787AbiDRNpk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:45:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 534881FA49;
-        Mon, 18 Apr 2022 06:00:31 -0700 (PDT)
+        with ESMTP id S240406AbiDRMzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80EC223143;
+        Mon, 18 Apr 2022 05:35:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0BD28B80D9C;
-        Mon, 18 Apr 2022 13:00:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC690C385A7;
-        Mon, 18 Apr 2022 13:00:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E7B9611A9;
+        Mon, 18 Apr 2022 12:35:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E33AC385A7;
+        Mon, 18 Apr 2022 12:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286828;
-        bh=QIpMG5Ug8m1nnVWGqoOoHYfWpCRbHBtgyLJXouBu3SQ=;
+        s=korg; t=1650285343;
+        bh=YPMbbLIAUrOz/F2QyLrf7EQrMAlFpXdWqGq42AxwZwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0bCY7WffNTVGMeBt1e0Ty+jCX4U6+C1V16BqQjnxX6a3iIreZEN/hvUhBa+dFafo
-         uYaH/Gw3WW8PvfsdB9KoVjJqdKZvf3P88RemvvZHgrS/boJgflbVyBvGTocpQo0hRz
-         WvEnxe0nQgDVF1O07+IMOHO+C5H8XC9QUmXXnfZw=
+        b=jjSW9deWpf4DQ3Qca74QDiN0d0MXxcW67UGWh61Qe7VPl1+9gr/bruxIM/P7IMo9O
+         JpTfYC+9X24L+SwEVqPchOYVEqiDBRyg4EQ5nexnR80eo54fF1lzmSy5OUxtdaXh6H
+         C5qBcYM1RI7zcarZd+sYoU5uqZq+zzGvgc9hvu/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Juergen E. Fischer" <fischer@norbit.de>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Igor Zhbanov <i.zhbanov@omprussia.ru>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 218/284] scsi: aha152x: Fix aha152x_setup() __setup handler return value
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.15 179/189] soc: qcom: aoss: Fix missing put_device call in qmp_get
 Date:   Mon, 18 Apr 2022 14:13:19 +0200
-Message-Id: <20220418121217.911818090@linuxfoundation.org>
+Message-Id: <20220418121208.151534900@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit cc8294ec4738d25e2bb2d71f7d82a9bf7f4a157b ]
+commit 4b41a9d0fe3db5f91078a380f62f0572c3ecf2dd upstream.
 
-__setup() handlers should return 1 if the command line option is handled
-and 0 if not (or maybe never return 0; doing so just pollutes init's
-environment with strings that are not init arguments/parameters).
+The reference taken by 'of_find_device_by_node()' must be released when
+not needed anymore.
+Add the corresponding 'put_device()' in the error handling paths.
 
-Return 1 from aha152x_setup() to indicate that the boot option has been
-handled.
-
-Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
-Link: https://lore.kernel.org/r/20220223000623.5920-1-rdunlap@infradead.org
-Cc: "Juergen E. Fischer" <fischer@norbit.de>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8c75d585b931 ("soc: qcom: aoss: Expose send for generic usecase")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220108095931.21527-1-linmq006@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/aha152x.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/soc/qcom/qcom_aoss.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/aha152x.c b/drivers/scsi/aha152x.c
-index bc0058df31c6..24ef8e326ee5 100644
---- a/drivers/scsi/aha152x.c
-+++ b/drivers/scsi/aha152x.c
-@@ -3374,13 +3374,11 @@ static int __init aha152x_setup(char *str)
- 	setup[setup_count].synchronous = ints[0] >= 6 ? ints[6] : 1;
- 	setup[setup_count].delay       = ints[0] >= 7 ? ints[7] : DELAY_DEFAULT;
- 	setup[setup_count].ext_trans   = ints[0] >= 8 ? ints[8] : 0;
--	if (ints[0] > 8) {                                                /*}*/
-+	if (ints[0] > 8)
- 		printk(KERN_NOTICE "aha152x: usage: aha152x=<IOBASE>[,<IRQ>[,<SCSI ID>"
- 		       "[,<RECONNECT>[,<PARITY>[,<SYNCHRONOUS>[,<DELAY>[,<EXT_TRANS>]]]]]]]\n");
--	} else {
-+	else
- 		setup_count++;
--		return 0;
--	}
+--- a/drivers/soc/qcom/qcom_aoss.c
++++ b/drivers/soc/qcom/qcom_aoss.c
+@@ -551,7 +551,11 @@ struct qmp *qmp_get(struct device *dev)
  
- 	return 1;
+ 	qmp = platform_get_drvdata(pdev);
+ 
+-	return qmp ? qmp : ERR_PTR(-EPROBE_DEFER);
++	if (!qmp) {
++		put_device(&pdev->dev);
++		return ERR_PTR(-EPROBE_DEFER);
++	}
++	return qmp;
  }
--- 
-2.35.1
-
+ EXPORT_SYMBOL(qmp_get);
+ 
 
 
