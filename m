@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6B350502C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B14505150
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238380AbiDRMWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:22:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48896 "EHLO
+        id S239111AbiDRMeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238438AbiDRMVb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:21:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3CB51D0DA;
-        Mon, 18 Apr 2022 05:17:32 -0700 (PDT)
+        with ESMTP id S239807AbiDRMd2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D501B7B8;
+        Mon, 18 Apr 2022 05:26:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ADC2B80EDB;
-        Mon, 18 Apr 2022 12:17:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 969C9C385BA;
-        Mon, 18 Apr 2022 12:17:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F31760B40;
+        Mon, 18 Apr 2022 12:26:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 246CDC385A1;
+        Mon, 18 Apr 2022 12:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284250;
-        bh=1GZdEwx0jW2sHnXThBh772tRCExCXNl/wQviBjG0fQQ=;
+        s=korg; t=1650284791;
+        bh=qpVTc7+3ifbfoP/oGzLvgbLxeru/ApKNEpfvierqZMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ne2I07mrGY5nbX7+ui43X+F44Lhe3keNxHLRrgWpLXGV9+l6vuupEnXzsl3gW0XNB
-         QHsaCQkpRQx6UHwUc4bGWFioa7c+u502djqBDB9hF2R5QhL/Ij9He1Qm9JEmc4Jgvz
-         pJmqqcNftJcaE7pHiVZTAUWf+SqbaFBpladh3V5I=
+        b=GoR0B83emf9MjW5z/bbjOM77vIUs59UaVH6eAvHxPXr2l9T3DCVCaKcFW96Y4pwW0
+         RcIb1uFQKrDH7ELIMgOeCzOjyYnHD2mU5E5PJVzrXVxpCQdPgTsVPZFRtVIntaUdlF
+         /1VB8d557/GaTnwaTJBXbnQgO6fy3e1CjIFbdrYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 053/219] ALSA: sonicvibes: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Eric Yang <Eric.Yang2@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 002/189] drm/amd/display: Fix p-state allow debug index on dcn31
 Date:   Mon, 18 Apr 2022 14:10:22 +0200
-Message-Id: <20220418121206.625061023@linuxfoundation.org>
+Message-Id: <20220418121200.425177027@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-commit b087a381d7386ec95803222d0d9b1ac499550713 upstream.
+commit 3107e1a7ae088ee94323fe9ab05dbefd65b3077f upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+[Why]
+It changed since dcn30 but the hubbub31 constructor hasn't been
+modified to reflect this.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+[How]
+Update the value in the constructor to 0x6 so we're checking the right
+bits for p-state allow.
 
-Fixes: 2ca6cbde6ad7 ("ALSA: sonicvibes: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-25-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+It worked before by accident, but can falsely assert 0 depending on HW
+state transitions. The most frequent of which appears to be when
+all pipes turn off during IGT tests.
+
+Cc: Harry Wentland <harry.wentland@amd.com>
+
+Fixes: e7031d8258f1b4 ("drm/amd/display: Add pstate verification and recovery for DCN31")
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/sonicvibes.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/sonicvibes.c
-+++ b/sound/pci/sonicvibes.c
-@@ -1387,8 +1387,8 @@ static int snd_sonicvibes_midi(struct so
- 	return 0;
- }
- 
--static int snd_sonic_probe(struct pci_dev *pci,
--			   const struct pci_device_id *pci_id)
-+static int __snd_sonic_probe(struct pci_dev *pci,
-+			     const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -1459,6 +1459,12 @@ static int snd_sonic_probe(struct pci_de
- 	return 0;
- }
- 
-+static int snd_sonic_probe(struct pci_dev *pci,
-+			   const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_sonic_probe(pci, pci_id));
-+}
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
+@@ -1042,5 +1042,7 @@ void hubbub31_construct(struct dcn20_hub
+ 	hubbub31->detile_buf_size = det_size_kb * 1024;
+ 	hubbub31->pixel_chunk_size = pixel_chunk_size_kb * 1024;
+ 	hubbub31->crb_size_segs = config_return_buffer_size_kb / DCN31_CRB_SEGMENT_SIZE_KB;
 +
- static struct pci_driver sonicvibes_driver = {
- 	.name = KBUILD_MODNAME,
- 	.id_table = snd_sonic_ids,
++	hubbub31->debug_test_index_pstate = 0x6;
+ }
+ 
 
 
