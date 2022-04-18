@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E00A5050FE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C299B5057F8
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238889AbiDRMae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:30:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38582 "EHLO
+        id S243318AbiDRN7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239979AbiDRM3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFCC201BE;
-        Mon, 18 Apr 2022 05:23:00 -0700 (PDT)
+        with ESMTP id S244580AbiDRN4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9B8E49F32;
+        Mon, 18 Apr 2022 06:05:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECF33B80EC1;
-        Mon, 18 Apr 2022 12:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 487A8C385A7;
-        Mon, 18 Apr 2022 12:22:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D21C60F09;
+        Mon, 18 Apr 2022 13:05:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37099C385A1;
+        Mon, 18 Apr 2022 13:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284577;
-        bh=Bcm/L4B9jJWb+jV5TvnT5U/PTAjme2W/RGdOOBuZDt8=;
+        s=korg; t=1650287120;
+        bh=Su2XOz/6uNUdLXlGxtYxG+pWQnN+YPHhgf6T/GlW8dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y3smYUyhasuUWXbEhS+aDzjeD+LDNRozqty4rPrqrzOqsUXvBpWet0iKKBn0g+WtY
-         xMGA7MLYEFlMoQwpDs22RdH8znNuMVHOvDZch/do/cf226Zyy2pcINcW9D1SpBZm20
-         ncingRStMIvohrdnfPaVwhjAONjQIZ0s0eF+MPw8=
+        b=lvzFUj6U8VkkPrzjLf/1iM6epWKw/+SPC5OEynn103m7ztQKULg6r4lHMPNJD3JvL
+         cmCnENymEINpcX9OKjIo1VWJGdBGuxbYniQOTRmGrxlKtFgQ+2TnCvC7i++2UAaVh0
+         be2vfF9IcjAZ4rBO1OOmLcERDTo0y/3Iij7pVbYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcin Kozlowski <marcinguy@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 159/219] net: usb: aqc111: Fix out-of-bounds accesses in RX fixup
-Date:   Mon, 18 Apr 2022 14:12:08 +0200
-Message-Id: <20220418121211.334656665@linuxfoundation.org>
+Subject: [PATCH 4.9 063/218] arm64: dts: broadcom: Fix sata nodename
+Date:   Mon, 18 Apr 2022 14:12:09 +0200
+Message-Id: <20220418121201.414868099@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcin Kozlowski <marcinguy@gmail.com>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-[ Upstream commit afb8e246527536848b9b4025b40e613edf776a9d ]
+[ Upstream commit 55927cb44db43a57699fa652e2437a91620385dc ]
 
-aqc111_rx_fixup() contains several out-of-bounds accesses that can be
-triggered by a malicious (or defective) USB device, in particular:
+After converting ahci-platform txt binding to yaml nodename is reported
+as not matching the standard:
 
- - The metadata array (desc_offset..desc_offset+2*pkt_count) can be out of bounds,
-   causing OOB reads and (on big-endian systems) OOB endianness flips.
- - A packet can overlap the metadata array, causing a later OOB
-   endianness flip to corrupt data used by a cloned SKB that has already
-   been handed off into the network stack.
- - A packet SKB can be constructed whose tail is far beyond its end,
-   causing out-of-bounds heap data to be considered part of the SKB's
-   data.
+arch/arm64/boot/dts/broadcom/northstar2/ns2-svk.dt.yaml:
+ahci@663f2000: $nodename:0: 'ahci@663f2000' does not match '^sata(@.*)?$'
 
-Found doing variant analysis. Tested it with another driver (ax88179_178a), since
-I don't have a aqc111 device to test it, but the code looks very similar.
+Fix it to match binding.
 
-Signed-off-by: Marcin Kozlowski <marcinguy@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ac9aae00f0fc ("arm64: dts: Add SATA3 AHCI and SATA3 PHY DT nodes for NS2")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/aqc111.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/broadcom/ns2.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/aqc111.c b/drivers/net/usb/aqc111.c
-index ea06d10e1c21..ca409d450a29 100644
---- a/drivers/net/usb/aqc111.c
-+++ b/drivers/net/usb/aqc111.c
-@@ -1102,10 +1102,15 @@ static int aqc111_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
- 	if (start_of_descs != desc_offset)
- 		goto err;
+diff --git a/arch/arm64/boot/dts/broadcom/ns2.dtsi b/arch/arm64/boot/dts/broadcom/ns2.dtsi
+index 8a94ec8035d3..83c1718dac29 100644
+--- a/arch/arm64/boot/dts/broadcom/ns2.dtsi
++++ b/arch/arm64/boot/dts/broadcom/ns2.dtsi
+@@ -514,7 +514,7 @@
+ 			};
+ 		};
  
--	/* self check desc_offset from header*/
--	if (desc_offset >= skb_len)
-+	/* self check desc_offset from header and make sure that the
-+	 * bounds of the metadata array are inside the SKB
-+	 */
-+	if (pkt_count * 2 + desc_offset >= skb_len)
- 		goto err;
- 
-+	/* Packets must not overlap the metadata array */
-+	skb_trim(skb, desc_offset);
-+
- 	if (pkt_count == 0)
- 		goto err;
- 
+-		sata: ahci@663f2000 {
++		sata: sata@663f2000 {
+ 			compatible = "brcm,iproc-ahci", "generic-ahci";
+ 			reg = <0x663f2000 0x1000>;
+ 			reg-names = "ahci";
 -- 
-2.35.1
+2.34.1
 
 
 
