@@ -2,67 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98736505C0A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 17:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1073C505C6C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 18:27:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345857AbiDRP5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 11:57:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53560 "EHLO
+        id S239081AbiDRQae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 12:30:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245161AbiDRP4u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 11:56:50 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E776220D2
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 08:47:08 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id j8-20020a17090a060800b001cd4fb60dccso14397279pjj.2
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 08:47:08 -0700 (PDT)
+        with ESMTP id S234285AbiDRQad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 12:30:33 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00E792FE74;
+        Mon, 18 Apr 2022 09:27:53 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id e15-20020a9d63cf000000b006054e65aaecso1560930otl.0;
+        Mon, 18 Apr 2022 09:27:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SgbIxIBEhRCXF2oWN3CJj5L34HzBKzby5BVIA+GPd0Q=;
-        b=V9NA6/nKK+Lx08tggiHL8dlWIp8LacJh6Di6aGOVreccf4tAYI779b8k5cwceBSvrN
-         op2Rp9BQCiEOXjIAoYwh7PPZM70Oo/dJsiy0c1uXjHsNpAmL4xtuUA+sZR24TSZ9s8en
-         RkU49DiKPhKC1WeA44x1+hrbhnwszjI0lU6vGd2YN+favt+nsdi5EHh6GonLL9o508I4
-         mq4nBbzFq71F6DCDUhZmmrL5808f8koVGQXDjN7f7ueSX+NP3DofVRt6h69v7Fr81GN7
-         baFPndQcNFPMbIm8IoKP6ssne/GJ1096nFC6seLRzw0KM7Wnbb0eXiSyAwxLeuzX5DfO
-         FH8w==
+        d=gmail.com; s=20210112;
+        h=sender:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=ugT6u+C0I3KSL6RCIIwvLGw6SDuB9e9N5NTAuy1X0MU=;
+        b=ZQuoJlv9hb47u9ZXWciB1viIiCqQpcr68faG+EpcdNbTqusJAXVYoHLEaOOQLnlHfU
+         X8fLpDJEhTjtySM6iJo3Qi4XlTd1yqwqlXgCChTWeYr6wFIM0CM3nPjxdN1S3FZwtO1u
+         NVvASt4hSEpCKxO/T0l7NCzC6iAcKJTfQouOSK75MDo7VgoqHBILwXvI/x6Z/oEtFFXK
+         ectdzs9lHFkK7iYREBMywmPdoq8GASpWvBqh1JDOB9LeK1ClxKF6GAM8LzoLrSiMm8OV
+         MhT8Dnvm/+1k3yQaGNXR2iim5IdEvFa1Uf+Df3ynvUxYJxY+ZM+FeebdPQNtF5cbJH6B
+         oHIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SgbIxIBEhRCXF2oWN3CJj5L34HzBKzby5BVIA+GPd0Q=;
-        b=HhM8HG9pT1/vdHArsg5hm5SdbVW5svBRMt3p/8WPWPBsAMt+4YTKP/37UA3nccbweS
-         wadG5Zp7OyfdtZHWKfAJ1aaW5m/LRpxYMjvYdQvudfQpk2Gz8EHDwb+AqgODamq7w8Qu
-         oqNWZxg5pfv3UlQ+6hyweCsPTWvQTZxslGG5OT4wQNmBcBFotzTH6Cdye2HDBbHFQ9eP
-         JAmXJ8lcf97c1IFUyaNMr4r16nqyAThP/E31Y6iTlaEjCZGPhLBLewlYFxmyM4goM038
-         nemK0yjiZjlEZ1JzGvVsETlU+nVjiAq+tsSvxLGcB5T6xPZDjl0AoYULI9Gqh1hQkVcz
-         7UPg==
-X-Gm-Message-State: AOAM530dNNH71+8iw0vdQceICLYxD05SBiseye1PF/vt7YmLOj7cIJyq
-        S4tAavnKodp2Oz+nBw+usPpa7Kol7FSqBlZR
-X-Google-Smtp-Source: ABdhPJy7NKjulyiU7t0+nX/q1TefD2WQOkaegUbGIbTfZAEMQ4Xqz4zp6fMrebis30F/MOFoL6rg7A==
-X-Received: by 2002:a17:90a:510e:b0:1cb:b1de:27a0 with SMTP id t14-20020a17090a510e00b001cbb1de27a0mr19184151pjh.196.1650296827484;
-        Mon, 18 Apr 2022 08:47:07 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x8-20020aa784c8000000b0050577c51d38sm12621692pfn.20.2022.04.18.08.47.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Apr 2022 08:47:07 -0700 (PDT)
-Message-ID: <625d87fb.1c69fb81.70fed.d863@mx.google.com>
-Date:   Mon, 18 Apr 2022 08:47:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :subject:content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=ugT6u+C0I3KSL6RCIIwvLGw6SDuB9e9N5NTAuy1X0MU=;
+        b=VMK1k0b7XpRwqGg++hPVqiPUT7xx2dMA8w3w8RiMdmznTJd1KSd8syNBb3pj2el9bL
+         zyhsqTj5RuKK6HgvvPXEBO4oUDf1fUtLNNTNnnZbdw+hkXVJq5jLyXABCjSwdWHVodbc
+         BgdOpSy6bMMYZEN9g3Q565bOgB0uhg8cbc4Clgo65CVkyKS6C75rUdYpMUjTOfpUXqOS
+         cEwIUu1S9rxHG+VKbxpszwoVT2emPtwYkVFC8TQuJ4o9jqD56IZmiLIU1nCnw43w0RyJ
+         9qjSo2PI1WQkXTstDZh4HoNtJfrUSPDSjz301z4k48NrRY8nqkLb70FW1KC24R2GA7cO
+         2yPw==
+X-Gm-Message-State: AOAM532N068PRqTjqNL9WEdGtS/xSNXg4+7x5hrjphsbc8GsbMp8TBPt
+        sf1VI8BaJxtx1aGe+xRj2MI=
+X-Google-Smtp-Source: ABdhPJyHUlDx2nQA/FG4o8wwOtrW0dJqteowz3ZOiJfzrMUcd2O16hTJSzEQE0I7ohzaoiycKAdnBA==
+X-Received: by 2002:a05:6830:19d4:b0:605:4c22:cc82 with SMTP id p20-20020a05683019d400b006054c22cc82mr2281768otp.134.1650299273280;
+        Mon, 18 Apr 2022 09:27:53 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l14-20020a4ac60e000000b0032993003287sm4395101ooq.38.2022.04.18.09.27.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Apr 2022 09:27:52 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <8d09a73f-acbd-82dc-77f0-540d106b6e67@roeck-us.net>
+Date:   Mon, 18 Apr 2022 09:27:49 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Kernel: v4.9.310-211-g705ada580b779
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 93 runs,
- 1 regressions (v4.9.310-211-g705ada580b779)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 5.15 000/189] 5.15.35-rc1 review
+Content-Language: en-US
+To:     =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+References: <20220418121200.312988959@linuxfoundation.org>
+ <ec6408b7-14f4-fc97-3371-3f6cd9a46d24@applied-asynchrony.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <ec6408b7-14f4-fc97-3371-3f6cd9a46d24@applied-asynchrony.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,60 +83,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 93 runs, 1 regressions (v4.9.310-211-g705ada5=
-80b779)
+On 4/18/22 07:07, Holger Hoffstätte wrote:
+> On 2022-04-18 14:10, Greg Kroah-Hartman wrote:
+>> This is the start of the stable review cycle for the 5.15.35 release.
+>> There are 189 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+> 
+> drivers/gpu/drm/amd/amdgpu/../display/dc/dcn31/dcn31_hubbub.c: In function hubbub31_verify_allow_pstate_change_high':
+> drivers/gpu/drm/amd/amdgpu/../display/dc/dcn31/dcn31_hubbub.c:994:17: error: implicit declaration of function 'udelay' [-Werror=implicit-function-declaration]
+>    994 |                 udelay(1);
+>        |                 ^~~~~~
+> 
+> Caused by "drm-amd-display-add-pstate-verification-and-recovery-for-dcn31.patch".
+> Explicitly includng <linux/delay.h> in dcn31_hubbub.c fixes it.
+> 
+> Current mainline version of dcn31_hubbub.c does not explicitly include
+> <linux/delay.h>, so there seems to be some general inconsistency wrt.
+> which dcn module includes what.
+> 
+> CC'ing Nicholas Kazlauskas.
+> 
+Should add: The problem is only seen with 32-bit (i386) builds.
 
-Regressions Summary
--------------------
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.310-211-g705ada580b779/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.310-211-g705ada580b779
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      705ada580b779c2d725b2c5b6fe509826f3a0e22 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625d1aaf02b1fac498ae067f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.310-2=
-11-g705ada580b779/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p=
-200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.310-2=
-11-g705ada580b779/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p=
-200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220401.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625d1aaf02b1fac498ae0=
-680
-        failing since 12 days (last pass: v4.9.306-19-g53cdf8047e71, first =
-fail: v4.9.307-10-g6fa56dc70baa) =
-
- =20
+Guenter
