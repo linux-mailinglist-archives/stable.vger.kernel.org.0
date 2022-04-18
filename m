@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E75FC5057E6
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25BA15055ED
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244500AbiDRN5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:57:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46188 "EHLO
+        id S230466AbiDRNbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:31:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244368AbiDRN41 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC8E642E;
-        Mon, 18 Apr 2022 06:04:58 -0700 (PDT)
+        with ESMTP id S244239AbiDRNaN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F0241625;
+        Mon, 18 Apr 2022 05:54:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C51BD60EF6;
-        Mon, 18 Apr 2022 13:04:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D353EC385A1;
-        Mon, 18 Apr 2022 13:04:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 929F9B80D9C;
+        Mon, 18 Apr 2022 12:54:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F02FAC385A7;
+        Mon, 18 Apr 2022 12:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287097;
-        bh=zEeKefMZYRslSx40JLS5O+6+t08QoeqPa7ZuL/Iyqg4=;
+        s=korg; t=1650286455;
+        bh=rk88CqsmYPt2GYpQNqnGaUUD5zAsEFFFkLN2OQiBwXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HPHH3rAECFYX1hu5VJ/hGn6Vt7XPQR0O7nRRgvofFL1w6iWX9BUYEQe40nafbJnIN
-         1Nt3LV4Tqrty/NR+lHtQZ1P6NL2evajkt51trvEE+orFFzmQ5GkELMu7zfWmaY3jLa
-         tPIBRim9j2XFYvajEFle7dWn4dAGBQdmYRktxVQ8=
+        b=r4/dD8Znx6U2BMdteLRn8bURLpenbRhnrBfW9kHM7TFda5Auk6uQXO6MvRB9jnOf8
+         NJgxg1X3EvH+PDDWO0uQbP6mU6l7uSfxJmkkMRJr6EBF2u+5TaNZ/uozsVrpg3z9dG
+         AjABn88qLryUzswvruNsEY3cjT5KAu0sIkAyYblE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 056/218] video: fbdev: fbcvt.c: fix printing in fb_cvt_print_name()
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 141/284] pinctrl: mediatek: Fix missing of_node_put() in mtk_pctrl_init
 Date:   Mon, 18 Apr 2022 14:12:02 +0200
-Message-Id: <20220418121201.216181667@linuxfoundation.org>
+Message-Id: <20220418121215.483405255@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,109 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 78482af095abd9f4f29f1aa3fe575d25c6ae3028 ]
+[ Upstream commit dab4df9ca919f59e5b9dd84385eaf34d4f20dbb0 ]
 
-This code has two bugs:
-1) "cnt" is 255 but the size of the buffer is 256 so the last byte is
-   not used.
-2) If we try to print more than 255 characters then "cnt" will be
-   negative and that will trigger a WARN() in snprintf(). The fix for
-   this is to use scnprintf() instead of snprintf().
+The device_node pointer is returned by of_parse_phandle()  with refcount
+incremented. We should use of_node_put() on it when done.
 
-We can re-write this code to be cleaner:
-1) Rename "offset" to "off" because that's shorter.
-2) Get rid of the "cnt" variable and just use "size - off" directly.
-3) Get rid of the "read" variable and just increment "off" directly.
-
-Fixes: 96fe6a2109db ("fbdev: Add VESA Coordinated Video Timings (CVT) support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: a6df410d420a ("pinctrl: mediatek: Add Pinctrl/GPIO driver for mt8135.")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20220308071155.21114-1-linmq006@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcvt.c | 53 +++++++++++++-------------------
- 1 file changed, 21 insertions(+), 32 deletions(-)
+ drivers/pinctrl/mediatek/pinctrl-mtk-common.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/core/fbcvt.c b/drivers/video/fbdev/core/fbcvt.c
-index 55d2bd0ce5c0..64843464c661 100644
---- a/drivers/video/fbdev/core/fbcvt.c
-+++ b/drivers/video/fbdev/core/fbcvt.c
-@@ -214,9 +214,11 @@ static u32 fb_cvt_aspect_ratio(struct fb_cvt_data *cvt)
- static void fb_cvt_print_name(struct fb_cvt_data *cvt)
- {
- 	u32 pixcount, pixcount_mod;
--	int cnt = 255, offset = 0, read = 0;
--	u8 *buf = kzalloc(256, GFP_KERNEL);
-+	int size = 256;
-+	int off = 0;
-+	u8 *buf;
- 
-+	buf = kzalloc(size, GFP_KERNEL);
- 	if (!buf)
- 		return;
- 
-@@ -224,43 +226,30 @@ static void fb_cvt_print_name(struct fb_cvt_data *cvt)
- 	pixcount_mod = (cvt->xres * (cvt->yres/cvt->interlace)) % 1000000;
- 	pixcount_mod /= 1000;
- 
--	read = snprintf(buf+offset, cnt, "fbcvt: %dx%d@%d: CVT Name - ",
--			cvt->xres, cvt->yres, cvt->refresh);
--	offset += read;
--	cnt -= read;
-+	off += scnprintf(buf + off, size - off, "fbcvt: %dx%d@%d: CVT Name - ",
-+			    cvt->xres, cvt->yres, cvt->refresh);
- 
--	if (cvt->status)
--		snprintf(buf+offset, cnt, "Not a CVT standard - %d.%03d Mega "
--			 "Pixel Image\n", pixcount, pixcount_mod);
--	else {
--		if (pixcount) {
--			read = snprintf(buf+offset, cnt, "%d", pixcount);
--			cnt -= read;
--			offset += read;
--		}
-+	if (cvt->status) {
-+		off += scnprintf(buf + off, size - off,
-+				 "Not a CVT standard - %d.%03d Mega Pixel Image\n",
-+				 pixcount, pixcount_mod);
-+	} else {
-+		if (pixcount)
-+			off += scnprintf(buf + off, size - off, "%d", pixcount);
- 
--		read = snprintf(buf+offset, cnt, ".%03dM", pixcount_mod);
--		cnt -= read;
--		offset += read;
-+		off += scnprintf(buf + off, size - off, ".%03dM", pixcount_mod);
- 
- 		if (cvt->aspect_ratio == 0)
--			read = snprintf(buf+offset, cnt, "3");
-+			off += scnprintf(buf + off, size - off, "3");
- 		else if (cvt->aspect_ratio == 3)
--			read = snprintf(buf+offset, cnt, "4");
-+			off += scnprintf(buf + off, size - off, "4");
- 		else if (cvt->aspect_ratio == 1 || cvt->aspect_ratio == 4)
--			read = snprintf(buf+offset, cnt, "9");
-+			off += scnprintf(buf + off, size - off, "9");
- 		else if (cvt->aspect_ratio == 2)
--			read = snprintf(buf+offset, cnt, "A");
--		else
--			read = 0;
--		cnt -= read;
--		offset += read;
--
--		if (cvt->flags & FB_CVT_FLAG_REDUCED_BLANK) {
--			read = snprintf(buf+offset, cnt, "-R");
--			cnt -= read;
--			offset += read;
--		}
-+			off += scnprintf(buf + off, size - off, "A");
-+
-+		if (cvt->flags & FB_CVT_FLAG_REDUCED_BLANK)
-+			off += scnprintf(buf + off, size - off, "-R");
+diff --git a/drivers/pinctrl/mediatek/pinctrl-mtk-common.c b/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
+index 3cf384f8b122..8b07439bb694 100644
+--- a/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
++++ b/drivers/pinctrl/mediatek/pinctrl-mtk-common.c
+@@ -1367,6 +1367,7 @@ int mtk_pctrl_init(struct platform_device *pdev,
+ 	node = of_parse_phandle(np, "mediatek,pctl-regmap", 0);
+ 	if (node) {
+ 		pctl->regmap1 = syscon_node_to_regmap(node);
++		of_node_put(node);
+ 		if (IS_ERR(pctl->regmap1))
+ 			return PTR_ERR(pctl->regmap1);
+ 	} else if (regmap) {
+@@ -1380,6 +1381,7 @@ int mtk_pctrl_init(struct platform_device *pdev,
+ 	node = of_parse_phandle(np, "mediatek,pctl-regmap", 1);
+ 	if (node) {
+ 		pctl->regmap2 = syscon_node_to_regmap(node);
++		of_node_put(node);
+ 		if (IS_ERR(pctl->regmap2))
+ 			return PTR_ERR(pctl->regmap2);
  	}
- 
- 	printk(KERN_INFO "%s\n", buf);
 -- 
 2.34.1
 
