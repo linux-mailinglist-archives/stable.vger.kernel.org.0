@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9336D5054D3
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0EFB50503B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241985AbiDRNNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:13:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53942 "EHLO
+        id S238301AbiDRMXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:23:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243729AbiDRNKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1375E272A;
-        Mon, 18 Apr 2022 05:49:53 -0700 (PDT)
+        with ESMTP id S238863AbiDRMXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2DB1AF03;
+        Mon, 18 Apr 2022 05:18:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7814F61254;
-        Mon, 18 Apr 2022 12:49:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ACF6C385A1;
-        Mon, 18 Apr 2022 12:49:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A41B6B80ED1;
+        Mon, 18 Apr 2022 12:18:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CEC3C385A7;
+        Mon, 18 Apr 2022 12:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286191;
-        bh=77qcZ1Uzak7g1HQpiucAyiTuDej5Yx4twTR1oQQDeQw=;
+        s=korg; t=1650284303;
+        bh=7pK5U8DB1SfOfjUxdAwgUxoc0AkrGRkjWhwk7zGLpa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gj1XhWoB2wkVx2xVwEOklXDy40a5yHHNV01nUiGtZ/dAhVLiTFwDT7ENsJVvSCtPf
-         iKYzsoA3g4LjH2SBPTkEf4tz+1gAJmyXOa9WX7U3uokmC4UEYW57ttDIKjCYBFwQh+
-         f89Z/Icenfs24Z8s9CBHeQfo/AcW+p4WkeO5OgJQ=
+        b=AV/G9oxifRzV/h17c+iJr+ASRyGP7e/DHek8nfIX9LRAyuqBmkP4SFOjMfJ7++Mte
+         G4HNlkujo+erKrsa1jlDeprpL3S4tydmP0aQ5KNUO/4PE5hxwIr38QCu3T8rdEaUvT
+         zL7snHd7lM0UjEFSUz/WAE6LFruunDUXb0ijQi98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Qing <wangqing@vivo.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 057/284] spi: pxa2xx-pci: Balance reference count for PCI DMA device
+Subject: [PATCH 5.17 069/219] veth: Ensure eth header is in skbs linear part
 Date:   Mon, 18 Apr 2022 14:10:38 +0200
-Message-Id: <20220418121212.315243090@linuxfoundation.org>
+Message-Id: <20220418121207.705456443@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit 609d7ffdc42199a0ec949db057e3b4be6745d6c5 ]
+[ Upstream commit 726e2c5929de841fdcef4e2bf995680688ae1b87 ]
 
-The pci_get_slot() increases its reference count, the caller
-must decrement the reference count by calling pci_dev_put().
+After feeding a decapsulated packet to a veth device with act_mirred,
+skb_headlen() may be 0. But veth_xmit() calls __dev_forward_skb(),
+which expects at least ETH_HLEN byte of linear data (as
+__dev_forward_skb2() calls eth_type_trans(), which pulls ETH_HLEN bytes
+unconditionally).
 
-Fixes: 743485ea3bee ("spi: pxa2xx-pci: Do a specific setup in a separate function")
-Fixes: 25014521603f ("spi: pxa2xx-pci: Enable DMA for Intel Merrifield")
-Reported-by: Wang Qing <wangqing@vivo.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220223191637.31147-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Use pskb_may_pull() to ensure veth_xmit() respects this constraint.
+
+kernel BUG at include/linux/skbuff.h:2328!
+RIP: 0010:eth_type_trans+0xcf/0x140
+Call Trace:
+ <IRQ>
+ __dev_forward_skb2+0xe3/0x160
+ veth_xmit+0x6e/0x250 [veth]
+ dev_hard_start_xmit+0xc7/0x200
+ __dev_queue_xmit+0x47f/0x520
+ ? skb_ensure_writable+0x85/0xa0
+ ? skb_mpls_pop+0x98/0x1c0
+ tcf_mirred_act+0x442/0x47e [act_mirred]
+ tcf_action_exec+0x86/0x140
+ fl_classify+0x1d8/0x1e0 [cls_flower]
+ ? dma_pte_clear_level+0x129/0x1a0
+ ? dma_pte_clear_level+0x129/0x1a0
+ ? prb_fill_curr_block+0x2f/0xc0
+ ? skb_copy_bits+0x11a/0x220
+ __tcf_classify+0x58/0x110
+ tcf_classify_ingress+0x6b/0x140
+ __netif_receive_skb_core.constprop.0+0x47d/0xfd0
+ ? __iommu_dma_unmap_swiotlb+0x44/0x90
+ __netif_receive_skb_one_core+0x3d/0xa0
+ netif_receive_skb+0x116/0x170
+ be_process_rx+0x22f/0x330 [be2net]
+ be_poll+0x13c/0x370 [be2net]
+ __napi_poll+0x2a/0x170
+ net_rx_action+0x22f/0x2f0
+ __do_softirq+0xca/0x2a8
+ __irq_exit_rcu+0xc1/0xe0
+ common_interrupt+0x83/0xa0
+
+Fixes: e314dbdc1c0d ("[NET]: Virtual ethernet device driver.")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx-pci.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/net/veth.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
-index 1736a48bbcce..54e316eb0891 100644
---- a/drivers/spi/spi-pxa2xx-pci.c
-+++ b/drivers/spi/spi-pxa2xx-pci.c
-@@ -72,14 +72,23 @@ static bool lpss_dma_filter(struct dma_chan *chan, void *param)
- 	return true;
- }
+diff --git a/drivers/net/veth.c b/drivers/net/veth.c
+index d29fb9759cc9..6c8f4f4dfc8a 100644
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -320,7 +320,7 @@ static netdev_tx_t veth_xmit(struct sk_buff *skb, struct net_device *dev)
  
-+static void lpss_dma_put_device(void *dma_dev)
-+{
-+	pci_dev_put(dma_dev);
-+}
-+
- static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
- {
- 	struct pci_dev *dma_dev;
-+	int ret;
- 
- 	c->num_chipselect = 1;
- 	c->max_clk_rate = 50000000;
- 
- 	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(PCI_SLOT(dev->devfn), 0));
-+	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
-+	if (ret)
-+		return ret;
- 
- 	if (c->tx_param) {
- 		struct dw_dma_slave *slave = c->tx_param;
-@@ -103,8 +112,9 @@ static int lpss_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
- 
- static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
- {
--	struct pci_dev *dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
- 	struct dw_dma_slave *tx, *rx;
-+	struct pci_dev *dma_dev;
-+	int ret;
- 
- 	switch (PCI_FUNC(dev->devfn)) {
- 	case 0:
-@@ -129,6 +139,11 @@ static int mrfld_spi_setup(struct pci_dev *dev, struct pxa_spi_info *c)
- 		return -ENODEV;
+ 	rcu_read_lock();
+ 	rcv = rcu_dereference(priv->peer);
+-	if (unlikely(!rcv)) {
++	if (unlikely(!rcv) || !pskb_may_pull(skb, ETH_HLEN)) {
+ 		kfree_skb(skb);
+ 		goto drop;
  	}
- 
-+	dma_dev = pci_get_slot(dev->bus, PCI_DEVFN(21, 0));
-+	ret = devm_add_action_or_reset(&dev->dev, lpss_dma_put_device, dma_dev);
-+	if (ret)
-+		return ret;
-+
- 	tx = c->tx_param;
- 	tx->dma_dev = &dma_dev->dev;
- 
 -- 
-2.34.1
+2.35.1
 
 
 
