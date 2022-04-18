@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC7D3505019
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABBF50553B
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238408AbiDRMVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:21:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48902 "EHLO
+        id S241268AbiDRNLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:11:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238144AbiDRMVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:21:02 -0400
+        with ESMTP id S242275AbiDRNIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1C1A1AF24;
-        Mon, 18 Apr 2022 05:17:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7784A3525B;
+        Mon, 18 Apr 2022 05:48:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33A8860EF4;
-        Mon, 18 Apr 2022 12:17:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D2CC385A7;
-        Mon, 18 Apr 2022 12:17:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 076106128A;
+        Mon, 18 Apr 2022 12:48:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DC3C385A7;
+        Mon, 18 Apr 2022 12:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284229;
-        bh=2eW/C51TwqfkdoErXQym1CHihSsTcqaYUfBGjlwTP8I=;
+        s=korg; t=1650286104;
+        bh=eKsyNOgDgUbv/IxsbppHvlC2vjtNL19xnUQ72S2luC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zgTfIbG+1ycxcdgQZWvskGHmqpjl0XsJeHqieyKXxRgNHioMQfhlJz0q8c7exc5tt
-         AO4xozM/Ar6ml7Gf5h1ExW1kXtU8op9B4LaLF2qkRC/VAZJ9gWUjggKhAXLDB5iNMY
-         Fm5Vc2bBYNfp2q22rjV9/WTkiZQhANS/PynbCJJY=
+        b=wSKW66Sl02sksyfDJ8are+diEnkMgQVugNkrKpXeX3XktmnDleAhwOqf7doueEEsY
+         5nUDwjZvjOCUOjGtjFbU505GDnK/wwto1ZghA95pzAJR4asEQujIY4lmOMAmXqcUap
+         IRxv6p89417PR+yCQ2yvS5O9lqSGOzoe7SGUPPc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dennis Zhou <dennis@kernel.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 015/219] btrfs: fix btrfs_submit_compressed_write cgroup attribution
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        "David S. Miller" <davem@davemloft.net>,
+        Pavel Machek <pavel@denx.de>
+Subject: [PATCH 4.14 003/284] netdevice: add the case if dev is NULL
 Date:   Mon, 18 Apr 2022 14:09:44 +0200
-Message-Id: <20220418121203.955676572@linuxfoundation.org>
+Message-Id: <20220418121210.791317858@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,53 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Zhou <dennis@kernel.org>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-commit acee08aaf6d158d03668dc82b0a0eef41100531b upstream.
+commit b37a466837393af72fe8bcb8f1436410f3f173f3 upstream.
 
-This restores the logic from commit 46bcff2bfc5e ("btrfs: fix compressed
-write bio blkcg attribution") which added cgroup attribution to btrfs
-writeback. It also adds back the REQ_CGROUP_PUNT flag for these ios.
+Add the case if dev is NULL in dev_{put, hold}, so the caller doesn't
+need to care whether dev is NULL or not.
 
-Fixes: 91507240482e ("btrfs: determine stripe boundary at bio allocation time in btrfs_submit_compressed_write")
-CC: stable@vger.kernel.org # 5.16+
-Signed-off-by: Dennis Zhou <dennis@kernel.org>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Pavel Machek <pavel@denx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/compression.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/netdevice.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -534,6 +534,9 @@ blk_status_t btrfs_submit_compressed_wri
- 	cb->orig_bio = NULL;
- 	cb->nr_pages = nr_pages;
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3378,7 +3378,8 @@ void netdev_run_todo(void);
+  */
+ static inline void dev_put(struct net_device *dev)
+ {
+-	this_cpu_dec(*dev->pcpu_refcnt);
++	if (dev)
++		this_cpu_dec(*dev->pcpu_refcnt);
+ }
  
-+	if (blkcg_css)
-+		kthread_associate_blkcg(blkcg_css);
-+
- 	while (cur_disk_bytenr < disk_start + compressed_len) {
- 		u64 offset = cur_disk_bytenr - disk_start;
- 		unsigned int index = offset >> PAGE_SHIFT;
-@@ -552,6 +555,8 @@ blk_status_t btrfs_submit_compressed_wri
- 				bio = NULL;
- 				goto finish_cb;
- 			}
-+			if (blkcg_css)
-+				bio->bi_opf |= REQ_CGROUP_PUNT;
- 		}
- 		/*
- 		 * We should never reach next_stripe_start start as we will
-@@ -609,6 +614,9 @@ blk_status_t btrfs_submit_compressed_wri
- 	return 0;
+ /**
+@@ -3389,7 +3390,8 @@ static inline void dev_put(struct net_de
+  */
+ static inline void dev_hold(struct net_device *dev)
+ {
+-	this_cpu_inc(*dev->pcpu_refcnt);
++	if (dev)
++		this_cpu_inc(*dev->pcpu_refcnt);
+ }
  
- finish_cb:
-+	if (blkcg_css)
-+		kthread_associate_blkcg(NULL);
-+
- 	if (bio) {
- 		bio->bi_status = ret;
- 		bio_endio(bio);
+ /* Carrier loss detection, dial on demand. The functions netif_carrier_on
 
 
