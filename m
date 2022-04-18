@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71DA950577A
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A16505236
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240556AbiDRNzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:55:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40332 "EHLO
+        id S233409AbiDRMlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343657AbiDRNyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:54:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 922E047ADF;
-        Mon, 18 Apr 2022 06:03:24 -0700 (PDT)
+        with ESMTP id S240612AbiDRMjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0FCA11A33;
+        Mon, 18 Apr 2022 05:29:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB44D609EE;
-        Mon, 18 Apr 2022 13:03:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D29EBC385A1;
-        Mon, 18 Apr 2022 13:03:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31B3660FB6;
+        Mon, 18 Apr 2022 12:29:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27F83C385A7;
+        Mon, 18 Apr 2022 12:29:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287003;
-        bh=i7d4IMjg68LsHEXJVgI+Q2DYKMuVrFSB7ixi9ScfLgg=;
+        s=korg; t=1650284998;
+        bh=G++U9rtoxfQSlDamiCXkUBLmwjBH2Lkb15OC1vNC2oE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lznvGKm7N+PbdpruS5S8IqbfptTYHfTp+I8ATTu5oM7kid+2K9O0QEZavsqJsGqPl
-         0LG7qCc04DhyhN63CjrLaV7yDMdBgceeR2WTzMvTfNuEyJZWohlO7k/orlWkwBciZ3
-         wTG9Dd8hpLLNE0rTXRSxw1pSBjlVE2PZgEVb79hQ=
+        b=x/VvbUXqmhln07+JuWlQWW3LougpKCD7lVGyyrBejKOZ/A3nAkucROovapA8onpyv
+         oS7AP33DJexFZBso4nxBtOeNhc8+dHpMaaDGfE6PI/PRCK9CcEKD/r09Qes/B3won0
+         GRBfQzT6FW7UiIAy7VZ7Aoe4B9O3nkW7hnKREd1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.9 028/218] video: fbdev: atari: Atari 2 bpp (STe) palette bugfix
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Topi Miettinen <toiwoton@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 074/189] netfilter: nft_socket: make cgroup match work in input too
 Date:   Mon, 18 Apr 2022 14:11:34 +0200
-Message-Id: <20220418121200.144995671@linuxfoundation.org>
+Message-Id: <20220418121202.610066540@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit c8be5edbd36ceed2ff3d6b8f8e40643c3f396ea3 upstream.
+[ Upstream commit 05ae2fba821c4d122ab4ba3e52144e21586c4010 ]
 
-The code to set the shifter STe palette registers has a long
-standing operator precedence bug, manifesting as colors set
-on a 2 bits per pixel frame buffer coming up with a distinctive
-blue tint.
+cgroupv2 helper function ignores the already-looked up sk
+and uses skb->sk instead.
 
-Add parentheses around the calculation of the per-color palette
-data before shifting those into their respective bit field position.
+Just pass sk from the calling function instead; this will
+make cgroup matching work for udp and tcp in input even when
+edemux did not set skb->sk already.
 
-This bug goes back a long way (2.4 days at the very least) so there
-won't be a Fixes: tag.
-
-Tested on ARAnyM as well on Falcon030 hardware.
-
-Cc: stable@vger.kernel.org
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/all/CAMuHMdU3ievhXxKR_xi_v3aumnYW7UNUO6qMdhgfyWTyVSsCkQ@mail.gmail.com
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e0bb96db96f8 ("netfilter: nft_socket: add support for cgroupsv2")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Tested-by: Topi Miettinen <toiwoton@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/atafb.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/netfilter/nft_socket.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/video/fbdev/atafb.c
-+++ b/drivers/video/fbdev/atafb.c
-@@ -1713,9 +1713,9 @@ static int falcon_setcolreg(unsigned int
- 			   ((blue & 0xfc00) >> 8));
- 	if (regno < 16) {
- 		shifter_tt.color_reg[regno] =
--			(((red & 0xe000) >> 13) | ((red & 0x1000) >> 12) << 8) |
--			(((green & 0xe000) >> 13) | ((green & 0x1000) >> 12) << 4) |
--			((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
-+			((((red & 0xe000) >> 13)   | ((red & 0x1000) >> 12)) << 8)   |
-+			((((green & 0xe000) >> 13) | ((green & 0x1000) >> 12)) << 4) |
-+			   ((blue & 0xe000) >> 13) | ((blue & 0x1000) >> 12);
- 		((u32 *)info->pseudo_palette)[regno] = ((red & 0xf800) |
- 						       ((green & 0xfc00) >> 5) |
- 						       ((blue & 0xf800) >> 11));
-@@ -2001,9 +2001,9 @@ static int stste_setcolreg(unsigned int
- 	green >>= 12;
- 	if (ATARIHW_PRESENT(EXTD_SHIFTER))
- 		shifter_tt.color_reg[regno] =
--			(((red & 0xe) >> 1) | ((red & 1) << 3) << 8) |
--			(((green & 0xe) >> 1) | ((green & 1) << 3) << 4) |
--			((blue & 0xe) >> 1) | ((blue & 1) << 3);
-+			((((red & 0xe)   >> 1) | ((red & 1)   << 3)) << 8) |
-+			((((green & 0xe) >> 1) | ((green & 1) << 3)) << 4) |
-+			  ((blue & 0xe)  >> 1) | ((blue & 1)  << 3);
- 	else
- 		shifter_tt.color_reg[regno] =
- 			((red & 0xe) << 7) |
+diff --git a/net/netfilter/nft_socket.c b/net/netfilter/nft_socket.c
+index d601974c9d2e..b8f011145765 100644
+--- a/net/netfilter/nft_socket.c
++++ b/net/netfilter/nft_socket.c
+@@ -36,12 +36,11 @@ static void nft_socket_wildcard(const struct nft_pktinfo *pkt,
+ 
+ #ifdef CONFIG_SOCK_CGROUP_DATA
+ static noinline bool
+-nft_sock_get_eval_cgroupv2(u32 *dest, const struct nft_pktinfo *pkt, u32 level)
++nft_sock_get_eval_cgroupv2(u32 *dest, struct sock *sk, const struct nft_pktinfo *pkt, u32 level)
+ {
+-	struct sock *sk = skb_to_full_sk(pkt->skb);
+ 	struct cgroup *cgrp;
+ 
+-	if (!sk || !sk_fullsock(sk) || !net_eq(nft_net(pkt), sock_net(sk)))
++	if (!sk_fullsock(sk))
+ 		return false;
+ 
+ 	cgrp = sock_cgroup_ptr(&sk->sk_cgrp_data);
+@@ -108,7 +107,7 @@ static void nft_socket_eval(const struct nft_expr *expr,
+ 		break;
+ #ifdef CONFIG_SOCK_CGROUP_DATA
+ 	case NFT_SOCKET_CGROUPV2:
+-		if (!nft_sock_get_eval_cgroupv2(dest, pkt, priv->level)) {
++		if (!nft_sock_get_eval_cgroupv2(dest, sk, pkt, priv->level)) {
+ 			regs->verdict.code = NFT_BREAK;
+ 			return;
+ 		}
+-- 
+2.35.1
+
 
 
