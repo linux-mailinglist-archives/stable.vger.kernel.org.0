@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0460504FFE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5CEE50556A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238244AbiDRMT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:19:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49802 "EHLO
+        id S239546AbiDRNLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:11:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238232AbiDRMTu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:19:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90121BEA9;
-        Mon, 18 Apr 2022 05:16:34 -0700 (PDT)
+        with ESMTP id S241690AbiDRNI3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA3902BB10;
+        Mon, 18 Apr 2022 05:47:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85831B80ED1;
-        Mon, 18 Apr 2022 12:16:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E44A2C385A1;
-        Mon, 18 Apr 2022 12:16:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76BFE6124A;
+        Mon, 18 Apr 2022 12:47:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67303C385A7;
+        Mon, 18 Apr 2022 12:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284192;
-        bh=YmNWRsFosyltqkLBL0ldLbg3n6Bi5L8iqNZyzUGoav4=;
+        s=korg; t=1650286075;
+        bh=zhJ5U1YZxDlUhpAyqcBaDDvBQU/WxbXPrdfuwDDlr7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YqEp1/YihRWB1XwECGtXLlplZwm9QinUYCaD7t7qB2fbjQ9lDrhcv42okS8I7294Z
-         zt+UgEIKWhvGTeJQsjVdJq/5rt39q3Lvm7uCaHJWzz6rgukGxHzW95uSdCBCLFFUyL
-         NVId+jwvC+NzmvKPFabl+xLsFEEqYk2s/IRz2NME=
+        b=bFKi10us4LI2umGymyFPdfAv4iPpC9obFYtQtokpn00BYEb4iSLxxWVKhk/Y3rcze
+         W5g8wbKo38LD3Xg+BbcnOhmpD3qX48T7F4+5Ypwj3whM6DSyn+1qDXIXBZmIP9jXCe
+         7W6hIAsKbW6fmayK+oV1MlingjGUQcurPCVrcEW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 032/219] ALSA: emu10k1x: Fix the missing snd_card_free() call at probe error
-Date:   Mon, 18 Apr 2022 14:10:01 +0200
-Message-Id: <20220418121205.204170784@linuxfoundation.org>
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Bagas Sanjaya <bagasdotme@gmail.com>
+Subject: [PATCH 4.14 021/284] Documentation: update stable tree link
+Date:   Mon, 18 Apr 2022 14:10:02 +0200
+Message-Id: <20220418121211.299972977@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Bagas Sanjaya <bagasdotme@gmail.com>
 
-commit f37019b6bfe2e13cc536af0e6a42ed62005392ae upstream.
+commit 555d44932c67e617d89bc13c81c7efac5b51fcfa upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+The link to stable tree is redirected to
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git. Update
+accordingly.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: 2b377c6b6012 ("ALSA: emu10k1x: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-13-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Link: https://lore.kernel.org/r/20220314113329.485372-6-bagasdotme@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/emu10k1/emu10k1x.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ Documentation/process/stable-kernel-rules.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/emu10k1/emu10k1x.c
-+++ b/sound/pci/emu10k1/emu10k1x.c
-@@ -1491,8 +1491,8 @@ static int snd_emu10k1x_midi(struct emu1
- 	return 0;
- }
+--- a/Documentation/process/stable-kernel-rules.rst
++++ b/Documentation/process/stable-kernel-rules.rst
+@@ -171,7 +171,7 @@ Trees
+  - The finalized and tagged releases of all stable kernels can be found
+    in separate branches per version at:
  
--static int snd_emu10k1x_probe(struct pci_dev *pci,
--			      const struct pci_device_id *pci_id)
-+static int __snd_emu10k1x_probe(struct pci_dev *pci,
-+				const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -1554,6 +1554,12 @@ static int snd_emu10k1x_probe(struct pci
- 	return 0;
- }
+-	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
++	https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
  
-+static int snd_emu10k1x_probe(struct pci_dev *pci,
-+			      const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_emu10k1x_probe(pci, pci_id));
-+}
-+
- // PCI IDs
- static const struct pci_device_id snd_emu10k1x_ids[] = {
- 	{ PCI_VDEVICE(CREATIVE, 0x0006), 0 },	/* Dell OEM version (EMU10K1) */
+  - The release candidate of all stable kernel versions can be found at:
+ 
 
 
