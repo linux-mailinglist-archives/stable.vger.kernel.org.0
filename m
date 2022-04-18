@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D409750572F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA435505429
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243627AbiDRNli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:41:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35856 "EHLO
+        id S241108AbiDRNEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:04:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243416AbiDRNkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:40:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FD032F03F;
-        Mon, 18 Apr 2022 05:59:14 -0700 (PDT)
+        with ESMTP id S241594AbiDRNDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCE3D33A24;
+        Mon, 18 Apr 2022 05:43:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12FBB612D4;
-        Mon, 18 Apr 2022 12:59:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 137F5C385A7;
-        Mon, 18 Apr 2022 12:59:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F25AB80E44;
+        Mon, 18 Apr 2022 12:43:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C26C385A7;
+        Mon, 18 Apr 2022 12:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286753;
-        bh=G1cCzSEmSyEJgD7avDuvFKb78yXZro2e0oLgp9BKbiU=;
+        s=korg; t=1650285831;
+        bh=8p+aReAVSXNj6og1QN3uqqCJu5j0sLTXlG5WVaeT6ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xiFFt4PkCBBAxWNPuszFVbptYJENM9NiS0WV8X/KNSsHNmnVGkBinejtu9O5idRvn
-         O4l9p70KlRHNwpzSWwMLtd8fVzufg4Vb189a7RzyPBX0g6NxnkDOtfmnvBCVAmQuok
-         CgOzFCqljv6s1YEWJX7ijdO45KRSo43r4Ts0wfTI=
+        b=hfnyPoCMgChLuRS5wGXTR1b6RDCCHLLzkEBNunqmal/r2BA0N0bTnbZgBcI/gkdou
+         bWB3MmYZ3MG3hb/hdkIICVHDGFyLul+UDuSbr+ZzU5HCRy8tPVTVjiqHyop1/eyvHk
+         oPV21AGOK/M16kHqhBj65lVixCBwGkTvHiMH1+i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 234/284] jfs: prevent NULL deref in diFree
+        stable@vger.kernel.org, Patrick Wang <patrick.wang.shcn@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 38/63] mm: kmemleak: take a full lowmem check in kmemleak_*_phys()
 Date:   Mon, 18 Apr 2022 14:13:35 +0200
-Message-Id: <20220418121218.366890470@linuxfoundation.org>
+Message-Id: <20220418121136.774177839@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +55,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: Patrick Wang <patrick.wang.shcn@gmail.com>
 
-[ Upstream commit a53046291020ec41e09181396c1e829287b48d47 ]
+commit 23c2d497de21f25898fbea70aeb292ab8acc8c94 upstream.
 
-Add validation check for JFS_IP(ipimap)->i_imap to prevent a NULL deref
-in diFree since diFree uses it without do any validations.
-When function jfs_mount calls diMount to initialize fileset inode
-allocation map, it can fail and JFS_IP(ipimap)->i_imap won't be
-initialized. Then it calls diFreeSpecial to close fileset inode allocation
-map inode and it will flow into jfs_evict_inode. Function jfs_evict_inode
-just validates JFS_SBI(inode->i_sb)->ipimap, then calls diFree. diFree use
-JFS_IP(ipimap)->i_imap directly, then it will cause a NULL deref.
+The kmemleak_*_phys() apis do not check the address for lowmem's min
+boundary, while the caller may pass an address below lowmem, which will
+trigger an oops:
 
-Reported-by: TCS Robot <tcs_robot@tencent.com>
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  # echo scan > /sys/kernel/debug/kmemleak
+  Unable to handle kernel paging request at virtual address ff5fffffffe00000
+  Oops [#1]
+  Modules linked in:
+  CPU: 2 PID: 134 Comm: bash Not tainted 5.18.0-rc1-next-20220407 #33
+  Hardware name: riscv-virtio,qemu (DT)
+  epc : scan_block+0x74/0x15c
+   ra : scan_block+0x72/0x15c
+  epc : ffffffff801e5806 ra : ffffffff801e5804 sp : ff200000104abc30
+   gp : ffffffff815cd4e8 tp : ff60000004cfa340 t0 : 0000000000000200
+   t1 : 00aaaaaac23954cc t2 : 00000000000003ff s0 : ff200000104abc90
+   s1 : ffffffff81b0ff28 a0 : 0000000000000000 a1 : ff5fffffffe01000
+   a2 : ffffffff81b0ff28 a3 : 0000000000000002 a4 : 0000000000000001
+   a5 : 0000000000000000 a6 : ff200000104abd7c a7 : 0000000000000005
+   s2 : ff5fffffffe00ff9 s3 : ffffffff815cd998 s4 : ffffffff815d0e90
+   s5 : ffffffff81b0ff28 s6 : 0000000000000020 s7 : ffffffff815d0eb0
+   s8 : ffffffffffffffff s9 : ff5fffffffe00000 s10: ff5fffffffe01000
+   s11: 0000000000000022 t3 : 00ffffffaa17db4c t4 : 000000000000000f
+   t5 : 0000000000000001 t6 : 0000000000000000
+  status: 0000000000000100 badaddr: ff5fffffffe00000 cause: 000000000000000d
+    scan_gray_list+0x12e/0x1a6
+    kmemleak_scan+0x2aa/0x57e
+    kmemleak_write+0x32a/0x40c
+    full_proxy_write+0x56/0x82
+    vfs_write+0xa6/0x2a6
+    ksys_write+0x6c/0xe2
+    sys_write+0x22/0x2a
+    ret_from_syscall+0x0/0x2
+
+The callers may not quite know the actual address they pass(e.g. from
+devicetree).  So the kmemleak_*_phys() apis should guarantee the address
+they finally use is in lowmem range, so check the address for lowmem's
+min boundary.
+
+Link: https://lkml.kernel.org/r/20220413122925.33856-1-patrick.wang.shcn@gmail.com
+Signed-off-by: Patrick Wang <patrick.wang.shcn@gmail.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/kmemleak.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/jfs/inode.c b/fs/jfs/inode.c
-index 87b41edc800d..68779cc3609a 100644
---- a/fs/jfs/inode.c
-+++ b/fs/jfs/inode.c
-@@ -156,12 +156,13 @@ void jfs_evict_inode(struct inode *inode)
- 		dquot_initialize(inode);
- 
- 		if (JFS_IP(inode)->fileset == FILESYSTEM_I) {
-+			struct inode *ipimap = JFS_SBI(inode->i_sb)->ipimap;
- 			truncate_inode_pages_final(&inode->i_data);
- 
- 			if (test_cflag(COMMIT_Freewmap, inode))
- 				jfs_free_zero_link(inode);
- 
--			if (JFS_SBI(inode->i_sb)->ipimap)
-+			if (ipimap && JFS_IP(ipimap)->i_imap)
- 				diFree(inode);
- 
- 			/*
--- 
-2.35.1
-
+--- a/mm/kmemleak.c
++++ b/mm/kmemleak.c
+@@ -1123,7 +1123,7 @@ EXPORT_SYMBOL(kmemleak_no_scan);
+ void __ref kmemleak_alloc_phys(phys_addr_t phys, size_t size, int min_count,
+ 			       gfp_t gfp)
+ {
+-	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
++	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
+ 		kmemleak_alloc(__va(phys), size, min_count, gfp);
+ }
+ EXPORT_SYMBOL(kmemleak_alloc_phys);
+@@ -1137,7 +1137,7 @@ EXPORT_SYMBOL(kmemleak_alloc_phys);
+  */
+ void __ref kmemleak_free_part_phys(phys_addr_t phys, size_t size)
+ {
+-	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
++	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
+ 		kmemleak_free_part(__va(phys), size);
+ }
+ EXPORT_SYMBOL(kmemleak_free_part_phys);
+@@ -1149,7 +1149,7 @@ EXPORT_SYMBOL(kmemleak_free_part_phys);
+  */
+ void __ref kmemleak_not_leak_phys(phys_addr_t phys)
+ {
+-	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
++	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
+ 		kmemleak_not_leak(__va(phys));
+ }
+ EXPORT_SYMBOL(kmemleak_not_leak_phys);
+@@ -1161,7 +1161,7 @@ EXPORT_SYMBOL(kmemleak_not_leak_phys);
+  */
+ void __ref kmemleak_ignore_phys(phys_addr_t phys)
+ {
+-	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
++	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
+ 		kmemleak_ignore(__va(phys));
+ }
+ EXPORT_SYMBOL(kmemleak_ignore_phys);
 
 
