@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB5C505334
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91D655053C6
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240452AbiDRM4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:56:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42302 "EHLO
+        id S240808AbiDRNBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:01:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240328AbiDRMzK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E4A8B7F5;
-        Mon, 18 Apr 2022 05:36:31 -0700 (PDT)
+        with ESMTP id S242138AbiDRM7i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C681C2F390;
+        Mon, 18 Apr 2022 05:40:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1913061033;
-        Mon, 18 Apr 2022 12:36:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C889C385A7;
-        Mon, 18 Apr 2022 12:36:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 174F7B80EC0;
+        Mon, 18 Apr 2022 12:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 724CEC385A8;
+        Mon, 18 Apr 2022 12:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285390;
-        bh=bGYkXoPOnvp4MwQT0EEyeTjnTv8wsS679jpaRsBAs/o=;
+        s=korg; t=1650285610;
+        bh=eFm/z1FzKhlQoFaHivE7WVio1H+d0l+bTcBspXqzQ4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0CD8BR/CN2w1vNcU6iQRAHFNxYSLFnerDlp3oypZLOvS6dR2L3qjuAmqK9Li2Ix7D
-         0c+fI/DsBx7jDnylJC32n6x4Cx9+EK2wFXoOKU9v2PuRD3ZlMwrwpsM0ZdSGe156Zl
-         7YbGsaZcAIUAXpEmOpR3n0YinM4hThGc+o72k4H0=
+        b=hpaE+1CWEw5CgFfbq9DW/5O3lTLQg2Z8Oi+UAleI94RD33FrdRh56Wu5jyhrCUw1P
+         us3ap4ruGw8NIsLP9cpjA8bkVY70b4n1dtcAdH1Loc04sbdRVb5vIAhkJNeQizWF6Q
+         dOzyT4YdYpIOUmup1iV5k3+o/JN3UaTzfE2pZ0QA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>
-Subject: [PATCH 5.15 175/189] timers: Fix warning condition in __run_timers()
+        stable@vger.kernel.org, Bruno Goncalves <bgoncalv@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 073/105] KVM: x86/mmu: Resolve nx_huge_pages when kvm.ko is loaded
 Date:   Mon, 18 Apr 2022 14:13:15 +0200
-Message-Id: <20220418121207.873707302@linuxfoundation.org>
+Message-Id: <20220418121148.565894452@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +55,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna-Maria Behnsen <anna-maria@linutronix.de>
+From: Sean Christopherson <seanjc@google.com>
 
-commit c54bc0fc84214b203f7a0ebfd1bd308ce2abe920 upstream.
+commit 1d0e84806047f38027d7572adb4702ef7c09b317 upstream.
 
-When the timer base is empty, base::next_expiry is set to base::clk +
-NEXT_TIMER_MAX_DELTA and base::next_expiry_recalc is false. When no timer
-is queued until jiffies reaches base::next_expiry value, the warning for
-not finding any expired timer and base::next_expiry_recalc is false in
-__run_timers() triggers.
+Resolve nx_huge_pages to true/false when kvm.ko is loaded, leaving it as
+-1 is technically undefined behavior when its value is read out by
+param_get_bool(), as boolean values are supposed to be '0' or '1'.
 
-To prevent triggering the warning in this valid scenario
-base::timers_pending needs to be added to the warning condition.
+Alternatively, KVM could define a custom getter for the param, but the
+auto value doesn't depend on the vendor module in any way, and printing
+"auto" would be unnecessarily unfriendly to the user.
 
-Fixes: 31cd0e119d50 ("timers: Recalculate next timer interrupt only when necessary")
-Reported-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: Anna-Maria Behnsen <anna-maria@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Link: https://lore.kernel.org/r/20220405191732.7438-3-anna-maria@linutronix.de
+In addition to fixing the undefined behavior, resolving the auto value
+also fixes the scenario where the auto value resolves to N and no vendor
+module is loaded.  Previously, -1 would result in Y being printed even
+though KVM would ultimately disable the mitigation.
+
+Rename the existing MMU module init/exit helpers to clarify that they're
+invoked with respect to the vendor module, and add comments to document
+why KVM has two separate "module init" flows.
+
+  =========================================================================
+  UBSAN: invalid-load in kernel/params.c:320:33
+  load of value 255 is not a valid value for type '_Bool'
+  CPU: 6 PID: 892 Comm: tail Not tainted 5.17.0-rc3+ #799
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   ubsan_epilogue+0x5/0x40
+   __ubsan_handle_load_invalid_value.cold+0x43/0x48
+   param_get_bool.cold+0xf/0x14
+   param_attr_show+0x55/0x80
+   module_attr_show+0x1c/0x30
+   sysfs_kf_seq_show+0x93/0xc0
+   seq_read_iter+0x11c/0x450
+   new_sync_read+0x11b/0x1a0
+   vfs_read+0xf0/0x190
+   ksys_read+0x5f/0xe0
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+   </TASK>
+  =========================================================================
+
+Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
+Cc: stable@vger.kernel.org
+Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220331221359.3912754-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/time/timer.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    5 +++--
+ arch/x86/kvm/mmu/mmu.c          |   20 ++++++++++++++++----
+ arch/x86/kvm/x86.c              |   20 ++++++++++++++++++--
+ 3 files changed, 37 insertions(+), 8 deletions(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1722,11 +1722,14 @@ static inline void __run_timers(struct t
- 	       time_after_eq(jiffies, base->next_expiry)) {
- 		levels = collect_expired_timers(base, heads);
- 		/*
--		 * The only possible reason for not finding any expired
--		 * timer at this clk is that all matching timers have been
--		 * dequeued.
-+		 * The two possible reasons for not finding any expired
-+		 * timer at this clk are that all matching timers have been
-+		 * dequeued or no timer has been queued since
-+		 * base::next_expiry was set to base::clk +
-+		 * NEXT_TIMER_MAX_DELTA.
- 		 */
--		WARN_ON_ONCE(!levels && !base->next_expiry_recalc);
-+		WARN_ON_ONCE(!levels && !base->next_expiry_recalc
-+			     && base->timers_pending);
- 		base->clk++;
- 		base->next_expiry = __next_timer_interrupt(base);
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1340,8 +1340,9 @@ static inline int kvm_arch_flush_remote_
+ 		return -ENOTSUPP;
+ }
  
+-int kvm_mmu_module_init(void);
+-void kvm_mmu_module_exit(void);
++void kvm_mmu_x86_module_init(void);
++int kvm_mmu_vendor_module_init(void);
++void kvm_mmu_vendor_module_exit(void);
+ 
+ void kvm_mmu_destroy(struct kvm_vcpu *vcpu);
+ int kvm_mmu_create(struct kvm_vcpu *vcpu);
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5876,12 +5876,24 @@ static int set_nx_huge_pages(const char
+ 	return 0;
+ }
+ 
+-int kvm_mmu_module_init(void)
++/*
++ * nx_huge_pages needs to be resolved to true/false when kvm.ko is loaded, as
++ * its default value of -1 is technically undefined behavior for a boolean.
++ */
++void kvm_mmu_x86_module_init(void)
+ {
+-	int ret = -ENOMEM;
+-
+ 	if (nx_huge_pages == -1)
+ 		__set_nx_huge_pages(get_nx_auto_mode());
++}
++
++/*
++ * The bulk of the MMU initialization is deferred until the vendor module is
++ * loaded as many of the masks/values may be modified by VMX or SVM, i.e. need
++ * to be reset when a potentially different vendor module is loaded.
++ */
++int kvm_mmu_vendor_module_init(void)
++{
++	int ret = -ENOMEM;
+ 
+ 	/*
+ 	 * MMU roles use union aliasing which is, generally speaking, an
+@@ -5955,7 +5967,7 @@ void kvm_mmu_destroy(struct kvm_vcpu *vc
+ 	mmu_free_memory_caches(vcpu);
+ }
+ 
+-void kvm_mmu_module_exit(void)
++void kvm_mmu_vendor_module_exit(void)
+ {
+ 	mmu_destroy_caches();
+ 	percpu_counter_destroy(&kvm_total_used_mmu_pages);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8005,7 +8005,7 @@ int kvm_arch_init(void *opaque)
+ 		goto out_free_x86_emulator_cache;
+ 	}
+ 
+-	r = kvm_mmu_module_init();
++	r = kvm_mmu_vendor_module_init();
+ 	if (r)
+ 		goto out_free_percpu;
+ 
+@@ -8065,7 +8065,7 @@ void kvm_arch_exit(void)
+ 	cancel_work_sync(&pvclock_gtod_work);
+ #endif
+ 	kvm_x86_ops.hardware_enable = NULL;
+-	kvm_mmu_module_exit();
++	kvm_mmu_vendor_module_exit();
+ 	free_percpu(user_return_msrs);
+ 	kmem_cache_destroy(x86_emulator_cache);
+ 	kmem_cache_destroy(x86_fpu_cache);
+@@ -11426,3 +11426,19 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_avic_un
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_avic_incomplete_ipi);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_avic_ga_log);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_apicv_update_request);
++
++static int __init kvm_x86_init(void)
++{
++	kvm_mmu_x86_module_init();
++	return 0;
++}
++module_init(kvm_x86_init);
++
++static void __exit kvm_x86_exit(void)
++{
++	/*
++	 * If module_init() is implemented, module_exit() must also be
++	 * implemented to allow module unload.
++	 */
++}
++module_exit(kvm_x86_exit);
 
 
