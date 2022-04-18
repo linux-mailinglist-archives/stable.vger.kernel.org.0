@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9046B5055A9
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:25:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA4675050A1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240168AbiDRNPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:15:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53836 "EHLO
+        id S238774AbiDRM0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:26:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241627AbiDRNMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:12:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E1A2DD42;
-        Mon, 18 Apr 2022 05:50:51 -0700 (PDT)
+        with ESMTP id S238773AbiDRM0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E50CBC35;
+        Mon, 18 Apr 2022 05:20:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B1D2B80EE9;
-        Mon, 18 Apr 2022 12:50:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 746E9C385CD;
-        Mon, 18 Apr 2022 12:50:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A48B60F01;
+        Mon, 18 Apr 2022 12:20:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23EE0C385A7;
+        Mon, 18 Apr 2022 12:20:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286248;
-        bh=p0MbWAnzvwt3dTYYBrs6U+4qEhiG9yYQrO6O9b1qWTs=;
+        s=korg; t=1650284402;
+        bh=EawFOWZdFf7a32J8RZPjASL5p+3DXEbvcgrIUmEARdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uO8plcTcW9oCE2UzfQkisrDpPfylrixmL8VIGMkORPuL4WRFloJuT2QRgat3CqKRq
-         XL6h8j/qApAGJZoX5W5C08jkydRmYuozaJGfzXvuKeiWSh4RZ+Ob7RRseML/ckTrNC
-         6gb8thkvtbujMaqg7jft300Y52pm0nxNNNCiViSw=
+        b=UsTZti9y0QlFTG+Dp9CLr0ZUSTvqim0JX1aLgH5nzaQgnaQrlPGTljWqqRtCbh4b4
+         eHDcKk64y2tLzSQ4M/trTvv5mUPS89DO2WEPIVKrW0C03kCh7npIwt8+IDzW2J5YJm
+         cPVUUxDvbespssBYaMVFDR7hpgfhjGpyutHSKfns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Kubelun <be.dissent@gmail.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Christian Lamparter <chunkeey@gmail.com>
-Subject: [PATCH 4.14 074/284] ARM: dts: qcom: ipq4019: fix sleep clock
+        stable@vger.kernel.org,
+        Benedikt Spranger <b.spranger@linutronix.de>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 086/219] net/sched: taprio: Check if socket flags are valid
 Date:   Mon, 18 Apr 2022 14:10:55 +0200
-Message-Id: <20220418121212.791442411@linuxfoundation.org>
+Message-Id: <20220418121208.859257415@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +57,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Kubelun <be.dissent@gmail.com>
+From: Benedikt Spranger <b.spranger@linutronix.de>
 
-[ Upstream commit 3d7e7980993d2c1ae42d3d314040fc2de6a9c45f ]
+[ Upstream commit e8a64bbaaad1f6548cec5508297bc6d45e8ab69e ]
 
-It seems like sleep_clk was copied from ipq806x.
-Fix ipq40xx sleep_clk to the value QSDK defines.
+A user may set the SO_TXTIME socket option to ensure a packet is send
+at a given time. The taprio scheduler has to confirm, that it is allowed
+to send a packet at that given time, by a check against the packet time
+schedule. The scheduler drop the packet, if the gates are closed at the
+given send time.
 
-Link: https://source.codeaurora.org/quic/qsdk/oss/kernel/linux-msm/commit/?id=d92ec59973484acc86dd24b67f10f8911b4b4b7d
-Link: https://patchwork.kernel.org/comment/22721613/
-Fixes: bec6ba4cdf2a ("qcom: ipq4019: Add basic board/dts support for IPQ4019 SoC")
-Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org> (clock-output-names)
-Signed-off-by: Pavel Kubelun <be.dissent@gmail.com>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com> (removed clock rename)
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211220170352.34591-1-chunkeey@gmail.com
+The check, if SO_TXTIME is set, may fail since sk_flags are part of an
+union and the union is used otherwise. This happen, if a socket is not
+a full socket, like a request socket for example.
+
+Add a check to verify, if the union is used for sk_flags.
+
+Fixes: 4cfd5779bd6e ("taprio: Add support for txtime-assist mode")
+Signed-off-by: Benedikt Spranger <b.spranger@linutronix.de>
+Reviewed-by: Kurt Kanzenbach <kurt@linutronix.de>
+Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-ipq4019.dtsi | 3 ++-
+ net/sched/sch_taprio.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-index 19156cbb6003..ed218425a059 100644
---- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
-+++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-@@ -93,7 +93,8 @@
- 	clocks {
- 		sleep_clk: sleep_clk {
- 			compatible = "fixed-clock";
--			clock-frequency = <32768>;
-+			clock-frequency = <32000>;
-+			clock-output-names = "gcc_sleep_clk_src";
- 			#clock-cells = <0>;
- 		};
+diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
+index 377f896bdedc..b9c71a304d39 100644
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -417,7 +417,8 @@ static int taprio_enqueue_one(struct sk_buff *skb, struct Qdisc *sch,
+ {
+ 	struct taprio_sched *q = qdisc_priv(sch);
  
+-	if (skb->sk && sock_flag(skb->sk, SOCK_TXTIME)) {
++	/* sk_flags are only safe to use on full sockets. */
++	if (skb->sk && sk_fullsock(skb->sk) && sock_flag(skb->sk, SOCK_TXTIME)) {
+ 		if (!is_valid_interval(skb, sch))
+ 			return qdisc_drop(skb, sch, to_free);
+ 	} else if (TXTIME_ASSIST_IS_ENABLED(q->flags)) {
 -- 
-2.34.1
+2.35.1
 
 
 
