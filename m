@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3035D5057E4
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10616505100
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244496AbiDRN5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:57:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
+        id S239064AbiDRMa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:30:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244447AbiDRN4v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:56:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6266A7659;
-        Mon, 18 Apr 2022 06:05:05 -0700 (PDT)
+        with ESMTP id S239853AbiDRM3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F92B22532;
+        Mon, 18 Apr 2022 05:22:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFB3D60EFC;
-        Mon, 18 Apr 2022 13:05:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FAAFC385A7;
-        Mon, 18 Apr 2022 13:05:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26613B80EC4;
+        Mon, 18 Apr 2022 12:22:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 547D2C385A1;
+        Mon, 18 Apr 2022 12:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287104;
-        bh=GGrkfxQJtWp/0SeDfaJWxZOvk7/7VEfsdbqZjyvAJiI=;
+        s=korg; t=1650284561;
+        bh=WX8SUB5uw2THr7n8LMX3BwGIz8LUCa60mm8HUIvICWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=elsUgkWAiFRsO4tNhvFP4onxlXCTYeCXAEDF5HrpzAsG2b4XDa8ytCg01RVG4KQ/I
-         YxaR7/4zsyx5pXx6WTCFlWW+vWJL85xzsfOJxJhuUsr9DwpSao9F60Tc0SIhA1TM7j
-         j2T1q9rGewElTGNmRwdKtAe2KfunN8k4qCna3k5k=
+        b=yxlSt9bEhoDx1a0rGfNM0EkTGvj9AdedH8zpTxrIKzBHfou4ScV/Wh7u6xMrfDXCt
+         jy6beV4TGrNIem1OZFRMyATef8gplRXR/AWGdCauOpkcJApHIlUbBfd5JYJiQO+0bs
+         /lM4PEbiVVBTDj/cPnO1U9iZTSqC0qBXXUPkD/Wg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Nishanth Menon <nm@ti.com>, Dave Gerlach <d-gerlach@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 058/218] soc: ti: wkup_m3_ipc: Fix IRQ check in wkup_m3_ipc_probe
+        stable@vger.kernel.org, Joey Gouly <joey.gouly@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 155/219] arm64: alternatives: mark patch_alternative() as `noinstr`
 Date:   Mon, 18 Apr 2022 14:12:04 +0200
-Message-Id: <20220418121201.273640743@linuxfoundation.org>
+Message-Id: <20220418121211.223981719@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Joey Gouly <joey.gouly@arm.com>
 
-[ Upstream commit c3d66a164c726cc3b072232d3b6d87575d194084 ]
+[ Upstream commit a2c0b0fbe01419f8f5d1c0b9c581631f34ffce8b ]
 
-platform_get_irq() returns negative error number instead 0 on failure.
-And the doc of platform_get_irq() provides a usage example:
+The alternatives code must be `noinstr` such that it does not patch itself,
+as the cache invalidation is only performed after all the alternatives have
+been applied.
 
-    int irq = platform_get_irq(pdev, 0);
-    if (irq < 0)
-        return irq;
+Mark patch_alternative() as `noinstr`. Mark branch_insn_requires_update()
+and get_alt_insn() with `__always_inline` since they are both only called
+through patch_alternative().
 
-Fix the check of return value to catch errors correctly.
+Booting a kernel in QEMU TCG with KCSAN=y and ARM64_USE_LSE_ATOMICS=y caused
+a boot hang:
+[    0.241121] CPU: All CPU(s) started at EL2
 
-Fixes: cdd5de500b2c ("soc: ti: Add wkup_m3_ipc driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Acked-by: Dave Gerlach <d-gerlach@ti.com>
-Link: https://lore.kernel.org/r/20220114062840.16620-1-linmq006@gmail.com
+The alternatives code was patching the atomics in __tsan_read4() from LL/SC
+atomics to LSE atomics.
+
+The following fragment is using LL/SC atomics in the .text section:
+  | <__tsan_unaligned_read4+304>:     ldxr    x6, [x2]
+  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
+  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
+  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
+
+This LL/SC atomic sequence was to be replaced with LSE atomics. However since
+the alternatives code was instrumentable, __tsan_read4() was being called after
+only the first instruction was replaced, which led to the following code in memory:
+  | <__tsan_unaligned_read4+304>:     ldadd   x5, x6, [x2]
+  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
+  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
+  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
+
+This caused an infinite loop as the `stxr` instruction never completed successfully,
+so `w7` was always 0.
+
+Signed-off-by: Joey Gouly <joey.gouly@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220405104733.11476-1-joey.gouly@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/wkup_m3_ipc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/alternative.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soc/ti/wkup_m3_ipc.c b/drivers/soc/ti/wkup_m3_ipc.c
-index fc33bfdc957c..ead96fe2e7f5 100644
---- a/drivers/soc/ti/wkup_m3_ipc.c
-+++ b/drivers/soc/ti/wkup_m3_ipc.c
-@@ -405,9 +405,9 @@ static int wkup_m3_ipc_probe(struct platform_device *pdev)
- 	}
+diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
+index 3fb79b76e9d9..7bbf5104b7b7 100644
+--- a/arch/arm64/kernel/alternative.c
++++ b/arch/arm64/kernel/alternative.c
+@@ -42,7 +42,7 @@ bool alternative_is_applied(u16 cpufeature)
+ /*
+  * Check if the target PC is within an alternative block.
+  */
+-static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
++static __always_inline bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+ {
+ 	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
+ 	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
+@@ -50,7 +50,7 @@ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
  
- 	irq = platform_get_irq(pdev, 0);
--	if (!irq) {
-+	if (irq < 0) {
- 		dev_err(&pdev->dev, "no irq resource\n");
--		return -ENXIO;
-+		return irq;
- 	}
+ #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
  
- 	ret = devm_request_irq(dev, irq, wkup_m3_txev_handler,
+-static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
++static __always_inline u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
+ {
+ 	u32 insn;
+ 
+@@ -95,7 +95,7 @@ static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnp
+ 	return insn;
+ }
+ 
+-static void patch_alternative(struct alt_instr *alt,
++static noinstr void patch_alternative(struct alt_instr *alt,
+ 			      __le32 *origptr, __le32 *updptr, int nr_inst)
+ {
+ 	__le32 *replptr;
 -- 
-2.34.1
+2.35.1
 
 
 
