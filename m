@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB9E50569C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C574F5052A5
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242435AbiDRNjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:39:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35580 "EHLO
+        id S239312AbiDRMuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:50:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243078AbiDRNha (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:37:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2FC5275EB;
-        Mon, 18 Apr 2022 05:58:14 -0700 (PDT)
+        with ESMTP id S240229AbiDRMtS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:49:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 014FB2126A;
+        Mon, 18 Apr 2022 05:33:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB7D4612BB;
-        Mon, 18 Apr 2022 12:58:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC8F4C385A1;
-        Mon, 18 Apr 2022 12:58:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D2BFB80EDC;
+        Mon, 18 Apr 2022 12:33:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF234C385B7;
+        Mon, 18 Apr 2022 12:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286693;
-        bh=+9tDQgM+/axT2d6rke1s+6yyXgquHpFdu21IBqWpF5k=;
+        s=korg; t=1650285205;
+        bh=/5HPItxFIZfMlhG76iLXGwbpMNMv5fQZGhvnKRZ1lhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsjakfSmvCXTmnQt1BHZNb9QgjBd/6iF5VI94p2hxgrPPTP/ZlNh0jJTEMtJkDPTw
-         YRFCndFFgW2VX0SmlWdr7ssEFfFkkD/bRKyGER705qiBNBoiwrdzrR3+u3/LP3A7QF
-         QjlCKWcGZ0a0326skxkDpqssBDg65vOoT82ATGr0=
+        b=lq0dmgfbu+cmyIOCd6J+Ke95lXFgrd4R15NhN5r2TT7kqvlifhvV0Upcijdrx46mK
+         eK3UzI/EsBe0IbGwhbRIDmREqthaSKBnUwiOfHlfsvYzWYdj4dFz+d6WVjKkrIBSqB
+         G3+75IqnLcH0MrOye5O4M5EeUEMDu8SXQU43RX08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Richard Leitner <richard.leitner@skidata.com>,
-        Thierry Reding <treding@nvidia.com>,
+        =?UTF-8?q?Christoph=20B=C3=B6hmwalder?= 
+        <christoph.boehmwalder@linbit.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 175/284] ARM: tegra: tamonten: Fix I2C3 pad setting
+Subject: [PATCH 5.15 136/189] drbd: set QUEUE_FLAG_STABLE_WRITES
 Date:   Mon, 18 Apr 2022 14:12:36 +0200
-Message-Id: <20220418121216.716903978@linuxfoundation.org>
+Message-Id: <20220418121205.195742487@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +55,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Leitner <richard.leitner@skidata.com>
+From: Christoph Böhmwalder <christoph@boehmwalder.at>
 
-[ Upstream commit 0092c25b541a5422d7e71892a13c55ee91abc34b ]
+[ Upstream commit 286901941fd18a52b2138fddbbf589ad3639eb00 ]
 
-This patch fixes the tristate configuration for i2c3 function assigned
-to the dtf pins on the Tamonten Tegra20 SoM.
+We want our pages not to change while they are being written.
 
-Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Christoph Böhmwalder <christoph.boehmwalder@linbit.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra20-tamonten.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/block/drbd/drbd_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
-index 4d69d67792d1..b919ca29bb78 100644
---- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
-+++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
-@@ -183,8 +183,8 @@
- 			};
- 			conf_ata {
- 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
--					"cdev1", "cdev2", "dap1", "dtb", "gma",
--					"gmb", "gmc", "gmd", "gme", "gpu7",
-+					"cdev1", "cdev2", "dap1", "dtb", "dtf",
-+					"gma", "gmb", "gmc", "gmd", "gme", "gpu7",
- 					"gpv", "i2cp", "irrx", "irtx", "pta",
- 					"rm", "slxa", "slxk", "spia", "spib",
- 					"uac";
-@@ -203,7 +203,7 @@
- 			};
- 			conf_crtp {
- 				nvidia,pins = "crtp", "dap2", "dap3", "dap4",
--					"dtc", "dte", "dtf", "gpu", "sdio1",
-+					"dtc", "dte", "gpu", "sdio1",
- 					"slxc", "slxd", "spdi", "spdo", "spig",
- 					"uda";
- 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 55234a558e98..548e0dd53528 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -2737,6 +2737,7 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+ 	sprintf(disk->disk_name, "drbd%d", minor);
+ 	disk->private_data = device;
+ 
++	blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, disk->queue);
+ 	blk_queue_write_cache(disk->queue, true, true);
+ 	/* Setting the max_hw_sectors to an odd value of 8kibyte here
+ 	   This triggers a max_bio_size message upon first attach or connect */
 -- 
-2.34.1
+2.35.1
 
 
 
