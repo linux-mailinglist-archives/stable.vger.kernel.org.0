@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC455505175
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB55505289
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236460AbiDRMez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53232 "EHLO
+        id S239793AbiDRMuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:50:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239630AbiDRMdR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD7F75F76;
-        Mon, 18 Apr 2022 05:24:59 -0700 (PDT)
+        with ESMTP id S240125AbiDRMtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:49:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 570582C660;
+        Mon, 18 Apr 2022 05:34:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BB6660B40;
-        Mon, 18 Apr 2022 12:24:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3970AC385A1;
-        Mon, 18 Apr 2022 12:24:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3FA3B80EDC;
+        Mon, 18 Apr 2022 12:34:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED3EC385A1;
+        Mon, 18 Apr 2022 12:34:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284698;
-        bh=QwI77yTeU38JG+pXWwgQj4xcJc1iPuDDqVCKq80Oph8=;
+        s=korg; t=1650285246;
+        bh=z7UOiugrOpFPJOfNqDzLddMS+hkVT/ffLhBdYJx8buc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3EmZde3jOTO926ZoVUTCQT/a8MuzfD5SSnIxc9i3nkJ4dGldD5E0OWT+BMlkqMH9
-         /O0EH2dzruPXEzc5jZPuOGmzG7FRSePJXUKaHj0Jf5GaxuNgmR5ETZFQHka8IiVjfM
-         74A/FfOzZRcAmb6qO7eoEkw0BBgwrGafx26ckjps=
+        b=oTbQuFmGDyq98z0LPh5CS9x0p0b1m88zur8njnRQoik9pDgWk6/dGii/U2vVEIlmw
+         W+/MLRp32bvqqNPVM11hpU7r+3I6SilL4dwf+8mtUNiJcWg/dVsdqNxFo9bhy8PZJV
+         WoaxAdv69DrQXazlX2BYAZ8xg3ABkTECBZF1X+FI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Melissa Wen <mwen@igalia.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Simon Ser <contact@emersion.fr>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.17 199/219] drm/amd/display: dont ignore alpha property on pre-multiplied mode
+        stable@vger.kernel.org, Bruno Goncalves <bgoncalv@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 148/189] KVM: x86/mmu: Resolve nx_huge_pages when kvm.ko is loaded
 Date:   Mon, 18 Apr 2022 14:12:48 +0200
-Message-Id: <20220418121212.442319183@linuxfoundation.org>
+Message-Id: <20220418121205.998620443@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,97 +55,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Melissa Wen <mwen@igalia.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit e4f1541caf60fcbe5a59e9d25805c0b5865e546a upstream.
+commit 1d0e84806047f38027d7572adb4702ef7c09b317 upstream.
 
-"Pre-multiplied" is the default pixel blend mode for KMS/DRM, as
-documented in supported_modes of drm_plane_create_blend_mode_property():
-https://cgit.freedesktop.org/drm/drm-misc/tree/drivers/gpu/drm/drm_blend.c
+Resolve nx_huge_pages to true/false when kvm.ko is loaded, leaving it as
+-1 is technically undefined behavior when its value is read out by
+param_get_bool(), as boolean values are supposed to be '0' or '1'.
 
-In this mode, both 'pixel alpha' and 'plane alpha' participate in the
-calculation, as described by the pixel blend mode formula in KMS/DRM
-documentation:
+Alternatively, KVM could define a custom getter for the param, but the
+auto value doesn't depend on the vendor module in any way, and printing
+"auto" would be unnecessarily unfriendly to the user.
 
-out.rgb = plane_alpha * fg.rgb +
-          (1 - (plane_alpha * fg.alpha)) * bg.rgb
+In addition to fixing the undefined behavior, resolving the auto value
+also fixes the scenario where the auto value resolves to N and no vendor
+module is loaded.  Previously, -1 would result in Y being printed even
+though KVM would ultimately disable the mitigation.
 
-Considering the blend config mechanisms we have in the driver so far,
-the alpha mode that better fits this blend mode is the
-_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN, where the value for global_gain
-is the plane alpha (global_alpha).
+Rename the existing MMU module init/exit helpers to clarify that they're
+invoked with respect to the vendor module, and add comments to document
+why KVM has two separate "module init" flows.
 
-With this change, alpha property stops to be ignored. It also addresses
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1734
+  =========================================================================
+  UBSAN: invalid-load in kernel/params.c:320:33
+  load of value 255 is not a valid value for type '_Bool'
+  CPU: 6 PID: 892 Comm: tail Not tainted 5.17.0-rc3+ #799
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x34/0x44
+   ubsan_epilogue+0x5/0x40
+   __ubsan_handle_load_invalid_value.cold+0x43/0x48
+   param_get_bool.cold+0xf/0x14
+   param_attr_show+0x55/0x80
+   module_attr_show+0x1c/0x30
+   sysfs_kf_seq_show+0x93/0xc0
+   seq_read_iter+0x11c/0x450
+   new_sync_read+0x11b/0x1a0
+   vfs_read+0xf0/0x190
+   ksys_read+0x5f/0xe0
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+   </TASK>
+  =========================================================================
 
-v2:
- * keep the 8-bit value for global_alpha_value (Nicholas)
- * correct the logical ordering for combined global gain (Nicholas)
- * apply to dcn10 too (Nicholas)
-
-Signed-off-by: Melissa Wen <mwen@igalia.com>
-Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Tested-by: Simon Ser <contact@emersion.fr>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
 Cc: stable@vger.kernel.org
+Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220331221359.3912754-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c |   14 +++++++++-----
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c        |   14 +++++++++-----
- 2 files changed, 18 insertions(+), 10 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    5 +++--
+ arch/x86/kvm/mmu/mmu.c          |   20 ++++++++++++++++----
+ arch/x86/kvm/x86.c              |   20 ++++++++++++++++++--
+ 3 files changed, 37 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -2520,14 +2520,18 @@ void dcn10_update_mpcc(struct dc *dc, st
- 	struct mpc *mpc = dc->res_pool->mpc;
- 	struct mpc_tree *mpc_tree_params = &(pipe_ctx->stream_res.opp->mpc_tree_params);
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1559,8 +1559,9 @@ static inline int kvm_arch_flush_remote_
+ 		return -ENOTSUPP;
+ }
  
--	if (per_pixel_alpha)
--		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
--	else
--		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
+-int kvm_mmu_module_init(void);
+-void kvm_mmu_module_exit(void);
++void kvm_mmu_x86_module_init(void);
++int kvm_mmu_vendor_module_init(void);
++void kvm_mmu_vendor_module_exit(void);
+ 
+ void kvm_mmu_destroy(struct kvm_vcpu *vcpu);
+ int kvm_mmu_create(struct kvm_vcpu *vcpu);
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -6105,12 +6105,24 @@ static int set_nx_huge_pages(const char
+ 	return 0;
+ }
+ 
+-int kvm_mmu_module_init(void)
++/*
++ * nx_huge_pages needs to be resolved to true/false when kvm.ko is loaded, as
++ * its default value of -1 is technically undefined behavior for a boolean.
++ */
++void kvm_mmu_x86_module_init(void)
+ {
+-	int ret = -ENOMEM;
 -
- 	blnd_cfg.overlap_only = false;
- 	blnd_cfg.global_gain = 0xff;
- 
-+	if (per_pixel_alpha && pipe_ctx->plane_state->global_alpha) {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN;
-+		blnd_cfg.global_gain = pipe_ctx->plane_state->global_alpha_value;
-+	} else if (per_pixel_alpha) {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
-+	} else {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
-+	}
+ 	if (nx_huge_pages == -1)
+ 		__set_nx_huge_pages(get_nx_auto_mode());
++}
 +
- 	if (pipe_ctx->plane_state->global_alpha)
- 		blnd_cfg.global_alpha = pipe_ctx->plane_state->global_alpha_value;
- 	else
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -2313,14 +2313,18 @@ void dcn20_update_mpcc(struct dc *dc, st
- 	struct mpc *mpc = dc->res_pool->mpc;
- 	struct mpc_tree *mpc_tree_params = &(pipe_ctx->stream_res.opp->mpc_tree_params);
++/*
++ * The bulk of the MMU initialization is deferred until the vendor module is
++ * loaded as many of the masks/values may be modified by VMX or SVM, i.e. need
++ * to be reset when a potentially different vendor module is loaded.
++ */
++int kvm_mmu_vendor_module_init(void)
++{
++	int ret = -ENOMEM;
  
--	if (per_pixel_alpha)
--		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
--	else
--		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
--
- 	blnd_cfg.overlap_only = false;
- 	blnd_cfg.global_gain = 0xff;
+ 	/*
+ 	 * MMU roles use union aliasing which is, generally speaking, an
+@@ -6182,7 +6194,7 @@ void kvm_mmu_destroy(struct kvm_vcpu *vc
+ 	mmu_free_memory_caches(vcpu);
+ }
  
-+	if (per_pixel_alpha && pipe_ctx->plane_state->global_alpha) {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA_COMBINED_GLOBAL_GAIN;
-+		blnd_cfg.global_gain = pipe_ctx->plane_state->global_alpha_value;
-+	} else if (per_pixel_alpha) {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_PER_PIXEL_ALPHA;
-+	} else {
-+		blnd_cfg.alpha_mode = MPCC_ALPHA_BLEND_MODE_GLOBAL_ALPHA;
-+	}
+-void kvm_mmu_module_exit(void)
++void kvm_mmu_vendor_module_exit(void)
+ {
+ 	mmu_destroy_caches();
+ 	percpu_counter_destroy(&kvm_total_used_mmu_pages);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8562,7 +8562,7 @@ int kvm_arch_init(void *opaque)
+ 	}
+ 	kvm_nr_uret_msrs = 0;
+ 
+-	r = kvm_mmu_module_init();
++	r = kvm_mmu_vendor_module_init();
+ 	if (r)
+ 		goto out_free_percpu;
+ 
+@@ -8612,7 +8612,7 @@ void kvm_arch_exit(void)
+ 	cancel_work_sync(&pvclock_gtod_work);
+ #endif
+ 	kvm_x86_ops.hardware_enable = NULL;
+-	kvm_mmu_module_exit();
++	kvm_mmu_vendor_module_exit();
+ 	free_percpu(user_return_msrs);
+ 	kmem_cache_destroy(x86_emulator_cache);
+ 	kmem_cache_destroy(x86_fpu_cache);
+@@ -12618,3 +12618,19 @@ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_vmgexit
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_vmgexit_exit);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_vmgexit_msr_protocol_enter);
+ EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_vmgexit_msr_protocol_exit);
 +
- 	if (pipe_ctx->plane_state->global_alpha)
- 		blnd_cfg.global_alpha = pipe_ctx->plane_state->global_alpha_value;
- 	else
++static int __init kvm_x86_init(void)
++{
++	kvm_mmu_x86_module_init();
++	return 0;
++}
++module_init(kvm_x86_init);
++
++static void __exit kvm_x86_exit(void)
++{
++	/*
++	 * If module_init() is implemented, module_exit() must also be
++	 * implemented to allow module unload.
++	 */
++}
++module_exit(kvm_x86_exit);
 
 
