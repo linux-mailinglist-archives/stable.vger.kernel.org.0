@@ -2,43 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD2D505078
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:23:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5AB15055F5
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238506AbiDRMZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:25:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38420 "EHLO
+        id S240485AbiDRNbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:31:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238648AbiDRMZd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:25:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331211BEAE;
-        Mon, 18 Apr 2022 05:19:34 -0700 (PDT)
+        with ESMTP id S243777AbiDRN3G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3476D3FD9C;
+        Mon, 18 Apr 2022 05:53:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AB33B80ED7;
-        Mon, 18 Apr 2022 12:19:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AE22C385A1;
-        Mon, 18 Apr 2022 12:19:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAEB4B80D9C;
+        Mon, 18 Apr 2022 12:53:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04CE4C385A1;
+        Mon, 18 Apr 2022 12:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284372;
-        bh=g2PbFRUOzkUxKx6MznAE/X04pbbqErwiMTNr3lEww8I=;
+        s=korg; t=1650286427;
+        bh=NfLqOsrWMbK1jbckB1cgBjgow7qN005MzMxAbj/BOp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqhcTPISYhdXpZ+zr4lulM3F8crHY6k7vqpAfWX10lzDotEptQqRMNF7i+UhJVZAx
-         qzonOnk5etVdDmT432Eupd7ttz5+m694NjEnIqnHPZV3hx0d6gD4mx3bD+srywPG1Q
-         WpPkBQXDB4ILpiWfcetIigSLyPeAql3t1e89Ne3Y=
+        b=GtFndzNP/weUFv73wTUug7yi5ox1PncZzAH3ENzViN6aF1hsl8Lz6sOUxEe24+qop
+         CH9NJPwiW6cKgBXsrYy9CR2T3EOCjEzbE8G2R1M9EpgxLxrrKhaYZZZ2C/aVKq1Myj
+         TbjSoc3lDf3ICHBwOiwipvsQhBoFB5e7UzsBGDqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        Borislav Petkov <bp@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        John Ogness <john.ogness@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 093/219] io_uring: stop using io_wq_work as an fd placeholder
+Subject: [PATCH 4.14 081/284] printk: fix return value of printk.devkmsg __setup handler
 Date:   Mon, 18 Apr 2022 14:11:02 +0200
-Message-Id: <20220418121209.280248121@linuxfoundation.org>
+Message-Id: <20220418121212.988637818@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +60,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 82733d168cbd3fe9dab603f05894316b99008924 ]
+[ Upstream commit b665eae7a788c5e2bc10f9ac3c0137aa0ad1fc97 ]
 
-There are two reasons why this isn't the best idea:
+If an invalid option value is used with "printk.devkmsg=<value>",
+it is silently ignored.
+If a valid option value is used, it is honored but the wrong return
+value (0) is used, indicating that the command line option had an
+error and was not handled. This string is not added to init's
+environment strings due to init/main.c::unknown_bootoption()
+checking for a '.' in the boot option string and then considering
+that string to be an "Unused module parameter".
 
-- It's an odd area to grab a bit of storage space, hence it's an odd area
-  to grab storage from.
-- It puts the 3rd io_kiocb cacheline into the hot path, where normal hot
-  path just needs the first two.
+Print a warning message if a bad option string is used.
+Always return 1 from the __setup handler to indicate that the command
+line option has been handled.
 
-Use 'cflags' for joint fd/cflags storage. We only need fd until we
-successfully issue, and we only need cflags once a request is done and is
-completed.
-
-Fixes: 6bf9c47a3989 ("io_uring: defer file assignment")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 750afe7babd1 ("printk: add kernel parameter to control writes to /dev/kmsg")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: John Ogness <john.ogness@linutronix.de>
+Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20220228220556.23484-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.h    |  1 -
- fs/io_uring.c | 12 ++++++++----
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ kernel/printk/printk.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index 04d374e65e54..dbecd27656c7 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -155,7 +155,6 @@ struct io_wq_work_node *wq_stack_extract(struct io_wq_work_node *stack)
- struct io_wq_work {
- 	struct io_wq_work_node list;
- 	unsigned flags;
--	int fd;
- };
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 31b5e7919d62..11173d0b51bc 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -125,8 +125,10 @@ static int __control_devkmsg(char *str)
  
- static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d13f142793f2..d05394b0c1e6 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -864,7 +864,11 @@ struct io_kiocb {
+ static int __init control_devkmsg(char *str)
+ {
+-	if (__control_devkmsg(str) < 0)
++	if (__control_devkmsg(str) < 0) {
++		pr_warn("printk.devkmsg: bad option string '%s'\n", str);
+ 		return 1;
++	}
  
- 	u64				user_data;
- 	u32				result;
--	u32				cflags;
-+	/* fd initially, then cflags for completion */
-+	union {
-+		u32			cflags;
-+		int			fd;
-+	};
+ 	/*
+ 	 * Set sysctl string accordingly:
+@@ -148,7 +150,7 @@ static int __init control_devkmsg(char *str)
+ 	 */
+ 	devkmsg_log |= DEVKMSG_LOG_MASK_LOCK;
  
- 	struct io_ring_ctx		*ctx;
- 	struct task_struct		*task;
-@@ -6708,9 +6712,9 @@ static bool io_assign_file(struct io_kiocb *req, unsigned int issue_flags)
- 		return true;
+-	return 0;
++	return 1;
+ }
+ __setup("printk.devkmsg=", control_devkmsg);
  
- 	if (req->flags & REQ_F_FIXED_FILE)
--		req->file = io_file_get_fixed(req, req->work.fd, issue_flags);
-+		req->file = io_file_get_fixed(req, req->fd, issue_flags);
- 	else
--		req->file = io_file_get_normal(req, req->work.fd);
-+		req->file = io_file_get_normal(req, req->fd);
- 	if (req->file)
- 		return true;
- 
-@@ -7243,7 +7247,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	if (io_op_defs[opcode].needs_file) {
- 		struct io_submit_state *state = &ctx->submit_state;
- 
--		req->work.fd = READ_ONCE(sqe->fd);
-+		req->fd = READ_ONCE(sqe->fd);
- 
- 		/*
- 		 * Plug now if we have more than 2 IO left after this, and the
 -- 
-2.35.1
+2.34.1
 
 
 
