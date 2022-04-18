@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB39C50500B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7F1D5054E7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238142AbiDRMUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:20:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49168 "EHLO
+        id S241364AbiDRNMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:12:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238261AbiDRMUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:20:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8606A1CB33;
-        Mon, 18 Apr 2022 05:16:56 -0700 (PDT)
+        with ESMTP id S242046AbiDRNIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94FBB34652;
+        Mon, 18 Apr 2022 05:48:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11D6D60F01;
-        Mon, 18 Apr 2022 12:16:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 234CCC385A7;
-        Mon, 18 Apr 2022 12:16:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A527B80E44;
+        Mon, 18 Apr 2022 12:48:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B0BC385A1;
+        Mon, 18 Apr 2022 12:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284215;
-        bh=qrM1mmp+DNele4c8a9yokNREsnZ4lPImPHnzskGR/T8=;
+        s=korg; t=1650286094;
+        bh=5IqUjJTSOJ5iA71G3v7PMy802c6wfxcw7Yd0aVsWReA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pyceee+jceth143/A/NZ3QlN1V9sV4+RvSq0ktQGzqYxCfGT1Fc4/ssDTTO1j8coU
-         BZB/kUejYF5aanRR3+F0kCxc+X6QT/hV8ekVpZ1gc1wcR/c2nqs0Ia1olskRJNoTnE
-         +wvCznFfNzjLbXbZgE+ro6MnaVyZPIVP4qiXPMFo=
+        b=0O+PPTbAPz2fj6asuXTJbr9UZ7kSkOQrudWDMDSOCG+SPSOkvjJBZ1dHoEAaCSpI0
+         Hgle6NLTbcC+bn4SqVn++YnUgnTdYjtWwjR4hdPb87OaN2dlHsPTPBTx9GYO56Gt4B
+         zpqpvEsvpRQYRe35nzQ49eqzBb4Nic2vhMh84Juw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 039/219] ALSA: hdspm: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Baokun Li <libaokun1@huawei.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.14 027/284] jffs2: fix memory leak in jffs2_do_mount_fs
 Date:   Mon, 18 Apr 2022 14:10:08 +0200
-Message-Id: <20220418121205.677060257@linuxfoundation.org>
+Message-Id: <20220418121211.468896417@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit eab521aebcdeb1c801009503e3a7f8989e3c6b36 upstream.
+commit d051cef784de4d54835f6b6836d98a8f6935772c upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+If jffs2_build_filesystem() in jffs2_do_mount_fs() returns an error,
+we can observe the following kmemleak report:
 
-This patch fixes it by calling snd_card_free() manually on the error
-from the probe callback.
+--------------------------------------------
+unreferenced object 0xffff88811b25a640 (size 64):
+  comm "mount", pid 691, jiffies 4294957728 (age 71.952s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffffa493be24>] kmem_cache_alloc_trace+0x584/0x880
+    [<ffffffffa5423a06>] jffs2_sum_init+0x86/0x130
+    [<ffffffffa5400e58>] jffs2_do_mount_fs+0x798/0xac0
+    [<ffffffffa540acf3>] jffs2_do_fill_super+0x383/0xc30
+    [<ffffffffa540c00a>] jffs2_fill_super+0x2ea/0x4c0
+    [...]
+unreferenced object 0xffff88812c760000 (size 65536):
+  comm "mount", pid 691, jiffies 4294957728 (age 71.952s)
+  hex dump (first 32 bytes):
+    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+    bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+  backtrace:
+    [<ffffffffa493a449>] __kmalloc+0x6b9/0x910
+    [<ffffffffa5423a57>] jffs2_sum_init+0xd7/0x130
+    [<ffffffffa5400e58>] jffs2_do_mount_fs+0x798/0xac0
+    [<ffffffffa540acf3>] jffs2_do_fill_super+0x383/0xc30
+    [<ffffffffa540c00a>] jffs2_fill_super+0x2ea/0x4c0
+    [...]
+--------------------------------------------
 
-Fixes: 0195ca5fd1f4 ("ALSA: hdspm: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-37-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This is because the resources allocated in jffs2_sum_init() are not
+released. Call jffs2_sum_exit() to release these resources to solve
+the problem.
+
+Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/rme9652/hdspm.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/jffs2/build.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/rme9652/hdspm.c
-+++ b/sound/pci/rme9652/hdspm.c
-@@ -6895,7 +6895,7 @@ static int snd_hdspm_probe(struct pci_de
+--- a/fs/jffs2/build.c
++++ b/fs/jffs2/build.c
+@@ -415,13 +415,15 @@ int jffs2_do_mount_fs(struct jffs2_sb_in
+ 		jffs2_free_ino_caches(c);
+ 		jffs2_free_raw_node_refs(c);
+ 		ret = -EIO;
+-		goto out_free;
++		goto out_sum_exit;
+ 	}
  
- 	err = snd_hdspm_create(card, hdspm);
- 	if (err < 0)
--		return err;
-+		goto error;
+ 	jffs2_calc_trigger_levels(c);
  
- 	if (hdspm->io_type != MADIface) {
- 		snprintf(card->shortname, sizeof(card->shortname), "%s_%x",
-@@ -6914,12 +6914,16 @@ static int snd_hdspm_probe(struct pci_de
- 
- 	err = snd_card_register(card);
- 	if (err < 0)
--		return err;
-+		goto error;
- 
- 	pci_set_drvdata(pci, card);
- 
- 	dev++;
  	return 0;
-+
-+ error:
-+	snd_card_free(card);
-+	return err;
- }
  
- static struct pci_driver hdspm_driver = {
++ out_sum_exit:
++	jffs2_sum_exit(c);
+  out_free:
+ 	kvfree(c->blocks);
+ 
 
 
