@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A2A5051F9
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2053A505033
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:20:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233781AbiDRMkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:40:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37316 "EHLO
+        id S238582AbiDRMX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:23:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239492AbiDRMhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:48 -0400
+        with ESMTP id S238646AbiDRMWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:22:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A0F7222B4;
-        Mon, 18 Apr 2022 05:27:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D231EAE7;
+        Mon, 18 Apr 2022 05:17:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C94160F09;
-        Mon, 18 Apr 2022 12:27:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 480C3C385A7;
-        Mon, 18 Apr 2022 12:27:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03A5060F39;
+        Mon, 18 Apr 2022 12:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D56FBC385A8;
+        Mon, 18 Apr 2022 12:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284877;
-        bh=vlaw6vwwaPe+wJ4yYOqIhyCmsIl8eTc+i2THFYJ9aBs=;
+        s=korg; t=1650284278;
+        bh=tv4zKBl+I3vxx2xHCn4Ct8zhqbx9Pth5UP2RUme5oVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=azkIr0Wbx6xxEGG7kpYfj0gvDNsWFb0UM1LbIzmhBLK7RXn6rkPow7BX3qebFuFfF
-         2WgyLb5DfTjXYUL6Zr+NkHQ3EEwy/Yh0Nz1etslvh/N4inLOENotOXCwZzf4/TfjE3
-         WKaKdk0/srIFoNvjpZvrQ85pjVWTIy20xxRdS3Yw=
+        b=gtmM5SB0MyCPXXO7rbSgqhK383kpGlrsaT22nNwSkwp0zGCpNjWT1ZCXWok1e2/GA
+         tcExNSfq0A33TvtYI8MxzSSfxD8Uj3kA4ZEWhn4tThZhT3L3mX20+uqTEmgReV/qgF
+         0Zqf9KR/+zS7bR2mSatj+RVdTZ1zsnXS9k2LkkqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.15 009/189] btrfs: remove unused parameter nr_pages in add_ra_bio_pages()
-Date:   Mon, 18 Apr 2022 14:10:29 +0200
-Message-Id: <20220418121200.727778911@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 061/219] memory: atmel-ebi: Fix missing of_node_put in atmel_ebi_probe
+Date:   Mon, 18 Apr 2022 14:10:30 +0200
+Message-Id: <20220418121207.176081250@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit cd9255be6980012ad54f2d4fd3941bc2586e43e5 upstream.
+[ Upstream commit 6f296a9665ba5ac68937bf11f96214eb9de81baa ]
 
-Variable @nr_pages only gets increased but never used.  Remove it.
+The device_node pointer is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 87108dc78eb8 ("memory: atmel-ebi: Enable the SMC clock if specified")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220309110144.22412-1-linmq006@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/compression.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/memory/atmel-ebi.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -550,7 +550,6 @@ static noinline int add_ra_bio_pages(str
- 	u64 isize = i_size_read(inode);
- 	int ret;
- 	struct page *page;
--	unsigned long nr_pages = 0;
- 	struct extent_map *em;
- 	struct address_space *mapping = inode->i_mapping;
- 	struct extent_map_tree *em_tree;
-@@ -646,7 +645,6 @@ static noinline int add_ra_bio_pages(str
- 				   PAGE_SIZE, 0);
+diff --git a/drivers/memory/atmel-ebi.c b/drivers/memory/atmel-ebi.c
+index c267283b01fd..e749dcb3ddea 100644
+--- a/drivers/memory/atmel-ebi.c
++++ b/drivers/memory/atmel-ebi.c
+@@ -544,20 +544,27 @@ static int atmel_ebi_probe(struct platform_device *pdev)
+ 	smc_np = of_parse_phandle(dev->of_node, "atmel,smc", 0);
  
- 		if (ret == PAGE_SIZE) {
--			nr_pages++;
- 			put_page(page);
- 		} else {
- 			unlock_extent(tree, last_offset, end);
+ 	ebi->smc.regmap = syscon_node_to_regmap(smc_np);
+-	if (IS_ERR(ebi->smc.regmap))
+-		return PTR_ERR(ebi->smc.regmap);
++	if (IS_ERR(ebi->smc.regmap)) {
++		ret = PTR_ERR(ebi->smc.regmap);
++		goto put_node;
++	}
+ 
+ 	ebi->smc.layout = atmel_hsmc_get_reg_layout(smc_np);
+-	if (IS_ERR(ebi->smc.layout))
+-		return PTR_ERR(ebi->smc.layout);
++	if (IS_ERR(ebi->smc.layout)) {
++		ret = PTR_ERR(ebi->smc.layout);
++		goto put_node;
++	}
+ 
+ 	ebi->smc.clk = of_clk_get(smc_np, 0);
+ 	if (IS_ERR(ebi->smc.clk)) {
+-		if (PTR_ERR(ebi->smc.clk) != -ENOENT)
+-			return PTR_ERR(ebi->smc.clk);
++		if (PTR_ERR(ebi->smc.clk) != -ENOENT) {
++			ret = PTR_ERR(ebi->smc.clk);
++			goto put_node;
++		}
+ 
+ 		ebi->smc.clk = NULL;
+ 	}
++	of_node_put(smc_np);
+ 	ret = clk_prepare_enable(ebi->smc.clk);
+ 	if (ret)
+ 		return ret;
+@@ -608,6 +615,10 @@ static int atmel_ebi_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	return of_platform_populate(np, NULL, NULL, dev);
++
++put_node:
++	of_node_put(smc_np);
++	return ret;
+ }
+ 
+ static __maybe_unused int atmel_ebi_resume(struct device *dev)
+-- 
+2.35.1
+
 
 
