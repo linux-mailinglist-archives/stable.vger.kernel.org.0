@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7406E505526
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E9DC5051C7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242151AbiDRNOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:14:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53914 "EHLO
+        id S239698AbiDRMmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:42:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243438AbiDRNKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FCF237BFF;
-        Mon, 18 Apr 2022 05:49:39 -0700 (PDT)
+        with ESMTP id S239909AbiDRMiP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:38:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76CC724966;
+        Mon, 18 Apr 2022 05:28:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 253DAB80D9C;
-        Mon, 18 Apr 2022 12:49:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7095EC385A9;
-        Mon, 18 Apr 2022 12:49:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED59460F0A;
+        Mon, 18 Apr 2022 12:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0925AC385A1;
+        Mon, 18 Apr 2022 12:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286172;
-        bh=sBAlfitv7a3m15anPihIPdD3jKEWTRAgL6gHf+iR2EQ=;
+        s=korg; t=1650284935;
+        bh=KOUe/lAFuhPOql6scBSqAJ2DZMesDB+VOq8XWsiv5FM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TxsF93e5RLHypZZ8AOZHMboIjrlL6pn7VVTBXjPMxHiFejCFAzCVkuIXG0AJqiy0f
-         uI4ZlV3nnwj3LFhXxTveACDMBDlTH2rvkTlVCzUeM5akPZjg6HUrairzRJSQsMdTS8
-         lyvIp1ebZUrXzTeme3bFHkINDcnPOQ8T4VMs9zpw=
+        b=biCEnO6+D187VHvZno3AaXoo3f2frAmGZVaS3C+JFhtblRgMwEip7a6UueCYv1349
+         ePtOz7iL5OWVCKv1vWrS/Kv8MdeKEW0Dxa63bloTYu7Ox3G0gETss6OJTgxwi3h6PL
+         t9Pd4SBCT+F8M6LF+OjUKNc3fvCqgncSQKXKjNFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Liguang Zhang <zhangliguang@linux.alibaba.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 4.14 052/284] PCI: pciehp: Clear cmd_busy bit in polling mode
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 013/189] dt-bindings: net: qcom,ipa: add optional qcom,qmp property
 Date:   Mon, 18 Apr 2022 14:10:33 +0200
-Message-Id: <20220418121212.175619271@linuxfoundation.org>
+Message-Id: <20220418121200.875703142@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liguang Zhang <zhangliguang@linux.alibaba.com>
+From: Alex Elder <elder@linaro.org>
 
-commit 92912b175178c7e895f5e5e9f1e30ac30319162b upstream.
+commit ac62a0174d62ae0f4447c0c8cf35a8e5d793df56 upstream.
 
-Writes to a Downstream Port's Slot Control register are PCIe hotplug
-"commands."  If the Port supports Command Completed events, software must
-wait for a command to complete before writing to Slot Control again.
+For some systems, the IPA driver must make a request to ensure that
+its registers are retained across power collapse of the IPA hardware.
+On such systems, we'll use the existence of the "qcom,qmp" property
+as a signal that this request is required.
 
-pcie_do_write_cmd() sets ctrl->cmd_busy when it writes to Slot Control.  If
-software notification is enabled, i.e., PCI_EXP_SLTCTL_HPIE and
-PCI_EXP_SLTCTL_CCIE are set, ctrl->cmd_busy is cleared by pciehp_isr().
-
-But when software notification is disabled, as it is when pcie_init()
-powers off an empty slot, pcie_wait_cmd() uses pcie_poll_cmd() to poll for
-command completion, and it neglects to clear ctrl->cmd_busy, which leads to
-spurious timeouts:
-
-  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x01c0 (issued 2264 msec ago)
-  pcieport 0000:00:03.0: pciehp: Timeout on hotplug command 0x05c0 (issued 2288 msec ago)
-
-Clear ctrl->cmd_busy in pcie_poll_cmd() when it detects a Command Completed
-event (PCI_EXP_SLTSTA_CC).
-
-[bhelgaas: commit log]
-Fixes: a5dd4b4b0570 ("PCI: pciehp: Wait for hotplug command completion where necessary")
-Link: https://lore.kernel.org/r/20211111054258.7309-1-zhangliguang@linux.alibaba.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215143
-Link: https://lore.kernel.org/r/20211126173309.GA12255@wunner.de
-Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org	# v4.19+
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/hotplug/pciehp_hpc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/devicetree/bindings/net/qcom,ipa.yaml |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/pci/hotplug/pciehp_hpc.c
-+++ b/drivers/pci/hotplug/pciehp_hpc.c
-@@ -120,6 +120,8 @@ static int pcie_poll_cmd(struct controll
- 		if (slot_status & PCI_EXP_SLTSTA_CC) {
- 			pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
- 						   PCI_EXP_SLTSTA_CC);
-+			ctrl->cmd_busy = 0;
-+			smp_mb();
- 			return 1;
- 		}
- 		if (timeout < 0)
+--- a/Documentation/devicetree/bindings/net/qcom,ipa.yaml
++++ b/Documentation/devicetree/bindings/net/qcom,ipa.yaml
+@@ -106,6 +106,10 @@ properties:
+           - const: imem
+           - const: config
+ 
++  qcom,qmp:
++    $ref: /schemas/types.yaml#/definitions/phandle
++    description: phandle to the AOSS side-channel message RAM
++
+   qcom,smem-states:
+     $ref: /schemas/types.yaml#/definitions/phandle-array
+     description: State bits used in by the AP to signal the modem.
+@@ -221,6 +225,8 @@ examples:
+                                      "imem",
+                                      "config";
+ 
++                qcom,qmp = <&aoss_qmp>;
++
+                 qcom,smem-states = <&ipa_smp2p_out 0>,
+                                    <&ipa_smp2p_out 1>;
+                 qcom,smem-state-names = "ipa-clock-enabled-valid",
 
 
