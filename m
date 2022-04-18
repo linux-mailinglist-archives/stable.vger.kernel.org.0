@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C8D7504E8D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78E47504E8F
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:55:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231138AbiDRJ4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 05:56:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35964 "EHLO
+        id S237568AbiDRJ5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 05:57:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231559AbiDRJ4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:56:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7987C167CF
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:54:01 -0700 (PDT)
+        with ESMTP id S236357AbiDRJ5a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:57:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48BCF64F9
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:54:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06A41611AB
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE3F5C385A7;
-        Mon, 18 Apr 2022 09:53:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1561B80E66
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:54:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49AEBC385A1;
+        Mon, 18 Apr 2022 09:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650275640;
-        bh=EmgUFJkAlfBQgM1UlTXXTSCdgNFtj2FBA4GALGfYc1o=;
+        s=korg; t=1650275688;
+        bh=FN2u6bKiZFkPvMMCjtk4ZMJCj8NbWe06zcm2Jro++2E=;
         h=Subject:To:Cc:From:Date:From;
-        b=w6e3B4dJMDdfUk27T34CuLHHZw83ZNKc1eF3k3xmLkcSxJNkVtW/et2bEkJkwbmPk
-         G3/tgnOk/bekX2HOIL0I8NowbylKancyGLA/4VbGHIUmyFC4iFVjwkjAotYOWDH7ii
-         Xik9kbgG/z4gQ/rFLIr8D8QWwqQ3yPr6S+eFvcLM=
-Subject: FAILED: patch "[PATCH] perf tools: Fix segfault accessing sample_id xyarray" failed to apply to 5.15-stable tree
-To:     adrian.hunter@intel.com, acme@redhat.com, irogers@google.com,
-        jolsa@kernel.org
+        b=p+y8bwJ//vs6tunfb56TyM82V7WBMezJkViBrpWVf6AOcAsVu/rAbQmL2HGwOqFPe
+         UsgJ7KAqpa4aCrTb5Mtpdog/b5ZNz6dbCSOITRC4gnqX80T04cPbQj3lvQGuRQbhmg
+         Ecx2DmdW+Y8Jurt6tJ9DIflf2nIbuYWL43WSMg48=
+Subject: FAILED: patch "[PATCH] io_uring: use right issue_flags for splice/tee" failed to apply to 5.17-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Apr 2022 11:53:57 +0200
-Message-ID: <16502756372552@kroah.com>
+Date:   Mon, 18 Apr 2022 11:54:46 +0200
+Message-ID: <1650275686134226@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,62 +59,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a668cc07f990d2ed19424d5c1a529521a9d1cee1 Mon Sep 17 00:00:00 2001
-From: Adrian Hunter <adrian.hunter@intel.com>
-Date: Wed, 13 Apr 2022 14:42:32 +0300
-Subject: [PATCH] perf tools: Fix segfault accessing sample_id xyarray
+From e941976659f1f6834077a1596bf53e6bdb10e90b Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Wed, 13 Apr 2022 16:10:33 +0100
+Subject: [PATCH] io_uring: use right issue_flags for splice/tee
 
-perf_evsel::sample_id is an xyarray which can cause a segfault when
-accessed beyond its size. e.g.
+Pass right issue_flags into into io_file_get_fixed() instead of
+IO_URING_F_UNLOCKED. It's probably not a problem at the moment but let's
+do it safer.
 
-  # perf record -e intel_pt// -C 1 sleep 1
-  Segmentation fault (core dumped)
-  #
+Fixes: 6bf9c47a3989 ("io_uring: defer file assignment")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/7d242daa9df5d776907686977cd29fbceb4a2d8d.1649862516.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-That is happening because a dummy event is opened to capture text poke
-events accross all CPUs, however the mmap logic is allocating according
-to the number of user_requested_cpus.
-
-In general, perf sometimes uses the evsel cpus to open events, and
-sometimes the evlist user_requested_cpus. However, it is not necessary
-to determine which case is which because the opened event file
-descriptors are also in an xyarray, the size of whch can be used
-to correctly allocate the size of the sample_id xyarray, because there
-is one ID per file descriptor.
-
-Note, in the affected code path, perf_evsel fd array is subsequently
-used to get the file descriptor for the mmap, so it makes sense for the
-xyarrays to be the same size there.
-
-Fixes: d1a177595b3a824c ("libperf: Adopt perf_evlist__mmap()/munmap() from tools/perf")
-Fixes: 246eba8e9041c477 ("perf tools: Add support for PERF_RECORD_TEXT_POKE")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: stable@vger.kernel.org # 5.5+
-Link: https://lore.kernel.org/r/20220413114232.26914-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-
-diff --git a/tools/lib/perf/evlist.c b/tools/lib/perf/evlist.c
-index 1b15ba13c477..a09315538a30 100644
---- a/tools/lib/perf/evlist.c
-+++ b/tools/lib/perf/evlist.c
-@@ -577,7 +577,6 @@ int perf_evlist__mmap_ops(struct perf_evlist *evlist,
- {
- 	struct perf_evsel *evsel;
- 	const struct perf_cpu_map *cpus = evlist->user_requested_cpus;
--	const struct perf_thread_map *threads = evlist->threads;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 6b1a98697dcf..3d6cbf77c89d 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -4358,7 +4358,7 @@ static int io_tee(struct io_kiocb *req, unsigned int issue_flags)
+ 		return -EAGAIN;
  
- 	if (!ops || !ops->get || !ops->mmap)
- 		return -EINVAL;
-@@ -589,7 +588,7 @@ int perf_evlist__mmap_ops(struct perf_evlist *evlist,
- 	perf_evlist__for_each_entry(evlist, evsel) {
- 		if ((evsel->attr.read_format & PERF_FORMAT_ID) &&
- 		    evsel->sample_id == NULL &&
--		    perf_evsel__alloc_id(evsel, perf_cpu_map__nr(cpus), threads->nr) < 0)
-+		    perf_evsel__alloc_id(evsel, evsel->fd->max_x, evsel->fd->max_y) < 0)
- 			return -ENOMEM;
- 	}
+ 	if (sp->flags & SPLICE_F_FD_IN_FIXED)
+-		in = io_file_get_fixed(req, sp->splice_fd_in, IO_URING_F_UNLOCKED);
++		in = io_file_get_fixed(req, sp->splice_fd_in, issue_flags);
+ 	else
+ 		in = io_file_get_normal(req, sp->splice_fd_in);
+ 	if (!in) {
+@@ -4400,7 +4400,7 @@ static int io_splice(struct io_kiocb *req, unsigned int issue_flags)
+ 		return -EAGAIN;
  
+ 	if (sp->flags & SPLICE_F_FD_IN_FIXED)
+-		in = io_file_get_fixed(req, sp->splice_fd_in, IO_URING_F_UNLOCKED);
++		in = io_file_get_fixed(req, sp->splice_fd_in, issue_flags);
+ 	else
+ 		in = io_file_get_normal(req, sp->splice_fd_in);
+ 	if (!in) {
 
