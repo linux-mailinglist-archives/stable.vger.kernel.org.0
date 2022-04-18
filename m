@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 254BE50581C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A20075053AC
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244769AbiDROAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:00:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45484 "EHLO
+        id S238741AbiDRNA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:00:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244402AbiDRN5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:17 -0400
+        with ESMTP id S242468AbiDRM76 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:58 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 968A32182C;
-        Mon, 18 Apr 2022 06:07:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E73573121E;
+        Mon, 18 Apr 2022 05:41:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 416B0B80D9C;
-        Mon, 18 Apr 2022 13:07:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A36E1C385A1;
-        Mon, 18 Apr 2022 13:07:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFAA4B80EC3;
+        Mon, 18 Apr 2022 12:41:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F0A2C385A7;
+        Mon, 18 Apr 2022 12:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287243;
-        bh=A2OvgRXUH8AWEyjfgaWIlA14tdS3A0N61n6t1B2cyJU=;
+        s=korg; t=1650285678;
+        bh=xVm6RRwV0iebQzfEjV2PEmWJc2EKFy1OV3lmNHvO7uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaMJOiHesPTj3KMpxSXICUuBWUHsvPzLDrAjxQnP26Y6bkd8S3epMe72rwkS6yGMh
-         gL/RjEwbW+zaNtzjeJvJfZRsQ9Mhu2yppwTyyKxe8tjaUpIrbGtG8Yja7lipGMmnmS
-         VqgDWetcnp2tjy8vZ0lkbUJT+cT3O0Ja2jlVhcyI=
+        b=hBnOh1VAq+D8KX7JMaZLUMU5A5jXPxE0gHIRnqjt2P2ZXG9H4xyBGJedhLDScxY9Q
+         3tgJGRTCo/y+okmhStDaMwOXcSi83icOybMawoyVE3NnsGBVxxjYyJOHPa/YkjjLzx
+         5plDFz+grcf40bT+ylV7CZAM4rlTMtTnHCg95o+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 101/218] i2c: mux: demux-pinctrl: do not deactivate a master that is not active
+        stable@vger.kernel.org, Alvin Lee <Alvin.Lee2@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>, Alex Hung <alex.hung@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 045/105] drm/amd/display: fix audio format not updated after edid updated
 Date:   Mon, 18 Apr 2022 14:12:47 +0200
-Message-Id: <20220418121202.492700750@linuxfoundation.org>
+Message-Id: <20220418121147.759894866@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Rosin <peda@axentia.se>
+From: Charlene Liu <Charlene.Liu@amd.com>
 
-[ Upstream commit 1a22aabf20adf89cb216f566913196128766f25b ]
+[ Upstream commit 5e8a71cf13bc9184fee915b2220be71b4c6cac74 ]
 
-Attempting to rollback the activation of the current master when
-the current master has not been activated is bad. priv->cur_chan
-and priv->cur_adap are both still zeroed out and the rollback
-may result in attempts to revert an of changeset that has not been
-applied and do result in calls to both del and put the zeroed out
-i2c_adapter. Maybe it crashes, or whatever, but it's bad in any
-case.
+[why]
+for the case edid change only changed audio format.
+driver still need to update stream.
 
-Fixes: e9d1a0a41d44 ("i2c: mux: demux-pinctrl: Fix an error handling path in 'i2c_demux_pinctrl_probe()'")
-Signed-off-by: Peter Rosin <peda@axentia.se>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Charlene Liu <Charlene.Liu@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/muxes/i2c-demux-pinctrl.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-demux-pinctrl.c b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-index a86c511c29e0..c347860b3690 100644
---- a/drivers/i2c/muxes/i2c-demux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-demux-pinctrl.c
-@@ -259,7 +259,7 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+index 5c5ccbad9658..1e47afc4ccc1 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+@@ -1701,8 +1701,8 @@ bool dc_is_stream_unchanged(
+ 	if (old_stream->ignore_msa_timing_param != stream->ignore_msa_timing_param)
+ 		return false;
  
- 	err = device_create_file(&pdev->dev, &dev_attr_available_masters);
- 	if (err)
--		goto err_rollback;
-+		goto err_rollback_activation;
+-	// Only Have Audio left to check whether it is same or not. This is a corner case for Tiled sinks
+-	if (old_stream->audio_info.mode_count != stream->audio_info.mode_count)
++	/*compare audio info*/
++	if (memcmp(&old_stream->audio_info, &stream->audio_info, sizeof(stream->audio_info)) != 0)
+ 		return false;
  
- 	err = device_create_file(&pdev->dev, &dev_attr_current_master);
- 	if (err)
-@@ -269,8 +269,9 @@ static int i2c_demux_pinctrl_probe(struct platform_device *pdev)
- 
- err_rollback_available:
- 	device_remove_file(&pdev->dev, &dev_attr_available_masters);
--err_rollback:
-+err_rollback_activation:
- 	i2c_demux_deactivate_master(priv);
-+err_rollback:
- 	for (j = 0; j < i; j++) {
- 		of_node_put(priv->chan[j].parent_np);
- 		of_changeset_destroy(&priv->chan[j].chgset);
+ 	return true;
 -- 
-2.34.1
+2.35.1
 
 
 
