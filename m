@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F0E95056DE
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3011B50568C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244233AbiDRNrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53650 "EHLO
+        id S243168AbiDRNj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:39:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242584AbiDRNqU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:46:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E09EC26AF6;
-        Mon, 18 Apr 2022 06:00:38 -0700 (PDT)
+        with ESMTP id S244018AbiDRNiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:38:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A208527FE5;
+        Mon, 18 Apr 2022 05:58:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BC3E6097A;
-        Mon, 18 Apr 2022 13:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84AA2C385A7;
-        Mon, 18 Apr 2022 13:00:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 23653B80E44;
+        Mon, 18 Apr 2022 12:58:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EBC3C385A1;
+        Mon, 18 Apr 2022 12:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286837;
-        bh=WtsfyW9vwEdE0Pj9Wvf+LstXIUiwZavbvOHJg+kfrnU=;
+        s=korg; t=1650286705;
+        bh=0Ib93hmg98wm1ej2ga6KkRVGgiVh+k+ut6GZoNMZN/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=raWfcjfcX840BfGPwqLsBLT0XxgbCMbFDWPvMAzi0YC7t7tGjgfJAE5EX0gSnwIr2
-         sqJ1jtQDqwS31LnEx5gfrEBn1NoMLucubIubNXkzjPNuvDEQX/hg4WPqGlTUADWMZs
-         2m4ynJ3NUwMVmb+/5gAjOYBkzHVANat5xdjl+7Ts=
+        b=OXam3EG7ImAB9ofeyUGw6lowZvxpuWXX6bC5v/sFk6bvojlIBFQBDwBsyeHz4YJf2
+         JcrPMod84gDtFsceoWkLHTY8DyqnzAt42WML2qaAgnIVUuR/KoG2N4IG7tvbhiPa52
+         cplY08IDLN/CrhUrgTIGBL50M84v6rQkzivx0U5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Yang Guang <yang.guang5@zte.com.cn>,
-        David Yang <davidcomponentone@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Evgeny Boger <boger@wirenboard.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 211/284] scsi: bfa: Replace snprintf() with sysfs_emit()
-Date:   Mon, 18 Apr 2022 14:13:12 +0200
-Message-Id: <20220418121217.718882489@linuxfoundation.org>
+Subject: [PATCH 4.14 212/284] power: supply: axp20x_battery: properly report current when discharging
+Date:   Mon, 18 Apr 2022 14:13:13 +0200
+Message-Id: <20220418121217.746357295@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
 References: <20220418121210.689577360@linuxfoundation.org>
@@ -56,167 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Guang <yang.guang5@zte.com.cn>
+From: Evgeny Boger <boger@wirenboard.com>
 
-[ Upstream commit 2245ea91fd3a04cafbe2f54911432a8657528c3b ]
+[ Upstream commit d4f408cdcd26921c1268cb8dcbe8ffb6faf837f3 ]
 
-coccinelle report:
-./drivers/scsi/bfa/bfad_attr.c:908:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:860:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:888:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:853:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:808:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:728:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:822:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:927:9-17:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:900:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:874:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:714:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/scsi/bfa/bfad_attr.c:839:8-16:
-WARNING: use scnprintf or sprintf
+As stated in [1], negative current values are used for discharging
+batteries.
 
-Use sysfs_emit() instead of scnprintf() or sprintf().
+AXP PMICs internally have two different ADC channels for shunt current
+measurement: one used during charging and one during discharging.
+The values reported by these ADCs are unsigned.
+While the driver properly selects ADC channel to get the data from,
+it doesn't apply negative sign when reporting discharging current.
 
-Link: https://lore.kernel.org/r/def83ff75faec64ba592b867a8499b1367bae303.1643181468.git.yang.guang5@zte.com.cn
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
-Signed-off-by: David Yang <davidcomponentone@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[1] Documentation/ABI/testing/sysfs-class-power
+
+Signed-off-by: Evgeny Boger <boger@wirenboard.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/bfa/bfad_attr.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ drivers/power/supply/axp20x_battery.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/bfa/bfad_attr.c b/drivers/scsi/bfa/bfad_attr.c
-index 0a70d54a4df6..47e599352468 100644
---- a/drivers/scsi/bfa/bfad_attr.c
-+++ b/drivers/scsi/bfa/bfad_attr.c
-@@ -722,7 +722,7 @@ bfad_im_serial_num_show(struct device *dev, struct device_attribute *attr,
- 	char serial_num[BFA_ADAPTER_SERIAL_NUM_LEN];
- 
- 	bfa_get_adapter_serial_num(&bfad->bfa, serial_num);
--	return snprintf(buf, PAGE_SIZE, "%s\n", serial_num);
-+	return sysfs_emit(buf, "%s\n", serial_num);
- }
- 
- static ssize_t
-@@ -736,7 +736,7 @@ bfad_im_model_show(struct device *dev, struct device_attribute *attr,
- 	char model[BFA_ADAPTER_MODEL_NAME_LEN];
- 
- 	bfa_get_adapter_model(&bfad->bfa, model);
--	return snprintf(buf, PAGE_SIZE, "%s\n", model);
-+	return sysfs_emit(buf, "%s\n", model);
- }
- 
- static ssize_t
-@@ -816,7 +816,7 @@ bfad_im_model_desc_show(struct device *dev, struct device_attribute *attr,
- 		snprintf(model_descr, BFA_ADAPTER_MODEL_DESCR_LEN,
- 			"Invalid Model");
- 
--	return snprintf(buf, PAGE_SIZE, "%s\n", model_descr);
-+	return sysfs_emit(buf, "%s\n", model_descr);
- }
- 
- static ssize_t
-@@ -830,7 +830,7 @@ bfad_im_node_name_show(struct device *dev, struct device_attribute *attr,
- 	u64        nwwn;
- 
- 	nwwn = bfa_fcs_lport_get_nwwn(port->fcs_port);
--	return snprintf(buf, PAGE_SIZE, "0x%llx\n", cpu_to_be64(nwwn));
-+	return sysfs_emit(buf, "0x%llx\n", cpu_to_be64(nwwn));
- }
- 
- static ssize_t
-@@ -847,7 +847,7 @@ bfad_im_symbolic_name_show(struct device *dev, struct device_attribute *attr,
- 	bfa_fcs_lport_get_attr(&bfad->bfa_fcs.fabric.bport, &port_attr);
- 	strlcpy(symname, port_attr.port_cfg.sym_name.symname,
- 			BFA_SYMNAME_MAXLEN);
--	return snprintf(buf, PAGE_SIZE, "%s\n", symname);
-+	return sysfs_emit(buf, "%s\n", symname);
- }
- 
- static ssize_t
-@@ -861,14 +861,14 @@ bfad_im_hw_version_show(struct device *dev, struct device_attribute *attr,
- 	char hw_ver[BFA_VERSION_LEN];
- 
- 	bfa_get_pci_chip_rev(&bfad->bfa, hw_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", hw_ver);
-+	return sysfs_emit(buf, "%s\n", hw_ver);
- }
- 
- static ssize_t
- bfad_im_drv_version_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
+diff --git a/drivers/power/supply/axp20x_battery.c b/drivers/power/supply/axp20x_battery.c
+index 7494f0f0eadb..a2e2443357fa 100644
+--- a/drivers/power/supply/axp20x_battery.c
++++ b/drivers/power/supply/axp20x_battery.c
+@@ -160,7 +160,6 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
+ 				   union power_supply_propval *val)
  {
--	return snprintf(buf, PAGE_SIZE, "%s\n", BFAD_DRIVER_VERSION);
-+	return sysfs_emit(buf, "%s\n", BFAD_DRIVER_VERSION);
- }
+ 	struct axp20x_batt_ps *axp20x_batt = power_supply_get_drvdata(psy);
+-	struct iio_channel *chan;
+ 	int ret = 0, reg, val1;
  
- static ssize_t
-@@ -882,7 +882,7 @@ bfad_im_optionrom_version_show(struct device *dev,
- 	char optrom_ver[BFA_VERSION_LEN];
+ 	switch (psp) {
+@@ -240,12 +239,12 @@ static int axp20x_battery_get_prop(struct power_supply *psy,
+ 		if (ret)
+ 			return ret;
  
- 	bfa_get_adapter_optrom_ver(&bfad->bfa, optrom_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", optrom_ver);
-+	return sysfs_emit(buf, "%s\n", optrom_ver);
- }
+-		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING)
+-			chan = axp20x_batt->batt_chrg_i;
+-		else
+-			chan = axp20x_batt->batt_dischrg_i;
+-
+-		ret = iio_read_channel_processed(chan, &val->intval);
++		if (reg & AXP20X_PWR_STATUS_BAT_CHARGING) {
++			ret = iio_read_channel_processed(axp20x_batt->batt_chrg_i, &val->intval);
++		} else {
++			ret = iio_read_channel_processed(axp20x_batt->batt_dischrg_i, &val1);
++			val->intval = -val1;
++		}
+ 		if (ret)
+ 			return ret;
  
- static ssize_t
-@@ -896,7 +896,7 @@ bfad_im_fw_version_show(struct device *dev, struct device_attribute *attr,
- 	char fw_ver[BFA_VERSION_LEN];
- 
- 	bfa_get_adapter_fw_ver(&bfad->bfa, fw_ver);
--	return snprintf(buf, PAGE_SIZE, "%s\n", fw_ver);
-+	return sysfs_emit(buf, "%s\n", fw_ver);
- }
- 
- static ssize_t
-@@ -908,7 +908,7 @@ bfad_im_num_of_ports_show(struct device *dev, struct device_attribute *attr,
- 			(struct bfad_im_port_s *) shost->hostdata[0];
- 	struct bfad_s *bfad = im_port->bfad;
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n",
-+	return sysfs_emit(buf, "%d\n",
- 			bfa_get_nports(&bfad->bfa));
- }
- 
-@@ -916,7 +916,7 @@ static ssize_t
- bfad_im_drv_name_show(struct device *dev, struct device_attribute *attr,
- 				char *buf)
- {
--	return snprintf(buf, PAGE_SIZE, "%s\n", BFAD_DRIVER_NAME);
-+	return sysfs_emit(buf, "%s\n", BFAD_DRIVER_NAME);
- }
- 
- static ssize_t
-@@ -935,14 +935,14 @@ bfad_im_num_of_discovered_ports_show(struct device *dev,
- 	rports = kzalloc(sizeof(struct bfa_rport_qualifier_s) * nrports,
- 			 GFP_ATOMIC);
- 	if (rports == NULL)
--		return snprintf(buf, PAGE_SIZE, "Failed\n");
-+		return sysfs_emit(buf, "Failed\n");
- 
- 	spin_lock_irqsave(&bfad->bfad_lock, flags);
- 	bfa_fcs_lport_get_rport_quals(port->fcs_port, rports, &nrports);
- 	spin_unlock_irqrestore(&bfad->bfad_lock, flags);
- 	kfree(rports);
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", nrports);
-+	return sysfs_emit(buf, "%d\n", nrports);
- }
- 
- static          DEVICE_ATTR(serial_number, S_IRUGO,
 -- 
 2.35.1
 
