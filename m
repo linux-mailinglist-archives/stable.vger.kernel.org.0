@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F292550598E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2523A505985
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343994AbiDROUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:20:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38056 "EHLO
+        id S1343999AbiDROUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:20:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344684AbiDROSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:17 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B810E4AE20;
-        Mon, 18 Apr 2022 06:14:06 -0700 (PDT)
+        with ESMTP id S1344950AbiDROSg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB634B859;
+        Mon, 18 Apr 2022 06:14:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F058CCE10AF;
-        Mon, 18 Apr 2022 13:13:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD885C385A1;
-        Mon, 18 Apr 2022 13:13:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51F6E60EFE;
+        Mon, 18 Apr 2022 13:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F3EC385A7;
+        Mon, 18 Apr 2022 13:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287612;
-        bh=NH6jWgcT7YLocqFodvIEqO9IpRCxsuF5+jzF04MAUkY=;
+        s=korg; t=1650287618;
+        bh=cYFrpU1xBAInY8sq95fLYHNoghUpYzfJfqaK6oFSPxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkckG2MbS4239p4fWB0lehGJPkaZot8h93wHbGKKPoZDsw7esGKBZUrQ7GN4e2pW8
-         P3HurbYOQ6DVtiwXZDDuFHHA6FbCfXsGxf5NWXAjxOPF0o8hWzjxB3sHkL9uumLekX
-         e/Aq25DI9y825FYoxUHPQmXgpGhE3uxFjAKxT1ZA=
+        b=r0q9b71SLrJM+67zgSx2dNiOORcp95Gd+JF1O+LvzoHBp5IVoe6Nm+69EyeOa+lbm
+         wpgQSZSZeMtiXibaJtvdkW7re9M3UkLyhkVAeoE2z18h6bCH12QK/wwhReT951b9F5
+         WMfKymodG9Z9EoafyFp2WMskhzAh/FlEwgGTqa6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Ruan <tingquan.ruan@cn.bosch.com>,
-        Mark Jonas <mark.jonas@de.bosch.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Alexey Galakhov <agalakhov@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 209/218] gpu: ipu-v3: Fix dev_dbg frequency output
-Date:   Mon, 18 Apr 2022 14:14:35 +0200
-Message-Id: <20220418121208.074051305@linuxfoundation.org>
+Subject: [PATCH 4.9 210/218] scsi: mvsas: Add PCI ID of RocketRaid 2640
+Date:   Mon, 18 Apr 2022 14:14:36 +0200
+Message-Id: <20220418121208.142690187@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -55,51 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Ruan <tingquan.ruan@cn.bosch.com>
+From: Alexey Galakhov <agalakhov@gmail.com>
 
-[ Upstream commit 070a88fd4a03f921b73a2059e97d55faaa447dab ]
+[ Upstream commit 5f2bce1e222028dc1c15f130109a17aa654ae6e8 ]
 
-This commit corrects the printing of the IPU clock error percentage if
-it is between -0.1% to -0.9%. For example, if the pixel clock requested
-is 27.2 MHz but only 27.0 MHz can be achieved the deviation is -0.8%.
-But the fixed point math had a flaw and calculated error of 0.2%.
+The HighPoint RocketRaid 2640 is a low-cost SAS controller based on Marvell
+chip. The chip in question was already supported by the kernel, just the
+PCI ID of this particular board was missing.
 
-Before:
-  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
-  IPU clock can give 27000000 with divider 10, error 0.2%
-  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
-
-After:
-  Clocks: IPU 270000000Hz DI 24716667Hz Needed 27200000Hz
-  IPU clock can give 27000000 with divider 10, error -0.8%
-  Want 27200000Hz IPU 270000000Hz DI 24716667Hz using IPU, 27000000Hz
-
-Signed-off-by: Leo Ruan <tingquan.ruan@cn.bosch.com>
-Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/20220207151411.5009-1-mark.jonas@de.bosch.com
+Link: https://lore.kernel.org/r/20220309212535.402987-1-agalakhov@gmail.com
+Signed-off-by: Alexey Galakhov <agalakhov@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/ipu-v3/ipu-di.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/mvsas/mv_init.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
-index a8d87ddd8a17..dc0511b22600 100644
---- a/drivers/gpu/ipu-v3/ipu-di.c
-+++ b/drivers/gpu/ipu-v3/ipu-di.c
-@@ -460,8 +460,9 @@ static void ipu_di_config_clock(struct ipu_di *di,
- 
- 		error = rate / (sig->mode.pixelclock / 1000);
- 
--		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %d.%u%%\n",
--			rate, div, (signed)(error - 1000) / 10, error % 10);
-+		dev_dbg(di->ipu->dev, "  IPU clock can give %lu with divider %u, error %c%d.%d%%\n",
-+			rate, div, error < 1000 ? '-' : '+',
-+			abs(error - 1000) / 10, abs(error - 1000) % 10);
- 
- 		/* Allow a 1% error */
- 		if (error < 1010 && error >= 990) {
+diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
+index 230697f9df78..359fd39c6345 100644
+--- a/drivers/scsi/mvsas/mv_init.c
++++ b/drivers/scsi/mvsas/mv_init.c
+@@ -679,6 +679,7 @@ static struct pci_device_id mvs_pci_table[] = {
+ 	{ PCI_VDEVICE(ARECA, PCI_DEVICE_ID_ARECA_1300), chip_1300 },
+ 	{ PCI_VDEVICE(ARECA, PCI_DEVICE_ID_ARECA_1320), chip_1320 },
+ 	{ PCI_VDEVICE(ADAPTEC2, 0x0450), chip_6440 },
++	{ PCI_VDEVICE(TTI, 0x2640), chip_6440 },
+ 	{ PCI_VDEVICE(TTI, 0x2710), chip_9480 },
+ 	{ PCI_VDEVICE(TTI, 0x2720), chip_9480 },
+ 	{ PCI_VDEVICE(TTI, 0x2721), chip_9480 },
 -- 
 2.35.1
 
