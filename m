@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4407D50554E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8E5D505733
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240981AbiDRNK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:10:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
+        id S241999AbiDRNp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:45:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240949AbiDRNFj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:05:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CCD529CBB;
-        Mon, 18 Apr 2022 05:46:33 -0700 (PDT)
+        with ESMTP id S244332AbiDRNn7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:43:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABE43A723;
+        Mon, 18 Apr 2022 05:59:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2019CB80E44;
-        Mon, 18 Apr 2022 12:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EFBCC385A7;
-        Mon, 18 Apr 2022 12:46:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 079B9609FB;
+        Mon, 18 Apr 2022 12:59:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1406FC385A1;
+        Mon, 18 Apr 2022 12:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285990;
-        bh=PIKSrYrmqMtZ8E664NQk1+Mn3l/xkzBH+ARjWDPYrzk=;
+        s=korg; t=1650286793;
+        bh=PEaXFzMkDHYkPb3G0Mpf3R+xyJLmQHdq0HhfbNpRfKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMJ62DDQsPJztoZ5KpUl5fe/NpDmrqa80Gq8ixXkGRys6PIb/2PSHtfSatb5Bp8dE
-         7EN+Wpm53Jd24ZLX0xmx1UhgVn+0qIGPIufcXWmZD4U/qtxJqykzMZOKsRpnsRdfco
-         o/CESniF7XedclwPkKC7Bgm6NC6vhypwQeK4o9Oc=
+        b=aPyWLjc9yqyDWIetPPkuIu7kTjiOkzq3RWwUO5OGEHPfnFd6WnxBlHjkqsy2xtRi4
+         1d3jCC3qnlSY0GxNjZRdEBnTulzTAt0vbtrDJp7l6eWgGySHSCHT1iHaKrPx0Vv6aa
+         POycbMjHfrLLojKJyGA221dC6YArDDvDTOOy31G0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/32] net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link
-Date:   Mon, 18 Apr 2022 14:13:46 +0200
-Message-Id: <20220418121127.313985949@linuxfoundation.org>
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Michal Hocko <mhocko@suse.com>,
+        KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 246/284] mm/mempolicy: fix mpol_new leak in shared_policy_replace
+Date:   Mon, 18 Apr 2022 14:13:47 +0200
+Message-Id: <20220418121219.122820428@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
-References: <20220418121127.127656835@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit a6aaa00324240967272b451bfa772547bd576ee6 ]
+commit 4ad099559b00ac01c3726e5c95dc3108ef47d03e upstream.
 
-When using a fixed-link, the altr_tse_pcs driver crashes
-due to null-pointer dereference as no phy_device is provided to
-tse_pcs_fix_mac_speed function. Fix this by adding a check for
-phy_dev before calling the tse_pcs_fix_mac_speed() function.
+If mpol_new is allocated but not used in restart loop, mpol_new will be
+freed via mpol_put before returning to the caller.  But refcnt is not
+initialized yet, so mpol_put could not do the right things and might
+leak the unused mpol_new.  This would happen if mempolicy was updated on
+the shared shmem file while the sp->lock has been dropped during the
+memory allocation.
 
-Also clean up the tse_pcs_fix_mac_speed function a bit. There is
-no need to check for splitter_base and sgmii_adapter_base
-because the driver will fail if these 2 variables are not
-derived from the device tree.
+This issue could be triggered easily with the below code snippet if
+there are many processes doing the below work at the same time:
 
-Fixes: fb3bbdb85989 ("net: ethernet: Add TSE PCS support to dwmac-socfpga")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  shmid = shmget((key_t)5566, 1024 * PAGE_SIZE, 0666|IPC_CREAT);
+  shm = shmat(shmid, 0, 0);
+  loop many times {
+    mbind(shm, 1024 * PAGE_SIZE, MPOL_LOCAL, mask, maxnode, 0);
+    mbind(shm + 128 * PAGE_SIZE, 128 * PAGE_SIZE, MPOL_DEFAULT, mask,
+          maxnode, 0);
+  }
+
+Link: https://lkml.kernel.org/r/20220329111416.27954-1-linmiaohe@huawei.com
+Fixes: 42288fe366c4 ("mm: mempolicy: Convert shared_policy mutex to spinlock")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: KOSAKI Motohiro <kosaki.motohiro@jp.fujitsu.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: <stable@vger.kernel.org>	[3.8]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c  |  8 --------
- drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h  |  4 ++++
- drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c | 13 +++++--------
- 3 files changed, 9 insertions(+), 16 deletions(-)
+ mm/mempolicy.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
-index 8b50afcdb52d..729df169faa2 100644
---- a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
-@@ -68,10 +68,6 @@
- #define TSE_PCS_USE_SGMII_ENA				BIT(0)
- #define TSE_PCS_IF_USE_SGMII				0x03
- 
--#define SGMII_ADAPTER_CTRL_REG				0x00
--#define SGMII_ADAPTER_DISABLE				0x0001
--#define SGMII_ADAPTER_ENABLE				0x0000
--
- #define AUTONEGO_LINK_TIMER				20
- 
- static int tse_pcs_reset(void __iomem *base, struct tse_pcs *pcs)
-@@ -213,12 +209,8 @@ void tse_pcs_fix_mac_speed(struct tse_pcs *pcs, struct phy_device *phy_dev,
- 			   unsigned int speed)
- {
- 	void __iomem *tse_pcs_base = pcs->tse_pcs_base;
--	void __iomem *sgmii_adapter_base = pcs->sgmii_adapter_base;
- 	u32 val;
- 
--	writew(SGMII_ADAPTER_ENABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
--
- 	pcs->autoneg = phy_dev->autoneg;
- 
- 	if (phy_dev->autoneg == AUTONEG_ENABLE) {
-diff --git a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
-index 2f5882450b06..254199f2efdb 100644
---- a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
-@@ -21,6 +21,10 @@
- #include <linux/phy.h>
- #include <linux/timer.h>
- 
-+#define SGMII_ADAPTER_CTRL_REG		0x00
-+#define SGMII_ADAPTER_ENABLE		0x0000
-+#define SGMII_ADAPTER_DISABLE		0x0001
-+
- struct tse_pcs {
- 	struct device *dev;
- 	void __iomem *tse_pcs_base;
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-index 33407df6bea6..32ead4a4b460 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-@@ -29,9 +29,6 @@
- 
- #include "altr_tse_pcs.h"
- 
--#define SGMII_ADAPTER_CTRL_REG                          0x00
--#define SGMII_ADAPTER_DISABLE                           0x0001
--
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII 0x0
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII 0x1
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII 0x2
-@@ -65,16 +62,14 @@ static void socfpga_dwmac_fix_mac_speed(void *priv, unsigned int speed)
- {
- 	struct socfpga_dwmac *dwmac = (struct socfpga_dwmac *)priv;
- 	void __iomem *splitter_base = dwmac->splitter_base;
--	void __iomem *tse_pcs_base = dwmac->pcs.tse_pcs_base;
- 	void __iomem *sgmii_adapter_base = dwmac->pcs.sgmii_adapter_base;
- 	struct device *dev = dwmac->dev;
- 	struct net_device *ndev = dev_get_drvdata(dev);
- 	struct phy_device *phy_dev = ndev->phydev;
- 	u32 val;
- 
--	if ((tse_pcs_base) && (sgmii_adapter_base))
--		writew(SGMII_ADAPTER_DISABLE,
--		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+	writew(SGMII_ADAPTER_DISABLE,
-+	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
- 
- 	if (splitter_base) {
- 		val = readl(splitter_base + EMAC_SPLITTER_CTRL_REG);
-@@ -96,7 +91,9 @@ static void socfpga_dwmac_fix_mac_speed(void *priv, unsigned int speed)
- 		writel(val, splitter_base + EMAC_SPLITTER_CTRL_REG);
- 	}
- 
--	if (tse_pcs_base && sgmii_adapter_base)
-+	writew(SGMII_ADAPTER_ENABLE,
-+	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+	if (phy_dev)
- 		tse_pcs_fix_mac_speed(&dwmac->pcs, phy_dev, speed);
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2479,6 +2479,7 @@ alloc_new:
+ 	mpol_new = kmem_cache_alloc(policy_cache, GFP_KERNEL);
+ 	if (!mpol_new)
+ 		goto err_out;
++	atomic_set(&mpol_new->refcnt, 1);
+ 	goto restart;
  }
  
--- 
-2.35.1
-
 
 
