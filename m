@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F93D505092
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 897D55057C6
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238763AbiDRM0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38252 "EHLO
+        id S243023AbiDRN4e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:56:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238495AbiDRMZm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:25:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00CFB65DA;
-        Mon, 18 Apr 2022 05:19:50 -0700 (PDT)
+        with ESMTP id S245617AbiDRNxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B5B46B0E;
+        Mon, 18 Apr 2022 06:02:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8225460F0C;
-        Mon, 18 Apr 2022 12:19:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73B34C385A1;
-        Mon, 18 Apr 2022 12:19:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADE5CB80EBA;
+        Mon, 18 Apr 2022 13:02:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD17C385A8;
+        Mon, 18 Apr 2022 13:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284390;
-        bh=X7qBUUgV1LaOs2vD6Ys+38lRH+s//Ob0CYGiP9aS3nI=;
+        s=korg; t=1650286974;
+        bh=D0KhdQUtd4xsL/VSZoclQHtl4B5v9CRGQPzcl2JCxKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UarzniptMGxljpM24c7syi3qq68HoojlR4B8kdSsAIFQVizA68fXbMUsYoMqd56T8
-         aoM0IwSUpA3ZmKLxTcp6eJJR20SIOXhdREaAlEXRB2ig/bLTVkFmsVWnaWkrUxLTJx
-         fBDqbSs+zZgDr2gD1iliYZavP4zGWN3njivvDUA4=
+        b=DXU0OD8DSwfziiAda7LwAxfta48W8auq0WC833AMt8G4yDVzKj9XZeP/TZVc9Mw0n
+         QNDzQ4gaUjd/viWLisxTz3tEi/q/64y8xbVys1P9fFlEreiK9jwLqjoOEt+PUIMj8a
+         Ti9GX7x5kwx0FcMNX0KrMW87jnVI0asTkAgZkZ0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 099/219] scsi: iscsi: Fix offload conn cleanup when iscsid restarts
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 002/218] USB: serial: simple: add Nokia phone driver
 Date:   Mon, 18 Apr 2022 14:11:08 +0200
-Message-Id: <20220418121209.590264608@linuxfoundation.org>
+Message-Id: <20220418121158.775304139@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,115 +52,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit cbd2283aaf47fef4ded4b29124b1ef3beb515f3a ]
+commit c4b9c570965f75d0d55e639747f1e5ccdad2fae0 upstream.
 
-When userspace restarts during boot or upgrades it won't know about the
-offload driver's endpoint and connection mappings. iscsid will start by
-cleaning up the old session by doing a stop_conn call. Later, if we are
-able to create a new connection, we clean up the old endpoint during the
-binding stage. The problem is that if we do stop_conn before doing the
-ep_disconnect call offload, drivers can still be executing I/O. We then
-might free tasks from the under the card/driver.
+Add a new "simple" driver for certain Nokia phones, including Nokia 130
+(RM-1035) which exposes two serial ports in "charging only" mode:
 
-This moves the ep_disconnect call to before we do the stop_conn call for
-this case. It will then work and look like a normal recovery/cleanup
-procedure from the driver's point of view.
+Bus 001 Device 009: ID 0421:069a Nokia Mobile Phones 130 [RM-1035] (Charging only)
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x0421 Nokia Mobile Phones
+  idProduct          0x069a 130 [RM-1035] (Charging only)
+  bcdDevice            1.00
+  iManufacturer           1 Nokia
+  iProduct                2 Nokia 130 (RM-1035)
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0037
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower              500mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass    255 Vendor Specific Subclass
+      bInterfaceProtocol    255 Vendor Specific Protocol
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass    255 Vendor Specific Subclass
+      bInterfaceProtocol    255 Vendor Specific Protocol
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+Device Status:     0x0000
+  (Bus Powered)
 
-Link: https://lore.kernel.org/r/20220408001314.5014-3-michael.christie@oracle.com
-Tested-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220228084919.10656-1-johan@kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 48 +++++++++++++++++------------
- 1 file changed, 28 insertions(+), 20 deletions(-)
+ drivers/usb/serial/Kconfig             |    1 +
+ drivers/usb/serial/usb-serial-simple.c |    7 +++++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 126f6f23bffa..03cda2da80ef 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2255,6 +2255,23 @@ static void iscsi_ep_disconnect(struct iscsi_cls_conn *conn, bool is_active)
- 	ISCSI_DBG_TRANS_CONN(conn, "disconnect ep done.\n");
- }
+--- a/drivers/usb/serial/Kconfig
++++ b/drivers/usb/serial/Kconfig
+@@ -65,6 +65,7 @@ config USB_SERIAL_SIMPLE
+ 		- Libtransistor USB console
+ 		- a number of Motorola phones
+ 		- Motorola Tetra devices
++		- Nokia mobile phones
+ 		- Novatel Wireless GPS receivers
+ 		- Siemens USB/MPI adapter.
+ 		- ViVOtech ViVOpay USB device.
+--- a/drivers/usb/serial/usb-serial-simple.c
++++ b/drivers/usb/serial/usb-serial-simple.c
+@@ -94,6 +94,11 @@ DEVICE(moto_modem, MOTO_IDS);
+ 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
+ DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
  
-+static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
-+					 struct iscsi_endpoint *ep,
-+					 bool is_active)
-+{
-+	/* Check if this was a conn error and the kernel took ownership */
-+	if (!test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
-+		iscsi_ep_disconnect(conn, is_active);
-+	} else {
-+		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
-+		mutex_unlock(&conn->ep_mutex);
++/* Nokia mobile phone driver */
++#define NOKIA_IDS()			\
++	{ USB_DEVICE(0x0421, 0x069a) }	/* Nokia 130 (RM-1035) */
++DEVICE(nokia, NOKIA_IDS);
 +
-+		flush_work(&conn->cleanup_work);
-+
-+		mutex_lock(&conn->ep_mutex);
-+	}
-+}
-+
- static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 			      struct iscsi_uevent *ev)
- {
-@@ -2275,6 +2292,16 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
- 		cancel_work_sync(&conn->cleanup_work);
- 		iscsi_stop_conn(conn, flag);
- 	} else {
-+		/*
-+		 * For offload, when iscsid is restarted it won't know about
-+		 * existing endpoints so it can't do a ep_disconnect. We clean
-+		 * it up here for userspace.
-+		 */
-+		mutex_lock(&conn->ep_mutex);
-+		if (conn->ep)
-+			iscsi_if_disconnect_bound_ep(conn, conn->ep, true);
-+		mutex_unlock(&conn->ep_mutex);
-+
- 		/*
- 		 * Figure out if it was the kernel or userspace initiating this.
- 		 */
-@@ -3003,16 +3030,7 @@ static int iscsi_if_ep_disconnect(struct iscsi_transport *transport,
- 	}
- 
- 	mutex_lock(&conn->ep_mutex);
--	/* Check if this was a conn error and the kernel took ownership */
--	if (test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
--		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
--		mutex_unlock(&conn->ep_mutex);
--
--		flush_work(&conn->cleanup_work);
--		goto put_ep;
--	}
--
--	iscsi_ep_disconnect(conn, false);
-+	iscsi_if_disconnect_bound_ep(conn, ep, false);
- 	mutex_unlock(&conn->ep_mutex);
- put_ep:
- 	iscsi_put_endpoint(ep);
-@@ -3723,16 +3741,6 @@ static int iscsi_if_transport_conn(struct iscsi_transport *transport,
- 
- 	switch (nlh->nlmsg_type) {
- 	case ISCSI_UEVENT_BIND_CONN:
--		if (conn->ep) {
--			/*
--			 * For offload boot support where iscsid is restarted
--			 * during the pivot root stage, the ep will be intact
--			 * here when the new iscsid instance starts up and
--			 * reconnects.
--			 */
--			iscsi_ep_disconnect(conn, true);
--		}
--
- 		session = iscsi_session_lookup(ev->u.b_conn.sid);
- 		if (!session) {
- 			err = -EINVAL;
--- 
-2.35.1
-
+ /* Novatel Wireless GPS driver */
+ #define NOVATEL_IDS()			\
+ 	{ USB_DEVICE(0x09d7, 0x0100) }	/* NovAtel FlexPack GPS */
+@@ -126,6 +131,7 @@ static struct usb_serial_driver * const
+ 	&vivopay_device,
+ 	&moto_modem_device,
+ 	&motorola_tetra_device,
++	&nokia_device,
+ 	&novatel_gps_device,
+ 	&hp4x_device,
+ 	&suunto_device,
+@@ -143,6 +149,7 @@ static const struct usb_device_id id_tab
+ 	VIVOPAY_IDS(),
+ 	MOTO_IDS(),
+ 	MOTOROLA_TETRA_IDS(),
++	NOKIA_IDS(),
+ 	NOVATEL_IDS(),
+ 	HP4X_IDS(),
+ 	SUUNTO_IDS(),
 
 
