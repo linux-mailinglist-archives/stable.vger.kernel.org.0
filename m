@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9D9505993
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03E0F505989
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 16:19:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344408AbiDROVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:21:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38018 "EHLO
+        id S1344095AbiDROUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:20:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344485AbiDROSG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:06 -0400
+        with ESMTP id S1344984AbiDROSj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:18:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FAF44A3E9;
-        Mon, 18 Apr 2022 06:13:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B234BB92;
+        Mon, 18 Apr 2022 06:14:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E5D0FB80EC4;
-        Mon, 18 Apr 2022 13:13:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 298EFC385A7;
-        Mon, 18 Apr 2022 13:13:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 041C3B80EC0;
+        Mon, 18 Apr 2022 13:13:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CF04C385A1;
+        Mon, 18 Apr 2022 13:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287634;
-        bh=K4hybNuQ7tcwDht7og9wNoGnXsejT7br8Yb0bMkFw/0=;
+        s=korg; t=1650287637;
+        bh=jlbYAnne9Y+hPCHXuiK/M0vgClZgsk1PxnfMkIar79I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJtXtg2FdSqSPJdXPkjclUJIAQMTlus1g21G98emv2ASldW9JmUGGkU70EH/qqIMq
-         dlYw/rptM7fncSdHqYb69zmFHwAI8tPSV/p6+H7w3Qo6bEvINP9gcy4BS/AfkkgjRo
-         T5Em9cULVlWro5wOP3KsrrrghqUp9l8nQHBmwhog=
+        b=naUnvBqPP0M8F9rX96Qg4zuizsA3TKAJUUQ4Uj2Z3S624XXUDZDy0A/K/8C7SuGt8
+         kvMHSuiotGq5J0ECL8XNi2OPIJy2D4/AA+1HVaMts1SlUfqdUNEt1lF7mwt8eSYCfZ
+         uWWUYOjMM/XwX14LvPFeEwENujLeCw3mkG0SVKRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 4.9 215/218] ARM: davinci: da850-evm: Avoid NULL pointer dereference
-Date:   Mon, 18 Apr 2022 14:14:41 +0200
-Message-Id: <20220418121208.475925351@linuxfoundation.org>
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.9 216/218] smp: Fix offline cpu check in flush_smp_call_function_queue()
+Date:   Mon, 18 Apr 2022 14:14:42 +0200
+Message-Id: <20220418121208.532799769@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
 References: <20220418121158.636999985@linuxfoundation.org>
@@ -54,58 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Nadav Amit <namit@vmware.com>
 
-commit 83a1cde5c74bfb44b49cb2a940d044bb2380f4ea upstream.
+commit 9e949a3886356fe9112c6f6f34a6e23d1d35407f upstream.
 
-With newer versions of GCC, there is a panic in da850_evm_config_emac()
-when booting multi_v5_defconfig in QEMU under the palmetto-bmc machine:
+The check in flush_smp_call_function_queue() for callbacks that are sent
+to offline CPUs currently checks whether the queue is empty.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000020
-pgd = (ptrval)
-[00000020] *pgd=00000000
-Internal error: Oops: 5 [#1] PREEMPT ARM
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.15.0 #1
-Hardware name: Generic DT based system
-PC is at da850_evm_config_emac+0x1c/0x120
-LR is at do_one_initcall+0x50/0x1e0
+However, flush_smp_call_function_queue() has just deleted all the
+callbacks from the queue and moved all the entries into a local list.
+This checks would only be positive if some callbacks were added in the
+short time after llist_del_all() was called. This does not seem to be
+the intention of this check.
 
-The emac_pdata pointer in soc_info is NULL because davinci_soc_info only
-gets populated on davinci machines but da850_evm_config_emac() is called
-on all machines via device_initcall().
+Change the check to look at the local list to which the entries were
+moved instead of the queue from which all the callbacks were just
+removed.
 
-Move the rmii_en assignment below the machine check so that it is only
-dereferenced when running on a supported SoC.
-
-Fixes: bae105879f2f ("davinci: DA850/OMAP-L138 EVM: implement autodetect of RMII PHY")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/YcS4xVWs6bQlQSPC@archlinux-ax161/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 8d056c48e4862 ("CPU hotplug, smp: flush any pending IPI callbacks before CPU offline")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20220319072015.1495036-1-namit@vmware.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-davinci/board-da850-evm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/smp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/mach-davinci/board-da850-evm.c
-+++ b/arch/arm/mach-davinci/board-da850-evm.c
-@@ -1043,11 +1043,13 @@ static int __init da850_evm_config_emac(
- 	int ret;
- 	u32 val;
- 	struct davinci_soc_info *soc_info = &davinci_soc_info;
--	u8 rmii_en = soc_info->emac_pdata->rmii_en;
-+	u8 rmii_en;
+--- a/kernel/smp.c
++++ b/kernel/smp.c
+@@ -209,7 +209,7 @@ static void flush_smp_call_function_queu
  
- 	if (!machine_is_davinci_da850_evm())
- 		return 0;
+ 	/* There shouldn't be any pending callbacks on an offline CPU. */
+ 	if (unlikely(warn_cpu_offline && !cpu_online(smp_processor_id()) &&
+-		     !warned && !llist_empty(head))) {
++		     !warned && entry != NULL)) {
+ 		warned = true;
+ 		WARN(1, "IPI on offline CPU %d\n", smp_processor_id());
  
-+	rmii_en = soc_info->emac_pdata->rmii_en;
-+
- 	cfg_chip3_base = DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP3_REG);
- 
- 	val = __raw_readl(cfg_chip3_base);
 
 
