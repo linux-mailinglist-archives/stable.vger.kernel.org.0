@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BFAE505815
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC5A250567A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244265AbiDROBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:01:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56444 "EHLO
+        id S242159AbiDRNfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:35:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244676AbiDROAC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 10:00:02 -0400
+        with ESMTP id S243442AbiDRNbE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:31:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A692C114;
-        Mon, 18 Apr 2022 06:09:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 102E21FA4E;
+        Mon, 18 Apr 2022 05:57:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DC8360F9C;
-        Mon, 18 Apr 2022 13:08:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D70DC385C8;
-        Mon, 18 Apr 2022 13:08:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40822612D2;
+        Mon, 18 Apr 2022 12:57:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E992C385A8;
+        Mon, 18 Apr 2022 12:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287308;
-        bh=XIPSXsMqXkgYWJscQGEr7EjgGojV+9HwO2YU2rmqgy4=;
+        s=korg; t=1650286661;
+        bh=LuEfd754+skVRsXBOYpUVZoniJBQ7Z5yYclhDdn+tnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KiWWd1b+XoUOXGNlEKl/CFgB0gT9aOrqYTOqWU5GD1o2hqGQhAqxtP9rZi9E2C1sM
-         yU/vWUCmYNNXkUIpwTr/p6tohJw3/8kMFFSPpTKOf4RUys1x9vg80m5RMk0FaQzNOH
-         5u9le01lTjh85elX8RvIs5FBiS9IEJ/19VkcBZa0=
+        b=Eiow22Lk+tcagPfSfOVYMrE2GrT2jXkTRWhN5GMK/zg2McvLVzYpIzxUXxcQYZFCM
+         l19sJpR3Av1GpHZpO+cQtlLYWMtnlKkvZ4/olAkX5TNjTOM5cy7iLTGZ8sxcIb3MVp
+         tu/s51uIx0XmBvrMuS6V8O8aVhnsNuG1OnViE98Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Auhagen <sven.auhagen@voleatech.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 119/218] netfilter: nf_conntrack_tcp: preserve liberal flag in tcp options
+Subject: [PATCH 4.14 204/284] rtc: wm8350: Handle error for wm8350_register_irq
 Date:   Mon, 18 Apr 2022 14:13:05 +0200
-Message-Id: <20220418121202.998475889@linuxfoundation.org>
+Message-Id: <20220418121217.525090833@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit f2dd495a8d589371289981d5ed33e6873df94ecc ]
+[ Upstream commit 43f0269b6b89c1eec4ef83c48035608f4dcdd886 ]
 
-Do not reset IP_CT_TCP_FLAG_BE_LIBERAL flag in out-of-sync scenarios
-coming before the TCP window tracking, otherwise such connections will
-fail in the window check.
+As the potential failure of the wm8350_register_irq(),
+it should be better to check it and return error if fails.
+Also, it need not free 'wm_rtc->rtc' since it will be freed
+automatically.
 
-Update tcp_options() to leave this flag in place and add a new helper
-function to reset the tcp window state.
-
-Based on patch from Sven Auhagen.
-
-Fixes: c4832c7bbc3f ("netfilter: nf_ct_tcp: improve out-of-sync situation in TCP tracking")
-Tested-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 077eaf5b40ec ("rtc: rtc-wm8350: add support for WM8350 RTC")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220303085030.291793-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_proto_tcp.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-wm8350.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto_tcp.c b/net/netfilter/nf_conntrack_proto_tcp.c
-index 69f687740c76..9e9ce570bb9e 100644
---- a/net/netfilter/nf_conntrack_proto_tcp.c
-+++ b/net/netfilter/nf_conntrack_proto_tcp.c
-@@ -390,8 +390,8 @@ static void tcp_options(const struct sk_buff *skb,
- 				 length, buff);
- 	BUG_ON(ptr == NULL);
+diff --git a/drivers/rtc/rtc-wm8350.c b/drivers/rtc/rtc-wm8350.c
+index 483c7993516b..ed874e5c5fc8 100644
+--- a/drivers/rtc/rtc-wm8350.c
++++ b/drivers/rtc/rtc-wm8350.c
+@@ -441,14 +441,21 @@ static int wm8350_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
--	state->td_scale =
--	state->flags = 0;
-+	state->td_scale = 0;
-+	state->flags &= IP_CT_TCP_FLAG_BE_LIBERAL;
- 
- 	while (length > 0) {
- 		int opcode=*ptr++;
-@@ -806,6 +806,16 @@ static unsigned int *tcp_get_timeouts(struct net *net)
- 	return tcp_pernet(net)->timeouts;
- }
- 
-+static void nf_ct_tcp_state_reset(struct ip_ct_tcp_state *state)
-+{
-+	state->td_end		= 0;
-+	state->td_maxend	= 0;
-+	state->td_maxwin	= 0;
-+	state->td_maxack	= 0;
-+	state->td_scale		= 0;
-+	state->flags		&= IP_CT_TCP_FLAG_BE_LIBERAL;
-+}
+-	wm8350_register_irq(wm8350, WM8350_IRQ_RTC_SEC,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_RTC_SEC,
+ 			    wm8350_rtc_update_handler, 0,
+ 			    "RTC Seconds", wm8350);
++	if (ret)
++		return ret;
 +
- /* Returns verdict for packet, or -1 for invalid. */
- static int tcp_packet(struct nf_conn *ct,
- 		      const struct sk_buff *skb,
-@@ -907,8 +917,7 @@ static int tcp_packet(struct nf_conn *ct,
- 			ct->proto.tcp.last_flags &= ~IP_CT_EXP_CHALLENGE_ACK;
- 			ct->proto.tcp.seen[ct->proto.tcp.last_dir].flags =
- 				ct->proto.tcp.last_flags;
--			memset(&ct->proto.tcp.seen[dir], 0,
--			       sizeof(struct ip_ct_tcp_state));
-+			nf_ct_tcp_state_reset(&ct->proto.tcp.seen[dir]);
- 			break;
- 		}
- 		ct->proto.tcp.last_index = index;
+ 	wm8350_mask_irq(wm8350, WM8350_IRQ_RTC_SEC);
+ 
+-	wm8350_register_irq(wm8350, WM8350_IRQ_RTC_ALM,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_RTC_ALM,
+ 			    wm8350_rtc_alarm_handler, 0,
+ 			    "RTC Alarm", wm8350);
++	if (ret) {
++		wm8350_free_irq(wm8350, WM8350_IRQ_RTC_SEC, wm8350);
++		return ret;
++	}
+ 
+ 	return 0;
+ }
 -- 
-2.34.1
+2.35.1
 
 
 
