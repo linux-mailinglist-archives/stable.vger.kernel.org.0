@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5534C50532B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F609505416
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240456AbiDRM4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42228 "EHLO
+        id S240934AbiDRNEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:04:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240259AbiDRMzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C286E5F4F;
-        Mon, 18 Apr 2022 05:36:12 -0700 (PDT)
+        with ESMTP id S241460AbiDRNDG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 070AA338A4;
+        Mon, 18 Apr 2022 05:43:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CC636118A;
-        Mon, 18 Apr 2022 12:36:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C6C9C385A7;
-        Mon, 18 Apr 2022 12:36:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AEA69B80E59;
+        Mon, 18 Apr 2022 12:43:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2156AC385A1;
+        Mon, 18 Apr 2022 12:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285371;
-        bh=tmqjaYgmc13WkmeeXp60lqwcgpDBG9snLnZAJqQutXk=;
+        s=korg; t=1650285807;
+        bh=9bSQ4S1IDUAnhmQfnggx2NYyttspU22heoTUTR8pNyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fX76QGrXG2kF4dbXTSgiY05WjSvGEnlfNdz0f5PrUE5JsIjtMdrVZEtzwIwYZrOf
-         VTIch43WoSrceQAElCLgbKC+dC+X3a5ErmCtTFJmqMlXuq+IDT/N+GxHe86JyC5sPT
-         30NvV5xfN3jo8FD6eJ+TRUx7e+TIAjGnHgH86woU=
+        b=fY0inlDLd1ogSB5n1xIl074T+KUNmLdYoxb7RwI76ap6YjwleZ86lya+WKJsYp4Yq
+         L0xk7Da4j7oXUG9L/3mmw2TtPhwXBtE/Kwkygd1aSIZl5Q6IXZs4iz5qGM9LE9Cxhz
+         GPDgahSwBzZb2JJR52fjK/JIhVh6qS5m/pWbyUww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.15 188/189] ax25: Fix NULL pointer dereferences in ax25 timers
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Alex Hung <alex.hung@amd.com>, Roman Li <Roman.Li@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 31/63] drm/amd/display: Fix allocate_mst_payload assert on resume
 Date:   Mon, 18 Apr 2022 14:13:28 +0200
-Message-Id: <20220418121208.774657276@linuxfoundation.org>
+Message-Id: <20220418121136.200190338@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
+References: <20220418121134.149115109@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,121 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Roman Li <Roman.Li@amd.com>
 
-commit fc6d01ff9ef03b66d4a3a23b46fc3c3d8cf92009 upstream.
+[ Upstream commit f4346fb3edf7720db3f7f5e1cab1f667cd024280 ]
 
-The previous commit 7ec02f5ac8a5 ("ax25: fix NPD bug in ax25_disconnect")
-move ax25_disconnect into lock_sock() in order to prevent NPD bugs. But
-there are race conditions that may lead to null pointer dereferences in
-ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
-ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we use
-ax25_kill_by_device() to detach the ax25 device.
+[Why]
+On resume we do link detection for all non-MST connectors.
+MST is handled separately. However the condition for telling
+if connector is on mst branch is not enough for mst hub case.
+Link detection for mst branch link leads to mst topology reset.
+That causes assert in dc_link_allocate_mst_payload()
 
-One of the race conditions that cause null pointer dereferences can be
-shown as below:
+[How]
+Use link type as indicator for mst link.
 
-      (Thread 1)                    |      (Thread 2)
-ax25_connect()                      |
- ax25_std_establish_data_link()     |
-  ax25_start_t1timer()              |
-   mod_timer(&ax25->t1timer,..)     |
-                                    | ax25_kill_by_device()
-   (wait a time)                    |  ...
-                                    |  s->ax25_dev = NULL; //(1)
-   ax25_t1timer_expiry()            |
-    ax25->ax25_dev->values[..] //(2)|  ...
-     ...                            |
-
-We set null to ax25_cb->ax25_dev in position (1) and dereference
-the null pointer in position (2).
-
-The corresponding fail log is shown below:
-===============================================================
-BUG: kernel NULL pointer dereference, address: 0000000000000050
-CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.17.0-rc6-00794-g45690b7d0
-RIP: 0010:ax25_t1timer_expiry+0x12/0x40
-...
-Call Trace:
- call_timer_fn+0x21/0x120
- __run_timers.part.0+0x1ca/0x250
- run_timer_softirq+0x2c/0x60
- __do_softirq+0xef/0x2f3
- irq_exit_rcu+0xb6/0x100
- sysvec_apic_timer_interrupt+0xa2/0xd0
-...
-
-This patch moves ax25_disconnect() before s->ax25_dev = NULL
-and uses del_timer_sync() to delete timers in ax25_disconnect().
-If ax25_disconnect() is called by ax25_kill_by_device() or
-ax25->ax25_dev is NULL, the reason in ax25_disconnect() will be
-equal to ENETUNREACH, it will wait all timers to stop before we
-set null to s->ax25_dev in ax25_kill_by_device().
-
-Fixes: 7ec02f5ac8a5 ("ax25: fix NPD bug in ax25_disconnect")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[OP: backport to 5.15: adjust context]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Roman Li <Roman.Li@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c   |    4 ++--
- net/ax25/ax25_subr.c |   20 ++++++++++++++------
- 2 files changed, 16 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -89,20 +89,20 @@ again:
- 			sk = s->sk;
- 			if (!sk) {
- 				spin_unlock_bh(&ax25_list_lock);
--				s->ax25_dev = NULL;
- 				ax25_disconnect(s, ENETUNREACH);
-+				s->ax25_dev = NULL;
- 				spin_lock_bh(&ax25_list_lock);
- 				goto again;
- 			}
- 			sock_hold(sk);
- 			spin_unlock_bh(&ax25_list_lock);
- 			lock_sock(sk);
-+			ax25_disconnect(s, ENETUNREACH);
- 			s->ax25_dev = NULL;
- 			if (sk->sk_socket) {
- 				dev_put(ax25_dev->dev);
- 				ax25_dev_put(ax25_dev);
- 			}
--			ax25_disconnect(s, ENETUNREACH);
- 			release_sock(sk);
- 			spin_lock_bh(&ax25_list_lock);
- 			sock_put(sk);
---- a/net/ax25/ax25_subr.c
-+++ b/net/ax25/ax25_subr.c
-@@ -261,12 +261,20 @@ void ax25_disconnect(ax25_cb *ax25, int
- {
- 	ax25_clear_queues(ax25);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index c5231c50c412..de33864af70b 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1210,7 +1210,8 @@ static int dm_resume(void *handle)
+ 		 * this is the case when traversing through already created
+ 		 * MST connectors, should be skipped
+ 		 */
+-		if (aconnector->mst_port)
++		if (aconnector->dc_link &&
++		    aconnector->dc_link->type == dc_connection_mst_branch)
+ 			continue;
  
--	if (!ax25->sk || !sock_flag(ax25->sk, SOCK_DESTROY))
--		ax25_stop_heartbeat(ax25);
--	ax25_stop_t1timer(ax25);
--	ax25_stop_t2timer(ax25);
--	ax25_stop_t3timer(ax25);
--	ax25_stop_idletimer(ax25);
-+	if (reason == ENETUNREACH) {
-+		del_timer_sync(&ax25->timer);
-+		del_timer_sync(&ax25->t1timer);
-+		del_timer_sync(&ax25->t2timer);
-+		del_timer_sync(&ax25->t3timer);
-+		del_timer_sync(&ax25->idletimer);
-+	} else {
-+		if (!ax25->sk || !sock_flag(ax25->sk, SOCK_DESTROY))
-+			ax25_stop_heartbeat(ax25);
-+		ax25_stop_t1timer(ax25);
-+		ax25_stop_t2timer(ax25);
-+		ax25_stop_t3timer(ax25);
-+		ax25_stop_idletimer(ax25);
-+	}
- 
- 	ax25->state = AX25_STATE_0;
- 
+ 		mutex_lock(&aconnector->hpd_lock);
+-- 
+2.35.1
+
 
 
