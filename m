@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E09B5050D8
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 072AF5057C9
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229765AbiDRM3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38502 "EHLO
+        id S244493AbiDRN4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:56:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239269AbiDRM2O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:14 -0400
+        with ESMTP id S245169AbiDRNws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:52:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9803E1EC58;
-        Mon, 18 Apr 2022 05:21:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2D7145524;
+        Mon, 18 Apr 2022 06:02:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03E3CB80EDB;
-        Mon, 18 Apr 2022 12:21:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 520F4C385A8;
-        Mon, 18 Apr 2022 12:21:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 832D6B80EBA;
+        Mon, 18 Apr 2022 13:02:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B160EC385A1;
+        Mon, 18 Apr 2022 13:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284490;
-        bh=szVwhci6wEG2scB742G2j4/7NAzzTzIVcKJbFqCQBr4=;
+        s=korg; t=1650286946;
+        bh=9h3qWQIunid/b67NFowk2rqFeeunuJL9m4q9QgAi42k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h61tvhmEZksFoau9u/J4xbBLQ+jWJodtYjvOnRDIuKz6DX/rSFvIGggAKkwQFdr6N
-         Rkop0yCPDYUqyPhik8UkYwzHcEGHtCf/OfQgnw8uYV9IyfWvfnBInJCpfCkBXVmknL
-         bcFC2c27JYRuQ3Ub41wBEVDNeybk8oshrkanj84c=
+        b=CkloBIRrQBwjM+tKTXqwaso1tgIzbjlXMCXjIRa01zL6jCq/x0Yl3YT4k4mYNoliX
+         6R1GjZh4Qa76lqG6oDeMoLgY8GQ8OedVyRDXMo7zxDzLkrQS7THdvLnav9GUZoNBYK
+         gNRGbWMU4OJtGwdoq/hS4OYwaeoZxiqmVzHq2gPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 108/219] ALSA: ad1889: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
+        Peter Rosin <peda@axentia.se>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 011/218] iio: inkern: apply consumer scale on IIO_VAL_INT cases
 Date:   Mon, 18 Apr 2022 14:11:17 +0200
-Message-Id: <20220418121209.921906971@linuxfoundation.org>
+Message-Id: <20220418121159.264718626@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Liam Beguin <liambeguin@gmail.com>
 
-[ Upstream commit a8e84a5da18e6d786540aa4ceb6f969d5f1a441d ]
+commit 1bca97ff95c732a516ebb68da72814194980e0a5 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+When a consumer calls iio_read_channel_processed() and the channel has
+an integer scale, the scale channel scale is applied and the processed
+value is returned as expected.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+On the other hand, if the consumer calls iio_convert_raw_to_processed()
+the scaling factor requested by the consumer is not applied.
 
-Fixes: 567f58754109 ("ALSA: ad1889: Allocate resources with device-managed APIs")
-Link: https://lore.kernel.org/r/20220412102636.16000-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This for example causes the consumer to process mV when expecting uV.
+Make sure to always apply the scaling factor requested by the consumer.
+
+Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
+Signed-off-by: Liam Beguin <liambeguin@gmail.com>
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220108205319.2046348-2-liambeguin@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/ad1889.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/iio/inkern.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/ad1889.c b/sound/pci/ad1889.c
-index bba4dae8dcc7..50e30704bf6f 100644
---- a/sound/pci/ad1889.c
-+++ b/sound/pci/ad1889.c
-@@ -844,8 +844,8 @@ snd_ad1889_create(struct snd_card *card, struct pci_dev *pci)
- }
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -606,7 +606,7 @@ static int iio_convert_raw_to_processed_
  
- static int
--snd_ad1889_probe(struct pci_dev *pci,
--		 const struct pci_device_id *pci_id)
-+__snd_ad1889_probe(struct pci_dev *pci,
-+		   const struct pci_device_id *pci_id)
- {
- 	int err;
- 	static int devno;
-@@ -904,6 +904,12 @@ snd_ad1889_probe(struct pci_dev *pci,
- 	return 0;
- }
- 
-+static int snd_ad1889_probe(struct pci_dev *pci,
-+			    const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_ad1889_probe(pci, pci_id));
-+}
-+
- static const struct pci_device_id snd_ad1889_ids[] = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_ANALOG_DEVICES, PCI_DEVICE_ID_AD1889JS) },
- 	{ 0, },
--- 
-2.35.1
-
+ 	switch (scale_type) {
+ 	case IIO_VAL_INT:
+-		*processed = raw64 * scale_val;
++		*processed = raw64 * scale_val * scale;
+ 		break;
+ 	case IIO_VAL_INT_PLUS_MICRO:
+ 		if (scale_val2 < 0)
 
 
