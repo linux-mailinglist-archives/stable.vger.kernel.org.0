@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2CD45055EC
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EDA55057CE
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241062AbiDRNbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58226 "EHLO
+        id S240101AbiDRN5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:57:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244168AbiDRNaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DCCB40E7D;
-        Mon, 18 Apr 2022 05:54:12 -0700 (PDT)
+        with ESMTP id S244638AbiDRNz4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:55:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 428A763F2;
+        Mon, 18 Apr 2022 06:04:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A514B80E44;
-        Mon, 18 Apr 2022 12:54:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09F97C385A1;
-        Mon, 18 Apr 2022 12:54:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7214760EFE;
+        Mon, 18 Apr 2022 13:04:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6586DC385A7;
+        Mon, 18 Apr 2022 13:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286449;
-        bh=pEFGY82kW++W5E6RdEZX1L0cTVXtC2pmpTFDmucn2x0=;
+        s=korg; t=1650287090;
+        bh=MRpcpigbdUcyIz0YZFJXFYvTk7BmDiTCNg9TecT49io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NR3mEj8v8z3MRawVz2YUEE8qahlL9enj3FbUYnuPPXHs5drBE1KHaq09Yd8AJtcF7
-         LWrx9hwF8w8uY8iBU8/TdATxDSBmtyVRTsbv9lS+l0bdsK2bQwv5bDS6u3ldecBq0H
-         Z62pWN4JDEeVSrGWczf6yDaIGEf+KzkU4bp59RNE=
+        b=EaWvbdZ2lVQKhFjPfZuT4gSFd6vDTtNkHUldRcmfDSZtHwx/X8XcfUi0m2PookWxn
+         qIW3/iDFkLLyTdb4QcSNedwwQQh5uKIg0O9K4yk4sjcJPGsvIUgXZtvYcMMtUXTs4f
+         +bR2tjIngP2x1uwx1sZjH/iqrhE3OYRFzVtRBqzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 139/284] clk: tegra: tegra124-emc: Fix missing put_device() call in emc_ensure_emc_driver
+Subject: [PATCH 4.9 054/218] perf/x86/intel/pt: Fix address filter config for 32-bit kernel
 Date:   Mon, 18 Apr 2022 14:12:00 +0200
-Message-Id: <20220418121215.395941274@linuxfoundation.org>
+Message-Id: <20220418121201.158874814@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 6d6ef58c2470da85a99119f74d34216c8074b9f0 ]
+[ Upstream commit e5524bf1047eb3b3f3f33b5f59897ba67b3ade87 ]
 
-The reference taken by 'of_find_device_by_node()' must be released when
-not needed anymore.
-Add the corresponding 'put_device()' in the error handling path.
+Change from shifting 'unsigned long' to 'u64' to prevent the config bits
+being lost on a 32-bit kernel.
 
-Fixes: 2db04f16b589 ("clk: tegra: Add EMC clock driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20220112104501.30655-1-linmq006@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: eadf48cab4b6b0 ("perf/x86/intel/pt: Add support for address range filtering in PT")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220131072453.2839535-5-adrian.hunter@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-emc.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/events/intel/pt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/tegra/clk-emc.c b/drivers/clk/tegra/clk-emc.c
-index 11a5066e5c27..8b47d57cad17 100644
---- a/drivers/clk/tegra/clk-emc.c
-+++ b/drivers/clk/tegra/clk-emc.c
-@@ -190,6 +190,7 @@ static struct tegra_emc *emc_ensure_emc_driver(struct tegra_clk_emc *tegra)
+diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
+index 1808c57ce161..2539aaddd137 100644
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -410,7 +410,7 @@ static u64 pt_config_filters(struct perf_event *event)
+ 			pt->filters.filter[range].msr_b = filter->msr_b;
+ 		}
  
- 	tegra->emc = platform_get_drvdata(pdev);
- 	if (!tegra->emc) {
-+		put_device(&pdev->dev);
- 		pr_err("%s: cannot find EMC driver\n", __func__);
- 		return NULL;
+-		rtit_ctl |= filter->config << pt_address_ranges[range].reg_off;
++		rtit_ctl |= (u64)filter->config << pt_address_ranges[range].reg_off;
  	}
+ 
+ 	return rtit_ctl;
 -- 
 2.34.1
 
