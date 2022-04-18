@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76BD5505771
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B9585050DA
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244083AbiDRNzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:55:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45546 "EHLO
+        id S238765AbiDRM3m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:29:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240445AbiDRNyh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:54:37 -0400
+        with ESMTP id S239522AbiDRM2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C07C04969E;
-        Mon, 18 Apr 2022 06:04:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456331FCD9;
+        Mon, 18 Apr 2022 05:22:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70A56B80EE3;
-        Mon, 18 Apr 2022 13:04:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C489CC385A1;
-        Mon, 18 Apr 2022 13:04:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B964B80EDC;
+        Mon, 18 Apr 2022 12:21:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAE0AC385A1;
+        Mon, 18 Apr 2022 12:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287056;
-        bh=bHnvJd1/T2GkymnmYI0gnf1hvtn80eWyGRE2mvn2cUk=;
+        s=korg; t=1650284518;
+        bh=SuuDmPTb5VGvYkiKexzHbRRnRZQ/cYrWEhuSXbDByN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xyu5rwfAOrVhlhfJ5Ren2zZ01oRoXdO438mFMx+JBdVm3hbzP7BAfU3RHFAFw7oci
-         eVZtiodBCbNLkz0fbJ0SBZpguyHF2lSstRP6p3H6zEMtws5zT1QeomGiOTRiGdEXjv
-         zCb+KjUmBIKxnAkx4N4jQWEJaR9LPKUXm0UtJwP4=
+        b=oWydHuVeuUqUQEwOcb+/1OiIjLI3vM6GZtSVwCVTRCabXwHR3Fufcn6toEFXS49tk
+         izuYD6Urxewaxj1xR+UqOMb36kgeNcKWcO8tReFTEKGcrKzix6yn1yX9Y4Gc3apwJz
+         3EKZuIUNhASB0Ka2KdhIFWnUxDpa6ZiRLAvKj/9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Armin Wolf <W_Armin@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 045/218] hwmon: (sch56xx-common) Replace WDOG_ACTIVE with WDOG_HW_RUNNING
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 142/219] Drivers: hv: vmbus: Propagate VMbus coherence to each VMbus device
 Date:   Mon, 18 Apr 2022 14:11:51 +0200
-Message-Id: <20220418121200.881839260@linuxfoundation.org>
+Message-Id: <20220418121210.865930956@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit 647d6f09bea7dacf4cdb6d4ea7e3051883955297 ]
+[ Upstream commit 37200078ed6aa2ac3c88a01a64996133dccfdd34 ]
 
-If the watchdog was already enabled by the BIOS after booting, the
-watchdog infrastructure needs to regularly send keepalives to
-prevent a unexpected reset.
-WDOG_ACTIVE only serves as an status indicator for userspace,
-we want to use WDOG_HW_RUNNING instead.
+VMbus synthetic devices are not represented in the ACPI DSDT -- only
+the top level VMbus device is represented. As a result, on ARM64
+coherence information in the _CCA method is not specified for
+synthetic devices, so they default to not hardware coherent.
+Drivers for some of these synthetic devices have been recently
+updated to use the standard DMA APIs, and they are incurring extra
+overhead of unneeded software coherence management.
 
-Since my Fujitsu Esprimo P720 does not support the watchdog,
-this change is compile-tested only.
+Fix this by propagating coherence information from the VMbus node
+in ACPI to the individual synthetic devices. There's no effect on
+x86/x64 where devices are always hardware coherent.
 
-Suggested-by: Guenter Roeck <linux@roeck-us.net>
-Fixes: fb551405c0f8 (watchdog: sch56xx: Use watchdog core)
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20220131211935.3656-5-W_Armin@gmx.de
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Acked-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/1648138492-2191-2-git-send-email-mikelley@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/sch56xx-common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hv/hv_common.c         | 11 +++++++++++
+ drivers/hv/vmbus_drv.c         | 31 +++++++++++++++++++++++++++++++
+ include/asm-generic/mshyperv.h |  1 +
+ 3 files changed, 43 insertions(+)
 
-diff --git a/drivers/hwmon/sch56xx-common.c b/drivers/hwmon/sch56xx-common.c
-index 68c350c704fb..5fd9b6769d42 100644
---- a/drivers/hwmon/sch56xx-common.c
-+++ b/drivers/hwmon/sch56xx-common.c
-@@ -438,7 +438,7 @@ struct sch56xx_watchdog_data *sch56xx_watchdog_register(struct device *parent,
- 	if (nowayout)
- 		set_bit(WDOG_NO_WAY_OUT, &data->wddev.status);
- 	if (output_enable & SCH56XX_WDOG_OUTPUT_ENABLE)
--		set_bit(WDOG_ACTIVE, &data->wddev.status);
-+		set_bit(WDOG_HW_RUNNING, &data->wddev.status);
+diff --git a/drivers/hv/hv_common.c b/drivers/hv/hv_common.c
+index 181d16bbf49d..820e81406251 100644
+--- a/drivers/hv/hv_common.c
++++ b/drivers/hv/hv_common.c
+@@ -20,6 +20,7 @@
+ #include <linux/panic_notifier.h>
+ #include <linux/ptrace.h>
+ #include <linux/slab.h>
++#include <linux/dma-map-ops.h>
+ #include <asm/hyperv-tlfs.h>
+ #include <asm/mshyperv.h>
  
- 	/* Since the watchdog uses a downcounter there is no register to read
- 	   the BIOS set timeout from (if any was set at all) ->
+@@ -216,6 +217,16 @@ bool hv_query_ext_cap(u64 cap_query)
+ }
+ EXPORT_SYMBOL_GPL(hv_query_ext_cap);
+ 
++void hv_setup_dma_ops(struct device *dev, bool coherent)
++{
++	/*
++	 * Hyper-V does not offer a vIOMMU in the guest
++	 * VM, so pass 0/NULL for the IOMMU settings
++	 */
++	arch_setup_dma_ops(dev, 0, 0, NULL, coherent);
++}
++EXPORT_SYMBOL_GPL(hv_setup_dma_ops);
++
+ bool hv_is_hibernation_supported(void)
+ {
+ 	return !hv_root_partition && acpi_sleep_state_supported(ACPI_STATE_S4);
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 6c057c76c2ca..3cd0d3a44fa2 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -920,6 +920,21 @@ static int vmbus_probe(struct device *child_device)
+ 	return ret;
+ }
+ 
++/*
++ * vmbus_dma_configure -- Configure DMA coherence for VMbus device
++ */
++static int vmbus_dma_configure(struct device *child_device)
++{
++	/*
++	 * On ARM64, propagate the DMA coherence setting from the top level
++	 * VMbus ACPI device to the child VMbus device being added here.
++	 * On x86/x64 coherence is assumed and these calls have no effect.
++	 */
++	hv_setup_dma_ops(child_device,
++		device_get_dma_attr(&hv_acpi_dev->dev) == DEV_DMA_COHERENT);
++	return 0;
++}
++
+ /*
+  * vmbus_remove - Remove a vmbus device
+  */
+@@ -1040,6 +1055,7 @@ static struct bus_type  hv_bus = {
+ 	.remove =		vmbus_remove,
+ 	.probe =		vmbus_probe,
+ 	.uevent =		vmbus_uevent,
++	.dma_configure =	vmbus_dma_configure,
+ 	.dev_groups =		vmbus_dev_groups,
+ 	.drv_groups =		vmbus_drv_groups,
+ 	.bus_groups =		vmbus_bus_groups,
+@@ -2435,6 +2451,21 @@ static int vmbus_acpi_add(struct acpi_device *device)
+ 
+ 	hv_acpi_dev = device;
+ 
++	/*
++	 * Older versions of Hyper-V for ARM64 fail to include the _CCA
++	 * method on the top level VMbus device in the DSDT. But devices
++	 * are hardware coherent in all current Hyper-V use cases, so fix
++	 * up the ACPI device to behave as if _CCA is present and indicates
++	 * hardware coherence.
++	 */
++	ACPI_COMPANION_SET(&device->dev, device);
++	if (IS_ENABLED(CONFIG_ACPI_CCA_REQUIRED) &&
++	    device_get_dma_attr(&device->dev) == DEV_DMA_NOT_SUPPORTED) {
++		pr_info("No ACPI _CCA found; assuming coherent device I/O\n");
++		device->flags.cca_seen = true;
++		device->flags.coherent_dma = true;
++	}
++
+ 	result = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
+ 					vmbus_walk_resources, NULL);
+ 
+diff --git a/include/asm-generic/mshyperv.h b/include/asm-generic/mshyperv.h
+index c08758b6b364..c05d2ce9b6cd 100644
+--- a/include/asm-generic/mshyperv.h
++++ b/include/asm-generic/mshyperv.h
+@@ -269,6 +269,7 @@ bool hv_isolation_type_snp(void);
+ u64 hv_ghcb_hypercall(u64 control, void *input, void *output, u32 input_size);
+ void hyperv_cleanup(void);
+ bool hv_query_ext_cap(u64 cap_query);
++void hv_setup_dma_ops(struct device *dev, bool coherent);
+ void *hv_map_memory(void *addr, unsigned long size);
+ void hv_unmap_memory(void *addr);
+ #else /* CONFIG_HYPERV */
 -- 
-2.34.1
+2.35.1
 
 
 
