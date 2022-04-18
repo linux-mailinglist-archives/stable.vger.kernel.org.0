@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DBFD505379
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA596505849
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240246AbiDRNAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59854 "EHLO
+        id S243880AbiDRN77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:59:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241063AbiDRM6U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:20 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1DA24BE9;
-        Mon, 18 Apr 2022 05:38:35 -0700 (PDT)
+        with ESMTP id S244661AbiDRN5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D7C2AE0F;
+        Mon, 18 Apr 2022 06:07:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A4984CE10A1;
-        Mon, 18 Apr 2022 12:38:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 985B3C385A1;
-        Mon, 18 Apr 2022 12:38:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1C1760F16;
+        Mon, 18 Apr 2022 13:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4B1BC385A7;
+        Mon, 18 Apr 2022 13:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285512;
-        bh=OVLTAbOrvMnEDfWeixHUkUQ3+om6Pi0e+oQHgaH7RC4=;
+        s=korg; t=1650287228;
+        bh=YYBpXRePL8X7DjK5YTHKeCMw035l7zTM2kihcEQdxEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ql07T+5Ikd27H2rtKLvPyqPKshEynuhzlGrt7t0xrvBycC6bVjWdEfnhzYnceWhx3
-         axK8SYP4oIkTFP1S7ATxgk9W30htAK3Pe88TkmBCgz6ubWM0ZtG7yqoea0vudcYQzi
-         dt+CiZn0SaFWRJCIJn1MW+c8ySMG7Y05d6HByQ1c=
+        b=g6zjl4t6BMIKaiRWaSoUx3HmfdK1EyKW7F9z5TtyVivZEjyDNwyVZ913hZ2J/qpnQ
+         Eq8H8gc1DvCcXJ8AZft2fad/oLA9mGh83j7dG5myIiujOalmL7EkxoX85GmooVXv5k
+         kQLat5fezI0Sdl1vTMdlxOfF4IlkFgow0H+hmbQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
-        Mike Snitzer <snitzer@kernel.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/105] dm mpath: only use ktime_get_ns() in historical selector
-Date:   Mon, 18 Apr 2022 14:12:42 +0200
-Message-Id: <20220418121147.616159582@linuxfoundation.org>
+Subject: [PATCH 4.9 097/218] mfd: mc13xxx: Add check for mc13xxx_irq_request
+Date:   Mon, 18 Apr 2022 14:12:43 +0200
+Message-Id: <20220418121202.380669745@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khazhismel Kumykov <khazhy@google.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit ce40426fdc3c92acdba6b5ca74bc7277ffaa6a3d ]
+[ Upstream commit e477e51a41cb5d6034f3c5ea85a71ad4613996b9 ]
 
-Mixing sched_clock() and ktime_get_ns() usage will give bad results.
+As the potential failure of the devm_request_threaded_irq(),
+it should be better to check the return value of the
+mc13xxx_irq_request() and return error if fails.
 
-Switch hst_select_path() from using sched_clock() to ktime_get_ns().
-Also rename path_service_time()'s 'sched_now' variable to 'now'.
-
-Fixes: 2613eab11996 ("dm mpath: add Historical Service Time Path Selector")
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 8e00593557c3 ("mfd: Add mc13892 support to mc13xxx")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220224022331.3208275-1-jiasheng@iscas.ac.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-historical-service-time.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/mfd/mc13xxx-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-historical-service-time.c b/drivers/md/dm-historical-service-time.c
-index 186f91e2752c..06fe43c13ba3 100644
---- a/drivers/md/dm-historical-service-time.c
-+++ b/drivers/md/dm-historical-service-time.c
-@@ -429,7 +429,7 @@ static struct dm_path *hst_select_path(struct path_selector *ps,
- {
- 	struct selector *s = ps->context;
- 	struct path_info *pi = NULL, *best = NULL;
--	u64 time_now = sched_clock();
-+	u64 time_now = ktime_get_ns();
- 	struct dm_path *ret = NULL;
- 	unsigned long flags;
+diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
+index 75d52034f89d..5b4faebdcae2 100644
+--- a/drivers/mfd/mc13xxx-core.c
++++ b/drivers/mfd/mc13xxx-core.c
+@@ -313,8 +313,10 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
+ 		adc1 |= MC13783_ADC1_ATOX;
  
-@@ -470,7 +470,7 @@ static int hst_start_io(struct path_selector *ps, struct dm_path *path,
+ 	dev_dbg(mc13xxx->dev, "%s: request irq\n", __func__);
+-	mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
++	ret = mc13xxx_irq_request(mc13xxx, MC13XXX_IRQ_ADCDONE,
+ 			mc13xxx_handler_adcdone, __func__, &adcdone_data);
++	if (ret)
++		goto out;
  
- static u64 path_service_time(struct path_info *pi, u64 start_time)
- {
--	u64 sched_now = ktime_get_ns();
-+	u64 now = ktime_get_ns();
- 
- 	/* if a previous disk request has finished after this IO was
- 	 * sent to the hardware, pretend the submission happened
-@@ -479,11 +479,11 @@ static u64 path_service_time(struct path_info *pi, u64 start_time)
- 	if (time_after64(pi->last_finish, start_time))
- 		start_time = pi->last_finish;
- 
--	pi->last_finish = sched_now;
--	if (time_before64(sched_now, start_time))
-+	pi->last_finish = now;
-+	if (time_before64(now, start_time))
- 		return 0;
- 
--	return sched_now - start_time;
-+	return now - start_time;
- }
- 
- static int hst_end_io(struct path_selector *ps, struct dm_path *path,
+ 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC0, adc0);
+ 	mc13xxx_reg_write(mc13xxx, MC13XXX_ADC1, adc1);
 -- 
-2.35.1
+2.34.1
 
 
 
