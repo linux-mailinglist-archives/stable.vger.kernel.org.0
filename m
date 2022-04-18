@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 234BD5050F9
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58900505340
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239009AbiDRMa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:30:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51064 "EHLO
+        id S240100AbiDRM4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240121AbiDRM3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:29:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C883237E9;
-        Mon, 18 Apr 2022 05:23:18 -0700 (PDT)
+        with ESMTP id S239663AbiDRMzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1865239C;
+        Mon, 18 Apr 2022 05:36:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3136E60F01;
-        Mon, 18 Apr 2022 12:23:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 286D4C385A7;
-        Mon, 18 Apr 2022 12:23:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3863B80EDC;
+        Mon, 18 Apr 2022 12:36:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14720C385A8;
+        Mon, 18 Apr 2022 12:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284597;
-        bh=+ejOrvs9N56pFSmkdeef6otjykKTRwH3KNG1uuMcZYU=;
+        s=korg; t=1650285416;
+        bh=JZ5JxIChZEnQ/fF6cdLs01N7J4uyPKEaiJkgXtZOHdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJtK3qFTYjo9bIioRvdf3jUYHlC8cBfP8ETwx3Kqecn6Xz8ljCGRQtetL29VMZJtM
-         VlOx/hgr8ROa3aQbXTqAiZS9odqP4ow3FBUtuGg9res5uo4z/K2Yb0cNAobNQJoIQr
-         s1Zip1XUv1DIWXR6k5mZfndXvLO7hU1E0XXpHX4A=
+        b=0KAhFLwbju7tytqeS7gc268RrYRI2YEzkwJCSQRAWJebgw4u2bMonk55KQ8TMMUaz
+         6+b0FPqJ/l9GCmwu3HNUoUcG/eWFEwRpl2jpGrmkJzNRbTsgtgas9DTE+Y8H2TQ1LV
+         m7GTDVNyXkhybrpHRjmxIopwubE96KWaHiqQXCPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Alex Hung <alex.hung@amd.com>, Roman Li <Roman.Li@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 165/219] drm/amd/display: Fix allocate_mst_payload assert on resume
+Subject: [PATCH 5.10 012/105] net/sched: flower: fix parsing of ethertype following VLAN header
 Date:   Mon, 18 Apr 2022 14:12:14 +0200
-Message-Id: <20220418121211.501993388@linuxfoundation.org>
+Message-Id: <20220418121146.082246896@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +55,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <Roman.Li@amd.com>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-[ Upstream commit f4346fb3edf7720db3f7f5e1cab1f667cd024280 ]
+[ Upstream commit 2105f700b53c24aa48b65c15652acc386044d26a ]
 
-[Why]
-On resume we do link detection for all non-MST connectors.
-MST is handled separately. However the condition for telling
-if connector is on mst branch is not enough for mst hub case.
-Link detection for mst branch link leads to mst topology reset.
-That causes assert in dc_link_allocate_mst_payload()
+A tc flower filter matching TCA_FLOWER_KEY_VLAN_ETH_TYPE is expected to
+match the L2 ethertype following the first VLAN header, as confirmed by
+linked discussion with the maintainer. However, such rule also matches
+packets that have additional second VLAN header, even though filter has
+both eth_type and vlan_ethtype set to "ipv4". Looking at the code this
+seems to be mostly an artifact of the way flower uses flow dissector.
+First, even though looking at the uAPI eth_type and vlan_ethtype appear
+like a distinct fields, in flower they are all mapped to the same
+key->basic.n_proto. Second, flow dissector skips following VLAN header as
+no keys for FLOW_DISSECTOR_KEY_CVLAN are set and eventually assigns the
+value of n_proto to last parsed header. With these, such filters ignore any
+headers present between first VLAN header and first "non magic"
+header (ipv4 in this case) that doesn't result
+FLOW_DISSECT_RET_PROTO_AGAIN.
 
-[How]
-Use link type as indicator for mst link.
+Fix the issue by extending flow dissector VLAN key structure with new
+'vlan_eth_type' field that matches first ethertype following previously
+parsed VLAN header. Modify flower classifier to set the new
+flow_dissector_key_vlan->vlan_eth_type with value obtained from
+TCA_FLOWER_KEY_VLAN_ETH_TYPE/TCA_FLOWER_KEY_CVLAN_ETH_TYPE uAPIs.
 
-Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Roman Li <Roman.Li@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://lore.kernel.org/all/Yjhgi48BpTGh6dig@nanopsycho/
+Fixes: 9399ae9a6cb2 ("net_sched: flower: Add vlan support")
+Fixes: d64efd0926ba ("net/sched: flower: Add supprt for matching on QinQ vlan headers")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/flow_dissector.h |  2 ++
+ net/core/flow_dissector.c    |  1 +
+ net/sched/cls_flower.c       | 18 +++++++++++++-----
+ 3 files changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 90c017859ad4..24db2297857b 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2693,7 +2693,8 @@ static int dm_resume(void *handle)
- 		 * this is the case when traversing through already created
- 		 * MST connectors, should be skipped
- 		 */
--		if (aconnector->mst_port)
-+		if (aconnector->dc_link &&
-+		    aconnector->dc_link->type == dc_connection_mst_branch)
- 			continue;
+diff --git a/include/net/flow_dissector.h b/include/net/flow_dissector.h
+index cc10b10dc3a1..5eecf4436965 100644
+--- a/include/net/flow_dissector.h
++++ b/include/net/flow_dissector.h
+@@ -59,6 +59,8 @@ struct flow_dissector_key_vlan {
+ 		__be16	vlan_tci;
+ 	};
+ 	__be16	vlan_tpid;
++	__be16	vlan_eth_type;
++	u16	padding;
+ };
  
- 		mutex_lock(&aconnector->hpd_lock);
+ struct flow_dissector_mpls_lse {
+diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
+index 813c709c61cf..f9baa9b1c77f 100644
+--- a/net/core/flow_dissector.c
++++ b/net/core/flow_dissector.c
+@@ -1171,6 +1171,7 @@ bool __skb_flow_dissect(const struct net *net,
+ 					 VLAN_PRIO_MASK) >> VLAN_PRIO_SHIFT;
+ 			}
+ 			key_vlan->vlan_tpid = saved_vlan_tpid;
++			key_vlan->vlan_eth_type = proto;
+ 		}
+ 
+ 		fdret = FLOW_DISSECT_RET_PROTO_AGAIN;
+diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
+index 8ff6945b9f8f..35ee6d8226e6 100644
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -998,6 +998,7 @@ static int fl_set_key_mpls(struct nlattr **tb,
+ static void fl_set_key_vlan(struct nlattr **tb,
+ 			    __be16 ethertype,
+ 			    int vlan_id_key, int vlan_prio_key,
++			    int vlan_next_eth_type_key,
+ 			    struct flow_dissector_key_vlan *key_val,
+ 			    struct flow_dissector_key_vlan *key_mask)
+ {
+@@ -1016,6 +1017,11 @@ static void fl_set_key_vlan(struct nlattr **tb,
+ 	}
+ 	key_val->vlan_tpid = ethertype;
+ 	key_mask->vlan_tpid = cpu_to_be16(~0);
++	if (tb[vlan_next_eth_type_key]) {
++		key_val->vlan_eth_type =
++			nla_get_be16(tb[vlan_next_eth_type_key]);
++		key_mask->vlan_eth_type = cpu_to_be16(~0);
++	}
+ }
+ 
+ static void fl_set_key_flag(u32 flower_key, u32 flower_mask,
+@@ -1497,8 +1503,9 @@ static int fl_set_key(struct net *net, struct nlattr **tb,
+ 
+ 		if (eth_type_vlan(ethertype)) {
+ 			fl_set_key_vlan(tb, ethertype, TCA_FLOWER_KEY_VLAN_ID,
+-					TCA_FLOWER_KEY_VLAN_PRIO, &key->vlan,
+-					&mask->vlan);
++					TCA_FLOWER_KEY_VLAN_PRIO,
++					TCA_FLOWER_KEY_VLAN_ETH_TYPE,
++					&key->vlan, &mask->vlan);
+ 
+ 			if (tb[TCA_FLOWER_KEY_VLAN_ETH_TYPE]) {
+ 				ethertype = nla_get_be16(tb[TCA_FLOWER_KEY_VLAN_ETH_TYPE]);
+@@ -1506,6 +1513,7 @@ static int fl_set_key(struct net *net, struct nlattr **tb,
+ 					fl_set_key_vlan(tb, ethertype,
+ 							TCA_FLOWER_KEY_CVLAN_ID,
+ 							TCA_FLOWER_KEY_CVLAN_PRIO,
++							TCA_FLOWER_KEY_CVLAN_ETH_TYPE,
+ 							&key->cvlan, &mask->cvlan);
+ 					fl_set_key_val(tb, &key->basic.n_proto,
+ 						       TCA_FLOWER_KEY_CVLAN_ETH_TYPE,
+@@ -2861,13 +2869,13 @@ static int fl_dump_key(struct sk_buff *skb, struct net *net,
+ 		goto nla_put_failure;
+ 
+ 	if (mask->basic.n_proto) {
+-		if (mask->cvlan.vlan_tpid) {
++		if (mask->cvlan.vlan_eth_type) {
+ 			if (nla_put_be16(skb, TCA_FLOWER_KEY_CVLAN_ETH_TYPE,
+ 					 key->basic.n_proto))
+ 				goto nla_put_failure;
+-		} else if (mask->vlan.vlan_tpid) {
++		} else if (mask->vlan.vlan_eth_type) {
+ 			if (nla_put_be16(skb, TCA_FLOWER_KEY_VLAN_ETH_TYPE,
+-					 key->basic.n_proto))
++					 key->vlan.vlan_eth_type))
+ 				goto nla_put_failure;
+ 		}
+ 	}
 -- 
 2.35.1
 
