@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7057A505242
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F59505098
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239505AbiDRMkX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:40:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37964 "EHLO
+        id S236311AbiDRM0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:26:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239540AbiDRMhu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:37:50 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3289422B32;
-        Mon, 18 Apr 2022 05:28:04 -0700 (PDT)
+        with ESMTP id S238778AbiDRM0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B09E0E01E;
+        Mon, 18 Apr 2022 05:20:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6BA74CE106E;
-        Mon, 18 Apr 2022 12:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A9A7C385A1;
-        Mon, 18 Apr 2022 12:28:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 725DEB80EC1;
+        Mon, 18 Apr 2022 12:20:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6F0DC385A1;
+        Mon, 18 Apr 2022 12:20:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284880;
-        bh=1+mHDbx/2APMySnQ2Nnve3ZYUelcYmW+MeHsO0mit48=;
+        s=korg; t=1650284405;
+        bh=qZQBsX8kMeWOoOIEuv5t0Jmahj8cLDrFPtcjkPWKtWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b7pYnf7skrn5LaA3PaZ1r3gVFmVM+PXWaaN1wyWiEkGZyr4cgBzsA2XVodmQcFLUV
-         GTkqm/Jfuaz5NxXWp9htWi9CZ161PmHd9EQ6vdXgXuw6XRSI2RHpsp7LW/t79tk1R1
-         PipNnsX/cKoTclaDQRYSsRzsg7h5ve0dvM11Rw9A=
+        b=fopWR2STUs33FpbhfytReWvgQSUE+g9xS7B94JB3k4EwxWL6WejC5aIS/huEBydC9
+         9Kr+98l02icV+A1YX8nIxzGEG1PiTOCTgtLDXFwDnbFs5LoNBrTINBuBsIswHfi4Xl
+         B5ObOzfdUa5uau27UHAhT2oeBXOYBMX5h9r+5b2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 036/189] ALSA: galaxy: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org,
+        Rameshkumar Sundaram <quic_ramess@quicinc.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 087/219] cfg80211: hold bss_lock while updating nontrans_list
 Date:   Mon, 18 Apr 2022 14:10:56 +0200
-Message-Id: <20220418121201.539623125@linuxfoundation.org>
+Message-Id: <20220418121208.920151613@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Rameshkumar Sundaram <quic_ramess@quicinc.com>
 
-commit 10b1881a97be240126891cb384bd3bc1869f52d8 upstream.
+[ Upstream commit a5199b5626cd6913cf8776a835bc63d40e0686ad ]
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+Synchronize additions to nontrans_list of transmitting BSS with
+bss_lock to avoid races. Also when cfg80211_add_nontrans_list() fails
+__cfg80211_unlink_bss() needs bss_lock to be held (has lockdep assert
+on bss_lock). So protect the whole block with bss_lock to avoid
+races and warnings. Found during code review.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: 35a245ec0619 ("ALSA: galaxy: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0b8fb8235be8 ("cfg80211: Parsing of Multiple BSSID information in scanning")
+Signed-off-by: Rameshkumar Sundaram <quic_ramess@quicinc.com>
+Link: https://lore.kernel.org/r/1649668071-9370-1-git-send-email-quic_ramess@quicinc.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/galaxy/galaxy.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/wireless/scan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/isa/galaxy/galaxy.c b/sound/isa/galaxy/galaxy.c
-index ea001c80149d..3164eb8510fa 100644
---- a/sound/isa/galaxy/galaxy.c
-+++ b/sound/isa/galaxy/galaxy.c
-@@ -478,7 +478,7 @@ static void snd_galaxy_free(struct snd_card *card)
- 		galaxy_set_config(galaxy, galaxy->config);
- }
+diff --git a/net/wireless/scan.c b/net/wireless/scan.c
+index b2fdac96bab0..4a6d86432910 100644
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -2018,11 +2018,13 @@ cfg80211_inform_single_bss_data(struct wiphy *wiphy,
+ 		/* this is a nontransmitting bss, we need to add it to
+ 		 * transmitting bss' list if it is not there
+ 		 */
++		spin_lock_bh(&rdev->bss_lock);
+ 		if (cfg80211_add_nontrans_list(non_tx_data->tx_bss,
+ 					       &res->pub)) {
+ 			if (__cfg80211_unlink_bss(rdev, res))
+ 				rdev->bss_generation++;
+ 		}
++		spin_unlock_bh(&rdev->bss_lock);
+ 	}
  
--static int snd_galaxy_probe(struct device *dev, unsigned int n)
-+static int __snd_galaxy_probe(struct device *dev, unsigned int n)
- {
- 	struct snd_galaxy *galaxy;
- 	struct snd_wss *chip;
-@@ -598,6 +598,11 @@ static int snd_galaxy_probe(struct device *dev, unsigned int n)
- 	return 0;
- }
- 
-+static int snd_galaxy_probe(struct device *dev, unsigned int n)
-+{
-+	return snd_card_free_on_error(dev, __snd_galaxy_probe(dev, n));
-+}
-+
- static struct isa_driver snd_galaxy_driver = {
- 	.match		= snd_galaxy_match,
- 	.probe		= snd_galaxy_probe,
+ 	trace_cfg80211_return_bss(&res->pub);
 -- 
-2.35.2
+2.35.1
 
 
 
