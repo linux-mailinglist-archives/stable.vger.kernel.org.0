@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 934E850517B
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F13350532E
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239201AbiDRMfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51062 "EHLO
+        id S239928AbiDRM4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239777AbiDRMd2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285041AD89;
-        Mon, 18 Apr 2022 05:25:58 -0700 (PDT)
+        with ESMTP id S240323AbiDRMzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB12523141;
+        Mon, 18 Apr 2022 05:35:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8120B80EC1;
-        Mon, 18 Apr 2022 12:25:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1A46C385A1;
-        Mon, 18 Apr 2022 12:25:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC99761033;
+        Mon, 18 Apr 2022 12:35:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C457FC385A8;
+        Mon, 18 Apr 2022 12:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284755;
-        bh=Z9gvILnq8qAN5mKp2WG4oy8iFeMwiV8WFhHAtNYT8WA=;
+        s=korg; t=1650285337;
+        bh=WX8SUB5uw2THr7n8LMX3BwGIz8LUCa60mm8HUIvICWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnthfHNwus+JQtWMBDc2KHI3JlSTJ+47T5BiYiZlkNypdG6qLfxxbDle+4U4+X+Lg
-         SiIGIvyQQZXYW4vSHJZttMzG5He22f6E9Joo4Du73yg2KLR0dSukWKeyeU60TaQbcq
-         vrzJpz/eUrD2diGaw8vWQSiUn0Q7bC553zbnfCww=
+        b=IyGRLgIJL4Yims78HFOzk/XRzrrn8mgfhSe386JqUTR11vt7qEviOzIRLdaw4RtB/
+         4i4SR9iK63juLC7Aw+YcrNyL4i+N7p49LAHycWkf1iAq4GWOFIp7cCRwkRP76T+YtK
+         8jGjLFSQ38H1xPVzrcEMnF4t9SQBnuNSDxooQXf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Babrou <ivan@cloudflare.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 177/219] mm: fix unexpected zeroed page mapping with zram swap
+        stable@vger.kernel.org, Joey Gouly <joey.gouly@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 126/189] arm64: alternatives: mark patch_alternative() as `noinstr`
 Date:   Mon, 18 Apr 2022 14:12:26 +0200
-Message-Id: <20220418121211.831849378@linuxfoundation.org>
+Message-Id: <20220418121204.537741573@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,156 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minchan Kim <minchan@kernel.org>
+From: Joey Gouly <joey.gouly@arm.com>
 
-commit e914d8f00391520ecc4495dd0ca0124538ab7119 upstream.
+[ Upstream commit a2c0b0fbe01419f8f5d1c0b9c581631f34ffce8b ]
 
-Two processes under CLONE_VM cloning, user process can be corrupted by
-seeing zeroed page unexpectedly.
+The alternatives code must be `noinstr` such that it does not patch itself,
+as the cache invalidation is only performed after all the alternatives have
+been applied.
 
-      CPU A                        CPU B
+Mark patch_alternative() as `noinstr`. Mark branch_insn_requires_update()
+and get_alt_insn() with `__always_inline` since they are both only called
+through patch_alternative().
 
-  do_swap_page                do_swap_page
-  SWP_SYNCHRONOUS_IO path     SWP_SYNCHRONOUS_IO path
-  swap_readpage valid data
-    swap_slot_free_notify
-      delete zram entry
-                              swap_readpage zeroed(invalid) data
-                              pte_lock
-                              map the *zero data* to userspace
-                              pte_unlock
-  pte_lock
-  if (!pte_same)
-    goto out_nomap;
-  pte_unlock
-  return and next refault will
-  read zeroed data
+Booting a kernel in QEMU TCG with KCSAN=y and ARM64_USE_LSE_ATOMICS=y caused
+a boot hang:
+[    0.241121] CPU: All CPU(s) started at EL2
 
-The swap_slot_free_notify is bogus for CLONE_VM case since it doesn't
-increase the refcount of swap slot at copy_mm so it couldn't catch up
-whether it's safe or not to discard data from backing device.  In the
-case, only the lock it could rely on to synchronize swap slot freeing is
-page table lock.  Thus, this patch gets rid of the swap_slot_free_notify
-function.  With this patch, CPU A will see correct data.
+The alternatives code was patching the atomics in __tsan_read4() from LL/SC
+atomics to LSE atomics.
 
-      CPU A                        CPU B
+The following fragment is using LL/SC atomics in the .text section:
+  | <__tsan_unaligned_read4+304>:     ldxr    x6, [x2]
+  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
+  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
+  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
 
-  do_swap_page                do_swap_page
-  SWP_SYNCHRONOUS_IO path     SWP_SYNCHRONOUS_IO path
-                              swap_readpage original data
-                              pte_lock
-                              map the original data
-                              swap_free
-                                swap_range_free
-                                  bd_disk->fops->swap_slot_free_notify
-  swap_readpage read zeroed data
-                              pte_unlock
-  pte_lock
-  if (!pte_same)
-    goto out_nomap;
-  pte_unlock
-  return
-  on next refault will see mapped data by CPU B
+This LL/SC atomic sequence was to be replaced with LSE atomics. However since
+the alternatives code was instrumentable, __tsan_read4() was being called after
+only the first instruction was replaced, which led to the following code in memory:
+  | <__tsan_unaligned_read4+304>:     ldadd   x5, x6, [x2]
+  | <__tsan_unaligned_read4+308>:     add     x6, x6, x5
+  | <__tsan_unaligned_read4+312>:     stxr    w7, x6, [x2]
+  | <__tsan_unaligned_read4+316>:     cbnz    w7, <__tsan_unaligned_read4+304>
 
-The concern of the patch would increase memory consumption since it
-could keep wasted memory with compressed form in zram as well as
-uncompressed form in address space.  However, most of cases of zram uses
-no readahead and do_swap_page is followed by swap_free so it will free
-the compressed form from in zram quickly.
+This caused an infinite loop as the `stxr` instruction never completed successfully,
+so `w7` was always 0.
 
-Link: https://lkml.kernel.org/r/YjTVVxIAsnKAXjTd@google.com
-Fixes: 0bcac06f27d7 ("mm, swap: skip swapcache for swapin of synchronous device")
-Reported-by: Ivan Babrou <ivan@cloudflare.com>
-Tested-by: Ivan Babrou <ivan@cloudflare.com>
-Signed-off-by: Minchan Kim <minchan@kernel.org>
-Cc: Nitin Gupta <ngupta@vflare.org>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>	[4.14+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Joey Gouly <joey.gouly@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220405104733.11476-1-joey.gouly@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_io.c |   54 ------------------------------------------------------
- 1 file changed, 54 deletions(-)
+ arch/arm64/kernel/alternative.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -51,54 +51,6 @@ void end_swap_bio_write(struct bio *bio)
- 	bio_put(bio);
+diff --git a/arch/arm64/kernel/alternative.c b/arch/arm64/kernel/alternative.c
+index 3fb79b76e9d9..7bbf5104b7b7 100644
+--- a/arch/arm64/kernel/alternative.c
++++ b/arch/arm64/kernel/alternative.c
+@@ -42,7 +42,7 @@ bool alternative_is_applied(u16 cpufeature)
+ /*
+  * Check if the target PC is within an alternative block.
+  */
+-static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
++static __always_inline bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+ {
+ 	unsigned long replptr = (unsigned long)ALT_REPL_PTR(alt);
+ 	return !(pc >= replptr && pc <= (replptr + alt->alt_len));
+@@ -50,7 +50,7 @@ static bool branch_insn_requires_update(struct alt_instr *alt, unsigned long pc)
+ 
+ #define align_down(x, a)	((unsigned long)(x) & ~(((unsigned long)(a)) - 1))
+ 
+-static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
++static __always_inline u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnptr)
+ {
+ 	u32 insn;
+ 
+@@ -95,7 +95,7 @@ static u32 get_alt_insn(struct alt_instr *alt, __le32 *insnptr, __le32 *altinsnp
+ 	return insn;
  }
  
--static void swap_slot_free_notify(struct page *page)
--{
--	struct swap_info_struct *sis;
--	struct gendisk *disk;
--	swp_entry_t entry;
--
--	/*
--	 * There is no guarantee that the page is in swap cache - the software
--	 * suspend code (at least) uses end_swap_bio_read() against a non-
--	 * swapcache page.  So we must check PG_swapcache before proceeding with
--	 * this optimization.
--	 */
--	if (unlikely(!PageSwapCache(page)))
--		return;
--
--	sis = page_swap_info(page);
--	if (data_race(!(sis->flags & SWP_BLKDEV)))
--		return;
--
--	/*
--	 * The swap subsystem performs lazy swap slot freeing,
--	 * expecting that the page will be swapped out again.
--	 * So we can avoid an unnecessary write if the page
--	 * isn't redirtied.
--	 * This is good for real swap storage because we can
--	 * reduce unnecessary I/O and enhance wear-leveling
--	 * if an SSD is used as the as swap device.
--	 * But if in-memory swap device (eg zram) is used,
--	 * this causes a duplicated copy between uncompressed
--	 * data in VM-owned memory and compressed data in
--	 * zram-owned memory.  So let's free zram-owned memory
--	 * and make the VM-owned decompressed page *dirty*,
--	 * so the page should be swapped out somewhere again if
--	 * we again wish to reclaim it.
--	 */
--	disk = sis->bdev->bd_disk;
--	entry.val = page_private(page);
--	if (disk->fops->swap_slot_free_notify && __swap_count(entry) == 1) {
--		unsigned long offset;
--
--		offset = swp_offset(entry);
--
--		SetPageDirty(page);
--		disk->fops->swap_slot_free_notify(sis->bdev,
--				offset);
--	}
--}
--
- static void end_swap_bio_read(struct bio *bio)
+-static void patch_alternative(struct alt_instr *alt,
++static noinstr void patch_alternative(struct alt_instr *alt,
+ 			      __le32 *origptr, __le32 *updptr, int nr_inst)
  {
- 	struct page *page = bio_first_page_all(bio);
-@@ -114,7 +66,6 @@ static void end_swap_bio_read(struct bio
- 	}
- 
- 	SetPageUptodate(page);
--	swap_slot_free_notify(page);
- out:
- 	unlock_page(page);
- 	WRITE_ONCE(bio->bi_private, NULL);
-@@ -392,11 +343,6 @@ int swap_readpage(struct page *page, boo
- 	if (sis->flags & SWP_SYNCHRONOUS_IO) {
- 		ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
- 		if (!ret) {
--			if (trylock_page(page)) {
--				swap_slot_free_notify(page);
--				unlock_page(page);
--			}
--
- 			count_vm_event(PSWPIN);
- 			goto out;
- 		}
+ 	__le32 *replptr;
+-- 
+2.35.1
+
 
 
