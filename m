@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9D33505824
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8849D505672
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244875AbiDRN7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:59:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
+        id S241707AbiDRNfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:35:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244631AbiDRN5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718352AC69;
-        Mon, 18 Apr 2022 06:06:33 -0700 (PDT)
+        with ESMTP id S242054AbiDRN1a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:27:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AC583E5FD;
+        Mon, 18 Apr 2022 05:53:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C89560EF6;
-        Mon, 18 Apr 2022 13:06:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F30CFC385A1;
-        Mon, 18 Apr 2022 13:06:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D88F612B5;
+        Mon, 18 Apr 2022 12:53:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04D0AC385A1;
+        Mon, 18 Apr 2022 12:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287192;
-        bh=LMlQNGlYN3hy8CPToMdfFBPok9Av3xw6NjdEtCImleg=;
+        s=korg; t=1650286391;
+        bh=HTDpf9gOSoN+0VRBjXQ2P84SInQ0QONH+i4WXzJpWGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JYicHKyMTS8RqkCJ1mznjUKwmx2ImTK2DFqvkLJ5gNfqwrn5VRe0FBC/xyyFl7Vao
-         l2RLhmhjeoV0/zdDAekugJhlYpWLBY9ohL79ofllIznvdVq26o05D2OjslC/XcP0Vc
-         5i8l8RCZUn6XHqeZRuvBOY8nLdzNoNmknSDhf8lI=
+        b=y3m6topkf2htaAvHIano2vK79WPIm/pLAGE7bkWNEIsKh4BINXD8Hvqfnl0CsZD1U
+         HRkCWo9oKu10g6kNxBzHlHB31RO54l7ODL6CcuavxLXwTWZKtvaPnVgcJSrQL5CKQ/
+         1E3v8a+TlCho/y++MVtnxRGyJbXPVBAJcpNClk5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Dirk=20M=C3=BCller?= <dmueller@suse.de>,
-        Paul Menzel <pmenzel@molgen.mpg.de>, Song Liu <song@kernel.org>
-Subject: [PATCH 4.9 034/218] lib/raid6/test: fix multiple definition linking error
+        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 119/284] powerpc/sysdev: fix incorrect use to determine if list is empty
 Date:   Mon, 18 Apr 2022 14:11:40 +0200
-Message-Id: <20220418121200.417020033@linuxfoundation.org>
+Message-Id: <20220418121214.476001943@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dirk Müller <dmueller@suse.de>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-commit a5359ddd052860bacf957e65fe819c63e974b3a6 upstream.
+[ Upstream commit fa1321b11bd01752f5be2415e74a0e1a7c378262 ]
 
-GCC 10+ defaults to -fno-common, which enforces proper declaration of
-external references using "extern". without this change a link would
-fail with:
+'gtm' will *always* be set by list_for_each_entry().
+It is incorrect to assume that the iterator value will be NULL if the
+list is empty.
 
-  lib/raid6/test/algos.c:28: multiple definition of `raid6_call';
-  lib/raid6/test/test.c:22: first defined here
+Instead of checking the pointer it should be checked if
+the list is empty.
 
-the pq.h header that is included already includes an extern declaration
-so we can just remove the redundant one here.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dirk Müller <dmueller@suse.de>
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 83ff9dcf375c ("powerpc/sysdev: implement FSL GTM support")
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220228142434.576226-1-jakobkoschel@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/raid6/test/test.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/sysdev/fsl_gtm.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/lib/raid6/test/test.c
-+++ b/lib/raid6/test/test.c
-@@ -22,7 +22,6 @@
- #define NDISKS		16	/* Including P and Q */
+diff --git a/arch/powerpc/sysdev/fsl_gtm.c b/arch/powerpc/sysdev/fsl_gtm.c
+index d902306f4718..42fe959f6fc2 100644
+--- a/arch/powerpc/sysdev/fsl_gtm.c
++++ b/arch/powerpc/sysdev/fsl_gtm.c
+@@ -90,7 +90,7 @@ static LIST_HEAD(gtms);
+  */
+ struct gtm_timer *gtm_get_timer16(void)
+ {
+-	struct gtm *gtm = NULL;
++	struct gtm *gtm;
+ 	int i;
  
- const char raid6_empty_zero_page[PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
--struct raid6_calls raid6_call;
+ 	list_for_each_entry(gtm, &gtms, list_node) {
+@@ -107,7 +107,7 @@ struct gtm_timer *gtm_get_timer16(void)
+ 		spin_unlock_irq(&gtm->lock);
+ 	}
  
- char *dataptrs[NDISKS];
- char data[NDISKS][PAGE_SIZE] __attribute__((aligned(PAGE_SIZE)));
+-	if (gtm)
++	if (!list_empty(&gtms))
+ 		return ERR_PTR(-EBUSY);
+ 	return ERR_PTR(-ENODEV);
+ }
+-- 
+2.34.1
+
 
 
