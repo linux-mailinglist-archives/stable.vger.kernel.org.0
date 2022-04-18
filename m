@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E98C5050D3
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA275054A4
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230401AbiDRM3o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37744 "EHLO
+        id S241732AbiDRNWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:22:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238785AbiDRM0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B29181CB1E;
-        Mon, 18 Apr 2022 05:20:50 -0700 (PDT)
+        with ESMTP id S241396AbiDRNVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:21:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 896BD140D6;
+        Mon, 18 Apr 2022 05:52:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EB1E60F0A;
-        Mon, 18 Apr 2022 12:20:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88AC3C385A7;
-        Mon, 18 Apr 2022 12:20:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F4EEB80E44;
+        Mon, 18 Apr 2022 12:52:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5930AC385A1;
+        Mon, 18 Apr 2022 12:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284449;
-        bh=26m8QA4+MZJsZD/XBw4SXEq7XeKA/kc2DBTFw4Pw2GQ=;
+        s=korg; t=1650286350;
+        bh=oDCLpOGgBcPsxVODLiGPdcn9SR76ABDkisKl8yt2qy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEG54gwS9Z3cI6Lm/8CfCjA60fqeXaJRS566ap632VfX1b0OpdcNTfxJjALNOnr75
-         USus2Hnh5Iws1u93d9sET4WDfEYc3m0hOSji3dI34Q+nJIllBYETWuokN98onPprul
-         z0AUaJrNnKyGJVUgOXmjSesF8+r+0z/DjofpYSTY=
+        b=o8stmyzmxQm5bKbfwm3D/SOFAqsPG68zioFvX4cBa2or2SxBPkl4OSnWDdiygfmua
+         dOV3r/WvZOGhOgrLZx5FeuLfjRYfH3X2K5q3AMvJBkhiG80QPntTH/wDtq/QivtyLr
+         OTyibfjtrdErdjJOUQLaSaWGiIo0NT1JLJ6nGTdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 119/219] nfc: nci: add flush_workqueue to prevent uaf
+Subject: [PATCH 4.14 107/284] scsi: pm8001: Fix payload initialization in pm80xx_set_thermal_config()
 Date:   Mon, 18 Apr 2022 14:11:28 +0200
-Message-Id: <20220418121210.229713790@linuxfoundation.org>
+Message-Id: <20220418121213.945201259@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,128 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit ef27324e2cb7bb24542d6cb2571740eefe6b00dc ]
+[ Upstream commit bb225b12dbcc82d53d637d10b8d70b64494f8c16 ]
 
-Our detector found a concurrent use-after-free bug when detaching an
-NCI device. The main reason for this bug is the unexpected scheduling
-between the used delayed mechanism (timer and workqueue).
+The fields of the set_ctrl_cfg_req structure have the __le32 type, so use
+cpu_to_le32() to assign them. This removes the sparse warnings:
 
-The race can be demonstrated below:
+warning: incorrect type in assignment (different base types)
+    expected restricted __le32
+    got unsigned int
 
-Thread-1                           Thread-2
-                                 | nci_dev_up()
-                                 |   nci_open_device()
-                                 |     __nci_request(nci_reset_req)
-                                 |       nci_send_cmd
-                                 |         queue_work(cmd_work)
-nci_unregister_device()          |
-  nci_close_device()             | ...
-    del_timer_sync(cmd_timer)[1] |
-...                              | Worker
-nci_free_device()                | nci_cmd_work()
-  kfree(ndev)[3]                 |   mod_timer(cmd_timer)[2]
-
-In short, the cleanup routine thought that the cmd_timer has already
-been detached by [1] but the mod_timer can re-attach the timer [2], even
-it is already released [3], resulting in UAF.
-
-This UAF is easy to trigger, crash trace by POC is like below
-
-[   66.703713] ==================================================================
-[   66.703974] BUG: KASAN: use-after-free in enqueue_timer+0x448/0x490
-[   66.703974] Write of size 8 at addr ffff888009fb7058 by task kworker/u4:1/33
-[   66.703974]
-[   66.703974] CPU: 1 PID: 33 Comm: kworker/u4:1 Not tainted 5.18.0-rc2 #5
-[   66.703974] Workqueue: nfc2_nci_cmd_wq nci_cmd_work
-[   66.703974] Call Trace:
-[   66.703974]  <TASK>
-[   66.703974]  dump_stack_lvl+0x57/0x7d
-[   66.703974]  print_report.cold+0x5e/0x5db
-[   66.703974]  ? enqueue_timer+0x448/0x490
-[   66.703974]  kasan_report+0xbe/0x1c0
-[   66.703974]  ? enqueue_timer+0x448/0x490
-[   66.703974]  enqueue_timer+0x448/0x490
-[   66.703974]  __mod_timer+0x5e6/0xb80
-[   66.703974]  ? mark_held_locks+0x9e/0xe0
-[   66.703974]  ? try_to_del_timer_sync+0xf0/0xf0
-[   66.703974]  ? lockdep_hardirqs_on_prepare+0x17b/0x410
-[   66.703974]  ? queue_work_on+0x61/0x80
-[   66.703974]  ? lockdep_hardirqs_on+0xbf/0x130
-[   66.703974]  process_one_work+0x8bb/0x1510
-[   66.703974]  ? lockdep_hardirqs_on_prepare+0x410/0x410
-[   66.703974]  ? pwq_dec_nr_in_flight+0x230/0x230
-[   66.703974]  ? rwlock_bug.part.0+0x90/0x90
-[   66.703974]  ? _raw_spin_lock_irq+0x41/0x50
-[   66.703974]  worker_thread+0x575/0x1190
-[   66.703974]  ? process_one_work+0x1510/0x1510
-[   66.703974]  kthread+0x2a0/0x340
-[   66.703974]  ? kthread_complete_and_exit+0x20/0x20
-[   66.703974]  ret_from_fork+0x22/0x30
-[   66.703974]  </TASK>
-[   66.703974]
-[   66.703974] Allocated by task 267:
-[   66.703974]  kasan_save_stack+0x1e/0x40
-[   66.703974]  __kasan_kmalloc+0x81/0xa0
-[   66.703974]  nci_allocate_device+0xd3/0x390
-[   66.703974]  nfcmrvl_nci_register_dev+0x183/0x2c0
-[   66.703974]  nfcmrvl_nci_uart_open+0xf2/0x1dd
-[   66.703974]  nci_uart_tty_ioctl+0x2c3/0x4a0
-[   66.703974]  tty_ioctl+0x764/0x1310
-[   66.703974]  __x64_sys_ioctl+0x122/0x190
-[   66.703974]  do_syscall_64+0x3b/0x90
-[   66.703974]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   66.703974]
-[   66.703974] Freed by task 406:
-[   66.703974]  kasan_save_stack+0x1e/0x40
-[   66.703974]  kasan_set_track+0x21/0x30
-[   66.703974]  kasan_set_free_info+0x20/0x30
-[   66.703974]  __kasan_slab_free+0x108/0x170
-[   66.703974]  kfree+0xb0/0x330
-[   66.703974]  nfcmrvl_nci_unregister_dev+0x90/0xd0
-[   66.703974]  nci_uart_tty_close+0xdf/0x180
-[   66.703974]  tty_ldisc_kill+0x73/0x110
-[   66.703974]  tty_ldisc_hangup+0x281/0x5b0
-[   66.703974]  __tty_hangup.part.0+0x431/0x890
-[   66.703974]  tty_release+0x3a8/0xc80
-[   66.703974]  __fput+0x1f0/0x8c0
-[   66.703974]  task_work_run+0xc9/0x170
-[   66.703974]  exit_to_user_mode_prepare+0x194/0x1a0
-[   66.703974]  syscall_exit_to_user_mode+0x19/0x50
-[   66.703974]  do_syscall_64+0x48/0x90
-[   66.703974]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-To fix the UAF, this patch adds flush_workqueue() to ensure the
-nci_cmd_work is finished before the following del_timer_sync.
-This combination will promise the timer is actually detached.
-
-Fixes: 6a2968aaf50c ("NFC: basic NCI protocol implementation")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20220220031810.738362-8-damien.lemoal@opensource.wdc.com
+Fixes: 842784e0d15b ("pm80xx: Update For Thermal Page Code")
+Fixes: f5860992db55 ("[SCSI] pm80xx: Added SPCv/ve specific hardware functionalities and relevant changes in common files")
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/pm8001/pm80xx_hwi.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
-index d2537383a3e8..6a193cce2a75 100644
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -560,6 +560,10 @@ static int nci_close_device(struct nci_dev *ndev)
- 	mutex_lock(&ndev->req_lock);
+diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
+index 162b819f3a89..cf037e076235 100644
+--- a/drivers/scsi/pm8001/pm80xx_hwi.c
++++ b/drivers/scsi/pm8001/pm80xx_hwi.c
+@@ -870,9 +870,11 @@ pm80xx_set_thermal_config(struct pm8001_hba_info *pm8001_ha)
+ 	else
+ 		page_code = THERMAL_PAGE_CODE_8H;
  
- 	if (!test_and_clear_bit(NCI_UP, &ndev->flags)) {
-+		/* Need to flush the cmd wq in case
-+		 * there is a queued/running cmd_work
-+		 */
-+		flush_workqueue(ndev->cmd_wq);
- 		del_timer_sync(&ndev->cmd_timer);
- 		del_timer_sync(&ndev->data_timer);
- 		mutex_unlock(&ndev->req_lock);
+-	payload.cfg_pg[0] = (THERMAL_LOG_ENABLE << 9) |
+-				(THERMAL_ENABLE << 8) | page_code;
+-	payload.cfg_pg[1] = (LTEMPHIL << 24) | (RTEMPHIL << 8);
++	payload.cfg_pg[0] =
++		cpu_to_le32((THERMAL_LOG_ENABLE << 9) |
++			    (THERMAL_ENABLE << 8) | page_code);
++	payload.cfg_pg[1] =
++		cpu_to_le32((LTEMPHIL << 24) | (RTEMPHIL << 8));
+ 
+ 	rc = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &payload, 0);
+ 	if (rc)
 -- 
-2.35.1
+2.34.1
 
 
 
