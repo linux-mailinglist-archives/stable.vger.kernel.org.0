@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2053A505033
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE70C505520
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238582AbiDRMX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:23:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49058 "EHLO
+        id S241918AbiDRNND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:13:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238646AbiDRMWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:22:41 -0400
+        with ESMTP id S243221AbiDRNJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:09:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D231EAE7;
-        Mon, 18 Apr 2022 05:17:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2839E37A0A;
+        Mon, 18 Apr 2022 05:49:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03A5060F39;
-        Mon, 18 Apr 2022 12:17:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D56FBC385A8;
-        Mon, 18 Apr 2022 12:17:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6BA66124D;
+        Mon, 18 Apr 2022 12:49:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D401FC385A1;
+        Mon, 18 Apr 2022 12:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284278;
-        bh=tv4zKBl+I3vxx2xHCn4Ct8zhqbx9Pth5UP2RUme5oVg=;
+        s=korg; t=1650286163;
+        bh=5Z78gfGHfHm7csyWYfRHlrzotpJOLnNIrOIF5IitPrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gtmM5SB0MyCPXXO7rbSgqhK383kpGlrsaT22nNwSkwp0zGCpNjWT1ZCXWok1e2/GA
-         tcExNSfq0A33TvtYI8MxzSSfxD8Uj3kA4ZEWhn4tThZhT3L3mX20+uqTEmgReV/qgF
-         0Zqf9KR/+zS7bR2mSatj+RVdTZ1zsnXS9k2LkkqY=
+        b=PIDphFe7g2FBmLJ7HzBZrxzYsVEYrL1+TFB95cJXbvXWbD44JaZvT7iZyGXy1m7QX
+         T7ZqghQ2JFW+ZIijOoJFqkZMCRH1IQcC+FbxCxWD2SHvjCw4J2/JdyNzSeNX0BvMRJ
+         ZXvoQKP0dDyjnul7Al/x4/fcZZg0rHy7P/8mEEeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 061/219] memory: atmel-ebi: Fix missing of_node_put in atmel_ebi_probe
+        stable@vger.kernel.org,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Lad@vger.kernel.org
+Subject: [PATCH 4.14 049/284] media: davinci: vpif: fix unbalanced runtime PM get
 Date:   Mon, 18 Apr 2022 14:10:30 +0200
-Message-Id: <20220418121207.176081250@linuxfoundation.org>
+Message-Id: <20220418121212.091259923@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +57,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 6f296a9665ba5ac68937bf11f96214eb9de81baa ]
+commit 4a321de239213300a714fa0353a5f1272d381a44 upstream.
 
-The device_node pointer is returned by of_parse_phandle() with refcount
-incremented. We should use of_node_put() on it when done.
+Make sure to balance the runtime PM usage counter on driver unbind.
 
-Fixes: 87108dc78eb8 ("memory: atmel-ebi: Enable the SMC clock if specified")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220309110144.22412-1-linmq006@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 407ccc65bfd2 ("[media] davinci: vpif: add pm_runtime support")
+Cc: stable@vger.kernel.org      # 3.9
+Cc: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/memory/atmel-ebi.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ drivers/media/platform/davinci/vpif.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/memory/atmel-ebi.c b/drivers/memory/atmel-ebi.c
-index c267283b01fd..e749dcb3ddea 100644
---- a/drivers/memory/atmel-ebi.c
-+++ b/drivers/memory/atmel-ebi.c
-@@ -544,20 +544,27 @@ static int atmel_ebi_probe(struct platform_device *pdev)
- 	smc_np = of_parse_phandle(dev->of_node, "atmel,smc", 0);
+--- a/drivers/media/platform/davinci/vpif.c
++++ b/drivers/media/platform/davinci/vpif.c
+@@ -495,6 +495,7 @@ static int vpif_probe(struct platform_de
  
- 	ebi->smc.regmap = syscon_node_to_regmap(smc_np);
--	if (IS_ERR(ebi->smc.regmap))
--		return PTR_ERR(ebi->smc.regmap);
-+	if (IS_ERR(ebi->smc.regmap)) {
-+		ret = PTR_ERR(ebi->smc.regmap);
-+		goto put_node;
-+	}
- 
- 	ebi->smc.layout = atmel_hsmc_get_reg_layout(smc_np);
--	if (IS_ERR(ebi->smc.layout))
--		return PTR_ERR(ebi->smc.layout);
-+	if (IS_ERR(ebi->smc.layout)) {
-+		ret = PTR_ERR(ebi->smc.layout);
-+		goto put_node;
-+	}
- 
- 	ebi->smc.clk = of_clk_get(smc_np, 0);
- 	if (IS_ERR(ebi->smc.clk)) {
--		if (PTR_ERR(ebi->smc.clk) != -ENOENT)
--			return PTR_ERR(ebi->smc.clk);
-+		if (PTR_ERR(ebi->smc.clk) != -ENOENT) {
-+			ret = PTR_ERR(ebi->smc.clk);
-+			goto put_node;
-+		}
- 
- 		ebi->smc.clk = NULL;
- 	}
-+	of_node_put(smc_np);
- 	ret = clk_prepare_enable(ebi->smc.clk);
- 	if (ret)
- 		return ret;
-@@ -608,6 +615,10 @@ static int atmel_ebi_probe(struct platform_device *pdev)
- 	}
- 
- 	return of_platform_populate(np, NULL, NULL, dev);
-+
-+put_node:
-+	of_node_put(smc_np);
-+	return ret;
+ static int vpif_remove(struct platform_device *pdev)
+ {
++	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+ 	return 0;
  }
- 
- static __maybe_unused int atmel_ebi_resume(struct device *dev)
--- 
-2.35.1
-
 
 
