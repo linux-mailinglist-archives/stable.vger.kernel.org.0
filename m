@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D29C9505445
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B30A505320
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240673AbiDRNFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41074 "EHLO
+        id S240298AbiDRMzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:55:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240742AbiDRNDm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:03:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3BE36583;
-        Mon, 18 Apr 2022 05:45:03 -0700 (PDT)
+        with ESMTP id S239858AbiDRMzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEFBD20F4F;
+        Mon, 18 Apr 2022 05:35:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE00360FB6;
-        Mon, 18 Apr 2022 12:45:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D58A6C385A7;
-        Mon, 18 Apr 2022 12:45:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4924F61014;
+        Mon, 18 Apr 2022 12:35:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F71C385A1;
+        Mon, 18 Apr 2022 12:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285902;
-        bh=5TNfAkGdooXx4QD2kDXi4ZKavUADi/pYubz4lYm1M0k=;
+        s=korg; t=1650285346;
+        bh=tCeOiBqGrp+xpXOvWNxrImRBzOezrzh5RKwZ8svsIrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wNDb1a3Mkb6MgWmMffbFwVl4XXNe2imryY+w15IFofo8FdRDCNRMqzlWZ5cvQWziv
-         q3K608ZaW27RoMrhbM9gSESvs6OjFCiPA3yjfYL3py7yZwdKicRIlr4y9NpybVAyC6
-         BugEIIfIunW/TEUay5pLJui+QzhxQtD/Xeb4xC4U=
+        b=AYMyyx21CatBmqeUfDodF+W4HhJCOrgvw+2aNqysI8w5RDyizP2yi3e2kYXKCGF16
+         kHqSB7zr8ifwalIVd2wIqopAH1JPII5OvIeQUSGnN+9GqQyJkdPa1gnWZkt47u9UZD
+         qDA3QO9ulZWbYNhAQ4muLyva+4LqS5hZtrO3RjD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodo Stroesser <bostroesser@gmail.com>,
-        Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/63] scsi: target: tcmu: Fix possible page UAF
-Date:   Mon, 18 Apr 2022 14:13:19 +0200
-Message-Id: <20220418121135.639325826@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Alex Elder <elder@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 180/189] net: ipa: fix a build dependency
+Date:   Mon, 18 Apr 2022 14:13:20 +0200
+Message-Id: <20220418121208.223621522@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121134.149115109@linuxfoundation.org>
-References: <20220418121134.149115109@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,57 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit a6968f7a367f128d120447360734344d5a3d5336 ]
+commit caef14b7530c065fb85d54492768fa48fdb5093e upstream.
 
-tcmu_try_get_data_page() looks up pages under cmdr_lock, but it does not
-take refcount properly and just returns page pointer. When
-tcmu_try_get_data_page() returns, the returned page may have been freed by
-tcmu_blocks_release().
+An IPA build problem arose in the linux-next tree the other day.
+The problem is that a recent commit adds a new dependency on some
+code, and the Kconfig file for IPA doesn't reflect that dependency.
+As a result, some configurations can fail to build (particularly
+when COMPILE_TEST is enabled).
 
-We need to get_page() under cmdr_lock to avoid concurrent
-tcmu_blocks_release().
+The recent patch adds calls to qmp_get(), qmp_put(), and qmp_send(),
+and those are built based on the QCOM_AOSS_QMP config option.  If
+that symbol is not defined, stubs are defined, so we just need to
+ensure QCOM_AOSS_QMP is compatible with QCOM_IPA, or it's not
+defined.
 
-Link: https://lore.kernel.org/r/20220311132206.24515-1-xiaoguang.wang@linux.alibaba.com
-Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
-Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: 34a081761e4e3 ("net: ipa: request IPA register values be retained")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/target/target_core_user.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ipa/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-index 71144e33272a..077c56cbed4e 100644
---- a/drivers/target/target_core_user.c
-+++ b/drivers/target/target_core_user.c
-@@ -1488,6 +1488,7 @@ static struct page *tcmu_try_get_block_page(struct tcmu_dev *udev, uint32_t dbi)
- 	mutex_lock(&udev->cmdr_lock);
- 	page = tcmu_get_block_page(udev, dbi);
- 	if (likely(page)) {
-+		get_page(page);
- 		mutex_unlock(&udev->cmdr_lock);
- 		return page;
- 	}
-@@ -1526,6 +1527,7 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
- 		/* For the vmalloc()ed cmd area pages */
- 		addr = (void *)(unsigned long)info->mem[mi].addr + offset;
- 		page = vmalloc_to_page(addr);
-+		get_page(page);
- 	} else {
- 		uint32_t dbi;
- 
-@@ -1536,7 +1538,6 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
- 			return VM_FAULT_SIGBUS;
- 	}
- 
--	get_page(page);
- 	vmf->page = page;
- 	return 0;
- }
--- 
-2.35.1
-
+--- a/drivers/net/ipa/Kconfig
++++ b/drivers/net/ipa/Kconfig
+@@ -4,6 +4,7 @@ config QCOM_IPA
+ 	depends on ARCH_QCOM || COMPILE_TEST
+ 	depends on INTERCONNECT
+ 	depends on QCOM_RPROC_COMMON || (QCOM_RPROC_COMMON=n && COMPILE_TEST)
++	depends on QCOM_AOSS_QMP || QCOM_AOSS_QMP=n
+ 	select QCOM_MDT_LOADER if ARCH_QCOM
+ 	select QCOM_SCM
+ 	select QCOM_QMI_HELPERS
 
 
