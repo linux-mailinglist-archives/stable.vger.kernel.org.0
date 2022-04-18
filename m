@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A72505745
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C935055A1
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244204AbiDRNtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:49:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53670 "EHLO
+        id S241486AbiDRNMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:12:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243664AbiDRNqq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:46:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0356C3298C;
-        Mon, 18 Apr 2022 06:00:59 -0700 (PDT)
+        with ESMTP id S241083AbiDRNG2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:06:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF6452126A;
+        Mon, 18 Apr 2022 05:47:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8ABDDB80EC0;
-        Mon, 18 Apr 2022 13:00:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCD4CC2BBE4;
-        Mon, 18 Apr 2022 13:00:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B2FE60FB6;
+        Mon, 18 Apr 2022 12:47:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69881C385A7;
+        Mon, 18 Apr 2022 12:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286857;
-        bh=8izZmIi/7hbCcZoHg+80ftWIaNQCjxG8Xs8F0wpo7EI=;
+        s=korg; t=1650286021;
+        bh=UrRosSDML4N48/YHmcAhpS5NtgtMPnHUWSOftae3klw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iy/RJh/aMI8CIADxKQkjRbpSlXg99PYhUp5IRq4nJpFj/beSjn2e9pNIBcNuBcosE
-         0lG6MIw8hB5J7Rsi8SI42LcUIDL7KRe6fiCkkITo8pwmXNOOx87z2PwlgPC1ZDMOiA
-         bGkZ5d5Bmf/hTW/PpLhe/Uko61xWA/edch1HYfkM=
+        b=KxQyNm/PQFPK2Oa9NKfQZzaghzkrE57SzIJdEb02lb+NNg0/EcaZKz+U0q7AEXr1y
+         Mk0sTfRIBXxc5nMtfzOdYzW90l8eIAiPfqi6oV1ZpSlE7LPnygVB3xKgm6Lu6tGjlU
+         QZQ8VVDrx3mINms0XIVNt+BsVa3OUB7VYesozX5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 268/284] drm/amd: Add USBC connector ID
-Date:   Mon, 18 Apr 2022 14:14:09 +0200
-Message-Id: <20220418121220.403227717@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 4.19 30/32] ARM: davinci: da850-evm: Avoid NULL pointer dereference
+Date:   Mon, 18 Apr 2022 14:14:10 +0200
+Message-Id: <20220418121128.004736264@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121127.127656835@linuxfoundation.org>
+References: <20220418121127.127656835@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,35 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurabindo Pillai <aurabindo.pillai@amd.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit c5c948aa894a831f96fccd025e47186b1ee41615 ]
+commit 83a1cde5c74bfb44b49cb2a940d044bb2380f4ea upstream.
 
-[Why&How] Add a dedicated AMDGPU specific ID for use with
-newer ASICs that support USB-C output
+With newer versions of GCC, there is a panic in da850_evm_config_emac()
+when booting multi_v5_defconfig in QEMU under the palmetto-bmc machine:
 
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unable to handle kernel NULL pointer dereference at virtual address 00000020
+pgd = (ptrval)
+[00000020] *pgd=00000000
+Internal error: Oops: 5 [#1] PREEMPT ARM
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.15.0 #1
+Hardware name: Generic DT based system
+PC is at da850_evm_config_emac+0x1c/0x120
+LR is at do_one_initcall+0x50/0x1e0
+
+The emac_pdata pointer in soc_info is NULL because davinci_soc_info only
+gets populated on davinci machines but da850_evm_config_emac() is called
+on all machines via device_initcall().
+
+Move the rmii_en assignment below the machine check so that it is only
+dereferenced when running on a supported SoC.
+
+Fixes: bae105879f2f ("davinci: DA850/OMAP-L138 EVM: implement autodetect of RMII PHY")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/YcS4xVWs6bQlQSPC@archlinux-ax161/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/ObjectID.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-davinci/board-da850-evm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/ObjectID.h b/drivers/gpu/drm/amd/amdgpu/ObjectID.h
-index 06192698bd96..c90567de8bf7 100644
---- a/drivers/gpu/drm/amd/amdgpu/ObjectID.h
-+++ b/drivers/gpu/drm/amd/amdgpu/ObjectID.h
-@@ -119,6 +119,7 @@
- #define CONNECTOR_OBJECT_ID_eDP                   0x14
- #define CONNECTOR_OBJECT_ID_MXM                   0x15
- #define CONNECTOR_OBJECT_ID_LVDS_eDP              0x16
-+#define CONNECTOR_OBJECT_ID_USBC                  0x17
+--- a/arch/arm/mach-davinci/board-da850-evm.c
++++ b/arch/arm/mach-davinci/board-da850-evm.c
+@@ -1045,11 +1045,13 @@ static int __init da850_evm_config_emac(
+ 	int ret;
+ 	u32 val;
+ 	struct davinci_soc_info *soc_info = &davinci_soc_info;
+-	u8 rmii_en = soc_info->emac_pdata->rmii_en;
++	u8 rmii_en;
  
- /* deleted */
+ 	if (!machine_is_davinci_da850_evm())
+ 		return 0;
  
--- 
-2.35.1
-
++	rmii_en = soc_info->emac_pdata->rmii_en;
++
+ 	cfg_chip3_base = DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP3_REG);
+ 
+ 	val = __raw_readl(cfg_chip3_base);
 
 
