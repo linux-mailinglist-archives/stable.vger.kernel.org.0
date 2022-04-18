@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD90505253
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 184BA50563C
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232905AbiDRMlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:41:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37028 "EHLO
+        id S242463AbiDRNcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240691AbiDRMja (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6694C12AED;
-        Mon, 18 Apr 2022 05:30:11 -0700 (PDT)
+        with ESMTP id S242089AbiDRN0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:26:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8D943E0F2;
+        Mon, 18 Apr 2022 05:53:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9F7D7CE108B;
-        Mon, 18 Apr 2022 12:30:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F48FC385A8;
-        Mon, 18 Apr 2022 12:30:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24B65B80E4E;
+        Mon, 18 Apr 2022 12:53:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F85FC385A1;
+        Mon, 18 Apr 2022 12:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285008;
-        bh=G+e/SBC60QyF6VoB/8InTmoOsgvUrtQOB7Zlw+O/bKw=;
+        s=korg; t=1650286381;
+        bh=3NzfD2UjOx0eI3knVHB5Oq9qjUPNX2f6riZbUbbtJCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEdsZKgRcHzyz2AO0V2aKNc0QbpSqPM5qjFQzKJ5c1OviNjrtrX5hRzJzlJG3Aivf
-         2lsZJaHp0QUVTgoho6x0p9SXutVw3SY5Xq5laxARB08aTm1Ewxuv+UJWopAkG62EY1
-         C4wRn8jWJKPZa5NDym3q3LQlhJxO7c+hD0yYPdNg=
+        b=iQqSdtNmXqkOLoRiOvRWSznNQPwm7mbvZWkTOYzNnEzfFHOFmRGIR/tdmPDxodAmc
+         PwCVrb1O25H/hRyF83NX3fppLZo9V3ZcRyf5uQPAqAFLmQdTgrXc+TBBikJLaWAuI1
+         JyEeR5gtJ/nrYbxYSdfFB62X9Q9MaOTu0dzRMD8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/189] drm/msm/dp: add fail safe mode outside of event_mutex context
+Subject: [PATCH 4.14 116/284] power: supply: wm8350-power: Handle error for wm8350_register_irq
 Date:   Mon, 18 Apr 2022 14:11:37 +0200
-Message-Id: <20220418121202.694646371@linuxfoundation.org>
+Message-Id: <20220418121214.339332027@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,235 +55,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <quic_khsieh@quicinc.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 8b2c181e3dcf7562445af6702ee94aaedcbe13c8 ]
+[ Upstream commit b0b14b5ba11bec56fad344a4a0b2e16449cc8b94 ]
 
-There is possible circular locking dependency detected on event_mutex
-(see below logs). This is due to set fail safe mode is done at
-dp_panel_read_sink_caps() within event_mutex scope. To break this
-possible circular locking, this patch move setting fail safe mode
-out of event_mutex scope.
+As the potential failure of the wm8350_register_irq(),
+it should be better to check it and return error if fails.
+Also, use 'free_' in order to avoid same code.
 
-[   23.958078] ======================================================
-[   23.964430] WARNING: possible circular locking dependency detected
-[   23.970777] 5.17.0-rc2-lockdep-00088-g05241de1f69e #148 Not tainted
-[   23.977219] ------------------------------------------------------
-[   23.983570] DrmThread/1574 is trying to acquire lock:
-[   23.988763] ffffff808423aab0 (&dp->event_mutex){+.+.}-{3:3}, at: msm_dp_displ                                                                             ay_enable+0x58/0x164
-[   23.997895]
-[   23.997895] but task is already holding lock:
-[   24.003895] ffffff808420b280 (&kms->commit_lock[i]/1){+.+.}-{3:3}, at: lock_c                                                                             rtcs+0x80/0x8c
-[   24.012495]
-[   24.012495] which lock already depends on the new lock.
-[   24.012495]
-[   24.020886]
-[   24.020886] the existing dependency chain (in reverse order) is:
-[   24.028570]
-[   24.028570] -> #5 (&kms->commit_lock[i]/1){+.+.}-{3:3}:
-[   24.035472]        __mutex_lock+0xc8/0x384
-[   24.039695]        mutex_lock_nested+0x54/0x74
-[   24.044272]        lock_crtcs+0x80/0x8c
-[   24.048222]        msm_atomic_commit_tail+0x1e8/0x3d0
-[   24.053413]        commit_tail+0x7c/0xfc
-[   24.057452]        drm_atomic_helper_commit+0x158/0x15c
-[   24.062826]        drm_atomic_commit+0x60/0x74
-[   24.067403]        drm_mode_atomic_ioctl+0x6b0/0x908
-[   24.072508]        drm_ioctl_kernel+0xe8/0x168
-[   24.077086]        drm_ioctl+0x320/0x370
-[   24.081123]        drm_compat_ioctl+0x40/0xdc
-[   24.085602]        __arm64_compat_sys_ioctl+0xe0/0x150
-[   24.090895]        invoke_syscall+0x80/0x114
-[   24.095294]        el0_svc_common.constprop.3+0xc4/0xf8
-[   24.100668]        do_el0_svc_compat+0x2c/0x54
-[   24.105242]        el0_svc_compat+0x4c/0xe4
-[   24.109548]        el0t_32_sync_handler+0xc4/0xf4
-[   24.114381]        el0t_32_sync+0x178
-[   24.118688]
-[   24.118688] -> #4 (&kms->commit_lock[i]){+.+.}-{3:3}:
-[   24.125408]        __mutex_lock+0xc8/0x384
-[   24.129628]        mutex_lock_nested+0x54/0x74
-[   24.134204]        lock_crtcs+0x80/0x8c
-[   24.138155]        msm_atomic_commit_tail+0x1e8/0x3d0
-[   24.143345]        commit_tail+0x7c/0xfc
-[   24.147382]        drm_atomic_helper_commit+0x158/0x15c
-[   24.152755]        drm_atomic_commit+0x60/0x74
-[   24.157323]        drm_atomic_helper_set_config+0x68/0x90
-[   24.162869]        drm_mode_setcrtc+0x394/0x648
-[   24.167535]        drm_ioctl_kernel+0xe8/0x168
-[   24.172102]        drm_ioctl+0x320/0x370
-[   24.176135]        drm_compat_ioctl+0x40/0xdc
-[   24.180621]        __arm64_compat_sys_ioctl+0xe0/0x150
-[   24.185904]        invoke_syscall+0x80/0x114
-[   24.190302]        el0_svc_common.constprop.3+0xc4/0xf8
-[   24.195673]        do_el0_svc_compat+0x2c/0x54
-[   24.200241]        el0_svc_compat+0x4c/0xe4
-[   24.204544]        el0t_32_sync_handler+0xc4/0xf4
-[   24.209378]        el0t_32_sync+0x174/0x178
-[   24.213680] -> #3 (crtc_ww_class_mutex){+.+.}-{3:3}:
-[   24.220308]        __ww_mutex_lock.constprop.20+0xe8/0x878
-[   24.225951]        ww_mutex_lock+0x60/0xd0
-[   24.230166]        modeset_lock+0x190/0x19c
-[   24.234467]        drm_modeset_lock+0x34/0x54
-[   24.238953]        drmm_mode_config_init+0x550/0x764
-[   24.244065]        msm_drm_bind+0x170/0x59c
-[   24.248374]        try_to_bring_up_master+0x244/0x294
-[   24.253572]        __component_add+0xf4/0x14c
-[   24.258057]        component_add+0x2c/0x38
-[   24.262273]        dsi_dev_attach+0x2c/0x38
-[   24.266575]        dsi_host_attach+0xc4/0x120
-[   24.271060]        mipi_dsi_attach+0x34/0x48
-[   24.275456]        devm_mipi_dsi_attach+0x28/0x68
-[   24.280298]        ti_sn_bridge_probe+0x2b4/0x2dc
-[   24.285137]        auxiliary_bus_probe+0x78/0x90
-[   24.289893]        really_probe+0x1e4/0x3d8
-[   24.294194]        __driver_probe_device+0x14c/0x164
-[   24.299298]        driver_probe_device+0x54/0xf8
-[   24.304043]        __device_attach_driver+0xb4/0x118
-[   24.309145]        bus_for_each_drv+0xb0/0xd4
-[   24.313628]        __device_attach+0xcc/0x158
-[   24.318112]        device_initial_probe+0x24/0x30
-[   24.322954]        bus_probe_device+0x38/0x9c
-[   24.327439]        deferred_probe_work_func+0xd4/0xf0
-[   24.332628]        process_one_work+0x2f0/0x498
-[   24.337289]        process_scheduled_works+0x44/0x48
-[   24.342391]        worker_thread+0x1e4/0x26c
-[   24.346788]        kthread+0xe4/0xf4
-[   24.350470]        ret_from_fork+0x10/0x20
-[   24.354683]
-[   24.354683]
-[   24.354683] -> #2 (crtc_ww_class_acquire){+.+.}-{0:0}:
-[   24.361489]        drm_modeset_acquire_init+0xe4/0x138
-[   24.366777]        drm_helper_probe_detect_ctx+0x44/0x114
-[   24.372327]        check_connector_changed+0xbc/0x198
-[   24.377517]        drm_helper_hpd_irq_event+0xcc/0x11c
-[   24.382804]        dsi_hpd_worker+0x24/0x30
-[   24.387104]        process_one_work+0x2f0/0x498
-[   24.391762]        worker_thread+0x1d0/0x26c
-[   24.396158]        kthread+0xe4/0xf4
-[   24.399840]        ret_from_fork+0x10/0x20
-[   24.404053]
-[   24.404053] -> #1 (&dev->mode_config.mutex){+.+.}-{3:3}:
-[   24.411032]        __mutex_lock+0xc8/0x384
-[   24.415247]        mutex_lock_nested+0x54/0x74
-[   24.419819]        dp_panel_read_sink_caps+0x23c/0x26c
-[   24.425108]        dp_display_process_hpd_high+0x34/0xd4
-[   24.430570]        dp_display_usbpd_configure_cb+0x30/0x3c
-[   24.436205]        hpd_event_thread+0x2ac/0x550
-[   24.440864]        kthread+0xe4/0xf4
-[   24.444544]        ret_from_fork+0x10/0x20
-[   24.448757]
-[   24.448757] -> #0 (&dp->event_mutex){+.+.}-{3:3}:
-[   24.455116]        __lock_acquire+0xe2c/0x10d8
-[   24.459690]        lock_acquire+0x1ac/0x2d0
-[   24.463988]        __mutex_lock+0xc8/0x384
-[   24.468201]        mutex_lock_nested+0x54/0x74
-[   24.472773]        msm_dp_display_enable+0x58/0x164
-[   24.477789]        dp_bridge_enable+0x24/0x30
-[   24.482273]        drm_atomic_bridge_chain_enable+0x78/0x9c
-[   24.488006]        drm_atomic_helper_commit_modeset_enables+0x1bc/0x244
-[   24.494801]        msm_atomic_commit_tail+0x248/0x3d0
-[   24.499992]        commit_tail+0x7c/0xfc
-[   24.504031]        drm_atomic_helper_commit+0x158/0x15c
-[   24.509404]        drm_atomic_commit+0x60/0x74
-[   24.513976]        drm_mode_atomic_ioctl+0x6b0/0x908
-[   24.519079]        drm_ioctl_kernel+0xe8/0x168
-[   24.523650]        drm_ioctl+0x320/0x370
-[   24.527689]        drm_compat_ioctl+0x40/0xdc
-[   24.532175]        __arm64_compat_sys_ioctl+0xe0/0x150
-[   24.537463]        invoke_syscall+0x80/0x114
-[   24.541861]        el0_svc_common.constprop.3+0xc4/0xf8
-[   24.547235]        do_el0_svc_compat+0x2c/0x54
-[   24.551806]        el0_svc_compat+0x4c/0xe4
-[   24.556106]        el0t_32_sync_handler+0xc4/0xf4
-[   24.560948]        el0t_32_sync+0x174/0x178
-
-Changes in v2:
--- add circular lockiing trace
-
-Fixes: d4aca422539c ("drm/msm/dp:  always add fail-safe mode into connector mode list")
-Signed-off-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/481396/
-Link: https://lore.kernel.org/r/1649451894-554-1-git-send-email-quic_khsieh@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 14431aa0c5a4 ("power_supply: Add support for WM8350 PMU")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c |  6 ++++++
- drivers/gpu/drm/msm/dp/dp_panel.c   | 20 ++++++++++----------
- drivers/gpu/drm/msm/dp/dp_panel.h   |  1 +
- 3 files changed, 17 insertions(+), 10 deletions(-)
+ drivers/power/supply/wm8350_power.c | 96 ++++++++++++++++++++++++-----
+ 1 file changed, 82 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index d5198b435638..a133f7e154e7 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -551,6 +551,12 @@ static int dp_hpd_plug_handle(struct dp_display_private *dp, u32 data)
+diff --git a/drivers/power/supply/wm8350_power.c b/drivers/power/supply/wm8350_power.c
+index a2740cf57ad3..c2a62e6568c6 100644
+--- a/drivers/power/supply/wm8350_power.c
++++ b/drivers/power/supply/wm8350_power.c
+@@ -410,44 +410,112 @@ static const struct power_supply_desc wm8350_usb_desc = {
+  *		Initialisation
+  *********************************************************************/
  
- 	mutex_unlock(&dp->event_mutex);
- 
-+	/*
-+	 * add fail safe mode outside event_mutex scope
-+	 * to avoid potiential circular lock with drm thread
-+	 */
-+	dp_panel_add_fail_safe_mode(dp->dp_display.connector);
+-static void wm8350_init_charger(struct wm8350 *wm8350)
++static int wm8350_init_charger(struct wm8350 *wm8350)
+ {
++	int ret;
 +
- 	/* uevent will complete connection part */
- 	return 0;
- };
-diff --git a/drivers/gpu/drm/msm/dp/dp_panel.c b/drivers/gpu/drm/msm/dp/dp_panel.c
-index 5f23e6f09199..982f5e8c3546 100644
---- a/drivers/gpu/drm/msm/dp/dp_panel.c
-+++ b/drivers/gpu/drm/msm/dp/dp_panel.c
-@@ -151,6 +151,15 @@ static int dp_panel_update_modes(struct drm_connector *connector,
- 	return rc;
+ 	/* register our interest in charger events */
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT,
+ 			    wm8350_charger_handler, 0, "Battery hot", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
++	if (ret)
++		goto err;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD,
+ 			    wm8350_charger_handler, 0, "Battery cold", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
++	if (ret)
++		goto free_chg_bat_hot;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL,
+ 			    wm8350_charger_handler, 0, "Battery fail", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
++	if (ret)
++		goto free_chg_bat_cold;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_TO,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charger timeout", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
++	if (ret)
++		goto free_chg_bat_fail;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_END,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charge end", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
++	if (ret)
++		goto free_chg_to;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_START,
+ 			    wm8350_charger_handler, 0,
+ 			    "Charge start", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
++	if (ret)
++		goto free_chg_end;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY,
+ 			    wm8350_charger_handler, 0,
+ 			    "Fast charge ready", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
++	if (ret)
++		goto free_chg_start;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <3.9V", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
++	if (ret)
++		goto free_chg_fast_rdy;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <3.1V", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
++	if (ret)
++		goto free_chg_vbatt_lt_3p9;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85,
+ 			    wm8350_charger_handler, 0,
+ 			    "Battery <2.85V", wm8350);
++	if (ret)
++		goto free_chg_vbatt_lt_3p1;
+ 
+ 	/* and supply change events */
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_USB_FB,
+ 			    wm8350_charger_handler, 0, "USB", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
++	if (ret)
++		goto free_chg_vbatt_lt_2p85;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_WALL_FB,
+ 			    wm8350_charger_handler, 0, "Wall", wm8350);
+-	wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
++	if (ret)
++		goto free_ext_usb_fb;
++
++	ret = wm8350_register_irq(wm8350, WM8350_IRQ_EXT_BAT_FB,
+ 			    wm8350_charger_handler, 0, "Battery", wm8350);
++	if (ret)
++		goto free_ext_wall_fb;
++
++	return 0;
++
++free_ext_wall_fb:
++	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_WALL_FB, wm8350);
++free_ext_usb_fb:
++	wm8350_free_irq(wm8350, WM8350_IRQ_EXT_USB_FB, wm8350);
++free_chg_vbatt_lt_2p85:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_2P85, wm8350);
++free_chg_vbatt_lt_3p1:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P1, wm8350);
++free_chg_vbatt_lt_3p9:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_VBATT_LT_3P9, wm8350);
++free_chg_fast_rdy:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_FAST_RDY, wm8350);
++free_chg_start:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_START, wm8350);
++free_chg_end:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_END, wm8350);
++free_chg_to:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_TO, wm8350);
++free_chg_bat_fail:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_FAIL, wm8350);
++free_chg_bat_cold:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_COLD, wm8350);
++free_chg_bat_hot:
++	wm8350_free_irq(wm8350, WM8350_IRQ_CHG_BAT_HOT, wm8350);
++err:
++	return ret;
  }
  
-+void dp_panel_add_fail_safe_mode(struct drm_connector *connector)
-+{
-+	/* fail safe edid */
-+	mutex_lock(&connector->dev->mode_config.mutex);
-+	if (drm_add_modes_noedid(connector, 640, 480))
-+		drm_set_preferred_mode(connector, 640, 480);
-+	mutex_unlock(&connector->dev->mode_config.mutex);
-+}
-+
- int dp_panel_read_sink_caps(struct dp_panel *dp_panel,
- 	struct drm_connector *connector)
- {
-@@ -207,16 +216,7 @@ int dp_panel_read_sink_caps(struct dp_panel *dp_panel,
- 			goto end;
- 		}
- 
--		/* fail safe edid */
--		mutex_lock(&connector->dev->mode_config.mutex);
--		if (drm_add_modes_noedid(connector, 640, 480))
--			drm_set_preferred_mode(connector, 640, 480);
--		mutex_unlock(&connector->dev->mode_config.mutex);
--	} else {
--		/* always add fail-safe mode as backup mode */
--		mutex_lock(&connector->dev->mode_config.mutex);
--		drm_add_modes_noedid(connector, 640, 480);
--		mutex_unlock(&connector->dev->mode_config.mutex);
-+		dp_panel_add_fail_safe_mode(connector);
- 	}
- 
- 	if (panel->aux_cfg_update_done) {
-diff --git a/drivers/gpu/drm/msm/dp/dp_panel.h b/drivers/gpu/drm/msm/dp/dp_panel.h
-index 9023e5bb4b8b..99739ea679a7 100644
---- a/drivers/gpu/drm/msm/dp/dp_panel.h
-+++ b/drivers/gpu/drm/msm/dp/dp_panel.h
-@@ -59,6 +59,7 @@ int dp_panel_init_panel_info(struct dp_panel *dp_panel);
- int dp_panel_deinit(struct dp_panel *dp_panel);
- int dp_panel_timing_cfg(struct dp_panel *dp_panel);
- void dp_panel_dump_regs(struct dp_panel *dp_panel);
-+void dp_panel_add_fail_safe_mode(struct drm_connector *connector);
- int dp_panel_read_sink_caps(struct dp_panel *dp_panel,
- 		struct drm_connector *connector);
- u32 dp_panel_get_mode_bpp(struct dp_panel *dp_panel, u32 mode_max_bpp,
+ static void free_charger_irq(struct wm8350 *wm8350)
 -- 
-2.35.1
+2.34.1
 
 
 
