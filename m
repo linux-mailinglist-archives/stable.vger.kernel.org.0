@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BDF5053B7
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E663C5056F6
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:47:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236010AbiDRNBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:01:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60562 "EHLO
+        id S241396AbiDRNpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:45:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242114AbiDRM7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:59:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A3802F028;
-        Mon, 18 Apr 2022 05:40:10 -0700 (PDT)
+        with ESMTP id S243842AbiDRNmU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:42:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 492833121C;
+        Mon, 18 Apr 2022 05:59:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A405B80EDB;
-        Mon, 18 Apr 2022 12:40:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CCD3C385A1;
-        Mon, 18 Apr 2022 12:40:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1F1D609FA;
+        Mon, 18 Apr 2022 12:59:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4F76C385A7;
+        Mon, 18 Apr 2022 12:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285607;
-        bh=8p+aReAVSXNj6og1QN3uqqCJu5j0sLTXlG5WVaeT6ko=;
+        s=korg; t=1650286775;
+        bh=tAgNDFITJraa6hr2dQBON6qTAxbYC//JPNb21T8z+98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d2HoygYAypb58cGcntkTqioHWm7rDp7i+AtTNwBHKLudbYZ9xNX0Di3s5vpTHCQGB
-         9SrKz9uZDhc6RHpIc7G93nCthZmtVZMm6hdvclL1vGx28h0puYyS0niDdPxBkU1z+i
-         zaAq+ueagBcqVxcdBWgHHJN3U2KXYbFqJBY9EYhQ=
+        b=O1rJoViTNS+0kB2Ukx9wpqkldXqWW9yVZ63PGGJoIrd9X20htJTp90bAQZdTr3D36
+         E5f8C0Exi13B7LpWA5Jm22+TPBKiUkWoX1U71QiBK9NHTkxcj5T+q0s7BdDTLWH+rI
+         ZFBdn06BA6+BxMJgkHG1LNjLGoKygsVJOyNntkK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Wang <patrick.wang.shcn@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 072/105] mm: kmemleak: take a full lowmem check in kmemleak_*_phys()
-Date:   Mon, 18 Apr 2022 14:13:14 +0200
-Message-Id: <20220418121148.536397803@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 214/284] PCI: aardvark: Fix support for MSI interrupts
+Date:   Mon, 18 Apr 2022 14:13:15 +0200
+Message-Id: <20220418121217.801505300@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +56,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Wang <patrick.wang.shcn@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 23c2d497de21f25898fbea70aeb292ab8acc8c94 upstream.
+[ Upstream commit b0b0b8b897f8e12b2368e868bd7cdc5742d5c5a9 ]
 
-The kmemleak_*_phys() apis do not check the address for lowmem's min
-boundary, while the caller may pass an address below lowmem, which will
-trigger an oops:
+Aardvark hardware supports Multi-MSI and MSI_FLAG_MULTI_PCI_MSI is already
+set for the MSI chip. But when allocating MSI interrupt numbers for
+Multi-MSI, the numbers need to be properly aligned, otherwise endpoint
+devices send MSI interrupt with incorrect numbers.
 
-  # echo scan > /sys/kernel/debug/kmemleak
-  Unable to handle kernel paging request at virtual address ff5fffffffe00000
-  Oops [#1]
-  Modules linked in:
-  CPU: 2 PID: 134 Comm: bash Not tainted 5.18.0-rc1-next-20220407 #33
-  Hardware name: riscv-virtio,qemu (DT)
-  epc : scan_block+0x74/0x15c
-   ra : scan_block+0x72/0x15c
-  epc : ffffffff801e5806 ra : ffffffff801e5804 sp : ff200000104abc30
-   gp : ffffffff815cd4e8 tp : ff60000004cfa340 t0 : 0000000000000200
-   t1 : 00aaaaaac23954cc t2 : 00000000000003ff s0 : ff200000104abc90
-   s1 : ffffffff81b0ff28 a0 : 0000000000000000 a1 : ff5fffffffe01000
-   a2 : ffffffff81b0ff28 a3 : 0000000000000002 a4 : 0000000000000001
-   a5 : 0000000000000000 a6 : ff200000104abd7c a7 : 0000000000000005
-   s2 : ff5fffffffe00ff9 s3 : ffffffff815cd998 s4 : ffffffff815d0e90
-   s5 : ffffffff81b0ff28 s6 : 0000000000000020 s7 : ffffffff815d0eb0
-   s8 : ffffffffffffffff s9 : ff5fffffffe00000 s10: ff5fffffffe01000
-   s11: 0000000000000022 t3 : 00ffffffaa17db4c t4 : 000000000000000f
-   t5 : 0000000000000001 t6 : 0000000000000000
-  status: 0000000000000100 badaddr: ff5fffffffe00000 cause: 000000000000000d
-    scan_gray_list+0x12e/0x1a6
-    kmemleak_scan+0x2aa/0x57e
-    kmemleak_write+0x32a/0x40c
-    full_proxy_write+0x56/0x82
-    vfs_write+0xa6/0x2a6
-    ksys_write+0x6c/0xe2
-    sys_write+0x22/0x2a
-    ret_from_syscall+0x0/0x2
+Fix this issue by using function bitmap_find_free_region() instead of
+bitmap_find_next_zero_area().
 
-The callers may not quite know the actual address they pass(e.g. from
-devicetree).  So the kmemleak_*_phys() apis should guarantee the address
-they finally use is in lowmem range, so check the address for lowmem's
-min boundary.
+To ensure that aligned MSI interrupt numbers are used by endpoint devices,
+we cannot use Linux virtual irq numbers (as they are random and not
+properly aligned). Instead we need to use the aligned hwirq numbers.
 
-Link: https://lkml.kernel.org/r/20220413122925.33856-1-patrick.wang.shcn@gmail.com
-Signed-off-by: Patrick Wang <patrick.wang.shcn@gmail.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change fixes receiving MSI interrupts on Armada 3720 boards and
+allows using NVMe disks which use Multi-MSI feature with 3 interrupts.
+
+Without this NVMe disks freeze booting as linux nvme-core.c is waiting
+60s for an interrupt.
+
+Link: https://lore.kernel.org/r/20220110015018.26359-4-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kmemleak.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/host/pci-aardvark.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
---- a/mm/kmemleak.c
-+++ b/mm/kmemleak.c
-@@ -1123,7 +1123,7 @@ EXPORT_SYMBOL(kmemleak_no_scan);
- void __ref kmemleak_alloc_phys(phys_addr_t phys, size_t size, int min_count,
- 			       gfp_t gfp)
- {
--	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
-+	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_alloc(__va(phys), size, min_count, gfp);
+diff --git a/drivers/pci/host/pci-aardvark.c b/drivers/pci/host/pci-aardvark.c
+index 9ae544e113dc..124fd7cb5da5 100644
+--- a/drivers/pci/host/pci-aardvark.c
++++ b/drivers/pci/host/pci-aardvark.c
+@@ -834,7 +834,7 @@ static void advk_msi_irq_compose_msi_msg(struct irq_data *data,
+ 
+ 	msg->address_lo = lower_32_bits(msi_msg);
+ 	msg->address_hi = upper_32_bits(msi_msg);
+-	msg->data = data->irq;
++	msg->data = data->hwirq;
  }
- EXPORT_SYMBOL(kmemleak_alloc_phys);
-@@ -1137,7 +1137,7 @@ EXPORT_SYMBOL(kmemleak_alloc_phys);
-  */
- void __ref kmemleak_free_part_phys(phys_addr_t phys, size_t size)
- {
--	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
-+	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_free_part(__va(phys), size);
+ 
+ static int advk_msi_set_affinity(struct irq_data *irq_data,
+@@ -851,15 +851,11 @@ static int advk_msi_irq_domain_alloc(struct irq_domain *domain,
+ 	int hwirq, i;
+ 
+ 	mutex_lock(&pcie->msi_used_lock);
+-	hwirq = bitmap_find_next_zero_area(pcie->msi_used, MSI_IRQ_NUM,
+-					   0, nr_irqs, 0);
+-	if (hwirq >= MSI_IRQ_NUM) {
+-		mutex_unlock(&pcie->msi_used_lock);
+-		return -ENOSPC;
+-	}
+-
+-	bitmap_set(pcie->msi_used, hwirq, nr_irqs);
++	hwirq = bitmap_find_free_region(pcie->msi_used, MSI_IRQ_NUM,
++					order_base_2(nr_irqs));
+ 	mutex_unlock(&pcie->msi_used_lock);
++	if (hwirq < 0)
++		return -ENOSPC;
+ 
+ 	for (i = 0; i < nr_irqs; i++)
+ 		irq_domain_set_info(domain, virq + i, hwirq + i,
+@@ -877,7 +873,7 @@ static void advk_msi_irq_domain_free(struct irq_domain *domain,
+ 	struct advk_pcie *pcie = domain->host_data;
+ 
+ 	mutex_lock(&pcie->msi_used_lock);
+-	bitmap_clear(pcie->msi_used, d->hwirq, nr_irqs);
++	bitmap_release_region(pcie->msi_used, d->hwirq, order_base_2(nr_irqs));
+ 	mutex_unlock(&pcie->msi_used_lock);
  }
- EXPORT_SYMBOL(kmemleak_free_part_phys);
-@@ -1149,7 +1149,7 @@ EXPORT_SYMBOL(kmemleak_free_part_phys);
-  */
- void __ref kmemleak_not_leak_phys(phys_addr_t phys)
- {
--	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
-+	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_not_leak(__va(phys));
- }
- EXPORT_SYMBOL(kmemleak_not_leak_phys);
-@@ -1161,7 +1161,7 @@ EXPORT_SYMBOL(kmemleak_not_leak_phys);
-  */
- void __ref kmemleak_ignore_phys(phys_addr_t phys)
- {
--	if (!IS_ENABLED(CONFIG_HIGHMEM) || PHYS_PFN(phys) < max_low_pfn)
-+	if (PHYS_PFN(phys) >= min_low_pfn && PHYS_PFN(phys) < max_low_pfn)
- 		kmemleak_ignore(__va(phys));
- }
- EXPORT_SYMBOL(kmemleak_ignore_phys);
+ 
+-- 
+2.35.1
+
 
 
