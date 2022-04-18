@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23E51505141
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAC4D505304
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233589AbiDRMeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54078 "EHLO
+        id S238062AbiDRMyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239788AbiDRMd2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
+        with ESMTP id S239691AbiDRMxh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:53:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E12561B798;
-        Mon, 18 Apr 2022 05:26:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929309FD1;
+        Mon, 18 Apr 2022 05:34:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A94D60F7C;
-        Mon, 18 Apr 2022 12:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78639C385A9;
-        Mon, 18 Apr 2022 12:25:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AEF276118A;
+        Mon, 18 Apr 2022 12:34:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C97FC385A9;
+        Mon, 18 Apr 2022 12:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284744;
-        bh=XH/aPqskHsYqk183lo7pT+BSy3GImF4PNjTADsO1cVo=;
+        s=korg; t=1650285292;
+        bh=ZlGy41XoiYTBPkFIv0KQQckDyWT4rNi+bI44gK5xc2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IhPMJ30I+70DmqY7Q1fI/KTUBxxD9/8Y2hSNyJpAdjgt0FyxHFpPB32CestBiEES7
-         twIOfnVCJG5i2FgXiy+YzB5KAQe5lB0vAhs6pIkRdHSFoJDJWsp6IaIekCIrx42Exb
-         7LaGspwwzjRMAFtsfrkAazK3qcpYpJVfCjwzyp6c=
+        b=WUnzyHBD4wxoH8qH4elEqWeVa4qhNLIfphsV6AUjWoN/kmX9qRIXWniq15XL0Ifxo
+         jMbQPKGds1xHXxRy7ZH1EgcGi5Diw9dDu8kDkcBIWaX3k0vS2nZI1z4yWx0PSZtF5v
+         BysUc+p9etFStuK+lT0SoOI88XeVBxPuFnSSCv30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20Povi=C5=A1er?= <povik+lin@cutebit.org>,
-        Sven Peter <sven@svenpeter.dev>, Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.17 212/219] i2c: pasemi: Wait for write xfers to finish
+        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.15 161/189] nl80211: correctly check NL80211_ATTR_REG_ALPHA2 size
 Date:   Mon, 18 Apr 2022 14:13:01 +0200
-Message-Id: <20220418121212.801276880@linuxfoundation.org>
+Message-Id: <20220418121206.889042319@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Povišer <povik+lin@cutebit.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit bd8963e602c77adc76dbbbfc3417c3cf14fed76b upstream.
+commit 6624bb34b4eb19f715db9908cca00122748765d7 upstream.
 
-Wait for completion of write transfers before returning from the driver.
-At first sight it may seem advantageous to leave write transfers queued
-for the controller to carry out on its own time, but there's a couple of
-issues with it:
+We need this to be at least two bytes, so we can access
+alpha2[0] and alpha2[1]. It may be three in case some
+userspace used NUL-termination since it was NLA_STRING
+(and we also push it out with NUL-termination).
 
- * Driver doesn't check for FIFO space.
-
- * The queued writes can complete while the driver is in its I2C read
-   transfer path which means it will get confused by the raising of
-   XEN (the 'transaction ended' signal). This can cause a spurious
-   ENODATA error due to premature reading of the MRXFIFO register.
-
-Adding the wait fixes some unreliability issues with the driver. There's
-some efficiency cost to it (especially with pasemi_smb_waitready doing
-its polling), but that will be alleviated once the driver receives
-interrupt support.
-
-Fixes: beb58aa39e6e ("i2c: PA Semi SMBus driver")
-Signed-off-by: Martin Povišer <povik+lin@cutebit.org>
-Reviewed-by: Sven Peter <sven@svenpeter.dev>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220411114201.fd4a31f06541.Ie7ff4be2cf348d8cc28ed0d626fc54becf7ea799@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-pasemi-core.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/wireless/nl80211.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-pasemi-core.c
-+++ b/drivers/i2c/busses/i2c-pasemi-core.c
-@@ -137,6 +137,12 @@ static int pasemi_i2c_xfer_msg(struct i2
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -509,7 +509,8 @@ static const struct nla_policy nl80211_p
+ 				   .len = IEEE80211_MAX_MESH_ID_LEN },
+ 	[NL80211_ATTR_MPATH_NEXT_HOP] = NLA_POLICY_ETH_ADDR_COMPAT,
  
- 		TXFIFO_WR(smbus, msg->buf[msg->len-1] |
- 			  (stop ? MTXFIFO_STOP : 0));
-+
-+		if (stop) {
-+			err = pasemi_smb_waitready(smbus);
-+			if (err)
-+				goto reset_out;
-+		}
- 	}
+-	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
++	/* allow 3 for NUL-termination, we used to declare this NLA_STRING */
++	[NL80211_ATTR_REG_ALPHA2] = NLA_POLICY_RANGE(NLA_BINARY, 2, 3),
+ 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
  
- 	return 0;
+ 	[NL80211_ATTR_BSS_CTS_PROT] = { .type = NLA_U8 },
 
 
