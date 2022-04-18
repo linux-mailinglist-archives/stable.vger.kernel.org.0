@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF8F950509D
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07AC5505099
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238717AbiDRM0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:26:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38536 "EHLO
+        id S238644AbiDRM0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:26:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238781AbiDRM0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A86E089;
-        Mon, 18 Apr 2022 05:20:11 -0700 (PDT)
+        with ESMTP id S238730AbiDRM0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:26:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97A4CE0D2;
+        Mon, 18 Apr 2022 05:20:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83D0E60F0C;
-        Mon, 18 Apr 2022 12:20:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9400AC385A7;
-        Mon, 18 Apr 2022 12:20:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42A22B80EDB;
+        Mon, 18 Apr 2022 12:20:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82E36C385A8;
+        Mon, 18 Apr 2022 12:20:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284410;
-        bh=G++U9rtoxfQSlDamiCXkUBLmwjBH2Lkb15OC1vNC2oE=;
+        s=korg; t=1650284413;
+        bh=Xcyb1ZziIShEl8l+imCTz4ijXgo4FealMcnreqRyWVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeuRRLWBSVLYllrUnpR27u/pllWMc0yLo5FpXFCIw/da3O/OX4RLrq8/XrOYoWgQN
-         rCtoyOzoZZoX50UVPEOnunHlz9w4gdsXgrNciv6b4UWqcxJcG/x/oKSSDOLlGCSnJC
-         M1d/JolXB7hLiwEtpWFbj0EJjqLs7GVJ47SW0u6A=
+        b=2fSd9nzjrBKR+F/RGGqmXNO6pMrw+tFiuTh6dt1DXgR8ML1DR0O86KmaT6aIwQwLt
+         tf1JyDFQkitiURhcYZyed7l3lvTwBl0E8zrdRsuiO4N3PAA09VLTSl0di8js74qSlK
+         JfX6T3EI1vbEqIWHivEnUL67/e27alhpEECALWTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Topi Miettinen <toiwoton@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 089/219] netfilter: nft_socket: make cgroup match work in input too
-Date:   Mon, 18 Apr 2022 14:10:58 +0200
-Message-Id: <20220418121209.039001224@linuxfoundation.org>
+Subject: [PATCH 5.17 090/219] drm/msm: Fix range size vs end confusion
+Date:   Mon, 18 Apr 2022 14:10:59 +0200
+Message-Id: <20220418121209.092445449@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
 References: <20220418121203.462784814@linuxfoundation.org>
@@ -55,54 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 05ae2fba821c4d122ab4ba3e52144e21586c4010 ]
+[ Upstream commit 537fef808be5ea56f6fc06932162550819a3b3c3 ]
 
-cgroupv2 helper function ignores the already-looked up sk
-and uses skb->sk instead.
+The fourth param is size, rather than range_end.
 
-Just pass sk from the calling function instead; this will
-make cgroup matching work for udp and tcp in input even when
-edemux did not set skb->sk already.
+Note that we could increase the address space size if we had a way to
+prevent buffers from spanning a 4G split, mostly just to avoid fw bugs
+with 64b math.
 
-Fixes: e0bb96db96f8 ("netfilter: nft_socket: add support for cgroupsv2")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Tested-by: Topi Miettinen <toiwoton@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 84c31ee16f90 ("drm/msm/a6xx: Add support for per-instance pagetables")
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: https://lore.kernel.org/r/20220407202836.1211268-1-robdclark@gmail.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_socket.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_socket.c b/net/netfilter/nft_socket.c
-index d601974c9d2e..b8f011145765 100644
---- a/net/netfilter/nft_socket.c
-+++ b/net/netfilter/nft_socket.c
-@@ -36,12 +36,11 @@ static void nft_socket_wildcard(const struct nft_pktinfo *pkt,
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index 616be7265da4..19622fb1fa35 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1714,7 +1714,7 @@ a6xx_create_private_address_space(struct msm_gpu *gpu)
+ 		return ERR_CAST(mmu);
  
- #ifdef CONFIG_SOCK_CGROUP_DATA
- static noinline bool
--nft_sock_get_eval_cgroupv2(u32 *dest, const struct nft_pktinfo *pkt, u32 level)
-+nft_sock_get_eval_cgroupv2(u32 *dest, struct sock *sk, const struct nft_pktinfo *pkt, u32 level)
- {
--	struct sock *sk = skb_to_full_sk(pkt->skb);
- 	struct cgroup *cgrp;
+ 	return msm_gem_address_space_create(mmu,
+-		"gpu", 0x100000000ULL, 0x1ffffffffULL);
++		"gpu", 0x100000000ULL, SZ_4G);
+ }
  
--	if (!sk || !sk_fullsock(sk) || !net_eq(nft_net(pkt), sock_net(sk)))
-+	if (!sk_fullsock(sk))
- 		return false;
- 
- 	cgrp = sock_cgroup_ptr(&sk->sk_cgrp_data);
-@@ -108,7 +107,7 @@ static void nft_socket_eval(const struct nft_expr *expr,
- 		break;
- #ifdef CONFIG_SOCK_CGROUP_DATA
- 	case NFT_SOCKET_CGROUPV2:
--		if (!nft_sock_get_eval_cgroupv2(dest, pkt, priv->level)) {
-+		if (!nft_sock_get_eval_cgroupv2(dest, sk, pkt, priv->level)) {
- 			regs->verdict.code = NFT_BREAK;
- 			return;
- 		}
+ static uint32_t a6xx_get_rptr(struct msm_gpu *gpu, struct msm_ringbuffer *ring)
 -- 
 2.35.1
 
