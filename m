@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1823D505222
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46092505598
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236301AbiDRMlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:41:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40038 "EHLO
+        id S240256AbiDRNVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240804AbiDRMji (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94AD42FD;
-        Mon, 18 Apr 2022 05:30:41 -0700 (PDT)
+        with ESMTP id S242619AbiDRNSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:18:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C33A3BA71;
+        Mon, 18 Apr 2022 05:51:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 306D260F04;
-        Mon, 18 Apr 2022 12:30:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 161F7C385A1;
-        Mon, 18 Apr 2022 12:30:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E982D6124A;
+        Mon, 18 Apr 2022 12:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA539C385A1;
+        Mon, 18 Apr 2022 12:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285040;
-        bh=8OKQIQQZsaln7GT2sWzd5OsKT2yNQHkboQCMYcljvFI=;
+        s=korg; t=1650286309;
+        bh=HnrZ4WMUdR7LQsm4XR3BUUBQYkhACvDYYoDydlMifMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIaPRZItuzOEIGBC76F0w/XnT9GkUCYG3skFS91IcZWt0e/EYqrf8G9r3rVtHr54h
-         S1SQ3x9d2yw1Hg75fTjvHl4jkfPpGbegXDNkGqVVsAqJGshJaLMUOAa56wE0cBUY9Z
-         xMOs60l6esD8715uvpS3H4HLt714psBC7Ghup3Ik=
+        b=IgDr/Je4B93zL4Y1FnMNqTFY75M/ghJh8Twjzhq+3vt+ymMuJO3wM8xYTtD3MQD0P
+         INzV0FETiCd7cokY0A9NWYLm1fclyeV3EP3sxJS3F2eK7pMFwAKfjLPs9CI69mwljw
+         +19uUld8wHEasP2H6yx02Y7df96I5qcIz42F93qE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 055/189] ALSA: nm256: Dont call card private_free at probe error path
-Date:   Mon, 18 Apr 2022 14:11:15 +0200
-Message-Id: <20220418121202.073042721@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 095/284] ASoC: msm8916-wcd-digital: Fix missing clk_disable_unprepare() in msm8916_wcd_digital_probe
+Date:   Mon, 18 Apr 2022 14:11:16 +0200
+Message-Id: <20220418121213.386771241@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,49 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit f20ae5074dfb38f23b0c07c62bdf8e7254a0acf8 upstream.
+[ Upstream commit 375a347da4889f64d86e1ab7f4e6702b6e9bf299 ]
 
-The card destructor of nm256 driver does merely stopping the running
-streams, and it's superfluous for the probe error handling.  Moreover,
-calling this via the previous devres change would lead to another
-problem due to the reverse call order.
+Fix the missing clk_disable_unprepare() before return
+from msm8916_wcd_digital_probe in the error handling case.
 
-This patch moves the setup of the private_free callback after the card
-registration, so that it can be used only after fully set up.
-
-Fixes: c19935f04784 ("ALSA: nm256: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-40-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220307084523.28687-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/nm256/nm256.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/msm8916-wcd-digital.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/nm256/nm256.c b/sound/pci/nm256/nm256.c
-index c9c178504959..f99a1e96e923 100644
---- a/sound/pci/nm256/nm256.c
-+++ b/sound/pci/nm256/nm256.c
-@@ -1573,7 +1573,6 @@ snd_nm256_create(struct snd_card *card, struct pci_dev *pci)
- 	chip->coeffs_current = 0;
+diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
+index 13354d6304a8..b2571ab13ea1 100644
+--- a/sound/soc/codecs/msm8916-wcd-digital.c
++++ b/sound/soc/codecs/msm8916-wcd-digital.c
+@@ -910,7 +910,7 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
+ 	ret = clk_prepare_enable(priv->mclk);
+ 	if (ret < 0) {
+ 		dev_err(dev, "failed to enable mclk %d\n", ret);
+-		return ret;
++		goto err_clk;
+ 	}
  
- 	snd_nm256_init_chip(chip);
--	card->private_free = snd_nm256_free;
+ 	dev_set_drvdata(dev, priv);
+@@ -918,6 +918,9 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
+ 	return snd_soc_register_codec(dev, &msm8916_wcd_digital,
+ 				      msm8916_wcd_digital_dai,
+ 				      ARRAY_SIZE(msm8916_wcd_digital_dai));
++err_clk:
++	clk_disable_unprepare(priv->ahbclk);
++	return ret;
+ }
  
- 	// pci_set_master(pci); /* needed? */
- 	return 0;
-@@ -1680,6 +1679,7 @@ static int snd_nm256_probe(struct pci_dev *pci,
- 	err = snd_card_register(card);
- 	if (err < 0)
- 		return err;
-+	card->private_free = snd_nm256_free;
- 
- 	pci_set_drvdata(pci, card);
- 	return 0;
+ static int msm8916_wcd_digital_remove(struct platform_device *pdev)
 -- 
-2.35.2
+2.34.1
 
 
 
