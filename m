@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 488095050BC
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9875057B7
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238839AbiDRM3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38218 "EHLO
+        id S244052AbiDRNzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:55:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239564AbiDRM2d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:28:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D6541FCC4;
-        Mon, 18 Apr 2022 05:22:05 -0700 (PDT)
+        with ESMTP id S243624AbiDRNyi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:54:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D5A4496AD;
+        Mon, 18 Apr 2022 06:04:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B14560FAD;
-        Mon, 18 Apr 2022 12:22:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE6F7C385A8;
-        Mon, 18 Apr 2022 12:22:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10CD1B80EE3;
+        Mon, 18 Apr 2022 13:04:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58390C385A1;
+        Mon, 18 Apr 2022 13:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284524;
-        bh=4rQkhM+RJN5qC5mkIJ7o7Iyrqs+aVLeQY8i7Xhtec2o=;
+        s=korg; t=1650287062;
+        bh=HhUYyIXdULluZxh8zt40qFPRQIUIxZGemaI/jtjPcFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWn3ZysGXRkV87rvdTlsE5fPu/zcM8f490pA4NxRgzwdtPzFTjvPzAO14MbubsKRH
-         5gLKM70dDCebo50o0wVJLDr3edqFPpqegzKAp9fOK4eDCZcmhIvOmGGu9NhqWC4wb2
-         p42fxxXCUfJMWE17nse3FsWY1ZVg2Sa9T9E3NzFg=
+        b=QNY0q3v9mn9IL7WzT1BvC016me4sc0ChE7xOwzu4TtTScSRwQhqJVDuSPLqLV0FrB
+         2/V8W2nw5YQS5VTJBTcWvtX7enxkKbCg1ylP9whwjmlxq3O8NSJyGyMe0xJenAZmAc
+         D7UWbZwTv5OzgiMoOVdmBXiYpoRs6jWCSiKb6D5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 144/219] Drivers: hv: vmbus: Prevent load re-ordering when reading ring buffer
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Igor Zhbanov <i.zhbanov@omprussia.ru>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 047/218] PM: suspend: fix return value of __setup handler
 Date:   Mon, 18 Apr 2022 14:11:53 +0200
-Message-Id: <20220418121210.921396673@linuxfoundation.org>
+Message-Id: <20220418121200.951773261@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Kelley <mikelley@microsoft.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit b6cae15b5710c8097aad26a2e5e752c323ee5348 ]
+[ Upstream commit 7a64ca17e4dd50d5f910769167f3553902777844 ]
 
-When reading a packet from a host-to-guest ring buffer, there is no
-memory barrier between reading the write index (to see if there is
-a packet to read) and reading the contents of the packet. The Hyper-V
-host uses store-release when updating the write index to ensure that
-writes of the packet data are completed first. On the guest side,
-the processor can reorder and read the packet data before the write
-index, and sometimes get stale packet data. Getting such stale packet
-data has been observed in a reproducible case in a VM on ARM64.
+If an invalid option is given for "test_suspend=<option>", the entire
+string is added to init's environment, so return 1 instead of 0 from
+the __setup handler.
 
-Fix this by using virt_load_acquire() to read the write index,
-ensuring that reads of the packet data cannot be reordered
-before it. Preventing such reordering is logically correct, and
-with this change, getting stale data can no longer be reproduced.
+  Unknown kernel command line parameters "BOOT_IMAGE=/boot/bzImage-517rc5
+    test_suspend=invalid"
 
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
-Reviewed-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Link: https://lore.kernel.org/r/1648394710-33480-1-git-send-email-mikelley@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+and
+
+ Run /sbin/init as init process
+   with arguments:
+     /sbin/init
+   with environment:
+     HOME=/
+     TERM=linux
+     BOOT_IMAGE=/boot/bzImage-517rc5
+     test_suspend=invalid
+
+Fixes: 2ce986892faf ("PM / sleep: Enhance test_suspend option with repeat capability")
+Fixes: 27ddcc6596e5 ("PM / sleep: Add state field to pm_states[] entries")
+Fixes: a9d7052363a6 ("PM: Separate suspend to RAM functionality from core")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Igor Zhbanov <i.zhbanov@omprussia.ru>
+Link: lore.kernel.org/r/64644a2f-4a20-bab3-1e15-3b2cdd0defe3@omprussia.ru
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/ring_buffer.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ kernel/power/suspend_test.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hv/ring_buffer.c b/drivers/hv/ring_buffer.c
-index 71efacb90965..3d215d9dec43 100644
---- a/drivers/hv/ring_buffer.c
-+++ b/drivers/hv/ring_buffer.c
-@@ -439,7 +439,16 @@ int hv_ringbuffer_read(struct vmbus_channel *channel,
- static u32 hv_pkt_iter_avail(const struct hv_ring_buffer_info *rbi)
- {
- 	u32 priv_read_loc = rbi->priv_read_index;
--	u32 write_loc = READ_ONCE(rbi->ring_buffer->write_index);
-+	u32 write_loc;
-+
-+	/*
-+	 * The Hyper-V host writes the packet data, then uses
-+	 * store_release() to update the write_index.  Use load_acquire()
-+	 * here to prevent loads of the packet data from being re-ordered
-+	 * before the read of the write_index and potentially getting
-+	 * stale data.
-+	 */
-+	write_loc = virt_load_acquire(&rbi->ring_buffer->write_index);
+diff --git a/kernel/power/suspend_test.c b/kernel/power/suspend_test.c
+index bdff5ed57f10..5476bd892183 100644
+--- a/kernel/power/suspend_test.c
++++ b/kernel/power/suspend_test.c
+@@ -158,22 +158,22 @@ static int __init setup_test_suspend(char *value)
+ 	value++;
+ 	suspend_type = strsep(&value, ",");
+ 	if (!suspend_type)
+-		return 0;
++		return 1;
  
- 	if (write_loc >= priv_read_loc)
- 		return write_loc - priv_read_loc;
+ 	repeat = strsep(&value, ",");
+ 	if (repeat) {
+ 		if (kstrtou32(repeat, 0, &test_repeat_count_max))
+-			return 0;
++			return 1;
+ 	}
+ 
+ 	for (i = 0; pm_labels[i]; i++)
+ 		if (!strcmp(pm_labels[i], suspend_type)) {
+ 			test_state_label = pm_labels[i];
+-			return 0;
++			return 1;
+ 		}
+ 
+ 	printk(warn_bad_state, suspend_type);
+-	return 0;
++	return 1;
+ }
+ __setup("test_suspend", setup_test_suspend);
+ 
 -- 
-2.35.1
+2.34.1
 
 
 
