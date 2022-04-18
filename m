@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B67CB504E4E
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 691A2504E54
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 11:23:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237442AbiDRJWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 05:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43492 "EHLO
+        id S229563AbiDRJZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 05:25:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237436AbiDRJWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:22:07 -0400
+        with ESMTP id S230488AbiDRJZu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 05:25:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 943A0114A
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:19:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331A215FD7
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 02:23:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C90A61182
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:19:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 176D3C385A1;
-        Mon, 18 Apr 2022 09:19:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C313A61182
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 09:23:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC607C385A1;
+        Mon, 18 Apr 2022 09:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650273568;
-        bh=hQOvy8gV8staA92ISsQNGywjGqwn2tXMFV48i4rhmZg=;
+        s=korg; t=1650273791;
+        bh=xJsTfLiKeCM0/zx4NAKhVsztL5be2GliMqXG0F+oUhE=;
         h=Subject:To:Cc:From:Date:From;
-        b=WhMkeqEi3+kZrPypTmPejBQFPEgLhVvhm8QHbEDVDG8DTWS6cPbkrgH74VkPTh/g2
-         6wBNL6bpvT+OeD8rtldSGZDg1qX7yXrSHSDShLXs0Y3SsF7EV2ppDfg/ho4fCbIQ/m
-         srU6YqJc7qMwvvgwadCve63M2jLZMKqArlX52ZD4=
-Subject: FAILED: patch "[PATCH] dm integrity: fix memory corruption when tag_size is less" failed to apply to 4.19-stable tree
-To:     mpatocka@redhat.com, snitzer@kernel.org
+        b=mQeth4VckgeusrEFCaY1Ghb2Pf9RmckQnMlLzN7R7am6q9K2CeG0gASkvYmVbXzNy
+         /eG7lcpnKYUmtdAL7bU76Xzz0mzPFOpxZ4qcxWdmgVBr9BSRjOwVlk4D0fN11rZ/fU
+         /ThzvXeUyaV0K5qj9PIYyhd1zN4MJXqFcswaj91o=
+Subject: FAILED: patch "[PATCH] nl80211: correctly check NL80211_ATTR_REG_ALPHA2 size" failed to apply to 5.4-stable tree
+To:     johannes.berg@intel.com, lee.jones@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Apr 2022 11:19:25 +0200
-Message-ID: <1650273565139113@kroah.com>
+Date:   Mon, 18 Apr 2022 11:23:07 +0200
+Message-ID: <165027378721588@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,52 +59,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 08c1af8f1c13bbf210f1760132f4df24d0ed46d6 Mon Sep 17 00:00:00 2001
-From: Mikulas Patocka <mpatocka@redhat.com>
-Date: Sun, 3 Apr 2022 14:38:22 -0400
-Subject: [PATCH] dm integrity: fix memory corruption when tag_size is less
- than digest size
+From 6624bb34b4eb19f715db9908cca00122748765d7 Mon Sep 17 00:00:00 2001
+From: Johannes Berg <johannes.berg@intel.com>
+Date: Mon, 11 Apr 2022 11:42:03 +0200
+Subject: [PATCH] nl80211: correctly check NL80211_ATTR_REG_ALPHA2 size
 
-It is possible to set up dm-integrity in such a way that the
-"tag_size" parameter is less than the actual digest size. In this
-situation, a part of the digest beyond tag_size is ignored.
+We need this to be at least two bytes, so we can access
+alpha2[0] and alpha2[1]. It may be three in case some
+userspace used NUL-termination since it was NLA_STRING
+(and we also push it out with NUL-termination).
 
-In this case, dm-integrity would write beyond the end of the
-ic->recalc_tags array and corrupt memory. The corruption happened in
-integrity_recalc->integrity_sector_checksum->crypto_shash_final.
+Cc: stable@vger.kernel.org
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20220411114201.fd4a31f06541.Ie7ff4be2cf348d8cc28ed0d626fc54becf7ea799@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-Fix this corruption by increasing the tags array so that it has enough
-padding at the end to accomodate the loop in integrity_recalc() being
-able to write a full digest size for the last member of the tags
-array.
-
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
-
-diff --git a/drivers/md/dm-integrity.c b/drivers/md/dm-integrity.c
-index ad2d5faa2ebb..36ae30b73a6e 100644
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -4399,6 +4399,7 @@ static int dm_integrity_ctr(struct dm_target *ti, unsigned argc, char **argv)
- 	}
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index ee1c2b6b6971..21e808fcb676 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -528,7 +528,8 @@ static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
+ 				   .len = IEEE80211_MAX_MESH_ID_LEN },
+ 	[NL80211_ATTR_MPATH_NEXT_HOP] = NLA_POLICY_ETH_ADDR_COMPAT,
  
- 	if (ic->internal_hash) {
-+		size_t recalc_tags_size;
- 		ic->recalc_wq = alloc_workqueue("dm-integrity-recalc", WQ_MEM_RECLAIM, 1);
- 		if (!ic->recalc_wq ) {
- 			ti->error = "Cannot allocate workqueue";
-@@ -4412,8 +4413,10 @@ static int dm_integrity_ctr(struct dm_target *ti, unsigned argc, char **argv)
- 			r = -ENOMEM;
- 			goto bad;
- 		}
--		ic->recalc_tags = kvmalloc_array(RECALC_SECTORS >> ic->sb->log2_sectors_per_block,
--						 ic->tag_size, GFP_KERNEL);
-+		recalc_tags_size = (RECALC_SECTORS >> ic->sb->log2_sectors_per_block) * ic->tag_size;
-+		if (crypto_shash_digestsize(ic->internal_hash) > ic->tag_size)
-+			recalc_tags_size += crypto_shash_digestsize(ic->internal_hash) - ic->tag_size;
-+		ic->recalc_tags = kvmalloc(recalc_tags_size, GFP_KERNEL);
- 		if (!ic->recalc_tags) {
- 			ti->error = "Cannot allocate tags for recalculating";
- 			r = -ENOMEM;
+-	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
++	/* allow 3 for NUL-termination, we used to declare this NLA_STRING */
++	[NL80211_ATTR_REG_ALPHA2] = NLA_POLICY_RANGE(NLA_BINARY, 2, 3),
+ 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
+ 
+ 	[NL80211_ATTR_BSS_CTS_PROT] = { .type = NLA_U8 },
 
