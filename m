@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B36950558F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E4F504FE3
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:16:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240296AbiDRNPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:15:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53514 "EHLO
+        id S238206AbiDRMS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:18:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242965AbiDRNJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:09:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A424236E0B;
-        Mon, 18 Apr 2022 05:49:09 -0700 (PDT)
+        with ESMTP id S238213AbiDRMSj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:18:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B8CE1B790;
+        Mon, 18 Apr 2022 05:15:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75A08B80EE1;
-        Mon, 18 Apr 2022 12:49:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC030C385A7;
-        Mon, 18 Apr 2022 12:49:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5187EB80EC1;
+        Mon, 18 Apr 2022 12:15:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDBEC385A1;
+        Mon, 18 Apr 2022 12:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286144;
-        bh=K+tDWAFZJnPKREwEHMhg1Ie2OWCsnVXB7aQ07ZjAkp4=;
+        s=korg; t=1650284150;
+        bh=IerkZ3grBNTOfrFLSCzoo3e0r4RUyaZwXYa50HoRnMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o46xS19S1wp8QQxfxVEGWTuv+gPXGkUYy43/MUfVidbN/EP0J7vps0mPL4kAGYUXd
-         2IXAuhex//Ej+klpWaIhrmGBIIKOrYixv4H7isSNbmEKlf3BLX1qNIVR12nWMS9kZV
-         JaNZtuqrc5c6DX6wTIHHeQdIIVxmJMxCTTPHWNHg=
+        b=tokkL+wubTRk5nEOjT26E5X+rQPiFSMi7TNESWTMFjDPP2K5Di31Qnpqf+vzomiCk
+         LhJgQZNd7Q5rWU/mqtqeDwfcf34mpET7zuuNNpIipB6MI+GgUCK6YzESezA7jS8L8W
+         TxqQgKCdeyH78+Lh+KRMhZSxjVmGd0l+xvYh5xdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TCS Robot <tcs_robot@tencent.com>,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 008/284] af_key: add __GFP_ZERO flag for compose_sadb_supported in function pfkey_register
-Date:   Mon, 18 Apr 2022 14:09:49 +0200
-Message-Id: <20220418121210.933615085@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 021/219] ALSA: als4000: Fix the missing snd_card_free() call at probe error
+Date:   Mon, 18 Apr 2022 14:09:50 +0200
+Message-Id: <20220418121204.515366861@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+References: <20220418121203.462784814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 9a564bccb78a76740ea9d75a259942df8143d02c ]
+commit d616a0246da88d811f9f4c3aa83003c05efd3af0 upstream.
 
-Add __GFP_ZERO flag for compose_sadb_supported in function pfkey_register
-to initialize the buffer of supp_skb to fix a kernel-info-leak issue.
-1) Function pfkey_register calls compose_sadb_supported to request
-a sk_buff. 2) compose_sadb_supported calls alloc_sbk to allocate
-a sk_buff, but it doesn't zero it. 3) If auth_len is greater 0, then
-compose_sadb_supported treats the memory as a struct sadb_supported and
-begins to initialize. But it just initializes the field sadb_supported_len
-and field sadb_supported_exttype without field sadb_supported_reserved.
+The previous cleanup with devres may lead to the incorrect release
+orders at the probe error handling due to the devres's nature.  Until
+we register the card, snd_card_free() has to be called at first for
+releasing the stuff properly when the driver tries to manage and
+release the stuff via card->private_free().
 
-Reported-by: TCS Robot <tcs_robot@tencent.com>
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes it by calling snd_card_free() on the error from the
+probe callback using a new helper function.
+
+Fixes: 0e175f665960 ("ALSA: als4000: Allocate resources with device-managed APIs")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412102636.16000-6-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/key/af_key.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/als4000.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/key/af_key.c b/net/key/af_key.c
-index a10336cd7f97..9b3756aa7ca2 100644
---- a/net/key/af_key.c
-+++ b/net/key/af_key.c
-@@ -1709,7 +1709,7 @@ static int pfkey_register(struct sock *sk, struct sk_buff *skb, const struct sad
+--- a/sound/pci/als4000.c
++++ b/sound/pci/als4000.c
+@@ -806,8 +806,8 @@ static void snd_card_als4000_free( struc
+ 	snd_als4000_free_gameport(acard);
+ }
  
- 	xfrm_probe_algs();
+-static int snd_card_als4000_probe(struct pci_dev *pci,
+-				  const struct pci_device_id *pci_id)
++static int __snd_card_als4000_probe(struct pci_dev *pci,
++				    const struct pci_device_id *pci_id)
+ {
+ 	static int dev;
+ 	struct snd_card *card;
+@@ -930,6 +930,12 @@ static int snd_card_als4000_probe(struct
+ 	return 0;
+ }
  
--	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL);
-+	supp_skb = compose_sadb_supported(hdr, GFP_KERNEL | __GFP_ZERO);
- 	if (!supp_skb) {
- 		if (hdr->sadb_msg_satype != SADB_SATYPE_UNSPEC)
- 			pfk->registered &= ~(1<<hdr->sadb_msg_satype);
--- 
-2.34.1
-
++static int snd_card_als4000_probe(struct pci_dev *pci,
++				  const struct pci_device_id *pci_id)
++{
++	return snd_card_free_on_error(&pci->dev, __snd_card_als4000_probe(pci, pci_id));
++}
++
+ #ifdef CONFIG_PM_SLEEP
+ static int snd_als4000_suspend(struct device *dev)
+ {
 
 
