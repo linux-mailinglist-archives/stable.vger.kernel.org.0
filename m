@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43452505047
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE5E7505163
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238554AbiDRMXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:23:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48118 "EHLO
+        id S239144AbiDRMeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:34:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238794AbiDRMWu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:22:50 -0400
+        with ESMTP id S239828AbiDRMda (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4E61EED0;
-        Mon, 18 Apr 2022 05:18:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1171E1C10C;
+        Mon, 18 Apr 2022 05:26:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1657960F5F;
-        Mon, 18 Apr 2022 12:18:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 075D0C385A8;
-        Mon, 18 Apr 2022 12:18:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97A3660FF1;
+        Mon, 18 Apr 2022 12:26:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70DA5C385AC;
+        Mon, 18 Apr 2022 12:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284297;
-        bh=VHz+JMItJlNxJ/mL/82Bz5jA5c3poz8XFUIXJ7SB86g=;
+        s=korg; t=1650284811;
+        bh=hnXxtEBUA5ZxcilPT0tseZET3rfXT3b/XiaIGhqWjCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CAdOalXHXViu2WI0vnK13CQdFbLOV1EZ0z6Mr6kq2iYfuOob5ADTyirU0hObgBixL
-         yu0c5RQVl6WOioVJMBve/eAx6dQDKqn+F2MhOZzWgqWL3paK0bO4Yv3chAdbVxgzlZ
-         CLviTbdQXeRp4O5fUBYYUPb2TJ6o2pDHYSkVroIo=
+        b=tdhGIgA2WouvEFCI9ck1Lmy8q+5+kqv3z+FfcFP6fxZf6qEoYzylb7SFuP5Fnqbkm
+         q4uHzwUuQk/GCOBA8wNKTH3lK/BP4hHJP553e/KfOEjDH1pFBiGu2gQNEidIMGKZai
+         AwNVHViaxeSzLywrH5u8l3FoLzPuPNKj7zFDFHco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 067/219] SUNRPC: Fix the svc_deferred_event trace class
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 016/189] ALSA: core: Add snd_card_free_on_error() helper
 Date:   Mon, 18 Apr 2022 14:10:36 +0200
-Message-Id: <20220418121207.572204025@linuxfoundation.org>
+Message-Id: <20220418121200.973418134@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +52,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 4d5004451ab2218eab94a30e1841462c9316ba19 ]
+commit fee2b871d8d6389c9b4bdf9346a99ccc1c98c9b8 upstream.
 
-Fix a NULL deref crash that occurs when an svc_rqst is deferred
-while the sunrpc tracing subsystem is enabled. svc_revisit() sets
-dr->xprt to NULL, so it can't be relied upon in the tracepoint to
-provide the remote's address.
+This is a small helper function to handle the error path more easily
+when an error happens during the probe for the device with the
+device-managed card.  Since devres releases in the reverser order of
+the creations, usually snd_card_free() gets called at the last in the
+probe error path unless it already reached snd_card_register() calls.
+Due to this nature, when a driver expects the resource releases in
+card->private_free, this might be called too lately.
 
-Unfortunately we can't revert the "svc_deferred_class" hunk in
-commit ece200ddd54b ("sunrpc: Save remote presentation address in
-svc_xprt for trace events") because there is now a specific check
-of event format specifiers for unsafe dereferences. The warning
-that check emits is:
+As a workaround, one should call the probe like:
 
-  event svc_defer_recv has unsafe dereference of argument 1
+ static int __some_probe(...) { // do real probe.... }
 
-A "%pISpc" format specifier with a "struct sockaddr *" is indeed
-flagged by this check.
+ static int some_probe(...)
+ {
+	return snd_card_free_on_error(dev, __some_probe(dev, ...));
+ }
 
-Instead, take the brute-force approach used by the svcrdma_qp_error
-tracepoint. Convert the dr::addr field into a presentation address
-in the TP_fast_assign() arm of the trace event, and store that as
-a string. This fix can be backported to -stable kernels.
+so that the snd_card_free() is called explicitly at the beginning of
+the error path from the probe.
 
-In the meantime, commit c6ced22997ad ("tracing: Update print fmt
-check to handle new __get_sockaddr() macro") is now in v5.18, so
-this wonky fix can be replaced with __sockaddr() and friends
-properly during the v5.19 merge window.
+This function will be used in the upcoming fixes to address the
+regressions by devres usages.
 
-Fixes: ece200ddd54b ("sunrpc: Save remote presentation address in svc_xprt for trace events")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e8ad415b7a55 ("ALSA: core: Add managed card creation")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220412093141.8008-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/sunrpc.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ include/sound/core.h |    1 +
+ sound/core/init.c    |   28 ++++++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
 
-diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
-index 5be3faf88c1a..06fe47fb3686 100644
---- a/include/trace/events/sunrpc.h
-+++ b/include/trace/events/sunrpc.h
-@@ -1956,17 +1956,18 @@ DECLARE_EVENT_CLASS(svc_deferred_event,
- 	TP_STRUCT__entry(
- 		__field(const void *, dr)
- 		__field(u32, xid)
--		__string(addr, dr->xprt->xpt_remotebuf)
-+		__array(__u8, addr, INET6_ADDRSTRLEN + 10)
- 	),
+--- a/include/sound/core.h
++++ b/include/sound/core.h
+@@ -284,6 +284,7 @@ int snd_card_disconnect(struct snd_card
+ void snd_card_disconnect_sync(struct snd_card *card);
+ int snd_card_free(struct snd_card *card);
+ int snd_card_free_when_closed(struct snd_card *card);
++int snd_card_free_on_error(struct device *dev, int ret);
+ void snd_card_set_id(struct snd_card *card, const char *id);
+ int snd_card_register(struct snd_card *card);
+ int snd_card_info_init(void);
+--- a/sound/core/init.c
++++ b/sound/core/init.c
+@@ -209,6 +209,12 @@ static void __snd_card_release(struct de
+  * snd_card_register(), the very first devres action to call snd_card_free()
+  * is added automatically.  In that way, the resource disconnection is assured
+  * at first, then released in the expected order.
++ *
++ * If an error happens at the probe before snd_card_register() is called and
++ * there have been other devres resources, you'd need to free the card manually
++ * via snd_card_free() call in the error; otherwise it may lead to UAF due to
++ * devres call orders.  You can use snd_card_free_on_error() helper for
++ * handling it more easily.
+  */
+ int snd_devm_card_new(struct device *parent, int idx, const char *xid,
+ 		      struct module *module, size_t extra_size,
+@@ -235,6 +241,28 @@ int snd_devm_card_new(struct device *par
+ }
+ EXPORT_SYMBOL_GPL(snd_devm_card_new);
  
- 	TP_fast_assign(
- 		__entry->dr = dr;
- 		__entry->xid = be32_to_cpu(*(__be32 *)(dr->args +
- 						       (dr->xprt_hlen>>2)));
--		__assign_str(addr, dr->xprt->xpt_remotebuf);
-+		snprintf(__entry->addr, sizeof(__entry->addr) - 1,
-+			 "%pISpc", (struct sockaddr *)&dr->addr);
- 	),
- 
--	TP_printk("addr=%s dr=%p xid=0x%08x", __get_str(addr), __entry->dr,
-+	TP_printk("addr=%s dr=%p xid=0x%08x", __entry->addr, __entry->dr,
- 		__entry->xid)
- );
- 
--- 
-2.35.1
-
++/**
++ * snd_card_free_on_error - a small helper for handling devm probe errors
++ * @dev: the managed device object
++ * @ret: the return code from the probe callback
++ *
++ * This function handles the explicit snd_card_free() call at the error from
++ * the probe callback.  It's just a small helper for simplifying the error
++ * handling with the managed devices.
++ */
++int snd_card_free_on_error(struct device *dev, int ret)
++{
++	struct snd_card *card;
++
++	if (!ret)
++		return 0;
++	card = devres_find(dev, __snd_card_release, NULL, NULL);
++	if (card)
++		snd_card_free(card);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_card_free_on_error);
++
+ static int snd_card_init(struct snd_card *card, struct device *parent,
+ 			 int idx, const char *xid, struct module *module,
+ 			 size_t extra_size)
 
 
