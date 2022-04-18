@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F35DF505399
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CBD8505841
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238394AbiDRNAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:00:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42110 "EHLO
+        id S244890AbiDROAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 10:00:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238173AbiDRM4n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:56:43 -0400
+        with ESMTP id S244897AbiDRN7p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:59:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B861A816;
-        Mon, 18 Apr 2022 05:37:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CF22BB21;
+        Mon, 18 Apr 2022 06:08:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A236D6118A;
-        Mon, 18 Apr 2022 12:37:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE251C385A7;
-        Mon, 18 Apr 2022 12:37:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7CD460EFC;
+        Mon, 18 Apr 2022 13:08:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D94DDC385A8;
+        Mon, 18 Apr 2022 13:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285476;
-        bh=x85HsX1QKJi6SwkS29AzK7v1ZonuON6s7Mrr8XxuSHw=;
+        s=korg; t=1650287324;
+        bh=yd/PIrVhYLRbTH3zwdEWESN2Dz9/FjzPd4jm3AGP9OY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGxymUdEWtZMJqXl7IE+y1WOjQmrutkgK2/n1+2CcwNnBWYEYotaR+GwuwSWi3sQF
-         viz8ynYQRqUk+pYfHRDemxU+7UtsyWcGu7ngzX30criZS3rKGNt1jbeXrZvaHzpuvl
-         ksQcO13zKa+JtmOZelp5av58K3W4G96eWH++rHHM=
+        b=NszjQplTwX0SQMZwU8Ir1VmLNZCxSS0S2q6z9wdw8tRmoSzFyafbdQwii87FkhFg4
+         HSbMWreHgV5ykEMUdFiI+2xjTK0FK+c0xlWxsfc1ql4jSCHFUrhIai/qUSTJ3PNk/J
+         uidg9NorgkQCEQMmSCVJakbvL9sDPsPMcjXODkvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 029/105] scsi: iscsi: Use system_unbound_wq for destroy_work
+Subject: [PATCH 4.9 085/218] scsi: pm8001: Fix command initialization in pm8001_chip_ssp_tm_req()
 Date:   Mon, 18 Apr 2022 14:12:31 +0200
-Message-Id: <20220418121147.156679890@linuxfoundation.org>
+Message-Id: <20220418121202.039752125@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
+References: <20220418121158.636999985@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit b25b957d2db1585602c2c70fdf4261a5641fe6b7 ]
+[ Upstream commit cd2268a180117aa8ebb23e090ba204324b2d0e93 ]
 
-Use the system_unbound_wq for async session destruction. We don't need a
-dedicated workqueue for async session destruction because:
+The ds_ads_m field of struct ssp_ini_tm_start_req has the type __le32.
+Assigning a value to it should thus use cpu_to_le32(). This fixes the
+sparse warning:
 
- 1. perf does not seem to be an issue since we only allow 1 active work.
+warning: incorrect type in assignment (different base types)
+   expected restricted __le32 [addressable] [assigned] [usertype] ds_ads_m
+   got int
 
- 2. it does not have deps with other system works and we can run them in
-    parallel with each other.
-
-Link: https://lore.kernel.org/r/20210525181821.7617-6-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Link: https://lore.kernel.org/r/20220220031810.738362-7-damien.lemoal@opensource.wdc.com
+Fixes: dbf9bfe61571 ("[SCSI] pm8001: add SAS/SATA HBA driver")
+Reviewed-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index f93660142e35..ed0c7e812445 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -95,8 +95,6 @@ static DECLARE_WORK(stop_conn_work, stop_conn_work_fn);
- static atomic_t iscsi_session_nr; /* sysfs session id for next new session */
- static struct workqueue_struct *iscsi_eh_timer_workq;
- 
--static struct workqueue_struct *iscsi_destroy_workq;
--
- static DEFINE_IDA(iscsi_sess_ida);
- /*
-  * list of registered transports and lock that must
-@@ -3717,7 +3715,7 @@ iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *group)
- 			list_del_init(&session->sess_list);
- 			spin_unlock_irqrestore(&sesslock, flags);
- 
--			queue_work(iscsi_destroy_workq, &session->destroy_work);
-+			queue_work(system_unbound_wq, &session->destroy_work);
- 		}
- 		break;
- 	case ISCSI_UEVENT_UNBIND_SESSION:
-@@ -4813,18 +4811,8 @@ static __init int iscsi_transport_init(void)
- 		goto release_nls;
- 	}
- 
--	iscsi_destroy_workq = alloc_workqueue("%s",
--			WQ_SYSFS | __WQ_LEGACY | WQ_MEM_RECLAIM | WQ_UNBOUND,
--			1, "iscsi_destroy");
--	if (!iscsi_destroy_workq) {
--		err = -ENOMEM;
--		goto destroy_wq;
--	}
--
- 	return 0;
- 
--destroy_wq:
--	destroy_workqueue(iscsi_eh_timer_workq);
- release_nls:
- 	netlink_kernel_release(nls);
- unregister_flashnode_bus:
-@@ -4846,7 +4834,6 @@ static __init int iscsi_transport_init(void)
- 
- static void __exit iscsi_transport_exit(void)
- {
--	destroy_workqueue(iscsi_destroy_workq);
- 	destroy_workqueue(iscsi_eh_timer_workq);
- 	netlink_kernel_release(nls);
- 	bus_unregister(&iscsi_flashnode_bus);
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index 853dba857239..2889717a770e 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -4718,7 +4718,7 @@ int pm8001_chip_ssp_tm_req(struct pm8001_hba_info *pm8001_ha,
+ 	memcpy(sspTMCmd.lun, task->ssp_task.LUN, 8);
+ 	sspTMCmd.tag = cpu_to_le32(ccb->ccb_tag);
+ 	if (pm8001_ha->chip_id != chip_8001)
+-		sspTMCmd.ds_ads_m = 0x08;
++		sspTMCmd.ds_ads_m = cpu_to_le32(0x08);
+ 	circularQ = &pm8001_ha->inbnd_q_tbl[0];
+ 	ret = pm8001_mpi_build_cmd(pm8001_ha, circularQ, opc, &sspTMCmd, 0);
+ 	return ret;
 -- 
-2.35.1
+2.34.1
 
 
 
