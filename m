@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F0B75055F1
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A23505343
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238962AbiDRNbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:31:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41338 "EHLO
+        id S238483AbiDRM4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:56:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244338AbiDRNaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:20 -0400
+        with ESMTP id S240186AbiDRMzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:55:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26F71419B2;
-        Mon, 18 Apr 2022 05:54:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55E48326;
+        Mon, 18 Apr 2022 05:36:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66FE2612AB;
-        Mon, 18 Apr 2022 12:54:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 563D7C385A7;
-        Mon, 18 Apr 2022 12:54:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E29296118A;
+        Mon, 18 Apr 2022 12:36:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA223C385A1;
+        Mon, 18 Apr 2022 12:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286461;
-        bh=E5ZDSC9CNXNQJhtA4BEXAQmKRrbKA1lbvTS6kqfHeqo=;
+        s=korg; t=1650285413;
+        bh=gusPdI5m6azWca8aRq+/AWPc9+WzG59tZwE6lZhDC2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HsZYrbYd5zF8MRyCwdNI72B6hTxuSp32Uyn7BPjJphr/XhdSf2sjjMfOc5HlWn2yi
-         1Vb4wKyQJQAn8x4WDpU/M2CYSHHT/qb4dSwRkcSBy4k1DRVQ3mU2jjHJWhSqinr6L7
-         HZnzeKp8n61Q3fYKaxghx2TxgNfgF+mtppL74ESo=
+        b=ty6bYvF9Rg/TPtyyyqapW2KiH2tYDCvFn43qx05/1QbAbHtzv0nx72AVY8EGdCB9t
+         /8X4+ub55XU3f7hAZyLY8jAUPsKZF5TrOY068kRaVp+DHCnPR+FRuL6vrDTOuQ03C4
+         62RcNzFQfXf24ysCDUJ7ZeS7K/2MIHV6iJ2K6mXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 143/284] pinctrl/rockchip: Add missing of_node_put() in rockchip_pinctrl_probe
-Date:   Mon, 18 Apr 2022 14:12:04 +0200
-Message-Id: <20220418121215.585016927@linuxfoundation.org>
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jakub Kicinski <kuba@kernel.org>, Xu Jia <xujia39@huawei.com>
+Subject: [PATCH 5.10 003/105] hamradio: remove needs_free_netdev to avoid UAF
+Date:   Mon, 18 Apr 2022 14:12:05 +0200
+Message-Id: <20220418121145.362837405@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
+References: <20220418121145.140991388@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 89388f8730699c259f8090ec435fb43569efe4ac ]
+commit 81b1d548d00bcd028303c4f3150fa753b9b8aa71 upstream.
 
-The device_node pointer is returned by of_parse_phandle()  with refcount
-incremented. We should use of_node_put() on it when done.
+The former patch "defer 6pack kfree after unregister_netdev" reorders
+the kfree of two buffer after the unregister_netdev to prevent the race
+condition. It also adds free_netdev() function in sixpack_close(), which
+is a direct copy from the similar code in mkiss_close().
 
-Fixes: 1e747e59cc4d ("pinctrl: rockchip: base regmap supplied by a syscon")
-Fixes: 14dee8677e19 ("pinctrl: rockchip: let pmu registers be supplied by a syscon")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220307120234.28657-1-linmq006@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, in sixpack driver, the flag needs_free_netdev is set to true in
+sp_setup(), hence the unregister_netdev() will free the netdev
+automatically. Therefore, as the sp is netdev_priv, use-after-free
+occurs.
+
+This patch removes the needs_free_netdev = true and just let the
+free_netdev to finish this deallocation task.
+
+Fixes: 0b9111922b1f ("hamradio: defer 6pack kfree after unregister_netdev")
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Link: https://lore.kernel.org/r/20211111141402.7551-1-linma@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xu Jia <xujia39@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/hamradio/6pack.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index d6b344163448..0c237dd13f2f 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -3168,6 +3168,7 @@ static int rockchip_pinctrl_probe(struct platform_device *pdev)
- 	node = of_parse_phandle(np, "rockchip,grf", 0);
- 	if (node) {
- 		info->regmap_base = syscon_node_to_regmap(node);
-+		of_node_put(node);
- 		if (IS_ERR(info->regmap_base))
- 			return PTR_ERR(info->regmap_base);
- 	} else {
-@@ -3204,6 +3205,7 @@ static int rockchip_pinctrl_probe(struct platform_device *pdev)
- 	node = of_parse_phandle(np, "rockchip,pmu", 0);
- 	if (node) {
- 		info->regmap_pmu = syscon_node_to_regmap(node);
-+		of_node_put(node);
- 		if (IS_ERR(info->regmap_pmu))
- 			return PTR_ERR(info->regmap_pmu);
- 	}
--- 
-2.34.1
-
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -311,7 +311,6 @@ static void sp_setup(struct net_device *
+ {
+ 	/* Finish setting up the DEVICE info. */
+ 	dev->netdev_ops		= &sp_netdev_ops;
+-	dev->needs_free_netdev	= true;
+ 	dev->mtu		= SIXP_MTU;
+ 	dev->hard_header_len	= AX25_MAX_HEADER_LEN;
+ 	dev->header_ops 	= &ax25_header_ops;
 
 
