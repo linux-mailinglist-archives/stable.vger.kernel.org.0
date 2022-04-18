@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5529650504F
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 597CC5054FC
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:23:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238475AbiDRMXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:23:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48808 "EHLO
+        id S242193AbiDRNNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238988AbiDRMXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:23:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A5B1F639;
-        Mon, 18 Apr 2022 05:18:42 -0700 (PDT)
+        with ESMTP id S243913AbiDRNKg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:10:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FE4F21833;
+        Mon, 18 Apr 2022 05:50:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F93C60F01;
-        Mon, 18 Apr 2022 12:18:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 464D3C385A1;
-        Mon, 18 Apr 2022 12:18:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC0061257;
+        Mon, 18 Apr 2022 12:50:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C49E6C385A7;
+        Mon, 18 Apr 2022 12:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284321;
-        bh=tZywWRlz/GYtnjHuFQ/H2v22JKSJT+kAwSDdH8vOghk=;
+        s=korg; t=1650286208;
+        bh=5ei0AvfUFz5VyRFx6wipvp0Rm05AiCHILJrtzFpMfyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqzy/wWJoVS/j6JbGvLPi+tU+cvqRaSLngkMuw++Ch1wR0D+zjtKOeyW0snvhbZ7S
-         UL3S0c+DqwaXo4hAjjfwH7/wH0uLM6LqzO3YFCeU1mA4JiwiNnYlOYdqAQqgCOkgs9
-         gq2jrsAoDktIci0AS17MGlskMNeDMZQMq+UORsmI=
+        b=fmOQD4DDCT4I7oo0x03HPTIhijZKImZ5MYuOWeFARrs22OiOcBuQShh+BWgGyb4O+
+         49zqfPo29Z/TYdd2b1UUN1LAno+BZbqQX7L+4a2cK+fj+cwmniCpxI7NB/v0rLH5EK
+         vgK7HWZUf9Oyt7sKo0FmxwVCb8WGjJ59Lreg1VJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 074/219] net: mdio: dont defer probe forever if PHY IRQ provider is missing
+Subject: [PATCH 4.14 062/284] hwrng: atmel - disable trng on failure path
 Date:   Mon, 18 Apr 2022 14:10:43 +0200
-Message-Id: <20220418121208.043153639@linuxfoundation.org>
+Message-Id: <20220418121212.455206444@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 74befa447e6839cdd90ed541159ec783726946f9 ]
+[ Upstream commit a223ea9f89ab960eb254ba78429efd42eaf845eb ]
 
-When a driver for an interrupt controller is missing, of_irq_get()
-returns -EPROBE_DEFER ad infinitum, causing
-fwnode_mdiobus_phy_device_register(), and ultimately, the entire
-of_mdiobus_register() call, to fail. In turn, any phy_connect() call
-towards a PHY on this MDIO bus will also fail.
+Call atmel_trng_disable() on failure path of probe.
 
-This is not what is expected to happen, because the PHY library falls
-back to poll mode when of_irq_get() returns a hard error code, and the
-MDIO bus, PHY and attached Ethernet controller work fine, albeit
-suboptimally, when the PHY library polls for link status. However,
--EPROBE_DEFER has special handling given the assumption that at some
-point probe deferral will stop, and the driver for the supplier will
-kick in and create the IRQ domain.
-
-Reasons for which the interrupt controller may be missing:
-
-- It is not yet written. This may happen if a more recent DT blob (with
-  an interrupt-parent for the PHY) is used to boot an old kernel where
-  the driver didn't exist, and that kernel worked with the
-  vintage-correct DT blob using poll mode.
-
-- It is compiled out. Behavior is the same as above.
-
-- It is compiled as a module. The kernel will wait for a number of
-  seconds specified in the "deferred_probe_timeout" boot parameter for
-  user space to load the required module. The current default is 0,
-  which times out at the end of initcalls. It is possible that this
-  might cause regressions unless users adjust this boot parameter.
-
-The proposed solution is to use the driver_deferred_probe_check_state()
-helper function provided by the driver core, which gives up after some
--EPROBE_DEFER attempts, taking "deferred_probe_timeout" into consideration.
-The return code is changed from -EPROBE_DEFER into -ENODEV or
--ETIMEDOUT, depending on whether the kernel is compiled with support for
-modules or not.
-
-Fixes: 66bdede495c7 ("of_mdio: Fix broken PHY IRQ in case of probe deferral")
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220407165538.4084809-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: a1fa98d8116f ("hwrng: atmel - disable TRNG during suspend")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c              | 1 +
- drivers/net/mdio/fwnode_mdio.c | 5 +++++
- 2 files changed, 6 insertions(+)
+ drivers/char/hw_random/atmel-rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 752a11d16e26..7e079fa3795b 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -296,6 +296,7 @@ int driver_deferred_probe_check_state(struct device *dev)
+diff --git a/drivers/char/hw_random/atmel-rng.c b/drivers/char/hw_random/atmel-rng.c
+index 661c82cde0f2..92a8960ceba5 100644
+--- a/drivers/char/hw_random/atmel-rng.c
++++ b/drivers/char/hw_random/atmel-rng.c
+@@ -95,6 +95,7 @@ static int atmel_trng_probe(struct platform_device *pdev)
  
- 	return -EPROBE_DEFER;
+ err_register:
+ 	clk_disable_unprepare(trng->clk);
++	atmel_trng_disable(trng);
+ 	return ret;
  }
-+EXPORT_SYMBOL_GPL(driver_deferred_probe_check_state);
- 
- static void deferred_probe_timeout_work_func(struct work_struct *work)
- {
-diff --git a/drivers/net/mdio/fwnode_mdio.c b/drivers/net/mdio/fwnode_mdio.c
-index 1becb1a731f6..1c1584fca632 100644
---- a/drivers/net/mdio/fwnode_mdio.c
-+++ b/drivers/net/mdio/fwnode_mdio.c
-@@ -43,6 +43,11 @@ int fwnode_mdiobus_phy_device_register(struct mii_bus *mdio,
- 	int rc;
- 
- 	rc = fwnode_irq_get(child, 0);
-+	/* Don't wait forever if the IRQ provider doesn't become available,
-+	 * just fall back to poll mode
-+	 */
-+	if (rc == -EPROBE_DEFER)
-+		rc = driver_deferred_probe_check_state(&phy->mdio.dev);
- 	if (rc == -EPROBE_DEFER)
- 		return rc;
  
 -- 
-2.35.1
+2.34.1
 
 
 
