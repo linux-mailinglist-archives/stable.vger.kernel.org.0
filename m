@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 840025053D8
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:01:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DBF65052A4
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240836AbiDRNBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:01:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50898 "EHLO
+        id S237264AbiDRMuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:50:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241101AbiDRM6X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:58:23 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2610A24F30;
-        Mon, 18 Apr 2022 05:38:38 -0700 (PDT)
+        with ESMTP id S240440AbiDRMth (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:49:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9556A2B250;
+        Mon, 18 Apr 2022 05:33:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7F90FCE10AF;
-        Mon, 18 Apr 2022 12:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69C12C385A1;
-        Mon, 18 Apr 2022 12:38:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC18D61033;
+        Mon, 18 Apr 2022 12:33:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDDD8C385A1;
+        Mon, 18 Apr 2022 12:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650285514;
-        bh=JQnow2SOT802oNKrq1lbJ5cGXDWXQkeciol61Csm9AI=;
+        s=korg; t=1650285227;
+        bh=0w5fkYWRq9t9bwKn/65Gjp/8xhsgA6n0+Ym3YnpIS4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FH2w2omKBKUH9XGk2a4iH1XxIBrvv14eNjqAimMuQbXjPtnCbVM9kvgJL7LFd3+Yg
-         HDxe6+M91eZKeBvbkL3gVliVW4wi5u9nvcDh493IdN0UMt9i91jgl2ellz7TP+BRbD
-         qphU7e3OaGgMAkNHgL/L7sRyoqHhJPRG9f72Y1Gs=
+        b=h26+t1xMD4P7Vjjb+Myez97KCvk+NPqzlb+DpvCRh4xaQ08aFT3/lCwpc4tPysMyd
+         OEY3m7v0VzvNdityKg4dz2sOhrECOAcbqQNpeUBD091HsTpVDXV1oV5VQ2kC6xUGML
+         rOEqS8rRZrQmnLFK+oOQX4sYdzjx0RVRG7oXT19Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Frank Li <Frank.li@nxp.com>, Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        linux-arm-kernel@lists.infradead.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/105] net: bcmgenet: Revert "Use stronger register read/writes to assure ordering"
+Subject: [PATCH 5.15 143/189] perf/imx_ddr: Fix undefined behavior due to shift overflowing the constant
 Date:   Mon, 18 Apr 2022 14:12:43 +0200
-Message-Id: <20220418121147.644952639@linuxfoundation.org>
+Message-Id: <20220418121205.660191822@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121145.140991388@linuxfoundation.org>
-References: <20220418121145.140991388@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +61,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 2df3fc4a84e917a422935cc5bae18f43f9955d31 ]
+[ Upstream commit d02b4dd84e1a90f7f1444d027c0289bf355b0d5a ]
 
-It turns out after digging deeper into this bug, that it was being
-triggered by GCC12 failing to call the bcmgenet_enable_dma()
-routine. Given that a gcc12 fix has been merged [1] and the genet
-driver now works properly when built with gcc12, this commit should
-be reverted.
+Fix:
 
-[1]
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105160
-https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=aabb9a261ef060cf24fd626713f1d7d9df81aa57
+  In file included from <command-line>:0:0:
+  In function ‘ddr_perf_counter_enable’,
+      inlined from ‘ddr_perf_irq_handler’ at drivers/perf/fsl_imx8_ddr_perf.c:651:2:
+  ././include/linux/compiler_types.h:352:38: error: call to ‘__compiletime_assert_729’ \
+	declared with attribute error: FIELD_PREP: mask is not constant
+    _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+...
 
-Fixes: 8d3ea3d402db ("net: bcmgenet: Use stronger register read/writes to assure ordering")
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220412210420.1129430-1-jeremy.linton@arm.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Frank Li <Frank.li@nxp.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220405151517.29753-10-bp@alien8.de
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/perf/fsl_imx8_ddr_perf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 7dcd5613ee56..a2062144d7ca 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -76,7 +76,7 @@ static inline void bcmgenet_writel(u32 value, void __iomem *offset)
- 	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		__raw_writel(value, offset);
- 	else
--		writel(value, offset);
-+		writel_relaxed(value, offset);
- }
+diff --git a/drivers/perf/fsl_imx8_ddr_perf.c b/drivers/perf/fsl_imx8_ddr_perf.c
+index 94ebc1ecace7..b1b2a55de77f 100644
+--- a/drivers/perf/fsl_imx8_ddr_perf.c
++++ b/drivers/perf/fsl_imx8_ddr_perf.c
+@@ -29,7 +29,7 @@
+ #define CNTL_OVER_MASK		0xFFFFFFFE
  
- static inline u32 bcmgenet_readl(void __iomem *offset)
-@@ -84,7 +84,7 @@ static inline u32 bcmgenet_readl(void __iomem *offset)
- 	if (IS_ENABLED(CONFIG_MIPS) && IS_ENABLED(CONFIG_CPU_BIG_ENDIAN))
- 		return __raw_readl(offset);
- 	else
--		return readl(offset);
-+		return readl_relaxed(offset);
- }
+ #define CNTL_CSV_SHIFT		24
+-#define CNTL_CSV_MASK		(0xFF << CNTL_CSV_SHIFT)
++#define CNTL_CSV_MASK		(0xFFU << CNTL_CSV_SHIFT)
  
- static inline void dmadesc_set_length_status(struct bcmgenet_priv *priv,
+ #define EVENT_CYCLES_ID		0
+ #define EVENT_CYCLES_COUNTER	0
 -- 
 2.35.1
 
