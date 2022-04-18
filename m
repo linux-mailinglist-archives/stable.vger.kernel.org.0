@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F741505000
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:17:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E8E505593
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238138AbiDRMUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49266 "EHLO
+        id S241508AbiDRNQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:16:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238178AbiDRMTr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:19:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BFC61AD89;
-        Mon, 18 Apr 2022 05:16:27 -0700 (PDT)
+        with ESMTP id S241517AbiDRNIB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:08:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52B792AE31;
+        Mon, 18 Apr 2022 05:47:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 481B6CE1077;
-        Mon, 18 Apr 2022 12:16:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07671C385A7;
-        Mon, 18 Apr 2022 12:16:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0848DB80EC0;
+        Mon, 18 Apr 2022 12:47:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF3FC385A1;
+        Mon, 18 Apr 2022 12:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284183;
-        bh=g2rNjQNG0sDfRmDtZRk544KJU8K+uBrjsb5r0xlxa6E=;
+        s=korg; t=1650286059;
+        bh=lFCP5nzLeSmkOcqS5XILgFyL0/GQwVTVtYdNABHyz08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpXrXURarOuRc5HJ7Kgft5Q2jDbw1CCU5cCTh+W9Bt8VN38EaZM1HQo5+YGEF9LeY
-         caaau25kPVZJsrCYNzJKrjfGUcVwr7yjB5gOZBOg7kOLtbRF/eT4Fkw6iuQ2lJ2gJ4
-         R1JdU4jxLAy82RqJLTI055IsvXGmILEiY8egl55s=
+        b=CEgSArJLZclO4u5KpkB0AtYDZpoeS8QKqsNaggox764VLWu6zHyClPU9KYdIo94PU
+         6jL+nBaNz0GnZtEMO3Y9M+6uk+OJ6AmEnqZfcG2pikYprSer5W2mu6JYzQ292p6QsK
+         KLEK4vqx1J+gzibU/Bsi+JG+VMqoUsMohe0rpxWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 029/219] ALSA: cs4281: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Liam Beguin <liambeguin@gmail.com>,
+        Peter Rosin <peda@axentia.se>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 017/284] iio: inkern: make a best effort on offset calculation
 Date:   Mon, 18 Apr 2022 14:09:58 +0200
-Message-Id: <20220418121205.009137322@linuxfoundation.org>
+Message-Id: <20220418121211.187957179@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Liam Beguin <liambeguin@gmail.com>
 
-commit 9bf5ed9a4e623583f15202d99f4521bc39050f61 upstream.
+commit ca85123354e1a65a22170286387b4791997fe864 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+iio_convert_raw_to_processed_unlocked() assumes the offset is an
+integer. Make a best effort to get a valid offset value for fractional
+cases without breaking implicit truncations.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
-
-Fixes: 99041fea70d0 ("ALSA: cs4281: Allocate resources with device-managed APIs")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-11-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 48e44ce0f881 ("iio:inkern: Add function to read the processed value")
+Signed-off-by: Liam Beguin <liambeguin@gmail.com>
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20220108205319.2046348-4-liambeguin@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/cs4281.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/iio/inkern.c |   32 +++++++++++++++++++++++++++-----
+ 1 file changed, 27 insertions(+), 5 deletions(-)
 
---- a/sound/pci/cs4281.c
-+++ b/sound/pci/cs4281.c
-@@ -1827,8 +1827,8 @@ static void snd_cs4281_opl3_command(stru
- 	spin_unlock_irqrestore(&opl3->reg_lock, flags);
- }
- 
--static int snd_cs4281_probe(struct pci_dev *pci,
--			    const struct pci_device_id *pci_id)
-+static int __snd_cs4281_probe(struct pci_dev *pci,
-+			      const struct pci_device_id *pci_id)
+--- a/drivers/iio/inkern.c
++++ b/drivers/iio/inkern.c
+@@ -591,13 +591,35 @@ EXPORT_SYMBOL_GPL(iio_read_channel_avera
+ static int iio_convert_raw_to_processed_unlocked(struct iio_channel *chan,
+ 	int raw, int *processed, unsigned int scale)
  {
- 	static int dev;
- 	struct snd_card *card;
-@@ -1888,6 +1888,12 @@ static int snd_cs4281_probe(struct pci_d
- 	return 0;
- }
+-	int scale_type, scale_val, scale_val2, offset;
++	int scale_type, scale_val, scale_val2;
++	int offset_type, offset_val, offset_val2;
+ 	s64 raw64 = raw;
+-	int ret;
  
-+static int snd_cs4281_probe(struct pci_dev *pci,
-+			    const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_cs4281_probe(pci, pci_id));
-+}
+-	ret = iio_channel_read(chan, &offset, NULL, IIO_CHAN_INFO_OFFSET);
+-	if (ret >= 0)
+-		raw64 += offset;
++	offset_type = iio_channel_read(chan, &offset_val, &offset_val2,
++				       IIO_CHAN_INFO_OFFSET);
++	if (offset_type >= 0) {
++		switch (offset_type) {
++		case IIO_VAL_INT:
++			break;
++		case IIO_VAL_INT_PLUS_MICRO:
++		case IIO_VAL_INT_PLUS_NANO:
++			/*
++			 * Both IIO_VAL_INT_PLUS_MICRO and IIO_VAL_INT_PLUS_NANO
++			 * implicitely truncate the offset to it's integer form.
++			 */
++			break;
++		case IIO_VAL_FRACTIONAL:
++			offset_val /= offset_val2;
++			break;
++		case IIO_VAL_FRACTIONAL_LOG2:
++			offset_val >>= offset_val2;
++			break;
++		default:
++			return -EINVAL;
++		}
 +
- /*
-  * Power Management
-  */
++		raw64 += offset_val;
++	}
+ 
+ 	scale_type = iio_channel_read(chan, &scale_val, &scale_val2,
+ 					IIO_CHAN_INFO_SCALE);
 
 
