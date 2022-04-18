@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11B14505150
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:32:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E54AC505566
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239111AbiDRMeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:34:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51964 "EHLO
+        id S240390AbiDRNPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:15:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239807AbiDRMd2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:33:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D501B7B8;
-        Mon, 18 Apr 2022 05:26:32 -0700 (PDT)
+        with ESMTP id S242044AbiDRNNS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:13:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542362DA9C;
+        Mon, 18 Apr 2022 05:50:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F31760B40;
-        Mon, 18 Apr 2022 12:26:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 246CDC385A1;
-        Mon, 18 Apr 2022 12:26:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E5B861256;
+        Mon, 18 Apr 2022 12:50:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4184C385A1;
+        Mon, 18 Apr 2022 12:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284791;
-        bh=qpVTc7+3ifbfoP/oGzLvgbLxeru/ApKNEpfvierqZMo=;
+        s=korg; t=1650286258;
+        bh=64WSwsWMU/xKi1MR4L5fR0tWrt3NkgAciY9O3eHCo/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GoR0B83emf9MjW5z/bbjOM77vIUs59UaVH6eAvHxPXr2l9T3DCVCaKcFW96Y4pwW0
-         RcIb1uFQKrDH7ELIMgOeCzOjyYnHD2mU5E5PJVzrXVxpCQdPgTsVPZFRtVIntaUdlF
-         /1VB8d557/GaTnwaTJBXbnQgO6fy3e1CjIFbdrYQ=
+        b=A122EymkK11CdiN3Vr0/DTGUjvPYbA9gT1J8CCgPuqVMb8DjGyHx3zrmUUbeViiT+
+         QeMyrT9VVDe4l+F56hLou0vuZnmjCSJtaeeDiND2WVHrO1t2wg/Tx3v4+K6+U7Z2Yt
+         IAuT+PXB+CSgBle+YAckHt8krlpclGLCz9igWgFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Eric Yang <Eric.Yang2@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 002/189] drm/amd/display: Fix p-state allow debug index on dcn31
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Alexander Dahl <ada@thorsis.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: [PATCH 4.14 041/284] ARM: dts: at91: sama5d2: Fix PMERRLOC resource size
 Date:   Mon, 18 Apr 2022 14:10:22 +0200
-Message-Id: <20220418121200.425177027@linuxfoundation.org>
+Message-Id: <20220418121211.862607178@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-References: <20220418121200.312988959@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 3107e1a7ae088ee94323fe9ab05dbefd65b3077f upstream.
+commit 0fb578a529ac7aca326a9fa475b4a6f58a756fda upstream.
 
-[Why]
-It changed since dcn30 but the hubbub31 constructor hasn't been
-modified to reflect this.
+PMERRLOC resource size was set to 0x100, which resulted in HSMC_ERRLOCx
+register being truncated to offset x = 21, causing error correction to
+fail if more than 22 bit errors and if 24 or 32 bit error correction
+was supported.
 
-[How]
-Update the value in the constructor to 0x6 so we're checking the right
-bits for p-state allow.
-
-It worked before by accident, but can falsely assert 0 depending on HW
-state transitions. The most frequent of which appears to be when
-all pipes turn off during IGT tests.
-
-Cc: Harry Wentland <harry.wentland@amd.com>
-
-Fixes: e7031d8258f1b4 ("drm/amd/display: Add pstate verification and recovery for DCN31")
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
-Acked-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: d9c41bf30cf8 ("ARM: dts: at91: Declare EBI/NAND controllers")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Cc: <stable@vger.kernel.org> # 4.13.x
+Acked-by: Alexander Dahl <ada@thorsis.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20220111132301.906712-1-tudor.ambarus@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/sama5d2.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_hubbub.c
-@@ -1042,5 +1042,7 @@ void hubbub31_construct(struct dcn20_hub
- 	hubbub31->detile_buf_size = det_size_kb * 1024;
- 	hubbub31->pixel_chunk_size = pixel_chunk_size_kb * 1024;
- 	hubbub31->crb_size_segs = config_return_buffer_size_kb / DCN31_CRB_SEGMENT_SIZE_KB;
-+
-+	hubbub31->debug_test_index_pstate = 0x6;
- }
+--- a/arch/arm/boot/dts/sama5d2.dtsi
++++ b/arch/arm/boot/dts/sama5d2.dtsi
+@@ -1121,7 +1121,7 @@
+ 				pmecc: ecc-engine@f8014070 {
+ 					compatible = "atmel,sama5d2-pmecc";
+ 					reg = <0xf8014070 0x490>,
+-					      <0xf8014500 0x100>;
++					      <0xf8014500 0x200>;
+ 				};
+ 			};
  
 
 
