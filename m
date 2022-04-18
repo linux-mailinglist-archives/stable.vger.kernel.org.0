@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E4F504FE3
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:16:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B651350559F
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238206AbiDRMS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:18:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48808 "EHLO
+        id S232157AbiDRNPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:15:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238213AbiDRMSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:18:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B8CE1B790;
-        Mon, 18 Apr 2022 05:15:52 -0700 (PDT)
+        with ESMTP id S243010AbiDRNJq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:09:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E3B0369E7;
+        Mon, 18 Apr 2022 05:49:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5187EB80EC1;
-        Mon, 18 Apr 2022 12:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DDBEC385A1;
-        Mon, 18 Apr 2022 12:15:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B3B1B80EC3;
+        Mon, 18 Apr 2022 12:49:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9F5FC385A8;
+        Mon, 18 Apr 2022 12:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284150;
-        bh=IerkZ3grBNTOfrFLSCzoo3e0r4RUyaZwXYa50HoRnMI=;
+        s=korg; t=1650286147;
+        bh=z+MJ5BwcFYCOls5GqHWIzpBRgYQfepqqFTN/5M0j8+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tokkL+wubTRk5nEOjT26E5X+rQPiFSMi7TNESWTMFjDPP2K5Di31Qnpqf+vzomiCk
-         LhJgQZNd7Q5rWU/mqtqeDwfcf34mpET7zuuNNpIipB6MI+GgUCK6YzESezA7jS8L8W
-         TxqQgKCdeyH78+Lh+KRMhZSxjVmGd0l+xvYh5xdM=
+        b=TQb8FyAGGxhP57sRA4LtmvnxKVfR10mKocN0+fr+dXDypo6iASRN6RfKeHXI1jIWu
+         mmnQjYunUkaVDW8xHo0eMNE3Px0aG1XWR306cH07PTTl+qjJOTkv/jlLwA2pMSRqMH
+         SRGKfnHyRHa9NBV8BHvU1nTFnFs11/DbJpTollXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 021/219] ALSA: als4000: Fix the missing snd_card_free() call at probe error
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Zach OKeefe <zokeefe@google.com>
+Subject: [PATCH 4.14 009/284] fuse: fix pipe buffer lifetime for direct_io
 Date:   Mon, 18 Apr 2022 14:09:50 +0200
-Message-Id: <20220418121204.515366861@linuxfoundation.org>
+Message-Id: <20220418121210.961307913@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,53 +54,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit d616a0246da88d811f9f4c3aa83003c05efd3af0 upstream.
+commit 0c4bcfdecb1ac0967619ee7ff44871d93c08c909 upstream.
 
-The previous cleanup with devres may lead to the incorrect release
-orders at the probe error handling due to the devres's nature.  Until
-we register the card, snd_card_free() has to be called at first for
-releasing the stuff properly when the driver tries to manage and
-release the stuff via card->private_free().
+In FOPEN_DIRECT_IO mode, fuse_file_write_iter() calls
+fuse_direct_write_iter(), which normally calls fuse_direct_io(), which then
+imports the write buffer with fuse_get_user_pages(), which uses
+iov_iter_get_pages() to grab references to userspace pages instead of
+actually copying memory.
 
-This patch fixes it by calling snd_card_free() on the error from the
-probe callback using a new helper function.
+On the filesystem device side, these pages can then either be read to
+userspace (via fuse_dev_read()), or splice()d over into a pipe using
+fuse_dev_splice_read() as pipe buffers with &nosteal_pipe_buf_ops.
 
-Fixes: 0e175f665960 ("ALSA: als4000: Allocate resources with device-managed APIs")
+This is wrong because after fuse_dev_do_read() unlocks the FUSE request,
+the userspace filesystem can mark the request as completed, causing write()
+to return. At that point, the userspace filesystem should no longer have
+access to the pipe buffer.
+
+Fix by copying pages coming from the user address space to new pipe
+buffers.
+
+Reported-by: Jann Horn <jannh@google.com>
+Fixes: c3021629a0d8 ("fuse: support splice() reading from fuse device")
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220412102636.16000-6-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Zach O'Keefe <zokeefe@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/als4000.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/fuse/dev.c    |   12 +++++++++++-
+ fs/fuse/file.c   |    1 +
+ fs/fuse/fuse_i.h |    2 ++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
---- a/sound/pci/als4000.c
-+++ b/sound/pci/als4000.c
-@@ -806,8 +806,8 @@ static void snd_card_als4000_free( struc
- 	snd_als4000_free_gameport(acard);
- }
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -991,7 +991,17 @@ static int fuse_copy_page(struct fuse_co
  
--static int snd_card_als4000_probe(struct pci_dev *pci,
--				  const struct pci_device_id *pci_id)
-+static int __snd_card_als4000_probe(struct pci_dev *pci,
-+				    const struct pci_device_id *pci_id)
- {
- 	static int dev;
- 	struct snd_card *card;
-@@ -930,6 +930,12 @@ static int snd_card_als4000_probe(struct
- 	return 0;
- }
+ 	while (count) {
+ 		if (cs->write && cs->pipebufs && page) {
+-			return fuse_ref_page(cs, page, offset, count);
++			/*
++			 * Can't control lifetime of pipe buffers, so always
++			 * copy user pages.
++			 */
++			if (cs->req->user_pages) {
++				err = fuse_copy_fill(cs);
++				if (err)
++					return err;
++			} else {
++				return fuse_ref_page(cs, page, offset, count);
++			}
+ 		} else if (!cs->len) {
+ 			if (cs->move_pages && page &&
+ 			    offset == 0 && count == PAGE_SIZE) {
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1325,6 +1325,7 @@ static int fuse_get_user_pages(struct fu
+ 			(PAGE_SIZE - ret) & (PAGE_SIZE - 1);
+ 	}
  
-+static int snd_card_als4000_probe(struct pci_dev *pci,
-+				  const struct pci_device_id *pci_id)
-+{
-+	return snd_card_free_on_error(&pci->dev, __snd_card_als4000_probe(pci, pci_id));
-+}
++	req->user_pages = true;
+ 	if (write)
+ 		req->in.argpages = 1;
+ 	else
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -312,6 +312,8 @@ struct fuse_req {
+ 	/** refcount */
+ 	refcount_t count;
+ 
++	bool user_pages;
 +
- #ifdef CONFIG_PM_SLEEP
- static int snd_als4000_suspend(struct device *dev)
- {
+ 	/** Unique ID for the interrupt request */
+ 	u64 intr_unique;
+ 
 
 
