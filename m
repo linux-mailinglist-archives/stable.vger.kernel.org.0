@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32996505113
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:28:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 202905051C8
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:41:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238950AbiDRMaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 08:30:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38502 "EHLO
+        id S231476AbiDRMkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238932AbiDRM1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:27:32 -0400
+        with ESMTP id S240505AbiDRMjS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68D681DA45;
-        Mon, 18 Apr 2022 05:20:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90654DD3;
+        Mon, 18 Apr 2022 05:29:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0C31B80EDC;
-        Mon, 18 Apr 2022 12:20:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FB9EC385A7;
-        Mon, 18 Apr 2022 12:20:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F767B80EDE;
+        Mon, 18 Apr 2022 12:29:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3352C385A8;
+        Mon, 18 Apr 2022 12:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650284455;
-        bh=K5RdTTCq8kAUQ0QefNrXg318RXOD+fZs/EpmbwyeWJg=;
+        s=korg; t=1650284986;
+        bh=990psWNqzMEthyxJ902dzVHKuK4BQOc2qlF34o1P3pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqJULqx367HtI6cfPF6IXBFAFRwOC0OBve4rAUl3NpRbRmb9TWGX/0GCJBP+S0ANo
-         h0obq1EW/jEmnQj2MhwJRfAaLKFocoKsco9bjk1xWv1MrtydPciI6bk/5aV0q2q2eT
-         ET4abcP32s+FBo2GldsrJS2223DSrdyg+qu2dnqQ=
+        b=CxKzzU7M7gDKXQnGmzH4/WXu1LA/9SNMooyq6RwXXLnu4mqGxXXC1svhYWuv0h0Vk
+         dKxd34k/0Y2jBlzvIc9DtvN5U7HPPvKFN7GrXIZjnqR+4+KFuK2IZE9zOdi0u3Hc3R
+         QMrzlRadtl6qhyuVgl4wRLwayc/jof8D84Cjr1Q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khazhismel Kumykov <khazhy@google.com>,
-        Mike Snitzer <snitzer@kernel.org>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 121/219] dm mpath: only use ktime_get_ns() in historical selector
+Subject: [PATCH 5.15 070/189] net: dsa: felix: suppress -EPROBE_DEFER errors
 Date:   Mon, 18 Apr 2022 14:11:30 +0200
-Message-Id: <20220418121210.285415471@linuxfoundation.org>
+Message-Id: <20220418121202.495473719@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
-References: <20220418121203.462784814@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khazhismel Kumykov <khazhy@google.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit ce40426fdc3c92acdba6b5ca74bc7277ffaa6a3d ]
+[ Upstream commit e6934e4048c91502efcb21da92b7ae37cd8fa741 ]
 
-Mixing sched_clock() and ktime_get_ns() usage will give bad results.
+The DSA master might not have been probed yet in which case the probe of
+the felix switch fails with -EPROBE_DEFER:
+[    4.435305] mscc_felix 0000:00:00.5: Failed to register DSA switch: -517
 
-Switch hst_select_path() from using sched_clock() to ktime_get_ns().
-Also rename path_service_time()'s 'sched_now' variable to 'now'.
+It is not an error. Use dev_err_probe() to demote this particular error
+to a debug message.
 
-Fixes: 2613eab11996 ("dm mpath: add Historical Service Time Path Selector")
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Signed-off-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 56051948773e ("net: dsa: ocelot: add driver for Felix switch family")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20220408101521.281886-1-michael@walle.cc
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-ps-historical-service-time.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/dsa/ocelot/felix_vsc9959.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-ps-historical-service-time.c b/drivers/md/dm-ps-historical-service-time.c
-index 875bca30a0dd..82f2a06153dc 100644
---- a/drivers/md/dm-ps-historical-service-time.c
-+++ b/drivers/md/dm-ps-historical-service-time.c
-@@ -27,7 +27,6 @@
- #include <linux/blkdev.h>
- #include <linux/slab.h>
- #include <linux/module.h>
--#include <linux/sched/clock.h>
+diff --git a/drivers/net/dsa/ocelot/felix_vsc9959.c b/drivers/net/dsa/ocelot/felix_vsc9959.c
+index e53ad283e259..a9c7ada890d8 100644
+--- a/drivers/net/dsa/ocelot/felix_vsc9959.c
++++ b/drivers/net/dsa/ocelot/felix_vsc9959.c
+@@ -1455,7 +1455,7 @@ static int felix_pci_probe(struct pci_dev *pdev,
  
+ 	err = dsa_register_switch(ds);
+ 	if (err) {
+-		dev_err(&pdev->dev, "Failed to register DSA switch: %d\n", err);
++		dev_err_probe(&pdev->dev, err, "Failed to register DSA switch\n");
+ 		goto err_register_ds;
+ 	}
  
- #define DM_MSG_PREFIX	"multipath historical-service-time"
-@@ -433,7 +432,7 @@ static struct dm_path *hst_select_path(struct path_selector *ps,
- {
- 	struct selector *s = ps->context;
- 	struct path_info *pi = NULL, *best = NULL;
--	u64 time_now = sched_clock();
-+	u64 time_now = ktime_get_ns();
- 	struct dm_path *ret = NULL;
- 	unsigned long flags;
- 
-@@ -474,7 +473,7 @@ static int hst_start_io(struct path_selector *ps, struct dm_path *path,
- 
- static u64 path_service_time(struct path_info *pi, u64 start_time)
- {
--	u64 sched_now = ktime_get_ns();
-+	u64 now = ktime_get_ns();
- 
- 	/* if a previous disk request has finished after this IO was
- 	 * sent to the hardware, pretend the submission happened
-@@ -483,11 +482,11 @@ static u64 path_service_time(struct path_info *pi, u64 start_time)
- 	if (time_after64(pi->last_finish, start_time))
- 		start_time = pi->last_finish;
- 
--	pi->last_finish = sched_now;
--	if (time_before64(sched_now, start_time))
-+	pi->last_finish = now;
-+	if (time_before64(now, start_time))
- 		return 0;
- 
--	return sched_now - start_time;
-+	return now - start_time;
- }
- 
- static int hst_end_io(struct path_selector *ps, struct dm_path *path,
 -- 
 2.35.1
 
