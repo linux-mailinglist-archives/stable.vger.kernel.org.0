@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1959850561C
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF60F505235
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 14:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242055AbiDRNcO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:32:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55976 "EHLO
+        id S239394AbiDRMlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 08:41:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243355AbiDRN24 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:28:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B89E63F309;
-        Mon, 18 Apr 2022 05:53:31 -0700 (PDT)
+        with ESMTP id S240787AbiDRMjh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 08:39:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7C025EB9;
+        Mon, 18 Apr 2022 05:30:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E259BB80D9C;
-        Mon, 18 Apr 2022 12:53:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DB42C385A1;
-        Mon, 18 Apr 2022 12:53:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A2B4B80ED6;
+        Mon, 18 Apr 2022 12:30:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 992A7C385A7;
+        Mon, 18 Apr 2022 12:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286408;
-        bh=uwWUHcocqa18DATC5hnFI4mO2NFYAmc2DXMf4447H+g=;
+        s=korg; t=1650285033;
+        bh=Wx4NCEWlH2dKwa1cDmSNLQyZi3kQ6S5UPpNLcHYn7bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pi/ISS/Dd2aCLujLLobdstcNOLxeMiv6fLn+cZMGJ2KJt0ul0g8j2rG2H4VKGBsWD
-         z4oyfNKrbcyJYH+2jSwYgrK32XPFAuauvah+wuCc+7i7MS6QEnlKaorLVjz2oq0Mp6
-         2+TkdFsy+4TgQJSMhp0esouGNBRR88F/5wfLeqKQ=
+        b=dT6kFkOBHSoF1afbLvpVFvCy06PGQcohi+2fcOZoDyaiS5c8/Mxp6GXQG36jbHRT+
+         B56rC8EYTxvuWInkS8CSZZznbFF3bFjz0+tZWPs74zGr+0mxu9hf0m+aN/ZzPm7Mwx
+         pjN26ecUPrX0PkJWeJL2+DSRLQSrZGyybWWpunG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 123/284] mtd: rawnand: atmel: fix refcount issue in atmel_nand_controller_init
+Subject: [PATCH 5.15 084/189] scsi: iscsi: Fix conn cleanup and stop race during iscsid restart
 Date:   Mon, 18 Apr 2022 14:11:44 +0200
-Message-Id: <20220418121214.658422150@linuxfoundation.org>
+Message-Id: <20220418121202.892499540@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
-References: <20220418121210.689577360@linuxfoundation.org>
+In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
+References: <20220418121200.312988959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,75 +56,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit fecbd4a317c95d73c849648c406bcf1b6a0ec1cf ]
+[ Upstream commit 7c6e99c18167ed89729bf167ccb4a7e3ab3115ba ]
 
-The reference counting issue happens in several error handling paths
-on a refcounted object "nc->dmac". In these paths, the function simply
-returns the error code, forgetting to balance the reference count of
-"nc->dmac", increased earlier by dma_request_channel(), which may
-cause refcount leaks.
+If iscsid is doing a stop_conn at the same time the kernel is starting
+error recovery we can hit a race that allows the cleanup work to run on a
+valid connection. In the race, iscsi_if_stop_conn sees the cleanup bit set,
+but it calls flush_work on the clean_work before iscsi_conn_error_event has
+queued it. The flush then returns before the queueing and so the
+cleanup_work can run later and disconnect/stop a conn while it's in a
+connected state.
 
-Fix it by decrementing the refcount of specific object in those error
-paths.
+The patch:
 
-Fixes: f88fc122cc34 ("mtd: nand: Cleanup/rework the atmel_nand driver")
-Co-developed-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Co-developed-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220304085330.3610-1-xiongx18@fudan.edu.cn
+Commit 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in
+kernel space")
+
+added the late stop_conn call bug originally, and the patch:
+
+Commit 23d6fefbb3f6 ("scsi: iscsi: Fix in-kernel conn failure handling")
+
+attempted to fix it but only fixed the normal EH case and left the above
+race for the iscsid restart case. For the normal EH case we don't hit the
+race because we only signal userspace to start recovery after we have done
+the queueing, so the flush will always catch the queued work or see it
+completed.
+
+For iscsid restart cases like boot, we can hit the race because iscsid will
+call down to the kernel before the kernel has signaled any error, so both
+code paths can be running at the same time. This adds a lock around the
+setting of the cleanup bit and queueing so they happen together.
+
+Link: https://lore.kernel.org/r/20220408001314.5014-6-michael.christie@oracle.com
+Fixes: 0ab710458da1 ("scsi: iscsi: Perform connection failure entirely in kernel space")
+Tested-by: Manish Rangankar <mrangankar@marvell.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/atmel/nand-controller.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 17 +++++++++++++++++
+ include/scsi/scsi_transport_iscsi.h |  2 ++
+ 2 files changed, 19 insertions(+)
 
-diff --git a/drivers/mtd/nand/atmel/nand-controller.c b/drivers/mtd/nand/atmel/nand-controller.c
-index d5a493e8ee08..475c751f2d1e 100644
---- a/drivers/mtd/nand/atmel/nand-controller.c
-+++ b/drivers/mtd/nand/atmel/nand-controller.c
-@@ -1998,13 +1998,15 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
- 	nc->mck = of_clk_get(dev->parent->of_node, 0);
- 	if (IS_ERR(nc->mck)) {
- 		dev_err(dev, "Failed to retrieve MCK clk\n");
--		return PTR_ERR(nc->mck);
-+		ret = PTR_ERR(nc->mck);
-+		goto out_release_dma;
- 	}
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 4fa2fd7f4c72..ed289e1242c9 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2260,9 +2260,12 @@ static void iscsi_if_disconnect_bound_ep(struct iscsi_cls_conn *conn,
+ 					 bool is_active)
+ {
+ 	/* Check if this was a conn error and the kernel took ownership */
++	spin_lock_irq(&conn->lock);
+ 	if (!test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
++		spin_unlock_irq(&conn->lock);
+ 		iscsi_ep_disconnect(conn, is_active);
+ 	} else {
++		spin_unlock_irq(&conn->lock);
+ 		ISCSI_DBG_TRANS_CONN(conn, "flush kernel conn cleanup.\n");
+ 		mutex_unlock(&conn->ep_mutex);
  
- 	np = of_parse_phandle(dev->parent->of_node, "atmel,smc", 0);
- 	if (!np) {
- 		dev_err(dev, "Missing or invalid atmel,smc property\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto out_release_dma;
+@@ -2309,9 +2312,12 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
+ 		/*
+ 		 * Figure out if it was the kernel or userspace initiating this.
+ 		 */
++		spin_lock_irq(&conn->lock);
+ 		if (!test_and_set_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
++			spin_unlock_irq(&conn->lock);
+ 			iscsi_stop_conn(conn, flag);
+ 		} else {
++			spin_unlock_irq(&conn->lock);
+ 			ISCSI_DBG_TRANS_CONN(conn,
+ 					     "flush kernel conn cleanup.\n");
+ 			flush_work(&conn->cleanup_work);
+@@ -2320,7 +2326,9 @@ static int iscsi_if_stop_conn(struct iscsi_transport *transport,
+ 		 * Only clear for recovery to avoid extra cleanup runs during
+ 		 * termination.
+ 		 */
++		spin_lock_irq(&conn->lock);
+ 		clear_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags);
++		spin_unlock_irq(&conn->lock);
  	}
- 
- 	nc->smc = syscon_node_to_regmap(np);
-@@ -2012,10 +2014,16 @@ static int atmel_nand_controller_init(struct atmel_nand_controller *nc,
- 	if (IS_ERR(nc->smc)) {
- 		ret = PTR_ERR(nc->smc);
- 		dev_err(dev, "Could not get SMC regmap (err = %d)\n", ret);
--		return ret;
-+		goto out_release_dma;
- 	}
- 
+ 	ISCSI_DBG_TRANS_CONN(conn, "iscsi if conn stop done.\n");
  	return 0;
-+
-+out_release_dma:
-+	if (nc->dmac)
-+		dma_release_channel(nc->dmac);
-+
-+	return ret;
- }
+@@ -2341,7 +2349,9 @@ static void iscsi_cleanup_conn_work_fn(struct work_struct *work)
+ 	 */
+ 	if (conn->state != ISCSI_CONN_BOUND && conn->state != ISCSI_CONN_UP) {
+ 		ISCSI_DBG_TRANS_CONN(conn, "Got error while conn is already failed. Ignoring.\n");
++		spin_lock_irq(&conn->lock);
+ 		clear_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags);
++		spin_unlock_irq(&conn->lock);
+ 		mutex_unlock(&conn->ep_mutex);
+ 		return;
+ 	}
+@@ -2407,6 +2417,7 @@ iscsi_create_conn(struct iscsi_cls_session *session, int dd_size, uint32_t cid)
+ 		conn->dd_data = &conn[1];
  
- static int
+ 	mutex_init(&conn->ep_mutex);
++	spin_lock_init(&conn->lock);
+ 	INIT_LIST_HEAD(&conn->conn_list);
+ 	INIT_WORK(&conn->cleanup_work, iscsi_cleanup_conn_work_fn);
+ 	conn->transport = transport;
+@@ -2598,9 +2609,12 @@ void iscsi_conn_error_event(struct iscsi_cls_conn *conn, enum iscsi_err error)
+ 	struct iscsi_uevent *ev;
+ 	struct iscsi_internal *priv;
+ 	int len = nlmsg_total_size(sizeof(*ev));
++	unsigned long flags;
+ 
++	spin_lock_irqsave(&conn->lock, flags);
+ 	if (!test_and_set_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags))
+ 		queue_work(iscsi_conn_cleanup_workq, &conn->cleanup_work);
++	spin_unlock_irqrestore(&conn->lock, flags);
+ 
+ 	priv = iscsi_if_transport_lookup(conn->transport);
+ 	if (!priv)
+@@ -3743,11 +3757,14 @@ static int iscsi_if_transport_conn(struct iscsi_transport *transport,
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&conn->ep_mutex);
++	spin_lock_irq(&conn->lock);
+ 	if (test_bit(ISCSI_CLS_CONN_BIT_CLEANUP, &conn->flags)) {
++		spin_unlock_irq(&conn->lock);
+ 		mutex_unlock(&conn->ep_mutex);
+ 		ev->r.retcode = -ENOTCONN;
+ 		return 0;
+ 	}
++	spin_unlock_irq(&conn->lock);
+ 
+ 	switch (nlh->nlmsg_type) {
+ 	case ISCSI_UEVENT_BIND_CONN:
+diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
+index c5d7810fd792..037c77fb5dc5 100644
+--- a/include/scsi/scsi_transport_iscsi.h
++++ b/include/scsi/scsi_transport_iscsi.h
+@@ -211,6 +211,8 @@ struct iscsi_cls_conn {
+ 	struct mutex ep_mutex;
+ 	struct iscsi_endpoint *ep;
+ 
++	/* Used when accessing flags and queueing work. */
++	spinlock_t lock;
+ 	unsigned long flags;
+ 	struct work_struct cleanup_work;
+ 
 -- 
-2.34.1
+2.35.1
 
 
 
