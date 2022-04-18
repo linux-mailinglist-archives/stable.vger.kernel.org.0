@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 897D55057C6
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D0450562A
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243023AbiDRN4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 09:56:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36466 "EHLO
+        id S242131AbiDRNcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:32:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245617AbiDRNxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:53:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B5B46B0E;
-        Mon, 18 Apr 2022 06:02:57 -0700 (PDT)
+        with ESMTP id S243492AbiDRN3A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:29:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D59983F884;
+        Mon, 18 Apr 2022 05:53:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADE5CB80EBA;
-        Mon, 18 Apr 2022 13:02:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAD17C385A8;
-        Mon, 18 Apr 2022 13:02:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71A9EB80EE3;
+        Mon, 18 Apr 2022 12:53:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4234C385A1;
+        Mon, 18 Apr 2022 12:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650286974;
-        bh=D0KhdQUtd4xsL/VSZoclQHtl4B5v9CRGQPzcl2JCxKY=;
+        s=korg; t=1650286415;
+        bh=EDS44k4+oZZm5OBv8TayznwgljQV0mGj2t6/7PAilQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DXU0OD8DSwfziiAda7LwAxfta48W8auq0WC833AMt8G4yDVzKj9XZeP/TZVc9Mw0n
-         QNDzQ4gaUjd/viWLisxTz3tEi/q/64y8xbVys1P9fFlEreiK9jwLqjoOEt+PUIMj8a
-         Ti9GX7x5kwx0FcMNX0KrMW87jnVI0asTkAgZkZ0I=
+        b=xHb4NgoumR9vHyrP7XZTRE7bY6n/IISElMfTH2fMwC7XbUmsGkdeYbMlk5lIPACeA
+         ljJI5O0z35jWKPdn7oHFVeikWuEk8Fv9UDSZ0FMgcOdg2mxojNk98GsDL4gdf3ZyN8
+         kjgGNCYlXSlCRlhCmO4yNa4r0AondyjzQVlCwJUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 002/218] USB: serial: simple: add Nokia phone driver
+        stable@vger.kernel.org,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 087/284] media: stk1160: If start stream fails, return buffers with VB2_BUF_STATE_QUEUED
 Date:   Mon, 18 Apr 2022 14:11:08 +0200
-Message-Id: <20220418121158.775304139@linuxfoundation.org>
+Message-Id: <20220418121213.159652979@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,150 +57,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-commit c4b9c570965f75d0d55e639747f1e5ccdad2fae0 upstream.
+[ Upstream commit fbe04b49a54e31f4321d632270207f0e6304cd16 ]
 
-Add a new "simple" driver for certain Nokia phones, including Nokia 130
-(RM-1035) which exposes two serial ports in "charging only" mode:
+If the callback 'start_streaming' fails, then all
+queued buffers in the driver should be returned with
+state 'VB2_BUF_STATE_QUEUED'. Currently, they are
+returned with 'VB2_BUF_STATE_ERROR' which is wrong.
+Fix this. This also fixes the warning:
 
-Bus 001 Device 009: ID 0421:069a Nokia Mobile Phones 130 [RM-1035] (Charging only)
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0
-  bDeviceSubClass         0
-  bDeviceProtocol         0
-  bMaxPacketSize0         8
-  idVendor           0x0421 Nokia Mobile Phones
-  idProduct          0x069a 130 [RM-1035] (Charging only)
-  bcdDevice            1.00
-  iManufacturer           1 Nokia
-  iProduct                2 Nokia 130 (RM-1035)
-  iSerial                 0
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0037
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          0
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              500mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol    255 Vendor Specific Protocol
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass    255 Vendor Specific Subclass
-      bInterfaceProtocol    255 Vendor Specific Protocol
-      iInterface              0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-Device Status:     0x0000
-  (Bus Powered)
+[   65.583633] WARNING: CPU: 5 PID: 593 at drivers/media/common/videobuf2/videobuf2-core.c:1612 vb2_start_streaming+0xd4/0x160 [videobuf2_common]
+[   65.585027] Modules linked in: snd_usb_audio snd_hwdep snd_usbmidi_lib snd_rawmidi snd_soc_hdmi_codec dw_hdmi_i2s_audio saa7115 stk1160 videobuf2_vmalloc videobuf2_memops videobuf2_v4l2 videobuf2_common videodev mc crct10dif_ce panfrost snd_soc_simple_card snd_soc_audio_graph_card snd_soc_spdif_tx snd_soc_simple_card_utils gpu_sched phy_rockchip_pcie snd_soc_rockchip_i2s rockchipdrm analogix_dp dw_mipi_dsi dw_hdmi cec drm_kms_helper drm rtc_rk808 rockchip_saradc industrialio_triggered_buffer kfifo_buf rockchip_thermal pcie_rockchip_host ip_tables x_tables ipv6
+[   65.589383] CPU: 5 PID: 593 Comm: v4l2src0:src Tainted: G        W         5.16.0-rc4-62408-g32447129cb30-dirty #14
+[   65.590293] Hardware name: Radxa ROCK Pi 4B (DT)
+[   65.590696] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   65.591304] pc : vb2_start_streaming+0xd4/0x160 [videobuf2_common]
+[   65.591850] lr : vb2_start_streaming+0x6c/0x160 [videobuf2_common]
+[   65.592395] sp : ffff800012bc3ad0
+[   65.592685] x29: ffff800012bc3ad0 x28: 0000000000000000 x27: ffff800012bc3cd8
+[   65.593312] x26: 0000000000000000 x25: ffff00000d8a7800 x24: 0000000040045612
+[   65.593938] x23: ffff800011323000 x22: ffff800012bc3cd8 x21: ffff00000908a8b0
+[   65.594562] x20: ffff00000908a8c8 x19: 00000000fffffff4 x18: ffffffffffffffff
+[   65.595188] x17: 000000040044ffff x16: 00400034b5503510 x15: ffff800011323f78
+[   65.595813] x14: ffff000013163886 x13: ffff000013163885 x12: 00000000000002ce
+[   65.596439] x11: 0000000000000028 x10: 0000000000000001 x9 : 0000000000000228
+[   65.597064] x8 : 0101010101010101 x7 : 7f7f7f7f7f7f7f7f x6 : fefefeff726c5e78
+[   65.597690] x5 : ffff800012bc3990 x4 : 0000000000000000 x3 : ffff000009a34880
+[   65.598315] x2 : 0000000000000000 x1 : 0000000000000000 x0 : ffff000007cd99f0
+[   65.598940] Call trace:
+[   65.599155]  vb2_start_streaming+0xd4/0x160 [videobuf2_common]
+[   65.599672]  vb2_core_streamon+0x17c/0x1a8 [videobuf2_common]
+[   65.600179]  vb2_streamon+0x54/0x88 [videobuf2_v4l2]
+[   65.600619]  vb2_ioctl_streamon+0x54/0x60 [videobuf2_v4l2]
+[   65.601103]  v4l_streamon+0x3c/0x50 [videodev]
+[   65.601521]  __video_do_ioctl+0x1a4/0x428 [videodev]
+[   65.601977]  video_usercopy+0x320/0x828 [videodev]
+[   65.602419]  video_ioctl2+0x3c/0x58 [videodev]
+[   65.602830]  v4l2_ioctl+0x60/0x90 [videodev]
+[   65.603227]  __arm64_sys_ioctl+0xa8/0xe0
+[   65.603576]  invoke_syscall+0x54/0x118
+[   65.603911]  el0_svc_common.constprop.3+0x84/0x100
+[   65.604332]  do_el0_svc+0x34/0xa0
+[   65.604625]  el0_svc+0x1c/0x50
+[   65.604897]  el0t_64_sync_handler+0x88/0xb0
+[   65.605264]  el0t_64_sync+0x16c/0x170
+[   65.605587] ---[ end trace 578e0ba07742170d ]---
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220228084919.10656-1-johan@kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8ac456495a33d ("[media] stk1160: Stop device and unqueue buffers when start_streaming() fails")
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/Kconfig             |    1 +
- drivers/usb/serial/usb-serial-simple.c |    7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/media/usb/stk1160/stk1160-core.c |  2 +-
+ drivers/media/usb/stk1160/stk1160-v4l.c  | 10 +++++-----
+ drivers/media/usb/stk1160/stk1160.h      |  2 +-
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/serial/Kconfig
-+++ b/drivers/usb/serial/Kconfig
-@@ -65,6 +65,7 @@ config USB_SERIAL_SIMPLE
- 		- Libtransistor USB console
- 		- a number of Motorola phones
- 		- Motorola Tetra devices
-+		- Nokia mobile phones
- 		- Novatel Wireless GPS receivers
- 		- Siemens USB/MPI adapter.
- 		- ViVOtech ViVOpay USB device.
---- a/drivers/usb/serial/usb-serial-simple.c
-+++ b/drivers/usb/serial/usb-serial-simple.c
-@@ -94,6 +94,11 @@ DEVICE(moto_modem, MOTO_IDS);
- 	{ USB_DEVICE(0x0cad, 0x9016) }	/* TPG2200 */
- DEVICE(motorola_tetra, MOTOROLA_TETRA_IDS);
+diff --git a/drivers/media/usb/stk1160/stk1160-core.c b/drivers/media/usb/stk1160/stk1160-core.c
+index 8e434b31cb98..7f02c2739ec2 100644
+--- a/drivers/media/usb/stk1160/stk1160-core.c
++++ b/drivers/media/usb/stk1160/stk1160-core.c
+@@ -410,7 +410,7 @@ static void stk1160_disconnect(struct usb_interface *interface)
+ 	/* Here is the only place where isoc get released */
+ 	stk1160_uninit_isoc(dev);
  
-+/* Nokia mobile phone driver */
-+#define NOKIA_IDS()			\
-+	{ USB_DEVICE(0x0421, 0x069a) }	/* Nokia 130 (RM-1035) */
-+DEVICE(nokia, NOKIA_IDS);
-+
- /* Novatel Wireless GPS driver */
- #define NOVATEL_IDS()			\
- 	{ USB_DEVICE(0x09d7, 0x0100) }	/* NovAtel FlexPack GPS */
-@@ -126,6 +131,7 @@ static struct usb_serial_driver * const
- 	&vivopay_device,
- 	&moto_modem_device,
- 	&motorola_tetra_device,
-+	&nokia_device,
- 	&novatel_gps_device,
- 	&hp4x_device,
- 	&suunto_device,
-@@ -143,6 +149,7 @@ static const struct usb_device_id id_tab
- 	VIVOPAY_IDS(),
- 	MOTO_IDS(),
- 	MOTOROLA_TETRA_IDS(),
-+	NOKIA_IDS(),
- 	NOVATEL_IDS(),
- 	HP4X_IDS(),
- 	SUUNTO_IDS(),
+-	stk1160_clear_queue(dev);
++	stk1160_clear_queue(dev, VB2_BUF_STATE_ERROR);
+ 
+ 	video_unregister_device(&dev->vdev);
+ 	v4l2_device_disconnect(&dev->v4l2_dev);
+diff --git a/drivers/media/usb/stk1160/stk1160-v4l.c b/drivers/media/usb/stk1160/stk1160-v4l.c
+index 77b759a0bcd9..43676abc1694 100644
+--- a/drivers/media/usb/stk1160/stk1160-v4l.c
++++ b/drivers/media/usb/stk1160/stk1160-v4l.c
+@@ -269,7 +269,7 @@ static int stk1160_start_streaming(struct stk1160 *dev)
+ 	stk1160_uninit_isoc(dev);
+ out_stop_hw:
+ 	usb_set_interface(dev->udev, 0, 0);
+-	stk1160_clear_queue(dev);
++	stk1160_clear_queue(dev, VB2_BUF_STATE_QUEUED);
+ 
+ 	mutex_unlock(&dev->v4l_lock);
+ 
+@@ -317,7 +317,7 @@ static int stk1160_stop_streaming(struct stk1160 *dev)
+ 
+ 	stk1160_stop_hw(dev);
+ 
+-	stk1160_clear_queue(dev);
++	stk1160_clear_queue(dev, VB2_BUF_STATE_ERROR);
+ 
+ 	stk1160_dbg("streaming stopped\n");
+ 
+@@ -762,7 +762,7 @@ static const struct video_device v4l_template = {
+ /********************************************************************/
+ 
+ /* Must be called with both v4l_lock and vb_queue_lock hold */
+-void stk1160_clear_queue(struct stk1160 *dev)
++void stk1160_clear_queue(struct stk1160 *dev, enum vb2_buffer_state vb2_state)
+ {
+ 	struct stk1160_buffer *buf;
+ 	unsigned long flags;
+@@ -773,7 +773,7 @@ void stk1160_clear_queue(struct stk1160 *dev)
+ 		buf = list_first_entry(&dev->avail_bufs,
+ 			struct stk1160_buffer, list);
+ 		list_del(&buf->list);
+-		vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
++		vb2_buffer_done(&buf->vb.vb2_buf, vb2_state);
+ 		stk1160_dbg("buffer [%p/%d] aborted\n",
+ 			    buf, buf->vb.vb2_buf.index);
+ 	}
+@@ -783,7 +783,7 @@ void stk1160_clear_queue(struct stk1160 *dev)
+ 		buf = dev->isoc_ctl.buf;
+ 		dev->isoc_ctl.buf = NULL;
+ 
+-		vb2_buffer_done(&buf->vb.vb2_buf, VB2_BUF_STATE_ERROR);
++		vb2_buffer_done(&buf->vb.vb2_buf, vb2_state);
+ 		stk1160_dbg("buffer [%p/%d] aborted\n",
+ 			    buf, buf->vb.vb2_buf.index);
+ 	}
+diff --git a/drivers/media/usb/stk1160/stk1160.h b/drivers/media/usb/stk1160/stk1160.h
+index acd1c811db08..54a046aacd33 100644
+--- a/drivers/media/usb/stk1160/stk1160.h
++++ b/drivers/media/usb/stk1160/stk1160.h
+@@ -177,7 +177,7 @@ struct regval {
+ int stk1160_vb2_setup(struct stk1160 *dev);
+ int stk1160_video_register(struct stk1160 *dev);
+ void stk1160_video_unregister(struct stk1160 *dev);
+-void stk1160_clear_queue(struct stk1160 *dev);
++void stk1160_clear_queue(struct stk1160 *dev, enum vb2_buffer_state vb2_state);
+ 
+ /* Provided by stk1160-video.c */
+ int stk1160_alloc_isoc(struct stk1160 *dev);
+-- 
+2.34.1
+
 
 
