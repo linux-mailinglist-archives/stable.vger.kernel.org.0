@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 112CD505843
-	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 531AA505667
+	for <lists+stable@lfdr.de>; Mon, 18 Apr 2022 15:32:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245013AbiDROAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 10:00:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51998 "EHLO
+        id S241006AbiDRNeu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 09:34:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244426AbiDRN5Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:57:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B262AE1F;
-        Mon, 18 Apr 2022 06:07:22 -0700 (PDT)
+        with ESMTP id S244863AbiDRNa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 09:30:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF3961EEE5;
+        Mon, 18 Apr 2022 05:56:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D42BB80EDF;
-        Mon, 18 Apr 2022 13:07:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B381C385A1;
-        Mon, 18 Apr 2022 13:07:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66A01B80E44;
+        Mon, 18 Apr 2022 12:56:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F5DC385A7;
+        Mon, 18 Apr 2022 12:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650287240;
-        bh=DIc246/X8wYTM5k2axiagUIBH36M/LUB6zhxhna5S8M=;
+        s=korg; t=1650286598;
+        bh=Ch4wZSjhV/oo/hLKg9DEfBsu9sBf4PX4u2g8wngGSyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USEWtSjiZR7TFQ1L//tktJy1xldolqjzfpWY3j0jmNcTZ+y5zIQ5CeknZq1IBwapY
-         wDhS1WxqNYOv/TMPlvLVzKN8PzMUFQLZiGEa5Ne47+i/aIsDen5JEL46lIJX8QYtZU
-         2m1B/QJndUiYuy5MILkTrKmF2KqMAkNoZIMvn8Ts=
+        b=QougPDleAIt8Zs+N4XrpkF2UyY9Ot2+WeHgLGvnxRzM812SnhozDUm2K/HhqBCL7i
+         zbCNX//qD9wH+0iVZSI2XZzPPNMWkFcf/aB/ssybaFDDIZE0P6LCJS5m69zOCAXKQJ
+         3IcvO4H0ZGTlhfBh99aSUiMnJRSiHCkQcH1VASiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 100/218] af_netlink: Fix shift out of bounds in group mask calculation
-Date:   Mon, 18 Apr 2022 14:12:46 +0200
-Message-Id: <20220418121202.465021832@linuxfoundation.org>
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.14 186/284] ubifs: Add missing iput if do_tmpfile() failed in rename whiteout
+Date:   Mon, 18 Apr 2022 14:12:47 +0200
+Message-Id: <20220418121217.026455608@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220418121158.636999985@linuxfoundation.org>
-References: <20220418121158.636999985@linuxfoundation.org>
+In-Reply-To: <20220418121210.689577360@linuxfoundation.org>
+References: <20220418121210.689577360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@nvidia.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 0caf6d9922192dd1afa8dc2131abfb4df1443b9f ]
+commit 716b4573026bcbfa7b58ed19fe15554bac66b082 upstream.
 
-When a netlink message is received, netlink_recvmsg() fills in the address
-of the sender. One of the fields is the 32-bit bitfield nl_groups, which
-carries the multicast group on which the message was received. The least
-significant bit corresponds to group 1, and therefore the highest group
-that the field can represent is 32. Above that, the UB sanitizer flags the
-out-of-bounds shift attempts.
+whiteout inode should be put when do_tmpfile() failed if inode has been
+initialized. Otherwise we will get following warning during umount:
+  UBIFS error (ubi0:0 pid 1494): ubifs_assert_failed [ubifs]: UBIFS
+  assert failed: c->bi.dd_growth == 0, in fs/ubifs/super.c:1930
+  VFS: Busy inodes after unmount of ubifs. Self-destruct in 5 seconds.
 
-Which bits end up being set in such case is implementation defined, but
-it's either going to be a wrong non-zero value, or zero, which is at least
-not misleading. Make the latter choice deterministic by always setting to 0
-for higher-numbered multicast groups.
-
-To get information about membership in groups >= 32, userspace is expected
-to use nl_pktinfo control messages[0], which are enabled by NETLINK_PKTINFO
-socket option.
-[0] https://lwn.net/Articles/147608/
-
-The way to trigger this issue is e.g. through monitoring the BRVLAN group:
-
-	# bridge monitor vlan &
-	# ip link add name br type bridge
-
-Which produces the following citation:
-
-	UBSAN: shift-out-of-bounds in net/netlink/af_netlink.c:162:19
-	shift exponent 32 is too large for 32-bit type 'int'
-
-Fixes: f7fa9b10edbb ("[NETLINK]: Support dynamic number of multicast groups per netlink family")
-Signed-off-by: Petr Machata <petrm@nvidia.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/2bef6aabf201d1fc16cca139a744700cff9dcb04.1647527635.git.petrm@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Suggested-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlink/af_netlink.c | 2 ++
+ fs/ubifs/dir.c |    2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 13d69cbd14c2..8aef475fef31 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -161,6 +161,8 @@ static const struct rhashtable_params netlink_rhashtable_params;
- 
- static inline u32 netlink_group_mask(u32 group)
- {
-+	if (group > 32)
-+		return 0;
- 	return group ? 1 << (group - 1) : 0;
- }
- 
--- 
-2.34.1
-
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -468,6 +468,8 @@ out_inode:
+ 	make_bad_inode(inode);
+ 	if (!instantiated)
+ 		iput(inode);
++	else if (whiteout)
++		iput(*whiteout);
+ out_budg:
+ 	ubifs_release_budget(c, &req);
+ 	if (!instantiated)
 
 
