@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E80E850773B
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4664750772C
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:11:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344309AbiDSSOA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345732AbiDSSOA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 19 Apr 2022 14:14:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50584 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344247AbiDSSN7 (ORCPT
+        with ESMTP id S232701AbiDSSN7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:13:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BBF438D82;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F7CF39681;
         Tue, 19 Apr 2022 11:11:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0C16B818EE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D8B660C90;
+        Tue, 19 Apr 2022 18:11:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29FA2C385A9;
         Tue, 19 Apr 2022 18:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D3CC385A7;
-        Tue, 19 Apr 2022 18:11:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650391873;
-        bh=HHSBzrlIipK0nujA927z1nFCcxi1J+e1mhmEtz+5L5w=;
+        s=k20201202; t=1650391875;
+        bh=y4FzcMqIYjP6yJMMswEni40ksnSonHHl5KEbQHYCCgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ryn/DSkLmpAHsC8Iuxb75603zqSRyl+Q7ZLW+qq7X9c2WPRhYVa63HYcX3K86342x
-         n9m7zHphIWtGB5ePui9jGRoIGHnAzsKLKrUceGeOBE3ZzTA3j0wg/91OmsjgMWPCGl
-         JBMIrJLFVInONfhZ05YVguiRKXk7L8IWP20wtuHJ5hvuR9hb/EHkJUsFGHdKU7VqFx
-         YSqljwcyp5KYtVBs+joKnG7BN5BIKlyrppbDoGcPnGMJr2Zi0EGAv30m3SnQNcSvkf
-         /qEVjdRtwISpm/LJH1gf4VIP6WCguIC5clVMeeXhIfagbyN3tL2uxCSIrfta7grSi8
-         DB69XQP8QUcDQ==
+        b=MPvUGq6Sj89MeZilH5h3OTDTmghMRrKY2eCzv9RRx1cKDFqeWxfpUuasxU3+x3csH
+         nvuh6F0B7wkWnQY1RQ80JykykPAvcugmZFktSHNmf+XHWIXVDFuf0VcUt+bSXGA3gH
+         2CHYKvtkxgLws3fAHbTq23/CJqui5QKPKhxSShSOx65SMRH88TrgULkAdi1yAYmtet
+         VutwaOWSBtQs1feWzqjBWL++hWwSiakbqqhvuM3NZNpVXfwGvWyWKzsu3hfC8gAuSs
+         GrWUEM6fqjaIEA+UKWzz2LFDhGcXVsHrUZpFA7CPjhBnP2tmcrAqmOof8q4i3jjsU9
+         1cj1v7ZaDRyPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
-        sean@poorly.run, airlied@linux.ie, daniel@ffwll.ch,
-        quic_akhilpo@quicinc.com, angelogioacchino.delregno@collabora.com,
-        bjorn.andersson@linaro.org, jonathan@marek.ca,
-        vladimir.lypak@gmail.com, nathan@kernel.org,
-        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.17 02/34] drm/msm/gpu: Remove mutex from wait_event condition
-Date:   Tue, 19 Apr 2022 14:10:29 -0400
-Message-Id: <20220419181104.484667-2-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.17 03/34] ARM: vexpress/spc: Avoid negative array index when !SMP
+Date:   Tue, 19 Apr 2022 14:10:30 -0400
+Message-Id: <20220419181104.484667-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181104.484667-1-sashal@kernel.org>
 References: <20220419181104.484667-1-sashal@kernel.org>
@@ -61,50 +60,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 7242795d520d3fb48e005e3c96ba54bb59639d6e ]
+[ Upstream commit b3f1dd52c991d79118f35e6d1bf4d7cb09882e38 ]
 
-The mutex wasn't really protecting anything before.  Before the previous
-patch we could still be racing with the scheduler's kthread, as that is
-not necessarily frozen yet.  Now that we've parked the sched threads,
-the only race is with jobs retiring, and that is harmless, ie.
+When building multi_v7_defconfig+CONFIG_SMP=n, -Warray-bounds exposes
+a couple negative array index accesses:
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Link: https://lore.kernel.org/r/20220310234611.424743-4-robdclark@gmail.com
+arch/arm/mach-vexpress/spc.c: In function 've_spc_clk_init':
+arch/arm/mach-vexpress/spc.c:583:21: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
+  583 |   if (init_opp_table[cluster])
+      |       ~~~~~~~~~~~~~~^~~~~~~~~
+arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
+  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
+      |       ^~~~~~~~~~~~~~
+arch/arm/mach-vexpress/spc.c:592:18: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
+  592 |    init_opp_table[cluster] = true;
+      |    ~~~~~~~~~~~~~~^~~~~~~~~
+arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
+  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
+      |       ^~~~~~~~~~~~~~
+
+Skip this logic when built !SMP.
+
+Link: https://lore.kernel.org/r/20220331190443.851661-1-keescook@chromium.org
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_device.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ arch/arm/mach-vexpress/spc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
-index b93de79000e1..e8a8240a6868 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_device.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
-@@ -608,22 +608,13 @@ static int adreno_runtime_resume(struct device *dev)
- 	return gpu->funcs->pm_resume(gpu);
- }
+diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
+index 1da11bdb1dfb..1c6500c4e6a1 100644
+--- a/arch/arm/mach-vexpress/spc.c
++++ b/arch/arm/mach-vexpress/spc.c
+@@ -580,7 +580,7 @@ static int __init ve_spc_clk_init(void)
+ 		}
  
--static int active_submits(struct msm_gpu *gpu)
--{
--	int active_submits;
--	mutex_lock(&gpu->active_lock);
--	active_submits = gpu->active_submits;
--	mutex_unlock(&gpu->active_lock);
--	return active_submits;
--}
--
- static int adreno_runtime_suspend(struct device *dev)
- {
- 	struct msm_gpu *gpu = dev_to_gpu(dev);
- 	int remaining;
+ 		cluster = topology_physical_package_id(cpu_dev->id);
+-		if (init_opp_table[cluster])
++		if (cluster < 0 || init_opp_table[cluster])
+ 			continue;
  
- 	remaining = wait_event_timeout(gpu->retire_event,
--				       active_submits(gpu) == 0,
-+				       gpu->active_submits == 0,
- 				       msecs_to_jiffies(1000));
- 	if (remaining == 0) {
- 		dev_err(dev, "Timeout waiting for GPU to suspend\n");
+ 		if (ve_init_opp_table(cpu_dev))
 -- 
 2.35.1
 
