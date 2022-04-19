@@ -2,103 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA545076B8
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 19:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66F295076C3
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 19:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354697AbiDSRph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 13:45:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53122 "EHLO
+        id S1352395AbiDSRtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 13:49:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234643AbiDSRpg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 13:45:36 -0400
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96EF369D9
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 10:42:53 -0700 (PDT)
-Received: by mail-io1-xd32.google.com with SMTP id g21so18387471iom.13
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 10:42:53 -0700 (PDT)
+        with ESMTP id S1353399AbiDSRtv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 13:49:51 -0400
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D92011115A
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 10:47:06 -0700 (PDT)
+Received: by mail-pf1-x429.google.com with SMTP id z16so9036002pfh.3
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 10:47:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=4aH3gKWL2+XEPvC8NucpuidR5DgS4elyTzSSEh3Z93U=;
-        b=ZWY2pdxoeqFhH6vQY4NOEN3NdXLOR5jLi12fAlHDlh9+Hats311D+d1DuOjmuFCExb
-         v+repEHJiECIxxQRNSpVdNRHZGMocf4+cLoSvgoF4qhxh6vFi+TGSBlOktXn3FBybq3z
-         G2szLshEKuCFJ3IMZMgyY+DKcok1Q0ZgCw15c=
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=eJhX1LbAxPHHT8a5Ih0hSyTAg97jWBttV19glVJ+v8g=;
+        b=NGwlXY/d9L/tFLU0ev9y4i50/by0rKyFxHo2PLdJ5MuW3pFk72iH/X3g29R/K28UJC
+         dMSxWVnBJOqwSwC94yvOv/BO47OIlemSkgGdkZpucwSU2D214XYwUzXRF5Ir4yYWbLNd
+         g1AJltZrz1LawumnQf3biNiopIPoSRelFUXeQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=4aH3gKWL2+XEPvC8NucpuidR5DgS4elyTzSSEh3Z93U=;
-        b=We6LXvMWxVpn8zPSs470BSWFdr8NNSFU0eJi1yppzMhHqv+qtWCwenBu1PF+txtMnB
-         8R0CIsnyVsr20Brd76qmdNYv1+6QLdRHFgukGa8kTqMfB4MT1pRimw0mYjCGNATEoppv
-         5sUedCXtb0G1MsEGO2Jx05ka8+S+mx6TpxNLxqPjH3ZhP/cQ36FogIhSsSyisMfmZ/3/
-         E7crJrMHEFfrQgxqUE5MeH5L0W4C6Yy9jSfsGKTE2fFO6ljoWU2aXI2q95TptFLRS1Bw
-         D65ee/jZg3G21fpMj0ZHWdAW88Qai7ItzDpmYrCE+5hiwboQTKZC7yHfK7zyJM5DwOyc
-         yzxg==
-X-Gm-Message-State: AOAM5307lh8uukEqyLstePk79VDwfZYSKmi41qANQF1c31IO9IFA3XRA
-        T+3BLYiexj5wcUj3Jg69Ji28Zw==
-X-Google-Smtp-Source: ABdhPJwz3UL7uxqGCVC3aGSpKQJcx/rjFi5+Wiv+gXGJkvDMYJyy00cvs9UDKSrTrLkLrKUl8DfdRg==
-X-Received: by 2002:a05:6638:4128:b0:323:62b4:30c3 with SMTP id ay40-20020a056638412800b0032362b430c3mr8640514jab.318.1650390173239;
-        Tue, 19 Apr 2022 10:42:53 -0700 (PDT)
-Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id x9-20020a6b6a09000000b006549545c9d5sm4360759iog.42.2022.04.19.10.42.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Apr 2022 10:42:52 -0700 (PDT)
-Subject: Re: [PATCH 5.15 000/189] 5.15.35-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220419073048.315594917@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <54615348-2663-f7f7-6996-16c33855a7f4@linuxfoundation.org>
-Date:   Tue, 19 Apr 2022 11:42:51 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=eJhX1LbAxPHHT8a5Ih0hSyTAg97jWBttV19glVJ+v8g=;
+        b=gxbzxjyOCyOiy5hJ5qjUq/esUveImHMvF7F+J/7dpEaAvrg6BkIxcFoTSNS2G2u+J6
+         CdBh7kF6sWYSxlIoSqqKn16XVo/R0XaJNuVa1Zt9obIRy4HBTwUn6iIuXcWAf8SFRlpE
+         TlUs1j0qER/RlT3T2JzUBsETpY0jJ3Br2bcQO/+DzlF4apvAe3WbZ5kkqh70X5Sf935w
+         d1dq/3VhOQskaGS9U9rs0dOyd8wPfm4oX6HphpV0QZbFwnRL+dt4sJQECx3/Kz3DBZEo
+         Es152hCWj3c119OOWSzpylc9GUinT81nJV2+V51cmxz9brYNBISmID75ccNCtc0FjlIP
+         YD/g==
+X-Gm-Message-State: AOAM53128GIuiohpC8LwN+Mn034q2z4IpOOKpLk3vZDaPp/BsD9pSg2Z
+        cHKcASgbXzN0kWmDZLUjqkqhGg==
+X-Google-Smtp-Source: ABdhPJzScsflZaDve27ipH6bvurP6DoUeG3G2+wqfWTiSnihmsKylQwmyOc5Dlo9JrZ5ArCsH1H9zg==
+X-Received: by 2002:a05:6a00:1254:b0:50a:55c5:5ff7 with SMTP id u20-20020a056a00125400b0050a55c55ff7mr16928195pfi.85.1650390426329;
+        Tue, 19 Apr 2022 10:47:06 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id i5-20020a17090a2a0500b001cba3ac9366sm20143182pjd.10.2022.04.19.10.47.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Apr 2022 10:47:05 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     ebiederm@xmission.com
+Cc:     Kees Cook <keescook@chromium.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        damien.lemoal@opensource.wdc.com, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org, Niklas.Cassel@wdc.com,
+        lkp@intel.com, vapier@gentoo.org, gerg@linux-m68k.org,
+        stable@vger.kernel.org
+Subject: Re: (subset) [PATCH] binfmt_flat; Drop vestigates of coredump support
+Date:   Tue, 19 Apr 2022 10:46:40 -0700
+Message-Id: <165039039729.809958.17874221541968744613.b4-ty@chromium.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <87mtgh17li.fsf_-_@email.froward.int.ebiederm.org>
+References: <20220418200834.1501454-1-Niklas.Cassel@wdc.com> <202204181501.D55C8D2A@keescook> <87mtgh17li.fsf_-_@email.froward.int.ebiederm.org>
 MIME-Version: 1.0
-In-Reply-To: <20220419073048.315594917@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/19/22 1:32 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.35 release.
-> There are 189 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, 19 Apr 2022 09:16:41 -0500, Eric W. Biederman wrote:
+> There is the briefest start of coredump support in binfmt_flat.  It is
+> actually a pain to maintain as binfmt_flat is not built on most
+> architectures so it is easy to overlook.
 > 
-> Responses should be made by Thu, 21 Apr 2022 07:30:20 +0000.
-> Anything received after that time might be too late.
+> Since the support does not do anything remove it.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.35-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
 > 
-> thanks,
-> 
-> greg k-h
-> 
+> [...]
 
-Compiled and booted on my test system. No dmesg regressions.
+Applied to for-next/execve, thanks! (With typo nits fixed.)
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+[1/1] binfmt_flat; Drop vestigates of coredump support
+      https://git.kernel.org/kees/c/6e1a873cefd1
 
-thanks,
--- Shuah
+-- 
+Kees Cook
 
