@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEBD850782D
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA5650782F
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353986AbiDSSWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:22:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37434 "EHLO
+        id S1356861AbiDSSWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:22:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356877AbiDSSVo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:21:44 -0400
+        with ESMTP id S1356889AbiDSSVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:21:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4452640A2A;
-        Tue, 19 Apr 2022 11:14:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63F3040E70;
+        Tue, 19 Apr 2022 11:14:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFEFF60C34;
-        Tue, 19 Apr 2022 18:14:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF54C385A7;
-        Tue, 19 Apr 2022 18:14:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C009B60A75;
+        Tue, 19 Apr 2022 18:14:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0234DC385A5;
+        Tue, 19 Apr 2022 18:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650392044;
-        bh=mI5uF3rn4LcSnNyEYRFVfpxL+mGAsmineE+zYsy/SWM=;
+        s=k20201202; t=1650392049;
+        bh=wpC6UqRnKxV//FhoQ/Rg1fnAdop8hYek9oBjdN28NH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6U7+zl9aTdn024LaC3xYwwpu3yi/pJvNqKzR+mhe7Qvl8m0Y+P0IeVzeYUD+DzC/
-         coQJiqjt5e2pXFMNi8AoagQfwchYxG9PDwnhjLC+lYrITd96xFZXS6yaDbx5rK88W8
-         Jvg1aLt8Padz33NIOWH+mOksUnBtV+zXx65GuZJUohC/YGiWdo6FKy3HFIPwrXBTkb
-         RPQ2aZuRZa7qxNArZU53IYz2vX0RyvgahsP5mi7NjEJQPdDEjn/o4eGQYGQ4Lqu2PG
-         nk/peN5+KndwWDVbQKMHLLWyLj2RSG8ycqWnOiuWBJEwcYNr6olRxKEIypft9HccoK
-         T8+TXPjynIf4A==
+        b=DAYXQ3I7G0jR9VmOrBbLqIVOGs7Fpw1+/mzVGL/84uOdzVTZWLaLmvI4LNelj7m1+
+         RQ+8bXPjD0iZwv7K71HAALIsY7CfnPjQJP1MndE9riL+IErwZHUWldxcqSubiRBHrh
+         1ePwiVh0CREFe/2tvThGDgqQkxwRulnXy7kI08wKjojnFkPtXxpHwDyM75tHdWQoBb
+         ZsYdcFH/Flxl1ShIh64+wI4xI5WcXVqD7CnrKfdIE6yn5rue0lFmJtShV3kgr07Qal
+         sOdPEQJwUzLZbRmIdqdLX5KH3VUzHVH+sLIjfLr+jdI3nUTK3SYW2VngtpXJoYg7TN
+         xMGieQykvbCug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 04/18] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
-Date:   Tue, 19 Apr 2022 14:13:38 -0400
-Message-Id: <20220419181353.485719-4-sashal@kernel.org>
+Cc:     Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, shawnguo@kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 05/18] arm64: dts: imx: Fix imx8*-var-som touchscreen property sizes
+Date:   Tue, 19 Apr 2022 14:13:39 -0400
+Message-Id: <20220419181353.485719-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181353.485719-1-sashal@kernel.org>
 References: <20220419181353.485719-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,43 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 1ef8715975de8bd481abbd0839ed4f49d9e5b0ff ]
+[ Upstream commit 1bc12d301594eafde0a8529d28d459af81053b3a ]
 
-Fix:
+The common touchscreen properties are all 32-bit, not 16-bit. These
+properties must not be too important as they are all ignored in case of an
+error reading them.
 
-  sound/usb/midi.c: In function ‘snd_usbmidi_out_endpoint_create’:
-  sound/usb/midi.c:1389:2: error: case label does not reduce to an integer constant
-    case USB_ID(0xfc08, 0x0101): /* Unknown vendor Cable */
-    ^~~~
-
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-[ A slight correction with parentheses around the argument by tiwai ]
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220405151517.29753-3-bp@alien8.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/Yk3moe6Hz8ELM0iS@robh.at.kernel.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/usbaudio.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi | 8 ++++----
+ arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index e54a98f46549..d8e31ee03b9d 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -8,7 +8,7 @@
-  */
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
+index 49082529764f..0fac1f3f7f47 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
+@@ -89,12 +89,12 @@ touchscreen@0 {
+ 		pendown-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
  
- /* handling of USB vendor/product ID pairs as 32-bit numbers */
--#define USB_ID(vendor, product) (((vendor) << 16) | (product))
-+#define USB_ID(vendor, product) (((unsigned int)(vendor) << 16) | (product))
- #define USB_ID_VENDOR(id) ((id) >> 16)
- #define USB_ID_PRODUCT(id) ((u16)(id))
+ 		ti,x-min = /bits/ 16 <125>;
+-		touchscreen-size-x = /bits/ 16 <4008>;
++		touchscreen-size-x = <4008>;
+ 		ti,y-min = /bits/ 16 <282>;
+-		touchscreen-size-y = /bits/ 16 <3864>;
++		touchscreen-size-y = <3864>;
+ 		ti,x-plate-ohms = /bits/ 16 <180>;
+-		touchscreen-max-pressure = /bits/ 16 <255>;
+-		touchscreen-average-samples = /bits/ 16 <10>;
++		touchscreen-max-pressure = <255>;
++		touchscreen-average-samples = <10>;
+ 		ti,debounce-tol = /bits/ 16 <3>;
+ 		ti,debounce-rep = /bits/ 16 <1>;
+ 		ti,settle-delay-usec = /bits/ 16 <150>;
+diff --git a/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
+index 7f356edf9f91..f6287f174355 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
+@@ -70,12 +70,12 @@ touchscreen@0 {
+ 		pendown-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
  
+ 		ti,x-min = /bits/ 16 <125>;
+-		touchscreen-size-x = /bits/ 16 <4008>;
++		touchscreen-size-x = <4008>;
+ 		ti,y-min = /bits/ 16 <282>;
+-		touchscreen-size-y = /bits/ 16 <3864>;
++		touchscreen-size-y = <3864>;
+ 		ti,x-plate-ohms = /bits/ 16 <180>;
+-		touchscreen-max-pressure = /bits/ 16 <255>;
+-		touchscreen-average-samples = /bits/ 16 <10>;
++		touchscreen-max-pressure = <255>;
++		touchscreen-average-samples = <10>;
+ 		ti,debounce-tol = /bits/ 16 <3>;
+ 		ti,debounce-rep = /bits/ 16 <1>;
+ 		ti,settle-delay-usec = /bits/ 16 <150>;
 -- 
 2.35.1
 
