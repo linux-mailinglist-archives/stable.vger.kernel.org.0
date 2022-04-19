@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4275750773F
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E264507743
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356261AbiDSSOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:14:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51572 "EHLO
+        id S1356317AbiDSSOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:14:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356260AbiDSSOa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:14:30 -0400
+        with ESMTP id S1356281AbiDSSOg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:14:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E339D3D1F2;
-        Tue, 19 Apr 2022 11:11:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDC133D4B1;
+        Tue, 19 Apr 2022 11:11:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68C4160DBC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C80C660DBC;
+        Tue, 19 Apr 2022 18:11:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53BF5C385AB;
         Tue, 19 Apr 2022 18:11:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 955A9C385A7;
-        Tue, 19 Apr 2022 18:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650391903;
-        bh=8nST6yhUe8j5cQ2n3gZhfsMoH2V/JDXypguacgx/52Y=;
+        s=k20201202; t=1650391905;
+        bh=+4ERLeMoCDL81mPghiLb5qd2tpOF2FXOnp0KlKj/rdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rwiGeooCMZ4AsRd4mrnoJLDkWQZTb5Zp23QN4hjpnS0+VmUdk3xhvttbomxCi4CL2
-         WEP+plRYTtc1ZPy5eMKvC1r6b+7IV32kt+6qYV4lDmFjfCB21gGD9CnEbJEvWaBEXj
-         K6LdZ7CeUnruN6WbMsRMa6Nr2uH76jf0xlw2BhOBqbeWBHgxqR/jCXpaTTGmCey2gO
-         xHKVQlXSDZfTwG4I3tH4sMsJ9OQvs6bHIF2X/MSAJiejWRX+E5G4rYJWUg+y7Xza/l
-         W89EJ+8tqlveIsJL0pC0HR1oclmhp+r2O2bKXkZIagBr1qO3/OYHae8joEUBZcUoQK
-         rbagyaCsUJMpQ==
+        b=GICuClnRm+Y5WPB7+8RV6TYXKrmyzYcY4e0aOhOU15yp3J/PUhYB7gB/r/VoREeEO
+         iezkMPBrzuyCnhRvViZOr+ZQlOSVGSzzdbKmbSqoHI1TByrOd3bXg+7TJuZofM5TA9
+         mmNSSbhHIcahA4ZKNU/zSuQNwDujl7yOcAByUKeVg9zojN1cGb3cM3VtzsFK3QvXR6
+         08skMwa8zvRpJ0NIErnq7hLcWn32G9oBf15MjX8y+81IYf2D4GIP6FK6ab4Xrb24qL
+         rfmYV6cAvwM3wLbgEuNWy6NX8YQyO28dn9qLuWT77F99WymQjUFMW1A9xkRm2Chp6B
+         Fnbb2tQf+dGaA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, shawnguo@kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 11/34] arm64: dts: imx: Fix imx8*-var-som touchscreen property sizes
-Date:   Tue, 19 Apr 2022 14:10:38 -0400
-Message-Id: <20220419181104.484667-11-sashal@kernel.org>
+Cc:     Hongbin Wang <wh_bin@126.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 12/34] vxlan: fix error return code in vxlan_fdb_append
+Date:   Tue, 19 Apr 2022 14:10:39 -0400
+Message-Id: <20220419181104.484667-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181104.484667-1-sashal@kernel.org>
 References: <20220419181104.484667-1-sashal@kernel.org>
@@ -57,65 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Hongbin Wang <wh_bin@126.com>
 
-[ Upstream commit 1bc12d301594eafde0a8529d28d459af81053b3a ]
+[ Upstream commit 7cea5560bf656b84f9ed01c0cc829d4eecd0640b ]
 
-The common touchscreen properties are all 32-bit, not 16-bit. These
-properties must not be too important as they are all ignored in case of an
-error reading them.
+When kmalloc and dst_cache_init failed,
+should return ENOMEM rather than ENOBUFS.
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/Yk3moe6Hz8ELM0iS@robh.at.kernel.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Hongbin Wang <wh_bin@126.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi | 8 ++++----
- arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/vxlan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
-index 1dc9d187601c..a0bd540f27d3 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
-@@ -89,12 +89,12 @@ touchscreen@0 {
- 		pendown-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 359d16780dbb..1bf8f7c35b7d 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -712,11 +712,11 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
  
- 		ti,x-min = /bits/ 16 <125>;
--		touchscreen-size-x = /bits/ 16 <4008>;
-+		touchscreen-size-x = <4008>;
- 		ti,y-min = /bits/ 16 <282>;
--		touchscreen-size-y = /bits/ 16 <3864>;
-+		touchscreen-size-y = <3864>;
- 		ti,x-plate-ohms = /bits/ 16 <180>;
--		touchscreen-max-pressure = /bits/ 16 <255>;
--		touchscreen-average-samples = /bits/ 16 <10>;
-+		touchscreen-max-pressure = <255>;
-+		touchscreen-average-samples = <10>;
- 		ti,debounce-tol = /bits/ 16 <3>;
- 		ti,debounce-rep = /bits/ 16 <1>;
- 		ti,settle-delay-usec = /bits/ 16 <150>;
-diff --git a/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
-index b16c7caf34c1..87b5e23c766f 100644
---- a/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
-@@ -70,12 +70,12 @@ touchscreen@0 {
- 		pendown-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
+ 	rd = kmalloc(sizeof(*rd), GFP_ATOMIC);
+ 	if (rd == NULL)
+-		return -ENOBUFS;
++		return -ENOMEM;
  
- 		ti,x-min = /bits/ 16 <125>;
--		touchscreen-size-x = /bits/ 16 <4008>;
-+		touchscreen-size-x = <4008>;
- 		ti,y-min = /bits/ 16 <282>;
--		touchscreen-size-y = /bits/ 16 <3864>;
-+		touchscreen-size-y = <3864>;
- 		ti,x-plate-ohms = /bits/ 16 <180>;
--		touchscreen-max-pressure = /bits/ 16 <255>;
--		touchscreen-average-samples = /bits/ 16 <10>;
-+		touchscreen-max-pressure = <255>;
-+		touchscreen-average-samples = <10>;
- 		ti,debounce-tol = /bits/ 16 <3>;
- 		ti,debounce-rep = /bits/ 16 <1>;
- 		ti,settle-delay-usec = /bits/ 16 <150>;
+ 	if (dst_cache_init(&rd->dst_cache, GFP_ATOMIC)) {
+ 		kfree(rd);
+-		return -ENOBUFS;
++		return -ENOMEM;
+ 	}
+ 
+ 	rd->remote_ip = *ip;
 -- 
 2.35.1
 
