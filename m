@@ -2,136 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 105FB5079C7
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 21:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 344F15079FE
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 21:13:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235270AbiDSTFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 15:05:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52772 "EHLO
+        id S232130AbiDSTPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 15:15:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240570AbiDSTFi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 15:05:38 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9803F31E
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 12:02:54 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id bx5so16291300pjb.3
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 12:02:54 -0700 (PDT)
+        with ESMTP id S1352741AbiDSTPe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 15:15:34 -0400
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F60B3EF04
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 12:12:47 -0700 (PDT)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-2e644c76556so154878247b3.15
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 12:12:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hl6f3XHcqI3oNNlBQJqzkBUB0gg0cVs5zqLLZ+dA9CE=;
-        b=0vKDeRjwkiJItt7siM1pPtHvio39sl/A3UA/X8fLcFB8/H/l13lBX89VKcuyps2yFn
-         Jn6l6wGXgfFl00T/NpYOlplSqBlp6cLTpb2b/rbOJJ2jOc+Ms21TSgCnzZfEwKP4lL3F
-         aSDvf4upOV54axOQZ3leF3sNX8GGQhQ/hAkKUf5h3EJwu9V247MPMjCyl/fzFQMcTTTt
-         4zyv+yTv7T7ClW9W7HkMArVMJG7V+JPqSwxJv/Ijz3tFwoBAwylgwkl2GeXnFTICWnYY
-         KNK3MygkdvRA8bCiQOQx9hKlcgk0xMB4snZJMtCfxhWtwSX+iqMYyw8vOdcY/DlbMs4y
-         zPtQ==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=/Ct+AxDBUwq5npjyE3CcIN4oPY5vWF71fxIZoksAsSo=;
+        b=plXKzogvAjgTQ/3/wRrDQr/87HdF10qTGjL4ABF8SIjonjYIaney0OQV+PTNdUE7bA
+         tJYjUnRl73oVwxWu/im4EGz2/OPpnG9SUwRqD2DKgV2EVoYznfJ/oj+cLXfECLERsHVW
+         iy/YNl/3ylUbDhPf+pj2dJ8bbZU/EiexuBKqRQWxZIUEPT2QErtKhCC28hRe9y0t/1x4
+         5nFReFWaKS1mG7SQz3GqzbZ5TOCnDc7uNAv8dLd9a57ftETG5aqrrCiHWPl2JK85NEc1
+         e24gOpqQGeXmFDasnF42TaD1Il8nKCkRmHww2haGK1eFZQWKJttMBPawC0qpaF3w0Dqq
+         hXAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hl6f3XHcqI3oNNlBQJqzkBUB0gg0cVs5zqLLZ+dA9CE=;
-        b=3AWVHvfD0EScga+E663Qjj3G8kbYnN1qnwuYJLX32BdcghrEK7bYp2+15d0RH7ZGfz
-         +onWTnEKl5DWFs/xfQqSwDnCMcTuoah/DHOX1R44elVUdClP3RzmMM23ZyQGL1YhXYix
-         sZ71lK0yHiwP/ae0VpnDhB3TxnVup0zuV4oFQIoZIFF7NkuFz+wGq6z16z4nCTQXzER+
-         8yR4EgPoc9akxdoagDt5c4ISpRjCbIEOEHrXeF4bJaepfa91i+0Jv+94NLumpCLP2pwB
-         WCnCDpfqtHkjA8nIBvWg1GVpfWIozyXQAlfJKHXTaDxTWp5IL60wLKFZaLHPOMrcAUVi
-         O2Mg==
-X-Gm-Message-State: AOAM532M8UGCsfK7aySeovLkNrYbCPYq3stYzfjjCTOVxPVdrNV8R505
-        b2w7bSqj4/oyAZYz5X8LN6vHgltF7OpiikBl
-X-Google-Smtp-Source: ABdhPJzX0fVAWBneS+StAZ5PY376PvmdaQC2ImEPNTZ6V1f8yDL3Y+TQ0GpWv44o+gZaDmESRfe5kQ==
-X-Received: by 2002:a17:902:e84d:b0:158:cd1b:8168 with SMTP id t13-20020a170902e84d00b00158cd1b8168mr16737954plg.43.1650394974222;
-        Tue, 19 Apr 2022 12:02:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l6-20020a17090aaa8600b001cd5b85d664sm19763105pjq.1.2022.04.19.12.02.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Apr 2022 12:02:53 -0700 (PDT)
-Message-ID: <625f075d.1c69fb81.28282.ed02@mx.google.com>
-Date:   Tue, 19 Apr 2022 12:02:53 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.111-104-g09b77ec63e5db
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 101 runs,
- 1 regressions (v5.10.111-104-g09b77ec63e5db)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=/Ct+AxDBUwq5npjyE3CcIN4oPY5vWF71fxIZoksAsSo=;
+        b=beWZ7KmS8v+eRfjCMj7BYqkYqFFzh3ROvhpIwOFVLjmQ/MfLlD0SsjDawUaFVuLczV
+         SuMiV3aFfunRFcnEOxwIYMW6E31u7hJfWWB023riSun8KSxMdl/Pa/NnmzO8o09TOcVF
+         c4RasOCtY27OLQXNth6q7emcKQla/vhe8eFm7gjPDPWoHAgzldOSMaFehZTRQ2F/bOTF
+         8Cj9Du7K541ENdTO/d9I9WYOeKZlDgcgXufD/3jLbv57Mh4rdQPUxXEq2jLwC96lMok2
+         JoTlYGBh8mD8Ad9P2pU9KkPfT6PFneECyrSd0U1mrlJYr/McerajdcNAp95jkUxFQYuM
+         B1oA==
+X-Gm-Message-State: AOAM531QW8CYGkpkDEkojoklf/BJSzGdn5BEfSkXOsZWR6iJMfG2eyvr
+        MaDeThke826D+ai2GZFpv9d/DP6Wk2UgJW6TcA2Ly+/7+0S4/dBatNJL94jps2ShD9YTD90n/VC
+        Q0KnvIGlXjBRTFas0Pbi2BdcZIEMHf6G8INrEq1g8yFJLx2de3XV1ouY6An6dfg==
+X-Google-Smtp-Source: ABdhPJxLmCZi+PAZn8T7sqVI0hBcsOTx5o6MfWfg9mp0SXuArtyq74PM0B9gGTNROEx2xemIcluq7834pQs=
+X-Received: from khazhy-linux.svl.corp.google.com ([2620:15c:2cd:202:694c:2cbf:cf44:7ce6])
+ (user=khazhy job=sendgmr) by 2002:a05:690c:90:b0:2f1:9b7a:ceec with SMTP id
+ be16-20020a05690c009000b002f19b7aceecmr10532296ywb.308.1650395566778; Tue, 19
+ Apr 2022 12:12:46 -0700 (PDT)
+Date:   Tue, 19 Apr 2022 12:12:39 -0700
+Message-Id: <20220419191239.588421-1-khazhy@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.36.0.rc0.470.gd361397f0d-goog
+Subject: [PATCH] block/compat_ioctl: fix range check in BLKGETSIZE
+From:   Khazhismel Kumykov <khazhy@google.com>
+To:     stable@vger.kernel.org
+Cc:     Khazhismel Kumykov <khazhy@google.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 101 runs, 1 regressions (v5.10.111-104-g09b7=
-7ec63e5db)
+[ Upstream commit ccf16413e520164eb718cf8b22a30438da80ff23 ]
 
-Regressions Summary
--------------------
+kernel ulong and compat_ulong_t may not be same width. Use type directly
+to eliminate mismatches.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+This would result in truncation rather than EFBIG for 32bit mode for
+large disks.
 
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20220414224056.2875681-1-khazhy@google.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[compat_ioctl is it's own file in 5.4-stable and earlier]
+---
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.111-104-g09b77ec63e5db/plan/baseline/
+The original commit should apply to the newer stables, this should apply
+to all the older stables.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.111-104-g09b77ec63e5db
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      09b77ec63e5dbcee6af2955a5a16c6a8b349da47 =
+ block/compat_ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/block/compat_ioctl.c b/block/compat_ioctl.c
+index 7f053468b50d..d490ac220ba8 100644
+--- a/block/compat_ioctl.c
++++ b/block/compat_ioctl.c
+@@ -393,7 +393,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 		return 0;
+ 	case BLKGETSIZE:
+ 		size = i_size_read(bdev->bd_inode);
+-		if ((size >> 9) > ~0UL)
++		if ((size >> 9) > ~(compat_ulong_t)0)
+ 			return -EFBIG;
+ 		return compat_put_ulong(arg, size >> 9);
+ 
+-- 
+2.36.0.rc0.470.gd361397f0d-goog
 
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625ed2e04f84a949c9ae0695
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.111=
--104-g09b77ec63e5db/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.111=
--104-g09b77ec63e5db/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220411.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/625ed2e04f84a949c9ae06b6
-        failing since 42 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-04-19T15:18:50.438314  /lava-6122915/1/../bin/lava-test-case   =
-
- =20
