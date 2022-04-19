@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 978DB5077BA
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BE35077B7
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355412AbiDSSSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:18:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51204 "EHLO
+        id S1356593AbiDSSSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:18:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356599AbiDSSRQ (ORCPT
+        with ESMTP id S1356610AbiDSSRQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:17:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D48C23EA86;
-        Tue, 19 Apr 2022 11:12:54 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9B6A3EA95;
+        Tue, 19 Apr 2022 11:12:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3623ECE17D2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A50DDB818E0;
+        Tue, 19 Apr 2022 18:12:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F0E7C385A5;
         Tue, 19 Apr 2022 18:12:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98CB4C385AC;
-        Tue, 19 Apr 2022 18:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650391971;
-        bh=5OERo2r+XXRBZapPjMBAUbdhmImkWNTw4gJreqwgq2c=;
+        s=k20201202; t=1650391974;
+        bh=Bzgv5WqWQfy17psL16EYWYKGoHPWRb79U3suFi4PhDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rnj0/upqt+CgU1X2f9ES6k9WWdaR7SxwCP2b2Cyqf2vh2/u8v3URTXZIsM+Ywvcy7
-         eQJjDf6glqEyAlAo0wCIx1TzkfSTOHVIf4y+OyBhv1ONnWRodxAPAKs1eUtv2UjvdR
-         x0TGG/N9UTjD8CCnV0DqniRz5w6wSM3ecQ518evhpINEewe2u5Pto9TMKFhI1wOYD+
-         NPdXe3Keuncmr94cXwWhA9Xvlr23URg18Yf6ZbCtyHcyHv5JR/ESAklih1SaqOFR3K
-         L7IxjQGQsv8EyzvBMl1qz9jRcTADLHL2Ro7rBja1MPUQcQuYtkwtUpxFbhxLcwuszc
-         CWi4/oG7YFb/g==
+        b=N8XaaRrvsx3THI2f0SvirAOLCLMArBzLECVxeKGklW3aJWKn+LY6qMsoaSXkJs8S8
+         qHVzTHNz9Lf7esIuL4VZFTJb1NLDrmcw+mfRj3CtY5GEeHlOSRXzMu/kyHCkUaPuaR
+         jWY0vnq3KfhqxfIPEpTbM7znCQ6jjCHs/zz3xFPjd5FfA7GC7gwtGCH0C/fFvIndKG
+         jrIHruAwwIPCvOY2QdeJVeVrgMf6UZ8KwCuGV30J7Zn/VgER1/No8WJoYWawowPX7l
+         CsMXcy+gJN8PaCOCt96p6PIlszinb0Zxadp4JQ8oU/6DiJMs/Vp9C8FdQyGwyjDrBd
+         K4kplrKunOzmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, corentin.chary@gmail.com,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 04/27] platform/x86: samsung-laptop: Fix an unsigned comparison which can never be negative
-Date:   Tue, 19 Apr 2022 14:12:19 -0400
-Message-Id: <20220419181242.485308-4-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
+        tiwai@suse.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 05/27] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
+Date:   Tue, 19 Apr 2022 14:12:20 -0400
+Message-Id: <20220419181242.485308-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181242.485308-1-sashal@kernel.org>
 References: <20220419181242.485308-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,38 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 0284d4d1be753f648f28b77bdfbe6a959212af5c ]
+[ Upstream commit 1ef8715975de8bd481abbd0839ed4f49d9e5b0ff ]
 
-Eliminate the follow smatch warnings:
+Fix:
 
-drivers/platform/x86/samsung-laptop.c:1124 kbd_led_set() warn: unsigned
-'value' is never less than zero.
+  sound/usb/midi.c: In function ‘snd_usbmidi_out_endpoint_create’:
+  sound/usb/midi.c:1389:2: error: case label does not reduce to an integer constant
+    case USB_ID(0xfc08, 0x0101): /* Unknown vendor Cable */
+    ^~~~
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220322061830.105579-1-jiapeng.chong@linux.alibaba.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
+
+[ A slight correction with parentheses around the argument by tiwai ]
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220405151517.29753-3-bp@alien8.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/samsung-laptop.c | 2 --
- 1 file changed, 2 deletions(-)
+ sound/usb/usbaudio.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/samsung-laptop.c b/drivers/platform/x86/samsung-laptop.c
-index 7ee010aa740a..404bdb4cbfae 100644
---- a/drivers/platform/x86/samsung-laptop.c
-+++ b/drivers/platform/x86/samsung-laptop.c
-@@ -1121,8 +1121,6 @@ static void kbd_led_set(struct led_classdev *led_cdev,
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index 167834133b9b..b8359a0aa008 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -8,7 +8,7 @@
+  */
  
- 	if (value > samsung->kbd_led.max_brightness)
- 		value = samsung->kbd_led.max_brightness;
--	else if (value < 0)
--		value = 0;
+ /* handling of USB vendor/product ID pairs as 32-bit numbers */
+-#define USB_ID(vendor, product) (((vendor) << 16) | (product))
++#define USB_ID(vendor, product) (((unsigned int)(vendor) << 16) | (product))
+ #define USB_ID_VENDOR(id) ((id) >> 16)
+ #define USB_ID_PRODUCT(id) ((u16)(id))
  
- 	samsung->kbd_led_wk = value;
- 	queue_work(samsung->led_workqueue, &samsung->kbd_led_work);
 -- 
 2.35.1
 
