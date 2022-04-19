@@ -2,125 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A914506321
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 06:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E10C50634D
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 06:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348202AbiDSEU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 00:20:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42162 "EHLO
+        id S234215AbiDSEiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 00:38:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347548AbiDSEU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 00:20:28 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D642BB15
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 21:17:46 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id j70so1870036pgd.4
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 21:17:46 -0700 (PDT)
+        with ESMTP id S230042AbiDSEiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 00:38:03 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABE9027FFF
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 21:35:22 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id n8so14072484plh.1
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 21:35:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ua3DWHoWYRZ0Hj18kv0a4L5TFGQ8YVkye6cMbl2VF6s=;
-        b=YyIlytPr7dhGhZh1n4740x8jTXToacvwiuTjRhl7OryQkWqeaG4t9xBbEXMJhWhGiC
-         m1Cq5gcWdtSctAcUnt83MwRhiXBJ+a94dBQ6qGS4tuqqY9RyN8+RbAn8Tl+U55POKAuB
-         D9wVkDFJdg8rIbtS5hisU04sNYtpwd+4rgebs=
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=zcsOo7ae4rgOnjSFoQaW/LUtiRXzVNOeKKmq4Ps6MDY=;
+        b=N5I+POIIEZBpGwJg6ivjl7jm16QEni7s7sXCFg13kp8w02yAbKxEESqUKV2XJqdNeR
+         QZw27Wt9YaPdCo8Alft3W/ElfJBFWDDQZhv3d0wN1DGGNSYS842biCZiFk4CGYec9KXI
+         d0nvb1R8My5TmP6vyfWrL2uv2tX570hmed7d5RaWIQDdGSM5g9vCfN1Fjrxj4It2d4Qc
+         WP6goTJn0ybKNZVibTYXVqmLbaOvqYUPtKRmaEBBiCAn9DCt9kin32rGdM3Xx6cLiPJM
+         x2VsGRddrez62lezmgjhXdkEGVvIhsgf7hmkcTFGK3H1pplfxQ2VaTWKWyi8OheMqLQH
+         GooQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Ua3DWHoWYRZ0Hj18kv0a4L5TFGQ8YVkye6cMbl2VF6s=;
-        b=O/+aQWfMeZBLsssTDSRWy09Odp2rGQNPGTc7MXjMbH5L53dzlC/3Os/XjTaIPLWW1N
-         yXtn73sMt/w3ZME7MlE3P8FmRcN/0KvyPwxJrk6UfGHpoJjAZB9lh9Xn76Fu/eePTFoG
-         PpC+O6jwf63r2oq2GCpf2Rhi+rQCXKMlbOMBw7SNojYUSBl9OSQRLOQly+gJw4yqry7V
-         /x6R3s0rNH9J6h0WGYZejjkYkK08NeqN854p3NfUL7vCJwOuSHhz2u4G8BsfcNfL1/KA
-         zAasllWNo7cw8kFxefGVCc8x6gdNPR7K/ThjbIwEhGbp99q4Yb4K1O9mG7MlGwPUU6S4
-         fFkw==
-X-Gm-Message-State: AOAM531GlcWgv0Nlar1PNulCeAH5sZHZeswg5FjJQS1ZoQS3OT+YNqPW
-        E/+9FIwQHn+RlF/UfcnQMTNelQ==
-X-Google-Smtp-Source: ABdhPJwQw3NsHIw/XF+SqI6c8xAkwRGZeUj6+GKduWwmPu+iYojpSIIWD9kahjFqaEKb/F+KzBSWsw==
-X-Received: by 2002:a63:fd53:0:b0:386:66d:b40c with SMTP id m19-20020a63fd53000000b00386066db40cmr12741689pgj.266.1650341866296;
-        Mon, 18 Apr 2022 21:17:46 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id k5-20020a17090ac50500b001cd5ffcca96sm16726552pjt.27.2022.04.18.21.17.45
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=zcsOo7ae4rgOnjSFoQaW/LUtiRXzVNOeKKmq4Ps6MDY=;
+        b=2U6SDdKaIgkTYDCi83JV4KMBuhVANq9E3nsuHDSNpynlKvxHr6e7eCPip3HLomMO+D
+         2nuCFCQfa2/vd6ljBDD67A/8v+RaD+VLnzllJrWNel4/3Hqs0Gp7l9uCJsETNhcIJQh4
+         FFLJF46g9xuT8ugUmSMxJRjKAKwJF00roL+sXjcKyb8dd9Yr9axHDY/78c4mSdrDEyMQ
+         FWn14TEdArHuciJp2vXbWJPv+e6TVVIiJY7V90xJsfWhoHVfxUXwVwFJvKZwXbq6unFi
+         yrmYarkJqJ8F2moXJC+qx62J7bIesypuoIL1nG+GfFyqojRlcJTdfsLGP3R3xIqssMCt
+         LLgA==
+X-Gm-Message-State: AOAM531dEiv1yQxpFvYFjWwlkEFuPEoddW6xkw9TpAnOWR+pbJiuZbay
+        gTHcEGYB1SCdUuLY/vnLZEAPZybDMJByoTi6
+X-Google-Smtp-Source: ABdhPJy/yiiJPz4W8G92c7tvfFFaWCO1u5vWg4W9RqsQ35lkfhu0kqO14jKSvoqaDI0jD7qRwNXZ+w==
+X-Received: by 2002:a17:903:244b:b0:158:db5c:8fee with SMTP id l11-20020a170903244b00b00158db5c8feemr13743377pls.1.1650342922104;
+        Mon, 18 Apr 2022 21:35:22 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h18-20020a63c012000000b0039cc3c323f7sm14399247pgg.33.2022.04.18.21.35.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Apr 2022 21:17:45 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>,
-        kernel test robot <lkp@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: [PATCH] USB: serial: Fix heap overflow in WHITEHEAT_GET_DTR_RTS
-Date:   Mon, 18 Apr 2022 21:17:42 -0700
-Message-Id: <20220419041742.4117026-1-keescook@chromium.org>
-X-Mailer: git-send-email 2.32.0
+        Mon, 18 Apr 2022 21:35:21 -0700 (PDT)
+Message-ID: <625e3c09.1c69fb81.bc234.3209@mx.google.com>
+Date:   Mon, 18 Apr 2022 21:35:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2631; h=from:subject; bh=gIgxtgBXPkDpXaGP7aAQI8PBhl9DxARQALU32sCb0HQ=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBiXjfmXFgU+SMJsQUdOjA7WslYjSoG7qjHLuLjYkEv G8abkvKJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYl435gAKCRCJcvTf3G3AJp63D/ 4u5P63EDXyGqn9YU26NnZ4oNbGN5YfchlZolAZ5r7qKja5KmvCpyan3HLHJQzoovP5H6CWwbwM4QTY XjQ/LVQaTjZRVaCncCJssE5JSCjhPD90lGAE2pmRQOSfFmcE7v9ehLPv19DYz8Ie1aCTB2DNzkhjlB QmThEiUSrtoskck4SemCz6ln0JlndvsjvGiP7VKxkfb2HWvSo5ay0G1PH90uIcsQcKMRjM2b/Iurk5 4UTUTTzZ32raGPjjCsk5FM9t9av+wz0+NgIX3UGlRKDCy0dusVFy+S9sMziYi7mcBrtpCYK5rD/tuz NeKbQLIcojtNN0dCK7KqqR3HNovH2IflWaQHcwkMCsU32I77BFPLuVUX/jIKdCovAxxYBZZGU2XSyq FEqxXjkXhrAOmTzwuSbBrACNI+l/5VvYdPtVEVqxByueJB0CGu9wPwMR7LGbcnrAVFNQG1oxUcUKCr RQF9gxiXS4zAAatKoYWtc3GZbs1bVuj4GmAEioGA+suoeWzzqFtxjqi8utTGTyME41Qap3JHar7H60 gCxE+RDQqwhIpf5GJmbKhtjIhv/rH0zv+Uq/sjQa9ALXM2I0nc2CRCTNpu54amWZOksJmqEqLiPdC5 cqrFa981hQyEKx3L91aZUiGHEmA5huIG90V2xEdEG0CteJipVqv3KQ9tJSgw==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Kernel: v5.15.34-190-g4a9761edfcec9
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.15.y baseline: 140 runs,
+ 1 regressions (v5.15.34-190-g4a9761edfcec9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This looks like it's harmless, as both the source and the destinations are
-currently the same allocation size (4 bytes) and don't use their padding,
-but if anything were to ever be added after the "mcr" member in "struct
-whiteheat_private", it would be overwritten. The structs both have a
-single u8 "mcr" member, but are 4 bytes in padded size. The memcpy()
-destination was explicitly targeting the u8 member (size 1) with the
-length of the whole structure (size 4), triggering the memcpy buffer
-overflow warning:
+stable-rc/linux-5.15.y baseline: 140 runs, 1 regressions (v5.15.34-190-g4a9=
+761edfcec9)
 
-In file included from include/linux/string.h:253,
-                 from include/linux/bitmap.h:11,
-                 from include/linux/cpumask.h:12,
-                 from include/linux/smp.h:13,
-                 from include/linux/lockdep.h:14,
-                 from include/linux/spinlock.h:62,
-                 from include/linux/mmzone.h:8,
-                 from include/linux/gfp.h:6,
-                 from include/linux/slab.h:15,
-                 from drivers/usb/serial/whiteheat.c:17:
-In function 'fortify_memcpy_chk',
-    inlined from 'firm_send_command' at drivers/usb/serial/whiteheat.c:587:4:
-include/linux/fortify-string.h:328:25: warning: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
-  328 |                         __write_overflow_field(p_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Regressions Summary
+-------------------
 
-Expand the memcpy() to the entire structure, though perhaps the correct
-solution is to mark all the USB command structures as "__packed".
-
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202204142318.vDqjjSFn-lkp@intel.com
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
 ---
- drivers/usb/serial/whiteheat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/drivers/usb/serial/whiteheat.c b/drivers/usb/serial/whiteheat.c
-index da65d14c9ed5..6e00498843fb 100644
---- a/drivers/usb/serial/whiteheat.c
-+++ b/drivers/usb/serial/whiteheat.c
-@@ -584,7 +584,7 @@ static int firm_send_command(struct usb_serial_port *port, __u8 command,
- 		switch (command) {
- 		case WHITEHEAT_GET_DTR_RTS:
- 			info = usb_get_serial_port_data(port);
--			memcpy(&info->mcr, command_info->result_buffer,
-+			memcpy(info, command_info->result_buffer,
- 					sizeof(struct whiteheat_dr_info));
- 				break;
- 		}
--- 
-2.32.0
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.34-190-g4a9761edfcec9/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.34-190-g4a9761edfcec9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4a9761edfcec9b095619311472fac014067f802d =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/625e0c40ccc666e18bae067c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
+4-190-g4a9761edfcec9/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-b=
+eagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
+4-190-g4a9761edfcec9/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-b=
+eagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625e0c40ccc666e18bae0=
+67d
+        failing since 88 days (last pass: v5.15.14-70-g9cb47c4d3cbf, first =
+fail: v5.15.16) =
+
+ =20
