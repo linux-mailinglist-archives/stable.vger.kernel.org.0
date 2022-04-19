@@ -2,100 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8538B506D63
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 15:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DD23506D73
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 15:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237800AbiDSN27 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 09:28:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53454 "EHLO
+        id S233003AbiDSNbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 09:31:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239761AbiDSN24 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 09:28:56 -0400
-Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D9D21E19;
-        Tue, 19 Apr 2022 06:26:14 -0700 (PDT)
-Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-e2afb80550so17476256fac.1;
-        Tue, 19 Apr 2022 06:26:14 -0700 (PDT)
+        with ESMTP id S243736AbiDSNbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 09:31:40 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8550D21E1C;
+        Tue, 19 Apr 2022 06:28:58 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id e62-20020a17090a6fc400b001d2cd8e9b0aso1750331pjk.5;
+        Tue, 19 Apr 2022 06:28:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=sender:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=luBr1xSCGoCbhSjWtwlU/G7MaEflGQoKcEEDFnq129A=;
-        b=POp824OWPw/M3WzXfW43JkSKaaTXbZ2YLgkLtQjzo4c8YiuBq/nRdSi9FggDzB61cx
-         W9wmhg22twzq3CNyui5KDI7tbT+icX17E+0ibvKrqJX0hlosGgdiJhkLg8q9CFAbeZ7B
-         kwlhCmpSMJIG+2yG4ej0rmMAPCL6Vcz5/PrWyUK+9Qvmeq/qK3y2yRwA6veVOr4zZjTn
-         CjEdfFaVLlh0/73mRUByjyCKKL5QEH9zFMg6Gzd3aAnz8loKKvzIYrLk3ol34x4P6K5z
-         NFGXOJYisO0Z+tSh8RWnc2wnKbjwpr9nk75ch9sfYphJZ31MsQcKM65b+jdnI6OBCKts
-         xfNw==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=Gt27EbYhS9qJA9bFo3ES5TQ+M3mPhDrTTHCzoFmARGI=;
+        b=TTITMF5ldzsjryyA1haYULWZJcPqXxNnxjg6fUuS4q+E+uNztjSeFm4paslPCdU0jl
+         igaZQz3FSbN5pJAn9HDmXgRFlNZHLb7pdQuVaiNzCkYJXMPPsTRvlrURIrhIy4f2Mr61
+         maW3029xdqGfPgmZ5lPQqeUuxy+01b5JPdF0imZ5Vtbf781uDccF3xvUaS99bZ7AUCCr
+         +5765Eq6OP5kSX1kgpjCdDsWztWt3dv2nBq5DJvkqmCpEeNM+w794/gYgait+tSTggE5
+         DyuMiwtz7R0IGqma+H+kPPu6ebQl68B75LB2iXtNSR8TsiBiRqSqAdwDvcr/B+S1S3W2
+         TFSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
-         :subject:content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=luBr1xSCGoCbhSjWtwlU/G7MaEflGQoKcEEDFnq129A=;
-        b=tWhwHFEDbLY5sxRM+tdPzIQBAGu61IpBLAxGTcozxRkluPg4E2PNafeWSvci5yB3J4
-         RaLNkK8/15CRZBf/VnHlSLkok83d6e2NVYIyXZ1UTsP32vQaXQZNA4KmHfrlfl46yr5R
-         +9eRxKClRbbixATevK6vvI13+VQGnKOKsVC7yCZ4fwOSfduesM52IyQ5zWFI38uy0LOP
-         DtqUpi9WTDZHr9IKeMhGv3GPFcXmtxeG9StPojgUTShgRfiuUL5/9ecyg7Gy3j3uaDtp
-         BxH0g3M1blzc95HqT2tWCFckqIn7IDh1n2YUDHNojxalWxBF5WcLe/uiJG/82qKU42dh
-         FysQ==
-X-Gm-Message-State: AOAM533FeRAfL+zCtVGqaSqsecHonfGLfDSFEKfu4fuiXQVYeyiQcKXB
-        SJKBAHRQZpTKr3uXKsJeNMc=
-X-Google-Smtp-Source: ABdhPJw3BmUO4t9P7pZqCqph0AOAgJrVVXFte7LbbgUPib1uqBTWoNVIfAzY9W6JG97WXEc+2TKrgg==
-X-Received: by 2002:a05:6870:818a:b0:e5:b9b5:6340 with SMTP id k10-20020a056870818a00b000e5b9b56340mr5687227oae.127.1650374773603;
-        Tue, 19 Apr 2022 06:26:13 -0700 (PDT)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id y22-20020a4aea36000000b0033914f661a2sm4358795ood.33.2022.04.19.06.26.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Apr 2022 06:26:12 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <66221f7a-7d5c-2891-a882-3c3e397dbf0b@roeck-us.net>
-Date:   Tue, 19 Apr 2022 06:26:10 -0700
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=Gt27EbYhS9qJA9bFo3ES5TQ+M3mPhDrTTHCzoFmARGI=;
+        b=VBEsezcnYj1oKLCX9opKyyddhcottZx5nud5ObYr8VbXwWJS+r++RwKZ9znZg6oFRI
+         nOqFpjYUUavXE6mlJTF4rf7c9CW9VS0wXJasOMhYrJBODgssocechRLojiApuFQYzvH2
+         ObJooPlqeUzZ+syaJwt+sz1W/yEaTBTNtCHbbglp1cK4/AntRdVLlFcViuum2mUisFpy
+         GJLRUkAgDFlQ3CLIMy8majO7qYsfR88DNz8MTL4U6coRjtkGT1z0SZ5ULl0bzLd1mSSu
+         wezlp5Gp4+ox8VRkBDjVCYVi81nnGLv8EKJe0qSKVzik3QnfFRnC0bbiKSIQShxjxGXi
+         RZJg==
+X-Gm-Message-State: AOAM530uSFAb/LU/GxwRk082tF5Ob7wXsqtLUnN+muFGPIhShwE4zRHM
+        Cacq7lJaIUWBtzKiX9SohQ0=
+X-Google-Smtp-Source: ABdhPJy6cH5/4e6XZZ4pT4pDqRzujdx8zF5e9ofQmq+fjlHAC4ig/75jn3fViJjD1vhmejDhoMsn2g==
+X-Received: by 2002:a17:902:8483:b0:158:f833:b7a4 with SMTP id c3-20020a170902848300b00158f833b7a4mr10702309plo.100.1650374938037;
+        Tue, 19 Apr 2022 06:28:58 -0700 (PDT)
+Received: from hoboy.vegasvil.org ([2601:640:8200:33:e2d5:5eff:fea5:802f])
+        by smtp.gmail.com with ESMTPSA id j16-20020a634a50000000b003a82190a495sm10071714pgl.62.2022.04.19.06.28.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Apr 2022 06:28:56 -0700 (PDT)
+Date:   Tue, 19 Apr 2022 06:28:53 -0700
+From:   Richard Cochran <richardcochran@gmail.com>
+To:     Tan Tee Min <tee.min.tan@linux.intel.com>
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        Tan Tee Min <tee.min.tan@intel.com>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Rayagond Kokatanur <rayagond@vayavyalabs.com>,
+        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Voon Wei Feng <weifeng.voon@intel.com>,
+        Wong Vee Khee <vee.khee.wong@intel.com>,
+        Song Yoong Siang <yoong.siang.song@intel.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+Subject: Re: [PATCH net 1/1] net: stmmac: add fsleep() in HW Rx timestamp
+ checking loop
+Message-ID: <20220419132853.GA19386@hoboy.vegasvil.org>
+References: <20220413040115.2351987-1-tee.min.tan@intel.com>
+ <20220413125915.GA667752@hoboy.vegasvil.org>
+ <20220414072934.GA10025@linux.intel.com>
+ <20220414104259.0b928249@kernel.org>
+ <20220419005220.GA17634@linux.intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.15 000/189] 5.15.35-rc2 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220419073048.315594917@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-In-Reply-To: <20220419073048.315594917@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220419005220.GA17634@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/19/22 00:32, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.35 release.
-> There are 189 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 21 Apr 2022 07:30:20 +0000.
-> Anything received after that time might be too late.
-> 
+On Tue, Apr 19, 2022 at 08:52:20AM +0800, Tan Tee Min wrote:
 
+> I agree that the fsleep(1) (=1us) is a big hammer.
+> Thus in order to improve this, I’ve figured out a smaller delay
+> time that is enough for the context descriptor to be ready which
+> is ndelay(500) (=500ns).
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 488 pass: 488 fail: 0
+Why isn't the context descriptor ready?
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+I mean, the frame already belongs to the CPU, right?
 
-Guenter
+Thanks,
+Richard
