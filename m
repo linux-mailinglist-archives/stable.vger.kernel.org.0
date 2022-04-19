@@ -2,67 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D9950766B
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 19:21:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 696265076B6
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 19:41:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238669AbiDSRX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 13:23:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47124 "EHLO
+        id S1353185AbiDSRoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 13:44:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348515AbiDSRX4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 13:23:56 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED6B937BE5
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 10:21:13 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id mm4-20020a17090b358400b001cb93d8b137so2480897pjb.2
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 10:21:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lBqkmY1TlRpBRJcJRn2WmgzJODN7vJCx2lpi1eDmAT0=;
-        b=joiE3BRW2VWdd2RPxEN0i+wfwQJI0P0umMvYsNmzc4qnANhb07SqMB+wCaiDdfrLHW
-         iIrCkTx1n92E6U0bVb1mNK4HG+94hkQtOVRliMPt0pwCZc19RFoIFRWfkvUM5n6kLXA1
-         9rfY4vq+15123lgV+vl/weN9+31p+L2QawYXqg7n6YQ6nO6Sb/A7V6YMeOAH8agZOfkZ
-         B3202EpiFC3Ls/uUrJwG+ZzuaYUSxx/d9jak8OSN7WRGFwmcCYozexuQow6/7sG1OzrH
-         ceSZ+fmdkLoU5bu8IXmRO1MsvIvgvW4imW+qmzC9SvfoUKw3TZy/3nZbftpWBk7e3F6m
-         7uCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lBqkmY1TlRpBRJcJRn2WmgzJODN7vJCx2lpi1eDmAT0=;
-        b=w11VJtlz3y5sn8Yknd1SqZk0ifbr6qHXnVp+/Kt+7//HwApJkg+7+8XibpcpKyi7Fs
-         VWVjeYOIk41osv6VcCtrKyKzMAKQhl1tBocbSke86Jwwd+rl1t4+9rQu3vwA0IiRh1sD
-         Lc/XN/v79ojYntCMS9ihmHsGn9oTXr1jYwHITraAbXHznNP0fEKGzq7jO4sA7EkpaLxq
-         v5MxBmwVrtk3aPl3wa0sUrAnTRO6vdI5KL4czvPoW8bCdSERYei/qlGdOoSip0RtqjP4
-         PZYV0debsxQxAZrLplC3MiULI3WJ7IHNpfZa8qifwrf9Y0xDVSDoXjNfQxBWL6d2OT0I
-         2ZOw==
-X-Gm-Message-State: AOAM531VfHUrMqBF9rGGqAOxQBczC9efVJ/BCc7KlRfTiHTu3i+5F3hS
-        LmuKMr6A2LYfHvhCeuD39L+dko4KDDLfmVDK
-X-Google-Smtp-Source: ABdhPJyWP/pq2VRRWTNTBvFOR8PUQlGsE50BYI7FqpOEpuRzVsWeJ9djlzLBUH/ToKCEpoJly9BASA==
-X-Received: by 2002:a17:902:edd1:b0:158:8318:b51e with SMTP id q17-20020a170902edd100b001588318b51emr16819551plk.89.1650388873380;
-        Tue, 19 Apr 2022 10:21:13 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c25-20020a62e819000000b0050a442a510bsm15436818pfi.31.2022.04.19.10.21.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Apr 2022 10:21:13 -0700 (PDT)
-Message-ID: <625eef89.1c69fb81.8744a.2ae5@mx.google.com>
-Date:   Tue, 19 Apr 2022 10:21:13 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236067AbiDSRoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 13:44:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAE6827FF0;
+        Tue, 19 Apr 2022 10:41:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DCDB6151B;
+        Tue, 19 Apr 2022 17:41:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF189C385AB;
+        Tue, 19 Apr 2022 17:41:19 +0000 (UTC)
+Date:   Tue, 19 Apr 2022 18:41:16 +0100
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH v10] mm, hugetlbfs: Allow for "high" userspace addresses
+Message-ID: <Yl70PJEfThn84awn@arm.com>
+References: <ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu>
+ <20220415150929.a62cbad83c22d6304560f626@linux-foundation.org>
+ <63e716ee-ad77-c087-20a7-4fda06ec1f68@csgroup.eu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Kernel: v4.9.310-218-g718de3a161dbf
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 63 runs,
- 1 regressions (v4.9.310-218-g718de3a161dbf)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <63e716ee-ad77-c087-20a7-4fda06ec1f68@csgroup.eu>
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,60 +50,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 63 runs, 1 regressions (v4.9.310-218-g718de3a=
-161dbf)
+On Sat, Apr 16, 2022 at 06:26:42AM +0000, Christophe Leroy wrote:
+> Le 16/04/2022 à 00:09, Andrew Morton a écrit :
+> > On Fri, 15 Apr 2022 16:45:13 +0200 Christophe Leroy <christophe.leroy@csgroup.eu> wrote:
+> > 
+> >> This is a fix for commit f6795053dac8 ("mm: mmap: Allow for "high"
+> >> userspace addresses") for hugetlb.
+> >>
+> >> This patch adds support for "high" userspace addresses that are
+> >> optionally supported on the system and have to be requested via a hint
+> >> mechanism ("high" addr parameter to mmap).
+> >>
+> >> Architectures such as powerpc and x86 achieve this by making changes to
+> >> their architectural versions of hugetlb_get_unmapped_area() function.
+> >> However, arm64 uses the generic version of that function.
+> >>
+> >> So take into account arch_get_mmap_base() and arch_get_mmap_end() in
+> >> hugetlb_get_unmapped_area(). To allow that, move those two macros
+> >> out of mm/mmap.c into include/linux/sched/mm.h
+> >>
+> >> If these macros are not defined in architectural code then they default
+> >> to (TASK_SIZE) and (base) so should not introduce any behavioural
+> >> changes to architectures that do not define them.
+> >>
+> >> For the time being, only ARM64 is affected by this change.
+> >>
+> >> >From Catalin (ARM64):
+> >>    We should have fixed hugetlb_get_unmapped_area() as well when we
+> >> added support for 52-bit VA. The reason for commit f6795053dac8 was to
+> >> prevent normal mmap() from returning addresses above 48-bit by default
+> >> as some user-space had hard assumptions about this.
+> >>
+> >> It's a slight ABI change if you do this for hugetlb_get_unmapped_area()
+> >> but I doubt anyone would notice. It's more likely that the current
+> >> behaviour would cause issues, so I'd rather have them consistent.
+> > 
+> > I'm struggling to understand the need for a -stable backport from the
+> > above text.
+> > 
+> > Could we please get a simple statement of the end-user visible effects
+> > of the shortcoming?  Target audience is -stable tree maintainers, and
+> > people who we've never heard of who will be wondering whether they should
+> > add this to their organization's older kernel.
+> 
+> Catalin, can you help answering this question ? It was your 
+> recommendation to tag this patch for stable in 
+> https://patchwork.ozlabs.org/project/linuxppc-dev/patch/db238c1ca2d46e33c57328f8d450f2563e92f8c2.1639736449.git.christophe.leroy@csgroup.eu/
 
-Regressions Summary
--------------------
+My reasoning was that we should have made hugetlb_get_unmapped_area()
+consistent with arch_get_unmapped_area() since commit f6795053dac8 ("mm:
+mmap: Allow for "high" userspace addresses").
 
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
+Basically when arm64 gained support for 52-bit addresses we did not want
+user-space calling mmap() to suddenly get such high addresses, otherwise
+we could have inadvertently broken some programs (similar behaviour to
+x86 here). Hence we added commit f6795053dac8. But we missed hugetlbfs
+which could still get such high mmap() addresses. So in theory that's a
+potential regression that should have bee addressed at the same time
+as commit f6795053dac8 (and before arm64 enabled 52-bit addresses).
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.310-218-g718de3a161dbf/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.310-218-g718de3a161dbf
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      718de3a161dbf90231d1b0a6ac8d77cceabcc03d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/625ec667ca227eaa62ae0688
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.310-2=
-18-g718de3a161dbf/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p=
-200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.310-2=
-18-g718de3a161dbf/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p=
-200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220411.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/625ec667ca227eaa62ae0=
-689
-        failing since 13 days (last pass: v4.9.306-19-g53cdf8047e71, first =
-fail: v4.9.307-10-g6fa56dc70baa) =
-
- =20
+-- 
+Catalin
