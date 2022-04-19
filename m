@@ -2,97 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A566507BA4
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 23:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 779FD507BE6
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 23:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357493AbiDSVI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 17:08:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35384 "EHLO
+        id S241229AbiDSVaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 17:30:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345084AbiDSVIZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 17:08:25 -0400
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C90C124977;
-        Tue, 19 Apr 2022 14:05:41 -0700 (PDT)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 899BF13D5;
-        Tue, 19 Apr 2022 14:05:41 -0700 (PDT)
-Received: from [10.57.41.251] (unknown [10.57.41.251])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E939B3F766;
-        Tue, 19 Apr 2022 14:05:38 -0700 (PDT)
-Message-ID: <8a43fed2-5404-26bb-243c-991369451dd8@arm.com>
-Date:   Tue, 19 Apr 2022 22:05:31 +0100
+        with ESMTP id S1345951AbiDSVaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 17:30:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D9A239827
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 14:27:23 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99427B81846
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 21:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5954C385A7;
+        Tue, 19 Apr 2022 21:27:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650403641;
+        bh=J4l6nOhwaGP9gwFmqdP8jxouA835/1GgWpS/8DKzJkg=;
+        h=Date:From:To:Cc:Subject:From;
+        b=k3qUvGotzVuqDlNl1O1CY7Rh+NP1XAKEDxdjSAQA6nUfeDRU1GNpC17/vPuW6jM1J
+         W3H+W13+Ct2s+3btCEWGcsDnhdq5IN5tykWlsNTSWR/Vlfg36a9Gbrc4jra+sBL+wE
+         TDJ3vN2A9zpm4AFLu8XDlubcD80FEXqL80xgmQpXJyF5ME5O2KusPi7conjaz6qJHr
+         aiBaKhYDwdJNjz5b9fYa0Zb6S0usS655i2XDVAB5PpD9yk7OVxqjjhNwVRvGQUAMWm
+         W7WJjT55au+sgRubuSHMMyfHDupZ1U2/7Gk0lSuwKIAog9fuMSTF2zf8QqWitn1zMx
+         I/drdBGddnN5A==
+Date:   Tue, 19 Apr 2022 14:27:19 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>, Paul Menzel <pmenzel@molgen.mpg.de>,
+        stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        llvm@lists.linux.dev
+Subject: Apply d799769188529abc6cbf035a10087a51f7832b6b to 5.17 and 5.15?
+Message-ID: <Yl8pNxSGUgeHZ1FT@dev-arch.thelio-3990X>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH] iommu/arm-smmu-v3: Fix size calculation in
- arm_smmu_mm_invalidate_range()
-Content-Language: en-GB
-To:     Nicolin Chen <nicolinc@nvidia.com>, jgg@ziepe.ca, will@kernel.org,
-        joro@8bytes.org, jean-philippe@linaro.org
-Cc:     jacob.jun.pan@linux.intel.com, baolu.lu@linux.intel.com,
-        fenghua.yu@intel.com, rikard.falkeborn@gmail.com,
-        linux-arm-kernel@lists.infradead.org,
-        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20220419210158.21320-1-nicolinc@nvidia.com>
-From:   Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <20220419210158.21320-1-nicolinc@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-10.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-04-19 22:01, Nicolin Chen wrote:
-> The arm_smmu_mm_invalidate_range function is designed to be called
-> by mm core for Shared Virtual Addressing purpose between IOMMU and
-> CPU MMU. However, the ways of two subsystems defining their "end"
-> addresses are slightly different. IOMMU defines its "end" address
-> using the last address of an address range, while mm core defines
-> that using the following address of an address range:
-> 
-> 	include/linux/mm_types.h:
-> 		unsigned long vm_end;
-> 		/* The first byte after our end address ...
-> 
-> This mismatch resulted in an incorrect calculation for size so it
-> failed to be page-size aligned. Further, it caused a dead loop at
-> "while (iova < end)" check in __arm_smmu_tlb_inv_range function.
-> 
-> This patch fixes the issue by doing the calculation correctly.
+Hi Greg, Sasha, and Michael,
 
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Commit d79976918852 ("powerpc/64: Add UADDR64 relocation support") fixes
+a boot failure with CONFIG_RELOCATABLE=y kernels linked with recent
+versions of ld.lld [1]. Additionally, it resolves a separate boot
+failure that Paul Menzel reported [2] with ld.lld 13.0.0. Is this a
+reasonable backport for 5.17 and 5.15? It applies cleanly, resolves both
+problems, and does not appear to cause any other issues in my testing
+for both trees but I was curious what Michael's opinion was, as I am far
+from a PowerPC expert.
 
-> Fixes: 2f7e8c553e98d ("iommu/arm-smmu-v3: Hook up ATC invalidation to mm ops")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
-> ---
->   drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c | 9 ++++++++-
->   1 file changed, 8 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-> index 22ddd05bbdcd..c623dae1e115 100644
-> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-> @@ -183,7 +183,14 @@ static void arm_smmu_mm_invalidate_range(struct mmu_notifier *mn,
->   {
->   	struct arm_smmu_mmu_notifier *smmu_mn = mn_to_smmu(mn);
->   	struct arm_smmu_domain *smmu_domain = smmu_mn->domain;
-> -	size_t size = end - start + 1;
-> +	size_t size;
-> +
-> +	/*
-> +	 * The mm_types defines vm_end as the first byte after the end address,
-> +	 * different from IOMMU subsystem using the last address of an address
-> +	 * range. So do a simple translation here by calculating size correctly.
-> +	 */
-> +	size = end - start;
->   
->   	if (!(smmu_domain->smmu->features & ARM_SMMU_FEAT_BTM))
->   		arm_smmu_tlb_inv_range_asid(start, size, smmu_mn->cd->asid,
+This change does apply cleanly to 5.10 (I did not try earlier branches)
+but there are other changes needed for ld.lld to link CONFIG_RELOCATABLE
+kernels in that branch so to avoid any regressions, I think it is safe
+to just focus on 5.15 and 5.17.
+
+Paul, it would not hurt to confirm the results of my testing with your
+setup, just to make sure I did not miss anything :)
+
+[1]: https://github.com/ClangBuiltLinux/linux/issues/1581
+[2]: https://lore.kernel.org/Yg2h2Q2vXFkkLGTh@dev-arch.archlinux-ax161/
+
+Cheers,
+Nathan
