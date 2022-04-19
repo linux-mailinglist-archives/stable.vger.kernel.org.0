@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADEF350779D
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6380C507774
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235496AbiDSSRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:17:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51382 "EHLO
+        id S244537AbiDSSRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:17:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356573AbiDSSQ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:16:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FD283EA82;
-        Tue, 19 Apr 2022 11:12:46 -0700 (PDT)
+        with ESMTP id S1356474AbiDSSRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:17:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2293C3E5F4;
+        Tue, 19 Apr 2022 11:12:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E036C61183;
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5CCFB818EE;
+        Tue, 19 Apr 2022 18:12:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB51AC385A7;
         Tue, 19 Apr 2022 18:12:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50AACC385A5;
-        Tue, 19 Apr 2022 18:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650391965;
-        bh=y4FzcMqIYjP6yJMMswEni40ksnSonHHl5KEbQHYCCgw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hekEBNltUCmnaQrNDUB/B9gJKotJilZJcLRMyzQMPgmbgtS/tUxxMgg76IHTWHTaE
-         4oEAtJIh2NZq7/uz3fgdqxrzaKSbwd9LJfujEXR4OuIqwao2IQ5q+wIFGHcQ+Yf38i
-         E3hJn+TJsOJ6+dtKJb+wGYIyCZ51pmL1t2qR3IhkA/a3ceVVS2+JzKm6UhYBCjaXBt
-         VXrzaryDOnohpEqEiXuOd2yCH3uK/E0TnRuOx+7sLSI6c+Gol2iM2EiCw+9EQAL8/G
-         AHbPAW6ZUSl1ZAV1xdB8XlFkWC7/tBHWdMxKOVKWo8DLJ130xPMWfw4w9AjGV89x9M
-         Agk++BthGEMlw==
+        s=k20201202; t=1650391966;
+        bh=/gJsLD6N+b5xNTzzF4Bzt0cAnW+Ky2AHaiBFQ8+lpCo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=EfifMF0Ph8Cg41DkvZVkGPYBaTukJE5rHLlLVeq0BiOl35MmGEoiWxYQR0Xv3b46o
+         vjdXgq57pu9Uf89/TMsHzMX2QZOLsYDCzDlZRjiffJr7sDChhdH78HvpPhXDTTeMdE
+         l915aigEKCDracK8/kfsY09R6afNOS5gFQTUgjSgq0Dapzi0JjzrMpC0ETlsDQdNpw
+         ck0i0Y9Hiu8twP8k2BrJEk3pGlHVi9UoYhU5Q6UbLj7iBqVmk34H3KYef2XoUPg2sj
+         olX1HZFld4mkkyZVt5Mi3S+dXQhJRD9m5BlNkqTNgM9vof8f+44mKB0ij2hxtYeH0I
+         1IzbJm32G6pFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.15 01/27] ARM: vexpress/spc: Avoid negative array index when !SMP
-Date:   Tue, 19 Apr 2022 14:12:16 -0400
-Message-Id: <20220419181242.485308-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 02/27] reset: renesas: Check return value of reset_control_deassert()
+Date:   Tue, 19 Apr 2022 14:12:17 -0400
+Message-Id: <20220419181242.485308-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220419181242.485308-1-sashal@kernel.org>
+References: <20220419181242.485308-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,56 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit b3f1dd52c991d79118f35e6d1bf4d7cb09882e38 ]
+[ Upstream commit da18980a855edf44270f05455e0ec3f2472f64cc ]
 
-When building multi_v7_defconfig+CONFIG_SMP=n, -Warray-bounds exposes
-a couple negative array index accesses:
+Deasserting the reset is vital, therefore bail out in case of error.
 
-arch/arm/mach-vexpress/spc.c: In function 've_spc_clk_init':
-arch/arm/mach-vexpress/spc.c:583:21: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
-  583 |   if (init_opp_table[cluster])
-      |       ~~~~~~~~~~~~~~^~~~~~~~~
-arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
-  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
-      |       ^~~~~~~~~~~~~~
-arch/arm/mach-vexpress/spc.c:592:18: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
-  592 |    init_opp_table[cluster] = true;
-      |    ~~~~~~~~~~~~~~^~~~~~~~~
-arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
-  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
-      |       ^~~~~~~~~~~~~~
-
-Skip this logic when built !SMP.
-
-Link: https://lore.kernel.org/r/20220331190443.851661-1-keescook@chromium.org
-Cc: Liviu Dudau <liviu.dudau@arm.com>
-Cc: Sudeep Holla <sudeep.holla@arm.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Suggested-by: Biju Das <biju.das.jz@bp.renesas.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+Link: https://lore.kernel.org/r/b2131908-0110-006b-862f-080517f3e2d8@gmail.com
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-vexpress/spc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/reset/reset-rzg2l-usbphy-ctrl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
-index 1da11bdb1dfb..1c6500c4e6a1 100644
---- a/arch/arm/mach-vexpress/spc.c
-+++ b/arch/arm/mach-vexpress/spc.c
-@@ -580,7 +580,7 @@ static int __init ve_spc_clk_init(void)
- 		}
+diff --git a/drivers/reset/reset-rzg2l-usbphy-ctrl.c b/drivers/reset/reset-rzg2l-usbphy-ctrl.c
+index 1e8315038850..a8dde4606360 100644
+--- a/drivers/reset/reset-rzg2l-usbphy-ctrl.c
++++ b/drivers/reset/reset-rzg2l-usbphy-ctrl.c
+@@ -121,7 +121,9 @@ static int rzg2l_usbphy_ctrl_probe(struct platform_device *pdev)
+ 		return dev_err_probe(dev, PTR_ERR(priv->rstc),
+ 				     "failed to get reset\n");
  
- 		cluster = topology_physical_package_id(cpu_dev->id);
--		if (init_opp_table[cluster])
-+		if (cluster < 0 || init_opp_table[cluster])
- 			continue;
+-	reset_control_deassert(priv->rstc);
++	error = reset_control_deassert(priv->rstc);
++	if (error)
++		return error;
  
- 		if (ve_init_opp_table(cpu_dev))
+ 	priv->rcdev.ops = &rzg2l_usbphy_ctrl_reset_ops;
+ 	priv->rcdev.of_reset_n_cells = 1;
 -- 
 2.35.1
 
