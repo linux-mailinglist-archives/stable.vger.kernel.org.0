@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27349507789
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F90E5077A5
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356589AbiDSSRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:17:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51572 "EHLO
+        id S1356378AbiDSSRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:17:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238209AbiDSSQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:16:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72EA3EB8A;
-        Tue, 19 Apr 2022 11:12:37 -0700 (PDT)
+        with ESMTP id S1356531AbiDSSQY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:16:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05763EBA0;
+        Tue, 19 Apr 2022 11:12:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4328E61227;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 629F2B81982;
+        Tue, 19 Apr 2022 18:12:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C489C385A9;
         Tue, 19 Apr 2022 18:12:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EDB4C385AB;
-        Tue, 19 Apr 2022 18:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650391956;
-        bh=ZCI+Z/fhFeIR7DPzLPNHVclofRd5T2YSEHC7i8xxUkE=;
+        s=k20201202; t=1650391958;
+        bh=MK0OE6TjYTtxohqk28sr/Dd7rzK97V5i8xMRJVD6TPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGbHl9EQ9g13fjlrkCCv7uRiTxe67lnlwyt8z7H2R7fI5n11rsxoM5SU75yyor28C
-         ykOPY9EFWgUoJAZL9b7lrEjfMuwrz4u/9Hl/BYcr0HCK1E2iW3E/zp8uWfUDNiimQJ
-         UEpGd4kxYcKbRi2TEQv1fG5nIL+qb6JF8U/DfzCQDnZaxs3DK1f2CYft9RI598fikU
-         vbRvTxDOD9XNvmvOXSQTTtz3lLVeCXZ7TETvwRvGD4wSIBXNGwKJ5qP44PeIFiR7+N
-         PpmZywpU21PfOyQBpkou1QMdEivAr8HmtFan/YpLZH+xI1il9nArC2eOPNp1G4KAaY
-         6o0jjrgjmP2nQ==
+        b=SF4PrCXLyzxyYaFNiTpbcNpaOt1BOLXb7LQ9iSbrLGUPsWBqkQW1aXy6DNqknTaMc
+         /eLRPkxZUt6PR8VmwMlN3VYHHY/7fFTfOTYeK3ekg9EYlU48VytfcNJDALR7JHJg4+
+         7YgxkxYOcOHih7RdtDrBuDJD4cGWDqywbe1uCMO6WprfDMpwBsUJJ8FigfKCNG/STi
+         p4Ci+qkZJct2pU+ef9WbTlEIcZ6e99FTR6JgN+p4vmDo6WkWM2M85HGyx44hXwwwOO
+         roCHq95KI2q6SUFphlUgnLGUythIKDWCPZXowl79y9578erU5+FttRAfrnkce4TlUK
+         JoFlbnZZGH3Ig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.17 32/34] nvme-pci: disable namespace identifiers for Qemu controllers
-Date:   Tue, 19 Apr 2022 14:10:59 -0400
-Message-Id: <20220419181104.484667-32-sashal@kernel.org>
+Cc:     Khazhismel Kumykov <khazhy@google.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 33/34] block/compat_ioctl: fix range check in BLKGETSIZE
+Date:   Tue, 19 Apr 2022 14:11:00 -0400
+Message-Id: <20220419181104.484667-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181104.484667-1-sashal@kernel.org>
 References: <20220419181104.484667-1-sashal@kernel.org>
@@ -59,42 +58,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Khazhismel Kumykov <khazhy@google.com>
 
-[ Upstream commit 66dd346b84d79fde20832ed691a54f4881eac20d ]
+[ Upstream commit ccf16413e520164eb718cf8b22a30438da80ff23 ]
 
-Qemu unconditionally reports a UUID, which depending on the qemu version
-is either all-null (which is incorrect but harmless) or contains a single
-bit set for all controllers.  In addition it can also optionally report
-a eui64 which needs to be manually set.  Disable namespace identifiers
-for Qemu controlles entirely even if in some cases they could be set
-correctly through manual intervention.
+kernel ulong and compat_ulong_t may not be same width. Use type directly
+to eliminate mismatches.
 
-Reported-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+This would result in truncation rather than EFBIG for 32bit mode for
+large disks.
+
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20220414224056.2875681-1-khazhy@google.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ block/ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 6be611f49a45..e4b79bee6206 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3405,7 +3405,10 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_VDEVICE(INTEL, 0x5845),	/* Qemu emulated controller */
- 		.driver_data = NVME_QUIRK_IDENTIFY_CNS |
--				NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+				NVME_QUIRK_DISABLE_WRITE_ZEROES |
-+				NVME_QUIRK_BOGUS_NID, },
-+	{ PCI_VDEVICE(REDHAT, 0x0010),	/* Qemu emulated controller */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x126f, 0x2263),	/* Silicon Motion unidentified */
- 		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST, },
- 	{ PCI_DEVICE(0x1bb1, 0x0100),   /* Seagate Nytro Flash Storage */
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 4a86340133e4..f8703db99c73 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -629,7 +629,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 		return compat_put_long(argp,
+ 			(bdev->bd_disk->bdi->ra_pages * PAGE_SIZE) / 512);
+ 	case BLKGETSIZE:
+-		if (bdev_nr_sectors(bdev) > ~0UL)
++		if (bdev_nr_sectors(bdev) > ~(compat_ulong_t)0)
+ 			return -EFBIG;
+ 		return compat_put_ulong(argp, bdev_nr_sectors(bdev));
+ 
 -- 
 2.35.1
 
