@@ -2,105 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 344F15079FE
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 21:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48837507A0E
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 21:16:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbiDSTPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 15:15:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34756 "EHLO
+        id S241145AbiDSTSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 15:18:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352741AbiDSTPe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 15:15:34 -0400
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F60B3EF04
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 12:12:47 -0700 (PDT)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-2e644c76556so154878247b3.15
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 12:12:47 -0700 (PDT)
+        with ESMTP id S235449AbiDSTSn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 15:18:43 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7343BBF3
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 12:16:00 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id md4so16319851pjb.4
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 12:16:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=/Ct+AxDBUwq5npjyE3CcIN4oPY5vWF71fxIZoksAsSo=;
-        b=plXKzogvAjgTQ/3/wRrDQr/87HdF10qTGjL4ABF8SIjonjYIaney0OQV+PTNdUE7bA
-         tJYjUnRl73oVwxWu/im4EGz2/OPpnG9SUwRqD2DKgV2EVoYznfJ/oj+cLXfECLERsHVW
-         iy/YNl/3ylUbDhPf+pj2dJ8bbZU/EiexuBKqRQWxZIUEPT2QErtKhCC28hRe9y0t/1x4
-         5nFReFWaKS1mG7SQz3GqzbZ5TOCnDc7uNAv8dLd9a57ftETG5aqrrCiHWPl2JK85NEc1
-         e24gOpqQGeXmFDasnF42TaD1Il8nKCkRmHww2haGK1eFZQWKJttMBPawC0qpaF3w0Dqq
-         hXAQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yNhYC3FtkN52sj/ktFlkNG1F3PxfDDNH7E4xDHCM3Og=;
+        b=353ERwzodfU64p1ubxI6UsmwwucJ0TdUZxArVBnu59wK3rliwJoVFOIWYpWxkCMBNb
+         X2lcjIeY4PBh5jZUlSJTqbmu81ItOD0l9tGA5Vo/THRFnPOOimTw2cnfRcKHzRRY0IRI
+         1vN1ToVIkZ8ih6c61fTLWbBf+IvdtQKNBp+Egfufsrqld+lDDV1rCnBJvufb0/gHBndi
+         AZ0feDffUjJO7kZZwU0ntkrZf3REBRErhM1Yk9MAdiGOHev45fsQa59G64iPVEgbErya
+         PRt52svn2Mnu9Zw1P/xQHVpaN3T/VfARDB4sFwNiQNy/LmoXUTc/Prs/5mrezbufzV6o
+         11Eg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=/Ct+AxDBUwq5npjyE3CcIN4oPY5vWF71fxIZoksAsSo=;
-        b=beWZ7KmS8v+eRfjCMj7BYqkYqFFzh3ROvhpIwOFVLjmQ/MfLlD0SsjDawUaFVuLczV
-         SuMiV3aFfunRFcnEOxwIYMW6E31u7hJfWWB023riSun8KSxMdl/Pa/NnmzO8o09TOcVF
-         c4RasOCtY27OLQXNth6q7emcKQla/vhe8eFm7gjPDPWoHAgzldOSMaFehZTRQ2F/bOTF
-         8Cj9Du7K541ENdTO/d9I9WYOeKZlDgcgXufD/3jLbv57Mh4rdQPUxXEq2jLwC96lMok2
-         JoTlYGBh8mD8Ad9P2pU9KkPfT6PFneECyrSd0U1mrlJYr/McerajdcNAp95jkUxFQYuM
-         B1oA==
-X-Gm-Message-State: AOAM531QW8CYGkpkDEkojoklf/BJSzGdn5BEfSkXOsZWR6iJMfG2eyvr
-        MaDeThke826D+ai2GZFpv9d/DP6Wk2UgJW6TcA2Ly+/7+0S4/dBatNJL94jps2ShD9YTD90n/VC
-        Q0KnvIGlXjBRTFas0Pbi2BdcZIEMHf6G8INrEq1g8yFJLx2de3XV1ouY6An6dfg==
-X-Google-Smtp-Source: ABdhPJxLmCZi+PAZn8T7sqVI0hBcsOTx5o6MfWfg9mp0SXuArtyq74PM0B9gGTNROEx2xemIcluq7834pQs=
-X-Received: from khazhy-linux.svl.corp.google.com ([2620:15c:2cd:202:694c:2cbf:cf44:7ce6])
- (user=khazhy job=sendgmr) by 2002:a05:690c:90:b0:2f1:9b7a:ceec with SMTP id
- be16-20020a05690c009000b002f19b7aceecmr10532296ywb.308.1650395566778; Tue, 19
- Apr 2022 12:12:46 -0700 (PDT)
-Date:   Tue, 19 Apr 2022 12:12:39 -0700
-Message-Id: <20220419191239.588421-1-khazhy@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.36.0.rc0.470.gd361397f0d-goog
-Subject: [PATCH] block/compat_ioctl: fix range check in BLKGETSIZE
-From:   Khazhismel Kumykov <khazhy@google.com>
-To:     stable@vger.kernel.org
-Cc:     Khazhismel Kumykov <khazhy@google.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yNhYC3FtkN52sj/ktFlkNG1F3PxfDDNH7E4xDHCM3Og=;
+        b=VHZmotyf/4bVdvhd9oQ2mlYzVRgHKw8oCKErguwwg6uYgIMAmkh8OHDsnbhMQwi1Nr
+         cZClT+1AZT2nAoc4lCaMn5GYEZdCBDn0ygVUZxyuc61KsDghIhjQ8Pq2F02U0nDrahz6
+         wIFMnO0qYhEijztJ1qCZoFgz1ys5ik21lVVoRIkcyf35w6bM8xOg2l7r7/xVTGMh6nrM
+         CUgYreRMaHYtFc2Vw5I0+q+1mfxCqcT+cta3mgydSh4RnT+dLf8MeyzWDPPizMU112JW
+         ITXDix2dFsHS3dX+VmL8bVzcNX11bxIJ8YN5ZeLVN98zUrJ6cksoBIL0G3dieO1UdPyr
+         Wfjg==
+X-Gm-Message-State: AOAM531Bw3rdGnnFwmJwHi1antSLmANL2aJ56AYtOcMMB5K3ymNLCezU
+        4K5zex+tKibnVXHdlHpV0Jic3fsfAz8lHsmS
+X-Google-Smtp-Source: ABdhPJy88oU7Qbc9/bsDrHzErgPTS+NGmRhNbN1verymqHjIWo9oCpPL00Hy5ywcMXjod/jyFV9uXg==
+X-Received: by 2002:a17:902:a610:b0:158:9fdd:332a with SMTP id u16-20020a170902a61000b001589fdd332amr17378226plq.94.1650395759698;
+        Tue, 19 Apr 2022 12:15:59 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z6-20020a056a00240600b004e17ab23340sm18525228pfh.177.2022.04.19.12.15.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Apr 2022 12:15:59 -0700 (PDT)
+Message-ID: <625f0a6f.1c69fb81.ea025.af10@mx.google.com>
+Date:   Tue, 19 Apr 2022 12:15:59 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.275-284-g877ce30db10d6
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 92 runs,
+ 2 regressions (v4.14.275-284-g877ce30db10d6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ccf16413e520164eb718cf8b22a30438da80ff23 ]
+stable-rc/queue/4.14 baseline: 92 runs, 2 regressions (v4.14.275-284-g877ce=
+30db10d6)
 
-kernel ulong and compat_ulong_t may not be same width. Use type directly
-to eliminate mismatches.
+Regressions Summary
+-------------------
 
-This would result in truncation rather than EFBIG for 32bit mode for
-large disks.
+platform             | arch  | lab          | compiler | defconfig         =
+ | regressions
+---------------------+-------+--------------+----------+-------------------=
+-+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig         =
+ | 1          =
 
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220414224056.2875681-1-khazhy@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[compat_ioctl is it's own file in 5.4-stable and earlier]
----
+meson8b-odroidc1     | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig=
+ | 1          =
 
-The original commit should apply to the newer stables, this should apply
-to all the older stables.
 
- block/compat_ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.275-284-g877ce30db10d6/plan/baseline/
 
-diff --git a/block/compat_ioctl.c b/block/compat_ioctl.c
-index 7f053468b50d..d490ac220ba8 100644
---- a/block/compat_ioctl.c
-+++ b/block/compat_ioctl.c
-@@ -393,7 +393,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- 		return 0;
- 	case BLKGETSIZE:
- 		size = i_size_read(bdev->bd_inode);
--		if ((size >> 9) > ~0UL)
-+		if ((size >> 9) > ~(compat_ulong_t)0)
- 			return -EFBIG;
- 		return compat_put_ulong(arg, size >> 9);
- 
--- 
-2.36.0.rc0.470.gd361397f0d-goog
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.275-284-g877ce30db10d6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      877ce30db10d6b7e0ad579ad7fe8ff0b964bc0fa =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+ | regressions
+---------------------+-------+--------------+----------+-------------------=
+-+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre | gcc-10   | defconfig         =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625ee3b8619d076481ae067c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-g877ce30db10d6/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-=
+s905d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-g877ce30db10d6/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-=
+s905d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625ee3b8619d076481ae0=
+67d
+        failing since 13 days (last pass: v4.14.271-23-g28704797a540, first=
+ fail: v4.14.275-206-gfa920f352ff15) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+ | regressions
+---------------------+-------+--------------+----------+-------------------=
+-+------------
+meson8b-odroidc1     | arm   | lab-baylibre | gcc-10   | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625ed93ea78715edfaae0689
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-g877ce30db10d6/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-mes=
+on8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-g877ce30db10d6/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-mes=
+on8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625ed93ea78715edfaae0=
+68a
+        failing since 65 days (last pass: v4.14.266-18-g18b83990eba9, first=
+ fail: v4.14.266-28-g7d44cfe0255d) =
+
+ =20
