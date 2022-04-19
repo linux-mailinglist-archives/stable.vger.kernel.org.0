@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF505077CE
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:24:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05608507893
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:27:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357052AbiDSSZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:25:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37380 "EHLO
+        id S1357140AbiDSSZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:25:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357121AbiDSSWq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:22:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F4441F81;
-        Tue, 19 Apr 2022 11:15:18 -0700 (PDT)
+        with ESMTP id S1357160AbiDSSWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:22:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3584842487;
+        Tue, 19 Apr 2022 11:15:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C842E6144F;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 54F6CB81974;
+        Tue, 19 Apr 2022 18:15:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9DFDC385A9;
         Tue, 19 Apr 2022 18:15:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EFD6C385AB;
-        Tue, 19 Apr 2022 18:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650392117;
-        bh=9WL+ylVR4jrcqB//eMMexkdixOMruuuOM18tCDAJx8U=;
+        s=k20201202; t=1650392119;
+        bh=GdhV+M7q++CPNc+w2fY6C6AGEQb4sYzOfXOJmXL+AZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jEEuhnh7Byf0UmFdV+GZhCDUumBHvxH+w+eEn/FZmf6uEZSpcz5K+pYvnDuPpr+F9
-         TXCtCildA9j8s2UCyTRfbz5iSXNDiPtCPk0YoAJ5NcjDFu/ELI4Rgbr2PZm5sfJ9Tq
-         jPtjzqYeajdw/tnb31Ntpppr5zNwojyAFVKJ9+hrv7maPHLQ4RL63jjjXuniogGQ4I
-         0QcZ3wlZK+iMZrYmGLtQeLuDSAqQOrXdfmdz3qn5/oJ/rtWh33BRaNUPZCan3X7Nex
-         FHyWMnWP/i3cDEE6w/qeHCc+CLpfsS+o3VpamqFz4woEQp0CQSBcc/IH+lMTRunLUP
-         GNvB5qHuNEgPw==
+        b=mtPA9QlN0jAzliv/9bZaktbeFRRi6Srxb6unseUlqIIvRDssn5JZ73tPz7UvIipv6
+         dnPGVuuPVDNaal9hVxwlLbxgCB4l7I6mNVsGkjkOneoRCc6yebSiOucYFHCFE9eNqF
+         YcW/QssBI2VaJAXPOultnddHFzdx2vim1U4AQ+YT1b8A6M0y3JwE3OMxmrWRlBJUke
+         u3MyXWblQrH6vdUXVTElbRoYjLWJNlpUWZONpDjCDNadiC02ZsCVsNugGHXsG2i64v
+         B3AjVU8e0u/ETzlizrjlZXplkbYp/hOOjHv+y1ebwoC7868yiJl8IqcPIZ/fUv9gqI
+         cqyudRdYeFfHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, sean@poorly.run,
-        airlied@linux.ie, daniel@ffwll.ch, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 11/14] drm/msm: Stop using iommu_present()
-Date:   Tue, 19 Apr 2022 14:14:40 -0400
-Message-Id: <20220419181444.485959-11-sashal@kernel.org>
+Cc:     Tomas Melin <tomas.melin@vaisala.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, nicolas.ferre@microchip.com,
+        davem@davemloft.net, pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 12/14] net: macb: Restart tx only if queue pointer is lagging
+Date:   Tue, 19 Apr 2022 14:14:41 -0400
+Message-Id: <20220419181444.485959-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181444.485959-1-sashal@kernel.org>
 References: <20220419181444.485959-1-sashal@kernel.org>
@@ -60,38 +58,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Tomas Melin <tomas.melin@vaisala.com>
 
-[ Upstream commit e2a88eabb02410267519b838fb9b79f5206769be ]
+[ Upstream commit 5ad7f18cd82cee8e773d40cc7a1465a526f2615c ]
 
-Even if some IOMMU has registered itself on the platform "bus", that
-doesn't necessarily mean it provides translation for the device we
-care about. Replace iommu_present() with a more appropriate check.
+commit 4298388574da ("net: macb: restart tx after tx used bit read")
+added support for restarting transmission. Restarting tx does not work
+in case controller asserts TXUBR interrupt and TQBP is already at the end
+of the tx queue. In that situation, restarting tx will immediately cause
+assertion of another TXUBR interrupt. The driver will end up in an infinite
+interrupt loop which it cannot break out of.
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Patchwork: https://patchwork.freedesktop.org/patch/480707/
-Link: https://lore.kernel.org/r/5ab4f4574d7f3e042261da702d493ee40d003356.1649168268.git.robin.murphy@arm.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+For cases where TQBP is at the end of the tx queue, instead
+only clear TX_USED interrupt. As more data gets pushed to the queue,
+transmission will resume.
+
+This issue was observed on a Xilinx Zynq-7000 based board.
+During stress test of the network interface,
+driver would get stuck on interrupt loop within seconds or minutes
+causing CPU to stall.
+
+Signed-off-by: Tomas Melin <tomas.melin@vaisala.com>
+Tested-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220407161659.14532-1-tomas.melin@vaisala.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cadence/macb_main.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 407b51cf6790..7322df9cf673 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -303,7 +303,7 @@ bool msm_use_mmu(struct drm_device *dev)
- 	struct msm_drm_private *priv = dev->dev_private;
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 480d2ca369e6..002a374f197b 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -1378,6 +1378,7 @@ static void macb_tx_restart(struct macb_queue *queue)
+ 	unsigned int head = queue->tx_head;
+ 	unsigned int tail = queue->tx_tail;
+ 	struct macb *bp = queue->bp;
++	unsigned int head_idx, tbqp;
  
- 	/* a2xx comes with its own MMU */
--	return priv->is_a2xx || iommu_present(&platform_bus_type);
-+	return priv->is_a2xx || device_iommu_mapped(dev->dev);
+ 	if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
+ 		queue_writel(queue, ISR, MACB_BIT(TXUBR));
+@@ -1385,6 +1386,13 @@ static void macb_tx_restart(struct macb_queue *queue)
+ 	if (head == tail)
+ 		return;
+ 
++	tbqp = queue_readl(queue, TBQP) / macb_dma_desc_get_size(bp);
++	tbqp = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, tbqp));
++	head_idx = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, head));
++
++	if (tbqp == head_idx)
++		return;
++
+ 	macb_writel(bp, NCR, macb_readl(bp, NCR) | MACB_BIT(TSTART));
  }
  
- static int msm_init_vram(struct drm_device *dev)
 -- 
 2.35.1
 
