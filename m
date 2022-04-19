@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77BE85077FB
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 632895077D4
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:24:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357088AbiDSSZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:25:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37410 "EHLO
+        id S1357082AbiDSSZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:25:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357572AbiDSSXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:23:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85FC843AF8;
-        Tue, 19 Apr 2022 11:16:36 -0700 (PDT)
+        with ESMTP id S1357601AbiDSSXc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:23:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C794144A03;
+        Tue, 19 Apr 2022 11:16:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C547561444;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D3886142E;
+        Tue, 19 Apr 2022 18:16:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFECCC385A5;
         Tue, 19 Apr 2022 18:16:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CDF2C385AD;
-        Tue, 19 Apr 2022 18:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650392194;
-        bh=k/8eucsA20qaz2LGYTkOnoaj9M7PhP6Q6Ov+oEMP+zg=;
+        s=k20201202; t=1650392195;
+        bh=EosSNH8QIq0HX0UFhXMnJQen0qV3zQiLsp4EowtHQFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWIju/x7BgALKgsSId/446neml9YQHUtnldRoJUIcn+N7E4ammscjP5HB714gzleJ
-         syq4Ndk7kQOtO0AL1fedEXNcxA4BTUAa9xx/Af7VPExiPvadJsrh7lZ5Zh+HFoYqNL
-         Y9qi5cW56v6CYnSsOpPf7y+AaDQ+yMRNeRHAKjdmtRsSNJpZXg7bnwiaab2mO8yLpv
-         qRTc0SVzJBJClDIpiWNbjwYyoKCPAJup7yjELv+u+K0xnsg74Q7hfQes3Omx1fkhsA
-         Qi8uc4hFbfcgCwwvTapShq1xBFoIZGIKJnRd9FUwGSq6LfhinRnsK2KpelNgfDlHjz
-         BHdcty5PdGDmw==
+        b=dkiDosQEs7rvgWiKXfGPHPXy35pk9/me1RMvkOEObpaeRjKF4FcgVcAzsKn0oRtOm
+         aMB2W6rHERO695HGCdYGAxOrE39y91QmbWzbOIh5KRDqCsZKsIyKmwXcV4oTuOHLaa
+         3in9UP6zxBY6WtLLg+Cw4KvfqKygEAqfa0paYyK/+HDMT6QKJOV497u2KlwcsQsos8
+         BENQJ+f+mGa3aJY0/+pLUYk0x5AWF4qbvZwQyY5VeJPyGxs7N5rrOTOpLnWz6Ij1X2
+         lUei2XDHKljWC7gdKChk2t3xXzoQanAHHHMKxfCydWC9JeP9jqnm/L8B+s4IMkWvSk
+         wt9io25YJi7qw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hongbin Wang <wh_bin@126.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 4/7] vxlan: fix error return code in vxlan_fdb_append
-Date:   Tue, 19 Apr 2022 14:16:22 -0400
-Message-Id: <20220419181625.486476-4-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        Steve French <sfrench@samba.org>,
+        Shyam Prasad N <nspmangalore@gmail.com>,
+        Rohith Surabattula <rohiths.msft@gmail.com>,
+        linux-cifs@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.9 5/7] cifs: Check the IOCB_DIRECT flag, not O_DIRECT
+Date:   Tue, 19 Apr 2022 14:16:23 -0400
+Message-Id: <20220419181625.486476-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181625.486476-1-sashal@kernel.org>
 References: <20220419181625.486476-1-sashal@kernel.org>
@@ -57,38 +60,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongbin Wang <wh_bin@126.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 7cea5560bf656b84f9ed01c0cc829d4eecd0640b ]
+[ Upstream commit 994fd530a512597ffcd713b0f6d5bc916c5698f0 ]
 
-When kmalloc and dst_cache_init failed,
-should return ENOMEM rather than ENOBUFS.
+Use the IOCB_DIRECT indicator flag on the I/O context rather than checking to
+see if the file was opened O_DIRECT.
 
-Signed-off-by: Hongbin Wang <wh_bin@126.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Steve French <sfrench@samba.org>
+cc: Shyam Prasad N <nspmangalore@gmail.com>
+cc: Rohith Surabattula <rohiths.msft@gmail.com>
+cc: linux-cifs@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/cifsfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 0bfadec8b79c..d59cb381e80b 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -490,11 +490,11 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index 95e4f074b766..b85c283ad08b 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -766,7 +766,7 @@ cifs_loose_read_iter(struct kiocb *iocb, struct iov_iter *iter)
+ 	ssize_t rc;
+ 	struct inode *inode = file_inode(iocb->ki_filp);
  
- 	rd = kmalloc(sizeof(*rd), GFP_ATOMIC);
- 	if (rd == NULL)
--		return -ENOBUFS;
-+		return -ENOMEM;
+-	if (iocb->ki_filp->f_flags & O_DIRECT)
++	if (iocb->ki_flags & IOCB_DIRECT)
+ 		return cifs_user_readv(iocb, iter);
  
- 	if (dst_cache_init(&rd->dst_cache, GFP_ATOMIC)) {
- 		kfree(rd);
--		return -ENOBUFS;
-+		return -ENOMEM;
- 	}
- 
- 	rd->remote_ip = *ip;
+ 	rc = cifs_revalidate_mapping(inode);
 -- 
 2.35.1
 
