@@ -2,115 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A1F5060A7
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 02:08:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E20495060AB
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 02:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237831AbiDSAK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 20:10:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35044 "EHLO
+        id S237799AbiDSAK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 20:10:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237762AbiDSAK0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 20:10:26 -0400
-Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE59E5FAE
-        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 17:07:45 -0700 (PDT)
-Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
-        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 315FC100474F8
-        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 00:07:45 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id gbPEnew1LQs3CgbPFnkYkc; Tue, 19 Apr 2022 00:07:45 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=A+Opg4aG c=1 sm=1 tr=0 ts=625dfd51
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=z0gMJWrwH1QA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=36OQTUTh8JSVb8S2w5osYWQ/4Lqcw/BTNh1OC/B/n58=; b=NmajoqCBIobKJFhle2aMUBD8GN
-        LPcROPPGE4RteBOEgVJMq3XFxtbjHUzBhGKXwmnOC1dCXeqgcuMaYzY/tHlKzpiTaUBsnZXWqalkT
-        EPm+i32an0gBDjxdWT43RZ9M2r6jatIzc158NwAFv3VM22KJRdyYt9KyzxZWvVwDEHgBQ4kouztp7
-        vaoEoqxSlKFfW8VBkehl3ho356pizmpwU9nLjGAtG4KwGOKDvOQmOI1sYMo2HIcTbc35H9/0qBOwP
-        BJhzuYinE4BB2PXD/UkDUynR/We9ruKEZSQh0wPiYtpsOQO9/YCLY2Rp+205Hy0ICXa6nxlAujvUF
-        q06/vbKA==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:60112 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1ngbPD-0002bA-QZ; Mon, 18 Apr 2022 18:07:43 -0600
-Subject: Re: [PATCH 5.15 000/189] 5.15.35-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220418121200.312988959@linuxfoundation.org>
-In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <25bcc168-9f54-869a-fb25-01e7a92dddd8@w6rz.net>
-Date:   Mon, 18 Apr 2022 17:07:41 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S237756AbiDSAKY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 20:10:24 -0400
+Received: from mail-oa1-x31.google.com (mail-oa1-x31.google.com [IPv6:2001:4860:4864:20::31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9E03882;
+        Mon, 18 Apr 2022 17:07:44 -0700 (PDT)
+Received: by mail-oa1-x31.google.com with SMTP id 586e51a60fabf-e2442907a1so15843453fac.8;
+        Mon, 18 Apr 2022 17:07:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Di0BAlr8LlWx8Ci/Ew3/yaK9KDuVCJ1BCJlDq71lACE=;
+        b=n858Z8o0N5et79u0bdVMDmN/wGGIJzft8OyfhoNcrANE6042gdgi+BeNJwHnpk4CAH
+         F/bG1WOIlMMKvzsK7BLPPPwSO1F5eL9S1qs2QhSiW2J1bIUl4sA0CS13P9tvLSTpGyUb
+         drc2DCzR/BZnZdmNKbxv7DGaJkQ7fqPsZDbWUb+fPO9OX+vKZU4W6NRRo6EH+P2tm69k
+         eXNgeJpEHTqAa7Iqc8rP8qLijlDVsOmB1hrfgzX9GDv2kBM8jx5rFeEItwm2/MPEyHPW
+         FmXq7PtXfZigUVMXfiQafHO9thRMFoDrFDtHLZ3OSSNhjPi9NXg/+SLVxDnz7mSu3Tfk
+         EaOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=Di0BAlr8LlWx8Ci/Ew3/yaK9KDuVCJ1BCJlDq71lACE=;
+        b=urBNv2ZSsLyT/ffsvMqFw6ExdAr0dZCAw+PrQ22FchXn1wsxVwyysVYVzmr5A6TzQt
+         75xng+OjpUoNIr9HXw/TYqZlHkHg0uLtP4/mFI/rXAQ9kM2LzdDaZy9EJYYQqIsmc+HD
+         DNUWKjY+fTYZSbzsGiWpjjl0iOYJBi+UC2gCaGFCi1UPZMLylYPdnS3mNwmllj89vinr
+         30ED8t0P0FvNH4ZznFGCA4ZpTrFbjm52+15BzvpDTiOMXCwQFMd6F8zjZqXGtC+m3eAB
+         5IHIqWK7lbQhB2WWOUOR+FFcEIrLdi+bhdk7rcD7P4SaM4GoEiJNitQDbomhLA8gkHKI
+         n8EQ==
+X-Gm-Message-State: AOAM533ikwjvre+kawCBGv/mLF0I5W+PzyfS3kLMvq5alq9usBkS+i35
+        PAPuzvFW/dZdTBZAC+K3sAo=
+X-Google-Smtp-Source: ABdhPJyIpdPtYeP3zoSc36DgG1ek2d4Cacs/q+LcTG8f3DnzgxQjWIzdnVAF5M5LGqXovlT/8rfBVw==
+X-Received: by 2002:a05:6870:2498:b0:e5:9555:2546 with SMTP id s24-20020a056870249800b000e595552546mr5454982oaq.292.1650326863753;
+        Mon, 18 Apr 2022 17:07:43 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id e22-20020a056870239600b000e2f0c69849sm4586584oap.11.2022.04.18.17.07.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 Apr 2022 17:07:43 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Mon, 18 Apr 2022 17:07:42 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.17 000/219] 5.17.4-rc1 review
+Message-ID: <20220419000742.GG1369577@roeck-us.net>
+References: <20220418121203.462784814@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1ngbPD-0002bA-QZ
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:60112
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220418121203.462784814@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/18/22 5:10 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.35 release.
-> There are 189 patches in this series, all will be posted as a response
+On Mon, Apr 18, 2022 at 02:09:29PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.17.4 release.
+> There are 219 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
->
+> 
 > Responses should be made by Wed, 20 Apr 2022 12:11:14 +0000.
 > Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.35-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> 
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 489 pass: 489 fail: 0
 
-Tested-by: Ron Economos <re@w6rz.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
+Guenter
