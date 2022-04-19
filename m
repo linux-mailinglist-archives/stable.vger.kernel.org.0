@@ -2,97 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA62C506D49
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 15:15:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8538B506D63
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 15:26:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240811AbiDSNSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 09:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46770 "EHLO
+        id S237800AbiDSN27 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 09:28:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231267AbiDSNSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 09:18:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0F633E0B;
-        Tue, 19 Apr 2022 06:15:35 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39B5561605;
-        Tue, 19 Apr 2022 13:15:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40465C385A5;
-        Tue, 19 Apr 2022 13:15:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650374134;
-        bh=XyLeUd/v63OA7SUTUm0rez8xElwKroMr+psf6pn932Q=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TLl0fxObFpL5KXlYroSc8qt8bgjljkyAsi/GCsHFxNwrkZiau7vl+4nRFWJ1V9jNl
-         sZp7pRHZ3yipIISK0qweCepkBfbxtXzz+efrwtlm1UDi1YZta2xS7995BnHX+Uz1JA
-         ALK5xe3MoaNr/rxVwtLYYPf4S5ZG9REGjKxTop/fCWXNA8wuMQ1oLMC67PXlyJOe2Q
-         35VNNfG6Vmdy4espTVVQIk9NMn9XcLDnXZg17jQ7AZ1yRUcrzKgPLOEZ1lAxOSrVG9
-         VkXrTg6ut13jj698dTAVFpVifH0KzNCBsiHk/WjqW9I7+7qNcPj0BAQBxMe/VZVGRB
-         uHeWdFUPHGF8Q==
-Date:   Tue, 19 Apr 2022 14:15:29 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        linux-spi@vger.kernel.org, Pratyush Yadav <p.yadav@ti.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.17 34/49] spi: cadence-quadspi: fix protocol
- setup for non-1-1-X operations
-Message-ID: <Yl618Qfbm3NpGjB5@sirena.org.uk>
-References: <20220412004411.349427-1-sashal@kernel.org>
- <20220412004411.349427-34-sashal@kernel.org>
- <d618fc184f162b1da8d75729b5939bed52308040.camel@ew.tq-group.com>
- <YlVrbR6Giy2OXe1R@sirena.org.uk>
- <YlyHqKVBC9u1F9xS@sashalap>
+        with ESMTP id S239761AbiDSN24 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 09:28:56 -0400
+Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D9D21E19;
+        Tue, 19 Apr 2022 06:26:14 -0700 (PDT)
+Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-e2afb80550so17476256fac.1;
+        Tue, 19 Apr 2022 06:26:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=luBr1xSCGoCbhSjWtwlU/G7MaEflGQoKcEEDFnq129A=;
+        b=POp824OWPw/M3WzXfW43JkSKaaTXbZ2YLgkLtQjzo4c8YiuBq/nRdSi9FggDzB61cx
+         W9wmhg22twzq3CNyui5KDI7tbT+icX17E+0ibvKrqJX0hlosGgdiJhkLg8q9CFAbeZ7B
+         kwlhCmpSMJIG+2yG4ej0rmMAPCL6Vcz5/PrWyUK+9Qvmeq/qK3y2yRwA6veVOr4zZjTn
+         CjEdfFaVLlh0/73mRUByjyCKKL5QEH9zFMg6Gzd3aAnz8loKKvzIYrLk3ol34x4P6K5z
+         NFGXOJYisO0Z+tSh8RWnc2wnKbjwpr9nk75ch9sfYphJZ31MsQcKM65b+jdnI6OBCKts
+         xfNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :subject:content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=luBr1xSCGoCbhSjWtwlU/G7MaEflGQoKcEEDFnq129A=;
+        b=tWhwHFEDbLY5sxRM+tdPzIQBAGu61IpBLAxGTcozxRkluPg4E2PNafeWSvci5yB3J4
+         RaLNkK8/15CRZBf/VnHlSLkok83d6e2NVYIyXZ1UTsP32vQaXQZNA4KmHfrlfl46yr5R
+         +9eRxKClRbbixATevK6vvI13+VQGnKOKsVC7yCZ4fwOSfduesM52IyQ5zWFI38uy0LOP
+         DtqUpi9WTDZHr9IKeMhGv3GPFcXmtxeG9StPojgUTShgRfiuUL5/9ecyg7Gy3j3uaDtp
+         BxH0g3M1blzc95HqT2tWCFckqIn7IDh1n2YUDHNojxalWxBF5WcLe/uiJG/82qKU42dh
+         FysQ==
+X-Gm-Message-State: AOAM533FeRAfL+zCtVGqaSqsecHonfGLfDSFEKfu4fuiXQVYeyiQcKXB
+        SJKBAHRQZpTKr3uXKsJeNMc=
+X-Google-Smtp-Source: ABdhPJw3BmUO4t9P7pZqCqph0AOAgJrVVXFte7LbbgUPib1uqBTWoNVIfAzY9W6JG97WXEc+2TKrgg==
+X-Received: by 2002:a05:6870:818a:b0:e5:b9b5:6340 with SMTP id k10-20020a056870818a00b000e5b9b56340mr5687227oae.127.1650374773603;
+        Tue, 19 Apr 2022 06:26:13 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id y22-20020a4aea36000000b0033914f661a2sm4358795ood.33.2022.04.19.06.26.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Apr 2022 06:26:12 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <66221f7a-7d5c-2891-a882-3c3e397dbf0b@roeck-us.net>
+Date:   Tue, 19 Apr 2022 06:26:10 -0700
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="um3oZgsUst9dpcPu"
-Content-Disposition: inline
-In-Reply-To: <YlyHqKVBC9u1F9xS@sashalap>
-X-Cookie: That's what she said.
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 5.15 000/189] 5.15.35-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220419073048.315594917@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <20220419073048.315594917@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 4/19/22 00:32, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.35 release.
+> There are 189 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 21 Apr 2022 07:30:20 +0000.
+> Anything received after that time might be too late.
+> 
 
---um3oZgsUst9dpcPu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Sun, Apr 17, 2022 at 05:33:28PM -0400, Sasha Levin wrote:
-> On Tue, Apr 12, 2022 at 01:07:09PM +0100, Mark Brown wrote:
+Build results:
+	total: 155 pass: 155 fail: 0
+Qemu test results:
+	total: 488 pass: 488 fail: 0
 
-> > For the benefit of those playing at home that's "spi: cadence-quadspi:
-> > fix incorrect supports_op() return value".  It's much more the sort of
-> > thing I'd expect to see backported to stable so it seems good from that
-> > point of view.
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-> I'm a bit confused as I don't see the other patch in Linus's tree?
-
-> I'll queue this one up then...
-
-I've only recently applied the above commit, it's not sent to Linus yet.
-
---um3oZgsUst9dpcPu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmJetfEACgkQJNaLcl1U
-h9CDZQf/TY/cVb9af5Ei63uqOeKzzcs5loIODBJ04wcdky0mYlICzwT4NKRcWp+P
-t7T/O0b+AGrhzo0vXw1B16RAdm6hYcmZ7hPzw4zp1EoC/EwY/jUustgwOn0ZRMWT
-tBfVKS0IVu98ptUgeYu14xX57jqPkHx5QkoXk32Deuv/d781sApq3+wK9licaIZA
-+mZb5mEttMx1pVk5wCFEgVrylMu1yhwu7roTI2HLC4wlw1jhDXfE3e8MBmLvL3xe
-uUTYVak90sl5pJc6J69sfUdI5I6HG0C36BHArucu9/p7bGa/iMV7YqwaD4EpefqY
-HzxI+3UIgt0DXIvI5KuQG+vO8eVSdw==
-=9Ape
------END PGP SIGNATURE-----
-
---um3oZgsUst9dpcPu--
+Guenter
