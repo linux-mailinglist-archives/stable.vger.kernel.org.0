@@ -2,151 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 363E15074CF
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 18:48:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9894F507663
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 19:20:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354918AbiDSQs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 12:48:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53632 "EHLO
+        id S1351319AbiDSRXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 13:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355054AbiDSQn0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 12:43:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4807A2612A;
-        Tue, 19 Apr 2022 09:40:43 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D63E060B34;
-        Tue, 19 Apr 2022 16:40:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4F6BC385A5;
-        Tue, 19 Apr 2022 16:40:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386442;
-        bh=rF4AqAeeG3pFiw8ba+j1AjJKI0o8rpvYnUVlfmsd5CQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZcwYWiPc2XajjwXFY6Hgb0z8xaKQouR3mgetcNfOG0jAxjf+wc+NkAqTEieKNj2K
-         hTb4pSkBn4p6/vPrbGHHFSjrFJKYhOj58gtETWj5zjgxOpUV+N5TFkzWHrEi+oCpGA
-         Z7qHH3Z4/Qz1lfbHK13P/9eVzrzGxLoE72yig5fdPb2W9JmcSPG6EbgjwxoLszNbC8
-         JtYVwf2JvVtYboOyzewKz6pEaGgLg3OpWUMntuI+0iqBattNddhmtXKm3DuOkqoKaX
-         6oeCBZj9AZy/bFRn3L+Ral/WFjNSaI6bmC11HJKF0hZPiK+pyR2FGR0p1wVrtmDFDN
-         RN3P/E7CISDfQ==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
-        Haojian Zhuang <haojian.zhuang@gmail.com>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Philipp Zabel <philipp.zabel@gmail.com>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        Paul Parsons <lost.distance@yahoo.com>,
-        Tomas Cech <sleep_walker@suse.com>,
-        Sergey Lapin <slapin@ossfans.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Helge Deller <deller@gmx.de>, Mark Brown <broonie@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-ide@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-pm@vger.kernel.org, linux-input@vger.kernel.org,
-        patches@opensource.cirrus.com, linux-leds@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: [PATCH 14/48] ARM: pxa: maybe fix gpio lookup tables
-Date:   Tue, 19 Apr 2022 18:37:36 +0200
-Message-Id: <20220419163810.2118169-15-arnd@kernel.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
-References: <20220419163810.2118169-1-arnd@kernel.org>
+        with ESMTP id S1355857AbiDSRW7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 13:22:59 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E1F167E6
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 10:20:15 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id s17so5574893plg.9
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 10:20:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=E9br9ufwZgFiXoiMwyIC4M42Fxv7oRyV6pGUI18gBa8=;
+        b=tuNPSViWA3OJD0tEzV4dubGj0FO4ZlOXKx7E1w8B3toBvnIw8+f64QKhyCQKWylYFC
+         ipvbBi7PBNfDy1MLezXKrWXBWxObq1epGTyE0FpE+/9FfOSf4J+F2Q0RhcZPbtc1ipAa
+         3Aihsws0s+8gqq7Zf63Ky+P9PWYecR9AY23y4JoJnuS3PvTcTxcUqjCk+DD0qcJ5kZRE
+         F7JSxyAuPHM4p29tTfBTWYCiveqp7Bg+AsKYBvBMrWPHKd1nh0dNrWTYb6vDwRam4crU
+         Aa6cdNuROTpKOsUgmLXnLnztGTo/bIC6t68u54ZoeTiue0NHIUCNLsiEPiO19L5QRM8A
+         ttaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=E9br9ufwZgFiXoiMwyIC4M42Fxv7oRyV6pGUI18gBa8=;
+        b=Gxz9bEOldcXticiStS9wR9hVTm7/uNB0lrNN/wvuVUvK3Uum+oVNvLWPNdcWR7q79j
+         FdLkDeO65SxX+4jbN8eVwtXCddFuC4BtgXssnh316sGRhRKM37gHG792lcSYkO4lSKZr
+         48RWMho0KP6rki7w28kecydRXykGGz9rRempbeNwJidkpifKha8VvPEAyOusCgqMbO9M
+         BttUfLLVCcILaB0ck53s2S6MMGv8OSM3KJo4keNLeoFC3YN9Aw4yqlGbFZ2WUhM/l/Mv
+         NzOsMYa0Txx8SKs9lUW3Xk5ptna9F4RgYX2sxlaZWPfD2fyzdANuaBa73V29GzypZI8i
+         99wg==
+X-Gm-Message-State: AOAM533CW4ig1gfdRe6Xc0FXMfCbzv7Ykx0/Ym3vFxHw++5e9r6wE0bE
+        zrjl0wZ3daztgd/LM+ds5Q1NTY9j5MPq/22k
+X-Google-Smtp-Source: ABdhPJz/3b4pHCNf8rh/j30Y3IG8ZlnObgDld1gRF6Oyny9EES7AV50AhXqpsgrCRLBmvAqFtHVNDw==
+X-Received: by 2002:a17:902:b694:b0:153:1d9a:11a5 with SMTP id c20-20020a170902b69400b001531d9a11a5mr16799993pls.151.1650388814765;
+        Tue, 19 Apr 2022 10:20:14 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l5-20020a63f305000000b0039daaa10a1fsm16862577pgh.65.2022.04.19.10.20.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Apr 2022 10:20:14 -0700 (PDT)
+Message-ID: <625eef4e.1c69fb81.fa1b8.7287@mx.google.com>
+Date:   Tue, 19 Apr 2022 10:20:14 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.238-31-g048465f6e4e69
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.19 baseline: 111 runs,
+ 3 regressions (v4.19.238-31-g048465f6e4e69)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+stable-rc/queue/4.19 baseline: 111 runs, 3 regressions (v4.19.238-31-g04846=
+5f6e4e69)
 
-From inspection I found a couple of GPIO lookups that are
-listed with device "gpio-pxa", but actually have a number
-from a different gpio controller.
+Regressions Summary
+-------------------
 
-Try to rectify that here, with a guess of what the actual
-device name is.
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
 
-Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- arch/arm/mach-pxa/cm-x300.c  | 8 ++++----
- arch/arm/mach-pxa/magician.c | 2 +-
- arch/arm/mach-pxa/tosa.c     | 4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
 
-diff --git a/arch/arm/mach-pxa/cm-x300.c b/arch/arm/mach-pxa/cm-x300.c
-index 09a5264a27c8..01f364a66446 100644
---- a/arch/arm/mach-pxa/cm-x300.c
-+++ b/arch/arm/mach-pxa/cm-x300.c
-@@ -356,13 +356,13 @@ static struct platform_device cm_x300_spi_gpio = {
- static struct gpiod_lookup_table cm_x300_spi_gpiod_table = {
- 	.dev_id         = "spi_gpio",
- 	.table          = {
--		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_SCL,
-+		GPIO_LOOKUP("pca9555.1", GPIO_LCD_SCL - GPIO_LCD_BASE,
- 			    "sck", GPIO_ACTIVE_HIGH),
--		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_DIN,
-+		GPIO_LOOKUP("pca9555.1", GPIO_LCD_DIN - GPIO_LCD_BASE,
- 			    "mosi", GPIO_ACTIVE_HIGH),
--		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_DOUT,
-+		GPIO_LOOKUP("pca9555.1", GPIO_LCD_DOUT - GPIO_LCD_BASE,
- 			    "miso", GPIO_ACTIVE_HIGH),
--		GPIO_LOOKUP("gpio-pxa", GPIO_LCD_CS,
-+		GPIO_LOOKUP("pca9555.1", GPIO_LCD_CS - GPIO_LCD_BASE,
- 			    "cs", GPIO_ACTIVE_HIGH),
- 		{ },
- 	},
-diff --git a/arch/arm/mach-pxa/magician.c b/arch/arm/mach-pxa/magician.c
-index 20ca3e28c7fb..d105deb1e098 100644
---- a/arch/arm/mach-pxa/magician.c
-+++ b/arch/arm/mach-pxa/magician.c
-@@ -681,7 +681,7 @@ static struct platform_device bq24022 = {
- static struct gpiod_lookup_table bq24022_gpiod_table = {
- 	.dev_id = "gpio-regulator",
- 	.table = {
--		GPIO_LOOKUP("gpio-pxa", EGPIO_MAGICIAN_BQ24022_ISET2,
-+		GPIO_LOOKUP("htc-egpio-0", EGPIO_MAGICIAN_BQ24022_ISET2 - MAGICIAN_EGPIO_BASE,
- 			    NULL, GPIO_ACTIVE_HIGH),
- 		GPIO_LOOKUP("gpio-pxa", GPIO30_MAGICIAN_BQ24022_nCHARGE_EN,
- 			    "enable", GPIO_ACTIVE_LOW),
-diff --git a/arch/arm/mach-pxa/tosa.c b/arch/arm/mach-pxa/tosa.c
-index 5af980d77d39..9476ed0f55e9 100644
---- a/arch/arm/mach-pxa/tosa.c
-+++ b/arch/arm/mach-pxa/tosa.c
-@@ -296,9 +296,9 @@ static struct gpiod_lookup_table tosa_mci_gpio_table = {
- 	.table = {
- 		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_nSD_DETECT,
- 			    "cd", GPIO_ACTIVE_LOW),
--		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_SD_WP,
-+		GPIO_LOOKUP("sharp-scoop.0", TOSA_GPIO_SD_WP - TOSA_SCOOP_GPIO_BASE,
- 			    "wp", GPIO_ACTIVE_LOW),
--		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_PWR_ON,
-+		GPIO_LOOKUP("sharp-scoop.0", TOSA_GPIO_PWR_ON - TOSA_SCOOP_GPIO_BASE,
- 			    "power", GPIO_ACTIVE_HIGH),
- 		{ },
- 	},
--- 
-2.29.2
+rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
+hromebook | 1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.238-31-g048465f6e4e69/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.238-31-g048465f6e4e69
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      048465f6e4e691a5f59fecbe6b41ab27023e3da5 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625ec4afa0e9efae08ae068f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.238=
+-31-g048465f6e4e69/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-=
+p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.238=
+-31-g048465f6e4e69/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-=
+p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625ec4afa0e9efae08ae0=
+690
+        failing since 18 days (last pass: v4.19.235-17-gd92d6a84236d, first=
+ fail: v4.19.235-22-ge34a3fde5b20) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625ec71b749a060578ae0694
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.238=
+-31-g048465f6e4e69/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s=
+905d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.238=
+-31-g048465f6e4e69/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s=
+905d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625ec71b749a060578ae0=
+695
+        failing since 13 days (last pass: v4.19.237-15-g3c6b80cc3200, first=
+ fail: v4.19.237-256-ge149a8f3cb39) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
+hromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625ec14ea46cccba01ae0689
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.238=
+-31-g048465f6e4e69/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.238=
+-31-g048465f6e4e69/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/625ec14ea46cccba01ae06ab
+        failing since 44 days (last pass: v4.19.232-31-g5cf846953aa2, first=
+ fail: v4.19.232-44-gfd65e02206f4)
+
+    2022-04-19T14:03:46.421653  <8>[   35.926714] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-04-19T14:03:47.436952  /lava-6121988/1/../bin/lava-test-case
+    2022-04-19T14:03:47.445300  <8>[   36.951103] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
