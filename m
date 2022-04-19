@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0351507781
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21B1250778C
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356556AbiDSSQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:16:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51974 "EHLO
+        id S1356463AbiDSSRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:17:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356423AbiDSSQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:16:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522673EAB9;
-        Tue, 19 Apr 2022 11:12:31 -0700 (PDT)
+        with ESMTP id S1356466AbiDSSQJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:16:09 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D9553DDF4;
+        Tue, 19 Apr 2022 11:12:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1B1560C3C;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 96916CE188A;
+        Tue, 19 Apr 2022 18:12:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C289BC385AB;
         Tue, 19 Apr 2022 18:12:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F00C385BE;
-        Tue, 19 Apr 2022 18:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650391950;
-        bh=91IJCXFXrRhxZ3eZykcnYSPjUcHxOjTmk7YsarhCXlc=;
+        s=k20201202; t=1650391951;
+        bh=HOgeKlCf4sqtrj3ClAaRqNeqkJt/YPupukSLzHNogWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZvG6agSlVtRZLL68pZUdSLHPEvYQbeNsacloZLMow/uPRPnD0zW35AmgaKv4+2Qae
-         ojPFRvoUk3oq+eacKMZuVrW9B611nhA+yV+5lOPKlCbFxGbP+/BKQ/7hqKC5GJuzty
-         69BLzQWAKhFo35lgT4kw9PCnB26jVswuysaglht7q1nwgXDieKN40WoMpwsX98+NGd
-         LI5mnQZyUELiVO2TWGj85NHJUbHXGcTI51ixR5VR2kiBHRI1S3LB4kNF767EboarYF
-         OlQFXXFfCiOwo2IfObzowPpnOVCZF+TXVhN0fLAD20l6rTDn16VGlXfNy9kp0I8LRE
-         erSooka9wPD4w==
+        b=TebtkBK1U6KpEX1HTp30/4zBuv4HtR2vCpgsOhAl4eHjgS1rjDbZlhtEThh4UOHqn
+         0SOJOzE+VN7gmE3PWrzbi1W+iJGAL6tLeF/Cey8tYF3mKQSCGHcxClqkNOlhi9vAF9
+         qUsa2d3pK8dFbnUF+0S2jocwUjOg3KGEgRmQf8r8TQBvA3qe6uBPQ0iS7Ai9a40h3Z
+         fTaJ3hoveD3phqHqRajs+pojaP5gmFXHiW1ashmHwQmrxqeWalujN3WLhro7Xt+DsD
+         MI3+DCa5qfWCAZ8Lsl1Pz5SOelM1amwOOxc5uzwn2OabSenxlglczIKW4jHT16hQnX
+         zbv9SGCSc67HQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mikulas Patocka <mpatocka@redhat.com>,
-        Andreas Schwab <schwab@linux-m68k.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>,
+Cc:     NeilBrown <neilb@suse.de>, David Disseldorp <ddiss@suse.de>,
+        Jeff Layton <jlayton@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, viro@zeniv.linux.org.uk, arnd@arndb.de,
-        akpm@linux-foundation.org, davem@davemloft.net,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 28/34] stat: fix inconsistency between struct stat and struct compat_stat
-Date:   Tue, 19 Apr 2022 14:10:55 -0400
-Message-Id: <20220419181104.484667-28-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 29/34] VFS: filename_create(): fix incorrect intent.
+Date:   Tue, 19 Apr 2022 14:10:56 -0400
+Message-Id: <20220419181104.484667-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181104.484667-1-sashal@kernel.org>
 References: <20220419181104.484667-1-sashal@kernel.org>
@@ -63,136 +58,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: NeilBrown <neilb@suse.de>
 
-[ Upstream commit 932aba1e169090357a77af18850a10c256b50819 ]
+[ Upstream commit b3d4650d82c71b9c9a8184de9e8bb656012b289e ]
 
-struct stat (defined in arch/x86/include/uapi/asm/stat.h) has 32-bit
-st_dev and st_rdev; struct compat_stat (defined in
-arch/x86/include/asm/compat.h) has 16-bit st_dev and st_rdev followed by
-a 16-bit padding.
+When asked to create a path ending '/', but which is not to be a
+directory (LOOKUP_DIRECTORY not set), filename_create() will never try
+to create the file.  If it doesn't exist, -ENOENT is reported.
 
-This patch fixes struct compat_stat to match struct stat.
+However, it still passes LOOKUP_CREATE|LOOKUP_EXCL to the filesystems
+->lookup() function, even though there is no intent to create.  This is
+misleading and can cause incorrect behaviour.
 
-[ Historical note: the old x86 'struct stat' did have that 16-bit field
-  that the compat layer had kept around, but it was changes back in 2003
-  by "struct stat - support larger dev_t":
+If you try
 
-    https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/commit/?id=e95b2065677fe32512a597a79db94b77b90c968d
+   ln -s foo /path/dir/
 
-  and back in those days, the x86_64 port was still new, and separate
-  from the i386 code, and had already picked up the old version with a
-  16-bit st_dev field ]
+where 'dir' is a directory on an NFS filesystem which is not currently
+known in the dcache, this will fail with ENOENT.
 
-Note that we can't change compat_dev_t because it is used by
-compat_loop_info.
+But as the name is not in the dcache, nfs_lookup gets called with
+LOOKUP_CREATE|LOOKUP_EXCL and so it returns NULL without performing any
+lookup, with the expectation that a subsequent call to create the target
+will be made, and the lookup can be combined with the creation.  In the
+case with a trailing '/' and no LOOKUP_DIRECTORY, that call is never
+made.  Instead filename_create() sees that the dentry is not (yet)
+positive and returns -ENOENT - even though the directory actually
+exists.
 
-Also, if the st_dev and st_rdev values are 32-bit, we don't have to use
-old_valid_dev to test if the value fits into them.  This fixes
--EOVERFLOW on filesystems that are on NVMe because NVMe uses the major
-number 259.
+So only set LOOKUP_CREATE|LOOKUP_EXCL if there really is an intent to
+create, and use the absence of these flags to decide if -ENOENT should
+be returned.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Andreas Schwab <schwab@linux-m68k.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>
+Note that filename_parentat() is only interested in LOOKUP_REVAL, so we
+split that out and store it in 'reval_flag'.  __lookup_hash() then gets
+reval_flag combined with whatever create flags were determined to be
+needed.
+
+Reviewed-by: David Disseldorp <ddiss@suse.de>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/compat.h |  6 ++----
- fs/stat.c                     | 19 ++++++++++---------
- 2 files changed, 12 insertions(+), 13 deletions(-)
+ fs/namei.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
-index 7516e4199b3c..20fd0acd7d80 100644
---- a/arch/x86/include/asm/compat.h
-+++ b/arch/x86/include/asm/compat.h
-@@ -28,15 +28,13 @@ typedef u16		compat_ipc_pid_t;
- typedef __kernel_fsid_t	compat_fsid_t;
+diff --git a/fs/namei.c b/fs/namei.c
+index 3f1829b3ab5b..509657fdf4f5 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -3673,18 +3673,14 @@ static struct dentry *filename_create(int dfd, struct filename *name,
+ {
+ 	struct dentry *dentry = ERR_PTR(-EEXIST);
+ 	struct qstr last;
++	bool want_dir = lookup_flags & LOOKUP_DIRECTORY;
++	unsigned int reval_flag = lookup_flags & LOOKUP_REVAL;
++	unsigned int create_flags = LOOKUP_CREATE | LOOKUP_EXCL;
+ 	int type;
+ 	int err2;
+ 	int error;
+-	bool is_dir = (lookup_flags & LOOKUP_DIRECTORY);
  
- struct compat_stat {
--	compat_dev_t	st_dev;
--	u16		__pad1;
-+	u32		st_dev;
- 	compat_ino_t	st_ino;
- 	compat_mode_t	st_mode;
- 	compat_nlink_t	st_nlink;
- 	__compat_uid_t	st_uid;
- 	__compat_gid_t	st_gid;
--	compat_dev_t	st_rdev;
--	u16		__pad2;
-+	u32		st_rdev;
- 	u32		st_size;
- 	u32		st_blksize;
- 	u32		st_blocks;
-diff --git a/fs/stat.c b/fs/stat.c
-index 28d2020ba1f4..246d138ec066 100644
---- a/fs/stat.c
-+++ b/fs/stat.c
-@@ -334,9 +334,6 @@ SYSCALL_DEFINE2(fstat, unsigned int, fd, struct __old_kernel_stat __user *, stat
- #  define choose_32_64(a,b) b
- #endif
- 
--#define valid_dev(x)  choose_32_64(old_valid_dev(x),true)
--#define encode_dev(x) choose_32_64(old_encode_dev,new_encode_dev)(x)
+-	/*
+-	 * Note that only LOOKUP_REVAL and LOOKUP_DIRECTORY matter here. Any
+-	 * other flags passed in are ignored!
+-	 */
+-	lookup_flags &= LOOKUP_REVAL;
 -
- #ifndef INIT_STRUCT_STAT_PADDING
- #  define INIT_STRUCT_STAT_PADDING(st) memset(&st, 0, sizeof(st))
- #endif
-@@ -345,7 +342,9 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
- {
- 	struct stat tmp;
+-	error = filename_parentat(dfd, name, lookup_flags, path, &last, &type);
++	error = filename_parentat(dfd, name, reval_flag, path, &last, &type);
+ 	if (error)
+ 		return ERR_PTR(error);
  
--	if (!valid_dev(stat->dev) || !valid_dev(stat->rdev))
-+	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
-+		return -EOVERFLOW;
-+	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
- 		return -EOVERFLOW;
- #if BITS_PER_LONG == 32
- 	if (stat->size > MAX_NON_LFS)
-@@ -353,7 +352,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
- #endif
+@@ -3698,11 +3694,13 @@ static struct dentry *filename_create(int dfd, struct filename *name,
+ 	/* don't fail immediately if it's r/o, at least try to report other errors */
+ 	err2 = mnt_want_write(path->mnt);
+ 	/*
+-	 * Do the final lookup.
++	 * Do the final lookup.  Suppress 'create' if there is a trailing
++	 * '/', and a directory wasn't requested.
+ 	 */
+-	lookup_flags |= LOOKUP_CREATE | LOOKUP_EXCL;
++	if (last.name[last.len] && !want_dir)
++		create_flags = 0;
+ 	inode_lock_nested(path->dentry->d_inode, I_MUTEX_PARENT);
+-	dentry = __lookup_hash(&last, path->dentry, lookup_flags);
++	dentry = __lookup_hash(&last, path->dentry, reval_flag | create_flags);
+ 	if (IS_ERR(dentry))
+ 		goto unlock;
  
- 	INIT_STRUCT_STAT_PADDING(tmp);
--	tmp.st_dev = encode_dev(stat->dev);
-+	tmp.st_dev = new_encode_dev(stat->dev);
- 	tmp.st_ino = stat->ino;
- 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
- 		return -EOVERFLOW;
-@@ -363,7 +362,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
- 		return -EOVERFLOW;
- 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
- 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
--	tmp.st_rdev = encode_dev(stat->rdev);
-+	tmp.st_rdev = new_encode_dev(stat->rdev);
- 	tmp.st_size = stat->size;
- 	tmp.st_atime = stat->atime.tv_sec;
- 	tmp.st_mtime = stat->mtime.tv_sec;
-@@ -644,11 +643,13 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
- {
- 	struct compat_stat tmp;
- 
--	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev))
-+	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
-+		return -EOVERFLOW;
-+	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
- 		return -EOVERFLOW;
- 
- 	memset(&tmp, 0, sizeof(tmp));
--	tmp.st_dev = old_encode_dev(stat->dev);
-+	tmp.st_dev = new_encode_dev(stat->dev);
- 	tmp.st_ino = stat->ino;
- 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
- 		return -EOVERFLOW;
-@@ -658,7 +659,7 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
- 		return -EOVERFLOW;
- 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
- 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
--	tmp.st_rdev = old_encode_dev(stat->rdev);
-+	tmp.st_rdev = new_encode_dev(stat->rdev);
- 	if ((u64) stat->size > MAX_NON_LFS)
- 		return -EOVERFLOW;
- 	tmp.st_size = stat->size;
+@@ -3716,7 +3714,7 @@ static struct dentry *filename_create(int dfd, struct filename *name,
+ 	 * all is fine. Let's be bastards - you had / on the end, you've
+ 	 * been asking for (non-existent) directory. -ENOENT for you.
+ 	 */
+-	if (unlikely(!is_dir && last.name[last.len])) {
++	if (unlikely(!create_flags)) {
+ 		error = -ENOENT;
+ 		goto fail;
+ 	}
 -- 
 2.35.1
 
