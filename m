@@ -2,102 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F23506099
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 02:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A1F5060A7
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 02:08:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236892AbiDSAJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Apr 2022 20:09:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34518 "EHLO
+        id S237831AbiDSAK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Apr 2022 20:10:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233543AbiDSAJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 20:09:49 -0400
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47EBD3A7;
-        Mon, 18 Apr 2022 17:07:09 -0700 (PDT)
-Received: by mail-oi1-x231.google.com with SMTP id z8so16483807oix.3;
-        Mon, 18 Apr 2022 17:07:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=tR2KJ3ik5nUbef01f/H/C2f872WKtSqjd0bnxfjCfcM=;
-        b=E24hjrhgBrGZnOdOIIodDRUoACWesWNaEYgWzaOzg+i5R0HXy6qTBvxcSXNbt22uog
-         X4oLtza35tBh86s0aIVVa2y70I3xVei2Rtl+QOwbXMprjec1wZBqftyTmFk7vWuRs0bH
-         RBBVbkIxQu1t4Mw4Qonk/OfOpIQteGe128t6751C8a7PmFuDWR+UBy7+Abk4rfcP3yAn
-         DYfAUQebsGKEmRqLns3/GDXK7pBRuAjEeWvLIla3L4IcseJJWvmriNPB8yRyWG5Lc9xh
-         BcU8QgXvVE0ZRAOoMc4AzzVsZsbuGe4alPGpkFx0amLNW/ZOkubVabIOqLirVuNM9TmL
-         VH0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=tR2KJ3ik5nUbef01f/H/C2f872WKtSqjd0bnxfjCfcM=;
-        b=cGQ5j2G94M0DDm0/g5PZOprxakHaf4cZoio+xrSPhsYcMW7S+ec+EzSq6BiLhVQSvP
-         xOYQ/Jzmh7d2WBXtfOJACYK37P5HP6lWoal5cAus628b3CHHp9Ik5sXQ1JoyrlMgWhj9
-         sTD+xBH1FGQyS3ZRMa857C4ZaedfV6wMjAmaNPZqzjZPaKiLfL2wvrCJyHRc8lwi0jTB
-         sLdLmEzb0BCQPLOT9y4XPQFXGUhWxRZanFnSFvucnG4Kj+heSeUe6601Nq1rR1gx8Gpv
-         fkXBWXV9w3zH2fkIzlWRAsV7Qjb4cqhzRz6Ol9YAki6MHmvBgwkWncoRMYx79FTd4HpT
-         vqBg==
-X-Gm-Message-State: AOAM531voeLycqDHbfXZVNIlVrOeOvbUURj1MhoFdB+0S/uG4/K0VhQP
-        Or5fTCxjImOlsr12upe6Alk=
-X-Google-Smtp-Source: ABdhPJzYHWWJ5kTFvC5fxNmVRZbN0TBfN1gUuuCqCgTMfZ5YF0TwO7Eg8UICI6/7pIwElOJXHaITZA==
-X-Received: by 2002:aca:2818:0:b0:322:3bd7:66f1 with SMTP id 24-20020aca2818000000b003223bd766f1mr6442141oix.38.1650326828660;
-        Mon, 18 Apr 2022 17:07:08 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 65-20020aca0544000000b002f980b50140sm4652684oif.18.2022.04.18.17.07.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Apr 2022 17:07:08 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 18 Apr 2022 17:07:06 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
+        with ESMTP id S237762AbiDSAK0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Apr 2022 20:10:26 -0400
+Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE59E5FAE
+        for <stable@vger.kernel.org>; Mon, 18 Apr 2022 17:07:45 -0700 (PDT)
+Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
+        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 315FC100474F8
+        for <stable@vger.kernel.org>; Tue, 19 Apr 2022 00:07:45 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id gbPEnew1LQs3CgbPFnkYkc; Tue, 19 Apr 2022 00:07:45 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=A+Opg4aG c=1 sm=1 tr=0 ts=625dfd51
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=z0gMJWrwH1QA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=36OQTUTh8JSVb8S2w5osYWQ/4Lqcw/BTNh1OC/B/n58=; b=NmajoqCBIobKJFhle2aMUBD8GN
+        LPcROPPGE4RteBOEgVJMq3XFxtbjHUzBhGKXwmnOC1dCXeqgcuMaYzY/tHlKzpiTaUBsnZXWqalkT
+        EPm+i32an0gBDjxdWT43RZ9M2r6jatIzc158NwAFv3VM22KJRdyYt9KyzxZWvVwDEHgBQ4kouztp7
+        vaoEoqxSlKFfW8VBkehl3ho356pizmpwU9nLjGAtG4KwGOKDvOQmOI1sYMo2HIcTbc35H9/0qBOwP
+        BJhzuYinE4BB2PXD/UkDUynR/We9ruKEZSQh0wPiYtpsOQO9/YCLY2Rp+205Hy0ICXa6nxlAujvUF
+        q06/vbKA==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:60112 helo=[10.0.1.47])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1ngbPD-0002bA-QZ; Mon, 18 Apr 2022 18:07:43 -0600
 Subject: Re: [PATCH 5.15 000/189] 5.15.35-rc1 review
-Message-ID: <20220419000706.GF1369577@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
 References: <20220418121200.312988959@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20220418121200.312988959@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <25bcc168-9f54-869a-fb25-01e7a92dddd8@w6rz.net>
+Date:   Mon, 18 Apr 2022 17:07:41 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1ngbPD-0002bA-QZ
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:60112
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 18, 2022 at 02:10:20PM +0200, Greg Kroah-Hartman wrote:
+On 4/18/22 5:10 AM, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 5.15.35 release.
 > There are 189 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Wed, 20 Apr 2022 12:11:14 +0000.
 > Anything received after that time might be too late.
-> 
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.35-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Build results:
-	total: 156 pass: 154 fail: 2
-Failed builds:
-	i386:allyesconfig
-	i386:allmodconfig
-Qemu test results:
-	total: 488 pass: 488 fail: 0
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Build error as already reported.
+Tested-by: Ron Economos <re@w6rz.net>
 
-drivers/gpu/drm/amd/amdgpu/../display/dc/dcn31/dcn31_hubbub.c:
-	In function 'hubbub31_verify_allow_pstate_change_high':
-drivers/gpu/drm/amd/amdgpu/../display/dc/dcn31/dcn31_hubbub.c:994:17:
-	error: implicit declaration of function 'udelay'
-
-Guenter
