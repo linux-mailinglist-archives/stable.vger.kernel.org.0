@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A5350789C
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C20F350785F
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357129AbiDSSZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:25:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38758 "EHLO
+        id S243614AbiDSS0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:26:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357255AbiDSSWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:22:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D70D043382;
-        Tue, 19 Apr 2022 11:15:37 -0700 (PDT)
+        with ESMTP id S1357287AbiDSSXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:23:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D7A433AE;
+        Tue, 19 Apr 2022 11:15:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D89D461403;
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF848B818EE;
+        Tue, 19 Apr 2022 18:15:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1332C385A9;
         Tue, 19 Apr 2022 18:15:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68BE3C385A5;
-        Tue, 19 Apr 2022 18:15:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650392136;
-        bh=eCE1CZAAPdlfnzSERiKsxjnWn5dd5PjbFxbrblaz3JU=;
+        s=k20201202; t=1650392137;
+        bh=H+7J76yVJjZsQhiXj0f3cOOgJ06vpupY1VOdh3C30xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b4ecBEOgmU1MgZO+dC4QD51FYuPozwa1+6g8bQRAN9lcS3AOCjFMMUMInM/dqgnbA
-         hdE7JN2s41zqGHAyrTh2Z1jC+xOqt2MpeOmpYmukxkF5k3rhGfjskyBzp1CRPwy9p0
-         vhcG5vEQTUAe4mOKLRgG56LGad3Bk0bOuUpu9RonK8jPGeMjr31MzRKBuulFx1iJWc
-         2aJgk0/MQh9WxSfsaAKnGq24LR9NAdNXj6f5R+EYtFQJL0O45HxYGnqgi6MWtu/KxI
-         AGLeLeh2SOFH4TQz727AvpGEYi5PJr38hlHMVQQCXjwBRFe3jlkOzPvBs06L/M7o+7
-         /KVfK7atYms6Q==
+        b=NAfxmvM/pC6FpuomelPAXKLhj2pqjhEhQ4hQAh5TEB0aNCUHxzfNvqzu43kdPz2Lu
+         tgsNylF8IytFcpCt8Ud7+Up+DBpEaJSzlBBSl0Cn2qgIib8WN2DqhVLuiXXidxsWxe
+         sfXWZGkmZP9SS1wzjd/uAMsFwmfkhGzUW85ImTB/ZHUGzS3vIMccuVUn1OXu+Fkejf
+         +tUiwXFpMtrOale7TVy1pn8TsrFXJlzE3dTeR+N/0HbTMSA/m1G4RgGbU4vom5qw2a
+         L3Eq1VclciA6WJ9XBefFuwz+usmG9jIvZJ4NM6enwzplY6ZGZjthm6YzNXz/xDqbE5
+         X+K+oOOueff3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 04/12] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
-Date:   Tue, 19 Apr 2022 14:15:17 -0400
-Message-Id: <20220419181525.486166-4-sashal@kernel.org>
+Cc:     Hongbin Wang <wh_bin@126.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/12] vxlan: fix error return code in vxlan_fdb_append
+Date:   Tue, 19 Apr 2022 14:15:18 -0400
+Message-Id: <20220419181525.486166-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181525.486166-1-sashal@kernel.org>
 References: <20220419181525.486166-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,43 +57,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Hongbin Wang <wh_bin@126.com>
 
-[ Upstream commit 1ef8715975de8bd481abbd0839ed4f49d9e5b0ff ]
+[ Upstream commit 7cea5560bf656b84f9ed01c0cc829d4eecd0640b ]
 
-Fix:
+When kmalloc and dst_cache_init failed,
+should return ENOMEM rather than ENOBUFS.
 
-  sound/usb/midi.c: In function ‘snd_usbmidi_out_endpoint_create’:
-  sound/usb/midi.c:1389:2: error: case label does not reduce to an integer constant
-    case USB_ID(0xfc08, 0x0101): /* Unknown vendor Cable */
-    ^~~~
-
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-[ A slight correction with parentheses around the argument by tiwai ]
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220405151517.29753-3-bp@alien8.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hongbin Wang <wh_bin@126.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/usbaudio.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/vxlan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index 0c7ea78317fc..0206fecfd377 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -22,7 +22,7 @@
-  */
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index eacc1e32d547..1b98a888a168 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -524,11 +524,11 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
  
- /* handling of USB vendor/product ID pairs as 32-bit numbers */
--#define USB_ID(vendor, product) (((vendor) << 16) | (product))
-+#define USB_ID(vendor, product) (((unsigned int)(vendor) << 16) | (product))
- #define USB_ID_VENDOR(id) ((id) >> 16)
- #define USB_ID_PRODUCT(id) ((u16)(id))
+ 	rd = kmalloc(sizeof(*rd), GFP_ATOMIC);
+ 	if (rd == NULL)
+-		return -ENOBUFS;
++		return -ENOMEM;
  
+ 	if (dst_cache_init(&rd->dst_cache, GFP_ATOMIC)) {
+ 		kfree(rd);
+-		return -ENOBUFS;
++		return -ENOMEM;
+ 	}
+ 
+ 	rd->remote_ip = *ip;
 -- 
 2.35.1
 
