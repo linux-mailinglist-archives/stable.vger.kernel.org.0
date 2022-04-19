@@ -2,47 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01F8450779E
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0351507781
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356534AbiDSSQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:16:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51952 "EHLO
+        id S1356556AbiDSSQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:16:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356389AbiDSSPu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:15:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E4A3DA5C;
-        Tue, 19 Apr 2022 11:12:27 -0700 (PDT)
+        with ESMTP id S1356423AbiDSSQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:16:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522673EAB9;
+        Tue, 19 Apr 2022 11:12:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ED2660C51;
-        Tue, 19 Apr 2022 18:12:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99004C385AC;
-        Tue, 19 Apr 2022 18:12:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1B1560C3C;
+        Tue, 19 Apr 2022 18:12:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F00C385BE;
+        Tue, 19 Apr 2022 18:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650391946;
-        bh=G1DZZHPxxzY9jiiWaHLSmkavsSyRc4W3bovaeI/JEGk=;
+        s=k20201202; t=1650391950;
+        bh=91IJCXFXrRhxZ3eZykcnYSPjUcHxOjTmk7YsarhCXlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvwIdRKBULWV45OajST/46uB8zhIagAUHWYRZGrro+YrZ8sh0N8cqZkIENbFw/1uu
-         4+3r6jfEDtmMldMFSmEB6FIIH3nuKfP4Nw7uGAhDLB7zXVJfXjI7P4kizxu6/I4L77
-         SQRt9LiUu7mUMmOoHb0kQ9ZPFl+QdQnAtKPkT1puEevG5gkwMbRUrZbItTgDD5+jFZ
-         D11v7aIMMLONIPiJLEJuGfy7PV26pIv0drVMBeJYYXMgcAqcwnOePQClTT8mfyDLZp
-         wZCp7l1ttCkWUpFQuT02+Bz01gr4sViT+UamPzmOfIrWMWWyEwz9q5s/4QBRed+P2L
-         zK7tQ74dkGzsA==
+        b=ZvG6agSlVtRZLL68pZUdSLHPEvYQbeNsacloZLMow/uPRPnD0zW35AmgaKv4+2Qae
+         ojPFRvoUk3oq+eacKMZuVrW9B611nhA+yV+5lOPKlCbFxGbP+/BKQ/7hqKC5GJuzty
+         69BLzQWAKhFo35lgT4kw9PCnB26jVswuysaglht7q1nwgXDieKN40WoMpwsX98+NGd
+         LI5mnQZyUELiVO2TWGj85NHJUbHXGcTI51ixR5VR2kiBHRI1S3LB4kNF767EboarYF
+         OlQFXXFfCiOwo2IfObzowPpnOVCZF+TXVhN0fLAD20l6rTDn16VGlXfNy9kp0I8LRE
+         erSooka9wPD4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, njavali@marvell.com,
-        GR-QLogic-Storage-Upstream@marvell.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 27/34] scsi: qedi: Fix failed disconnect handling
-Date:   Tue, 19 Apr 2022 14:10:54 -0400
-Message-Id: <20220419181104.484667-27-sashal@kernel.org>
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Andreas Schwab <schwab@linux-m68k.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, viro@zeniv.linux.org.uk, arnd@arndb.de,
+        akpm@linux-foundation.org, davem@davemloft.net,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 28/34] stat: fix inconsistency between struct stat and struct compat_stat
+Date:   Tue, 19 Apr 2022 14:10:55 -0400
+Message-Id: <20220419181104.484667-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181104.484667-1-sashal@kernel.org>
 References: <20220419181104.484667-1-sashal@kernel.org>
@@ -60,144 +63,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 857b06527f707f5df634b854898a191b5c1d0272 ]
+[ Upstream commit 932aba1e169090357a77af18850a10c256b50819 ]
 
-We set the qedi_ep state to EP_STATE_OFLDCONN_START when the ep is
-created. Then in qedi_set_path we kick off the offload work. If userspace
-times out the connection and calls ep_disconnect, qedi will only flush the
-offload work if the qedi_ep state has transitioned away from
-EP_STATE_OFLDCONN_START. If we can't connect we will not have transitioned
-state and will leave the offload work running, and we will free the qedi_ep
-from under it.
+struct stat (defined in arch/x86/include/uapi/asm/stat.h) has 32-bit
+st_dev and st_rdev; struct compat_stat (defined in
+arch/x86/include/asm/compat.h) has 16-bit st_dev and st_rdev followed by
+a 16-bit padding.
 
-This patch just has us init the work when we create the ep, then always
-flush it.
+This patch fixes struct compat_stat to match struct stat.
 
-Link: https://lore.kernel.org/r/20220408001314.5014-10-michael.christie@oracle.com
-Tested-by: Manish Rangankar <mrangankar@marvell.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Chris Leech <cleech@redhat.com>
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[ Historical note: the old x86 'struct stat' did have that 16-bit field
+  that the compat layer had kept around, but it was changes back in 2003
+  by "struct stat - support larger dev_t":
+
+    https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/commit/?id=e95b2065677fe32512a597a79db94b77b90c968d
+
+  and back in those days, the x86_64 port was still new, and separate
+  from the i386 code, and had already picked up the old version with a
+  16-bit st_dev field ]
+
+Note that we can't change compat_dev_t because it is used by
+compat_loop_info.
+
+Also, if the st_dev and st_rdev values are 32-bit, we don't have to use
+old_valid_dev to test if the value fits into them.  This fixes
+-EOVERFLOW on filesystems that are on NVMe because NVMe uses the major
+number 259.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Andreas Schwab <schwab@linux-m68k.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_iscsi.c | 69 +++++++++++++++++-----------------
- 1 file changed, 34 insertions(+), 35 deletions(-)
+ arch/x86/include/asm/compat.h |  6 ++----
+ fs/stat.c                     | 19 ++++++++++---------
+ 2 files changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 282ecb4e39bb..e1fe989ad7b3 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -859,6 +859,37 @@ static int qedi_task_xmit(struct iscsi_task *task)
- 	return qedi_iscsi_send_ioreq(task);
- }
+diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
+index 7516e4199b3c..20fd0acd7d80 100644
+--- a/arch/x86/include/asm/compat.h
++++ b/arch/x86/include/asm/compat.h
+@@ -28,15 +28,13 @@ typedef u16		compat_ipc_pid_t;
+ typedef __kernel_fsid_t	compat_fsid_t;
  
-+static void qedi_offload_work(struct work_struct *work)
-+{
-+	struct qedi_endpoint *qedi_ep =
-+		container_of(work, struct qedi_endpoint, offload_work);
-+	struct qedi_ctx *qedi;
-+	int wait_delay = 5 * HZ;
-+	int ret;
-+
-+	qedi = qedi_ep->qedi;
-+
-+	ret = qedi_iscsi_offload_conn(qedi_ep);
-+	if (ret) {
-+		QEDI_ERR(&qedi->dbg_ctx,
-+			 "offload error: iscsi_cid=%u, qedi_ep=%p, ret=%d\n",
-+			 qedi_ep->iscsi_cid, qedi_ep, ret);
-+		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
-+		return;
-+	}
-+
-+	ret = wait_event_interruptible_timeout(qedi_ep->tcp_ofld_wait,
-+					       (qedi_ep->state ==
-+					       EP_STATE_OFLDCONN_COMPL),
-+					       wait_delay);
-+	if (ret <= 0 || qedi_ep->state != EP_STATE_OFLDCONN_COMPL) {
-+		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
-+		QEDI_ERR(&qedi->dbg_ctx,
-+			 "Offload conn TIMEOUT iscsi_cid=%u, qedi_ep=%p\n",
-+			 qedi_ep->iscsi_cid, qedi_ep);
-+	}
-+}
-+
- static struct iscsi_endpoint *
- qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
- 		int non_blocking)
-@@ -907,6 +938,7 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
- 	}
- 	qedi_ep = ep->dd_data;
- 	memset(qedi_ep, 0, sizeof(struct qedi_endpoint));
-+	INIT_WORK(&qedi_ep->offload_work, qedi_offload_work);
- 	qedi_ep->state = EP_STATE_IDLE;
- 	qedi_ep->iscsi_cid = (u32)-1;
- 	qedi_ep->qedi = qedi;
-@@ -1055,12 +1087,11 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
- 	qedi_ep = ep->dd_data;
- 	qedi = qedi_ep->qedi;
+ struct compat_stat {
+-	compat_dev_t	st_dev;
+-	u16		__pad1;
++	u32		st_dev;
+ 	compat_ino_t	st_ino;
+ 	compat_mode_t	st_mode;
+ 	compat_nlink_t	st_nlink;
+ 	__compat_uid_t	st_uid;
+ 	__compat_gid_t	st_gid;
+-	compat_dev_t	st_rdev;
+-	u16		__pad2;
++	u32		st_rdev;
+ 	u32		st_size;
+ 	u32		st_blksize;
+ 	u32		st_blocks;
+diff --git a/fs/stat.c b/fs/stat.c
+index 28d2020ba1f4..246d138ec066 100644
+--- a/fs/stat.c
++++ b/fs/stat.c
+@@ -334,9 +334,6 @@ SYSCALL_DEFINE2(fstat, unsigned int, fd, struct __old_kernel_stat __user *, stat
+ #  define choose_32_64(a,b) b
+ #endif
  
-+	flush_work(&qedi_ep->offload_work);
-+
- 	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
- 		goto ep_exit_recover;
- 
--	if (qedi_ep->state != EP_STATE_OFLDCONN_NONE)
--		flush_work(&qedi_ep->offload_work);
+-#define valid_dev(x)  choose_32_64(old_valid_dev(x),true)
+-#define encode_dev(x) choose_32_64(old_encode_dev,new_encode_dev)(x)
 -
- 	if (qedi_ep->conn) {
- 		qedi_conn = qedi_ep->conn;
- 		abrt_conn = qedi_conn->abrt_conn;
-@@ -1234,37 +1265,6 @@ static int qedi_data_avail(struct qedi_ctx *qedi, u16 vlanid)
- 	return rc;
- }
- 
--static void qedi_offload_work(struct work_struct *work)
--{
--	struct qedi_endpoint *qedi_ep =
--		container_of(work, struct qedi_endpoint, offload_work);
--	struct qedi_ctx *qedi;
--	int wait_delay = 5 * HZ;
--	int ret;
--
--	qedi = qedi_ep->qedi;
--
--	ret = qedi_iscsi_offload_conn(qedi_ep);
--	if (ret) {
--		QEDI_ERR(&qedi->dbg_ctx,
--			 "offload error: iscsi_cid=%u, qedi_ep=%p, ret=%d\n",
--			 qedi_ep->iscsi_cid, qedi_ep, ret);
--		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
--		return;
--	}
--
--	ret = wait_event_interruptible_timeout(qedi_ep->tcp_ofld_wait,
--					       (qedi_ep->state ==
--					       EP_STATE_OFLDCONN_COMPL),
--					       wait_delay);
--	if ((ret <= 0) || (qedi_ep->state != EP_STATE_OFLDCONN_COMPL)) {
--		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
--		QEDI_ERR(&qedi->dbg_ctx,
--			 "Offload conn TIMEOUT iscsi_cid=%u, qedi_ep=%p\n",
--			 qedi_ep->iscsi_cid, qedi_ep);
--	}
--}
--
- static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
+ #ifndef INIT_STRUCT_STAT_PADDING
+ #  define INIT_STRUCT_STAT_PADDING(st) memset(&st, 0, sizeof(st))
+ #endif
+@@ -345,7 +342,9 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
  {
- 	struct qedi_ctx *qedi;
-@@ -1380,7 +1380,6 @@ static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
- 			  qedi_ep->dst_addr, qedi_ep->dst_port);
- 	}
+ 	struct stat tmp;
  
--	INIT_WORK(&qedi_ep->offload_work, qedi_offload_work);
- 	queue_work(qedi->offload_thread, &qedi_ep->offload_work);
+-	if (!valid_dev(stat->dev) || !valid_dev(stat->rdev))
++	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
++		return -EOVERFLOW;
++	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
+ 		return -EOVERFLOW;
+ #if BITS_PER_LONG == 32
+ 	if (stat->size > MAX_NON_LFS)
+@@ -353,7 +352,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
+ #endif
  
- 	ret = 0;
+ 	INIT_STRUCT_STAT_PADDING(tmp);
+-	tmp.st_dev = encode_dev(stat->dev);
++	tmp.st_dev = new_encode_dev(stat->dev);
+ 	tmp.st_ino = stat->ino;
+ 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
+ 		return -EOVERFLOW;
+@@ -363,7 +362,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
+ 		return -EOVERFLOW;
+ 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
+ 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
+-	tmp.st_rdev = encode_dev(stat->rdev);
++	tmp.st_rdev = new_encode_dev(stat->rdev);
+ 	tmp.st_size = stat->size;
+ 	tmp.st_atime = stat->atime.tv_sec;
+ 	tmp.st_mtime = stat->mtime.tv_sec;
+@@ -644,11 +643,13 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
+ {
+ 	struct compat_stat tmp;
+ 
+-	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev))
++	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
++		return -EOVERFLOW;
++	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
+ 		return -EOVERFLOW;
+ 
+ 	memset(&tmp, 0, sizeof(tmp));
+-	tmp.st_dev = old_encode_dev(stat->dev);
++	tmp.st_dev = new_encode_dev(stat->dev);
+ 	tmp.st_ino = stat->ino;
+ 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
+ 		return -EOVERFLOW;
+@@ -658,7 +659,7 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
+ 		return -EOVERFLOW;
+ 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
+ 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
+-	tmp.st_rdev = old_encode_dev(stat->rdev);
++	tmp.st_rdev = new_encode_dev(stat->rdev);
+ 	if ((u64) stat->size > MAX_NON_LFS)
+ 		return -EOVERFLOW;
+ 	tmp.st_size = stat->size;
 -- 
 2.35.1
 
