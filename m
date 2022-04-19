@@ -2,48 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BE35077B7
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C365077FF
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356593AbiDSSSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:18:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52778 "EHLO
+        id S1356610AbiDSSSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:18:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356610AbiDSSRQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:17:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9B6A3EA95;
-        Tue, 19 Apr 2022 11:12:56 -0700 (PDT)
+        with ESMTP id S1356638AbiDSSRa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:17:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCB093ED38;
+        Tue, 19 Apr 2022 11:13:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A50DDB818E0;
-        Tue, 19 Apr 2022 18:12:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F0E7C385A5;
-        Tue, 19 Apr 2022 18:12:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68AF760A75;
+        Tue, 19 Apr 2022 18:13:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B6AC385A5;
+        Tue, 19 Apr 2022 18:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650391974;
-        bh=Bzgv5WqWQfy17psL16EYWYKGoHPWRb79U3suFi4PhDg=;
+        s=k20201202; t=1650391980;
+        bh=T1EzDUfwjggOELHvvCTAYsHts3WIZamAMmLGdfdkNLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N8XaaRrvsx3THI2f0SvirAOLCLMArBzLECVxeKGklW3aJWKn+LY6qMsoaSXkJs8S8
-         qHVzTHNz9Lf7esIuL4VZFTJb1NLDrmcw+mfRj3CtY5GEeHlOSRXzMu/kyHCkUaPuaR
-         jWY0vnq3KfhqxfIPEpTbM7znCQ6jjCHs/zz3xFPjd5FfA7GC7gwtGCH0C/fFvIndKG
-         jrIHruAwwIPCvOY2QdeJVeVrgMf6UZ8KwCuGV30J7Zn/VgER1/No8WJoYWawowPX7l
-         CsMXcy+gJN8PaCOCt96p6PIlszinb0Zxadp4JQ8oU/6DiJMs/Vp9C8FdQyGwyjDrBd
-         K4kplrKunOzmQ==
+        b=IgC8pQu+sgDNaqY9Xc7f2jPJ5FJSiIoHj7Zrk2gu0hBJad8GgUSDM4l2YKuOfpYnx
+         LV26XzkaZkaHJFI4B8YIoUkcSr2f3Trmt2ZM/drI8PzHmItpanUc7aUvpLAeqDH5ST
+         pC6rTvhbMkfIV89ozhgUNLR9hwk1d8+vGRfdP0nfQlJpXIsNWp1ddr1imeTjqF7O7l
+         m1hZRA7tbmtXXCFUJuo68QbDAA/YIfralG2joDoLT4LWf9G0/pUzj4zLzrKYXQAT07
+         kFhAGad9UA3iQda/Jtt42USEcNC4o75kz6z/4MobNxjAtxxpNISAmgb8aJVS71HXG4
+         8fZsZI91YZwFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 05/27] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
-Date:   Tue, 19 Apr 2022 14:12:20 -0400
-Message-Id: <20220419181242.485308-5-sashal@kernel.org>
+Cc:     Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
+        sean@poorly.run, airlied@linux.ie, daniel@ffwll.ch,
+        dmitry.baryshkov@linaro.org, greenfoo@u92.eu,
+        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 06/27] drm/msm/disp: check the return value of kzalloc()
+Date:   Tue, 19 Apr 2022 14:12:21 -0400
+Message-Id: <20220419181242.485308-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181242.485308-1-sashal@kernel.org>
 References: <20220419181242.485308-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -57,42 +61,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 1ef8715975de8bd481abbd0839ed4f49d9e5b0ff ]
+[ Upstream commit f75e582b0c3ee8f0bddc2248cc8b9175f29c5937 ]
 
-Fix:
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check it to
+prevent potential wrong memory access.
 
-  sound/usb/midi.c: In function ‘snd_usbmidi_out_endpoint_create’:
-  sound/usb/midi.c:1389:2: error: case label does not reduce to an integer constant
-    case USB_ID(0xfc08, 0x0101): /* Unknown vendor Cable */
-    ^~~~
-
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-[ A slight correction with parentheses around the argument by tiwai ]
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220405151517.29753-3-bp@alien8.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Link: https://lore.kernel.org/r/tencent_B3E19486FF39415098B572B7397C2936C309@qq.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/usbaudio.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index 167834133b9b..b8359a0aa008 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -8,7 +8,7 @@
-  */
+diff --git a/drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c b/drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c
+index cabe15190ec1..369e57f73a47 100644
+--- a/drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c
++++ b/drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c
+@@ -169,6 +169,8 @@ void msm_disp_snapshot_add_block(struct msm_disp_state *disp_state, u32 len,
+ 	va_list va;
  
- /* handling of USB vendor/product ID pairs as 32-bit numbers */
--#define USB_ID(vendor, product) (((vendor) << 16) | (product))
-+#define USB_ID(vendor, product) (((unsigned int)(vendor) << 16) | (product))
- #define USB_ID_VENDOR(id) ((id) >> 16)
- #define USB_ID_PRODUCT(id) ((u16)(id))
+ 	new_blk = kzalloc(sizeof(struct msm_disp_state_block), GFP_KERNEL);
++	if (!new_blk)
++		return;
+ 
+ 	va_start(va, fmt);
  
 -- 
 2.35.1
