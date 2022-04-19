@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 496FB5077EC
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:24:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2093507898
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:27:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356911AbiDSSY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:24:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38738 "EHLO
+        id S1357183AbiDSS0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:26:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356391AbiDSSWP (ORCPT
+        with ESMTP id S1356928AbiDSSWP (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:22:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACCD3E5CE;
-        Tue, 19 Apr 2022 11:14:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C66141630;
+        Tue, 19 Apr 2022 11:14:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48468B81982;
-        Tue, 19 Apr 2022 18:14:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C7CC385A9;
-        Tue, 19 Apr 2022 18:14:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46A03B81185;
+        Tue, 19 Apr 2022 18:14:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C679C385A5;
+        Tue, 19 Apr 2022 18:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650392074;
-        bh=gC60lZdSi3oRwqMdY9pNtyU8x1SgILIAISVp1gviYWw=;
+        s=k20201202; t=1650392075;
+        bh=PN7MlZLaSFRiCAIEjdDacTif52kmQ1VuhqaPv/a7oQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tifVCFA03DDmno95dI2tdjQU7Jst06vNhuaeDlMeNmd2QA+uvcmlH/cTEMAtgK9B6
-         i7VxSR7n6LYk1gwlJDcD5HhyFaqEhfoNuw/98nvjdHI9BON4fFHopQvIRUpBA6n8O4
-         3wX3iItJsoAya1UnLUZZGpFkBG1umKd6vBUtutA8mznRk1vjuOLo8Od3MM+buhfLcR
-         lpdyhBaIvC94abO5T7VEliVYvPz11d/hr4IDaLsX+FAaKXEAnsbNESlmsV7W/ZzcZ6
-         aJk5L/0IPK2RGD29EX0r+SeQ82mYgO1J1uU3ul/HmUeMwF2w1ymAaWiKyks2Azv2n8
-         uQLmlWYun9Yrg==
+        b=nLc8r3K6x9zNOg+HYLiakoHU5WpZ/t/pMy7ElNnBZiDgxvEGOPsla1l0/6u4I1iso
+         NZeALahfFxKnJbDw8AMDe5Dgx+/CPeSbtt7seTFLANdT1zXrg+2mVl6JTon+WQsyTN
+         bsJ3Y9HVai91tzpA49jhawkSSXY6qW1r72Ti5+X55pNzLftWctQs1xkIXVEX2Ic3aV
+         CnHPp6KczU2TYG//MNbdwWq4K/hAKmH+ZkAa3y7H1cqqqc+p48ejAYkT0jUndx85yS
+         ej0VUudsnAmDxIQUvykeul0jEUTs1n3SB49xVvE7HpL/14V9Acxno1Dbyd6v8/ZxHg
+         nJ+IEJqxTi1hg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomas Melin <tomas.melin@vaisala.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, nicolas.ferre@microchip.com,
-        davem@davemloft.net, pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 14/18] net: macb: Restart tx only if queue pointer is lagging
-Date:   Tue, 19 Apr 2022 14:13:48 -0400
-Message-Id: <20220419181353.485719-14-sashal@kernel.org>
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        Manish Rangankar <mrangankar@marvell.com>,
+        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, njavali@marvell.com,
+        GR-QLogic-Storage-Upstream@marvell.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 15/18] scsi: qedi: Fix failed disconnect handling
+Date:   Tue, 19 Apr 2022 14:13:49 -0400
+Message-Id: <20220419181353.485719-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220419181353.485719-1-sashal@kernel.org>
 References: <20220419181353.485719-1-sashal@kernel.org>
@@ -58,62 +60,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Melin <tomas.melin@vaisala.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 5ad7f18cd82cee8e773d40cc7a1465a526f2615c ]
+[ Upstream commit 857b06527f707f5df634b854898a191b5c1d0272 ]
 
-commit 4298388574da ("net: macb: restart tx after tx used bit read")
-added support for restarting transmission. Restarting tx does not work
-in case controller asserts TXUBR interrupt and TQBP is already at the end
-of the tx queue. In that situation, restarting tx will immediately cause
-assertion of another TXUBR interrupt. The driver will end up in an infinite
-interrupt loop which it cannot break out of.
+We set the qedi_ep state to EP_STATE_OFLDCONN_START when the ep is
+created. Then in qedi_set_path we kick off the offload work. If userspace
+times out the connection and calls ep_disconnect, qedi will only flush the
+offload work if the qedi_ep state has transitioned away from
+EP_STATE_OFLDCONN_START. If we can't connect we will not have transitioned
+state and will leave the offload work running, and we will free the qedi_ep
+from under it.
 
-For cases where TQBP is at the end of the tx queue, instead
-only clear TX_USED interrupt. As more data gets pushed to the queue,
-transmission will resume.
+This patch just has us init the work when we create the ep, then always
+flush it.
 
-This issue was observed on a Xilinx Zynq-7000 based board.
-During stress test of the network interface,
-driver would get stuck on interrupt loop within seconds or minutes
-causing CPU to stall.
-
-Signed-off-by: Tomas Melin <tomas.melin@vaisala.com>
-Tested-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220407161659.14532-1-tomas.melin@vaisala.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20220408001314.5014-10-michael.christie@oracle.com
+Tested-by: Manish Rangankar <mrangankar@marvell.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Acked-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/scsi/qedi/qedi_iscsi.c | 69 +++++++++++++++++-----------------
+ 1 file changed, 34 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index f29ec765d684..bd13f91efe7c 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -1531,6 +1531,7 @@ static void macb_tx_restart(struct macb_queue *queue)
- 	unsigned int head = queue->tx_head;
- 	unsigned int tail = queue->tx_tail;
- 	struct macb *bp = queue->bp;
-+	unsigned int head_idx, tbqp;
- 
- 	if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
- 		queue_writel(queue, ISR, MACB_BIT(TXUBR));
-@@ -1538,6 +1539,13 @@ static void macb_tx_restart(struct macb_queue *queue)
- 	if (head == tail)
- 		return;
- 
-+	tbqp = queue_readl(queue, TBQP) / macb_dma_desc_get_size(bp);
-+	tbqp = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, tbqp));
-+	head_idx = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, head));
-+
-+	if (tbqp == head_idx)
-+		return;
-+
- 	macb_writel(bp, NCR, macb_readl(bp, NCR) | MACB_BIT(TSTART));
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index f51723e2d522..b92be0d7db82 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -817,6 +817,37 @@ static int qedi_task_xmit(struct iscsi_task *task)
+ 	return qedi_iscsi_send_ioreq(task);
  }
  
++static void qedi_offload_work(struct work_struct *work)
++{
++	struct qedi_endpoint *qedi_ep =
++		container_of(work, struct qedi_endpoint, offload_work);
++	struct qedi_ctx *qedi;
++	int wait_delay = 5 * HZ;
++	int ret;
++
++	qedi = qedi_ep->qedi;
++
++	ret = qedi_iscsi_offload_conn(qedi_ep);
++	if (ret) {
++		QEDI_ERR(&qedi->dbg_ctx,
++			 "offload error: iscsi_cid=%u, qedi_ep=%p, ret=%d\n",
++			 qedi_ep->iscsi_cid, qedi_ep, ret);
++		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
++		return;
++	}
++
++	ret = wait_event_interruptible_timeout(qedi_ep->tcp_ofld_wait,
++					       (qedi_ep->state ==
++					       EP_STATE_OFLDCONN_COMPL),
++					       wait_delay);
++	if (ret <= 0 || qedi_ep->state != EP_STATE_OFLDCONN_COMPL) {
++		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
++		QEDI_ERR(&qedi->dbg_ctx,
++			 "Offload conn TIMEOUT iscsi_cid=%u, qedi_ep=%p\n",
++			 qedi_ep->iscsi_cid, qedi_ep);
++	}
++}
++
+ static struct iscsi_endpoint *
+ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
+ 		int non_blocking)
+@@ -865,6 +896,7 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
+ 	}
+ 	qedi_ep = ep->dd_data;
+ 	memset(qedi_ep, 0, sizeof(struct qedi_endpoint));
++	INIT_WORK(&qedi_ep->offload_work, qedi_offload_work);
+ 	qedi_ep->state = EP_STATE_IDLE;
+ 	qedi_ep->iscsi_cid = (u32)-1;
+ 	qedi_ep->qedi = qedi;
+@@ -1015,12 +1047,11 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+ 	qedi_ep = ep->dd_data;
+ 	qedi = qedi_ep->qedi;
+ 
++	flush_work(&qedi_ep->offload_work);
++
+ 	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
+ 		goto ep_exit_recover;
+ 
+-	if (qedi_ep->state != EP_STATE_OFLDCONN_NONE)
+-		flush_work(&qedi_ep->offload_work);
+-
+ 	if (qedi_ep->conn) {
+ 		qedi_conn = qedi_ep->conn;
+ 		conn = qedi_conn->cls_conn->dd_data;
+@@ -1185,37 +1216,6 @@ static int qedi_data_avail(struct qedi_ctx *qedi, u16 vlanid)
+ 	return rc;
+ }
+ 
+-static void qedi_offload_work(struct work_struct *work)
+-{
+-	struct qedi_endpoint *qedi_ep =
+-		container_of(work, struct qedi_endpoint, offload_work);
+-	struct qedi_ctx *qedi;
+-	int wait_delay = 5 * HZ;
+-	int ret;
+-
+-	qedi = qedi_ep->qedi;
+-
+-	ret = qedi_iscsi_offload_conn(qedi_ep);
+-	if (ret) {
+-		QEDI_ERR(&qedi->dbg_ctx,
+-			 "offload error: iscsi_cid=%u, qedi_ep=%p, ret=%d\n",
+-			 qedi_ep->iscsi_cid, qedi_ep, ret);
+-		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
+-		return;
+-	}
+-
+-	ret = wait_event_interruptible_timeout(qedi_ep->tcp_ofld_wait,
+-					       (qedi_ep->state ==
+-					       EP_STATE_OFLDCONN_COMPL),
+-					       wait_delay);
+-	if ((ret <= 0) || (qedi_ep->state != EP_STATE_OFLDCONN_COMPL)) {
+-		qedi_ep->state = EP_STATE_OFLDCONN_FAILED;
+-		QEDI_ERR(&qedi->dbg_ctx,
+-			 "Offload conn TIMEOUT iscsi_cid=%u, qedi_ep=%p\n",
+-			 qedi_ep->iscsi_cid, qedi_ep);
+-	}
+-}
+-
+ static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
+ {
+ 	struct qedi_ctx *qedi;
+@@ -1331,7 +1331,6 @@ static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
+ 			  qedi_ep->dst_addr, qedi_ep->dst_port);
+ 	}
+ 
+-	INIT_WORK(&qedi_ep->offload_work, qedi_offload_work);
+ 	queue_work(qedi->offload_thread, &qedi_ep->offload_work);
+ 
+ 	ret = 0;
 -- 
 2.35.1
 
