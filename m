@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9795077D2
-	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:24:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34DA35077F2
+	for <lists+stable@lfdr.de>; Tue, 19 Apr 2022 20:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357056AbiDSSZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Apr 2022 14:25:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37380 "EHLO
+        id S1357097AbiDSSZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Apr 2022 14:25:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356953AbiDSSWd (ORCPT
+        with ESMTP id S1356975AbiDSSWd (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 19 Apr 2022 14:22:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9E53E0FB;
-        Tue, 19 Apr 2022 11:14:44 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A5AE1D;
+        Tue, 19 Apr 2022 11:14:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B35360AC0;
-        Tue, 19 Apr 2022 18:14:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 583EFC385A5;
-        Tue, 19 Apr 2022 18:14:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E30E860AC0;
+        Tue, 19 Apr 2022 18:14:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 333B8C385A7;
+        Tue, 19 Apr 2022 18:14:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650392083;
-        bh=PIttuX7zubSRysD+VGdkK4RbcQDOcg7fcQEYv5OVc9A=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSNVr+VvewJoZB1iVzDhHl0jIz4BS2NhcvM20iiVp+KqGehH9B6N53A5sMWq8y/yR
-         s1cicm0FE8xZTde8G1Ri1ZeHq51VPXEX4mx0e0i+VLCpjohSCUUZKpf51t8RH4tJEP
-         SMT7/8dzonaiQ8BtJIu46YqVhpdYhaFYo0613BKT8vNrPwuvG8RGC/nriNtrnrjbaC
-         3DRoTT61IwDAvRsb/LrEwVQqTjyzOpKeWO5r+3UG3jr8p/yowON5oclY3ZudzndMoA
-         3/iHJhrjLBEF5S8sy4j1/lglsAOmciKxcVbuAkqwv0PHDAfW96uiek0e6D51Q5jPGg
-         FtqP974SxMZRw==
+        s=k20201202; t=1650392087;
+        bh=y4FzcMqIYjP6yJMMswEni40ksnSonHHl5KEbQHYCCgw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=e6XFhBVg3hflRTSXNqcnPQezR70jUe1wMfPj2w2SRIEVA784T4+tLjHxiuWdSY9LQ
+         C9rAiXy8yYMLQNX81zHerk9XNi/a5fdxb31zEmmAhZs2+9C3GLz0AnXoINOlMgTkbc
+         WWEDDA1qyP/QlJjJQthXIvEvsAF6/i0FKRT+eoIc/ZY5gkrwDiUEc3g5Z21b9eoUI3
+         bPV6KqzIdTGjmFVvdUXDRmzdlJDXC0CQCuTPC9o9sxBj6/4XEPiIuSynGGnBOxw8fG
+         BCt9GeWTFObDTZKV+gf4OiZ82bHNxjDH3smnWyD7GpBViZmtbIXcoFV+MmAddeDRZU
+         GxaZQhDSsX9Bg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 18/18] nvme-pci: disable namespace identifiers for Qemu controllers
-Date:   Tue, 19 Apr 2022 14:13:52 -0400
-Message-Id: <20220419181353.485719-18-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 01/14] ARM: vexpress/spc: Avoid negative array index when !SMP
+Date:   Tue, 19 Apr 2022 14:14:30 -0400
+Message-Id: <20220419181444.485959-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220419181353.485719-1-sashal@kernel.org>
-References: <20220419181353.485719-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,42 +58,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 66dd346b84d79fde20832ed691a54f4881eac20d ]
+[ Upstream commit b3f1dd52c991d79118f35e6d1bf4d7cb09882e38 ]
 
-Qemu unconditionally reports a UUID, which depending on the qemu version
-is either all-null (which is incorrect but harmless) or contains a single
-bit set for all controllers.  In addition it can also optionally report
-a eui64 which needs to be manually set.  Disable namespace identifiers
-for Qemu controlles entirely even if in some cases they could be set
-correctly through manual intervention.
+When building multi_v7_defconfig+CONFIG_SMP=n, -Warray-bounds exposes
+a couple negative array index accesses:
 
-Reported-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+arch/arm/mach-vexpress/spc.c: In function 've_spc_clk_init':
+arch/arm/mach-vexpress/spc.c:583:21: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
+  583 |   if (init_opp_table[cluster])
+      |       ~~~~~~~~~~~~~~^~~~~~~~~
+arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
+  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
+      |       ^~~~~~~~~~~~~~
+arch/arm/mach-vexpress/spc.c:592:18: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
+  592 |    init_opp_table[cluster] = true;
+      |    ~~~~~~~~~~~~~~^~~~~~~~~
+arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
+  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
+      |       ^~~~~~~~~~~~~~
+
+Skip this logic when built !SMP.
+
+Link: https://lore.kernel.org/r/20220331190443.851661-1-keescook@chromium.org
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm/mach-vexpress/spc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 97afeb898b25..6939b03a16c5 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3212,7 +3212,10 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_VDEVICE(INTEL, 0x5845),	/* Qemu emulated controller */
- 		.driver_data = NVME_QUIRK_IDENTIFY_CNS |
--				NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-+				NVME_QUIRK_DISABLE_WRITE_ZEROES |
-+				NVME_QUIRK_BOGUS_NID, },
-+	{ PCI_VDEVICE(REDHAT, 0x0010),	/* Qemu emulated controller */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(0x126f, 0x2263),	/* Silicon Motion unidentified */
- 		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST, },
- 	{ PCI_DEVICE(0x1bb1, 0x0100),   /* Seagate Nytro Flash Storage */
+diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
+index 1da11bdb1dfb..1c6500c4e6a1 100644
+--- a/arch/arm/mach-vexpress/spc.c
++++ b/arch/arm/mach-vexpress/spc.c
+@@ -580,7 +580,7 @@ static int __init ve_spc_clk_init(void)
+ 		}
+ 
+ 		cluster = topology_physical_package_id(cpu_dev->id);
+-		if (init_opp_table[cluster])
++		if (cluster < 0 || init_opp_table[cluster])
+ 			continue;
+ 
+ 		if (ve_init_opp_table(cpu_dev))
 -- 
 2.35.1
 
