@@ -2,179 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94406508E5C
-	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 19:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 715CE508E6F
+	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 19:29:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356052AbiDTR1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Apr 2022 13:27:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42626 "EHLO
+        id S1381096AbiDTRcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Apr 2022 13:32:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243846AbiDTR1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 13:27:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F5E45065
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 10:24:31 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 196D5B81E61
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 17:24:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AFD4C385A0;
-        Wed, 20 Apr 2022 17:24:28 +0000 (UTC)
-Date:   Wed, 20 Apr 2022 13:24:26 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     <gregkh@linuxfoundation.org>
-Cc:     bristot@kernel.org, zanussi@kernel.org, <stable@vger.kernel.org>
-Subject: Re: FAILED: patch "[PATCH] tracing: Have traceon and traceoff
- trigger honor the instance" failed to apply to 4.14-stable tree
-Message-ID: <20220420132426.46ef21f1@gandalf.local.home>
-In-Reply-To: <1646029977161194@kroah.com>
-References: <1646029977161194@kroah.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        with ESMTP id S1381094AbiDTRcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 13:32:03 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E939E46B0F;
+        Wed, 20 Apr 2022 10:29:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1650475756; x=1682011756;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=okP95UrQIanvdcD+EtP4ivdyN/wVqj7tuFHBGJdRWnE=;
+  b=QCEIzdAnqZ0Cw9Y5/ThwB+1PZjC/vwju1Yqxys/XlUeQfNex7XtsJCgM
+   ow0o7rhanyPn3KjZ/Ebgj062z0JJq5Kp5fTtAvC2tEGGHaOjqCDyN4yBy
+   87ZU1oMfMYMK3nKBcDUQ0mbF66lrLcZMgZS3y0uo+zx7ndd5TCscYEhKA
+   Zjbg1iBRgDXsRj2nWkWnGVuSqkWIMgyAvhTDfeydrn+tx22F/QuEcMNDy
+   Lr3Htwq3JOR2nfduBXGerMuoy8P7rfVDfY6KaTap72CL5RhhsxMDjcKgS
+   oNfAYKir6f3Y51mj/h+DHAsC0tU/haK0maYksM/5HHZftICmd6V6/AONa
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10323"; a="244037004"
+X-IronPort-AV: E=Sophos;i="5.90,276,1643702400"; 
+   d="scan'208";a="244037004"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Apr 2022 10:29:15 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,276,1643702400"; 
+   d="scan'208";a="727594578"
+Received: from anguy11-desk2.jf.intel.com ([10.166.244.147])
+  by orsmga005.jf.intel.com with ESMTP; 20 Apr 2022 10:29:15 -0700
+From:   Tony Nguyen <anthony.l.nguyen@intel.com>
+To:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com
+Cc:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, netdev@vger.kernel.org,
+        anthony.l.nguyen@intel.com, sassmann@redhat.com,
+        stable@vger.kernel.org, Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH net 2/2] i40e: i40e_main: fix a missing check on list iterator
+Date:   Wed, 20 Apr 2022 10:26:24 -0700
+Message-Id: <20220420172624.931237-3-anthony.l.nguyen@intel.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20220420172624.931237-1-anthony.l.nguyen@intel.com>
+References: <20220420172624.931237-1-anthony.l.nguyen@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Feb 2022 07:32:57 +0100
-<gregkh@linuxfoundation.org> wrote:
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-> The patch below does not apply to the 4.14-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+The bug is here:
+	ret = i40e_add_macvlan_filter(hw, ch->seid, vdev->dev_addr, &aq_err);
 
-This should work for 4.14 (I tested it for one machine).
+The list iterator 'ch' will point to a bogus position containing
+HEAD if the list is empty or no element is found. This case must
+be checked before any use of the iterator, otherwise it will
+lead to a invalid memory access.
 
--- Steve
-
-
->From 302e9edd54985f584cfc180098f3554774126969 Mon Sep 17 00:00:00 2001
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Date: Wed, 23 Feb 2022 22:38:37 -0500
-Subject: [PATCH] tracing: Have traceon and traceoff trigger honor the instance
-
-If a trigger is set on an event to disable or enable tracing within an
-instance, then tracing should be disabled or enabled in the instance and
-not at the top level, which is confusing to users.
-
-Link: https://lkml.kernel.org/r/20220223223837.14f94ec3@rorschach.local.home
+To fix this bug, use a new variable 'iter' as the list iterator,
+while use the origin variable 'ch' as a dedicated pointer to
+point to the found element.
 
 Cc: stable@vger.kernel.org
-Fixes: ae63b31e4d0e2 ("tracing: Separate out trace events from global variables")
-Tested-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-
+Fixes: 1d8d80b4e4ff6 ("i40e: Add macvlan support on i40e")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 ---
- kernel/trace/trace_events_trigger.c |   52 +++++++++++++++++++++++++++++++-----
- 1 file changed, 46 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 27 +++++++++++----------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-Index: linux-test.git/kernel/trace/trace_events_trigger.c
-===================================================================
---- linux-test.git.orig/kernel/trace/trace_events_trigger.c	2022-04-20 12:03:32.899882747 -0400
-+++ linux-test.git/kernel/trace/trace_events_trigger.c	2022-04-20 12:06:00.769445281 -0400
-@@ -932,6 +932,16 @@ void set_named_trigger_data(struct event
- static void
- traceon_trigger(struct event_trigger_data *data, void *rec)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 6778df2177a1..98871f014994 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -7549,42 +7549,43 @@ static void i40e_free_macvlan_channels(struct i40e_vsi *vsi)
+ static int i40e_fwd_ring_up(struct i40e_vsi *vsi, struct net_device *vdev,
+ 			    struct i40e_fwd_adapter *fwd)
  {
-+	struct trace_event_file *file = data->private_data;
-+
-+	if (file) {
-+		if (tracer_tracing_is_on(file->tr))
-+			return;
-+
-+		tracer_tracing_on(file->tr);
-+		return;
-+	}
-+
- 	if (tracing_is_on())
- 		return;
++	struct i40e_channel *ch = NULL, *ch_tmp, *iter;
+ 	int ret = 0, num_tc = 1,  i, aq_err;
+-	struct i40e_channel *ch, *ch_tmp;
+ 	struct i40e_pf *pf = vsi->back;
+ 	struct i40e_hw *hw = &pf->hw;
  
-@@ -941,8 +951,15 @@ traceon_trigger(struct event_trigger_dat
- static void
- traceon_count_trigger(struct event_trigger_data *data, void *rec)
- {
--	if (tracing_is_on())
--		return;
-+	struct trace_event_file *file = data->private_data;
+-	if (list_empty(&vsi->macvlan_list))
+-		return -EINVAL;
+-
+ 	/* Go through the list and find an available channel */
+-	list_for_each_entry_safe(ch, ch_tmp, &vsi->macvlan_list, list) {
+-		if (!i40e_is_channel_macvlan(ch)) {
+-			ch->fwd = fwd;
++	list_for_each_entry_safe(iter, ch_tmp, &vsi->macvlan_list, list) {
++		if (!i40e_is_channel_macvlan(iter)) {
++			iter->fwd = fwd;
+ 			/* record configuration for macvlan interface in vdev */
+ 			for (i = 0; i < num_tc; i++)
+ 				netdev_bind_sb_channel_queue(vsi->netdev, vdev,
+ 							     i,
+-							     ch->num_queue_pairs,
+-							     ch->base_queue);
+-			for (i = 0; i < ch->num_queue_pairs; i++) {
++							     iter->num_queue_pairs,
++							     iter->base_queue);
++			for (i = 0; i < iter->num_queue_pairs; i++) {
+ 				struct i40e_ring *tx_ring, *rx_ring;
+ 				u16 pf_q;
+ 
+-				pf_q = ch->base_queue + i;
++				pf_q = iter->base_queue + i;
+ 
+ 				/* Get to TX ring ptr */
+ 				tx_ring = vsi->tx_rings[pf_q];
+-				tx_ring->ch = ch;
++				tx_ring->ch = iter;
+ 
+ 				/* Get the RX ring ptr */
+ 				rx_ring = vsi->rx_rings[pf_q];
+-				rx_ring->ch = ch;
++				rx_ring->ch = iter;
+ 			}
++			ch = iter;
+ 			break;
+ 		}
+ 	}
+ 
++	if (!ch)
++		return -EINVAL;
 +
-+	if (file) {
-+		if (tracer_tracing_is_on(file->tr))
-+			return;
-+	} else {
-+		if (tracing_is_on())
-+			return;
-+	}
- 
- 	if (!data->count)
- 		return;
-@@ -950,12 +967,25 @@ traceon_count_trigger(struct event_trigg
- 	if (data->count != -1)
- 		(data->count)--;
- 
--	tracing_on();
-+	if (file)
-+		tracer_tracing_on(file->tr);
-+	else
-+		tracing_on();
- }
- 
- static void
- traceoff_trigger(struct event_trigger_data *data, void *rec)
- {
-+	struct trace_event_file *file = data->private_data;
-+
-+	if (file) {
-+		if (!tracer_tracing_is_on(file->tr))
-+			return;
-+
-+		tracer_tracing_off(file->tr);
-+		return;
-+	}
-+
- 	if (!tracing_is_on())
- 		return;
- 
-@@ -965,8 +995,15 @@ traceoff_trigger(struct event_trigger_da
- static void
- traceoff_count_trigger(struct event_trigger_data *data, void *rec)
- {
--	if (!tracing_is_on())
--		return;
-+	struct trace_event_file *file = data->private_data;
-+
-+	if (file) {
-+		if (!tracer_tracing_is_on(file->tr))
-+			return;
-+	} else {
-+		if (!tracing_is_on())
-+			return;
-+	}
- 
- 	if (!data->count)
- 		return;
-@@ -974,7 +1011,10 @@ traceoff_count_trigger(struct event_trig
- 	if (data->count != -1)
- 		(data->count)--;
- 
--	tracing_off();
-+	if (file)
-+		tracer_tracing_off(file->tr);
-+	else
-+		tracing_off();
- }
- 
- static int
+ 	/* Guarantee all rings are updated before we update the
+ 	 * MAC address filter.
+ 	 */
+-- 
+2.31.1
+
