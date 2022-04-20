@@ -2,69 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 913FB508AA9
-	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 16:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBF16508B24
+	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 16:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241928AbiDTOY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Apr 2022 10:24:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
+        id S1354644AbiDTOw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Apr 2022 10:52:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238125AbiDTOY0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 10:24:26 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75082443CB
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 07:21:40 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id bg25so605815wmb.4
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 07:21:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=k8FTSUS2oSr1tkakEBY8gXK61SFR6hJUw7h3N9azySk=;
-        b=lTdlBDUqPAcjIDmo9LbrOmfEisDXWHTh/qxA73dctYEBSDq6J4euDL3Ex/clv2VLW2
-         t5uhalutH8jCAolyyLe5Q8BWZM3rJqbp15NlK9ZtSBuHpjk8K1zZ4UdADv1S2BBRxzEX
-         Ekoo5WS5L366lbmD8s8puCYzOwgieh4OLyyfklByHRkBM5Vdy1kfKjmwQywoz7zF1c3b
-         hOkl3XpTfgKCQ4EhHypGTod3lR7d7h4UYJH3a1Q3M0V4c6oLany71+RHUIbDm9E4YDNs
-         KQ1/idFU7Qy3uFmtUUSE16jl4nWMfTAKbpb5oRONJt3VX9AzuPvAWB5bgjjt/9FOULtW
-         BvCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=k8FTSUS2oSr1tkakEBY8gXK61SFR6hJUw7h3N9azySk=;
-        b=IaXIddvUqvZndZjV9ugs4lse9JtPvrQ8JwgR6sf90WE8q+zsL22RMpusngKNF327p6
-         o8r88x8gPonDLSv+qaA8fMwXA8+IB15ycPayG732R84XYaBVvcgPUDeuPONDUM7kkiqs
-         0xA+z+rKc2108RX7gpeMXqlYc9jiCrwbOnSy3QWMjSH+7a920n76f3iqDWVCAy9112n8
-         tkXgaxghan1LBhogDixdyZkEs9dqZ/TFwP0Fbou2hyvxhND0psFibtWwGT6RgrSX3tlu
-         kYUl4P8mOkkmvYggostlgB5W5zKxpugLt4dJQ/TqCJZ3WIhgYAjMV620MQ5JDzJ9al52
-         ubXA==
-X-Gm-Message-State: AOAM532R/XfrBdFuju4h+Tfr9MelIOzs5AWi7JChHGxxkpbIgck6XQtO
-        uCTlfE4NDYV3iqPiVNQYu6ulfyG5PRrMNMUYQbQ=
-X-Google-Smtp-Source: ABdhPJyrArQsnLKpnC9quy4ibL8WxJNUjAOMw+nmGfuw7jA1h2jQtw3Fn0Id3+nKPjEs6l/jH4kb3PzKt+uIQvcqqyM=
-X-Received: by 2002:a05:600c:4f08:b0:391:fe3c:40e6 with SMTP id
- l8-20020a05600c4f0800b00391fe3c40e6mr3993490wmq.34.1650464499045; Wed, 20 Apr
- 2022 07:21:39 -0700 (PDT)
+        with ESMTP id S1379782AbiDTOwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 10:52:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB967B1F3
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 07:50:00 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75AEEB81F94
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 14:49:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EBE3C385A0;
+        Wed, 20 Apr 2022 14:49:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650466198;
+        bh=7yUjL4osBCzwyo+o0xsPqX0kxWSIuC7pDXj7izW6w7g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Oo+KCXrGEZVq/dhELY0aGrJanCdyLq43rPp9e3mAB5MP057HF0ceFQBmwmmfstZxH
+         XIcOmXMlBEZI3J7KkpEekWuGAFvO0MQVb2UBtVHERUpscxZsecO2Hs4YbBarfij3HM
+         9Zk9wJBNQA9KxCQpl7cqV54oGLchudyTs4or+PFTNATaBVuiEAPKk5M+xj5/nMj6nr
+         kKQFP98tjF8zy1JxRJxRZ7LmiiNpiqT7GwkS9FgIEYNwM7nCRy84FKDXfxAExR7fcO
+         70v+xZiSA1sgHfjftjTF9B6g5BTy1OQ0VxpvuNUY0ifMLlb0dGbOXBQ1kY13ey+TkQ
+         H7BloCUCYYqtw==
+Date:   Wed, 20 Apr 2022 10:49:56 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Georgi Djakov <quic_c_gdjako@quicinc.com>
+Cc:     stable@vger.kernel.org, rppt@linux.ibm.com,
+        anshuman.khandual@arm.com, david@redhat.com, will@kernel.org,
+        catalin.marinas@arm.com, hch@lst.de, akpm@linux-foundation.org,
+        surenb@google.com, quic_sudaraja@quicinc.com, djakov@kernel.org
+Subject: Re: [PATCH 5.15 2/2] arm64/mm: drop HAVE_ARCH_PFN_VALID
+Message-ID: <YmAdlNslaGbSKUj4@sashalap>
+References: <20220420124341.14982-1-quic_c_gdjako@quicinc.com>
+ <20220420124341.14982-2-quic_c_gdjako@quicinc.com>
 MIME-Version: 1.0
-Sender: infotechk6@gmail.com
-Received: by 2002:adf:a782:0:0:0:0:0 with HTTP; Wed, 20 Apr 2022 07:21:38
- -0700 (PDT)
-From:   EVELYN SANCHEZ <evelynchez1@gmail.com>
-Date:   Wed, 20 Apr 2022 15:21:38 +0100
-X-Google-Sender-Auth: GFND_nT_iFDX9Tg-NNJxGfAVI9Q
-Message-ID: <CADyTRHXTGpW0wK7=bP6waVDMp9zP19Aa6AeO6s6LSru4SWtzmg@mail.gmail.com>
-Subject: Hello Dear,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-0.4 required=5.0 tests=BAYES_05,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20220420124341.14982-2-quic_c_gdjako@quicinc.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dearest one,
+On Wed, Apr 20, 2022 at 05:43:41AM -0700, Georgi Djakov wrote:
+>From: Anshuman Khandual <anshuman.khandual@arm.com>
+>
+>[ Upstream commit 3de360c3fdb34fbdbaf6da3af94367d3fded95d3 ]
+>
+>CONFIG_SPARSEMEM_VMEMMAP is now the only available memory model on arm64
+>platforms and free_unused_memmap() would just return without creating any
+>holes in the memmap mapping.  There is no need for any special handling in
+>pfn_valid() and HAVE_ARCH_PFN_VALID can just be dropped.  This also moves
+>the pfn upper bits sanity check into generic pfn_valid().
 
-How are you and your family doing today? i hope all is well with you?
-Please when will i get your response for the email i sent to you?
+It's not clear why we need this patch in stable.
+
+-- 
+Thanks,
+Sasha
