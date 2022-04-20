@@ -2,87 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93893508888
-	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 14:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9747650889D
+	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 14:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353740AbiDTM5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Apr 2022 08:57:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34716 "EHLO
+        id S1378673AbiDTNAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Apr 2022 09:00:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233931AbiDTM5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 08:57:30 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D44C3CA4A;
-        Wed, 20 Apr 2022 05:54:44 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id j8so1675847pll.11;
-        Wed, 20 Apr 2022 05:54:44 -0700 (PDT)
+        with ESMTP id S1343572AbiDTNAn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 09:00:43 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90CFE3E5CE
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 05:57:57 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id d23-20020a17090a115700b001d2bde6c234so3461050pje.1
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 05:57:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=cfKEQXfvPhG1kZ+YpMF2hReHRJMEZQRtVI8gWHNwJsE=;
-        b=SJ9wrEqPvYtvq6u4My/rceS5j/aS5O0TKpsoPpclCoMwLTUcTsXrjY6k58GgXgJDjk
-         tz01T2qFPAHZcwZXJgAwa/uoXApT+ETBGfmmTjkYZ9d86v15pp2JSMJBlS0X/emLIUnL
-         FfaBsG1olGj+ebvEzoG/tMRz6g3iydpNPuDMUWlcJE2yd+4v/SWBiXyLES6jNIDlHD5l
-         61Z4eLrfFF8CDN43J7Tz5JjM0Q/1AYgpPCyv7abRl+quV72pVPxZxKv/x7sKMu9XzVL5
-         SWOxNuWj84mkapk9TS6KdbIbwNAjO5B36W7ddQDXFwsqyW2fnMzNSfySVXaXW0AshHBv
-         GGKQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Vtyy9codORAieiLu/VxB+oUj1LW9HQvn1ZVYhOZLXYQ=;
+        b=VM6sWLLxwXVyeqtCwZExPitx4Yzw573Zvuojc/r/chvyTEUfiXr9Vjd8RoU/A0VFDU
+         Unhb0R9X04rnYAJzY+YQYbJOT61o/H98KArl7kq0pDuKpNqUl1HPyAYvyyHquHUZomjL
+         fUAPIH7A0XZCBpwJUFuuHaGVfjxZ9j3rLwJG2EKlHlAktBYVCosqM+02fPZ4llbGgTSg
+         OPAcS+DR+XvPJ91H13IAPYmapAjd7ZE/N5qQdLv3MsRboZAWGL15MP2wRVoAObVW7iDJ
+         RkNnk7oK9xVNWPCFWHkdWGxiR+yFPMcgfI2hMNRTapmS5az2k4QCjqKFeAwYF+JsUpax
+         hcsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=cfKEQXfvPhG1kZ+YpMF2hReHRJMEZQRtVI8gWHNwJsE=;
-        b=CB5waa/HRh+d+PEZOBTarWNAVVd+jutVltwYQ/syYhdP1ahzJWS/Yd8CWc+0tUpxhi
-         apIuHL8TT8wve1bT/bQjlAN2XCg0KdIDZzKJ3b7TtP33fw/Lde5/5brBMtjwrdbT92hk
-         3n4UMQLzZo4aUGAVHMenPiiuti9HPFYUgeTjtW2Mvl+ees1w1yO0d0iqUEuGv0GWxCcf
-         CU80fc0OiuB2mmHy8c0O+vTJAWPHC7m9eXQAmy2NExidbshT2sarWbEPNQd8FM4RTv06
-         HaLDcReYldCvm1DoFrUtnQUDpgB9LJ8ghUfoUkAI7da0TIjNSNc/6F1Glv3CYhfdzxqv
-         cC5Q==
-X-Gm-Message-State: AOAM531KbE7+se02YKxJhGhBusIC+x85chjBTsCWwUEW9r68AfMo2BUu
-        ZTByFwxa1wn/BekMuy9rH/w=
-X-Google-Smtp-Source: ABdhPJyBl7o+zKhHc4HtlQRcXGENqCIJ11onw+S/lwrewiHQtnsX2ruF+ZGjWz971D6YhQis7geogw==
-X-Received: by 2002:a17:90b:4f42:b0:1d2:d1fa:4df5 with SMTP id pj2-20020a17090b4f4200b001d2d1fa4df5mr4297398pjb.81.1650459284069;
-        Wed, 20 Apr 2022 05:54:44 -0700 (PDT)
-Received: from hoboy.vegasvil.org ([2601:640:8200:33:e2d5:5eff:fea5:802f])
-        by smtp.gmail.com with ESMTPSA id o22-20020a17090a9f9600b001d0d20fd674sm15955961pjp.40.2022.04.20.05.54.41
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Vtyy9codORAieiLu/VxB+oUj1LW9HQvn1ZVYhOZLXYQ=;
+        b=LKandE2VmbRHceTuxnvJRfvGH7wK+7BpV6dRoUnBbWRhdHpfhYltVbCK7j2yrQfjq9
+         5YfT12/4PcTcqnXxLzrLGf+33cZwin9S+eFNDXCInevJn3grph9B/8/ab/PlfBVyqkBk
+         DfpLC+cS34sgwCHNrbcI49QxdpdO3ns5o79jTNuk8vXp4ShSNDciHtAu3urdkOZVOFxM
+         y9knIux0mi8sc+zdCw0IEjAYrVBpNPz5+bQ9sgh2En1Nf04zVS9G173/e3/bjjCCZE7F
+         geKdQAx9Xm+3Fm7qLH5/8SEgBkCsbxldqu73KF4m8M6Yt7bDv60aHK9SfYX7N4UOgheG
+         fPig==
+X-Gm-Message-State: AOAM532XI36GHocjqnXCqGdqG8GQduQIxlkmMdy+LWIZ7V93repvDF0D
+        MK4KYVo621ZQX63gE1MM+qI+/iyYlIANJN+Q
+X-Google-Smtp-Source: ABdhPJzszT/J+UuNii+q88p2RdlPOzWHpXm2dJnPrRmTVc/XS2jggBozQZbuJ7ihX2lkVxzINKNmTA==
+X-Received: by 2002:a17:903:1206:b0:151:7d67:2924 with SMTP id l6-20020a170903120600b001517d672924mr20370796plh.45.1650459476919;
+        Wed, 20 Apr 2022 05:57:56 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t20-20020a63eb14000000b0039e28245722sm19631375pgh.54.2022.04.20.05.57.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Apr 2022 05:54:42 -0700 (PDT)
-Date:   Wed, 20 Apr 2022 05:54:39 -0700
-From:   Richard Cochran <richardcochran@gmail.com>
-To:     Tan Tee Min <tee.min.tan@linux.intel.com>
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Tan Tee Min <tee.min.tan@intel.com>,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Rayagond Kokatanur <rayagond@vayavyalabs.com>,
-        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Voon Wei Feng <weifeng.voon@intel.com>,
-        Wong Vee Khee <vee.khee.wong@intel.com>,
-        Song Yoong Siang <yoong.siang.song@intel.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>
-Subject: Re: [PATCH net 1/1] net: stmmac: add fsleep() in HW Rx timestamp
- checking loop
-Message-ID: <20220420125439.GA1401@hoboy.vegasvil.org>
-References: <20220413040115.2351987-1-tee.min.tan@intel.com>
- <20220413125915.GA667752@hoboy.vegasvil.org>
- <20220414072934.GA10025@linux.intel.com>
- <20220414104259.0b928249@kernel.org>
- <20220419005220.GA17634@linux.intel.com>
- <20220419132853.GA19386@hoboy.vegasvil.org>
- <20220420051508.GA18173@linux.intel.com>
+        Wed, 20 Apr 2022 05:57:56 -0700 (PDT)
+Message-ID: <62600354.1c69fb81.7eb1d.ec0d@mx.google.com>
+Date:   Wed, 20 Apr 2022 05:57:56 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220420051508.GA18173@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.239
+X-Kernelci-Report-Type: test
+Subject: stable/linux-4.19.y baseline: 110 runs, 3 regressions (v4.19.239)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -90,14 +69,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 20, 2022 at 01:15:08PM +0800, Tan Tee Min wrote:
-> No. The context descriptor (frame) is possibly still owned by the
-> DMA controller in this situation.
+stable/linux-4.19.y baseline: 110 runs, 3 regressions (v4.19.239)
 
-So that is a problem.  The solution is to postpone this logic until
-the driver owns the buffer.  Doesn't the HW offer some means of
-notification, like an interrupt for example?
+Regressions Summary
+-------------------
 
-Thanks,
-Richard
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
 
+meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
+
+rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
+hromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-4.19.y/kernel=
+/v4.19.239/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-4.19.y
+  Describe: v4.19.239
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      eadf658bb74981dd2509d9e1863574b9f0f90fff =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fd1746ecd2c5befae0687
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.239/=
+arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.239/=
+arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625fd1746ecd2c5befae0=
+688
+        failing since 13 days (last pass: v4.19.235, first fail: v4.19.236) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fd173b16ab6baabae06f7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.239/=
+arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.239/=
+arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625fd173b16ab6baabae0=
+6f8
+        failing since 4 days (last pass: v4.19.234, first fail: v4.19.238) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
+hromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fd36d4c79c88f51ae06a4
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable/linux-4.19.y/v4.19.239/=
+arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
+evin.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-4.19.y/v4.19.239/=
+arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-k=
+evin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/625fd36e4c79c88f51ae06c6
+        failing since 34 days (last pass: v4.19.231, first fail: v4.19.235)
+
+    2022-04-20T09:33:22.169293  /lava-6129852/1/../bin/lava-test-case
+    2022-04-20T09:33:22.177872  <8>[   36.869864] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
