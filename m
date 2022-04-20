@@ -2,111 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1BF6508FD1
-	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 20:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1483850910D
+	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 22:05:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381539AbiDTSz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Apr 2022 14:55:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40098 "EHLO
+        id S1381977AbiDTUHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Apr 2022 16:07:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381607AbiDTSz0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 14:55:26 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3469B44A02;
-        Wed, 20 Apr 2022 11:52:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=TjBxCy4KdKHXLg8qp3eQ2l0d98HskHx6Bo4iw1+O0PM=; b=xPDZSxfLFeBIusyvmCeDsgIb3V
-        q8dtaCqwY5Q7fmO3b4PQ9XrK1EzbQJUx+NJ9fwNEw13I4+Vf3AK/wns4ZR1B3rDR1O5KarOm0RoUA
-        nNQ6nsJrDShfed9du/FmASyuiDBFfELS1TSoaeBu839G8irqHQXmf9JuPA7GbxCbB/GXSmiRhpR/U
-        JUDsQOzNa0vT+KPOwBxm60Nma0TyfOuiODt2ueuy/9Iaa5AMQSkaWL9+RVbGNOG6rzwLxH/01DHAI
-        h9ZEX+2Wwqo7eKCCx5JQFZY5jfRdVv2d/uHrjaHFOM5E+MsRYWpL9XcCOBKZeRXrH20jIKyAT08jt
-        C4Td3WhQ==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nhFRM-00A7PN-Of; Wed, 20 Apr 2022 18:52:36 +0000
-Date:   Wed, 20 Apr 2022 11:52:36 -0700
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>, Klaus Jensen <its@irrelevant.dk>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>, axboe@fb.com,
-        linux-nvme@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 5.10 18/18] nvme-pci: disable namespace
- identifiers for Qemu controllers
-Message-ID: <YmBWdMfQ/WIACcTg@bombadil.infradead.org>
-References: <20220419181353.485719-1-sashal@kernel.org>
- <20220419181353.485719-18-sashal@kernel.org>
+        with ESMTP id S1382069AbiDTUHk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 16:07:40 -0400
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DA6D8F;
+        Wed, 20 Apr 2022 13:04:50 -0700 (PDT)
+Received: from mail-wr1-f48.google.com ([209.85.221.48]) by
+ mrelayeu.kundenserver.de (mreue012 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MD5fd-1nYhqS0iA5-009C9f; Wed, 20 Apr 2022 22:04:49 +0200
+Received: by mail-wr1-f48.google.com with SMTP id p18so3744800wru.5;
+        Wed, 20 Apr 2022 13:04:49 -0700 (PDT)
+X-Gm-Message-State: AOAM533PUNnGDotKxEOSsahHZaTf50NTyXHt3zRdKCFVv4vHZ8o+7QGQ
+        FYgXsfwQUJQs3eUKKJCdbUdCt6+GSx/eRDIndi8=
+X-Google-Smtp-Source: ABdhPJzQqXetCmaGkZ0VLDQKkxSmuQBexNxn4+LtaoO2pmxTQhac0Nj1iF3iDiepN/wJPA+ZQPYKZ600Fq7P1vAaoZE=
+X-Received: by 2002:adf:e106:0:b0:20a:b31b:213d with SMTP id
+ t6-20020adfe106000000b0020ab31b213dmr2425684wrz.219.1650485088720; Wed, 20
+ Apr 2022 13:04:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220419181353.485719-18-sashal@kernel.org>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <87levzzts4.fsf_-_@email.froward.int.ebiederm.org>
+ <mhng-32cab6aa-87a3-4a5c-bf83-836c25432fdd@palmer-ri-x1c9>
+ <20220420165935.GA12207@brightrain.aerifal.cx> <202204201044.ACFEB0C@keescook>
+In-Reply-To: <202204201044.ACFEB0C@keescook>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 20 Apr 2022 22:04:32 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a2KvK78bbW_5DWKsrxLvKxYDqoCkii-kxi-mB7W9DCvNA@mail.gmail.com>
+Message-ID: <CAK8P3a2KvK78bbW_5DWKsrxLvKxYDqoCkii-kxi-mB7W9DCvNA@mail.gmail.com>
+Subject: Re: [PATCH] binfmt_flat: Remove shared library support
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Rich Felker <dalias@libc.org>, Palmer Dabbelt <palmer@dabbelt.com>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Niklas.Cassel@wdc.com, Al Viro <viro@zeniv.linux.org.uk>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Mike Frysinger <vapier@gentoo.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:gQ5lfzAIVy37ifJumMEGNd7d+cNLiqaZmRMa9ueMfNJ5xnstoFb
+ 1LXvZ4iv4Jz6LH9bqtciDqVccsCUMZExFOxSVmOb4bb+jTKEtg9rNUSSuKL0mQ0xfHgHSz4
+ Yer2462solt1ixzcojB1Yi6+zHG9VnR0IleEaOxH0DKXidOxVE/AFRBtrh5faTPL7geL+BP
+ bs/5vz7VJrJva9UKV3djA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:KDu2y8Cc/7c=:pa8fGFPiX/gUUwbekJEvUn
+ UdD3IcE6tGtlWbFlnGWQIr1SupnmqlaeN1Ynw2rQsGRMOPplxfI+ooeGmt5nnUBxI2Y6+YZnM
+ PdJ6jq0e25C+/vIkByuEI/M3E04qBLST6JJZNor6UDQ4e9I8XSuMJ7sjDHVncA+7b49eapCrR
+ OeNa7DVIn9eJJXnH9RnXmdF0YjGPf+ALuuStLlEeLT0sKDXHFsxsix6JtV/7sm7xIJt94MmCd
+ lvtod81gxusuZMKv8/WRX43LQMopmD4sDD2AYw6cYM1nmw4U9Owk/eAmjWuJY43Gfh16ED7vN
+ W4sziGJfHL1clvysEkvMCWjulYGUCx5xV0W4pJ9QTO8w+pc8CoFRRwY5KzxUfYTeanN3unBrl
+ +cUeRI7AZrUVGyWVy1isFIamzWiA1slrC95OFawv4y7tmcj1Q1zIW315PS1zZjCGJ1EHlA9mw
+ eYZy08p37e6dDOTtJTeK+lT/sk/xOvomU7tJnnhO17VHcpDRy48kad06EpRVDMsrxbiY7YDxy
+ 1spGtYhlXruJR0lJ+9rVNpRFmvBe0xHy+Zw0ljahxTVEJ5NVXUCBm3rgfRbgQ94RpzcaY5J3a
+ HWCqvwDBPOFYt5eqJyxNHhMR3yWiZ2ZTuGda8wPeD0LpTnu+rdt+hvI+/l2LxSjhyAcGqDw5i
+ uYoTy0BkMXEm9j2/15Rwp1s1SQ+CyDxEhRr2Y5kityB2PR43L8mKKlhh250/da4bAV1pFT5MU
+ 86fJdsGlA3hzaa7nRsQkZL0UWaGFdKE2iwtM0GtGVpsPHIHuBrKtbb7k2+CsLUnhQRZW4vZuX
+ HK7yaj8HqfferE22/0xHeYgGmBbzOVD1dU/B9+nMi4Zf2OOXyw=
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H4,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 19, 2022 at 02:13:52PM -0400, Sasha Levin wrote:
-> From: Christoph Hellwig <hch@lst.de>
-> 
-> [ Upstream commit 66dd346b84d79fde20832ed691a54f4881eac20d ]
-> 
-> Qemu unconditionally reports a UUID, which depending on the qemu version
-> is either all-null (which is incorrect but harmless) or contains a single
-> bit set for all controllers.  In addition it can also optionally report
-> a eui64 which needs to be manually set.  Disable namespace identifiers
-> for Qemu controlles entirely even if in some cases they could be set
-> correctly through manual intervention.
-> 
-> Reported-by: Luis Chamberlain <mcgrof@kernel.org>
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Keith Busch <kbusch@kernel.org>
-> Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+On Wed, Apr 20, 2022 at 7:47 PM Kees Cook <keescook@chromium.org> wrote:
+>
+> Yeah, I was trying to understand why systems were using binfmt_flat and
+> not binfmt_elf, given the mention of elf2flat -- is there really such a
+> large kernel memory footprint savings to be had from removing
+> binfmt_elf?
 
-Huh? The NVME_QUIRK_BOGUS_NID is a new define and the code which uses
-this quirk is also new, and so I'm curious *how and why* the auto-sel
-stuff for stable can decide to merge this and this should not even
-compile? I see this was backported to v5.15  and v5.17 as well.
+I think the main reason for using flat binaries is nommu support on
+m68k, xtensa and risc-v. The regular binfmt_elf support requires
+an MMU, and the elf-fdpic variant is only available for arm and sh
+at this point (the other nommu architectures got removed over time).
 
-I didn't get Cc'd on perhaps some other patches, but this immediately
-caught my attention as not applicable, unless of course the patch
-"nvme: add a quirk to disable namespace identifiers" was also sent
-as part of this series to stable kernels. And if that was done, well
-holy crap, really?
-
-Cc'ing Klaus on the qemu side of things so he's aware.
-
-  Luis
-
-> ---
->  drivers/nvme/host/pci.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-> index 97afeb898b25..6939b03a16c5 100644
-> --- a/drivers/nvme/host/pci.c
-> +++ b/drivers/nvme/host/pci.c
-> @@ -3212,7 +3212,10 @@ static const struct pci_device_id nvme_id_table[] = {
->  		.driver_data = NVME_QUIRK_IGNORE_DEV_SUBNQN, },
->  	{ PCI_VDEVICE(INTEL, 0x5845),	/* Qemu emulated controller */
->  		.driver_data = NVME_QUIRK_IDENTIFY_CNS |
-> -				NVME_QUIRK_DISABLE_WRITE_ZEROES, },
-> +				NVME_QUIRK_DISABLE_WRITE_ZEROES |
-> +				NVME_QUIRK_BOGUS_NID, },
-> +	{ PCI_VDEVICE(REDHAT, 0x0010),	/* Qemu emulated controller */
-> +		.driver_data = NVME_QUIRK_BOGUS_NID, },
->  	{ PCI_DEVICE(0x126f, 0x2263),	/* Silicon Motion unidentified */
->  		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST, },
->  	{ PCI_DEVICE(0x1bb1, 0x0100),   /* Seagate Nytro Flash Storage */
-> -- 
-> 2.35.1
-> 
+        Arnd
