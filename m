@@ -2,158 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BC2F508A89
-	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 16:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE7A508A8C
+	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 16:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379467AbiDTOTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Apr 2022 10:19:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38852 "EHLO
+        id S1379404AbiDTOTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Apr 2022 10:19:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380234AbiDTOSo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 10:18:44 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D18C745531
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 07:14:13 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id bv19so3823763ejb.6
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 07:14:13 -0700 (PDT)
+        with ESMTP id S1380244AbiDTOSp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 10:18:45 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01FEA4553E
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 07:14:22 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id md20-20020a17090b23d400b001cb70ef790dso5061981pjb.5
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 07:14:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=aQ942c+7vb6/qCDUQRQxRZC5wp53vmGcX8QQSZzWOFI=;
-        b=RKgHBFDDg/JiJVmQisIRJGrEpZ2E81++nBGY0N2innYsm9KQAUjV3TMkLMqjEHYVS9
-         YZaFLrTh4hw6/QQOk7r+dFztN7u2F93uJ19L89b8wvGbMIGBU/WgRsT9Xhf+6OvtkVGe
-         eu/aBE6k1BTjoN6Kv01mXZC1A6v9J+sIGU9BWSrr1HZdxGckhRvmqjLZVgLIF73rKxOy
-         4dc+itvEHSCspXMYIEO7jA1xFgufPizM0UGXerRCyyqFicrjmJU85htg3BYMrT6fc1Z/
-         wbzAeF5MTeUKVrFCBQccR90OAFB9fakXUe2+aROc6hYTv6SyqzbDyl1n7H0v8Iw0Iq7+
-         /ngw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ubb920doRXvVsyBOlnzbB4I4urXuUCO+kxGQTCAJSGQ=;
+        b=iQ8mB6oi6EnByjyTzVhIMn7lFmreyLzxInTTI71Kz+UTXZV8CHiUThGYbfbXc1Owr0
+         kIsHbPNTbln0DbD8iW2v8e/53Da0NUxNOGQVuJkTyjgAemYLkxyZAlEOO8owgqLpLXEB
+         MpgTVwNhHzt6ktdFqzR73qzzvK9FcotJgl5DtbTsMrKvT+hFOFElOLskkPjAp4eSUUFb
+         sau/+c7VQnWukgaades0WVEboVx3HmOl6yWrtKF37fYxQG597agxo+Sb1pcwSv9Tqfrb
+         jPqnqoCZgYe3c7lLYv1c+tVsbbQreQQOxoubaiiZ0yu4k5OYbm7EjZjrFSLCh7mFGTLr
+         TUYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=aQ942c+7vb6/qCDUQRQxRZC5wp53vmGcX8QQSZzWOFI=;
-        b=IdARv1zJ6HOPPUonqnfOkSqugUNPjXPmv6XSt/alyZKmVvMDoPCJ4kpEEiR1QFMRsl
-         nWDFkiOCUhsS/wMtx9/Er/69d30iLRjRETbC7stOxcWlTsLo7hhzp6rX+7+mdVu3z4fG
-         9HIQOfgWO1KUzqAMvJvc8o3QSSK1y+cZtjtSuaIhEM3TYieilt9OjCMMSw2XCwnyW7H5
-         Xo4I+fl6ZT8vLXF3waAJDI4+ZoP5AULGvyQKvGS80LpKlHNEHMG2vLVOuUuogCxMnf7Y
-         e8pYcN3/7cPgqJgY5LQDnHIeedvzBkxY7n7hAbfJqJtQewOkfqPvfC3xv3gJKoKo5hHz
-         sndQ==
-X-Gm-Message-State: AOAM530CNS9anqtPUtKEZdC9HYtJfD1Z1KxToC6OWRvoS8YJMX0kQlyc
-        q+jE8sC05OT+TESjeTZ9oOW2IQ==
-X-Google-Smtp-Source: ABdhPJxp5IWPFIxb6KZ3dRafE5gv7h8/JLmZGz6bqI5HkNKyelttYLmZhMfHrNc95/3MtEr1mWRUlg==
-X-Received: by 2002:a17:906:9754:b0:6da:7d72:1353 with SMTP id o20-20020a170906975400b006da7d721353mr18472378ejy.273.1650464052444;
-        Wed, 20 Apr 2022 07:14:12 -0700 (PDT)
-Received: from localhost.localdomain (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
-        by smtp.gmail.com with ESMTPSA id yy18-20020a170906dc1200b006d6e5c75029sm6635599ejb.187.2022.04.20.07.14.11
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ubb920doRXvVsyBOlnzbB4I4urXuUCO+kxGQTCAJSGQ=;
+        b=VNuh/5PK2ZwojsaG5UiARfBj3EDY8WcbBiO0bGmumAsGCTyU0uqaowupH1KQjAPDZj
+         8mJ2Ucx+wWcMnlihOP2klZyYWSVAcEucJsSU2NMHkM42TgJJ+8ov6tno0T5gwmzUoiUe
+         qjndIOJ4T5KNulC8grfhqdaGd3CJMX1MJUS9ZC1DlX7WqBNdD0jrbzAvSgHA2POZRm6P
+         vaxg/AkCqf4rDJjzIJ95Oqqw5ZI/0Lpv9CtfYfw/q1bKsLvyG2icn4o/QJkcfUiAoua6
+         CdYXhQEh+V3agf+EHKsNs+huCXwUiebmbQNdePeWjBIWseOBoetNi7vMD5pli/lCvmpB
+         iovA==
+X-Gm-Message-State: AOAM5323mtaqGnBBDJF5BTrAjZao8p8TZXstasjukxct7OgJJF3CpinQ
+        zQTGLFD4RHreizzsKZWXY18fen71gdTq+ChH
+X-Google-Smtp-Source: ABdhPJzOC5A97YliYnHVTv+qzfu091VBrniIyItjdoRnJJ+O9XX2psKXzJFCK/jOgsTbR/lPxtIziA==
+X-Received: by 2002:a17:90b:3e83:b0:1d2:edd3:5639 with SMTP id rj3-20020a17090b3e8300b001d2edd35639mr4687429pjb.183.1650464061393;
+        Wed, 20 Apr 2022 07:14:21 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d16-20020a056a00245000b004f771b48736sm21532844pfj.194.2022.04.20.07.14.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Apr 2022 07:14:11 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config
-Date:   Wed, 20 Apr 2022 16:14:07 +0200
-Message-Id: <20220420141407.470955-1-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.32.0
+        Wed, 20 Apr 2022 07:14:20 -0700 (PDT)
+Message-ID: <6260153c.1c69fb81.1e2ab.1b1b@mx.google.com>
+Date:   Wed, 20 Apr 2022 07:14:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.239
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.19.y baseline: 109 runs, 3 regressions (v4.19.239)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Samsung pinctrl drivers depend on OF_GPIO, which is part of GPIOLIB.
-ARMv7 Exynos platform selects GPIOLIB and Samsung pinctrl drivers. ARMv8
-Exynos selects only the latter leading to possible wrong configuration
-on ARMv8 build:
+stable-rc/linux-4.19.y baseline: 109 runs, 3 regressions (v4.19.239)
 
-  WARNING: unmet direct dependencies detected for PINCTRL_EXYNOS
-    Depends on [n]: PINCTRL [=y] && OF_GPIO [=n] && (ARCH_EXYNOS [=y] || ARCH_S5PV210 || COMPILE_TEST [=y])
-    Selected by [y]:
-    - ARCH_EXYNOS [=y]
+Regressions Summary
+-------------------
 
-Always select the GPIOLIB from the Samsung pinctrl drivers to fix the
-issue.  This requires removing of OF_GPIO dependency (to avoid recursive
-dependency), so add dependency on OF for COMPILE_TEST cases.
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
 
-Reported-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
-Fixes: eed6b3eb20b9 ("arm64: Split out platform options to separate Kconfig")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
 
----
+rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
+hromebook | 1          =
 
-Changes since v1:
-1. Do not select OF_GPIO and add back dependency on OF (Arnd).
 
-Original report:
-https://bugzilla.kernel.org/show_bug.cgi?id=210047
----
- arch/arm/mach-exynos/Kconfig    |  1 -
- drivers/pinctrl/samsung/Kconfig | 11 ++++-------
- 2 files changed, 4 insertions(+), 8 deletions(-)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.239/plan/baseline/
 
-diff --git a/arch/arm/mach-exynos/Kconfig b/arch/arm/mach-exynos/Kconfig
-index 51a336f349f4..4d3b40e4049a 100644
---- a/arch/arm/mach-exynos/Kconfig
-+++ b/arch/arm/mach-exynos/Kconfig
-@@ -16,7 +16,6 @@ menuconfig ARCH_EXYNOS
- 	select EXYNOS_PMU
- 	select EXYNOS_SROM
- 	select EXYNOS_PM_DOMAINS if PM_GENERIC_DOMAINS
--	select GPIOLIB
- 	select HAVE_ARM_ARCH_TIMER if ARCH_EXYNOS5
- 	select HAVE_ARM_SCU if SMP
- 	select PINCTRL
-diff --git a/drivers/pinctrl/samsung/Kconfig b/drivers/pinctrl/samsung/Kconfig
-index dfd805e76862..7b0576f71376 100644
---- a/drivers/pinctrl/samsung/Kconfig
-+++ b/drivers/pinctrl/samsung/Kconfig
-@@ -4,14 +4,13 @@
- #
- config PINCTRL_SAMSUNG
- 	bool
--	depends on OF_GPIO
-+	select GPIOLIB
- 	select PINMUX
- 	select PINCONF
- 
- config PINCTRL_EXYNOS
- 	bool "Pinctrl common driver part for Samsung Exynos SoCs"
--	depends on OF_GPIO
--	depends on ARCH_EXYNOS || ARCH_S5PV210 || COMPILE_TEST
-+	depends on ARCH_EXYNOS || ARCH_S5PV210 || (COMPILE_TEST && OF)
- 	select PINCTRL_SAMSUNG
- 	select PINCTRL_EXYNOS_ARM if ARM && (ARCH_EXYNOS || ARCH_S5PV210)
- 	select PINCTRL_EXYNOS_ARM64 if ARM64 && ARCH_EXYNOS
-@@ -26,12 +25,10 @@ config PINCTRL_EXYNOS_ARM64
- 
- config PINCTRL_S3C24XX
- 	bool "Samsung S3C24XX SoC pinctrl driver"
--	depends on OF_GPIO
--	depends on ARCH_S3C24XX || COMPILE_TEST
-+	depends on ARCH_S3C24XX || (COMPILE_TEST && OF)
- 	select PINCTRL_SAMSUNG
- 
- config PINCTRL_S3C64XX
- 	bool "Samsung S3C64XX SoC pinctrl driver"
--	depends on OF_GPIO
--	depends on ARCH_S3C64XX || COMPILE_TEST
-+	depends on ARCH_S3C64XX || (COMPILE_TEST && OF)
- 	select PINCTRL_SAMSUNG
--- 
-2.32.0
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.239
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      eadf658bb74981dd2509d9e1863574b9f0f90fff =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fe6a31de763c934ae068f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+39/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+39/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625fe6a31de763c934ae0=
+690
+        failing since 14 days (last pass: v4.19.235-23-g354b947849d2, first=
+ fail: v4.19.235-58-ga78343b23cae) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+meson-gxl-s905d-p230 | arm64 | lab-baylibre  | gcc-10   | defconfig        =
+          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fe6de5809e606a4ae074c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+39/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+39/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s905d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625fe6de5809e606a4ae0=
+74d
+        failing since 8 days (last pass: v4.19.234-30-g4401d649cac2, first =
+fail: v4.19.237) =
+
+ =
+
+
+
+platform             | arch  | lab           | compiler | defconfig        =
+          | regressions
+---------------------+-------+---------------+----------+------------------=
+----------+------------
+rk3399-gru-kevin     | arm64 | lab-collabora | gcc-10   | defconfig+arm64-c=
+hromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fe55bddf88229f5ae067e
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+39/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gr=
+u-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
+39/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gr=
+u-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/625fe55bddf88229f5ae06a0
+        failing since 44 days (last pass: v4.19.232, first fail: v4.19.232-=
+45-g5da8d73687e7)
+
+    2022-04-20T10:49:52.252331  /lava-6130234/1/../bin/lava-test-case   =
+
+ =20
