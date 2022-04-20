@@ -2,69 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DD39508943
-	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 15:26:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 219EA50895C
+	for <lists+stable@lfdr.de>; Wed, 20 Apr 2022 15:30:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379040AbiDTN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Apr 2022 09:28:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46252 "EHLO
+        id S1379105AbiDTNcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Apr 2022 09:32:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379021AbiDTN2h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 09:28:37 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.17.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412DC3A5D8;
-        Wed, 20 Apr 2022 06:25:51 -0700 (PDT)
-Received: from mail-wm1-f46.google.com ([209.85.128.46]) by
- mrelayeu.kundenserver.de (mreue107 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MMFdY-1nRI9D2Fs6-00JKba; Wed, 20 Apr 2022 15:25:49 +0200
-Received: by mail-wm1-f46.google.com with SMTP id c190-20020a1c35c7000000b0038e37907b5bso3707201wma.0;
-        Wed, 20 Apr 2022 06:25:49 -0700 (PDT)
-X-Gm-Message-State: AOAM533Ruzzhq3AJnT/ApE5/MdAhSW3ZXbnGtnby3NKLfiyYe6w5d3f+
-        57jVaS0GWfE6nujzi1m53KI5P/uSFE7Jda3XKrI=
-X-Google-Smtp-Source: ABdhPJwiG3EyuSNpaHqra2dahTK/JnvqbUz+C9/o2SqI7KlR071QCZmOW+DAbeiKB7yYo6yDeDE/gbVIPvIMFUY5Nvg=
-X-Received: by 2002:a1c:f219:0:b0:38c:782c:3bb with SMTP id
- s25-20020a1cf219000000b0038c782c03bbmr3668880wmc.94.1650461149002; Wed, 20
- Apr 2022 06:25:49 -0700 (PDT)
+        with ESMTP id S1354157AbiDTNcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Apr 2022 09:32:46 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDEFF2188
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 06:29:59 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id b7so1789593plh.2
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 06:29:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qNiIFeofs3nCUaXP1vPkyCm6inJgjZAzx00HV0mvSs8=;
+        b=GfUomD1432wGayRHQIjCwVQ+ayck4VZr9TLA97kYOzfIEw1Od3alLc8xxJbbNVzMPv
+         Y9UW9QfeShidN7+Ue2Q86Jsu37fVfVum2uJNshMgP7/ykoGPAaUurUCAOgeEEmAlDNAd
+         YcpS/f7Hj9djZX7sHQK2yKtaC0qozCOGCCTAmHH6izZFTwQNoSoagmisoTQR30LYZB0s
+         twFnuXQl+sygL60ax/blcnoNH/XE0VgRmvwt1OgUxPIx8YuOy3UAHkX8VBfyyvC+nOxQ
+         UWgN07c0cal+Twa1ddRDx9kOzqzxOYAwQKIF9m47MQpeAdQOqDoP4i2m3fFSf3enyikF
+         5h2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qNiIFeofs3nCUaXP1vPkyCm6inJgjZAzx00HV0mvSs8=;
+        b=c0d07+IrkgcQJftAurEwrz1S8pdjHtMrBDo21UIZe+0v1B52envwc65LOh/DOKuPC8
+         O7mHNLlEmoglfxipMvum4jZnFinuY4uoL3Bzw48irBunFf20/pwmz0DnLkj3D72G5FXA
+         XRXiR6cfQIVdW/aLL0wBEAPQaDWe85lJAcEuTkTzokDN6gmX2hiu9eGDJPTkqH+ykafA
+         eGSa/lSZMk1UhJvA4Ql1qlVassrUSzx01CD2DsdjjsRWzyCDr3c3pT1k3fvrgu6UOViB
+         QcUjDfB2TqDwSBPGeMt3l2+gMX0SgdSS0jvDP20/bAb3RCRWrxIRv/JaUVcTAqiQXlkQ
+         FwTw==
+X-Gm-Message-State: AOAM531gxhsS6hDR4YID9nCqGjsytbWJ+oqUcVBaM68alRSV/iAmhXHa
+        3O1vCkX5BqtzYNeJojBDj5u6mGEc4SkHOqRT
+X-Google-Smtp-Source: ABdhPJyEpVAX9Iox5YMZPXsBpkM99HVIoFBsBeF3B7i/MlhD1WaR4hd+Ai0Zl4BQD7JK9x5V4OFFPw==
+X-Received: by 2002:a17:902:ca85:b0:158:e8e0:373 with SMTP id v5-20020a170902ca8500b00158e8e00373mr19948950pld.85.1650461399160;
+        Wed, 20 Apr 2022 06:29:59 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k10-20020a056a00168a00b004f7e2a550ccsm21091381pfc.78.2022.04.20.06.29.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Apr 2022 06:29:58 -0700 (PDT)
+Message-ID: <62600ad6.1c69fb81.ba455.0df5@mx.google.com>
+Date:   Wed, 20 Apr 2022 06:29:58 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220420115512.175917-1-krzysztof.kozlowski@linaro.org>
- <CAK8P3a0uH5KjaobrqUmJQnvMmjkUaR1iC-7jEPjZFjZF1Z-GfQ@mail.gmail.com> <0c0b53c3-294a-b1ac-487a-ca96266c4bb7@linaro.org>
-In-Reply-To: <0c0b53c3-294a-b1ac-487a-ca96266c4bb7@linaro.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 20 Apr 2022 15:25:32 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a2uuFMVcsR9c+J28ZsA1cC9+FJCnFy5Lnq6uUY=nPoTEQ@mail.gmail.com>
-Message-ID: <CAK8P3a2uuFMVcsR9c+J28ZsA1cC9+FJCnFy5Lnq6uUY=nPoTEQ@mail.gmail.com>
-Subject: Re: [PATCH] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/SAMSUNG EXYNOS ARM ARCHITECTURES" 
-        <linux-samsung-soc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:kbYlLd+2VeG+VWzjp2K6Ui5Pwogjevu9don8FxO2FstBnYgOmnb
- LOavINgChxrc7d/yNCNs3yYy+Z4YBCrOM4OU+St7NMVCZ22FTO65Rp5CSFdfeeJuZDZgTA+
- wR8Yv/7zq9QQ+dYn4fdSgUu0r9J0U3Uga2wpngv3mw62rFq4AnWMrqofibanPF7LmBKuMDP
- tyyddHoxnf2MhEeiTex6A==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:oOEJXlPpHLE=:0/LNQHR2Jtklkx+Q/alL+R
- bTjXpgO+yhO5xs0fEl5t1X2v1CysRELdtgaQwna8vDG51FulKc/cMuZ6ME3zTF2hc2XCuC/gL
- iPEMotvBDdQmQX8EV+II6I7qvmg7BjJgrX1rApPooRigWQaAWHCG+QQIjfpOU0044gCXD87WH
- 2kkwyHVpSUfdJu5kg0oZANkeS31KLhQsxLDq3cowdxPnY1S0vgTR9P1MjNBcv+J0gktnD8w9T
- ElkDgyey6/5pCPudRFsqoBAQQ60miirEliEmSI48ZGcxDuRQo24cibQwo4EW6LBcGxzRT05Ka
- da/jM6oiXrIWOHjX/97w+XGs4pkiMKEs/19M9yuKlEi2YdNZY4PKShzblUNCkXvTNUqDWeOPl
- RUSs9YiYx1KID8bx0NiDOn4vS90gQbnf0eU6SS3ppPP3YbF36rSECuatiYv2gZxc5/a8KxITf
- shENMZuBk/242pATS8zcTXa01DmnBLL2mDucwl2OZfWwLsMwMeuTJoRYT2iJj9iq56gPbb/QH
- K4pzegIECuI/dLXfcY95iwGNNBEuQz5PKkVYrQz1Ct5wh0SNmzMcOfKnI1Fp2HKB7v3iJopVR
- v29NKvylAR3araV1BNou5bHtgixNg/dPJFRWsBF4pLTV5emsNck+y37wPPmI0npP1Hbr+pgy6
- DRVHu69fYU+MhdIJplOmC+06L1RFktrLc1iwk6kDTqTUWfhBHbPft2FoK9MSfkzWW754=
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Kernel: v4.14.275-284-gaffa61742bba
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 96 runs,
+ 3 regressions (v4.14.275-284-gaffa61742bba)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,55 +70,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 20, 2022 at 2:13 PM Krzysztof Kozlowski
-<krzysztof.kozlowski@linaro.org> wrote:
-> On 20/04/2022 14:10, Arnd Bergmann wrote:
-> > On Wed, Apr 20, 2022 at 1:55 PM Krzysztof Kozlowski
-> > <krzysztof.kozlowski@linaro.org> wrote:
-> >>
-> >> The Samsung pinctrl drivers depend on OF_GPIO, which is part of GPIOLIB.
-> >> ARMv7 Exynos platform selects GPIOLIB and Samsung pinctrl drivers. ARMv8
-> >> Exynos selects only the latter leading to possible wrong configuration
-> >> on ARMv8 build:
-> >>
-> >>   WARNING: unmet direct dependencies detected for PINCTRL_EXYNOS
-> >>     Depends on [n]: PINCTRL [=y] && OF_GPIO [=n] && (ARCH_EXYNOS [=y] || ARCH_S5PV210 || COMPILE_TEST [=y])
-> >>     Selected by [y]:
-> >>     - ARCH_EXYNOS [=y]
-> >>
-> >>  config PINCTRL_EXYNOS
-> >>         bool "Pinctrl common driver part for Samsung Exynos SoCs"
-> >> -       depends on OF_GPIO
-> >>         depends on ARCH_EXYNOS || ARCH_S5PV210 || COMPILE_TEST
-> >>         select PINCTRL_SAMSUNG
-> >>         select PINCTRL_EXYNOS_ARM if ARM && (ARCH_EXYNOS || ARCH_S5PV210)
-> >
-> >
-> > The problem here is that PINCTRL_EXYNOS and the others can be built for
-> > compile-testing without CONFIG_OF on non-arm machines.
-> >
-> > I think the correct dependency line would be
-> >
-> >       depends on ARCH_EXYNOS || ARCH_S5PV210 || (COMPILE_TEST && OF)
-> >
-> > which guarantees that OF_GPIO is also enabled.
->
-> I don't think OF is the problem here, because the error is in missing
-> GPIOLIB.
+stable-rc/queue/4.14 baseline: 96 runs, 3 regressions (v4.14.275-284-gaffa6=
+1742bba)
 
-You are correct that the added dependency is not the solution for the
-original problem. What I meant is that by dropping the dependency on
-OF_GPIO, you create a new problem for compile-testing without
-CONFIG_OF. Adding back the OF dependency avoids the regression.
+Regressions Summary
+-------------------
 
-> The platform selects Samsung pinctrl but it does not select
-> GPIOLIB. Possible fixes are:
-> 1. Do not select Samsung pinctrl from the platform (but have some
-> default), so on compile test build it might not work.
-> 2. Select GPIOLIB from the platform (ARMv7 Exynos does it).
-> 3. Select GPIOLIB from here - this is current proposal.
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+meson-gxl-s905d-p230         | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
 
-Agreed, either 2. or 3. is fine, as long as you keep the CONFIG_OF
-dependency.
+meson-gxl-s905x-libretech-cc | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
 
-       Arnd
+meson8b-odroidc1             | arm   | lab-baylibre | gcc-10   | multi_v7_d=
+efconfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.275-284-gaffa61742bba/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.275-284-gaffa61742bba
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      affa61742bbaa15f4396f45f53f1d7d36e2afcec =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+meson-gxl-s905d-p230         | arm64 | lab-baylibre | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fd930f67e24d539ae0691
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-gaffa61742bba/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s=
+905d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-gaffa61742bba/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s=
+905d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625fd930f67e24d539ae0=
+692
+        failing since 14 days (last pass: v4.14.271-23-g28704797a540, first=
+ fail: v4.14.275-206-gfa920f352ff15) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+meson-gxl-s905x-libretech-cc | arm64 | lab-broonie  | gcc-10   | defconfig =
+         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fd8b55e6039907eae068b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-gaffa61742bba/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s9=
+05x-libretech-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-gaffa61742bba/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s9=
+05x-libretech-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625fd8b55e6039907eae0=
+68c
+        failing since 1 day (last pass: v4.14.275-277-gda5c0b6bebbb1, first=
+ fail: v4.14.275-284-gdf8ec5b4383b9) =
+
+ =
+
+
+
+platform                     | arch  | lab          | compiler | defconfig =
+         | regressions
+-----------------------------+-------+--------------+----------+-----------=
+---------+------------
+meson8b-odroidc1             | arm   | lab-baylibre | gcc-10   | multi_v7_d=
+efconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/625fd939c623e0647cae06cd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-gaffa61742bba/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meso=
+n8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.275=
+-284-gaffa61742bba/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-meso=
+n8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/625fd939c623e0647cae0=
+6ce
+        failing since 66 days (last pass: v4.14.266-18-g18b83990eba9, first=
+ fail: v4.14.266-28-g7d44cfe0255d) =
+
+ =20
