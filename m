@@ -2,141 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3414950AC03
+	by mail.lfdr.de (Postfix) with ESMTP id A29DD50AC04
 	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239060AbiDUXie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 19:38:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40268 "EHLO
+        id S1442584AbiDUXif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 19:38:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442581AbiDUXib (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:38:31 -0400
+        with ESMTP id S1442583AbiDUXie (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:38:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 262E31260A;
-        Thu, 21 Apr 2022 16:35:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FFD24617E;
+        Thu, 21 Apr 2022 16:35:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC10DB82936;
-        Thu, 21 Apr 2022 23:35:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9173FC385A7;
-        Thu, 21 Apr 2022 23:35:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18236B829AB;
+        Thu, 21 Apr 2022 23:35:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA29DC385AB;
+        Thu, 21 Apr 2022 23:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1650584137;
-        bh=kcEzpV0lqS75awhCu4CXLE0pMhrtBAVyXflyyGq9i30=;
+        s=korg; t=1650584140;
+        bh=nY8N0bNibmYZKD4dAvsEBjoo8JN1MQlNzfXmO/adiPc=;
         h=Date:To:From:In-Reply-To:Subject:From;
-        b=VBytBotogYOcouACPPtVsS6Cpog9qsZOUYkExwI+J+rrz1k1FHJVGQ7ld7YLRhjnC
-         2jaXCVM4FNEiJ0S6Pj/DjMdatZYuApE8TaHzEGrM8awW250b3HFEqwWkifWwEtwOz+
-         7eE6znYnMgZf2LcwZ7LzoSnFe0+Bht0b4IlUQ1FU=
-Date:   Thu, 21 Apr 2022 16:35:37 -0700
-To:     stable@vger.kernel.org, osalvador@suse.de, naoya.horiguchi@nec.com,
-        linmiaohe@huawei.com, anshuman.khandual@arm.com,
-        abaci@linux.alibaba.com, xuyu@linux.alibaba.com,
-        akpm@linux-foundation.org, patches@lists.linux.dev,
-        linux-mm@kvack.org, mm-commits@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org
+        b=QdxtCKIMgLb90C8APyRvSx3rYIBuEGW4RqChtuDZcj0EZslFVheNMVc44iKsFsxrM
+         QLuZRCUzsH5Rv47xX7+lqmn0zA8GkIYoJV3fhUE8U8Mcvyi5cf+tYhBcqBK1ryy28Z
+         L6Rtlp7YCX0N6EHaV08IMNR44iqRg49uqbROo0hg=
+Date:   Thu, 21 Apr 2022 16:35:40 -0700
+To:     stable@vger.kernel.org, roman.gushchin@linux.dev, mkoutny@suse.com,
+        mhocko@suse.com, ivan@cloudflare.com, hannes@cmpxchg.org,
+        fhofmann@cloudflare.com, dqminh@cloudflare.com,
+        shakeelb@google.com, akpm@linux-foundation.org,
+        patches@lists.linux.dev, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
 In-Reply-To: <20220421163508.66028a9ac2d9fb6ea05b1342@linux-foundation.org>
-Subject: [patch 02/13] mm/memory-failure.c: skip huge_zero_page in memory_failure()
-Message-Id: <20220421233537.9173FC385A7@smtp.kernel.org>
+Subject: [patch 03/13] memcg: sync flush only if periodic flush is delayed
+Message-Id: <20220421233540.AA29DC385AB@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yu <xuyu@linux.alibaba.com>
-Subject: mm/memory-failure.c: skip huge_zero_page in memory_failure()
+From: Shakeel Butt <shakeelb@google.com>
+Subject: memcg: sync flush only if periodic flush is delayed
 
-Kernel panic when injecting memory_failure for the global huge_zero_page,
-when CONFIG_DEBUG_VM is enabled, as follows.
+Daniel Dao has reported [1] a regression on workloads that may trigger a
+lot of refaults (anon and file).  The underlying issue is that flushing
+rstat is expensive.  Although rstat flush are batched with (nr_cpus *
+MEMCG_BATCH) stat updates, it seems like there are workloads which
+genuinely do stat updates larger than batch value within short amount of
+time.  Since the rstat flush can happen in the performance critical
+codepaths like page faults, such workload can suffer greatly.
 
-[    5.582720] Injecting memory failure for pfn 0x109ff9 at process virtual address 0x20ff9000
-[    5.583786] page:00000000fb053fc3 refcount:2 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x109e00
-[    5.584900] head:00000000fb053fc3 order:9 compound_mapcount:0 compound_pincount:0
-[    5.585796] flags: 0x17fffc000010001(locked|head|node=0|zone=2|lastcpupid=0x1ffff)
-[    5.586712] raw: 017fffc000010001 0000000000000000 dead000000000122 0000000000000000
-[    5.587640] raw: 0000000000000000 0000000000000000 00000002ffffffff 0000000000000000
-[    5.588565] page dumped because: VM_BUG_ON_PAGE(is_huge_zero_page(head))
-[    5.589398] ------------[ cut here ]------------
-[    5.589952] kernel BUG at mm/huge_memory.c:2499!
-[    5.590516] invalid opcode: 0000 [#1] PREEMPT SMP PTI
-[    5.591120] CPU: 6 PID: 553 Comm: split_bug Not tainted 5.18.0-rc1+ #11
-[    5.591904] Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 3288b3c 04/01/2014
-[    5.592817] RIP: 0010:split_huge_page_to_list+0x66a/0x880
-[    5.593469] Code: 84 9b fb ff ff 48 8b 7c 24 08 31 f6 e8 9f 5d 2a 00 b8 b8 02 00 00 e9 e8 fb ff ff 48 c7 c6 e8 47 3c 82 4c b
-[    5.595806] RSP: 0018:ffffc90000dcbdf8 EFLAGS: 00010246
-[    5.596434] RAX: 000000000000003c RBX: 0000000000000001 RCX: 0000000000000000
-[    5.597322] RDX: 0000000000000000 RSI: ffffffff823e4c4f RDI: 00000000ffffffff
-[    5.598162] RBP: ffff88843fffdb40 R08: 0000000000000000 R09: 00000000fffeffff
-[    5.598999] R10: ffffc90000dcbc48 R11: ffffffff82d68448 R12: ffffea0004278000
-[    5.599849] R13: ffffffff823c6203 R14: 0000000000109ff9 R15: ffffea000427fe40
-[    5.600693] FS:  00007fc375a26740(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
-[    5.601640] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    5.602304] CR2: 00007fc3757c9290 CR3: 0000000102174006 CR4: 00000000003706e0
-[    5.603139] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    5.603977] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    5.604806] Call Trace:
-[    5.605101]  <TASK>
-[    5.605357]  ? __irq_work_queue_local+0x39/0x70
-[    5.605904]  try_to_split_thp_page+0x3a/0x130
-[    5.606430]  memory_failure+0x128/0x800
-[    5.606888]  madvise_inject_error.cold+0x8b/0xa1
-[    5.607444]  __x64_sys_madvise+0x54/0x60
-[    5.607915]  do_syscall_64+0x35/0x80
-[    5.608347]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[    5.608949] RIP: 0033:0x7fc3754f8bf9
-[    5.609374] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 8
-[    5.611554] RSP: 002b:00007ffeda93a1d8 EFLAGS: 00000217 ORIG_RAX: 000000000000001c
-[    5.612441] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc3754f8bf9
-[    5.613269] RDX: 0000000000000064 RSI: 0000000000003000 RDI: 0000000020ff9000
-[    5.614108] RBP: 00007ffeda93a200 R08: 0000000000000000 R09: 0000000000000000
-[    5.614946] R10: 00000000ffffffff R11: 0000000000000217 R12: 0000000000400490
-[    5.615787] R13: 00007ffeda93a2e0 R14: 0000000000000000 R15: 0000000000000000
-[    5.616626]  </TASK>
+This patch fixes this regression by making the rstat flushing conditional
+in the performance critical codepaths.  More specifically, the kernel
+relies on the async periodic rstat flusher to flush the stats and only if
+the periodic flusher is delayed by more than twice the amount of its
+normal time window then the kernel allows rstat flushing from the
+performance critical codepaths.
 
-This makes huge_zero_page bail out explicitly before split in
-memory_failure(), thus the panic above won't happen again.
+Now the question: what are the side-effects of this change?  The worst
+that can happen is the refault codepath will see 4sec old lruvec stats and
+may cause false (or missed) activations of the refaulted page which may
+under-or-overestimate the workingset size.  Though that is not very
+concerning as the kernel can already miss or do false activations.
 
-Link: https://lkml.kernel.org/r/497d3835612610e370c74e697ea3c721d1d55b9c.1649775850.git.xuyu@linux.alibaba.com
-Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
+There are two more codepaths whose flushing behavior is not changed by
+this patch and we may need to come to them in future.  One is the
+writeback stats used by dirty throttling and second is the deactivation
+heuristic in the reclaim.  For now keeping an eye on them and if there is
+report of regression due to these codepaths, we will reevaluate then.
+
+Link: https://lore.kernel.org/all/CA+wXwBSyO87ZX5PVwdHm-=dBjZYECGmfnydUicUyrQqndgX2MQ@mail.gmail.com [1]
+Link: https://lkml.kernel.org/r/20220304184040.1304781-1-shakeelb@google.com
+Fixes: 1f828223b799 ("memcg: flush lruvec stats in the refault")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reported-by: Daniel Dao <dqminh@cloudflare.com>
+Tested-by: Ivan Babrou <ivan@cloudflare.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Michal Koutný <mkoutny@suse.com>
+Cc: Frank Hofmann <fhofmann@cloudflare.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory-failure.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ include/linux/memcontrol.h |    5 +++++
+ mm/memcontrol.c            |   12 +++++++++++-
+ mm/workingset.c            |    2 +-
+ 3 files changed, 17 insertions(+), 2 deletions(-)
 
---- a/mm/memory-failure.c~mm-memory-failurec-skip-huge_zero_page-in-memory_failure
-+++ a/mm/memory-failure.c
-@@ -1861,6 +1861,19 @@ try_again:
+--- a/include/linux/memcontrol.h~memcg-sync-flush-only-if-periodic-flush-is-delayed
++++ a/include/linux/memcontrol.h
+@@ -1012,6 +1012,7 @@ static inline unsigned long lruvec_page_
+ }
  
- 	if (PageTransHuge(hpage)) {
- 		/*
-+		 * Bail out before SetPageHasHWPoisoned() if hpage is
-+		 * huge_zero_page, although PG_has_hwpoisoned is not
-+		 * checked in set_huge_zero_page().
-+		 *
-+		 * TODO: Handle memory failure of huge_zero_page thoroughly.
-+		 */
-+		if (is_huge_zero_page(hpage)) {
-+			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
-+			res = -EBUSY;
-+			goto unlock_mutex;
-+		}
+ void mem_cgroup_flush_stats(void);
++void mem_cgroup_flush_stats_delayed(void);
+ 
+ void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
+ 			      int val);
+@@ -1455,6 +1456,10 @@ static inline void mem_cgroup_flush_stat
+ {
+ }
+ 
++static inline void mem_cgroup_flush_stats_delayed(void)
++{
++}
 +
-+		/*
- 		 * The flag must be set after the refcount is bumped
- 		 * otherwise it may race with THP split.
- 		 * And the flag can't be set in get_hwpoison_page() since
+ static inline void __mod_memcg_lruvec_state(struct lruvec *lruvec,
+ 					    enum node_stat_item idx, int val)
+ {
+--- a/mm/memcontrol.c~memcg-sync-flush-only-if-periodic-flush-is-delayed
++++ a/mm/memcontrol.c
+@@ -587,6 +587,9 @@ static DECLARE_DEFERRABLE_WORK(stats_flu
+ static DEFINE_SPINLOCK(stats_flush_lock);
+ static DEFINE_PER_CPU(unsigned int, stats_updates);
+ static atomic_t stats_flush_threshold = ATOMIC_INIT(0);
++static u64 flush_next_time;
++
++#define FLUSH_TIME (2UL*HZ)
+ 
+ /*
+  * Accessors to ensure that preemption is disabled on PREEMPT_RT because it can
+@@ -637,6 +640,7 @@ static void __mem_cgroup_flush_stats(voi
+ 	if (!spin_trylock_irqsave(&stats_flush_lock, flag))
+ 		return;
+ 
++	flush_next_time = jiffies_64 + 2*FLUSH_TIME;
+ 	cgroup_rstat_flush_irqsafe(root_mem_cgroup->css.cgroup);
+ 	atomic_set(&stats_flush_threshold, 0);
+ 	spin_unlock_irqrestore(&stats_flush_lock, flag);
+@@ -648,10 +652,16 @@ void mem_cgroup_flush_stats(void)
+ 		__mem_cgroup_flush_stats();
+ }
+ 
++void mem_cgroup_flush_stats_delayed(void)
++{
++	if (time_after64(jiffies_64, flush_next_time))
++		mem_cgroup_flush_stats();
++}
++
+ static void flush_memcg_stats_dwork(struct work_struct *w)
+ {
+ 	__mem_cgroup_flush_stats();
+-	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, 2UL*HZ);
++	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, FLUSH_TIME);
+ }
+ 
+ /**
+--- a/mm/workingset.c~memcg-sync-flush-only-if-periodic-flush-is-delayed
++++ a/mm/workingset.c
+@@ -355,7 +355,7 @@ void workingset_refault(struct folio *fo
+ 
+ 	mod_lruvec_state(lruvec, WORKINGSET_REFAULT_BASE + file, nr);
+ 
+-	mem_cgroup_flush_stats();
++	mem_cgroup_flush_stats_delayed();
+ 	/*
+ 	 * Compare the distance to the existing workingset size. We
+ 	 * don't activate pages that couldn't stay resident even if
 _
