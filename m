@@ -2,117 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D2650984C
-	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 09:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39764509843
+	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 09:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385447AbiDUGsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 02:48:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47120 "EHLO
+        id S1385352AbiDUG5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 02:57:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385233AbiDUGqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 02:46:48 -0400
-Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0179414095
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 23:43:14 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id D65C85C0102;
-        Thu, 21 Apr 2022 02:43:11 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Thu, 21 Apr 2022 02:43:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1650523391; x=1650609791; bh=9qG4AnldRe
-        irFG1fVaei7zZ4OCNlT1HdSQLZvgH3468=; b=PgYb8xEfwTw86BXN2sFnnCqrGl
-        Y2gpNfKMzf4Ln5HzgXp1uN7oln6zpNvAQscnDjon2kjK2FJNhfKAo4HtNIALZbip
-        /hGzji8eQArRM0ssnL6e+DepcpgUxoRVZ2w/EQEKIianwyAUwd73BqCtIagIcWvv
-        oCF48ZJ/TM/OocrNAPTHVDOvG51PKy0XfJ5S5KTe3SPUSoFUEVd2g+NSWiKMefNc
-        5a6nQVgEVblaiuvMIoJFcF0vKti1+O63EgvIjCAIO/pwK5Z5fWNjdhmLAHgIs4Sg
-        4frQgirGC3iiQOLGZWc99bFuxWJlMTofJwrNPUiIYcrRCQpc7Idq3pGLJldA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1650523391; x=
-        1650609791; bh=9qG4AnldReirFG1fVaei7zZ4OCNlT1HdSQLZvgH3468=; b=u
-        Q84/Np/dsM88QZ2aUDwr1t1mLHiDnVx8MCDy5du6xreR+K2IM9sugLaDia2CFBF3
-        cwHL9NgH7SoZKz/rUKq74IYfwIrUGG+oNPLiTxcOAr2jbaSbN3pYoJIfY1KrZpFm
-        P4krFezS0SNx1fxehBkoZAhgaCnpytAUiWm/wFN9M6lDwqLZAzIBz6tMhj8OLO0s
-        dppDzUIwUCzENygoRZXWJdxPUF+iSTDbOrc97B3pd86xeQeiIrSMZ+deDggwioyl
-        1MnSrV9yTEPqZsoCYiyNnyE1VBg5NdOkJfkIDarpbZI5B8NFwDt+znkrCf/ILbjb
-        TBgiyIl4WNLB7xcGnopbQ==
-X-ME-Sender: <xms:__xgYuqQsittkixq77GYSNhGtkqBTd9UyrGxouiHtknFjne81N35xQ>
-    <xme:__xgYsoL6NRtZq80Frtddum-lmOFjThCdLwmZY4MEfH0oY4CHBv92CX2DqXlRDMdc
-    oOnmjrqSsy7Hg>
-X-ME-Received: <xmr:__xgYjPZ_CJcHZnehaS7zpvzSLjV8n7K6g9EaGKpL4l-54G9pG8y-6WmWEW2__Wc0glmi9FbetKZSKmB8vi95Av69GZwpWGG>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrtddugdduudefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvvefukfhfgggtuggjsehttd
-    ertddttddvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
-    qeenucggtffrrghtthgvrhhnpeegheeuhefgtdeluddtleekfeegjeetgeeikeehfeduie
-    ffvddufeefleevtddtvdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:__xgYt64s8p490-wSij0PRhS1V7S-NORjPlsPyskVz-7QzE33HJUXQ>
-    <xmx:__xgYt7uiPOQVxh1I_zF0oW5MZOuvT5SDHFWsbw5oYJvC9me5M522Q>
-    <xmx:__xgYtjEd_HK6SC1STTqXRjthaOi1U76nP80ijA31SdUhc5PcFSnXg>
-    <xmx:__xgYipo5FCeUMdtxK_YNHRuKRS75LkgF1CaX-b5eF5qBY_Ic9S-VQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 21 Apr 2022 02:43:10 -0400 (EDT)
-Date:   Thu, 21 Apr 2022 08:43:07 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Georgi Djakov <quic_c_gdjako@quicinc.com>
-Cc:     stable@vger.kernel.org, rppt@linux.ibm.com,
-        anshuman.khandual@arm.com, david@redhat.com, will@kernel.org,
-        catalin.marinas@arm.com, hch@lst.de, akpm@linux-foundation.org,
-        surenb@google.com, quic_sudaraja@quicinc.com, djakov@kernel.org
-Subject: Re: [PATCH 5.15 1/2] dma-mapping: remove bogus test for pfn_valid
- from dma_map_resource
-Message-ID: <YmD8+0S2AxAlUaG4@kroah.com>
-References: <20220420124341.14982-1-quic_c_gdjako@quicinc.com>
+        with ESMTP id S1355352AbiDUG5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 02:57:01 -0400
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 880641573A;
+        Wed, 20 Apr 2022 23:53:13 -0700 (PDT)
+Received: by mail-qv1-f43.google.com with SMTP id a10so3043988qvm.8;
+        Wed, 20 Apr 2022 23:53:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=qJDkHKGLNQny7+nf6+dAQhj4pSl5mPJhKTIW2Wu14QI=;
+        b=shpFBf9WInVCfV0s6K0AO6KIS/NaU1qw83eQ2sk8NO/39KEAaJi438icMOKafAB1He
+         MQZgmFubtpJ/e3X+55RD7ANmRgHEICjrTsRuanjxmzMdO8OwiWC9j81ANxgqJ7uNROm+
+         fFwoWS/pBZW3jsUJ/8j2H5dd08HptEHaBuPYRmlqZxKH/e97VPkRkE7Z1otqzCo5RQ98
+         u+53OyFejpH370mVCNHcg+oAAKiIcOwZpYJzj+azQDZltKoDqtJe+3iT9NfkvIuGPi//
+         4ZpUyjPLanLPSJuuvSHH49Pgg8PxhMmAkbATHUHY3WXYNGRQO/gTMN3/qiuu/T0nG1Ra
+         lKPQ==
+X-Gm-Message-State: AOAM5328t5MtqGld9LoXHrACLOayXKoYUuBcjlDr2wIL1LABz2v81d+J
+        N+A4oe+nJwq4cnQ8QwqBD0uNTthZjJyNkBaG
+X-Google-Smtp-Source: ABdhPJxAkrc4iamroPKLpa3tQkmgZXpblVdnmpT6fa++ZhcR2yYkYarZIQGcuPizOU4JTToCQNlLnQ==
+X-Received: by 2002:a05:6214:769:b0:446:538f:2b86 with SMTP id f9-20020a056214076900b00446538f2b86mr14708824qvz.4.1650523992310;
+        Wed, 20 Apr 2022 23:53:12 -0700 (PDT)
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com. [209.85.219.180])
+        by smtp.gmail.com with ESMTPSA id a190-20020a3766c7000000b0069e770524adsm2627453qkc.114.2022.04.20.23.53.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 20 Apr 2022 23:53:11 -0700 (PDT)
+Received: by mail-yb1-f180.google.com with SMTP id p65so7014414ybp.9;
+        Wed, 20 Apr 2022 23:53:11 -0700 (PDT)
+X-Received: by 2002:a5b:984:0:b0:63f:8c38:676c with SMTP id
+ c4-20020a5b0984000000b0063f8c38676cmr23970174ybq.393.1650523990757; Wed, 20
+ Apr 2022 23:53:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220420124341.14982-1-quic_c_gdjako@quicinc.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220414091018.896737-1-niklas.cassel@wdc.com>
+ <f379cb56-6ff5-f256-d5f2-3718a47e976d@opensource.wdc.com> <Yli8voX7hw3EZ7E/@x1-carbon>
+ <81788b56-5b15-7308-38c7-c7f2502c4e15@linux-m68k.org> <87levzzts4.fsf_-_@email.froward.int.ebiederm.org>
+ <01b063d7-d5c2-8af0-ad90-ed6c069252c5@linux-m68k.org>
+In-Reply-To: <01b063d7-d5c2-8af0-ad90-ed6c069252c5@linux-m68k.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Thu, 21 Apr 2022 08:52:59 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdXd94L=766usN4WG-hK2MpQLy50mJZ=9G9NGv03kx8V8Q@mail.gmail.com>
+Message-ID: <CAMuHMdXd94L=766usN4WG-hK2MpQLy50mJZ=9G9NGv03kx8V8Q@mail.gmail.com>
+Subject: Re: [PATCH] binfmt_flat: Remove shared library support
+To:     Greg Ungerer <gerg@linux-m68k.org>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        Niklas Cassel <Niklas.Cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Mike Frysinger <vapier@gentoo.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
+        Linux-Arch <linux-arch@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux-sh list <linux-sh@vger.kernel.org>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 20, 2022 at 05:43:40AM -0700, Georgi Djakov wrote:
-> From: Mike Rapoport <rppt@linux.ibm.com>
-> 
-> [ Upstream commit a9c38c5d267cb94871dfa2de5539c92025c855d7 ]
-> 
-> dma_map_resource() uses pfn_valid() to ensure the range is not RAM.
-> However, pfn_valid() only checks for availability of the memory map for a
-> PFN but it does not ensure that the PFN is actually backed by RAM.
-> 
-> As dma_map_resource() is the only method in DMA mapping APIs that has this
-> check, simply drop the pfn_valid() test from dma_map_resource().
-> 
-> Link: https://lore.kernel.org/all/20210824173741.GC623@arm.com/
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Acked-by: David Hildenbrand <david@redhat.com>
-> Link: https://lore.kernel.org/r/20210930013039.11260-2-rppt@kernel.org
-> Signed-off-by: Will Deacon <will@kernel.org>
-> Fixes: 859a85ddf90e ("mm: remove pfn_valid_within() and CONFIG_HOLES_IN_ZONE")
-> Link: https://lore.kernel.org/r/Yl0IZWT2nsiYtqBT@linux.ibm.com
-> Signed-off-by: Georgi Djakov <quic_c_gdjako@quicinc.com>
-> ---
->  kernel/dma/mapping.c | 4 ----
->  1 file changed, 4 deletions(-)
+On Thu, Apr 21, 2022 at 1:53 AM Greg Ungerer <gerg@linux-m68k.org> wrote:
+> On 21/4/22 00:58, Eric W. Biederman wrote:
+> > In a recent discussion[1] it was reported that the binfmt_flat library
+> > support was only ever used on m68k and even on m68k has not been used
+> > in a very long time.
+> >
+> > The structure of binfmt_flat is different from all of the other binfmt
+> > implementations becasue of this shared library support and it made
+> > life and code review more effort when I refactored the code in fs/exec.c.
+> >
+> > Since in practice the code is dead remove the binfmt_flat shared libarary
+> > support and make maintenance of the code easier.
+> >
+> > [1] https://lkml.kernel.org/r/81788b56-5b15-7308-38c7-c7f2502c4e15@linux-m68k.org
+> > Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+> > ---
+> >
+> > Can the binfmt_flat folks please verify that the shared library support
+> > really isn't used?
+>
+> I can definitely confirm I don't use it on m68k. And I don't know of
+> anyone that has used it in many years.
+>
+>
+> > Was binfmt_flat being enabled on arm and sh the mistake it looks like?
 
-I took this, but I do not understand why patch 2/2 in this series is
-needed, as Sasha points out.  Cleanups are nice, but is it necessary
-here?
+I think the question was intended to be
 
-thanks,
+    Was *binfmt_flat_shared_flat* being enabled on arm and sh the
+    mistake it looks like?
 
-greg k-h
+> >
+> >   arch/arm/configs/lpc18xx_defconfig |   1 -
+> >   arch/arm/configs/mps2_defconfig    |   1 -
+> >   arch/arm/configs/stm32_defconfig   |   1 -
+> >   arch/arm/configs/vf610m4_defconfig |   1 -
+>
+> binfmt_flat works on ARM. I use it all the time.
+> According to those defconfigs those are all non-MMU systems, so
+> having binfmt_flat enabled makes some sense there.
+>
+>
+> >   arch/sh/configs/rsk7201_defconfig  |   1 -
+> >   arch/sh/configs/rsk7203_defconfig  |   1 -
+> >   arch/sh/configs/se7206_defconfig   |   1 -
+>
+> Those are all SH2 systems if I am reading the defconfigs correctly.
+> SH2 is non-MMU according to the Kconfig setup. So it makes sense that
+> binfmt_flat is enabled on those too.
+
+I've checked git history, and CONFIG_BINFMT_SHARED_FLAT was enabled
+in se7206_defconfig in a non-specific defconfig update, so no
+further info.
+The other two had it enabled since their introduction, so I guess
+they were just based on the former.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
