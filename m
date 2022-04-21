@@ -2,112 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 37DF550995E
-	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 09:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5F25099C0
+	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 09:56:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385842AbiDUHic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 03:38:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
+        id S1386167AbiDUHuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 03:50:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385887AbiDUHiY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 03:38:24 -0400
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::225])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B847D13DD3;
-        Thu, 21 Apr 2022 00:35:31 -0700 (PDT)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 55E7A1C000F;
-        Thu, 21 Apr 2022 07:35:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1650526529;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=p4QO0moKpEkXz+ulrvSLQo0T9lC8TOEa3gAblMHHWcg=;
-        b=W5tjJw+uF9lptPqXryNnTwotnKABgq9Ic3j79bCDlyH4iFgliXcsv9VSd7n99CplsWqHCq
-        okVua35NKDn/cOEwdtfhzT3+mokU0WhN1lah0wBVHe3nqb6em5PDNp5vJtLwKz6yXV+Zgw
-        vrf9KgFxLeQlocnMMpzXJHdG54xIiL887VIpXmBbT5sw8omtoMXb0CzImEZkf7fQPOs8iz
-        HmgZr3qiTBbVnufIUcXIru9Cy+I0hPCyWbZa4qVPZbVclAW+xG73nDp16a9J9YYzuyj0j3
-        Rd/slS5Gex4c2ycFMo2uZ3M9C51cMLv3LXCpbG7V+b7WX2aJimX71A4eDWNpwQ==
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Md Sadre Alam <quic_mdalam@quicinc.com>, mani@kernel.org,
-        miquel.raynal@bootlin.com, richard@nod.at, vigneshr@ti.com,
-        linux-mtd@lists.infradead.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     konrad.dybcio@somainline.org, quic_srichara@quicinc.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH V5] mtd: rawnand: qcom: fix memory corruption that causes panic
-Date:   Thu, 21 Apr 2022 09:35:27 +0200
-Message-Id: <20220421073527.71690-1-miquel.raynal@bootlin.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <1650268107-5363-1-git-send-email-quic_mdalam@quicinc.com>
-References: 
+        with ESMTP id S1386230AbiDUHuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 03:50:14 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DA7C1CB18
+        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 00:47:02 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4KkV4217nTz4xR9;
+        Thu, 21 Apr 2022 17:46:58 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1650527220;
+        bh=6Zuyw245iK0ZvmsIInOVF3tD0phZx7klr4ZSZDE0lfk=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=gvMx8c1mKZEk9360t6GcgeT3JWfOTmnYz6GvFDessBmf39sJEx44Q0Z+x1hpFTrWy
+         t4auQPIRwi6TLOC5KSsg8QKX3p9zEXuShyq0uHBYu1erlGHlaMvzSTd0+fj7RWiYgU
+         tCzURkRfAPImrkXcC+sBl+rheKPkeC/rMcEJM3EKRQvK2lB4MuBgaPGGYpPPbVTHfA
+         it8ioLrKDEww3YE+8lIiJlY2K/OnNQ2eKwRmuZIRJLwcYGC9rXuKHeESQprOyINdKY
+         7lCkeruyA9hybz/N8O7uCdsQXVrHra8+jOKydxL26BYWOsvAHnHDfhh6wid+ljGafu
+         32UOBCm0c47oQ==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Nathan Chancellor <nathan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>, Paul Menzel <pmenzel@molgen.mpg.de>,
+        stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        llvm@lists.linux.dev
+Subject: Re: Apply d799769188529abc6cbf035a10087a51f7832b6b to 5.17 and 5.15?
+In-Reply-To: <Yl8pNxSGUgeHZ1FT@dev-arch.thelio-3990X>
+References: <Yl8pNxSGUgeHZ1FT@dev-arch.thelio-3990X>
+Date:   Thu, 21 Apr 2022 17:46:52 +1000
+Message-ID: <877d7ig9oz.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-X-linux-mtd-patch-notification: thanks
-X-linux-mtd-patch-commit: b'ba7542eb2dd5dfc75c457198b88986642e602065'
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2022-04-18 at 07:48:27 UTC, Md Sadre Alam wrote:
-> This patch fixes a memory corruption that occurred in the
-> nand_scan() path for Hynix nand device.
-> 
-> On boot, for Hynix nand device will panic at a weird place:
-> | Unable to handle kernel NULL pointer dereference at virtual
->   address 00000070
-> | [00000070] *pgd=00000000
-> | Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-> | Modules linked in:
-> | CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.17.0-01473-g13ae1769cfb0
->   #38
-> | Hardware name: Generic DT based system
-> | PC is at nandc_set_reg+0x8/0x1c
-> | LR is at qcom_nandc_command+0x20c/0x5d0
-> | pc : [<c088b74c>]    lr : [<c088d9c8>]    psr: 00000113
-> | sp : c14adc50  ip : c14ee208  fp : c0cc970c
-> | r10: 000000a3  r9 : 00000000  r8 : 00000040
-> | r7 : c16f6a00  r6 : 00000090  r5 : 00000004  r4 :c14ee040
-> | r3 : 00000000  r2 : 0000000b  r1 : 00000000  r0 :c14ee040
-> | Flags: nzcv  IRQs on  FIQs on  Mode SVC_32  ISA ARM Segment none
-> | Control: 10c5387d  Table: 8020406a  DAC: 00000051
-> | Register r0 information: slab kmalloc-2k start c14ee000 pointer offset
->   64 size 2048
-> | Process swapper/0 (pid: 1, stack limit = 0x(ptrval))
-> | nandc_set_reg from qcom_nandc_command+0x20c/0x5d0
-> | qcom_nandc_command from nand_readid_op+0x198/0x1e8
-> | nand_readid_op from hynix_nand_has_valid_jedecid+0x30/0x78
-> | hynix_nand_has_valid_jedecid from hynix_nand_init+0xb8/0x454
-> | hynix_nand_init from nand_scan_with_ids+0xa30/0x14a8
-> | nand_scan_with_ids from qcom_nandc_probe+0x648/0x7b0
-> | qcom_nandc_probe from platform_probe+0x58/0xac
-> 
-> The problem is that the nand_scan()'s qcom_nand_attach_chip callback
-> is updating the nandc->max_cwperpage from 1 to 4 or 8 based on page size.
-> This causes the sg_init_table of clear_bam_transaction() in the driver's
-> qcom_nandc_command() to memset much more than what was initially
-> allocated by alloc_bam_transaction().
-> 
-> This patch will update nandc->max_cwperpage 1 to 4 or 8 based on page
-> size in qcom_nand_attach_chip call back after freeing the previously
-> allocated memory for bam txn as per nandc->max_cwperpage = 1 and then
-> again allocating bam txn as per nandc->max_cwperpage = 4 or 8 based on
-> page size in qcom_nand_attach_chip call back itself.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 6a3cec64f18c ("mtd: rawnand: qcom: convert driver to nand_scan()")
-> Reported-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-> Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> Co-developed-by: Sricharan R <quic_srichara@quicinc.com>
-> Signed-off-by: Sricharan R <quic_srichara@quicinc.com>
-> Signed-off-by: Md Sadre Alam <quic_mdalam@quicinc.com>
+Nathan Chancellor <nathan@kernel.org> writes:
+> Hi Greg, Sasha, and Michael,
+>
+> Commit d79976918852 ("powerpc/64: Add UADDR64 relocation support") fixes
+> a boot failure with CONFIG_RELOCATABLE=y kernels linked with recent
+> versions of ld.lld [1]. Additionally, it resolves a separate boot
+> failure that Paul Menzel reported [2] with ld.lld 13.0.0. Is this a
+> reasonable backport for 5.17 and 5.15? It applies cleanly, resolves both
+> problems, and does not appear to cause any other issues in my testing
+> for both trees but I was curious what Michael's opinion was, as I am far
+> from a PowerPC expert.
+>
+> This change does apply cleanly to 5.10 (I did not try earlier branches)
+> but there are other changes needed for ld.lld to link CONFIG_RELOCATABLE
+> kernels in that branch so to avoid any regressions, I think it is safe
+> to just focus on 5.15 and 5.17.
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git mtd/fixes, thanks.
+I considered tagging it for stable, but I wanted it to get a bit of
+testing first, it's a reasonably big patch.
 
-Miquel
+I think we're reasonably confident it doesn't introduce any new bugs,
+but more testing time is always good.
+
+So I guess I'd be inclined to wait another week or so before requesting
+a stable backport?
+
+cheers
