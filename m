@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1AF50963B
-	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 07:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DAAE50963C
+	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 07:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238462AbiDUFKR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 01:10:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46036 "EHLO
+        id S1384189AbiDUFKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 01:10:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237190AbiDUFKQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 01:10:16 -0400
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CAE7B7CC
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 22:07:27 -0700 (PDT)
-Received: by mail-qt1-x82a.google.com with SMTP id bb21so2533494qtb.3
-        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 22:07:27 -0700 (PDT)
+        with ESMTP id S1383064AbiDUFKe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 01:10:34 -0400
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45369B7CC
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 22:07:44 -0700 (PDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id b17so2915052qvf.12
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 22:07:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=rivosinc-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:from:date:message-id:subject:to:cc;
-        bh=fpB6qSK6He8nmDtW3/jQ3g5RtQpSiSeXerc3l836tv8=;
-        b=P/////9Z93XBvvT0Mn/dBtHqvaNWx+H+IVT2ZELxYxNokeVeXeuxW7DnjaeWMTcdwi
-         Tq9nY1tv/IWav6lEgMw4xLXGshp1XMYmlp5jDVX5liZu823EjYY88TXmsXnF5xLeNdwY
-         3HnQa7rBy0O3plQdUuCqQtAnPCccyed0yVrxyiQuzJKSj2DyXU+ioInKuQ9f8v1AAPKT
-         vjXUMlYf3yyKtLGXuEzKtOnWXnDZcp7zgun3MkfTjaSKgL3+g+mSTkbS6hhJDcjYUpvH
-         zjdq2iAj+HZJM2lkKXTQ1fREuo9wJntd/VnMZMysagfw4L04H06lXQSMAyalOkkezf4n
-         enZg==
+        bh=mn5UCdiRBJwtZVlvBXm+yjZ+Fy8TfgecZK4kunLQV5A=;
+        b=b+gtLyv4wHnV3NYuJEzvIAdfwp58UVw6BFY2NTMp1VDywItjSEbgD380WsKNCPgZnm
+         IjqW9YvGV3HfT6KH67fncWXTcDrwBihZx4ryNB19fQ2AWr7CE8YSayj9V9Eo2lIJQeDA
+         DrRynAQ5bPyXgP65ULUKkKYvlfwsjAiOrjuWwom6fyi8KRkpKlTcgAZPe50aAh4cgHRO
+         tQSMokhxgQGWavoMdpYMat31rjeJg2tZEaQf9BGvgTAP89Go4wtzoIPD9TTMyZBwqmKj
+         5EVA0tqflajslrzD8iRS/cLn82Gq83zkc+AmoHpcOCGZmxjNK1hN3kHqZaMLRvVDf/PA
+         HL/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=fpB6qSK6He8nmDtW3/jQ3g5RtQpSiSeXerc3l836tv8=;
-        b=Ld83+v4MYBHmt1PZOq3o2Pf6RDXtyUVciWRqO9Wp8OZdjfqYMIcYpfMZIva9B6JV/p
-         dv5ByGmNCtMwYzPjiZFwgWZEXVzIDNmoq2JOoxLaNv65QtEfNKP4ecL2fONMTIDYSy1B
-         F7jDdmvOYcViQH2WDmzPvhp5FFrJQQdwoVgFMDRoiGsDmegrf2369BTpWe8PDIWDrewV
-         Idzpf78xSxYaY61PIYpZN4MUwgclsvM4ju+1MNnHJnr9I8Y3mzUBpAnkD9h8o805+Yov
-         nqzqU+6JTeg5VD++Fhme1sUw+41hzX1JYOTqc0zR+iuGCgRxgSRgLLn4mfAxRnWpK3og
-         p6xg==
-X-Gm-Message-State: AOAM533x+ZjkIkgfLFWoPUPGdkekE9EH1pavl5S/hUIbZs4gd6b/aTj1
-        QpqvhAJGly8VgJw7oZvLYQZDQMvE+DeGjekzzc9J0xuaRr3ak9pj
-X-Google-Smtp-Source: ABdhPJz3JtNKVecEdJ3xzjfJlqkeEmRs9uWltySmWgPtk/bji0Y9u/ZiMsoaBrnU0Gx3WfLG/CwUl+kR8Yjah1AoOUQ=
-X-Received: by 2002:a05:622a:1904:b0:2f3:41d8:84e2 with SMTP id
- w4-20020a05622a190400b002f341d884e2mr3812505qtc.429.1650517646756; Wed, 20
- Apr 2022 22:07:26 -0700 (PDT)
+        bh=mn5UCdiRBJwtZVlvBXm+yjZ+Fy8TfgecZK4kunLQV5A=;
+        b=PMDUcK+dI8svCz5AseMaGsQOL0PuHwKW/YN6LCetHKC7A8v1bknKk52fpUFodL2FJo
+         XnebU3zVno6PgE0Flo76nQgqlbyxchdXTvTCPGRrBjoYbCCNDcq6p1kIwy3Fr1buPOL5
+         PAeXSKeC0uI4I5AtdvmiXsBxOUNWphxU9P4QuxKwIbrOqGuk+zTLp9aNGGhLiBS9VvOz
+         RQ/KTs3PkG+Az3FnUvTR2eZM4f+Fqq8JqPG6oM8acrKaWp+GaWVTotUW1S8o15VgPGyY
+         YB9wo8vUcsTDBqhyBo2BoC174VKyafcxdKt8Eo6wE8vdQHhpuZ48A74hNKnkXusgjrzc
+         wUPQ==
+X-Gm-Message-State: AOAM533UEXmUipbNM6BLnXcFoDXrzQxV99gtnBI23c/7zD1kaKOB2dsj
+        6ouJf9GjoyrEE4KqI+JCISWn7WBO+s2yrJlPg7OcLNm8/OysVQ==
+X-Google-Smtp-Source: ABdhPJzpsIOmasPKBVYDGiPd6jF4JZw0MIgU8auZbLvxU10FXO0ACvPOx2iok3zgX98FTkm43qtfgaH0ur9oBgCuHJY=
+X-Received: by 2002:a05:6214:e85:b0:449:9a6d:5eaf with SMTP id
+ hf5-20020a0562140e8500b004499a6d5eafmr4671095qvb.6.1650517663448; Wed, 20 Apr
+ 2022 22:07:43 -0700 (PDT)
 MIME-Version: 1.0
 From:   Atul Khare <atulkhare@rivosinc.com>
-Date:   Wed, 20 Apr 2022 22:07:15 -0700
-Message-ID: <CABMhjYrheOjEYfH7WjmdUj4X=aSbQuUADQ7NNpk0hAjE0LpSxw@mail.gmail.com>
-Subject: [PATCH 0/4] dt-bindings: sifive: fix dt-schema errors
+Date:   Wed, 20 Apr 2022 22:07:32 -0700
+Message-ID: <CABMhjYrkenxuo-tiMmR0-eHtBv1=cYDmzcc5RydtzVP6DG=nnA@mail.gmail.com>
+Subject: [PATCH 1/4] dt-bindings: sifive: Support 1024 hart contexts
 To:     linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -59,22 +59,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch series fixes dt-schema validation errors that can be reproduced
-using the following: make ARCH=riscv defconfig; make ARCH=riscv
-dt_binding_check dtbs_check
+Fixes device tree schema validation error messages like 'clint@2000000:
+interrupts-extended: [[3, 3], [3, 7] ... is too long'.
 
+The CLINT bindings don't define an "interrupts-extended: maxItems",
+which trips up the dt-schema checks. Since there's no ISA-mandated
+limit, we arbitrarily chose 1024 to reflect the soon-to-be maximum of
+NR_CPUS=512 (systems typically have two hart contexts per CPU).
 
-Atul Khare (4):
-  dt-bindings: sifive: Support 1024 hart contexts
-  dt-bindings: sifive: add cache-set value of 2048
-  dt-bindings: sifive: delete 'clock' / 'status'
-  dt-bindings: sifive: add gpio-line-names
+Fixes: a2770b57d083 ("dt-bindings: timer: Add CLINT bindings")
+Cc: stable@vger.kernel.org
+Signed-off-by: Atul Khare <atulkhare@rivosinc.com>
+---
+ Documentation/devicetree/bindings/timer/sifive,clint.yaml | 2 ++
+ 1 file changed, 2 insertions(+)
 
- Documentation/devicetree/bindings/gpio/sifive,gpio.yaml      | 3 +++
- Documentation/devicetree/bindings/riscv/sifive-l2-cache.yaml | 4 +++-
- Documentation/devicetree/bindings/timer/sifive,clint.yaml    | 2 ++
- arch/riscv/boot/dts/microchip/microchip-mpfs-icicle-kit.dts  | 4 ----
- 4 files changed, 8 insertions(+), 5 deletions(-)
+diff --git a/Documentation/devicetree/bindings/timer/sifive,clint.yaml
+b/Documentation/devicetree/bindings/timer/sifive,clint.yaml
+index 8d5f4687add9..4a1f6d422138 100644
+--- a/Documentation/devicetree/bindings/timer/sifive,clint.yaml
++++ b/Documentation/devicetree/bindings/timer/sifive,clint.yaml
+@@ -44,6 +44,8 @@ properties:
+
+   interrupts-extended:
+     minItems: 1
++# Based on updated max(NR_CPUS) (512) * (2 contexts per CPU)
++    maxItems: 1024
+
+ additionalProperties: false
 
 --
 2.35.1
