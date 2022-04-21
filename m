@@ -2,134 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95CC850A7DA
-	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 20:08:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59AC250A7E9
+	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 20:16:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239155AbiDUSL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 14:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39120 "EHLO
+        id S1391073AbiDUSSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 14:18:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229747AbiDUSLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 14:11:25 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D283B4B436
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 11:08:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650564514;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=/rV2ppnYCC7kcPDDjL7sfdrpNb2pni/m1UgQbdwkxzo=;
-        b=WOJ4Hp7Q01gqCxSbVPILAzYcik+WsRMP8QiX6KRlOgAayyLQ/+60HYAf7eHoksLwzkdKaM
-        AFei3uYnGNfHbdmSBjVynEiNk0/vl0MaRjSW8v7HPayPF4VYmfFl41J/dUjDrP5QowbfA1
-        HllNudcguLy+PGMr3r/Frty6UY0++RA=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-189-RwIdnLWNPGq5oTUbU1R34g-1; Thu, 21 Apr 2022 14:08:30 -0400
-X-MC-Unique: RwIdnLWNPGq5oTUbU1R34g-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6248038107A2;
-        Thu, 21 Apr 2022 18:08:30 +0000 (UTC)
-Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5997940E80F5;
-        Thu, 21 Apr 2022 18:08:30 +0000 (UTC)
-Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 23LI8USn001623;
-        Thu, 21 Apr 2022 14:08:30 -0400
-Received: from localhost (mpatocka@localhost)
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 23LI8UNe001620;
-        Thu, 21 Apr 2022 14:08:30 -0400
-X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
-Date:   Thu, 21 Apr 2022 14:08:30 -0400 (EDT)
-From:   Mikulas Patocka <mpatocka@redhat.com>
-X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     stable@vger.kernel.org, Mike Snitzer <msnitzer@redhat.com>,
-        dm-devel@redhat.com
-Subject: [PATCH v5.10] dm: fix mempool NULL pointer race when completing IO
-Message-ID: <alpine.LRH.2.02.2204211407220.761@file01.intranet.prod.int.rdu2.redhat.com>
-User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
+        with ESMTP id S242648AbiDUSSY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 14:18:24 -0400
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2588D13EA7;
+        Thu, 21 Apr 2022 11:15:34 -0700 (PDT)
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-2ebf3746f87so61154487b3.6;
+        Thu, 21 Apr 2022 11:15:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Ll9RiONHC6ecqkUVPX4Bwn7OsJSalGQ2+DEVyJxjcMM=;
+        b=k3cPRCzEJZgibwRKBPHXk/gT0wJUriuZ78x8RqPwl2taYAjVDeSplElw7OuyEOVD3J
+         CaCqupQCrF8nAcrhOcmZ08Iq4Re6y5LHX2Qpkojcsmwp8CFAbng56pW0Y947AwtLzd4z
+         rP8MUtNibaHuTOr7424yOt6WHK4Ady2kuaHy3Aw3jentM0L4dwosyl66gsKfu4J/mWNy
+         vVoUbRj+krBDVmR25M+SToUvGD/jOODnQEr+GMjsHm/r7Np7TWXkro74fw8TWzAfuM1J
+         u3NtQFkpKhlSE+QDqdgNXh91NaVMhVta5FnbBz/Plbf0C4Ln12lGhpkJQTEUVuzjtp1C
+         t9eQ==
+X-Gm-Message-State: AOAM532HpXWp7aDqr+EA6luk4Olx+qLvcePWFU0DCx8IXNi/P7F6qZ4b
+        pXKpFWYrpbiZG7jNu3dqBD9dhHqkLfSC8GiGoGM=
+X-Google-Smtp-Source: ABdhPJyaXa/pSh+pQ0m8rAF5rFqr3ho9+/BS4Jh4qfZXoe5jLLqB/C2heFmLZMRpvgUg9WBAY9TAV/5WuAYxLgp45wc=
+X-Received: by 2002:a81:260a:0:b0:2f4:ca82:a42f with SMTP id
+ m10-20020a81260a000000b002f4ca82a42fmr1024201ywm.149.1650564933352; Thu, 21
+ Apr 2022 11:15:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220421165504.3173244-1-keescook@chromium.org>
+In-Reply-To: <20220421165504.3173244-1-keescook@chromium.org>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Thu, 21 Apr 2022 20:15:22 +0200
+Message-ID: <CAJZ5v0gw_KZS0ZrWP1rwnrxbUjNJbb-KtgChqutDyYkUZVAMQQ@mail.gmail.com>
+Subject: Re: [PATCH] thermal: int340x: Fix attr.show callback prototype
+To:     Kees Cook <keescook@chromium.org>
+Cc:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Linux PM <linux-pm@vger.kernel.org>,
+        Joao Moreira <joao@overdrivepizza.com>,
+        Stable <stable@vger.kernel.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Chuansheng Liu <chuansheng.liu@intel.com>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>,
+        Matthew Garrett <mjg59@google.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-hardening@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+On Thu, Apr 21, 2022 at 6:55 PM Kees Cook <keescook@chromium.org> wrote:
+>
+> Control Flow Integrity (CFI) instrumentation of the kernel noticed that
+> the caller, dev_attr_show(), and the callback, odvp_show(), did not have
+> matching function prototypes, which would cause a CFI exception to be
+> raised. Correct the prototype by using struct device_attribute instead
+> of struct kobj_attribute.
+>
+> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+> Cc: Amit Kucheria <amitk@kernel.org>
+> Cc: Zhang Rui <rui.zhang@intel.com>
+> Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Cc: linux-pm@vger.kernel.org
+> Reported-and-tested-by: Joao Moreira <joao@overdrivepizza.com>
+> Link: https://lore.kernel.org/lkml/067ce8bd4c3968054509831fa2347f4f@overdrivepizza.com/
+> Fixes: 006f006f1e5c ("thermal/int340x_thermal: Export OEM vendor variables")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-This is backport of patches d208b89401e0 ("dm: fix mempool NULL pointer
-race when completing IO") and 9f6dc6337610 ("dm: interlock pending dm_io
-and dm_wait_for_bios_completion") for the kernel 5.10.
+Applied as 5.18-rc material, thanks!
 
-The bugs fixed by these patches can cause random crashing when reloading
-dm table, so it is eligible for stable backport.
-
-This patch is different from the upstream patches because the code
-diverged significantly.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-
----
- drivers/md/dm.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
-
-Index: linux-stable/drivers/md/dm.c
-===================================================================
---- linux-stable.orig/drivers/md/dm.c	2022-04-19 16:17:52.000000000 +0200
-+++ linux-stable/drivers/md/dm.c	2022-04-19 16:23:23.000000000 +0200
-@@ -607,19 +607,26 @@ static void start_io_acct(struct dm_io *
- 				    false, 0, &io->stats_aux);
- }
- 
-+static void free_io(struct mapped_device *md, struct dm_io *io);
-+
- static void end_io_acct(struct dm_io *io)
- {
- 	struct mapped_device *md = io->md;
- 	struct bio *bio = io->orig_bio;
--	unsigned long duration = jiffies - io->start_time;
--
--	bio_end_io_acct(bio, io->start_time);
-+	unsigned long start_time = io->start_time;
-+	unsigned long duration = jiffies - start_time;
- 
- 	if (unlikely(dm_stats_used(&md->stats)))
- 		dm_stats_account_io(&md->stats, bio_data_dir(bio),
- 				    bio->bi_iter.bi_sector, bio_sectors(bio),
- 				    true, duration, &io->stats_aux);
- 
-+	free_io(md, io);
-+
-+	smp_wmb();
-+
-+	bio_end_io_acct(bio, start_time);
-+
- 	/* nudge anyone waiting on suspend queue */
- 	if (unlikely(wq_has_sleeper(&md->wait)))
- 		wake_up(&md->wait);
-@@ -930,7 +937,6 @@ static void dec_pending(struct dm_io *io
- 		io_error = io->status;
- 		bio = io->orig_bio;
- 		end_io_acct(io);
--		free_io(md, io);
- 
- 		if (io_error == BLK_STS_DM_REQUEUE)
- 			return;
-@@ -2345,6 +2351,8 @@ static int dm_wait_for_bios_completion(s
- 	}
- 	finish_wait(&md->wait, &wait);
- 
-+	smp_rmb();
-+
- 	return r;
- }
- 
-
+> ---
+>  drivers/thermal/intel/int340x_thermal/int3400_thermal.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+> index 4954800b9850..d97f496bab9b 100644
+> --- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+> +++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+> @@ -68,7 +68,7 @@ static int evaluate_odvp(struct int3400_thermal_priv *priv);
+>  struct odvp_attr {
+>         int odvp;
+>         struct int3400_thermal_priv *priv;
+> -       struct kobj_attribute attr;
+> +       struct device_attribute attr;
+>  };
+>
+>  static ssize_t data_vault_read(struct file *file, struct kobject *kobj,
+> @@ -311,7 +311,7 @@ static int int3400_thermal_get_uuids(struct int3400_thermal_priv *priv)
+>         return result;
+>  }
+>
+> -static ssize_t odvp_show(struct kobject *kobj, struct kobj_attribute *attr,
+> +static ssize_t odvp_show(struct device *dev, struct device_attribute *attr,
+>                          char *buf)
+>  {
+>         struct odvp_attr *odvp_attr;
+> --
+> 2.32.0
+>
