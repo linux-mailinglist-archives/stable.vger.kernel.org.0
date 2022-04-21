@@ -2,84 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8A250A096
-	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 15:20:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26E6450A0F2
+	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 15:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231544AbiDUNXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 09:23:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42080 "EHLO
+        id S245153AbiDUNj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 09:39:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231631AbiDUNXI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 09:23:08 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 5C77FBC81
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 06:20:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650547218;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to; bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=T412h2q95lFL6ExDX3jWWWKtvQbpsOLIkbSRUrd3wBulSgM+YqgwKZxDo7AIpN/1MwdXji
-        dkPQoHdHi/8u1ZGx8W7Pe16cY/vd2NKHzfbT/9pxp8oWCgmEcA5vL3y0uuYjTseXcmtEkY
-        p9EBIJPrKj5QftrhLnIPp52uPNFxGxs=
-Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
- [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-47-K-jwSEu2P5CL7AVo4yj31g-1; Thu, 21 Apr 2022 09:20:17 -0400
-X-MC-Unique: K-jwSEu2P5CL7AVo4yj31g-1
-Received: by mail-pl1-f197.google.com with SMTP id i10-20020a170902e48a00b00153f493fa9aso2523788ple.17
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 06:20:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:in-reply-to;
-        bh=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=;
-        b=XwmeN7aVxfOJQokCUp1gkQ7VzDNKxCZZS9qg3zzjOJdzvbcAR2NDNZbjZfHtLP5P0R
-         1RjZDZxWBpGIkTnMZ5NQHn/1ueeL23exOnFcAEJMjFLvvg7VybmnMWyenh+MgUfHqwvl
-         WsG4cuuZcCzGjwOt4eL69QsCXFbIyCLH4p+SPcLF9kaNsvbvZOFbvn1WbDQNofVI8DyU
-         0e2cII1+ew9rE0co/l2D+G2IDrqrZyyv1E+OHKPJHYIeRugakfpVKJh4FxFQhTDqVRSR
-         iWZ2YfJlzg84LlQNfu3P6e7J3MoScyiNrvq4Rpy1S6mGnv/kUfS4GUwiNq/BEoPVrECn
-         8yPA==
-X-Gm-Message-State: AOAM531PpZE9fb1d3VyVLekdXSYd2nRHejvZWhb4+Pj7rwbXI0jVvDgq
-        ehSvdMd82SXYU9OgIzOJuempq7iCiL1Zf+/vVBqsUNVxsPLTkyNuLsnFkOY7Lar63cEPdWutmPI
-        VCnxqE6kd4Ns8H7/c
-X-Received: by 2002:a05:6a00:ccf:b0:50a:db82:4ae5 with SMTP id b15-20020a056a000ccf00b0050adb824ae5mr3581854pfv.59.1650547212328;
-        Thu, 21 Apr 2022 06:20:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyEg/XKr6Ui9gwh2MQYBfHjjkLlJhmxTVmRmjaeYiITKwKssa5krUtFdDxn4eFPTWFfCNVNig==
-X-Received: by 2002:a05:6a00:ccf:b0:50a:db82:4ae5 with SMTP id b15-20020a056a000ccf00b0050adb824ae5mr3581819pfv.59.1650547211962;
-        Thu, 21 Apr 2022 06:20:11 -0700 (PDT)
-Received: from localhost.localdomain ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id lw3-20020a17090b180300b001cd4989fecesm2984649pjb.26.2022.04.21.06.20.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Apr 2022 06:20:11 -0700 (PDT)
-Date:   Thu, 21 Apr 2022 21:20:00 +0800
-From:   Tao Liu <ltao@redhat.com>
-To:     joro@8bytes.org
-Cc:     cfir@google.com, dan.j.williams@intel.com,
-        dave.hansen@linux.intel.com, ebiederm@xmission.com,
-        erdemaktas@google.com, hpa@zytor.com, jgross@suse.com,
-        jroedel@suse.de, jslaby@suse.cz, keescook@chromium.org,
-        kexec@lists.infradead.org, kvm@vger.kernel.org,
-        linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org,
-        luto@kernel.org, martin.b.radev@gmail.com, mhiramat@kernel.org,
-        mstunes@vmware.com, nivedita@alum.mit.edu, peterz@infradead.org,
-        rientjes@google.com, seanjc@google.com, stable@vger.kernel.org,
-        thomas.lendacky@amd.com, virtualization@lists.linux-foundation.org,
-        x86@kernel.org
-Subject: Re: [PATCH 01/12] kexec: Allow architecture code to opt-out at
- runtime
-Message-ID: <YmFaAFcQPhSWNEFz@localhost.localdomain>
+        with ESMTP id S1386507AbiDUNj3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 09:39:29 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA7A436E38;
+        Thu, 21 Apr 2022 06:36:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1650548198; x=1682084198;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=/B25oKD+PgAmoCfxJa+Caby+0Cg4cB73dUY3O11qt8I=;
+  b=QOmm9e7GbX4++1H7CYh6sANr0LdQGVtBJYjMpzvTzPCJTcxokLLa2QKW
+   Pc4WPIdZDBIye9qZmTpDH1fv0tsvb+F+NJQNDUWOsPNadLU+hs/A+kopI
+   ecAzDd+yT1z1GuyEwUqBaoLAkMtKeDK9QhkeviYyDrTAoZmdqpXMIesY4
+   oc7HyGvj+4e9q3hCgZarjDl7XxmyOENJwkWG947gQPhvN3fnUP3BW2xIq
+   vREvoVIWrzx5Zzjtv6m5U+4xKXuoIqEg6808MGEOZnIqpGyab1kFGeqqj
+   J9Zg0h3BfMpR22G7iqTb4XVGBRON4rj6Bpf4H6jQpq1RjdyCQa5hBMhI5
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10324"; a="264119166"
+X-IronPort-AV: E=Sophos;i="5.90,278,1643702400"; 
+   d="scan'208";a="264119166"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Apr 2022 06:36:38 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,278,1643702400"; 
+   d="scan'208";a="562575947"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.51])
+  by fmsmga007.fm.intel.com with SMTP; 21 Apr 2022 06:36:35 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 21 Apr 2022 16:36:34 +0300
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     linux-acpi@vger.kernel.org
+Cc:     Len Brown <lenb@kernel.org>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org,
+        Woody Suwalski <wsuwalski@gmail.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Richard Gong <richard.gong@amd.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH v2 1/2] ACPI: processor: Do not use C3 w/o ARB_DIS=1
+Date:   Thu, 21 Apr 2022 16:36:34 +0300
+Message-Id: <20220421133634.19489-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220420134417.24546-1-ville.syrjala@linux.intel.com>
+References: <20220420134417.24546-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210721142015.1401-2-joro@8bytes.org>
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
+
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+commit d6b88ce2eb9d ("ACPI: processor idle: Allow playing dead in C3 state")
+was supposedly just trying to enable C3 when the CPU is offlined,
+but it also mistakenly enabled C3 usage without setting ARB_DIS=1
+in normal idle scenarios.
+
+This results in a machine that won't boot past the point when it first
+enters C3. Restore the correct behaviour (either demote to C1/C2, or
+use C3 but also set ARB_DIS=1).
+
+I hit this on a Fujitsu Siemens Lifebook S6010 (P3) machine.
+
+Cc: stable@vger.kernel.org
+Cc: Woody Suwalski <wsuwalski@gmail.com>
+Cc: Mario Limonciello <mario.limonciello@amd.com>
+Cc: Richard Gong <richard.gong@amd.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: d6b88ce2eb9d ("ACPI: processor idle: Allow playing dead in C3 state")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+v2: Paint it in a different color (Rafael)
+
+ drivers/acpi/processor_idle.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 4556c86c3465..5f296e099bce 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -795,7 +795,8 @@ static int acpi_processor_setup_cstates(struct acpi_processor *pr)
+ 		if (cx->type == ACPI_STATE_C1 || cx->type == ACPI_STATE_C2 ||
+ 		    cx->type == ACPI_STATE_C3) {
+ 			state->enter_dead = acpi_idle_play_dead;
+-			drv->safe_state_index = count;
++			if (cx->type != ACPI_STATE_C3)
++				drv->safe_state_index = count;
+ 		}
+ 		/*
+ 		 * Halt-induced C1 is not good for ->enter_s2idle, because it
+-- 
+2.35.1
 
