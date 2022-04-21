@@ -2,253 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F9650AC06
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA55D50AC07
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442589AbiDUXi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 19:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40500 "EHLO
+        id S1442135AbiDUXjI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 19:39:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442595AbiDUXi4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:38:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A62F4704D;
-        Thu, 21 Apr 2022 16:36:03 -0700 (PDT)
+        with ESMTP id S1442595AbiDUXjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:39:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2EA4617E;
+        Thu, 21 Apr 2022 16:36:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97A1D61EB5;
-        Thu, 21 Apr 2022 23:36:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2D31C385A5;
-        Thu, 21 Apr 2022 23:36:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3AB31B829A7;
+        Thu, 21 Apr 2022 23:36:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EFDC385AB;
+        Thu, 21 Apr 2022 23:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1650584162;
-        bh=77vg5Iz2wUpAfeZuamuPjE96MamAPIkQNqzjGYJf6Zk=;
+        s=korg; t=1650584171;
+        bh=Rz872EwhpkJz/H2MaVr7yZn1UCITr1zMVSOzm3WIcy8=;
         h=Date:To:From:In-Reply-To:Subject:From;
-        b=eMVt6r3yLd17FYKkKHu55GWiQI66lDfl9cciKmdmaRrwxbZz0n1cV8NFdGRa3rBRN
-         nOMrMOxbSi/u6XktKro8P+kuStPHM5DCnuid7CILsBl5oJKKzdgD8nqK6xobf71NiA
-         sTkpeWnBUekdHyMuqdWhyT56bHPpWQQN4naCPpTY=
-Date:   Thu, 21 Apr 2022 16:36:01 -0700
-To:     vincent.guittot@linaro.org, tglx@linutronix.de,
-        stable@vger.kernel.org, rostedt@goodmis.org, rientjes@google.com,
-        peterz@infradead.org, mingo@redhat.com, mhocko@suse.com,
-        mgorman@suse.de, longman@redhat.com, juri.lelli@redhat.com,
-        jsavitz@redhat.com, herton@redhat.com, dvhart@infradead.org,
-        dietmar.eggemann@arm.com, dave@stgolabs.net, bsegall@google.com,
-        bristot@redhat.com, aquini@redhat.com, aarcange@redhat.com,
-        npache@redhat.com, akpm@linux-foundation.org,
-        patches@lists.linux.dev, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org
+        b=mvbYeQaV5E6rrgsDY1NUacWjwhOxK4oaLqhjNg/ovRsVV64CKNx/ir2NYp8iJvYVM
+         Gx3SNERDUHQFxuI8lvvqleC24ZIKx2VuLiHOHNbftA2EYlBYVaf+gsV5+5aqpNjRS+
+         F1s/kyWRat5PpPZ4y+zEeIdfDjqXaXi1mUZ0jLjw=
+Date:   Thu, 21 Apr 2022 16:36:10 -0700
+To:     stable@vger.kernel.org, rcampbell@nvidia.com, jhubbard@nvidia.com,
+        jgg@nvidia.com, christian.koenig@amd.com, apopple@nvidia.com,
+        akpm@linux-foundation.org, patches@lists.linux.dev,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
 In-Reply-To: <20220421163508.66028a9ac2d9fb6ea05b1342@linux-foundation.org>
-Subject: [patch 10/13] oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
-Message-Id: <20220421233601.E2D31C385A5@smtp.kernel.org>
+Subject: [patch 13/13] mm/mmu_notifier.c: fix race in mmu_interval_notifier_remove()
+Message-Id: <20220421233610.E9EFDC385AB@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nico Pache <npache@redhat.com>
-Subject: oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
+From: Alistair Popple <apopple@nvidia.com>
+Subject: mm/mmu_notifier.c: fix race in mmu_interval_notifier_remove()
 
-The pthread struct is allocated on PRIVATE|ANONYMOUS memory [1] which can
-be targeted by the oom reaper.  This mapping is used to store the futex
-robust list head; the kernel does not keep a copy of the robust list and
-instead references a userspace address to maintain the robustness during a
-process death.  A race can occur between exit_mm and the oom reaper that
-allows the oom reaper to free the memory of the futex robust list before
-the exit path has handled the futex death:
+In some cases it is possible for mmu_interval_notifier_remove() to race
+with mn_tree_inv_end() allowing it to return while the notifier data
+structure is still in use.  Consider the following sequence:
 
-    CPU1                               CPU2
-------------------------------------------------------------------------
-    page_fault
-    do_exit "signal"
-    wake_oom_reaper
-                                        oom_reaper
-                                        oom_reap_task_mm (invalidates mm)
-    exit_mm
-    exit_mm_release
-    futex_exit_release
-    futex_cleanup
-    exit_robust_list
-    get_user (EFAULT- can't access memory)
+CPU0 - mn_tree_inv_end()            CPU1 - mmu_interval_notifier_remove()
+----------------------------------- ------------------------------------
+                                    spin_lock(subscriptions->lock);
+                                    seq = subscriptions->invalidate_seq;
+spin_lock(subscriptions->lock);     spin_unlock(subscriptions->lock);
+subscriptions->invalidate_seq++;
+                                    wait_event(invalidate_seq != seq);
+                                    return;
+interval_tree_remove(interval_sub); kfree(interval_sub);
+spin_unlock(subscriptions->lock);
+wake_up_all();
 
-If the get_user EFAULT's, the kernel will be unable to recover the waiters
-on the robust_list, leaving userspace mutexes hung indefinitely.
+As the wait_event() condition is true it will return immediately.  This
+can lead to use-after-free type errors if the caller frees the data
+structure containing the interval notifier subscription while it is still
+on a deferred list.  Fix this by taking the appropriate lock when reading
+invalidate_seq to ensure proper synchronisation.
 
-Delay the OOM reaper, allowing more time for the exit path to perform the
-futex cleanup.
+I observed this whilst running stress testing during some development. 
+You do have to be pretty unlucky, but it leads to the usual problems of
+use-after-free (memory corruption, kernel crash, difficult to diagnose
+WARN_ON, etc).
 
-Reproducer: https://gitlab.com/jsavitz/oom_futex_reproducer
-
-Based on a patch by Michal Hocko.
-
-[1] https://elixir.bootlin.com/glibc/glibc-2.35/source/nptl/allocatestack.c#L370
-
-Link: https://lkml.kernel.org/r/20220414144042.677008-1-npache@redhat.com
-Fixes: 212925802454 ("mm: oom: let oom_reap_task and exit_mmap run concurrently")
-Signed-off-by: Joel Savitz <jsavitz@redhat.com>
-Signed-off-by: Nico Pache <npache@redhat.com>
-Co-developed-by: Joel Savitz <jsavitz@redhat.com>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Rafael Aquini <aquini@redhat.com>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Herton R. Krzesinski <herton@redhat.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Savitz <jsavitz@redhat.com>
-Cc: Darren Hart <dvhart@infradead.org>
+Link: https://lkml.kernel.org/r/20220420043734.476348-1-apopple@nvidia.com
+Fixes: 99cb252f5e68 ("mm/mmu_notifier: add an interval tree notifier")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/sched.h |    1 
- mm/oom_kill.c         |   54 +++++++++++++++++++++++++++++-----------
- 2 files changed, 41 insertions(+), 14 deletions(-)
+ mm/mmu_notifier.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/include/linux/sched.h~oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup
-+++ a/include/linux/sched.h
-@@ -1443,6 +1443,7 @@ struct task_struct {
- 	int				pagefault_disabled;
- #ifdef CONFIG_MMU
- 	struct task_struct		*oom_reaper_list;
-+	struct timer_list		oom_reaper_timer;
- #endif
- #ifdef CONFIG_VMAP_STACK
- 	struct vm_struct		*stack_vm_area;
---- a/mm/oom_kill.c~oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup
-+++ a/mm/oom_kill.c
-@@ -632,7 +632,7 @@ done:
- 	 */
- 	set_bit(MMF_OOM_SKIP, &mm->flags);
- 
--	/* Drop a reference taken by wake_oom_reaper */
-+	/* Drop a reference taken by queue_oom_reaper */
- 	put_task_struct(tsk);
+--- a/mm/mmu_notifier.c~mm-mmu_notifierc-fix-race-in-mmu_interval_notifier_remove
++++ a/mm/mmu_notifier.c
+@@ -1036,6 +1036,18 @@ int mmu_interval_notifier_insert_locked(
  }
+ EXPORT_SYMBOL_GPL(mmu_interval_notifier_insert_locked);
  
-@@ -644,12 +644,12 @@ static int oom_reaper(void *unused)
- 		struct task_struct *tsk = NULL;
- 
- 		wait_event_freezable(oom_reaper_wait, oom_reaper_list != NULL);
--		spin_lock(&oom_reaper_lock);
-+		spin_lock_irq(&oom_reaper_lock);
- 		if (oom_reaper_list != NULL) {
- 			tsk = oom_reaper_list;
- 			oom_reaper_list = tsk->oom_reaper_list;
- 		}
--		spin_unlock(&oom_reaper_lock);
-+		spin_unlock_irq(&oom_reaper_lock);
- 
- 		if (tsk)
- 			oom_reap_task(tsk);
-@@ -658,22 +658,48 @@ static int oom_reaper(void *unused)
- 	return 0;
- }
- 
--static void wake_oom_reaper(struct task_struct *tsk)
-+static void wake_oom_reaper(struct timer_list *timer)
- {
--	/* mm is already queued? */
--	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
-+	struct task_struct *tsk = container_of(timer, struct task_struct,
-+			oom_reaper_timer);
-+	struct mm_struct *mm = tsk->signal->oom_mm;
-+	unsigned long flags;
-+
-+	/* The victim managed to terminate on its own - see exit_mmap */
-+	if (test_bit(MMF_OOM_SKIP, &mm->flags)) {
-+		put_task_struct(tsk);
- 		return;
-+	}
- 
--	get_task_struct(tsk);
--
--	spin_lock(&oom_reaper_lock);
-+	spin_lock_irqsave(&oom_reaper_lock, flags);
- 	tsk->oom_reaper_list = oom_reaper_list;
- 	oom_reaper_list = tsk;
--	spin_unlock(&oom_reaper_lock);
-+	spin_unlock_irqrestore(&oom_reaper_lock, flags);
- 	trace_wake_reaper(tsk->pid);
- 	wake_up(&oom_reaper_wait);
- }
- 
-+/*
-+ * Give the OOM victim time to exit naturally before invoking the oom_reaping.
-+ * The timers timeout is arbitrary... the longer it is, the longer the worst
-+ * case scenario for the OOM can take. If it is too small, the oom_reaper can
-+ * get in the way and release resources needed by the process exit path.
-+ * e.g. The futex robust list can sit in Anon|Private memory that gets reaped
-+ * before the exit path is able to wake the futex waiters.
-+ */
-+#define OOM_REAPER_DELAY (2*HZ)
-+static void queue_oom_reaper(struct task_struct *tsk)
++static bool
++mmu_interval_seq_released(struct mmu_notifier_subscriptions *subscriptions,
++			  unsigned long seq)
 +{
-+	/* mm is already queued? */
-+	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
-+		return;
++	bool ret;
 +
-+	get_task_struct(tsk);
-+	timer_setup(&tsk->oom_reaper_timer, wake_oom_reaper, 0);
-+	tsk->oom_reaper_timer.expires = jiffies + OOM_REAPER_DELAY;
-+	add_timer(&tsk->oom_reaper_timer);
++	spin_lock(&subscriptions->lock);
++	ret = subscriptions->invalidate_seq != seq;
++	spin_unlock(&subscriptions->lock);
++	return ret;
 +}
 +
- static int __init oom_init(void)
- {
- 	oom_reaper_th = kthread_run(oom_reaper, NULL, "oom_reaper");
-@@ -681,7 +707,7 @@ static int __init oom_init(void)
- }
- subsys_initcall(oom_init)
- #else
--static inline void wake_oom_reaper(struct task_struct *tsk)
-+static inline void queue_oom_reaper(struct task_struct *tsk)
- {
- }
- #endif /* CONFIG_MMU */
-@@ -932,7 +958,7 @@ static void __oom_kill_process(struct ta
- 	rcu_read_unlock();
+ /**
+  * mmu_interval_notifier_remove - Remove a interval notifier
+  * @interval_sub: Interval subscription to unregister
+@@ -1083,7 +1095,7 @@ void mmu_interval_notifier_remove(struct
+ 	lock_map_release(&__mmu_notifier_invalidate_range_start_map);
+ 	if (seq)
+ 		wait_event(subscriptions->wq,
+-			   READ_ONCE(subscriptions->invalidate_seq) != seq);
++			   mmu_interval_seq_released(subscriptions, seq));
  
- 	if (can_oom_reap)
--		wake_oom_reaper(victim);
-+		queue_oom_reaper(victim);
- 
+ 	/* pairs with mmgrab in mmu_interval_notifier_insert() */
  	mmdrop(mm);
- 	put_task_struct(victim);
-@@ -968,7 +994,7 @@ static void oom_kill_process(struct oom_
- 	task_lock(victim);
- 	if (task_will_free_mem(victim)) {
- 		mark_oom_victim(victim);
--		wake_oom_reaper(victim);
-+		queue_oom_reaper(victim);
- 		task_unlock(victim);
- 		put_task_struct(victim);
- 		return;
-@@ -1067,7 +1093,7 @@ bool out_of_memory(struct oom_control *o
- 	 */
- 	if (task_will_free_mem(current)) {
- 		mark_oom_victim(current);
--		wake_oom_reaper(current);
-+		queue_oom_reaper(current);
- 		return true;
- 	}
- 
 _
