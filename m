@@ -2,107 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 375BD50A6E2
-	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 19:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C671450A7BD
+	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 20:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388106AbiDURUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 13:20:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53792 "EHLO
+        id S1391159AbiDUSGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 14:06:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377011AbiDURUI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 13:20:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5117C49F83
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 10:17:18 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S1391171AbiDUSGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 14:06:49 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2512B4B1CB
+        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 11:03:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650564238;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=OejflpqYd4W8cjF4xKpcgUkq3UQwbqtVr3qvnTAmPuY=;
+        b=E3yYoAsaYhIeHPYMhvtvvncbSn59HK1Eb5tW5ulcj13qc3XTa7hDpd4cD6n+9rWtA4PBIY
+        JQFh7GPhax48lYSKjShC9mhs+z4YGTn7bymIvi+O2W6Yx1rr828EwOH1qTlw/UjdDelGgO
+        oaEAkvKMr6EV10GzD1PoyVB4jwRViFo=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-246-sNPoRsxzMeGkh1BgA6CBrw-1; Thu, 21 Apr 2022 14:03:56 -0400
+X-MC-Unique: sNPoRsxzMeGkh1BgA6CBrw-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E202661DC8
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 17:17:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8E58C385A5;
-        Thu, 21 Apr 2022 17:17:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650561437;
-        bh=VRraGfNSZx3EgVsIK/2VbTxJf/FftdvgzN2jaCABJcI=;
-        h=Subject:To:From:Date:From;
-        b=Aj8QkgJG2FQW9UHmARUNRWaHAN8FlAhRFAeh1D9aghXjwTizq/N3Kp21bn6biFO5w
-         Q/UpN9GIUYQb/uWZnjzvbvaNTzvW6bHKvbHDEUshxsa9f8MSCewCTxqDflgnFiBA5F
-         idfcqWZQz2KMYD63xm7yfTmn8JURwlZWpuMUZoBw=
-Subject: patch "usb: dwc3: core: Fix tx/rx threshold settings" added to usb-linus
-To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 21 Apr 2022 19:17:06 +0200
-Message-ID: <165056142614821@kroah.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 5A722185A79C;
+        Thu, 21 Apr 2022 18:03:56 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 31BFB57233C;
+        Thu, 21 Apr 2022 18:03:56 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 23LI3uhh001208;
+        Thu, 21 Apr 2022 14:03:56 -0400
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 23LI3uKq001204;
+        Thu, 21 Apr 2022 14:03:56 -0400
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Thu, 21 Apr 2022 14:03:56 -0400 (EDT)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     stable@vger.kernel.org, Mike Snitzer <msnitzer@redhat.com>,
+        dm-devel@redhat.com
+Subject: [PATCH v4.9] dm: fix mempool NULL pointer race when completing IO
+Message-ID: <alpine.LRH.2.02.2204211359550.761@file01.intranet.prod.int.rdu2.redhat.com>
+User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi
 
-This is a note to let you know that I've just added the patch titled
+This is backport of patches d208b89401e0 ("dm: fix mempool NULL pointer
+race when completing IO") and 9f6dc6337610 ("dm: interlock pending dm_io
+and dm_wait_for_bios_completion") for the kernel 4.9.
 
-    usb: dwc3: core: Fix tx/rx threshold settings
+The bugs fixed by these patches can cause random crashing when reloading
+dm table, so it is eligible for stable backport.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+This patch is different from the upstream patches because the code
+diverged significantly.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From f28ad9069363dec7deb88032b70612755eed9ee6 Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Mon, 11 Apr 2022 18:33:47 -0700
-Subject: usb: dwc3: core: Fix tx/rx threshold settings
-
-The current driver logic checks against 0 to determine whether the
-periodic tx/rx threshold settings are set, but we may get bogus values
-from uninitialized variables if no device property is set. Properly
-default these variables to 0.
-
-Fixes: 938a5ad1d305 ("usb: dwc3: Check for ESS TX/RX threshold config")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/cccfce990b11b730b0dae42f9d217dc6fb988c90.1649727139.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/md/dm.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 5bfd3e88af35..1ca9dae57855 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1377,10 +1377,10 @@ static void dwc3_get_properties(struct dwc3 *dwc)
- 	u8			lpm_nyet_threshold;
- 	u8			tx_de_emphasis;
- 	u8			hird_threshold;
--	u8			rx_thr_num_pkt_prd;
--	u8			rx_max_burst_prd;
--	u8			tx_thr_num_pkt_prd;
--	u8			tx_max_burst_prd;
-+	u8			rx_thr_num_pkt_prd = 0;
-+	u8			rx_max_burst_prd = 0;
-+	u8			tx_thr_num_pkt_prd = 0;
-+	u8			tx_max_burst_prd = 0;
- 	u8			tx_fifo_resize_max_num;
- 	const char		*usb_psy_name;
- 	int			ret;
--- 
-2.36.0
-
+Index: linux-stable/drivers/md/dm.c
+===================================================================
+--- linux-stable.orig/drivers/md/dm.c	2022-04-19 16:35:22.000000000 +0200
++++ linux-stable/drivers/md/dm.c	2022-04-19 16:35:22.000000000 +0200
+@@ -539,6 +539,8 @@ static void end_io_acct(struct dm_io *io
+ 				    bio->bi_iter.bi_sector, bio_sectors(bio),
+ 				    true, duration, &io->stats_aux);
+ 
++	free_io(md, io);
++
+ 	/*
+ 	 * After this is decremented the bio must not be touched if it is
+ 	 * a flush.
+@@ -794,7 +796,6 @@ static void dec_pending(struct dm_io *io
+ 		io_error = io->error;
+ 		bio = io->bio;
+ 		end_io_acct(io);
+-		free_io(md, io);
+ 
+ 		if (io_error == DM_ENDIO_REQUEUE)
+ 			return;
+@@ -2024,6 +2025,8 @@ static int dm_wait_for_completion(struct
+ 	}
+ 	finish_wait(&md->wait, &wait);
+ 
++	smp_rmb();
++
+ 	return r;
+ }
+ 
 
