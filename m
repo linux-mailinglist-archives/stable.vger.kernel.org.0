@@ -2,45 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA55D50AC07
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 104E750AC08
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442135AbiDUXjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 19:39:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40562 "EHLO
+        id S1442599AbiDUXka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 19:40:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442595AbiDUXjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:39:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A2EA4617E;
-        Thu, 21 Apr 2022 16:36:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AB31B829A7;
-        Thu, 21 Apr 2022 23:36:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EFDC385AB;
-        Thu, 21 Apr 2022 23:36:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1650584171;
-        bh=Rz872EwhpkJz/H2MaVr7yZn1UCITr1zMVSOzm3WIcy8=;
-        h=Date:To:From:In-Reply-To:Subject:From;
-        b=mvbYeQaV5E6rrgsDY1NUacWjwhOxK4oaLqhjNg/ovRsVV64CKNx/ir2NYp8iJvYVM
-         Gx3SNERDUHQFxuI8lvvqleC24ZIKx2VuLiHOHNbftA2EYlBYVaf+gsV5+5aqpNjRS+
-         F1s/kyWRat5PpPZ4y+zEeIdfDjqXaXi1mUZ0jLjw=
-Date:   Thu, 21 Apr 2022 16:36:10 -0700
-To:     stable@vger.kernel.org, rcampbell@nvidia.com, jhubbard@nvidia.com,
-        jgg@nvidia.com, christian.koenig@amd.com, apopple@nvidia.com,
-        akpm@linux-foundation.org, patches@lists.linux.dev,
-        linux-mm@kvack.org, mm-commits@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-In-Reply-To: <20220421163508.66028a9ac2d9fb6ea05b1342@linux-foundation.org>
-Subject: [patch 13/13] mm/mmu_notifier.c: fix race in mmu_interval_notifier_remove()
-Message-Id: <20220421233610.E9EFDC385AB@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        with ESMTP id S1442593AbiDUXk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:40:26 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1A5E4615F
+        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 16:37:35 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id b7so7103075plh.2
+        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 16:37:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=aEeZuckIwf6ZsgbW0EZ5Fq+qu5NCjph+cS7JF7EQ/qk=;
+        b=rDOpFv6nzz5jBrl8SzglmyITvWzs8V9LGxfcQUgjdoyE7Fnwz8NWVlEWqEdgC6BW4l
+         QP/ZstmzUotRsdf+YpRS2g+Rk81ccPPqIqRQUa0yIlVvdEaqS6j9432bsH09QG3x/a3s
+         2PC+Lj+J038yGIjipCcSPMSG9mHqU6TcOmqiplR9OUbGwRUfFmJ2FEVHIsLTMmDmWe4L
+         HfwyHDtPU7SRmOPmt4Cp/wY2gAVyF5ZOKvS2z55pzsehM+591hlbKQytVbioO8x7nVet
+         gpyAPv9bzHybH24aZPfp6Lxe/ip/vSGN5TgoIMz9wVeZlfydvJ+fSaAk1xusQfj7FEID
+         e6XQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=aEeZuckIwf6ZsgbW0EZ5Fq+qu5NCjph+cS7JF7EQ/qk=;
+        b=nPpwzWSWgfur/UtTfA/CfL1qfCq4TaOKvqN7CQvIHlGv3jXkO127vrOVESKV7VVzlW
+         6zyGAhEMnZFMdNIqytXOKVFXBzshGxGKvM4UATBj0W42IoRwWr9SLuxWXv0vProxVdTB
+         /yTJtBdYLpApMyYoROdGx/NYrk1ajlgwglflc+0kdLZhw6EKzWXaeyHhedONBMJdrIq5
+         fe9rirSvNrC5U7DRDG8yvr3AAJRCS7c2dTW8UMLKRNoGtwV2ElPXTPcRafzbff0ksUAA
+         DSTOyQH4gf7/ZVXBYRQknvbNtYBZdf4dUeQPeaWlW4DuDG0sXvu/06TX8JWLtnyuus28
+         DxIw==
+X-Gm-Message-State: AOAM532CDJQ1ceq0Metu4Ug1TMdKFBkBLZnpEdl2cJpBVOmYQ4bo64O5
+        rt3qt5vYZtcuNWJxmIo2GTTeVZpuqMUBuwjUjlw=
+X-Google-Smtp-Source: ABdhPJxcZk7g+AjKkxPJgXlMS/gGxiu3yVuZiQbieXtbo/cLj2kYMCyRm45SjITJOKbCvT3s7mCgRg==
+X-Received: by 2002:a17:903:94:b0:158:a14f:f117 with SMTP id o20-20020a170903009400b00158a14ff117mr1844652pld.18.1650584254865;
+        Thu, 21 Apr 2022 16:37:34 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e24-20020a17090ac21800b001cd4989fec8sm3772107pjt.20.2022.04.21.16.37.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Apr 2022 16:37:34 -0700 (PDT)
+Message-ID: <6261eabe.1c69fb81.4fe27.a518@mx.google.com>
+Date:   Thu, 21 Apr 2022 16:37:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.239-6-g5ad0881ca15e2
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 83 runs,
+ 4 regressions (v4.19.239-6-g5ad0881ca15e2)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,78 +70,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Popple <apopple@nvidia.com>
-Subject: mm/mmu_notifier.c: fix race in mmu_interval_notifier_remove()
+stable-rc/queue/4.19 baseline: 83 runs, 4 regressions (v4.19.239-6-g5ad0881=
+ca15e2)
 
-In some cases it is possible for mmu_interval_notifier_remove() to race
-with mn_tree_inv_end() allowing it to return while the notifier data
-structure is still in use.  Consider the following sequence:
+Regressions Summary
+-------------------
 
-CPU0 - mn_tree_inv_end()            CPU1 - mmu_interval_notifier_remove()
------------------------------------ ------------------------------------
-                                    spin_lock(subscriptions->lock);
-                                    seq = subscriptions->invalidate_seq;
-spin_lock(subscriptions->lock);     spin_unlock(subscriptions->lock);
-subscriptions->invalidate_seq++;
-                                    wait_event(invalidate_seq != seq);
-                                    return;
-interval_tree_remove(interval_sub); kfree(interval_sub);
-spin_unlock(subscriptions->lock);
-wake_up_all();
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+meson-gxbb-p200              | arm64 | lab-baylibre  | gcc-10   | defconfig=
+                  | 1          =
 
-As the wait_event() condition is true it will return immediately.  This
-can lead to use-after-free type errors if the caller frees the data
-structure containing the interval notifier subscription while it is still
-on a deferred list.  Fix this by taking the appropriate lock when reading
-invalidate_seq to ensure proper synchronisation.
+meson-gxl-s905d-p230         | arm64 | lab-baylibre  | gcc-10   | defconfig=
+                  | 1          =
 
-I observed this whilst running stress testing during some development. 
-You do have to be pretty unlucky, but it leads to the usual problems of
-use-after-free (memory corruption, kernel crash, difficult to diagnose
-WARN_ON, etc).
+meson-gxl-s905x-libretech-cc | arm64 | lab-broonie   | gcc-10   | defconfig=
+                  | 1          =
 
-Link: https://lkml.kernel.org/r/20220420043734.476348-1-apopple@nvidia.com
-Fixes: 99cb252f5e68 ("mm/mmu_notifier: add an interval tree notifier")
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+rk3399-gru-kevin             | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
 
- mm/mmu_notifier.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/mm/mmu_notifier.c~mm-mmu_notifierc-fix-race-in-mmu_interval_notifier_remove
-+++ a/mm/mmu_notifier.c
-@@ -1036,6 +1036,18 @@ int mmu_interval_notifier_insert_locked(
- }
- EXPORT_SYMBOL_GPL(mmu_interval_notifier_insert_locked);
- 
-+static bool
-+mmu_interval_seq_released(struct mmu_notifier_subscriptions *subscriptions,
-+			  unsigned long seq)
-+{
-+	bool ret;
-+
-+	spin_lock(&subscriptions->lock);
-+	ret = subscriptions->invalidate_seq != seq;
-+	spin_unlock(&subscriptions->lock);
-+	return ret;
-+}
-+
- /**
-  * mmu_interval_notifier_remove - Remove a interval notifier
-  * @interval_sub: Interval subscription to unregister
-@@ -1083,7 +1095,7 @@ void mmu_interval_notifier_remove(struct
- 	lock_map_release(&__mmu_notifier_invalidate_range_start_map);
- 	if (seq)
- 		wait_event(subscriptions->wq,
--			   READ_ONCE(subscriptions->invalidate_seq) != seq);
-+			   mmu_interval_seq_released(subscriptions, seq));
- 
- 	/* pairs with mmgrab in mmu_interval_notifier_insert() */
- 	mmdrop(mm);
-_
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.239-6-g5ad0881ca15e2/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.239-6-g5ad0881ca15e2
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5ad0881ca15e24828a69d272438bbe483071e202 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+meson-gxbb-p200              | arm64 | lab-baylibre  | gcc-10   | defconfig=
+                  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6261c11e5f9272314aff9488
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.239=
+-6-g5ad0881ca15e2/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p=
+200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.239=
+-6-g5ad0881ca15e2/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p=
+200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6261c11e5f9272314aff9=
+489
+        failing since 21 days (last pass: v4.19.235-17-gd92d6a84236d, first=
+ fail: v4.19.235-22-ge34a3fde5b20) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+meson-gxl-s905d-p230         | arm64 | lab-baylibre  | gcc-10   | defconfig=
+                  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6261be4e9c2f3616eeff948b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.239=
+-6-g5ad0881ca15e2/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s9=
+05d-p230.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.239=
+-6-g5ad0881ca15e2/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxl-s9=
+05d-p230.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6261be4e9c2f3616eeff9=
+48c
+        failing since 15 days (last pass: v4.19.237-15-g3c6b80cc3200, first=
+ fail: v4.19.237-256-ge149a8f3cb39) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+meson-gxl-s905x-libretech-cc | arm64 | lab-broonie   | gcc-10   | defconfig=
+                  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6261b8e8b133593ff1ff9470
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.239=
+-6-g5ad0881ca15e2/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s90=
+5x-libretech-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.239=
+-6-g5ad0881ca15e2/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s90=
+5x-libretech-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6261b8e8b133593ff1ff9=
+471
+        failing since 2 days (last pass: v4.19.238-22-gb215381f8cf05, first=
+ fail: v4.19.238-32-g4d86c9395c31a) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+rk3399-gru-kevin             | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6261bef898ef5130a1ff9477
+
+  Results:     83 PASS, 7 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.239=
+-6-g5ad0881ca15e2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.239=
+-6-g5ad0881ca15e2/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6261bef898ef5130a1ff94a6
+        failing since 46 days (last pass: v4.19.232-31-g5cf846953aa2, first=
+ fail: v4.19.232-44-gfd65e02206f4)
+
+    2022-04-21T20:30:35.247610  /lava-6143527/1/../bin/lava-test-case   =
+
+ =20
