@@ -2,140 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01D7D50AC0A
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 528EB50AC2A
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:44:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442600AbiDUXlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 19:41:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41638 "EHLO
+        id S1442717AbiDUXqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 19:46:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390904AbiDUXlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:41:03 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EE264706A
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 16:38:12 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id j17so6368635pfi.9
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 16:38:12 -0700 (PDT)
+        with ESMTP id S1442701AbiDUXqL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:46:11 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89F933B549;
+        Thu, 21 Apr 2022 16:43:20 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id l127so6386213pfl.6;
+        Thu, 21 Apr 2022 16:43:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=CL49lyk3ufoiiSEhFTgv4ujgy3fuUsUgJBDaZRYErHs=;
-        b=JklFKfeyXEZ4Ot4HAmcxqBG3Hy5Kp0NpXx8JQEwUorIfNHzvV/ZFqcRE/lATfM4Rzy
-         cxS8iAsYVGBPWhAKGBApwf7w+oqPwWJlCCfhfWKiPasuSKNNxLnY5bMGcySHFMF1FL6B
-         TKESSTMs/abVCfS6sH0tXjLZNvcYaDc64y01UBrAiQ1Mh9+tjmNS5UvuK1JTZUtvBav0
-         nCNMUIjx9t3d61JB+f63iBXKjHkXoMPzmqCuL1pa9b5W7sOpS9SermR2zi2y2eE678dT
-         zc4Lj/pnCMaaTagiwkMez9tg0IuuQI1IcrByouf+Wh6igXKnnmy7hPUVVZY4SR/VVbqr
-         bzQg==
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=/eAIscwqrdOmVK8JO+DB8Q4/nTvq74/yqQoE6DPm+YE=;
+        b=BuOn9jZFa0z5WyxQu4hiLUdJAi/zwUHm1r5eQfF7B2DC/9QVs/N7Mp7ZrccbIIYZNo
+         JsuVB84ni+bT89l44FR+k4nl0uSUmLdPjndEgpc7uQjvsH7k7fC8x6jdaCnPmXGAj72B
+         RD3E5PqhesJS6VUic1lN4Y1goCu1XOftLSnezxcJKa4c8uYsIR2rXQJvctMKpqafnXgI
+         X8fYyAgjhj0wzO9ejjFn/X4JrqEEwzeOGAaPglJsO0KPU1g1t/Xlv7qycSpvTjiS/OEW
+         aQD80Xii/k6tttIIf28RUlUjmahDWuo5Gvo5TzlOb23eBJLCNKOeV4/LWcBQRJ59T7gZ
+         yvFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=CL49lyk3ufoiiSEhFTgv4ujgy3fuUsUgJBDaZRYErHs=;
-        b=Dx+Kfj/XdyV1wsSuq5B7MQcklxpwYcl3+4XnyK2U57hv55v2hAZCoCyYjmsbgFHv8k
-         vBmgs4huCLQNQ9j+vdI6vNfv1U4vHKWcqwY36/oBk2hLf8E+Fcuh1k76FlnZmgtkl5yk
-         4rjyfDVrofU2HoJg4+Cl5pQquLrIPH/Q7KkksvKW1DWJxT0FkzqMdsJn1O/tyrWn+9SJ
-         Z8tEe/RxajO2KdeadtSTBv+yAmIpDBTEkcFOUrKODorTp9YTcnJ650xRf28JVFFGRHhw
-         Zw1M1ruZs6UvTlIJ5I+bSpAihPvvx0lrGZ6yYwF3MMURPkqfn9GPwr6SGg68EJP2iP6O
-         5cyQ==
-X-Gm-Message-State: AOAM531kAPfy+9u8QVXmL52z0oNklUbLiQMfwzul7E0DidUS9nfhRYot
-        skQwm1f0hZj6Xej33tE3rm3U45khWvH05IeLpto=
-X-Google-Smtp-Source: ABdhPJzLSk2oiJMl2rvDOeo+sIWZwTenfU36tYzizQtsIBILppqQdOUgCQt0ANEjOgTDqhiuY6+aRw==
-X-Received: by 2002:a05:6a00:1988:b0:4fa:c15d:190d with SMTP id d8-20020a056a00198800b004fac15d190dmr2010712pfl.44.1650584291511;
-        Thu, 21 Apr 2022 16:38:11 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r29-20020a63441d000000b003a97e8f71e7sm223771pga.88.2022.04.21.16.38.10
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=/eAIscwqrdOmVK8JO+DB8Q4/nTvq74/yqQoE6DPm+YE=;
+        b=0ari8QYeiJBp50Pv5qe7Dgt4I75lfCIlOPnDWFXGEn6X8cwHCBWpJvuSjNX1bC7tyr
+         IOekfKGCtN97VOuNFV8NhbisiXBkWXoVxKpLMG/GH85GdLrWDVxe8cbkGXaRbfW9bxxV
+         4QJM1vA2PlNU2EdInEY3uml1rn7xz5nLlBEMplrDM2sLdZVuiNCouULlgMf3bjPqskM9
+         rqMAUuRPBhFS7p1ak96I/efmiAFtr8b3K1hJ+JDfHLDnJrdWHWebZmobpvZ5cUmuxLYo
+         1kLct7LoVsF8AYvsqMPCxbm159JGXS2CxxGO0jP8vzZfl1Y4Q0UaxCpt7dB37rW/FCn9
+         vQYA==
+X-Gm-Message-State: AOAM531gwhzxS5DFs3pD1bQRTrF5kMspEkZKnoLj6jA5K7CFCR/DYumJ
+        40i3d0zyim+t3kF58v17xG4=
+X-Google-Smtp-Source: ABdhPJxkv5K1zioe2274aA1Q6utDtfK3QelJffKteGA/Wy59Myg/5/Pq6CEuktdxSk03lsKKuJ26nA==
+X-Received: by 2002:a05:6a00:10cc:b0:506:e0:d6c3 with SMTP id d12-20020a056a0010cc00b0050600e0d6c3mr1906210pfu.33.1650584599907;
+        Thu, 21 Apr 2022 16:43:19 -0700 (PDT)
+Received: from localhost ([2620:10d:c090:400::5:15fa])
+        by smtp.gmail.com with ESMTPSA id g17-20020a625211000000b005056a6313a7sm220809pfb.87.2022.04.21.16.43.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Apr 2022 16:38:11 -0700 (PDT)
-Message-ID: <6261eae3.1c69fb81.4ba54.0ce5@mx.google.com>
-Date:   Thu, 21 Apr 2022 16:38:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 21 Apr 2022 16:43:19 -0700 (PDT)
+Sender: Tejun Heo <htejun@gmail.com>
+Date:   Thu, 21 Apr 2022 13:43:17 -1000
+From:   Tejun Heo <tj@kernel.org>
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
+        cgroups@vger.kernel.org, Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+Subject: Re: [PATCH] cgroup: don't queue css_release_work if one already
+ pending
+Message-ID: <YmHsFWy7Wa4HNZXl@slm.duckdns.org>
+References: <20220412192459.227740-1-tadeusz.struk@linaro.org>
+ <20220414164409.GA5404@blackbody.suse.cz>
+ <584183e2-2473-6185-e07d-f478da118b87@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.112-5-g3b8fa2d70abc7
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 88 runs,
- 1 regressions (v5.10.112-5-g3b8fa2d70abc7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <584183e2-2473-6185-e07d-f478da118b87@linaro.org>
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 88 runs, 1 regressions (v5.10.112-5-g3b8fa2d=
-70abc7)
+Hello,
 
-Regressions Summary
--------------------
+On Thu, Apr 14, 2022 at 10:51:18AM -0700, Tadeusz Struk wrote:
+> What happened was, the write triggered:
+> cgroup_subtree_control_write()->cgroup_apply_control()->cgroup_apply_control_enable()->css_create()
+> 
+> which, allocates and initializes the css, then fails in cgroup_idr_alloc(),
+> bails out and calls queue_rcu_work(cgroup_destroy_wq, &css->destroy_rwork);
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+Yes, but this css hasn't been installed yet.
 
+> then cgroup_subtree_control_write() bails out to out_unlock:, which then goes:
+> 
+> cgroup_kn_unlock()->cgroup_put()->css_put()->percpu_ref_put(&css->refcnt)->percpu_ref_put_many(ref)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.112-5-g3b8fa2d70abc7/plan/baseline/
+And this is a different css. cgroup->self which isn't connected to the half
+built css which got destroyed in css_create().
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.112-5-g3b8fa2d70abc7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3b8fa2d70abc7c74178c97e122617294df934a9d =
+So, I have a bit of difficulty following this scenario. The way that the
+current code uses destroy_work is definitely nasty and it'd probably be a
+good idea to separate out the different use cases, but let's first
+understand what's failing.
 
+Thanks.
 
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6261c29babb02cf79eff948e
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.112=
--5-g3b8fa2d70abc7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.112=
--5-g3b8fa2d70abc7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220411.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6261c29babb02cf79eff94b4
-        failing since 44 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-04-21T20:45:56.139507  <8>[   59.668895] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-21T20:45:57.161688  /lava-6143620/1/../bin/lava-test-case
-    2022-04-21T20:45:57.172839  <8>[   60.703531] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+-- 
+tejun
