@@ -2,90 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED3F850A532
+	by mail.lfdr.de (Postfix) with ESMTP id 71C8C50A531
 	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 18:24:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230009AbiDUQ1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 12:27:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60190 "EHLO
+        id S229507AbiDUQ1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 12:27:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390477AbiDUQKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 12:10:04 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58B204739D;
-        Thu, 21 Apr 2022 09:07:14 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:6624:6d8d:f790:d5c]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1nhZKp-0004EH-PB; Thu, 21 Apr 2022 18:07:11 +0200
-Message-ID: <de25abef-c071-9f71-36dd-8f2f0b77dc28@leemhuis.info>
-Date:   Thu, 21 Apr 2022 18:07:10 +0200
+        with ESMTP id S231536AbiDUQQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 12:16:02 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD6412B241
+        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 09:13:12 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id n18so5324716plg.5
+        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 09:13:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ABv7HJWiETT5ahg1I406zpBtj5Rvs+9Xd1KHlIh91HE=;
+        b=kRC9GsOplTLQTVsb6pYk2Sj2N8smtJjsgxOvKIorntHmeqhPL8aGcremPk+Oep2gfn
+         Sy05XcOFe6kVQW4BCTUo/zklpKSQn9RQ11CowNtAq8m7AP8zb88iGdb4BrO2bcMnL9rJ
+         Yq1EKAYb7IBdA3XyZ1vdFfy4wJytI3lS+pt/oohMgtkS030Vg1VW5ateMLWDiqb4ZxIR
+         Wwnm3iiiQLVN2HLTRLCtoPaZCJ1lzU8TW0nxmFOY1l61sO1svJLUMy3ttlfjzGanuPhr
+         fps/5Gi5RF9gMxhGYGSvQUrEK7Kb+ulOLU+e7DppvvdXKYAZVohbjZ/ODelY2mfQluRn
+         xIBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ABv7HJWiETT5ahg1I406zpBtj5Rvs+9Xd1KHlIh91HE=;
+        b=ERZ/7zOG3owrvSbv+dwixsz8RA6ye2VCxDDMyZ8bt37N7Gx41waNg+recq2qGYdZw6
+         2L5kuoI5yIfUZUIp+HO/u5PsdAeNkXMyMh0zGLy1AXGcTeOtytAa2uEoI5kOSlka3rd0
+         HrLrlZXC2X/yfV+RhGR71hiAKIzwRSZwi0weG/QIDI2YPbqA/+lwxtWzoaaPKo/3WXIL
+         R76eJZ7Vsu2DZoJbh0vWUt8XLp7pja+uLizFP6Rie3ZMUSWnBBJf4/GqEveAuwIzq2DI
+         EvDqvPLPW5XUliOkYRcrNRJZeO1FQ7Djr4VrqLJcHc/Pg2R7OQLzSQck/KDealruB0oo
+         fT8g==
+X-Gm-Message-State: AOAM5314O4wlOSpwyh7RJ8ewKoRcC3qsjlvpcmZYVl5h5fmUx9RnbElt
+        cLMx+/0A+N1sK0rWd+PmoiMULuJrwvBr6X5H8mk=
+X-Google-Smtp-Source: ABdhPJxih2vnQeVU81ImrtFT543j7f6JFYEshLtPDN3pWU1abTQZ4ZWj2Cp37s3ZCGiOF+J5XRjf6Q==
+X-Received: by 2002:a17:90b:2685:b0:1cb:6521:dd78 with SMTP id pl5-20020a17090b268500b001cb6521dd78mr438614pjb.194.1650557592218;
+        Thu, 21 Apr 2022 09:13:12 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id g15-20020a056a000b8f00b004fa9dbf27desm25136527pfj.55.2022.04.21.09.13.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Apr 2022 09:13:11 -0700 (PDT)
+Message-ID: <62618297.1c69fb81.54aa1.ab9c@mx.google.com>
+Date:   Thu, 21 Apr 2022 09:13:11 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH] gpio: Request interrupts after IRQ is initialized
-Content-Language: en-US
-To:     Linus Walleij <linus.walleij@linaro.org>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Cc:     firew4lker <firew4lker@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Shreeya Patel <shreeya.patel@collabora.com>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Basavaraj.Natikar@amd.com, Richard.Gong@amd.com,
-        stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-References: <20220414025705.598-1-mario.limonciello@amd.com>
- <20966c6b-9045-9f8b-ba35-bf44091ce380@gmail.com>
- <67df4178-5943-69d8-0d61-f533671a1248@amd.com>
- <CACRpkdbvN0ZJnn+N=Vt2n_aO4CnM=E4qpe_3dmu-c8_Ufp8ZzQ@mail.gmail.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <CACRpkdbvN0ZJnn+N=Vt2n_aO4CnM=E4qpe_3dmu-c8_Ufp8ZzQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1650557234;1cd7b2c7;
-X-HE-SMSGID: 1nhZKp-0004EH-PB
-X-Spam-Status: No, score=-5.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.311-2-g933b72f0f6f0
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 42 runs,
+ 1 regressions (v4.9.311-2-g933b72f0f6f0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 20.04.22 00:02, Linus Walleij wrote:
-> On Mon, Apr 18, 2022 at 6:34 AM Mario Limonciello
-> <mario.limonciello@amd.com> wrote:
-> 
->> Linus Walleij,
->>
->> As this is backported to 5.15.y, 5.16.y, 5.17.y and those all had point
->> releases a bunch of people are hitting it now.  If you choose to adopt
->> this patch instead of revert the broken one, you can add to the commit
->> message too:
->>
->> Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1976
-> 
-> I am on parental leave kind of, but Bartosz knows what to do,
-> in this case, since it is ACPI-related, Andy knows best what
-> to do, and I see he also replied.
+stable-rc/queue/4.9 baseline: 42 runs, 1 regressions (v4.9.311-2-g933b72f0f=
+6f0)
 
-Bartosz, Andy, what's the status here? It looks like the patch didn't
-make any progress in the past few days (or did I miss it?). I'd really
-like to see this patch or a revert of 5467801f1fcb ("gpio: Restrict
-usage of GPIO chip irq members before initialization") mainlined by rc4,
-so Greg (CCed) can fix it in the next round of stable updates, as it
-seems quite a few people are affected by the problem.
+Regressions Summary
+-------------------
 
-Reminder: this is one of those issue that we IMHO really should fix
-quickly, as explained by a text recently added to the documentation:
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/handling-regressions.rst#n131
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.311-2-g933b72f0f6f0/plan/baseline/
 
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.311-2-g933b72f0f6f0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      933b72f0f6f0092dbf6cb8f90552d4cc5d6d6d25 =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab          | compiler | defconfig | regressions
+----------------+-------+--------------+----------+-----------+------------
+meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/626149b44c3701329cff945e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.311-2=
+-g933b72f0f6f0/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.311-2=
+-g933b72f0f6f0/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p200=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220411.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/626149b44c3701329cff9=
+45f
+        failing since 15 days (last pass: v4.9.306-19-g53cdf8047e71, first =
+fail: v4.9.307-10-g6fa56dc70baa) =
+
+ =20
