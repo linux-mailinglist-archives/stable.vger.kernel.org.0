@@ -2,150 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39764509843
-	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 09:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4683E50989D
+	for <lists+stable@lfdr.de>; Thu, 21 Apr 2022 09:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385352AbiDUG5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 02:57:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58344 "EHLO
+        id S1385508AbiDUHDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 03:03:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355352AbiDUG5B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 02:57:01 -0400
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 880641573A;
-        Wed, 20 Apr 2022 23:53:13 -0700 (PDT)
-Received: by mail-qv1-f43.google.com with SMTP id a10so3043988qvm.8;
-        Wed, 20 Apr 2022 23:53:13 -0700 (PDT)
+        with ESMTP id S1385537AbiDUHCh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 03:02:37 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E8B16595
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 23:59:40 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id v15so5224221edb.12
+        for <stable@vger.kernel.org>; Wed, 20 Apr 2022 23:59:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=8+/qXaP3Rn2VMBa9pP1mhLJpNqkiglYV3CYIlra+cK0=;
+        b=Se0rkq5+hT7wBGvuFUxhmgvSMymSuRPSiXodX/zQoYYw2lPnXSYsMkCJ5WgJ2kQT2Q
+         mBvjYEK3Ow+cxkuxIGujjzSVnld87ZU49iWeSr7Yf1FVLCi3OJJT/WAXZeJfYJz+6zCp
+         vKRRcMFNAN3lDmSsDWip53WZu5kKIcZdWn872gXe0bD771YNLNmQOZeUAM+wQawPIO+s
+         p48XItLdkpued2GTIHovKJLCZErf43Et0rrTPkhvFTkDKuNbYMKSYjJPHEmYi8m9RsKX
+         MI/vKP49sR6SeLAydobv4kqeI+sXkoqSJe1f0+DByPuKoA4YWorma5d0fcy4R8uIKYpG
+         bF3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=qJDkHKGLNQny7+nf6+dAQhj4pSl5mPJhKTIW2Wu14QI=;
-        b=shpFBf9WInVCfV0s6K0AO6KIS/NaU1qw83eQ2sk8NO/39KEAaJi438icMOKafAB1He
-         MQZgmFubtpJ/e3X+55RD7ANmRgHEICjrTsRuanjxmzMdO8OwiWC9j81ANxgqJ7uNROm+
-         fFwoWS/pBZW3jsUJ/8j2H5dd08HptEHaBuPYRmlqZxKH/e97VPkRkE7Z1otqzCo5RQ98
-         u+53OyFejpH370mVCNHcg+oAAKiIcOwZpYJzj+azQDZltKoDqtJe+3iT9NfkvIuGPi//
-         4ZpUyjPLanLPSJuuvSHH49Pgg8PxhMmAkbATHUHY3WXYNGRQO/gTMN3/qiuu/T0nG1Ra
-         lKPQ==
-X-Gm-Message-State: AOAM5328t5MtqGld9LoXHrACLOayXKoYUuBcjlDr2wIL1LABz2v81d+J
-        N+A4oe+nJwq4cnQ8QwqBD0uNTthZjJyNkBaG
-X-Google-Smtp-Source: ABdhPJxAkrc4iamroPKLpa3tQkmgZXpblVdnmpT6fa++ZhcR2yYkYarZIQGcuPizOU4JTToCQNlLnQ==
-X-Received: by 2002:a05:6214:769:b0:446:538f:2b86 with SMTP id f9-20020a056214076900b00446538f2b86mr14708824qvz.4.1650523992310;
-        Wed, 20 Apr 2022 23:53:12 -0700 (PDT)
-Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com. [209.85.219.180])
-        by smtp.gmail.com with ESMTPSA id a190-20020a3766c7000000b0069e770524adsm2627453qkc.114.2022.04.20.23.53.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Apr 2022 23:53:11 -0700 (PDT)
-Received: by mail-yb1-f180.google.com with SMTP id p65so7014414ybp.9;
-        Wed, 20 Apr 2022 23:53:11 -0700 (PDT)
-X-Received: by 2002:a5b:984:0:b0:63f:8c38:676c with SMTP id
- c4-20020a5b0984000000b0063f8c38676cmr23970174ybq.393.1650523990757; Wed, 20
- Apr 2022 23:53:10 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=8+/qXaP3Rn2VMBa9pP1mhLJpNqkiglYV3CYIlra+cK0=;
+        b=kGpO0dL8s8fNfl+5XD7tI8tD8PIXmSYdIDLUpohU4wmjd2tnZNX0uO4mTARIzgXdR0
+         qYYAWN1iWcyutGIi76D4E7YPPsZuw61A5/dGDfXdKSMp/AsnwhT9v8fAqNP/bZTn2QDy
+         1gVV0xOaM6eMBpKhwlGPrbYoVh5071m9gtz3JBIiV5PZCX9UWliYeZ5jdFPQk8V8I+8j
+         g38/fHam9uctMGHKQ0jEgHtZ3yb+WlVMEoBxaaQmYozUNeVchKaMU1FWUhB4B2BvhBvU
+         Z2tZ7CgHlhqGWNHR/LjtqMW5kchv9mwIXIO7Fcs65KHLQFh5gNElzmmffiCPRw3PLLHm
+         HrNA==
+X-Gm-Message-State: AOAM5334UXtuKim5t9Sl3JAK4Ks4YZ7jsi1LccvfPeIpmXGNnR1XKBXV
+        exu2svP3mGxlcXPgoryzCP5YUw==
+X-Google-Smtp-Source: ABdhPJz8w0fwC1ZBlr4j/TglLpPwjT/0e9rFCTTIXH0RDOXEbm6TC8FbPjjWHOSMIFB8xokk6lL7nw==
+X-Received: by 2002:a05:6402:27c6:b0:423:e599:e49e with SMTP id c6-20020a05640227c600b00423e599e49emr20683339ede.180.1650524379120;
+        Wed, 20 Apr 2022 23:59:39 -0700 (PDT)
+Received: from localhost.localdomain (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
+        by smtp.gmail.com with ESMTPSA id ah13-20020a1709069acd00b006e8a0b3e071sm7544949ejc.110.2022.04.20.23.59.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Apr 2022 23:59:38 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To:     linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Tomasz Figa <tomasz.figa@gmail.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>
+Cc:     Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config
+Date:   Thu, 21 Apr 2022 08:59:35 +0200
+Message-Id: <165052437270.10147.2588603616348039313.b4-ty@linaro.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220420141407.470955-1-krzysztof.kozlowski@linaro.org>
+References: <20220420141407.470955-1-krzysztof.kozlowski@linaro.org>
 MIME-Version: 1.0
-References: <20220414091018.896737-1-niklas.cassel@wdc.com>
- <f379cb56-6ff5-f256-d5f2-3718a47e976d@opensource.wdc.com> <Yli8voX7hw3EZ7E/@x1-carbon>
- <81788b56-5b15-7308-38c7-c7f2502c4e15@linux-m68k.org> <87levzzts4.fsf_-_@email.froward.int.ebiederm.org>
- <01b063d7-d5c2-8af0-ad90-ed6c069252c5@linux-m68k.org>
-In-Reply-To: <01b063d7-d5c2-8af0-ad90-ed6c069252c5@linux-m68k.org>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Thu, 21 Apr 2022 08:52:59 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdXd94L=766usN4WG-hK2MpQLy50mJZ=9G9NGv03kx8V8Q@mail.gmail.com>
-Message-ID: <CAMuHMdXd94L=766usN4WG-hK2MpQLy50mJZ=9G9NGv03kx8V8Q@mail.gmail.com>
-Subject: Re: [PATCH] binfmt_flat: Remove shared library support
-To:     Greg Ungerer <gerg@linux-m68k.org>
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Kees Cook <keescook@chromium.org>,
-        Niklas Cassel <Niklas.Cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Mike Frysinger <vapier@gentoo.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>,
-        Linux-Arch <linux-arch@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux-sh list <linux-sh@vger.kernel.org>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 21, 2022 at 1:53 AM Greg Ungerer <gerg@linux-m68k.org> wrote:
-> On 21/4/22 00:58, Eric W. Biederman wrote:
-> > In a recent discussion[1] it was reported that the binfmt_flat library
-> > support was only ever used on m68k and even on m68k has not been used
-> > in a very long time.
-> >
-> > The structure of binfmt_flat is different from all of the other binfmt
-> > implementations becasue of this shared library support and it made
-> > life and code review more effort when I refactored the code in fs/exec.c.
-> >
-> > Since in practice the code is dead remove the binfmt_flat shared libarary
-> > support and make maintenance of the code easier.
-> >
-> > [1] https://lkml.kernel.org/r/81788b56-5b15-7308-38c7-c7f2502c4e15@linux-m68k.org
-> > Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-> > ---
-> >
-> > Can the binfmt_flat folks please verify that the shared library support
-> > really isn't used?
->
-> I can definitely confirm I don't use it on m68k. And I don't know of
-> anyone that has used it in many years.
->
->
-> > Was binfmt_flat being enabled on arm and sh the mistake it looks like?
+On Wed, 20 Apr 2022 16:14:07 +0200, Krzysztof Kozlowski wrote:
+> The Samsung pinctrl drivers depend on OF_GPIO, which is part of GPIOLIB.
+> ARMv7 Exynos platform selects GPIOLIB and Samsung pinctrl drivers. ARMv8
+> Exynos selects only the latter leading to possible wrong configuration
+> on ARMv8 build:
+> 
+>   WARNING: unmet direct dependencies detected for PINCTRL_EXYNOS
+>     Depends on [n]: PINCTRL [=y] && OF_GPIO [=n] && (ARCH_EXYNOS [=y] || ARCH_S5PV210 || COMPILE_TEST [=y])
+>     Selected by [y]:
+>     - ARCH_EXYNOS [=y]
+> 
+> [...]
 
-I think the question was intended to be
+Applied, thanks!
 
-    Was *binfmt_flat_shared_flat* being enabled on arm and sh the
-    mistake it looks like?
+[1/1] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config
+      commit: ac875df4d854ab13d9c4af682a1837a1214fecec
 
-> >
-> >   arch/arm/configs/lpc18xx_defconfig |   1 -
-> >   arch/arm/configs/mps2_defconfig    |   1 -
-> >   arch/arm/configs/stm32_defconfig   |   1 -
-> >   arch/arm/configs/vf610m4_defconfig |   1 -
->
-> binfmt_flat works on ARM. I use it all the time.
-> According to those defconfigs those are all non-MMU systems, so
-> having binfmt_flat enabled makes some sense there.
->
->
-> >   arch/sh/configs/rsk7201_defconfig  |   1 -
-> >   arch/sh/configs/rsk7203_defconfig  |   1 -
-> >   arch/sh/configs/se7206_defconfig   |   1 -
->
-> Those are all SH2 systems if I am reading the defconfigs correctly.
-> SH2 is non-MMU according to the Kconfig setup. So it makes sense that
-> binfmt_flat is enabled on those too.
-
-I've checked git history, and CONFIG_BINFMT_SHARED_FLAT was enabled
-in se7206_defconfig in a non-specific defconfig update, so no
-further info.
-The other two had it enabled since their introduction, so I guess
-they were just based on the former.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Best regards,
+-- 
+Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
