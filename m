@@ -2,172 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A29DD50AC04
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0675C50AC05
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 01:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442584AbiDUXif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 19:38:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40296 "EHLO
+        id S1442583AbiDUXiq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 19:38:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442583AbiDUXie (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:38:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FFD24617E;
-        Thu, 21 Apr 2022 16:35:43 -0700 (PDT)
+        with ESMTP id S1442587AbiDUXil (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 19:38:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D814615F;
+        Thu, 21 Apr 2022 16:35:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18236B829AB;
-        Thu, 21 Apr 2022 23:35:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA29DC385AB;
-        Thu, 21 Apr 2022 23:35:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79FCBB829A7;
+        Thu, 21 Apr 2022 23:35:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16372C385A5;
+        Thu, 21 Apr 2022 23:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1650584140;
-        bh=nY8N0bNibmYZKD4dAvsEBjoo8JN1MQlNzfXmO/adiPc=;
+        s=korg; t=1650584147;
+        bh=o9AmBZ97xph/P353g6OX4XLQm6BehR5eRzobhAKu0NY=;
         h=Date:To:From:In-Reply-To:Subject:From;
-        b=QdxtCKIMgLb90C8APyRvSx3rYIBuEGW4RqChtuDZcj0EZslFVheNMVc44iKsFsxrM
-         QLuZRCUzsH5Rv47xX7+lqmn0zA8GkIYoJV3fhUE8U8Mcvyi5cf+tYhBcqBK1ryy28Z
-         L6Rtlp7YCX0N6EHaV08IMNR44iqRg49uqbROo0hg=
-Date:   Thu, 21 Apr 2022 16:35:40 -0700
-To:     stable@vger.kernel.org, roman.gushchin@linux.dev, mkoutny@suse.com,
-        mhocko@suse.com, ivan@cloudflare.com, hannes@cmpxchg.org,
-        fhofmann@cloudflare.com, dqminh@cloudflare.com,
-        shakeelb@google.com, akpm@linux-foundation.org,
-        patches@lists.linux.dev, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org
+        b=GzGCXdJr1ALTj67BkvEvaT15IiVvYNyw1wHHWBoMG0hw5bMJ6lVZxewdDHH4vrByY
+         lW5edXABeh9Rt41DqI1Gy0EYfznzsexOhtEuaOORXajZvVXsHe6HVKhmQkiyyMrkOc
+         k99vfHvz3fqMJtPHMKoqIwZpHdTwAPx/GwoYG0fU=
+Date:   Thu, 21 Apr 2022 16:35:46 -0700
+To:     will.deacon@arm.com, steve.capper@arm.com, stable@vger.kernel.org,
+        catalin.marinas@arm.com, christophe.leroy@csgroup.eu,
+        akpm@linux-foundation.org, patches@lists.linux.dev,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
 In-Reply-To: <20220421163508.66028a9ac2d9fb6ea05b1342@linux-foundation.org>
-Subject: [patch 03/13] memcg: sync flush only if periodic flush is delayed
-Message-Id: <20220421233540.AA29DC385AB@smtp.kernel.org>
+Subject: [patch 05/13] mm, hugetlb: allow for "high" userspace addresses
+Message-Id: <20220421233547.16372C385A5@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
-Subject: memcg: sync flush only if periodic flush is delayed
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: mm, hugetlb: allow for "high" userspace addresses
 
-Daniel Dao has reported [1] a regression on workloads that may trigger a
-lot of refaults (anon and file).  The underlying issue is that flushing
-rstat is expensive.  Although rstat flush are batched with (nr_cpus *
-MEMCG_BATCH) stat updates, it seems like there are workloads which
-genuinely do stat updates larger than batch value within short amount of
-time.  Since the rstat flush can happen in the performance critical
-codepaths like page faults, such workload can suffer greatly.
+This is a fix for commit f6795053dac8 ("mm: mmap: Allow for "high"
+userspace addresses") for hugetlb.
 
-This patch fixes this regression by making the rstat flushing conditional
-in the performance critical codepaths.  More specifically, the kernel
-relies on the async periodic rstat flusher to flush the stats and only if
-the periodic flusher is delayed by more than twice the amount of its
-normal time window then the kernel allows rstat flushing from the
-performance critical codepaths.
+This patch adds support for "high" userspace addresses that are optionally
+supported on the system and have to be requested via a hint mechanism
+("high" addr parameter to mmap).
 
-Now the question: what are the side-effects of this change?  The worst
-that can happen is the refault codepath will see 4sec old lruvec stats and
-may cause false (or missed) activations of the refaulted page which may
-under-or-overestimate the workingset size.  Though that is not very
-concerning as the kernel can already miss or do false activations.
+Architectures such as powerpc and x86 achieve this by making changes to
+their architectural versions of hugetlb_get_unmapped_area() function. 
+However, arm64 uses the generic version of that function.
 
-There are two more codepaths whose flushing behavior is not changed by
-this patch and we may need to come to them in future.  One is the
-writeback stats used by dirty throttling and second is the deactivation
-heuristic in the reclaim.  For now keeping an eye on them and if there is
-report of regression due to these codepaths, we will reevaluate then.
+So take into account arch_get_mmap_base() and arch_get_mmap_end() in
+hugetlb_get_unmapped_area().  To allow that, move those two macros out of
+mm/mmap.c into include/linux/sched/mm.h
 
-Link: https://lore.kernel.org/all/CA+wXwBSyO87ZX5PVwdHm-=dBjZYECGmfnydUicUyrQqndgX2MQ@mail.gmail.com [1]
-Link: https://lkml.kernel.org/r/20220304184040.1304781-1-shakeelb@google.com
-Fixes: 1f828223b799 ("memcg: flush lruvec stats in the refault")
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reported-by: Daniel Dao <dqminh@cloudflare.com>
-Tested-by: Ivan Babrou <ivan@cloudflare.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Koutný <mkoutny@suse.com>
-Cc: Frank Hofmann <fhofmann@cloudflare.com>
-Cc: <stable@vger.kernel.org>
+If these macros are not defined in architectural code then they default to
+(TASK_SIZE) and (base) so should not introduce any behavioural changes to
+architectures that do not define them.
+
+For the time being, only ARM64 is affected by this change.
+
+Catalin (ARM64) said
+
+: We should have fixed hugetlb_get_unmapped_area() as well when we added
+: support for 52-bit VA.  The reason for commit f6795053dac8 was to prevent
+: normal mmap() from returning addresses above 48-bit by default as some
+: user-space had hard assumptions about this.
+: 
+: It's a slight ABI change if you do this for hugetlb_get_unmapped_area()
+: but I doubt anyone would notice.  It's more likely that the current
+: behaviour would cause issues, so I'd rather have them consistent.
+:
+: Basically when arm64 gained support for 52-bit addresses we did not
+: want user-space calling mmap() to suddenly get such high addresses,
+: otherwise we could have inadvertently broken some programs (similar
+: behaviour to x86 here).  Hence we added commit f6795053dac8.  But we
+: missed hugetlbfs which could still get such high mmap() addresses.  So
+: in theory that's a potential regression that should have bee addressed
+: at the same time as commit f6795053dac8 (and before arm64 enabled
+: 52-bit addresses).
+
+Link: https://lkml.kernel.org/r/ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu
+Fixes: f6795053dac8 ("mm: mmap: Allow for "high" userspace addresses")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: <stable@vger.kernel.org>	[5.0.x]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/memcontrol.h |    5 +++++
- mm/memcontrol.c            |   12 +++++++++++-
- mm/workingset.c            |    2 +-
- 3 files changed, 17 insertions(+), 2 deletions(-)
+ fs/hugetlbfs/inode.c     |    9 +++++----
+ include/linux/sched/mm.h |    8 ++++++++
+ mm/mmap.c                |    8 --------
+ 3 files changed, 13 insertions(+), 12 deletions(-)
 
---- a/include/linux/memcontrol.h~memcg-sync-flush-only-if-periodic-flush-is-delayed
-+++ a/include/linux/memcontrol.h
-@@ -1012,6 +1012,7 @@ static inline unsigned long lruvec_page_
- }
+--- a/fs/hugetlbfs/inode.c~mm-hugetlbfs-allow-for-high-userspace-addresses
++++ a/fs/hugetlbfs/inode.c
+@@ -206,7 +206,7 @@ hugetlb_get_unmapped_area_bottomup(struc
+ 	info.flags = 0;
+ 	info.length = len;
+ 	info.low_limit = current->mm->mmap_base;
+-	info.high_limit = TASK_SIZE;
++	info.high_limit = arch_get_mmap_end(addr);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	return vm_unmapped_area(&info);
+@@ -222,7 +222,7 @@ hugetlb_get_unmapped_area_topdown(struct
+ 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
+ 	info.length = len;
+ 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+-	info.high_limit = current->mm->mmap_base;
++	info.high_limit = arch_get_mmap_base(addr, current->mm->mmap_base);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	addr = vm_unmapped_area(&info);
+@@ -237,7 +237,7 @@ hugetlb_get_unmapped_area_topdown(struct
+ 		VM_BUG_ON(addr != -ENOMEM);
+ 		info.flags = 0;
+ 		info.low_limit = current->mm->mmap_base;
+-		info.high_limit = TASK_SIZE;
++		info.high_limit = arch_get_mmap_end(addr);
+ 		addr = vm_unmapped_area(&info);
+ 	}
  
- void mem_cgroup_flush_stats(void);
-+void mem_cgroup_flush_stats_delayed(void);
+@@ -251,6 +251,7 @@ hugetlb_get_unmapped_area(struct file *f
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	struct hstate *h = hstate_file(file);
++	const unsigned long mmap_end = arch_get_mmap_end(addr);
  
- void __mod_memcg_lruvec_state(struct lruvec *lruvec, enum node_stat_item idx,
- 			      int val);
-@@ -1455,6 +1456,10 @@ static inline void mem_cgroup_flush_stat
- {
- }
+ 	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+@@ -266,7 +267,7 @@ hugetlb_get_unmapped_area(struct file *f
+ 	if (addr) {
+ 		addr = ALIGN(addr, huge_page_size(h));
+ 		vma = find_vma(mm, addr);
+-		if (TASK_SIZE - len >= addr &&
++		if (mmap_end - len >= addr &&
+ 		    (!vma || addr + len <= vm_start_gap(vma)))
+ 			return addr;
+ 	}
+--- a/include/linux/sched/mm.h~mm-hugetlbfs-allow-for-high-userspace-addresses
++++ a/include/linux/sched/mm.h
+@@ -136,6 +136,14 @@ static inline void mm_update_next_owner(
+ #endif /* CONFIG_MEMCG */
  
-+static inline void mem_cgroup_flush_stats_delayed(void)
-+{
-+}
+ #ifdef CONFIG_MMU
++#ifndef arch_get_mmap_end
++#define arch_get_mmap_end(addr)	(TASK_SIZE)
++#endif
 +
- static inline void __mod_memcg_lruvec_state(struct lruvec *lruvec,
- 					    enum node_stat_item idx, int val)
- {
---- a/mm/memcontrol.c~memcg-sync-flush-only-if-periodic-flush-is-delayed
-+++ a/mm/memcontrol.c
-@@ -587,6 +587,9 @@ static DECLARE_DEFERRABLE_WORK(stats_flu
- static DEFINE_SPINLOCK(stats_flush_lock);
- static DEFINE_PER_CPU(unsigned int, stats_updates);
- static atomic_t stats_flush_threshold = ATOMIC_INIT(0);
-+static u64 flush_next_time;
++#ifndef arch_get_mmap_base
++#define arch_get_mmap_base(addr, base) (base)
++#endif
 +
-+#define FLUSH_TIME (2UL*HZ)
- 
- /*
-  * Accessors to ensure that preemption is disabled on PREEMPT_RT because it can
-@@ -637,6 +640,7 @@ static void __mem_cgroup_flush_stats(voi
- 	if (!spin_trylock_irqsave(&stats_flush_lock, flag))
- 		return;
- 
-+	flush_next_time = jiffies_64 + 2*FLUSH_TIME;
- 	cgroup_rstat_flush_irqsafe(root_mem_cgroup->css.cgroup);
- 	atomic_set(&stats_flush_threshold, 0);
- 	spin_unlock_irqrestore(&stats_flush_lock, flag);
-@@ -648,10 +652,16 @@ void mem_cgroup_flush_stats(void)
- 		__mem_cgroup_flush_stats();
+ extern void arch_pick_mmap_layout(struct mm_struct *mm,
+ 				  struct rlimit *rlim_stack);
+ extern unsigned long
+--- a/mm/mmap.c~mm-hugetlbfs-allow-for-high-userspace-addresses
++++ a/mm/mmap.c
+@@ -2117,14 +2117,6 @@ unsigned long vm_unmapped_area(struct vm
+ 	return addr;
  }
  
-+void mem_cgroup_flush_stats_delayed(void)
-+{
-+	if (time_after64(jiffies_64, flush_next_time))
-+		mem_cgroup_flush_stats();
-+}
-+
- static void flush_memcg_stats_dwork(struct work_struct *w)
- {
- 	__mem_cgroup_flush_stats();
--	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, 2UL*HZ);
-+	queue_delayed_work(system_unbound_wq, &stats_flush_dwork, FLUSH_TIME);
- }
- 
- /**
---- a/mm/workingset.c~memcg-sync-flush-only-if-periodic-flush-is-delayed
-+++ a/mm/workingset.c
-@@ -355,7 +355,7 @@ void workingset_refault(struct folio *fo
- 
- 	mod_lruvec_state(lruvec, WORKINGSET_REFAULT_BASE + file, nr);
- 
--	mem_cgroup_flush_stats();
-+	mem_cgroup_flush_stats_delayed();
- 	/*
- 	 * Compare the distance to the existing workingset size. We
- 	 * don't activate pages that couldn't stay resident even if
+-#ifndef arch_get_mmap_end
+-#define arch_get_mmap_end(addr)	(TASK_SIZE)
+-#endif
+-
+-#ifndef arch_get_mmap_base
+-#define arch_get_mmap_base(addr, base) (base)
+-#endif
+-
+ /* Get an address range which is currently unmapped.
+  * For shmat() with addr=0.
+  *
 _
