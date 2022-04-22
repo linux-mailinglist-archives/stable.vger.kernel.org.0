@@ -2,102 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18CE250B7EA
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 15:08:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E64350B7EE
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 15:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1444406AbiDVNLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Apr 2022 09:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44914 "EHLO
+        id S234042AbiDVNNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Apr 2022 09:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233857AbiDVNLA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 09:11:00 -0400
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE6557B03
-        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 06:08:05 -0700 (PDT)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-2ef4a241cc5so84683987b3.2
-        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 06:08:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=K/QYeJ6Kr5gfIU7Fpl89QyGTQtjDb8YQe7UgywJHBLM=;
-        b=aSi72HwRkNKeCnsdRQ5H8lrYQf9zUbzdguuAWV4Jzn+uS7+lADcBRtTuSzqC18xC7n
-         kbOgteEcYjWlmmx3DghdqDSlXUKJfILysvGG6Qp79b3pIfpXQdGMmmuHxnhZhX5xiFOj
-         c/4SoBycgKeA+9iWe5kNnG8PFLQQMtyj16l4XHK5Fa2VKM7p1VxVZXDYnpXAXheZ5Lhk
-         +hpnGxZW34aqtzgGwRDlDeS38lNpOhnzxZgFk8p52yFLfMBDg3skdvKbLgV2WclSJ/Ig
-         4eoCPPYYDvPbQkJ2IL/LzFvfcPtB0ZveH2TLFrfotrWnMhgmDgA7ScXEkFilFL9mdewM
-         Cv6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=K/QYeJ6Kr5gfIU7Fpl89QyGTQtjDb8YQe7UgywJHBLM=;
-        b=RzU1sctwRFjKCpoeJZmK+S2siLdYzQ5QdjkqEVnj4MYa3Ho2/Tz+LhwdIqmZnWV0SU
-         c0p4qhYddOt7IypY5CqDn2XHZDHZRI5phYiSkFnwQQxdDBa6Foq85IkDFja0UZYZF+ds
-         K3V8VUmlXm1dXCLq0ydCTFmcgU04ITWWorRZDpLBXIiHGrxosvo2VS1w8ybpw4d2WZwa
-         u9f7UOn24IGfqMOR779VP8PimofdCZhufqHAFqrSFAF/n9CQTdZ72V2AMsx4A+WBcMCD
-         JFJLIXD4KXesn4Suz1YFZeqiBM0nFhDpoclcWBatHTUZNGImsGzJkuYT5tybybqfZ3s5
-         7p9w==
-X-Gm-Message-State: AOAM530Bz9+rUcuLihlsq2hHotSuVXT3Xva+A7TnFVKMczIt94Pxi5Of
-        FTcQFjRYLNVFwPCfc6+EWhFmIzS6pHsh1Kx2eyk=
-X-Google-Smtp-Source: ABdhPJyFWpwXRoWc3PmCfzBrHYTet+SEHWqxkHRayj9SZprzXeSD18agxerfqz0VyiYpcSs4cy4tZPTBkuJO1sXL5OA=
-X-Received: by 2002:a81:52c8:0:b0:2ec:8fa:ebfd with SMTP id
- g191-20020a8152c8000000b002ec08faebfdmr4611244ywb.502.1650632882945; Fri, 22
- Apr 2022 06:08:02 -0700 (PDT)
+        with ESMTP id S233857AbiDVNND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 09:13:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45F5815712;
+        Fri, 22 Apr 2022 06:10:10 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A24CB82CC4;
+        Fri, 22 Apr 2022 13:10:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B350AC385AB;
+        Fri, 22 Apr 2022 13:10:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650633007;
+        bh=ItXHPzCWaDbrNKiK53WMBEuShGLtb9S+gVvDhMea3zA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=BRg+lJsQSUhF/pS107sPkge5fTxCbjdpNym7EP/J6tip7amPjyC8QJcLz5wN14ODv
+         5Szcg/+3GNWkDRWb+Z/QZvdgsCt4vHw3KLV8KNTw2ipKIK8lIt9Q7+Lx+bEupT9k04
+         apsWZOinAIy4J+Z0UL70kwo+dKVhnCFEKIBi2YVSpGMHNXNrqG4IJdSDk0TaA7MBTD
+         1Tw1EexQbi4w5W7fiD8G76mn/VfRjqDK5rsQp+1VZmOjYj7mLNu50vXS2VOGqrMlrr
+         vLwAzlWEIfiCa9LdWUWK9dAWWbfpQUNZDt7EKiRWwZ59MJng25xNIuY4xL6Uqr1y4R
+         tBSUud6e9zxlg==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan+linaro@kernel.org>)
+        id 1nht2w-0000XM-3N; Fri, 22 Apr 2022 15:10:02 +0200
+From:   Johan Hovold <johan+linaro@kernel.org>
+To:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Vinod Koul <vkoul@kernel.org>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-arm-msm@vger.kernel.org, linux-phy@lists.infradead.org,
+        linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org,
+        Vivek Gautam <vivek.gautam@codeaurora.org>
+Subject: [PATCH 1/2] phy: qcom-qmp: fix struct clk leak on probe errors
+Date:   Fri, 22 Apr 2022 15:09:40 +0200
+Message-Id: <20220422130941.2044-2-johan+linaro@kernel.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220422130941.2044-1-johan+linaro@kernel.org>
+References: <20220422130941.2044-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:a05:7010:a8a4:b0:24c:a8cb:c13b with HTTP; Fri, 22 Apr 2022
- 06:08:02 -0700 (PDT)
-Reply-To: regkabbah@naver.com
-From:   Regis Kabbah <jonegoce2@gmail.com>
-Date:   Fri, 22 Apr 2022 13:08:02 +0000
-Message-ID: <CA+kmhPteHcNPSD5+npSefwVvu04GE2U6MKPy9Z8iw+TYYwMVFA@mail.gmail.com>
-Subject: Project
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.4 required=5.0 tests=BAYES_50,DEAR_SOMETHING,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:1131 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4851]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [jonegoce2[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [jonegoce2[at]gmail.com]
-        *  2.0 DEAR_SOMETHING BODY: Contains 'Dear (something)'
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *******
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Make sure to release the pipe clock reference in case of a late probe
+error (e.g. probe deferral).
+
+Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
+Cc: stable@vger.kernel.org      # 4.12
+Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+---
+ drivers/phy/qualcomm/phy-qcom-qmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
+index 7d2d1ab061f7..a84f7d1fc9b7 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+@@ -6077,7 +6077,7 @@ int qcom_qmp_phy_create(struct device *dev, struct device_node *np, int id,
+ 	 * all phys that don't need this.
+ 	 */
+ 	snprintf(prop_name, sizeof(prop_name), "pipe%d", id);
+-	qphy->pipe_clk = of_clk_get_by_name(np, prop_name);
++	qphy->pipe_clk = devm_get_clk_from_child(dev, np, prop_name);
+ 	if (IS_ERR(qphy->pipe_clk)) {
+ 		if (cfg->type == PHY_TYPE_PCIE ||
+ 		    cfg->type == PHY_TYPE_USB3) {
 -- 
-Dear Sir,
+2.35.1
 
-How are you?
-I am Regis Kabbah. I have a business opportunity to discuss with you.
-If you will be interested in listening further on this project, do
-reply to enable me elaborate you on the subject.
-
-Best Regards,
-
-Regis Kabbah.
