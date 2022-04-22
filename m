@@ -2,97 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C57F950B624
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 13:28:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26BE350B6FC
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 14:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1447083AbiDVLbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Apr 2022 07:31:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42932 "EHLO
+        id S1447354AbiDVMMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Apr 2022 08:12:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447058AbiDVLbX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 07:31:23 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5CEB5522E
-        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 04:28:29 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id bv19so15777096ejb.6
-        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 04:28:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=rDJ/zdSmIucIthkKmtXJ6U33mHRSC560+Ww4kYpDyCs=;
-        b=D3Tpu+pzc0kIyPFLpFdcceJeJQB0AiuAdbygSMbr6q08PU1/NxBJovvMsllaWlw6lU
-         rfdB53cP7aTB+JZSNicYfv7SfWOnXsgsmNojhBaY+/5JKR7HbGtgMuoBqeFOe2VUpx+e
-         tbWZtAql0y0kV0s2y1kK1AUTskp9wXmYwyKDbdLQdeZRl4MaAn8dlTPKWj3pcKf6mJB9
-         yLBC6dghOII6hSrYitY1ABImbpb7FHdRkatI0sVu4vlALcMjED+ScJ+1UNsEJGrgNiqZ
-         qx+9elEfp7FfBrv854B9ShiKERMG8fncMEE4L9h4Cr+4Jm/hFiWLVS+TA5grCV9Puzkn
-         0g2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=rDJ/zdSmIucIthkKmtXJ6U33mHRSC560+Ww4kYpDyCs=;
-        b=qwpeUsKsQ48+gtITpm3f29bUqKShgNN8QpAn6C64IiWTJtlo4siC8JJZ00tapRcNyC
-         D+Dto2dbVy7eh5Yn7+in5+KAwqRhF38L4sp4InZGAw6QczrMpnjlZSjMkz4iXd2Tre1x
-         0uOpV45cWUAyCXfKB+kOizOCpEtDXF6k1s39k9tR19yXknG2fg/VxELrNSQS1EnZG4b3
-         wdA04hKUN6nzS7bnt/sjK4qR71kM4mfAv/I3qMEWYBkRsnoAdlJ1yCmNizfxExWGCmsp
-         UTeFkY4AZCNLLSlElwb2WkXQzx99xosyLdeks0I0+D7j3Dtb9tBrPE23ufiZxvo0FP8Z
-         wH1A==
-X-Gm-Message-State: AOAM531SKq+mm2rTFHi1ceiIWFhoEzuOyx7Q/wWVSveLJTsKQGjzE7Ut
-        bs1fMsOt70yMP3z+/vOIgqLnatE/iIeHNn+sq/U=
-X-Google-Smtp-Source: ABdhPJyNmaZ0PDwch9Njrili43js980VB/H0fHcAr3+/echKlrZiI6FBx+tdKQEl+5Vu5xyqwCdRoQxhdpmbxQfq888=
-X-Received: by 2002:a17:906:5d10:b0:6f3:65e6:5fcb with SMTP id
- g16-20020a1709065d1000b006f365e65fcbmr522339ejt.212.1650626908324; Fri, 22
- Apr 2022 04:28:28 -0700 (PDT)
+        with ESMTP id S1447330AbiDVMMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 08:12:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7201456740
+        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 05:09:07 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01E1E61FC6
+        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 12:09:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06C25C385A4;
+        Fri, 22 Apr 2022 12:09:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1650629346;
+        bh=RlGEzQWlv09H/8VczInDN3EsUWHgLBoy5YbbTyjH5NY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dI+q0IblNr3RL470m5e0TdZ5zKduOGSnqQZDozKNvck2G7DXOQCBG3cKl5nxpcAR5
+         aVyDx59/barlirpBeaaoSDdTSEfgTK83yvLhZmbopvwfDlFZG0nCFkHbpk3kK3r1cQ
+         nrUk4pa8DJWu/FX3qi2DVJTTQSP7sb3kugYy4l6Y=
+Date:   Fri, 22 Apr 2022 14:09:01 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Joshua Freedman <freedman.joshua@gmail.com>
+Cc:     lis8215@gmail.com, paul@crapouillou.net, stable@vger.kernel.org,
+        sboyd@kernel.org
+Subject: Re: kernel 5.16.12 and above broke yoga c930 sound and mic
+Message-ID: <YmKa3RGRdHTYRRZB@kroah.com>
+References: <YkQUGVC3MBSnc2LI@kroah.com>
+ <CAJQ3t4TqK+q5zeHCQ2uxGvhT4q0Bpe6PBuDTm28HqyHwH5mzhQ@mail.gmail.com>
+ <YkQnGmxdi9GWZmfC@kroah.com>
+ <CAJQ3t4SnNyHEaWizzVDbaMSdHDRe9wHGx2RdgJJea=G4sFmdnw@mail.gmail.com>
+ <YkQ44cqrnIH6aoxg@kroah.com>
+ <CAJQ3t4Rg2WhDoynG=NmHX5dgt3u5BB3gfpAbskb4gQ_R8qxmxA@mail.gmail.com>
+ <YkbYMBpNztYHUsD2@kroah.com>
+ <CAJQ3t4Q3ToQ9_Y3qc2WTsgxD9D14F-x4X5gTDB-mEWXqbeCk=g@mail.gmail.com>
+ <YlP28bAQQB646UXi@kroah.com>
+ <CAJQ3t4Sf3fLqxrpwvmZ9KCgfXVTdaxaUcG1U_gEK+xDo3+BHxQ@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a50:7e86:0:0:0:0:0 with HTTP; Fri, 22 Apr 2022 04:28:27
- -0700 (PDT)
-Reply-To: robertsodjo63@gmail.com
-From:   Roberts kodjo <robertsonkodjo01@gmail.com>
-Date:   Fri, 22 Apr 2022 11:28:27 +0000
-Message-ID: <CAOpP-mnk1pNzS_uEfTDZNr3vZYPGKrMng9nE__aBu1Z7Sd4cyQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:62d listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4939]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [robertsonkodjo01[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [robertsodjo63[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [robertsonkodjo01[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJQ3t4Sf3fLqxrpwvmZ9KCgfXVTdaxaUcG1U_gEK+xDo3+BHxQ@mail.gmail.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Fri, Apr 22, 2022 at 07:09:34AM -0400, Joshua Freedman wrote:
+> The kernel I was using as good for audio is now missing; It was
+> 5.16.11-76051611-generic But the only release avail now is
+> 5.16.11-051611-generic and  audio does not work.
 
-I need to urgently discuss with you about a deceased client of mine
-who died and left a large amount in the Bank here.
+Those look like distro-specific kernels, please contact your distro for
+support of this, there is nothing we can do here about them.
+
+good luck!
+
+greg k-h
