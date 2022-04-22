@@ -2,177 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 839C950ACB0
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 02:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3AD850AD84
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 03:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442580AbiDVARs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Apr 2022 20:17:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35488 "EHLO
+        id S234442AbiDVB7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Apr 2022 21:59:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231574AbiDVARr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 20:17:47 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B4B2729
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 17:14:56 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id g3so5366912pgg.3
-        for <stable@vger.kernel.org>; Thu, 21 Apr 2022 17:14:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=omiGOL2qt0x2weSWdEECmvPW9dqTUCTWMwmX+rmjTzI=;
-        b=G6qxx4I0LIah/NQ5cwQwElz9PBELwABOrA5LwmEQFKnkCFgrL17FQRdaVPg9vxzEGh
-         RJmBB5Aceo4uD0/QcpHKyhMXufLhHoHUyCW81klFafzyi1b+6eHk4CDG4BGAS4QkOYXl
-         q9eJDxCwKvKhreFbdrxrwGXUUFC7kVNU+pJT1ytbSnGU8Zr2Br0weC3seDmcwYfuJvDQ
-         ovyU7HhETEW+8wsFRktJySxnWyviiG/tju7D7G5fi+iXR4xxgc0u1AqL4FBaUxogq3zP
-         tCcqUCM+M1bl5x8Z0sg9B8p0rCmSuypNS4xkKkXaFw5pVxTiavQD5o/kctHhDjNQbozA
-         IJsw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=omiGOL2qt0x2weSWdEECmvPW9dqTUCTWMwmX+rmjTzI=;
-        b=dN4NMb55vlvQHQX0PxbOhhakgbNW1eLIUScMoN/KAPk/9uN8aEJ5L/xilI7DWuclTm
-         0RVpvUBrkv/ML3eScyxWHX7xGsla4Hd8yVLIeSflsPDn8emjS/Xx0uMBDLdTPfEE5FAK
-         n7FvyESo1WT9yum0Jr9jRO309gKErismPkn7cmimw9O/Z5n7jM893qlDOeYQgtQ7ZrLy
-         rsRGb7LbpLo1Bo8TrZd/cPtDAUqxTDjM6FiCNnkbgDzCANhpu/3JeCl735C8oPAv1h8O
-         C+zpJ7onXd0o3nkWa48Kfsh2Xol0SUk6C66/Gi0IjmwjWPa+EbszCrw++MBLclNhP+Ms
-         /mjw==
-X-Gm-Message-State: AOAM533pUFIAwcpuffFtdRPSA5x2GuRoa2o3A5cZckS19OsDJvwwLme2
-        ir6yauZMeBeIt47tjyyaqsEqR0kXYs90/Vrb6Ls=
-X-Google-Smtp-Source: ABdhPJzvfl2uBT7CaZLQnQ/LMoXFfrk7ki1JozgYIEsKS/ZvpX+oeR3AbapoBMq05xgZIit2YbbR2Q==
-X-Received: by 2002:a63:3fcb:0:b0:3aa:36aa:33e8 with SMTP id m194-20020a633fcb000000b003aa36aa33e8mr1652690pga.492.1650586495540;
-        Thu, 21 Apr 2022 17:14:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f14-20020a63380e000000b0038253c4d5casm285013pga.36.2022.04.21.17.14.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Apr 2022 17:14:55 -0700 (PDT)
-Message-ID: <6261f37f.1c69fb81.5b82f.10dd@mx.google.com>
-Date:   Thu, 21 Apr 2022 17:14:55 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233228AbiDVB7T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Apr 2022 21:59:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E57A3C4B3;
+        Thu, 21 Apr 2022 18:56:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CE88B821CA;
+        Fri, 22 Apr 2022 01:56:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7F9EC385A5;
+        Fri, 22 Apr 2022 01:56:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650592585;
+        bh=CzcOPGlCV2xBPZx/jKlTI8M8Y1NunJ0Bj92iUue9INk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=iiLN8BDg66zTXKmHVej8yVayRizhGuBO6B+N2pie/4oFdO7UER4X0grM5jKZfUd5X
+         +l0pfAj72kDnySTte91S4LoxcsVEjE68ufCnw7zdwmBU5yMniRL/NKJEdiQAUPPLXZ
+         k8sdEWmmwA00Jc9SQa/QIWcGgucBqOF5oDVB5KKU2nM1GS0nSvIw/vegRomfXUuHfy
+         bqgaR4JGg1AavxejnRftYJp/6+mxq+KuomAQi1Az1kNY7WLhHn61GrJm3jApHLyvB8
+         cvR4UtgHXunncIwzmHJdcnjh7xB8q+tXreEONhBmKJplF6tUtCHvWNEFKG9xD75BdB
+         R42WeyOzze27A==
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] f2fs: should not truncate blocks during roll-forward recovery
+Date:   Thu, 21 Apr 2022 18:56:24 -0700
+Message-Id: <20220422015624.3521607-1-jaegeuk@kernel.org>
+X-Mailer: git-send-email 2.36.0.rc2.479.g8af0fa9b8e-goog
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.15.35-13-gfcfbe4b48b2d
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-Subject: stable-rc/queue/5.15 baseline: 136 runs,
- 2 regressions (v5.15.35-13-gfcfbe4b48b2d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 136 runs, 2 regressions (v5.15.35-13-gfcfbe4=
-b48b2d)
+If the file preallocated blocks and fsync'ed, we should not truncate them during
+roll-forward recovery which will recover i_size correctly back.
 
-Regressions Summary
--------------------
+Fixes: d4dd19ec1ea0 ("f2fs: do not expose unwritten blocks to user by DIO")
+Cc: <stable@vger.kernel.org> # 5.17+
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+---
+ fs/f2fs/inode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
-      | 1          =
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index 71f232dcf3c2..83639238a1fe 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -550,7 +550,8 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
+ 	}
+ 	f2fs_set_inode_flags(inode);
+ 
+-	if (file_should_truncate(inode)) {
++	if (file_should_truncate(inode) &&
++			!is_sbi_flag_set(sbi, SBI_POR_DOING)) {
+ 		ret = f2fs_truncate(inode);
+ 		if (ret)
+ 			goto bad_inode;
+-- 
+2.36.0.rc2.479.g8af0fa9b8e-goog
 
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.35-13-gfcfbe4b48b2d/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.35-13-gfcfbe4b48b2d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fcfbe4b48b2d5e976b297a08ecb6c7101d118013 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6261bf31bdd83f8050ff9470
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
-13-gfcfbe4b48b2d/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
-13-gfcfbe4b48b2d/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220411.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6261bf31bdd83f8050ff9=
-471
-        failing since 22 days (last pass: v5.15.31-2-g57d4301e22c2, first f=
-ail: v5.15.31-3-g4ae45332eb9c) =
-
- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6261c36783911ea078ff9484
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
-13-gfcfbe4b48b2d/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
-line-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
-13-gfcfbe4b48b2d/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
-line-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220411.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6261c36783911ea078ff94aa
-        failing since 45 days (last pass: v5.15.26-42-gc89c0807b943, first =
-fail: v5.15.26-257-g2b9a22cd5eb8)
-
-    2022-04-21T20:49:18.677073  <8>[   59.740309] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-21T20:49:19.700168  /lava-6143930/1/../bin/lava-test-case
-    2022-04-21T20:49:19.710763  <8>[   60.774439] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
