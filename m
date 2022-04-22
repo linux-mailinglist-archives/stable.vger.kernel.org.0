@@ -2,128 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B7C50B5A9
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 12:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F7E50B5DB
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 13:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446923AbiDVK5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Apr 2022 06:57:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52722 "EHLO
+        id S1446995AbiDVLIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Apr 2022 07:08:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348369AbiDVK51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 06:57:27 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1C7056206
-        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 03:54:34 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id bg9so7038843pgb.9
-        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 03:54:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=51sw1QDiGQwr/C7rmuLlpku5433hqUjAQ2kp9p84xxI=;
-        b=Zq4m8nS58v7C5HqETfdRHC0hl3AnHduhBveY+oNeCQM6bwGyzdN1Gi24Xa3jfvUyl7
-         CHoQpWB53XIqq9F+iDW+tblooUkzf0+sCRdxWo7AprVGToWwNjQvy1xWzmCXWnnmUuv4
-         InZKJczTvLm3Ql1FaIPbjVeU3hn94GA2gVfdXcwA6azDbWWBG3n7rtJpzNAxDXwQYRpZ
-         vS9eV1xNdtdwdLQNNgAosVgSqzxILFpcOwrdiUHsR2ssn7UDa8eTTCLkZP/7g1wsabdN
-         Z++A78BadWLoKVX0eDZ4qD/LsGsoRz66WxT4PfM40VwER6PLXdtyWcKum1u8O8hm/TD/
-         /2pw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=51sw1QDiGQwr/C7rmuLlpku5433hqUjAQ2kp9p84xxI=;
-        b=rZq5UCTTwq/H7auFqQV9FiZZ3yJx4GHdrHaDbp7oRpdBqFt2XSqUo7WvHAIdZWOw6l
-         lewaJye6eFmiCJXpwTtdU+2beMZ1e5XOsOVggXhBKqgVaZRYuLLnTnA/9gcPYT9LPAJu
-         S7kDWQQLOfCLfCxoz4IWG1KEN1al/A3coEIB3irqmOUeayZ3aWUwmyqetKJunLwG6kHK
-         D51FQCDroPrBR1dVd6jn4kVazJE7exaTRpuACdNkbByDGiXiP0DG4F0C0/aWBRPQNdpK
-         V4ouGXvU4HbU3uxwmG7LWEONZUJluv2E6HlS6NiWQo090v7HgNdC9yr42X/TseBA5mNP
-         4LqA==
-X-Gm-Message-State: AOAM532+tJ/FhK7f/4G7Z814ebRugsIpqJz/3zCFKA1Y0XViNGXg9d9c
-        Z16zOO25y9/q2EmM9v3q1a1XH1UwnJAyZJ6uSaU=
-X-Google-Smtp-Source: ABdhPJzmqS2KdU8dNzH8urpwByHXjg7Q6akOOrJ03BI6al2PXJ9PdhsEe81GPRS9HOxNvJnruuEiqQ==
-X-Received: by 2002:a05:6a00:711:b0:4fa:daf1:94c1 with SMTP id 17-20020a056a00071100b004fadaf194c1mr4379171pfl.52.1650624874233;
-        Fri, 22 Apr 2022 03:54:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d141-20020a621d93000000b00505aa1026f1sm2138148pfd.51.2022.04.22.03.54.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Apr 2022 03:54:34 -0700 (PDT)
-Message-ID: <6262896a.1c69fb81.954e2.52fe@mx.google.com>
-Date:   Fri, 22 Apr 2022 03:54:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S245078AbiDVLIE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 07:08:04 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D376D55238;
+        Fri, 22 Apr 2022 04:05:09 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 85C6A1F745;
+        Fri, 22 Apr 2022 11:05:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1650625508; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=XTMtHe0DEbqpErS7R1TOOp7bMasIBNeqbkGsdmdc7Ko=;
+        b=DmAowioWLy8q8gJS/SZc36jXbfkIdJwSSjsgJm84KkmORCTeRBGeM09xLnm2auCaldw7vo
+        9TXlA5rQ653io4fIcCQIE189VIAv9PTX/BDhefqN6exSlqsaHCa8XSG7AwoAMqnsc6wRGg
+        0mCC4yuHYyIqjLc3C6dpDnTg/MUIZjc=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2C231131BD;
+        Fri, 22 Apr 2022 11:05:08 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 9pPTCeSLYmIhNgAAMHmgww
+        (envelope-from <mkoutny@suse.com>); Fri, 22 Apr 2022 11:05:08 +0000
+Date:   Fri, 22 Apr 2022 13:05:06 +0200
+From:   Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
+To:     Tejun Heo <tj@kernel.org>
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>, cgroups@vger.kernel.org,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+Subject: Re: [PATCH] cgroup: don't queue css_release_work if one already
+ pending
+Message-ID: <20220422100400.GA29552@blackbody.suse.cz>
+References: <20220412192459.227740-1-tadeusz.struk@linaro.org>
+ <20220414164409.GA5404@blackbody.suse.cz>
+ <YmHwOAdGY2Lwl+M3@slm.duckdns.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.311-3-g86fa99d8325e8
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 75 runs,
- 1 regressions (v4.9.311-3-g86fa99d8325e8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YmHwOAdGY2Lwl+M3@slm.duckdns.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 75 runs, 1 regressions (v4.9.311-3-g86fa99d83=
-25e8)
+On Thu, Apr 21, 2022 at 02:00:56PM -1000, Tejun Heo <tj@kernel.org> wrote:
+> If this is the case, we need to hold an extra reference to be put by the
+> css_killed_work_fn(), right?
 
-Regressions Summary
--------------------
+I looked into it a bit more lately and found that there already is such
+a fuse in kill_css() [1].
 
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
+At the same type syzbots stack trace demonstrates the fuse is
+ineffective
 
+> css_release+0xae/0xc0 kernel/cgroup/cgroup.c:5146                    (**)
+> percpu_ref_put_many include/linux/percpu-refcount.h:322 [inline]
+> percpu_ref_put include/linux/percpu-refcount.h:338 [inline]
+> percpu_ref_call_confirm_rcu lib/percpu-refcount.c:162 [inline]        (*)
+> percpu_ref_switch_to_atomic_rcu+0x5a2/0x5b0 lib/percpu-refcount.c:199
+> rcu_do_batch+0x4f8/0xbc0 kernel/rcu/tree.c:2485
+> rcu_core+0x59b/0xe30 kernel/rcu/tree.c:2722
+> rcu_core_si+0x9/0x10 kernel/rcu/tree.c:2735
+> __do_softirq+0x27e/0x596 kernel/softirq.c:305
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.311-3-g86fa99d8325e8/plan/baseline/
+(*) this calls css_killed_ref_fn confirm_switch
+(**) zero references after confirmed kill?
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.311-3-g86fa99d8325e8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      86fa99d8325e8d654c7ac8562d6c75b260489bc2 =
+So, I was also looking at the possible race with css_free_rwork_fn()
+(from failed css_create()) but that would likely emit a warning from
+__percpu_ref_exit().
 
+So, I still think there's something fishy (so far possible only via
+artificial ENOMEM injection) that needs an explanation...
 
+Michal
 
-Test Regressions
----------------- =
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/kernel/cgroup/cgroup.c#n5608
 
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6261c66f52e467e269ff9481
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.311-3=
--g86fa99d8325e8/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.311-3=
--g86fa99d8325e8/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220411.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6261c66f52e467e269ff9=
-482
-        failing since 16 days (last pass: v4.9.306-19-g53cdf8047e71, first =
-fail: v4.9.307-10-g6fa56dc70baa) =
-
- =20
