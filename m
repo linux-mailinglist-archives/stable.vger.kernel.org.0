@@ -2,107 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AFAF50BB1B
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 17:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8766950BC06
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 17:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1449137AbiDVPFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Apr 2022 11:05:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47400 "EHLO
+        id S1358425AbiDVPuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Apr 2022 11:50:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449156AbiDVPF1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 11:05:27 -0400
-X-Greylist: delayed 566 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 22 Apr 2022 08:02:00 PDT
-Received: from ns2.wdyn.eu (ns2.wdyn.eu [5.252.227.236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C4EDD5D64E;
-        Fri, 22 Apr 2022 08:02:00 -0700 (PDT)
-From:   Alexander Wetzel <alexander@wetzel-home.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wetzel-home.de;
-        s=wetzel-home; t=1650639152;
-        bh=GaoJjEeYtrkZYq4AFZT1+CvDCcuhrnUYGXMkfI7FpRQ=;
-        h=From:To:Cc:Subject:Date;
-        b=CzwZrV5NYZL8KIzCM80lEPB0a80IVCueADtEVEo9uBUEVg8EmD2lDnBRKGL3r+Z8o
-         5S5mdhPakWfCJItvRs08fROhG85iWAsV715NDOvLFcvnk/HL6a/SnuT4ztipDUmFpQ
-         bebjjXoAlKOM3jkhvN7xSI6T0SiOgcMESUb9RuTU=
-To:     linux-wireless@vger.kernel.org
-Cc:     Alexander Wetzel <alexander@wetzel-home.de>,
-        stable@vger.kernel.org, pa@panix.com
-Subject: [PATCH] rtl8180: Prevent using not initialized queues
-Date:   Fri, 22 Apr 2022 16:52:28 +0200
-Message-Id: <20220422145228.7567-1-alexander@wetzel-home.de>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S233213AbiDVPuC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 11:50:02 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2A95D666;
+        Fri, 22 Apr 2022 08:47:08 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id w19so14973355lfu.11;
+        Fri, 22 Apr 2022 08:47:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=qZ1iKOWejQmCTdi0PJCvl5WKNY0DydrHfyTlkB3tubg=;
+        b=BB1ySnH7FPuAdxwD3/Q2LbcCF/8aoJEQz6O6CL3KXyPaZVqqmTRNg7FM6fqLNBU/6E
+         ZgZT1+axzJrlIJ2c56atI4S0K3VyHupvxg3zoHMcOW3X312vDvlxSgWHdRAWsgogKNxH
+         k3TRTY75AwaNBjpmRd0EEm/2qQg71cd6wuxexDYhb2jZ56VLV71IRGWijBcqxWvvznib
+         MiKkKkIQZfUGAUd20Sz65dYCWJ6ITTwL+daMZyugJ2x3TXE17b89xHCyVOLqUnRDFq3I
+         tgxvJfnAEOaxqjaCE4i+bqOdXinB03XG/+6NDsGt5xHJYm3i5TzlCQ2RgtJty1xixUAw
+         vRuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=qZ1iKOWejQmCTdi0PJCvl5WKNY0DydrHfyTlkB3tubg=;
+        b=4wCZ9ZEHDhUh/nMWZBze31YGJHGw3bIt11TLfYfndsRCVlJPMtLgMAerVdJKua5EGJ
+         SSKVguN6p130upaUsa8JmxPPUomdXnxB+rIxag70PTql5AJVo361qXHuyhkFnBRzujG8
+         0btTPJn9wSGCV6LrH97fWC6r9hyk3Ly4Ejb/bxi/ffJ43tvbqlDreeD+m0bjOekX0naW
+         cVqE1YwRqclH35HubQCxozi1e0RUcBABzzLjoExVQv2K31Miw6gyWXmxct9WJvNJ+uoU
+         mPH30tU9qAmagqI+AX570wQNKS7l/ANUYEfcMk7MJ+rDhuiWrHWoYnPaZ6q2RA/r7NWd
+         /Ytw==
+X-Gm-Message-State: AOAM531ff+ZvU3sFGKW91YRlWavMdsLM8fopmgZixqKbfyuZ9QppUhy3
+        6zAAOCPeRiPEwPz6cCJkolw=
+X-Google-Smtp-Source: ABdhPJyVXYQcSohXYjuO/DCvdMk0mu20HEY/56MN7dJ7k5Hu9huyBeItnSsHrZHYhEKDWw4/Lz0UQw==
+X-Received: by 2002:a05:6512:1398:b0:448:bda0:99f2 with SMTP id p24-20020a056512139800b00448bda099f2mr3564545lfa.681.1650642426140;
+        Fri, 22 Apr 2022 08:47:06 -0700 (PDT)
+Received: from orome ([62.96.65.119])
+        by smtp.gmail.com with ESMTPSA id n2-20020a19d602000000b0046d150c112dsm262551lfg.234.2022.04.22.08.47.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Apr 2022 08:47:04 -0700 (PDT)
+Date:   Fri, 22 Apr 2022 17:47:02 +0200
+From:   Thierry Reding <thierry.reding@gmail.com>
+To:     Max Kellermann <max.kellermann@gmail.com>
+Cc:     linux-pwm@vger.kernel.org, u.kleine-koenig@pengutronix.de,
+        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
+        andrey@lebedev.lt, stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] pwm-sun4i: convert "next_period" to local variable
+Message-ID: <YmLN9mZ9O58F/e1q@orome>
+References: <20220125123429.3490883-1-max.kellermann@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="HISICXV0FqZNY31B"
+Content-Disposition: inline
+In-Reply-To: <20220125123429.3490883-1-max.kellermann@gmail.com>
+User-Agent: Mutt/2.2.1 (c8109e14) (2022-02-19)
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Using not existing queues can panic the kernel with rtl8180/rtl8185
-cards. Ignore the skb priority for those cards, they only have one
-tx queue.
 
-Cc: stable@vger.kernel.org
-Reported-by: pa@panix.com
-Tested-by: pa@panix.com
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
----
+--HISICXV0FqZNY31B
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Pierre Asselin (pa@panix.com) reported a kernel crash in the Gentoo forum:
-https://forums.gentoo.org/viewtopic-t-1147832-postdays-0-postorder-asc-start-25.html
-He also confirmed that this patch fixes the issue.
+On Tue, Jan 25, 2022 at 01:34:27PM +0100, Max Kellermann wrote:
+> Its value is calculated in sun4i_pwm_apply() and is used only there.
+>=20
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Max Kellermann <max.kellermann@gmail.com>
+> ---
+>  drivers/pwm/pwm-sun4i.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
 
-In summary this happened:
-After updating wpa_supplicant from 2.9 to 2.10 the kernel crashed with a
-"divide error: 0000" when connecting to an AP.
-Control port tx now tries to use IEEE80211_AC_VO for the priority, which
-wpa_supplicants starts to use in 2.10.
+Patches applied, though I dropped the Cc: stable on patches 1 and 2.
 
-Since only the rtl8187se part of the driver supports QoS, the priority
-of the skb is set to IEEE80211_AC_BE (2) by mac80211 for rtl8180/rtl8185
-cards.
+Thanks,
+Thierry
 
-rtl8180 is then unconditionally reading out the priority and finally crashes on
-drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c line 544 without this
-patch:
-	idx = (ring->idx + skb_queue_len(&ring->queue)) % ring->entries
+--HISICXV0FqZNY31B
+Content-Type: application/pgp-signature; name="signature.asc"
 
-"ring->entries" is zero for rtl8180/rtl8185 cards, tx_ring[2] never got
-initialized.
+-----BEGIN PGP SIGNATURE-----
 
- drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmJizfYACgkQ3SOs138+
+s6EFThAAhoicE6orGW9RTkMBtQor7rH90WjIVP9VZBgJv+VNLaWneoRnfMjihVtw
+hmF2ZNnQVvQnMOHKMGziE89tSPNM0juNl68v3E6IzkSNJDj4lI1pE3AxWGVb8ZgY
+/0DpY+2tQ68o18Fl+yU2qidINiGRaYuvBehqeLyfIKQf7g7208IanyA63hs+OGny
+KPkJwztcbBbdSqDDlvHS2XQgI+6GoaJtokz1c7WIjEDqRaong027x/3sFJ76K/N1
+Eb0HgQGfI7N7We7Xw59aD7pYAOuL7YYAp6bZTz69S1zwJeLJpU/vscvJHT24fVjy
+BlngF1KoMhd67nziTenSKIBp5sU3vwtltnTmBkNmLWhrNDJ27lsFnr5GgsgLKJ0k
+DBuco4Cnwnqb0e1hY1HUMTnyiyxXGcRGZXSjSmCYzwVFp0NJ7UsaEooxSRynw9PO
+pdzZNJ4UGzbvf0zBZNmXE4BVNop3JpQpK1QEcO0R3t5a0RiZSwbCVQQtgRbe4uSz
++44YBsE00gA9/n15GjacMK5Bwgmev+RbWRCOSodL6b18aQyWDxdrbx422dDNLDxd
+ci52ANa3s15aEih6DCZLiet5WzI390gatD3j4VrrwxD5+WjVzvG2oWT+vVRs5YxC
+eHTFSqFxQekr/MT/CNIXeAP3Io2a4h2okh1kqHVrhX2miHeHzxs=
+=EMSF
+-----END PGP SIGNATURE-----
 
-diff --git a/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c b/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
-index 2477e18c7cae..025619cd14e8 100644
---- a/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
-+++ b/drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c
-@@ -460,8 +460,10 @@ static void rtl8180_tx(struct ieee80211_hw *dev,
- 	struct rtl8180_priv *priv = dev->priv;
- 	struct rtl8180_tx_ring *ring;
- 	struct rtl8180_tx_desc *entry;
-+	unsigned int prio = 0;
- 	unsigned long flags;
--	unsigned int idx, prio, hw_prio;
-+	unsigned int idx, hw_prio;
-+
- 	dma_addr_t mapping;
- 	u32 tx_flags;
- 	u8 rc_flags;
-@@ -470,7 +472,9 @@ static void rtl8180_tx(struct ieee80211_hw *dev,
- 	/* do arithmetic and then convert to le16 */
- 	u16 frame_duration = 0;
- 
--	prio = skb_get_queue_mapping(skb);
-+	/* rtl8180/rtl8185 only has one useable tx queue */
-+	if (dev->queues > IEEE80211_AC_BK)
-+		prio = skb_get_queue_mapping(skb);
- 	ring = &priv->tx_ring[prio];
- 
- 	mapping = dma_map_single(&priv->pdev->dev, skb->data, skb->len,
--- 
-2.35.1
-
+--HISICXV0FqZNY31B--
