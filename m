@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A85E50BFB5
-	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 20:28:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95CB750BFB1
+	for <lists+stable@lfdr.de>; Fri, 22 Apr 2022 20:28:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230038AbiDVS2y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Apr 2022 14:28:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41784 "EHLO
+        id S230492AbiDVS2z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Apr 2022 14:28:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231947AbiDVS2A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 14:28:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9ABC10522B;
+        with ESMTP id S231921AbiDVS17 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 14:27:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B01105233;
         Fri, 22 Apr 2022 11:25:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCA39B8321C;
-        Fri, 22 Apr 2022 18:24:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76169C385A0;
-        Fri, 22 Apr 2022 18:24:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C769160EFC;
+        Fri, 22 Apr 2022 18:24:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28CB1C385A4;
+        Fri, 22 Apr 2022 18:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1650651889;
-        bh=i/TnTWKxOevTcmXSTuReN3T7aL9zVXl2rqXLarmgjl8=;
+        s=korg; t=1650651895;
+        bh=K5Zjt2aGATzHO6M/9Qc6ZXGp5NG4/kagXGND4YOja9k=;
         h=Date:To:From:Subject:From;
-        b=jQk0NT0TGSnIg3ZEqARVmn+0yiX84rmTVyoJL5zUMw8JzWZ1WVghGEvA2Eqq5fgL/
-         kAmW8NJPxfgnyLUUqZdp+V8V25n6uvGHy500eAXvzqjFL7WAsAKVlNvZHudbnIjbY6
-         NuE139W9e1VR2yITrHsX8eerss2tAiwPBI0zy1oI=
-Date:   Fri, 22 Apr 2022 11:24:48 -0700
-To:     mm-commits@vger.kernel.org, will.deacon@arm.com,
-        steve.capper@arm.com, stable@vger.kernel.org,
-        catalin.marinas@arm.com, christophe.leroy@csgroup.eu,
-        akpm@linux-foundation.org
+        b=hJ0kojEViD27V/IiWDYKynaKNGEpDzjrO2xKjql4TuvIdVsgX/7MPt0bFDwLbnlBT
+         bjUhTB+xil/hDNSjlYL2QQHCnB2qWCNnsBKjGhglkplQffQ4HM0SusX4ThaV+SMN4l
+         XpkASmuxsqzL3T1Yag/bGvXQLwVWCPa60E8vEcDA=
+Date:   Fri, 22 Apr 2022 11:24:54 -0700
+To:     mm-commits@vger.kernel.org, vincent.guittot@linaro.org,
+        tglx@linutronix.de, stable@vger.kernel.org, rostedt@goodmis.org,
+        rientjes@google.com, peterz@infradead.org, mingo@redhat.com,
+        mhocko@suse.com, mgorman@suse.de, longman@redhat.com,
+        juri.lelli@redhat.com, jsavitz@redhat.com, herton@redhat.com,
+        dvhart@infradead.org, dietmar.eggemann@arm.com, dave@stgolabs.net,
+        bsegall@google.com, bristot@redhat.com, aquini@redhat.com,
+        aarcange@redhat.com, npache@redhat.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged] mm-hugetlbfs-allow-for-high-userspace-addresses.patch removed from -mm tree
-Message-Id: <20220422182449.76169C385A0@smtp.kernel.org>
+Subject: [merged] oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup.patch removed from -mm tree
+Message-Id: <20220422182455.28CB1C385A4@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -47,154 +51,213 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm, hugetlb: allow for "high" userspace addresses
+     Subject: oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
 has been removed from the -mm tree.  Its filename was
-     mm-hugetlbfs-allow-for-high-userspace-addresses.patch
+     oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: mm, hugetlb: allow for "high" userspace addresses
+From: Nico Pache <npache@redhat.com>
+Subject: oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
 
-This is a fix for commit f6795053dac8 ("mm: mmap: Allow for "high"
-userspace addresses") for hugetlb.
+The pthread struct is allocated on PRIVATE|ANONYMOUS memory [1] which can
+be targeted by the oom reaper.  This mapping is used to store the futex
+robust list head; the kernel does not keep a copy of the robust list and
+instead references a userspace address to maintain the robustness during a
+process death.  A race can occur between exit_mm and the oom reaper that
+allows the oom reaper to free the memory of the futex robust list before
+the exit path has handled the futex death:
 
-This patch adds support for "high" userspace addresses that are optionally
-supported on the system and have to be requested via a hint mechanism
-("high" addr parameter to mmap).
+    CPU1                               CPU2
+------------------------------------------------------------------------
+    page_fault
+    do_exit "signal"
+    wake_oom_reaper
+                                        oom_reaper
+                                        oom_reap_task_mm (invalidates mm)
+    exit_mm
+    exit_mm_release
+    futex_exit_release
+    futex_cleanup
+    exit_robust_list
+    get_user (EFAULT- can't access memory)
 
-Architectures such as powerpc and x86 achieve this by making changes to
-their architectural versions of hugetlb_get_unmapped_area() function. 
-However, arm64 uses the generic version of that function.
+If the get_user EFAULT's, the kernel will be unable to recover the waiters
+on the robust_list, leaving userspace mutexes hung indefinitely.
 
-So take into account arch_get_mmap_base() and arch_get_mmap_end() in
-hugetlb_get_unmapped_area().  To allow that, move those two macros out of
-mm/mmap.c into include/linux/sched/mm.h
+Delay the OOM reaper, allowing more time for the exit path to perform the
+futex cleanup.
 
-If these macros are not defined in architectural code then they default to
-(TASK_SIZE) and (base) so should not introduce any behavioural changes to
-architectures that do not define them.
+Reproducer: https://gitlab.com/jsavitz/oom_futex_reproducer
 
-For the time being, only ARM64 is affected by this change.
+Based on a patch by Michal Hocko.
 
-Catalin (ARM64) said
+[1] https://elixir.bootlin.com/glibc/glibc-2.35/source/nptl/allocatestack.c#L370
 
-: We should have fixed hugetlb_get_unmapped_area() as well when we added
-: support for 52-bit VA.  The reason for commit f6795053dac8 was to prevent
-: normal mmap() from returning addresses above 48-bit by default as some
-: user-space had hard assumptions about this.
-: 
-: It's a slight ABI change if you do this for hugetlb_get_unmapped_area()
-: but I doubt anyone would notice.  It's more likely that the current
-: behaviour would cause issues, so I'd rather have them consistent.
-:
-: Basically when arm64 gained support for 52-bit addresses we did not
-: want user-space calling mmap() to suddenly get such high addresses,
-: otherwise we could have inadvertently broken some programs (similar
-: behaviour to x86 here).  Hence we added commit f6795053dac8.  But we
-: missed hugetlbfs which could still get such high mmap() addresses.  So
-: in theory that's a potential regression that should have bee addressed
-: at the same time as commit f6795053dac8 (and before arm64 enabled
-: 52-bit addresses).
-
-Link: https://lkml.kernel.org/r/ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu
-Fixes: f6795053dac8 ("mm: mmap: Allow for "high" userspace addresses")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: <stable@vger.kernel.org>	[5.0.x]
+Link: https://lkml.kernel.org/r/20220414144042.677008-1-npache@redhat.com
+Fixes: 212925802454 ("mm: oom: let oom_reap_task and exit_mmap run concurrently")
+Signed-off-by: Joel Savitz <jsavitz@redhat.com>
+Signed-off-by: Nico Pache <npache@redhat.com>
+Co-developed-by: Joel Savitz <jsavitz@redhat.com>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Rafael Aquini <aquini@redhat.com>
+Cc: Waiman Long <longman@redhat.com>
+Cc: Herton R. Krzesinski <herton@redhat.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Savitz <jsavitz@redhat.com>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/hugetlbfs/inode.c     |    9 +++++----
- include/linux/sched/mm.h |    8 ++++++++
- mm/mmap.c                |    8 --------
- 3 files changed, 13 insertions(+), 12 deletions(-)
+ include/linux/sched.h |    1 
+ mm/oom_kill.c         |   54 +++++++++++++++++++++++++++++-----------
+ 2 files changed, 41 insertions(+), 14 deletions(-)
 
---- a/fs/hugetlbfs/inode.c~mm-hugetlbfs-allow-for-high-userspace-addresses
-+++ a/fs/hugetlbfs/inode.c
-@@ -206,7 +206,7 @@ hugetlb_get_unmapped_area_bottomup(struc
- 	info.flags = 0;
- 	info.length = len;
- 	info.low_limit = current->mm->mmap_base;
--	info.high_limit = TASK_SIZE;
-+	info.high_limit = arch_get_mmap_end(addr);
- 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
- 	info.align_offset = 0;
- 	return vm_unmapped_area(&info);
-@@ -222,7 +222,7 @@ hugetlb_get_unmapped_area_topdown(struct
- 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
- 	info.length = len;
- 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
--	info.high_limit = current->mm->mmap_base;
-+	info.high_limit = arch_get_mmap_base(addr, current->mm->mmap_base);
- 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
- 	info.align_offset = 0;
- 	addr = vm_unmapped_area(&info);
-@@ -237,7 +237,7 @@ hugetlb_get_unmapped_area_topdown(struct
- 		VM_BUG_ON(addr != -ENOMEM);
- 		info.flags = 0;
- 		info.low_limit = current->mm->mmap_base;
--		info.high_limit = TASK_SIZE;
-+		info.high_limit = arch_get_mmap_end(addr);
- 		addr = vm_unmapped_area(&info);
- 	}
- 
-@@ -251,6 +251,7 @@ hugetlb_get_unmapped_area(struct file *f
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	struct hstate *h = hstate_file(file);
-+	const unsigned long mmap_end = arch_get_mmap_end(addr);
- 
- 	if (len & ~huge_page_mask(h))
- 		return -EINVAL;
-@@ -266,7 +267,7 @@ hugetlb_get_unmapped_area(struct file *f
- 	if (addr) {
- 		addr = ALIGN(addr, huge_page_size(h));
- 		vma = find_vma(mm, addr);
--		if (TASK_SIZE - len >= addr &&
-+		if (mmap_end - len >= addr &&
- 		    (!vma || addr + len <= vm_start_gap(vma)))
- 			return addr;
- 	}
---- a/include/linux/sched/mm.h~mm-hugetlbfs-allow-for-high-userspace-addresses
-+++ a/include/linux/sched/mm.h
-@@ -136,6 +136,14 @@ static inline void mm_update_next_owner(
- #endif /* CONFIG_MEMCG */
- 
+--- a/include/linux/sched.h~oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup
++++ a/include/linux/sched.h
+@@ -1443,6 +1443,7 @@ struct task_struct {
+ 	int				pagefault_disabled;
  #ifdef CONFIG_MMU
-+#ifndef arch_get_mmap_end
-+#define arch_get_mmap_end(addr)	(TASK_SIZE)
-+#endif
-+
-+#ifndef arch_get_mmap_base
-+#define arch_get_mmap_base(addr, base) (base)
-+#endif
-+
- extern void arch_pick_mmap_layout(struct mm_struct *mm,
- 				  struct rlimit *rlim_stack);
- extern unsigned long
---- a/mm/mmap.c~mm-hugetlbfs-allow-for-high-userspace-addresses
-+++ a/mm/mmap.c
-@@ -2117,14 +2117,6 @@ unsigned long vm_unmapped_area(struct vm
- 	return addr;
+ 	struct task_struct		*oom_reaper_list;
++	struct timer_list		oom_reaper_timer;
+ #endif
+ #ifdef CONFIG_VMAP_STACK
+ 	struct vm_struct		*stack_vm_area;
+--- a/mm/oom_kill.c~oom_killc-futex-delay-the-oom-reaper-to-allow-time-for-proper-futex-cleanup
++++ a/mm/oom_kill.c
+@@ -632,7 +632,7 @@ done:
+ 	 */
+ 	set_bit(MMF_OOM_SKIP, &mm->flags);
+ 
+-	/* Drop a reference taken by wake_oom_reaper */
++	/* Drop a reference taken by queue_oom_reaper */
+ 	put_task_struct(tsk);
  }
  
--#ifndef arch_get_mmap_end
--#define arch_get_mmap_end(addr)	(TASK_SIZE)
--#endif
+@@ -644,12 +644,12 @@ static int oom_reaper(void *unused)
+ 		struct task_struct *tsk = NULL;
+ 
+ 		wait_event_freezable(oom_reaper_wait, oom_reaper_list != NULL);
+-		spin_lock(&oom_reaper_lock);
++		spin_lock_irq(&oom_reaper_lock);
+ 		if (oom_reaper_list != NULL) {
+ 			tsk = oom_reaper_list;
+ 			oom_reaper_list = tsk->oom_reaper_list;
+ 		}
+-		spin_unlock(&oom_reaper_lock);
++		spin_unlock_irq(&oom_reaper_lock);
+ 
+ 		if (tsk)
+ 			oom_reap_task(tsk);
+@@ -658,22 +658,48 @@ static int oom_reaper(void *unused)
+ 	return 0;
+ }
+ 
+-static void wake_oom_reaper(struct task_struct *tsk)
++static void wake_oom_reaper(struct timer_list *timer)
+ {
+-	/* mm is already queued? */
+-	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
++	struct task_struct *tsk = container_of(timer, struct task_struct,
++			oom_reaper_timer);
++	struct mm_struct *mm = tsk->signal->oom_mm;
++	unsigned long flags;
++
++	/* The victim managed to terminate on its own - see exit_mmap */
++	if (test_bit(MMF_OOM_SKIP, &mm->flags)) {
++		put_task_struct(tsk);
+ 		return;
++	}
+ 
+-	get_task_struct(tsk);
 -
--#ifndef arch_get_mmap_base
--#define arch_get_mmap_base(addr, base) (base)
--#endif
--
- /* Get an address range which is currently unmapped.
-  * For shmat() with addr=0.
-  *
+-	spin_lock(&oom_reaper_lock);
++	spin_lock_irqsave(&oom_reaper_lock, flags);
+ 	tsk->oom_reaper_list = oom_reaper_list;
+ 	oom_reaper_list = tsk;
+-	spin_unlock(&oom_reaper_lock);
++	spin_unlock_irqrestore(&oom_reaper_lock, flags);
+ 	trace_wake_reaper(tsk->pid);
+ 	wake_up(&oom_reaper_wait);
+ }
+ 
++/*
++ * Give the OOM victim time to exit naturally before invoking the oom_reaping.
++ * The timers timeout is arbitrary... the longer it is, the longer the worst
++ * case scenario for the OOM can take. If it is too small, the oom_reaper can
++ * get in the way and release resources needed by the process exit path.
++ * e.g. The futex robust list can sit in Anon|Private memory that gets reaped
++ * before the exit path is able to wake the futex waiters.
++ */
++#define OOM_REAPER_DELAY (2*HZ)
++static void queue_oom_reaper(struct task_struct *tsk)
++{
++	/* mm is already queued? */
++	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
++		return;
++
++	get_task_struct(tsk);
++	timer_setup(&tsk->oom_reaper_timer, wake_oom_reaper, 0);
++	tsk->oom_reaper_timer.expires = jiffies + OOM_REAPER_DELAY;
++	add_timer(&tsk->oom_reaper_timer);
++}
++
+ static int __init oom_init(void)
+ {
+ 	oom_reaper_th = kthread_run(oom_reaper, NULL, "oom_reaper");
+@@ -681,7 +707,7 @@ static int __init oom_init(void)
+ }
+ subsys_initcall(oom_init)
+ #else
+-static inline void wake_oom_reaper(struct task_struct *tsk)
++static inline void queue_oom_reaper(struct task_struct *tsk)
+ {
+ }
+ #endif /* CONFIG_MMU */
+@@ -932,7 +958,7 @@ static void __oom_kill_process(struct ta
+ 	rcu_read_unlock();
+ 
+ 	if (can_oom_reap)
+-		wake_oom_reaper(victim);
++		queue_oom_reaper(victim);
+ 
+ 	mmdrop(mm);
+ 	put_task_struct(victim);
+@@ -968,7 +994,7 @@ static void oom_kill_process(struct oom_
+ 	task_lock(victim);
+ 	if (task_will_free_mem(victim)) {
+ 		mark_oom_victim(victim);
+-		wake_oom_reaper(victim);
++		queue_oom_reaper(victim);
+ 		task_unlock(victim);
+ 		put_task_struct(victim);
+ 		return;
+@@ -1067,7 +1093,7 @@ bool out_of_memory(struct oom_control *o
+ 	 */
+ 	if (task_will_free_mem(current)) {
+ 		mark_oom_victim(current);
+-		wake_oom_reaper(current);
++		queue_oom_reaper(current);
+ 		return true;
+ 	}
+ 
 _
 
-Patches currently in -mm which might be from christophe.leroy@csgroup.eu are
+Patches currently in -mm which might be from npache@redhat.com are
 
 
