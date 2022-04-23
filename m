@@ -2,65 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE2250C777
-	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 07:03:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4524650C7C3
+	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 08:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233089AbiDWFGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Apr 2022 01:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56508 "EHLO
+        id S233174AbiDWGYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Apr 2022 02:24:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231760AbiDWFGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 01:06:21 -0400
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D331F8EF4;
-        Fri, 22 Apr 2022 22:03:25 -0700 (PDT)
-Received: by mail-pf1-f178.google.com with SMTP id p8so9835237pfh.8;
-        Fri, 22 Apr 2022 22:03:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=vD0W6bI9inxY1IqwYpYGCs5VOO5jHMZ9Ui2cOWh/okI=;
-        b=RWffJnpR0EMAvWQ4n2uAQXH5VLGnAAh/w4N9lv+SQOf4g6YmvoL9PFiFykGtYKhk7x
-         grsCxY+NknzeRoR12SmHnJqHcKY4pph25sgJqAY+Lbo4ra8rU3GvcdqBL9omc9twkdIC
-         oMe4adn6AwuBdfuawmRqT2v+eUIUz2ZAE2gImJ47Ghl/aAHiZenZWWsuoj1yXb+3BCwM
-         ifpS6TbmsfKApb7HnQ1X1/8TlrJcfac5lag46NuEtw/KoyFvtSMDtGpPB69LlgNpuUqE
-         dygL8IfQTH7uYgC6SkiuixzzRQqaHsw0YbMvobXXlFxm6FSFKeE6oCBU2hVR0o10lo2c
-         WARw==
-X-Gm-Message-State: AOAM533xQsTJGJDcfOqdykMC6p5QsJzIA5Si0h39Toq3ANa13WPhDcNZ
-        Vlz2Q70kuV4X2LXvJV66t9c=
-X-Google-Smtp-Source: ABdhPJx6rWeo45nxheFodGYu+usoypVGBw0VrjbV/QATcx3S17+KMoJacGaZFY6u3PPv2KOdDQPdXw==
-X-Received: by 2002:a05:6a00:164c:b0:50a:472a:6b0a with SMTP id m12-20020a056a00164c00b0050a472a6b0amr8424873pfc.77.1650690204550;
-        Fri, 22 Apr 2022 22:03:24 -0700 (PDT)
-Received: from ?IPV6:2601:647:4000:d7:feaa:14ff:fe9d:6dbd? ([2601:647:4000:d7:feaa:14ff:fe9d:6dbd])
-        by smtp.gmail.com with ESMTPSA id r19-20020a17090b051300b001cd4989ff5esm7630037pjz.37.2022.04.22.22.03.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Apr 2022 22:03:23 -0700 (PDT)
-Message-ID: <5ee685f5-152c-aca0-cc14-646cfae93000@acm.org>
-Date:   Fri, 22 Apr 2022 22:03:22 -0700
+        with ESMTP id S230324AbiDWGYo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 02:24:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23D2D1C0504;
+        Fri, 22 Apr 2022 23:21:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A12ACB8013B;
+        Sat, 23 Apr 2022 06:21:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F5A2C385A5;
+        Sat, 23 Apr 2022 06:21:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650694905;
+        bh=b20sV2yJ1WnvFmS8HrfLa0v1wh3ApLeXe5YUGX8rjTs=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=n0rwkkogCuo8MuvRz/MlyUsqxVHp747Kt7K88Q8dY23WjTBBxhTHhrcp2PQw7aPAK
+         +C7tTOQfxNoetnNtx5qNQq9fxgLArqutqorrinUz5Dokwi6OTwEL2ZX8454AOBWANk
+         WiBuhSCa+ZRFy/PeK3SGUy5Twjqr5pbFZ14XiftfG4K6eHJVRNo+jLXchtWf/LmC9T
+         uWrnugrY2yo0VT9iRolBoXNQnXkSo8eOzKcNXH2plOHjnFFD1YJSAmF6qC2fXkoHnT
+         RJ50Mz08ax1VAuihTxsTTSaocoYNv2AtKVw6XECLEEuQ2KxllOJz/h+3Oz9zIp3pfr
+         wg8juBM7iplFQ==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Alexander Wetzel <alexander@wetzel-home.de>
+Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org,
+        pa@panix.com
+Subject: Re: [PATCH] rtl8180: Prevent using not initialized queues
+References: <20220422145228.7567-1-alexander@wetzel-home.de>
+Date:   Sat, 23 Apr 2022 09:21:39 +0300
+In-Reply-To: <20220422145228.7567-1-alexander@wetzel-home.de> (Alexander
+        Wetzel's message of "Fri, 22 Apr 2022 16:52:28 +0200")
+Message-ID: <87a6ccqpzg.fsf@tynnyri.adurom.net>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 3/5] scsi: ufs: qcom: Add a readl() to make sure ref_clk
- gets enabled
-Content-Language: en-US
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        martin.petersen@oracle.com, jejb@linux.ibm.com
-Cc:     avri.altman@wdc.com, alim.akhtar@samsung.com,
-        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
-        quic_asutoshd@quicinc.com, quic_cang@quicinc.com,
-        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20220422132140.313390-1-manivannan.sadhasivam@linaro.org>
- <20220422132140.313390-4-manivannan.sadhasivam@linaro.org>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20220422132140.313390-4-manivannan.sadhasivam@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+Content-Type: text/plain
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,51 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/22/22 06:21, Manivannan Sadhasivam wrote:
-> In ufs_qcom_dev_ref_clk_ctrl(), it was noted that the ref_clk needs to be
-> stable for atleast 1us. Eventhough there is wmb() to make sure the write
-                ^              ^
-Some spaces are missing.
+Alexander Wetzel <alexander@wetzel-home.de> writes:
 
-> gets "completed", there is no guarantee that the write actually reached
-> the UFS device. There is a good chance that the write could be stored in
-> a Write Buffer (WB). In that case, eventhough the CPU waits for 1us, the
-                                          ^
-missing space----------------------------
-
-> ref_clk might not be stable for that period.
-> 
-> So lets do a readl() to make sure that the previous write has reached the
-> UFS device before udelay().
-> 
+> Using not existing queues can panic the kernel with rtl8180/rtl8185
+> cards. Ignore the skb priority for those cards, they only have one
+> tx queue.
+>
 > Cc: stable@vger.kernel.org
-> Fixes: f06fcc7155dc ("scsi: ufs-qcom: add QUniPro hardware support and power optimizations")
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> Reported-by: pa@panix.com
+> Tested-by: pa@panix.com
+> Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
 > ---
->   drivers/scsi/ufs/ufs-qcom.c | 6 ++++++
->   1 file changed, 6 insertions(+)
-> 
-> diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
-> index 5f0a8f646eb5..5b9986c63eed 100644
-> --- a/drivers/scsi/ufs/ufs-qcom.c
-> +++ b/drivers/scsi/ufs/ufs-qcom.c
-> @@ -690,6 +690,12 @@ static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_qcom_host *host, bool enable)
->   		/* ensure that ref_clk is enabled/disabled before we return */
->   		wmb();
->   
-> +		/*
-> +		 * Make sure the write to ref_clk reaches the destination and
-> +		 * not stored in a Write Buffer (WB).
-> +		 */
-> +		readl(host->dev_ref_clk_ctrl_mmio);
-> +
->   		/*
->   		 * If we call hibern8 exit after this, we need to make sure that
->   		 * device ref_clk is stable for at least 1us before the hibern8
+>
+> Pierre Asselin (pa@panix.com) reported a kernel crash in the Gentoo forum:
+> https://forums.gentoo.org/viewtopic-t-1147832-postdays-0-postorder-asc-start-25.html
+> He also confirmed that this patch fixes the issue.
+>
+> In summary this happened:
+> After updating wpa_supplicant from 2.9 to 2.10 the kernel crashed with a
+> "divide error: 0000" when connecting to an AP.
+> Control port tx now tries to use IEEE80211_AC_VO for the priority, which
+> wpa_supplicants starts to use in 2.10.
+>
+> Since only the rtl8187se part of the driver supports QoS, the priority
+> of the skb is set to IEEE80211_AC_BE (2) by mac80211 for rtl8180/rtl8185
+> cards.
+>
+> rtl8180 is then unconditionally reading out the priority and finally crashes on
+> drivers/net/wireless/realtek/rtl818x/rtl8180/dev.c line 544 without this
+> patch:
+> 	idx = (ring->idx + skb_queue_len(&ring->queue)) % ring->entries
+>
+> "ring->entries" is zero for rtl8180/rtl8185 cards, tx_ring[2] never got
+> initialized.
 
-The comment above the wmb() call looks wrong to me. How about removing 
-that wmb() call?
+All this after "---" line is very useful information but the actual
+commit log is just two sentences. I would copy all to the commit log.
+We don't need to limit the size of the commit log, on the contrary we
+should include all the information in it.
 
-Thanks,
+-- 
+https://patchwork.kernel.org/project/linux-wireless/list/
 
-Bart.
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
