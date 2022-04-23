@@ -2,231 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 644AC50C992
-	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 13:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34ED850C9AF
+	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 13:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234999AbiDWL3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Apr 2022 07:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38940 "EHLO
+        id S235318AbiDWLsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Apr 2022 07:48:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233137AbiDWL3P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 07:29:15 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6025B4A3EB
-        for <stable@vger.kernel.org>; Sat, 23 Apr 2022 04:26:17 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id l7so20974990ejn.2
-        for <stable@vger.kernel.org>; Sat, 23 Apr 2022 04:26:17 -0700 (PDT)
+        with ESMTP id S235305AbiDWLsl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 07:48:41 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C5BE9D4C8
+        for <stable@vger.kernel.org>; Sat, 23 Apr 2022 04:45:43 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id n18so16488821plg.5
+        for <stable@vger.kernel.org>; Sat, 23 Apr 2022 04:45:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=R55cctVnDSIYjYkatNLitr0ArQTcklMikj4+Ic6cAKg=;
-        b=erJbMPNnIOT+22gFdm3LWgYV0fgA1wb7MgoBN5qxI0I0mvBsjKWTJw1UIXhhoZpGlj
-         pQYdAwifQWxNJzJe9sJ9tD+s1nKOSNrFa8vyjHY1KebNaD/f2uu1oan/mMiQO5lb7cAG
-         ouhGWKZ0fh8xnrRS84UHwovhspdXt513Ev2Dt5JJjPeT2IcSGSIEDz8tyZ6FffdrVmg7
-         J+PhyF1iUTe1lxu9bB4d2TULYnP93sLVRZswjytxxAuI+7XdYahOLEoIkgAFptx9zjUi
-         ll5JUxYSzKeCrt1KUa/5/Bpo2UtN9Hh0YKyZaOEuV8QnuEbjJYRmkQ2zNLp8ahOr+n+G
-         /2Ag==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=x+R6Gs65t5T2jcZWBAA8yZfSYHX0yotS1fjmH2xSc4k=;
+        b=CvYtT/nGSyw2Xbs2RLcUZZOUQQFA3V6qkPCHn9xUemMzSyLzFZ/tErYJDChhiAi2RC
+         o+GHIF2Cj1lA45CRBQEUvqOuqMKdxynYFB5wi5KHa0oV5JSbZQomLZHXaVor74KMgf5a
+         zu65VoxqTP0lPkVDCvmDA3dkYBzy25i0V5juQo94VcjV1YpoVnjtgqFUfw0gbVapy9fL
+         RvyGlYW/vHawGEZE+ikwpV+3TfO3+5JDHFMyYfYe6hHhh5yrgr7ZSzORCjDbuBmipilJ
+         Ys6+feDGr5o2bmipSdsK/q+Nrm0blnIE8819EE45sqFu+OPoqJOzOo0VR51O10bOBwkW
+         qsZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=R55cctVnDSIYjYkatNLitr0ArQTcklMikj4+Ic6cAKg=;
-        b=xsN1Zr1V7PW6yg22yOgrIX5p1pMJ9gDIuBbM1zcfhVfIdth71H0vQdTaZmBsMLDRAL
-         TcG/46sr8/29gnoYQmPba63Gfz+XYk1VzUg16LNEo54px1BcJaS9UciTPZWOywgv2X7d
-         9BVeFtr9tS2mzr5Yt/Hx3zzQMfsLcBpXh2dNiYIxcdgI9YDAVKONpMX6G98g3nvAgElj
-         G9rL5Nm1ORFTp0KenoX1KkEtWxjhYM8dDH5WwjksQncUgk4NcZX7oAbwAO8Zx1/WE1z1
-         Lz6s+0LEc92DXA/L5Os6a0auAelh95yJiksR3No11F51vDyW5pM9kOdrJWLfJIg2EVjd
-         JrJA==
-X-Gm-Message-State: AOAM531Y3rFdSiy7+rVao/omdj6Q54J5dZsKKHncmWOl4/oecIR8XYlf
-        /WoWWAb3m+1P/cZcm0VU69zWSg==
-X-Google-Smtp-Source: ABdhPJwDSahCbjVD5h1/H5H7a0X0JfYBL9mDd6r+7XqDUQSVtRcVnjP5Tw1CJi2ljaUYgw0M90XH9Q==
-X-Received: by 2002:a17:907:720d:b0:6f0:fa7b:fca1 with SMTP id dr13-20020a170907720d00b006f0fa7bfca1mr7092405ejc.514.1650713175763;
-        Sat, 23 Apr 2022 04:26:15 -0700 (PDT)
-Received: from debil.. (87-243-81-1.ip.btc-net.bg. [87.243.81.1])
-        by smtp.gmail.com with ESMTPSA id e19-20020a056402105300b004162d0b4cbbsm2077897edu.93.2022.04.23.04.26.14
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=x+R6Gs65t5T2jcZWBAA8yZfSYHX0yotS1fjmH2xSc4k=;
+        b=s8aOcJ5ne8sO0hhzKeNw30Y5AlRRoxfK8LKjmyDur8v8lKeI3KrSps39DTVIURjJv1
+         i2c5KiQfNvQaQI3WHYL8vohMGj0Xad2r8dIP29E1vUS/k2JS6qkh0TtsbViskiQnAbth
+         LPTfNVU2kFs7cfy5qmT9xs5kxO/0TVw7f77a17bZ9a1RmCgRL/y6IWw47spGTLItNKfG
+         bg0bl2t0QTrbKqQxGzfPyILy5DOeyKh57mMLelD5wbbc4W2pLx+Dnf4BKXABmYg7hqp3
+         cbViZLwIJ4A7AUo8Jhahv2JP8AgrQ/H4A10wXB3jOBABAgo7KElDp8mFepCJttLjkH+Q
+         4Fbg==
+X-Gm-Message-State: AOAM533nyfRbSLKT9vcsMGJsHWklHtEdoGnriuWbsvRVqgmBmsC5ydIo
+        rKkEMsQv1lHC7qWBUB4eSXWJTN12QlBC
+X-Google-Smtp-Source: ABdhPJzyqC0Hc2gI30M3mYB0Vc/KFIoeQC8TRfp+FBV2t1QAGsm4cKLvZ9h5KZjDM3pZrNtmV0CfUg==
+X-Received: by 2002:a17:902:ea01:b0:15c:e746:477a with SMTP id s1-20020a170902ea0100b0015ce746477amr2409775plg.8.1650714342730;
+        Sat, 23 Apr 2022 04:45:42 -0700 (PDT)
+Received: from thinkpad ([117.207.28.196])
+        by smtp.gmail.com with ESMTPSA id a10-20020a17090a480a00b001cd4989ff65sm8870613pjh.44.2022.04.23.04.45.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Apr 2022 04:26:15 -0700 (PDT)
-From:   Nikolay Aleksandrov <razor@blackwall.org>
-To:     netdev@vger.kernel.org
-Cc:     kuba@kernel.org, davem@davemloft.net,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH net] virtio_net: fix wrong buf address calculation when using xdp
-Date:   Sat, 23 Apr 2022 14:26:12 +0300
-Message-Id: <20220423112612.2292774-1-razor@blackwall.org>
-X-Mailer: git-send-email 2.35.1
+        Sat, 23 Apr 2022 04:45:41 -0700 (PDT)
+Date:   Sat, 23 Apr 2022 17:15:35 +0530
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     Bart Van Assche <bvanassche@acm.org>
+Cc:     martin.petersen@oracle.com, jejb@linux.ibm.com,
+        avri.altman@wdc.com, alim.akhtar@samsung.com,
+        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
+        quic_asutoshd@quicinc.com, quic_cang@quicinc.com,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 3/5] scsi: ufs: qcom: Add a readl() to make sure ref_clk
+ gets enabled
+Message-ID: <20220423114535.GB374560@thinkpad>
+References: <20220422132140.313390-1-manivannan.sadhasivam@linaro.org>
+ <20220422132140.313390-4-manivannan.sadhasivam@linaro.org>
+ <5ee685f5-152c-aca0-cc14-646cfae93000@acm.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5ee685f5-152c-aca0-cc14-646cfae93000@acm.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We received a report[1] of kernel crashes when Cilium is used in XDP
-mode with virtio_net after updating to newer kernels. After
-investigating the reason it turned out that when using mergeable bufs
-with an XDP program which adjusts xdp.data or xdp.data_meta page_to_buf()
-calculates the build_skb address wrong because the offset can become less
-than the headroom so it gets the address of the previous page (-X bytes
-depending on how lower offset is):
- page_to_skb: page addr ffff9eb2923e2000 buf ffff9eb2923e1ffc offset 252 headroom 256
+On Fri, Apr 22, 2022 at 10:03:22PM -0700, Bart Van Assche wrote:
+> On 4/22/22 06:21, Manivannan Sadhasivam wrote:
+> > In ufs_qcom_dev_ref_clk_ctrl(), it was noted that the ref_clk needs to be
+> > stable for atleast 1us. Eventhough there is wmb() to make sure the write
+>                ^              ^
+> Some spaces are missing.
+> 
+> > gets "completed", there is no guarantee that the write actually reached
+> > the UFS device. There is a good chance that the write could be stored in
+> > a Write Buffer (WB). In that case, eventhough the CPU waits for 1us, the
+>                                          ^
+> missing space----------------------------
+> 
 
-This is a pr_err() I added in the beginning of page_to_skb which clearly
-shows offset that is less than headroom by adding 4 bytes of metadata
-via an xdp prog. The calculations done are:
- receive_mergeable():
- headroom = VIRTIO_XDP_HEADROOM; // VIRTIO_XDP_HEADROOM == 256 bytes
- offset = xdp.data - page_address(xdp_page) -
-          vi->hdr_len - metasize;
+Kind of used to it ;) Will fix it.
 
- page_to_skb():
- p = page_address(page) + offset;
- ...
- buf = p - headroom;
+> > ref_clk might not be stable for that period.
+> > 
+> > So lets do a readl() to make sure that the previous write has reached the
+> > UFS device before udelay().
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: f06fcc7155dc ("scsi: ufs-qcom: add QUniPro hardware support and power optimizations")
+> > Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> > ---
+> >   drivers/scsi/ufs/ufs-qcom.c | 6 ++++++
+> >   1 file changed, 6 insertions(+)
+> > 
+> > diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
+> > index 5f0a8f646eb5..5b9986c63eed 100644
+> > --- a/drivers/scsi/ufs/ufs-qcom.c
+> > +++ b/drivers/scsi/ufs/ufs-qcom.c
+> > @@ -690,6 +690,12 @@ static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_qcom_host *host, bool enable)
+> >   		/* ensure that ref_clk is enabled/disabled before we return */
+> >   		wmb();
+> > +		/*
+> > +		 * Make sure the write to ref_clk reaches the destination and
+> > +		 * not stored in a Write Buffer (WB).
+> > +		 */
+> > +		readl(host->dev_ref_clk_ctrl_mmio);
+> > +
+> >   		/*
+> >   		 * If we call hibern8 exit after this, we need to make sure that
+> >   		 * device ref_clk is stable for at least 1us before the hibern8
+> 
+> The comment above the wmb() call looks wrong to me. How about removing that
+> wmb() call?
+> 
 
-Now buf goes -4 bytes from the page's starting address as can be seen
-above which is set as skb->head and skb->data by build_skb later. Depending
-on what's done with the skb (when it's freed most often) we get all kinds
-of corruptions and BUG_ON() triggers in mm[2]. The story of the faulty
-commit is interesting because the patch was sent and applied twice (it
-seems the first one got lost during merge back in 5.13 window). The
-first version of the patch that was applied as:
- commit 7bf64460e3b2 ("virtio-net: get build_skb() buf by data ptr")
-was actually correct because it calculated the page starting address
-without relying on offset or headroom, but then the second version that
-was applied as:
- commit 8fb7da9e9907 ("virtio_net: get build_skb() buf by data ptr")
-was wrong and added the above calculation.
-An example xdp prog[3] is below.
+Hmm, yes it could be removed as well. readl() on weakly ordered architectures
+include a control dependency [1] so there is no way the instructions after it
+can be speculated.
 
-[1] https://github.com/cilium/cilium/issues/19453
+Thanks,
+Mani
 
-[2] Two of the many traces:
- [   40.437400] BUG: Bad page state in process swapper/0  pfn:14940
- [   40.916726] BUG: Bad page state in process systemd-resolve  pfn:053b7
- [   41.300891] kernel BUG at include/linux/mm.h:720!
- [   41.301801] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
- [   41.302784] CPU: 1 PID: 1181 Comm: kubelet Kdump: loaded Tainted: G    B   W         5.18.0-rc1+ #37
- [   41.304458] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1.fc35 04/01/2014
- [   41.306018] RIP: 0010:page_frag_free+0x79/0xe0
- [   41.306836] Code: 00 00 75 ea 48 8b 07 a9 00 00 01 00 74 e0 48 8b 47 48 48 8d 50 ff a8 01 48 0f 45 fa eb d0 48 c7 c6 18 b8 30 a6 e8 d7 f8 fc ff <0f> 0b 48 8d 78 ff eb bc 48 8b 07 a9 00 00 01 00 74 3a 66 90 0f b6
- [   41.310235] RSP: 0018:ffffac05c2a6bc78 EFLAGS: 00010292
- [   41.311201] RAX: 000000000000003e RBX: 0000000000000000 RCX: 0000000000000000
- [   41.312502] RDX: 0000000000000001 RSI: ffffffffa6423004 RDI: 00000000ffffffff
- [   41.313794] RBP: ffff993c98823600 R08: 0000000000000000 R09: 00000000ffffdfff
- [   41.315089] R10: ffffac05c2a6ba68 R11: ffffffffa698ca28 R12: ffff993c98823600
- [   41.316398] R13: ffff993c86311ebc R14: 0000000000000000 R15: 000000000000005c
- [   41.317700] FS:  00007fe13fc56740(0000) GS:ffff993cdd900000(0000) knlGS:0000000000000000
- [   41.319150] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [   41.320152] CR2: 000000c00008a000 CR3: 0000000014908000 CR4: 0000000000350ee0
- [   41.321387] Call Trace:
- [   41.321819]  <TASK>
- [   41.322193]  skb_release_data+0x13f/0x1c0
- [   41.322902]  __kfree_skb+0x20/0x30
- [   41.343870]  tcp_recvmsg_locked+0x671/0x880
- [   41.363764]  tcp_recvmsg+0x5e/0x1c0
- [   41.384102]  inet_recvmsg+0x42/0x100
- [   41.406783]  ? sock_recvmsg+0x1d/0x70
- [   41.428201]  sock_read_iter+0x84/0xd0
- [   41.445592]  ? 0xffffffffa3000000
- [   41.462442]  new_sync_read+0x148/0x160
- [   41.479314]  ? 0xffffffffa3000000
- [   41.496937]  vfs_read+0x138/0x190
- [   41.517198]  ksys_read+0x87/0xc0
- [   41.535336]  do_syscall_64+0x3b/0x90
- [   41.551637]  entry_SYSCALL_64_after_hwframe+0x44/0xae
- [   41.568050] RIP: 0033:0x48765b
- [   41.583955] Code: e8 4a 35 fe ff eb 88 cc cc cc cc cc cc cc cc e8 fb 7a fe ff 48 8b 7c 24 10 48 8b 74 24 18 48 8b 54 24 20 48 8b 44 24 08 0f 05 <48> 3d 01 f0 ff ff 76 20 48 c7 44 24 28 ff ff ff ff 48 c7 44 24 30
- [   41.632818] RSP: 002b:000000c000a2f5b8 EFLAGS: 00000212 ORIG_RAX: 0000000000000000
- [   41.664588] RAX: ffffffffffffffda RBX: 000000c000062000 RCX: 000000000048765b
- [   41.681205] RDX: 0000000000005e54 RSI: 000000c000e66000 RDI: 0000000000000016
- [   41.697164] RBP: 000000c000a2f608 R08: 0000000000000001 R09: 00000000000001b4
- [   41.713034] R10: 00000000000000b6 R11: 0000000000000212 R12: 00000000000000e9
- [   41.728755] R13: 0000000000000001 R14: 000000c000a92000 R15: ffffffffffffffff
- [   41.744254]  </TASK>
- [   41.758585] Modules linked in: br_netfilter bridge veth netconsole virtio_net
+[1] https://www.spinics.net/lists/arm-kernel/msg689858.html
 
- and
-
- [   33.524802] BUG: Bad page state in process systemd-network  pfn:11e60
- [   33.528617] page ffffe05dc0147b00 ffffe05dc04e7a00 ffff8ae9851ec000 (1) len 82 offset 252 metasize 4 hroom 0 hdr_len 12 data ffff8ae9851ec10c data_meta ffff8ae9851ec108 data_end ffff8ae9851ec14e
- [   33.529764] page:000000003792b5ba refcount:0 mapcount:-512 mapping:0000000000000000 index:0x0 pfn:0x11e60
- [   33.532463] flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
- [   33.532468] raw: 000fffffc0000000 0000000000000000 dead000000000122 0000000000000000
- [   33.532470] raw: 0000000000000000 0000000000000000 00000000fffffdff 0000000000000000
- [   33.532471] page dumped because: nonzero mapcount
- [   33.532472] Modules linked in: br_netfilter bridge veth netconsole virtio_net
- [   33.532479] CPU: 0 PID: 791 Comm: systemd-network Kdump: loaded Not tainted 5.18.0-rc1+ #37
- [   33.532482] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.15.0-1.fc35 04/01/2014
- [   33.532484] Call Trace:
- [   33.532496]  <TASK>
- [   33.532500]  dump_stack_lvl+0x45/0x5a
- [   33.532506]  bad_page.cold+0x63/0x94
- [   33.532510]  free_pcp_prepare+0x290/0x420
- [   33.532515]  free_unref_page+0x1b/0x100
- [   33.532518]  skb_release_data+0x13f/0x1c0
- [   33.532524]  kfree_skb_reason+0x3e/0xc0
- [   33.532527]  ip6_mc_input+0x23c/0x2b0
- [   33.532531]  ip6_sublist_rcv_finish+0x83/0x90
- [   33.532534]  ip6_sublist_rcv+0x22b/0x2b0
-
-[3] XDP program to reproduce(xdp_pass.c):
- #include <linux/bpf.h>
- #include <bpf/bpf_helpers.h>
-
- SEC("xdp_pass")
- int xdp_pkt_pass(struct xdp_md *ctx)
- {
-          bpf_xdp_adjust_head(ctx, -(int)32);
-          return XDP_PASS;
- }
-
- char _license[] SEC("license") = "GPL";
-
- compile: clang -O2 -g -Wall -target bpf -c xdp_pass.c -o xdp_pass.o
- load on virtio_net: ip link set enp1s0 xdpdrv obj xdp_pass.o sec xdp_pass
-
-CC: stable@vger.kernel.org
-CC: Jason Wang <jasowang@redhat.com>
-CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-CC: Daniel Borkmann <daniel@iogearbox.net>
-CC: "Michael S. Tsirkin" <mst@redhat.com>
-CC: virtualization@lists.linux-foundation.org
-Fixes: 8fb7da9e9907 ("virtio_net: get build_skb() buf by data ptr")
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
----
- drivers/net/virtio_net.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 87838cbe38cf..0687dd88e97f 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -434,9 +434,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	 * Buffers with headroom use PAGE_SIZE as alloc size, see
- 	 * add_recvbuf_mergeable() + get_mergeable_buf_len()
- 	 */
--	truesize = headroom ? PAGE_SIZE : truesize;
-+	if (headroom) {
-+		truesize = PAGE_SIZE;
-+		buf = (char *)((unsigned long)p & PAGE_MASK);
-+	} else {
-+		buf = p;
-+	}
- 	tailroom = truesize - headroom;
--	buf = p - headroom;
- 
- 	len -= hdr_len;
- 	offset += hdr_padded_len;
--- 
-2.35.1
-
+> Thanks,
+> 
+> Bart.
