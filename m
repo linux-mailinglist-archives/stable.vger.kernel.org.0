@@ -2,126 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E584750C5C3
-	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 02:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD91450C5E2
+	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 03:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229965AbiDWAj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Apr 2022 20:39:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44064 "EHLO
+        id S230143AbiDWBGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Apr 2022 21:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229622AbiDWAj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 20:39:27 -0400
-Received: from smtprelay-out1.synopsys.com (smtprelay-out1.synopsys.com [149.117.73.133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3452A1183B9;
-        Fri, 22 Apr 2022 17:36:31 -0700 (PDT)
-Received: from mailhost.synopsys.com (sv1-mailhost1.synopsys.com [10.205.2.131])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client CN "mailhost.synopsys.com", Issuer "SNPSica2" (verified OK))
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 7E3C540D64;
-        Sat, 23 Apr 2022 00:36:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1650674191; bh=DnHvG1JYIBFvxuDziZvdv9NZ+DsGNRuiIeCpxELUYMU=;
-        h=Date:From:Subject:To:Cc:From;
-        b=NdhRWpOtkCwdkm/6hJBytJvIrWMhI+kApCtmp8HQBzOsRY7ryIWkZWIppX6Y7eEdx
-         IFsHCQ4Mlqa+XevEV9TEH5AJSrNkJNWJCkkTTl4dCtA2kvjtAjhOCYm9C9lsc+WoZC
-         R4TWWl2LRWU9Xa5ceUHGME62QfCFsO1vuccFekGvfNe7/FjBs/fi5PznMl8P4Y1D3u
-         4mUEd610fNn8GdWktBG1sa0J51AjmQc/YMO6hBYTiStnef+cORIK6bmwmb3ARUDkuy
-         vX6Ex2u2fnmM9w3knhNbQjbdW4FJpVmii6K3lkglDL5cZqyVmClOVFuVazJM/szEP7
-         ikFDKf79HRYXQ==
-Received: from te-lab16-v2 (nanobot.internal.synopsys.com [10.204.48.11])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client did not present a certificate)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 6DA9FA0070;
-        Sat, 23 Apr 2022 00:36:28 +0000 (UTC)
-Received: by te-lab16-v2 (sSMTP sendmail emulation); Fri, 22 Apr 2022 17:36:28 -0700
-Date:   Fri, 22 Apr 2022 17:36:28 -0700
-Message-Id: <db2c80108286cfd108adb05bad52138b78d7c3a7.1650673655.git.Thinh.Nguyen@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH] usb: dwc3: gadget: Return proper request status
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org
-Cc:     John Youn <John.Youn@synopsys.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        <stable@vger.kernel.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229662AbiDWBGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 21:06:17 -0400
+Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A375B177D58
+        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 18:03:22 -0700 (PDT)
+Received: by mail-lf1-x12d.google.com with SMTP id bu29so17107973lfb.0
+        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 18:03:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=g096DpfSCcf8IWJKS1josNtXLu3tIDY7masJQNFWcAg=;
+        b=AQYaKU5/J5+aM5TlCj8JWxqEyNRrWADeSBitRwGal1ELDw+cu8iXPNVIYHG5rXsFKr
+         EttNL829nFI/wGAfiIXCY1eNMdjdRPK/3HU5lHecTvmamw0HZg8jKDTcyxWmvbvs+/HQ
+         Zc3NjzjDRQt7nWoj0trGeL7HrH1BccrnLvfSg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=g096DpfSCcf8IWJKS1josNtXLu3tIDY7masJQNFWcAg=;
+        b=UaFqkR40dPsdVyWB/erSmYiT/0OcVGhjrBXtQZv0Y2Zn7ZU8RVaX94XCrnLtcb8FLY
+         /f8zm1EZHprJKw7D/La2hrJMuksULTgkr7TAkc8KWAaP/mKGKTUHVwZAcX23avZJj/cE
+         qDSWj5NqvXXjHHeHFtG9xoE9dSY/JHH774rhUyfr8rK9DcinaK7QOFXN2Sog7VBWziOw
+         JbpBu1dZP/K/BFP9oubXCHfytj1x7v8CZyz5w3lPoTYtTB72E8L0EKKhuuWgeoA+TiCB
+         tiIxHB+HVQqobk/6mGDHyeqtUMuvwkDfx6XgfRSmVulVFUtPaNRUc5vu9bUQiCO5q4l4
+         SgQg==
+X-Gm-Message-State: AOAM531w3LQ8m4yk8W2Vwbv2UI33Dz6IKP9Y4unxeVco9aRIzsW1ymye
+        EV6fO1bj+Gx6cVGhREiZlhTuDFxwI6sqaGpldJQ=
+X-Google-Smtp-Source: ABdhPJwD9I/VkERHPpG7WGcvv9RUUXM4k8Oq8rxh+hswYOO/OrjK4fSglQU/CXWqHC0RGp901lR2OA==
+X-Received: by 2002:a05:6512:2082:b0:443:4236:5f57 with SMTP id t2-20020a056512208200b0044342365f57mr4894333lfr.335.1650675800747;
+        Fri, 22 Apr 2022 18:03:20 -0700 (PDT)
+Received: from mail-lj1-f179.google.com (mail-lj1-f179.google.com. [209.85.208.179])
+        by smtp.gmail.com with ESMTPSA id g15-20020ac24d8f000000b0046d9f95d245sm412366lfe.88.2022.04.22.18.03.17
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Apr 2022 18:03:17 -0700 (PDT)
+Received: by mail-lj1-f179.google.com with SMTP id y19so252699ljd.4
+        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 18:03:17 -0700 (PDT)
+X-Received: by 2002:a2e:9041:0:b0:24a:ce83:dcb4 with SMTP id
+ n1-20020a2e9041000000b0024ace83dcb4mr4454046ljg.291.1650675796759; Fri, 22
+ Apr 2022 18:03:16 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220422131452.20757-1-mario.limonciello@amd.com>
+In-Reply-To: <20220422131452.20757-1-mario.limonciello@amd.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 22 Apr 2022 18:03:00 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wh-F2KtXkQueVJRNqWr7O737NzN=8mYA_r-h-16=VxLQA@mail.gmail.com>
+Message-ID: <CAHk-=wh-F2KtXkQueVJRNqWr7O737NzN=8mYA_r-h-16=VxLQA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/1] Fix regression in 5.18 for GPIO
+To:     Mario Limonciello <mario.limonciello@amd.com>
+Cc:     Natikar Basavaraj <Basavaraj.Natikar@amd.com>,
+        Gong Richard <Richard.Gong@amd.com>,
+        Linux regressions mailing list <regressions@lists.linux.dev>,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Shreeya Patel <shreeya.patel@collabora.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the user sets the usb_request's no_interrupt, then there will be no
-completion event for the request. Currently the driver incorrectly uses
-the event status of a different request to report the status for a
-request with no_interrupt. The dwc3 driver needs to check the TRB status
-associated with the request when reporting its status.
+On Fri, Apr 22, 2022 at 6:15 AM Mario Limonciello
+<mario.limonciello@amd.com> wrote:
+>
+> This patch is being sent directly to you because there has been
+> a regression in 5.18 that I identified and sent a fix up that has been
+> reviewed/tested/acked for nearly a week but the current subsystem
+> maintainer (Bartosz) hasn't picked it up to send to you.
 
-Note: this is only applicable to missed_isoc TRB completion status, but
-the other status are also listed for completeness/documentation.
+Applied.
 
-Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
----
- drivers/usb/dwc3/gadget.c | 31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+I'm not sure the "cc: stable" makes much sense since the bug was
+introduced in this release, but I assume you added it because the
+problem commit was also marked for stable.
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index ab725d2262d6..0b9c2493844a 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3274,6 +3274,7 @@ static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
- 		const struct dwc3_event_depevt *event,
- 		struct dwc3_request *req, int status)
- {
-+	int request_status;
- 	int ret;
- 
- 	if (req->request.num_mapped_sgs)
-@@ -3294,7 +3295,35 @@ static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
- 		req->needs_extra_trb = false;
- 	}
- 
--	dwc3_gadget_giveback(dep, req, status);
-+	/*
-+	 * The event status only reflects the status of the TRB with IOC set.
-+	 * For the requests that don't set interrupt on completion, the driver
-+	 * needs to check and return the status of the completed TRBs associated
-+	 * with the request. Use the status of the last TRB of the request.
-+	 */
-+	if (req->request.no_interrupt) {
-+		struct dwc3_trb *trb;
-+
-+		trb = dwc3_ep_prev_trb(dep, dep->trb_dequeue);
-+		switch (DWC3_TRB_SIZE_TRBSTS(trb->size)) {
-+		case DWC3_TRBSTS_MISSED_ISOC:
-+			/* Isoc endpoint only */
-+			request_status = -EXDEV;
-+			break;
-+		case DWC3_TRB_STS_XFER_IN_PROG:
-+			/* Applicable when End Transfer with ForceRM=0 */
-+		case DWC3_TRBSTS_SETUP_PENDING:
-+			/* Control endpoint only */
-+		case DWC3_TRBSTS_OK:
-+		default:
-+			request_status = 0;
-+			break;
-+		}
-+	} else {
-+		request_status = status;
-+	}
-+
-+	dwc3_gadget_giveback(dep, req, request_status);
- 
- out:
- 	return ret;
+The "Fixes:" tag should take care of it, but I left that cc:stable alone.
 
-base-commit: f4fd84ae0765a80494b28c43b756a95100351a94
--- 
-2.28.0
-
+           Linus
