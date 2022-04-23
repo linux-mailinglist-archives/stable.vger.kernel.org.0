@@ -2,101 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B95C250CDDA
-	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 23:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF9450CDE7
+	for <lists+stable@lfdr.de>; Sun, 24 Apr 2022 00:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229648AbiDWWCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Apr 2022 18:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54376 "EHLO
+        id S237279AbiDWWTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Apr 2022 18:19:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbiDWWCB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 18:02:01 -0400
-Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AFA162BCD
-        for <stable@vger.kernel.org>; Sat, 23 Apr 2022 14:59:03 -0700 (PDT)
-Received: by mail-qk1-x72d.google.com with SMTP id y129so8345765qkb.2
-        for <stable@vger.kernel.org>; Sat, 23 Apr 2022 14:59:03 -0700 (PDT)
+        with ESMTP id S230337AbiDWWTe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 18:19:34 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3C614DEA4;
+        Sat, 23 Apr 2022 15:16:35 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id ks6so22816992ejb.1;
+        Sat, 23 Apr 2022 15:16:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=CtX/jLR1VwOFEdS0fLnGgBaJwDdhZNwe/u0NQoR2wVU=;
-        b=fOrBhnqc3UwDHFj1uarUYL6rTbXHiJqNMn9b1V0MJ8Eae6ndaQsFu9jDLo2WgoEBz3
-         miKgT7Nzh3BN1cvtI+0IfNCOMBugmS9gZ8iTx3fenqGVA/xnQfurNvd4PusSi5D554bq
-         hq3EB8ylNqGvlP4FhJqGS8RT+LW410TA+jMPKBZhw581U9pApGVh5UcYOCR6v7d353dO
-         3iRexOi5LszXHT8bTPayJ1ls8IaKpzJTD1O0IWxNqk9hncpoARMmXwADR5gjHSxnl365
-         pwy//7BjGZhBNUTdPP3v5GOaqUctdg7S5CBvyP4Z8LAV01vxY1GZ0JCFof65ee5jxl2J
-         f8iQ==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=SeT9VKBABGE3+M59+/LdCRTy+y0q+UOFIghRmJw7JEU=;
+        b=ghEvrTo/Mw/dGr730gI9vebowZJO7rKTe/+ShB6UWGyegdMld1T8uMV4Je5P9dfyw2
+         FF0/6gg7Pq8QIUkYjBJaAQToDMVr6y4Lk1yxvod3bAS+Z+yeSYR0mkj1Ai1qNYJLf23P
+         0Cl7H1phs9RQtEd6La3Pjydygqw1rO1bvXGsopDhNMx1mBVK1s7ZPA/ebq/SQNddFPzN
+         YjDBj+/wdKcy/GbiazuxWlDGrXea9t7I+Runba6n1mF7NYeuABbsjkM0x6tOFQ8/0D03
+         UbciJXa8UhsSA5BC/dFwoJQmOpQ7+/wtz/zu7SDUka5/NlXyHhQMQVPIdW2Zg4BDBBPI
+         OSpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=CtX/jLR1VwOFEdS0fLnGgBaJwDdhZNwe/u0NQoR2wVU=;
-        b=3WoW1i8z6NAORFNfEWg650ofl2pye7ANuBqnYd21/FzQ0haZZC2jKLK6eP9CeckZP1
-         VQ5Q1uzmJhAf9zqmJ59uDUic/gXAtQ53C75/Byl2JvxBML9Riq9b9n2ovrfYmg3FC8vg
-         6dLS8PZwm8w/TWIIWM8t7WmN5ov1LOnu7Irvq0HoOBjrTRk3wGbaP2PxpoVW5fVwIsL7
-         XJWlVr9OVITqGJWPka9K2ERDPHfvsghykq0p7ITgpsUF2QqEuGSXME5Bbrqe3ALY9VkL
-         V4ekxJOlUh1ePHnGRtY8tuC6qLLhpHlhir6jSA1aFiA+i8CR33p4o43u/svtKg3VPEoM
-         9PDA==
-X-Gm-Message-State: AOAM531HzxP/fh9pOZh/Qs/q+ItegS8mrkfJEWHJ4FoexJhILdlFnQCk
-        YUXo0bAQxr2mO9WeDup5Hs4OG6GP5apBTWTFfvY=
-X-Google-Smtp-Source: ABdhPJzcqlnvrJbSKsg6tKo6i2oOMeoN2Hu5iFkOiFsnvG02pcfROTPObnD4ut29zSFRMVwyDb817BqaB4YOuZMbYB8=
-X-Received: by 2002:a05:620a:280e:b0:680:d1b9:6b0 with SMTP id
- f14-20020a05620a280e00b00680d1b906b0mr6484023qkp.391.1650751142295; Sat, 23
- Apr 2022 14:59:02 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=SeT9VKBABGE3+M59+/LdCRTy+y0q+UOFIghRmJw7JEU=;
+        b=bmGBOJH/lc/gwK4IRA/YMT63SDG3Xo24+OzlPIAT7O2UQpqKyYlv/hQceUTvYA1uHU
+         zxOhRsVOVgXZLlXuwlFk64NxyiBoQw91Q2On7CUwKa4Um4oHA8xvobAton4fbIh+7KDn
+         /AAIYjttwqHprdduPSoeagS/A+9OKRLhMCtGQg1F3lvk9yDgGRUEiTuxs9AH6PqSm+vz
+         oOy8NW9mslWfm+vDamBgYviH0v07ZdmRjjqX2/OrkZI06Z14PeCf3/mszF6gpe1Bdgez
+         O4HhMocc+u2VdlfvBbYvbM6nb7FJlHMn5wbBz2cvwTR2QYha2rd75dSHO64gys9K1Cp4
+         55hA==
+X-Gm-Message-State: AOAM5327vzHFSRnN4QsAISBeWtJ9+j6BOTuaFtCdDRFLavwTM42JdEeR
+        XCYQ0xRg53w5QaQTxON1Bt8=
+X-Google-Smtp-Source: ABdhPJwhbEa7xhj18dQkE7o4UxIXO6J5D9LIESZfSOfibr5uduO1+Zize1piovEhzJALerxZ5LhLoA==
+X-Received: by 2002:a17:906:c0d6:b0:6ca:457e:f1b7 with SMTP id bn22-20020a170906c0d600b006ca457ef1b7mr9540974ejb.399.1650752194502;
+        Sat, 23 Apr 2022 15:16:34 -0700 (PDT)
+Received: from linux.. (p5dd1ed70.dip0.t-ipconnect.de. [93.209.237.112])
+        by smtp.gmail.com with ESMTPSA id s1-20020a056402036100b004240a3fc6b4sm2669484edw.82.2022.04.23.15.16.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 Apr 2022 15:16:34 -0700 (PDT)
+From:   Bean Huo <huobean@gmail.com>
+To:     ulf.hansson@linaro.org, adrian.hunter@intel.com,
+        linus.walleij@linaro.org, linux-mmc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     beanhuo@micron.com, stable <stable@vger.kernel.org>
+Subject: [PATCH v1 2/2] mmc: core: Allows to override the timeout value for ioctl() path
+Date:   Sun, 24 Apr 2022 00:16:23 +0200
+Message-Id: <20220423221623.1074556-3-huobean@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220423221623.1074556-1-huobean@gmail.com>
+References: <20220423221623.1074556-1-huobean@gmail.com>
 MIME-Version: 1.0
-Received: by 2002:ad4:484e:0:0:0:0:0 with HTTP; Sat, 23 Apr 2022 14:59:01
- -0700 (PDT)
-Reply-To: wijh555@gmail.com
-From:   "Mr. Jibri loubda" <gjibriloubda@gmail.com>
-Date:   Sat, 23 Apr 2022 14:59:01 -0700
-Message-ID: <CAO=FyHL3mM6q9hjm+44aXWFm6rMxSfWLN=NizGC10TzsCBLZNw@mail.gmail.com>
-Subject: Good Day,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.5 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_HK_NAME_FM_MR_MRS,UNDISC_FREEM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4846]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [gjibriloubda[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [wijh555[at]gmail.com]
-        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:72d listed in]
-        [list.dnswl.org]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Greetings,
-I'm Mr. Jibri loubda, how are you doing hope you are in good health,
-the Board irector
-try to reach you on phone several times Meanwhile, your number was not
-connecting. before he ask me to send you an email to hear from you if
-you are fine. hope to hear you are in good Health.
+From: Bean Huo <beanhuo@micron.com>
 
-Thanks,
-Mr. Jibri loubda.
+Occasionally, user-land applications initiate longer timeout values for certain commands
+through ioctl() system call. But so far we are still using a fixed timeout of 10 seconds
+in mmc_poll_for_busy() on the ioctl() path, even if a custom timeout is specified in the
+userspace application. This patch allows custom timeout values to override this default
+timeout values on the ioctl path.
+
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Bean Huo <beanhuo@micron.com>
+---
+ drivers/mmc/core/block.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index b35e7a95798b..6cb701aa1abc 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -609,11 +609,11 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+ 
+ 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+ 		/*
+-		 * Ensure RPMB/R1B command has completed by polling CMD13
+-		 * "Send Status".
++		 * Ensure RPMB/R1B command has completed by polling CMD13 "Send Status". Here we
++		 * allow to override the default timeout value if a custom timeout is specified.
+ 		 */
+-		err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
+-					MMC_BUSY_IO);
++		err = mmc_poll_for_busy(card, idata->ic.cmd_timeout_ms ? : MMC_BLK_TIMEOUT_MS,
++					false, MMC_BUSY_IO);
+ 	}
+ 
+ 	return err;
+-- 
+2.34.1
+
