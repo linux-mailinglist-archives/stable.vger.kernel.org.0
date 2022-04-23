@@ -2,79 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C93F550C5ED
-	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 03:07:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CE2250C777
+	for <lists+stable@lfdr.de>; Sat, 23 Apr 2022 07:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231280AbiDWBKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Apr 2022 21:10:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37344 "EHLO
+        id S233089AbiDWFGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Apr 2022 01:06:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229941AbiDWBKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Apr 2022 21:10:11 -0400
-Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C7B1A433D
-        for <stable@vger.kernel.org>; Fri, 22 Apr 2022 18:07:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.co.jp; i=@amazon.co.jp; q=dns/txt;
-  s=amazon201209; t=1650676034; x=1682212034;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=5x35e7lsDWgAiMVVNhnJSclVfLi48ss41CAGv8OAmb4=;
-  b=tQ+UDTxynfyfE43isX0i0rS6apXa7ZxeZQFIQ7ouiCxRmEwkqllIgLoV
-   ROE7Oaog7sJVYsxlUB9InXnkd7C1TbAKXrZfofRQZ96rQUQTEAkWBDZWc
-   tq0T9xTg0zVkxCPG1+9iNg71kqsCUN8WRxdVuqm6l2u17Y73/YyVm0sNR
-   c=;
-X-IronPort-AV: E=Sophos;i="5.90,283,1643673600"; 
-   d="scan'208";a="1010029407"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-pdx-2c-d9fba5dd.us-west-2.amazon.com) ([10.25.36.210])
-  by smtp-border-fw-9103.sea19.amazon.com with ESMTP; 23 Apr 2022 01:07:13 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-pdx-2c-d9fba5dd.us-west-2.amazon.com (Postfix) with ESMTPS id 7018241698;
-        Sat, 23 Apr 2022 01:07:13 +0000 (UTC)
-Received: from EX13D04ANC001.ant.amazon.com (10.43.157.89) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
- id 15.0.1497.32; Sat, 23 Apr 2022 01:07:12 +0000
-Received: from 88665a182662.ant.amazon.com.com (10.43.160.156) by
- EX13D04ANC001.ant.amazon.com (10.43.157.89) with Microsoft SMTP Server (TLS)
- id 15.0.1497.32; Sat, 23 Apr 2022 01:07:10 +0000
-From:   Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-CC:     stable <stable@vger.kernel.org>,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        Kuniyuki Iwashima <kuni1840@gmail.com>
-Subject: Request to cherry-pick c89dffc70b34 to 4.14, 4.19, and 5.4.
-Date:   Sat, 23 Apr 2022 10:07:06 +0900
-Message-ID: <20220423010706.79913-1-kuniyu@amazon.co.jp>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S231760AbiDWFGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 01:06:21 -0400
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D331F8EF4;
+        Fri, 22 Apr 2022 22:03:25 -0700 (PDT)
+Received: by mail-pf1-f178.google.com with SMTP id p8so9835237pfh.8;
+        Fri, 22 Apr 2022 22:03:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=vD0W6bI9inxY1IqwYpYGCs5VOO5jHMZ9Ui2cOWh/okI=;
+        b=RWffJnpR0EMAvWQ4n2uAQXH5VLGnAAh/w4N9lv+SQOf4g6YmvoL9PFiFykGtYKhk7x
+         grsCxY+NknzeRoR12SmHnJqHcKY4pph25sgJqAY+Lbo4ra8rU3GvcdqBL9omc9twkdIC
+         oMe4adn6AwuBdfuawmRqT2v+eUIUz2ZAE2gImJ47Ghl/aAHiZenZWWsuoj1yXb+3BCwM
+         ifpS6TbmsfKApb7HnQ1X1/8TlrJcfac5lag46NuEtw/KoyFvtSMDtGpPB69LlgNpuUqE
+         dygL8IfQTH7uYgC6SkiuixzzRQqaHsw0YbMvobXXlFxm6FSFKeE6oCBU2hVR0o10lo2c
+         WARw==
+X-Gm-Message-State: AOAM533xQsTJGJDcfOqdykMC6p5QsJzIA5Si0h39Toq3ANa13WPhDcNZ
+        Vlz2Q70kuV4X2LXvJV66t9c=
+X-Google-Smtp-Source: ABdhPJx6rWeo45nxheFodGYu+usoypVGBw0VrjbV/QATcx3S17+KMoJacGaZFY6u3PPv2KOdDQPdXw==
+X-Received: by 2002:a05:6a00:164c:b0:50a:472a:6b0a with SMTP id m12-20020a056a00164c00b0050a472a6b0amr8424873pfc.77.1650690204550;
+        Fri, 22 Apr 2022 22:03:24 -0700 (PDT)
+Received: from ?IPV6:2601:647:4000:d7:feaa:14ff:fe9d:6dbd? ([2601:647:4000:d7:feaa:14ff:fe9d:6dbd])
+        by smtp.gmail.com with ESMTPSA id r19-20020a17090b051300b001cd4989ff5esm7630037pjz.37.2022.04.22.22.03.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Apr 2022 22:03:23 -0700 (PDT)
+Message-ID: <5ee685f5-152c-aca0-cc14-646cfae93000@acm.org>
+Date:   Fri, 22 Apr 2022 22:03:22 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.43.160.156]
-X-ClientProxiedBy: EX13D08UWB001.ant.amazon.com (10.43.161.104) To
- EX13D04ANC001.ant.amazon.com (10.43.157.89)
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 3/5] scsi: ufs: qcom: Add a readl() to make sure ref_clk
+ gets enabled
+Content-Language: en-US
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        martin.petersen@oracle.com, jejb@linux.ibm.com
+Cc:     avri.altman@wdc.com, alim.akhtar@samsung.com,
+        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
+        quic_asutoshd@quicinc.com, quic_cang@quicinc.com,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20220422132140.313390-1-manivannan.sadhasivam@linaro.org>
+ <20220422132140.313390-4-manivannan.sadhasivam@linaro.org>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20220422132140.313390-4-manivannan.sadhasivam@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi maintainers,
+On 4/22/22 06:21, Manivannan Sadhasivam wrote:
+> In ufs_qcom_dev_ref_clk_ctrl(), it was noted that the ref_clk needs to be
+> stable for atleast 1us. Eventhough there is wmb() to make sure the write
+                ^              ^
+Some spaces are missing.
 
-Upstream commit 01770a166165 ("tcp: fix race condition when creating child
-sockets from syncookies") is planned to be backported to 4.14, 4.19 and
-5.4:
+> gets "completed", there is no guarantee that the write actually reached
+> the UFS device. There is a good chance that the write could be stored in
+> a Write Buffer (WB). In that case, eventhough the CPU waits for 1us, the
+                                          ^
+missing space----------------------------
 
-  https://marc.info/?l=linux-stable-commits&m=165063781908608&w=3
-  https://marc.info/?l=linux-stable-commits&m=165063781708604&w=3
-  https://marc.info/?l=linux-stable-commits&m=165063781708603&w=3
+> ref_clk might not be stable for that period.
+> 
+> So lets do a readl() to make sure that the previous write has reached the
+> UFS device before udelay().
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: f06fcc7155dc ("scsi: ufs-qcom: add QUniPro hardware support and power optimizations")
+> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+> ---
+>   drivers/scsi/ufs/ufs-qcom.c | 6 ++++++
+>   1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
+> index 5f0a8f646eb5..5b9986c63eed 100644
+> --- a/drivers/scsi/ufs/ufs-qcom.c
+> +++ b/drivers/scsi/ufs/ufs-qcom.c
+> @@ -690,6 +690,12 @@ static void ufs_qcom_dev_ref_clk_ctrl(struct ufs_qcom_host *host, bool enable)
+>   		/* ensure that ref_clk is enabled/disabled before we return */
+>   		wmb();
+>   
+> +		/*
+> +		 * Make sure the write to ref_clk reaches the destination and
+> +		 * not stored in a Write Buffer (WB).
+> +		 */
+> +		readl(host->dev_ref_clk_ctrl_mmio);
+> +
+>   		/*
+>   		 * If we call hibern8 exit after this, we need to make sure that
+>   		 * device ref_clk is stable for at least 1us before the hibern8
 
-Another commit c89dffc70b34 ("tcp: Fix potential use-after-free due to
-double kfree()") has a Fixes tag for it, so please backport this also.
+The comment above the wmb() call looks wrong to me. How about removing 
+that wmb() call?
 
-Best regards,
-Kuniyuki
+Thanks,
+
+Bart.
