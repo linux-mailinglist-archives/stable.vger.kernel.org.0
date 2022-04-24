@@ -2,222 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC15B50D27A
-	for <lists+stable@lfdr.de>; Sun, 24 Apr 2022 16:53:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DE850D3E5
+	for <lists+stable@lfdr.de>; Sun, 24 Apr 2022 19:21:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239486AbiDXO4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Apr 2022 10:56:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51516 "EHLO
+        id S236439AbiDXRYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Apr 2022 13:24:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233183AbiDXO4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 10:56:19 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93487DB0E4
-        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 07:53:17 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id r13so25090649ejd.5
-        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 07:53:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=blackwall-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=FSdZ0EyibnPl6YT5BPXSx2licUaKCWt4bsCgOsnNmbs=;
-        b=cEgn8A/O1H9H+dljfA0EHahDbm8xweR+PBmjeE/tslJYO7M5LAALrv40xHWj5tRgzj
-         QUeU5t+g7yligkmFEpWyS9oOd12tjyuQWe9u23EC9Yfn6O+IEhyZm7IVaotizt1G61Lj
-         wqmF8lIbozjr9VAOwl3Dh3esd6XTXom0IYWDm/46S7rkhSDsE5FriTGBZXYRNBjXJwp5
-         akPvfUi7vx2/KeQcQ2x68XhmbZiR0VP+BkmUHO5rF7q/+cckwZ+TZZmpqm1d3VPTc8yF
-         RceUXmt4gQrlXK24K/bn6k28xIKbzzdbYRNB+h3fGlkiSVHjvupqvCns72EZ6+V6M2gA
-         IebA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=FSdZ0EyibnPl6YT5BPXSx2licUaKCWt4bsCgOsnNmbs=;
-        b=yuznC24tHJyX5TK+KeMkXCMQ4HysXRNjtJ8skEbdoM95E9tV0OoK0F7zBVnP5d+rZi
-         5K0oY/p+2YbLnut2CuAkTRxW+3OLiN1svBeI1VXKjgk4vHTX31qQxmGtjaIUKFYmRjUt
-         aA2kGXwOSem3V4U5O5BBGQkg9ekyS0gjQx64H1+4uIkS6+1cdxKyRKmdTPKADmeRlSCN
-         HAbWiXAp5Cv8cYgazNNaNc/zWuFVvOvleBoTRT9qsMmxLTuINbKPVhx43MoEuNfiXNab
-         YqrScLkRQHekxUSLpuYx4FxXxA1AlblMljBNczu/YtfE7Qgeb1wupExFfCKIKrzuR3TZ
-         KEwg==
-X-Gm-Message-State: AOAM533rouvnVsnJIjhyb4l/H7GN4158aMZL0zvX4BJZsMLASphUjIy8
-        fTGxBO280fO618gZgzZNabrBnw==
-X-Google-Smtp-Source: ABdhPJwWjaofBEbFz/c/hWVLkFBaESJwklRq20VejH/s4tBbb7ui2abSGJ3PTtuJRwRZ9UFJK++SZQ==
-X-Received: by 2002:a17:906:9b85:b0:6e0:5c22:f0df with SMTP id dd5-20020a1709069b8500b006e05c22f0dfmr12285346ejc.114.1650811995827;
-        Sun, 24 Apr 2022 07:53:15 -0700 (PDT)
-Received: from [192.168.0.111] (87-243-81-1.ip.btc-net.bg. [87.243.81.1])
-        by smtp.gmail.com with ESMTPSA id 17-20020a170906059100b006cee1bceddasm2629473ejn.130.2022.04.24.07.53.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 24 Apr 2022 07:53:15 -0700 (PDT)
-Message-ID: <540a850d-11f3-5d14-a9e7-0cf78e878b75@blackwall.org>
-Date:   Sun, 24 Apr 2022 17:53:14 +0300
+        with ESMTP id S236394AbiDXRX6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 13:23:58 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2395957B3F;
+        Sun, 24 Apr 2022 10:20:57 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3096CCE0EA0;
+        Sun, 24 Apr 2022 17:20:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50E1FC385A9;
+        Sun, 24 Apr 2022 17:20:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650820853;
+        bh=4SgAcVXLHGqxh2NVuCquX9xm9/nhdLmAxMSJu3gMgqI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=MYh21kkHqtkHrAMHn/d2IYATE6bWshwZufmkNFFqMaffarwSSnQ0JWyKz2w1dudBI
+         oG/0vGaGZKmTFYvYaVwW6V/pCMi1ef4ZTzwnUfirI6b8IIo0QqhhusrLP6Og+LQqCQ
+         fS485VteVO6wC5RHi7itPwhlJBrYLM/hjwAQsXu6biY5f3g32iI9G3iMSyUhZTMKfm
+         mF19N6ijiUsZvPGCtqX8Wn9o8eJEp5CrVsPQeHHy5ACwUOZ57iHDVpF02qKySpXdgC
+         oJ7WRo7qCUdgZLFbOM+Ls8LQJomxxoPSJRfMsfFoQZ9SofyFhzAIk1K48S3QYlyYwK
+         ZZ3IWbNKjBqLg==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guillaume Tucker <gtucker@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Tony Lindgren <tony@atomide.com>,
+        Will Deacon <will@kernel.org>, bot@kernelci.org,
+        kernelci-results@groups.io, linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org
+Subject: [PATCH] arm[64]/memremap: don't abuse pfn_valid() to ensure presence of linear map
+Date:   Sun, 24 Apr 2022 20:20:44 +0300
+Message-Id: <20220424172044.22220-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH net v2] virtio_net: fix wrong buf address calculation when
- using xdp
-Content-Language: en-US
-To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc:     kuba@kernel.org, davem@davemloft.net, stable@vger.kernel.org,
-        Jason Wang <jasowang@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-References: <20220423112612.2292774-1-razor@blackwall.org>
- <1650720683.8168066-1-xuanzhuo@linux.alibaba.com>
- <8d511a16-8d69-82b1-48a1-24de3a592aef@blackwall.org>
- <a58bfd2c-4f83-11fe-08d1-19c1d6497fc2@blackwall.org>
- <1650724608.256497-2-xuanzhuo@linux.alibaba.com>
- <c206c147-ad7e-b615-2e96-572482335563@blackwall.org>
- <1650726113.2334588-1-xuanzhuo@linux.alibaba.com>
- <ff95db6e-5a0a-7e63-080f-c719ac434c34@blackwall.org>
- <c7e49737-c5f8-5164-88ad-599c828c5d23@blackwall.org>
- <20220424102121.2686893-1-razor@blackwall.org>
- <1650796959.4611728-1-xuanzhuo@linux.alibaba.com>
- <94172c53-2919-9eab-7933-91a78bdb87f0@blackwall.org>
- <1650799132.122562-1-xuanzhuo@linux.alibaba.com>
-From:   Nikolay Aleksandrov <razor@blackwall.org>
-In-Reply-To: <1650799132.122562-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24/04/2022 14:18, Xuan Zhuo wrote:
-> On Sun, 24 Apr 2022 13:56:17 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
->> On 24/04/2022 13:42, Xuan Zhuo wrote:
->>> On Sun, 24 Apr 2022 13:21:21 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
-[snip]
->>>>
->>>> CC: stable@vger.kernel.org
->>>> CC: Jason Wang <jasowang@redhat.com>
->>>> CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->>>> CC: Daniel Borkmann <daniel@iogearbox.net>
->>>> CC: "Michael S. Tsirkin" <mst@redhat.com>
->>>> CC: virtualization@lists.linux-foundation.org
->>>> Fixes: 8fb7da9e9907 ("virtio_net: get build_skb() buf by data ptr")
->>>> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
->>>> ---
->>>> v2: Recalculate headroom based on data, data_hard_start and data_meta
->>>>
->>>>  drivers/net/virtio_net.c | 8 +++++++-
->>>>  1 file changed, 7 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->>>> index 87838cbe38cf..a12338de7ef1 100644
->>>> --- a/drivers/net/virtio_net.c
->>>> +++ b/drivers/net/virtio_net.c
->>>> @@ -1005,6 +1005,12 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->>>>  			 * xdp.data_meta were adjusted
->>>>  			 */
->>>>  			len = xdp.data_end - xdp.data + vi->hdr_len + metasize;
->>>> +
->>>> +			/* recalculate headroom if xdp.data or xdp.data_meta
->>>> +			 * were adjusted
->>>> +			 */
->>>> +			headroom = xdp.data - xdp.data_hard_start - metasize;
->>>
->>>
->>> This is incorrect.
->>>
->>>
->>> 		data = page_address(xdp_page) + offset;
->>> 		xdp_init_buff(&xdp, frame_sz - vi->hdr_len, &rq->xdp_rxq);
->>> 		xdp_prepare_buff(&xdp, data - VIRTIO_XDP_HEADROOM + vi->hdr_len,
->>> 				 VIRTIO_XDP_HEADROOM, len - vi->hdr_len, true);
->>>
->>> so: xdp.data_hard_start = page_address(xdp_page) + offset - VIRTIO_XDP_HEADROOM + vi->hdr_len
->>>
->>> (page_address(xdp_page) + offset) points to virtio-net hdr.
->>> (page_address(xdp_page) + offset - VIRTIO_XDP_HEADROOM) points to the allocated buf.
->>>
->>> xdp.data_hard_start points to buf + vi->hdr_len
->>>
->>> Thanks.
->>>
->>
->> xdp.data points to buf + vi->hdr_len + VIRTIO_XDP_HEADROOM, so we calculate
->> xdp.data - xdp.data_hard_start, i.e. buf + vi->hdr_len + VIRTIO_XDP_HEADROOM - (buf + vi->hdr_len)
->>
->> You can see the headrooms from my tests above, they are correct and they match exactly
->> the values from the headroom calculations that you suggested earlier.
-> 
-> 
-> OK. You are right, xdp.data, xdp.data_hard_start have an offset of hdr_len. I
-> hope this can be explained in the comments, because the headroom we want to get
-> is virtio_hdr - buf. Although the value here are equal.
-> 
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-I think it's normal for them to be equal because buf + offset points to vnet_hdr start,
-that is it doesn't include the vnet_hdr size, so all that is left to subtract to get
-to buf is offset - headroom after the prepare (given correct headroom, of course). 
-The linearized xdp page buf has the following initial geometry (at prepare):
- offset = VIRTIO_XDP_HEADROOM
- headroom = VIRTIO_XDP_HEADROOM
- data_hard_start = page_address + vnet_hdr
- data = page_address + vnet_hdr + headroom
- data_meta = data
+The semantics of pfn_valid() is to check presence of the memory map for a
+PFN and not whether a PFN is covered by the linear map. The memory map may
+be present for NOMAP memory regions, but they won't be mapped in the linear
+mapping.  Accessing such regions via __va() when they are memremap()'ed
+will cause a crash.
 
-after xdp prog has run:
-offset is recalculated as: (page_address + vnet_hdr + adjusted headroom) - page_address -
-                            vnet_hdr - metasize = adjusted headroom - metasize
+On v5.4.y the crash happens on qemu-arm with UEFI [1]:
 
-I wrote adjusted headroom because it depends on data and data_meta adjustments done by
-the xdp prog, so based on the above we can get back to page_address (or buf if it's a virtnet
-buf) by subtracting the following headroom recalculation:
- headroom = data - data_hard_start - metasize =
- (page_address + vnet_hdr + adjusted headroom) - page_address - vnet_hdr - metasize =
- adjusted headroom - metasize
+<1>[    0.084476] 8<--- cut here ---
+<1>[    0.084595] Unable to handle kernel paging request at virtual address dfb76000
+<1>[    0.084938] pgd = (ptrval)
+<1>[    0.085038] [dfb76000] *pgd=5f7fe801, *pte=00000000, *ppte=00000000
 
-That is because in page_to_skb() p points to page_address + recalculated offset, i.e.
-p = page_address + (adjusted headroom - metasize) for the linearized case.
-For the other case it's the same just the initial offset is a larger value.
+...
 
-I'll add a comment that page_address + offset always points to vnet_hdr start so
-it will be equal to headroom which is data - data_hard_start because we have
-data = page_address + vnet_hdr + adjusted headroom and data_hard_start at page_address
-+ vnet_hdr. Note that we have adjusted headroom + vnet_hdr bytes available behind data
-always, so for offset to point to vnet_hdr it has to be equal to headroom, it just
-starts at page_address while the actual headroom starts at page_address + vnet_hdr to
-reserve that many bytes.
+<4>[    0.093923] [<c0ed6ce8>] (memcpy) from [<c16a06f8>] (dmi_setup+0x60/0x418)
+<4>[    0.094204] [<c16a06f8>] (dmi_setup) from [<c16a38d4>] (arm_dmi_init+0x8/0x10)
+<4>[    0.094408] [<c16a38d4>] (arm_dmi_init) from [<c0302e9c>] (do_one_initcall+0x50/0x228)
+<4>[    0.094619] [<c0302e9c>] (do_one_initcall) from [<c16011e4>] (kernel_init_freeable+0x15c/0x1f8)
+<4>[    0.094841] [<c16011e4>] (kernel_init_freeable) from [<c0f028cc>] (kernel_init+0x8/0x10c)
+<4>[    0.095057] [<c0f028cc>] (kernel_init) from [<c03010e8>] (ret_from_fork+0x14/0x2c)
 
-I'll see how I can make that more concise. :)
+On kernels v5.10.y and newer the same crash won't reproduce on ARM because
+commit b10d6bca8720 ("arch, drivers: replace for_each_membock() with
+for_each_mem_range()") changed the way memory regions are registered in the
+resource tree, but that merely covers up the problem.
 
-> In addition, if you are going to post v2, I think you should post a new thread
-> separately instead of replying in the previous thread.
-> 
+On ARM64 memory resources registered in yet another way and there the
+issue of wrong usage of pfn_valid() to ensure availability of the linear
+map is also covered.
 
-sure, I don't mind either way
+Implement arch_memremap_can_ram_remap() on ARM and ARM64 to prevent access
+to NOMAP regions via the linear mapping in memremap().
 
-> Thanks.
-> 
-> 
+Link: https://lore.kernel.org/all/Yl65zxGgFzF1Okac@sirena.org.uk
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Tested-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org	# 5.4+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/arm/include/asm/io.h   | 4 ++++
+ arch/arm/mm/ioremap.c       | 9 ++++++++-
+ arch/arm64/include/asm/io.h | 4 ++++
+ arch/arm64/mm/ioremap.c     | 8 ++++++++
+ kernel/iomem.c              | 2 +-
+ 5 files changed, 25 insertions(+), 2 deletions(-)
 
-Cheers,
- Nik
+diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
+index 0c70eb688a00..fbb2eeea7285 100644
+--- a/arch/arm/include/asm/io.h
++++ b/arch/arm/include/asm/io.h
+@@ -145,6 +145,10 @@ extern void __iomem * (*arch_ioremap_caller)(phys_addr_t, size_t,
+ 	unsigned int, void *);
+ extern void (*arch_iounmap)(volatile void __iomem *);
+ 
++extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
++					unsigned long flags);
++#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
++
+ /*
+  * Bad read/write accesses...
+  */
+diff --git a/arch/arm/mm/ioremap.c b/arch/arm/mm/ioremap.c
+index aa08bcb72db9..6eb1ad24544d 100644
+--- a/arch/arm/mm/ioremap.c
++++ b/arch/arm/mm/ioremap.c
+@@ -43,7 +43,6 @@
+ #include <asm/mach/pci.h>
+ #include "mm.h"
+ 
+-
+ LIST_HEAD(static_vmlist);
+ 
+ static struct static_vm *find_static_vm_paddr(phys_addr_t paddr,
+@@ -493,3 +492,11 @@ void __init early_ioremap_init(void)
+ {
+ 	early_ioremap_setup();
+ }
++
++bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
++				 unsigned long flags)
++{
++	unsigned long pfn = PHYS_PFN(offset);
++
++	return memblock_is_map_memory(pfn);
++}
+diff --git a/arch/arm64/include/asm/io.h b/arch/arm64/include/asm/io.h
+index 7fd836bea7eb..3995652daf81 100644
+--- a/arch/arm64/include/asm/io.h
++++ b/arch/arm64/include/asm/io.h
+@@ -192,4 +192,8 @@ extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
+ extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
+ extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
+ 
++extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
++					unsigned long flags);
++#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
++
+ #endif	/* __ASM_IO_H */
+diff --git a/arch/arm64/mm/ioremap.c b/arch/arm64/mm/ioremap.c
+index b7c81dacabf0..b21f91cd830d 100644
+--- a/arch/arm64/mm/ioremap.c
++++ b/arch/arm64/mm/ioremap.c
+@@ -99,3 +99,11 @@ void __init early_ioremap_init(void)
+ {
+ 	early_ioremap_setup();
+ }
++
++bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
++				 unsigned long flags)
++{
++	unsigned long pfn = PHYS_PFN(offset);
++
++	return pfn_is_map_memory(pfn);
++}
+diff --git a/kernel/iomem.c b/kernel/iomem.c
+index 62c92e43aa0d..e85bed24c0a9 100644
+--- a/kernel/iomem.c
++++ b/kernel/iomem.c
+@@ -33,7 +33,7 @@ static void *try_ram_remap(resource_size_t offset, size_t size,
+ 	unsigned long pfn = PHYS_PFN(offset);
+ 
+ 	/* In the simple case just return the existing linear address */
+-	if (pfn_valid(pfn) && !PageHighMem(pfn_to_page(pfn)) &&
++	if (!PageHighMem(pfn_to_page(pfn)) &&
+ 	    arch_memremap_can_ram_remap(offset, size, flags))
+ 		return __va(offset);
+ 
 
->>
->>>
->>>> +
->>>>  			/* We can only create skb based on xdp_page. */
->>>>  			if (unlikely(xdp_page != page)) {
->>>>  				rcu_read_unlock();
->>>> @@ -1012,7 +1018,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->>>>  				head_skb = page_to_skb(vi, rq, xdp_page, offset,
->>>>  						       len, PAGE_SIZE, false,
->>>>  						       metasize,
->>>> -						       VIRTIO_XDP_HEADROOM);
->>>> +						       headroom);
->>>>  				return head_skb;
->>>>  			}
->>>>  			break;
->>>> --
->>>> 2.35.1
->>>>
->>
+base-commit: b2d229d4ddb17db541098b83524d901257e93845
+-- 
+2.28.0
 
