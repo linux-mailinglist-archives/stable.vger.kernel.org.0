@@ -2,107 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A488A50D20A
-	for <lists+stable@lfdr.de>; Sun, 24 Apr 2022 15:29:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC15B50D27A
+	for <lists+stable@lfdr.de>; Sun, 24 Apr 2022 16:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235675AbiDXNcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Apr 2022 09:32:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60582 "EHLO
+        id S239486AbiDXO4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Apr 2022 10:56:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233855AbiDXNcm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 09:32:42 -0400
-Received: from mail-yw1-x1135.google.com (mail-yw1-x1135.google.com [IPv6:2607:f8b0:4864:20::1135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F12923981C
-        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 06:29:41 -0700 (PDT)
-Received: by mail-yw1-x1135.google.com with SMTP id 00721157ae682-2ec42eae76bso125024107b3.10
-        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 06:29:41 -0700 (PDT)
+        with ESMTP id S233183AbiDXO4T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 10:56:19 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93487DB0E4
+        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 07:53:17 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id r13so25090649ejd.5
+        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 07:53:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JK9TFPztsujq8iRjjPRGHGSrFz5D5Xa1peH3uwOx7B4=;
-        b=MeFXajKMHoOCQRrJW5sjUZQsO3JmdeUQ/ybqYY8kbBkjSwRzPAByR2Dn/PUI0Hqd/N
-         xnJCo59oqJS1eNdxXkJAmmyrqj1LqOASbsaK6vH4/scPWIbYfwyMLb0+cL1laAWFo4d5
-         wva2JYXSxfYO7kImrsiwXZMWpCjxJkK2bMvCqkOLez4ofxGCUbNpxXMqSyxE+2QrFE4V
-         0YcNGT/Kr5jURM9vR2x4Msfe7WkmJ9Mpd5eKDOf8Yun0Z0IYqtSOBQ/kWT2xzoc6s0rZ
-         JJHW4MvVGQZy4HFS23aKzIJBW190f7/D+xDkyiepJy+UD7KenLFfjX0bDcA3ggMh5IUG
-         lI6g==
+        d=blackwall-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=FSdZ0EyibnPl6YT5BPXSx2licUaKCWt4bsCgOsnNmbs=;
+        b=cEgn8A/O1H9H+dljfA0EHahDbm8xweR+PBmjeE/tslJYO7M5LAALrv40xHWj5tRgzj
+         QUeU5t+g7yligkmFEpWyS9oOd12tjyuQWe9u23EC9Yfn6O+IEhyZm7IVaotizt1G61Lj
+         wqmF8lIbozjr9VAOwl3Dh3esd6XTXom0IYWDm/46S7rkhSDsE5FriTGBZXYRNBjXJwp5
+         akPvfUi7vx2/KeQcQ2x68XhmbZiR0VP+BkmUHO5rF7q/+cckwZ+TZZmpqm1d3VPTc8yF
+         RceUXmt4gQrlXK24K/bn6k28xIKbzzdbYRNB+h3fGlkiSVHjvupqvCns72EZ6+V6M2gA
+         IebA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JK9TFPztsujq8iRjjPRGHGSrFz5D5Xa1peH3uwOx7B4=;
-        b=mlTrg6x+kESKmBzpqr2q5YcUnaG28YZEvIL4Z0gcEX8IJpGiJQaiF020AbV25c4Jsv
-         phayJVIlKiu4UkTjbjxnafLdsLLHhIombnHRjKoCjLMrW0u8k5x9NV79HdF8GMw2lNtC
-         h1qTi8ZTvy4BxHlAvWp/yv7i3kcPVsccEAGtcPMmY11D9332Ro5NvNfjg/o8I7s/W9w8
-         LztU3ihJl46cJgosqX5DiU6hmLMgLjTC8g6LRa9e1vkfMUCI6q9mrnOkSlKxwZs9Y5Dl
-         2caP8zksZ44ZYzynCduea19oa/OgZ//NASOB8J1/adVxdAx6RKmbIx4R12b/8KpAjvOV
-         RF6Q==
-X-Gm-Message-State: AOAM532ji6mMFN0SBuaOq2Vj3VaGPeBHb6ovUkMpH0grAG2DZ9XQya8Z
-        HQmwT+xeFUrIqEi7hfLMGvTS4xlG+rtcAvISk1QCWQ==
-X-Google-Smtp-Source: ABdhPJyKy/ERfoPPNyl1VM2f0F/66Ks2WQss09NGAgQoOIdadyNRHgCmAWZJdCalVLR8yNdxZxKGZuibDrtGllZ0VkQ=
-X-Received: by 2002:a81:1d48:0:b0:2f1:8ebf:25f3 with SMTP id
- d69-20020a811d48000000b002f18ebf25f3mr12447315ywd.118.1650806981255; Sun, 24
- Apr 2022 06:29:41 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=FSdZ0EyibnPl6YT5BPXSx2licUaKCWt4bsCgOsnNmbs=;
+        b=yuznC24tHJyX5TK+KeMkXCMQ4HysXRNjtJ8skEbdoM95E9tV0OoK0F7zBVnP5d+rZi
+         5K0oY/p+2YbLnut2CuAkTRxW+3OLiN1svBeI1VXKjgk4vHTX31qQxmGtjaIUKFYmRjUt
+         aA2kGXwOSem3V4U5O5BBGQkg9ekyS0gjQx64H1+4uIkS6+1cdxKyRKmdTPKADmeRlSCN
+         HAbWiXAp5Cv8cYgazNNaNc/zWuFVvOvleBoTRT9qsMmxLTuINbKPVhx43MoEuNfiXNab
+         YqrScLkRQHekxUSLpuYx4FxXxA1AlblMljBNczu/YtfE7Qgeb1wupExFfCKIKrzuR3TZ
+         KEwg==
+X-Gm-Message-State: AOAM533rouvnVsnJIjhyb4l/H7GN4158aMZL0zvX4BJZsMLASphUjIy8
+        fTGxBO280fO618gZgzZNabrBnw==
+X-Google-Smtp-Source: ABdhPJwWjaofBEbFz/c/hWVLkFBaESJwklRq20VejH/s4tBbb7ui2abSGJ3PTtuJRwRZ9UFJK++SZQ==
+X-Received: by 2002:a17:906:9b85:b0:6e0:5c22:f0df with SMTP id dd5-20020a1709069b8500b006e05c22f0dfmr12285346ejc.114.1650811995827;
+        Sun, 24 Apr 2022 07:53:15 -0700 (PDT)
+Received: from [192.168.0.111] (87-243-81-1.ip.btc-net.bg. [87.243.81.1])
+        by smtp.gmail.com with ESMTPSA id 17-20020a170906059100b006cee1bceddasm2629473ejn.130.2022.04.24.07.53.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 24 Apr 2022 07:53:15 -0700 (PDT)
+Message-ID: <540a850d-11f3-5d14-a9e7-0cf78e878b75@blackwall.org>
+Date:   Sun, 24 Apr 2022 17:53:14 +0300
 MIME-Version: 1.0
-References: <20220423221623.1074556-1-huobean@gmail.com> <20220423221623.1074556-3-huobean@gmail.com>
-In-Reply-To: <20220423221623.1074556-3-huobean@gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sun, 24 Apr 2022 15:29:29 +0200
-Message-ID: <CACRpkdahf5QhUJ-vG6Qs7i0VYbSS02zBrQOtN8EVFu9SyHZA1Q@mail.gmail.com>
-Subject: Re: [PATCH v1 2/2] mmc: core: Allows to override the timeout value
- for ioctl() path
-To:     Bean Huo <huobean@gmail.com>
-Cc:     ulf.hansson@linaro.org, adrian.hunter@intel.com,
-        linux-mmc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        beanhuo@micron.com, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH net v2] virtio_net: fix wrong buf address calculation when
+ using xdp
+Content-Language: en-US
+To:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+References: <20220423112612.2292774-1-razor@blackwall.org>
+ <1650720683.8168066-1-xuanzhuo@linux.alibaba.com>
+ <8d511a16-8d69-82b1-48a1-24de3a592aef@blackwall.org>
+ <a58bfd2c-4f83-11fe-08d1-19c1d6497fc2@blackwall.org>
+ <1650724608.256497-2-xuanzhuo@linux.alibaba.com>
+ <c206c147-ad7e-b615-2e96-572482335563@blackwall.org>
+ <1650726113.2334588-1-xuanzhuo@linux.alibaba.com>
+ <ff95db6e-5a0a-7e63-080f-c719ac434c34@blackwall.org>
+ <c7e49737-c5f8-5164-88ad-599c828c5d23@blackwall.org>
+ <20220424102121.2686893-1-razor@blackwall.org>
+ <1650796959.4611728-1-xuanzhuo@linux.alibaba.com>
+ <94172c53-2919-9eab-7933-91a78bdb87f0@blackwall.org>
+ <1650799132.122562-1-xuanzhuo@linux.alibaba.com>
+From:   Nikolay Aleksandrov <razor@blackwall.org>
+In-Reply-To: <1650799132.122562-1-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 24, 2022 at 12:16 AM Bean Huo <huobean@gmail.com> wrote:
+On 24/04/2022 14:18, Xuan Zhuo wrote:
+> On Sun, 24 Apr 2022 13:56:17 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+>> On 24/04/2022 13:42, Xuan Zhuo wrote:
+>>> On Sun, 24 Apr 2022 13:21:21 +0300, Nikolay Aleksandrov <razor@blackwall.org> wrote:
+[snip]
+>>>>
+>>>> CC: stable@vger.kernel.org
+>>>> CC: Jason Wang <jasowang@redhat.com>
+>>>> CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>>>> CC: Daniel Borkmann <daniel@iogearbox.net>
+>>>> CC: "Michael S. Tsirkin" <mst@redhat.com>
+>>>> CC: virtualization@lists.linux-foundation.org
+>>>> Fixes: 8fb7da9e9907 ("virtio_net: get build_skb() buf by data ptr")
+>>>> Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
+>>>> ---
+>>>> v2: Recalculate headroom based on data, data_hard_start and data_meta
+>>>>
+>>>>  drivers/net/virtio_net.c | 8 +++++++-
+>>>>  1 file changed, 7 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>>> index 87838cbe38cf..a12338de7ef1 100644
+>>>> --- a/drivers/net/virtio_net.c
+>>>> +++ b/drivers/net/virtio_net.c
+>>>> @@ -1005,6 +1005,12 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>>>>  			 * xdp.data_meta were adjusted
+>>>>  			 */
+>>>>  			len = xdp.data_end - xdp.data + vi->hdr_len + metasize;
+>>>> +
+>>>> +			/* recalculate headroom if xdp.data or xdp.data_meta
+>>>> +			 * were adjusted
+>>>> +			 */
+>>>> +			headroom = xdp.data - xdp.data_hard_start - metasize;
+>>>
+>>>
+>>> This is incorrect.
+>>>
+>>>
+>>> 		data = page_address(xdp_page) + offset;
+>>> 		xdp_init_buff(&xdp, frame_sz - vi->hdr_len, &rq->xdp_rxq);
+>>> 		xdp_prepare_buff(&xdp, data - VIRTIO_XDP_HEADROOM + vi->hdr_len,
+>>> 				 VIRTIO_XDP_HEADROOM, len - vi->hdr_len, true);
+>>>
+>>> so: xdp.data_hard_start = page_address(xdp_page) + offset - VIRTIO_XDP_HEADROOM + vi->hdr_len
+>>>
+>>> (page_address(xdp_page) + offset) points to virtio-net hdr.
+>>> (page_address(xdp_page) + offset - VIRTIO_XDP_HEADROOM) points to the allocated buf.
+>>>
+>>> xdp.data_hard_start points to buf + vi->hdr_len
+>>>
+>>> Thanks.
+>>>
+>>
+>> xdp.data points to buf + vi->hdr_len + VIRTIO_XDP_HEADROOM, so we calculate
+>> xdp.data - xdp.data_hard_start, i.e. buf + vi->hdr_len + VIRTIO_XDP_HEADROOM - (buf + vi->hdr_len)
+>>
+>> You can see the headrooms from my tests above, they are correct and they match exactly
+>> the values from the headroom calculations that you suggested earlier.
+> 
+> 
+> OK. You are right, xdp.data, xdp.data_hard_start have an offset of hdr_len. I
+> hope this can be explained in the comments, because the headroom we want to get
+> is virtio_hdr - buf. Although the value here are equal.
+> 
 
-> From: Bean Huo <beanhuo@micron.com>
->
-> Occasionally, user-land applications initiate longer timeout values for certain commands
-> through ioctl() system call. But so far we are still using a fixed timeout of 10 seconds
-> in mmc_poll_for_busy() on the ioctl() path, even if a custom timeout is specified in the
-> userspace application. This patch allows custom timeout values to override this default
-> timeout values on the ioctl path.
->
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Bean Huo <beanhuo@micron.com>
-(...)
->         if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
->                 /*
-> -                * Ensure RPMB/R1B command has completed by polling CMD13
-> -                * "Send Status".
-> +                * Ensure RPMB/R1B command has completed by polling CMD13 "Send Status". Here we
-> +                * allow to override the default timeout value if a custom timeout is specified.
->                  */
-> -               err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
-> -                                       MMC_BUSY_IO);
-> +               err = mmc_poll_for_busy(card, idata->ic.cmd_timeout_ms ? : MMC_BLK_TIMEOUT_MS,
-> +                                       false, MMC_BUSY_IO);
+I think it's normal for them to be equal because buf + offset points to vnet_hdr start,
+that is it doesn't include the vnet_hdr size, so all that is left to subtract to get
+to buf is offset - headroom after the prepare (given correct headroom, of course). 
+The linearized xdp page buf has the following initial geometry (at prepare):
+ offset = VIRTIO_XDP_HEADROOM
+ headroom = VIRTIO_XDP_HEADROOM
+ data_hard_start = page_address + vnet_hdr
+ data = page_address + vnet_hdr + headroom
+ data_meta = data
 
-I suppose it's OK (albeit dubious) that we have a userspace interface setting
-a hardware-specific thing such as a timeout.
+after xdp prog has run:
+offset is recalculated as: (page_address + vnet_hdr + adjusted headroom) - page_address -
+                            vnet_hdr - metasize = adjusted headroom - metasize
 
-However: is MMC_BLK_TIMEOUT_MS even reasonable here? If you guys
-know a better timeout for RPMB operations (from your experience)
-what about defining MMC_RPMB_TIMEOUT_MS to something more
-reasonable (and I suppose longer) and use that as fallback instead
-of MMC_BLK_TIMEOUT_MS?
+I wrote adjusted headroom because it depends on data and data_meta adjustments done by
+the xdp prog, so based on the above we can get back to page_address (or buf if it's a virtnet
+buf) by subtracting the following headroom recalculation:
+ headroom = data - data_hard_start - metasize =
+ (page_address + vnet_hdr + adjusted headroom) - page_address - vnet_hdr - metasize =
+ adjusted headroom - metasize
 
-This knowledge (that RPMB commands can have long timeouts) is not
-something that should be hidden in userspace.
+That is because in page_to_skb() p points to page_address + recalculated offset, i.e.
+p = page_address + (adjusted headroom - metasize) for the linearized case.
+For the other case it's the same just the initial offset is a larger value.
 
-Yours,
-Linus Walleij
+I'll add a comment that page_address + offset always points to vnet_hdr start so
+it will be equal to headroom which is data - data_hard_start because we have
+data = page_address + vnet_hdr + adjusted headroom and data_hard_start at page_address
++ vnet_hdr. Note that we have adjusted headroom + vnet_hdr bytes available behind data
+always, so for offset to point to vnet_hdr it has to be equal to headroom, it just
+starts at page_address while the actual headroom starts at page_address + vnet_hdr to
+reserve that many bytes.
+
+I'll see how I can make that more concise. :)
+
+> In addition, if you are going to post v2, I think you should post a new thread
+> separately instead of replying in the previous thread.
+> 
+
+sure, I don't mind either way
+
+> Thanks.
+> 
+> 
+
+Cheers,
+ Nik
+
+>>
+>>>
+>>>> +
+>>>>  			/* We can only create skb based on xdp_page. */
+>>>>  			if (unlikely(xdp_page != page)) {
+>>>>  				rcu_read_unlock();
+>>>> @@ -1012,7 +1018,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>>>>  				head_skb = page_to_skb(vi, rq, xdp_page, offset,
+>>>>  						       len, PAGE_SIZE, false,
+>>>>  						       metasize,
+>>>> -						       VIRTIO_XDP_HEADROOM);
+>>>> +						       headroom);
+>>>>  				return head_skb;
+>>>>  			}
+>>>>  			break;
+>>>> --
+>>>> 2.35.1
+>>>>
+>>
+
