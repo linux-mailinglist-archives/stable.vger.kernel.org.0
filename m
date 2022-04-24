@@ -2,108 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAF9450CDE7
-	for <lists+stable@lfdr.de>; Sun, 24 Apr 2022 00:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB8250CEF6
+	for <lists+stable@lfdr.de>; Sun, 24 Apr 2022 05:28:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237279AbiDWWTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 23 Apr 2022 18:19:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33464 "EHLO
+        id S235385AbiDXDbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 23 Apr 2022 23:31:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230337AbiDWWTe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 18:19:34 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3C614DEA4;
-        Sat, 23 Apr 2022 15:16:35 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id ks6so22816992ejb.1;
-        Sat, 23 Apr 2022 15:16:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=SeT9VKBABGE3+M59+/LdCRTy+y0q+UOFIghRmJw7JEU=;
-        b=ghEvrTo/Mw/dGr730gI9vebowZJO7rKTe/+ShB6UWGyegdMld1T8uMV4Je5P9dfyw2
-         FF0/6gg7Pq8QIUkYjBJaAQToDMVr6y4Lk1yxvod3bAS+Z+yeSYR0mkj1Ai1qNYJLf23P
-         0Cl7H1phs9RQtEd6La3Pjydygqw1rO1bvXGsopDhNMx1mBVK1s7ZPA/ebq/SQNddFPzN
-         YjDBj+/wdKcy/GbiazuxWlDGrXea9t7I+Runba6n1mF7NYeuABbsjkM0x6tOFQ8/0D03
-         UbciJXa8UhsSA5BC/dFwoJQmOpQ7+/wtz/zu7SDUka5/NlXyHhQMQVPIdW2Zg4BDBBPI
-         OSpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=SeT9VKBABGE3+M59+/LdCRTy+y0q+UOFIghRmJw7JEU=;
-        b=bmGBOJH/lc/gwK4IRA/YMT63SDG3Xo24+OzlPIAT7O2UQpqKyYlv/hQceUTvYA1uHU
-         zxOhRsVOVgXZLlXuwlFk64NxyiBoQw91Q2On7CUwKa4Um4oHA8xvobAton4fbIh+7KDn
-         /AAIYjttwqHprdduPSoeagS/A+9OKRLhMCtGQg1F3lvk9yDgGRUEiTuxs9AH6PqSm+vz
-         oOy8NW9mslWfm+vDamBgYviH0v07ZdmRjjqX2/OrkZI06Z14PeCf3/mszF6gpe1Bdgez
-         O4HhMocc+u2VdlfvBbYvbM6nb7FJlHMn5wbBz2cvwTR2QYha2rd75dSHO64gys9K1Cp4
-         55hA==
-X-Gm-Message-State: AOAM5327vzHFSRnN4QsAISBeWtJ9+j6BOTuaFtCdDRFLavwTM42JdEeR
-        XCYQ0xRg53w5QaQTxON1Bt8=
-X-Google-Smtp-Source: ABdhPJwhbEa7xhj18dQkE7o4UxIXO6J5D9LIESZfSOfibr5uduO1+Zize1piovEhzJALerxZ5LhLoA==
-X-Received: by 2002:a17:906:c0d6:b0:6ca:457e:f1b7 with SMTP id bn22-20020a170906c0d600b006ca457ef1b7mr9540974ejb.399.1650752194502;
-        Sat, 23 Apr 2022 15:16:34 -0700 (PDT)
-Received: from linux.. (p5dd1ed70.dip0.t-ipconnect.de. [93.209.237.112])
-        by smtp.gmail.com with ESMTPSA id s1-20020a056402036100b004240a3fc6b4sm2669484edw.82.2022.04.23.15.16.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Apr 2022 15:16:34 -0700 (PDT)
-From:   Bean Huo <huobean@gmail.com>
-To:     ulf.hansson@linaro.org, adrian.hunter@intel.com,
-        linus.walleij@linaro.org, linux-mmc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     beanhuo@micron.com, stable <stable@vger.kernel.org>
-Subject: [PATCH v1 2/2] mmc: core: Allows to override the timeout value for ioctl() path
-Date:   Sun, 24 Apr 2022 00:16:23 +0200
-Message-Id: <20220423221623.1074556-3-huobean@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220423221623.1074556-1-huobean@gmail.com>
-References: <20220423221623.1074556-1-huobean@gmail.com>
+        with ESMTP id S238078AbiDXDak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 23 Apr 2022 23:30:40 -0400
+Received: from out30-43.freemail.mail.aliyun.com (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542EE1892BA;
+        Sat, 23 Apr 2022 20:27:21 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=shile.zhang@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VB-HW7s_1650770837;
+Received: from 30.225.28.161(mailfrom:shile.zhang@linux.alibaba.com fp:SMTPD_---0VB-HW7s_1650770837)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Sun, 24 Apr 2022 11:27:18 +0800
+Message-ID: <550e9439-adf6-3df8-41a0-9a7ee5447907@linux.alibaba.com>
+Date:   Sun, 24 Apr 2022 11:27:17 +0800
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.7.0
+Subject: Re: [PATCH 5.10.y] drm/cirrus: fix a NULL vs IS_ERR() checks
+Content-Language: en-US
+From:   Shile Zhang <shile.zhang@linux.alibaba.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Cc:     Wen Kang <kw01107137@alibaba-inc.com>, stable@vger.kernel.org,
+        virtualization@lists.linux-foundation.org,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+References: <20211228132556.108711-1-shile.zhang@linux.alibaba.com>
+ <YcsWcqVN7Dwue1I2@kroah.com>
+ <f4dedbfc-0cca-a6cb-996b-4bd928008269@linux.alibaba.com>
+ <YcsZqU8M11elHqg3@kroah.com>
+ <1cc25ebe-2c68-458b-15a2-fc4c80ba2054@linux.alibaba.com>
+ <Ycshhu6pXC4Pt1YK@kroah.com>
+ <c74d61a5-31dc-0946-5a35-e1a4cd549b6e@linux.alibaba.com>
+ <YcxjGDxgF+mA7vLY@kroah.com>
+ <ae3ebd93-e3c0-ec2e-24be-07241b558b5e@linux.alibaba.com>
+In-Reply-To: <ae3ebd93-e3c0-ec2e-24be-07241b558b5e@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-11.8 required=5.0 tests=BAYES_00,
+        ENV_AND_HDR_SPF_MATCH,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bean Huo <beanhuo@micron.com>
+Hi David and Daniel,
 
-Occasionally, user-land applications initiate longer timeout values for certain commands
-through ioctl() system call. But so far we are still using a fixed timeout of 10 seconds
-in mmc_poll_for_busy() on the ioctl() path, even if a custom timeout is specified in the
-userspace application. This patch allows custom timeout values to override this default
-timeout values on the ioctl path.
+Sorry but could you please help to check this issue?
+Due to the function 'drm_gem_shmem_vmap' could return ERROR pointers 
+which will cause the kernel crash due to 'cirrus_fb_blit_rect' only 
+check the pointer.
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Bean Huo <beanhuo@micron.com>
----
- drivers/mmc/core/block.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Since the related code has been refactoring in mainline, so this issue 
+only happened in stable 5.10.y branch.
 
-diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-index b35e7a95798b..6cb701aa1abc 100644
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -609,11 +609,11 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
- 
- 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
- 		/*
--		 * Ensure RPMB/R1B command has completed by polling CMD13
--		 * "Send Status".
-+		 * Ensure RPMB/R1B command has completed by polling CMD13 "Send Status". Here we
-+		 * allow to override the default timeout value if a custom timeout is specified.
- 		 */
--		err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
--					MMC_BUSY_IO);
-+		err = mmc_poll_for_busy(card, idata->ic.cmd_timeout_ms ? : MMC_BLK_TIMEOUT_MS,
-+					false, MMC_BUSY_IO);
- 	}
- 
- 	return err;
--- 
-2.34.1
+@Greg
+I think it is probably not realistic to backport the related refactoring 
+from mainline directly, so I just give this bugfix patch only for 5.10.y 
+branch.
 
+Thanks!
+
+On 2021/12/29 22:51, Shile Zhang wrote:
+> 
+> 
+> On 2021/12/29 21:31, Greg Kroah-Hartman wrote:
+>> On Wed, Dec 29, 2021 at 08:48:53AM +0800, Shile Zhang wrote:
+>>>
+>>>
+>>> On 2021/12/28 22:39, Greg Kroah-Hartman wrote:
+>>>> On Tue, Dec 28, 2021 at 10:19:30PM +0800, Shile Zhang wrote:
+>>>>>
+>>>>>
+>>>>> On 2021/12/28 22:05, Greg Kroah-Hartman wrote:
+>>>>>> On Tue, Dec 28, 2021 at 09:56:25PM +0800, Shile Zhang wrote:
+>>>>>>>
+>>>>>>>
+>>>>>>> On 2021/12/28 21:51, Greg Kroah-Hartman wrote:
+>>>>>>>> On Tue, Dec 28, 2021 at 09:25:56PM +0800, Shile Zhang wrote:
+>>>>>>>>> The function drm_gem_shmem_vmap can returns error pointers as 
+>>>>>>>>> well,
+>>>>>>>>> which could cause following kernel crash:
+>>>>>>>>>
+>>>>>>>>> BUG: unable to handle page fault for address: fffffffffffffffc
+>>>>>>>>> PGD 1426a12067 P4D 1426a12067 PUD 1426a14067 PMD 0
+>>>>>>>>> Oops: 0000 [#1] SMP NOPTI
+>>>>>>>>> CPU: 12 PID: 3598532 Comm: stress-ng Kdump: loaded Not tainted 
+>>>>>>>>> 5.10.50.x86_64 #1
+>>>>>>>>> ...
+>>>>>>>>> RIP: 0010:memcpy_toio+0x23/0x50
+>>>>>>>>> Code: 00 00 00 00 0f 1f 00 0f 1f 44 00 00 48 85 d2 74 28 40 f6 
+>>>>>>>>> c7 01 75 2b 48 83 fa 01 76 06 40 f6 c7 02 75 17 48 89 d1 48 c1 
+>>>>>>>>> e9 02 <f3> a5 f6 c2 02 74 02 66 a5 f6 c2 01 74 01 a4 c3 66 a5 
+>>>>>>>>> 48 83 ea 02
+>>>>>>>>> RSP: 0018:ffffafbf8a203c68 EFLAGS: 00010216
+>>>>>>>>> RAX: 0000000000000000 RBX: fffffffffffffffc RCX: 0000000000000200
+>>>>>>>>> RDX: 0000000000000800 RSI: fffffffffffffffc RDI: ffffafbf82000000
+>>>>>>>>> RBP: ffffafbf82000000 R08: 0000000000000002 R09: 0000000000000000
+>>>>>>>>> R10: 00000000000002b5 R11: 0000000000000000 R12: 0000000000000800
+>>>>>>>>> R13: ffff8a6801099300 R14: 0000000000000001 R15: 0000000000000300
+>>>>>>>>> FS:  00007f4a6bc5f740(0000) GS:ffff8a8641900000(0000) 
+>>>>>>>>> knlGS:0000000000000000
+>>>>>>>>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>>>>>>>> CR2: fffffffffffffffc CR3: 00000016d3874001 CR4: 00000000003606e0
+>>>>>>>>> Call Trace:
+>>>>>>>>>      drm_fb_memcpy_dstclip+0x5e/0x80 [drm_kms_helper]
+>>>>>>>>>      cirrus_fb_blit_rect.isra.0+0xb7/0xe0 [cirrus]
+>>>>>>>>>      cirrus_pipe_update+0x9f/0xa8 [cirrus]
+>>>>>>>>>      drm_atomic_helper_commit_planes+0xb8/0x220 [drm_kms_helper]
+>>>>>>>>>      drm_atomic_helper_commit_tail+0x42/0x80 [drm_kms_helper]
+>>>>>>>>>      commit_tail+0xce/0x130 [drm_kms_helper]
+>>>>>>>>>      drm_atomic_helper_commit+0x113/0x140 [drm_kms_helper]
+>>>>>>>>>      drm_client_modeset_commit_atomic+0x1c4/0x200 [drm]
+>>>>>>>>>      drm_client_modeset_commit_locked+0x53/0x80 [drm]
+>>>>>>>>>      drm_client_modeset_commit+0x24/0x40 [drm]
+>>>>>>>>>      drm_fbdev_client_restore+0x48/0x85 [drm_kms_helper]
+>>>>>>>>>      drm_client_dev_restore+0x64/0xb0 [drm]
+>>>>>>>>>      drm_release+0xf2/0x110 [drm]
+>>>>>>>>>      __fput+0x96/0x240
+>>>>>>>>>      task_work_run+0x5c/0x90
+>>>>>>>>>      exit_to_user_mode_loop+0xce/0xd0
+>>>>>>>>>      exit_to_user_mode_prepare+0x6a/0x70
+>>>>>>>>>      syscall_exit_to_user_mode+0x12/0x40
+>>>>>>>>>      entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>>>>>>>> RIP: 0033:0x7f4a6bd82c2b
+>>>>>>>>>
+>>>>>>>>> Fixes: ab3e023b1b4c9 ("drm/cirrus: rewrite and modernize driver.")
+>>>>>>>>>
+>>>>>>>>> CC: stable@vger.kernel.org
+>>>>>>>>> Reported-by: Wen Kang <kw01107137@alibaba-inc.com>
+>>>>>>>>> Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+>>>>>>>>> ---
+>>>>>>>>>      drivers/gpu/drm/tiny/cirrus.c | 2 +-
+>>>>>>>>>      1 file changed, 1 insertion(+), 1 deletion(-)
+>>>>>>>>
+>>>>>>>> What is the git commit id of this patch in Linus's tree?
+>>>>>>>
+>>>>>>> Sorry, I checked that this issue seems fixed by the improvement 
+>>>>>>> in following
+>>>>>>> series:
+>>>>>>> https://patchwork.freedesktop.org/series/82217/
+>>>>>>
+>>>>>> I do not understand, that is a huge patch series.  What individual
+>>>>>> commit in Linus's tree resolves this?
+>>>>>
+>>>>> Sorry,
+>>>>> 1. This crash only happened in 5.10.y tree now, which fixed in 
+>>>>> Linus's tree
+>>>>> by refactoring in above huge series.
+>>>>
+>>>> Which specific patch resolved the issue?
+>>>>
+>>>>> 2. It's hard to get the individual commit to fix this issue from that
+>>>>> series. So I try to send this simple fix help to fix only for 
+>>>>> 5.10.y, which
+>>>>> is needless to Linus's tree.
+>>>>
+>>>> 'git bisect' should be able to help you out.
+>>>
+>>> Thanks for your guidance!
+>>>
+>>>>
+>>>>> 3. If this patch is not OK for stable tree, Could you please help to
+>>>>> backport the correct fix from Linus's tree in next version of 5.10.y?
+>>>>
+>>>> If you can provide the commit id of the fix, sure.
+>>>
+>>> Thanks!
+>>> I think it is this commit, which refactor the drm_gem_shmem_vmap 
+>>> makes the
+>>> pointer returned by new added parameter.
+>>> https://github.com/torvalds/linux/commit/49a3f51dfeeecb52c5aa28c5cb9592fe5e39bf95 
+>>>
+>>
+>> Have you tested it to be sure?  If so, can you please provide a
+>> backported version that works?  As-is, it does not apply at all.
+> 
+> Yes, we've tested that the mainline code fixed this issue.
+> But sorry, I have not backported the bugfix from mainline due to that a 
+> huge series for code refactoring, with more dependencies an conflicts.
+> 
+> So I just work out a simple patch help to fix the crash.
+> 
+>>
+>> Note, if this is to bit of a change for a stable tree (and I think it
+>> is), your original patch might be correct, but I need some acks from the
+>> subsystem maintainers before I can take such a thing.  I also need a lot
+>> of documentation in the changelog text about why this is a 5.10-only
+>> thing.
+> 
+> Since the original guilty commit (ab3e023b1b4c9) merge in 5.2-rc1, and 
+> Thomas's refactoring series (49a3f51dfee) just merged in 5.11-rc1. So 
+> this issue only happened in stable 5.4 & 5.10 only.
+> 
+> @David @Daniel
+> Could you guys also help to check this crash issue?
+> 
+> Thanks all!
+> 
+>>
+>> thanks,
+>>
+>> greg k-h
