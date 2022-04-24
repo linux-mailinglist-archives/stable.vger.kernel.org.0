@@ -2,143 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B917450D5DF
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 00:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5BF50D5FB
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 01:43:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239855AbiDXXB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Apr 2022 19:01:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52482 "EHLO
+        id S239901AbiDXXa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Apr 2022 19:30:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238037AbiDXXB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 19:01:58 -0400
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [IPv6:2001:4b98:dc2:55:216:3eff:fef7:d647])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4EC62A0A;
-        Sun, 24 Apr 2022 15:58:55 -0700 (PDT)
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 1420C822;
-        Mon, 25 Apr 2022 00:58:53 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1650841133;
-        bh=OxWe0iWDKlDp8IlBYHKkZ/JxNlQhxReU1GVBOdxPQFM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nOHXz+99CHZ8PNaRjyq32HlyKTg11IJ+T8pHih1HRaU9oKYH8WqEjF9emBhEPgTiZ
-         Zw1LRdei+KAmhQ2IHGul2Qz7+pe/giraberMWqrAPFred20b5zwl8p7v1WZnAX6Tet
-         96VnKuipkUKycaJVPSrvCtSIkIor++CoLIEivywE=
-Date:   Mon, 25 Apr 2022 01:58:52 +0300
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Dan Vacura <w36195@motorola.com>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Bhupesh Sharma <bhupesh.sharma@st.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] usb: gadget: uvc: Fix crash when encoding data for
- usb request
-Message-ID: <YmXWLFfN4KTFp0wW@pendragon.ideasonboard.com>
-References: <20220331184024.23918-1-w36195@motorola.com>
- <Yl8frWT5VYRdt5zA@pendragon.ideasonboard.com>
- <YmB6v8AbzdOgITT8@p1g3>
+        with ESMTP id S239904AbiDXXaZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 19:30:25 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530C76A059;
+        Sun, 24 Apr 2022 16:27:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1650842822;
+        bh=u9/ZeejX6Y8bLkZxrZTFpJqr0CwF7H14gw+NaS2LIb4=;
+        h=X-UI-Sender-Class:Date:To:Cc:References:From:Subject:In-Reply-To;
+        b=JNo6ROK/NXuO46/C11vRtXjl3mLH0xZ/oJk9sXRNmdrazGFGn6fpJO8aAr615HYgg
+         mV8tpBUuKyMEG/Iy+VhbWBs87cWo4mScEaUl4+BS874sAMtIIwvIonO9Hoo1Vk6tQp
+         lG4rloIkIoevy3iUQGxLVrsLB2edurQg5dXZZE3w=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [0.0.0.0] ([149.28.201.231]) by mail.gmx.net (mrgmx004
+ [212.227.17.184]) with ESMTPSA (Nemesis) id 1MY6Cl-1nNWvo1sRZ-00YRml; Mon, 25
+ Apr 2022 01:27:02 +0200
+Message-ID: <6fd7b901-15e8-277b-7255-5ca4f03254c4@gmx.com>
+Date:   Mon, 25 Apr 2022 07:26:58 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YmB6v8AbzdOgITT8@p1g3>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Content-Language: en-US
+To:     Christoph Hellwig <hch@infradead.org>
+Cc:     Qu Wenruo <wqu@suse.com>, linux-btrfs@vger.kernel.org,
+        stable@vger.kernel.org
+References: <cover.1649766550.git.wqu@suse.com>
+ <0b13dccbc4d6e066530587d6c00c54b10c3d00d7.1649766550.git.wqu@suse.com>
+ <YlkQgTCv+Iw2QzPz@infradead.org>
+ <37226b35-7d5a-dd86-7b20-7a0dfd3b96fc@gmx.com>
+ <YlkayiTPf93aBpSD@infradead.org>
+ <7e60b890-939b-c5c1-715e-3262793ef079@gmx.com>
+From:   Qu Wenruo <quwenruo.btrfs@gmx.com>
+Subject: Re: [PATCH v2 1/3] btrfs: avoid double clean up when submit_one_bio()
+ failed
+In-Reply-To: <7e60b890-939b-c5c1-715e-3262793ef079@gmx.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:gv2C/oF34J/7AF0Wlq3ngLtLof8RCVNDUq+P/A4yrJFm70KUy7O
+ QAKKKQECAR9k2OnrrAweg1LqtRCYCCLU59VsZN2rdBrRJ4yRvt3nnpmT4SyZq8ufeinBzHp
+ xTKotHnE4QZeGxTlsTEHxq+6XAFOFwND6om9s+ewCZ96H4NCzRKLn+SB8M21ewlDtR6nKyL
+ KOK2FlvlHPaN+N4wuVKSQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:FDYXksRfQxk=:wpLAAHzl4zk/nV+IYDwCdz
+ cIaTJOymCNZcbiBD9r/aVC1xlOdd3KOV1Js13qUxkh/jWS8pDL7ugChGObrSkKaTFgtqI3hl+
+ erdkT3PCDCNYWXDXkqnsqYLCjodNIyAvH/yLTAFzb1dn2WdUZEkgMO613pIByM/Qaf1+pASxK
+ NTjfz1anIOBmUWdllRrmNLSP03/EUsl5RhzfTIGyssXwK+K7/nByPQc8N/wUzLGnxGJiCqv+x
+ mUc7G61kpAFgzfw6YuiV+C7iXXPhZVpyMcYvwwWpfA+BiE3KGVNi7JfnTPQJnTxlBwdzmJ0+/
+ fa4dzHutxuJ5jk/e9hVAkyaOEruz1f/zdVU1D5h7GQxulSYKeIoG8kjWMg62tgqdZiuf5DO5h
+ sSofl5CVqGeSy+juD9VWXpGJCJoWc3G7VQIGzo3UNllQOQVtRw4d5wYpBtU1nD+UxMcXPr4MN
+ MAsFDRHbe3TAWt+iJNOQUC0+ARnkD7V9slwxUeguKZJ3m9K0hRdbhQiE7FJudE/vQOC7mTH8f
+ nOr+rI1cvvsYg6hMKZ+BrDPkPcRP7f8KGm6VEHue2OFmwZ9o3GM9v+w0fBAxDGy6AgUQzVv3Y
+ DcVyiYlj/+BgdY12rXKLbcvgLRLv3CGjsj4fv2iLOPlg7OC+u7Or6z5/n2pvsmIJTZHcR1eLp
+ UoXdMaXcCus8oX5OXq4NEJgWsQbUqwH0S8hGNWC5KnYa24dfito41k0yOCKGWgG5lnhJIZLf3
+ uTS74X1n+A4LUCIG4iRyys8htt54WSxyjmCSqEa3cP0XxDJxlsCie0V48Um87+JcF8XjgpoRW
+ 3Ai6BhSaDMvnX6TLUWK8fSAYGvMMMI0Gam5BSw/EmTX++xN9du4g9hjysnf6urMajEJqEaBin
+ iFfxHNgLVATy79e6P43G8XC2GDRqVg4UIJGcXIZlXQ/TgdG1yQcGzORXsn2mVq8By3euaYiZK
+ 4zU0ozxR5vXdRY1vs4C9tDQKmIf9O7nkAp+Ex1ef3s77w5wrfZgRYglQ0RywsFrYvj26xOQsU
+ IUnhN593FA5+H7GZa1HHdqaU5LX9iwE24/sm8j2CcPRnrphk8hfrKRrYgAc4t2/qEkQ7urm5t
+ ES4z9VIU8gv4Ug=
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Dan,
 
-On Wed, Apr 20, 2022 at 04:27:27PM -0500, Dan Vacura wrote:
-> On Tue, Apr 19, 2022 at 11:46:37PM +0300, Laurent Pinchart wrote:
-> > 
-> > This indeed fixes an issue, so I think we can merge the patch, but I
-> > also believe we need further improvements on top (of course if you would
-> > like to improve the implementation in a v4, I won't complain :-))
-> 
-> It looks like Greg has already accepted the change and it's in
-> linux-next. We can discuss here how to better handle these -EXDEV errors
-> for future improvements, as it seems like it's been an issue in the past
-> as well:
-> https://www.mail-archive.com/linux-usb@vger.kernel.org/msg105615.html
-> 
-> > As replied in v2 (sorry for the late reply), it seems that this error
-> > can occur under normal conditions. This means we shouldn't cancel the
-> > queue, at least when the error is intermitent (if all URBs fail that's
-> > another story).
-> 
-> My impression was that canceling the queue was still necessary as we may
-> be in progress for the current frame. Perhaps we don't need to flush all
-> the frames from the queue, but at a minimum we need to reset the
-> buf_used value.
 
-I think we have three classes of errors:
+On 2022/4/15 15:14, Qu Wenruo wrote:
+>
+>
+> On 2022/4/15 15:12, Christoph Hellwig wrote:
+>> On Fri, Apr 15, 2022 at 03:02:41PM +0800, Qu Wenruo wrote:
+>>> But this can not be said to btrfs_submit_compressed_read(), which has
+>>> the same problem and can be triggered by EIO error easily.
+>>>
+>>> Do you want to give it a try? Or mind to me fix it?
+>>
+>> I don't really know the btrfs writeback and compression code very well,
+>> so if you can tackle it that would be great.=C2=A0 I'll review it and w=
+ill
+>> ask lots of stupid question in exchange :)
+>
+> No stupid questions at all.
+>
+> Great we have some extra reviewing eyes!
+>
+> Thanks for your review in advance.
+> Qu
 
-- "Packet-level" errors, resulting in either data loss or erroneous data
-  being transferred to the host for one (or more) packets in a frame.
-  When such errors occur, we should probably notify the application (on
-  the gadget side), but we can continue sending the rest of the frame.
+OK, it turns out things are better than we thought.
 
-- "Frame-level" errors, resulting in errors in the rest of the frame.
-  When such an error occurs, we should notify the application, and stop
-  sending data for the current frame, moving to the next frame.
+For btrfs_submit_compressed_read() and btrfs_submit_compressed_write(),
+we have a different (and correct) way handling the endio.
 
-- "Stream-level" errors, resulting in errors in all subsequent frames.
-  When such an error occurs, we should notify the application and stop
-  sending data until the application takes corrective measures.
+Let's look at btrfs_submit_compressed_read() as an example.
 
-I'm not sure if packet-level errors make sense, if data is lost, maybe
-we would be better off just cancelling the current frame and moving to
-the next one.
+If functions like btrfs_lookup_bio_sums() failed, although we go
+finish_cb: label, our @cur_disk_byte is already updated.
 
-For both packet-level errors and frame-level errors, the buffer should
-be marked as erroneous to notify the application, but there should be no
-need to cancel the queue and drop all queued buffers. We can just move
-to the next buffer.
+Then under finish_cb: label, we first finish the current @comp_bio,
+which may:
 
-For stream-level errors, I would cancel the queue, and additionally
-prevent new buffers from being queued until the application stops and
-restarts the stream.
+1. Decrease cb::pending_bytes and it reached 0.
+    Call finish_compressed_bio_read() as we're the last pending bytes.
 
-Finally, which class an error belongs to may not be an intrinsic
-property of the error itself, packet-level or frame-level errors that
-occur too often may be worth cancelling the queue (I'm not sure how to
-quantify "too often" though).
+2. Just decrease cb::pending_bytes
+    There are still other pending ios.
 
-Does this make sense ?
+For case 1, our @cur_disk_bytnr has already reached our range end, thus
+we won't do anything but exit early, without manually calling
+finish_compressed_bio_read().
 
-> > We likely need to differentiate between -EXDEV and other errors in
-> > uvc_video_complete(), as I'd like to be conservative and cancel the
-> > queue for unknown errors. We also need to improve the queue cancellation
-> > implementation so that userspace gets an error when queuing further
-> > buffers.
-> 
-> We already feedback to userspace the error, via the state of
-> vb2_buffer_done(). When userspace dequeues the buffer it can check if
-> v4l2_buffer.flags has V4L2_BUF_FLAG_ERROR to see if things failed, then
-> decide what to do like re-queue that frame. However, this appears to not
-> always occur since I believe the pump thread is independent of the
-> uvc_video_complete() callback. As a result, the complete callback of the
-> failed URB may be associated with a buffer that was already released
-> back to the userspace client.
+For case 2, we continue to wait_var_event() first, to wait all bios
+on-the-fly to finish.
+As since the pending_sectors will never reach 0, no one is going to
+finish the @cb.
 
-Good point. That would only be the case for errors in the last
-request(s) for a frame, right ?
+Then we're safe to call finish_compressed_bio_read() then.
 
-> In this case, I don't know if there's
-> anything to be done, since a new buffer and subsequent URBs might
-> already be queued up. You suggested an error on a subsequent buffer
-> queue, but I don't know how helpful that'd be at this point, perhaps in
-> the scenario that all URBs are failing?
 
-Should we delay sending the buffer back to userspace until all the
-requests for the buffer have completed ?
+In fact, those are exact what I fixed in commit 6853c64a6e76 ("btrfs:
+handle errors properly inside btrfs_submit_compressed_write()") and
+86ccbb4d2a2a ("btrfs: handle errors properly inside
+btrfs_submit_compressed_read()").
 
--- 
-Regards,
+In fact, when I saw the overkilled usage of ASSERT()s, I should know
+it's myself...
 
-Laurent Pinchart
+So in fact we're safe since v5.16.
+
+Thanks,
+Qu
