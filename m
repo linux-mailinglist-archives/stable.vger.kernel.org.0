@@ -2,108 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B1DA50D98E
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 08:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2387050DA1D
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 09:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232853AbiDYGlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 02:41:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59128 "EHLO
+        id S231976AbiDYHdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 03:33:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232385AbiDYGlG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 02:41:06 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD566CC
-        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 23:38:03 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id s14so24806859plk.8
-        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 23:38:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sslab.ics.keio.ac.jp; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=0/mOWNXzW38dg8R0fVtw4b3MwrVtNp67q4q4XoFVG3w=;
-        b=DAfcQvgpCUKzoBOBzQgDc7nAMOtoGx1tyNvMD+IwheC0zh/yNo/uWbDnEcyIgf4PAS
-         UZRoPdxbEgx2sCChvorRj1cQNcdpbIp/LVBfTm6PQrCBXUD5QS1OCEgCm5L53H1NvppE
-         1XJ8jXgjChQK4RKJH1fNhkPgppY/j/ucaoiC4=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=0/mOWNXzW38dg8R0fVtw4b3MwrVtNp67q4q4XoFVG3w=;
-        b=NWb4m1yMKKHgiW8qi65nd1/12F6k4M84hp+5olO6sf2grSCTbJn+CmMBE5IgNnnZea
-         NGCNzU8eeFbcm1le3E6qYvU4nS82LUe+HKvTvG2mU4KAXmiQ+ptuMHEeq//YvTgfgRrm
-         8fD+GasoTDR1thXq6mTT+Z6ZFIQvEJIOVijak6UGAf1RVMzaeN1rtLklQ01J01thvjb4
-         36X24yN7bydPhFLTQcLIkJOLzgkooemeJK/Fqx/oBQ2lgGl0pKegIKpzqmNQ6rUdfjwA
-         YtAElwD5MR1kB96KiIVsX2b0R+PaAoSjxBkj/i0qi45QPgzv0YHxthj5VsDjynE43cGZ
-         quuA==
-X-Gm-Message-State: AOAM533ytkcsIlNwcvl7vaSwb+frIUxLWeWLHL5ezM/TFN2R4lu/ZuDR
-        k+QL3fijdpShTFDKiUK2558+Og==
-X-Google-Smtp-Source: ABdhPJwQzgg+yRgAON+In2XY7dDU4M9sH6VEsgHQdivbGpwVrEG3MmHunARuxftfopoxtAWVxUf36A==
-X-Received: by 2002:a17:902:bcc2:b0:14f:23c6:c8c5 with SMTP id o2-20020a170902bcc200b0014f23c6c8c5mr16426067pls.131.1650868683136;
-        Sun, 24 Apr 2022 23:38:03 -0700 (PDT)
-Received: from saltlake.i.sslab.ics.keio.ac.jp (sslab-relay.ics.keio.ac.jp. [131.113.126.173])
-        by smtp.gmail.com with ESMTPSA id m12-20020a62a20c000000b0050af5c925c3sm10212808pff.132.2022.04.24.23.38.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 24 Apr 2022 23:38:02 -0700 (PDT)
-From:   Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Cc:     mhiramat@kernel.org, keitasuzuki.park@sslab.ics.keio.ac.jp,
-        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Tom Zanussi <tom.zanussi@linux.intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH V2] tracing: Fix potential double free in create_var_ref()
-Date:   Mon, 25 Apr 2022 06:37:38 +0000
-Message-Id: <20220425063739.3859998-1-keitasuzuki.park@sslab.ics.keio.ac.jp>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220423001311.31e2dff59708ddd3043e55af@kernel.org>
-References: <20220423001311.31e2dff59708ddd3043e55af@kernel.org>
+        with ESMTP id S231650AbiDYHdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 03:33:19 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF059BF47;
+        Mon, 25 Apr 2022 00:30:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1650871816; x=1682407816;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=v33AZ1EXAwq6WXUADhV0AAEUbQzxeq80/j/EQgk+qSk=;
+  b=GcLe6cA8Oz831plPs1tKGai0rsyJvaxL+HIzHF4pm9QbxwB0/5Ph1bfZ
+   hONxxu9hwQKzBUnT0nttmD5ToYxpvD4A4w8N0vsSnElYu4g2MFyl8HQuz
+   0F9zT6WCWGaLe3EeMDOrFtcuVBYOpMBbH4tUwe35qevbZT7diowiwsTC9
+   fqKuo0fln+m81N/eXOis7juto9TUTpZRcsngXAroNhAk1c94oJXuMipsG
+   KKoTYi5VfKlCusJwPWU9qOGBFVujF+M31WHTvT/y1oGstXFxy1Cmu9r/l
+   a/xq14s6yZjdCw+ir0Ol7J1G8ZBwoXwqMA0FutDH/hMh4+LFAr14bg729
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10327"; a="325656067"
+X-IronPort-AV: E=Sophos;i="5.90,287,1643702400"; 
+   d="scan'208";a="325656067"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2022 00:30:15 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,287,1643702400"; 
+   d="scan'208";a="531983853"
+Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
+  by orsmga006.jf.intel.com with ESMTP; 25 Apr 2022 00:30:12 -0700
+Date:   Mon, 25 Apr 2022 15:30:11 +0800
+From:   Feng Tang <feng.tang@intel.com>
+To:     Waiman Long <longman@redhat.com>
+Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>, cgroups@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Dave Hansen <dave.hansen@intel.com>, ying.huang@intel.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] cgroup/cpuset: Remove redundant cpu/node masks setup in
+ cpuset_init_smp()
+Message-ID: <20220425073011.GJ46405@shbuild999.sh.intel.com>
+References: <20220425020926.1264611-1-longman@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220425020926.1264611-1-longman@redhat.com>
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In create_var_ref(), init_var_ref() is called to initialize the fields
-of variable ref_field, which is allocated in the previous function call
-to create_hist_field(). Function init_var_ref() allocates the
-corresponding fields such as ref_field->system, but frees these fields
-when the function encounters an error. The caller later calls
-destroy_hist_field() to conduct error handling, which frees the fields
-and the variable itself. This results in double free of the fields which
-are already freed in the previous function.
+Hi Waiman,
 
-Fix this by storing NULL to the corresponding fields when they are freed
-in init_var_ref().
+Thanks for the patch!
 
-Fixes: 067fe038e70f ("tracing: Add variable reference handling to hist triggers")
-CC: stable@vger.kernel.org
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
----
- kernel/trace/trace_events_hist.c | 3 +++
- 1 file changed, 3 insertions(+)
+On Sun, Apr 24, 2022 at 10:09:26PM -0400, Waiman Long wrote:
+> There are 3 places where the cpu and node masks of the top cpuset can
+> be initialized in the order they are executed:
+>  1) start_kernel -> cpuset_init()
+>  2) start_kernel -> cgroup_init() -> cpuset_bind()
+>  3) kernel_init_freeable() -> do_basic_setup() -> cpuset_init_smp()
+> 
+> The first cpuset_init() function just sets all the bits in the masks.
+> The last one executed is cpuset_init_smp() which sets up cpu and node
+> masks suitable for v1, but not v2.  cpuset_bind() does the right setup
+> for both v1 and v2 assuming that effective_mems and effective_cpus have
+> been set up properly which is not strictly the case here. As a result,
+> cpu and memory node hot add may fail to update the cpu and node masks
+> of the top cpuset to include the newly added cpu or node in a cgroup
+> v2 environment.
+> 
+> To fix this problem, the redundant cpus_allowed and mems_allowed
+> mask setup in cpuset_init_smp() are removed. The effective_cpus and
+> effective_mems setup there are moved to cpuset_bind().
+> 
+> cc: stable@vger.kernel.org
+> Signed-off-by: Waiman Long <longman@redhat.com>
+> ---
+>  kernel/cgroup/cpuset.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
+> 
+> diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+> index 9390bfd9f1cd..a2e15a43397e 100644
+> --- a/kernel/cgroup/cpuset.c
+> +++ b/kernel/cgroup/cpuset.c
+> @@ -2961,6 +2961,9 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
+>  	percpu_down_write(&cpuset_rwsem);
+>  	spin_lock_irq(&callback_lock);
+>  
+> +	cpumask_copy(top_cpuset.effective_cpus, cpu_active_mask);
+> +	top_cpuset.effective_mems = node_states[N_MEMORY];
+> +
+>  	if (is_in_v2_mode()) {
+>  		cpumask_copy(top_cpuset.cpus_allowed, cpu_possible_mask);
+>  		top_cpuset.mems_allowed = node_possible_map;
+> @@ -3390,13 +3393,6 @@ static struct notifier_block cpuset_track_online_nodes_nb = {
+>   */
+>  void __init cpuset_init_smp(void)
+>  {
+> -	cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
+> -	top_cpuset.mems_allowed = node_states[N_MEMORY];
+> -	top_cpuset.old_mems_allowed = top_cpuset.mems_allowed;
+> -
+> -	cpumask_copy(top_cpuset.effective_cpus, cpu_active_mask);
+> -	top_cpuset.effective_mems = node_states[N_MEMORY];
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 44db5ba9cabb..a0e41906d9ce 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2093,8 +2093,11 @@ static int init_var_ref(struct hist_field *ref_field,
- 	return err;
-  free:
- 	kfree(ref_field->system);
-+	ref_field->system = NULL;
- 	kfree(ref_field->event_name);
-+	ref_field->event_name = NULL;
- 	kfree(ref_field->name);
-+	ref_field->name = NULL;
- 
- 	goto out;
- }
--- 
-2.25.1
+IIUC, the init order is:
+	cpuset_bind()
+	smp_init()
+	cpuset_init_smp()
 
+while all cpus except boot cpu is brought up in smp_init(), so I'm
+thinking moving the cpus_allowed init from cpuset_init_smp() to
+cpuset_bind() may cause some problem.
+
+Thanks,
+Feng
