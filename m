@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B8350DDBC
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:18:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E8C350DDBB
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234968AbiDYKVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 06:21:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54310 "EHLO
+        id S233066AbiDYKVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 06:21:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238153AbiDYKVn (ORCPT
+        with ESMTP id S239385AbiDYKVn (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:21:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556C038D9B
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:17:58 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAF8E39159
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:18:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 033C0B8124E
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:17:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E72AAC385A7;
-        Mon, 25 Apr 2022 10:17:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C1B960DDB
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:18:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 428CAC385A4;
+        Mon, 25 Apr 2022 10:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650881875;
-        bh=oGBbbbI06Hi0E01FqyHykIAIE3ZUeoDcrhzrkBPkcto=;
+        s=korg; t=1650881883;
+        bh=iOgMwB44dIy+ex1yJrfPR7iHYDxFoYaJ/iYH1JUJQ6c=;
         h=Subject:To:Cc:From:Date:From;
-        b=Z3cBdTJyInvIIoRJDehFC0u3rWpQ6nVeMTEp9advRtgLouFfKE3M7PKqFtByhU4vb
-         hYjN1zHaHKnx9ePBAw5XFAHk98nQWcCfkx8awMwiV7pIvun3nmsqfwOXgneQtwF7XA
-         3/8ceyMDLt/+cplTdIyNzCOUUwKIr6p3mRIjT72k=
-Subject: FAILED: patch "[PATCH] oom_kill.c: futex: delay the OOM reaper to allow time for" failed to apply to 4.14-stable tree
+        b=dyYpWJsTp5x2Op/M350P1qGz4pHKDBxdifg+dP4ryqxXb7kOIPo9jjEIuzGgouTY0
+         /KLO0nOBryhh+KOb7GKoyC58GejJugCaxpHqhVITcvq1J1jAbYzTOc/2/NycVU+lTx
+         dsng8MbCtk1fRwsd4iJBY6LXikYv/HdscyCpg9aA=
+Subject: FAILED: patch "[PATCH] oom_kill.c: futex: delay the OOM reaper to allow time for" failed to apply to 4.19-stable tree
 To:     npache@redhat.com, aarcange@redhat.com, akpm@linux-foundation.org,
         aquini@redhat.com, bristot@redhat.com, bsegall@google.com,
         dave@stgolabs.net, dietmar.eggemann@arm.com, dvhart@infradead.org,
@@ -39,8 +39,8 @@ To:     npache@redhat.com, aarcange@redhat.com, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, vincent.guittot@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Apr 2022 12:17:52 +0200
-Message-ID: <165088187219467@kroah.com>
+Date:   Mon, 25 Apr 2022 12:17:53 +0200
+Message-ID: <165088187315173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,7 +54,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
