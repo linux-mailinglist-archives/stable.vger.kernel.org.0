@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02BBF50DF99
+	by mail.lfdr.de (Postfix) with ESMTP id 92E5650DF9B
 	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 13:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230009AbiDYMCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239677AbiDYMCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 25 Apr 2022 08:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44580 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240703AbiDYMCH (ORCPT
+        with ESMTP id S233747AbiDYMCH (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 08:02:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7EA3B1CE
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 04:58:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C9501276F
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 04:59:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96C9F612E4
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 11:58:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A721CC385A7;
-        Mon, 25 Apr 2022 11:58:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D235612E3
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 11:59:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9694EC385A7;
+        Mon, 25 Apr 2022 11:58:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650887931;
-        bh=jZyerhuHFb4CwWebi8461xaFzRxEHJNZxb+6fPfgRkE=;
+        s=korg; t=1650887940;
+        bh=3R70k8WWE65gHWvOynDhqbNvBOOd6cDHQ+XM1mYuBE4=;
         h=Subject:To:Cc:From:Date:From;
-        b=blAikw5jecVaQbBmcLlyIlQmomvI+pqznStZk5J8By98Ls1hQ/zpxV6U08R4F6P9B
-         N/KsuxZRgQsci0zU4m/uzPuquBaqrHDCnGRLUbdDzqaHG6t2gr0/wAioZUAUI/tnsd
-         V5A9n1l7VYCc652IinmO5k/bkyGksQ/gEvtQwbvo=
-Subject: FAILED: patch "[PATCH] ext4: update the cached overhead value in the superblock" failed to apply to 5.10-stable tree
+        b=zPh5g29QTGLI/7E/YL8NhfvDT4FShawXduY7jP38/VcMZoAaCR1op6/VtFRI8VaNO
+         LGbNcgkO4M3dCMm8Nphor+J94ZSeT9KnDABKwnK6QufDmcMrpt7HdxZ+WmeVZuMs8g
+         /Lf7ZbOObrJa0prFof+7N4Poyz7KCYu1FC2QOEUY=
+Subject: FAILED: patch "[PATCH] ext4: update the cached overhead value in the superblock" failed to apply to 5.15-stable tree
 To:     tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 25 Apr 2022 13:58:48 +0200
-Message-ID: <165088792812255@kroah.com>
+Message-ID: <165088792848249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
