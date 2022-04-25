@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A9C50DDB5
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9375950DDB9
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:18:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237388AbiDYKQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 06:16:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43476 "EHLO
+        id S237682AbiDYKVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 06:21:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237682AbiDYKQ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:16:58 -0400
+        with ESMTP id S241148AbiDYKVl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:21:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CC4A3AF
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:13:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53ABB377D6
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D341B8124B
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:13:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35027C385A4;
-        Mon, 25 Apr 2022 10:13:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A506B8124B
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:17:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11937C385A4;
+        Mon, 25 Apr 2022 10:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650881631;
-        bh=BH94W3HJyKT+5FBCzQOfUUzyQ9+muq1wwDj0C9pGoz8=;
+        s=korg; t=1650881846;
+        bh=6tMSq1E1kA8qEJF8I+tHOp/Uec2FjKYT34zJZawgxAw=;
         h=Subject:To:Cc:From:Date:From;
-        b=LkghPverraHeIy4K02RRP096QYtr00uuorwRevSBgueJVF3I9IzlpWCx0WM9AZjx4
-         c0a5OAnIZmN+96TqKUMTyFv0gG7SXQUDD2zz0Lyxo8otj64ZWvknxvyNDutZPbPWth
-         y9aRLGqM74RqNe51GPpB43E2sX8LFk2S/ZYhB4OA=
-Subject: FAILED: patch "[PATCH] mm/memory-failure.c: skip huge_zero_page in memory_failure()" failed to apply to 4.9-stable tree
-To:     xuyu@linux.alibaba.com, abaci@linux.alibaba.com,
-        akpm@linux-foundation.org, anshuman.khandual@arm.com,
-        linmiaohe@huawei.com, naoya.horiguchi@nec.com, osalvador@suse.de,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
+        b=K8GbS9iz+XYD1ecb8RyfRkA3+0xFVJFIcE5WtryCDbxBDbAHlrs24zlmDZ4VgxSur
+         vexncxxeyhNAZE4+17iKVLcZ4RyD0+RF1wpJc/yktXpjE5pBLCgIkD/HzxY98CSths
+         uysGbr71D/uXl1yVzyVEGeKVzqmDemVTE0Jjde+A=
+Subject: FAILED: patch "[PATCH] mm, hugetlb: allow for "high" userspace addresses" failed to apply to 5.4-stable tree
+To:     christophe.leroy@csgroup.eu, akpm@linux-foundation.org,
+        catalin.marinas@arm.com, stable@vger.kernel.org,
+        steve.capper@arm.com, torvalds@linux-foundation.org,
+        will.deacon@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Apr 2022 12:13:36 +0200
-Message-ID: <16508816168347@kroah.com>
+Date:   Mon, 25 Apr 2022 12:17:23 +0200
+Message-ID: <165088184361211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,93 +61,145 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d173d5417fb67411e623d394aab986d847e47dad Mon Sep 17 00:00:00 2001
-From: Xu Yu <xuyu@linux.alibaba.com>
-Date: Thu, 21 Apr 2022 16:35:37 -0700
-Subject: [PATCH] mm/memory-failure.c: skip huge_zero_page in memory_failure()
+From 5f24d5a579d1eace79d505b148808a850b417d4c Mon Sep 17 00:00:00 2001
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Thu, 21 Apr 2022 16:35:46 -0700
+Subject: [PATCH] mm, hugetlb: allow for "high" userspace addresses
 
-Kernel panic when injecting memory_failure for the global
-huge_zero_page, when CONFIG_DEBUG_VM is enabled, as follows.
+This is a fix for commit f6795053dac8 ("mm: mmap: Allow for "high"
+userspace addresses") for hugetlb.
 
-  Injecting memory failure for pfn 0x109ff9 at process virtual address 0x20ff9000
-  page:00000000fb053fc3 refcount:2 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x109e00
-  head:00000000fb053fc3 order:9 compound_mapcount:0 compound_pincount:0
-  flags: 0x17fffc000010001(locked|head|node=0|zone=2|lastcpupid=0x1ffff)
-  raw: 017fffc000010001 0000000000000000 dead000000000122 0000000000000000
-  raw: 0000000000000000 0000000000000000 00000002ffffffff 0000000000000000
-  page dumped because: VM_BUG_ON_PAGE(is_huge_zero_page(head))
-  ------------[ cut here ]------------
-  kernel BUG at mm/huge_memory.c:2499!
-  invalid opcode: 0000 [#1] PREEMPT SMP PTI
-  CPU: 6 PID: 553 Comm: split_bug Not tainted 5.18.0-rc1+ #11
-  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 3288b3c 04/01/2014
-  RIP: 0010:split_huge_page_to_list+0x66a/0x880
-  Code: 84 9b fb ff ff 48 8b 7c 24 08 31 f6 e8 9f 5d 2a 00 b8 b8 02 00 00 e9 e8 fb ff ff 48 c7 c6 e8 47 3c 82 4c b
-  RSP: 0018:ffffc90000dcbdf8 EFLAGS: 00010246
-  RAX: 000000000000003c RBX: 0000000000000001 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffffffff823e4c4f RDI: 00000000ffffffff
-  RBP: ffff88843fffdb40 R08: 0000000000000000 R09: 00000000fffeffff
-  R10: ffffc90000dcbc48 R11: ffffffff82d68448 R12: ffffea0004278000
-  R13: ffffffff823c6203 R14: 0000000000109ff9 R15: ffffea000427fe40
-  FS:  00007fc375a26740(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fc3757c9290 CR3: 0000000102174006 CR4: 00000000003706e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   try_to_split_thp_page+0x3a/0x130
-   memory_failure+0x128/0x800
-   madvise_inject_error.cold+0x8b/0xa1
-   __x64_sys_madvise+0x54/0x60
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7fc3754f8bf9
-  Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 8
-  RSP: 002b:00007ffeda93a1d8 EFLAGS: 00000217 ORIG_RAX: 000000000000001c
-  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc3754f8bf9
-  RDX: 0000000000000064 RSI: 0000000000003000 RDI: 0000000020ff9000
-  RBP: 00007ffeda93a200 R08: 0000000000000000 R09: 0000000000000000
-  R10: 00000000ffffffff R11: 0000000000000217 R12: 0000000000400490
-  R13: 00007ffeda93a2e0 R14: 0000000000000000 R15: 0000000000000000
+This patch adds support for "high" userspace addresses that are
+optionally supported on the system and have to be requested via a hint
+mechanism ("high" addr parameter to mmap).
 
-This makes huge_zero_page bail out explicitly before split in
-memory_failure(), thus the panic above won't happen again.
+Architectures such as powerpc and x86 achieve this by making changes to
+their architectural versions of hugetlb_get_unmapped_area() function.
+However, arm64 uses the generic version of that function.
 
-Link: https://lkml.kernel.org/r/497d3835612610e370c74e697ea3c721d1d55b9c.1649775850.git.xuyu@linux.alibaba.com
-Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>
+So take into account arch_get_mmap_base() and arch_get_mmap_end() in
+hugetlb_get_unmapped_area().  To allow that, move those two macros out
+of mm/mmap.c into include/linux/sched/mm.h
+
+If these macros are not defined in architectural code then they default
+to (TASK_SIZE) and (base) so should not introduce any behavioural
+changes to architectures that do not define them.
+
+For the time being, only ARM64 is affected by this change.
+
+Catalin (ARM64) said
+ "We should have fixed hugetlb_get_unmapped_area() as well when we added
+  support for 52-bit VA. The reason for commit f6795053dac8 was to
+  prevent normal mmap() from returning addresses above 48-bit by default
+  as some user-space had hard assumptions about this.
+
+  It's a slight ABI change if you do this for hugetlb_get_unmapped_area()
+  but I doubt anyone would notice. It's more likely that the current
+  behaviour would cause issues, so I'd rather have them consistent.
+
+  Basically when arm64 gained support for 52-bit addresses we did not
+  want user-space calling mmap() to suddenly get such high addresses,
+  otherwise we could have inadvertently broken some programs (similar
+  behaviour to x86 here). Hence we added commit f6795053dac8. But we
+  missed hugetlbfs which could still get such high mmap() addresses. So
+  in theory that's a potential regression that should have bee addressed
+  at the same time as commit f6795053dac8 (and before arm64 enabled
+  52-bit addresses)"
+
+Link: https://lkml.kernel.org/r/ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu
+Fixes: f6795053dac8 ("mm: mmap: Allow for "high" userspace addresses")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: <stable@vger.kernel.org>	[5.0.x]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index 2020944398c9..27760c19bad7 100644
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -1860,6 +1860,19 @@ try_again:
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index 99c7477cee5c..dd3a088db11d 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -206,7 +206,7 @@ hugetlb_get_unmapped_area_bottomup(struct file *file, unsigned long addr,
+ 	info.flags = 0;
+ 	info.length = len;
+ 	info.low_limit = current->mm->mmap_base;
+-	info.high_limit = TASK_SIZE;
++	info.high_limit = arch_get_mmap_end(addr);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	return vm_unmapped_area(&info);
+@@ -222,7 +222,7 @@ hugetlb_get_unmapped_area_topdown(struct file *file, unsigned long addr,
+ 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
+ 	info.length = len;
+ 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+-	info.high_limit = current->mm->mmap_base;
++	info.high_limit = arch_get_mmap_base(addr, current->mm->mmap_base);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	addr = vm_unmapped_area(&info);
+@@ -237,7 +237,7 @@ hugetlb_get_unmapped_area_topdown(struct file *file, unsigned long addr,
+ 		VM_BUG_ON(addr != -ENOMEM);
+ 		info.flags = 0;
+ 		info.low_limit = current->mm->mmap_base;
+-		info.high_limit = TASK_SIZE;
++		info.high_limit = arch_get_mmap_end(addr);
+ 		addr = vm_unmapped_area(&info);
  	}
  
- 	if (PageTransHuge(hpage)) {
-+		/*
-+		 * Bail out before SetPageHasHWPoisoned() if hpage is
-+		 * huge_zero_page, although PG_has_hwpoisoned is not
-+		 * checked in set_huge_zero_page().
-+		 *
-+		 * TODO: Handle memory failure of huge_zero_page thoroughly.
-+		 */
-+		if (is_huge_zero_page(hpage)) {
-+			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
-+			res = -EBUSY;
-+			goto unlock_mutex;
-+		}
+@@ -251,6 +251,7 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	struct hstate *h = hstate_file(file);
++	const unsigned long mmap_end = arch_get_mmap_end(addr);
+ 
+ 	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+@@ -266,7 +267,7 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+ 	if (addr) {
+ 		addr = ALIGN(addr, huge_page_size(h));
+ 		vma = find_vma(mm, addr);
+-		if (TASK_SIZE - len >= addr &&
++		if (mmap_end - len >= addr &&
+ 		    (!vma || addr + len <= vm_start_gap(vma)))
+ 			return addr;
+ 	}
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index a80356e9dc69..1ad1f4bfa025 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -136,6 +136,14 @@ static inline void mm_update_next_owner(struct mm_struct *mm)
+ #endif /* CONFIG_MEMCG */
+ 
+ #ifdef CONFIG_MMU
++#ifndef arch_get_mmap_end
++#define arch_get_mmap_end(addr)	(TASK_SIZE)
++#endif
 +
- 		/*
- 		 * The flag must be set after the refcount is bumped
- 		 * otherwise it may race with THP split.
++#ifndef arch_get_mmap_base
++#define arch_get_mmap_base(addr, base) (base)
++#endif
++
+ extern void arch_pick_mmap_layout(struct mm_struct *mm,
+ 				  struct rlimit *rlim_stack);
+ extern unsigned long
+diff --git a/mm/mmap.c b/mm/mmap.c
+index 3aa839f81e63..313b57d55a63 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2117,14 +2117,6 @@ unsigned long vm_unmapped_area(struct vm_unmapped_area_info *info)
+ 	return addr;
+ }
+ 
+-#ifndef arch_get_mmap_end
+-#define arch_get_mmap_end(addr)	(TASK_SIZE)
+-#endif
+-
+-#ifndef arch_get_mmap_base
+-#define arch_get_mmap_base(addr, base) (base)
+-#endif
+-
+ /* Get an address range which is currently unmapped.
+  * For shmat() with addr=0.
+  *
 
