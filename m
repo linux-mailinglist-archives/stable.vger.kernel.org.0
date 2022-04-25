@@ -2,117 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D502450D6D7
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 04:09:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D0EB50D799
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 05:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240281AbiDYCM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Apr 2022 22:12:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54100 "EHLO
+        id S240657AbiDYDiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Apr 2022 23:38:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234055AbiDYCM1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 22:12:27 -0400
-Received: from mail1.bemta36.messagelabs.com (mail1.bemta36.messagelabs.com [85.158.142.2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DDC25C68;
-        Sun, 24 Apr 2022 19:09:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fujitsu.com;
-        s=170520fj; t=1650852563; i=@fujitsu.com;
-        bh=30ZvrW538VuKPhtUqh2TRm5bCNN23cqvHbhM9dcZbpI=;
-        h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-         MIME-Version:Content-Type;
-        b=C2MLwghZNj1dcgd35wsY9mEpJpyphyDfq69zluuvWv9TOOR+Cn13E4GHw1tIPphSG
-         xjUeldsqhozJN0Q8f7cAOyV7LC3sfoe269BIoy8z+ueZ9wf1uiayq9W8oZ0hDHz4Nq
-         KR3ffRBkPx/OuO2bZtKYmyjO/8ehs//NHrtUubFr9NADhWpRNHF7QTu9ob//pwCoYI
-         bLekSCZlNONUk/kBz90nXYwE7Kb+kwWwYtosw7xYqvZ3eEzR4nLcYx/6x4DQa885YI
-         MoE8NQotciO1Dk1yVXODkCebgo8USlfuJ+qVIpKEWaCnXOM4rZpt++a7leIw0DRrgz
-         7X0bLALPlXqBQ==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrNIsWRWlGSWpSXmKPExsViZ8MRonuRKS3
-  JYM43RYvXhz8xWny4OYnJYsuxe4wWl5/wWfxctordYs/ekywWCzY+YrQ4//c4q8XvH3PYHDg9
-  Ti2S8Ni8Qstj06pONo/Pm+Q8Nj15yxTAGsWamZeUX5HAmrF4/l7WgkbOildfihsY77B3MXJyC
-  Am8ZpSY9U4Rwt7DKNF4mRPEZhPQlHjWuYAZxBYRcJR40T6DBcRmFrjDKHH6cSiILSzgJLG0/y
-  YbiM0ioCrxb/VnVhCbV8BT4vOlf2BxCQEFiSkP34PN4RTwkri24iQbxC5Pib87nzFB1AtKnJz
-  5BGq+hMTBFy+YIXoVJS51fGOEsCskZs1qY5rAyD8LScssJC0LGJlWMdolFWWmZ5TkJmbm6Boa
-  GOgaGprqmpnpGlqY6SVW6SbqpZbqJqfmlRQlAqX1EsuL9VKLi/WKK3OTc1L08lJLNjEC4yCl2
-  GnXDsaDfT/1DjFKcjApifJmMKYlCfEl5adUZiQWZ8QXleakFh9ilOHgUJLgDfufmiQkWJSanl
-  qRlpkDjEmYtAQHj5II748fQGne4oLE3OLMdIjUKUZFKXFeB5CZAiCJjNI8uDZYGrjEKCslzMv
-  IwMAgxFOQWpSbWYIq/4pRnINRSZi3CmQKT2ZeCdz0V0CLmYAWf6oFW1ySiJCSamDSsVrBtDl/
-  6mN2/QUrb6adPrNqp/+er51P07eU7TeY/t/07eJ7xjuZZn33WMXe+mH9aQ/eAypznsTFvtdMu
-  Zq/8EuR54K7LvybLGc9WnciRyciume5VI5LwKmXP/1P8Dt9Oj4z6AL7Q1n5vMaFVUFn84/s15
-  E3tVB37Nr54+B/s7iSm8dlrRw7vkR2ntvF9yT33KOs3u6Wugnfojh8c9jPPZ050fRk5KVp05Y
-  IfXivVj5/4ewjMeuYS+65n/3//LDxvEXL+mfpBMobRzkJd2Z5P7kb0a2nELnIbvu+hf/0JLev
-  /SWl+vKg82q1iqmci4Nl5Od2N/0oaZR7ub5h2q8KpRUrKhZwbs4SlHBSLDTPVmIpzkg01GIuK
-  k4EACkrF3R+AwAA
-X-Env-Sender: xuyang2018.jy@fujitsu.com
-X-Msg-Ref: server-17.tower-545.messagelabs.com!1650852561!108109!1
-X-Originating-IP: [62.60.8.84]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.85.8; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 12610 invoked from network); 25 Apr 2022 02:09:21 -0000
-Received: from unknown (HELO mailhost3.uk.fujitsu.com) (62.60.8.84)
-  by server-17.tower-545.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 25 Apr 2022 02:09:21 -0000
-Received: from R01UKEXCASM126.r01.fujitsu.local ([10.183.43.178])
-        by mailhost3.uk.fujitsu.com (8.14.5/8.14.5) with ESMTP id 23P2922a010430
-        (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=FAIL);
-        Mon, 25 Apr 2022 03:09:08 +0100
-Received: from localhost.localdomain (10.167.220.84) by
- R01UKEXCASM126.r01.fujitsu.local (10.183.43.178) with Microsoft SMTP Server
- (TLS) id 15.0.1497.32; Mon, 25 Apr 2022 03:08:48 +0100
-From:   Yang Xu <xuyang2018.jy@fujitsu.com>
-To:     <linux-fsdevel@vger.kernel.org>, <ceph-devel@vger.kernel.org>
-CC:     <viro@zeniv.linux.org.uk>, <david@fromorbit.com>,
-        <djwong@kernel.org>, <brauner@kernel.org>, <willy@infradead.org>,
-        <jlayton@kernel.org>, Yang Xu <xuyang2018.jy@fujitsu.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v6 2/4] fs: Add missing umask strip in vfs_tmpfile
-Date:   Mon, 25 Apr 2022 11:09:39 +0800
-Message-ID: <1650856181-21350-2-git-send-email-xuyang2018.jy@fujitsu.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1650856181-21350-1-git-send-email-xuyang2018.jy@fujitsu.com>
-References: <1650856181-21350-1-git-send-email-xuyang2018.jy@fujitsu.com>
+        with ESMTP id S240675AbiDYDho (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 23:37:44 -0400
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B928F2CE0A
+        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 20:34:40 -0700 (PDT)
+Received: by mail-oi1-x22e.google.com with SMTP id 12so15756572oix.12
+        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 20:34:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=landley-net.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=B1QfoAi5AbmZrNfgKcOMoR0g+jeoWpDUXn39NnppiO8=;
+        b=RP5YQMrqRBjFc1TPzDRF/VNHpK8/m7n4dXSd/cW6Z5KUCS1IKHMEhUBJ5NZBxPSlQe
+         7w69F6X6ON+ARmCOQU0idD+EYWSxMlBPBMReqAsXwbNBrW3/87epvMb6ASjFylpL/qcT
+         PlQP2jiXuw8pn/O8+w35QVbGxauzbtyJro3+/mru8XCY6zwaT9g3mN7ITl336PH9kTPK
+         lV7kpe0CHmxr5jjvZV36lVm345wKpfd7SjO1S5pwz+Lqc12HAHCQ+CeXXfqmxvVDi/uu
+         2JS8/XRGqAInv+agUB3X6u1ASYWsrcuw+QvXWEyK0vxNdPObwZHiGre7X9RvphN4xv+E
+         e8fA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=B1QfoAi5AbmZrNfgKcOMoR0g+jeoWpDUXn39NnppiO8=;
+        b=nU5TRtBDEEHcyuNmoOgewpH7nkJKS2iPILHRj7ueSidO76Y+k7rIwqaicuVeJZ3r7e
+         Z3vpgYBXOFktc9vign9yWpI71qBP5Q5rMTkUhzlouMjHRRb3gXAqUnad0kLyUymMG5jB
+         +Jb9lEIlv47LZI7K06q07nEBfCdt1jD1rquJCORUNBSdl5lKrCK/3G2vw7jzaSM5Lvst
+         68TQTuhPgrR/IspKz4SEtD+peluZyRM2A+UXkXkn2WdzhCxYmRIsNEjKJFg5aoTEQaNF
+         ytz0EBEExLqqix0xR4QVZs5FWh74s1dm208QmgtmgrYuUDSPlzOddJ2YJ9VVcd39qBqs
+         7qsQ==
+X-Gm-Message-State: AOAM5312If8oJOSl8rsqFoI5aceBWfuHS3CpcAMkU1BtvSMDtdqY747n
+        Jr86iTbwcH0txIkfT5NrL8jtFA==
+X-Google-Smtp-Source: ABdhPJxo8MI+d6zaUs6uXLuDmIBbvncR0vS1nSWd1hInEUCXQb+VfGu0cvlm09UQJgV/8onv8BD9pw==
+X-Received: by 2002:a05:6808:1690:b0:325:4159:2004 with SMTP id bb16-20020a056808169000b0032541592004mr214582oib.86.1650857680070;
+        Sun, 24 Apr 2022 20:34:40 -0700 (PDT)
+Received: from [192.168.208.243] ([172.56.88.231])
+        by smtp.gmail.com with ESMTPSA id i26-20020a4a929a000000b0033a29c8d564sm3899603ooh.3.2022.04.24.20.34.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 24 Apr 2022 20:34:39 -0700 (PDT)
+Message-ID: <ab454879-5506-fe7d-cd59-812a6bc9d193@landley.net>
+Date:   Sun, 24 Apr 2022 22:38:58 -0500
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.167.220.84]
-X-ClientProxiedBy: G08CNEXCHPEKD07.g08.fujitsu.local (10.167.33.80) To
- R01UKEXCASM126.r01.fujitsu.local (10.183.43.178)
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.6.2
+Subject: Re: [PATCH] binfmt_flat: Remove shared library support
+Content-Language: en-US
+To:     Kees Cook <keescook@chromium.org>, Rich Felker <dalias@libc.org>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>, ebiederm@xmission.com,
+        damien.lemoal@opensource.wdc.com, Niklas.Cassel@wdc.com,
+        viro@zeniv.linux.org.uk, Paul Walmsley <paul.walmsley@sifive.com>,
+        aou@eecs.berkeley.edu, vapier@gentoo.org, stable@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org,
+        geert@linux-m68k.org, linux-m68k@lists.linux-m68k.org,
+        gerg@linux-m68k.org, linux-arm-kernel@lists.infradead.org,
+        linux-sh@vger.kernel.org, ysato@users.sourceforge.jp
+References: <87levzzts4.fsf_-_@email.froward.int.ebiederm.org>
+ <mhng-32cab6aa-87a3-4a5c-bf83-836c25432fdd@palmer-ri-x1c9>
+ <20220420165935.GA12207@brightrain.aerifal.cx>
+ <202204201044.ACFEB0C@keescook>
+From:   Rob Landley <rob@landley.net>
+In-Reply-To: <202204201044.ACFEB0C@keescook>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-All creation paths except for O_TMPFILE handle umask in the vfs directly
-if the filesystem doesn't support or enable POSIX ACLs. If the filesystem
-does then umask handling is deferred until posix_acl_create().
-Because, O_TMPFILE misses umask handling in the vfs it will not honor
-umask settings. Fix this by adding the missing umask handling.
+On 4/20/22 12:47, Kees Cook wrote:
+>> For what it's worth, bimfmt_flat (with or without shared library
+>> support) should be simple to implement as a binfmt_misc handler if
+>> anyone needs the old shared library support (or if kernel wanted to
+>> drop it entirely, which I would be in favor of). That's how I handled
+>> old aout binaries I wanted to run after aout was removed: trivial
+>> binfmt_misc loader.
+> 
+> Yeah, I was trying to understand why systems were using binfmt_flat and
+> not binfmt_elf, given the mention of elf2flat -- is there really such a
+> large kernel memory footprint savings to be had from removing
+> binfmt_elf?
 
-Fixes: 60545d0d4610 ("[O_TMPFILE] it's still short a few helpers, but infrastructure should be OK now...")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reported-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
----
- fs/namei.c | 2 ++
- 1 file changed, 2 insertions(+)
+elf2flat is a terrible name: it doesn't take an executable as input, it takes a
+.o file as input. (I mean it's an elf format .o file, but... misleading.)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 509657fdf4f5..73646e28fae0 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -3521,6 +3521,8 @@ struct dentry *vfs_tmpfile(struct user_namespace *mnt_userns,
- 	child = d_alloc(dentry, &slash_name);
- 	if (unlikely(!child))
- 		goto out_err;
-+	if (!IS_POSIXACL(dir))
-+		mode &= ~current_umask();
- 	error = dir->i_op->tmpfile(mnt_userns, dir, child, mode);
- 	if (error)
- 		goto out_err;
--- 
-2.27.0
+> But regardless, yes, it seems like if you're doing anything remotely
+> needing shared libraries with binfmt_flat, such a system could just use
+> ELF instead.
 
+A) The binfmt_elf.c loader won't run on nommu systems. The fdpic loader will,
+and in theory can handle normal ELF binaries (it's ELF with _more_
+capabilities), but sadly it's not supported on most architectures for reasons
+that are unclear to me.
+
+B) You can't run conventional ELF on nommu, because everything is offset from 0
+so PID 1 eats that address range and you can't run exec program.
+
+You can run PIE binaries on nommu (the symbols offset from a base pointer which
+can point anywhere), but they're inefficient (can't share text or rodata
+sections between instances because every symbol is offset from a single shared
+base pointer), and highly vulnerable to fragmentation (because it needs a
+contiguous blob of memory for text, rodata, bss, and data: see single base
+pointer everything has an integer offset from).
+
+All fdpic really does is give you 4 base pointers, one for each section. That
+way you can share text and rodata, and put bss and data into smaller independent
+fragments of memory. Various security guys use this as super-aslr even on mmu
+systems, but tend not to advertise that they're doing so. :)
+
+Rob
