@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC9950DEA7
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 13:18:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DA7250DEE4
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 13:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237672AbiDYLUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 07:20:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59782 "EHLO
+        id S229964AbiDYLjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 07:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236749AbiDYLUv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 07:20:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA2AFC8A80
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 04:17:46 -0700 (PDT)
+        with ESMTP id S241676AbiDYLjI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 07:39:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9D41F601
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 04:35:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48214611ED
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 11:17:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ACC1C385A4;
-        Mon, 25 Apr 2022 11:17:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4A43B8128F
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 11:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AA32C385A4;
+        Mon, 25 Apr 2022 11:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650885465;
-        bh=wD62XwEoVvHPpt+B58f/lmSzNAXZ7kEtgi5Jbn6150U=;
+        s=korg; t=1650886508;
+        bh=JDJRutwbAy8XAlq9oStbreUc8b/1SZzkDVPx84dalwo=;
         h=Subject:To:Cc:From:Date:From;
-        b=uqOKsHw5RZ9q4INDXnleDBexvoP+XEeOdmMJhYF3SUOMidPLJPHPWee/8aK2tUSWr
-         ngmDOJbI3u6ajJw17b+WhitDU6xF4+aP1QSrTWbiTYyHtPAmlVzTlGhKmBV/pf9bEt
-         X4Txx2YkLPhLWU8/nFF1VvA+RKvPLJxUtCw0wRDM=
-Subject: FAILED: patch "[PATCH] KVM: SEV: add cache flush to solve SEV cache incoherency" failed to apply to 5.10-stable tree
-To:     mizhang@google.com, pbonzini@redhat.com, seanjc@google.com
+        b=EIYF18WD5kHsvS1mrwSq1eTCAa5DtVA8+az0vtZkcD6M5GY1oHWFwtQ6sx0UNszTu
+         +bStC4MTkCsr35/7yf4CSv5Idsd9ejPp/CM1GHDNC1mVdP/Xb/hq/YbQzC+q9BKcHB
+         9dtVGRzoB4gCncsOiopuxwo9ZMSiZLLBdi+VDucU=
+Subject: FAILED: patch "[PATCH] KVM: x86: Pend KVM_REQ_APICV_UPDATE during vCPU creation to" failed to apply to 5.10-stable tree
+To:     seanjc@google.com, kangel@zju.edu.cn, mlevitsk@redhat.com,
+        pbonzini@redhat.com, pgn@zju.edu.cn
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Apr 2022 13:17:35 +0200
-Message-ID: <16508854555678@kroah.com>
+Date:   Mon, 25 Apr 2022 13:35:06 +0200
+Message-ID: <1650886506205229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,254 +59,95 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 683412ccf61294d727ead4a73d97397396e69a6b Mon Sep 17 00:00:00 2001
-From: Mingwei Zhang <mizhang@google.com>
-Date: Thu, 21 Apr 2022 03:14:07 +0000
-Subject: [PATCH] KVM: SEV: add cache flush to solve SEV cache incoherency
- issues
+From 423ecfea77dda83823c71b0fad1c2ddb2af1e5fc Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Wed, 20 Apr 2022 01:37:31 +0000
+Subject: [PATCH] KVM: x86: Pend KVM_REQ_APICV_UPDATE during vCPU creation to
+ fix a race
 
-Flush the CPU caches when memory is reclaimed from an SEV guest (where
-reclaim also includes it being unmapped from KVM's memslots).  Due to lack
-of coherency for SEV encrypted memory, failure to flush results in silent
-data corruption if userspace is malicious/broken and doesn't ensure SEV
-guest memory is properly pinned and unpinned.
+Make a KVM_REQ_APICV_UPDATE request when creating a vCPU with an
+in-kernel local APIC and APICv enabled at the module level.  Consuming
+kvm_apicv_activated() and stuffing vcpu->arch.apicv_active directly can
+race with __kvm_set_or_clear_apicv_inhibit(), as vCPU creation happens
+before the vCPU is fully onlined, i.e. it won't get the request made to
+"all" vCPUs.  If APICv is globally inhibited between setting apicv_active
+and onlining the vCPU, the vCPU will end up running with APICv enabled
+and trigger KVM's sanity check.
 
-Cache coherency is not enforced across the VM boundary in SEV (AMD APM
-vol.2 Section 15.34.7). Confidential cachelines, generated by confidential
-VM guests have to be explicitly flushed on the host side. If a memory page
-containing dirty confidential cachelines was released by VM and reallocated
-to another user, the cachelines may corrupt the new user at a later time.
+Mark APICv as active during vCPU creation if APICv is enabled at the
+module level, both to be optimistic about it's final state, e.g. to avoid
+additional VMWRITEs on VMX, and because there are likely bugs lurking
+since KVM checks apicv_active in multiple vCPU creation paths.  While
+keeping the current behavior of consuming kvm_apicv_activated() is
+arguably safer from a regression perspective, force apicv_active so that
+vCPU creation runs with deterministic state and so that if there are bugs,
+they are found sooner than later, i.e. not when some crazy race condition
+is hit.
 
-KVM takes a shortcut by assuming all confidential memory remain pinned
-until the end of VM lifetime. Therefore, KVM does not flush cache at
-mmu_notifier invalidation events. Because of this incorrect assumption and
-the lack of cache flushing, malicous userspace can crash the host kernel:
-creating a malicious VM and continuously allocates/releases unpinned
-confidential memory pages when the VM is running.
+  WARNING: CPU: 0 PID: 484 at arch/x86/kvm/x86.c:9877 vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
+  Modules linked in:
+  CPU: 0 PID: 484 Comm: syz-executor361 Not tainted 5.16.13 #2
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1~cloud0 04/01/2014
+  RIP: 0010:vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
+  Call Trace:
+   <TASK>
+   vcpu_run arch/x86/kvm/x86.c:10039 [inline]
+   kvm_arch_vcpu_ioctl_run+0x337/0x15e0 arch/x86/kvm/x86.c:10234
+   kvm_vcpu_ioctl+0x4d2/0xc80 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3727
+   vfs_ioctl fs/ioctl.c:51 [inline]
+   __do_sys_ioctl fs/ioctl.c:874 [inline]
+   __se_sys_ioctl fs/ioctl.c:860 [inline]
+   __x64_sys_ioctl+0x16d/0x1d0 fs/ioctl.c:860
+   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+   do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Add cache flush operations to mmu_notifier operations to ensure that any
-physical memory leaving the guest VM get flushed. In particular, hook
-mmu_notifier_invalidate_range_start and mmu_notifier_release events and
-flush cache accordingly. The hook after releasing the mmu lock to avoid
-contention with other vCPUs.
+The bug was hit by a syzkaller spamming VM creation with 2 vCPUs and a
+call to KVM_SET_GUEST_DEBUG.
 
+  r0 = openat$kvm(0xffffffffffffff9c, &(0x7f0000000000), 0x0, 0x0)
+  r1 = ioctl$KVM_CREATE_VM(r0, 0xae01, 0x0)
+  ioctl$KVM_CAP_SPLIT_IRQCHIP(r1, 0x4068aea3, &(0x7f0000000000)) (async)
+  r2 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x0) (async)
+  r3 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x400000000000002)
+  ioctl$KVM_SET_GUEST_DEBUG(r3, 0x4048ae9b, &(0x7f00000000c0)={0x5dda9c14aa95f5c5})
+  ioctl$KVM_RUN(r2, 0xae80, 0x0)
+
+Reported-by: Gaoning Pan <pgn@zju.edu.cn>
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Fixes: 8df14af42f00 ("kvm: x86: Add support for dynamic APICv activation")
 Cc: stable@vger.kernel.org
-Suggested-by: Sean Christpherson <seanjc@google.com>
-Reported-by: Mingwei Zhang <mizhang@google.com>
-Signed-off-by: Mingwei Zhang <mizhang@google.com>
-Message-Id: <20220421031407.2516575-4-mizhang@google.com>
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220420013732.3308816-4-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/include/asm/kvm-x86-ops.h b/arch/x86/include/asm/kvm-x86-ops.h
-index 3c368b639c04..1a6d7e3f6c32 100644
---- a/arch/x86/include/asm/kvm-x86-ops.h
-+++ b/arch/x86/include/asm/kvm-x86-ops.h
-@@ -118,6 +118,7 @@ KVM_X86_OP_OPTIONAL(mem_enc_register_region)
- KVM_X86_OP_OPTIONAL(mem_enc_unregister_region)
- KVM_X86_OP_OPTIONAL(vm_copy_enc_context_from)
- KVM_X86_OP_OPTIONAL(vm_move_enc_context_from)
-+KVM_X86_OP_OPTIONAL(guest_memory_reclaimed)
- KVM_X86_OP(get_msr_feature)
- KVM_X86_OP(can_emulate_instruction)
- KVM_X86_OP(apic_init_signal_blocked)
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index e0c0f0e1f754..4ff36610af6a 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1484,6 +1484,7 @@ struct kvm_x86_ops {
- 	int (*mem_enc_unregister_region)(struct kvm *kvm, struct kvm_enc_region *argp);
- 	int (*vm_copy_enc_context_from)(struct kvm *kvm, unsigned int source_fd);
- 	int (*vm_move_enc_context_from)(struct kvm *kvm, unsigned int source_fd);
-+	void (*guest_memory_reclaimed)(struct kvm *kvm);
- 
- 	int (*get_msr_feature)(struct kvm_msr_entry *entry);
- 
-diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index 9a0375987029..0ad70c12c7c3 100644
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -2262,6 +2262,14 @@ do_wbinvd:
- 	wbinvd_on_all_cpus();
- }
- 
-+void sev_guest_memory_reclaimed(struct kvm *kvm)
-+{
-+	if (!sev_guest(kvm))
-+		return;
-+
-+	wbinvd_on_all_cpus();
-+}
-+
- void sev_free_vcpu(struct kvm_vcpu *vcpu)
- {
- 	struct vcpu_svm *svm;
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index bd4c64b362d2..7e45d03cd018 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4620,6 +4620,7 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
- 	.mem_enc_ioctl = sev_mem_enc_ioctl,
- 	.mem_enc_register_region = sev_mem_enc_register_region,
- 	.mem_enc_unregister_region = sev_mem_enc_unregister_region,
-+	.guest_memory_reclaimed = sev_guest_memory_reclaimed,
- 
- 	.vm_copy_enc_context_from = sev_vm_copy_enc_context_from,
- 	.vm_move_enc_context_from = sev_vm_move_enc_context_from,
-diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
-index f77a7d2d39dd..f76deff71002 100644
---- a/arch/x86/kvm/svm/svm.h
-+++ b/arch/x86/kvm/svm/svm.h
-@@ -609,6 +609,8 @@ int sev_mem_enc_unregister_region(struct kvm *kvm,
- 				  struct kvm_enc_region *range);
- int sev_vm_copy_enc_context_from(struct kvm *kvm, unsigned int source_fd);
- int sev_vm_move_enc_context_from(struct kvm *kvm, unsigned int source_fd);
-+void sev_guest_memory_reclaimed(struct kvm *kvm);
-+
- void pre_sev_run(struct vcpu_svm *svm, int cpu);
- void __init sev_set_cpu_caps(void);
- void __init sev_hardware_setup(void);
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index c89dc09a764f..a6ab19afc638 100644
+index d54d4a67b226..9c02217c1e47 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -9889,6 +9889,11 @@ void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
- 		kvm_make_all_cpus_request(kvm, KVM_REQ_APIC_PAGE_RELOAD);
- }
- 
-+void kvm_arch_guest_memory_reclaimed(struct kvm *kvm)
-+{
-+	static_call_cond(kvm_x86_guest_memory_reclaimed)(kvm);
-+}
+@@ -11189,8 +11189,21 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+ 		r = kvm_create_lapic(vcpu, lapic_timer_advance_ns);
+ 		if (r < 0)
+ 			goto fail_mmu_destroy;
+-		if (kvm_apicv_activated(vcpu->kvm))
 +
- static void kvm_vcpu_reload_apic_access_page(struct kvm_vcpu *vcpu)
- {
- 	if (!lapic_in_kernel(vcpu))
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 2dab4b696682..34eed5f85ed6 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -2219,6 +2219,8 @@ static inline long kvm_arch_vcpu_async_ioctl(struct file *filp,
- void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
- 					    unsigned long start, unsigned long end);
++		/*
++		 * Defer evaluating inhibits until the vCPU is first run, as
++		 * this vCPU will not get notified of any changes until this
++		 * vCPU is visible to other vCPUs (marked online and added to
++		 * the set of vCPUs).  Opportunistically mark APICv active as
++		 * VMX in particularly is highly unlikely to have inhibits.
++		 * Ignore the current per-VM APICv state so that vCPU creation
++		 * is guaranteed to run with a deterministic value, the request
++		 * will ensure the vCPU gets the correct state before VM-Entry.
++		 */
++		if (enable_apicv) {
+ 			vcpu->arch.apicv_active = true;
++			kvm_make_request(KVM_REQ_APICV_UPDATE, vcpu);
++		}
+ 	} else
+ 		static_branch_inc(&kvm_has_noapic_vcpu);
  
-+void kvm_arch_guest_memory_reclaimed(struct kvm *kvm);
-+
- #ifdef CONFIG_HAVE_KVM_VCPU_RUN_PID_CHANGE
- int kvm_arch_vcpu_run_pid_change(struct kvm_vcpu *vcpu);
- #else
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 2a23f24d13cf..f30bb8c16f26 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -164,6 +164,10 @@ __weak void kvm_arch_mmu_notifier_invalidate_range(struct kvm *kvm,
- {
- }
- 
-+__weak void kvm_arch_guest_memory_reclaimed(struct kvm *kvm)
-+{
-+}
-+
- bool kvm_is_zone_device_pfn(kvm_pfn_t pfn)
- {
- 	/*
-@@ -357,6 +361,12 @@ void kvm_flush_remote_tlbs(struct kvm *kvm)
- EXPORT_SYMBOL_GPL(kvm_flush_remote_tlbs);
- #endif
- 
-+static void kvm_flush_shadow_all(struct kvm *kvm)
-+{
-+	kvm_arch_flush_shadow_all(kvm);
-+	kvm_arch_guest_memory_reclaimed(kvm);
-+}
-+
- #ifdef KVM_ARCH_NR_OBJS_PER_MEMORY_CACHE
- static inline void *mmu_memory_cache_alloc_obj(struct kvm_mmu_memory_cache *mc,
- 					       gfp_t gfp_flags)
-@@ -485,12 +495,15 @@ typedef bool (*hva_handler_t)(struct kvm *kvm, struct kvm_gfn_range *range);
- typedef void (*on_lock_fn_t)(struct kvm *kvm, unsigned long start,
- 			     unsigned long end);
- 
-+typedef void (*on_unlock_fn_t)(struct kvm *kvm);
-+
- struct kvm_hva_range {
- 	unsigned long start;
- 	unsigned long end;
- 	pte_t pte;
- 	hva_handler_t handler;
- 	on_lock_fn_t on_lock;
-+	on_unlock_fn_t on_unlock;
- 	bool flush_on_ret;
- 	bool may_block;
- };
-@@ -578,8 +591,11 @@ static __always_inline int __kvm_handle_hva_range(struct kvm *kvm,
- 	if (range->flush_on_ret && ret)
- 		kvm_flush_remote_tlbs(kvm);
- 
--	if (locked)
-+	if (locked) {
- 		KVM_MMU_UNLOCK(kvm);
-+		if (!IS_KVM_NULL_FN(range->on_unlock))
-+			range->on_unlock(kvm);
-+	}
- 
- 	srcu_read_unlock(&kvm->srcu, idx);
- 
-@@ -600,6 +616,7 @@ static __always_inline int kvm_handle_hva_range(struct mmu_notifier *mn,
- 		.pte		= pte,
- 		.handler	= handler,
- 		.on_lock	= (void *)kvm_null_fn,
-+		.on_unlock	= (void *)kvm_null_fn,
- 		.flush_on_ret	= true,
- 		.may_block	= false,
- 	};
-@@ -619,6 +636,7 @@ static __always_inline int kvm_handle_hva_range_no_flush(struct mmu_notifier *mn
- 		.pte		= __pte(0),
- 		.handler	= handler,
- 		.on_lock	= (void *)kvm_null_fn,
-+		.on_unlock	= (void *)kvm_null_fn,
- 		.flush_on_ret	= false,
- 		.may_block	= false,
- 	};
-@@ -687,6 +705,7 @@ static int kvm_mmu_notifier_invalidate_range_start(struct mmu_notifier *mn,
- 		.pte		= __pte(0),
- 		.handler	= kvm_unmap_gfn_range,
- 		.on_lock	= kvm_inc_notifier_count,
-+		.on_unlock	= kvm_arch_guest_memory_reclaimed,
- 		.flush_on_ret	= true,
- 		.may_block	= mmu_notifier_range_blockable(range),
- 	};
-@@ -741,6 +760,7 @@ static void kvm_mmu_notifier_invalidate_range_end(struct mmu_notifier *mn,
- 		.pte		= __pte(0),
- 		.handler	= (void *)kvm_null_fn,
- 		.on_lock	= kvm_dec_notifier_count,
-+		.on_unlock	= (void *)kvm_null_fn,
- 		.flush_on_ret	= false,
- 		.may_block	= mmu_notifier_range_blockable(range),
- 	};
-@@ -813,7 +833,7 @@ static void kvm_mmu_notifier_release(struct mmu_notifier *mn,
- 	int idx;
- 
- 	idx = srcu_read_lock(&kvm->srcu);
--	kvm_arch_flush_shadow_all(kvm);
-+	kvm_flush_shadow_all(kvm);
- 	srcu_read_unlock(&kvm->srcu, idx);
- }
- 
-@@ -1225,7 +1245,7 @@ static void kvm_destroy_vm(struct kvm *kvm)
- 	WARN_ON(rcuwait_active(&kvm->mn_memslots_update_rcuwait));
- 	kvm->mn_active_invalidate_count = 0;
- #else
--	kvm_arch_flush_shadow_all(kvm);
-+	kvm_flush_shadow_all(kvm);
- #endif
- 	kvm_arch_destroy_vm(kvm);
- 	kvm_destroy_devices(kvm);
-@@ -1652,6 +1672,7 @@ static void kvm_invalidate_memslot(struct kvm *kvm,
- 	 *	- kvm_is_visible_gfn (mmu_check_root)
- 	 */
- 	kvm_arch_flush_shadow_memslot(kvm, old);
-+	kvm_arch_guest_memory_reclaimed(kvm);
- 
- 	/* Was released by kvm_swap_active_memslots, reacquire. */
- 	mutex_lock(&kvm->slots_arch_lock);
 
