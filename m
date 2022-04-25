@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC5B50DDAB
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72D8650DDAC
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:13:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230252AbiDYKQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 06:16:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41358 "EHLO
+        id S230382AbiDYKQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 06:16:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232561AbiDYKQH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:16:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 392BC625C
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:13:03 -0700 (PDT)
+        with ESMTP id S232561AbiDYKQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:16:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB3F625C
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:13:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B655C60C60
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:13:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0FC8C385A7;
-        Mon, 25 Apr 2022 10:13:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC34AB8118F
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:13:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21AFFC385A4;
+        Mon, 25 Apr 2022 10:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650881582;
-        bh=wOxABx2+fenJ36WcWae0eaXDHLGDeVOQgaeXu8RTT98=;
+        s=korg; t=1650881585;
+        bh=CVtioaGU7nWt1crJYXhkZ/kxJeJ1Tm+wdchf0L9XUps=;
         h=Subject:To:Cc:From:Date:From;
-        b=m4HCo5981IiM25ZMex03hRYshCHwgn3sSNgncBMoSLqFvnRzCiVs/oWbvNkSTOzqG
-         zAV4s2gKju+/o+ZV0ArS4EkBYVXuY2m/Rm4/TAoakBRHWDjHph5Z+WGzw+/XW5zIe4
-         0gyzMJYaEV9iAd6xL3sNFKTwYUZ/jTosg8K52idw=
-Subject: FAILED: patch "[PATCH] mm/hwpoison: fix race between hugetlb free/demotion and" failed to apply to 4.14-stable tree
+        b=QgeP7TQ38KX1lSt7whGnjGzk1TivSGbdvLIBdItBIDiB/pq4tahXOitBssoTZPd1L
+         4D3gyPXV0UHr3m1cHi04X7JaRrxwvg2d8c7DFA2d0wIpPin8/VTBIiOub16LOxe/Ph
+         1yD6M1fZHvLTqvMcVedgh4idcaVwxIWMP9cdNOOg=
+Subject: FAILED: patch "[PATCH] mm/hwpoison: fix race between hugetlb free/demotion and" failed to apply to 4.19-stable tree
 To:     naoya.horiguchi@nec.com, akpm@linux-foundation.org,
         dan.carpenter@oracle.com, linmiaohe@huawei.com,
         mike.kravetz@oracle.com, shy828301@gmail.com,
         stable@vger.kernel.org, torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Apr 2022 12:12:59 +0200
-Message-ID: <1650881579117191@kroah.com>
+Date:   Mon, 25 Apr 2022 12:13:00 +0200
+Message-ID: <16508815801173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
