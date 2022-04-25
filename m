@@ -2,114 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C063B50E9F5
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 22:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CEF950E9E4
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 22:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245138AbiDYURZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 16:17:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39724 "EHLO
+        id S245070AbiDYUMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 16:12:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238124AbiDYURX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 16:17:23 -0400
-X-Greylist: delayed 514 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 25 Apr 2022 13:14:17 PDT
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [IPv6:2001:67c:2050:0:465::102])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21CBD1240E0;
-        Mon, 25 Apr 2022 13:14:16 -0700 (PDT)
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [80.241.60.245])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4KnGGV3KQxz9sQq;
-        Mon, 25 Apr 2022 22:05:38 +0200 (CEST)
-Message-ID: <6c52dc89-015a-9c51-9568-778ccb8c2dd9@hauke-m.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hauke-m.de; s=MBO0001;
-        t=1650917136;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=38IMGApEWMDQRzOu9Up92LzBejF2/6NEUKrWMdbx4cI=;
-        b=EQNXJJULaE/lP/xYon/esS8BNihN8LpOs2J1cknYX2/AEY5M4BSrpqhcaXWtoEzj+KZQBf
-        Gf/ViTcF+7fnvHnKnIPc/kf5hO7JwwR60PNyzyE4tFppH4mSX4m/dJl9x/vZfE49OAnHG6
-        IOL4aMPW4gOdM54duSST9DhK/n7JvxsvcA7LcVdhPze2bxKvFhw6lVlqlwTnDDwcl0ho/h
-        pKnkgc+uiaRKKKSY5Pl05lKZekQGRNf4Rcy12iHO9y5OqExeOdK+vBWHb+R21THynA8xGV
-        SROjM86sw94+neuYkknMylIz7+XGD/NMAL8qalPe38ipPW+pJFNfduUyzfxf8g==
-Date:   Mon, 25 Apr 2022 22:05:32 +0200
+        with ESMTP id S240903AbiDYUMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 16:12:21 -0400
+Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16BD21240C0
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 13:09:16 -0700 (PDT)
+Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-2f7d7e3b5bfso47654057b3.5
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 13:09:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=NfxDulmsqhxXYyN5BV9MHprI6PjKOv1s+ZBzAf57s4s=;
+        b=rAreSYbIYa7d1O6k0eeBoQixeROl7b4GeOBqgh4WDsQEPcfgAgTbGYjLwan/Vhvori
+         3rKztPP7u1/1T57or6r7tIyxMtjNvvdR59iU8ugQjY/VkRBSn5dyyIB84PY2URQnfMHq
+         6Tk4X7ng4dRI0IZnnvGMDJhkmMpozAefRCn3FfU/UQWwwUAyJEQTWXP5yQ5PZF4NX4az
+         SqXjiK6VhHcaxA4kw3r0Ib0+V3IPHMFDT6GyUjPzTnOcLziEK+uv+evIiUv9WoLiLkZ2
+         u1cI+zT6AEgLMrm316QTOYk8KstUMLznGxEXS4M5M1sW++g5oPo5V4MzA5av/I2F6yTr
+         MgwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=NfxDulmsqhxXYyN5BV9MHprI6PjKOv1s+ZBzAf57s4s=;
+        b=JC43+brYhUpTg6G1eh7PkbYdyCgtC4lnc8SFWMrhU471esDUsuLxK6lrxsdDUIzaZV
+         4R7lH2BmiKZpPJ4ajEzxTaWQ7IaDxUUz5jQHH7QyC+zhr23grePsTbyz1QldFRdtqQwO
+         5QQAeeuQhs1yvpLetauS10/lerowd0V1w+w9hufCnmYuYX4FMIDcsjb5cA06SX8rgiXQ
+         1dOigLtYAxfvBIo7m4KRD+UVUmBz0PSNzBifajhAvDD3SjRfjf9hOAKjGJ+cEZeFLLXj
+         tuhVh6CCzVakPaJeBvgn//6yKdleEZ2tU6OknCX17OYaizVALMuCtI0tjZ2hUMRPhT8F
+         KboA==
+X-Gm-Message-State: AOAM532fiFFnftfzCdTTT7E3wB7W5aBSSYk6XR+DFMOlG7PhP7sa4f/j
+        drvDQwPGDFc9d4v6bo25v/sglN90HB4WRRhp0OodMw==
+X-Google-Smtp-Source: ABdhPJyF695Tiq9KWQzZuGHqu4LK5YmP82HABpDAJ9oWVE5UTcdqsbMaZTDMDolz5sNv29B66+jrLXn+uK5V9V//hCo=
+X-Received: by 2002:a0d:c4c2:0:b0:2f1:6c00:9eb4 with SMTP id
+ g185-20020a0dc4c2000000b002f16c009eb4mr19186232ywd.448.1650917355287; Mon, 25
+ Apr 2022 13:09:15 -0700 (PDT)
 MIME-Version: 1.0
-Subject: Re: [PATCH net] net: dsa: lantiq_gswip: Don't set
- GSWIP_MII_CFG_RMII_CLK
-Content-Language: en-US
-To:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        netdev@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, andrew@lunn.ch,
-        vivien.didelot@gmail.com, olteanv@gmail.com, davem@davemloft.net,
-        kuba@kernel.org, pabeni@redhat.com, stable@vger.kernel.org,
-        Jan Hoffmann <jan@3e8.eu>
-References: <20220425152027.2220750-1-martin.blumenstingl@googlemail.com>
-From:   Hauke Mehrtens <hauke@hauke-m.de>
-In-Reply-To: <20220425152027.2220750-1-martin.blumenstingl@googlemail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <34212129-bb2e-46d4-4536-28f11b1c61ca@living180.net>
+In-Reply-To: <34212129-bb2e-46d4-4536-28f11b1c61ca@living180.net>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Mon, 25 Apr 2022 22:09:01 +0200
+Message-ID: <CACRpkdbw1E3qOc=+PXyO3tQSXpa0yHd5YTbXMe97dPq9vCcTVg@mail.gmail.com>
+Subject: Re: Regression in 5467801f1fcbd
+To:     Daniel Harding <dharding@living180.net>
+Cc:     brgl@bgdev.pl, shreeya.patel@collabora.com,
+        linux-gpio@vger.kernel.org, stable@vger.kernel.org,
+        andy.shevchenko@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/25/22 17:20, Martin Blumenstingl wrote:
-> Commit 4b5923249b8fa4 ("net: dsa: lantiq_gswip: Configure all remaining
-> GSWIP_MII_CFG bits") added all known bits in the GSWIP_MII_CFGp
-> register. It helped bring this register into a well-defined state so the
-> driver has to rely less on the bootloader to do things right.
-> Unfortunately it also sets the GSWIP_MII_CFG_RMII_CLK bit without any
-> possibility to configure it. Upon further testing it turns out that all
-> boards which are supported by the GSWIP driver in OpenWrt which use an
-> RMII PHY have a dedicated oscillator on the board which provides the
-> 50MHz RMII reference clock.
-> 
-> Don't set the GSWIP_MII_CFG_RMII_CLK bit (but keep the code which always
-> clears it) to fix support for the Fritz!Box 7362 SL in OpenWrt. This is
-> a board with two Atheros AR8030 RMII PHYs. With the "RMII clock" bit set
-> the MAC also generates the RMII reference clock whose signal then
-> conflicts with the signal from the oscillator on the board. This results
-> in a constant cycle of the PHY detecting link up/down (and as a result
-> of that: the two ports using the AR8030 PHYs are not working).
-> 
-> At the time of writing this patch there's no known board where the MAC
-> (GSWIP) has to generate the RMII reference clock. If needed this can be
-> implemented in future by providing a device-tree flag so the
-> GSWIP_MII_CFG_RMII_CLK bit can be toggled per port.
-> 
-> Fixes: 4b5923249b8fa4 ("net: dsa: lantiq_gswip: Configure all remaining GSWIP_MII_CFG bits")
-> Cc: stable@vger.kernel.org
-> Tested-by: Jan Hoffmann <jan@3e8.eu>
-> Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Hi Daniel,
 
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+On Mon, Apr 25, 2022 at 9:00 PM Daniel Harding <dharding@living180.net> wrote:
 
-Looks like Linux does not have a standard device tree flag to indicate 
-that MAC should provide the RMII clock. Deactivating it is probably a 
-good solution.
+> The commit "Restrict usage of GPIO chip irq members before initialization" breaks suspend on a
+>  Dell Inspiron 5515 laptop in a very severe way.
 
-> ---
->   drivers/net/dsa/lantiq_gswip.c | 3 ---
->   1 file changed, 3 deletions(-)
-> 
-> diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-> index a416240d001b..12c15da55664 100644
-> --- a/drivers/net/dsa/lantiq_gswip.c
-> +++ b/drivers/net/dsa/lantiq_gswip.c
-> @@ -1681,9 +1681,6 @@ static void gswip_phylink_mac_config(struct dsa_switch *ds, int port,
->   		break;
->   	case PHY_INTERFACE_MODE_RMII:
->   		miicfg |= GSWIP_MII_CFG_MODE_RMIIM;
-> -
-> -		/* Configure the RMII clock as output: */
-> -		miicfg |= GSWIP_MII_CFG_RMII_CLK;
->   		break;
->   	case PHY_INTERFACE_MODE_RGMII:
->   	case PHY_INTERFACE_MODE_RGMII_ID:
+Does this commit, which is already upstream in Torvald's tree, solve the issue?
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/drivers/gpio?id=06fb4ecfeac7e00d6704fa5ed19299f2fefb3cc9
 
+Yours,
+Linus Walleij
