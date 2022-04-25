@@ -2,99 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E0350DF1D
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 13:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6087650DF6F
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 13:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232783AbiDYLri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 07:47:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56330 "EHLO
+        id S235934AbiDYLz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 07:55:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241502AbiDYLra (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 07:47:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F84713CD3;
-        Mon, 25 Apr 2022 04:44:25 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10092B815FB;
-        Mon, 25 Apr 2022 11:44:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82AFBC385A7;
-        Mon, 25 Apr 2022 11:44:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650887062;
-        bh=OY5n8Tf6FRAIGU2dwPUI6YZQVZF9hrq2Cr1EDl5MgqQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Dcjfg1vVXfHd4xFonI1m+L+oWisypUpzk5TLXBrtfxjq8P1mufmssIZ/KyhzrHJhl
-         Sc1YyVwp84N7nK7z9whVE9lnnSzc6Fq4kDiby6nrvXtITlp/aTiwwejG8FhUkoR5HE
-         M+LMyCSXj/uag/MCnYOGcGn9mVAHwso90ZAlBPBM=
-Date:   Mon, 25 Apr 2022 13:44:20 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ilya Maximets <i.maximets@ovn.org>
-Cc:     Florian Westphal <fw@strlen.de>,
-        Mark Mielke <mark.mielke@gmail.com>, dev@openvswitch.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
+        with ESMTP id S239175AbiDYLzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 07:55:16 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 414B512ABF
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 04:51:54 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id r187-20020a1c44c4000000b0038ccb70e239so12316472wma.3
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 04:51:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=6wind.com; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Ib6nQlp08A5L9C0VdErv324vMKIB/tKGFJooHE6SPao=;
+        b=FGPew/JsMHemqppExogpDPOAw5g4gf1ssAKTU8fEoDX/TYrqhqAgx36NUbhIHfxaxO
+         oGCt5CK2FsLLjjcHAuSPTrThgGRIqlrWQMHnrmZyf0JSJyqDjvrjQYK4tUkqgX1qx0Lu
+         5yGCgzmxlkwn2fZfqW2Jv3JM938EbEunI/vGTmh5yFSWsU5lr6FoQth79T/LrEb0UhBS
+         /3/zjjJGFYSJp2AdQUMsZG3QiYUzMih4wfHLiglTYwfQCtRm/US0vOI7RuiQHcY0XerE
+         5xdNs5OqFcAzVGc0Cv54TyVkjrOzE/R8SljWIFQ4Vkd9C7s248D6rCUJ93Ue1XOjrsFf
+         QvQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Ib6nQlp08A5L9C0VdErv324vMKIB/tKGFJooHE6SPao=;
+        b=jZhxhAD1xAaULbisid7dqWP4jZ2kgQvy0fAuL3dfcecJ+YyfRFHlMlndxNlMz7KLiu
+         ZEiYJZtD9/AR/LVXPyfiUIq8zgj8GwHDQBTnw1pdqS6CSyh7NzPviPqk3aBLjAfTZUad
+         ctFiKAstmMniSjFk2Sz62BWOuxIRmHbzSk5oLX/MMCesiEBirfnsTGFlufAEYisZ912K
+         XRajaVNeebCAb7vMZrop43pzWH5lPiXTisvpq8H6FQgcHRME97uzvYz/04wGpzaoINe7
+         y9S46S9fcn23k8DK3zBcTrGBeYCWpK0SWiHw6xz+TozkHR+x5g7BYareVUa0/5068rfw
+         89DA==
+X-Gm-Message-State: AOAM5332STOXABVtn8yxrZrGeH3MWfC+PR/mtJTdpFgVVSn+vORj2hYK
+        UYPFXCheGJmeTs3eHMGaXo8u/Q==
+X-Google-Smtp-Source: ABdhPJwTi7rTFUk/I2iEam2Reae+PhOpYVcJX2xASabdJn+lKdmLrBwmczED1vVi1f2ATPqORx5UTg==
+X-Received: by 2002:a7b:c7c3:0:b0:389:cbf1:fadf with SMTP id z3-20020a7bc7c3000000b00389cbf1fadfmr26141200wmk.147.1650887513507;
+        Mon, 25 Apr 2022 04:51:53 -0700 (PDT)
+Received: from 6wind.com ([2a01:e0a:5ac:6460:c065:401d:87eb:9b25])
+        by smtp.gmail.com with ESMTPSA id a16-20020a056000051000b00207b5d9f51fsm8796490wrf.41.2022.04.25.04.51.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Apr 2022 04:51:53 -0700 (PDT)
+Date:   Mon, 25 Apr 2022 13:51:52 +0200
+From:   Olivier Matz <olivier.matz@6wind.com>
+To:     netdev@vger.kernel.org
+Cc:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Antti Antinoja <antti@fennosys.fi>
-Subject: Re: [ovs-dev] [PATCH] openvswitch: Ensure nf_ct_put is not called
- with null pointer
-Message-ID: <YmaJlOS1YtPaq0EC@kroah.com>
-References: <20220409094036.20051-1-mark.mielke@gmail.com>
- <YlL6uN9WDPtFri0p@strlen.de>
- <590d44a1-ca27-c171-de87-fe57fc07dff5@ovn.org>
+        Paolo Abeni <pabeni@redhat.com>, intel-wired-lan@osuosl.org,
+        Paul Menzel <pmenzel@molgen.mpg.de>, stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Subject: Re: [PATCH net v2 0/2] ixgbe: fix promiscuous mode on VF
+Message-ID: <YmaLWN0aGIKCzkHP@platinum>
+References: <20220406095252.22338-1-olivier.matz@6wind.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <590d44a1-ca27-c171-de87-fe57fc07dff5@ovn.org>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20220406095252.22338-1-olivier.matz@6wind.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 25, 2022 at 12:36:54PM +0200, Ilya Maximets wrote:
-> On 4/10/22 17:41, Florian Westphal wrote:
-> > Mark Mielke <mark.mielke@gmail.com> wrote:
-> >> A recent commit replaced calls to nf_conntrack_put() with calls
-> >> to nf_ct_put(). nf_conntrack_put() permitted the caller to pass
-> >> null without side effects, while nf_ct_put() performs WARN_ON()
-> >> and proceeds to try and de-reference the pointer. ovs-vswitchd
-> >> triggers the warning on startup:
-> >>
-> >> [   22.178881] WARNING: CPU: 69 PID: 2157 at include/net/netfilter/nf_conntrack.h:176 __ovs_ct_lookup+0x4e2/0x6a0 [openvswitch]
-> >> ...
-> >> [   22.213573] Call Trace:
-> >> [   22.214318]  <TASK>
-> >> [   22.215064]  ovs_ct_execute+0x49c/0x7f0 [openvswitch]
-> >> ...
-> >> Cc: stable@vger.kernel.org
-> >> Fixes: 408bdcfce8df ("net: prefer nf_ct_put instead of nf_conntrack_put")
-> > 
-> > Actually, no.  As Pablo Neira just pointed out to me Upstream kernel is fine.
-> > The preceeding commit made nf_ct_out() a noop when ct is NULL.
-> 
-> Hi, Florian.
-> 
-> There is a problem on 5.15 longterm tree where the offending commit
-> got backported, but the previous one was not, so it triggers an issue
-> while loading the openvswitch module.
-> 
-> To be more clear, v5.15.35 contains the following commit:
->   408bdcfce8df ("net: prefer nf_ct_put instead of nf_conntrack_put")
-> backported as commit 72dd9e61fa319bc44020c2d365275fc8f6799bff, but
-> it doesn't have the previous one:
->   6ae7989c9af0 ("netfilter: conntrack: avoid useless indirection during conntrack destruction")
-> that adds the NULL pointer check to the nf_ct_put().
-> 
-> Either 6ae7989c9af0 should be backported to 5.15 or 72dd9e61fa31
-> reverted on that tree.
+Hi,
 
-I've backported the needed commit now, thanks.
+On Wed, Apr 06, 2022 at 11:52:50AM +0200, Olivier Matz wrote:
+> These 2 patches fix issues related to the promiscuous mode on VF.
+> 
+> Comments are welcome,
+> Olivier
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+> 
+> Changes since v1:
+> - resend with CC intel-wired-lan
+> - remove CC Hiroshi Shimamoto (address does not exist anymore)
+> 
+> Olivier Matz (2):
+>   ixgbe: fix bcast packets Rx on VF after promisc removal
+>   ixgbe: fix unexpected VLAN Rx in promisc mode on VF
+> 
+>  drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 
-greg k-h
+Any feedback about this patchset?
+Comments are welcome.
+
+Thanks,
+Olivier
