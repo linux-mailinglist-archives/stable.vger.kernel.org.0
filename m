@@ -2,131 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2387050DA1D
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 09:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B272C50DA4C
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 09:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231976AbiDYHdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 03:33:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54710 "EHLO
+        id S236399AbiDYHoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 03:44:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231650AbiDYHdT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 03:33:19 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF059BF47;
-        Mon, 25 Apr 2022 00:30:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1650871816; x=1682407816;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=v33AZ1EXAwq6WXUADhV0AAEUbQzxeq80/j/EQgk+qSk=;
-  b=GcLe6cA8Oz831plPs1tKGai0rsyJvaxL+HIzHF4pm9QbxwB0/5Ph1bfZ
-   hONxxu9hwQKzBUnT0nttmD5ToYxpvD4A4w8N0vsSnElYu4g2MFyl8HQuz
-   0F9zT6WCWGaLe3EeMDOrFtcuVBYOpMBbH4tUwe35qevbZT7diowiwsTC9
-   fqKuo0fln+m81N/eXOis7juto9TUTpZRcsngXAroNhAk1c94oJXuMipsG
-   KKoTYi5VfKlCusJwPWU9qOGBFVujF+M31WHTvT/y1oGstXFxy1Cmu9r/l
-   a/xq14s6yZjdCw+ir0Ol7J1G8ZBwoXwqMA0FutDH/hMh4+LFAr14bg729
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10327"; a="325656067"
-X-IronPort-AV: E=Sophos;i="5.90,287,1643702400"; 
-   d="scan'208";a="325656067"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2022 00:30:15 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,287,1643702400"; 
-   d="scan'208";a="531983853"
-Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
-  by orsmga006.jf.intel.com with ESMTP; 25 Apr 2022 00:30:12 -0700
-Date:   Mon, 25 Apr 2022 15:30:11 +0800
-From:   Feng Tang <feng.tang@intel.com>
-To:     Waiman Long <longman@redhat.com>
-Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>, cgroups@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Dave Hansen <dave.hansen@intel.com>, ying.huang@intel.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] cgroup/cpuset: Remove redundant cpu/node masks setup in
- cpuset_init_smp()
-Message-ID: <20220425073011.GJ46405@shbuild999.sh.intel.com>
-References: <20220425020926.1264611-1-longman@redhat.com>
+        with ESMTP id S230236AbiDYHoE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 03:44:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 621E43B290;
+        Mon, 25 Apr 2022 00:40:56 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51017B810AD;
+        Mon, 25 Apr 2022 07:40:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39F0AC385A4;
+        Mon, 25 Apr 2022 07:40:49 +0000 (UTC)
+Message-ID: <ee410d9d-25dc-3b87-08d2-c4c8e71575a3@linux-m68k.org>
+Date:   Mon, 25 Apr 2022 17:40:46 +1000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220425020926.1264611-1-longman@redhat.com>
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH] binfmt_flat: Remove shared library support
+Content-Language: en-US
+To:     Rob Landley <rob@landley.net>, Kees Cook <keescook@chromium.org>,
+        Rich Felker <dalias@libc.org>
+Cc:     Palmer Dabbelt <palmer@dabbelt.com>, ebiederm@xmission.com,
+        damien.lemoal@opensource.wdc.com, Niklas.Cassel@wdc.com,
+        viro@zeniv.linux.org.uk, Paul Walmsley <paul.walmsley@sifive.com>,
+        aou@eecs.berkeley.edu, vapier@gentoo.org, stable@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org,
+        geert@linux-m68k.org, linux-m68k@lists.linux-m68k.org,
+        linux-arm-kernel@lists.infradead.org, linux-sh@vger.kernel.org,
+        ysato@users.sourceforge.jp
+References: <87levzzts4.fsf_-_@email.froward.int.ebiederm.org>
+ <mhng-32cab6aa-87a3-4a5c-bf83-836c25432fdd@palmer-ri-x1c9>
+ <20220420165935.GA12207@brightrain.aerifal.cx>
+ <202204201044.ACFEB0C@keescook>
+ <ab454879-5506-fe7d-cd59-812a6bc9d193@landley.net>
+From:   Greg Ungerer <gerg@linux-m68k.org>
+In-Reply-To: <ab454879-5506-fe7d-cd59-812a6bc9d193@landley.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-8.5 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Waiman,
 
-Thanks for the patch!
-
-On Sun, Apr 24, 2022 at 10:09:26PM -0400, Waiman Long wrote:
-> There are 3 places where the cpu and node masks of the top cpuset can
-> be initialized in the order they are executed:
->  1) start_kernel -> cpuset_init()
->  2) start_kernel -> cgroup_init() -> cpuset_bind()
->  3) kernel_init_freeable() -> do_basic_setup() -> cpuset_init_smp()
+On 25/4/22 13:38, Rob Landley wrote:
+> On 4/20/22 12:47, Kees Cook wrote:
+>>> For what it's worth, bimfmt_flat (with or without shared library
+>>> support) should be simple to implement as a binfmt_misc handler if
+>>> anyone needs the old shared library support (or if kernel wanted to
+>>> drop it entirely, which I would be in favor of). That's how I handled
+>>> old aout binaries I wanted to run after aout was removed: trivial
+>>> binfmt_misc loader.
+>>
+>> Yeah, I was trying to understand why systems were using binfmt_flat and
+>> not binfmt_elf, given the mention of elf2flat -- is there really such a
+>> large kernel memory footprint savings to be had from removing
+>> binfmt_elf?
 > 
-> The first cpuset_init() function just sets all the bits in the masks.
-> The last one executed is cpuset_init_smp() which sets up cpu and node
-> masks suitable for v1, but not v2.  cpuset_bind() does the right setup
-> for both v1 and v2 assuming that effective_mems and effective_cpus have
-> been set up properly which is not strictly the case here. As a result,
-> cpu and memory node hot add may fail to update the cpu and node masks
-> of the top cpuset to include the newly added cpu or node in a cgroup
-> v2 environment.
-> 
-> To fix this problem, the redundant cpus_allowed and mems_allowed
-> mask setup in cpuset_init_smp() are removed. The effective_cpus and
-> effective_mems setup there are moved to cpuset_bind().
-> 
-> cc: stable@vger.kernel.org
-> Signed-off-by: Waiman Long <longman@redhat.com>
-> ---
->  kernel/cgroup/cpuset.c | 10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
-> 
-> diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-> index 9390bfd9f1cd..a2e15a43397e 100644
-> --- a/kernel/cgroup/cpuset.c
-> +++ b/kernel/cgroup/cpuset.c
-> @@ -2961,6 +2961,9 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
->  	percpu_down_write(&cpuset_rwsem);
->  	spin_lock_irq(&callback_lock);
->  
-> +	cpumask_copy(top_cpuset.effective_cpus, cpu_active_mask);
-> +	top_cpuset.effective_mems = node_states[N_MEMORY];
-> +
->  	if (is_in_v2_mode()) {
->  		cpumask_copy(top_cpuset.cpus_allowed, cpu_possible_mask);
->  		top_cpuset.mems_allowed = node_possible_map;
-> @@ -3390,13 +3393,6 @@ static struct notifier_block cpuset_track_online_nodes_nb = {
->   */
->  void __init cpuset_init_smp(void)
->  {
-> -	cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
-> -	top_cpuset.mems_allowed = node_states[N_MEMORY];
-> -	top_cpuset.old_mems_allowed = top_cpuset.mems_allowed;
-> -
-> -	cpumask_copy(top_cpuset.effective_cpus, cpu_active_mask);
-> -	top_cpuset.effective_mems = node_states[N_MEMORY];
+> elf2flat is a terrible name: it doesn't take an executable as input, it takes a
+> .o file as input. (I mean it's an elf format .o file, but... misleading.)
 
-IIUC, the init order is:
-	cpuset_bind()
-	smp_init()
-	cpuset_init_smp()
+No, not at all. "elf2flt" is exactly what it does. Couldn't get a
+more accurate name.
 
-while all cpus except boot cpu is brought up in smp_init(), so I'm
-thinking moving the cpus_allowed init from cpuset_init_smp() to
-cpuset_bind() may cause some problem.
 
-Thanks,
-Feng
+>> But regardless, yes, it seems like if you're doing anything remotely
+>> needing shared libraries with binfmt_flat, such a system could just use
+>> ELF instead.
+> 
+> A) The binfmt_elf.c loader won't run on nommu systems. The fdpic loader will,
+> and in theory can handle normal ELF binaries (it's ELF with _more_
+> capabilities), but sadly it's not supported on most architectures for reasons
+> that are unclear to me.
+
+Inertia. Flat format has been around a very long time.
+And for most people it just works. Flat format works on MMU systems
+as well, though you would have to be crazy to choose to do that.
+
+
+> B) You can't run conventional ELF on nommu, because everything is offset from 0
+> so PID 1 eats that address range and you can't run exec program.
+> 
+> You can run PIE binaries on nommu (the symbols offset from a base pointer which
+> can point anywhere), but they're inefficient (can't share text or rodata
+> sections between instances because every symbol is offset from a single shared
+> base pointer), and highly vulnerable to fragmentation (because it needs a
+> contiguous blob of memory for text, rodata, bss, and data: see single base
+> pointer everything has an integer offset from).
+> 
+> All fdpic really does is give you 4 base pointers, one for each section. That
+> way you can share text and rodata, and put bss and data into smaller independent
+> fragments of memory. Various security guys use this as super-aslr even on mmu
+> systems, but tend not to advertise that they're doing so. :)
+
+Well flat got half way there. You can have separate text/rodata and data/bss,
+used a lot back in the day for execute-in-place of the code.
+
+Regards
+Greg
+
+
