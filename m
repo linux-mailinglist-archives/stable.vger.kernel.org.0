@@ -2,74 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FE050DD65
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 11:58:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C42A50DDA3
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:10:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236248AbiDYKBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 06:01:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60780 "EHLO
+        id S237106AbiDYKNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 06:13:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234651AbiDYKBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:01:08 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160301C934
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 02:58:04 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id d15so11383218plh.2
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 02:58:04 -0700 (PDT)
+        with ESMTP id S241601AbiDYKNW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:13:22 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606ABBAE
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:10:19 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id i8so9008879ila.5
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:10:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=kdTSJmnbBK4N/virhew8A7fzQDKu0iWJnLEnGHSX4Dw=;
-        b=GFGaWn8bZPxLv/YnXpJQdteboZmnEBsoMAqSJMJuLG+THbJGuyTVpA7qY5+3L6G7uE
-         7N6f9hObhGIF/NVglXcaiiFK2j2lql9TnjTy/CygXbWwS7Atgpl2iSAX6m5qBF2fPaTg
-         DRYvuPVj199AXDFFHQS6XWT8soXvuVpEHTg6Pzdt9qa/9zYa9lHvqNUMsSXpq1KaqqPv
-         S/yss6TS9UOW0pQVM8pwdvv6JyziKhaj3Kzy0W24mwEjewqt53o5rqlssDuN5MNy75dK
-         d9khW6m4YdSu9A5fk4x0zE8K6VQEt0IhQ/KR0aTyToBHxudNQr4BDRR4znshv2XqAYUS
-         iWBg==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=s9IGPqOTuFEFxKMxMPq1P/MfyJrhGXNasZNiCUUGkGw=;
+        b=oATFQgcTpIhi2bU7Nc12kTsyAaCUjP8cTLyIy+H8gUTSGWuJhYQUBAd/Gyb8woyQBj
+         NSRbGY+S/DQpwyng+lZRZPmHZo34ijJP4qw0K40SKye7sY6ZLVWV9CLaIWsUXUGRsVth
+         dlCItRpXw+Zkaz/34T5h7Y6WSw3RGyHwHWPTsGf3pQCES4zB2h/L3UpTrGdVkpZPzO3j
+         IyVI8t4+Cf8kDIV3/jQDNmn3OGPWqmCYXes+s1ZiPet4VFdxi09SYZVWLGVDjKk9YhtA
+         Pg+KqFIQfKjseUSidhW+J6A2SwJmGhn1lAEaCHj30pIXV1OuqHgNJ4NT0h+3r2xZknW5
+         mDIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=kdTSJmnbBK4N/virhew8A7fzQDKu0iWJnLEnGHSX4Dw=;
-        b=F+0iUrMzn4MssFS4nmxA4AAltpxtTiZj6wxHvi7Q1QO/lbfSJw1WUIvZCqTr7wEMo1
-         tGzstRil/fzNCnNmK2TDnd6OspIDDYROOHnEztCYDm55avEE93cPwRcGMkss1X1F8u2Z
-         r4nfJleS6giDVZ0fyL3mHx9c2QrK0AEwSjEtI1olcNNwRG3V/qQQwufSFQJWla/pRINj
-         fNsx39dpa7kRWEs4ehk+SD8V5pejciLaymnj98KaE/vx+Z+XoGBNNY45E/IoC0EHM+P5
-         R+u59HLepHCSGZ3gj8e3eibmaKq7NjFt6+E/83Qc6jZQ0xB6CoRzeO16ud+AkBUxQXz4
-         hvkQ==
-X-Gm-Message-State: AOAM531qmkk5Ti+fHL+JXDiXnKZ7QIM1z8S9gs8Ry3X6DLQF8fUc5bUU
-        PHglq2rsjgeGeLZrX+6v+EgIpSTrEaPHDiAG1Sw=
-X-Google-Smtp-Source: ABdhPJwbj1GK17j9tqShcsNjqCRru+WytGVdjjYvzoTay/FGQ6HboNSMHCbB4RjWArhWaHtrGkllj5OeKc5Tfi2kW+M=
-X-Received: by 2002:a17:902:b10e:b0:156:1bf8:bf26 with SMTP id
- q14-20020a170902b10e00b001561bf8bf26mr17324669plr.8.1650880683413; Mon, 25
- Apr 2022 02:58:03 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=s9IGPqOTuFEFxKMxMPq1P/MfyJrhGXNasZNiCUUGkGw=;
+        b=efmhaXlSXB7aNLyOwXhtaedHwZeQj2+KUi5jOnZEeCjGqVoZ9acvTr2Y0jzdGMr5Px
+         WJhmb9txgflWcqq/imoN0UpjelSCIV1Vp6CsjioE5qFZQm9lGNPplYJDnkqEItfETXbB
+         2VJ150YPD7OwMPKFGrjjD/OuC5HpiILH5scTVDyTdScTJV+Sl3Cle5wuWeoKXuZp2f9w
+         uSVlNV/xoAubLVdP3aVPEgXR7ulUDlZrmHOKpkzQZbaJNJ+l1SjYADfZarkx3m5Iemuv
+         nt0o6FxqEd9WrmuodqoidU7EQN9C+P5NeDcdVeDbKskzjsxdBm7OdjeiYWVHao5181iw
+         iYOg==
+X-Gm-Message-State: AOAM5309cBdzYzJLLYOCUtI5ni8hsV7H4EW+q+nBcj5UZ2Sd4yzsflOh
+        vlHSZ1dB42VTtgX/QozzDi30CKx8ycFbFrWjBAU=
+X-Google-Smtp-Source: ABdhPJx1ul5vtDOEV1lMrRVnEH880vBTJOgxzYZ4QUn5Y5stCSX0K8FQ1H4+tECIwm1coHrTBM9B2ddy4ZaAA6JYPj0=
+X-Received: by 2002:a92:d01:0:b0:2c5:daa4:77e0 with SMTP id
+ 1-20020a920d01000000b002c5daa477e0mr6743582iln.154.1650881418762; Mon, 25 Apr
+ 2022 03:10:18 -0700 (PDT)
 MIME-Version: 1.0
-Sender: wellside347@gmail.com
-Received: by 2002:a17:522:41c8:b0:442:10e2:526e with HTTP; Mon, 25 Apr 2022
- 02:58:02 -0700 (PDT)
-From:   Lisa Williams <lw4666555@gmail.com>
-Date:   Mon, 25 Apr 2022 10:58:02 +0100
-X-Google-Sender-Auth: -aKiqtGKZliZ6cRZgrI8m-8AYM0
-Message-ID: <CACHpVn=6gA6CvT4DHEpy=PH4Siff6pRGW7xEyxGKiECOZbJ0gw@mail.gmail.com>
-Subject: Hi Dear
+Received: by 2002:a4f:cf93:0:0:0:0:0 with HTTP; Mon, 25 Apr 2022 03:10:18
+ -0700 (PDT)
+Reply-To: lawrencetansanco.y@gmail.com
+From:   Lawrence Tansanco <lt01102204@gmail.com>
+Date:   Mon, 25 Apr 2022 10:10:18 +0000
+Message-ID: <CAFdNJhhqtq0OQpvqa6-SLOYCFEbA4hDGY1hrKk5oidY6wQCahQ@mail.gmail.com>
+Subject: THANKS FOR YOUR RESPONSE AND GOD BLESS
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+X-Spam-Status: Yes, score=5.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,SUBJ_ALL_CAPS,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:143 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4260]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [lt01102204[at]gmail.com]
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [lt01102204[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hi Dear
+.
+I will like to disclose something very important to you,
+get back for more details please.
 
-My name is Lisa Williams, I am from United States of America, Its my
-pleasure to contact you for new and special friendship, I will be glad to
-see your reply for us to know each other better
-
-Yours
-Lisa
+Regards.
+Mr Lawrence Tansanco Y.
