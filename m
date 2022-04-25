@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59CD250DDF5
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF9C250DDF9
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233915AbiDYKgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 06:36:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60354 "EHLO
+        id S235639AbiDYKgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 06:36:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237717AbiDYKgB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:36:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B944DF16
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:32:55 -0700 (PDT)
+        with ESMTP id S234017AbiDYKgR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:36:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DF621BB
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:32:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5F7160F0C
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92CE1C385A7;
-        Mon, 25 Apr 2022 10:32:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9B2860F22
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:32:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0883C385A4;
+        Mon, 25 Apr 2022 10:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650882774;
-        bh=g7PsMoWBlvjE6kOA+Pm1PRKZt71XK4IJCFADOaa4ec8=;
+        s=korg; t=1650882777;
+        bh=uDNPJKbufVJCFr6DhcbBU3nBTWlo5hBd6ImuZ1tIFos=;
         h=Subject:To:Cc:From:Date:From;
-        b=EkTZp+AxzvAqMDlFMZREqNo6X4KG+/VZ7mm217WNHjcauvPNkAboh6/iiPkAWPoke
-         IDXUZs/Ct0ZifzEBYZyjJsOjTjk44YtjvRMPfJyomixbGIH9IOnT3e7182GI2AKEzA
-         OVJNDrInftLZptsFv3T2s0YtiXavUp7Y8Hxy7KLQ=
-Subject: FAILED: patch "[PATCH] xtensa: fix a7 clobbering in coprocessor context load/store" failed to apply to 4.14-stable tree
+        b=EX7GJhTWdyJbn2fy9nTuNvR0w9BY8+m6wGCGoTGiMe/j+3MhqgGFx7EiypupxSlt3
+         po7g4RUPMQuln2i1rGXwe8hUsRkm43BbK/+lGFU9wSeuzUBd5QVaSSYi9ZcRQAek+N
+         08SK2fbhvnx8ftksJMamUubc3RaOUSzkTG1OtUng=
+Subject: FAILED: patch "[PATCH] xtensa: fix a7 clobbering in coprocessor context load/store" failed to apply to 4.9-stable tree
 To:     jcmvbkbc@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 25 Apr 2022 12:32:49 +0200
-Message-ID: <1650882769255173@kroah.com>
+Date:   Mon, 25 Apr 2022 12:32:51 +0200
+Message-ID: <165088277168138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
