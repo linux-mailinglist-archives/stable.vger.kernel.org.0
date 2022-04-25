@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F6650E977
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 21:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA33A50E978
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 21:27:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236732AbiDYTau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 15:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39568 "EHLO
+        id S244452AbiDYTaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 15:30:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230214AbiDYTau (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 15:30:50 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AE53C8BCC
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 12:27:44 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-2f7ddeb73c1so35169387b3.5
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 12:27:44 -0700 (PDT)
+        with ESMTP id S230214AbiDYTaw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 15:30:52 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E02810771F
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 12:27:47 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id a17-20020a258051000000b00648703d0c56so2825007ybn.22
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 12:27:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=a/9N3Y9cDKd6QNX3QzIWpLrmjV0Ybp/QO5qtJbsALzg=;
-        b=e/xt2N5vy1AYBV9C7fnefmGMLKqP4KTCpNIyazSBH2/SMa3z0u0iKZj+sBspOv5Hck
-         0pz4OMGHkohoUNH2OS3wS0eObz9IemBiAPjJx/c/KFoVmTGrc/d4VkcBGTLV/f6ZC7wZ
-         NUD+vZ3IqBhhsG8R3BpnJF6Z9qU76QFUVZD4Asnby5ySHgT5edkCyk8y7ED8jxTsXRNQ
-         9/z905ACLR8w3g9nk1tjsN2MmEDWv22+tUlDwYjPPvPKFG1WhcaFcS4KAJJ/OgxxJtHM
-         Qzjrqvwa9SGwFA2cyqw0DZciXvtXHttqliTm8BZMItfmNg4RC2MXLKcf/1ZhelTg0S92
-         BBPA==
+        bh=PodgmYzgZq42kh2uQlZntrqzAr16BDXeqiF59lBx694=;
+        b=lCqu9tNh9HkB9iPwGvTpjtlsubOhvrzblStAonbuqO6lFMQLIvRmYQXm/fD727PN4o
+         lqAvteiSOOJiXP2YNGIANQ1EcHYqTSsNEHAA+PslsAhtToAPvdUs66BvokAl0dbStX8i
+         lSCkh9gkByTZPOaRDCUzsONb4KFCBKzJwprHYnvUfDwkiLqkH/ZlkYjxzNihXQjxyPiv
+         ZRHy4bSlDyb8uLH8T0rZnBq4/0Kls28FE455R8OUgEvN631RAK3SN6QRT0IkBe4i1Qgq
+         igxQQwazID3xDnVdNWfKNBdw0pg9fXiTBK+hyfIOFHCV4PjNhKz7vFO1LD4kHnVzOxVl
+         v3sA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=a/9N3Y9cDKd6QNX3QzIWpLrmjV0Ybp/QO5qtJbsALzg=;
-        b=TNhymf5hOMRYnXX1UlEPPMXVuJvVmnQsW0iKHYwEKHJ7r9ARgEOvCBuAwY+V+xYWNg
-         6v23UOpQQGWob1SBw7RjtOaVURcRSJcP1asHLd5CtOftkM3HsCezFWNBnbMDvGtUIkSS
-         seBKNLNswhM0ZA9cHHcHmol0e8AE9nbPbzW0NkdnJdm2Z7+AwASJH9G0+NrDClB9gRi6
-         xyQWdbnMKT3HHyHCxQ07NUdsUyISP/IJq85aDy2FsT/lyCfnnOx5lqTcVbC/LG8Hz5tV
-         ebGXK9qQkZhhgB1fOcy0/8tOPw1waG9BEnt/7wnGj9vQgiHxK6PSGL8fUB5W/fTC38Q1
-         y+hg==
-X-Gm-Message-State: AOAM531W8e+dvNCazgkf6xpp5fF1Gh4DcH+IBSgw5ghRxG3NOTXLwA1O
-        2B0DCRGDN7JS1N31XGYIKUqe0GfoqnMgFSvsqsYi33r1s0e4IXtdPfhq0CMwe/NRkC+d5yuIIU5
-        I0wniK9AizuWeSi90UBdcKDdKOeSldtT6oP3SE7pLG5TxMpAgWrckap5c7Auh7w==
-X-Google-Smtp-Source: ABdhPJyl+AbBgN8xwDewp1+9uU5DmwVacVt1CsluREKWvOXmrPBSs9Wz5XGnK1l2a5oe1CH7HI9OCRaCKYI=
+        bh=PodgmYzgZq42kh2uQlZntrqzAr16BDXeqiF59lBx694=;
+        b=KFmmHQDcXjq0evZcq0yDaoBKmtLygpapHbEjUHKaTP28xUPSAXnBS+15xBnZUH52qW
+         TXp2IGAu0GfMgNVr42kUK2LzaBNWWEqyKafuM1372L/92u3+otQ5Ta+2LDPfEWaRsOLs
+         W3nlh70PlUR7c0ko/ikdB74d1D3rowdwpaS4+6yfBE/wsWOaEa52cep2xBcPVUKqTLRe
+         K8JzUU2NpMa4tqS3LlgG3f4VdgvepXSovx0LptT6PocFWTBzhpb3vNad8FqAD6oopQG6
+         RGz0RmaOVoipKghJ9qppHlINqtRijZHQXHqgS22Dr1Yr79oeW19Ou1xO7k5fuxK4Hkwf
+         NcpA==
+X-Gm-Message-State: AOAM533SfE/gsJDyiicMCTRcJptoXGrKyDbvKpxUftR6/W3wXOJrzcGT
+        31c4DSKUV9YWHMydmH9Rsef+8Q256rgwLnUPMYqPE7lwlkCO73IqgfM0k7IxrVtqLtg8icWU5wL
+        qvl0Pef/kMchu8dBvoy2yDxdxN79QMfd+S5V2meVTJcRvdN7dKW1Napuxj35kgA==
+X-Google-Smtp-Source: ABdhPJyK4tt9EdSK/BNHeH4Q+jnWgNokawLCZajdf8UGUXUUnAMMgAaAaB1Pca6gKtJXunK7jDk5vEcpAJo=
 X-Received: from khazhy-linux.svl.corp.google.com ([2620:15c:2cd:202:fbbd:1726:b5e8:e81b])
- (user=khazhy job=sendgmr) by 2002:a81:9b45:0:b0:2f7:ca2b:b5f with SMTP id
- s66-20020a819b45000000b002f7ca2b0b5fmr11684205ywg.337.1650914863825; Mon, 25
- Apr 2022 12:27:43 -0700 (PDT)
-Date:   Mon, 25 Apr 2022 12:27:39 -0700
-In-Reply-To: <20220419191239.588421-1-khazhy@google.com>
-Message-Id: <20220425192740.171756-1-khazhy@google.com>
+ (user=khazhy job=sendgmr) by 2002:a81:ff06:0:b0:2e6:d7bc:c812 with SMTP id
+ k6-20020a81ff06000000b002e6d7bcc812mr18031765ywn.122.1650914866687; Mon, 25
+ Apr 2022 12:27:46 -0700 (PDT)
+Date:   Mon, 25 Apr 2022 12:27:40 -0700
+In-Reply-To: <20220425192740.171756-1-khazhy@google.com>
+Message-Id: <20220425192740.171756-2-khazhy@google.com>
 Mime-Version: 1.0
-References: <20220419191239.588421-1-khazhy@google.com>
+References: <20220419191239.588421-1-khazhy@google.com> <20220425192740.171756-1-khazhy@google.com>
 X-Mailer: git-send-email 2.36.0.rc2.479.g8af0fa9b8e-goog
-Subject: [PATCH v5.10] block/compat_ioctl: fix range check in BLKGETSIZE
+Subject: [PATCH v5.15] block/compat_ioctl: fix range check in BLKGETSIZE
 From:   Khazhismel Kumykov <khazhy@google.com>
 To:     stable@vger.kernel.org
 Cc:     Khazhismel Kumykov <khazhy@google.com>,
@@ -88,11 +88,11 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/block/ioctl.c b/block/ioctl.c
-index ed240e170e14..e7eed7dadb5c 100644
+index a31be7fa31a5..cd506a902963 100644
 --- a/block/ioctl.c
 +++ b/block/ioctl.c
-@@ -679,7 +679,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
- 			       (bdev->bd_bdi->ra_pages * PAGE_SIZE) / 512);
+@@ -645,7 +645,7 @@ long compat_blkdev_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 			(bdev->bd_disk->bdi->ra_pages * PAGE_SIZE) / 512);
  	case BLKGETSIZE:
  		size = i_size_read(bdev->bd_inode);
 -		if ((size >> 9) > ~0UL)
