@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B28B450DDFD
+	by mail.lfdr.de (Postfix) with ESMTP id F2C3150DDFE
 	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 12:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241621AbiDYKiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 06:38:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35774 "EHLO
+        id S236344AbiDYKh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 06:37:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239269AbiDYKhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:37:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B4F615FF4
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:34:28 -0700 (PDT)
+        with ESMTP id S241572AbiDYKhV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 06:37:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2EE1E0
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 03:34:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7145760C40
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:34:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D17FC385A7;
-        Mon, 25 Apr 2022 10:34:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABB6D60EB3
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 10:34:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0251C385A4;
+        Mon, 25 Apr 2022 10:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650882867;
-        bh=oJG+7Rw/D8We2e+sTDL9925PWHUNiC5IHuUIgh7Ci3A=;
+        s=korg; t=1650882854;
+        bh=4O5v3PnqoZw8uTTdH3S4v6HYAF4teWOSJLLVU7WTFUY=;
         h=Subject:To:Cc:From:Date:From;
-        b=wRQDTucp7mrQ0Preqjm9XN9oLNW10pYCRZykQiq3f2cAkGCzNrAdHoOe0tTpG7CGR
-         LOR//8/xVkvh/N9sHqPy3SUCe8MHreCbWd58Jkt7uGqTfixV4Ecos6Cd4MIACaGK5E
-         LEAW6zfnv+HGXcb4AGWeNpYcwzOrMC7Xm9/hdn7Q=
-Subject: FAILED: patch "[PATCH] ASoC: rt5682: fix an incorrect NULL check on list iterator" failed to apply to 5.10-stable tree
+        b=v/FYAHollCh6oSRyQ2ySlK9hnojamBuHlN57ZYe0dNXptQnFpMpYQAIF5OEcp/x6A
+         1vPZ5MG0HskNPFUMYP2LVqc6WuqkvmfVXfdvbTE8roVQebvryQDuPrGvtclOv+yTW9
+         A30oZpz+BIcYMX46TpTGMyF2lviJc8vuoliUDl/0=
+Subject: FAILED: patch "[PATCH] ASoC: rt5682: fix an incorrect NULL check on list iterator" failed to apply to 5.15-stable tree
 To:     xiam0nd.tong@gmail.com, broonie@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 25 Apr 2022 12:34:11 +0200
-Message-ID: <16508828512471@kroah.com>
+Message-ID: <165088285114650@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
