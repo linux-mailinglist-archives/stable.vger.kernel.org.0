@@ -2,158 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A59B50D6A6
-	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 03:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6151850D6DF
+	for <lists+stable@lfdr.de>; Mon, 25 Apr 2022 04:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240191AbiDYBks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 24 Apr 2022 21:40:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48704 "EHLO
+        id S234055AbiDYCNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 24 Apr 2022 22:13:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237647AbiDYBko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 21:40:44 -0400
-Received: from zju.edu.cn (mail.zju.edu.cn [61.164.42.155])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 729D55FA8
-        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 18:37:40 -0700 (PDT)
-Received: from ubuntu.localdomain (unknown [10.15.192.164])
-        by mail-app4 (Coremail) with SMTP id cS_KCgCXDaVd+2ViqYC9AQ--.20151S2;
-        Mon, 25 Apr 2022 09:37:36 +0800 (CST)
-From:   Duoming Zhou <duoming@zju.edu.cn>
-To:     linma@zju.edu.cn
-Cc:     Duoming Zhou <duoming@zju.edu.cn>, stable@vger.kernel.org
-Subject: [PATCH] drivers: nfc: nfcmrvl: fix bugs caused by fw_dnld_over in nfcmrvl driver
-Date:   Mon, 25 Apr 2022 09:37:32 +0800
-Message-Id: <20220425013732.41836-1-duoming@zju.edu.cn>
-X-Mailer: git-send-email 2.17.1
-X-CM-TRANSID: cS_KCgCXDaVd+2ViqYC9AQ--.20151S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxGw4xXw48ZFW7Ww4xCF4rXwb_yoWrGrWUpF
-        45KFy5CF1DKF4FqFs8tF4DtFyruFZ3GFy5Cryxtr93Zws0yF4vyw1qy3y5ZrsrZryUJayY
-        k3W3A34DGa1vyFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUk21xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
-        w4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
-        IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVWxJr0_GcWl84ACjcxK6I8E
-        87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_GcCE3s1le2I262IYc4CY6c
-        8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_
-        Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
-        xGrwACjI8F5VA0II8E6IAqYI8I648v4I1l42xK82IYc2Ij64vIr41l42xK82IY6x8ErcxF
-        aVAv8VW8uw4UJr1UMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr
-        4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUXVWUAwCIc40Y0x0EwIxG
-        rwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8Jw
-        CI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2
-        z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjfUoOJ5UUUUU
-X-CM-SenderInfo: qssqjiasttq6lmxovvfxof0/1tbiAgEKAVZdtZYdogAis9
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S240346AbiDYCN1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 24 Apr 2022 22:13:27 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A3C9F10E4
+        for <stable@vger.kernel.org>; Sun, 24 Apr 2022 19:10:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1650852608;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=IWt3Bi21zseUs/ls2Wi4USmCY2Ri5eVFWeb4jdyhkTo=;
+        b=X5fNKqaAsmE182DHL6wtJG1+pbctajgbeQ/kRDGbFoznzE0oLAEMvmR0fddeMSD1hAlbeu
+        7LLlcJNqemyfEl3SMLGVhnRb3MIxt9+8yTgc49KwAClg4Scp7QZetvById45TjePwEsOZN
+        j9oaso1YSSXxD7nAuuk95XnTjGh318U=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-578-3p3NdwLTNfuzW-O3zKYrLw-1; Sun, 24 Apr 2022 22:10:01 -0400
+X-MC-Unique: 3p3NdwLTNfuzW-O3zKYrLw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B8C44811E75;
+        Mon, 25 Apr 2022 02:09:55 +0000 (UTC)
+Received: from llong.com (unknown [10.22.8.132])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id EA0122026D6A;
+        Mon, 25 Apr 2022 02:09:50 +0000 (UTC)
+From:   Waiman Long <longman@redhat.com>
+To:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>
+Cc:     cgroups@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, Feng Tang <feng.tang@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Dave Hansen <dave.hansen@intel.com>, ying.huang@intel.com,
+        Waiman Long <longman@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH] cgroup/cpuset: Remove redundant cpu/node masks setup in cpuset_init_smp()
+Date:   Sun, 24 Apr 2022 22:09:26 -0400
+Message-Id: <20220425020926.1264611-1-longman@redhat.com>
+MIME-Version: 1.0
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The fw_dnld_over() is a reentrant function in nfcmrvl driver, it
-could be called by nfcmrvl_fw_dnld_start(), nfcmrvl_nci_recv_frame()
-and nfcmrvl_nci_unregister_dev() without synchronization. As a result,
-the firmware struct could be deallocated more than once, which leads to
-double-free or invalid-free bugs.
+There are 3 places where the cpu and node masks of the top cpuset can
+be initialized in the order they are executed:
+ 1) start_kernel -> cpuset_init()
+ 2) start_kernel -> cgroup_init() -> cpuset_bind()
+ 3) kernel_init_freeable() -> do_basic_setup() -> cpuset_init_smp()
 
-The first situation that causes bug is shown below:
+The first cpuset_init() function just sets all the bits in the masks.
+The last one executed is cpuset_init_smp() which sets up cpu and node
+masks suitable for v1, but not v2.  cpuset_bind() does the right setup
+for both v1 and v2 assuming that effective_mems and effective_cpus have
+been set up properly which is not strictly the case here. As a result,
+cpu and memory node hot add may fail to update the cpu and node masks
+of the top cpuset to include the newly added cpu or node in a cgroup
+v2 environment.
 
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |  nfcmrvl_nci_unregister_dev
- release_firmware()           |   nfcmrvl_fw_dnld_abort
-  kfree(fw) //(1)             |    fw_dnld_over
-                              |     release_firmware
-  ...                         |      kfree(fw) //(2)
-                              |     ...
+To fix this problem, the redundant cpus_allowed and mems_allowed
+mask setup in cpuset_init_smp() are removed. The effective_cpus and
+effective_mems setup there are moved to cpuset_bind().
 
-The second situation that causes bug is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |
- mod_timer                    |
- (wait a time)                |
- fw_dnld_timeout              |  nfcmrvl_nci_unregister_dev
-   fw_dnld_over               |   nfcmrvl_fw_dnld_abort
-    release_firmware          |    fw_dnld_over
-     kfree(fw) //(1)          |     release_firmware
-     ...                      |      kfree(fw) //(2)
-
-The third situation that causes bug is shown below:
-
-       (Thread 1)               |       (Thread 2)
-nfcmrvl_nci_recv_frame          |
- if(..->fw_download_in_progress)|
-  nfcmrvl_fw_dnld_recv_frame    |
-   queue_work                   |
-                                |
-fw_dnld_rx_work                 | nfcmrvl_nci_unregister_dev
- fw_dnld_over                   |  nfcmrvl_fw_dnld_abort
-  release_firmware              |   fw_dnld_over
-   kfree(fw) //(1)              |    release_firmware
-                                |     kfree(fw) //(2)
-
-The firmware struct is deallocated in position (1) and deallocated
-in position (2) again.
-
-The crash trace triggered by POC is like below:
-
-[  122.640457] BUG: KASAN: double-free or invalid-free in fw_dnld_over+0x28/0xf0
-[  122.640457] Call Trace:
-[  122.640457]  <TASK>
-[  122.640457]  kfree+0xb0/0x330
-[  122.640457]  fw_dnld_over+0x28/0xf0
-[  122.640457]  nfcmrvl_nci_unregister_dev+0x61/0x70
-[  122.640457]  nci_uart_tty_close+0x87/0xd0
-[  122.640457]  tty_ldisc_kill+0x3e/0x80
-[  122.640457]  tty_ldisc_hangup+0x1b2/0x2c0
-[  122.640457]  __tty_hangup.part.0+0x316/0x520
-[  122.640457]  tty_release+0x200/0x670
-[  122.640457]  __fput+0x110/0x410
-[  122.640457]  task_work_run+0x86/0xd0
-[  122.640457]  exit_to_user_mode_prepare+0x1aa/0x1b0
-[  122.640457]  syscall_exit_to_user_mode+0x19/0x50
-[  122.640457]  do_syscall_64+0x48/0x90
-[  122.640457]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  122.640457] RIP: 0033:0x7f68433f6beb
-
-What's more, there are also use-after-free and null-ptr-deref bugs
-in nfcmrvl_fw_dnld_start(). If we deallocate firmware struct or
-set null to the members of priv->fw_dnld in fw_dnld_over(), then,
-we dereference firmware or the members of priv->fw_dnld in
-nfcmrvl_fw_dnld_start(), the UAF or NPD bugs will happen.
-
-This patch reorders nfcmrvl_fw_dnld_abort() after nci_unregister_device()
-to avoid the double-free, UAF and NPD bugs, as nci_unregister_device()
-is well synchronized and won't return if there is a running routine.
-
-Fixes: 3194c6870158 ("NFC: nfcmrvl: add firmware download support")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Cc: stable@vger.kernel.org
+cc: stable@vger.kernel.org
+Signed-off-by: Waiman Long <longman@redhat.com>
 ---
- drivers/nfc/nfcmrvl/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cpuset.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/nfc/nfcmrvl/main.c b/drivers/nfc/nfcmrvl/main.c
-index 2fcf545012b..1a5284de434 100644
---- a/drivers/nfc/nfcmrvl/main.c
-+++ b/drivers/nfc/nfcmrvl/main.c
-@@ -183,6 +183,7 @@ void nfcmrvl_nci_unregister_dev(struct nfcmrvl_private *priv)
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 9390bfd9f1cd..a2e15a43397e 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -2961,6 +2961,9 @@ static void cpuset_bind(struct cgroup_subsys_state *root_css)
+ 	percpu_down_write(&cpuset_rwsem);
+ 	spin_lock_irq(&callback_lock);
+ 
++	cpumask_copy(top_cpuset.effective_cpus, cpu_active_mask);
++	top_cpuset.effective_mems = node_states[N_MEMORY];
++
+ 	if (is_in_v2_mode()) {
+ 		cpumask_copy(top_cpuset.cpus_allowed, cpu_possible_mask);
+ 		top_cpuset.mems_allowed = node_possible_map;
+@@ -3390,13 +3393,6 @@ static struct notifier_block cpuset_track_online_nodes_nb = {
+  */
+ void __init cpuset_init_smp(void)
  {
- 	struct nci_dev *ndev = priv->ndev;
+-	cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
+-	top_cpuset.mems_allowed = node_states[N_MEMORY];
+-	top_cpuset.old_mems_allowed = top_cpuset.mems_allowed;
+-
+-	cpumask_copy(top_cpuset.effective_cpus, cpu_active_mask);
+-	top_cpuset.effective_mems = node_states[N_MEMORY];
+-
+ 	register_hotmemory_notifier(&cpuset_track_online_nodes_nb);
  
-+	nci_unregister_device(ndev);
- 	if (priv->ndev->nfc_dev->fw_download_in_progress)
- 		nfcmrvl_fw_dnld_abort(priv);
- 
-@@ -191,7 +192,6 @@ void nfcmrvl_nci_unregister_dev(struct nfcmrvl_private *priv)
- 	if (gpio_is_valid(priv->config.reset_n_io))
- 		gpio_free(priv->config.reset_n_io);
- 
--	nci_unregister_device(ndev);
- 	nci_free_device(ndev);
- 	kfree(priv);
- }
+ 	cpuset_migrate_mm_wq = alloc_ordered_workqueue("cpuset_migrate_mm", 0);
 -- 
-2.17.1
+2.27.0
 
