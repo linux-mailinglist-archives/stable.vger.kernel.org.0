@@ -2,112 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F96A50F4D3
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D894850F49E
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345359AbiDZIkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59194 "EHLO
+        id S1345121AbiDZIgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345440AbiDZIjH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:07 -0400
+        with ESMTP id S1345463AbiDZIei (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4242B1387F4;
-        Tue, 26 Apr 2022 01:29:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB90C762BC;
+        Tue, 26 Apr 2022 01:27:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C43276185A;
-        Tue, 26 Apr 2022 08:29:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21EECC385A4;
-        Tue, 26 Apr 2022 08:29:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08D31617AE;
+        Tue, 26 Apr 2022 08:27:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1591EC385A4;
+        Tue, 26 Apr 2022 08:27:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961786;
-        bh=MD2a3mTLCRYlsfqyW71MashvvoF42g9X7TNWmf2UenA=;
+        s=korg; t=1650961645;
+        bh=yx8av04Y5xxLJJnNv+WtjSdUDUvPluHDdTSScXGxX4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZl4qppQo68r3wXX0caOgVJ7J5vWgA4Sjqm0MdXtK8n4yHsp+rlbA4H9R/cNWhsN0
-         DFE/zOWReaIhV8ck5czauTNk3NuMw99Sq1d0GHjHMCzYznLe9jaFZztDfR9kon/giN
-         UVegGSwooTtbDMnj8NvuCen1SVOXNFcrlzaNg0Gk=
+        b=DpQErN2DhSeYA6wcJ6KvCvBZiR4SFgjy2gLUn22zwV+uxYOrKeMEZe8tYxrXQaNlk
+         Exow5PpkFamT+kX0LtN18+LxRzUwjGhTeydH1t+akvvmyKYIELgPUFCjtScfJrVNF9
+         zCD158MiESEYvgRJZx2lDUsjwLe99ITPRR1NMNcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Felix Fietkau <nbd@nbd.name>,
-        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Shayne Chen <shayne.chen@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/62] mt76: Fix undefined behavior due to shift overflowing the constant
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 4.19 29/53] ata: pata_marvell: Check the bmdma_addr beforing reading
 Date:   Tue, 26 Apr 2022 10:21:09 +0200
-Message-Id: <20220426081738.061478684@linuxfoundation.org>
+Message-Id: <20220426081736.502980807@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit dbc2b1764734857d68425468ffa8486e97ab89df ]
+commit aafa9f958342db36c17ac2a7f1b841032c96feb4 upstream.
 
-Fix:
+Before detecting the cable type on the dma bar, the driver should check
+whether the 'bmdma_addr' is zero, which means the adapter does not
+support DMA, otherwise we will get the following error:
 
-  drivers/net/wireless/mediatek/mt76/mt76x2/pci.c: In function ‘mt76x2e_probe’:
-  ././include/linux/compiler_types.h:352:38: error: call to ‘__compiletime_assert_946’ \
-	declared with attribute error: FIELD_PREP: mask is not constant
-    _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+[    5.146634] Bad IO access at port 0x1 (return inb(port))
+[    5.147206] WARNING: CPU: 2 PID: 303 at lib/iomap.c:44 ioread8+0x4a/0x60
+[    5.150856] RIP: 0010:ioread8+0x4a/0x60
+[    5.160238] Call Trace:
+[    5.160470]  <TASK>
+[    5.160674]  marvell_cable_detect+0x6e/0xc0 [pata_marvell]
+[    5.161728]  ata_eh_recover+0x3520/0x6cc0
+[    5.168075]  ata_do_eh+0x49/0x3c0
 
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Felix Fietkau <nbd@nbd.name>
-Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
-Cc: Ryder Lee <ryder.lee@mediatek.com>
-Cc: Shayne Chen <shayne.chen@mediatek.com>
-Cc: Sean Wang <sean.wang@mediatek.com>
-Cc: Kalle Valo <kvalo@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: linux-wireless@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220405151517.29753-9-bp@alien8.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76x2/pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/pata_marvell.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x2/pci.c b/drivers/net/wireless/mediatek/mt76/mt76x2/pci.c
-index cf611d1b817c..e6d7646a0d9c 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x2/pci.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x2/pci.c
-@@ -76,7 +76,7 @@ mt76pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	mt76_rmw_field(dev, 0x15a10, 0x1f << 16, 0x9);
- 
- 	/* RG_SSUSB_G1_CDR_BIC_LTR = 0xf */
--	mt76_rmw_field(dev, 0x15a0c, 0xf << 28, 0xf);
-+	mt76_rmw_field(dev, 0x15a0c, 0xfU << 28, 0xf);
- 
- 	/* RG_SSUSB_CDR_BR_PE1D = 0x3 */
- 	mt76_rmw_field(dev, 0x15c58, 0x3 << 6, 0x3);
--- 
-2.35.1
-
+--- a/drivers/ata/pata_marvell.c
++++ b/drivers/ata/pata_marvell.c
+@@ -82,6 +82,8 @@ static int marvell_cable_detect(struct a
+ 	switch(ap->port_no)
+ 	{
+ 	case 0:
++		if (!ap->ioaddr.bmdma_addr)
++			return ATA_CBL_PATA_UNK;
+ 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
+ 			return ATA_CBL_PATA40;
+ 		return ATA_CBL_PATA80;
 
 
