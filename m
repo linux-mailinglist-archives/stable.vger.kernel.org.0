@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B20350F6EF
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6A8750F6EE
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345803AbiDZJCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56192 "EHLO
+        id S245239AbiDZJB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:01:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345700AbiDZI5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2762564C4;
-        Tue, 26 Apr 2022 01:42:47 -0700 (PDT)
+        with ESMTP id S1345701AbiDZI5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0247ABC06;
+        Tue, 26 Apr 2022 01:42:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1A12B81CED;
-        Tue, 26 Apr 2022 08:42:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3511CC385A0;
-        Tue, 26 Apr 2022 08:42:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 985B7B81CF2;
+        Tue, 26 Apr 2022 08:42:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBD11C385A0;
+        Tue, 26 Apr 2022 08:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962564;
-        bh=J+4i1vcd5/XjbgPWY6oEshrMLJ1WCfrhyL0vvFwQMNU=;
+        s=korg; t=1650962567;
+        bh=9DMqKIUau+tacJlrTRXRHwG1oWX/0ZctgKCyawm2tGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Da4WgEYiKXmnPFimqfHP0eQYS+QLQ3jfYEgt7pPOBicZBL1tIXBo4yZyvE0oDx6ii
-         Cck24CtF1hVAJdRwshG+zW4RGh7h0eWfopREq2APsZrYbhFc4/DEKtahumjXhbJcSN
-         eTVkG604nLAQsFJfjhe4OWNgR0mLsvgX4q2vUWN8=
+        b=L1BZb+YqUmPMVqjHTQKWqhD9eXzD6qWqMEico+99CU2+x1z5oJnErgiP/5LaBDCrs
+         rtq+nzgaBVd1zHRKnHZ07n0l0joLLhEYv0Sd6V3gGlUWxkUyaORx7Qrzqg743uopjZ
+         n72xYyK7b4zkvLqG2PguXbid2NQzkngr7ul52yHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 004/146] block/compat_ioctl: fix range check in BLKGETSIZE
-Date:   Tue, 26 Apr 2022 10:19:59 +0200
-Message-Id: <20220426081750.184589989@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.17 005/146] gfs2: assign rgrp glock before compute_bitstructs
+Date:   Tue, 26 Apr 2022 10:20:00 +0200
+Message-Id: <20220426081750.212223244@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -54,36 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khazhismel Kumykov <khazhy@google.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit ccf16413e520164eb718cf8b22a30438da80ff23 upstream.
+commit 428f651cb80b227af47fc302e4931791f2fb4741 upstream.
 
-kernel ulong and compat_ulong_t may not be same width. Use type directly
-to eliminate mismatches.
+Before this patch, function read_rindex_entry called compute_bitstructs
+before it allocated a glock for the rgrp. But if compute_bitstructs found
+a problem with the rgrp, it called gfs2_consist_rgrpd, and that called
+gfs2_dump_glock for rgd->rd_gl which had not yet been assigned.
 
-This would result in truncation rather than EFBIG for 32bit mode for
-large disks.
+read_rindex_entry
+   compute_bitstructs
+      gfs2_consist_rgrpd
+         gfs2_dump_glock <---------rgd->rd_gl was not set.
 
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220414224056.2875681-1-khazhy@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This patch changes read_rindex_entry so it assigns an rgrp glock before
+calling compute_bitstructs so gfs2_dump_glock does not reference an
+unassigned pointer. If an error is discovered, the glock must also be
+put, so a new goto and label were added.
+
+Reported-by: syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/rgrp.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -629,7 +629,7 @@ long compat_blkdev_ioctl(struct file *fi
- 		return compat_put_long(argp,
- 			(bdev->bd_disk->bdi->ra_pages * PAGE_SIZE) / 512);
- 	case BLKGETSIZE:
--		if (bdev_nr_sectors(bdev) > ~0UL)
-+		if (bdev_nr_sectors(bdev) > ~(compat_ulong_t)0)
- 			return -EFBIG;
- 		return compat_put_ulong(argp, bdev_nr_sectors(bdev));
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -923,15 +923,15 @@ static int read_rindex_entry(struct gfs2
+ 	spin_lock_init(&rgd->rd_rsspin);
+ 	mutex_init(&rgd->rd_mutex);
  
+-	error = compute_bitstructs(rgd);
+-	if (error)
+-		goto fail;
+-
+ 	error = gfs2_glock_get(sdp, rgd->rd_addr,
+ 			       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
+ 	if (error)
+ 		goto fail;
+ 
++	error = compute_bitstructs(rgd);
++	if (error)
++		goto fail_glock;
++
+ 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
+ 	rgd->rd_flags &= ~GFS2_RDF_PREFERRED;
+ 	if (rgd->rd_data > sdp->sd_max_rg_data)
+@@ -945,6 +945,7 @@ static int read_rindex_entry(struct gfs2
+ 	}
+ 
+ 	error = 0; /* someone else read in the rgrp; free it and ignore it */
++fail_glock:
+ 	gfs2_glock_put(rgd->rd_gl);
+ 
+ fail:
 
 
