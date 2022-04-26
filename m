@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87DC450F7FA
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8C450F614
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346243AbiDZJH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57334 "EHLO
+        id S230096AbiDZIre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347591AbiDZJF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD605BCC;
-        Tue, 26 Apr 2022 01:45:03 -0700 (PDT)
+        with ESMTP id S1346898AbiDZIp3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8890BE0D;
+        Tue, 26 Apr 2022 01:36:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53A68B81C76;
-        Tue, 26 Apr 2022 08:45:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96B34C385A4;
-        Tue, 26 Apr 2022 08:45:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 352F7CE1BC3;
+        Tue, 26 Apr 2022 08:36:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D7EFC385A0;
+        Tue, 26 Apr 2022 08:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962701;
-        bh=trXIu8XHmAnC0fElf80oY0FbsOH2cP1tf1pUgA0Dk4Q=;
+        s=korg; t=1650962183;
+        bh=gdWEnuOePIjta2VFltTH8sRyYJzN9BowZ41qdvqJYV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t0ZUfzrP8LlImrxQlbAMd7QDXs9ALZ5yMCksW0BOSUOUMd/rTINPRdma0485eyGmn
-         eUjqj/SQBuW+5boeNzSjcoIYBraZoYppjglgEm+4GeIHwPca5cgtMEG2rLPKX06vh9
-         N4l42XPXZnQZgGevUUrfqOs0CqeMkDbFvckEfAHQ=
+        b=EeN6TaV4u07zTVAJWnatBFNZS2n67bpupaBGBeikXi/N9WT5S41wRq7AP2YQA92wd
+         cTQSZvtiJgwwc34W9TCCVkU52Pz3wdFnJOoFuOIDnu0J4NGRIH//DLoMu/EzzKI7c0
+         4zNxhuR2NEcTKZvfelZUYp00RaFrpORakL7+iBdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
-        Rex-BC Chen <rex-bc.chen@mediatek.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 020/146] spi: spi-mtk-nor: initialize spi controller after resume
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 014/124] net/sched: cls_u32: fix netns refcount changes in u32_change()
 Date:   Tue, 26 Apr 2022 10:20:15 +0200
-Message-Id: <20220426081750.633307968@linuxfoundation.org>
+Message-Id: <20220426081747.705288704@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +56,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 317c2045618cc1f8d38beb8c93a7bdb6ad8638c6 ]
+commit 3db09e762dc79584a69c10d74a6b98f89a9979f8 upstream.
 
-After system resumes, the registers of nor controller are
-initialized with default values. The nor controller will
-not function properly.
+We are now able to detect extra put_net() at the moment
+they happen, instead of much later in correct code paths.
 
-To handle both issues above, we add mtk_nor_init() in
-mtk_nor_resume after pm_runtime_force_resume().
+u32_init_knode() / tcf_exts_init() populates the ->exts.net
+pointer, but as mentioned in tcf_exts_init(),
+the refcount on netns has not been elevated yet.
 
-Fixes: 3bfd9103c7af ("spi: spi-mtk-nor: Add power management support")
+The refcount is taken only once tcf_exts_get_net()
+is called.
 
-Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
-Reviewed-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
-Link: https://lore.kernel.org/r/20220412115743.22641-1-allen-kh.cheng@mediatek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So the two u32_destroy_key() calls from u32_change()
+are attempting to release an invalid reference on the netns.
+
+syzbot report:
+
+refcount_t: decrement hit 0; leaking memory.
+WARNING: CPU: 0 PID: 21708 at lib/refcount.c:31 refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
+Modules linked in:
+CPU: 0 PID: 21708 Comm: syz-executor.5 Not tainted 5.18.0-rc2-next-20220412-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
+Code: 1d 14 b6 b2 09 31 ff 89 de e8 6d e9 89 fd 84 db 75 e0 e8 84 e5 89 fd 48 c7 c7 40 aa 26 8a c6 05 f4 b5 b2 09 01 e8 e5 81 2e 05 <0f> 0b eb c4 e8 68 e5 89 fd 0f b6 1d e3 b5 b2 09 31 ff 89 de e8 38
+RSP: 0018:ffffc900051af1b0 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000040000 RSI: ffffffff8160a0c8 RDI: fffff52000a35e28
+RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff81604a9e R11: 0000000000000000 R12: 1ffff92000a35e3b
+R13: 00000000ffffffef R14: ffff8880211a0194 R15: ffff8880577d0a00
+FS:  00007f25d183e700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f19c859c028 CR3: 0000000051009000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __refcount_dec include/linux/refcount.h:344 [inline]
+ refcount_dec include/linux/refcount.h:359 [inline]
+ ref_tracker_free+0x535/0x6b0 lib/ref_tracker.c:118
+ netns_tracker_free include/net/net_namespace.h:327 [inline]
+ put_net_track include/net/net_namespace.h:341 [inline]
+ tcf_exts_put_net include/net/pkt_cls.h:255 [inline]
+ u32_destroy_key.isra.0+0xa7/0x2b0 net/sched/cls_u32.c:394
+ u32_change+0xe01/0x3140 net/sched/cls_u32.c:909
+ tc_new_tfilter+0x98d/0x2200 net/sched/cls_api.c:2148
+ rtnetlink_rcv_msg+0x80d/0xb80 net/core/rtnetlink.c:6016
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2495
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:725
+ ____sys_sendmsg+0x6e2/0x800 net/socket.c:2413
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2496
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f25d0689049
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f25d183e168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007f25d079c030 RCX: 00007f25d0689049
+RDX: 0000000000000000 RSI: 0000000020000340 RDI: 0000000000000005
+RBP: 00007f25d06e308d R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007ffd0b752e3f R14: 00007f25d183e300 R15: 0000000000022000
+ </TASK>
+
+Fixes: 35c55fc156d8 ("cls_u32: use tcf_exts_get_net() before call_rcu()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-mtk-nor.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ net/sched/cls_u32.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/spi/spi-mtk-nor.c b/drivers/spi/spi-mtk-nor.c
-index 5c93730615f8..6d203477c04b 100644
---- a/drivers/spi/spi-mtk-nor.c
-+++ b/drivers/spi/spi-mtk-nor.c
-@@ -909,7 +909,17 @@ static int __maybe_unused mtk_nor_suspend(struct device *dev)
- 
- static int __maybe_unused mtk_nor_resume(struct device *dev)
- {
--	return pm_runtime_force_resume(dev);
-+	struct spi_controller *ctlr = dev_get_drvdata(dev);
-+	struct mtk_nor *sp = spi_controller_get_devdata(ctlr);
-+	int ret;
-+
-+	ret = pm_runtime_force_resume(dev);
-+	if (ret)
-+		return ret;
-+
-+	mtk_nor_init(sp);
-+
-+	return 0;
+--- a/net/sched/cls_u32.c
++++ b/net/sched/cls_u32.c
+@@ -386,14 +386,19 @@ static int u32_init(struct tcf_proto *tp
+ 	return 0;
  }
  
- static const struct dev_pm_ops mtk_nor_pm_ops = {
--- 
-2.35.1
-
+-static int u32_destroy_key(struct tc_u_knode *n, bool free_pf)
++static void __u32_destroy_key(struct tc_u_knode *n)
+ {
+ 	struct tc_u_hnode *ht = rtnl_dereference(n->ht_down);
+ 
+ 	tcf_exts_destroy(&n->exts);
+-	tcf_exts_put_net(&n->exts);
+ 	if (ht && --ht->refcnt == 0)
+ 		kfree(ht);
++	kfree(n);
++}
++
++static void u32_destroy_key(struct tc_u_knode *n, bool free_pf)
++{
++	tcf_exts_put_net(&n->exts);
+ #ifdef CONFIG_CLS_U32_PERF
+ 	if (free_pf)
+ 		free_percpu(n->pf);
+@@ -402,8 +407,7 @@ static int u32_destroy_key(struct tc_u_k
+ 	if (free_pf)
+ 		free_percpu(n->pcpu_success);
+ #endif
+-	kfree(n);
+-	return 0;
++	__u32_destroy_key(n);
+ }
+ 
+ /* u32_delete_key_rcu should be called when free'ing a copied
+@@ -898,13 +902,13 @@ static int u32_change(struct net *net, s
+ 				    tca[TCA_RATE], flags, extack);
+ 
+ 		if (err) {
+-			u32_destroy_key(new, false);
++			__u32_destroy_key(new);
+ 			return err;
+ 		}
+ 
+ 		err = u32_replace_hw_knode(tp, new, flags, extack);
+ 		if (err) {
+-			u32_destroy_key(new, false);
++			__u32_destroy_key(new);
+ 			return err;
+ 		}
+ 
 
 
