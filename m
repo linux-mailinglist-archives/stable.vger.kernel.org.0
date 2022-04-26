@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 442D550F5C3
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D51550F6A7
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345631AbiDZIqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:46:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57814 "EHLO
+        id S244781AbiDZI6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346823AbiDZIpY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E043A90CF1;
-        Tue, 26 Apr 2022 01:35:50 -0700 (PDT)
+        with ESMTP id S1345563AbiDZI4h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:56:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A690DC5B3;
+        Tue, 26 Apr 2022 01:41:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99298B81CFE;
-        Tue, 26 Apr 2022 08:35:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB3BEC385A4;
-        Tue, 26 Apr 2022 08:35:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E99A9B81CF0;
+        Tue, 26 Apr 2022 08:41:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D06BC385A0;
+        Tue, 26 Apr 2022 08:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962148;
-        bh=3aLdmpvxaChLzyHcYZwWLEm72qRpXWXyd7TlPmtCnCM=;
+        s=korg; t=1650962475;
+        bh=OwzyLrENB5v4pbJRut7OEvQ+XADNOVu0945Fd9ZTlLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0Dwtz/GFhSrIU5JxHSaVxx1zwPOrtb4MQFfxLv7EmXSwrtZWS12iH4MezHhdL/L0
-         h4e2Jo2qqBchjxGB1Z6h43QAA3nlDy1yaq+W/jnak6kVYhpux46xozP2ZX74e28KtP
-         AAjw7b8ahrpqop/G7DDCukGLnLP3etJOFj9Pt1Cc=
+        b=Ma6kY+13HKQVTr/VuKdyCBv+OX2Qsp1d6AiKnymu0czIxzXsDflUGak+qMZYGZkwT
+         vSC2cFopbC1d+XkO3nwExwOP1oVEbdxV2p4su0iXtO1kKg4bslbk4EG1Cpi0T4rR1r
+         j7JHBqbSGXgZuG5PoAjNUkCKakmxNGJGQP3vMBAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 81/86] can: isotp: stop timeout monitoring when no first frame was sent
+        stable@vger.kernel.org, Gaoning Pan <pgn@zju.edu.cn>,
+        Yongkang Jia <kangel@zju.edu.cn>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 108/124] KVM: x86: Pend KVM_REQ_APICV_UPDATE during vCPU creation to fix a race
 Date:   Tue, 26 Apr 2022 10:21:49 +0200
-Message-Id: <20220426081743.553084500@linuxfoundation.org>
+Message-Id: <20220426081750.365497316@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Sean Christopherson <seanjc@google.com>
 
-commit d73497081710c876c3c61444445512989e102152 upstream.
+commit 423ecfea77dda83823c71b0fad1c2ddb2af1e5fc upstream.
 
-The first attempt to fix a the 'impossible' WARN_ON_ONCE(1) in
-isotp_tx_timer_handler() focussed on the identical CAN IDs created by
-the syzbot reproducer and lead to upstream fix/commit 3ea566422cbd
-("can: isotp: sanitize CAN ID checks in isotp_bind()"). But this did
-not catch the root cause of the wrong tx.state in the tx_timer handler.
+Make a KVM_REQ_APICV_UPDATE request when creating a vCPU with an
+in-kernel local APIC and APICv enabled at the module level.  Consuming
+kvm_apicv_activated() and stuffing vcpu->arch.apicv_active directly can
+race with __kvm_set_or_clear_apicv_inhibit(), as vCPU creation happens
+before the vCPU is fully onlined, i.e. it won't get the request made to
+"all" vCPUs.  If APICv is globally inhibited between setting apicv_active
+and onlining the vCPU, the vCPU will end up running with APICv enabled
+and trigger KVM's sanity check.
 
-In the isotp 'first frame' case a timeout monitoring needs to be started
-before the 'first frame' is send. But when this sending failed the timeout
-monitoring for this specific frame has to be disabled too.
+Mark APICv as active during vCPU creation if APICv is enabled at the
+module level, both to be optimistic about it's final state, e.g. to avoid
+additional VMWRITEs on VMX, and because there are likely bugs lurking
+since KVM checks apicv_active in multiple vCPU creation paths.  While
+keeping the current behavior of consuming kvm_apicv_activated() is
+arguably safer from a regression perspective, force apicv_active so that
+vCPU creation runs with deterministic state and so that if there are bugs,
+they are found sooner than later, i.e. not when some crazy race condition
+is hit.
 
-Otherwise the tx_timer is fired with the 'warn me' tx.state of ISOTP_IDLE.
+  WARNING: CPU: 0 PID: 484 at arch/x86/kvm/x86.c:9877 vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
+  Modules linked in:
+  CPU: 0 PID: 484 Comm: syz-executor361 Not tainted 5.16.13 #2
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1~cloud0 04/01/2014
+  RIP: 0010:vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
+  Call Trace:
+   <TASK>
+   vcpu_run arch/x86/kvm/x86.c:10039 [inline]
+   kvm_arch_vcpu_ioctl_run+0x337/0x15e0 arch/x86/kvm/x86.c:10234
+   kvm_vcpu_ioctl+0x4d2/0xc80 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3727
+   vfs_ioctl fs/ioctl.c:51 [inline]
+   __do_sys_ioctl fs/ioctl.c:874 [inline]
+   __se_sys_ioctl fs/ioctl.c:860 [inline]
+   __x64_sys_ioctl+0x16d/0x1d0 fs/ioctl.c:860
+   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+   do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/all/20220405175112.2682-1-socketcan@hartkopp.net
-Reported-by: syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+The bug was hit by a syzkaller spamming VM creation with 2 vCPUs and a
+call to KVM_SET_GUEST_DEBUG.
+
+  r0 = openat$kvm(0xffffffffffffff9c, &(0x7f0000000000), 0x0, 0x0)
+  r1 = ioctl$KVM_CREATE_VM(r0, 0xae01, 0x0)
+  ioctl$KVM_CAP_SPLIT_IRQCHIP(r1, 0x4068aea3, &(0x7f0000000000)) (async)
+  r2 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x0) (async)
+  r3 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x400000000000002)
+  ioctl$KVM_SET_GUEST_DEBUG(r3, 0x4048ae9b, &(0x7f00000000c0)={0x5dda9c14aa95f5c5})
+  ioctl$KVM_RUN(r2, 0xae80, 0x0)
+
+Reported-by: Gaoning Pan <pgn@zju.edu.cn>
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Fixes: 8df14af42f00 ("kvm: x86: Add support for dynamic APICv activation")
+Cc: stable@vger.kernel.org
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220420013732.3308816-4-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/can/isotp.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -864,6 +864,7 @@ static int isotp_sendmsg(struct socket *
- 	struct canfd_frame *cf;
- 	int ae = (so->opt.flags & CAN_ISOTP_EXTEND_ADDR) ? 1 : 0;
- 	int wait_tx_done = (so->opt.flags & CAN_ISOTP_WAIT_TX_DONE) ? 1 : 0;
-+	s64 hrtimer_sec = 0;
- 	int off;
- 	int err;
- 
-@@ -962,7 +963,9 @@ static int isotp_sendmsg(struct socket *
- 		isotp_create_fframe(cf, so, ae);
- 
- 		/* start timeout for FC */
--		hrtimer_start(&so->txtimer, ktime_set(1, 0), HRTIMER_MODE_REL_SOFT);
-+		hrtimer_sec = 1;
-+		hrtimer_start(&so->txtimer, ktime_set(hrtimer_sec, 0),
-+			      HRTIMER_MODE_REL_SOFT);
- 	}
- 
- 	/* send the first or only CAN frame */
-@@ -975,6 +978,11 @@ static int isotp_sendmsg(struct socket *
- 	if (err) {
- 		pr_notice_once("can-isotp: %s: can_send_ret %d\n",
- 			       __func__, err);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -10813,8 +10813,21 @@ int kvm_arch_vcpu_create(struct kvm_vcpu
+ 		r = kvm_create_lapic(vcpu, lapic_timer_advance_ns);
+ 		if (r < 0)
+ 			goto fail_mmu_destroy;
+-		if (kvm_apicv_activated(vcpu->kvm))
 +
-+		/* no transmission -> no timeout monitoring */
-+		if (hrtimer_sec)
-+			hrtimer_cancel(&so->txtimer);
-+
- 		goto err_out_drop;
- 	}
++		/*
++		 * Defer evaluating inhibits until the vCPU is first run, as
++		 * this vCPU will not get notified of any changes until this
++		 * vCPU is visible to other vCPUs (marked online and added to
++		 * the set of vCPUs).  Opportunistically mark APICv active as
++		 * VMX in particularly is highly unlikely to have inhibits.
++		 * Ignore the current per-VM APICv state so that vCPU creation
++		 * is guaranteed to run with a deterministic value, the request
++		 * will ensure the vCPU gets the correct state before VM-Entry.
++		 */
++		if (enable_apicv) {
+ 			vcpu->arch.apicv_active = true;
++			kvm_make_request(KVM_REQ_APICV_UPDATE, vcpu);
++		}
+ 	} else
+ 		static_branch_inc(&kvm_has_noapic_vcpu);
  
 
 
