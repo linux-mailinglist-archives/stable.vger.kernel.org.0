@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 777CD50F534
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:52:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDDC250F586
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241162AbiDZIxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:53:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55240 "EHLO
+        id S233604AbiDZIwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:52:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347526AbiDZIvm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DC23CE646;
-        Tue, 26 Apr 2022 01:40:25 -0700 (PDT)
+        with ESMTP id S1346402AbiDZIpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5008789329;
+        Tue, 26 Apr 2022 01:34:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3F04B81D0A;
-        Tue, 26 Apr 2022 08:40:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FAC7C385A0;
-        Tue, 26 Apr 2022 08:40:21 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E1D21CE1BC3;
+        Tue, 26 Apr 2022 08:34:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3CA1C385A0;
+        Tue, 26 Apr 2022 08:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962422;
-        bh=sr+Nk5FxcDLzx6uPd1VgAtnE1P3v/6qsQnnjLwf2oUA=;
+        s=korg; t=1650962080;
+        bh=cO5fCD0ZzNkZaR/zh4/84j4XIbL0lFAwsD0hABYmrS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X2fqpmhtld7mBvArSWCvBjiuajzNxqmrHY6gojhQHnfBrgH+XeWG5fXAXWzHDEmPN
-         dLtQs20fqzYL1jjqcemHhpJouSp+cbUVBtVqXin4qMvadpYCPKqn4OeyPYeB6qqgnf
-         Y7mnaGdeb33cqnGG5mnLjYDQjwYWawbjMrDPh7+Y=
+        b=ZPDlixFUwmRQiXC0c/CBzObZEcVbCpMcaR/8xhRm46vk2Sv32xEI1PWFS1l/xFUyS
+         in1F0+HHe1QpPFDVkkv6Ezzo3Nm7fw3yEyr3V72Q+ksRQMQXtqStxi2MceDCQwACQG
+         DNq4XuJ4Mgv2IOo8EdMr+e8+T6lnIctm0E0A36P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/124] drm/panel/raspberrypi-touchscreen: Initialise the bridge in prepare
+        stable@vger.kernel.org, Al Grant <al.grant@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.10 65/86] arm_pmu: Validate single/group leader events
 Date:   Tue, 26 Apr 2022 10:21:33 +0200
-Message-Id: <20220426081749.914852716@linuxfoundation.org>
+Message-Id: <20220426081743.084793776@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 5f18c0782b99e26121efa93d20b76c19e17aa1dd ]
+commit e5c23779f93d45e39a52758ca593bd7e62e9b4be upstream.
 
-The panel has a prepare call which is before video starts, and an
-enable call which is after.
-The Toshiba bridge should be configured before video, so move
-the relevant power and initialisation calls to prepare.
+In the case where there is only a cycle counter available (i.e.
+PMCR_EL0.N is 0) and an event other than CPU cycles is opened, the open
+should fail as the event can never possibly be scheduled. However, the
+event validation when an event is opened is skipped when the group
+leader is opened. Fix this by always validating the group leader events.
 
-Fixes: 2f733d6194bd ("drm/panel: Add support for the Raspberry Pi 7" Touchscreen.")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220415162513.42190-3-stefan.wahren@i2se.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Al Grant <al.grant@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20220408203330.4014015-1-robh@kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/perf/arm_pmu.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-index 1f805eb8fdb5..145047e19394 100644
---- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-+++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-@@ -265,7 +265,7 @@ static int rpi_touchscreen_noop(struct drm_panel *panel)
- 	return 0;
+--- a/drivers/perf/arm_pmu.c
++++ b/drivers/perf/arm_pmu.c
+@@ -398,6 +398,9 @@ validate_group(struct perf_event *event)
+ 	if (!validate_event(event->pmu, &fake_pmu, leader))
+ 		return -EINVAL;
+ 
++	if (event == leader)
++		return 0;
++
+ 	for_each_sibling_event(sibling, leader) {
+ 		if (!validate_event(event->pmu, &fake_pmu, sibling))
+ 			return -EINVAL;
+@@ -487,12 +490,7 @@ __hw_perf_event_init(struct perf_event *
+ 		local64_set(&hwc->period_left, hwc->sample_period);
+ 	}
+ 
+-	if (event->group_leader != event) {
+-		if (validate_group(event) != 0)
+-			return -EINVAL;
+-	}
+-
+-	return 0;
++	return validate_group(event);
  }
  
--static int rpi_touchscreen_enable(struct drm_panel *panel)
-+static int rpi_touchscreen_prepare(struct drm_panel *panel)
- {
- 	struct rpi_touchscreen *ts = panel_to_ts(panel);
- 	int i;
-@@ -295,6 +295,13 @@ static int rpi_touchscreen_enable(struct drm_panel *panel)
- 	rpi_touchscreen_write(ts, DSI_STARTDSI, 0x01);
- 	msleep(100);
- 
-+	return 0;
-+}
-+
-+static int rpi_touchscreen_enable(struct drm_panel *panel)
-+{
-+	struct rpi_touchscreen *ts = panel_to_ts(panel);
-+
- 	/* Turn on the backlight. */
- 	rpi_touchscreen_i2c_write(ts, REG_PWM, 255);
- 
-@@ -349,7 +356,7 @@ static int rpi_touchscreen_get_modes(struct drm_panel *panel,
- static const struct drm_panel_funcs rpi_touchscreen_funcs = {
- 	.disable = rpi_touchscreen_disable,
- 	.unprepare = rpi_touchscreen_noop,
--	.prepare = rpi_touchscreen_noop,
-+	.prepare = rpi_touchscreen_prepare,
- 	.enable = rpi_touchscreen_enable,
- 	.get_modes = rpi_touchscreen_get_modes,
- };
--- 
-2.35.1
-
+ static int armpmu_event_init(struct perf_event *event)
 
 
