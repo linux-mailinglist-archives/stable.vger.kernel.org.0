@@ -2,92 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1537850F65C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C38A50F4CD
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241500AbiDZIxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:53:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
+        id S1345282AbiDZIkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:40:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346767AbiDZIuU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33AE1569E0;
-        Tue, 26 Apr 2022 01:38:56 -0700 (PDT)
+        with ESMTP id S1345293AbiDZIhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:37:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACAD690CE7;
+        Tue, 26 Apr 2022 01:29:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6B04B81D19;
-        Tue, 26 Apr 2022 08:38:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3665C385A4;
-        Tue, 26 Apr 2022 08:38:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12F55B81CED;
+        Tue, 26 Apr 2022 08:29:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E52FC385A4;
+        Tue, 26 Apr 2022 08:29:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962334;
-        bh=g9ikFThTprFXEbpMfX/pPV5aTGQ0cE4Xy7li5Qy7Jpg=;
+        s=korg; t=1650961764;
+        bh=GwuxwJSY6TmdTZNREcQNOtDHNwXMuLUyUK+8yLIXuPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W1lR9YQiic5FehvxOmVaFWs8nXMP3L6pF8kidpov1tPNDoA7z2Abj81MEtxsOT6oh
-         fQGvYhefikbYWSbpQpx4O/ErQEkd7/muHsCO3asUDpGf9SfENkLvOVGNGSSg4IUJhg
-         cnT4UXhy35TycuUxheBxsiBLPAOX2KVN5KOT8wGQ=
+        b=QaLjhrCHmxf1m2I23GnCFH3/VJb7JcJU54mBWAJW6wh8HF9EJzcjDUlTxWPrxX5yv
+         X+awNe0QKuUUiwo1vjpMogq21QHAVRKyGuTDpmCudBxeQT3ByGZ6SNKD+XyQJ/7XlE
+         a7YpF5xw6TSaYQyIPb+laWDl6FixBO1ptdAw1fW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Steve French <sfrench@samba.org>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Rohith Surabattula <rohiths.msft@gmail.com>,
-        linux-cifs@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Amit Cohen <amcohen@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 061/124] cifs: Check the IOCB_DIRECT flag, not O_DIRECT
+Subject: [PATCH 5.4 22/62] selftests: mlxsw: vxlan_flooding: Prevent flooding of unwanted packets
 Date:   Tue, 26 Apr 2022 10:21:02 +0200
-Message-Id: <20220426081749.035966546@linuxfoundation.org>
+Message-Id: <20220426081737.864311696@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-[ Upstream commit 994fd530a512597ffcd713b0f6d5bc916c5698f0 ]
+[ Upstream commit 044011fdf162c5dd61c02841930c8f438a9adadb ]
 
-Use the IOCB_DIRECT indicator flag on the I/O context rather than checking to
-see if the file was opened O_DIRECT.
+The test verifies that packets are correctly flooded by the bridge and
+the VXLAN device by matching on the encapsulated packets at the other
+end. However, if packets other than those generated by the test also
+ingress the bridge (e.g., MLD packets), they will be flooded as well and
+interfere with the expected count.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Steve French <sfrench@samba.org>
-cc: Shyam Prasad N <nspmangalore@gmail.com>
-cc: Rohith Surabattula <rohiths.msft@gmail.com>
-cc: linux-cifs@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Make the test more robust by making sure that only the packets generated
+by the test can ingress the bridge. Drop all the rest using tc filters
+on the egress of 'br0' and 'h1'.
+
+In the software data path, the problem can be solved by matching on the
+inner destination MAC or dropping unwanted packets at the egress of the
+VXLAN device, but this is not currently supported by mlxsw.
+
+Fixes: 94d302deae25 ("selftests: mlxsw: Add a test for VxLAN flooding")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Amit Cohen <amcohen@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../drivers/net/mlxsw/vxlan_flooding.sh         | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index 29a019cf1d5f..8f8d281e3151 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -936,7 +936,7 @@ cifs_loose_read_iter(struct kiocb *iocb, struct iov_iter *iter)
- 	ssize_t rc;
- 	struct inode *inode = file_inode(iocb->ki_filp);
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/vxlan_flooding.sh b/tools/testing/selftests/drivers/net/mlxsw/vxlan_flooding.sh
+index fedcb7b35af9..af5ea50ed5c0 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/vxlan_flooding.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/vxlan_flooding.sh
+@@ -172,6 +172,17 @@ flooding_filters_add()
+ 	local lsb
+ 	local i
  
--	if (iocb->ki_filp->f_flags & O_DIRECT)
-+	if (iocb->ki_flags & IOCB_DIRECT)
- 		return cifs_user_readv(iocb, iter);
++	# Prevent unwanted packets from entering the bridge and interfering
++	# with the test.
++	tc qdisc add dev br0 clsact
++	tc filter add dev br0 egress protocol all pref 1 handle 1 \
++		matchall skip_hw action drop
++	tc qdisc add dev $h1 clsact
++	tc filter add dev $h1 egress protocol all pref 1 handle 1 \
++		flower skip_hw dst_mac de:ad:be:ef:13:37 action pass
++	tc filter add dev $h1 egress protocol all pref 2 handle 2 \
++		matchall skip_hw action drop
++
+ 	tc qdisc add dev $rp2 clsact
  
- 	rc = cifs_revalidate_mapping(inode);
+ 	for i in $(eval echo {1..$num_remotes}); do
+@@ -194,6 +205,12 @@ flooding_filters_del()
+ 	done
+ 
+ 	tc qdisc del dev $rp2 clsact
++
++	tc filter del dev $h1 egress protocol all pref 2 handle 2 matchall
++	tc filter del dev $h1 egress protocol all pref 1 handle 1 flower
++	tc qdisc del dev $h1 clsact
++	tc filter del dev br0 egress protocol all pref 1 handle 1 matchall
++	tc qdisc del dev br0 clsact
+ }
+ 
+ flooding_check_packets()
 -- 
 2.35.1
 
