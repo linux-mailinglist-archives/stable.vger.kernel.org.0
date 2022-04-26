@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6661250F8B9
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4452350F3C1
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236319AbiDZJHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38556 "EHLO
+        id S244968AbiDZI14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:27:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347670AbiDZJGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BDDA15C3A7;
-        Tue, 26 Apr 2022 01:45:18 -0700 (PDT)
+        with ESMTP id S1344708AbiDZI1g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFAF53AA5F;
+        Tue, 26 Apr 2022 01:23:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E214AB81CF0;
-        Tue, 26 Apr 2022 08:45:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50856C385AC;
-        Tue, 26 Apr 2022 08:45:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48A6F617EA;
+        Tue, 26 Apr 2022 08:23:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57982C385A4;
+        Tue, 26 Apr 2022 08:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962715;
-        bh=zqYE2dBiFpRl4OeuEjvjF+2WlsvVq3M+PLNfL0rUOW0=;
+        s=korg; t=1650961419;
+        bh=b28C6sxV5/ySAeFce2tzdxxxiRiKxVIZJhblxl+HbkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Qcw77QJ89XaQBUmHN54RgYBTS/UnhnkJSj77M3TMO5i8hDqS/BvmyNN6dfp7PXjq
-         tg0B+75xxnGxHT8jxOgibCHVt63lYoIQ6TYUYTNz+ZCqPXpth+6kSCKLqioPMhGaw6
-         hJsLUxlUfdlOF2CKXFH1loyUESyaLKouYBYV++VI=
+        b=nQ+IXZbFKJP4+XV9rGKSlDFrOI4gnHe1yD7EItJhE1NEDuGC82KnZXDSp7PKxeflm
+         c3UNO60kaiQ6ypjqDtIGaZMn2waOUQMtEM1kknh25pw3ViO1QycWdCD1MuuSMqMiPD
+         Q7BmkXoRak22xFz0MRma8hEqGI5cEQ9dSn9Mxpc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Upton <oupton@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 066/146] selftests: KVM: Free the GIC FD when cleaning up in arch_timer
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 07/24] netlink: reset network and mac headers in netlink_dump()
 Date:   Tue, 26 Apr 2022 10:21:01 +0200
-Message-Id: <20220426081751.920361986@linuxfoundation.org>
+Message-Id: <20220426081731.588949864@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
+References: <20220426081731.370823950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,75 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Upton <oupton@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 21db83846683d3987666505a3ec38f367708199a ]
+[ Upstream commit 99c07327ae11e24886d552dddbe4537bfca2765d ]
 
-In order to correctly destroy a VM, all references to the VM must be
-freed. The arch_timer selftest creates a VGIC for the guest, which
-itself holds a reference to the VM.
+netlink_dump() is allocating an skb, reserves space in it
+but forgets to reset network header.
 
-Close the GIC FD when cleaning up a VM.
+This allows a BPF program, invoked later from sk_filter()
+to access uninitialized kernel memory from the reserved
+space.
 
-Signed-off-by: Oliver Upton <oupton@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220406235615.1447180-4-oupton@google.com
+Theorically mac header reset could be omitted, because
+it is set to a special initial value.
+bpf_internal_load_pointer_neg_helper calls skb_mac_header()
+without checking skb_mac_header_was_set().
+Relying on skb->len not being too big seems fragile.
+We also could add a sanity check in bpf_internal_load_pointer_neg_helper()
+to avoid surprises in the future.
+
+syzbot report was:
+
+BUG: KMSAN: uninit-value in ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
+ ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
+ __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
+ bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
+ __bpf_prog_run include/linux/filter.h:626 [inline]
+ bpf_prog_run include/linux/filter.h:633 [inline]
+ __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
+ bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
+ sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
+ sk_filter include/linux/filter.h:905 [inline]
+ netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was stored to memory at:
+ ___bpf_prog_run+0x96c/0xb420 kernel/bpf/core.c:1558
+ __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
+ bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
+ __bpf_prog_run include/linux/filter.h:626 [inline]
+ bpf_prog_run include/linux/filter.h:633 [inline]
+ __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
+ bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
+ sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
+ sk_filter include/linux/filter.h:905 [inline]
+ netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:737 [inline]
+ slab_alloc_node mm/slub.c:3244 [inline]
+ __kmalloc_node_track_caller+0xde3/0x14f0 mm/slub.c:4972
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1158 [inline]
+ netlink_dump+0x30f/0x16c0 net/netlink/af_netlink.c:2242
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+CPU: 0 PID: 3470 Comm: syz-executor751 Not tainted 5.17.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: db65a3aaf29e ("netlink: Trim skb to alloc size to avoid MSG_TRUNC")
+Fixes: 9063e21fb026 ("netlink: autosize skb lengthes")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220415181442.551228-1-eric.dumazet@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/aarch64/arch_timer.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ net/netlink/af_netlink.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/aarch64/arch_timer.c b/tools/testing/selftests/kvm/aarch64/arch_timer.c
-index b08d30bf71c5..3b940a101bc0 100644
---- a/tools/testing/selftests/kvm/aarch64/arch_timer.c
-+++ b/tools/testing/selftests/kvm/aarch64/arch_timer.c
-@@ -362,11 +362,12 @@ static void test_init_timer_irq(struct kvm_vm *vm)
- 	pr_debug("ptimer_irq: %d; vtimer_irq: %d\n", ptimer_irq, vtimer_irq);
- }
- 
-+static int gic_fd;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 8aef475fef31..a8674e9ff37b 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -2194,6 +2194,13 @@ static int netlink_dump(struct sock *sk)
+ 	 * single netdev. The outcome is MSG_TRUNC error.
+ 	 */
+ 	skb_reserve(skb, skb_tailroom(skb) - alloc_size);
 +
- static struct kvm_vm *test_vm_create(void)
- {
- 	struct kvm_vm *vm;
- 	unsigned int i;
--	int ret;
- 	int nr_vcpus = test_args.nr_vcpus;
- 
- 	vm = vm_create_default_with_vcpus(nr_vcpus, 0, 0, guest_code, NULL);
-@@ -383,8 +384,8 @@ static struct kvm_vm *test_vm_create(void)
- 
- 	ucall_init(vm, NULL);
- 	test_init_timer_irq(vm);
--	ret = vgic_v3_setup(vm, nr_vcpus, 64, GICD_BASE_GPA, GICR_BASE_GPA);
--	if (ret < 0) {
-+	gic_fd = vgic_v3_setup(vm, nr_vcpus, 64, GICD_BASE_GPA, GICR_BASE_GPA);
-+	if (gic_fd < 0) {
- 		print_skip("Failed to create vgic-v3");
- 		exit(KSFT_SKIP);
- 	}
-@@ -395,6 +396,12 @@ static struct kvm_vm *test_vm_create(void)
- 	return vm;
- }
- 
-+static void test_vm_cleanup(struct kvm_vm *vm)
-+{
-+	close(gic_fd);
-+	kvm_vm_free(vm);
-+}
++	/* Make sure malicious BPF programs can not read unitialized memory
++	 * from skb->head -> skb->data
++	 */
++	skb_reset_network_header(skb);
++	skb_reset_mac_header(skb);
 +
- static void test_print_help(char *name)
- {
- 	pr_info("Usage: %s [-h] [-n nr_vcpus] [-i iterations] [-p timer_period_ms]\n",
-@@ -478,7 +485,7 @@ int main(int argc, char *argv[])
+ 	netlink_skb_set_owner_r(skb, sk);
  
- 	vm = test_vm_create();
- 	test_run(vm);
--	kvm_vm_free(vm);
-+	test_vm_cleanup(vm);
- 
- 	return 0;
- }
+ 	if (nlk->dump_done_errno > 0)
 -- 
 2.35.1
 
