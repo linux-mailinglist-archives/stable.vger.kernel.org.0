@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC79C50F3CC
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E057950F3EE
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238520AbiDZI1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:27:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38134 "EHLO
+        id S1343692AbiDZI3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:29:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344794AbiDZI13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:29 -0400
+        with ESMTP id S1344804AbiDZI2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:28:31 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C88C6D39C;
-        Tue, 26 Apr 2022 01:23:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4092A135B06;
+        Tue, 26 Apr 2022 01:24:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 727C9617F3;
-        Tue, 26 Apr 2022 08:23:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83965C385A4;
-        Tue, 26 Apr 2022 08:23:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA7F1617F1;
+        Tue, 26 Apr 2022 08:24:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6040C385AE;
+        Tue, 26 Apr 2022 08:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961410;
-        bh=rv/GX7icARfrLpZuyE33Cr4F/qHjUe73i7Nfj25q3AY=;
+        s=korg; t=1650961453;
+        bh=e58p+eX3tzKZICjXxJ3Z7whh5AvYJrfSGi0Pe0PQWXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1XQtaHAGQKMeDRkZF+0CfA/fdxsj8O63U421uMlAnCX3u66GU5gX7w3bdbr+F+T8Y
-         DylIdch8L4WzfhSu1Z36kPyKElzDsSlS2wAP5G829+Zt+BgmbODiBl++nszt66+O/k
-         uvXi9ctEvh3lN6NdPPtNwZRQ+Twqn8C4FTWEjZck=
+        b=eQCmV5A7giQjDgx3yb3ZxkFoP900SXOWj30OqrHNuyifrM7QwWDckVUl7UJQnMmmR
+         OnXBcWro98NC61XOLWW41Yad2Bemf/PbBd35xX2FdEpJObdrYIKmXJWqMv4aL0G7lV
+         g9/+N6cUE5uKgOcg3H9VPTnplebrZX2I+65Le+CM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+70e777a39907d6d5fd0a@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 04/24] ALSA: usb-audio: Clear MIDI port active flag after draining
+        stable@vger.kernel.org, Hongbin Wang <wh_bin@126.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 16/43] vxlan: fix error return code in vxlan_fdb_append
 Date:   Tue, 26 Apr 2022 10:20:58 +0200
-Message-Id: <20220426081731.503169674@linuxfoundation.org>
+Message-Id: <20220426081734.996931103@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
-References: <20220426081731.370823950@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Hongbin Wang <wh_bin@126.com>
 
-commit 0665886ad1392e6b5bae85d7a6ccbed48dca1522 upstream.
+[ Upstream commit 7cea5560bf656b84f9ed01c0cc829d4eecd0640b ]
 
-When a rawmidi output stream is closed, it calls the drain at first,
-then does trigger-off only when the drain returns -ERESTARTSYS as a
-fallback.  It implies that each driver should turn off the stream
-properly after the drain.  Meanwhile, USB-audio MIDI interface didn't
-change the port->active flag after the drain.  This may leave the
-output work picking up the port that is closed right now, which
-eventually leads to a use-after-free for the already released rawmidi
-object.
+When kmalloc and dst_cache_init failed,
+should return ENOMEM rather than ENOBUFS.
 
-This patch fixes the bug by properly clearing the port->active flag
-after the output drain.
-
-Reported-by: syzbot+70e777a39907d6d5fd0a@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/00000000000011555605dceaff03@google.com
-Link: https://lore.kernel.org/r/20220420130247.22062-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hongbin Wang <wh_bin@126.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/midi.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/vxlan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/usb/midi.c
-+++ b/sound/usb/midi.c
-@@ -1210,6 +1210,7 @@ static void snd_usbmidi_output_drain(str
- 		} while (drain_urbs && timeout);
- 		finish_wait(&ep->drain_wait, &wait);
- 	}
-+	port->active = 0;
- 	spin_unlock_irq(&ep->buffer_lock);
- }
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 066a4654e838..31657f15eb07 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -524,11 +524,11 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
  
+ 	rd = kmalloc(sizeof(*rd), GFP_ATOMIC);
+ 	if (rd == NULL)
+-		return -ENOBUFS;
++		return -ENOMEM;
+ 
+ 	if (dst_cache_init(&rd->dst_cache, GFP_ATOMIC)) {
+ 		kfree(rd);
+-		return -ENOBUFS;
++		return -ENOMEM;
+ 	}
+ 
+ 	rd->remote_ip = *ip;
+-- 
+2.35.1
+
 
 
