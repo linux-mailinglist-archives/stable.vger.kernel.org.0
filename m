@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF6EF50F75A
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:39:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 089F050F3A6
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346338AbiDZJHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38556 "EHLO
+        id S1344621AbiDZI0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:26:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347754AbiDZJGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 468B411C1A;
-        Tue, 26 Apr 2022 01:45:37 -0700 (PDT)
+        with ESMTP id S1344599AbiDZI0B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:26:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 168A83A70B;
+        Tue, 26 Apr 2022 01:22:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8D6261344;
-        Tue, 26 Apr 2022 08:45:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C31B2C385B3;
-        Tue, 26 Apr 2022 08:45:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7D12617E7;
+        Tue, 26 Apr 2022 08:22:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B11F1C385A0;
+        Tue, 26 Apr 2022 08:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962736;
-        bh=0up0+3ng2gkf9fVKVYD32dBPHhE8G+CBylS47GayzIM=;
+        s=korg; t=1650961372;
+        bh=YzDiLu9ddEYgQ9ntmiI/RkK4sDXt+4979qYJ8zeaSKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDBGmsQ5Ts4FyZoFrD8HxijxMedlJ3ZbTAAM3TQ7PZ/c/DIG8ez7V5Xg0l78Rl0jV
-         mny/HUG1op2DQ8ubO+cc0hXwGv//10hPuYnGwBnDdmqLnlZa/NORBHM8vVr+JWKIxU
-         rrYlbY+4jKut+WS3HJGes4i/Mz92mr48ho5Fbn3w=
+        b=T4qPchUH2f8tlCCHCUfMCbx27ZWQJhxkbNcRgQo0fHr6fsA6QswVbOT0YTN8KVFwe
+         W1mYKW8v77bHltJ5SjCpyNNB5AYzAiNH7F/+3GHYLsZGdAgKhb/8TiWhZ8T0Lko+zx
+         m8ZXwbJt9fmjJOqPGvPflldVnQ5NgQpkSanlc9sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Kalle Valo <kvalo@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        brcm80211-dev-list.pdl@broadcom.com, netdev@vger.kernel.org,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 073/146] brcmfmac: sdio: Fix undefined behavior due to shift overflowing the constant
+Subject: [PATCH 4.9 14/24] drm/msm/mdp5: check the return of kzalloc()
 Date:   Tue, 26 Apr 2022 10:21:08 +0200
-Message-Id: <20220426081752.114020307@linuxfoundation.org>
+Message-Id: <20220426081731.794860400@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
+References: <20220426081731.370823950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,53 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@alien8.de>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 6fb3a5868b2117611f41e421e10e6a8c2a13039a ]
+[ Upstream commit 047ae665577776b7feb11bd4f81f46627cff95e7 ]
 
-Fix:
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check it to
+prevent potential wrong memory access.
 
-  drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c: In function ‘brcmf_sdio_drivestrengthinit’:
-  drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c:3798:2: error: case label does not reduce to an integer constant
-    case SDIOD_DRVSTR_KEY(BRCM_CC_43143_CHIP_ID, 17):
-    ^~~~
-  drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c:3809:2: error: case label does not reduce to an integer constant
-    case SDIOD_DRVSTR_KEY(BRCM_CC_43362_CHIP_ID, 13):
-    ^~~~
+Besides, since mdp5_plane_reset() is void type, so we should better
+set `plane-state` to NULL after releasing it.
 
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Arend van Spriel <aspriel@gmail.com>
-Cc: Franky Lin <franky.lin@broadcom.com>
-Cc: Hante Meuleman <hante.meuleman@broadcom.com>
-Cc: Kalle Valo <kvalo@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: brcm80211-dev-list.pdl@broadcom.com
-Cc: netdev@vger.kernel.org
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/Ykx0iRlvtBnKqtbG@zn.tnic
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/481055/
+Link: https://lore.kernel.org/r/tencent_8E2A1C78140EE1784AB2FF4B2088CC0AB908@qq.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/mdp/mdp5/mdp5_plane.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-index 5d156e591b35..f7961b22e051 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -557,7 +557,7 @@ enum brcmf_sdio_frmtype {
- 	BRCMF_SDIO_FT_SUB,
- };
+diff --git a/drivers/gpu/drm/msm/mdp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/mdp/mdp5/mdp5_plane.c
+index 83bf997dda03..e14bfbdbaf2b 100644
+--- a/drivers/gpu/drm/msm/mdp/mdp5/mdp5_plane.c
++++ b/drivers/gpu/drm/msm/mdp/mdp5/mdp5_plane.c
+@@ -192,7 +192,10 @@ static void mdp5_plane_reset(struct drm_plane *plane)
+ 		drm_framebuffer_unreference(plane->state->fb);
  
--#define SDIOD_DRVSTR_KEY(chip, pmu)     (((chip) << 16) | (pmu))
-+#define SDIOD_DRVSTR_KEY(chip, pmu)     (((unsigned int)(chip) << 16) | (pmu))
+ 	kfree(to_mdp5_plane_state(plane->state));
++	plane->state = NULL;
+ 	mdp5_state = kzalloc(sizeof(*mdp5_state), GFP_KERNEL);
++	if (!mdp5_state)
++		return;
  
- /* SDIO Pad drive strength to select value mappings */
- struct sdiod_drive_str {
+ 	/* assign default blend parameters */
+ 	mdp5_state->alpha = 255;
 -- 
 2.35.1
 
