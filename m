@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C79345107F4
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E81B5107DA
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:02:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353585AbiDZTFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:05:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40228 "EHLO
+        id S1353114AbiDZTFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:05:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352919AbiDZTFM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7319319916C;
-        Tue, 26 Apr 2022 12:02:04 -0700 (PDT)
+        with ESMTP id S1353529AbiDZTFR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:17 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B1BE1597AB;
+        Tue, 26 Apr 2022 12:02:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DE72619C0;
-        Tue, 26 Apr 2022 19:02:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5839CC385BE;
+        by sin.source.kernel.org (Postfix) with ESMTPS id B212DCE1CA4;
+        Tue, 26 Apr 2022 19:02:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCFC9C385AD;
         Tue, 26 Apr 2022 19:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1650999723;
-        bh=Q9u6Gz6M80SVS5hvS/h6zXfSYjFBtPvZlCANhhT/kOc=;
+        bh=0Y5QnMd8T87CITmK3jIabf6VdsS8nJNvvvMpL+BzWVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pg18GbcoTZ/GI5rYwNzq5GCVZgTBFUF32g84TP8TfOEtLMGsfSGn92sGVk6eLwfmd
-         Sl71eUq7kKzc24GRTSP/fos6Hn4wQqzCrbSDChZlJkE38GEbmxdvIHZRTs131mRQLY
-         MB3dzFI0TOOHaHQXYjGbYp6tJRRRpt91y/uNywmN8dgprZEo/4moQCCidKosARejPe
-         UFErS+rdMSpmrh4hdc50vBmMIINMOuPCX/pQ1kX/dnrq7mDa65u/Cb0oZ2cHDSV7Ds
-         TIkDttUIsbYHxhx/clLtSGKRm1F572lrpzB0xj7KWKW3TWThMRT5scJ7eHNlVMOYgU
-         CbwZB3tbxIHug==
+        b=Jus7NBhfOgoqKSHgGH5n9UBgiVjYPqIC4PtEh1oP+vMhI1WgbTzPJEd+f/uiG7LBq
+         edGDqCjj4hxcAUKLeVhsvuzJdTW9Qz2h5Xk4FXqvDzzLHRODDVwkXkCBlxa97ofYcD
+         xpytaYgt3ReoxiT/WnQJzEIvnFFOKxikcbguQepFlDUTzicrAj+g+DX14HJadc58kG
+         hSiNEs6NdLzkQb6Y0tJA9sGBSLMDDJAY9MzE+q7tPN8F+KCkhJPYUGoLLk2cFChn4V
+         DzJq2x3jkX0kzMKKKPOh0yLZwbqqV/FDbg4xMkdhLd10f97n+AuDNwZky0t5jA2HdT
+         sazf36O8eTwsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Namjae Jeon <linkinjeon@kernel.org>,
-        Hyunchul Lee <hyc.lee@gmail.com>,
         Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
-        linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 10/22] ksmbd: increment reference count of parent fp
-Date:   Tue, 26 Apr 2022 15:01:33 -0400
-Message-Id: <20220426190145.2351135-10-sashal@kernel.org>
+        hyc.lee@gmail.com, linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 11/22] ksmbd: set fixed sector size to FS_SECTOR_SIZE_INFORMATION
+Date:   Tue, 26 Apr 2022 15:01:34 -0400
+Message-Id: <20220426190145.2351135-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220426190145.2351135-1-sashal@kernel.org>
 References: <20220426190145.2351135-1-sashal@kernel.org>
@@ -59,47 +58,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit 8510a043d334ecdf83d4604782f288db6bf21d60 ]
+[ Upstream commit 02655a70b7cc0f534531ee65fa72692f4d31a944 ]
 
-Add missing increment reference count of parent fp in
-ksmbd_lookup_fd_inode().
+Currently ksmbd is using ->f_bsize from vfs_statfs() as sector size.
+If fat/exfat is a local share, ->f_bsize is a cluster size that is too
+large to be used as a sector size. Sector sizes larger than 4K cause
+problem occurs when mounting an iso file through windows client.
+
+The error message can be obtained using Mount-DiskImage command,
+ the error is:
+"Mount-DiskImage : The sector size of the physical disk on which the
+virtual disk resides is not supported."
+
+This patch reports fixed 4KB sector size if ->s_blocksize is bigger
+than 4KB.
 
 Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c   | 2 ++
- fs/ksmbd/vfs_cache.c | 1 +
- 2 files changed, 3 insertions(+)
+ fs/ksmbd/smb2pdu.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 67e8e28e3fc3..a19a2b9c1e56 100644
+index a19a2b9c1e56..83ffa73c9348 100644
 --- a/fs/ksmbd/smb2pdu.c
 +++ b/fs/ksmbd/smb2pdu.c
-@@ -5771,8 +5771,10 @@ static int set_rename_info(struct ksmbd_work *work, struct ksmbd_file *fp,
- 	if (parent_fp) {
- 		if (parent_fp->daccess & FILE_DELETE_LE) {
- 			pr_err("parent dir is opened with delete access\n");
-+			ksmbd_fd_put(work, parent_fp);
- 			return -ESHARE;
- 		}
-+		ksmbd_fd_put(work, parent_fp);
- 	}
- next:
- 	return smb2_rename(work, fp, user_ns, rename_info,
-diff --git a/fs/ksmbd/vfs_cache.c b/fs/ksmbd/vfs_cache.c
-index 29c1db66bd0f..8b873d92d785 100644
---- a/fs/ksmbd/vfs_cache.c
-+++ b/fs/ksmbd/vfs_cache.c
-@@ -497,6 +497,7 @@ struct ksmbd_file *ksmbd_lookup_fd_inode(struct inode *inode)
- 	list_for_each_entry(lfp, &ci->m_fp_list, node) {
- 		if (inode == file_inode(lfp->filp)) {
- 			atomic_dec(&ci->m_count);
-+			lfp = ksmbd_fp_get(lfp);
- 			read_unlock(&ci->m_lock);
- 			return lfp;
- 		}
+@@ -11,6 +11,7 @@
+ #include <linux/statfs.h>
+ #include <linux/ethtool.h>
+ #include <linux/falloc.h>
++#include <linux/mount.h>
+ 
+ #include "glob.h"
+ #include "smbfsctl.h"
+@@ -5005,15 +5006,17 @@ static int smb2_get_info_filesystem(struct ksmbd_work *work,
+ 	case FS_SECTOR_SIZE_INFORMATION:
+ 	{
+ 		struct smb3_fs_ss_info *info;
++		unsigned int sector_size =
++			min_t(unsigned int, path.mnt->mnt_sb->s_blocksize, 4096);
+ 
+ 		info = (struct smb3_fs_ss_info *)(rsp->Buffer);
+ 
+-		info->LogicalBytesPerSector = cpu_to_le32(stfs.f_bsize);
++		info->LogicalBytesPerSector = cpu_to_le32(sector_size);
+ 		info->PhysicalBytesPerSectorForAtomicity =
+-				cpu_to_le32(stfs.f_bsize);
+-		info->PhysicalBytesPerSectorForPerf = cpu_to_le32(stfs.f_bsize);
++				cpu_to_le32(sector_size);
++		info->PhysicalBytesPerSectorForPerf = cpu_to_le32(sector_size);
+ 		info->FSEffPhysicalBytesPerSectorForAtomicity =
+-				cpu_to_le32(stfs.f_bsize);
++				cpu_to_le32(sector_size);
+ 		info->Flags = cpu_to_le32(SSINFO_FLAGS_ALIGNED_DEVICE |
+ 				    SSINFO_FLAGS_PARTITION_ALIGNED_ON_DEVICE);
+ 		info->ByteOffsetForSectorAlignment = 0;
 -- 
 2.35.1
 
