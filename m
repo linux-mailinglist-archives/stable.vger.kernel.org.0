@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 246D3510860
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D125C510844
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350215AbiDZTGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44842 "EHLO
+        id S1353880AbiDZTGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:06:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353879AbiDZTGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:06:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7646D1999CD;
-        Tue, 26 Apr 2022 12:03:00 -0700 (PDT)
+        with ESMTP id S1353884AbiDZTGP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:06:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A4F1999F0;
+        Tue, 26 Apr 2022 12:03:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1375D619B9;
-        Tue, 26 Apr 2022 19:03:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56750C385A0;
-        Tue, 26 Apr 2022 19:02:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB194B821FC;
+        Tue, 26 Apr 2022 19:03:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 681EBC385AA;
+        Tue, 26 Apr 2022 19:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650999779;
-        bh=IahD/UGbAtp5D8KEjlB7ZHxiAoNcd+ZHPnhmK08V4LI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=URFRHNESFL5/TWAsJPZv2mzFgObA4TCmpdF04ifwTtJMn2u0mffWR2Ggc6gz+WUEQ
-         RQeseiukQNba5N88kR0krx4HhQaxNopknmWOlWyoaQpuR/kuCQil52UmYKtKoSVZq8
-         AeUZxzqTIK2bBUTsWatxxvncD2uCMhTKAwrBX/PLYHNHVJ4wVOOXH8iG2FBD8CTC7s
-         JzTfw/V58WLfuJwE/5WJWzgLFOX80JKgk8hb2JL1c3ntRP1vrG+si+7bkgvOCZwneK
-         K6nEhZ8kLnoNVGQ7G+av0GE52SegaJlRg8ytK+drprTcufYXM4UWj1itL1y/bVe846
-         ofdPD9dy2bNFg==
+        s=k20201202; t=1650999781;
+        bh=vCU5qEkJjk+EcRlpBM/zbmu5Bbw3XDvJpwb9pfhgSjI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DDKjvS+VKeBKXvQXUJeJ2VL2wuFQTjHcJcp9areryxFTdEfDpH9P8TC+enMaGzeCK
+         CE21amW4wFdNR6PCAvdP3mKF2qkZ6RIIRLQI+g6zMOnAiZMgfT9hXtB2iatumJ/hM6
+         CTvk9LjM8fMQsAePmqXj2Bg6N7dw+zZQpRb2A3+0xK1X9Kg9C5sSuJY0ttLMEZlw4c
+         b7vNE7+YgpPENCazPyOKFcLixhONtyrGcLM3qktIK6h4206IA67mZzqaNj1HGYsNMb
+         u0S4vHJd2JZHUbJgnwvl9zLZDIR8lEkbKOk2TCzoIyYZ7F7xOJlr3diq7Bv+BLjLU0
+         VTXuURFZ85bug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
-        u.kleine-koenig@pengutronix.de, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 1/5] ASoC: wm8731: Disable the regulator when probing fails
-Date:   Tue, 26 Apr 2022 15:02:52 -0400
-Message-Id: <20220426190258.2351902-1-sashal@kernel.org>
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, jpoimboe@redhat.com, peterz@infradead.org
+Subject: [PATCH AUTOSEL 4.14 2/5] x86: __memcpy_flushcache: fix wrong alignment if size > 2^32
+Date:   Tue, 26 Apr 2022 15:02:53 -0400
+Message-Id: <20220426190258.2351902-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220426190258.2351902-1-sashal@kernel.org>
+References: <20220426190258.2351902-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,88 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 92ccbf17eeacf510cf1eed9c252d9332ca24f02d ]
+[ Upstream commit a6823e4e360fe975bd3da4ab156df7c74c8b07f3 ]
 
-When the driver fails during probing, the driver should disable the
-regulator, not just handle it in wm8731_hw_init().
+The first "if" condition in __memcpy_flushcache is supposed to align the
+"dest" variable to 8 bytes and copy data up to this alignment.  However,
+this condition may misbehave if "size" is greater than 4GiB.
 
-The following log reveals it:
+The statement min_t(unsigned, size, ALIGN(dest, 8) - dest); casts both
+arguments to unsigned int and selects the smaller one.  However, the
+cast truncates high bits in "size" and it results in misbehavior.
 
-[   17.812483] WARNING: CPU: 1 PID: 364 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
-[   17.815958] RIP: 0010:_regulator_put+0x3ec/0x4e0
-[   17.824467] Call Trace:
-[   17.824774]  <TASK>
-[   17.825040]  regulator_bulk_free+0x82/0xe0
-[   17.825514]  devres_release_group+0x319/0x3d0
-[   17.825882]  i2c_device_probe+0x766/0x940
-[   17.829198]  i2c_register_driver+0xb5/0x130
+For example:
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/20220405121038.4094051-1-zheyuma97@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+	suppose that size == 0x100000001, dest == 0x200000002
+	min_t(unsigned, size, ALIGN(dest, 8) - dest) == min_t(0x1, 0xe) == 0x1;
+	...
+	dest += 0x1;
+
+so we copy just one byte "and" dest remains unaligned.
+
+This patch fixes the bug by replacing unsigned with size_t.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8731.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ arch/x86/lib/usercopy_64.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wm8731.c b/sound/soc/codecs/wm8731.c
-index 4f9a1eb28120..abe5e77ba171 100644
---- a/sound/soc/codecs/wm8731.c
-+++ b/sound/soc/codecs/wm8731.c
-@@ -604,7 +604,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
- 	ret = wm8731_reset(wm8731->regmap);
- 	if (ret < 0) {
- 		dev_err(dev, "Failed to issue reset: %d\n", ret);
--		goto err_regulator_enable;
-+		goto err;
- 	}
+diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
+index 2c3b4bcbe8f2..0650b440b389 100644
+--- a/arch/x86/lib/usercopy_64.c
++++ b/arch/x86/lib/usercopy_64.c
+@@ -140,7 +140,7 @@ void memcpy_flushcache(void *_dst, const void *_src, size_t size)
  
- 	/* Clear POWEROFF, keep everything else disabled */
-@@ -621,10 +621,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 	/* cache copy and flush to align dest */
+ 	if (!IS_ALIGNED(dest, 8)) {
+-		unsigned len = min_t(unsigned, size, ALIGN(dest, 8) - dest);
++		size_t len = min_t(size_t, size, ALIGN(dest, 8) - dest);
  
- 	regcache_mark_dirty(wm8731->regmap);
- 
--err_regulator_enable:
--	/* Regulators will be enabled by bias management */
--	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
--
-+err:
- 	return ret;
- }
- 
-@@ -768,21 +765,27 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
- 		ret = PTR_ERR(wm8731->regmap);
- 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
- 			ret);
--		return ret;
-+		goto err_regulator_enable;
- 	}
- 
- 	ret = wm8731_hw_init(&i2c->dev, wm8731);
- 	if (ret != 0)
--		return ret;
-+		goto err_regulator_enable;
- 
- 	ret = snd_soc_register_codec(&i2c->dev,
- 			&soc_codec_dev_wm8731, &wm8731_dai, 1);
- 	if (ret != 0) {
- 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
--		return ret;
-+		goto err_regulator_enable;
- 	}
- 
- 	return 0;
-+
-+err_regulator_enable:
-+	/* Regulators will be enabled by bias management */
-+	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
-+
-+	return ret;
- }
- 
- static int wm8731_i2c_remove(struct i2c_client *client)
+ 		memcpy((void *) dest, (void *) source, len);
+ 		clean_cache_range((void *) dest, len);
 -- 
 2.35.1
 
