@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 678C050F6BB
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52C5D50F818
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345917AbiDZI6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55154 "EHLO
+        id S1346227AbiDZJIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345651AbiDZI5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A67976256;
-        Tue, 26 Apr 2022 01:42:10 -0700 (PDT)
+        with ESMTP id S1347889AbiDZJGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3D357DA95;
+        Tue, 26 Apr 2022 01:46:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 410BC60C49;
-        Tue, 26 Apr 2022 08:42:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48747C385A4;
-        Tue, 26 Apr 2022 08:42:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1070B81CB3;
+        Tue, 26 Apr 2022 08:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4921C385A4;
+        Tue, 26 Apr 2022 08:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962529;
-        bh=GWcUtf3UQVYWNlTxcZ+Z1ItyTx0lhByWckaw0QEi8uk=;
+        s=korg; t=1650962802;
+        bh=UQHtrv06tWWNq/VuBscRZKo9WCfY+hF9zl3LNoY7nQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vqkn3rUZo+hcXXqWRT+XPSYA33iswCmRvRkBLQj1EiNlMjweecjBQogJXIP3ROlmG
-         vqH2IlVmo5oabd3dWm2YVKnWiqsgkCsvmDjy97q5z1aMXgXhrPTFqTMZcvbsAsvZaJ
-         +Q0tiTdnbQYkQUUaHFPBijt5P04cFI8UJmWytemQ=
+        b=OQcZQJt0SS9zPsvLwQu7qKfMlfr7V6z+66MYnQEv5RjBjVGP2JuIXnC82IrIB95Pw
+         F4Ax058sdPcMg7KrSKL322gBW25PF33yyAUp3geSEIRhgP7/SXNKCxkAFShudDW8YC
+         CaiSOPE7QtfoZ+BqLB+XkY6tDAcadQFlN1VNad+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 087/124] Input: omap4-keypad - fix pm_runtime_get_sync() error checking
+        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 093/146] mm/mmu_notifier.c: fix race in mmu_interval_notifier_remove()
 Date:   Tue, 26 Apr 2022 10:21:28 +0200
-Message-Id: <20220426081749.773512486@linuxfoundation.org>
+Message-Id: <20220426081752.672160180@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +57,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Alistair Popple <apopple@nvidia.com>
 
-[ Upstream commit 81022a170462d38ea10612cb67e8e2c529d58abe ]
+commit 319561669a59d8e9206ab311ae5433ef92fd79d1 upstream.
 
-If the device is already in a runtime PM enabled state
-pm_runtime_get_sync() will return 1, so a test for negative
-value should be used to check for errors.
+In some cases it is possible for mmu_interval_notifier_remove() to race
+with mn_tree_inv_end() allowing it to return while the notifier data
+structure is still in use.  Consider the following sequence:
 
-Fixes: f77621cc640a ("Input: omap-keypad - dynamically handle register offsets")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220412070131.19848-1-linmq006@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  CPU0 - mn_tree_inv_end()            CPU1 - mmu_interval_notifier_remove()
+  ----------------------------------- ------------------------------------
+                                      spin_lock(subscriptions->lock);
+                                      seq = subscriptions->invalidate_seq;
+  spin_lock(subscriptions->lock);     spin_unlock(subscriptions->lock);
+  subscriptions->invalidate_seq++;
+                                      wait_event(invalidate_seq != seq);
+                                      return;
+  interval_tree_remove(interval_sub); kfree(interval_sub);
+  spin_unlock(subscriptions->lock);
+  wake_up_all();
+
+As the wait_event() condition is true it will return immediately.  This
+can lead to use-after-free type errors if the caller frees the data
+structure containing the interval notifier subscription while it is
+still on a deferred list.  Fix this by taking the appropriate lock when
+reading invalidate_seq to ensure proper synchronisation.
+
+I observed this whilst running stress testing during some development.
+You do have to be pretty unlucky, but it leads to the usual problems of
+use-after-free (memory corruption, kernel crash, difficult to diagnose
+WARN_ON, etc).
+
+Link: https://lkml.kernel.org/r/20220420043734.476348-1-apopple@nvidia.com
+Fixes: 99cb252f5e68 ("mm/mmu_notifier: add an interval tree notifier")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/keyboard/omap4-keypad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/mmu_notifier.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index 43375b38ee59..8a7ce41b8c56 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -393,7 +393,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
- 	 * revision register.
- 	 */
- 	error = pm_runtime_get_sync(dev);
--	if (error) {
-+	if (error < 0) {
- 		dev_err(dev, "pm_runtime_get_sync() failed\n");
- 		pm_runtime_put_noidle(dev);
- 		return error;
--- 
-2.35.1
-
+--- a/mm/mmu_notifier.c
++++ b/mm/mmu_notifier.c
+@@ -1036,6 +1036,18 @@ int mmu_interval_notifier_insert_locked(
+ }
+ EXPORT_SYMBOL_GPL(mmu_interval_notifier_insert_locked);
+ 
++static bool
++mmu_interval_seq_released(struct mmu_notifier_subscriptions *subscriptions,
++			  unsigned long seq)
++{
++	bool ret;
++
++	spin_lock(&subscriptions->lock);
++	ret = subscriptions->invalidate_seq != seq;
++	spin_unlock(&subscriptions->lock);
++	return ret;
++}
++
+ /**
+  * mmu_interval_notifier_remove - Remove a interval notifier
+  * @interval_sub: Interval subscription to unregister
+@@ -1083,7 +1095,7 @@ void mmu_interval_notifier_remove(struct
+ 	lock_map_release(&__mmu_notifier_invalidate_range_start_map);
+ 	if (seq)
+ 		wait_event(subscriptions->wq,
+-			   READ_ONCE(subscriptions->invalidate_seq) != seq);
++			   mmu_interval_seq_released(subscriptions, seq));
+ 
+ 	/* pairs with mmgrab in mmu_interval_notifier_insert() */
+ 	mmdrop(mm);
 
 
