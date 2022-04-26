@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E28E50F496
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0376750F3DD
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344483AbiDZIhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:37:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36850 "EHLO
+        id S234812AbiDZI3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:29:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345222AbiDZIh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:37:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1981890A7;
-        Tue, 26 Apr 2022 01:29:09 -0700 (PDT)
+        with ESMTP id S1344774AbiDZI21 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:28:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29009133E78;
+        Tue, 26 Apr 2022 01:24:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D2FCB81CED;
-        Tue, 26 Apr 2022 08:29:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC16CC385A4;
-        Tue, 26 Apr 2022 08:29:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8DAB6179E;
+        Tue, 26 Apr 2022 08:24:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D85C385A4;
+        Tue, 26 Apr 2022 08:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961747;
-        bh=w5zQ/smunMnh0oP0dXDgpqizKSPgIVojJ/G14JGHKOY=;
+        s=korg; t=1650961450;
+        bh=j0gl3vwHeaKb2MMhrqnV3OYaEofGRoT5zWN/DeGK2dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=houV1AQrHoFVBOCgwB1cIkl5IMJMrChoDWE2ifNnViYK3oQyPY0Ufy3JP9KUiHOos
-         QrZez1phyjmgJCzF20oXA2W6PJNT6m/YJQuNlaY8+A78pXBWycT/n8FJM5b3kK8bVR
-         kzekDvBsnc2VuFMl4WjmFdEVGwMoqK4P5HA37Hsg=
+        b=lpqVUqD7O0pZUnvsVJlyUEwhKtKbKepzhGHOUY5x5AHvY1xF8CGvMSLRA6zYWDcKQ
+         cZPXxg0UoDgh9rSCPvXk2Zh22AqFhR2+6xkjagqWHgrsHo2pymX429N6jr1sV/q40N
+         eQssQQbydWZP8APmpxCBi3KNPlX9byIt1eq/TBHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lu <tonylu@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+6e29a053eb165bd50de5@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 17/62] net/smc: Fix sock leak when release after smc_shutdown()
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 15/43] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
 Date:   Tue, 26 Apr 2022 10:20:57 +0200
-Message-Id: <20220426081737.721078009@linuxfoundation.org>
+Message-Id: <20220426081734.968707855@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 1a74e99323746353bba11562a2f2d0aa8102f402 ]
+[ Upstream commit 1ef8715975de8bd481abbd0839ed4f49d9e5b0ff ]
 
-Since commit e5d5aadcf3cd ("net/smc: fix sk_refcnt underflow on linkdown
-and fallback"), for a fallback connection, __smc_release() does not call
-sock_put() if its state is already SMC_CLOSED.
+Fix:
 
-When calling smc_shutdown() after falling back, its state is set to
-SMC_CLOSED but does not call sock_put(), so this patch calls it.
+  sound/usb/midi.c: In function ‘snd_usbmidi_out_endpoint_create’:
+  sound/usb/midi.c:1389:2: error: case label does not reduce to an integer constant
+    case USB_ID(0xfc08, 0x0101): /* Unknown vendor Cable */
+    ^~~~
 
-Reported-and-tested-by: syzbot+6e29a053eb165bd50de5@syzkaller.appspotmail.com
-Fixes: e5d5aadcf3cd ("net/smc: fix sk_refcnt underflow on linkdown and fallback")
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
+
+[ A slight correction with parentheses around the argument by tiwai ]
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20220405151517.29753-3-bp@alien8.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/usb/usbaudio.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 06684ac346ab..5221092cc66d 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1698,8 +1698,10 @@ static int smc_shutdown(struct socket *sock, int how)
- 	if (smc->use_fallback) {
- 		rc = kernel_sock_shutdown(smc->clcsock, how);
- 		sk->sk_shutdown = smc->clcsock->sk->sk_shutdown;
--		if (sk->sk_shutdown == SHUTDOWN_MASK)
-+		if (sk->sk_shutdown == SHUTDOWN_MASK) {
- 			sk->sk_state = SMC_CLOSED;
-+			sock_put(sk);
-+		}
- 		goto out;
- 	}
- 	switch (how) {
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index 62456a806bb4..4b8f1c46420d 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -22,7 +22,7 @@
+  */
+ 
+ /* handling of USB vendor/product ID pairs as 32-bit numbers */
+-#define USB_ID(vendor, product) (((vendor) << 16) | (product))
++#define USB_ID(vendor, product) (((unsigned int)(vendor) << 16) | (product))
+ #define USB_ID_VENDOR(id) ((id) >> 16)
+ #define USB_ID_PRODUCT(id) ((u16)(id))
+ 
 -- 
 2.35.1
 
