@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E8250F6EB
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F37650F871
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244109AbiDZJB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:01:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56738 "EHLO
+        id S1345898AbiDZJDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:03:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346455AbiDZJAh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:00:37 -0400
+        with ESMTP id S1345874AbiDZJCp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:02:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B5963EF1B;
-        Tue, 26 Apr 2022 01:43:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B158CC3E2C;
+        Tue, 26 Apr 2022 01:43:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA82EB81D1D;
-        Tue, 26 Apr 2022 08:43:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 382CFC385A0;
-        Tue, 26 Apr 2022 08:43:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7241B81C76;
+        Tue, 26 Apr 2022 08:43:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A5FDC385A0;
+        Tue, 26 Apr 2022 08:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962585;
-        bh=bcOTZJMicACjWXiZfXi+DQEm7lArO/AWDfEHBhtc7QE=;
+        s=korg; t=1650962617;
+        bh=nyzb5SSmK/jZCYBddQRdW43tebhvDVL3O1UKfr9EU3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BSFtUbNrvt7DqCtLJmxyVp21x7UxOyp3ho0b6aGfZGgSx7B3dgOjkq5NAI1RlmBEu
-         Qy/OzzeMR+Yxes31EMUJyPRfaxUJCpBdNOuDZIwmnOvWrK1C2Q6ab0omOH/HUvwDC+
-         yIYt9Oc6GxtpTLZIYd10Gjsp1Y9Pkf675jiVjlsY=
+        b=RA0DX9TxMNHrEJbnVT+RLRCJF0prFrNgz0cd5HCVqRE8I4zsOnWqHd2C35kIZZyjn
+         4mf7QyR/jNOa7fL27W8oQ6SP1DcOwGdIkqaU7m2xJFvR5dYVxwhSYV3B+MWX4vh2IL
+         RIGAjxBcHbjBMZxzEs0Xh+rrULj7xcNmm62ux70M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Amit Pundir <amit.pundir@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 014/146] ASoC: msm8916-wcd-digital: Check failure for devm_snd_soc_register_component
-Date:   Tue, 26 Apr 2022 10:20:09 +0200
-Message-Id: <20220426081750.465590569@linuxfoundation.org>
+Subject: [PATCH 5.17 015/146] ASoC: codecs: wcd934x: do not switch off SIDO Buck when codec is in use
+Date:   Tue, 26 Apr 2022 10:20:10 +0200
+Message-Id: <20220426081750.493500101@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -53,44 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit e927b05f3cc20de87f6b7d912a5bbe556931caca ]
+[ Upstream commit db6dd1bee63d1d88fbddfe07af800af5948ac28e ]
 
-devm_snd_soc_register_component() may fails, we should check the error
-and do the corresponding error handling.
+SIDO(Single-Inductor Dual-Ouput) Buck powers up both analog and digital
+circuits along with internal memory, powering off this is the last thing
+that codec should do when going to very low power.
 
-Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220403115239.30140-1-linmq006@gmail.com
+Current code was powering off this Buck if there are no users of sysclk,
+which is not correct. Powering off this buck will result in no register access.
+This code path was never tested until recently after adding pm support
+in SoundWire controller. Fix this by removing the buck poweroff when the
+codec is active and also the code that is not used.
+
+Without this patch all the read/write transactions will never complete and
+results in SLIMBus Errors like:
+
+qcom,slim-ngd qcom,slim-ngd.1: Tx:MT:0x0, MC:0x60, LA:0xcf failed:-110
+wcd934x-codec wcd934x-codec.1.auto: ASoC: error at soc_component_read_no_lock
+	on wcd934x-codec.1.auto for register: [0x00000d05] -110
+qcom,slim-ngd-ctrl 171c0000.slim: Error Interrupt received 0x82000000
+
+Reported-by: Amit Pundir <amit.pundir@linaro.org>
+Fixes: a61f3b4f476e ("ASoC: wcd934x: add support to wcd9340/wcd9341 codec")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Amit Pundir <amit.pundir@linaro.org>
+Link: https://lore.kernel.org/r/20220407094313.2880-1-srinivas.kandagatla@linaro.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/msm8916-wcd-digital.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wcd934x.c | 26 +-------------------------
+ 1 file changed, 1 insertion(+), 25 deletions(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
-index 9ad7fc0baf07..20a07c92b2fc 100644
---- a/sound/soc/codecs/msm8916-wcd-digital.c
-+++ b/sound/soc/codecs/msm8916-wcd-digital.c
-@@ -1206,9 +1206,16 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
+diff --git a/sound/soc/codecs/wcd934x.c b/sound/soc/codecs/wcd934x.c
+index 1e75e93cf28f..6298ebe96e94 100644
+--- a/sound/soc/codecs/wcd934x.c
++++ b/sound/soc/codecs/wcd934x.c
+@@ -1274,29 +1274,7 @@ static int wcd934x_set_sido_input_src(struct wcd934x_codec *wcd, int sido_src)
+ 	if (sido_src == wcd->sido_input_src)
+ 		return 0;
  
- 	dev_set_drvdata(dev, priv);
- 
--	return devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
-+	ret = devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
- 				      msm8916_wcd_digital_dai,
- 				      ARRAY_SIZE(msm8916_wcd_digital_dai));
-+	if (ret)
-+		goto err_mclk;
-+
-+	return 0;
-+
-+err_mclk:
-+	clk_disable_unprepare(priv->mclk);
- err_clk:
- 	clk_disable_unprepare(priv->ahbclk);
- 	return ret;
+-	if (sido_src == SIDO_SOURCE_INTERNAL) {
+-		regmap_update_bits(wcd->regmap, WCD934X_ANA_BUCK_CTL,
+-				   WCD934X_ANA_BUCK_HI_ACCU_EN_MASK, 0);
+-		usleep_range(100, 110);
+-		regmap_update_bits(wcd->regmap, WCD934X_ANA_BUCK_CTL,
+-				   WCD934X_ANA_BUCK_HI_ACCU_PRE_ENX_MASK, 0x0);
+-		usleep_range(100, 110);
+-		regmap_update_bits(wcd->regmap, WCD934X_ANA_RCO,
+-				   WCD934X_ANA_RCO_BG_EN_MASK, 0);
+-		usleep_range(100, 110);
+-		regmap_update_bits(wcd->regmap, WCD934X_ANA_BUCK_CTL,
+-				   WCD934X_ANA_BUCK_PRE_EN1_MASK,
+-				   WCD934X_ANA_BUCK_PRE_EN1_ENABLE);
+-		usleep_range(100, 110);
+-		regmap_update_bits(wcd->regmap, WCD934X_ANA_BUCK_CTL,
+-				   WCD934X_ANA_BUCK_PRE_EN2_MASK,
+-				   WCD934X_ANA_BUCK_PRE_EN2_ENABLE);
+-		usleep_range(100, 110);
+-		regmap_update_bits(wcd->regmap, WCD934X_ANA_BUCK_CTL,
+-				   WCD934X_ANA_BUCK_HI_ACCU_EN_MASK,
+-				   WCD934X_ANA_BUCK_HI_ACCU_ENABLE);
+-		usleep_range(100, 110);
+-	} else if (sido_src == SIDO_SOURCE_RCO_BG) {
++	if (sido_src == SIDO_SOURCE_RCO_BG) {
+ 		regmap_update_bits(wcd->regmap, WCD934X_ANA_RCO,
+ 				   WCD934X_ANA_RCO_BG_EN_MASK,
+ 				   WCD934X_ANA_RCO_BG_ENABLE);
+@@ -1382,8 +1360,6 @@ static int wcd934x_disable_ana_bias_and_syclk(struct wcd934x_codec *wcd)
+ 	regmap_update_bits(wcd->regmap, WCD934X_CLK_SYS_MCLK_PRG,
+ 			   WCD934X_EXT_CLK_BUF_EN_MASK |
+ 			   WCD934X_MCLK_EN_MASK, 0x0);
+-	wcd934x_set_sido_input_src(wcd, SIDO_SOURCE_INTERNAL);
+-
+ 	regmap_update_bits(wcd->regmap, WCD934X_ANA_BIAS,
+ 			   WCD934X_ANA_BIAS_EN_MASK, 0);
+ 	regmap_update_bits(wcd->regmap, WCD934X_ANA_BIAS,
 -- 
 2.35.1
 
