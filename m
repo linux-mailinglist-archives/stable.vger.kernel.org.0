@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BCB50F580
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FF5D50F686
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242232AbiDZIzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:55:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55530 "EHLO
+        id S233060AbiDZI4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:56:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345519AbiDZIws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:52:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B153DD64F9;
-        Tue, 26 Apr 2022 01:41:01 -0700 (PDT)
+        with ESMTP id S1346015AbiDZIxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:53:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596CBD64DA;
+        Tue, 26 Apr 2022 01:41:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FE2EB81CF2;
-        Tue, 26 Apr 2022 08:40:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0D9DC385A4;
-        Tue, 26 Apr 2022 08:40:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B65E860A29;
+        Tue, 26 Apr 2022 08:40:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4315C385A0;
+        Tue, 26 Apr 2022 08:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962451;
-        bh=nQ2HJD5nf4oTxFG5OTLGaKQFzVChDheTQyaznQhlggM=;
+        s=korg; t=1650962454;
+        bh=3A1i8MzKkFsqMtigRC0ncBLbLhWH3+rRTK5SrBZ6KJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtSMmYS23Tz9kr33IyQ2SS052WqWsQjFTUi9VHPN+A4U++PEL5eAnkY093pFNc3Du
-         j4ZZhxolP4e8T6Gj/U+c+iQN1IDVSlZdDmpcuAGd2CIX7il8id+bFTblxy8y1bqo7r
-         xkxkSmvFSq2NgkrkMj2hbborRvmvSXmgNMsNDmKA=
+        b=yjYC252xtnaIuochww0U2p6hWPwRjfVDmtby5v+Dpop15D1uRIBdoeNprPmVDuv+t
+         XcwRpnvB9dc2XgMTHRE/mfrLeAI/iYdSDHqWzAbqCzo0lnv8J+f0gAm/umitHxgF/T
+         sBdWKqkStc15Rs1ND3pDd/FtKY12rlZgHqj/kwY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Valerio <pvalerio@redhat.com>,
-        Eelco Chaudron <echaudro@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 101/124] openvswitch: fix OOB access in reserve_sfa_size()
-Date:   Tue, 26 Apr 2022 10:21:42 +0200
-Message-Id: <20220426081750.169334421@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Shreeya Patel <shreeya.patel@collabora.com>,
+        =?UTF-8?q?Samuel=20=C4=8Cavoj?= <samuel@cavoj.net>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        lukeluk498@gmail.com, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 102/124] gpio: Request interrupts after IRQ is initialized
+Date:   Tue, 26 Apr 2022 10:21:43 +0200
+Message-Id: <20220426081750.196950196@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
 References: <20220426081747.286685339@linuxfoundation.org>
@@ -53,83 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valerio <pvalerio@redhat.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit cefa91b2332d7009bc0be5d951d6cbbf349f90f8 upstream.
+commit 06fb4ecfeac7e00d6704fa5ed19299f2fefb3cc9 upstream.
 
-Given a sufficiently large number of actions, while copying and
-reserving memory for a new action of a new flow, if next_offset is
-greater than MAX_ACTIONS_BUFSIZE, the function reserve_sfa_size() does
-not return -EMSGSIZE as expected, but it allocates MAX_ACTIONS_BUFSIZE
-bytes increasing actions_len by req_size. This can then lead to an OOB
-write access, especially when further actions need to be copied.
+Commit 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members
+before initialization") attempted to fix a race condition that lead to a
+NULL pointer, but in the process caused a regression for _AEI/_EVT
+declared GPIOs.
 
-Fix it by rearranging the flow action size check.
+This manifests in messages showing deferred probing while trying to
+allocate IRQs like so:
 
-KASAN splat below:
+  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0000 to IRQ, err -517
+  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x002C to IRQ, err -517
+  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003D to IRQ, err -517
+  [ .. more of the same .. ]
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in reserve_sfa_size+0x1ba/0x380 [openvswitch]
-Write of size 65360 at addr ffff888147e4001c by task handler15/836
+The code for walking _AEI doesn't handle deferred probing and so this
+leads to non-functional GPIO interrupts.
 
-CPU: 1 PID: 836 Comm: handler15 Not tainted 5.18.0-rc1+ #27
-...
-Call Trace:
- <TASK>
- dump_stack_lvl+0x45/0x5a
- print_report.cold+0x5e/0x5db
- ? __lock_text_start+0x8/0x8
- ? reserve_sfa_size+0x1ba/0x380 [openvswitch]
- kasan_report+0xb5/0x130
- ? reserve_sfa_size+0x1ba/0x380 [openvswitch]
- kasan_check_range+0xf5/0x1d0
- memcpy+0x39/0x60
- reserve_sfa_size+0x1ba/0x380 [openvswitch]
- __add_action+0x24/0x120 [openvswitch]
- ovs_nla_add_action+0xe/0x20 [openvswitch]
- ovs_ct_copy_action+0x29d/0x1130 [openvswitch]
- ? __kernel_text_address+0xe/0x30
- ? unwind_get_return_address+0x56/0xa0
- ? create_prof_cpu_mask+0x20/0x20
- ? ovs_ct_verify+0xf0/0xf0 [openvswitch]
- ? prep_compound_page+0x198/0x2a0
- ? __kasan_check_byte+0x10/0x40
- ? kasan_unpoison+0x40/0x70
- ? ksize+0x44/0x60
- ? reserve_sfa_size+0x75/0x380 [openvswitch]
- __ovs_nla_copy_actions+0xc26/0x2070 [openvswitch]
- ? __zone_watermark_ok+0x420/0x420
- ? validate_set.constprop.0+0xc90/0xc90 [openvswitch]
- ? __alloc_pages+0x1a9/0x3e0
- ? __alloc_pages_slowpath.constprop.0+0x1da0/0x1da0
- ? unwind_next_frame+0x991/0x1e40
- ? __mod_node_page_state+0x99/0x120
- ? __mod_lruvec_page_state+0x2e3/0x470
- ? __kasan_kmalloc_large+0x90/0xe0
- ovs_nla_copy_actions+0x1b4/0x2c0 [openvswitch]
- ovs_flow_cmd_new+0x3cd/0xb10 [openvswitch]
- ...
+Fix this issue by moving the call to `acpi_gpiochip_request_interrupts`
+to occur after gc->irc.initialized is set.
 
+Fixes: 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members before initialization")
+Link: https://lore.kernel.org/linux-gpio/BL1PR12MB51577A77F000A008AA694675E2EF9@BL1PR12MB5157.namprd12.prod.outlook.com/
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1198697
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215850
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1979
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1976
+Reported-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Shreeya Patel <shreeya.patel@collabora.com>
+Tested-By: Samuel Čavoj <samuel@cavoj.net>
+Tested-By: lukeluk498@gmail.com Link:
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-and-tested-by: Takashi Iwai <tiwai@suse.de>
+Cc: Shreeya Patel <shreeya.patel@collabora.com>
 Cc: stable@vger.kernel.org
-Fixes: f28cd2af22a0 ("openvswitch: fix flow actions reallocation")
-Signed-off-by: Paolo Valerio <pvalerio@redhat.com>
-Acked-by: Eelco Chaudron <echaudro@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/flow_netlink.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpiolib.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -2436,7 +2436,7 @@ static struct nlattr *reserve_sfa_size(s
- 	new_acts_size = max(next_offset + req_size, ksize(*sfa) * 2);
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1560,8 +1560,6 @@ static int gpiochip_add_irqchip(struct g
  
- 	if (new_acts_size > MAX_ACTIONS_BUFSIZE) {
--		if ((MAX_ACTIONS_BUFSIZE - next_offset) < req_size) {
-+		if ((next_offset + req_size) > MAX_ACTIONS_BUFSIZE) {
- 			OVS_NLERR(log, "Flow action size exceeds max %u",
- 				  MAX_ACTIONS_BUFSIZE);
- 			return ERR_PTR(-EMSGSIZE);
+ 	gpiochip_set_irq_hooks(gc);
+ 
+-	acpi_gpiochip_request_interrupts(gc);
+-
+ 	/*
+ 	 * Using barrier() here to prevent compiler from reordering
+ 	 * gc->irq.initialized before initialization of above
+@@ -1571,6 +1569,8 @@ static int gpiochip_add_irqchip(struct g
+ 
+ 	gc->irq.initialized = true;
+ 
++	acpi_gpiochip_request_interrupts(gc);
++
+ 	return 0;
+ }
+ 
 
 
