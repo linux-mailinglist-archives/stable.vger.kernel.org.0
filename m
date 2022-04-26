@@ -2,101 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBAA951003B
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 16:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03AFF510067
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 16:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238012AbiDZOVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 10:21:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56530 "EHLO
+        id S1348555AbiDZO3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 10:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237465AbiDZOVL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 10:21:11 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 10E241BE89
-        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 07:18:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1650982683;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0bfm5h1PBNVBIKlOUTEv2QDkar3XSs2YfbRFWDvobYk=;
-        b=HZLp0MoNPKjAWTIdOUy1ItFiyc7G8Aky0+YDRxMEBHJgf+UWWxFK69OR2DpT5dMvhgXsx3
-        YUByEf0DbDYlHDGnELYpDMQybdqw93oXMmJktzTrPScTxSeNUiulvQZHKREXrvc2cBmbIw
-        jrVIkJcNVW/0c175GZOmRQ+icwmP5w8=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-588-xBXP6_WwOZ2VNKf5_EmBGg-1; Tue, 26 Apr 2022 10:18:01 -0400
-X-MC-Unique: xBXP6_WwOZ2VNKf5_EmBGg-1
-Received: by mail-wr1-f69.google.com with SMTP id v29-20020adfa1dd000000b0020ad932b7c0so1967770wrv.0
-        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 07:18:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=0bfm5h1PBNVBIKlOUTEv2QDkar3XSs2YfbRFWDvobYk=;
-        b=fU5Smbs6LiahbEj07s2YkwSWH7tjiBiYRSMhtvmyIkjsvSz+e///tPw1zp9G/92HKB
-         0w4V0F7o9Dss/WRULtIEWp1XmFZm4UXv6tVMnlFCx/4kOwkao9NQt+QgDeBiZQih3ucN
-         r3EfBWUilzaNZ+qKd5lOT3nBXHX2tAzQUyYJtnga+kJC8XULrGWemFenOFJnvkpGWysN
-         9BUIf3GHRtlDWm8sytc43ILxc32J2acaRxpyYUajlUyGFSdWteZrwaHtvUsHZ1hGzdx8
-         TG1AWKvAuwEG1bYjZX1M2cGTkPBDZ7D/tLmn4GTHKwGgdwp7mPHeMGHBhJs0jDVzn0Jw
-         oaNA==
-X-Gm-Message-State: AOAM531lfBCqIFn4vfThC2LzT2q9kjpwRmOxmk8MmefNADVYMGiPUfSL
-        aWDLHq/b3PopRU8QGjHDUqbzsYNNVFrkQIXKK2y/FPSrJ4BNsvcBT6lspDaJo6HN7+oCgCSNj9Y
-        fHV9OhPDGo8YwYV04
-X-Received: by 2002:a05:6000:1f09:b0:20a:c427:c7c with SMTP id bv9-20020a0560001f0900b0020ac4270c7cmr18187858wrb.337.1650982680093;
-        Tue, 26 Apr 2022 07:18:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwtAUrMnWTRbmK7Qx0YAas5R6NoJQ1P/w8NxcBFdYW8Wq3VDiSAkUB68cbM1Pwbudll5xPJcg==
-X-Received: by 2002:a05:6000:1f09:b0:20a:c427:c7c with SMTP id bv9-20020a0560001f0900b0020ac4270c7cmr18187840wrb.337.1650982679865;
-        Tue, 26 Apr 2022 07:17:59 -0700 (PDT)
-Received: from redhat.com ([2.53.22.137])
-        by smtp.gmail.com with ESMTPSA id l3-20020a05600002a300b0020aad7fd63bsm13613932wry.61.2022.04.26.07.17.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Apr 2022 07:17:59 -0700 (PDT)
-Date:   Tue, 26 Apr 2022 10:17:55 -0400
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Yongji Xie <xieyongji@bytedance.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Jason Wang <jasowang@redhat.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] vduse: Fix NULL pointer dereference on sysfs access
-Message-ID: <20220426101640-mutt-send-email-mst@kernel.org>
-References: <20220426073656.229-1-xieyongji@bytedance.com>
- <YmeoSuMfsdVxuGlf@kroah.com>
- <CACycT3sLgihkgX5cB6GxDehaTsPn9rqhtWF7G_=J=__oTopJZw@mail.gmail.com>
- <YmfIv2YuARnPe97k@kroah.com>
- <CACycT3sq6WM1uCa+ix79AwTJHaEOhkLycwkZOhqPhABZ4xa2AA@mail.gmail.com>
- <YmfpKGZB06Ix5WPu@kroah.com>
- <CACycT3vD9o+_uLaevCZ=W==YRA_WJP8UJ6czHTtsUny8Rwgd0A@mail.gmail.com>
- <Ymf03l+Ag8ZBSGm2@kroah.com>
- <CACycT3vmN0z=in1hcT7XuW4p-vzq9SAgPJNGGkooc+C+qftWjw@mail.gmail.com>
+        with ESMTP id S1351626AbiDZO3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 10:29:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E265BD06;
+        Tue, 26 Apr 2022 07:25:59 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 911BD61839;
+        Tue, 26 Apr 2022 14:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 659BDC385A0;
+        Tue, 26 Apr 2022 14:25:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650983159;
+        bh=l9K08w6wL5qUGA4LunV6wKDCIP41MyosKri/ltMJ6+8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=T4j8C/P9VbKYKxSJBJkS9QzDsM08ZUrN7v46s40tvrgIDYq3U+172EH2B/6BjeYi2
+         RkjgpNp8LSlANaUILh+I/Ng6c/tk4NI/9AUFOGY/yEtBLC3ap6joEllf7VYhX5xpAn
+         92pddklFBNETDs3hU3lKz14c6ZhmsCkCVyTQ4Wb3zT7HQZK1O/qKdahsfi8sX+cyuu
+         FGKm+Ge2ZDO8b6+5aZmppDAz+SW9USWm1NjrXru/orHrF6qhXcA2sVmofzOeUX8qBe
+         rLrUqL1AS/dd9DtPFFXtFbeX1gjZOXMX6kJW5XzXhIkt3PJNo4LliCxZ71kOi++q7W
+         GWcdXinpKapVg==
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     mhiramat@kernel.org, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19.y 0/3] ia64: kprobes: Fix build error on ia64
+Date:   Tue, 26 Apr 2022 23:25:54 +0900
+Message-Id: <165098315444.1366179.5950180330185498273.stgit@devnote2>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <202204130102.JZPa6KCQ-lkp@intel.com>
+References: <202204130102.JZPa6KCQ-lkp@intel.com>
+User-Agent: StGit/0.19
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACycT3vmN0z=in1hcT7XuW4p-vzq9SAgPJNGGkooc+C+qftWjw@mail.gmail.com>
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 10:02:02PM +0800, Yongji Xie wrote:
-> > This should not be needed, when your module is unloaded, all devices it
-> > handled should be properly removed by it.
-> >
-> 
-> I see. But it's not easy to achieve that currently. Maybe we need
-> something like DEVICE_NEEDS_RESET support in virtio core.
+Hi,
 
-Not sure what the connection is.
+Kernel test bot reported that the ia64 build error on stable 4.19.y because
+of the commit d3380de483d5 ("ia64: kprobes: Use generic kretprobe trampoline
+handler").
+I also found that this commit was involved by the backporting of commit
+f5f96e3643dc ("ia64: kprobes: Fix to pass correct trampoline address to the
+handler"), and this 2nd commit was backported wrong way. Actually, this 2nd
+commit aimed to use dereference_function_descriptor() in kprobes@ia64, but
+the comment (and Fixes tag) points the 1st commit. Thus I guess this mistake
+happened.
 
--- 
-MST
+So I re-backport the upstream commit a7fe2378454c ("ia64: kprobes: Fix to
+pass correct trampoline address to the handler") correctly, without involving
+the 1st commit.
 
+Thank you,
+
+---
+
+Masami Hiramatsu (3):
+      Revert "ia64: kprobes: Fix to pass correct trampoline address to the handler"
+      Revert "ia64: kprobes: Use generic kretprobe trampoline handler"
+      ia64: kprobes: Fix to pass correct trampoline address to the handler
+
+
+ arch/ia64/kernel/kprobes.c |   78 ++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 75 insertions(+), 3 deletions(-)
+
+--
+Masami Hiramatsu (Linaro) <mhiramat@kernel.org>
