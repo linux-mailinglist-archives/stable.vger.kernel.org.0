@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A29D150F563
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AE1D50F781
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346098AbiDZIyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52176 "EHLO
+        id S230432AbiDZJIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347475AbiDZIvi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 224DDCD675;
-        Tue, 26 Apr 2022 01:40:19 -0700 (PDT)
+        with ESMTP id S1347901AbiDZJGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA6FFAD129;
+        Tue, 26 Apr 2022 01:46:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C95E3B81D0B;
-        Tue, 26 Apr 2022 08:40:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32D75C385A0;
-        Tue, 26 Apr 2022 08:40:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77D7E604F5;
+        Tue, 26 Apr 2022 08:46:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CCACC385A0;
+        Tue, 26 Apr 2022 08:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962416;
-        bh=ANemBF0bfxRf6RmGxUxmDlZxuSUU9ownLlWMAlAyxEM=;
+        s=korg; t=1650962814;
+        bh=kh1oM6zhDY2AfxWFZwSmhLWkWY21yY0iNrd9a3v9HKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjN08sDuwdOeq9SMr42V4tEMiHXL5LPTltMUlubaj+Gf8/ahPzFwlPZEpCuG6cpRT
-         KIzmLZfDBgDpYAhnUEs8ckgnSvVWz3nnaKEf7zUuL/zMVkugwQ4x208GEEaRYREcFJ
-         sVyD4vO5Z1rJvMFOAmsYR4IvNYPYCE9HclLjOVUg=
+        b=okTw30RaZZRt0gaMVkGIa0DNkHILQDa1KALlLXbDtVCTJD1F4xrcR/6dwxZtyOwYg
+         jG7DBU3vKi0rU6/AvHHtNmJLJ/XI3/gJWdclayWqM2wcdZ9VMDGeurOQCFPrylYwDT
+         HE7TM22FnyoPNYJ4CzXa7AeGjRS1xZmJsl1JkuFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhipeng Xie <xiezhipeng1@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 090/124] perf/core: Fix perf_mmap fail when CONFIG_PERF_USE_VMALLOC enabled
+        stable@vger.kernel.org,
+        Kevin Groeneveld <kgroeneveld@lenbrook.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.17 096/146] dmaengine: imx-sdma: fix init of uart scripts
 Date:   Tue, 26 Apr 2022 10:21:31 +0200
-Message-Id: <20220426081749.857987874@linuxfoundation.org>
+Message-Id: <20220426081752.756427771@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +56,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhipeng Xie <xiezhipeng1@huawei.com>
+From: Kevin Groeneveld <kgroeneveld@lenbrook.com>
 
-[ Upstream commit 60490e7966659b26d74bf1fa4aa8693d9a94ca88 ]
+commit a3ae97f4c87d9570e7e9a3e3324c443757f6e29a upstream.
 
-This problem can be reproduced with CONFIG_PERF_USE_VMALLOC enabled on
-both x86_64 and aarch64 arch when using sysdig -B(using ebpf)[1].
-sysdig -B works fine after rebuilding the kernel with
-CONFIG_PERF_USE_VMALLOC disabled.
+Commit b98ce2f4e32b ("dmaengine: imx-sdma: add uart rom script") broke
+uart rx on imx5 when using sdma firmware from older Freescale 2.6.35
+kernel. In this case reading addr->uartXX_2_mcu_addr was going out of
+bounds of the firmware memory and corrupting the uart script addresses.
 
-I tracked it down to the if condition event->rb->nr_pages != nr_pages
-in perf_mmap is true when CONFIG_PERF_USE_VMALLOC is enabled where
-event->rb->nr_pages = 1 and nr_pages = 2048 resulting perf_mmap to
-return -EINVAL. This is because when CONFIG_PERF_USE_VMALLOC is
-enabled, rb->nr_pages is always equal to 1.
+Simply adding a bounds check before accessing addr->uartXX_2_mcu_addr
+does not work as the uartXX_2_mcu_addr members are now beyond the size
+of the older firmware and the uart addresses would never be populated
+in that case. There are other ways to fix this but overall the logic
+seems clearer to me to revert the uartXX_2_mcu_ram_addr structure
+entries back to uartXX_2_mcu_addr, change the newer entries to
+uartXX_2_mcu_rom_addr and update the logic accordingly.
 
-Arch with CONFIG_PERF_USE_VMALLOC enabled by default:
-	arc/arm/csky/mips/sh/sparc/xtensa
+I have tested this patch on:
+1. An i.MX53 system with sdma firmware from Freescale 2.6.35 kernel.
+   Without this patch uart rx is broken in this scenario, with the
+   patch uart rx is restored.
+2. An i.MX6D system with no external sdma firmware. uart is okay with
+   or without this patch.
+3. An i.MX8MM system using current sdma-imx7d.bin firmware from
+   linux-firmware. uart is okay with or without this patch and I
+   confirmed the rom version of the uart script is being used which was
+   the intention and reason for commit b98ce2f4e32b ("dmaengine:
+   imx-sdma: add uart rom script") in the first place.
 
-Arch with CONFIG_PERF_USE_VMALLOC disabled by default:
-	x86_64/aarch64/...
-
-Fix this problem by using data_page_nr()
-
-[1] https://github.com/draios/sysdig
-
-Fixes: 906010b2134e ("perf_event: Provide vmalloc() based mmap() backing")
-Signed-off-by: Zhipeng Xie <xiezhipeng1@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220209145417.6495-1-xiezhipeng1@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b98ce2f4e32b ("dmaengine: imx-sdma: add uart rom script")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kevin Groeneveld <kgroeneveld@lenbrook.com>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/20220410223118.15086-1-kgroeneveld@lenbrook.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c        | 2 +-
- kernel/events/internal.h    | 5 +++++
- kernel/events/ring_buffer.c | 5 -----
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/dma/imx-sdma.c |   28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 699446d60b6b..7c891a8eb323 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6348,7 +6348,7 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
- again:
- 	mutex_lock(&event->mmap_mutex);
- 	if (event->rb) {
--		if (event->rb->nr_pages != nr_pages) {
-+		if (data_page_nr(event->rb) != nr_pages) {
- 			ret = -EINVAL;
- 			goto unlock;
- 		}
-diff --git a/kernel/events/internal.h b/kernel/events/internal.h
-index 228801e20788..aa23ffdaf819 100644
---- a/kernel/events/internal.h
-+++ b/kernel/events/internal.h
-@@ -116,6 +116,11 @@ static inline int page_order(struct perf_buffer *rb)
- }
- #endif
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -198,12 +198,12 @@ struct sdma_script_start_addrs {
+ 	s32 per_2_firi_addr;
+ 	s32 mcu_2_firi_addr;
+ 	s32 uart_2_per_addr;
+-	s32 uart_2_mcu_ram_addr;
++	s32 uart_2_mcu_addr;
+ 	s32 per_2_app_addr;
+ 	s32 mcu_2_app_addr;
+ 	s32 per_2_per_addr;
+ 	s32 uartsh_2_per_addr;
+-	s32 uartsh_2_mcu_ram_addr;
++	s32 uartsh_2_mcu_addr;
+ 	s32 per_2_shp_addr;
+ 	s32 mcu_2_shp_addr;
+ 	s32 ata_2_mcu_addr;
+@@ -232,8 +232,8 @@ struct sdma_script_start_addrs {
+ 	s32 mcu_2_ecspi_addr;
+ 	s32 mcu_2_sai_addr;
+ 	s32 sai_2_mcu_addr;
+-	s32 uart_2_mcu_addr;
+-	s32 uartsh_2_mcu_addr;
++	s32 uart_2_mcu_rom_addr;
++	s32 uartsh_2_mcu_rom_addr;
+ 	/* End of v3 array */
+ 	s32 mcu_2_zqspi_addr;
+ 	/* End of v4 array */
+@@ -1780,17 +1780,17 @@ static void sdma_add_scripts(struct sdma
+ 			saddr_arr[i] = addr_arr[i];
  
-+static inline int data_page_nr(struct perf_buffer *rb)
-+{
-+	return rb->nr_pages << page_order(rb);
-+}
-+
- static inline unsigned long perf_data_size(struct perf_buffer *rb)
- {
- 	return rb->nr_pages << (PAGE_SHIFT + page_order(rb));
-diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
-index 52868716ec35..fb35b926024c 100644
---- a/kernel/events/ring_buffer.c
-+++ b/kernel/events/ring_buffer.c
-@@ -859,11 +859,6 @@ void rb_free(struct perf_buffer *rb)
- }
- 
- #else
--static int data_page_nr(struct perf_buffer *rb)
--{
--	return rb->nr_pages << page_order(rb);
--}
+ 	/*
+-	 * get uart_2_mcu_addr/uartsh_2_mcu_addr rom script specially because
+-	 * they are now replaced by uart_2_mcu_ram_addr/uartsh_2_mcu_ram_addr
+-	 * to be compatible with legacy freescale/nxp sdma firmware, and they
+-	 * are located in the bottom part of sdma_script_start_addrs which are
+-	 * beyond the SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V1.
++	 * For compatibility with NXP internal legacy kernel before 4.19 which
++	 * is based on uart ram script and mainline kernel based on uart rom
++	 * script, both uart ram/rom scripts are present in newer sdma
++	 * firmware. Use the rom versions if they are present (V3 or newer).
+ 	 */
+-	if (addr->uart_2_mcu_addr)
+-		sdma->script_addrs->uart_2_mcu_addr = addr->uart_2_mcu_addr;
+-	if (addr->uartsh_2_mcu_addr)
+-		sdma->script_addrs->uartsh_2_mcu_addr = addr->uartsh_2_mcu_addr;
 -
- static struct page *
- __perf_mmap_to_page(struct perf_buffer *rb, unsigned long pgoff)
- {
--- 
-2.35.1
-
++	if (sdma->script_number >= SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3) {
++		if (addr->uart_2_mcu_rom_addr)
++			sdma->script_addrs->uart_2_mcu_addr = addr->uart_2_mcu_rom_addr;
++		if (addr->uartsh_2_mcu_rom_addr)
++			sdma->script_addrs->uartsh_2_mcu_addr = addr->uartsh_2_mcu_rom_addr;
++	}
+ }
+ 
+ static void sdma_load_firmware(const struct firmware *fw, void *context)
 
 
