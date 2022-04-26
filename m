@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB0C50F666
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6C150F812
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241036AbiDZIr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:47:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60668 "EHLO
+        id S1346687AbiDZJIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346850AbiDZIp0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27ED8B3695;
-        Tue, 26 Apr 2022 01:35:58 -0700 (PDT)
+        with ESMTP id S1345975AbiDZJG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F0013C285;
+        Tue, 26 Apr 2022 01:47:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B384D618E6;
-        Tue, 26 Apr 2022 08:35:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A393C385A0;
-        Tue, 26 Apr 2022 08:35:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D88AB81A2F;
+        Tue, 26 Apr 2022 08:47:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADDA3C385A4;
+        Tue, 26 Apr 2022 08:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962157;
-        bh=KqzuKxuQJCdfP2D+y8yU6DtCUL++GH2XJYDjiu7Erv0=;
+        s=korg; t=1650962870;
+        bh=wa6DKY7ihCAiI4ORJ4Lemo2W/kJEgxqyoapglfQxiiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FTtNvxAHpvdACfSnS5rEf2OPCH6N2B7mdfDfDhdKqZPZGF200w/Oyw539pC4/wKS8
-         IpcXBzUR7IXx1L2cU15Sl6B5S29EV2CtrywmKuQTGgz/Z2eIk4i336sOrCtF5KBuOK
-         eOfnIp79XtgqJ1vVo0a/YNDhwnJiPscud8WUJWt4=
+        b=fvr2dVtONJ4d3hKOoE34bkvBT2yLepHnQE4/dOVE0tgiSs9DLRO8BpGGj6UOpvevn
+         1efBlLdpTpkukBmhLtSJOmxnhaENb8scq+hf4GgEVrWHVIlvTpVrcR/w0k/pLqOp79
+         tbDj77BbEys31oK0vLFnB4iVlBXK24LYzSWydXlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, lee.jones@linaro.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "stable@vger.kernel.org, Dan Carpenter" <dan.carpenter@oracle.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.10 84/86] staging: ion: Prevent incorrect reference counting behavour
+        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>, Max Filippov <jcmvbkbc@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [PATCH 5.17 117/146] xtensa: patch_text: Fixup last cpu should be master
 Date:   Tue, 26 Apr 2022 10:21:52 +0200
-Message-Id: <20220426081743.639654235@linuxfoundation.org>
+Message-Id: <20220426081753.345440056@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,28 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Guo Ren <guoren@linux.alibaba.com>
 
-Supply additional check in order to prevent unexpected results.
+commit ee69d4be8fd064cd08270b4808d2dfece3614ee0 upstream.
 
-Fixes: b892bf75b2034 ("ion: Switch ion to use dma-buf")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+These patch_text implementations are using stop_machine_cpuslocked
+infrastructure with atomic cpu_count. The original idea: When the
+master CPU patch_text, the others should wait for it. But current
+implementation is using the first CPU as master, which couldn't
+guarantee the remaining CPUs are waiting. This patch changes the
+last CPU as the master to solve the potential risk.
+
+Fixes: 64711f9a47d4 ("xtensa: implement jump_label support")
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Max Filippov <jcmvbkbc@gmail.com>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: <stable@vger.kernel.org>
+Message-Id: <20220407073323.743224-4-guoren@kernel.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/android/ion/ion.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/xtensa/kernel/jump_label.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/android/ion/ion.c
-+++ b/drivers/staging/android/ion/ion.c
-@@ -114,6 +114,9 @@ static void *ion_buffer_kmap_get(struct
- 	void *vaddr;
+--- a/arch/xtensa/kernel/jump_label.c
++++ b/arch/xtensa/kernel/jump_label.c
+@@ -40,7 +40,7 @@ static int patch_text_stop_machine(void
+ {
+ 	struct patch *patch = data;
  
- 	if (buffer->kmap_cnt) {
-+		if (buffer->kmap_cnt == INT_MAX)
-+			return ERR_PTR(-EOVERFLOW);
-+
- 		buffer->kmap_cnt++;
- 		return buffer->vaddr;
- 	}
+-	if (atomic_inc_return(&patch->cpu_count) == 1) {
++	if (atomic_inc_return(&patch->cpu_count) == num_online_cpus()) {
+ 		local_patch_text(patch->addr, patch->data, patch->sz);
+ 		atomic_inc(&patch->cpu_count);
+ 	} else {
 
 
