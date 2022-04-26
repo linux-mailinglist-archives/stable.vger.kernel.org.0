@@ -2,136 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C1B750EEC4
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 04:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9138350EF07
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 05:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235848AbiDZCdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 22:33:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48270 "EHLO
+        id S233053AbiDZDLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 23:11:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234612AbiDZCdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 22:33:12 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB8735DC3;
-        Mon, 25 Apr 2022 19:30:07 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 99F961F380;
-        Tue, 26 Apr 2022 02:30:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1650940205; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DX473lc685/tBD4BRCMRWuDdbRGCZDWIYx8mJX3hLck=;
-        b=BsQO/6RREy3URhfML1m8e6NbTRaNKruo9eoDgIrO5VITB3Syz4+hCyxu7g17DW0cDPMhQ5
-        n6VWYJEd/bgqhJvkZTWz64sQrpFqF1rUvbAjHqD8dLtJRGJSkcgCa2ca596rkG+6jkURyK
-        WAnf4JBeEOFON7XG4m/EAsVXkJagdt4=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1650940205;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DX473lc685/tBD4BRCMRWuDdbRGCZDWIYx8mJX3hLck=;
-        b=sFwOwESgQ/Geeyne4VZk2i+bfUE10gpYbhO5z185tVmKyy4H4kLsVwgfKhz2rNPYtUbYHc
-        XkALn5kb06QGxrBg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3CA9813A39;
-        Tue, 26 Apr 2022 02:29:58 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id GnchOiZZZ2JdFwAAMHmgww
-        (envelope-from <neilb@suse.de>); Tue, 26 Apr 2022 02:29:58 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S230155AbiDZDLJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 23:11:09 -0400
+Received: from mail-qv1-xf2e.google.com (mail-qv1-xf2e.google.com [IPv6:2607:f8b0:4864:20::f2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FFD6E4D6
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 20:08:03 -0700 (PDT)
+Received: by mail-qv1-xf2e.google.com with SMTP id 1so2304790qvs.8
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 20:08:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=HHc1GrsNOyI/+QJfNjWVU6zvF5v9Y6/D4TmrjNILf6o=;
+        b=drW76KvM7U74Sd9vBObEtgS9F0y6JYWPDRSNQAdPb5jrk0R+36auBr8vEtI4m1LUek
+         ZkjMv/SAwbARk1IwuEP5Q4xjHY5B2zeQtogt3pYdnlAWSUhhASKWVua0FARkdnD4l3ek
+         atE+6LtYcJetoB7SdpUyzDR5t8f6BW9pKEmv2peUxjMneuw3sl0YGslEh8CjrEx5WTCL
+         VMMKI/ptHR9AB8M7wO0kpb3OLePf4EZrggennHXu3TrrX24elVOj2uArXRhgZAdDReif
+         OqvtY7p14GRF1FIzjOzrOhd7DzS/fkjI9xpg4LIwZQwxrNwm6VNTEjPJmskpnijtIK4e
+         88Tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=HHc1GrsNOyI/+QJfNjWVU6zvF5v9Y6/D4TmrjNILf6o=;
+        b=zHRMZQxPjRtlsgpvsF6rrQLcOJa37vLGS7WskiXXy701q8doCPpSBAMID1nKtXwnVw
+         5McBftjlvuIT9NWN/4aLKQGuJs4/7tcsW1A/lOSXH73JP+B8RlhY5aDQe3yrGd/WrhJj
+         5MpLsyS4b8U0Dgr7uwUixdpteYbqQyETYnYWo5F0mTQ9PgysMJdkC1Xjc2jKd4FIJlBI
+         N3QYodNAcIxdDcqwcdwx88mQ10JzxNMTbO6RqKFkKYaQz/pstHi9owbZOMoNNt7dQJCI
+         8XyukxexSFmlDpV9zDerfPO1APX+hvGqAyr3z2yWaRn6SRDX5hcAaZnyrDarG/LeDJb0
+         R9SA==
+X-Gm-Message-State: AOAM532+65aTxdmjuRCQkdy+1/jGmEQVPw7y1VtmWn9CpkHjuU52ZBwa
+        DF7vawoA9RFbMLNjuY0XCbOXZgWNTxBVP4GI8lk=
+X-Google-Smtp-Source: ABdhPJy4c/Od1If+JirTR+6YGEJWJkLB8NtdbDlCmPeGfMDtxdluSUa2F27icowwroLmYm6fdVYNhy4phdJiZ1XtwG0=
+X-Received: by 2002:a05:6214:29cb:b0:456:3800:7b6e with SMTP id
+ gh11-20020a05621429cb00b0045638007b6emr5738700qvb.83.1650942483015; Mon, 25
+ Apr 2022 20:08:03 -0700 (PDT)
 MIME-Version: 1.0
-From:   "NeilBrown" <neilb@suse.de>
-To:     "Naresh Kamboju" <naresh.kamboju@linaro.org>
-Cc:     "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com, "Netdev" <netdev@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Jakub Kicinski" <kuba@kernel.org>,
-        "Paolo Abeni" <pabeni@redhat.com>,
-        "Trond Myklebust" <trond.myklebust@hammerspace.com>,
-        linux-nfs@vger.kernel.org,
-        "Anna Schumaker" <anna.schumaker@netapp.com>
-Subject: Re: [PATCH 4.19 000/338] 4.19.238-rc1 review
-In-reply-to: <CA+G9fYscMP+DTzaQGw1p-KxyhPi0JB64ABDu_aNSU0r+_VgBHg@mail.gmail.com>
-References: <20220414110838.883074566@linuxfoundation.org>,
- <CA+G9fYvgzFW7sMZVdw5r970QNNg4OK8=pbQV0kDfbOX-rXu5Rw@mail.gmail.com>,
- <CA+G9fYscMP+DTzaQGw1p-KxyhPi0JB64ABDu_aNSU0r+_VgBHg@mail.gmail.com>
-Date:   Tue, 26 Apr 2022 12:29:55 +1000
-Message-id: <165094019509.1648.12340115187043043420@noble.neil.brown.name>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:ac8:5b93:0:0:0:0:0 with HTTP; Mon, 25 Apr 2022 20:08:02
+ -0700 (PDT)
+Reply-To: info@anshulekant.com
+From:   PAYMENT APPROVAL <agentlott0098@gmail.com>
+Date:   Tue, 26 Apr 2022 04:08:02 +0100
+Message-ID: <CADqCoCaY=k2vuNtgH90G2VVsukrpyeu_Xg0YDbd5xg+VGhk7pA@mail.gmail.com>
+Subject: GOOD NEWS
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=2.5 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,HK_SCAM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 21 Apr 2022, Naresh Kamboju wrote:
-> On Mon, 18 Apr 2022 at 14:09, Naresh Kamboju <naresh.kamboju@linaro.org> wr=
-ote:
-> >
-> > On Thu, 14 Apr 2022 at 18:45, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > This is the start of the stable review cycle for the 4.19.238 release.
-> > > There are 338 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > >
-> > > Responses should be made by Sat, 16 Apr 2022 11:07:54 +0000.
-> > > Anything received after that time might be too late.
-> > >
-> > > The whole patch series can be found in one patch at:
-> > >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patc=
-h-4.19.238-rc1.gz
-> > > or in the git tree and branch at:
-> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git linux-4.19.y
-> > > and the diffstat can be found below.
-> > >
-> > > thanks,
-> > >
-> > > greg k-h
-> >
-> >
-> > Following kernel warning noticed on arm64 Juno-r2 while booting
-> > stable-rc 4.19.238. Here is the full test log link [1].
-> >
-> > [    0.000000] Booting Linux on physical CPU 0x0000000100 [0x410fd033]
-> > [    0.000000] Linux version 4.19.238 (tuxmake@tuxmake) (gcc version
-> > 11.2.0 (Debian 11.2.0-18)) #1 SMP PREEMPT @1650206156
-> > [    0.000000] Machine model: ARM Juno development board (r2)
-> > <trim>
-> > [   18.499895] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > [   18.504172] WARNING: inconsistent lock state
-> > [   18.508451] 4.19.238 #1 Not tainted
-> > [   18.511944] --------------------------------
-> > [   18.516222] inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
-> > [   18.522242] kworker/u12:3/60 [HC0[0]:SC0[0]:HE1:SE1] takes:
-> > [   18.527826] (____ptrval____)
-> > (&(&xprt->transport_lock)->rlock){+.?.}, at: xprt_destroy+0x70/0xe0
-> > [   18.536648] {IN-SOFTIRQ-W} state was registered at:
-> > [   18.541543]   lock_acquire+0xc8/0x23c
+Hello,
 
-Prior to Linux 5.3, ->transport_lock needs spin_lock_bh() and=20
-spin_unlock_bh().
+We wish to inform you that your compensation payment has finally been
+approved and you need to contact the compensation payment director
+below to get paid.
 
-Thanks,
-NeilBrown
+Contact Person: Anshula Kant
+Email: info@anshulekant.com
+
+Thanks
+Mrs Rosemary Woods
