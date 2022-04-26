@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C21BD50F6B1
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EFAB50F6B3
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234223AbiDZI6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52810 "EHLO
+        id S1345784AbiDZI60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345531AbiDZI5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:17 -0400
+        with ESMTP id S245020AbiDZI5Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FCE683B36;
-        Tue, 26 Apr 2022 01:41:55 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1EA81677;
+        Tue, 26 Apr 2022 01:41:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF8A3B81CF0;
-        Tue, 26 Apr 2022 08:41:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304DAC385A0;
-        Tue, 26 Apr 2022 08:41:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A77ABB81CED;
+        Tue, 26 Apr 2022 08:41:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C329C385A4;
+        Tue, 26 Apr 2022 08:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962512;
-        bh=N0G5hD0cI2nlqMKxZ483v7HcDAb3YSExYsAuoLBhvzk=;
+        s=korg; t=1650962515;
+        bh=Oaa1kYDZlmNoZlnAkZ1ogI20WNPdZk//Lu5Kqqcgd04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKKQ6AnCB03YvQ+0vv2HcNw3Y1yJ/fUFuUDFw6EFQmNX2UjnVdF6Ly4z6te/0w3Rn
-         zN+2BPJiBXIPA8M4KHi47L99AWvRqbqM6t92cGGeP4e7M+2kBBmlbh8ZNlAq88cJLF
-         S9Q9EQQ5UWc3+bvvAhO7LL0T3+FQeLsc0U1DPvrw=
+        b=qDSjBdQiiozyNJclvsVg7ae8mw4mTWIjCwKHUWIK+FnlcRv6W9EQDNA05Wb7Hb8k5
+         lLUdBMW1v/B9SQLZz7todEgZtBt8ScWWod1BebfZhAMBM+3QLMm+HbhT+Y8f+DctDk
+         HQ1Yd9C/iQ5HMI8nU6eNzNMgmcMxbCuezPCc1kQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.15 119/124] ext4: force overhead calculation if the s_overhead_cluster makes no sense
-Date:   Tue, 26 Apr 2022 10:22:00 +0200
-Message-Id: <20220426081750.672360469@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.15 120/124] netfilter: nft_ct: fix use after free when attaching zone template
+Date:   Tue, 26 Apr 2022 10:22:01 +0200
+Message-Id: <20220426081750.701058603@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
 References: <20220426081747.286685339@linuxfoundation.org>
@@ -52,44 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Florian Westphal <fw@strlen.de>
 
-commit 85d825dbf4899a69407338bae462a59aa9a37326 upstream.
+commit 34243b9ec856309339172b1507379074156947e8 upstream.
 
-If the file system does not use bigalloc, calculating the overhead is
-cheap, so force the recalculation of the overhead so we don't have to
-trust the precalculated overhead in the superblock.
+The conversion erroneously removed the refcount increment.
+In case we can use the percpu template, we need to increment
+the refcount, else it will be released when the skb gets freed.
 
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+In case the slowpath is taken, the new template already has a
+refcount of 1.
+
+Fixes: 719774377622 ("netfilter: conntrack: convert to refcount_t api")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ net/netfilter/nft_ct.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4788,9 +4788,18 @@ no_journal:
- 	 * Get the # of file system overhead blocks from the
- 	 * superblock if present.
- 	 */
--	if (es->s_overhead_clusters)
--		sbi->s_overhead = le32_to_cpu(es->s_overhead_clusters);
--	else {
-+	sbi->s_overhead = le32_to_cpu(es->s_overhead_clusters);
-+	/* ignore the precalculated value if it is ridiculous */
-+	if (sbi->s_overhead > ext4_blocks_count(es))
-+		sbi->s_overhead = 0;
-+	/*
-+	 * If the bigalloc feature is not enabled recalculating the
-+	 * overhead doesn't take long, so we might as well just redo
-+	 * it to make sure we are using the correct value.
-+	 */
-+	if (!ext4_has_feature_bigalloc(sb))
-+		sbi->s_overhead = 0;
-+	if (sbi->s_overhead == 0) {
- 		err = ext4_calculate_overhead(sb);
- 		if (err)
- 			goto failed_mount_wq;
+--- a/net/netfilter/nft_ct.c
++++ b/net/netfilter/nft_ct.c
+@@ -260,9 +260,12 @@ static void nft_ct_set_zone_eval(const s
+ 	ct = this_cpu_read(nft_ct_pcpu_template);
+ 
+ 	if (likely(refcount_read(&ct->ct_general.use) == 1)) {
++		refcount_inc(&ct->ct_general.use);
+ 		nf_ct_zone_add(ct, &zone);
+ 	} else {
+-		/* previous skb got queued to userspace */
++		/* previous skb got queued to userspace, allocate temporary
++		 * one until percpu template can be reused.
++		 */
+ 		ct = nf_ct_tmpl_alloc(nft_net(pkt), &zone, GFP_ATOMIC);
+ 		if (!ct) {
+ 			regs->verdict.code = NF_DROP;
 
 
