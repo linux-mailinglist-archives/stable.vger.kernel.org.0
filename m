@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9291E50F657
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E157C50F4E6
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343934AbiDZIzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:55:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52030 "EHLO
+        id S230164AbiDZIka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:40:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346774AbiDZIuU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D28BF13595D;
-        Tue, 26 Apr 2022 01:38:59 -0700 (PDT)
+        with ESMTP id S1345296AbiDZIhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:37:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF3C9137B;
+        Tue, 26 Apr 2022 01:29:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BD49B81D09;
-        Tue, 26 Apr 2022 08:38:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2162C385A0;
-        Tue, 26 Apr 2022 08:38:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7639E617E1;
+        Tue, 26 Apr 2022 08:29:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83966C385A0;
+        Tue, 26 Apr 2022 08:29:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962337;
-        bh=H/K65kcPAF9yB19mOFMS3alvtqHgVZlcufErG25w8ro=;
+        s=korg; t=1650961767;
+        bh=y4FzcMqIYjP6yJMMswEni40ksnSonHHl5KEbQHYCCgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YFUo6DGg3nes59uIt/06M6kEAxG4wQbHYIP5ubsCfAWOV7OhscQwNSlJ3IwjCR8M0
-         p0BFVzYOX+W2PTP9PqXjdM1MchCKPbsW0Zm5PYlzCNykXt0z8yJTHTHUa4MTJFFoOQ
-         MD3gCfsHLXtwk09+AwOzxPcRzEYxBuAKUrjWcnoo=
+        b=hZCEePbLwTskMA3u36MCYGY5Pna+DKIXaIkOolQwlZW8DIJmoZVF2Byioog9Vw4I8
+         2jmd2tmdQ9B9OP5EvMEVVr+pO0BN0WevnnPWDQ9dcz02euQYMgozH07Mn6uYczEbmV
+         e9LtSn0Miez7MyC33RE8d1KJWkZjyEqsdoNVK1zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 062/124] net: atlantic: Avoid out-of-bounds indexing
+Subject: [PATCH 5.4 23/62] ARM: vexpress/spc: Avoid negative array index when !SMP
 Date:   Tue, 26 Apr 2022 10:21:03 +0200
-Message-Id: <20220426081749.064463432@linuxfoundation.org>
+Message-Id: <20220426081737.892454125@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,125 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 8d3a6c37d50d5a0504c126c932cc749e6dd9c78f ]
+[ Upstream commit b3f1dd52c991d79118f35e6d1bf4d7cb09882e38 ]
 
-UBSAN warnings are observed on atlantic driver:
-[ 294.432996] UBSAN: array-index-out-of-bounds in /build/linux-Qow4fL/linux-5.15.0/drivers/net/ethernet/aquantia/atlantic/aq_nic.c:484:48
-[ 294.433695] index 8 is out of range for type 'aq_vec_s *[8]'
+When building multi_v7_defconfig+CONFIG_SMP=n, -Warray-bounds exposes
+a couple negative array index accesses:
 
-The ring is dereferenced right before breaking out the loop, to prevent
-that from happening, only use the index in the loop to fix the issue.
+arch/arm/mach-vexpress/spc.c: In function 've_spc_clk_init':
+arch/arm/mach-vexpress/spc.c:583:21: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
+  583 |   if (init_opp_table[cluster])
+      |       ~~~~~~~~~~~~~~^~~~~~~~~
+arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
+  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
+      |       ^~~~~~~~~~~~~~
+arch/arm/mach-vexpress/spc.c:592:18: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
+  592 |    init_opp_table[cluster] = true;
+      |    ~~~~~~~~~~~~~~^~~~~~~~~
+arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
+  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
+      |       ^~~~~~~~~~~~~~
 
-BugLink: https://bugs.launchpad.net/bugs/1958770
-Tested-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Igor Russkikh <irusskikh@marvell.com>
-Link: https://lore.kernel.org/r/20220408022204.16815-1-kai.heng.feng@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Skip this logic when built !SMP.
+
+Link: https://lore.kernel.org/r/20220331190443.851661-1-keescook@chromium.org
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/aquantia/atlantic/aq_nic.c   |  8 +++----
- .../net/ethernet/aquantia/atlantic/aq_vec.c   | 24 +++++++++----------
- 2 files changed, 16 insertions(+), 16 deletions(-)
+ arch/arm/mach-vexpress/spc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-index 9de0065f89b9..fbb1e05d5878 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-@@ -480,8 +480,8 @@ int aq_nic_start(struct aq_nic_s *self)
- 	if (err < 0)
- 		goto err_exit;
+diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
+index 1da11bdb1dfb..1c6500c4e6a1 100644
+--- a/arch/arm/mach-vexpress/spc.c
++++ b/arch/arm/mach-vexpress/spc.c
+@@ -580,7 +580,7 @@ static int __init ve_spc_clk_init(void)
+ 		}
  
--	for (i = 0U, aq_vec = self->aq_vec[0];
--		self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i]) {
-+	for (i = 0U; self->aq_vecs > i; ++i) {
-+		aq_vec = self->aq_vec[i];
- 		err = aq_vec_start(aq_vec);
- 		if (err < 0)
- 			goto err_exit;
-@@ -511,8 +511,8 @@ int aq_nic_start(struct aq_nic_s *self)
- 		mod_timer(&self->polling_timer, jiffies +
- 			  AQ_CFG_POLLING_TIMER_INTERVAL);
- 	} else {
--		for (i = 0U, aq_vec = self->aq_vec[0];
--			self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i]) {
-+		for (i = 0U; self->aq_vecs > i; ++i) {
-+			aq_vec = self->aq_vec[i];
- 			err = aq_pci_func_alloc_irq(self, i, self->ndev->name,
- 						    aq_vec_isr, aq_vec,
- 						    aq_vec_get_affinity_mask(aq_vec));
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-index f4774cf051c9..6ab1f3212d24 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-@@ -43,8 +43,8 @@ static int aq_vec_poll(struct napi_struct *napi, int budget)
- 	if (!self) {
- 		err = -EINVAL;
- 	} else {
--		for (i = 0U, ring = self->ring[0];
--			self->tx_rings > i; ++i, ring = self->ring[i]) {
-+		for (i = 0U; self->tx_rings > i; ++i) {
-+			ring = self->ring[i];
- 			u64_stats_update_begin(&ring[AQ_VEC_RX_ID].stats.rx.syncp);
- 			ring[AQ_VEC_RX_ID].stats.rx.polls++;
- 			u64_stats_update_end(&ring[AQ_VEC_RX_ID].stats.rx.syncp);
-@@ -182,8 +182,8 @@ int aq_vec_init(struct aq_vec_s *self, const struct aq_hw_ops *aq_hw_ops,
- 	self->aq_hw_ops = aq_hw_ops;
- 	self->aq_hw = aq_hw;
+ 		cluster = topology_physical_package_id(cpu_dev->id);
+-		if (init_opp_table[cluster])
++		if (cluster < 0 || init_opp_table[cluster])
+ 			continue;
  
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		err = aq_ring_init(&ring[AQ_VEC_TX_ID], ATL_RING_TX);
- 		if (err < 0)
- 			goto err_exit;
-@@ -224,8 +224,8 @@ int aq_vec_start(struct aq_vec_s *self)
- 	unsigned int i = 0U;
- 	int err = 0;
- 
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		err = self->aq_hw_ops->hw_ring_tx_start(self->aq_hw,
- 							&ring[AQ_VEC_TX_ID]);
- 		if (err < 0)
-@@ -248,8 +248,8 @@ void aq_vec_stop(struct aq_vec_s *self)
- 	struct aq_ring_s *ring = NULL;
- 	unsigned int i = 0U;
- 
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		self->aq_hw_ops->hw_ring_tx_stop(self->aq_hw,
- 						 &ring[AQ_VEC_TX_ID]);
- 
-@@ -268,8 +268,8 @@ void aq_vec_deinit(struct aq_vec_s *self)
- 	if (!self)
- 		goto err_exit;
- 
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		aq_ring_tx_clean(&ring[AQ_VEC_TX_ID]);
- 		aq_ring_rx_deinit(&ring[AQ_VEC_RX_ID]);
- 	}
-@@ -297,8 +297,8 @@ void aq_vec_ring_free(struct aq_vec_s *self)
- 	if (!self)
- 		goto err_exit;
- 
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		aq_ring_free(&ring[AQ_VEC_TX_ID]);
- 		if (i < self->rx_rings)
- 			aq_ring_free(&ring[AQ_VEC_RX_ID]);
+ 		if (ve_init_opp_table(cpu_dev))
 -- 
 2.35.1
 
