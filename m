@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 010D350F680
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DA3E50F74C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344180AbiDZI4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:56:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52182 "EHLO
+        id S238488AbiDZJGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346675AbiDZIuP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:15 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9E22153771;
-        Tue, 26 Apr 2022 01:38:35 -0700 (PDT)
+        with ESMTP id S1347273AbiDZJFY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C87C6106DC9;
+        Tue, 26 Apr 2022 01:44:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 54C9BCE1BC9;
-        Tue, 26 Apr 2022 08:38:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D207C385AC;
-        Tue, 26 Apr 2022 08:38:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5291AB81CF0;
+        Tue, 26 Apr 2022 08:44:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4F64C385A0;
+        Tue, 26 Apr 2022 08:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962312;
-        bh=pCP7/cH25+g3Q4YdnXB4uOJeko31Uwuq9MNMwOC3uoo=;
+        s=korg; t=1650962654;
+        bh=BwpxS7ToXi0geR0Mk4P/NiQYOZyOF9u1DGDYQ4tdO5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=diQ3KYmWuvdnJP2u5DQ49TV5xi6KJB5HgtGVXtIZjPwL/QPWt9EiQ0chzJsDcVfXR
-         G0mp++EaeSetGG1XSLUGXpbvt3ReCJcwqMbDVaiMOf8Aluhyu9EKsOPtyurvFVUCRr
-         2OihAvQNYxS0sngKRc9X15dE5XXMT5sS1XKNeafc=
+        b=a1e7wq5Vkdxb3YNRQmDaQHc1PMAUDNKNz7kOg29fn7A4n1xEGB5Yn8NZGZ7u3F1Cu
+         DRWeX48DuYL+DtIwa05Xifbzy6sp40XIsc9mbMkkshhR5nVB/EIIee09MNncfxQH+/
+         UKwtCaFWz1cdfC2ykyX2TFyBpLMhZsaDj3c7bEic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Feng Zhou <zhoufeng.zf@bytedance.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 037/124] ip6_gre: Fix skb_under_panic in __gre6_xmit()
+Subject: [PATCH 5.17 043/146] netlink: reset network and mac headers in netlink_dump()
 Date:   Tue, 26 Apr 2022 10:20:38 +0200
-Message-Id: <20220426081748.358077005@linuxfoundation.org>
+Message-Id: <20220426081751.281013235@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,126 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ab198e1d0dd8dc4bc7575fb50758e2cbd51e14e1 ]
+[ Upstream commit 99c07327ae11e24886d552dddbe4537bfca2765d ]
 
-Feng reported an skb_under_panic BUG triggered by running
-test_ip6gretap() in tools/testing/selftests/bpf/test_tunnel.sh:
+netlink_dump() is allocating an skb, reserves space in it
+but forgets to reset network header.
 
-[   82.492551] skbuff: skb_under_panic: text:ffffffffb268bb8e len:403 put:12 head:ffff9997c5480000 data:ffff9997c547fff8 tail:0x18b end:0x2c0 dev:ip6gretap11
-<...>
-[   82.607380] Call Trace:
-[   82.609389]  <TASK>
-[   82.611136]  skb_push.cold.109+0x10/0x10
-[   82.614289]  __gre6_xmit+0x41e/0x590
-[   82.617169]  ip6gre_tunnel_xmit+0x344/0x3f0
-[   82.620526]  dev_hard_start_xmit+0xf1/0x330
-[   82.623882]  sch_direct_xmit+0xe4/0x250
-[   82.626961]  __dev_queue_xmit+0x720/0xfe0
-<...>
-[   82.633431]  packet_sendmsg+0x96a/0x1cb0
-[   82.636568]  sock_sendmsg+0x30/0x40
-<...>
+This allows a BPF program, invoked later from sk_filter()
+to access uninitialized kernel memory from the reserved
+space.
 
-The following sequence of events caused the BUG:
+Theorically mac header reset could be omitted, because
+it is set to a special initial value.
+bpf_internal_load_pointer_neg_helper calls skb_mac_header()
+without checking skb_mac_header_was_set().
+Relying on skb->len not being too big seems fragile.
+We also could add a sanity check in bpf_internal_load_pointer_neg_helper()
+to avoid surprises in the future.
 
-1. During ip6gretap device initialization, tunnel->tun_hlen (e.g. 4) is
-   calculated based on old flags (see ip6gre_calc_hlen());
-2. packet_snd() reserves header room for skb A, assuming
-   tunnel->tun_hlen is 4;
-3. Later (in clsact Qdisc), the eBPF program sets a new tunnel key for
-   skb A using bpf_skb_set_tunnel_key() (see _ip6gretap_set_tunnel());
-4. __gre6_xmit() detects the new tunnel key, and recalculates
-   "tun_hlen" (e.g. 12) based on new flags (e.g. TUNNEL_KEY and
-   TUNNEL_SEQ);
-5. gre_build_header() calls skb_push() with insufficient reserved header
-   room, triggering the BUG.
+syzbot report was:
 
-As sugguested by Cong, fix it by moving the call to skb_cow_head() after
-the recalculation of tun_hlen.
+BUG: KMSAN: uninit-value in ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
+ ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
+ __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
+ bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
+ __bpf_prog_run include/linux/filter.h:626 [inline]
+ bpf_prog_run include/linux/filter.h:633 [inline]
+ __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
+ bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
+ sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
+ sk_filter include/linux/filter.h:905 [inline]
+ netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Reproducer:
+Uninit was stored to memory at:
+ ___bpf_prog_run+0x96c/0xb420 kernel/bpf/core.c:1558
+ __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
+ bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
+ __bpf_prog_run include/linux/filter.h:626 [inline]
+ bpf_prog_run include/linux/filter.h:633 [inline]
+ __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
+ bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
+ sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
+ sk_filter include/linux/filter.h:905 [inline]
+ netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-  OBJ=$LINUX/tools/testing/selftests/bpf/test_tunnel_kern.o
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:737 [inline]
+ slab_alloc_node mm/slub.c:3244 [inline]
+ __kmalloc_node_track_caller+0xde3/0x14f0 mm/slub.c:4972
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1158 [inline]
+ netlink_dump+0x30f/0x16c0 net/netlink/af_netlink.c:2242
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-  ip netns add at_ns0
-  ip link add veth0 type veth peer name veth1
-  ip link set veth0 netns at_ns0
-  ip netns exec at_ns0 ip addr add 172.16.1.100/24 dev veth0
-  ip netns exec at_ns0 ip link set dev veth0 up
-  ip link set dev veth1 up mtu 1500
-  ip addr add dev veth1 172.16.1.200/24
+CPU: 0 PID: 3470 Comm: syz-executor751 Not tainted 5.17.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 
-  ip netns exec at_ns0 ip addr add ::11/96 dev veth0
-  ip netns exec at_ns0 ip link set dev veth0 up
-  ip addr add dev veth1 ::22/96
-  ip link set dev veth1 up
-
-  ip netns exec at_ns0 \
-  	ip link add dev ip6gretap00 type ip6gretap seq flowlabel 0xbcdef key 2 \
-  	local ::11 remote ::22
-
-  ip netns exec at_ns0 ip addr add dev ip6gretap00 10.1.1.100/24
-  ip netns exec at_ns0 ip addr add dev ip6gretap00 fc80::100/96
-  ip netns exec at_ns0 ip link set dev ip6gretap00 up
-
-  ip link add dev ip6gretap11 type ip6gretap external
-  ip addr add dev ip6gretap11 10.1.1.200/24
-  ip addr add dev ip6gretap11 fc80::200/24
-  ip link set dev ip6gretap11 up
-
-  tc qdisc add dev ip6gretap11 clsact
-  tc filter add dev ip6gretap11 egress bpf da obj $OBJ sec ip6gretap_set_tunnel
-  tc filter add dev ip6gretap11 ingress bpf da obj $OBJ sec ip6gretap_get_tunnel
-
-  ping6 -c 3 -w 10 -q ::11
-
-Fixes: 6712abc168eb ("ip6_gre: add ip6 gre and gretap collect_md mode")
-Reported-by: Feng Zhou <zhoufeng.zf@bytedance.com>
-Co-developed-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: db65a3aaf29e ("netlink: Trim skb to alloc size to avoid MSG_TRUNC")
+Fixes: 9063e21fb026 ("netlink: autosize skb lengthes")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220415181442.551228-1-eric.dumazet@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_gre.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/netlink/af_netlink.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 288720838329..869c3337e319 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -733,9 +733,6 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 	else
- 		fl6->daddr = tunnel->parms.raddr;
- 
--	if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
--		return -ENOMEM;
--
- 	/* Push GRE header. */
- 	protocol = (dev->type == ARPHRD_ETHER) ? htons(ETH_P_TEB) : proto;
- 
-@@ -763,6 +760,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
- 		tun_hlen = gre_calc_hlen(flags);
- 
-+		if (skb_cow_head(skb, dev->needed_headroom ?: tun_hlen + tunnel->encap_hlen))
-+			return -ENOMEM;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 47a876ccd288..05a3795eac8e 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -2263,6 +2263,13 @@ static int netlink_dump(struct sock *sk)
+ 	 * single netdev. The outcome is MSG_TRUNC error.
+ 	 */
+ 	skb_reserve(skb, skb_tailroom(skb) - alloc_size);
 +
- 		gre_build_header(skb, tun_hlen,
- 				 flags, protocol,
- 				 tunnel_id_to_key32(tun_info->key.tun_id),
-@@ -773,6 +773,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		if (tunnel->parms.o_flags & TUNNEL_SEQ)
- 			tunnel->o_seqno++;
- 
-+		if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
-+			return -ENOMEM;
++	/* Make sure malicious BPF programs can not read unitialized memory
++	 * from skb->head -> skb->data
++	 */
++	skb_reset_network_header(skb);
++	skb_reset_mac_header(skb);
 +
- 		gre_build_header(skb, tunnel->tun_hlen, tunnel->parms.o_flags,
- 				 protocol, tunnel->parms.o_key,
- 				 htonl(tunnel->o_seqno));
+ 	netlink_skb_set_owner_r(skb, sk);
+ 
+ 	if (nlk->dump_done_errno > 0) {
 -- 
 2.35.1
 
