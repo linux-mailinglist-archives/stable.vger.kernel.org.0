@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D9850F559
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6575750F459
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345517AbiDZIl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:41:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59360 "EHLO
+        id S241816AbiDZIfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:35:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345538AbiDZIkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:40:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7542155711;
-        Tue, 26 Apr 2022 01:32:51 -0700 (PDT)
+        with ESMTP id S1345197AbiDZIeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31AD66F4AD;
+        Tue, 26 Apr 2022 01:26:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 930B9617D2;
-        Tue, 26 Apr 2022 08:32:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC62C385A0;
-        Tue, 26 Apr 2022 08:32:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCF8FB81CED;
+        Tue, 26 Apr 2022 08:26:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 432F3C385A0;
+        Tue, 26 Apr 2022 08:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961969;
-        bh=xE7E+TojZIIQlgWoWbhVcfx6tcCfv5XifeXacFZ7gA8=;
+        s=korg; t=1650961583;
+        bh=hEsZRfX85PWFGpCU9Y22gJajOb6yyBVyOpgD2e2/zXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SS8NzCgqwdrGJ7nmpNZOMFmUQwg7MWt6dITv6ESpqzKfHBhYAu6egoas5lu7m0MSw
-         7BoyIp3HuY18MlSbIEZoTzverWIJ6oFPXWswxlK/t9aWb9j9hAmgR9V+mpkae+ruj/
-         e4/o/sW2Z4tshoRMeamWFdJdlIpeRwLGAWe0uIXk=
+        b=myzauwclvLIXDFmDhU84AWklpWUOYziFAOVgra23mivc6y10jwLGBkRcQUIJ3zaWv
+         XVn7OFNza8oqZs0nvTRuRjk5LWfXfCg6jd7DHaj63K0Xe3Ybmvp6APWOtzuUMYeLgQ
+         F6iLgrbps9xAhhtSjMYEWzUH/LQOW+ITfiWgDkiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 28/86] net: stmmac: Use readl_poll_timeout_atomic() in atomic state
+Subject: [PATCH 4.19 16/53] netlink: reset network and mac headers in netlink_dump()
 Date:   Tue, 26 Apr 2022 10:20:56 +0200
-Message-Id: <20220426081742.020829413@linuxfoundation.org>
+Message-Id: <20220426081736.129531684@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Hao <haokexin@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 234901de2bc6847eaa0aeb4aba62c31ffb8d3ad6 ]
+[ Upstream commit 99c07327ae11e24886d552dddbe4537bfca2765d ]
 
-The init_systime() may be invoked in atomic state. We have observed the
-following call trace when running "phc_ctl /dev/ptp0 set" on a Intel
-Agilex board.
-  BUG: sleeping function called from invalid context at drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c:74
-  in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 381, name: phc_ctl
-  preempt_count: 1, expected: 0
-  RCU nest depth: 0, expected: 0
-  Preemption disabled at:
-  [<ffff80000892ef78>] stmmac_set_time+0x34/0x8c
-  CPU: 2 PID: 381 Comm: phc_ctl Not tainted 5.18.0-rc2-next-20220414-yocto-standard+ #567
-  Hardware name: SoCFPGA Agilex SoCDK (DT)
-  Call trace:
-   dump_backtrace.part.0+0xc4/0xd0
-   show_stack+0x24/0x40
-   dump_stack_lvl+0x7c/0xa0
-   dump_stack+0x18/0x34
-   __might_resched+0x154/0x1c0
-   __might_sleep+0x58/0x90
-   init_systime+0x78/0x120
-   stmmac_set_time+0x64/0x8c
-   ptp_clock_settime+0x60/0x9c
-   pc_clock_settime+0x6c/0xc0
-   __arm64_sys_clock_settime+0x88/0xf0
-   invoke_syscall+0x5c/0x130
-   el0_svc_common.constprop.0+0x4c/0x100
-   do_el0_svc+0x7c/0xa0
-   el0_svc+0x58/0xcc
-   el0t_64_sync_handler+0xa4/0x130
-   el0t_64_sync+0x18c/0x190
+netlink_dump() is allocating an skb, reserves space in it
+but forgets to reset network header.
 
-So we should use readl_poll_timeout_atomic() here instead of
-readl_poll_timeout().
+This allows a BPF program, invoked later from sk_filter()
+to access uninitialized kernel memory from the reserved
+space.
 
-Also adjust the delay time to 10us to fix a "__bad_udelay" build error
-reported by "kernel test robot <lkp@intel.com>". I have tested this on
-Intel Agilex and NXP S32G boards, there is no delay needed at all.
-So the 10us delay should be long enough for most cases.
+Theorically mac header reset could be omitted, because
+it is set to a special initial value.
+bpf_internal_load_pointer_neg_helper calls skb_mac_header()
+without checking skb_mac_header_was_set().
+Relying on skb->len not being too big seems fragile.
+We also could add a sanity check in bpf_internal_load_pointer_neg_helper()
+to avoid surprises in the future.
 
-Fixes: ff8ed737860e ("net: stmmac: use readl_poll_timeout() function in init_systime()")
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+syzbot report was:
+
+BUG: KMSAN: uninit-value in ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
+ ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
+ __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
+ bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
+ __bpf_prog_run include/linux/filter.h:626 [inline]
+ bpf_prog_run include/linux/filter.h:633 [inline]
+ __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
+ bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
+ sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
+ sk_filter include/linux/filter.h:905 [inline]
+ netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was stored to memory at:
+ ___bpf_prog_run+0x96c/0xb420 kernel/bpf/core.c:1558
+ __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
+ bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
+ __bpf_prog_run include/linux/filter.h:626 [inline]
+ bpf_prog_run include/linux/filter.h:633 [inline]
+ __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
+ bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
+ sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
+ sk_filter include/linux/filter.h:905 [inline]
+ netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:737 [inline]
+ slab_alloc_node mm/slub.c:3244 [inline]
+ __kmalloc_node_track_caller+0xde3/0x14f0 mm/slub.c:4972
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1158 [inline]
+ netlink_dump+0x30f/0x16c0 net/netlink/af_netlink.c:2242
+ netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ sock_read_iter+0x5a9/0x630 net/socket.c:1039
+ do_iter_readv_writev+0xa7f/0xc70
+ do_iter_read+0x52c/0x14c0 fs/read_write.c:786
+ vfs_readv fs/read_write.c:906 [inline]
+ do_readv+0x432/0x800 fs/read_write.c:943
+ __do_sys_readv fs/read_write.c:1034 [inline]
+ __se_sys_readv fs/read_write.c:1031 [inline]
+ __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+CPU: 0 PID: 3470 Comm: syz-executor751 Not tainted 5.17.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: db65a3aaf29e ("netlink: Trim skb to alloc size to avoid MSG_TRUNC")
+Fixes: 9063e21fb026 ("netlink: autosize skb lengthes")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220415181442.551228-1-eric.dumazet@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netlink/af_netlink.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
-index 07b1b8374cd2..53efcc9c40e2 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
-@@ -68,9 +68,9 @@ static int init_systime(void __iomem *ioaddr, u32 sec, u32 nsec)
- 	writel(value, ioaddr + PTP_TCR);
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 5c6241964637..e2120221b957 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -2243,6 +2243,13 @@ static int netlink_dump(struct sock *sk)
+ 	 * single netdev. The outcome is MSG_TRUNC error.
+ 	 */
+ 	skb_reserve(skb, skb_tailroom(skb) - alloc_size);
++
++	/* Make sure malicious BPF programs can not read unitialized memory
++	 * from skb->head -> skb->data
++	 */
++	skb_reset_network_header(skb);
++	skb_reset_mac_header(skb);
++
+ 	netlink_skb_set_owner_r(skb, sk);
  
- 	/* wait for present system time initialize to complete */
--	return readl_poll_timeout(ioaddr + PTP_TCR, value,
-+	return readl_poll_timeout_atomic(ioaddr + PTP_TCR, value,
- 				 !(value & PTP_TCR_TSINIT),
--				 10000, 100000);
-+				 10, 100000);
- }
- 
- static int config_addend(void __iomem *ioaddr, u32 addend)
+ 	if (nlk->dump_done_errno > 0)
 -- 
 2.35.1
 
