@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1A950F452
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A29B50F8A7
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345047AbiDZIfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39912 "EHLO
+        id S1345961AbiDZJHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345348AbiDZIec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2D074DD0;
-        Tue, 26 Apr 2022 01:27:07 -0700 (PDT)
+        with ESMTP id S1347399AbiDZJFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 411961186CB;
+        Tue, 26 Apr 2022 01:44:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DEC36B81D01;
-        Tue, 26 Apr 2022 08:27:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A281C385A0;
-        Tue, 26 Apr 2022 08:27:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0EE4B81CFE;
+        Tue, 26 Apr 2022 08:44:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41567C385A0;
+        Tue, 26 Apr 2022 08:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961624;
-        bh=4opHmGX/BJb/8lmEwtW+ciu8xl6ZK4/OVqFoBf/euXI=;
+        s=korg; t=1650962674;
+        bh=Th76JKZ9CsbzO2LRXhEGwGKGzEEhBTm8VcaD4c9LbaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DhP/4viQWNypkYQ+kk9YGajkj88UOmuUWOHJ5PCa20CrjqrEo4yngseISBAT7QM7h
-         zIfNWzB5Z7J1j3kqfu/aor+pK2NJHYaOJZL2l843EfNtWrSNxurH2kI7yrNIY7pCpe
-         nTVmvISVNfvtGzyN9hiiKqmjheW56osxm8UFt2rI=
+        b=2Begww2HVPuBUi2UaeYTPCPmeh5Q+Hps4Pw61UnBv0yji2fKLWRUH7lke4sj+iJ0I
+         bWICtkkIyRHpFsOtkbNejGt38aUMYWejUkWylW8hK065RHY+ySd5ujwa3PIS7dMWQB
+         HqL40XkpKhmLbktL4q4X6Vd0F91P90s2rH3aiAeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Dragos-Marian Panait <dragos.panait@windriver.com>
-Subject: [PATCH 4.19 04/53] can: usb_8dev: usb_8dev_start_xmit(): fix double dev_kfree_skb() in error path
-Date:   Tue, 26 Apr 2022 10:20:44 +0200
-Message-Id: <20220426081735.784246791@linuxfoundation.org>
+        stable@vger.kernel.org, Bernice Zhang <bernice.zhang@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 050/146] dmaengine: idxd: add RO check for wq max_batch_size write
+Date:   Tue, 26 Apr 2022 10:20:45 +0200
+Message-Id: <20220426081751.477473628@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-commit 3d3925ff6433f98992685a9679613a2cc97f3ce2 upstream.
+[ Upstream commit 66903461ffed0b66fc3e0200082d4e09365aacdc ]
 
-There is no need to call dev_kfree_skb() when usb_submit_urb() fails
-because can_put_echo_skb() deletes original skb and
-can_free_echo_skb() deletes the cloned skb.
+Block wq_max_batch_size_store() when the device is configured as read-only
+and not configurable.
 
-Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
-Link: https://lore.kernel.org/all/20220311080614.45229-1-hbh25y@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[DP: adjusted params of can_free_echo_skb() for 4.19 stable]
-Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: e7184b159dd3 ("dmaengine: idxd: add support for configurable max wq batch size")
+Reported-by: Bernice Zhang <bernice.zhang@intel.com>
+Tested-by: Bernice Zhang <bernice.zhang@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/164971493551.2201159.1942042593642155209.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/usb_8dev.c |   30 ++++++++++++++----------------
- 1 file changed, 14 insertions(+), 16 deletions(-)
+ drivers/dma/idxd/sysfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/can/usb/usb_8dev.c
-+++ b/drivers/net/can/usb/usb_8dev.c
-@@ -681,9 +681,20 @@ static netdev_tx_t usb_8dev_start_xmit(s
- 	atomic_inc(&priv->active_tx_urbs);
+diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
+index 7e19ab92b61a..6c41d429bd89 100644
+--- a/drivers/dma/idxd/sysfs.c
++++ b/drivers/dma/idxd/sysfs.c
+@@ -939,6 +939,9 @@ static ssize_t wq_max_batch_size_store(struct device *dev, struct device_attribu
+ 	u64 batch_size;
+ 	int rc;
  
- 	err = usb_submit_urb(urb, GFP_ATOMIC);
--	if (unlikely(err))
--		goto failed;
--	else if (atomic_read(&priv->active_tx_urbs) >= MAX_TX_URBS)
-+	if (unlikely(err)) {
-+		can_free_echo_skb(netdev, context->echo_index);
++	if (!test_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags))
++		return -EPERM;
 +
-+		usb_unanchor_urb(urb);
-+		usb_free_coherent(priv->udev, size, buf, urb->transfer_dma);
-+
-+		atomic_dec(&priv->active_tx_urbs);
-+
-+		if (err == -ENODEV)
-+			netif_device_detach(netdev);
-+		else
-+			netdev_warn(netdev, "failed tx_urb %d\n", err);
-+		stats->tx_dropped++;
-+	} else if (atomic_read(&priv->active_tx_urbs) >= MAX_TX_URBS)
- 		/* Slow down tx path */
- 		netif_stop_queue(netdev);
+ 	if (wq->state != IDXD_WQ_DISABLED)
+ 		return -EPERM;
  
-@@ -702,19 +713,6 @@ nofreecontext:
- 
- 	return NETDEV_TX_BUSY;
- 
--failed:
--	can_free_echo_skb(netdev, context->echo_index);
--
--	usb_unanchor_urb(urb);
--	usb_free_coherent(priv->udev, size, buf, urb->transfer_dma);
--
--	atomic_dec(&priv->active_tx_urbs);
--
--	if (err == -ENODEV)
--		netif_device_detach(netdev);
--	else
--		netdev_warn(netdev, "failed tx_urb %d\n", err);
--
- nomembuf:
- 	usb_free_urb(urb);
- 
+-- 
+2.35.1
+
 
 
