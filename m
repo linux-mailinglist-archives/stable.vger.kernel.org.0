@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA81850F462
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87CC50F478
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:36:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233603AbiDZIf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60318 "EHLO
+        id S1345003AbiDZIgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344918AbiDZIfN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7407F211;
-        Tue, 26 Apr 2022 01:28:25 -0700 (PDT)
+        with ESMTP id S1345022AbiDZId7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:33:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694373BBF4;
+        Tue, 26 Apr 2022 01:25:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C46B561864;
-        Tue, 26 Apr 2022 08:28:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D14E3C385A0;
-        Tue, 26 Apr 2022 08:28:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7635EB81CFA;
+        Tue, 26 Apr 2022 08:25:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C162DC385A0;
+        Tue, 26 Apr 2022 08:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961704;
-        bh=/xxwTARog4nsNtTU4Kw8BDH+DOxCXvEIoJd0Sjp398M=;
+        s=korg; t=1650961545;
+        bh=K/69QxVv7T4FTeKHdSZVJbXT07k+FI7rMWMGgv0/yCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5+SnyuSig3GPbR9uf8fmk8YGEc2+Oif02/qOYrTB3HbwQzwOCu79sLAyCWmCeie1
-         aUdAvx7miGraL6aOv1yeWpUQj4wupgHtDk0J+bC5XrfKz4iKTR1Py0HXy3ZeptapIP
-         Nl7EUlQknB9Kv6I74pDkXXWc+uz/btqsNDctMQJU=
+        b=ahBUvQFU8Djx1IXRbGVXaLQXlwLdyuPu7f6q4M953GijxiG+U+FZNSpROcSyb+36r
+         UMVHq8XPgi98Qmk2Is5UeZCtq++jp9cUMumKk/E3Sm+DR4bE0hBmxvHGGgm5cK39VN
+         C3YFgkiBzvsjFmL3fc8Qqj7jwJbetxaoY31J56wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 33/53] powerpc/perf: Fix power9 event alternatives
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.14 31/43] ext4: fix overhead calculation to account for the reserved gdt blocks
 Date:   Tue, 26 Apr 2022 10:21:13 +0200
-Message-Id: <20220426081736.620247833@linuxfoundation.org>
+Message-Id: <20220426081735.434788860@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,90 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 0dcad700bb2776e3886fe0a645a4bf13b1e747cd ]
+commit 10b01ee92df52c8d7200afead4d5e5f55a5c58b1 upstream.
 
-When scheduling a group of events, there are constraint checks done to
-make sure all events can go in a group. Example, one of the criteria is
-that events in a group cannot use the same PMC. But platform specific
-PMU supports alternative event for some of the event codes. During
-perf_event_open(), if any event group doesn't match constraint check
-criteria, further lookup is done to find alternative event.
+The kernel calculation was underestimating the overhead by not taking
+into account the reserved gdt blocks.  With this change, the overhead
+calculated by the kernel matches the overhead calculation in mke2fs.
 
-By current design, the array of alternatives events in PMU code is
-expected to be sorted by column 0. This is because in
-find_alternative() the return criteria is based on event code
-comparison. ie. "event < ev_alt[i][0])". This optimisation is there
-since find_alternative() can be called multiple times. In power9 PMU
-code, the alternative event array is not sorted properly and hence there
-is breakage in finding alternative events.
-
-To work with existing logic, fix the alternative event array to be
-sorted by column 0 for power9-pmu.c
-
-Results:
-
-With alternative events, multiplexing can be avoided. That is, for
-example, in power9 PM_LD_MISS_L1 (0x3e054) has alternative event,
-PM_LD_MISS_L1_ALT (0x400f0). This is an identical event which can be
-programmed in a different PMC.
-
-Before:
-
- # perf stat -e r3e054,r300fc
-
- Performance counter stats for 'system wide':
-
-           1057860      r3e054              (50.21%)
-               379      r300fc              (49.79%)
-
-       0.944329741 seconds time elapsed
-
-Since both the events are using PMC3 in this case, they are
-multiplexed here.
-
-After:
-
- # perf stat -e r3e054,r300fc
-
- Performance counter stats for 'system wide':
-
-           1006948      r3e054
-               182      r300fc
-
-Fixes: 91e0bd1e6251 ("powerpc/perf: Add PM_LD_MISS_L1 and PM_BR_2PATH to power9 event list")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220419114828.89843-1-atrajeev@linux.vnet.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/perf/power9-pmu.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/ext4/super.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/power9-pmu.c b/arch/powerpc/perf/power9-pmu.c
-index c07b1615ee39..1aa083db77f1 100644
---- a/arch/powerpc/perf/power9-pmu.c
-+++ b/arch/powerpc/perf/power9-pmu.c
-@@ -143,11 +143,11 @@ int p9_dd22_bl_ev[] = {
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3366,9 +3366,11 @@ static int count_overhead(struct super_b
+ 	ext4_fsblk_t		first_block, last_block, b;
+ 	ext4_group_t		i, ngroups = ext4_get_groups_count(sb);
+ 	int			s, j, count = 0;
++	int			has_super = ext4_bg_has_super(sb, grp);
  
- /* Table of alternatives, sorted by column 0 */
- static const unsigned int power9_event_alternatives[][MAX_ALT] = {
--	{ PM_INST_DISP,			PM_INST_DISP_ALT },
--	{ PM_RUN_CYC_ALT,		PM_RUN_CYC },
--	{ PM_RUN_INST_CMPL_ALT,		PM_RUN_INST_CMPL },
--	{ PM_LD_MISS_L1,		PM_LD_MISS_L1_ALT },
- 	{ PM_BR_2PATH,			PM_BR_2PATH_ALT },
-+	{ PM_INST_DISP,			PM_INST_DISP_ALT },
-+	{ PM_RUN_CYC_ALT,               PM_RUN_CYC },
-+	{ PM_LD_MISS_L1,                PM_LD_MISS_L1_ALT },
-+	{ PM_RUN_INST_CMPL_ALT,         PM_RUN_INST_CMPL },
- };
+ 	if (!ext4_has_feature_bigalloc(sb))
+-		return (ext4_bg_has_super(sb, grp) + ext4_bg_num_gdb(sb, grp) +
++		return (has_super + ext4_bg_num_gdb(sb, grp) +
++			(has_super ? le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) : 0) +
+ 			sbi->s_itb_per_group + 2);
  
- static int power9_get_alternatives(u64 event, unsigned int flags, u64 alt[])
--- 
-2.35.1
-
+ 	first_block = le32_to_cpu(sbi->s_es->s_first_data_block) +
 
 
