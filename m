@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 373EE50F664
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D54F950F685
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345055AbiDZIls (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:41:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58780 "EHLO
+        id S1345331AbiDZI4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:56:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345914AbiDZIjn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C45A07F21B;
-        Tue, 26 Apr 2022 01:32:21 -0700 (PDT)
+        with ESMTP id S1346347AbiDZIuB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B49CC90C3;
+        Tue, 26 Apr 2022 01:38:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47C46B81CFE;
-        Tue, 26 Apr 2022 08:32:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D363C385A4;
-        Tue, 26 Apr 2022 08:32:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 718036090C;
+        Tue, 26 Apr 2022 08:38:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77142C385A0;
+        Tue, 26 Apr 2022 08:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961938;
-        bh=nDv3ZUX4ndQ8MpYE3JNAFqkJacWDpguWL47ft7pczH0=;
+        s=korg; t=1650962287;
+        bh=1OWTHQQH1jcO8sBBchXhD6ZyJQdD/B6PmUizs65gAqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1G5o8NQN7XrHzTyguQ3tTQ3vNhxjM/BvyuaOP0n166fhYFQ/ymLyX/q+jXLPGUgQ
-         iZLFPgk+OZSOxk2ccGQWSlzE2dOMyP9Eo+keMyAiY1qns0l03pcUWmIr22o1f5T48l
-         CxiXmsGWA9DcP//1TSf407eN09iVmAJ2xzwp1s64=
+        b=1S55xpgUGNP+j5OvUz2ON9E5LZZsm09oJH9uUZ0ITM/7N9PM8NRrq737iceWeQwSp
+         +tjBIH0J9xou8UpbaQ/KpaYWzebMypI5klYNtzXnTKS4yLF3YgVlqoWytn/orUnqLa
+         /r2GVNroBiwAD7+KNR4wtTgO9GpO661FBYJJSkV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 19/86] rxrpc: Restore removed timer deletion
-Date:   Tue, 26 Apr 2022 10:20:47 +0200
-Message-Id: <20220426081741.760370156@linuxfoundation.org>
+Subject: [PATCH 5.15 047/124] net: stmmac: Use readl_poll_timeout_atomic() in atomic state
+Date:   Tue, 26 Apr 2022 10:20:48 +0200
+Message-Id: <20220426081748.638899495@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-[ Upstream commit ee3b0826b4764f6c13ad6db67495c5a1c38e9025 ]
+[ Upstream commit 234901de2bc6847eaa0aeb4aba62c31ffb8d3ad6 ]
 
-A recent patch[1] from Eric Dumazet flipped the order in which the
-keepalive timer and the keepalive worker were cancelled in order to fix a
-syzbot reported issue[2].  Unfortunately, this enables the mirror image bug
-whereby the timer races with rxrpc_exit_net(), restarting the worker after
-it has been cancelled:
+The init_systime() may be invoked in atomic state. We have observed the
+following call trace when running "phc_ctl /dev/ptp0 set" on a Intel
+Agilex board.
+  BUG: sleeping function called from invalid context at drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c:74
+  in_atomic(): 1, irqs_disabled(): 128, non_block: 0, pid: 381, name: phc_ctl
+  preempt_count: 1, expected: 0
+  RCU nest depth: 0, expected: 0
+  Preemption disabled at:
+  [<ffff80000892ef78>] stmmac_set_time+0x34/0x8c
+  CPU: 2 PID: 381 Comm: phc_ctl Not tainted 5.18.0-rc2-next-20220414-yocto-standard+ #567
+  Hardware name: SoCFPGA Agilex SoCDK (DT)
+  Call trace:
+   dump_backtrace.part.0+0xc4/0xd0
+   show_stack+0x24/0x40
+   dump_stack_lvl+0x7c/0xa0
+   dump_stack+0x18/0x34
+   __might_resched+0x154/0x1c0
+   __might_sleep+0x58/0x90
+   init_systime+0x78/0x120
+   stmmac_set_time+0x64/0x8c
+   ptp_clock_settime+0x60/0x9c
+   pc_clock_settime+0x6c/0xc0
+   __arm64_sys_clock_settime+0x88/0xf0
+   invoke_syscall+0x5c/0x130
+   el0_svc_common.constprop.0+0x4c/0x100
+   do_el0_svc+0x7c/0xa0
+   el0_svc+0x58/0xcc
+   el0t_64_sync_handler+0xa4/0x130
+   el0t_64_sync+0x18c/0x190
 
-	CPU 1		CPU 2
-	===============	=====================
-			if (rxnet->live)
-			<INTERRUPT>
-	rxnet->live = false;
- 	cancel_work_sync(&rxnet->peer_keepalive_work);
-			rxrpc_queue_work(&rxnet->peer_keepalive_work);
-	del_timer_sync(&rxnet->peer_keepalive_timer);
+So we should use readl_poll_timeout_atomic() here instead of
+readl_poll_timeout().
 
-Fix this by restoring the removed del_timer_sync() so that we try to remove
-the timer twice.  If the timer runs again, it should see ->live == false
-and not restart the worker.
+Also adjust the delay time to 10us to fix a "__bad_udelay" build error
+reported by "kernel test robot <lkp@intel.com>". I have tested this on
+Intel Agilex and NXP S32G boards, there is no delay needed at all.
+So the 10us delay should be long enough for most cases.
 
-Fixes: 1946014ca3b1 ("rxrpc: fix a race in rxrpc_exit_net()")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Eric Dumazet <edumazet@google.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/20220404183439.3537837-1-eric.dumazet@gmail.com/ [1]
-Link: https://syzkaller.appspot.com/bug?extid=724378c4bb58f703b09a [2]
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Fixes: ff8ed737860e ("net: stmmac: use readl_poll_timeout() function in init_systime()")
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/net_ns.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/rxrpc/net_ns.c b/net/rxrpc/net_ns.c
-index f15d6942da45..cc7e30733feb 100644
---- a/net/rxrpc/net_ns.c
-+++ b/net/rxrpc/net_ns.c
-@@ -113,7 +113,9 @@ static __net_exit void rxrpc_exit_net(struct net *net)
- 	struct rxrpc_net *rxnet = rxrpc_net(net);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+index a7ec9f4d46ce..d68ef72dcdde 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_hwtstamp.c
+@@ -71,9 +71,9 @@ static int init_systime(void __iomem *ioaddr, u32 sec, u32 nsec)
+ 	writel(value, ioaddr + PTP_TCR);
  
- 	rxnet->live = false;
-+	del_timer_sync(&rxnet->peer_keepalive_timer);
- 	cancel_work_sync(&rxnet->peer_keepalive_work);
-+	/* Remove the timer again as the worker may have restarted it. */
- 	del_timer_sync(&rxnet->peer_keepalive_timer);
- 	rxrpc_destroy_all_calls(rxnet);
- 	rxrpc_destroy_all_connections(rxnet);
+ 	/* wait for present system time initialize to complete */
+-	return readl_poll_timeout(ioaddr + PTP_TCR, value,
++	return readl_poll_timeout_atomic(ioaddr + PTP_TCR, value,
+ 				 !(value & PTP_TCR_TSINIT),
+-				 10000, 100000);
++				 10, 100000);
+ }
+ 
+ static int config_addend(void __iomem *ioaddr, u32 addend)
 -- 
 2.35.1
 
