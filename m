@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C2E50F57C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD9450F6ED
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345751AbiDZIra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:47:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60370 "EHLO
+        id S231978AbiDZJB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:01:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346906AbiDZIp3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:29 -0400
+        with ESMTP id S1346461AbiDZJAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:00:37 -0400
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16EDCE0F1;
-        Tue, 26 Apr 2022 01:36:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8BAB3F326;
+        Tue, 26 Apr 2022 01:43:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 781CDCE1BB4;
-        Tue, 26 Apr 2022 08:36:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5029EC385A4;
-        Tue, 26 Apr 2022 08:36:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1B3C9CE1BC9;
+        Tue, 26 Apr 2022 08:43:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07900C385A0;
+        Tue, 26 Apr 2022 08:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962189;
-        bh=e766lgzO81TnmAlucJg6mez/beyPjY8tXcsTVqwGVK4=;
+        s=korg; t=1650962588;
+        bh=TtTnQKhdU8HQ67xMPTU0sa9FR8Yxr1MJiU8Vwdxpc0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WqpxVZqq+4ufpNlFMs5aFqz9j0Z2YvXm/3saL8VkkIJwktRY62D6VTjfQ+3nM1sI8
-         bDx4a4OVVWKwnbJxFO0nimRC+pUWTkBNM8nsTpwpOci0eS4NN0+UJ63y0BnYrctcUF
-         X8vO2g4FgOTHCpKZOQ4kn8uiQYBfsB1idsqPhERY=
+        b=PKh/+6awDvBGd9sJELZYk8ETLjYhN+RC5LtEehA3Gswowqr4I6IFidVUvY4D0KEVO
+         hyhZWsmU24mzp61yEEGNhfuvsIIK7Q6lATPr103BwWUa1EVnE8ZiPhJ6hnXr/f9Zl8
+         iSdwIrl25WOHaZbGGDcHSVrZPOAxy7AcaPThGcdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 016/124] ALSA: hda/realtek: Add quirk for Clevo NP70PNP
-Date:   Tue, 26 Apr 2022 10:20:17 +0200
-Message-Id: <20220426081747.763965949@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 023/146] spi: cadence-quadspi: fix incorrect supports_op() return value
+Date:   Tue, 26 Apr 2022 10:20:18 +0200
+Message-Id: <20220426081750.717969684@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,30 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Crawford <tcrawford@system76.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-commit 86222af07abf1f5f07a5873cc399c29ab8a9b8b8 upstream.
+[ Upstream commit f1d388f216aeb41a5df518815ae559d14a6d438e ]
 
-Fixes headset detection on Clevo NP70PNP.
+Since the conversion to spi-mem, the driver advertised support for
+various operations that cqspi_set_protocol() was never expected to handle
+correctly - in particuar all non-DTR operations with command or address
+buswidth > 1. For DTR, all operations except for 8-8-8 would fail, as
+cqspi_set_protocol() returns -EINVAL.
 
-Signed-off-by: Tim Crawford <tcrawford@system76.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220421170412.3697-1-tcrawford@system76.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In non-DTR mode, this resulted in data corruption for SPI-NOR flashes that
+support such operations. As a minimal fix that can be backported to stable
+kernels, simply disallow the unsupported operations again to avoid this
+issue.
+
+Fixes: a314f6367787 ("mtd: spi-nor: Convert cadence-quadspi to use spi-mem framework")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20220406132832.199777-1-matthias.schiffer@ew.tq-group.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-cadence-quadspi.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8962,6 +8962,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[57][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
- 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x866d, "Clevo NP5[05]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x867c, "Clevo NP7[01]PNP", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x867d, "Clevo NP7[01]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME),
+diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
+index 75f356041138..b8ac24318cb3 100644
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -1415,9 +1415,24 @@ static bool cqspi_supports_mem_op(struct spi_mem *mem,
+ 	all_false = !op->cmd.dtr && !op->addr.dtr && !op->dummy.dtr &&
+ 		    !op->data.dtr;
+ 
+-	/* Mixed DTR modes not supported. */
+-	if (!(all_true || all_false))
++	if (all_true) {
++		/* Right now we only support 8-8-8 DTR mode. */
++		if (op->cmd.nbytes && op->cmd.buswidth != 8)
++			return false;
++		if (op->addr.nbytes && op->addr.buswidth != 8)
++			return false;
++		if (op->data.nbytes && op->data.buswidth != 8)
++			return false;
++	} else if (all_false) {
++		/* Only 1-1-X ops are supported without DTR */
++		if (op->cmd.nbytes && op->cmd.buswidth > 1)
++			return false;
++		if (op->addr.nbytes && op->addr.buswidth > 1)
++			return false;
++	} else {
++		/* Mixed DTR modes are not supported. */
+ 		return false;
++	}
+ 
+ 	if (all_true)
+ 		return spi_mem_dtr_supports_op(mem, op);
+-- 
+2.35.1
+
 
 
