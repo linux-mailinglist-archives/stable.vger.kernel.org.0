@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8521B50F7C3
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B6C50F672
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346529AbiDZJIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47586 "EHLO
+        id S235564AbiDZIrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346763AbiDZJE4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:04:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D712E6C59;
-        Tue, 26 Apr 2022 01:43:49 -0700 (PDT)
+        with ESMTP id S1347104AbiDZIps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ADB57486B;
+        Tue, 26 Apr 2022 01:37:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E38EBB81CFE;
-        Tue, 26 Apr 2022 08:43:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46264C385AC;
-        Tue, 26 Apr 2022 08:43:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB603603E0;
+        Tue, 26 Apr 2022 08:37:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E23E1C385A0;
+        Tue, 26 Apr 2022 08:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962626;
-        bh=tHBwQJ6rRcMp2aSFYxudKL5By5NcYvKgPRim1s1nXGE=;
+        s=korg; t=1650962240;
+        bh=5KcpyYspc65yLPM90XrcAsYqc6m2k4+FcnSyxqjibCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ltmcHLHV/PLRDbL1yYbzsL5T9YAlzuuwC65Uc7bQA+UoAqqZ1gne0i99655ShJrYr
-         ylvCW9jjzNx9bnRNQpEZRHWLhtx3ul5nGGC9jEAa+NxJp1E/iLHZxEa6EnSNg0i0VR
-         FvTNpUMPnlDA/mP2USlKZu5wVEGu1ka08bF2L03E=
+        b=Auc2TXaSTGNnV0n25v+PyVcpY/Lru1YpVJLOKFkwVO8TrAg2Rttoeo59AnHoHCksH
+         HKaSm1Z1vx8MLPtIfE5vRe+HAbgHvLaTjQTwZOFW6xoJ103PP90TzS2COLPmHUFxqD
+         ZtcTM710FtJ7Zov0nJI8V4AdLltFwzCMkJUPde3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Feng Zhou <zhoufeng.zf@bytedance.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Corinna Vinschen <vinschen@redhat.com>,
+        Dima Ruinskiy <dima.ruinskiy@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 035/146] ip6_gre: Fix skb_under_panic in __gre6_xmit()
-Date:   Tue, 26 Apr 2022 10:20:30 +0200
-Message-Id: <20220426081751.054765959@linuxfoundation.org>
+Subject: [PATCH 5.15 030/124] igc: Fix BUG: scheduling while atomic
+Date:   Tue, 26 Apr 2022 10:20:31 +0200
+Message-Id: <20220426081748.159788232@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,126 +56,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit ab198e1d0dd8dc4bc7575fb50758e2cbd51e14e1 ]
+[ Upstream commit c80a29f0fe9b6f5457e0788e27d1110577eba99b ]
 
-Feng reported an skb_under_panic BUG triggered by running
-test_ip6gretap() in tools/testing/selftests/bpf/test_tunnel.sh:
+Replace usleep_range() method with udelay() method to allow atomic contexts
+in low-level MDIO access functions.
 
-[   82.492551] skbuff: skb_under_panic: text:ffffffffb268bb8e len:403 put:12 head:ffff9997c5480000 data:ffff9997c547fff8 tail:0x18b end:0x2c0 dev:ip6gretap11
-<...>
-[   82.607380] Call Trace:
-[   82.609389]  <TASK>
-[   82.611136]  skb_push.cold.109+0x10/0x10
-[   82.614289]  __gre6_xmit+0x41e/0x590
-[   82.617169]  ip6gre_tunnel_xmit+0x344/0x3f0
-[   82.620526]  dev_hard_start_xmit+0xf1/0x330
-[   82.623882]  sch_direct_xmit+0xe4/0x250
-[   82.626961]  __dev_queue_xmit+0x720/0xfe0
-<...>
-[   82.633431]  packet_sendmsg+0x96a/0x1cb0
-[   82.636568]  sock_sendmsg+0x30/0x40
-<...>
+The following issue can be seen by doing the following:
+$ modprobe -r bonding
+$ modprobe -v bonding max_bonds=1 mode=1 miimon=100 use_carrier=0
+$ ip link set bond0 up
+$ ifenslave bond0 eth0 eth1
 
-The following sequence of events caused the BUG:
+[  982.357308] BUG: scheduling while atomic: kworker/u64:0/9/0x00000002
+[  982.364431] INFO: lockdep is turned off.
+[  982.368824] Modules linked in: bonding sctp ip6_udp_tunnel udp_tunnel mlx4_ib ib_uverbs ib_core mlx4_en mlx4_core nfp tls sunrpc intel_rapl_msr iTCO_wdt iTCO_vendor_support mxm_wmi dcdbas intel_rapl_common sb_edac x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm irqbypass crct10dif_pclmul crc32_pclmul ghash_clmulni_intel rapl intel_cstate intel_uncore pcspkr lpc_ich mei_me ipmi_ssif mei ipmi_si ipmi_devintf ipmi_msghandler wmi acpi_power_meter xfs libcrc32c sr_mod cdrom sd_mod t10_pi sg mgag200 drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm ahci libahci crc32c_intel libata i2c_algo_bit tg3 megaraid_sas igc dm_mirror dm_region_hash dm_log dm_mod [last unloaded: bonding]
+[  982.437941] CPU: 25 PID: 9 Comm: kworker/u64:0 Kdump: loaded Tainted: G        W        --------- -  - 4.18.0-348.el8.x86_64+debug #1
+[  982.451333] Hardware name: Dell Inc. PowerEdge R730/0H21J3, BIOS 2.7.0 12/005/2017
+[  982.459791] Workqueue: bond0 bond_mii_monitor [bonding]
+[  982.465622] Call Trace:
+[  982.468355]  dump_stack+0x8e/0xd0
+[  982.472056]  __schedule_bug.cold.60+0x3a/0x60
+[  982.476919]  __schedule+0x147b/0x1bc0
+[  982.481007]  ? firmware_map_remove+0x16b/0x16b
+[  982.485967]  ? hrtimer_fixup_init+0x40/0x40
+[  982.490625]  schedule+0xd9/0x250
+[  982.494227]  schedule_hrtimeout_range_clock+0x10d/0x2c0
+[  982.500058]  ? hrtimer_nanosleep_restart+0x130/0x130
+[  982.505598]  ? hrtimer_init_sleeper_on_stack+0x90/0x90
+[  982.511332]  ? usleep_range+0x88/0x130
+[  982.515514]  ? recalibrate_cpu_khz+0x10/0x10
+[  982.520279]  ? ktime_get+0xab/0x1c0
+[  982.524175]  ? usleep_range+0x88/0x130
+[  982.528355]  usleep_range+0xdd/0x130
+[  982.532344]  ? console_conditional_schedule+0x30/0x30
+[  982.537987]  ? igc_put_hw_semaphore+0x17/0x60 [igc]
+[  982.543432]  igc_read_phy_reg_gpy+0x111/0x2b0 [igc]
+[  982.548887]  igc_phy_has_link+0xfa/0x260 [igc]
+[  982.553847]  ? igc_get_phy_id+0x210/0x210 [igc]
+[  982.558894]  ? lock_acquire+0x34d/0x890
+[  982.563187]  ? lock_downgrade+0x710/0x710
+[  982.567659]  ? rcu_read_unlock+0x50/0x50
+[  982.572039]  igc_check_for_copper_link+0x106/0x210 [igc]
+[  982.577970]  ? igc_config_fc_after_link_up+0x840/0x840 [igc]
+[  982.584286]  ? rcu_read_unlock+0x50/0x50
+[  982.588661]  ? lock_release+0x591/0xb80
+[  982.592939]  ? lock_release+0x591/0xb80
+[  982.597220]  igc_has_link+0x113/0x330 [igc]
+[  982.601887]  ? lock_downgrade+0x710/0x710
+[  982.606362]  igc_ethtool_get_link+0x6d/0x90 [igc]
+[  982.611614]  bond_check_dev_link+0x131/0x2c0 [bonding]
+[  982.617350]  ? bond_time_in_interval+0xd0/0xd0 [bonding]
+[  982.623277]  ? rcu_read_lock_held+0x62/0xc0
+[  982.627944]  ? rcu_read_lock_sched_held+0xe0/0xe0
+[  982.633198]  bond_mii_monitor+0x314/0x2500 [bonding]
+[  982.638738]  ? lock_contended+0x880/0x880
+[  982.643214]  ? bond_miimon_link_change+0xa0/0xa0 [bonding]
+[  982.649336]  ? lock_acquire+0x34d/0x890
+[  982.653615]  ? lock_downgrade+0x710/0x710
+[  982.658089]  ? debug_object_deactivate+0x221/0x340
+[  982.663436]  ? rcu_read_unlock+0x50/0x50
+[  982.667811]  ? debug_print_object+0x2b0/0x2b0
+[  982.672672]  ? __switch_to_asm+0x41/0x70
+[  982.677049]  ? __switch_to_asm+0x35/0x70
+[  982.681426]  ? _raw_spin_unlock_irq+0x24/0x40
+[  982.686288]  ? trace_hardirqs_on+0x20/0x195
+[  982.690956]  ? _raw_spin_unlock_irq+0x24/0x40
+[  982.695818]  process_one_work+0x8f0/0x1770
+[  982.700390]  ? pwq_dec_nr_in_flight+0x320/0x320
+[  982.705443]  ? debug_show_held_locks+0x50/0x50
+[  982.710403]  worker_thread+0x87/0xb40
+[  982.714489]  ? process_one_work+0x1770/0x1770
+[  982.719349]  kthread+0x344/0x410
+[  982.722950]  ? kthread_insert_work_sanity_check+0xd0/0xd0
+[  982.728975]  ret_from_fork+0x3a/0x50
 
-1. During ip6gretap device initialization, tunnel->tun_hlen (e.g. 4) is
-   calculated based on old flags (see ip6gre_calc_hlen());
-2. packet_snd() reserves header room for skb A, assuming
-   tunnel->tun_hlen is 4;
-3. Later (in clsact Qdisc), the eBPF program sets a new tunnel key for
-   skb A using bpf_skb_set_tunnel_key() (see _ip6gretap_set_tunnel());
-4. __gre6_xmit() detects the new tunnel key, and recalculates
-   "tun_hlen" (e.g. 12) based on new flags (e.g. TUNNEL_KEY and
-   TUNNEL_SEQ);
-5. gre_build_header() calls skb_push() with insufficient reserved header
-   room, triggering the BUG.
-
-As sugguested by Cong, fix it by moving the call to skb_cow_head() after
-the recalculation of tun_hlen.
-
-Reproducer:
-
-  OBJ=$LINUX/tools/testing/selftests/bpf/test_tunnel_kern.o
-
-  ip netns add at_ns0
-  ip link add veth0 type veth peer name veth1
-  ip link set veth0 netns at_ns0
-  ip netns exec at_ns0 ip addr add 172.16.1.100/24 dev veth0
-  ip netns exec at_ns0 ip link set dev veth0 up
-  ip link set dev veth1 up mtu 1500
-  ip addr add dev veth1 172.16.1.200/24
-
-  ip netns exec at_ns0 ip addr add ::11/96 dev veth0
-  ip netns exec at_ns0 ip link set dev veth0 up
-  ip addr add dev veth1 ::22/96
-  ip link set dev veth1 up
-
-  ip netns exec at_ns0 \
-  	ip link add dev ip6gretap00 type ip6gretap seq flowlabel 0xbcdef key 2 \
-  	local ::11 remote ::22
-
-  ip netns exec at_ns0 ip addr add dev ip6gretap00 10.1.1.100/24
-  ip netns exec at_ns0 ip addr add dev ip6gretap00 fc80::100/96
-  ip netns exec at_ns0 ip link set dev ip6gretap00 up
-
-  ip link add dev ip6gretap11 type ip6gretap external
-  ip addr add dev ip6gretap11 10.1.1.200/24
-  ip addr add dev ip6gretap11 fc80::200/24
-  ip link set dev ip6gretap11 up
-
-  tc qdisc add dev ip6gretap11 clsact
-  tc filter add dev ip6gretap11 egress bpf da obj $OBJ sec ip6gretap_set_tunnel
-  tc filter add dev ip6gretap11 ingress bpf da obj $OBJ sec ip6gretap_get_tunnel
-
-  ping6 -c 3 -w 10 -q ::11
-
-Fixes: 6712abc168eb ("ip6_gre: add ip6 gre and gretap collect_md mode")
-Reported-by: Feng Zhou <zhoufeng.zf@bytedance.com>
-Co-developed-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5586838fe9ce ("igc: Add code for PHY support")
+Reported-by: Corinna Vinschen <vinschen@redhat.com>
+Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Corinna Vinschen <vinschen@redhat.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_gre.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_phy.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index b43a46449130..976236736146 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -733,9 +733,6 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 	else
- 		fl6->daddr = tunnel->parms.raddr;
- 
--	if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
--		return -ENOMEM;
--
- 	/* Push GRE header. */
- 	protocol = (dev->type == ARPHRD_ETHER) ? htons(ETH_P_TEB) : proto;
- 
-@@ -763,6 +760,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
- 		tun_hlen = gre_calc_hlen(flags);
- 
-+		if (skb_cow_head(skb, dev->needed_headroom ?: tun_hlen + tunnel->encap_hlen))
-+			return -ENOMEM;
-+
- 		gre_build_header(skb, tun_hlen,
- 				 flags, protocol,
- 				 tunnel_id_to_key32(tun_info->key.tun_id),
-@@ -773,6 +773,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		if (tunnel->parms.o_flags & TUNNEL_SEQ)
- 			tunnel->o_seqno++;
- 
-+		if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
-+			return -ENOMEM;
-+
- 		gre_build_header(skb, tunnel->tun_hlen, tunnel->parms.o_flags,
- 				 protocol, tunnel->parms.o_key,
- 				 htonl(tunnel->o_seqno));
+diff --git a/drivers/net/ethernet/intel/igc/igc_phy.c b/drivers/net/ethernet/intel/igc/igc_phy.c
+index 40dbf4b43234..6961f65d36b9 100644
+--- a/drivers/net/ethernet/intel/igc/igc_phy.c
++++ b/drivers/net/ethernet/intel/igc/igc_phy.c
+@@ -581,7 +581,7 @@ static s32 igc_read_phy_reg_mdic(struct igc_hw *hw, u32 offset, u16 *data)
+ 	 * the lower time out
+ 	 */
+ 	for (i = 0; i < IGC_GEN_POLL_TIMEOUT; i++) {
+-		usleep_range(500, 1000);
++		udelay(50);
+ 		mdic = rd32(IGC_MDIC);
+ 		if (mdic & IGC_MDIC_READY)
+ 			break;
+@@ -638,7 +638,7 @@ static s32 igc_write_phy_reg_mdic(struct igc_hw *hw, u32 offset, u16 data)
+ 	 * the lower time out
+ 	 */
+ 	for (i = 0; i < IGC_GEN_POLL_TIMEOUT; i++) {
+-		usleep_range(500, 1000);
++		udelay(50);
+ 		mdic = rd32(IGC_MDIC);
+ 		if (mdic & IGC_MDIC_READY)
+ 			break;
 -- 
 2.35.1
 
