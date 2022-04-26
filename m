@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B44EE50F76F
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B1250F88F
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346168AbiDZJHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48190 "EHLO
+        id S232527AbiDZJIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347612AbiDZJF7 (ORCPT
+        with ESMTP id S1347613AbiDZJF7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54BEC6249;
-        Tue, 26 Apr 2022 01:45:06 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5036B1D4;
+        Tue, 26 Apr 2022 01:45:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0311BB81C76;
-        Tue, 26 Apr 2022 08:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AC83C385A4;
-        Tue, 26 Apr 2022 08:45:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D2F361344;
+        Tue, 26 Apr 2022 08:45:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B066C385AE;
+        Tue, 26 Apr 2022 08:45:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962703;
-        bh=im8fWudeT1VX4m99OVKg5QRNtoJ3f+uKLxsKH0N9C7k=;
+        s=korg; t=1650962706;
+        bh=lGc0mAUhfpdffiH5zcTjJhech/QCb4kZ9Ct3XGwOF3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTIrFkF+oED7i97icZ3YEBWZi+9l2gpw9vNei5LSrfTJl81IVeb1nflGCgy5aU5k1
-         /JEYfqaA8hmiDAvpxPBtsnGh4wIi+TRPvrqmZeBe/y8u3EEmPzeb++78E4c03llHgd
-         AmVsFnBulr2v/T4bIZQ1EIfzZvB9JoAvxbdBHf4E=
+        b=PhbE+lgqd1vwCT9Fmd4AZtTVeUjOOvtA3p4wonW6eUSu+ZrHVJdQ9JGmMjIXUTen5
+         I7axb67AD0tm/D+I1gVuuRJsKlZo5GUJwutTHzv3DzK8FWkew+6RNzZDvFjFDjDyE+
+         pP+Cfa50pOd8YiZtd2iwZgBsNap9u0XwY1WZ6ChA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 021/146] firmware: cs_dsp: Fix overrun of unterminated control name string
-Date:   Tue, 26 Apr 2022 10:20:16 +0200
-Message-Id: <20220426081750.660475827@linuxfoundation.org>
+Subject: [PATCH 5.17 022/146] esp: limit skb_page_frag_refill use to a single page
+Date:   Tue, 26 Apr 2022 10:20:17 +0200
+Message-Id: <20220426081750.689360960@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -54,42 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 5b933c7262c5b0ea11ea3c3b3ea81add04895954 ]
+[ Upstream commit 5bd8baab087dff657e05387aee802e70304cc813 ]
 
-For wmfw format v2 and later the coefficient name strings have a length
-field and are NOT null-terminated. Use kasprintf() to convert the
-unterminated string into a null-terminated string in an allocated buffer.
+Commit ebe48d368e97 ("esp: Fix possible buffer overflow in ESP
+transformation") tried to fix skb_page_frag_refill usage in ESP by
+capping allocsize to 32k, but that doesn't completely solve the issue,
+as skb_page_frag_refill may return a single page. If that happens, we
+will write out of bounds, despite the check introduced in the previous
+patch.
 
-The previous code handled this duplication incorrectly using kmemdup()
-and getting the length from a strlen() of the (unterminated) source string.
-This resulted in creating a string that continued up to the next byte in
-the firmware file that just happened to be 0x00.
+This patch forces COW in cases where we would end up calling
+skb_page_frag_refill with a size larger than a page (first in
+esp_output_head with tailen, then in esp_output_tail with
+skb->data_len).
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Fixes: f6bc909e7673 ("firmware: cs_dsp: add driver to support firmware loading on Cirrus Logic DSPs")
-Link: https://lore.kernel.org/r/20220412163927.1303470-1-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
+Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/cirrus/cs_dsp.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/net/esp.h | 2 --
+ net/ipv4/esp4.c   | 5 ++---
+ net/ipv6/esp6.c   | 5 ++---
+ 3 files changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/firmware/cirrus/cs_dsp.c b/drivers/firmware/cirrus/cs_dsp.c
-index e48108e694f8..7dad6f57d970 100644
---- a/drivers/firmware/cirrus/cs_dsp.c
-+++ b/drivers/firmware/cirrus/cs_dsp.c
-@@ -955,8 +955,7 @@ static int cs_dsp_create_control(struct cs_dsp *dsp,
- 	ctl->alg_region = *alg_region;
- 	if (subname && dsp->fw_ver >= 2) {
- 		ctl->subname_len = subname_len;
--		ctl->subname = kmemdup(subname,
--				       strlen(subname) + 1, GFP_KERNEL);
-+		ctl->subname = kasprintf(GFP_KERNEL, "%.*s", subname_len, subname);
- 		if (!ctl->subname) {
- 			ret = -ENOMEM;
- 			goto err_ctl;
+diff --git a/include/net/esp.h b/include/net/esp.h
+index 90cd02ff77ef..9c5637d41d95 100644
+--- a/include/net/esp.h
++++ b/include/net/esp.h
+@@ -4,8 +4,6 @@
+ 
+ #include <linux/skbuff.h>
+ 
+-#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
+-
+ struct ip_esp_hdr;
+ 
+ static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index 70e6c87fbe3d..d747166bb291 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -446,7 +446,6 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
+-	unsigned int allocsz;
+ 
+ 	/* this is non-NULL only with TCP/UDP Encapsulation */
+ 	if (x->encap) {
+@@ -456,8 +455,8 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 			return err;
+ 	}
+ 
+-	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
+-	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
++	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
+ 		goto cow;
+ 
+ 	if (!skb_cloned(skb)) {
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index 55d604c9b3b3..f2120e92caf1 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -482,7 +482,6 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
+-	unsigned int allocsz;
+ 
+ 	if (x->encap) {
+ 		int err = esp6_output_encap(x, skb, esp);
+@@ -491,8 +490,8 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 			return err;
+ 	}
+ 
+-	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
+-	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
++	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
+ 		goto cow;
+ 
+ 	if (!skb_cloned(skb)) {
 -- 
 2.35.1
 
