@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B7CF50F53C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D819050F3E3
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345243AbiDZIl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:41:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59642 "EHLO
+        id S1344784AbiDZI3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:29:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345519AbiDZIkr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:40:47 -0400
+        with ESMTP id S1344676AbiDZI2H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:28:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 752541552B7;
-        Tue, 26 Apr 2022 01:32:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70153B014;
+        Tue, 26 Apr 2022 01:24:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC139618A6;
-        Tue, 26 Apr 2022 08:32:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCDEFC385A4;
-        Tue, 26 Apr 2022 08:32:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61A3C617D2;
+        Tue, 26 Apr 2022 08:24:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CFEBC385A0;
+        Tue, 26 Apr 2022 08:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961966;
-        bh=zKK0wbPphIjLMHAt9HrP9gdEuGzzDhxmfn8v4CQiZSg=;
+        s=korg; t=1650961443;
+        bh=aj2MJe6FxnGwrXKvMahFbCQYAaT+4ocJ3YhgWHEGcDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqjDUYnnpl0KwLIvO/ciZdpMu8J34iaUbjrWttf8SFXzOUvT5oEd1Yae+SYsx8MW/
-         AFX7knlBvY6FC16WyAxz9ACtJh5ZP/LfIyycdxjY706tZGje46fI48d43PJO8eK6yK
-         w+/B3a8f4/j5RdhqapKoLhnYuQ6RM7/oiR+g7V3A=
+        b=p3NlGZchKTguaYwH5ij/QXrblrqJy5+A/iJ1IOa0J+sMGGLM5HOvZ2ypxXQ7ASKWK
+         ecMpM+JXwNm3neQyYIIwwY0nG33JuK342LoVxO+hU/U46YuDuVxl+MdEiOdscG7o4K
+         c91t1xXme9sL6lFnHrimUVD5+4gWa4eyZXimZqAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org,
+        Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 27/86] netlink: reset network and mac headers in netlink_dump()
+Subject: [PATCH 4.14 13/43] ARM: vexpress/spc: Avoid negative array index when !SMP
 Date:   Tue, 26 Apr 2022 10:20:55 +0200
-Message-Id: <20220426081741.993715405@linuxfoundation.org>
+Message-Id: <20220426081734.910120642@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,134 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 99c07327ae11e24886d552dddbe4537bfca2765d ]
+[ Upstream commit b3f1dd52c991d79118f35e6d1bf4d7cb09882e38 ]
 
-netlink_dump() is allocating an skb, reserves space in it
-but forgets to reset network header.
+When building multi_v7_defconfig+CONFIG_SMP=n, -Warray-bounds exposes
+a couple negative array index accesses:
 
-This allows a BPF program, invoked later from sk_filter()
-to access uninitialized kernel memory from the reserved
-space.
+arch/arm/mach-vexpress/spc.c: In function 've_spc_clk_init':
+arch/arm/mach-vexpress/spc.c:583:21: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
+  583 |   if (init_opp_table[cluster])
+      |       ~~~~~~~~~~~~~~^~~~~~~~~
+arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
+  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
+      |       ^~~~~~~~~~~~~~
+arch/arm/mach-vexpress/spc.c:592:18: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
+  592 |    init_opp_table[cluster] = true;
+      |    ~~~~~~~~~~~~~~^~~~~~~~~
+arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
+  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
+      |       ^~~~~~~~~~~~~~
 
-Theorically mac header reset could be omitted, because
-it is set to a special initial value.
-bpf_internal_load_pointer_neg_helper calls skb_mac_header()
-without checking skb_mac_header_was_set().
-Relying on skb->len not being too big seems fragile.
-We also could add a sanity check in bpf_internal_load_pointer_neg_helper()
-to avoid surprises in the future.
+Skip this logic when built !SMP.
 
-syzbot report was:
-
-BUG: KMSAN: uninit-value in ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
- ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
- __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
- bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
- __bpf_prog_run include/linux/filter.h:626 [inline]
- bpf_prog_run include/linux/filter.h:633 [inline]
- __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
- bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
- sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
- sk_filter include/linux/filter.h:905 [inline]
- netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
- netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- sock_read_iter+0x5a9/0x630 net/socket.c:1039
- do_iter_readv_writev+0xa7f/0xc70
- do_iter_read+0x52c/0x14c0 fs/read_write.c:786
- vfs_readv fs/read_write.c:906 [inline]
- do_readv+0x432/0x800 fs/read_write.c:943
- __do_sys_readv fs/read_write.c:1034 [inline]
- __se_sys_readv fs/read_write.c:1031 [inline]
- __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was stored to memory at:
- ___bpf_prog_run+0x96c/0xb420 kernel/bpf/core.c:1558
- __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
- bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
- __bpf_prog_run include/linux/filter.h:626 [inline]
- bpf_prog_run include/linux/filter.h:633 [inline]
- __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
- bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
- sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
- sk_filter include/linux/filter.h:905 [inline]
- netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
- netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- sock_read_iter+0x5a9/0x630 net/socket.c:1039
- do_iter_readv_writev+0xa7f/0xc70
- do_iter_read+0x52c/0x14c0 fs/read_write.c:786
- vfs_readv fs/read_write.c:906 [inline]
- do_readv+0x432/0x800 fs/read_write.c:943
- __do_sys_readv fs/read_write.c:1034 [inline]
- __se_sys_readv fs/read_write.c:1031 [inline]
- __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:737 [inline]
- slab_alloc_node mm/slub.c:3244 [inline]
- __kmalloc_node_track_caller+0xde3/0x14f0 mm/slub.c:4972
- kmalloc_reserve net/core/skbuff.c:354 [inline]
- __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
- alloc_skb include/linux/skbuff.h:1158 [inline]
- netlink_dump+0x30f/0x16c0 net/netlink/af_netlink.c:2242
- netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- sock_read_iter+0x5a9/0x630 net/socket.c:1039
- do_iter_readv_writev+0xa7f/0xc70
- do_iter_read+0x52c/0x14c0 fs/read_write.c:786
- vfs_readv fs/read_write.c:906 [inline]
- do_readv+0x432/0x800 fs/read_write.c:943
- __do_sys_readv fs/read_write.c:1034 [inline]
- __se_sys_readv fs/read_write.c:1031 [inline]
- __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-CPU: 0 PID: 3470 Comm: syz-executor751 Not tainted 5.17.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: db65a3aaf29e ("netlink: Trim skb to alloc size to avoid MSG_TRUNC")
-Fixes: 9063e21fb026 ("netlink: autosize skb lengthes")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220415181442.551228-1-eric.dumazet@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/r/20220331190443.851661-1-keescook@chromium.org
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: linux-arm-kernel@lists.infradead.org
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/mach-vexpress/spc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index f37916156ca5..cbfb601c4ee9 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -2276,6 +2276,13 @@ static int netlink_dump(struct sock *sk)
- 	 * single netdev. The outcome is MSG_TRUNC error.
- 	 */
- 	skb_reserve(skb, skb_tailroom(skb) - alloc_size);
-+
-+	/* Make sure malicious BPF programs can not read unitialized memory
-+	 * from skb->head -> skb->data
-+	 */
-+	skb_reset_network_header(skb);
-+	skb_reset_mac_header(skb);
-+
- 	netlink_skb_set_owner_r(skb, sk);
+diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
+index 635b0d549487..c16f39614003 100644
+--- a/arch/arm/mach-vexpress/spc.c
++++ b/arch/arm/mach-vexpress/spc.c
+@@ -584,7 +584,7 @@ static int __init ve_spc_clk_init(void)
+ 		}
  
- 	if (nlk->dump_done_errno > 0) {
+ 		cluster = topology_physical_package_id(cpu_dev->id);
+-		if (init_opp_table[cluster])
++		if (cluster < 0 || init_opp_table[cluster])
+ 			continue;
+ 
+ 		if (ve_init_opp_table(cpu_dev))
 -- 
 2.35.1
 
