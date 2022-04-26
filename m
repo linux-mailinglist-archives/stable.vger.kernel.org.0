@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E574D50F647
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD7F50F7D9
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243382AbiDZIsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:48:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57982 "EHLO
+        id S1346792AbiDZJLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:11:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346611AbiDZIpO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C6F08CD85;
-        Tue, 26 Apr 2022 01:35:10 -0700 (PDT)
+        with ESMTP id S1346921AbiDZJJ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:09:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5520C17ABD7;
+        Tue, 26 Apr 2022 01:49:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C12AAB81D09;
-        Tue, 26 Apr 2022 08:35:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EF3C385A4;
-        Tue, 26 Apr 2022 08:35:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7F946149A;
+        Tue, 26 Apr 2022 08:49:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3924C385A4;
+        Tue, 26 Apr 2022 08:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962107;
-        bh=62zh88olZCW20GKapZd5WGcUVcYnUskZ1dkn2dYa2+o=;
+        s=korg; t=1650962961;
+        bh=8KrmE0KfLpZ6Zj6gWZMaFJNNGs1Kvhw+34J7TsZNZJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTmJW90fSzqr6wfo0q0/TmtMUmMRnawIcoLVeqgliiDafjkoMvk5RxzJYy29xtTA4
-         WtdWfr/SZKms/kGghp7n+q7yfR2WDkbx94iDHbDMupI79iM9SVv6oBaoaflBdneM1B
-         Kg6qQyGjAEy0B7qbBWke7YfPf7QLDmyumbbY6v6k=
+        b=wPLr9MAhq3iJld8G1lfNyu8VsLaZKJJfJza+x2fsErd64ZtcsLiy6+UYlyVwLiBKx
+         SzmqUpm62dkrmHkTvxU7CG1OStae3u0lqELEeUjxFwLXbon7Sp8V6i8Z8jj7tWsny/
+         0xrPCHb4FNMUFDVd2lBcQcRdDcdVMoR8W0FVA1xQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        German Gomez <german.gomez@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 73/86] perf report: Set PERF_SAMPLE_DATA_SRC bit for Arm SPE event
+Subject: [PATCH 5.17 106/146] powerpc/time: Always set decrementer in timer_interrupt()
 Date:   Tue, 26 Apr 2022 10:21:41 +0200
-Message-Id: <20220426081743.315971967@linuxfoundation.org>
+Message-Id: <20220426081753.037463942@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,76 +55,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit ccb17caecfbd542f49a2a79ae088136ba8bfb794 ]
+[ Upstream commit d2b9be1f4af5cabed1ee5bb341f887f64b1c1669 ]
 
-Since commit bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem
-info is not available") "perf mem report" and "perf report --mem-mode"
-don't report result if the PERF_SAMPLE_DATA_SRC bit is missed in sample
-type.
+This is a partial revert of commit 0faf20a1ad16 ("powerpc/64s/interrupt:
+Don't enable MSR[EE] in irq handlers unless perf is in use").
 
-The commit ffab487052054162 ("perf: arm-spe: Fix perf report
---mem-mode") partially fixes the issue.  It adds PERF_SAMPLE_DATA_SRC
-bit for Arm SPE event, this allows the perf data file generated by
-kernel v5.18-rc1 or later version can be reported properly.
+Prior to that commit, we always set the decrementer in
+timer_interrupt(), to clear the timer interrupt. Otherwise we could end
+up continuously taking timer interrupts.
 
-On the other hand, perf tool still fails to be backward compatibility
-for a data file recorded by an older version's perf which contains Arm
-SPE trace data.  This patch is a workaround in reporting phase, when
-detects ARM SPE PMU event and without PERF_SAMPLE_DATA_SRC bit, it will
-force to set the bit in the sample type and give a warning info.
+When high res timers are enabled there is no problem seen with leaving
+the decrementer untouched in timer_interrupt(), because it will be
+programmed via hrtimer_interrupt() -> tick_program_event() ->
+clockevents_program_event() -> decrementer_set_next_event().
 
-Fixes: bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem info is not available")
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Tested-by: German Gomez <german.gomez@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220414123201.842754-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+However with CONFIG_HIGH_RES_TIMERS=n or booting with highres=off, we
+see a stall/lockup, because tick_nohz_handler() does not cause a
+reprogram of the decrementer, leading to endless timer interrupts.
+Example trace:
+
+  [    1.898617][    T7] Freeing initrd memory: 2624K^M
+  [   22.680919][    C1] rcu: INFO: rcu_sched detected stalls on CPUs/tasks:^M
+  [   22.682281][    C1] rcu:     0-....: (25 ticks this GP) idle=073/0/0x1 softirq=10/16 fqs=1050 ^M
+  [   22.682851][    C1]  (detected by 1, t=2102 jiffies, g=-1179, q=476)^M
+  [   22.683649][    C1] Sending NMI from CPU 1 to CPUs 0:^M
+  [   22.685252][    C0] NMI backtrace for cpu 0^M
+  [   22.685649][    C0] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.16.0-rc2-00185-g0faf20a1ad16 #145^M
+  [   22.686393][    C0] NIP:  c000000000016d64 LR: c000000000f6cca4 CTR: c00000000019c6e0^M
+  [   22.686774][    C0] REGS: c000000002833590 TRAP: 0500   Not tainted  (5.16.0-rc2-00185-g0faf20a1ad16)^M
+  [   22.687222][    C0] MSR:  8000000000009033 <SF,EE,ME,IR,DR,RI,LE>  CR: 24000222  XER: 00000000^M
+  [   22.688297][    C0] CFAR: c00000000000c854 IRQMASK: 0 ^M
+  ...
+  [   22.692637][    C0] NIP [c000000000016d64] arch_local_irq_restore+0x174/0x250^M
+  [   22.694443][    C0] LR [c000000000f6cca4] __do_softirq+0xe4/0x3dc^M
+  [   22.695762][    C0] Call Trace:^M
+  [   22.696050][    C0] [c000000002833830] [c000000000f6cc80] __do_softirq+0xc0/0x3dc (unreliable)^M
+  [   22.697377][    C0] [c000000002833920] [c000000000151508] __irq_exit_rcu+0xd8/0x130^M
+  [   22.698739][    C0] [c000000002833950] [c000000000151730] irq_exit+0x20/0x40^M
+  [   22.699938][    C0] [c000000002833970] [c000000000027f40] timer_interrupt+0x270/0x460^M
+  [   22.701119][    C0] [c0000000028339d0] [c0000000000099a8] decrementer_common_virt+0x208/0x210^M
+
+Possibly this should be fixed in the lowres timing code, but that would
+be a generic change and could take some time and may not backport
+easily, so for now make the programming of the decrementer unconditional
+again in timer_interrupt() to avoid the stall/lockup.
+
+Fixes: 0faf20a1ad16 ("powerpc/64s/interrupt: Don't enable MSR[EE] in irq handlers unless perf is in use")
+Reported-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Link: https://lore.kernel.org/r/20220420141657.771442-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-report.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/powerpc/kernel/time.c | 29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index 91cab5cdfbc1..b55ee073c2f7 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -340,6 +340,7 @@ static int report__setup_sample_type(struct report *rep)
- 	struct perf_session *session = rep->session;
- 	u64 sample_type = evlist__combined_sample_type(session->evlist);
- 	bool is_pipe = perf_data__is_pipe(session->data);
-+	struct evsel *evsel;
- 
- 	if (session->itrace_synth_opts->callchain ||
- 	    session->itrace_synth_opts->add_callchain ||
-@@ -394,6 +395,19 @@ static int report__setup_sample_type(struct report *rep)
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 384f58a3f373..5f8933aec75c 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -610,23 +610,22 @@ DEFINE_INTERRUPT_HANDLER_ASYNC(timer_interrupt)
+ 		return;
  	}
  
- 	if (sort__mode == SORT_MODE__MEMORY) {
-+		/*
-+		 * FIXUP: prior to kernel 5.18, Arm SPE missed to set
-+		 * PERF_SAMPLE_DATA_SRC bit in sample type.  For backward
-+		 * compatibility, set the bit if it's an old perf data file.
-+		 */
-+		evlist__for_each_entry(session->evlist, evsel) {
-+			if (strstr(evsel->name, "arm_spe") &&
-+				!(sample_type & PERF_SAMPLE_DATA_SRC)) {
-+				evsel->core.attr.sample_type |= PERF_SAMPLE_DATA_SRC;
-+				sample_type |= PERF_SAMPLE_DATA_SRC;
-+			}
-+		}
-+
- 		if (!is_pipe && !(sample_type & PERF_SAMPLE_DATA_SRC)) {
- 			ui__error("Selected --mem-mode but no mem data. "
- 				  "Did you call perf record without -d?\n");
+-	/* Conditionally hard-enable interrupts. */
+-	if (should_hard_irq_enable()) {
+-		/*
+-		 * Ensure a positive value is written to the decrementer, or
+-		 * else some CPUs will continue to take decrementer exceptions.
+-		 * When the PPC_WATCHDOG (decrementer based) is configured,
+-		 * keep this at most 31 bits, which is about 4 seconds on most
+-		 * systems, which gives the watchdog a chance of catching timer
+-		 * interrupt hard lockups.
+-		 */
+-		if (IS_ENABLED(CONFIG_PPC_WATCHDOG))
+-			set_dec(0x7fffffff);
+-		else
+-			set_dec(decrementer_max);
++	/*
++	 * Ensure a positive value is written to the decrementer, or
++	 * else some CPUs will continue to take decrementer exceptions.
++	 * When the PPC_WATCHDOG (decrementer based) is configured,
++	 * keep this at most 31 bits, which is about 4 seconds on most
++	 * systems, which gives the watchdog a chance of catching timer
++	 * interrupt hard lockups.
++	 */
++	if (IS_ENABLED(CONFIG_PPC_WATCHDOG))
++		set_dec(0x7fffffff);
++	else
++		set_dec(decrementer_max);
+ 
++	/* Conditionally hard-enable interrupts. */
++	if (should_hard_irq_enable())
+ 		do_hard_irq_enable();
+-	}
+ 
+ #if defined(CONFIG_PPC32) && defined(CONFIG_PPC_PMAC)
+ 	if (atomic_read(&ppc_n_lost_interrupts) != 0)
 -- 
 2.35.1
 
