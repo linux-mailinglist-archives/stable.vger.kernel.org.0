@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD805107F1
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:02:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 194095107E9
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351052AbiDZTFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:05:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39972 "EHLO
+        id S1353385AbiDZTFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:05:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350783AbiDZTFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9034F19916B;
-        Tue, 26 Apr 2022 12:02:01 -0700 (PDT)
+        with ESMTP id S1351872AbiDZTFL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38215199168;
+        Tue, 26 Apr 2022 12:02:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B06D9619B9;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B98CFB8224A;
+        Tue, 26 Apr 2022 19:02:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64AA5C385C3;
         Tue, 26 Apr 2022 19:02:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE86C385AA;
-        Tue, 26 Apr 2022 19:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1650999720;
-        bh=0wa8R2ae7L5HvBja6cgYpwoZNRFRA5di92a2dlL7/Zo=;
+        bh=fl/SlIFa21XcUiuyoHk/hrTxohmhSV+w9p9Ll/WaPjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQrhIvv5cSV+xbheXI4gmS7HafKBEpY1H585Z8pXQuQalOW6Ci+TPUC8MCMJGKqK8
-         s3a2kUS913wA3A05MTT1gSjmtsMwhEkjg7uTKcFv+fkc0/hzJqL5mjhFzI1z8zsGA2
-         zUb3kVUpIyrMkUOR+wNxz5w/B+Fo/ImG6YSI5Iw7UyU5euGVnTuRjf+qN1fdUuwZQy
-         KjaK4QRILGM5e3Mh/BYC2+vzR9wEm2FVHAlXKgVg49r0T718iLQeKgicddpFwzKsCU
-         uh/arpViRmHc0wosCVr0SmVV2fzS2ZFmLdnfYzI4uOEjTNk8DOyE9iynxppNJDbnGA
-         2A2MqiQikPCGw==
+        b=AhVp68IdmPZMMNbrsRIyz74xyLu7820rj2nWY5EpnXBAsUky9DumGMw+C7L+RFpBs
+         pgIAeHhR0XSpkaw6j3aNuZUjAiqaS/p/VHBEvSqbCW+ISuu7qKdjU/qQoRU070Jm75
+         gaeJCyXQxgKzEp8WQC2hQPKCBnYpFF601luHPDbL/ASaVtntOwz3Hgd4bb43+e7XW9
+         XIx0Z+aJoPVQD6IphISS5m25W+vu22oAUUEFBNuu9FHYWHVSy5/kl32pPuNxLXFrAG
+         99C8wB5uGWCl2eaor9pO5kZnzURSt0FqX95URXELFD3oxdTQMo/e+wPcxV9CUJ9OXL
+         z2mLa0Af50/nw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, yang.jie@linux.intel.com,
-        perex@perex.cz, tiwai@suse.com, peter.ujfalusi@linux.intel.com,
-        yung-chuan.liao@linux.intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 06/22] ASoC: Intel: sof_es8336: Add a quirk for Huawei Matebook D15
-Date:   Tue, 26 Apr 2022 15:01:29 -0400
-Message-Id: <20220426190145.2351135-6-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, y.oudjana@protonmail.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 07/22] Input: cypress-sf - register a callback to disable the regulators
+Date:   Tue, 26 Apr 2022 15:01:30 -0400
+Message-Id: <20220426190145.2351135-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220426190145.2351135-1-sashal@kernel.org>
 References: <20220426190145.2351135-1-sashal@kernel.org>
@@ -59,47 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit c7cb4717f641db68e8117635bfcf62a9c27dc8d3 ]
+[ Upstream commit fd0a4b39870d49ff15f6966470185409e261f20f ]
 
-Based on experimental tests, Huawei Matebook D15 actually uses
-both gpio0 and gpio1: the first one controls the speaker, while
-the other one controls the headphone.
+When the driver fails to probe, we will get the following splat:
 
-Also, the headset is mapped as MIC1, instead of MIC2.
+[   19.311970] ------------[ cut here ]------------
+[   19.312566] WARNING: CPU: 3 PID: 375 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
+[   19.317591] RIP: 0010:_regulator_put+0x3ec/0x4e0
+[   19.328831] Call Trace:
+[   19.329112]  <TASK>
+[   19.329369]  regulator_bulk_free+0x82/0xe0
+[   19.329860]  devres_release_group+0x319/0x3d0
+[   19.330357]  i2c_device_probe+0x766/0x940
 
-So, add a quirk for it.
+Fix this by adding a callback that will deal with the disabling when the
+driver fails to probe.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/d678aef9fc9a07aced611aa7cb8c9b800c649e5a.1649357263.git.mchehab@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220409022629.3493557-1-zheyuma97@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_es8336.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/input/keyboard/cypress-sf.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
-index 28d7670b8f8f..b18951a8f309 100644
---- a/sound/soc/intel/boards/sof_es8336.c
-+++ b/sound/soc/intel/boards/sof_es8336.c
-@@ -252,6 +252,15 @@ static const struct dmi_system_id sof_es8336_quirk_table[] = {
- 					SOF_ES8336_TGL_GPIO_QUIRK |
- 					SOF_ES8336_ENABLE_DMIC)
- 	},
-+	{
-+		.callback = sof_es8336_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "HUAWEI"),
-+			DMI_MATCH(DMI_BOARD_NAME, "BOHB-WAX9-PCB-B2"),
-+		},
-+		.driver_data = (void *)(SOF_ES8336_HEADPHONE_GPIO |
-+					SOC_ES8336_HEADSET_MIC1)
-+	},
- 	{}
- };
+diff --git a/drivers/input/keyboard/cypress-sf.c b/drivers/input/keyboard/cypress-sf.c
+index c28996028e80..9a23eed6a4f4 100644
+--- a/drivers/input/keyboard/cypress-sf.c
++++ b/drivers/input/keyboard/cypress-sf.c
+@@ -61,6 +61,14 @@ static irqreturn_t cypress_sf_irq_handler(int irq, void *devid)
+ 	return IRQ_HANDLED;
+ }
  
++static void cypress_sf_disable_regulators(void *arg)
++{
++	struct cypress_sf_data *touchkey = arg;
++
++	regulator_bulk_disable(ARRAY_SIZE(touchkey->regulators),
++			       touchkey->regulators);
++}
++
+ static int cypress_sf_probe(struct i2c_client *client)
+ {
+ 	struct cypress_sf_data *touchkey;
+@@ -121,6 +129,12 @@ static int cypress_sf_probe(struct i2c_client *client)
+ 		return error;
+ 	}
+ 
++	error = devm_add_action_or_reset(&client->dev,
++					 cypress_sf_disable_regulators,
++					 touchkey);
++	if (error)
++		return error;
++
+ 	touchkey->input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!touchkey->input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate input device\n");
 -- 
 2.35.1
 
