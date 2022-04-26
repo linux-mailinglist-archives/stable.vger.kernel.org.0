@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A70F450F3EA
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97CE250F4F9
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344844AbiDZI3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:29:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36296 "EHLO
+        id S1345153AbiDZIks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:40:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344890AbiDZI3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:29:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27DA642A1C;
-        Tue, 26 Apr 2022 01:24:26 -0700 (PDT)
+        with ESMTP id S1345855AbiDZIjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A625A793B5;
+        Tue, 26 Apr 2022 01:32:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8F3C61778;
-        Tue, 26 Apr 2022 08:24:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E651DC385A4;
-        Tue, 26 Apr 2022 08:24:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DD0361864;
+        Tue, 26 Apr 2022 08:32:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EC76C385A0;
+        Tue, 26 Apr 2022 08:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961465;
-        bh=Cg6uVNnAnKhZwmZtm1NgSHIhtNMaNG4XByu/JiDv5a0=;
+        s=korg; t=1650961929;
+        bh=4LPqaj5Lo0OfNPU9gxZMt0k8k/l1yn/DuS3f4pPqxeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rB3RqsrhHu/GF0SrFAXEUrkTi3HQ0woM8pfCdLYsPrle3T6D0gjdTER4/D+tfHuh5
-         EbTrZnz0sBdk6x32z737MED5yqIDOUsNxgtlTYPLrxjWKLAY43GKHhWtGU1AmKVd2A
-         j6AvXnshuuvN8s1Brh0jJKgsd4M4j/wNmy2cUSA8=
+        b=BtOTkTUG3vDQslzaFXOqbbMM/TqC/Z0aACS4ihLb0Gja2ilSmHe3WPPK4xvle2SxX
+         is0WaM9ZoMqLN1qvFwsSmMIOsPYak36IGaFzOnj6MMkkEivqbNXwfqwZ5y/QZtmRpF
+         HfXCLnBg1n/ju/i0ObK8yhof1EGScQkCeXwedRg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiongwei Song <sxwjean@gmail.com>,
-        Arthur Marsh <arthur.marsh@internode.on.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Khem Raj <raj.khem@gmail.com>
-Subject: [PATCH 4.14 02/43] mm: page_alloc: fix building error on -Werror=array-compare
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 16/86] esp: limit skb_page_frag_refill use to a single page
 Date:   Tue, 26 Apr 2022 10:20:44 +0200
-Message-Id: <20220426081734.585462414@linuxfoundation.org>
+Message-Id: <20220426081741.674635373@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongwei Song <sxwjean@gmail.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-commit ca831f29f8f25c97182e726429b38c0802200c8f upstream.
+[ Upstream commit 5bd8baab087dff657e05387aee802e70304cc813 ]
 
-Arthur Marsh reported we would hit the error below when building kernel
-with gcc-12:
+Commit ebe48d368e97 ("esp: Fix possible buffer overflow in ESP
+transformation") tried to fix skb_page_frag_refill usage in ESP by
+capping allocsize to 32k, but that doesn't completely solve the issue,
+as skb_page_frag_refill may return a single page. If that happens, we
+will write out of bounds, despite the check introduced in the previous
+patch.
 
-  CC      mm/page_alloc.o
-  mm/page_alloc.c: In function `mem_init_print_info':
-  mm/page_alloc.c:8173:27: error: comparison between two arrays [-Werror=array-compare]
-   8173 |                 if (start <= pos && pos < end && size > adj) \
-        |
+This patch forces COW in cases where we would end up calling
+skb_page_frag_refill with a size larger than a page (first in
+esp_output_head with tailen, then in esp_output_tail with
+skb->data_len).
 
-In C++20, the comparision between arrays should be warned.
-
-Link: https://lkml.kernel.org/r/20211125130928.32465-1-sxwjean@me.com
-Signed-off-by: Xiongwei Song <sxwjean@gmail.com>
-Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Khem Raj <raj.khem@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
+Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/esp.h | 2 --
+ net/ipv4/esp4.c   | 5 ++---
+ net/ipv6/esp6.c   | 5 ++---
+ 3 files changed, 4 insertions(+), 8 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6737,7 +6737,7 @@ void __init mem_init_print_info(const ch
- 	 */
- #define adj_init_size(start, end, size, pos, adj) \
- 	do { \
--		if (start <= pos && pos < end && size > adj) \
-+		if (&start[0] <= &pos[0] && &pos[0] < &end[0] && size > adj) \
- 			size -= adj; \
- 	} while (0)
+diff --git a/include/net/esp.h b/include/net/esp.h
+index 90cd02ff77ef..9c5637d41d95 100644
+--- a/include/net/esp.h
++++ b/include/net/esp.h
+@@ -4,8 +4,6 @@
  
+ #include <linux/skbuff.h>
+ 
+-#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
+-
+ struct ip_esp_hdr;
+ 
+ static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index 9aae82145bc1..20d738137841 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -448,7 +448,6 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
+-	unsigned int allocsz;
+ 
+ 	/* this is non-NULL only with TCP/UDP Encapsulation */
+ 	if (x->encap) {
+@@ -458,8 +457,8 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 			return err;
+ 	}
+ 
+-	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
+-	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
++	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
+ 		goto cow;
+ 
+ 	if (!skb_cloned(skb)) {
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index 20c7bef6829e..cb28f8928f9e 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -483,7 +483,6 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
+-	unsigned int allocsz;
+ 
+ 	if (x->encap) {
+ 		int err = esp6_output_encap(x, skb, esp);
+@@ -492,8 +491,8 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 			return err;
+ 	}
+ 
+-	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
+-	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
++	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
+ 		goto cow;
+ 
+ 	if (!skb_cloned(skb)) {
+-- 
+2.35.1
+
 
 
