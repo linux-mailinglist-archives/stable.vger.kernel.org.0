@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D15A250F6AF
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D83B950F732
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345745AbiDZI6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44646 "EHLO
+        id S1346830AbiDZJL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:11:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345848AbiDZI5B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:01 -0400
+        with ESMTP id S1346065AbiDZJGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F71D82D28;
-        Tue, 26 Apr 2022 01:41:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0DE8170E0B;
+        Tue, 26 Apr 2022 01:48:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0452EB81CF0;
-        Tue, 26 Apr 2022 08:41:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43529C385A0;
-        Tue, 26 Apr 2022 08:41:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 861EEB81CFE;
+        Tue, 26 Apr 2022 08:48:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB03AC385A0;
+        Tue, 26 Apr 2022 08:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962495;
-        bh=sIE4U5sE+hEE75msEzj31tYLgvGjfk9whkhrozyQSo0=;
+        s=korg; t=1650962885;
+        bh=h9nekDnZjVNRaibYw2Ab9HItxmQykDgvxLK3hX4+T2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FyKcytsf2QBmERB7fyi7oRTYeWhk6WDjCSu8fnmE3+bcprDrfj2Nd6a6/ZRRA6nSb
-         dPoK+58Ayawe9skSEsxq+J4rIDc8vAln2WnGCLkiWx+tZcC27mgxOq9LjC8/B5r7tK
-         tNxmaAUdAD9dVKWhWc2gl/t7y8OptCYMQ3keBCQk=
+        b=HIUxtZGhe4quKZ872Ie9eg6U5fJmSJIuEQS1vNt5z3REG1BHNmdpdZlYF5K6LWtIO
+         XkXlEfVm8h34q79TF3/28x0OAYNSkirUoQ3rGvfTBTydjMjPqEVdMt5a6EyhyHYDbC
+         H4GFZjN9nR5j4zvi+9N71RcWzYPRCjJllFfG7hfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.15 115/124] ext4: fix use-after-free in ext4_search_dir
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.17 121/146] ASoC: rt5682: fix an incorrect NULL check on list iterator
 Date:   Tue, 26 Apr 2022 10:21:56 +0200
-Message-Id: <20220426081750.560571833@linuxfoundation.org>
+Message-Id: <20220426081753.458183153@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,125 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit c186f0887fe7061a35cebef024550ec33ef8fbd8 upstream.
+commit c8618d65007ba68d7891130642d73e89372101e8 upstream.
 
-We got issue as follows:
-EXT4-fs (loop0): mounted filesystem without journal. Opts: ,errors=continue
-==================================================================
-BUG: KASAN: use-after-free in ext4_search_dir fs/ext4/namei.c:1394 [inline]
-BUG: KASAN: use-after-free in search_dirblock fs/ext4/namei.c:1199 [inline]
-BUG: KASAN: use-after-free in __ext4_find_entry+0xdca/0x1210 fs/ext4/namei.c:1553
-Read of size 1 at addr ffff8881317c3005 by task syz-executor117/2331
+The bug is here:
+	if (!dai) {
 
-CPU: 1 PID: 2331 Comm: syz-executor117 Not tainted 5.10.0+ #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-Call Trace:
- __dump_stack lib/dump_stack.c:83 [inline]
- dump_stack+0x144/0x187 lib/dump_stack.c:124
- print_address_description+0x7d/0x630 mm/kasan/report.c:387
- __kasan_report+0x132/0x190 mm/kasan/report.c:547
- kasan_report+0x47/0x60 mm/kasan/report.c:564
- ext4_search_dir fs/ext4/namei.c:1394 [inline]
- search_dirblock fs/ext4/namei.c:1199 [inline]
- __ext4_find_entry+0xdca/0x1210 fs/ext4/namei.c:1553
- ext4_lookup_entry fs/ext4/namei.c:1622 [inline]
- ext4_lookup+0xb8/0x3a0 fs/ext4/namei.c:1690
- __lookup_hash+0xc5/0x190 fs/namei.c:1451
- do_rmdir+0x19e/0x310 fs/namei.c:3760
- do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x445e59
-Code: 4d c7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 1b c7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fff2277fac8 EFLAGS: 00000246 ORIG_RAX: 0000000000000054
-RAX: ffffffffffffffda RBX: 0000000000400280 RCX: 0000000000445e59
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00000000200000c0
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000002
-R10: 00007fff2277f990 R11: 0000000000000246 R12: 0000000000000000
-R13: 431bde82d7b634db R14: 0000000000000000 R15: 0000000000000000
+The list iterator value 'dai' will *always* be set and non-NULL
+by for_each_component_dais(), so it is incorrect to assume that
+the iterator value will be NULL if the list is empty or no element
+is found (In fact, it will be a bogus pointer to an invalid struct
+object containing the HEAD). Otherwise it will bypass the check
+'if (!dai) {' (never call dev_err() and never return -ENODEV;)
+and lead to invalid memory access lately when calling
+'rt5682_set_bclk1_ratio(dai, factor);'.
 
-The buggy address belongs to the page:
-page:0000000048cd3304 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x1317c3
-flags: 0x200000000000000()
-raw: 0200000000000000 ffffea0004526588 ffffea0004528088 0000000000000000
-raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+To fix the bug, just return rt5682_set_bclk1_ratio(dai, factor);
+when found the 'dai', otherwise dev_err() and return -ENODEV;
 
-Memory state around the buggy address:
- ffff8881317c2f00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8881317c2f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8881317c3000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                   ^
- ffff8881317c3080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff8881317c3100: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-==================================================================
-
-ext4_search_dir:
-  ...
-  de = (struct ext4_dir_entry_2 *)search_buf;
-  dlimit = search_buf + buf_size;
-  while ((char *) de < dlimit) {
-  ...
-    if ((char *) de + de->name_len <= dlimit &&
-	 ext4_match(dir, fname, de)) {
-	    ...
-    }
-  ...
-    de_len = ext4_rec_len_from_disk(de->rec_len, dir->i_sb->s_blocksize);
-    if (de_len <= 0)
-      return -1;
-    offset += de_len;
-    de = (struct ext4_dir_entry_2 *) ((char *) de + de_len);
-  }
-
-Assume:
-de=0xffff8881317c2fff
-dlimit=0x0xffff8881317c3000
-
-If read 'de->name_len' which address is 0xffff8881317c3005, obviously is
-out of range, then will trigger use-after-free.
-To solve this issue, 'dlimit' must reserve 8 bytes, as we will read
-'de->name_len' to judge if '(char *) de + de->name_len' out of range.
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220324064816.1209985-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Cc: stable@vger.kernel.org
+Fixes: ebbfabc16d23d ("ASoC: rt5682: Add CCF usage for providing I2S clks")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220327081002.12684-1-xiam0nd.tong@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h  |    4 ++++
- fs/ext4/namei.c |    4 ++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rt5682.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2267,6 +2267,10 @@ static inline int ext4_forced_shutdown(s
-  * Structure of a directory entry
-  */
- #define EXT4_NAME_LEN 255
-+/*
-+ * Base length of the ext4 directory entry excluding the name length
-+ */
-+#define EXT4_BASE_DIR_LEN (sizeof(struct ext4_dir_entry_2) - EXT4_NAME_LEN)
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -2822,14 +2822,11 @@ static int rt5682_bclk_set_rate(struct c
  
- struct ext4_dir_entry {
- 	__le32	inode;			/* Inode number */
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1466,10 +1466,10 @@ int ext4_search_dir(struct buffer_head *
+ 	for_each_component_dais(component, dai)
+ 		if (dai->id == RT5682_AIF1)
+-			break;
+-	if (!dai) {
+-		dev_err(rt5682->i2c_dev, "dai %d not found in component\n",
+-			RT5682_AIF1);
+-		return -ENODEV;
+-	}
++			return rt5682_set_bclk1_ratio(dai, factor);
  
- 	de = (struct ext4_dir_entry_2 *)search_buf;
- 	dlimit = search_buf + buf_size;
--	while ((char *) de < dlimit) {
-+	while ((char *) de < dlimit - EXT4_BASE_DIR_LEN) {
- 		/* this code is executed quadratically often */
- 		/* do minimal checking `by hand' */
--		if ((char *) de + de->name_len <= dlimit &&
-+		if (de->name + de->name_len <= dlimit &&
- 		    ext4_match(dir, fname, de)) {
- 			/* found a match - just to be sure, do
- 			 * a full check */
+-	return rt5682_set_bclk1_ratio(dai, factor);
++	dev_err(rt5682->i2c_dev, "dai %d not found in component\n",
++		RT5682_AIF1);
++	return -ENODEV;
+ }
+ 
+ static const struct clk_ops rt5682_dai_clk_ops[RT5682_DAI_NUM_CLKS] = {
 
 
