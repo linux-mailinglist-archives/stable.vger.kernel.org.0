@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C28B50F5F0
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3DE50F545
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346059AbiDZIyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:54:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55570 "EHLO
+        id S240905AbiDZIlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:41:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347664AbiDZIvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E53D3461;
-        Tue, 26 Apr 2022 01:40:45 -0700 (PDT)
+        with ESMTP id S1345622AbiDZIjS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0572F3EA95;
+        Tue, 26 Apr 2022 01:30:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AAA91B81CED;
-        Tue, 26 Apr 2022 08:40:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFA5C385A4;
-        Tue, 26 Apr 2022 08:40:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A71D4617E8;
+        Tue, 26 Apr 2022 08:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB169C385A4;
+        Tue, 26 Apr 2022 08:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962439;
-        bh=yrz634SKK8EvvvYZtNuQN4/pV4DUqznbrz0LEtwRHZ8=;
+        s=korg; t=1650961830;
+        bh=rb+YQb/RpxOJmP1gc+oK1KQiiyTaws1zPR+KDnqVBNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xb4YOwW/doixedyLX5P9FLD9AdlSSmXv5Vff9/0U5F1t0Vj0Zr1ZU5PO1jlrImFdf
-         yJFBrakCvupTAdPCA89SMpw4YPzEOs/jKgVHDHa5HRuprdP+ODmwDzbZWIO1SuwkTt
-         01hfiIPZH2WQ0E4IF5fRucAkaNb3NQL5MVR47Tys=
+        b=QZV3Th1UFCnrNnn3Vj+CROLq8VivixLs26Ea4H+J7YccaxDJWWOyDqYwKJEG7+8E9
+         an1mwatNhKZzGC53qFlQOAUDeAf1FxEyDIi10+jZ4k2hH+goekhLl232cIMJzX78Xs
+         i+mkM8u6CCxLnN2qO1nvTJwnpS/Fythn5s2VhUBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Steve Capper <steve.capper@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 080/124] mm, hugetlb: allow for "high" userspace addresses
-Date:   Tue, 26 Apr 2022 10:21:21 +0200
-Message-Id: <20220426081749.574702876@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        David Gibson <david@gibson.dropbear.id.au>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 42/62] KVM: PPC: Fix TCE handling for VFIO
+Date:   Tue, 26 Apr 2022 10:21:22 +0200
+Message-Id: <20220426081738.428966768@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,145 +55,294 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 5f24d5a579d1eace79d505b148808a850b417d4c upstream.
+[ Upstream commit 26a62b750a4e6364b0393562f66759b1494c3a01 ]
 
-This is a fix for commit f6795053dac8 ("mm: mmap: Allow for "high"
-userspace addresses") for hugetlb.
+The LoPAPR spec defines a guest visible IOMMU with a variable page size.
+Currently QEMU advertises 4K, 64K, 2M, 16MB pages, a Linux VM picks
+the biggest (16MB). In the case of a passed though PCI device, there is
+a hardware IOMMU which does not support all pages sizes from the above -
+P8 cannot do 2MB and P9 cannot do 16MB. So for each emulated
+16M IOMMU page we may create several smaller mappings ("TCEs") in
+the hardware IOMMU.
 
-This patch adds support for "high" userspace addresses that are
-optionally supported on the system and have to be requested via a hint
-mechanism ("high" addr parameter to mmap).
+The code wrongly uses the emulated TCE index instead of hardware TCE
+index in error handling. The problem is easier to see on POWER8 with
+multi-level TCE tables (when only the first level is preallocated)
+as hash mode uses real mode TCE hypercalls handlers.
+The kernel starts using indirect tables when VMs get bigger than 128GB
+(depends on the max page order).
+The very first real mode hcall is going to fail with H_TOO_HARD as
+in the real mode we cannot allocate memory for TCEs (we can in the virtual
+mode) but on the way out the code attempts to clear hardware TCEs using
+emulated TCE indexes which corrupts random kernel memory because
+it_offset==1<<59 is subtracted from those indexes and the resulting index
+is out of the TCE table bounds.
 
-Architectures such as powerpc and x86 achieve this by making changes to
-their architectural versions of hugetlb_get_unmapped_area() function.
-However, arm64 uses the generic version of that function.
+This fixes kvmppc_clear_tce() to use the correct TCE indexes.
 
-So take into account arch_get_mmap_base() and arch_get_mmap_end() in
-hugetlb_get_unmapped_area().  To allow that, move those two macros out
-of mm/mmap.c into include/linux/sched/mm.h
+While at it, this fixes TCE cache invalidation which uses emulated TCE
+indexes instead of the hardware ones. This went unnoticed as 64bit DMA
+is used these days and VMs map all RAM in one go and only then do DMA
+and this is when the TCE cache gets populated.
 
-If these macros are not defined in architectural code then they default
-to (TASK_SIZE) and (base) so should not introduce any behavioural
-changes to architectures that do not define them.
+Potentially this could slow down mapping, however normally 16MB
+emulated pages are backed by 64K hardware pages so it is one write to
+the "TCE Kill" per 256 updates which is not that bad considering the size
+of the cache (1024 TCEs or so).
 
-For the time being, only ARM64 is affected by this change.
+Fixes: ca1fc489cfa0 ("KVM: PPC: Book3S: Allow backing bigger guest IOMMU pages with smaller physical pages")
 
-Catalin (ARM64) said
- "We should have fixed hugetlb_get_unmapped_area() as well when we added
-  support for 52-bit VA. The reason for commit f6795053dac8 was to
-  prevent normal mmap() from returning addresses above 48-bit by default
-  as some user-space had hard assumptions about this.
-
-  It's a slight ABI change if you do this for hugetlb_get_unmapped_area()
-  but I doubt anyone would notice. It's more likely that the current
-  behaviour would cause issues, so I'd rather have them consistent.
-
-  Basically when arm64 gained support for 52-bit addresses we did not
-  want user-space calling mmap() to suddenly get such high addresses,
-  otherwise we could have inadvertently broken some programs (similar
-  behaviour to x86 here). Hence we added commit f6795053dac8. But we
-  missed hugetlbfs which could still get such high mmap() addresses. So
-  in theory that's a potential regression that should have bee addressed
-  at the same time as commit f6795053dac8 (and before arm64 enabled
-  52-bit addresses)"
-
-Link: https://lkml.kernel.org/r/ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu
-Fixes: f6795053dac8 ("mm: mmap: Allow for "high" userspace addresses")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: <stable@vger.kernel.org>	[5.0.x]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Tested-by: David Gibson <david@gibson.dropbear.id.au>
+Reviewed-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220420050840.328223-1-aik@ozlabs.ru
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c     |    9 +++++----
- include/linux/sched/mm.h |    8 ++++++++
- mm/mmap.c                |    8 --------
- 3 files changed, 13 insertions(+), 12 deletions(-)
+ arch/powerpc/kvm/book3s_64_vio.c    | 45 +++++++++++++++--------------
+ arch/powerpc/kvm/book3s_64_vio_hv.c | 44 ++++++++++++++--------------
+ 2 files changed, 45 insertions(+), 44 deletions(-)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -206,7 +206,7 @@ hugetlb_get_unmapped_area_bottomup(struc
- 	info.flags = 0;
- 	info.length = len;
- 	info.low_limit = current->mm->mmap_base;
--	info.high_limit = TASK_SIZE;
-+	info.high_limit = arch_get_mmap_end(addr);
- 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
- 	info.align_offset = 0;
- 	return vm_unmapped_area(&info);
-@@ -222,7 +222,7 @@ hugetlb_get_unmapped_area_topdown(struct
- 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
- 	info.length = len;
- 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
--	info.high_limit = current->mm->mmap_base;
-+	info.high_limit = arch_get_mmap_base(addr, current->mm->mmap_base);
- 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
- 	info.align_offset = 0;
- 	addr = vm_unmapped_area(&info);
-@@ -237,7 +237,7 @@ hugetlb_get_unmapped_area_topdown(struct
- 		VM_BUG_ON(addr != -ENOMEM);
- 		info.flags = 0;
- 		info.low_limit = current->mm->mmap_base;
--		info.high_limit = TASK_SIZE;
-+		info.high_limit = arch_get_mmap_end(addr);
- 		addr = vm_unmapped_area(&info);
- 	}
- 
-@@ -251,6 +251,7 @@ hugetlb_get_unmapped_area(struct file *f
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	struct hstate *h = hstate_file(file);
-+	const unsigned long mmap_end = arch_get_mmap_end(addr);
- 
- 	if (len & ~huge_page_mask(h))
- 		return -EINVAL;
-@@ -266,7 +267,7 @@ hugetlb_get_unmapped_area(struct file *f
- 	if (addr) {
- 		addr = ALIGN(addr, huge_page_size(h));
- 		vma = find_vma(mm, addr);
--		if (TASK_SIZE - len >= addr &&
-+		if (mmap_end - len >= addr &&
- 		    (!vma || addr + len <= vm_start_gap(vma)))
- 			return addr;
- 	}
---- a/include/linux/sched/mm.h
-+++ b/include/linux/sched/mm.h
-@@ -106,6 +106,14 @@ static inline void mm_update_next_owner(
- #endif /* CONFIG_MEMCG */
- 
- #ifdef CONFIG_MMU
-+#ifndef arch_get_mmap_end
-+#define arch_get_mmap_end(addr)	(TASK_SIZE)
-+#endif
-+
-+#ifndef arch_get_mmap_base
-+#define arch_get_mmap_base(addr, base) (base)
-+#endif
-+
- extern void arch_pick_mmap_layout(struct mm_struct *mm,
- 				  struct rlimit *rlim_stack);
- extern unsigned long
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -2113,14 +2113,6 @@ unsigned long vm_unmapped_area(struct vm
- 	return addr;
+diff --git a/arch/powerpc/kvm/book3s_64_vio.c b/arch/powerpc/kvm/book3s_64_vio.c
+index 03b947429e4d..4518a0f2d6c6 100644
+--- a/arch/powerpc/kvm/book3s_64_vio.c
++++ b/arch/powerpc/kvm/book3s_64_vio.c
+@@ -420,13 +420,19 @@ static void kvmppc_tce_put(struct kvmppc_spapr_tce_table *stt,
+ 	tbl[idx % TCES_PER_PAGE] = tce;
  }
  
--#ifndef arch_get_mmap_end
--#define arch_get_mmap_end(addr)	(TASK_SIZE)
--#endif
+-static void kvmppc_clear_tce(struct mm_struct *mm, struct iommu_table *tbl,
+-		unsigned long entry)
++static void kvmppc_clear_tce(struct mm_struct *mm, struct kvmppc_spapr_tce_table *stt,
++		struct iommu_table *tbl, unsigned long entry)
+ {
+-	unsigned long hpa = 0;
+-	enum dma_data_direction dir = DMA_NONE;
++	unsigned long i;
++	unsigned long subpages = 1ULL << (stt->page_shift - tbl->it_page_shift);
++	unsigned long io_entry = entry << (stt->page_shift - tbl->it_page_shift);
++
++	for (i = 0; i < subpages; ++i) {
++		unsigned long hpa = 0;
++		enum dma_data_direction dir = DMA_NONE;
+ 
+-	iommu_tce_xchg_no_kill(mm, tbl, entry, &hpa, &dir);
++		iommu_tce_xchg_no_kill(mm, tbl, io_entry + i, &hpa, &dir);
++	}
+ }
+ 
+ static long kvmppc_tce_iommu_mapped_dec(struct kvm *kvm,
+@@ -485,6 +491,8 @@ static long kvmppc_tce_iommu_unmap(struct kvm *kvm,
+ 			break;
+ 	}
+ 
++	iommu_tce_kill(tbl, io_entry, subpages);
++
+ 	return ret;
+ }
+ 
+@@ -544,6 +552,8 @@ static long kvmppc_tce_iommu_map(struct kvm *kvm,
+ 			break;
+ 	}
+ 
++	iommu_tce_kill(tbl, io_entry, subpages);
++
+ 	return ret;
+ }
+ 
+@@ -590,10 +600,9 @@ long kvmppc_h_put_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
+ 			ret = kvmppc_tce_iommu_map(vcpu->kvm, stt, stit->tbl,
+ 					entry, ua, dir);
+ 
+-		iommu_tce_kill(stit->tbl, entry, 1);
+ 
+ 		if (ret != H_SUCCESS) {
+-			kvmppc_clear_tce(vcpu->kvm->mm, stit->tbl, entry);
++			kvmppc_clear_tce(vcpu->kvm->mm, stt, stit->tbl, entry);
+ 			goto unlock_exit;
+ 		}
+ 	}
+@@ -669,13 +678,13 @@ long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
+ 		 */
+ 		if (get_user(tce, tces + i)) {
+ 			ret = H_TOO_HARD;
+-			goto invalidate_exit;
++			goto unlock_exit;
+ 		}
+ 		tce = be64_to_cpu(tce);
+ 
+ 		if (kvmppc_tce_to_ua(vcpu->kvm, tce, &ua)) {
+ 			ret = H_PARAMETER;
+-			goto invalidate_exit;
++			goto unlock_exit;
+ 		}
+ 
+ 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+@@ -684,19 +693,15 @@ long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
+ 					iommu_tce_direction(tce));
+ 
+ 			if (ret != H_SUCCESS) {
+-				kvmppc_clear_tce(vcpu->kvm->mm, stit->tbl,
+-						entry);
+-				goto invalidate_exit;
++				kvmppc_clear_tce(vcpu->kvm->mm, stt, stit->tbl,
++						 entry + i);
++				goto unlock_exit;
+ 			}
+ 		}
+ 
+ 		kvmppc_tce_put(stt, entry + i, tce);
+ 	}
+ 
+-invalidate_exit:
+-	list_for_each_entry_lockless(stit, &stt->iommu_tables, next)
+-		iommu_tce_kill(stit->tbl, entry, npages);
 -
--#ifndef arch_get_mmap_base
--#define arch_get_mmap_base(addr, base) (base)
--#endif
+ unlock_exit:
+ 	srcu_read_unlock(&vcpu->kvm->srcu, idx);
+ 
+@@ -735,20 +740,16 @@ long kvmppc_h_stuff_tce(struct kvm_vcpu *vcpu,
+ 				continue;
+ 
+ 			if (ret == H_TOO_HARD)
+-				goto invalidate_exit;
++				return ret;
+ 
+ 			WARN_ON_ONCE(1);
+-			kvmppc_clear_tce(vcpu->kvm->mm, stit->tbl, entry);
++			kvmppc_clear_tce(vcpu->kvm->mm, stt, stit->tbl, entry + i);
+ 		}
+ 	}
+ 
+ 	for (i = 0; i < npages; ++i, ioba += (1ULL << stt->page_shift))
+ 		kvmppc_tce_put(stt, ioba >> stt->page_shift, tce_value);
+ 
+-invalidate_exit:
+-	list_for_each_entry_lockless(stit, &stt->iommu_tables, next)
+-		iommu_tce_kill(stit->tbl, ioba >> stt->page_shift, npages);
 -
- /* Get an address range which is currently unmapped.
-  * For shmat() with addr=0.
-  *
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(kvmppc_h_stuff_tce);
+diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
+index 35fd67b4ceb4..abb49d863329 100644
+--- a/arch/powerpc/kvm/book3s_64_vio_hv.c
++++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
+@@ -251,13 +251,19 @@ extern void iommu_tce_kill_rm(struct iommu_table *tbl,
+ 		tbl->it_ops->tce_kill(tbl, entry, pages, true);
+ }
+ 
+-static void kvmppc_rm_clear_tce(struct kvm *kvm, struct iommu_table *tbl,
+-		unsigned long entry)
++static void kvmppc_rm_clear_tce(struct kvm *kvm, struct kvmppc_spapr_tce_table *stt,
++		struct iommu_table *tbl, unsigned long entry)
+ {
+-	unsigned long hpa = 0;
+-	enum dma_data_direction dir = DMA_NONE;
++	unsigned long i;
++	unsigned long subpages = 1ULL << (stt->page_shift - tbl->it_page_shift);
++	unsigned long io_entry = entry << (stt->page_shift - tbl->it_page_shift);
++
++	for (i = 0; i < subpages; ++i) {
++		unsigned long hpa = 0;
++		enum dma_data_direction dir = DMA_NONE;
+ 
+-	iommu_tce_xchg_no_kill_rm(kvm->mm, tbl, entry, &hpa, &dir);
++		iommu_tce_xchg_no_kill_rm(kvm->mm, tbl, io_entry + i, &hpa, &dir);
++	}
+ }
+ 
+ static long kvmppc_rm_tce_iommu_mapped_dec(struct kvm *kvm,
+@@ -320,6 +326,8 @@ static long kvmppc_rm_tce_iommu_unmap(struct kvm *kvm,
+ 			break;
+ 	}
+ 
++	iommu_tce_kill_rm(tbl, io_entry, subpages);
++
+ 	return ret;
+ }
+ 
+@@ -383,6 +391,8 @@ static long kvmppc_rm_tce_iommu_map(struct kvm *kvm,
+ 			break;
+ 	}
+ 
++	iommu_tce_kill_rm(tbl, io_entry, subpages);
++
+ 	return ret;
+ }
+ 
+@@ -428,10 +438,8 @@ long kvmppc_rm_h_put_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
+ 			ret = kvmppc_rm_tce_iommu_map(vcpu->kvm, stt,
+ 					stit->tbl, entry, ua, dir);
+ 
+-		iommu_tce_kill_rm(stit->tbl, entry, 1);
+-
+ 		if (ret != H_SUCCESS) {
+-			kvmppc_rm_clear_tce(vcpu->kvm, stit->tbl, entry);
++			kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl, entry);
+ 			return ret;
+ 		}
+ 	}
+@@ -571,7 +579,7 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
+ 		ua = 0;
+ 		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua, NULL)) {
+ 			ret = H_PARAMETER;
+-			goto invalidate_exit;
++			goto unlock_exit;
+ 		}
+ 
+ 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
+@@ -580,19 +588,15 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
+ 					iommu_tce_direction(tce));
+ 
+ 			if (ret != H_SUCCESS) {
+-				kvmppc_rm_clear_tce(vcpu->kvm, stit->tbl,
+-						entry);
+-				goto invalidate_exit;
++				kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl,
++						entry + i);
++				goto unlock_exit;
+ 			}
+ 		}
+ 
+ 		kvmppc_rm_tce_put(stt, entry + i, tce);
+ 	}
+ 
+-invalidate_exit:
+-	list_for_each_entry_lockless(stit, &stt->iommu_tables, next)
+-		iommu_tce_kill_rm(stit->tbl, entry, npages);
+-
+ unlock_exit:
+ 	if (rmap)
+ 		unlock_rmap(rmap);
+@@ -635,20 +639,16 @@ long kvmppc_rm_h_stuff_tce(struct kvm_vcpu *vcpu,
+ 				continue;
+ 
+ 			if (ret == H_TOO_HARD)
+-				goto invalidate_exit;
++				return ret;
+ 
+ 			WARN_ON_ONCE_RM(1);
+-			kvmppc_rm_clear_tce(vcpu->kvm, stit->tbl, entry);
++			kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl, entry + i);
+ 		}
+ 	}
+ 
+ 	for (i = 0; i < npages; ++i, ioba += (1ULL << stt->page_shift))
+ 		kvmppc_rm_tce_put(stt, ioba >> stt->page_shift, tce_value);
+ 
+-invalidate_exit:
+-	list_for_each_entry_lockless(stit, &stt->iommu_tables, next)
+-		iommu_tce_kill_rm(stit->tbl, ioba >> stt->page_shift, npages);
+-
+ 	return ret;
+ }
+ 
+-- 
+2.35.1
+
 
 
