@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 961F050F53F
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB0C50F666
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345566AbiDZIqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:46:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54922 "EHLO
+        id S241036AbiDZIr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346833AbiDZIpZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA59FB1887;
-        Tue, 26 Apr 2022 01:35:54 -0700 (PDT)
+        with ESMTP id S1346850AbiDZIp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27ED8B3695;
+        Tue, 26 Apr 2022 01:35:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7817561805;
-        Tue, 26 Apr 2022 08:35:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8597BC385A0;
-        Tue, 26 Apr 2022 08:35:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B384D618E6;
+        Tue, 26 Apr 2022 08:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A393C385A0;
+        Tue, 26 Apr 2022 08:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962153;
-        bh=8lOvhLAFxd8QUqgv//ER/ADXQbcIfcssIo0AaOmgPks=;
+        s=korg; t=1650962157;
+        bh=KqzuKxuQJCdfP2D+y8yU6DtCUL++GH2XJYDjiu7Erv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2r0Ie936Yp/J3JMtCzYfRUSlPghHLWG3rHElUGE9Pc2AyqhKx8nn+VXZNryR8EVz
-         NJFtMbjF3o2rdJcoKSaUL0kJJyx69x3xxdF5nv26RmPpctvfvBMD6CUW0pDY/C4BZS
-         RqZzt86hP8Cfz2cWnfWnGQ7oqROmnCWGQCL4gQAc=
+        b=FTtNvxAHpvdACfSnS5rEf2OPCH6N2B7mdfDfDhdKqZPZGF200w/Oyw539pC4/wKS8
+         IpcXBzUR7IXx1L2cU15Sl6B5S29EV2CtrywmKuQTGgz/Z2eIk4i336sOrCtF5KBuOK
+         eOfnIp79XtgqJ1vVo0a/YNDhwnJiPscud8WUJWt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, lee.jones@linaro.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 83/86] spi: atmel-quadspi: Fix the buswidth adjustment between spi-mem and controller
-Date:   Tue, 26 Apr 2022 10:21:51 +0200
-Message-Id: <20220426081743.610999702@linuxfoundation.org>
+        "stable@vger.kernel.org, Dan Carpenter" <dan.carpenter@oracle.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.10 84/86] staging: ion: Prevent incorrect reference counting behavour
+Date:   Tue, 26 Apr 2022 10:21:52 +0200
+Message-Id: <20220426081743.639654235@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
 References: <20220426081741.202366502@linuxfoundation.org>
@@ -53,34 +53,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 8c235cc25087495c4288d94f547e9d3061004991 upstream.
+Supply additional check in order to prevent unexpected results.
 
-Use the spi_mem_default_supports_op() core helper in order to take into
-account the buswidth specified by the user in device tree.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 0e6aae08e9ae ("spi: Add QuadSPI driver for Atmel SAMA5D2")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20220406133604.455356-1-tudor.ambarus@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b892bf75b2034 ("ion: Switch ion to use dma-buf")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/atmel-quadspi.c |    3 +++
+ drivers/staging/android/ion/ion.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/drivers/spi/atmel-quadspi.c
-+++ b/drivers/spi/atmel-quadspi.c
-@@ -277,6 +277,9 @@ static int atmel_qspi_find_mode(const st
- static bool atmel_qspi_supports_op(struct spi_mem *mem,
- 				   const struct spi_mem_op *op)
- {
-+	if (!spi_mem_default_supports_op(mem, op))
-+		return false;
-+
- 	if (atmel_qspi_find_mode(op) < 0)
- 		return false;
+--- a/drivers/staging/android/ion/ion.c
++++ b/drivers/staging/android/ion/ion.c
+@@ -114,6 +114,9 @@ static void *ion_buffer_kmap_get(struct
+ 	void *vaddr;
  
+ 	if (buffer->kmap_cnt) {
++		if (buffer->kmap_cnt == INT_MAX)
++			return ERR_PTR(-EOVERFLOW);
++
+ 		buffer->kmap_cnt++;
+ 		return buffer->vaddr;
+ 	}
 
 
