@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E4B0510840
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 246D3510860
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354007AbiDZTGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:06:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43068 "EHLO
+        id S1350215AbiDZTGs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353877AbiDZTGO (ORCPT
+        with ESMTP id S1353879AbiDZTGO (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:06:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B512219ADB6;
-        Tue, 26 Apr 2022 12:02:58 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7646D1999CD;
+        Tue, 26 Apr 2022 12:03:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BF51B8224C;
-        Tue, 26 Apr 2022 19:02:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28068C385AD;
-        Tue, 26 Apr 2022 19:02:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1375D619B9;
+        Tue, 26 Apr 2022 19:03:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56750C385A0;
+        Tue, 26 Apr 2022 19:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650999776;
-        bh=mptsVlstBe9PgiegdjZZsGPgQatHpBsJM0+b0sy31Is=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+uW93MmV1eqRpd9U/GxfsoF6y1CnDtYzlT4dMXtuJal05xqFMR8ZopJRqs/ukNdq
-         x4xsJfk80HjjkhWAUO+K5uy7e1IXgGZIzBxq5rYEBsyfX0hWlUn6YsSXAmJBfOonYZ
-         jiHUltPbO1pFfDwRuv4MSRvlmrAb8IzGxVaOcMyzF2yF8llJqV6hLvj0j6pTED+it9
-         s6VpD1us7wmni1Z/76IvmPTcgmT3ZXDC5ZRVKwgmjCiLAMqHYbXhX0EPYSILF2DTcZ
-         9aZVkB/9RM1iRQlnobA/dOrtXrd52Bjhe/K+xZbqWRTYwvYfsmtmvnOBq4CEUNrhC7
-         4CnV5cRC4MYCg==
+        s=k20201202; t=1650999779;
+        bh=IahD/UGbAtp5D8KEjlB7ZHxiAoNcd+ZHPnhmK08V4LI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=URFRHNESFL5/TWAsJPZv2mzFgObA4TCmpdF04ifwTtJMn2u0mffWR2Ggc6gz+WUEQ
+         RQeseiukQNba5N88kR0krx4HhQaxNopknmWOlWyoaQpuR/kuCQil52UmYKtKoSVZq8
+         AeUZxzqTIK2bBUTsWatxxvncD2uCMhTKAwrBX/PLYHNHVJ4wVOOXH8iG2FBD8CTC7s
+         JzTfw/V58WLfuJwE/5WJWzgLFOX80JKgk8hb2JL1c3ntRP1vrG+si+7bkgvOCZwneK
+         K6nEhZ8kLnoNVGQ7G+av0GE52SegaJlRg8ytK+drprTcufYXM4UWj1itL1y/bVe846
+         ofdPD9dy2bNFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 6/6] ata: pata_marvell: Check the 'bmdma_addr' beforing reading
-Date:   Tue, 26 Apr 2022 15:02:49 -0400
-Message-Id: <20220426190251.2351817-6-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
+        u.kleine-koenig@pengutronix.de, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 1/5] ASoC: wm8731: Disable the regulator when probing fails
+Date:   Tue, 26 Apr 2022 15:02:52 -0400
+Message-Id: <20220426190258.2351902-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220426190251.2351817-1-sashal@kernel.org>
-References: <20220426190251.2351817-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,41 +57,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit aafa9f958342db36c17ac2a7f1b841032c96feb4 ]
+[ Upstream commit 92ccbf17eeacf510cf1eed9c252d9332ca24f02d ]
 
-Before detecting the cable type on the dma bar, the driver should check
-whether the 'bmdma_addr' is zero, which means the adapter does not
-support DMA, otherwise we will get the following error:
+When the driver fails during probing, the driver should disable the
+regulator, not just handle it in wm8731_hw_init().
 
-[    5.146634] Bad IO access at port 0x1 (return inb(port))
-[    5.147206] WARNING: CPU: 2 PID: 303 at lib/iomap.c:44 ioread8+0x4a/0x60
-[    5.150856] RIP: 0010:ioread8+0x4a/0x60
-[    5.160238] Call Trace:
-[    5.160470]  <TASK>
-[    5.160674]  marvell_cable_detect+0x6e/0xc0 [pata_marvell]
-[    5.161728]  ata_eh_recover+0x3520/0x6cc0
-[    5.168075]  ata_do_eh+0x49/0x3c0
+The following log reveals it:
+
+[   17.812483] WARNING: CPU: 1 PID: 364 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
+[   17.815958] RIP: 0010:_regulator_put+0x3ec/0x4e0
+[   17.824467] Call Trace:
+[   17.824774]  <TASK>
+[   17.825040]  regulator_bulk_free+0x82/0xe0
+[   17.825514]  devres_release_group+0x319/0x3d0
+[   17.825882]  i2c_device_probe+0x766/0x940
+[   17.829198]  i2c_register_driver+0xb5/0x130
 
 Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Link: https://lore.kernel.org/r/20220405121038.4094051-1-zheyuma97@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_marvell.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/codecs/wm8731.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/ata/pata_marvell.c b/drivers/ata/pata_marvell.c
-index ff468a6fd8dd..677f582cf3d6 100644
---- a/drivers/ata/pata_marvell.c
-+++ b/drivers/ata/pata_marvell.c
-@@ -82,6 +82,8 @@ static int marvell_cable_detect(struct ata_port *ap)
- 	switch(ap->port_no)
- 	{
- 	case 0:
-+		if (!ap->ioaddr.bmdma_addr)
-+			return ATA_CBL_PATA_UNK;
- 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
- 			return ATA_CBL_PATA40;
- 		return ATA_CBL_PATA80;
+diff --git a/sound/soc/codecs/wm8731.c b/sound/soc/codecs/wm8731.c
+index 4f9a1eb28120..abe5e77ba171 100644
+--- a/sound/soc/codecs/wm8731.c
++++ b/sound/soc/codecs/wm8731.c
+@@ -604,7 +604,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 	ret = wm8731_reset(wm8731->regmap);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to issue reset: %d\n", ret);
+-		goto err_regulator_enable;
++		goto err;
+ 	}
+ 
+ 	/* Clear POWEROFF, keep everything else disabled */
+@@ -621,10 +621,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 
+ 	regcache_mark_dirty(wm8731->regmap);
+ 
+-err_regulator_enable:
+-	/* Regulators will be enabled by bias management */
+-	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
+-
++err:
+ 	return ret;
+ }
+ 
+@@ -768,21 +765,27 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
+ 		ret = PTR_ERR(wm8731->regmap);
+ 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
+ 			ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	ret = wm8731_hw_init(&i2c->dev, wm8731);
+ 	if (ret != 0)
+-		return ret;
++		goto err_regulator_enable;
+ 
+ 	ret = snd_soc_register_codec(&i2c->dev,
+ 			&soc_codec_dev_wm8731, &wm8731_dai, 1);
+ 	if (ret != 0) {
+ 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	return 0;
++
++err_regulator_enable:
++	/* Regulators will be enabled by bias management */
++	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
++
++	return ret;
+ }
+ 
+ static int wm8731_i2c_remove(struct i2c_client *client)
 -- 
 2.35.1
 
