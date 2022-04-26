@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF57150F76C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE9350F688
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346633AbiDZJIt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38472 "EHLO
+        id S241688AbiDZI40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:56:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347934AbiDZJGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CCD2B9F2B;
-        Tue, 26 Apr 2022 01:47:37 -0700 (PDT)
+        with ESMTP id S1346129AbiDZIyN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:54:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F30FDA6EB;
+        Tue, 26 Apr 2022 01:41:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40A51B81CF2;
-        Tue, 26 Apr 2022 08:47:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 809C8C385A0;
-        Tue, 26 Apr 2022 08:47:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AE8760A67;
+        Tue, 26 Apr 2022 08:41:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D37C385B2;
+        Tue, 26 Apr 2022 08:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962855;
-        bh=ZWkaH3pdNqCq29KU1bW73JViEJ2Ey0ONQ/zc49kpLXQ=;
+        s=korg; t=1650962465;
+        bh=cO5fCD0ZzNkZaR/zh4/84j4XIbL0lFAwsD0hABYmrS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zu7pA4QbVXpiF+yl1q92yl59YHNg5N6ACQTr9n1WX1cXlS00foRM3ZlRqy4bXvNeQ
-         0ExbknhlZTpfBw6hkaHjimeEvnpTtqvpL9Q86IhPgD4K6v1e0gAlkZM6TDPQqyIcC/
-         YVSXpwpi84AID4FiX8pwtWHWJ38Rp57pUtbSwwek=
+        b=svRegXr4hQBfWJpJex2ZQDiz9NX3YCRs51Zmw+eAhwf5O9AlV47YF31nCTO+174dg
+         C0uLwKXfkr4klvDKJH/dDlL4If389AxxFDwktrQbnX5L7AnLsiHiiOikjWaxv0M8K8
+         nhxhZpCfkTXRp+BOHKIAqwOGCSYVpqxS52rSKNp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        German Gomez <german.gomez@arm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Clark <james.clark@arm.com>,
-        Jiri Olsa <jolsa@kernel.org>,
+        stable@vger.kernel.org, Al Grant <al.grant@arm.com>,
+        Will Deacon <will@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 112/146] perf script: Always allow field data_src for auxtrace
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.15 106/124] arm_pmu: Validate single/group leader events
 Date:   Tue, 26 Apr 2022 10:21:47 +0200
-Message-Id: <20220426081753.202534399@linuxfoundation.org>
+Message-Id: <20220426081750.309103278@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,54 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit c6d8df01064333dcf140eda996abdb60a60e24b3 ]
+commit e5c23779f93d45e39a52758ca593bd7e62e9b4be upstream.
 
-If use command 'perf script -F,+data_src' to dump memory samples with
-Arm SPE trace data, it reports error:
+In the case where there is only a cycle counter available (i.e.
+PMCR_EL0.N is 0) and an event other than CPU cycles is opened, the open
+should fail as the event can never possibly be scheduled. However, the
+event validation when an event is opened is skipped when the group
+leader is opened. Fix this by always validating the group leader events.
 
-  # perf script -F,+data_src
-  Samples for 'dummy:u' event do not have DATA_SRC attribute set. Cannot print 'data_src' field.
-
-This is because the 'dummy:u' event is absent DATA_SRC bit in its sample
-type, so if a file contains AUX area tracing data then always allow
-field 'data_src' to be selected as an option for perf script.
-
-Fixes: e55ed3423c1bb29f ("perf arm-spe: Synthesize memory event")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: German Gomez <german.gomez@arm.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: James Clark <james.clark@arm.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
+Reported-by: Al Grant <al.grant@arm.com>
+Cc: Will Deacon <will@kernel.org>
 Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20220417114837.839896-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20220408203330.4014015-1-robh@kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-script.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/perf/arm_pmu.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
-index fa478ddcd18a..537a552fe6b3 100644
---- a/tools/perf/builtin-script.c
-+++ b/tools/perf/builtin-script.c
-@@ -459,7 +459,7 @@ static int evsel__check_attr(struct evsel *evsel, struct perf_session *session)
+--- a/drivers/perf/arm_pmu.c
++++ b/drivers/perf/arm_pmu.c
+@@ -398,6 +398,9 @@ validate_group(struct perf_event *event)
+ 	if (!validate_event(event->pmu, &fake_pmu, leader))
  		return -EINVAL;
  
- 	if (PRINT_FIELD(DATA_SRC) &&
--	    evsel__check_stype(evsel, PERF_SAMPLE_DATA_SRC, "DATA_SRC", PERF_OUTPUT_DATA_SRC))
-+	    evsel__do_check_stype(evsel, PERF_SAMPLE_DATA_SRC, "DATA_SRC", PERF_OUTPUT_DATA_SRC, allow_user_set))
- 		return -EINVAL;
++	if (event == leader)
++		return 0;
++
+ 	for_each_sibling_event(sibling, leader) {
+ 		if (!validate_event(event->pmu, &fake_pmu, sibling))
+ 			return -EINVAL;
+@@ -487,12 +490,7 @@ __hw_perf_event_init(struct perf_event *
+ 		local64_set(&hwc->period_left, hwc->sample_period);
+ 	}
  
- 	if (PRINT_FIELD(WEIGHT) &&
--- 
-2.35.1
-
+-	if (event->group_leader != event) {
+-		if (validate_group(event) != 0)
+-			return -EINVAL;
+-	}
+-
+-	return 0;
++	return validate_group(event);
+ }
+ 
+ static int armpmu_event_init(struct perf_event *event)
 
 
