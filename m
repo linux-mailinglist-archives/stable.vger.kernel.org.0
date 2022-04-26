@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB6350F81A
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D9E150F864
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242907AbiDZJHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36992 "EHLO
+        id S1346340AbiDZJHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347807AbiDZJGN (ORCPT
+        with ESMTP id S1347808AbiDZJGN (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A7F939D1;
-        Tue, 26 Apr 2022 01:45:56 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A43B0A76E8;
+        Tue, 26 Apr 2022 01:45:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 12CF0B81A2F;
-        Tue, 26 Apr 2022 08:45:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7962EC385A0;
-        Tue, 26 Apr 2022 08:45:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DCF061344;
+        Tue, 26 Apr 2022 08:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 485A4C385AC;
+        Tue, 26 Apr 2022 08:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962753;
-        bh=+KolcSOmUT8nfhzFWRnBxV23DouA6VHrhRtYpSvkK5k=;
+        s=korg; t=1650962756;
+        bh=I0Cv64zZFD3bZSetPVMANX+p6oWXDFDHsq6jsf5ae+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0bwTUt1UFD7Lfn4gw/WYsX8VyIIrBfhp67f6hSaQ4eXlKrTJdBIT1hKdQctNH06bt
-         LyMrsZS+4KEyTI3/ihcngvIQc4pC1JijGUS61kFo51Uqx2Xa5Axk3cGOBNGSLtdBkq
-         OW3z7DDZNxCRhGe7SpKZ6tr1qblVfrqU39L65B7A=
+        b=sC/WOrh6yg2iX2/kT0MrPki3ZrMw47ISZbaz66piStA3znyX3AS/HwCvbgaOPgZyF
+         ohcNL6JLtrP5eblBpRY/gAm/uQefuATI5wGqC1filEsaJLF5sLdb3lQS6WyVyG8qHK
+         /Y51hkIY4VGO1/gZrzcOqV6jfOsBhu15xbjeYZNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
         Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
-        Wu Bo <wubo40@huawei.com>,
         Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 078/146] scsi: iscsi: Release endpoint ID when its freed
-Date:   Tue, 26 Apr 2022 10:21:13 +0200
-Message-Id: <20220426081752.257290930@linuxfoundation.org>
+Subject: [PATCH 5.17 079/146] scsi: iscsi: Merge suspend fields
+Date:   Tue, 26 Apr 2022 10:21:14 +0200
+Message-Id: <20220426081752.284959615@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -58,172 +57,191 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 3c6ae371b8a1ffba1fc415989fd581ebf841ed0a ]
+[ Upstream commit 5bd856256f8c03e329f8ff36d8c8efcb111fe6df ]
 
-We can't release the endpoint ID until all references to the endpoint have
-been dropped or it could be allocated while in use. This has us use an idr
-instead of looping over all conns to find a free ID and then free the ID
-when all references have been dropped instead of when the device is only
-deleted.
+Move the tx and rx suspend fields into one flags field.
 
-Link: https://lore.kernel.org/r/20220408001314.5014-4-michael.christie@oracle.com
+Link: https://lore.kernel.org/r/20220408001314.5014-8-michael.christie@oracle.com
 Tested-by: Manish Rangankar <mrangankar@marvell.com>
 Reviewed-by: Lee Duncan <lduncan@suse.com>
 Reviewed-by: Chris Leech <cleech@redhat.com>
-Reviewed-by: Wu Bo <wubo40@huawei.com>
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 71 ++++++++++++++---------------
- include/scsi/scsi_transport_iscsi.h |  2 +-
- 2 files changed, 36 insertions(+), 37 deletions(-)
+ drivers/scsi/bnx2i/bnx2i_hwi.c   |  2 +-
+ drivers/scsi/bnx2i/bnx2i_iscsi.c |  2 +-
+ drivers/scsi/cxgbi/libcxgbi.c    |  6 +++---
+ drivers/scsi/libiscsi.c          | 20 ++++++++++----------
+ drivers/scsi/libiscsi_tcp.c      |  2 +-
+ include/scsi/libiscsi.h          |  9 +++++----
+ 6 files changed, 21 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index c7b1b2e8bb02..bcdfcb25349a 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -86,6 +86,9 @@ struct iscsi_internal {
- 	struct transport_container session_cont;
- };
+diff --git a/drivers/scsi/bnx2i/bnx2i_hwi.c b/drivers/scsi/bnx2i/bnx2i_hwi.c
+index 5521469ce678..e16327a4b4c9 100644
+--- a/drivers/scsi/bnx2i/bnx2i_hwi.c
++++ b/drivers/scsi/bnx2i/bnx2i_hwi.c
+@@ -1977,7 +1977,7 @@ static int bnx2i_process_new_cqes(struct bnx2i_conn *bnx2i_conn)
+ 		if (nopin->cq_req_sn != qp->cqe_exp_seq_sn)
+ 			break;
  
-+static DEFINE_IDR(iscsi_ep_idr);
-+static DEFINE_MUTEX(iscsi_ep_idr_mutex);
-+
- static atomic_t iscsi_session_nr; /* sysfs session id for next new session */
- static struct workqueue_struct *iscsi_eh_timer_workq;
+-		if (unlikely(test_bit(ISCSI_SUSPEND_BIT, &conn->suspend_rx))) {
++		if (unlikely(test_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags))) {
+ 			if (nopin->op_code == ISCSI_OP_NOOP_IN &&
+ 			    nopin->itt == (u16) RESERVED_ITT) {
+ 				printk(KERN_ALERT "bnx2i: Unsolicited "
+diff --git a/drivers/scsi/bnx2i/bnx2i_iscsi.c b/drivers/scsi/bnx2i/bnx2i_iscsi.c
+index e21b053b4f3e..a592ca8602f9 100644
+--- a/drivers/scsi/bnx2i/bnx2i_iscsi.c
++++ b/drivers/scsi/bnx2i/bnx2i_iscsi.c
+@@ -1721,7 +1721,7 @@ static int bnx2i_tear_down_conn(struct bnx2i_hba *hba,
+ 			struct iscsi_conn *conn = ep->conn->cls_conn->dd_data;
  
-@@ -169,6 +172,11 @@ struct device_attribute dev_attr_##_prefix##_##_name =	\
- static void iscsi_endpoint_release(struct device *dev)
- {
- 	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
-+
-+	mutex_lock(&iscsi_ep_idr_mutex);
-+	idr_remove(&iscsi_ep_idr, ep->id);
-+	mutex_unlock(&iscsi_ep_idr_mutex);
-+
- 	kfree(ep);
+ 			/* Must suspend all rx queue activity for this ep */
+-			set_bit(ISCSI_SUSPEND_BIT, &conn->suspend_rx);
++			set_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags);
+ 		}
+ 		/* CONN_DISCONNECT timeout may or may not be an issue depending
+ 		 * on what transcribed in TCP layer, different targets behave
+diff --git a/drivers/scsi/cxgbi/libcxgbi.c b/drivers/scsi/cxgbi/libcxgbi.c
+index 8c7d4dda4cf2..4365d52c6430 100644
+--- a/drivers/scsi/cxgbi/libcxgbi.c
++++ b/drivers/scsi/cxgbi/libcxgbi.c
+@@ -1634,11 +1634,11 @@ void cxgbi_conn_pdu_ready(struct cxgbi_sock *csk)
+ 	log_debug(1 << CXGBI_DBG_PDU_RX,
+ 		"csk 0x%p, conn 0x%p.\n", csk, conn);
+ 
+-	if (unlikely(!conn || conn->suspend_rx)) {
++	if (unlikely(!conn || test_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags))) {
+ 		log_debug(1 << CXGBI_DBG_PDU_RX,
+-			"csk 0x%p, conn 0x%p, id %d, suspend_rx %lu!\n",
++			"csk 0x%p, conn 0x%p, id %d, conn flags 0x%lx!\n",
+ 			csk, conn, conn ? conn->id : 0xFF,
+-			conn ? conn->suspend_rx : 0xFF);
++			conn ? conn->flags : 0xFF);
+ 		return;
+ 	}
+ 
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 059dae8909ee..073c4db79094 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -1392,8 +1392,8 @@ static bool iscsi_set_conn_failed(struct iscsi_conn *conn)
+ 	if (conn->stop_stage == 0)
+ 		session->state = ISCSI_STATE_FAILED;
+ 
+-	set_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx);
+-	set_bit(ISCSI_SUSPEND_BIT, &conn->suspend_rx);
++	set_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags);
++	set_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags);
+ 	return true;
  }
  
-@@ -181,7 +189,7 @@ static ssize_t
- show_ep_handle(struct device *dev, struct device_attribute *attr, char *buf)
+@@ -1454,7 +1454,7 @@ static int iscsi_xmit_task(struct iscsi_conn *conn, struct iscsi_task *task,
+ 	 * Do this after dropping the extra ref because if this was a requeue
+ 	 * it's removed from that list and cleanup_queued_task would miss it.
+ 	 */
+-	if (test_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx)) {
++	if (test_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags)) {
+ 		/*
+ 		 * Save the task and ref in case we weren't cleaning up this
+ 		 * task and get woken up again.
+@@ -1532,7 +1532,7 @@ static int iscsi_data_xmit(struct iscsi_conn *conn)
+ 	int rc = 0;
+ 
+ 	spin_lock_bh(&conn->session->frwd_lock);
+-	if (test_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx)) {
++	if (test_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags)) {
+ 		ISCSI_DBG_SESSION(conn->session, "Tx suspended!\n");
+ 		spin_unlock_bh(&conn->session->frwd_lock);
+ 		return -ENODATA;
+@@ -1746,7 +1746,7 @@ int iscsi_queuecommand(struct Scsi_Host *host, struct scsi_cmnd *sc)
+ 		goto fault;
+ 	}
+ 
+-	if (test_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx)) {
++	if (test_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags)) {
+ 		reason = FAILURE_SESSION_IN_RECOVERY;
+ 		sc->result = DID_REQUEUE << 16;
+ 		goto fault;
+@@ -1935,7 +1935,7 @@ static void fail_scsi_tasks(struct iscsi_conn *conn, u64 lun, int error)
+ void iscsi_suspend_queue(struct iscsi_conn *conn)
  {
- 	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
--	return sysfs_emit(buf, "%llu\n", (unsigned long long) ep->id);
-+	return sysfs_emit(buf, "%d\n", ep->id);
+ 	spin_lock_bh(&conn->session->frwd_lock);
+-	set_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx);
++	set_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags);
+ 	spin_unlock_bh(&conn->session->frwd_lock);
  }
- static ISCSI_ATTR(ep, handle, S_IRUGO, show_ep_handle, NULL);
+ EXPORT_SYMBOL_GPL(iscsi_suspend_queue);
+@@ -1953,7 +1953,7 @@ void iscsi_suspend_tx(struct iscsi_conn *conn)
+ 	struct Scsi_Host *shost = conn->session->host;
+ 	struct iscsi_host *ihost = shost_priv(shost);
  
-@@ -194,48 +202,32 @@ static struct attribute_group iscsi_endpoint_group = {
- 	.attrs = iscsi_endpoint_attrs,
- };
+-	set_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx);
++	set_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags);
+ 	if (ihost->workq)
+ 		flush_workqueue(ihost->workq);
+ }
+@@ -1961,7 +1961,7 @@ EXPORT_SYMBOL_GPL(iscsi_suspend_tx);
  
--#define ISCSI_MAX_EPID -1
--
--static int iscsi_match_epid(struct device *dev, const void *data)
--{
--	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
--	const uint64_t *epid = data;
--
--	return *epid == ep->id;
--}
--
- struct iscsi_endpoint *
- iscsi_create_endpoint(int dd_size)
+ static void iscsi_start_tx(struct iscsi_conn *conn)
  {
--	struct device *dev;
- 	struct iscsi_endpoint *ep;
--	uint64_t id;
--	int err;
--
--	for (id = 1; id < ISCSI_MAX_EPID; id++) {
--		dev = class_find_device(&iscsi_endpoint_class, NULL, &id,
--					iscsi_match_epid);
--		if (!dev)
--			break;
--		else
--			put_device(dev);
--	}
--	if (id == ISCSI_MAX_EPID) {
--		printk(KERN_ERR "Too many connections. Max supported %u\n",
--		       ISCSI_MAX_EPID - 1);
--		return NULL;
--	}
-+	int err, id;
+-	clear_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx);
++	clear_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags);
+ 	iscsi_conn_queue_work(conn);
+ }
  
- 	ep = kzalloc(sizeof(*ep) + dd_size, GFP_KERNEL);
- 	if (!ep)
- 		return NULL;
+@@ -3323,8 +3323,8 @@ int iscsi_conn_bind(struct iscsi_cls_session *cls_session,
+ 	/*
+ 	 * Unblock xmitworker(), Login Phase will pass through.
+ 	 */
+-	clear_bit(ISCSI_SUSPEND_BIT, &conn->suspend_rx);
+-	clear_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx);
++	clear_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags);
++	clear_bit(ISCSI_CONN_FLAG_SUSPEND_TX, &conn->flags);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(iscsi_conn_bind);
+diff --git a/drivers/scsi/libiscsi_tcp.c b/drivers/scsi/libiscsi_tcp.c
+index 2e9ffe3d1a55..883005757ddb 100644
+--- a/drivers/scsi/libiscsi_tcp.c
++++ b/drivers/scsi/libiscsi_tcp.c
+@@ -927,7 +927,7 @@ int iscsi_tcp_recv_skb(struct iscsi_conn *conn, struct sk_buff *skb,
+ 	 */
+ 	conn->last_recv = jiffies;
  
-+	mutex_lock(&iscsi_ep_idr_mutex);
-+	id = idr_alloc(&iscsi_ep_idr, ep, 0, -1, GFP_NOIO);
-+	if (id < 0) {
-+		mutex_unlock(&iscsi_ep_idr_mutex);
-+		printk(KERN_ERR "Could not allocate endpoint ID. Error %d.\n",
-+		       id);
-+		goto free_ep;
-+	}
-+	mutex_unlock(&iscsi_ep_idr_mutex);
+-	if (unlikely(conn->suspend_rx)) {
++	if (unlikely(test_bit(ISCSI_CONN_FLAG_SUSPEND_RX, &conn->flags))) {
+ 		ISCSI_DBG_TCP(conn, "Rx suspended!\n");
+ 		*status = ISCSI_TCP_SUSPENDED;
+ 		return 0;
+diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
+index 4ee233e5a6ff..bdb0ae11682d 100644
+--- a/include/scsi/libiscsi.h
++++ b/include/scsi/libiscsi.h
+@@ -52,8 +52,10 @@ enum {
+ 
+ #define ISID_SIZE			6
+ 
+-/* Connection suspend "bit" */
+-#define ISCSI_SUSPEND_BIT		1
++/* Connection flags */
++#define ISCSI_CONN_FLAG_SUSPEND_TX	BIT(0)
++#define ISCSI_CONN_FLAG_SUSPEND_RX	BIT(1)
 +
- 	ep->id = id;
- 	ep->dev.class = &iscsi_endpoint_class;
--	dev_set_name(&ep->dev, "ep-%llu", (unsigned long long) id);
-+	dev_set_name(&ep->dev, "ep-%d", id);
- 	err = device_register(&ep->dev);
-         if (err)
--                goto free_ep;
-+		goto free_id;
  
- 	err = sysfs_create_group(&ep->dev.kobj, &iscsi_endpoint_group);
- 	if (err)
-@@ -249,6 +241,10 @@ iscsi_create_endpoint(int dd_size)
- 	device_unregister(&ep->dev);
- 	return NULL;
+ #define ISCSI_ITT_MASK			0x1fff
+ #define ISCSI_TOTAL_CMDS_MAX		4096
+@@ -199,8 +201,7 @@ struct iscsi_conn {
+ 	struct list_head	cmdqueue;	/* data-path cmd queue */
+ 	struct list_head	requeue;	/* tasks needing another run */
+ 	struct work_struct	xmitwork;	/* per-conn. xmit workqueue */
+-	unsigned long		suspend_tx;	/* suspend Tx */
+-	unsigned long		suspend_rx;	/* suspend Rx */
++	unsigned long		flags;		/* ISCSI_CONN_FLAGs */
  
-+free_id:
-+	mutex_lock(&iscsi_ep_idr_mutex);
-+	idr_remove(&iscsi_ep_idr, id);
-+	mutex_unlock(&iscsi_ep_idr_mutex);
- free_ep:
- 	kfree(ep);
- 	return NULL;
-@@ -276,14 +272,17 @@ EXPORT_SYMBOL_GPL(iscsi_put_endpoint);
-  */
- struct iscsi_endpoint *iscsi_lookup_endpoint(u64 handle)
- {
--	struct device *dev;
-+	struct iscsi_endpoint *ep;
- 
--	dev = class_find_device(&iscsi_endpoint_class, NULL, &handle,
--				iscsi_match_epid);
--	if (!dev)
--		return NULL;
-+	mutex_lock(&iscsi_ep_idr_mutex);
-+	ep = idr_find(&iscsi_ep_idr, handle);
-+	if (!ep)
-+		goto unlock;
- 
--	return iscsi_dev_to_endpoint(dev);
-+	get_device(&ep->dev);
-+unlock:
-+	mutex_unlock(&iscsi_ep_idr_mutex);
-+	return ep;
- }
- EXPORT_SYMBOL_GPL(iscsi_lookup_endpoint);
- 
-diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
-index 037c77fb5dc5..3ecf9702287b 100644
---- a/include/scsi/scsi_transport_iscsi.h
-+++ b/include/scsi/scsi_transport_iscsi.h
-@@ -296,7 +296,7 @@ extern void iscsi_host_for_each_session(struct Scsi_Host *shost,
- struct iscsi_endpoint {
- 	void *dd_data;			/* LLD private data */
- 	struct device dev;
--	uint64_t id;
-+	int id;
- 	struct iscsi_cls_conn *conn;
- };
- 
+ 	/* negotiated params */
+ 	unsigned		max_recv_dlength; /* initiator_max_recv_dsl*/
 -- 
 2.35.1
 
