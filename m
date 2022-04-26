@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E218B50F64A
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D99350F502
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234231AbiDZIqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:46:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60668 "EHLO
+        id S1345095AbiDZIlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:41:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346633AbiDZIpP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:15 -0400
+        with ESMTP id S1345800AbiDZIjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:32 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60C38C614F;
-        Tue, 26 Apr 2022 01:35:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2625B6EB3D;
+        Tue, 26 Apr 2022 01:31:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6B4DB81CF9;
-        Tue, 26 Apr 2022 08:35:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2339C385B0;
-        Tue, 26 Apr 2022 08:35:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2E5DB81CFA;
+        Tue, 26 Apr 2022 08:31:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26EC5C385A4;
+        Tue, 26 Apr 2022 08:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962110;
-        bh=prg0ccc8WbVoA8h1qxxeQBwEqiYeIiTWEWcYDLRAoTY=;
+        s=korg; t=1650961879;
+        bh=F9+AFS+fc5u80EjXvsqSbNKTh1aIir5NKu5pZN3N3kU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPp6FGICWaEjfxhOi/GULFYHYLw7Kz4CfAltAYHm8WwR+uCqPGboPLKvEb+ZRv4lO
-         C9+rVOyPsDGSptqYS1tofQ8XiKKBELET3pqpzwmTGsvwimiMP5fZloNz/XrF+o6+JO
-         OLrjquQiuTJCYDcodF7DufWHvNb24YBgtw5PwTzI=
+        b=Smu/kl9hME6I97rq3Ebv4imiptg0mv0jAS2hGaFDIx1GF4X5bTgR+LKp9ZcigPDzq
+         CooqsffAsG036B7OPv2SUsnMY6bvrwpIuumeGGpyP9Ray01d0JTkLaD1PVEC1X5qYi
+         DMaijF21aLiv8vIJ/GD5Z6IZzyY25da0vPm4srkE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 74/86] ext4: fix fallocate to use file_modified to update permissions consistently
+        Marek Vasut <marex@denx.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 62/62] Revert "net: micrel: fix KS8851_MLL Kconfig"
 Date:   Tue, 26 Apr 2022 10:21:42 +0200
-Message-Id: <20220426081743.345737451@linuxfoundation.org>
+Message-Id: <20220426081738.999369794@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,170 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Marek Vasut <marex@denx.de>
 
-commit ad5cd4f4ee4d5fcdb1bfb7a0c073072961e70783 upstream.
+This reverts commit 4cd3c9e070d6a9a9dc76a5ffa79114953bf69087 which is
+commit c3efcedd272aa6dd5929e20cf902a52ddaa1197a upstream.
 
-Since the initial introduction of (posix) fallocate back at the turn of
-the century, it has been possible to use this syscall to change the
-user-visible contents of files.  This can happen by extending the file
-size during a preallocation, or through any of the newer modes (punch,
-zero, collapse, insert range).  Because the call can be used to change
-file contents, we should treat it like we do any other modification to a
-file -- update the mtime, and drop set[ug]id privileges/capabilities.
+The upstream commit c3efcedd272a ("net: micrel: fix KS8851_MLL Kconfig")
+depends on e5f31552674e ("ethernet: fix PTP_1588_CLOCK dependencies")
+which is not part of Linux 5.4.y . Revert the aforementioned commit to
+prevent breakage in 5.4.y .
 
-The VFS function file_modified() does all this for us if pass it a
-locked inode, so let's make fallocate drop permissions correctly.
-
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Link: https://lore.kernel.org/r/20220308185043.GA117678@magnolia
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h    |    2 +-
- fs/ext4/extents.c |   32 +++++++++++++++++++++++++-------
- fs/ext4/inode.c   |    7 ++++++-
- 3 files changed, 32 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/micrel/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2870,7 +2870,7 @@ extern int ext4_inode_attach_jinode(stru
- extern int ext4_can_truncate(struct inode *inode);
- extern int ext4_truncate(struct inode *);
- extern int ext4_break_layouts(struct inode *);
--extern int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length);
-+extern int ext4_punch_hole(struct file *file, loff_t offset, loff_t length);
- extern void ext4_set_inode_flags(struct inode *, bool init);
- extern int ext4_alloc_da_blocks(struct inode *inode);
- extern void ext4_set_aops(struct inode *inode);
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -4498,9 +4498,9 @@ retry:
- 	return ret > 0 ? ret2 : ret;
- }
- 
--static int ext4_collapse_range(struct inode *inode, loff_t offset, loff_t len);
-+static int ext4_collapse_range(struct file *file, loff_t offset, loff_t len);
- 
--static int ext4_insert_range(struct inode *inode, loff_t offset, loff_t len);
-+static int ext4_insert_range(struct file *file, loff_t offset, loff_t len);
- 
- static long ext4_zero_range(struct file *file, loff_t offset,
- 			    loff_t len, int mode)
-@@ -4571,6 +4571,10 @@ static long ext4_zero_range(struct file
- 	/* Wait all existing dio workers, newcomers will block on i_mutex */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_mutex;
-+
- 	/* Preallocate the range including the unaligned edges */
- 	if (partial_begin || partial_end) {
- 		ret = ext4_alloc_file_blocks(file,
-@@ -4689,7 +4693,7 @@ long ext4_fallocate(struct file *file, i
- 	ext4_fc_start_update(inode);
- 
- 	if (mode & FALLOC_FL_PUNCH_HOLE) {
--		ret = ext4_punch_hole(inode, offset, len);
-+		ret = ext4_punch_hole(file, offset, len);
- 		goto exit;
- 	}
- 
-@@ -4698,12 +4702,12 @@ long ext4_fallocate(struct file *file, i
- 		goto exit;
- 
- 	if (mode & FALLOC_FL_COLLAPSE_RANGE) {
--		ret = ext4_collapse_range(inode, offset, len);
-+		ret = ext4_collapse_range(file, offset, len);
- 		goto exit;
- 	}
- 
- 	if (mode & FALLOC_FL_INSERT_RANGE) {
--		ret = ext4_insert_range(inode, offset, len);
-+		ret = ext4_insert_range(file, offset, len);
- 		goto exit;
- 	}
- 
-@@ -4739,6 +4743,10 @@ long ext4_fallocate(struct file *file, i
- 	/* Wait all existing dio workers, newcomers will block on i_mutex */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out;
-+
- 	ret = ext4_alloc_file_blocks(file, lblk, max_blocks, new_size, flags);
- 	if (ret)
- 		goto out;
-@@ -5241,8 +5249,9 @@ out:
-  * This implements the fallocate's collapse range functionality for ext4
-  * Returns: 0 and non-zero on error.
-  */
--static int ext4_collapse_range(struct inode *inode, loff_t offset, loff_t len)
-+static int ext4_collapse_range(struct file *file, loff_t offset, loff_t len)
- {
-+	struct inode *inode = file_inode(file);
- 	struct super_block *sb = inode->i_sb;
- 	ext4_lblk_t punch_start, punch_stop;
- 	handle_t *handle;
-@@ -5293,6 +5302,10 @@ static int ext4_collapse_range(struct in
- 	/* Wait for existing dio to complete */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_mutex;
-+
- 	/*
- 	 * Prevent page faults from reinstantiating pages we have released from
- 	 * page cache.
-@@ -5387,8 +5400,9 @@ out_mutex:
-  * by len bytes.
-  * Returns 0 on success, error otherwise.
-  */
--static int ext4_insert_range(struct inode *inode, loff_t offset, loff_t len)
-+static int ext4_insert_range(struct file *file, loff_t offset, loff_t len)
- {
-+	struct inode *inode = file_inode(file);
- 	struct super_block *sb = inode->i_sb;
- 	handle_t *handle;
- 	struct ext4_ext_path *path;
-@@ -5444,6 +5458,10 @@ static int ext4_insert_range(struct inod
- 	/* Wait for existing dio to complete */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_mutex;
-+
- 	/*
- 	 * Prevent page faults from reinstantiating pages we have released from
- 	 * page cache.
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4028,8 +4028,9 @@ int ext4_break_layouts(struct inode *ino
-  * Returns: 0 on success or negative on failure
-  */
- 
--int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
-+int ext4_punch_hole(struct file *file, loff_t offset, loff_t length)
- {
-+	struct inode *inode = file_inode(file);
- 	struct super_block *sb = inode->i_sb;
- 	ext4_lblk_t first_block, stop_block;
- 	struct address_space *mapping = inode->i_mapping;
-@@ -4091,6 +4092,10 @@ int ext4_punch_hole(struct inode *inode,
- 	/* Wait all existing dio workers, newcomers will block on i_mutex */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_mutex;
-+
- 	/*
- 	 * Prevent page faults from reinstantiating pages we have released from
- 	 * page cache.
+--- a/drivers/net/ethernet/micrel/Kconfig
++++ b/drivers/net/ethernet/micrel/Kconfig
+@@ -37,7 +37,6 @@ config KS8851
+ config KS8851_MLL
+ 	tristate "Micrel KS8851 MLL"
+ 	depends on HAS_IOMEM
+-	depends on PTP_1588_CLOCK_OPTIONAL
+ 	select MII
+ 	---help---
+ 	  This platform driver is for Micrel KS8851 Address/data bus
 
 
