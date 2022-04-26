@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4511550F4CF
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74E8950F48D
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345291AbiDZIkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57510 "EHLO
+        id S1343664AbiDZIgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345483AbiDZIjK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45A5813FB57;
-        Tue, 26 Apr 2022 01:29:57 -0700 (PDT)
+        with ESMTP id S1345744AbiDZIfI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A22157CB2F;
+        Tue, 26 Apr 2022 01:28:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4E77B81A2F;
-        Tue, 26 Apr 2022 08:29:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 417D3C385A0;
-        Tue, 26 Apr 2022 08:29:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29DB7617D2;
+        Tue, 26 Apr 2022 08:28:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35A6FC385A0;
+        Tue, 26 Apr 2022 08:28:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961794;
-        bh=M1sk34xlYCQpQot+7xmeV9IzI73vVdZ8Sw1Ikj2J5Cc=;
+        s=korg; t=1650961698;
+        bh=8zcQRO1TfMKy1ISy/dVQKUQ4m7+QROmuMy0BveYpHWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P0xgsIIsElaDQyOUb+LE+dTO+wxIWIOrsliyWiPK+cpysMs2VGK/5UERF7gTgTkE7
-         ql1cHTDE0WlBWKtZEcXQB+pjlFdWcnaHlXbW5QHe7RTdsi4jti96DQs+1Ftf34ppdz
-         F2fNtbnMDF3SMPE/iBFq/nAG2kTJ2fyPe+jSaUR8=
+        b=ppzQBJYzaYRCxw8rvD1MDmR3ndITepBpfNMzh8Ng9QomGsL/mrsTyIrWTdoTaLXeG
+         ftReRejrJXE5ntE/zx1nIKLIFF1osOF3Jm5J3IyMNi1oux9vZKTQs4fJAvDXRAgjWm
+         qMWT0mbHM7VFnA+SHHlaJ+ZVkKSz6ksW3/oQfGjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 31/62] dpaa_eth: Fix missing of_node_put in dpaa_get_ts_info()
+Subject: [PATCH 4.19 31/53] drm/panel/raspberrypi-touchscreen: Avoid NULL deref if not initialised
 Date:   Tue, 26 Apr 2022 10:21:11 +0200
-Message-Id: <20220426081738.118345525@linuxfoundation.org>
+Message-Id: <20220426081736.562268104@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-[ Upstream commit 1a7eb80d170c28be2928433702256fe2a0bd1e0f ]
+[ Upstream commit f92055ae0acb035891e988ce345d6b81a0316423 ]
 
-Both of of_get_parent() and of_parse_phandle() return node pointer with
-refcount incremented, use of_node_put() on it to decrease refcount
-when done.
+If a call to rpi_touchscreen_i2c_write from rpi_touchscreen_probe
+fails before mipi_dsi_device_register_full is called, then
+in trying to log the error message if uses ts->dsi->dev when
+it is still NULL.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Use ts->i2c->dev instead, which is initialised earlier in probe.
+
+Fixes: 2f733d6194bd ("drm/panel: Add support for the Raspberry Pi 7" Touchscreen.")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220415162513.42190-2-stefan.wahren@i2se.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c b/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
-index 7ce2e99b594d..0a186d16e73f 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
-@@ -506,11 +506,15 @@ static int dpaa_get_ts_info(struct net_device *net_dev,
- 	info->phc_index = -1;
+diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+index 06bd03915973..2073e0e43e2f 100644
+--- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
++++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+@@ -233,7 +233,7 @@ static void rpi_touchscreen_i2c_write(struct rpi_touchscreen *ts,
  
- 	fman_node = of_get_parent(mac_node);
--	if (fman_node)
-+	if (fman_node) {
- 		ptp_node = of_parse_phandle(fman_node, "ptimer-handle", 0);
-+		of_node_put(fman_node);
-+	}
+ 	ret = i2c_smbus_write_byte_data(ts->i2c, reg, val);
+ 	if (ret)
+-		dev_err(&ts->dsi->dev, "I2C write failed: %d\n", ret);
++		dev_err(&ts->i2c->dev, "I2C write failed: %d\n", ret);
+ }
  
--	if (ptp_node)
-+	if (ptp_node) {
- 		ptp_dev = of_find_device_by_node(ptp_node);
-+		of_node_put(ptp_node);
-+	}
- 
- 	if (ptp_dev)
- 		ptp = platform_get_drvdata(ptp_dev);
+ static int rpi_touchscreen_write(struct rpi_touchscreen *ts, u16 reg, u32 val)
 -- 
 2.35.1
 
