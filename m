@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D51550F6A7
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8AAF50F889
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244781AbiDZI6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56192 "EHLO
+        id S1346665AbiDZJIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345563AbiDZI4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:56:37 -0400
+        with ESMTP id S244323AbiDZJGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A690DC5B3;
-        Tue, 26 Apr 2022 01:41:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A540FC8488;
+        Tue, 26 Apr 2022 01:47:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E99A9B81CF0;
-        Tue, 26 Apr 2022 08:41:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D06BC385A0;
-        Tue, 26 Apr 2022 08:41:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3ADE6B81CB3;
+        Tue, 26 Apr 2022 08:47:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9384C385A0;
+        Tue, 26 Apr 2022 08:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962475;
-        bh=OwzyLrENB5v4pbJRut7OEvQ+XADNOVu0945Fd9ZTlLY=;
+        s=korg; t=1650962861;
+        bh=yij2d1Ux7ctNvj7P7J9HDGOnvtH6jjc+nI7oka++9FQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ma6kY+13HKQVTr/VuKdyCBv+OX2Qsp1d6AiKnymu0czIxzXsDflUGak+qMZYGZkwT
-         vSC2cFopbC1d+XkO3nwExwOP1oVEbdxV2p4su0iXtO1kKg4bslbk4EG1Cpi0T4rR1r
-         j7JHBqbSGXgZuG5PoAjNUkCKakmxNGJGQP3vMBAI=
+        b=xsrD4euY7v+y4w5W0N3BR2eTFTPkp/G+emBM/GpECuDFv/wSKnK7nPFUxunMUN896
+         IgujwGhRiiB+6I2wtoyVaG97h/VfuY5gEouShsnoOn2OX97rKhaQd+OjFrc0S+ne4b
+         JnGzCwyqgYRgGB4eMiOr0SC/ouWR1wmYVoU7NLXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gaoning Pan <pgn@zju.edu.cn>,
-        Yongkang Jia <kangel@zju.edu.cn>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 108/124] KVM: x86: Pend KVM_REQ_APICV_UPDATE during vCPU creation to fix a race
+        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
+        Christoph Hellwig <hch@lst.de>, regressions@lists.linux.dev,
+        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 114/146] fs: fix acl translation
 Date:   Tue, 26 Apr 2022 10:21:49 +0200
-Message-Id: <20220426081750.365497316@linuxfoundation.org>
+Message-Id: <20220426081753.258552761@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Christian Brauner <brauner@kernel.org>
 
-commit 423ecfea77dda83823c71b0fad1c2ddb2af1e5fc upstream.
+commit 705191b03d507744c7e097f78d583621c14988ac upstream.
 
-Make a KVM_REQ_APICV_UPDATE request when creating a vCPU with an
-in-kernel local APIC and APICv enabled at the module level.  Consuming
-kvm_apicv_activated() and stuffing vcpu->arch.apicv_active directly can
-race with __kvm_set_or_clear_apicv_inhibit(), as vCPU creation happens
-before the vCPU is fully onlined, i.e. it won't get the request made to
-"all" vCPUs.  If APICv is globally inhibited between setting apicv_active
-and onlining the vCPU, the vCPU will end up running with APICv enabled
-and trigger KVM's sanity check.
+Last cycle we extended the idmapped mounts infrastructure to support
+idmapped mounts of idmapped filesystems (No such filesystem yet exist.).
+Since then, the meaning of an idmapped mount is a mount whose idmapping
+is different from the filesystems idmapping.
 
-Mark APICv as active during vCPU creation if APICv is enabled at the
-module level, both to be optimistic about it's final state, e.g. to avoid
-additional VMWRITEs on VMX, and because there are likely bugs lurking
-since KVM checks apicv_active in multiple vCPU creation paths.  While
-keeping the current behavior of consuming kvm_apicv_activated() is
-arguably safer from a regression perspective, force apicv_active so that
-vCPU creation runs with deterministic state and so that if there are bugs,
-they are found sooner than later, i.e. not when some crazy race condition
-is hit.
+While doing that work we missed to adapt the acl translation helpers.
+They still assume that checking for the identity mapping is enough.  But
+they need to use the no_idmapping() helper instead.
 
-  WARNING: CPU: 0 PID: 484 at arch/x86/kvm/x86.c:9877 vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
-  Modules linked in:
-  CPU: 0 PID: 484 Comm: syz-executor361 Not tainted 5.16.13 #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1~cloud0 04/01/2014
-  RIP: 0010:vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
-  Call Trace:
-   <TASK>
-   vcpu_run arch/x86/kvm/x86.c:10039 [inline]
-   kvm_arch_vcpu_ioctl_run+0x337/0x15e0 arch/x86/kvm/x86.c:10234
-   kvm_vcpu_ioctl+0x4d2/0xc80 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3727
-   vfs_ioctl fs/ioctl.c:51 [inline]
-   __do_sys_ioctl fs/ioctl.c:874 [inline]
-   __se_sys_ioctl fs/ioctl.c:860 [inline]
-   __x64_sys_ioctl+0x16d/0x1d0 fs/ioctl.c:860
-   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-   do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+Note, POSIX ACLs are always translated right at the userspace-kernel
+boundary using the caller's current idmapping and the initial idmapping.
+The order depends on whether we're coming from or going to userspace.
+The filesystem's idmapping doesn't matter at the border.
 
-The bug was hit by a syzkaller spamming VM creation with 2 vCPUs and a
-call to KVM_SET_GUEST_DEBUG.
+Consequently, if a non-idmapped mount is passed we need to make sure to
+always pass the initial idmapping as the mount's idmapping and not the
+filesystem idmapping.  Since it's irrelevant here it would yield invalid
+ids and prevent setting acls for filesystems that are mountable in a
+userns and support posix acls (tmpfs and fuse).
 
-  r0 = openat$kvm(0xffffffffffffff9c, &(0x7f0000000000), 0x0, 0x0)
-  r1 = ioctl$KVM_CREATE_VM(r0, 0xae01, 0x0)
-  ioctl$KVM_CAP_SPLIT_IRQCHIP(r1, 0x4068aea3, &(0x7f0000000000)) (async)
-  r2 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x0) (async)
-  r3 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x400000000000002)
-  ioctl$KVM_SET_GUEST_DEBUG(r3, 0x4048ae9b, &(0x7f00000000c0)={0x5dda9c14aa95f5c5})
-  ioctl$KVM_RUN(r2, 0xae80, 0x0)
+I verified the regression reported in [1] and verified that this patch
+fixes it.  A regression test will be added to xfstests in parallel.
 
-Reported-by: Gaoning Pan <pgn@zju.edu.cn>
-Reported-by: Yongkang Jia <kangel@zju.edu.cn>
-Fixes: 8df14af42f00 ("kvm: x86: Add support for dynamic APICv activation")
-Cc: stable@vger.kernel.org
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220420013732.3308816-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215849 [1]
+Fixes: bd303368b776 ("fs: support mapped mounts of mapped filesystems")
+Cc: Seth Forshee <sforshee@digitalocean.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: <stable@vger.kernel.org> # 5.17
+Cc: <regressions@lists.linux.dev>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ fs/posix_acl.c                  |   10 ++++++++++
+ fs/xattr.c                      |    6 ++++--
+ include/linux/posix_acl_xattr.h |    4 ++++
+ 3 files changed, 18 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10813,8 +10813,21 @@ int kvm_arch_vcpu_create(struct kvm_vcpu
- 		r = kvm_create_lapic(vcpu, lapic_timer_advance_ns);
- 		if (r < 0)
- 			goto fail_mmu_destroy;
--		if (kvm_apicv_activated(vcpu->kvm))
-+
-+		/*
-+		 * Defer evaluating inhibits until the vCPU is first run, as
-+		 * this vCPU will not get notified of any changes until this
-+		 * vCPU is visible to other vCPUs (marked online and added to
-+		 * the set of vCPUs).  Opportunistically mark APICv active as
-+		 * VMX in particularly is highly unlikely to have inhibits.
-+		 * Ignore the current per-VM APICv state so that vCPU creation
-+		 * is guaranteed to run with a deterministic value, the request
-+		 * will ensure the vCPU gets the correct state before VM-Entry.
-+		 */
-+		if (enable_apicv) {
- 			vcpu->arch.apicv_active = true;
-+			kvm_make_request(KVM_REQ_APICV_UPDATE, vcpu);
-+		}
- 	} else
- 		static_branch_inc(&kvm_has_noapic_vcpu);
+--- a/fs/posix_acl.c
++++ b/fs/posix_acl.c
+@@ -759,9 +759,14 @@ static void posix_acl_fix_xattr_userns(
+ }
  
+ void posix_acl_fix_xattr_from_user(struct user_namespace *mnt_userns,
++				   struct inode *inode,
+ 				   void *value, size_t size)
+ {
+ 	struct user_namespace *user_ns = current_user_ns();
++
++	/* Leave ids untouched on non-idmapped mounts. */
++	if (no_idmapping(mnt_userns, i_user_ns(inode)))
++		mnt_userns = &init_user_ns;
+ 	if ((user_ns == &init_user_ns) && (mnt_userns == &init_user_ns))
+ 		return;
+ 	posix_acl_fix_xattr_userns(&init_user_ns, user_ns, mnt_userns, value,
+@@ -769,9 +774,14 @@ void posix_acl_fix_xattr_from_user(struc
+ }
+ 
+ void posix_acl_fix_xattr_to_user(struct user_namespace *mnt_userns,
++				 struct inode *inode,
+ 				 void *value, size_t size)
+ {
+ 	struct user_namespace *user_ns = current_user_ns();
++
++	/* Leave ids untouched on non-idmapped mounts. */
++	if (no_idmapping(mnt_userns, i_user_ns(inode)))
++		mnt_userns = &init_user_ns;
+ 	if ((user_ns == &init_user_ns) && (mnt_userns == &init_user_ns))
+ 		return;
+ 	posix_acl_fix_xattr_userns(user_ns, &init_user_ns, mnt_userns, value,
+--- a/fs/xattr.c
++++ b/fs/xattr.c
+@@ -569,7 +569,8 @@ setxattr(struct user_namespace *mnt_user
+ 		}
+ 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
+ 		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
+-			posix_acl_fix_xattr_from_user(mnt_userns, kvalue, size);
++			posix_acl_fix_xattr_from_user(mnt_userns, d_inode(d),
++						      kvalue, size);
+ 	}
+ 
+ 	error = vfs_setxattr(mnt_userns, d, kname, kvalue, size, flags);
+@@ -667,7 +668,8 @@ getxattr(struct user_namespace *mnt_user
+ 	if (error > 0) {
+ 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
+ 		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
+-			posix_acl_fix_xattr_to_user(mnt_userns, kvalue, error);
++			posix_acl_fix_xattr_to_user(mnt_userns, d_inode(d),
++						    kvalue, error);
+ 		if (size && copy_to_user(value, kvalue, error))
+ 			error = -EFAULT;
+ 	} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
+--- a/include/linux/posix_acl_xattr.h
++++ b/include/linux/posix_acl_xattr.h
+@@ -34,15 +34,19 @@ posix_acl_xattr_count(size_t size)
+ 
+ #ifdef CONFIG_FS_POSIX_ACL
+ void posix_acl_fix_xattr_from_user(struct user_namespace *mnt_userns,
++				   struct inode *inode,
+ 				   void *value, size_t size);
+ void posix_acl_fix_xattr_to_user(struct user_namespace *mnt_userns,
++				   struct inode *inode,
+ 				 void *value, size_t size);
+ #else
+ static inline void posix_acl_fix_xattr_from_user(struct user_namespace *mnt_userns,
++						 struct inode *inode,
+ 						 void *value, size_t size)
+ {
+ }
+ static inline void posix_acl_fix_xattr_to_user(struct user_namespace *mnt_userns,
++					       struct inode *inode,
+ 					       void *value, size_t size)
+ {
+ }
 
 
