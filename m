@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D14A50F3A3
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3FE50F492
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344605AbiDZI0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:26:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32882 "EHLO
+        id S1345097AbiDZIgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344589AbiDZIZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:25:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F453A5E8;
-        Tue, 26 Apr 2022 01:22:44 -0700 (PDT)
+        with ESMTP id S1345274AbiDZIe2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9BD7304E;
+        Tue, 26 Apr 2022 01:26:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3706617E7;
-        Tue, 26 Apr 2022 08:22:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4E7CC385A0;
-        Tue, 26 Apr 2022 08:22:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E2F6B81CF2;
+        Tue, 26 Apr 2022 08:26:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 634B4C385A0;
+        Tue, 26 Apr 2022 08:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961363;
-        bh=k/8eucsA20qaz2LGYTkOnoaj9M7PhP6Q6Ov+oEMP+zg=;
+        s=korg; t=1650961612;
+        bh=j7amTvci1rK5poKpvcIYr4L3A0uwvlLReL8CwaJdS20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSGafWDtHLotVHCeMsf5bo99HSM8QTOlMcV1OerIztHvAbTRYhNri1HdBeq/Ki2Qr
-         pRsbelRkL/E8mU7VjhKW4+vpebQZghPNzoGI6B8WeGVonfZjtfuRNJR8eU2U2OMWaR
-         r+7Grom7NdjV4DFI0Mu61tN5lc6y8N8WV0NKCpb8=
+        b=Sk8nHejm55Cq5cyVYzwFg/8KnjSGoI83Hym61Ldq17Ym1WMOvCWm81ZiVIj08Aoh8
+         Q2+D3u2L2hHqNU9RLlFUm4IZOX3buVAvTuNU3Txm4a21qeKSq/zTxqy/okPK96VjKh
+         Ay+LCVZBI+BJn+D7RaJVjCnEY/+oT0ig1hfDKuEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongbin Wang <wh_bin@126.com>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/24] vxlan: fix error return code in vxlan_fdb_append
+Subject: [PATCH 4.19 25/53] dpaa_eth: Fix missing of_node_put in dpaa_get_ts_info()
 Date:   Tue, 26 Apr 2022 10:21:05 +0200
-Message-Id: <20220426081731.706159199@linuxfoundation.org>
+Message-Id: <20220426081736.387018108@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
-References: <20220426081731.370823950@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongbin Wang <wh_bin@126.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 7cea5560bf656b84f9ed01c0cc829d4eecd0640b ]
+[ Upstream commit 1a7eb80d170c28be2928433702256fe2a0bd1e0f ]
 
-When kmalloc and dst_cache_init failed,
-should return ENOMEM rather than ENOBUFS.
+Both of of_get_parent() and of_parse_phandle() return node pointer with
+refcount incremented, use of_node_put() on it to decrease refcount
+when done.
 
-Signed-off-by: Hongbin Wang <wh_bin@126.com>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 0bfadec8b79c..d59cb381e80b 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -490,11 +490,11 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
+diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c b/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
+index 3184c8f7cdd0..6e69bcdf9c40 100644
+--- a/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
++++ b/drivers/net/ethernet/freescale/dpaa/dpaa_ethtool.c
+@@ -530,11 +530,15 @@ static int dpaa_get_ts_info(struct net_device *net_dev,
+ 	info->phc_index = -1;
  
- 	rd = kmalloc(sizeof(*rd), GFP_ATOMIC);
- 	if (rd == NULL)
--		return -ENOBUFS;
-+		return -ENOMEM;
+ 	fman_node = of_get_parent(mac_node);
+-	if (fman_node)
++	if (fman_node) {
+ 		ptp_node = of_parse_phandle(fman_node, "ptimer-handle", 0);
++		of_node_put(fman_node);
++	}
  
- 	if (dst_cache_init(&rd->dst_cache, GFP_ATOMIC)) {
- 		kfree(rd);
--		return -ENOBUFS;
-+		return -ENOMEM;
- 	}
+-	if (ptp_node)
++	if (ptp_node) {
+ 		ptp_dev = of_find_device_by_node(ptp_node);
++		of_node_put(ptp_node);
++	}
  
- 	rd->remote_ip = *ip;
+ 	if (ptp_dev)
+ 		ptp = platform_get_drvdata(ptp_dev);
 -- 
 2.35.1
 
