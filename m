@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B8250F577
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC79C50F3CC
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345455AbiDZIl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:41:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
+        id S238520AbiDZI1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:27:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345456AbiDZIlG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:41:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB3D157DE4;
-        Tue, 26 Apr 2022 01:33:00 -0700 (PDT)
+        with ESMTP id S1344794AbiDZI13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C88C6D39C;
+        Tue, 26 Apr 2022 01:23:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFAE6B81CAF;
-        Tue, 26 Apr 2022 08:32:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42721C385A4;
-        Tue, 26 Apr 2022 08:32:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 727C9617F3;
+        Tue, 26 Apr 2022 08:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83965C385A4;
+        Tue, 26 Apr 2022 08:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961977;
-        bh=XC/PxJ890NE8IKU5ycw5MBJnxf3y3mMFkwqlK2hnpFw=;
+        s=korg; t=1650961410;
+        bh=rv/GX7icARfrLpZuyE33Cr4F/qHjUe73i7Nfj25q3AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cL4mWgRStF5NsVgwdFFOqOKA7Gk+mDtduePrqWoeDOZefJ30rV3GSXF7DfGGOj6Ww
-         /I/SjtwxUiEJhwHblEL4aJZS3ebJfAiXZZqRv0u25gsNMG1vPGuastlMAGXQY7lKvv
-         4DUaqfyWsQcfGJzIIezlZSEPOqU0PBIt8utDhKSY=
+        b=1XQtaHAGQKMeDRkZF+0CfA/fdxsj8O63U421uMlAnCX3u66GU5gX7w3bdbr+F+T8Y
+         DylIdch8L4WzfhSu1Z36kPyKElzDsSlS2wAP5G829+Zt+BgmbODiBl++nszt66+O/k
+         uvXi9ctEvh3lN6NdPPtNwZRQ+Twqn8C4FTWEjZck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernice Zhang <bernice.zhang@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/86] dmaengine: idxd: add RO check for wq max_transfer_size write
+        stable@vger.kernel.org,
+        syzbot+70e777a39907d6d5fd0a@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 04/24] ALSA: usb-audio: Clear MIDI port active flag after draining
 Date:   Tue, 26 Apr 2022 10:20:58 +0200
-Message-Id: <20220426081742.078041062@linuxfoundation.org>
+Message-Id: <20220426081731.503169674@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
+References: <20220426081731.370823950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 505a2d1032ae656b0a8c736be110255503941cde ]
+commit 0665886ad1392e6b5bae85d7a6ccbed48dca1522 upstream.
 
-Block wq_max_transfer_size_store() when the device is configured as
-read-only and not configurable.
+When a rawmidi output stream is closed, it calls the drain at first,
+then does trigger-off only when the drain returns -ERESTARTSYS as a
+fallback.  It implies that each driver should turn off the stream
+properly after the drain.  Meanwhile, USB-audio MIDI interface didn't
+change the port->active flag after the drain.  This may leave the
+output work picking up the port that is closed right now, which
+eventually leads to a use-after-free for the already released rawmidi
+object.
 
-Fixes: d7aad5550eca ("dmaengine: idxd: add support for configurable max wq xfer size")
-Reported-by: Bernice Zhang <bernice.zhang@intel.com>
-Tested-by: Bernice Zhang <bernice.zhang@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/164971488154.2200913.10706665404118545941.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes the bug by properly clearing the port->active flag
+after the output drain.
+
+Reported-by: syzbot+70e777a39907d6d5fd0a@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/00000000000011555605dceaff03@google.com
+Link: https://lore.kernel.org/r/20220420130247.22062-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/idxd/sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/usb/midi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
-index 5bf4b4be64e4..51af0dfc3c63 100644
---- a/drivers/dma/idxd/sysfs.c
-+++ b/drivers/dma/idxd/sysfs.c
-@@ -1098,6 +1098,9 @@ static ssize_t wq_max_transfer_size_store(struct device *dev, struct device_attr
- 	u64 xfer_size;
- 	int rc;
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1210,6 +1210,7 @@ static void snd_usbmidi_output_drain(str
+ 		} while (drain_urbs && timeout);
+ 		finish_wait(&ep->drain_wait, &wait);
+ 	}
++	port->active = 0;
+ 	spin_unlock_irq(&ep->buffer_lock);
+ }
  
-+	if (!test_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags))
-+		return -EPERM;
-+
- 	if (wq->state != IDXD_WQ_DISABLED)
- 		return -EPERM;
- 
--- 
-2.35.1
-
 
 
