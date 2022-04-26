@@ -2,132 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A66B50F2F9
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 09:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC45350F366
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344267AbiDZHvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 03:51:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45812 "EHLO
+        id S233430AbiDZILC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:11:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242452AbiDZHvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 03:51:45 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C00741A040;
-        Tue, 26 Apr 2022 00:48:37 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id h1so17219580pfv.12;
-        Tue, 26 Apr 2022 00:48:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=f3CunhxLC3mb3e6UNr+xNX95pgRojNIa+JUKiN4OUms=;
-        b=TljaTwoD8SLvOhWYTxOMKfYY4caoHsVCypcKaTpr1fj0K9eavwC4WSrr8G2XGElv8x
-         TV9kj4OpypB/7rTo+tSov6Fhh50nCp6quQer1GYUvmSyAxLUzyGDQwX6SW4ddDzFDIOx
-         6NB1aq9idon2IZZRJdp8SP825iqygYG2wCZap9YmIKbCh1GtDzbZSPKq6e1EU+rYfu3Q
-         DysNrV27KbaIKIkDTDBGraC+yTWaPMQGx3+ki4BKfk4HizU8csvTp0Ol0uCs3egEEEzh
-         S0HZdkVei0DhgK4TtYnkwmcRYoRjDjQH2Ho5T6mcxx2QupLuE1DZthyiYYsEEzAdy8aq
-         DKfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=f3CunhxLC3mb3e6UNr+xNX95pgRojNIa+JUKiN4OUms=;
-        b=4yZQCA26rgytSVQg66+gNMaq5dwTDEuljoYzkpJhW547TMDWlso3xheFlGFvgcgCKT
-         tAPSljbENDe/EmRdTOFciCO+VXPqcMtFvtYcYmnN27Fi9LVRs7C4hfyNWcE5ayKUf3Bc
-         5puG8JGgYoGzu+9k0OmzE5Im13xveuA5tuspsAUecUXtbpXY+gbCzytc6HoKah7T3Seu
-         xODILt1EgNYg7PwHXuN1IOrdcAsulECVMRlQYEDwalUIWXbyNh1qj5y/4is8DUtexsEJ
-         hpRCHEU06xEuYCGHUPyApcoQisHGCvJHleTFkEbgw8oIb+0FVSO+YsSb2p6t7+OM0Gb7
-         FuLQ==
-X-Gm-Message-State: AOAM531mF+vsF/RsoM9IwpmJmweqx2nDBsZ9pXVLANRVWlnVnR42/flT
-        A2aDZAeb5tQARb6DgxYGZPCD0hKsCaQ=
-X-Google-Smtp-Source: ABdhPJzbS6CSlbSiL3g2XpFHPHeAZCURvdyStjTGUIx8QfAcYIPh4pe5nzI/LP307yAagUaH8Nk2Bg==
-X-Received: by 2002:a63:3115:0:b0:3ab:2131:5f12 with SMTP id x21-20020a633115000000b003ab21315f12mr9658991pgx.0.1650959316856;
-        Tue, 26 Apr 2022 00:48:36 -0700 (PDT)
-Received: from debian.me (subs32-116-206-28-30.three.co.id. [116.206.28.30])
-        by smtp.gmail.com with ESMTPSA id n12-20020a17090ade8c00b001d25dfb9d39sm1845467pjv.14.2022.04.26.00.48.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Apr 2022 00:48:35 -0700 (PDT)
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     linux-doc@vger.kernel.org
-Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Suresh Warrier <warrier@linux.vnet.ibm.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] KVM: powerpc: remove extraneous asterisk from rm_host_ipi_action comment
-Date:   Tue, 26 Apr 2022 14:47:51 +0700
-Message-Id: <20220426074750.71251-1-bagasdotme@gmail.com>
-X-Mailer: git-send-email 2.36.0
+        with ESMTP id S1344450AbiDZIKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:10:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE8AB48881
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 01:07:44 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98F47B81C18
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 08:07:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E07EC385AE;
+        Tue, 26 Apr 2022 08:07:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1650960462;
+        bh=vXnXFqQTsLMD9FGeK4Ctz/DZti/ATeqZqWeCCMJrbbw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lv1Sv3zed1DsoPoseIZf746zkWGvdx3NPqvljUfAKjCbucFc5hk9bWHCFH+WcnXNB
+         7Pz55Rk0EYyJ8Cqe/s7dBLAjSNq+yVxgRU7lmCc/+gzwBMReZT87HWqIicPf2yZ3mk
+         qhnFGdwIGHLd9PAaDAEt3kP8rbOtoIqoOlfIZB1c=
+Date:   Tue, 26 Apr 2022 10:07:38 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Xie Yongji <xieyongji@bytedance.com>
+Cc:     mst@redhat.com, jasowang@redhat.com, mcgrof@kernel.org,
+        akpm@linux-foundation.org, oliver.sang@intel.com,
+        virtualization@lists.linux-foundation.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] vduse: Fix NULL pointer dereference on sysfs access
+Message-ID: <YmeoSuMfsdVxuGlf@kroah.com>
+References: <20220426073656.229-1-xieyongji@bytedance.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220426073656.229-1-xieyongji@bytedance.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-kernel test robot reported kernel-doc warning for rm_host_ipi_action():
+On Tue, Apr 26, 2022 at 03:36:56PM +0800, Xie Yongji wrote:
+> The control device has no drvdata. So we will get a
+> NULL pointer dereference when accessing control
+> device's msg_timeout attribute via sysfs:
+> 
+> [ 132.841881][ T3644] BUG: kernel NULL pointer dereference, address: 00000000000000f8
+> [ 132.850619][ T3644] RIP: 0010:msg_timeout_show (drivers/vdpa/vdpa_user/vduse_dev.c:1271)
+> [ 132.869447][ T3644] dev_attr_show (drivers/base/core.c:2094)
+> [ 132.870215][ T3644] sysfs_kf_seq_show (fs/sysfs/file.c:59)
+> [ 132.871164][ T3644] ? device_remove_bin_file (drivers/base/core.c:2088)
+> [ 132.872082][ T3644] kernfs_seq_show (fs/kernfs/file.c:164)
+> [ 132.872838][ T3644] seq_read_iter (fs/seq_file.c:230)
+> [ 132.873578][ T3644] ? __vmalloc_area_node (mm/vmalloc.c:3041)
+> [ 132.874532][ T3644] kernfs_fop_read_iter (fs/kernfs/file.c:238)
+> [ 132.875513][ T3644] __kernel_read (fs/read_write.c:440 (discriminator 1))
+> [ 132.876319][ T3644] kernel_read (fs/read_write.c:459)
+> [ 132.877129][ T3644] kernel_read_file (fs/kernel_read_file.c:94)
+> [ 132.877978][ T3644] kernel_read_file_from_fd (include/linux/file.h:45 fs/kernel_read_file.c:186)
+> [ 132.879019][ T3644] __do_sys_finit_module (kernel/module.c:4207)
+> [ 132.879930][ T3644] __ia32_sys_finit_module (kernel/module.c:4189)
+> [ 132.880930][ T3644] do_int80_syscall_32 (arch/x86/entry/common.c:112 arch/x86/entry/common.c:132)
+> [ 132.881847][ T3644] entry_INT80_compat (arch/x86/entry/entry_64_compat.S:419)
+> 
+> To fix it, don't create the unneeded attribute for
+> control device anymore.
+> 
+> Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+> Reported-by: kernel test robot <oliver.sang@intel.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> ---
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index f85d1a08ed87..160e40d03084 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -1344,9 +1344,9 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+>  
+>  	dev->minor = ret;
+>  	dev->msg_timeout = VDUSE_MSG_DEFAULT_TIMEOUT;
+> -	dev->dev = device_create(vduse_class, NULL,
+> -				 MKDEV(MAJOR(vduse_major), dev->minor),
+> -				 dev, "%s", config->name);
+> +	dev->dev = device_create_with_groups(vduse_class, NULL,
+> +				MKDEV(MAJOR(vduse_major), dev->minor),
+> +				dev, vduse_dev_groups, "%s", config->name);
+>  	if (IS_ERR(dev->dev)) {
+>  		ret = PTR_ERR(dev->dev);
+>  		goto err_dev;
+> @@ -1595,7 +1595,6 @@ static int vduse_init(void)
+>  		return PTR_ERR(vduse_class);
+>  
+>  	vduse_class->devnode = vduse_devnode;
+> -	vduse_class->dev_groups = vduse_dev_groups;
 
-arch/powerpc/kvm/book3s_hv_rm_xics.c:887: warning: This comment
-starts with '/**', but isn't a kernel-doc comment. Refer
-Documentation/doc-guide/kernel-doc.rst
+Ok, this looks much better.
 
-Since the function is static, remove the extraneous (second) asterisk at
-the head of function comment.
+But wow, there are some problems in this code overall.  I see a number
+of flat-out-wrong things in there that should have been caught by code
+reviews.  Some examples:
+	- empty release() callbacks.  That is a huge sign the code
+	  design is wrong and broken and you are just trying to make the
+	  driver core quiet for some reason.  The documentation in the
+	  kernel explains why this is not ok.
+	- __module_get(THIS_MODULE);  That's racy, buggy, and doesn't do
+	  what you think it does.  Please never ever ever do that.  It
+	  too is a sign of a broken design.
+	- no Documentation/ABI/ entries for the sysfs files here.  I
+	  think it's burried in some other documentation file but that's
+	  not the correct place for it and if you run scripts/get_abi.pl
+	  with the code loaded it will rightly complain about this.
 
-Link: https://lore.kernel.org/linux-doc/202204252334.Cd2IsiII-lkp@intel.com/
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Suresh Warrier <warrier@linux.vnet.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Segher Boessenkool <segher@kernel.crashing.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Fabiano Rosas <farosas@linux.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Alexey Kardashevskiy <aik@ozlabs.ru>
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: kvm@vger.kernel.org
-Cc: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
----
- arch/powerpc/kvm/book3s_hv_rm_xics.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Do you want to address these, or do you want patches for them?
 
-diff --git a/arch/powerpc/kvm/book3s_hv_rm_xics.c b/arch/powerpc/kvm/book3s_hv_rm_xics.c
-index 587c33fc45640f..6e16bd751c8423 100644
---- a/arch/powerpc/kvm/book3s_hv_rm_xics.c
-+++ b/arch/powerpc/kvm/book3s_hv_rm_xics.c
-@@ -883,7 +883,7 @@ long kvmppc_deliver_irq_passthru(struct kvm_vcpu *vcpu,
- 
- /*  --- Non-real mode XICS-related built-in routines ---  */
- 
--/**
-+/*
-  * Host Operations poked by RM KVM
-  */
- static void rm_host_ipi_action(int action, void *data)
+thanks,
 
-base-commit: d615b5416f8a1afeb82d13b238f8152c572d59c0
--- 
-An old man doll... just what I always wanted! - Clara
-
+greg k-h
