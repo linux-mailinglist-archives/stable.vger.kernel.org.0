@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D27550F5C4
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8428450F66C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344451AbiDZIsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:48:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56572 "EHLO
+        id S242264AbiDZIsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:48:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347180AbiDZIpz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B280B7CB3E;
-        Tue, 26 Apr 2022 01:37:36 -0700 (PDT)
+        with ESMTP id S1345710AbiDZIrP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:47:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711A892D19;
+        Tue, 26 Apr 2022 01:37:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CB1460908;
-        Tue, 26 Apr 2022 08:37:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50BFAC385AC;
-        Tue, 26 Apr 2022 08:37:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0409B81D0B;
+        Tue, 26 Apr 2022 08:37:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D00CC385AC;
+        Tue, 26 Apr 2022 08:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962255;
-        bh=uaEadmqpPE1CfD4AexJXHcnVRP9yzpsnk7DXbyJr8mA=;
+        s=korg; t=1650962258;
+        bh=bvhqsEbkDYaKpMcE1ev3Jt21CwVF4ZE9B9Viij96CTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iFWOl0g6uPHX822R/sCWMX+3y0FGfTPhoIzyY78HBN5bszZTAVAwzWAQNgjseMrMH
-         FSy2Dnhj9yBa8cAP5VoAF8/PQxtWuB/PdIzPz9NQBseNmz5glPD9LUEvKdev3J/NXz
-         3N9NVWjgT7HVaGYYh0MI15Y0JAzNDZoZF8RDJxfQ=
+        b=QQbZW3KMO+wQTC9LYZYsqtYfhoIBzx7ZeoYo3Tn4L87lRO5+QUJde7s9a4HQwiGgS
+         OEl6uavVCAJ8RcyGCUKIBMD+xxIibF6tHl/tglHSjDrELZSNzPY4sKCHES/jYuNd+Y
+         eVXK34xsojJPT++IAbxKygubRbILnKm9isRKslCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
         Christian Brauner <brauner@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 004/124] vfs: make sync_filesystem return errors from ->sync_fs
-Date:   Tue, 26 Apr 2022 10:20:05 +0200
-Message-Id: <20220426081747.417783842@linuxfoundation.org>
+Subject: [PATCH 5.15 005/124] xfs: return errors in xfs_fs_sync_fs
+Date:   Tue, 26 Apr 2022 10:20:06 +0200
+Message-Id: <20220426081747.446618645@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
 References: <20220426081747.286685339@linuxfoundation.org>
@@ -56,11 +56,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Darrick J. Wong <djwong@kernel.org>
 
-[ Upstream commit 5679897eb104cec9e99609c3f045a0c20603da4c ]
+[ Upstream commit 2d86293c70750e4331e9616aded33ab6b47c299d ]
 
-Strangely, sync_filesystem ignores the return code from the ->sync_fs
-call, which means that syscalls like syncfs(2) never see the error.
-This doesn't seem right, so fix that.
+Now that the VFS will do something with the return values from
+->sync_fs, make ours pass on error codes.
 
 Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Jan Kara <jack@suse.cz>
@@ -68,51 +67,30 @@ Reviewed-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Christian Brauner <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/sync.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ fs/xfs/xfs_super.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/sync.c b/fs/sync.c
-index 3ce8e2137f31..c7690016453e 100644
---- a/fs/sync.c
-+++ b/fs/sync.c
-@@ -29,7 +29,7 @@
-  */
- int sync_filesystem(struct super_block *sb)
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -729,6 +729,7 @@ xfs_fs_sync_fs(
+ 	int			wait)
  {
--	int ret;
-+	int ret = 0;
+ 	struct xfs_mount	*mp = XFS_M(sb);
++	int			error;
  
- 	/*
- 	 * We need to be protected against the filesystem going from
-@@ -52,15 +52,21 @@ int sync_filesystem(struct super_block *sb)
- 	 * at a time.
- 	 */
- 	writeback_inodes_sb(sb, WB_REASON_SYNC);
--	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, 0);
-+	if (sb->s_op->sync_fs) {
-+		ret = sb->s_op->sync_fs(sb, 0);
-+		if (ret)
-+			return ret;
-+	}
- 	ret = sync_blockdev_nowait(sb->s_bdev);
--	if (ret < 0)
-+	if (ret)
- 		return ret;
+ 	trace_xfs_fs_sync_fs(mp, __return_address);
  
- 	sync_inodes_sb(sb);
--	if (sb->s_op->sync_fs)
--		sb->s_op->sync_fs(sb, 1);
-+	if (sb->s_op->sync_fs) {
-+		ret = sb->s_op->sync_fs(sb, 1);
-+		if (ret)
-+			return ret;
-+	}
- 	return sync_blockdev(sb->s_bdev);
- }
- EXPORT_SYMBOL(sync_filesystem);
--- 
-2.35.1
-
+@@ -738,7 +739,10 @@ xfs_fs_sync_fs(
+ 	if (!wait)
+ 		return 0;
+ 
+-	xfs_log_force(mp, XFS_LOG_SYNC);
++	error = xfs_log_force(mp, XFS_LOG_SYNC);
++	if (error)
++		return error;
++
+ 	if (laptop_mode) {
+ 		/*
+ 		 * The disk must be active because we're syncing.
 
 
