@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E412B50F3DA
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 500CE50F4F8
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344661AbiDZI1D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:27:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36296 "EHLO
+        id S1345514AbiDZIkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:40:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344703AbiDZI0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:26:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033393B00E;
-        Tue, 26 Apr 2022 01:23:08 -0700 (PDT)
+        with ESMTP id S1345512AbiDZIjL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3D043FBD7;
+        Tue, 26 Apr 2022 01:30:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D1C3617EB;
-        Tue, 26 Apr 2022 08:23:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C082C385A0;
-        Tue, 26 Apr 2022 08:23:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80736B81CAF;
+        Tue, 26 Apr 2022 08:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3635C385A0;
+        Tue, 26 Apr 2022 08:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961387;
-        bh=MW5lMW83cKFuQ+PDyPpfF+4pUD4lBgubfgXNxkDATPk=;
+        s=korg; t=1650961800;
+        bh=GdhV+M7q++CPNc+w2fY6C6AGEQb4sYzOfXOJmXL+AZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A74IZsOLAVx/bbb/zohFrb8fTVkmFnveSjgn3vM27/pKbzzn8j8fNSklGW7Fd0CfI
-         UhloUkixKaSOu1aWoPbcGizU75tjAvLerbdYJmmfqoxsyNrfqrAUT7bP+3rDm7xUXp
-         SkUlU9mdq1QDJbTTPuUzvegjCMelSDUS6ADGImLk=
+        b=WmpSpAeKPnT/1Dyg7jtgepPjO46ObVgwHBKgfmFo+qoDCTHf/pGixKezmKBZ9dc1J
+         MnmUl8N7ywU5jmbw3666FR1cvtzMSkFyeKlw8UJs0BKiRrH8Kvp9l/0KOHlvOyDQeh
+         HBUyd04gu9E6d+Rp/eUgfPMwh4jIEEzyvzBDl5og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        James Hutchinson <jahutchinson99@googlemail.com>,
-        Dima Ruinskiy <dima.ruinskiy@intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 4.9 19/24] e1000e: Fix possible overflow in LTR decoding
+        stable@vger.kernel.org, Tomas Melin <tomas.melin@vaisala.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 33/62] net: macb: Restart tx only if queue pointer is lagging
 Date:   Tue, 26 Apr 2022 10:21:13 +0200
-Message-Id: <20220426081731.940521770@linuxfoundation.org>
+Message-Id: <20220426081738.175168427@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
-References: <20220426081731.370823950@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: Tomas Melin <tomas.melin@vaisala.com>
 
-commit 04ebaa1cfddae5f240cc7404f009133bb0389a47 upstream.
+[ Upstream commit 5ad7f18cd82cee8e773d40cc7a1465a526f2615c ]
 
-When we decode the latency and the max_latency, u16 value may not fit
-the required size and could lead to the wrong LTR representation.
+commit 4298388574da ("net: macb: restart tx after tx used bit read")
+added support for restarting transmission. Restarting tx does not work
+in case controller asserts TXUBR interrupt and TQBP is already at the end
+of the tx queue. In that situation, restarting tx will immediately cause
+assertion of another TXUBR interrupt. The driver will end up in an infinite
+interrupt loop which it cannot break out of.
 
-Scaling is represented as:
-scale 0 - 1         (2^(5*0)) = 2^0
-scale 1 - 32        (2^(5 *1))= 2^5
-scale 2 - 1024      (2^(5 *2)) =2^10
-scale 3 - 32768     (2^(5 *3)) =2^15
-scale 4 - 1048576   (2^(5 *4)) = 2^20
-scale 5 - 33554432  (2^(5 *4)) = 2^25
-scale 4 and scale 5 required 20 and 25 bits respectively.
-scale 6 reserved.
+For cases where TQBP is at the end of the tx queue, instead
+only clear TX_USED interrupt. As more data gets pushed to the queue,
+transmission will resume.
 
-Replace the u16 type with the u32 type and allow corrected LTR
-representation.
+This issue was observed on a Xilinx Zynq-7000 based board.
+During stress test of the network interface,
+driver would get stuck on interrupt loop within seconds or minutes
+causing CPU to stall.
 
-Cc: stable@vger.kernel.org
-Fixes: 44a13a5d99c7 ("e1000e: Fix the max snoop/no-snoop latency for 10M")
-Reported-by: James Hutchinson <jahutchinson99@googlemail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215689
-Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Tested-by: James Hutchinson <jahutchinson99@googlemail.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tomas Melin <tomas.melin@vaisala.com>
+Tested-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220407161659.14532-1-tomas.melin@vaisala.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e1000e/ich8lan.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-@@ -1010,8 +1010,8 @@ static s32 e1000_platform_pm_pch_lpt(str
- {
- 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
- 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
--	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
--	u16 lat_enc_d = 0;	/* latency decoded */
-+	u32 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
-+	u32 lat_enc_d = 0;	/* latency decoded */
- 	u16 lat_enc = 0;	/* latency encoded */
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 480d2ca369e6..002a374f197b 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -1378,6 +1378,7 @@ static void macb_tx_restart(struct macb_queue *queue)
+ 	unsigned int head = queue->tx_head;
+ 	unsigned int tail = queue->tx_tail;
+ 	struct macb *bp = queue->bp;
++	unsigned int head_idx, tbqp;
  
- 	if (link) {
+ 	if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
+ 		queue_writel(queue, ISR, MACB_BIT(TXUBR));
+@@ -1385,6 +1386,13 @@ static void macb_tx_restart(struct macb_queue *queue)
+ 	if (head == tail)
+ 		return;
+ 
++	tbqp = queue_readl(queue, TBQP) / macb_dma_desc_get_size(bp);
++	tbqp = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, tbqp));
++	head_idx = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, head));
++
++	if (tbqp == head_idx)
++		return;
++
+ 	macb_writel(bp, NCR, macb_readl(bp, NCR) | MACB_BIT(TSTART));
+ }
+ 
+-- 
+2.35.1
+
 
 
