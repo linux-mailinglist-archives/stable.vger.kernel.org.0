@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E73BD51086B
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D619510870
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353889AbiDZTGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:06:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41852 "EHLO
+        id S1353897AbiDZTGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:06:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353750AbiDZTFm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50ACB199817;
-        Tue, 26 Apr 2022 12:02:34 -0700 (PDT)
+        with ESMTP id S1353792AbiDZTFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C274519A495;
+        Tue, 26 Apr 2022 12:02:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0639619D0;
-        Tue, 26 Apr 2022 19:02:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19020C385AD;
-        Tue, 26 Apr 2022 19:02:33 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 294BECE20E9;
+        Tue, 26 Apr 2022 19:02:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49597C385A4;
+        Tue, 26 Apr 2022 19:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650999753;
-        bh=9XMsbr7G05OYiESgCjRkznWz6gPpP4Kr/uPZBwsXf4c=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cYXIvjXGAD2y8VCzdcheYykyk+CziCpxjhQjwHdY+Xww7LUOM1XewFQG1rioVycG9
-         gRKCfwRZEMT1ahzhP+WcJlEYjGbuD6aAZGf3s4bjwTGLUWQSjLsCBXNCdEv3x2Djca
-         3DOAZ1pw/PBwOPqdLvu6VegZ88abrFHnOkJdlhmWnsbrT7tj2E8jlQxzzjm6R0QFPt
-         nVOtSkl/SNMcTn/J0N9GVsb9CVNVJjejyPk20wQOyxvfWu0nn4RxjoPDmH3xkB4yh5
-         XZ/yUJ14DH53dif0/rb9nA/+7uf869SK1BOIlTbrSxRDTN/HXQkaKpHunVALWlTEuZ
-         sYaOfN1YbJbfQ==
+        s=k20201202; t=1650999755;
+        bh=McgoWmkYHtizr58/vT6trUUdr52odY6eQseeCgR1VqQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=r3NB0DfZ2hn72XXEQ0NpmVBa0Vcd+RJxuYIW2RoojeT/w9LS7D5NdpO7jY1HIr1MA
+         V6AcWIwkd4C+shbSyWlYg50aJKc6c3e0TEvQ7PTeyxPKU6KnKWGlLD9ljd91m0hp1K
+         yv4CvyGU+fxtHZdYPI3+fzE8FD91a/YMCejqCfdgoetN13ES2lCl+A/vhG50i+hZN4
+         XS/jovz9OOxCYWCfpczfN3T8mAi4vrZeEbDKmgJOr/JsaV1zoP+rLh+Q+fh0BVnamA
+         ATGtc5qlp1HQp3OrgmV/Zu0WsdPZzgPVM4T0xluhJR/hic4mQYnfHXUyob9ODekrUH
+         QaZFiuMIJRnow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Song <chao.song@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
-        liam.r.girdwood@linux.intel.com, yang.jie@linux.intel.com,
-        perex@perex.cz, tiwai@suse.com, rander.wang@intel.com,
-        yung-chuan.liao@linux.intel.com, peter.ujfalusi@linux.intel.com,
-        brent.lu@intel.com, balamurugan.c@intel.com,
-        gongjun.song@intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 1/9] ASoC: Intel: soc-acpi: correct device endpoints for max98373
-Date:   Tue, 26 Apr 2022 15:02:22 -0400
-Message-Id: <20220426190232.2351606-1-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
+        u.kleine-koenig@pengutronix.de, patches@opensource.cirrus.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 2/9] ASoC: wm8731: Disable the regulator when probing fails
+Date:   Tue, 26 Apr 2022 15:02:23 -0400
+Message-Id: <20220426190232.2351606-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220426190232.2351606-1-sashal@kernel.org>
+References: <20220426190232.2351606-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -59,44 +57,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Song <chao.song@linux.intel.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 97326be14df7bacc6ba5c62c0556298c27ea0432 ]
+[ Upstream commit 92ccbf17eeacf510cf1eed9c252d9332ca24f02d ]
 
-The left speaker of max98373 uses spk_r_endpoint, and right
-speaker uses spk_l_endpoint, this is obviously wrong.
+When the driver fails during probing, the driver should disable the
+regulator, not just handle it in wm8731_hw_init().
 
-This patch corrects the endpoints for max98373 codec.
+The following log reveals it:
 
-Signed-off-by: Chao Song <chao.song@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220406192341.271465-1-pierre-louis.bossart@linux.intel.com
+[   17.812483] WARNING: CPU: 1 PID: 364 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
+[   17.815958] RIP: 0010:_regulator_put+0x3ec/0x4e0
+[   17.824467] Call Trace:
+[   17.824774]  <TASK>
+[   17.825040]  regulator_bulk_free+0x82/0xe0
+[   17.825514]  devres_release_group+0x319/0x3d0
+[   17.825882]  i2c_device_probe+0x766/0x940
+[   17.829198]  i2c_register_driver+0xb5/0x130
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220405121038.4094051-1-zheyuma97@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/common/soc-acpi-intel-tgl-match.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wm8731.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-index 9f243e60b95c..15d862cdcd2f 100644
---- a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-@@ -126,13 +126,13 @@ static const struct snd_soc_acpi_adr_device mx8373_1_adr[] = {
- 	{
- 		.adr = 0x000123019F837300,
- 		.num_endpoints = 1,
--		.endpoints = &spk_l_endpoint,
-+		.endpoints = &spk_r_endpoint,
- 		.name_prefix = "Right"
- 	},
- 	{
- 		.adr = 0x000127019F837300,
- 		.num_endpoints = 1,
--		.endpoints = &spk_r_endpoint,
-+		.endpoints = &spk_l_endpoint,
- 		.name_prefix = "Left"
+diff --git a/sound/soc/codecs/wm8731.c b/sound/soc/codecs/wm8731.c
+index 304bf725a613..24a009d73f1e 100644
+--- a/sound/soc/codecs/wm8731.c
++++ b/sound/soc/codecs/wm8731.c
+@@ -602,7 +602,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 	ret = wm8731_reset(wm8731->regmap);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to issue reset: %d\n", ret);
+-		goto err_regulator_enable;
++		goto err;
  	}
- };
+ 
+ 	/* Clear POWEROFF, keep everything else disabled */
+@@ -619,10 +619,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 
+ 	regcache_mark_dirty(wm8731->regmap);
+ 
+-err_regulator_enable:
+-	/* Regulators will be enabled by bias management */
+-	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
+-
++err:
+ 	return ret;
+ }
+ 
+@@ -766,21 +763,27 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
+ 		ret = PTR_ERR(wm8731->regmap);
+ 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
+ 			ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	ret = wm8731_hw_init(&i2c->dev, wm8731);
+ 	if (ret != 0)
+-		return ret;
++		goto err_regulator_enable;
+ 
+ 	ret = devm_snd_soc_register_component(&i2c->dev,
+ 			&soc_component_dev_wm8731, &wm8731_dai, 1);
+ 	if (ret != 0) {
+ 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	return 0;
++
++err_regulator_enable:
++	/* Regulators will be enabled by bias management */
++	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
++
++	return ret;
+ }
+ 
+ static int wm8731_i2c_remove(struct i2c_client *client)
 -- 
 2.35.1
 
