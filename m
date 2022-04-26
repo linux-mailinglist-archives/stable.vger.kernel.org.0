@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D98E50F836
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE3550F5C2
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343771AbiDZJIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44856 "EHLO
+        id S1345103AbiDZIro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346260AbiDZJDZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:03:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2EEE3CD2;
-        Tue, 26 Apr 2022 01:43:46 -0700 (PDT)
+        with ESMTP id S1347039AbiDZIpo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98473FBFB;
+        Tue, 26 Apr 2022 01:37:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB20BB81CF0;
-        Tue, 26 Apr 2022 08:43:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAF4C385A4;
-        Tue, 26 Apr 2022 08:43:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9F0D2CE1BC3;
+        Tue, 26 Apr 2022 08:37:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E2FAC385A0;
+        Tue, 26 Apr 2022 08:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962623;
-        bh=3xObiHzauvYXUgi+HTKdEGtrc02fLNsKRtvSnMIn7h0=;
+        s=korg; t=1650962230;
+        bh=Er9JeDduHx3NE8tk+2GPgX+U68ot1zkwu8WUINdW/4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PsVTMm1NMFBPpdPF8JpwsoZOCVqPZDuAtx9Okr59KI530+NWfDWMy4557WATYntpS
-         XG9FSwk8HCZbD7J+yNCLR/IxhCkXLhqRHb7zS3m0+6/QGyIsJsYkK3Ot4w5LAPpdLP
-         XAk+zZoUr2mqDU0gQLnMACeRGoZqACgSDfailTQc=
+        b=lfKt8Z1mRwnLvV7uUtD5yXdOo3pXFtn7Hr5CXt7q66Ge8lcKRymY/mWuDgbuLYbRY
+         o+fpNdTqfwIV6JfZ0XAs5RuNgF/qdLSJhXyZvrUkJKBVCB80s2PTWMf5PNKx4kWJNH
+         tbxIGao339YPM+29cKrZXUR99cseeLdOAOxxZx60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 034/146] ip6_gre: Avoid updating tunnel->tun_hlen in __gre6_xmit()
+Subject: [PATCH 5.15 028/124] spi: cadence-quadspi: fix incorrect supports_op() return value
 Date:   Tue, 26 Apr 2022 10:20:29 +0200
-Message-Id: <20220426081751.026207653@linuxfoundation.org>
+Message-Id: <20220426081748.104548213@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-[ Upstream commit f40c064e933d7787ca7411b699504d7a2664c1f5 ]
+[ Upstream commit f1d388f216aeb41a5df518815ae559d14a6d438e ]
 
-Do not update tunnel->tun_hlen in data plane code.  Use a local variable
-instead, just like "tunnel_hlen" in net/ipv4/ip_gre.c:gre_fb_xmit().
+Since the conversion to spi-mem, the driver advertised support for
+various operations that cqspi_set_protocol() was never expected to handle
+correctly - in particuar all non-DTR operations with command or address
+buswidth > 1. For DTR, all operations except for 8-8-8 would fail, as
+cqspi_set_protocol() returns -EINVAL.
 
-Co-developed-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In non-DTR mode, this resulted in data corruption for SPI-NOR flashes that
+support such operations. As a minimal fix that can be backported to stable
+kernels, simply disallow the unsupported operations again to avoid this
+issue.
+
+Fixes: a314f6367787 ("mtd: spi-nor: Convert cadence-quadspi to use spi-mem framework")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Link: https://lore.kernel.org/r/20220406132832.199777-1-matthias.schiffer@ew.tq-group.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_gre.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/spi/spi-cadence-quadspi.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 8753e9cec326..b43a46449130 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -743,6 +743,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		struct ip_tunnel_info *tun_info;
- 		const struct ip_tunnel_key *key;
- 		__be16 flags;
-+		int tun_hlen;
+diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
+index 1a6294a06e72..75680eecd2f7 100644
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -1226,9 +1226,24 @@ static bool cqspi_supports_mem_op(struct spi_mem *mem,
+ 	all_false = !op->cmd.dtr && !op->addr.dtr && !op->dummy.dtr &&
+ 		    !op->data.dtr;
  
- 		tun_info = skb_tunnel_info_txcheck(skb);
- 		if (IS_ERR(tun_info) ||
-@@ -760,9 +761,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		dsfield = key->tos;
- 		flags = key->tun_flags &
- 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
--		tunnel->tun_hlen = gre_calc_hlen(flags);
-+		tun_hlen = gre_calc_hlen(flags);
+-	/* Mixed DTR modes not supported. */
+-	if (!(all_true || all_false))
++	if (all_true) {
++		/* Right now we only support 8-8-8 DTR mode. */
++		if (op->cmd.nbytes && op->cmd.buswidth != 8)
++			return false;
++		if (op->addr.nbytes && op->addr.buswidth != 8)
++			return false;
++		if (op->data.nbytes && op->data.buswidth != 8)
++			return false;
++	} else if (all_false) {
++		/* Only 1-1-X ops are supported without DTR */
++		if (op->cmd.nbytes && op->cmd.buswidth > 1)
++			return false;
++		if (op->addr.nbytes && op->addr.buswidth > 1)
++			return false;
++	} else {
++		/* Mixed DTR modes are not supported. */
+ 		return false;
++	}
  
--		gre_build_header(skb, tunnel->tun_hlen,
-+		gre_build_header(skb, tun_hlen,
- 				 flags, protocol,
- 				 tunnel_id_to_key32(tun_info->key.tun_id),
- 				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
+ 	if (all_true)
+ 		return spi_mem_dtr_supports_op(mem, op);
 -- 
 2.35.1
 
