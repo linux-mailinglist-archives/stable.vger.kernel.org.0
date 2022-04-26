@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7A7950F58E
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C49750F8ED
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345777AbiDZIrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:47:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57982 "EHLO
+        id S242782AbiDZJDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:03:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346936AbiDZIpd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06DF83D1E0;
-        Tue, 26 Apr 2022 01:36:55 -0700 (PDT)
+        with ESMTP id S1346714AbiDZJBK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:01:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFABF7DAAF;
+        Tue, 26 Apr 2022 01:43:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D0DC6185A;
-        Tue, 26 Apr 2022 08:36:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A11B6C385A0;
-        Tue, 26 Apr 2022 08:36:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D3FC60A56;
+        Tue, 26 Apr 2022 08:43:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7411FC385AC;
+        Tue, 26 Apr 2022 08:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962214;
-        bh=Fbabi4I2ep9mRIfgpDWVEW8fiXo08VooavgX6hur53g=;
+        s=korg; t=1650962605;
+        bh=dMzO9NbcYCk4F9iz1CCQtjpG4YJv/4z7OV6cEnqqQAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZAFUWIw676N6FGCXmK/jFh8seC/KN+XXOzSIzdpfYwztjMddn7RaMzTmsFbR+4CZ
-         vGo39CGr9Vrp30S498O5zZNcUb73ggU0penEeBCfXQbOa6L33KQ0RPSzCd7k01vUoj
-         C7THSVLWi5QtYF3zgp1EeWfeCXl4ZMAHNQXkg8iY=
+        b=ZE8chdlzUcDBA5OxvaLbVZNLJ8yaKoXSRF7Vs267gZpFDl+m37RgVvsV5+LHx6kF0
+         nT3MO8L4azSoy5ao0q7CwKP9t1xVRctHMXs1wIa4YY5WPxAwIQZzmwLv440vYnv0XP
+         tdpBlvOHMOeranW3WSZRe9Ymiyu1rIFiqRxmAM7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/124] dmaengine: imx-sdma: Fix error checking in sdma_event_remap
+        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.17 029/146] ice: Fix memory leak in ice_get_orom_civd_data()
 Date:   Tue, 26 Apr 2022 10:20:24 +0200
-Message-Id: <20220426081747.963991804@linuxfoundation.org>
+Message-Id: <20220426081750.886273697@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Jianglei Nie <niejianglei2021@163.com>
 
-[ Upstream commit 7104b9cb35a33ad803a1adbbfa50569b008faf15 ]
+[ Upstream commit 7c8881b77908a51814a050da408c89f1a25b7fb7 ]
 
-of_parse_phandle() returns NULL on errors, rather than error
-pointers. Using NULL check on grp_np to fix this.
+A memory chunk was allocated for orom_data in ice_get_orom_civd_data()
+by vzmalloc(). But when ice_read_flash_module() fails, the allocated
+memory is not freed, which will lead to a memory leak.
 
-Fixes: d078cd1b4185 ("dmaengine: imx-sdma: Add imx6sx platform support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220308064952.15743-1-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+We can fix it by freeing the orom_data when ce_read_flash_module() fails.
+
+Fixes: af18d8866c80 ("ice: reduce time to read Option ROM CIVD data")
+Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_nvm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index cacc725ca545..263f0466b1b8 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -1869,7 +1869,7 @@ static int sdma_event_remap(struct sdma_engine *sdma)
- 	u32 reg, val, shift, num_map, i;
- 	int ret = 0;
- 
--	if (IS_ERR(np) || IS_ERR(gpr_np))
-+	if (IS_ERR(np) || !gpr_np)
- 		goto out;
- 
- 	event_remap = of_find_property(np, propname, NULL);
-@@ -1917,7 +1917,7 @@ static int sdma_event_remap(struct sdma_engine *sdma)
+diff --git a/drivers/net/ethernet/intel/ice/ice_nvm.c b/drivers/net/ethernet/intel/ice/ice_nvm.c
+index 4eb0599714f4..13cdb5ea594d 100644
+--- a/drivers/net/ethernet/intel/ice/ice_nvm.c
++++ b/drivers/net/ethernet/intel/ice/ice_nvm.c
+@@ -641,6 +641,7 @@ ice_get_orom_civd_data(struct ice_hw *hw, enum ice_bank_select bank,
+ 	status = ice_read_flash_module(hw, bank, ICE_SR_1ST_OROM_BANK_PTR, 0,
+ 				       orom_data, hw->flash.banks.orom_size);
+ 	if (status) {
++		vfree(orom_data);
+ 		ice_debug(hw, ICE_DBG_NVM, "Unable to read Option ROM data\n");
+ 		return status;
  	}
- 
- out:
--	if (!IS_ERR(gpr_np))
-+	if (gpr_np)
- 		of_node_put(gpr_np);
- 
- 	return ret;
 -- 
 2.35.1
 
