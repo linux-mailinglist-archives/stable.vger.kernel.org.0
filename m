@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95DBE50F4C1
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4CB750F55B
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345250AbiDZIkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60142 "EHLO
+        id S231946AbiDZIwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:52:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345811AbiDZIje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D124F7561B;
-        Tue, 26 Apr 2022 01:31:33 -0700 (PDT)
+        with ESMTP id S1347343AbiDZIvU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63D8DD0A80;
+        Tue, 26 Apr 2022 01:40:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81C3EB81CFA;
-        Tue, 26 Apr 2022 08:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3DECC385A0;
-        Tue, 26 Apr 2022 08:31:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4F776104A;
+        Tue, 26 Apr 2022 08:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4291C385B0;
+        Tue, 26 Apr 2022 08:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961891;
-        bh=54ru7jmsYeb+6NcxA9Lx7UBKfdTBBkj99yZhfnF44SM=;
+        s=korg; t=1650962411;
+        bh=QWLitrRvFmVyVyJOX1rFDP8ZYjWDXNK6XBXYNABfqg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ca5v25Fe6bOEPOFhVRuskX73f6CuWOTU19rzU11+gEW64ix+Pu5d4B4f1K3M1f+/j
-         JwnGBZy8II/izJMDBg907+34Fdzq1H4AnTMM8V/7Lv9egJpDcU++pcM1dcT7RdUajc
-         0RGCqnhy4l0F6xgeCqPehaIeD+yEzGI0+Q3ELgA8=
+        b=XiXaC0KUNB1O3jxleJlZFZKueqJY3c2oleBs2Is6VvJypdYjeaP+zESH/P0TBg2Pd
+         3FwbepJyzbiLw3gabea7bT1PZjEKKJiT5o+ypJDYpFnKQEF82UE8pxvCGjWIL0ZCcP
+         Btya+hW8kHPuMKkhD4g9mUtPugBvVg2B5kCyeGVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 48/62] ASoC: soc-dapm: fix two incorrect uses of list iterator
-Date:   Tue, 26 Apr 2022 10:21:28 +0200
-Message-Id: <20220426081738.599580762@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Tom Rix <trix@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 088/124] scsi: sr: Do not leak information in ioctl
+Date:   Tue, 26 Apr 2022 10:21:29 +0200
+Message-Id: <20220426081749.801857443@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,59 +54,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Tom Rix <trix@redhat.com>
 
-commit f730a46b931d894816af34a0ff8e4ad51565b39f upstream.
+[ Upstream commit faad6cebded8e0fd902b672f220449b93db479eb ]
 
-These two bug are here:
-	list_for_each_entry_safe_continue(w, n, list,
-					power_list);
-	list_for_each_entry_safe_continue(w, n, list,
-					power_list);
+sr_ioctl.c uses this pattern:
 
-After the list_for_each_entry_safe_continue() exits, the list iterator
-will always be a bogus pointer which point to an invalid struct objdect
-containing HEAD member. The funciton poniter 'w->event' will be a
-invalid value which can lead to a control-flow hijack if the 'w' can be
-controlled.
+  result = sr_do_ioctl(cd, &cgc);
+  to-user = buffer[];
+  kfree(buffer);
+  return result;
 
-The original intention was to continue the outer list_for_each_entry_safe()
-loop with the same entry if w->event is NULL, but misunderstanding the
-meaning of list_for_each_entry_safe_continue().
+Use of a buffer without checking leaks information. Check result and jump
+over the use of buffer if there is an error.
 
-So just add a 'continue;' to fix the bug.
+  result = sr_do_ioctl(cd, &cgc);
+  if (result)
+    goto err;
+  to-user = buffer[];
+err:
+  kfree(buffer);
+  return result;
 
-Cc: stable@vger.kernel.org
-Fixes: 163cac061c973 ("ASoC: Factor out DAPM sequence execution")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Link: https://lore.kernel.org/r/20220329012134.9375-1-xiam0nd.tong@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Additionally, initialize the buffer to zero.
+
+This problem can be seen in the 2.4.0 kernel.
+
+Link: https://lore.kernel.org/r/20220411174756.2418435-1-trix@redhat.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/scsi/sr_ioctl.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -1676,8 +1676,7 @@ static void dapm_seq_run(struct snd_soc_
- 		switch (w->id) {
- 		case snd_soc_dapm_pre:
- 			if (!w->event)
--				list_for_each_entry_safe_continue(w, n, list,
--								  power_list);
-+				continue;
+diff --git a/drivers/scsi/sr_ioctl.c b/drivers/scsi/sr_ioctl.c
+index ddd00efc4882..fbdb5124d7f7 100644
+--- a/drivers/scsi/sr_ioctl.c
++++ b/drivers/scsi/sr_ioctl.c
+@@ -41,7 +41,7 @@ static int sr_read_tochdr(struct cdrom_device_info *cdi,
+ 	int result;
+ 	unsigned char *buffer;
  
- 			if (event == SND_SOC_DAPM_STREAM_START)
- 				ret = w->event(w,
-@@ -1689,8 +1688,7 @@ static void dapm_seq_run(struct snd_soc_
+-	buffer = kmalloc(32, GFP_KERNEL);
++	buffer = kzalloc(32, GFP_KERNEL);
+ 	if (!buffer)
+ 		return -ENOMEM;
  
- 		case snd_soc_dapm_post:
- 			if (!w->event)
--				list_for_each_entry_safe_continue(w, n, list,
--								  power_list);
-+				continue;
+@@ -55,10 +55,13 @@ static int sr_read_tochdr(struct cdrom_device_info *cdi,
+ 	cgc.data_direction = DMA_FROM_DEVICE;
  
- 			if (event == SND_SOC_DAPM_STREAM_START)
- 				ret = w->event(w,
+ 	result = sr_do_ioctl(cd, &cgc);
++	if (result)
++		goto err;
+ 
+ 	tochdr->cdth_trk0 = buffer[2];
+ 	tochdr->cdth_trk1 = buffer[3];
+ 
++err:
+ 	kfree(buffer);
+ 	return result;
+ }
+@@ -71,7 +74,7 @@ static int sr_read_tocentry(struct cdrom_device_info *cdi,
+ 	int result;
+ 	unsigned char *buffer;
+ 
+-	buffer = kmalloc(32, GFP_KERNEL);
++	buffer = kzalloc(32, GFP_KERNEL);
+ 	if (!buffer)
+ 		return -ENOMEM;
+ 
+@@ -86,6 +89,8 @@ static int sr_read_tocentry(struct cdrom_device_info *cdi,
+ 	cgc.data_direction = DMA_FROM_DEVICE;
+ 
+ 	result = sr_do_ioctl(cd, &cgc);
++	if (result)
++		goto err;
+ 
+ 	tocentry->cdte_ctrl = buffer[5] & 0xf;
+ 	tocentry->cdte_adr = buffer[5] >> 4;
+@@ -98,6 +103,7 @@ static int sr_read_tocentry(struct cdrom_device_info *cdi,
+ 		tocentry->cdte_addr.lba = (((((buffer[8] << 8) + buffer[9]) << 8)
+ 			+ buffer[10]) << 8) + buffer[11];
+ 
++err:
+ 	kfree(buffer);
+ 	return result;
+ }
+@@ -384,7 +390,7 @@ int sr_get_mcn(struct cdrom_device_info *cdi, struct cdrom_mcn *mcn)
+ {
+ 	Scsi_CD *cd = cdi->handle;
+ 	struct packet_command cgc;
+-	char *buffer = kmalloc(32, GFP_KERNEL);
++	char *buffer = kzalloc(32, GFP_KERNEL);
+ 	int result;
+ 
+ 	if (!buffer)
+@@ -400,10 +406,13 @@ int sr_get_mcn(struct cdrom_device_info *cdi, struct cdrom_mcn *mcn)
+ 	cgc.data_direction = DMA_FROM_DEVICE;
+ 	cgc.timeout = IOCTL_TIMEOUT;
+ 	result = sr_do_ioctl(cd, &cgc);
++	if (result)
++		goto err;
+ 
+ 	memcpy(mcn->medium_catalog_number, buffer + 9, 13);
+ 	mcn->medium_catalog_number[13] = 0;
+ 
++err:
+ 	kfree(buffer);
+ 	return result;
+ }
+-- 
+2.35.1
+
 
 
