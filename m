@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9499450F500
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D98E50F836
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345304AbiDZIk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58728 "EHLO
+        id S1343771AbiDZJIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345823AbiDZIje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5AC178FF3;
-        Tue, 26 Apr 2022 01:31:49 -0700 (PDT)
+        with ESMTP id S1346260AbiDZJDZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:03:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B2EEE3CD2;
+        Tue, 26 Apr 2022 01:43:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81FE2618A0;
-        Tue, 26 Apr 2022 08:31:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91D09C385AC;
-        Tue, 26 Apr 2022 08:31:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB20BB81CF0;
+        Tue, 26 Apr 2022 08:43:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAF4C385A4;
+        Tue, 26 Apr 2022 08:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961908;
-        bh=kulICPpZkaG7KXC0Zq/7qmjdwSorCIwP4RaDDU/n3t4=;
+        s=korg; t=1650962623;
+        bh=3xObiHzauvYXUgi+HTKdEGtrc02fLNsKRtvSnMIn7h0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KwYN0CJqtu/3iIwD9tN3CDQ0ejaXRfVRqiooXava+W1aocpsd8Ca7rz1fNmhi25l
-         nzxe+p5y6elqZ5zf3OCavABB1zk6r97dMBgkj0tH9q5XMqzUzvDeL8lTKGcxFzk/Tv
-         qe+4yII+inSWDmNL8x/QSbnbUp6bgoF8CHMP7cR8=
+        b=PsVTMm1NMFBPpdPF8JpwsoZOCVqPZDuAtx9Okr59KI530+NWfDWMy4557WATYntpS
+         XG9FSwk8HCZbD7J+yNCLR/IxhCkXLhqRHb7zS3m0+6/QGyIsJsYkK3Ot4w5LAPpdLP
+         XAk+zZoUr2mqDU0gQLnMACeRGoZqACgSDfailTQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Khem Raj <raj.khem@gmail.com>
-Subject: [PATCH 5.10 01/86] etherdevice: Adjust ether_addr* prototypes to silence -Wstringop-overead
+        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 034/146] ip6_gre: Avoid updating tunnel->tun_hlen in __gre6_xmit()
 Date:   Tue, 26 Apr 2022 10:20:29 +0200
-Message-Id: <20220426081741.247427711@linuxfoundation.org>
+Message-Id: <20220426081751.026207653@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,59 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-commit 2618a0dae09ef37728dab89ff60418cbe25ae6bd upstream.
+[ Upstream commit f40c064e933d7787ca7411b699504d7a2664c1f5 ]
 
-With GCC 12, -Wstringop-overread was warning about an implicit cast from
-char[6] to char[8]. However, the extra 2 bytes are always thrown away,
-alignment doesn't matter, and the risk of hitting the edge of unallocated
-memory has been accepted, so this prototype can just be converted to a
-regular char *. Silences:
+Do not update tunnel->tun_hlen in data plane code.  Use a local variable
+instead, just like "tunnel_hlen" in net/ipv4/ip_gre.c:gre_fb_xmit().
 
-net/core/dev.c: In function ‘bpf_prog_run_generic_xdp’: net/core/dev.c:4618:21: warning: ‘ether_addr_equal_64bits’ reading 8 bytes from a region of size 6 [-Wstringop-overread]
- 4618 |         orig_host = ether_addr_equal_64bits(eth->h_dest, > skb->dev->dev_addr);
-      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-net/core/dev.c:4618:21: note: referencing argument 1 of type ‘const u8[8]’ {aka ‘const unsigned char[8]’}
-net/core/dev.c:4618:21: note: referencing argument 2 of type ‘const u8[8]’ {aka ‘const unsigned char[8]’}
-In file included from net/core/dev.c:91: include/linux/etherdevice.h:375:20: note: in a call to function ‘ether_addr_equal_64bits’
-  375 | static inline bool ether_addr_equal_64bits(const u8 addr1[6+2],
-      |                    ^~~~~~~~~~~~~~~~~~~~~~~
-
-Reported-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/netdev/20220212090811.uuzk6d76agw2vv73@pengutronix.de
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Co-developed-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Khem Raj <raj.khem@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/etherdevice.h |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/ipv6/ip6_gre.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/include/linux/etherdevice.h
-+++ b/include/linux/etherdevice.h
-@@ -127,7 +127,7 @@ static inline bool is_multicast_ether_ad
- #endif
- }
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 8753e9cec326..b43a46449130 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -743,6 +743,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		struct ip_tunnel_info *tun_info;
+ 		const struct ip_tunnel_key *key;
+ 		__be16 flags;
++		int tun_hlen;
  
--static inline bool is_multicast_ether_addr_64bits(const u8 addr[6+2])
-+static inline bool is_multicast_ether_addr_64bits(const u8 *addr)
- {
- #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
- #ifdef __BIG_ENDIAN
-@@ -352,8 +352,7 @@ static inline bool ether_addr_equal(cons
-  * Please note that alignment of addr1 & addr2 are only guaranteed to be 16 bits.
-  */
+ 		tun_info = skb_tunnel_info_txcheck(skb);
+ 		if (IS_ERR(tun_info) ||
+@@ -760,9 +761,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		dsfield = key->tos;
+ 		flags = key->tun_flags &
+ 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
+-		tunnel->tun_hlen = gre_calc_hlen(flags);
++		tun_hlen = gre_calc_hlen(flags);
  
--static inline bool ether_addr_equal_64bits(const u8 addr1[6+2],
--					   const u8 addr2[6+2])
-+static inline bool ether_addr_equal_64bits(const u8 *addr1, const u8 *addr2)
- {
- #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
- 	u64 fold = (*(const u64 *)addr1) ^ (*(const u64 *)addr2);
+-		gre_build_header(skb, tunnel->tun_hlen,
++		gre_build_header(skb, tun_hlen,
+ 				 flags, protocol,
+ 				 tunnel_id_to_key32(tun_info->key.tun_id),
+ 				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
+-- 
+2.35.1
+
 
 
