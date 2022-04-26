@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B59F50F455
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:33:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B8250F577
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345075AbiDZIfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60300 "EHLO
+        id S1345455AbiDZIl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:41:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345206AbiDZIeN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EFB96FA1F;
-        Tue, 26 Apr 2022 01:26:30 -0700 (PDT)
+        with ESMTP id S1345456AbiDZIlG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:41:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB3D157DE4;
+        Tue, 26 Apr 2022 01:33:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD12D61841;
-        Tue, 26 Apr 2022 08:26:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDA21C385BD;
-        Tue, 26 Apr 2022 08:26:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFAE6B81CAF;
+        Tue, 26 Apr 2022 08:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42721C385A4;
+        Tue, 26 Apr 2022 08:32:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961589;
-        bh=uezcfXl9P+IPn6+18yV+x/ymhvpLGiH3VEU2mLngXFA=;
+        s=korg; t=1650961977;
+        bh=XC/PxJ890NE8IKU5ycw5MBJnxf3y3mMFkwqlK2hnpFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xs5zBocbkLcmip0zQG/m0Edcxu+0D4A7or/bUo2xhLPmCgQ+3E8La7E1e2LZfJ+1V
-         0chEO/SzjpS4vYhqSHzcI6YzeRuPILUiIPcMHQiiiqkgsWt2iIpnkU7J6MZUvFsWmq
-         0NMZEZa/S9isplUobUYL4Tm39yiAVg2SpiVC9PXE=
+        b=cL4mWgRStF5NsVgwdFFOqOKA7Gk+mDtduePrqWoeDOZefJ30rV3GSXF7DfGGOj6Ww
+         /I/SjtwxUiEJhwHblEL4aJZS3ebJfAiXZZqRv0u25gsNMG1vPGuastlMAGXQY7lKvv
+         4DUaqfyWsQcfGJzIIezlZSEPOqU0PBIt8utDhKSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/53] reset: tegra-bpmp: Restore Handle errors in BPMP response
+        stable@vger.kernel.org, Bernice Zhang <bernice.zhang@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 30/86] dmaengine: idxd: add RO check for wq max_transfer_size write
 Date:   Tue, 26 Apr 2022 10:20:58 +0200
-Message-Id: <20220426081736.185798092@linuxfoundation.org>
+Message-Id: <20220426081742.078041062@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit d1da1052ffad63aa5181b69f20a6952e31f339c2 ]
+[ Upstream commit 505a2d1032ae656b0a8c736be110255503941cde ]
 
-This reverts following commit 69125b4b9440 ("reset: tegra-bpmp: Revert
-Handle errors in BPMP response").
+Block wq_max_transfer_size_store() when the device is configured as
+read-only and not configurable.
 
-The Tegra194 HDA reset failure is fixed by commit d278dc9151a0 ("ALSA:
-hda/tegra: Fix Tegra194 HDA reset failure"). The temporary revert of
-original commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
-response") can be removed now.
-
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Link: https://lore.kernel.org/r/1641995806-15245-1-git-send-email-spujar@nvidia.com
+Fixes: d7aad5550eca ("dmaengine: idxd: add support for configurable max wq xfer size")
+Reported-by: Bernice Zhang <bernice.zhang@intel.com>
+Tested-by: Bernice Zhang <bernice.zhang@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/164971488154.2200913.10706665404118545941.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/tegra/reset-bpmp.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/dma/idxd/sysfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/reset/tegra/reset-bpmp.c b/drivers/reset/tegra/reset-bpmp.c
-index 5daf2ee1a396..f9790b60f996 100644
---- a/drivers/reset/tegra/reset-bpmp.c
-+++ b/drivers/reset/tegra/reset-bpmp.c
-@@ -23,6 +23,7 @@ static int tegra_bpmp_reset_common(struct reset_controller_dev *rstc,
- 	struct tegra_bpmp *bpmp = to_tegra_bpmp(rstc);
- 	struct mrq_reset_request request;
- 	struct tegra_bpmp_message msg;
-+	int err;
+diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
+index 5bf4b4be64e4..51af0dfc3c63 100644
+--- a/drivers/dma/idxd/sysfs.c
++++ b/drivers/dma/idxd/sysfs.c
+@@ -1098,6 +1098,9 @@ static ssize_t wq_max_transfer_size_store(struct device *dev, struct device_attr
+ 	u64 xfer_size;
+ 	int rc;
  
- 	memset(&request, 0, sizeof(request));
- 	request.cmd = command;
-@@ -33,7 +34,13 @@ static int tegra_bpmp_reset_common(struct reset_controller_dev *rstc,
- 	msg.tx.data = &request;
- 	msg.tx.size = sizeof(request);
- 
--	return tegra_bpmp_transfer(bpmp, &msg);
-+	err = tegra_bpmp_transfer(bpmp, &msg);
-+	if (err)
-+		return err;
-+	if (msg.rx.ret)
-+		return -EINVAL;
++	if (!test_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags))
++		return -EPERM;
 +
-+	return 0;
- }
+ 	if (wq->state != IDXD_WQ_DISABLED)
+ 		return -EPERM;
  
- static int tegra_bpmp_reset_module(struct reset_controller_dev *rstc,
 -- 
 2.35.1
 
