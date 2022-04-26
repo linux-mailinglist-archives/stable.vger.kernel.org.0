@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E98750F862
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27D0850F44D
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346423AbiDZJIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37828 "EHLO
+        id S1344865AbiDZIdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:33:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347869AbiDZJGT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9948A169409;
-        Tue, 26 Apr 2022 01:46:26 -0700 (PDT)
+        with ESMTP id S1344996AbiDZIdN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:33:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C3503B3D9;
+        Tue, 26 Apr 2022 01:25:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4CD5EB81CF2;
-        Tue, 26 Apr 2022 08:46:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 838F1C385A0;
-        Tue, 26 Apr 2022 08:46:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2AE161846;
+        Tue, 26 Apr 2022 08:25:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFDF1C385A0;
+        Tue, 26 Apr 2022 08:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962784;
-        bh=9Vd9VfQI/r2lx1eeK2qA6QkTXF4Wdp/LKCeS7dSW+2M=;
+        s=korg; t=1650961525;
+        bh=Vh1DE9IsVkjPyP8EGE2selCjM3sQ8mh3y6EYE3TjMyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHqQzBREIBaGwMusw5cJeYXQTpe1Ky8ONLslSpDDJiF1R23FcBLZTkG4MSSGA+UkQ
-         UWgb+CXgqxpjxfn+zA+DjDwGkHJ3YjTaKvcswYSXcNA5amukOGfGnLR1s9v2sHQZG/
-         subdC/5m0MqWB8NUzEuLVBGq6863gtlmzGx/iy4c=
+        b=I3IPcjDvCKgI/b7aPTsSoshCFzpX1N8CkV7ADHxqy2s3Xbgatw29y4hLVKxKLYf5C
+         SFHpchCDsjSEYTpfnSGnh51ckHNJcFsqyQu+ffdz7Drxrro6X0urVb8X3GOWPGxKvU
+         yVZ2xMjWA/4rXG95SJAOPZPhQYWXAHKLZqn70o0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang1.zhang@intel.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 087/146] irq_work: use kasan_record_aux_stack_noalloc() record callstack
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 40/43] ax25: fix NPD bug in ax25_disconnect
 Date:   Tue, 26 Apr 2022 10:21:22 +0200
-Message-Id: <20220426081752.504829626@linuxfoundation.org>
+Message-Id: <20220426081735.702609878@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,79 +53,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit 25934fcfb93c4687ad32fd3d062bcf03457129d4 ]
+commit 7ec02f5ac8a5be5a3f20611731243dc5e1d9ba10 upstream.
 
-On PREEMPT_RT kernel and KASAN is enabled.  the kasan_record_aux_stack()
-may call alloc_pages(), and the rt-spinlock will be acquired, if currently
-in atomic context, will trigger warning:
+The ax25_disconnect() in ax25_kill_by_device() is not
+protected by any locks, thus there is a race condition
+between ax25_disconnect() and ax25_destroy_socket().
+when ax25->sk is assigned as NULL by ax25_destroy_socket(),
+a NULL pointer dereference bug will occur if site (1) or (2)
+dereferences ax25->sk.
 
-  BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:46
-  in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 239, name: bootlogd
-  Preemption disabled at:
-  [<ffffffffbab1a531>] rt_mutex_slowunlock+0xa1/0x4e0
-  CPU: 3 PID: 239 Comm: bootlogd Tainted: G        W 5.17.1-rt17-yocto-preempt-rt+ #105
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-     __might_resched.cold+0x13b/0x173
-     rt_spin_lock+0x5b/0xf0
-     get_page_from_freelist+0x20c/0x1610
-     __alloc_pages+0x25e/0x5e0
-     __stack_depot_save+0x3c0/0x4a0
-     kasan_save_stack+0x3a/0x50
-     __kasan_record_aux_stack+0xb6/0xc0
-     kasan_record_aux_stack+0xe/0x10
-     irq_work_queue_on+0x6a/0x1c0
-     pull_rt_task+0x631/0x6b0
-     do_balance_callbacks+0x56/0x80
-     __balance_callbacks+0x63/0x90
-     rt_mutex_setprio+0x349/0x880
-     rt_mutex_slowunlock+0x22a/0x4e0
-     rt_spin_unlock+0x49/0x80
-     uart_write+0x186/0x2b0
-     do_output_char+0x2e9/0x3a0
-     n_tty_write+0x306/0x800
-     file_tty_write.isra.0+0x2af/0x450
-     tty_write+0x22/0x30
-     new_sync_write+0x27c/0x3a0
-     vfs_write+0x3f7/0x5d0
-     ksys_write+0xd9/0x180
-     __x64_sys_write+0x43/0x50
-     do_syscall_64+0x44/0x90
-     entry_SYSCALL_64_after_hwframe+0x44/0xae
+ax25_kill_by_device()                | ax25_release()
+  ax25_disconnect()                  |   ax25_destroy_socket()
+    ...                              |
+    if(ax25->sk != NULL)             |     ...
+      ...                            |     ax25->sk = NULL;
+      bh_lock_sock(ax25->sk); //(1)  |     ...
+      ...                            |
+      bh_unlock_sock(ax25->sk); //(2)|
 
-Fix it by using kasan_record_aux_stack_noalloc() to avoid the call to
-alloc_pages().
+This patch moves ax25_disconnect() into lock_sock(), which can
+synchronize with ax25_destroy_socket() in ax25_release().
 
-Link: https://lkml.kernel.org/r/20220402142555.2699582-1-qiang1.zhang@intel.com
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fail log:
+===============================================================
+BUG: kernel NULL pointer dereference, address: 0000000000000088
+...
+RIP: 0010:_raw_spin_lock+0x7e/0xd0
+...
+Call Trace:
+ax25_disconnect+0xf6/0x220
+ax25_device_event+0x187/0x250
+raw_notifier_call_chain+0x5e/0x70
+dev_close_many+0x17d/0x230
+rollback_registered_many+0x1f1/0x950
+unregister_netdevice_queue+0x133/0x200
+unregister_netdev+0x13/0x20
+...
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: backport to 4.14: adjust context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq_work.c | 2 +-
+ net/ax25/af_ax25.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/irq_work.c b/kernel/irq_work.c
-index f7df715ec28e..7afa40fe5cc4 100644
---- a/kernel/irq_work.c
-+++ b/kernel/irq_work.c
-@@ -137,7 +137,7 @@ bool irq_work_queue_on(struct irq_work *work, int cpu)
- 	if (!irq_work_claim(work))
- 		return false;
- 
--	kasan_record_aux_stack(work);
-+	kasan_record_aux_stack_noalloc(work);
- 
- 	preempt_disable();
- 	if (cpu != smp_processor_id()) {
--- 
-2.35.1
-
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -105,8 +105,8 @@ again:
+ 				dev_put(ax25_dev->dev);
+ 				ax25_dev_put(ax25_dev);
+ 			}
+-			release_sock(sk);
+ 			ax25_disconnect(s, ENETUNREACH);
++			release_sock(sk);
+ 			spin_lock_bh(&ax25_list_lock);
+ 			sock_put(sk);
+ 			/* The entry could have been deleted from the
 
 
