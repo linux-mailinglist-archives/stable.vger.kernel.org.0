@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8996650F46C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:36:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A422D50F3CB
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345133AbiDZIgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:36:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60538 "EHLO
+        id S1344672AbiDZI0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:26:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345639AbiDZIev (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E7A7B111;
-        Tue, 26 Apr 2022 01:27:59 -0700 (PDT)
+        with ESMTP id S1344650AbiDZI0k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:26:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF9C39BBF;
+        Tue, 26 Apr 2022 01:23:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0BB86185C;
-        Tue, 26 Apr 2022 08:27:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF145C385A4;
-        Tue, 26 Apr 2022 08:27:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FDC9B81CF9;
+        Tue, 26 Apr 2022 08:22:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8861FC385A4;
+        Tue, 26 Apr 2022 08:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961678;
-        bh=GYRN8gEHNluHJetTN7qwHBSbp5xnHOcjNQsr6hRA2LE=;
+        s=korg; t=1650961377;
+        bh=Bx27VgkRiumPQICKNZ2fk+CxzxjYO6ZrkulKOdcWCRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ui3knCezcZnfSYd8N96MA3f1A0ifNWB9dkucJ7yjp9TVGGMuVMygGIDASiHX9ULhR
-         x5QdhpZFHr5EWTUMEbtRjHEbLikzb2CUuEvp8s+2pWnDL7MkeWl7dSrjEUBkNIcZTA
-         14in1qdm4v3uJZGCT03BZOcZiV2KbQHnFkd85b88=
+        b=hZ5WR06o1XwHfxemSDLQE2tgyXAtYLEHSjqI6LcHWKCuHfeO+rkN9GU1AuD6MAjY8
+         7uU24jvMkWITENSPIFLHfvtLYT6FB/g/J9u6nyAB81vsRb+n3aR+0wZrIbxflO+aLr
+         AEDLySeNtSyUbhHHkh/Cm6tqnGBQ9oiBPv29XJsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
         Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 4.19 30/53] dma: at_xdmac: fix a missing check on list iterator
+Subject: [PATCH 4.9 16/24] dma: at_xdmac: fix a missing check on list iterator
 Date:   Tue, 26 Apr 2022 10:21:10 +0200
-Message-Id: <20220426081736.533147335@linuxfoundation.org>
+Message-Id: <20220426081731.852434263@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
+References: <20220426081731.370823950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -78,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/dma/at_xdmac.c
 +++ b/drivers/dma/at_xdmac.c
-@@ -1390,7 +1390,7 @@ at_xdmac_tx_status(struct dma_chan *chan
+@@ -1392,7 +1392,7 @@ at_xdmac_tx_status(struct dma_chan *chan
  {
  	struct at_xdmac_chan	*atchan = to_at_xdmac_chan(chan);
  	struct at_xdmac		*atxdmac = to_at_xdmac(atchan->chan.device);
@@ -87,7 +86,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct list_head	*descs_list;
  	enum dma_status		ret;
  	int			residue, retry;
-@@ -1505,11 +1505,13 @@ at_xdmac_tx_status(struct dma_chan *chan
+@@ -1507,11 +1507,13 @@ at_xdmac_tx_status(struct dma_chan *chan
  	 * microblock.
  	 */
  	descs_list = &desc->descs_list;
