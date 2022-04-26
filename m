@@ -2,55 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF1450FE36
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 15:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDAD150FDD4
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 14:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242807AbiDZNFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 09:05:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
+        id S1350271AbiDZM5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 08:57:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350566AbiDZNDq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 09:03:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8E8C27;
-        Tue, 26 Apr 2022 06:00:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E2A260EFC;
-        Tue, 26 Apr 2022 13:00:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id DF7E5C385AC;
-        Tue, 26 Apr 2022 13:00:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650978010;
-        bh=2HA9wsWe++ap3VvtZQXVolIQ4s3VI7wu+bVpKnxfwN4=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=VxZpmxwaYB1qCa4KuL7G4UoJPAcSip4tT6FLIfQTHQ0bpyj7vsuTSLgZ6ufjRIiL8
-         APK5CC7G9r73++88q8aDLQvc7DsqPKijdFhE5+y6hAtRfbCqpx8NqHvzAh/Rao1wOT
-         vQS9i2Bl83G0o5c2ge8aYVqk0XyOVtam4hcnN3uUn1qDpmgNa0TcX1g5hlnrK1Z3c7
-         BzVP/vszHWys26e3NyGz75gE/LmeTx84WCou+CB92xMYywtheeYEvkwsrM8T8w/4Ap
-         Jbf/QquwJ3FOuYUB57G1eLXMoTidGPZee9Hy+lDPzGAJBDszeLyjLpOHUpxWg9FCV3
-         GOVU31Pye6xdA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C6D82E8DD67;
-        Tue, 26 Apr 2022 13:00:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1350247AbiDZM5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 08:57:44 -0400
+Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B7BF17D4BD;
+        Tue, 26 Apr 2022 05:54:36 -0700 (PDT)
+Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4KnhYQ336PzCsMD;
+        Tue, 26 Apr 2022 20:50:02 +0800 (CST)
+Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
+ (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Tue, 26 Apr
+ 2022 20:54:33 +0800
+From:   Baokun Li <libaokun1@huawei.com>
+To:     <linux-ext4@vger.kernel.org>
+CC:     <tytso@mit.edu>, <adilger.kernel@dilger.ca>, <jack@suse.cz>,
+        <linux-kernel@vger.kernel.org>, <yi.zhang@huawei.com>,
+        <yebin10@huawei.com>, <yukuai3@huawei.com>, <libaokun1@huawei.com>,
+        <stable@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>
+Subject: [PATCH] ext4: fix race condition between ext4_write and ext4_convert_inline_data
+Date:   Tue, 26 Apr 2022 21:08:47 +0800
+Message-ID: <20220426130847.885833-1-libaokun1@huawei.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v3] virtio_net: fix wrong buf address calculation when
- using xdp
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <165097801081.17994.867649031795224132.git-patchwork-notify@kernel.org>
-Date:   Tue, 26 Apr 2022 13:00:10 +0000
-References: <20220425103703.3067292-1-razor@blackwall.org>
-In-Reply-To: <20220425103703.3067292-1-razor@blackwall.org>
-To:     Nikolay Aleksandrov <razor@blackwall.org>
-Cc:     netdev@vger.kernel.org, kuba@kernel.org, davem@davemloft.net,
-        stable@vger.kernel.org, jasowang@redhat.com,
-        xuanzhuo@linux.alibaba.com, daniel@iogearbox.net, mst@redhat.com,
-        virtualization@lists.linux-foundation.org
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.127.227]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggpeml500020.china.huawei.com (7.185.36.88)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,30 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+Hulk Robot reported a BUG_ON:
+ ==================================================================
+ EXT4-fs error (device loop3): ext4_mb_generate_buddy:805: group 0,
+ block bitmap and bg descriptor inconsistent: 25 vs 31513 free clusters
+ kernel BUG at fs/ext4/ext4_jbd2.c:53!
+ invalid opcode: 0000 [#1] SMP KASAN PTI
+ CPU: 0 PID: 25371 Comm: syz-executor.3 Not tainted 5.10.0+ #1
+ RIP: 0010:ext4_put_nojournal fs/ext4/ext4_jbd2.c:53 [inline]
+ RIP: 0010:__ext4_journal_stop+0x10e/0x110 fs/ext4/ext4_jbd2.c:116
+ [...]
+ Call Trace:
+  ext4_write_inline_data_end+0x59a/0x730 fs/ext4/inline.c:795
+  generic_perform_write+0x279/0x3c0 mm/filemap.c:3344
+  ext4_buffered_write_iter+0x2e3/0x3d0 fs/ext4/file.c:270
+  ext4_file_write_iter+0x30a/0x11c0 fs/ext4/file.c:520
+  do_iter_readv_writev+0x339/0x3c0 fs/read_write.c:732
+  do_iter_write+0x107/0x430 fs/read_write.c:861
+  vfs_writev fs/read_write.c:934 [inline]
+  do_pwritev+0x1e5/0x380 fs/read_write.c:1031
+ [...]
+ ==================================================================
 
-This patch was applied to netdev/net.git (master)
-by Paolo Abeni <pabeni@redhat.com>:
+Above issue may happen as follows:
+           cpu1                     cpu2
+__________________________|__________________________
+do_pwritev
+ vfs_writev
+  do_iter_write
+   ext4_file_write_iter
+    ext4_buffered_write_iter
+     generic_perform_write
+      ext4_da_write_begin
+                           vfs_fallocate
+                            ext4_fallocate
+                             ext4_convert_inline_data
+                              ext4_convert_inline_data_nolock
+                               ext4_destroy_inline_data_nolock
+                                clear EXT4_STATE_MAY_INLINE_DATA
+                               ext4_map_blocks
+                                ext4_ext_map_blocks
+                                 ext4_mb_new_blocks
+                                  ext4_mb_regular_allocator
+                                   ext4_mb_good_group_nolock
+                                    ext4_mb_init_group
+                                     ext4_mb_init_cache
+                                      ext4_mb_generate_buddy  --> error
+       ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
+                                ext4_restore_inline_data
+                                 set EXT4_STATE_MAY_INLINE_DATA
+       ext4_block_write_begin
+      ext4_da_write_end
+       ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
+       ext4_write_inline_data_end
+        handle=NULL
+        ext4_journal_stop(handle)
+         __ext4_journal_stop
+          ext4_put_nojournal(handle)
+           ref_cnt = (unsigned long)handle
+           BUG_ON(ref_cnt == 0)  ---> BUG_ON
 
-On Mon, 25 Apr 2022 13:37:03 +0300 you wrote:
-> We received a report[1] of kernel crashes when Cilium is used in XDP
-> mode with virtio_net after updating to newer kernels. After
-> investigating the reason it turned out that when using mergeable bufs
-> with an XDP program which adjusts xdp.data or xdp.data_meta page_to_buf()
-> calculates the build_skb address wrong because the offset can become less
-> than the headroom so it gets the address of the previous page (-X bytes
-> depending on how lower offset is):
->  page_to_skb: page addr ffff9eb2923e2000 buf ffff9eb2923e1ffc offset 252 headroom 256
-> 
-> [...]
+The lock held by ext4_convert_inline_data is xattr_sem, but the lock
+held by generic_perform_write is i_rwsem. Therefore, the two locks can
+be concurrent. To solve above issue, we just add inode_lock in
+ext4_convert_inline_data.
 
-Here is the summary with links:
-  - [net,v3] virtio_net: fix wrong buf address calculation when using xdp
-    https://git.kernel.org/netdev/net/c/acb16b395c3f
+Fixes: 0c8d414f163f ("ext4: let fallocate handle inline data correctly")
+Cc: stable@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+---
+ fs/ext4/inline.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-You are awesome, thank you!
+diff --git a/fs/ext4/inline.c b/fs/ext4/inline.c
+index 9c076262770d..3d45ffe8c657 100644
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -2020,10 +2020,12 @@ int ext4_convert_inline_data(struct inode *inode)
+ 		goto out_free;
+ 	}
+ 
++	inode_lock(inode);
+ 	ext4_write_lock_xattr(inode, &no_expand);
+ 	if (ext4_has_inline_data(inode))
+ 		error = ext4_convert_inline_data_nolock(handle, inode, &iloc);
+ 	ext4_write_unlock_xattr(inode, &no_expand);
++	inode_unlock(inode);
+ 	ext4_journal_stop(handle);
+ out_free:
+ 	brelse(iloc.bh);
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.31.1
 
