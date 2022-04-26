@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EFD950F548
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DF6B50F6E9
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345835AbiDZIr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:47:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57808 "EHLO
+        id S233768AbiDZJB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346917AbiDZIpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A70933E14;
-        Tue, 26 Apr 2022 01:36:48 -0700 (PDT)
+        with ESMTP id S1346521AbiDZJAm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:00:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E67F434BC;
+        Tue, 26 Apr 2022 01:43:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FA66B81CED;
-        Tue, 26 Apr 2022 08:36:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF8EC385AC;
-        Tue, 26 Apr 2022 08:36:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B708560EC5;
+        Tue, 26 Apr 2022 08:43:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9AA9C385A0;
+        Tue, 26 Apr 2022 08:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962205;
-        bh=bcOTZJMicACjWXiZfXi+DQEm7lArO/AWDfEHBhtc7QE=;
+        s=korg; t=1650962597;
+        bh=al/DNcmU9VRxip2sAs9qrDdhoQhbuDVPjqT3XjVExbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJF6SgeW06cXl1GPFvaAWvJh69p8E4qDTTK9WOJZGKdhP8NH+p/JCaPcx+gDOViYx
-         8aAHGwpAiwWFuUwOdgsDxj0cGoduwFWMKkc3RMf2MTqhb0cSFtZGK9UGDbcG2RTyqv
-         1/DhZoTPNTEf7692o82sIqhEDOfo+Lp3ikb7u6NI=
+        b=sZKg4IpTrA1D9SSFzKRkV38IhAU/9cdOBaMsuUa1InpoFn+jDOJISbi2K1vUO91Kv
+         WhImvhi3ZZWT2CawGNjZIqje+W+1JAuAHX8rfp3THIHXgk7CSLPdqFe1ErNupsdiJE
+         0GA1jZTFFl69BBTgwZ+p9PSZL5aZkdhOcZhqVmD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/124] ASoC: msm8916-wcd-digital: Check failure for devm_snd_soc_register_component
+Subject: [PATCH 5.17 026/146] igc: Fix suspending when PTM is active
 Date:   Tue, 26 Apr 2022 10:20:21 +0200
-Message-Id: <20220426081747.879941932@linuxfoundation.org>
+Message-Id: <20220426081750.802783379@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +56,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
 
-[ Upstream commit e927b05f3cc20de87f6b7d912a5bbe556931caca ]
+[ Upstream commit 822f52e7efdc88fccffb9fbf6250a4b7666a0b0f ]
 
-devm_snd_soc_register_component() may fails, we should check the error
-and do the corresponding error handling.
+Some mainboard/CPU combinations, in particular, Alder Lake-S with a
+W680 mainboard, have shown problems (system hangs usually, no kernel
+logs) with suspend/resume when PCIe PTM is enabled and active. In some
+cases, it could be reproduced when removing the igc module.
 
-Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220403115239.30140-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The best we can do is to stop PTM dialogs from the downstream/device
+side before the interface is brought down. PCIe PTM will be re-enabled
+when the interface is being brought up.
+
+Fixes: a90ec8483732 ("igc: Add support for PTP getcrosststamp()")
+Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/msm8916-wcd-digital.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igc/igc_ptp.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
-index 9ad7fc0baf07..20a07c92b2fc 100644
---- a/sound/soc/codecs/msm8916-wcd-digital.c
-+++ b/sound/soc/codecs/msm8916-wcd-digital.c
-@@ -1206,9 +1206,16 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
+diff --git a/drivers/net/ethernet/intel/igc/igc_ptp.c b/drivers/net/ethernet/intel/igc/igc_ptp.c
+index 0d6e3215e98f..653e9f1e35b5 100644
+--- a/drivers/net/ethernet/intel/igc/igc_ptp.c
++++ b/drivers/net/ethernet/intel/igc/igc_ptp.c
+@@ -992,6 +992,17 @@ static void igc_ptp_time_restore(struct igc_adapter *adapter)
+ 	igc_ptp_write_i225(adapter, &ts);
+ }
  
- 	dev_set_drvdata(dev, priv);
++static void igc_ptm_stop(struct igc_adapter *adapter)
++{
++	struct igc_hw *hw = &adapter->hw;
++	u32 ctrl;
++
++	ctrl = rd32(IGC_PTM_CTRL);
++	ctrl &= ~IGC_PTM_CTRL_EN;
++
++	wr32(IGC_PTM_CTRL, ctrl);
++}
++
+ /**
+  * igc_ptp_suspend - Disable PTP work items and prepare for suspend
+  * @adapter: Board private structure
+@@ -1009,8 +1020,10 @@ void igc_ptp_suspend(struct igc_adapter *adapter)
+ 	adapter->ptp_tx_skb = NULL;
+ 	clear_bit_unlock(__IGC_PTP_TX_IN_PROGRESS, &adapter->state);
  
--	return devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
-+	ret = devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
- 				      msm8916_wcd_digital_dai,
- 				      ARRAY_SIZE(msm8916_wcd_digital_dai));
-+	if (ret)
-+		goto err_mclk;
-+
-+	return 0;
-+
-+err_mclk:
-+	clk_disable_unprepare(priv->mclk);
- err_clk:
- 	clk_disable_unprepare(priv->ahbclk);
- 	return ret;
+-	if (pci_device_is_present(adapter->pdev))
++	if (pci_device_is_present(adapter->pdev)) {
+ 		igc_ptp_time_save(adapter);
++		igc_ptm_stop(adapter);
++	}
+ }
+ 
+ /**
 -- 
 2.35.1
 
