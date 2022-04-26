@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D619510870
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 392F451084C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353897AbiDZTGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:06:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
+        id S1353873AbiDZTGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:06:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353792AbiDZTFr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:47 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C274519A495;
-        Tue, 26 Apr 2022 12:02:38 -0700 (PDT)
+        with ESMTP id S1353767AbiDZTFp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9966199825;
+        Tue, 26 Apr 2022 12:02:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 294BECE20E9;
-        Tue, 26 Apr 2022 19:02:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49597C385A4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7732F619BA;
+        Tue, 26 Apr 2022 19:02:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0487C385AD;
         Tue, 26 Apr 2022 19:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1650999755;
-        bh=McgoWmkYHtizr58/vT6trUUdr52odY6eQseeCgR1VqQ=;
+        bh=ZrHYo/Z2MZ3OcRsRVGLr7SL2UwYUnoIaQ5hc+QFEvOU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3NB0DfZ2hn72XXEQ0NpmVBa0Vcd+RJxuYIW2RoojeT/w9LS7D5NdpO7jY1HIr1MA
-         V6AcWIwkd4C+shbSyWlYg50aJKc6c3e0TEvQ7PTeyxPKU6KnKWGlLD9ljd91m0hp1K
-         yv4CvyGU+fxtHZdYPI3+fzE8FD91a/YMCejqCfdgoetN13ES2lCl+A/vhG50i+hZN4
-         XS/jovz9OOxCYWCfpczfN3T8mAi4vrZeEbDKmgJOr/JsaV1zoP+rLh+Q+fh0BVnamA
-         ATGtc5qlp1HQp3OrgmV/Zu0WsdPZzgPVM4T0xluhJR/hic4mQYnfHXUyob9ODekrUH
-         QaZFiuMIJRnow==
+        b=UNpA/iaYLXUXBrKFjBcwAIYcRAZo7UjDU/BlOc4IJDiimF32GRsLqpBkuorOS9OU6
+         JkCb5hNYNRX5zlTq5mWPU+XXXhNWcNKg6AtQnOdcaFcAMpsgjjLaQcHWNphKzbwDIC
+         /EB1oCdLKerNZaC5sCfEL22ZN+l9/TngLOF+wP6uDdPMVR9quAO6RD0LgBhZDSN9hr
+         Pr1u540AJAvEnDLGO0KVAVl1QeFlN/LvrQd/dZV5p26nYYGQHR6LMpotUiegQRzLYM
+         BA8YYu0AajHnwf3ukx29KE++XUT25cBeoKr1+CSYr5pYrR+i+3xPpqQeknm34KhHQl
+         /mpjRGB9e2I0A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
-        u.kleine-koenig@pengutronix.de, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 2/9] ASoC: wm8731: Disable the regulator when probing fails
-Date:   Tue, 26 Apr 2022 15:02:23 -0400
-Message-Id: <20220426190232.2351606-2-sashal@kernel.org>
+Cc:     Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 3/9] ext4: fix bug_on in start_this_handle during umount filesystem
+Date:   Tue, 26 Apr 2022 15:02:24 -0400
+Message-Id: <20220426190232.2351606-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220426190232.2351606-1-sashal@kernel.org>
 References: <20220426190232.2351606-1-sashal@kernel.org>
@@ -57,88 +56,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 92ccbf17eeacf510cf1eed9c252d9332ca24f02d ]
+[ Upstream commit b98535d091795a79336f520b0708457aacf55c67 ]
 
-When the driver fails during probing, the driver should disable the
-regulator, not just handle it in wm8731_hw_init().
+We got issue as follows:
+------------[ cut here ]------------
+kernel BUG at fs/jbd2/transaction.c:389!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 9 PID: 131 Comm: kworker/9:1 Not tainted 5.17.0-862.14.0.6.x86_64-00001-g23f87daf7d74-dirty #197
+Workqueue: events flush_stashed_error_work
+RIP: 0010:start_this_handle+0x41c/0x1160
+RSP: 0018:ffff888106b47c20 EFLAGS: 00010202
+RAX: ffffed10251b8400 RBX: ffff888128dc204c RCX: ffffffffb52972ac
+RDX: 0000000000000200 RSI: 0000000000000004 RDI: ffff888128dc2050
+RBP: 0000000000000039 R08: 0000000000000001 R09: ffffed10251b840a
+R10: ffff888128dc204f R11: ffffed10251b8409 R12: ffff888116d78000
+R13: 0000000000000000 R14: dffffc0000000000 R15: ffff888128dc2000
+FS:  0000000000000000(0000) GS:ffff88839d680000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000001620068 CR3: 0000000376c0e000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ jbd2__journal_start+0x38a/0x790
+ jbd2_journal_start+0x19/0x20
+ flush_stashed_error_work+0x110/0x2b3
+ process_one_work+0x688/0x1080
+ worker_thread+0x8b/0xc50
+ kthread+0x26f/0x310
+ ret_from_fork+0x22/0x30
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
 
-The following log reveals it:
+Above issue may happen as follows:
+      umount            read procfs            error_work
+ext4_put_super
+  flush_work(&sbi->s_error_work);
 
-[   17.812483] WARNING: CPU: 1 PID: 364 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
-[   17.815958] RIP: 0010:_regulator_put+0x3ec/0x4e0
-[   17.824467] Call Trace:
-[   17.824774]  <TASK>
-[   17.825040]  regulator_bulk_free+0x82/0xe0
-[   17.825514]  devres_release_group+0x319/0x3d0
-[   17.825882]  i2c_device_probe+0x766/0x940
-[   17.829198]  i2c_register_driver+0xb5/0x130
+                      ext4_mb_seq_groups_show
+	                ext4_mb_load_buddy_gfp
+			  ext4_mb_init_group
+			    ext4_mb_init_cache
+	                      ext4_read_block_bitmap_nowait
+			        ext4_validate_block_bitmap
+				  ext4_error
+			            ext4_handle_error
+			              schedule_work(&EXT4_SB(sb)->s_error_work);
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/20220405121038.4094051-1-zheyuma97@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  ext4_unregister_sysfs(sb);
+  jbd2_journal_destroy(sbi->s_journal);
+    journal_kill_thread
+      journal->j_flags |= JBD2_UNMOUNT;
+
+                                          flush_stashed_error_work
+				            jbd2_journal_start
+					      start_this_handle
+					        BUG_ON(journal->j_flags & JBD2_UNMOUNT);
+
+To solve this issue, we call 'ext4_unregister_sysfs() before flushing
+s_error_work in ext4_put_super().
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220322012419.725457-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8731.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ fs/ext4/super.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/codecs/wm8731.c b/sound/soc/codecs/wm8731.c
-index 304bf725a613..24a009d73f1e 100644
---- a/sound/soc/codecs/wm8731.c
-+++ b/sound/soc/codecs/wm8731.c
-@@ -602,7 +602,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
- 	ret = wm8731_reset(wm8731->regmap);
- 	if (ret < 0) {
- 		dev_err(dev, "Failed to issue reset: %d\n", ret);
--		goto err_regulator_enable;
-+		goto err;
- 	}
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 9e210bc85c81..8f65513d63d4 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -1176,18 +1176,23 @@ static void ext4_put_super(struct super_block *sb)
+ 	int aborted = 0;
+ 	int i, err;
  
- 	/* Clear POWEROFF, keep everything else disabled */
-@@ -619,10 +619,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
- 
- 	regcache_mark_dirty(wm8731->regmap);
- 
--err_regulator_enable:
--	/* Regulators will be enabled by bias management */
--	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
+-	ext4_unregister_li_request(sb);
+-	ext4_quota_off_umount(sb);
 -
-+err:
- 	return ret;
- }
+-	destroy_workqueue(sbi->rsv_conversion_wq);
+-
+ 	/*
+ 	 * Unregister sysfs before destroying jbd2 journal.
+ 	 * Since we could still access attr_journal_task attribute via sysfs
+ 	 * path which could have sbi->s_journal->j_task as NULL
++	 * Unregister sysfs before flush sbi->s_error_work.
++	 * Since user may read /proc/fs/ext4/xx/mb_groups during umount, If
++	 * read metadata verify failed then will queue error work.
++	 * flush_stashed_error_work will call start_this_handle may trigger
++	 * BUG_ON.
+ 	 */
+ 	ext4_unregister_sysfs(sb);
  
-@@ -766,21 +763,27 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
- 		ret = PTR_ERR(wm8731->regmap);
- 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
- 			ret);
--		return ret;
-+		goto err_regulator_enable;
- 	}
- 
- 	ret = wm8731_hw_init(&i2c->dev, wm8731);
- 	if (ret != 0)
--		return ret;
-+		goto err_regulator_enable;
- 
- 	ret = devm_snd_soc_register_component(&i2c->dev,
- 			&soc_component_dev_wm8731, &wm8731_dai, 1);
- 	if (ret != 0) {
- 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
--		return ret;
-+		goto err_regulator_enable;
- 	}
- 
- 	return 0;
++	ext4_unregister_li_request(sb);
++	ext4_quota_off_umount(sb);
 +
-+err_regulator_enable:
-+	/* Regulators will be enabled by bias management */
-+	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
++	destroy_workqueue(sbi->rsv_conversion_wq);
 +
-+	return ret;
- }
- 
- static int wm8731_i2c_remove(struct i2c_client *client)
+ 	if (sbi->s_journal) {
+ 		aborted = is_journal_aborted(sbi->s_journal);
+ 		err = jbd2_journal_destroy(sbi->s_journal);
 -- 
 2.35.1
 
