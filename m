@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF34E50F3DC
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D8C750F46F
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238176AbiDZI3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38524 "EHLO
+        id S239628AbiDZIhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:37:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344711AbiDZI1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:50 -0400
+        with ESMTP id S1345103AbiDZIfi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:38 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11C53DDD5;
-        Tue, 26 Apr 2022 01:24:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84D28595F;
+        Tue, 26 Apr 2022 01:28:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E129B81CFE;
-        Tue, 26 Apr 2022 08:23:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62054C385A0;
-        Tue, 26 Apr 2022 08:23:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A0ADB81CAF;
+        Tue, 26 Apr 2022 08:28:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A39C385A4;
+        Tue, 26 Apr 2022 08:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961438;
-        bh=y5gL0drNcpQgXl80MBpt3bCUErZEwymK2/f/YuqhL/A=;
+        s=korg; t=1650961735;
+        bh=k6LJWplTqIP4iynBoUVkI1G6phkHQXVkwOV33uvQP48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEf4UqnBTT2Eah56Ltm/KZHAoBnDCrCbVledC+0SsCCToDrqIK3QGfU1wVwJPUSg1
-         MuS6zbZyokDCTBI/qG7yPYFM9gm73WNKxS9aohcqElQyyJMRyjzj+8+CKlElwzFeJK
-         jgJnn/9lzwGtwFO9aoH07k75a/EYPbV/xkbHlSs8=
+        b=jemHM3HQ2jjnM6MdASnuRBI8djAqstp6Dky2241sHnY/xSEl9kxk8v0+iz3DJBghN
+         u7eBGSB9HsT7TvBlO9rjdN+oenUWx2f+nX9Rz7MTQSv6D5gUbq16pHZNAYkNlq/WD+
+         Yy8quIUYL54JyycVgmUEmIRQOMOTUS1sXbopnidM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Flavio Leitner <fbl@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 11/43] net/packet: fix packet_sock xmit return value checking
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/62] dmaengine: mediatek:Fix PM usage reference leak of mtk_uart_apdma_alloc_chan_resources
 Date:   Tue, 26 Apr 2022 10:20:53 +0200
-Message-Id: <20220426081734.851239352@linuxfoundation.org>
+Message-Id: <20220426081737.607593955@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +52,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: zhangqilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 29e8e659f984be00d75ec5fef4e37c88def72712 ]
+[ Upstream commit 545b2baac89b859180e51215468c05d85ea8465a ]
 
-packet_sock xmit could be dev_queue_xmit, which also returns negative
-errors. So only checking positive errors is not enough, or userspace
-sendmsg may return success while packet is not send out.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+We fix it:
+1) Replacing it with pm_runtime_resume_and_get to keep usage counter
+   balanced.
+2) Add putting operation before returning error.
 
-Move the net_xmit_errno() assignment in the braces as checkpatch.pl said
-do not use assignment in if condition.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Flavio Leitner <fbl@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes:9135408c3ace4 ("dmaengine: mediatek: Add MediaTek UART APDMA support")
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220319022142.142709-1-zhangqilong3@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/dma/mediatek/mtk-uart-apdma.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index b0dd17d1992e..61093ce76b61 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2829,8 +2829,9 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
+diff --git a/drivers/dma/mediatek/mtk-uart-apdma.c b/drivers/dma/mediatek/mtk-uart-apdma.c
+index 9c0ea13ca788..7718d09e3d29 100644
+--- a/drivers/dma/mediatek/mtk-uart-apdma.c
++++ b/drivers/dma/mediatek/mtk-uart-apdma.c
+@@ -274,7 +274,7 @@ static int mtk_uart_apdma_alloc_chan_resources(struct dma_chan *chan)
+ 	unsigned int status;
+ 	int ret;
  
- 		status = TP_STATUS_SEND_REQUEST;
- 		err = po->xmit(skb);
--		if (unlikely(err > 0)) {
--			err = net_xmit_errno(err);
-+		if (unlikely(err != 0)) {
-+			if (err > 0)
-+				err = net_xmit_errno(err);
- 			if (err && __packet_get_status(po, ph) ==
- 				   TP_STATUS_AVAILABLE) {
- 				/* skb was destructed already */
-@@ -3029,8 +3030,12 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
- 		skb->no_fcs = 1;
+-	ret = pm_runtime_get_sync(mtkd->ddev.dev);
++	ret = pm_runtime_resume_and_get(mtkd->ddev.dev);
+ 	if (ret < 0) {
+ 		pm_runtime_put_noidle(chan->device->dev);
+ 		return ret;
+@@ -288,18 +288,21 @@ static int mtk_uart_apdma_alloc_chan_resources(struct dma_chan *chan)
+ 	ret = readx_poll_timeout(readl, c->base + VFF_EN,
+ 			  status, !status, 10, 100);
+ 	if (ret)
+-		return ret;
++		goto err_pm;
  
- 	err = po->xmit(skb);
--	if (err > 0 && (err = net_xmit_errno(err)) != 0)
--		goto out_unlock;
-+	if (unlikely(err != 0)) {
-+		if (err > 0)
-+			err = net_xmit_errno(err);
-+		if (err)
-+			goto out_unlock;
-+	}
+ 	ret = request_irq(c->irq, mtk_uart_apdma_irq_handler,
+ 			  IRQF_TRIGGER_NONE, KBUILD_MODNAME, chan);
+ 	if (ret < 0) {
+ 		dev_err(chan->device->dev, "Can't request dma IRQ\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm;
+ 	}
  
- 	dev_put(dev);
+ 	if (mtkd->support_33bits)
+ 		mtk_uart_apdma_write(c, VFF_4G_SUPPORT, VFF_4G_SUPPORT_CLR_B);
+ 
++err_pm:
++	pm_runtime_put_noidle(mtkd->ddev.dev);
+ 	return ret;
+ }
  
 -- 
 2.35.1
