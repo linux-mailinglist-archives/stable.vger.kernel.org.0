@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3D7150F626
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2430250F6AB
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345882AbiDZIx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:53:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55176 "EHLO
+        id S1345685AbiDZI6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346060AbiDZIof (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:44:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DD16160972;
-        Tue, 26 Apr 2022 01:34:08 -0700 (PDT)
+        with ESMTP id S1345581AbiDZI5Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B1B83B15;
+        Tue, 26 Apr 2022 01:41:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38F37618BF;
-        Tue, 26 Apr 2022 08:34:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E06C385A4;
-        Tue, 26 Apr 2022 08:34:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 762CAB81CF0;
+        Tue, 26 Apr 2022 08:41:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B76EC385A4;
+        Tue, 26 Apr 2022 08:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962047;
-        bh=H2GVOsN4Wlnmq7iS7cjQO3AXAVt7hMVJpGRKNMcx78Y=;
+        s=korg; t=1650962506;
+        bh=UQHtrv06tWWNq/VuBscRZKo9WCfY+hF9zl3LNoY7nQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oC9My93RObaDp8OXP2VpMvgrliqw0lDOyx/VR3HAVtXDyX9+pQisP6mb9YrSUXsc/
-         cD6qLLnLzGe83VInIF4+EJntPjZCFl145ZoaF/c0t+smeupOU6NGOn4/yHCTSVE1rr
-         d73iNTppz6e329zM4t6z2Ji4+e57FeO0lNoFpE08=
+        b=et+jP9IPuEjbAzuebZ2VlKM8vyq4VLi9aBrTXhxTx/DxEI8INsDgbQ80+hrseaP0m
+         bai7Io9S/3v57XsJwaKO+S79iDM4VBw7rejWlDE6qNuiWSDU6+pqoccOyO84SNK4Jm
+         m7J39e56MxnQAe/uh7iVzTKd+yXte2rxswryvw78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.10 55/86] ata: pata_marvell: Check the bmdma_addr beforing reading
+        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 082/124] mm/mmu_notifier.c: fix race in mmu_interval_notifier_remove()
 Date:   Tue, 26 Apr 2022 10:21:23 +0200
-Message-Id: <20220426081742.794341917@linuxfoundation.org>
+Message-Id: <20220426081749.632977756@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +57,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Alistair Popple <apopple@nvidia.com>
 
-commit aafa9f958342db36c17ac2a7f1b841032c96feb4 upstream.
+commit 319561669a59d8e9206ab311ae5433ef92fd79d1 upstream.
 
-Before detecting the cable type on the dma bar, the driver should check
-whether the 'bmdma_addr' is zero, which means the adapter does not
-support DMA, otherwise we will get the following error:
+In some cases it is possible for mmu_interval_notifier_remove() to race
+with mn_tree_inv_end() allowing it to return while the notifier data
+structure is still in use.  Consider the following sequence:
 
-[    5.146634] Bad IO access at port 0x1 (return inb(port))
-[    5.147206] WARNING: CPU: 2 PID: 303 at lib/iomap.c:44 ioread8+0x4a/0x60
-[    5.150856] RIP: 0010:ioread8+0x4a/0x60
-[    5.160238] Call Trace:
-[    5.160470]  <TASK>
-[    5.160674]  marvell_cable_detect+0x6e/0xc0 [pata_marvell]
-[    5.161728]  ata_eh_recover+0x3520/0x6cc0
-[    5.168075]  ata_do_eh+0x49/0x3c0
+  CPU0 - mn_tree_inv_end()            CPU1 - mmu_interval_notifier_remove()
+  ----------------------------------- ------------------------------------
+                                      spin_lock(subscriptions->lock);
+                                      seq = subscriptions->invalidate_seq;
+  spin_lock(subscriptions->lock);     spin_unlock(subscriptions->lock);
+  subscriptions->invalidate_seq++;
+                                      wait_event(invalidate_seq != seq);
+                                      return;
+  interval_tree_remove(interval_sub); kfree(interval_sub);
+  spin_unlock(subscriptions->lock);
+  wake_up_all();
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+As the wait_event() condition is true it will return immediately.  This
+can lead to use-after-free type errors if the caller frees the data
+structure containing the interval notifier subscription while it is
+still on a deferred list.  Fix this by taking the appropriate lock when
+reading invalidate_seq to ensure proper synchronisation.
+
+I observed this whilst running stress testing during some development.
+You do have to be pretty unlucky, but it leads to the usual problems of
+use-after-free (memory corruption, kernel crash, difficult to diagnose
+WARN_ON, etc).
+
+Link: https://lkml.kernel.org/r/20220420043734.476348-1-apopple@nvidia.com
+Fixes: 99cb252f5e68 ("mm/mmu_notifier: add an interval tree notifier")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/pata_marvell.c |    2 ++
- 1 file changed, 2 insertions(+)
+ mm/mmu_notifier.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/ata/pata_marvell.c
-+++ b/drivers/ata/pata_marvell.c
-@@ -83,6 +83,8 @@ static int marvell_cable_detect(struct a
- 	switch(ap->port_no)
- 	{
- 	case 0:
-+		if (!ap->ioaddr.bmdma_addr)
-+			return ATA_CBL_PATA_UNK;
- 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
- 			return ATA_CBL_PATA40;
- 		return ATA_CBL_PATA80;
+--- a/mm/mmu_notifier.c
++++ b/mm/mmu_notifier.c
+@@ -1036,6 +1036,18 @@ int mmu_interval_notifier_insert_locked(
+ }
+ EXPORT_SYMBOL_GPL(mmu_interval_notifier_insert_locked);
+ 
++static bool
++mmu_interval_seq_released(struct mmu_notifier_subscriptions *subscriptions,
++			  unsigned long seq)
++{
++	bool ret;
++
++	spin_lock(&subscriptions->lock);
++	ret = subscriptions->invalidate_seq != seq;
++	spin_unlock(&subscriptions->lock);
++	return ret;
++}
++
+ /**
+  * mmu_interval_notifier_remove - Remove a interval notifier
+  * @interval_sub: Interval subscription to unregister
+@@ -1083,7 +1095,7 @@ void mmu_interval_notifier_remove(struct
+ 	lock_map_release(&__mmu_notifier_invalidate_range_start_map);
+ 	if (seq)
+ 		wait_event(subscriptions->wq,
+-			   READ_ONCE(subscriptions->invalidate_seq) != seq);
++			   mmu_interval_seq_released(subscriptions, seq));
+ 
+ 	/* pairs with mmgrab in mmu_interval_notifier_insert() */
+ 	mmdrop(mm);
 
 
