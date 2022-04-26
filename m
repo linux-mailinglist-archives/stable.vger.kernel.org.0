@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C759850F61F
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0656950F7B5
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346078AbiDZIyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:54:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55622 "EHLO
+        id S239095AbiDZJLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:11:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347644AbiDZIvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8422DD1CFD;
-        Tue, 26 Apr 2022 01:40:43 -0700 (PDT)
+        with ESMTP id S1343942AbiDZJID (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:08:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06470177D47;
+        Tue, 26 Apr 2022 01:49:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F52F6090C;
-        Tue, 26 Apr 2022 08:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2F94C385A4;
-        Tue, 26 Apr 2022 08:40:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B10FDB81CB3;
+        Tue, 26 Apr 2022 08:49:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00C34C385AC;
+        Tue, 26 Apr 2022 08:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962434;
-        bh=zSDmJ6fUt5MMEw2xJrfGFiI+Dx6P8QzmJvl3KZzetKk=;
+        s=korg; t=1650962939;
+        bh=ZES7E+0Y2TILibhjpllfjIl6JKZW3P1Y1LfNzA7CmSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dF1ficWfjAtWfUaQbaA6+kyBPFUMgMEXhcB3FMHnuwRYYxrIQHa01zzKnJb69bgWq
-         0EjyYsdEpv02lnqpzSbtYc4IGZdgjk1CMYns4Z5sZE6Fa/fWkt5N4lfteDP+UO3o0n
-         hCAGhnviVsJKpEkL0XWkkmLSka/EV6J94FLwiTBM=
+        b=f2C9zNQ3H4k899jy/IHOilmS+76pWTRjvbjt25u4uX+zvGe4BebEQwM3RyDDACA/b
+         B6K1QMtq4tWuX/0J6fRxq5ZfvlDfyteve9Jl3CCLiz9uFOrlPQ5C/fx/tUMiYhVc4L
+         Xu62PpuZMlZdG9J/D+E721vFnjsdUmBvkbHiI7oE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, kuyo chang <kuyo.chang@mediatek.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/124] powerpc/perf: Fix power10 event alternatives
+Subject: [PATCH 5.17 102/146] sched/pelt: Fix attach_entity_load_avg() corner case
 Date:   Tue, 26 Apr 2022 10:21:37 +0200
-Message-Id: <20220426081750.029063718@linuxfoundation.org>
+Message-Id: <20220426081752.925631276@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: kuyo chang <kuyo.chang@mediatek.com>
 
-[ Upstream commit c6cc9a852f123301d5271f1484df8e961b2b64f1 ]
+[ Upstream commit 40f5aa4c5eaebfeaca4566217cb9c468e28ed682 ]
 
-When scheduling a group of events, there are constraint checks done to
-make sure all events can go in a group. Example, one of the criteria is
-that events in a group cannot use the same PMC. But platform specific
-PMU supports alternative event for some of the event codes. During
-perf_event_open(), if any event group doesn't match constraint check
-criteria, further lookup is done to find alternative event.
+The warning in cfs_rq_is_decayed() triggered:
 
-By current design, the array of alternatives events in PMU code is
-expected to be sorted by column 0. This is because in
-find_alternative() the return criteria is based on event code
-comparison. ie. "event < ev_alt[i][0])". This optimisation is there
-since find_alternative() can be called multiple times. In power10 PMU
-code, the alternative event array is not sorted properly and hence there
-is breakage in finding alternative event.
+    SCHED_WARN_ON(cfs_rq->avg.load_avg ||
+		  cfs_rq->avg.util_avg ||
+		  cfs_rq->avg.runnable_avg)
 
-To work with existing logic, fix the alternative event array to be
-sorted by column 0 for power10-pmu.c
+There exists a corner case in attach_entity_load_avg() which will
+cause load_sum to be zero while load_avg will not be.
 
-Results:
+Consider se_weight is 88761 as per the sched_prio_to_weight[] table.
+Further assume the get_pelt_divider() is 47742, this gives:
+se->avg.load_avg is 1.
 
-In case where an alternative event is not chosen when we could, events
-will be multiplexed. ie, time sliced where it could actually run
-concurrently.
+However, calculating load_sum:
 
-Example, in power10 PM_INST_CMPL_ALT(0x00002) has alternative event,
-PM_INST_CMPL(0x500fa). Without the fix, if a group of events with PMC1
-to PMC4 is used along with PM_INST_CMPL_ALT, it will be time sliced
-since all programmable PMC's are consumed already. But with the fix,
-when it picks alternative event on PMC5, all events will run
-concurrently.
+  se->avg.load_sum = div_u64(se->avg.load_avg * se->avg.load_sum, se_weight(se));
+  se->avg.load_sum = 1*47742/88761 = 0.
 
-Before:
+Then enqueue_load_avg() adds this to the cfs_rq totals:
 
- # perf stat -e r00002,r100fc,r200fa,r300fc,r400fc
+  cfs_rq->avg.load_avg += se->avg.load_avg;
+  cfs_rq->avg.load_sum += se_weight(se) * se->avg.load_sum;
 
- Performance counter stats for 'system wide':
+Resulting in load_avg being 1 with load_sum is 0, which will trigger
+the WARN.
 
-         328668935      r00002               (79.94%)
-          56501024      r100fc               (79.95%)
-          49564238      r200fa               (79.95%)
-               376      r300fc               (80.19%)
-               660      r400fc               (79.97%)
-
-       4.039150522 seconds time elapsed
-
-With the fix, since alternative event is chosen to run on PMC6, events
-will be run concurrently.
-
-After:
-
- # perf stat -e r00002,r100fc,r200fa,r300fc,r400fc
-
- Performance counter stats for 'system wide':
-
-          23596607      r00002
-           4907738      r100fc
-           2283608      r200fa
-               135      r300fc
-               248      r400fc
-
-       1.664671390 seconds time elapsed
-
-Fixes: a64e697cef23 ("powerpc/perf: power10 Performance Monitoring support")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220419114828.89843-2-atrajeev@linux.vnet.ibm.com
+Fixes: f207934fb79d ("sched/fair: Align PELT windows between cfs_rq and its se")
+Signed-off-by: kuyo chang <kuyo.chang@mediatek.com>
+[peterz: massage changelog]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Link: https://lkml.kernel.org/r/20220414090229.342-1-kuyo.chang@mediatek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/power10-pmu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/perf/power10-pmu.c b/arch/powerpc/perf/power10-pmu.c
-index 9dd75f385837..07ca62d084d9 100644
---- a/arch/powerpc/perf/power10-pmu.c
-+++ b/arch/powerpc/perf/power10-pmu.c
-@@ -91,8 +91,8 @@ extern u64 PERF_REG_EXTENDED_MASK;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index cddcf2f4f525..2f461f059278 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3776,11 +3776,11 @@ static void attach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *s
  
- /* Table of alternatives, sorted by column 0 */
- static const unsigned int power10_event_alternatives[][MAX_ALT] = {
--	{ PM_CYC_ALT,			PM_CYC },
- 	{ PM_INST_CMPL_ALT,		PM_INST_CMPL },
-+	{ PM_CYC_ALT,			PM_CYC },
- };
+ 	se->avg.runnable_sum = se->avg.runnable_avg * divider;
  
- static int power10_get_alternatives(u64 event, unsigned int flags, u64 alt[])
+-	se->avg.load_sum = divider;
+-	if (se_weight(se)) {
+-		se->avg.load_sum =
+-			div_u64(se->avg.load_avg * se->avg.load_sum, se_weight(se));
+-	}
++	se->avg.load_sum = se->avg.load_avg * divider;
++	if (se_weight(se) < se->avg.load_sum)
++		se->avg.load_sum = div_u64(se->avg.load_sum, se_weight(se));
++	else
++		se->avg.load_sum = 1;
+ 
+ 	enqueue_load_avg(cfs_rq, se);
+ 	cfs_rq->avg.util_avg += se->avg.util_avg;
 -- 
 2.35.1
 
