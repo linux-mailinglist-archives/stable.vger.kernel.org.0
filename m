@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BA0D50F568
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A0750F723
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:39:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244804AbiDZIqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:46:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56742 "EHLO
+        id S1346643AbiDZJIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346674AbiDZIpR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65A1CA18D;
-        Tue, 26 Apr 2022 01:35:19 -0700 (PDT)
+        with ESMTP id S1347929AbiDZJGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3989AB8985;
+        Tue, 26 Apr 2022 01:47:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 388F861899;
-        Tue, 26 Apr 2022 08:35:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48AD5C385A4;
-        Tue, 26 Apr 2022 08:35:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1CDCB81A2F;
+        Tue, 26 Apr 2022 08:47:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FD97C385A0;
+        Tue, 26 Apr 2022 08:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962118;
-        bh=l81742xI3Ylbe0ksZLNhZOvPHz47hhqQju7fLSizQAU=;
+        s=korg; t=1650962845;
+        bh=euVy0+SWJLyLoXQycColti30EIyblijkVeISgJbnouw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PI7ohQxsEuNsoD38030JiAzgOtMMqh5zWJ9axWO0ghJawdsrtDPJ5KhVG7cjcxC9w
-         3rRRAXxHhnmqfAUkWcVU4uUrI4qoAA7LtRzC3S4IvCOCWaz8/dCHyOleBmjdmocppg
-         WOYl0WMJEbJAAn+yBlWbVTlTlpCa2qn3rv9hMybA=
+        b=x7w6TOSmBg+c4Rf+WNxsVmeoFLmHkZTBsckfamgxgJEPE9yL+DXZNi651wRt+j6js
+         1exWUUrdZTKhTEu/5YLVozu7077CgMGpunhxEqvJ78fbALmbvMYhij9XPpxQFNZrSo
+         EI5VFgVMfx6A1PikAmLJw3sgVXzZTuO1AM8sT7uE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.10 76/86] ext4: fix use-after-free in ext4_search_dir
+        stable@vger.kernel.org,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 109/146] powerpc/perf: Fix power9 event alternatives
 Date:   Tue, 26 Apr 2022 10:21:44 +0200
-Message-Id: <20220426081743.403331226@linuxfoundation.org>
+Message-Id: <20220426081753.120091480@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,125 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-commit c186f0887fe7061a35cebef024550ec33ef8fbd8 upstream.
+[ Upstream commit 0dcad700bb2776e3886fe0a645a4bf13b1e747cd ]
 
-We got issue as follows:
-EXT4-fs (loop0): mounted filesystem without journal. Opts: ,errors=continue
-==================================================================
-BUG: KASAN: use-after-free in ext4_search_dir fs/ext4/namei.c:1394 [inline]
-BUG: KASAN: use-after-free in search_dirblock fs/ext4/namei.c:1199 [inline]
-BUG: KASAN: use-after-free in __ext4_find_entry+0xdca/0x1210 fs/ext4/namei.c:1553
-Read of size 1 at addr ffff8881317c3005 by task syz-executor117/2331
+When scheduling a group of events, there are constraint checks done to
+make sure all events can go in a group. Example, one of the criteria is
+that events in a group cannot use the same PMC. But platform specific
+PMU supports alternative event for some of the event codes. During
+perf_event_open(), if any event group doesn't match constraint check
+criteria, further lookup is done to find alternative event.
 
-CPU: 1 PID: 2331 Comm: syz-executor117 Not tainted 5.10.0+ #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-Call Trace:
- __dump_stack lib/dump_stack.c:83 [inline]
- dump_stack+0x144/0x187 lib/dump_stack.c:124
- print_address_description+0x7d/0x630 mm/kasan/report.c:387
- __kasan_report+0x132/0x190 mm/kasan/report.c:547
- kasan_report+0x47/0x60 mm/kasan/report.c:564
- ext4_search_dir fs/ext4/namei.c:1394 [inline]
- search_dirblock fs/ext4/namei.c:1199 [inline]
- __ext4_find_entry+0xdca/0x1210 fs/ext4/namei.c:1553
- ext4_lookup_entry fs/ext4/namei.c:1622 [inline]
- ext4_lookup+0xb8/0x3a0 fs/ext4/namei.c:1690
- __lookup_hash+0xc5/0x190 fs/namei.c:1451
- do_rmdir+0x19e/0x310 fs/namei.c:3760
- do_syscall_64+0x33/0x40 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x445e59
-Code: 4d c7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 1b c7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fff2277fac8 EFLAGS: 00000246 ORIG_RAX: 0000000000000054
-RAX: ffffffffffffffda RBX: 0000000000400280 RCX: 0000000000445e59
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00000000200000c0
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000002
-R10: 00007fff2277f990 R11: 0000000000000246 R12: 0000000000000000
-R13: 431bde82d7b634db R14: 0000000000000000 R15: 0000000000000000
+By current design, the array of alternatives events in PMU code is
+expected to be sorted by column 0. This is because in
+find_alternative() the return criteria is based on event code
+comparison. ie. "event < ev_alt[i][0])". This optimisation is there
+since find_alternative() can be called multiple times. In power9 PMU
+code, the alternative event array is not sorted properly and hence there
+is breakage in finding alternative events.
 
-The buggy address belongs to the page:
-page:0000000048cd3304 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x1317c3
-flags: 0x200000000000000()
-raw: 0200000000000000 ffffea0004526588 ffffea0004528088 0000000000000000
-raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+To work with existing logic, fix the alternative event array to be
+sorted by column 0 for power9-pmu.c
 
-Memory state around the buggy address:
- ffff8881317c2f00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8881317c2f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8881317c3000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-                   ^
- ffff8881317c3080: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
- ffff8881317c3100: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
-==================================================================
+Results:
 
-ext4_search_dir:
-  ...
-  de = (struct ext4_dir_entry_2 *)search_buf;
-  dlimit = search_buf + buf_size;
-  while ((char *) de < dlimit) {
-  ...
-    if ((char *) de + de->name_len <= dlimit &&
-	 ext4_match(dir, fname, de)) {
-	    ...
-    }
-  ...
-    de_len = ext4_rec_len_from_disk(de->rec_len, dir->i_sb->s_blocksize);
-    if (de_len <= 0)
-      return -1;
-    offset += de_len;
-    de = (struct ext4_dir_entry_2 *) ((char *) de + de_len);
-  }
+With alternative events, multiplexing can be avoided. That is, for
+example, in power9 PM_LD_MISS_L1 (0x3e054) has alternative event,
+PM_LD_MISS_L1_ALT (0x400f0). This is an identical event which can be
+programmed in a different PMC.
 
-Assume:
-de=0xffff8881317c2fff
-dlimit=0x0xffff8881317c3000
+Before:
 
-If read 'de->name_len' which address is 0xffff8881317c3005, obviously is
-out of range, then will trigger use-after-free.
-To solve this issue, 'dlimit' must reserve 8 bytes, as we will read
-'de->name_len' to judge if '(char *) de + de->name_len' out of range.
+ # perf stat -e r3e054,r300fc
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220324064816.1209985-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ Performance counter stats for 'system wide':
+
+           1057860      r3e054              (50.21%)
+               379      r300fc              (49.79%)
+
+       0.944329741 seconds time elapsed
+
+Since both the events are using PMC3 in this case, they are
+multiplexed here.
+
+After:
+
+ # perf stat -e r3e054,r300fc
+
+ Performance counter stats for 'system wide':
+
+           1006948      r3e054
+               182      r300fc
+
+Fixes: 91e0bd1e6251 ("powerpc/perf: Add PM_LD_MISS_L1 and PM_BR_2PATH to power9 event list")
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220419114828.89843-1-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4.h  |    4 ++++
- fs/ext4/namei.c |    4 ++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ arch/powerpc/perf/power9-pmu.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -2159,6 +2159,10 @@ static inline int ext4_forced_shutdown(s
-  * Structure of a directory entry
-  */
- #define EXT4_NAME_LEN 255
-+/*
-+ * Base length of the ext4 directory entry excluding the name length
-+ */
-+#define EXT4_BASE_DIR_LEN (sizeof(struct ext4_dir_entry_2) - EXT4_NAME_LEN)
+diff --git a/arch/powerpc/perf/power9-pmu.c b/arch/powerpc/perf/power9-pmu.c
+index 4b7c17e36100..37b2860db483 100644
+--- a/arch/powerpc/perf/power9-pmu.c
++++ b/arch/powerpc/perf/power9-pmu.c
+@@ -133,11 +133,11 @@ int p9_dd22_bl_ev[] = {
  
- struct ext4_dir_entry {
- 	__le32	inode;			/* Inode number */
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -1388,10 +1388,10 @@ int ext4_search_dir(struct buffer_head *
+ /* Table of alternatives, sorted by column 0 */
+ static const unsigned int power9_event_alternatives[][MAX_ALT] = {
+-	{ PM_INST_DISP,			PM_INST_DISP_ALT },
+-	{ PM_RUN_CYC_ALT,		PM_RUN_CYC },
+-	{ PM_RUN_INST_CMPL_ALT,		PM_RUN_INST_CMPL },
+-	{ PM_LD_MISS_L1,		PM_LD_MISS_L1_ALT },
+ 	{ PM_BR_2PATH,			PM_BR_2PATH_ALT },
++	{ PM_INST_DISP,			PM_INST_DISP_ALT },
++	{ PM_RUN_CYC_ALT,               PM_RUN_CYC },
++	{ PM_LD_MISS_L1,                PM_LD_MISS_L1_ALT },
++	{ PM_RUN_INST_CMPL_ALT,         PM_RUN_INST_CMPL },
+ };
  
- 	de = (struct ext4_dir_entry_2 *)search_buf;
- 	dlimit = search_buf + buf_size;
--	while ((char *) de < dlimit) {
-+	while ((char *) de < dlimit - EXT4_BASE_DIR_LEN) {
- 		/* this code is executed quadratically often */
- 		/* do minimal checking `by hand' */
--		if ((char *) de + de->name_len <= dlimit &&
-+		if (de->name + de->name_len <= dlimit &&
- 		    ext4_match(dir, fname, de)) {
- 			/* found a match - just to be sure, do
- 			 * a full check */
+ static int power9_get_alternatives(u64 event, unsigned int flags, u64 alt[])
+-- 
+2.35.1
+
 
 
