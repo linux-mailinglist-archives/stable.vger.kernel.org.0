@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C90510879
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:06:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9350B510877
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:06:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353811AbiDZTFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:05:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41778 "EHLO
+        id S1353781AbiDZTFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:05:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353770AbiDZTFk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CD2419981E;
-        Tue, 26 Apr 2022 12:02:25 -0700 (PDT)
+        with ESMTP id S1352919AbiDZTFj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FEDD1569F6;
+        Tue, 26 Apr 2022 12:02:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF014B82252;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCD94619BD;
         Tue, 26 Apr 2022 19:02:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DD5CC385A0;
-        Tue, 26 Apr 2022 19:02:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D870C385AA;
+        Tue, 26 Apr 2022 19:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650999742;
-        bh=9NY7USzhuSlp779ziJCCibr/+WvkaizSECqK6XQIv0w=;
+        s=k20201202; t=1650999743;
+        bh=CNOrExejcAtrT2uI/EvTsxM/o0aOOv5V/6eM/dQIZFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UILMLzfXJhWbX3YQIfNVPVEMHKMJgp91vhXSYXm/7qnsu7+9XoGB9wEVHFwtaqnyx
-         eWUcxR79bdaBRTyONPkVy1E3z097XRzWecCamMIZ9GwKPHynzGTVG9NZ/uhZW9QbuJ
-         PhcRMJ58mRvJTDjoWKik6ZMrH4LmCv3p9lRWtsTCfqmMOXzwcpMqieS9rESC4KdZDR
-         ShqCPQuS3lZqjMtr47x7XhHbEPntjKRcpouQobllZMqp0H6hGDPjE+ZBdArYKovLxo
-         KpPXL3M8jG58IY0ludU/Xzl6/Cxd7h4maARMhQAKd4VS8lPW3G/s9q+UnZpg5WGnG2
-         LH8M3noefuNpA==
+        b=u9cGiYiZwBChnkJ3kOX/SI/zzzEVW15bkVo2Aod4gUlDgLioT+ttIsJbrmhsjMzRY
+         QKRZGJe0NLBMCY4gRpSpt+AgHZkee7sUNPTXWPcnc7J0klLpEK2IOu4uZq3Aa42Riz
+         gQ/h3nO2cEQqCIIoBljHyP+vxajmJ47bUjD2F0reUIwToFVa9f1VzvABa/1oY7oy2f
+         X5H8DyxSCrgVAG4ZgfDNtv1usbIn4DEyUiZTKriYKrEKJXIkTmgGguhUewwh6/6VhH
+         bbu9gtNoC7kYVVkrMPj9zyyRBEPFgsG/xSmRuvwH785WyoxbrlS9pTJ8f6wMezQCnf
+         vg2AqAxAFGt1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
-        hyc.lee@gmail.com, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 06/15] ksmbd: set fixed sector size to FS_SECTOR_SIZE_INFORMATION
-Date:   Tue, 26 Apr 2022 15:02:05 -0400
-Message-Id: <20220426190216.2351413-6-sashal@kernel.org>
+Cc:     Peilin Ye <peilin.ye@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, yoshfuji@linux-ipv6.org,
+        dsahern@kernel.org, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 07/15] ip6_gre: Avoid updating tunnel->tun_hlen in __gre6_xmit()
+Date:   Tue, 26 Apr 2022 15:02:06 -0400
+Message-Id: <20220426190216.2351413-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220426190216.2351413-1-sashal@kernel.org>
 References: <20220426190216.2351413-1-sashal@kernel.org>
@@ -56,64 +58,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit 02655a70b7cc0f534531ee65fa72692f4d31a944 ]
+[ Upstream commit f40c064e933d7787ca7411b699504d7a2664c1f5 ]
 
-Currently ksmbd is using ->f_bsize from vfs_statfs() as sector size.
-If fat/exfat is a local share, ->f_bsize is a cluster size that is too
-large to be used as a sector size. Sector sizes larger than 4K cause
-problem occurs when mounting an iso file through windows client.
+Do not update tunnel->tun_hlen in data plane code.  Use a local variable
+instead, just like "tunnel_hlen" in net/ipv4/ip_gre.c:gre_fb_xmit().
 
-The error message can be obtained using Mount-DiskImage command,
- the error is:
-"Mount-DiskImage : The sector size of the physical disk on which the
-virtual disk resides is not supported."
-
-This patch reports fixed 4KB sector size if ->s_blocksize is bigger
-than 4KB.
-
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Co-developed-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ net/ipv6/ip6_gre.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index a9fdb47c2791..1ed3046dd5b3 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -11,6 +11,7 @@
- #include <linux/statfs.h>
- #include <linux/ethtool.h>
- #include <linux/falloc.h>
-+#include <linux/mount.h>
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 466a5610e3ca..288720838329 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -743,6 +743,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		struct ip_tunnel_info *tun_info;
+ 		const struct ip_tunnel_key *key;
+ 		__be16 flags;
++		int tun_hlen;
  
- #include "glob.h"
- #include "smb2pdu.h"
-@@ -4997,15 +4998,17 @@ static int smb2_get_info_filesystem(struct ksmbd_work *work,
- 	case FS_SECTOR_SIZE_INFORMATION:
- 	{
- 		struct smb3_fs_ss_info *info;
-+		unsigned int sector_size =
-+			min_t(unsigned int, path.mnt->mnt_sb->s_blocksize, 4096);
+ 		tun_info = skb_tunnel_info_txcheck(skb);
+ 		if (IS_ERR(tun_info) ||
+@@ -760,9 +761,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		dsfield = key->tos;
+ 		flags = key->tun_flags &
+ 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
+-		tunnel->tun_hlen = gre_calc_hlen(flags);
++		tun_hlen = gre_calc_hlen(flags);
  
- 		info = (struct smb3_fs_ss_info *)(rsp->Buffer);
- 
--		info->LogicalBytesPerSector = cpu_to_le32(stfs.f_bsize);
-+		info->LogicalBytesPerSector = cpu_to_le32(sector_size);
- 		info->PhysicalBytesPerSectorForAtomicity =
--				cpu_to_le32(stfs.f_bsize);
--		info->PhysicalBytesPerSectorForPerf = cpu_to_le32(stfs.f_bsize);
-+				cpu_to_le32(sector_size);
-+		info->PhysicalBytesPerSectorForPerf = cpu_to_le32(sector_size);
- 		info->FSEffPhysicalBytesPerSectorForAtomicity =
--				cpu_to_le32(stfs.f_bsize);
-+				cpu_to_le32(sector_size);
- 		info->Flags = cpu_to_le32(SSINFO_FLAGS_ALIGNED_DEVICE |
- 				    SSINFO_FLAGS_PARTITION_ALIGNED_ON_DEVICE);
- 		info->ByteOffsetForSectorAlignment = 0;
+-		gre_build_header(skb, tunnel->tun_hlen,
++		gre_build_header(skb, tun_hlen,
+ 				 flags, protocol,
+ 				 tunnel_id_to_key32(tun_info->key.tun_id),
+ 				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
 -- 
 2.35.1
 
