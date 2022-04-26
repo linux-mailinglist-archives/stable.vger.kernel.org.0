@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7554150F738
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:39:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 995D550F649
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244421AbiDZJLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:11:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38456 "EHLO
+        id S1345914AbiDZIyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:54:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346502AbiDZJIX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:08:23 -0400
+        with ESMTP id S1347667AbiDZIvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2ED13FB8;
-        Tue, 26 Apr 2022 01:49:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 452CC13FB8;
+        Tue, 26 Apr 2022 01:40:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1A65B81D09;
-        Tue, 26 Apr 2022 08:49:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42404C385BE;
-        Tue, 26 Apr 2022 08:49:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5362B81D1B;
+        Tue, 26 Apr 2022 08:40:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FB03C385B0;
+        Tue, 26 Apr 2022 08:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962951;
-        bh=3cOjFrytvu+eMwtQ4tbOjqFmZep/na2RTLi1ivZ+4d4=;
+        s=korg; t=1650962436;
+        bh=ZECTkgl81n78hZ7uxN4JX8xL/27fYo6cIxZg+Du304Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5TEQ/jU720560Mnex5Ld1dO38H7ynSa0WZijPU6b4tnGV1cfbBxpAR9spWMqHBHP
-         qSsklAV1mAcfRziBZ7tjO3LJqUrZrQQzNxjj+xZXds0/PVsWlU+BFl25CyfuZFlrcn
-         oEfJVVI64NNAWcmXC6XozZM/blEME0cPUKSfQNYU=
+        b=ayPLPbVF0pCMlmpa666CXXaqybDsg3DX6C+uwjLUO1E/HT4VtAYA8tf6AS42gWt74
+         nrhum6OAeOI1nY1vnYUHDTchDEKfdZxtKWhsO6r1fFGNS8OEl1RIqFKsGTttJLQ0Lk
+         c+2q1qh8GZEpypv+KL5jXsSZgqvU1/GuVep1QLws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhipeng Xie <xiezhipeng1@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        German Gomez <german.gomez@arm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        James Clark <james.clark@arm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 103/146] perf/core: Fix perf_mmap fail when CONFIG_PERF_USE_VMALLOC enabled
+Subject: [PATCH 5.15 097/124] perf script: Always allow field data_src for auxtrace
 Date:   Tue, 26 Apr 2022 10:21:38 +0200
-Message-Id: <20220426081752.954011534@linuxfoundation.org>
+Message-Id: <20220426081750.057351677@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +62,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhipeng Xie <xiezhipeng1@huawei.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit 60490e7966659b26d74bf1fa4aa8693d9a94ca88 ]
+[ Upstream commit c6d8df01064333dcf140eda996abdb60a60e24b3 ]
 
-This problem can be reproduced with CONFIG_PERF_USE_VMALLOC enabled on
-both x86_64 and aarch64 arch when using sysdig -B(using ebpf)[1].
-sysdig -B works fine after rebuilding the kernel with
-CONFIG_PERF_USE_VMALLOC disabled.
+If use command 'perf script -F,+data_src' to dump memory samples with
+Arm SPE trace data, it reports error:
 
-I tracked it down to the if condition event->rb->nr_pages != nr_pages
-in perf_mmap is true when CONFIG_PERF_USE_VMALLOC is enabled where
-event->rb->nr_pages = 1 and nr_pages = 2048 resulting perf_mmap to
-return -EINVAL. This is because when CONFIG_PERF_USE_VMALLOC is
-enabled, rb->nr_pages is always equal to 1.
+  # perf script -F,+data_src
+  Samples for 'dummy:u' event do not have DATA_SRC attribute set. Cannot print 'data_src' field.
 
-Arch with CONFIG_PERF_USE_VMALLOC enabled by default:
-	arc/arm/csky/mips/sh/sparc/xtensa
+This is because the 'dummy:u' event is absent DATA_SRC bit in its sample
+type, so if a file contains AUX area tracing data then always allow
+field 'data_src' to be selected as an option for perf script.
 
-Arch with CONFIG_PERF_USE_VMALLOC disabled by default:
-	x86_64/aarch64/...
-
-Fix this problem by using data_page_nr()
-
-[1] https://github.com/draios/sysdig
-
-Fixes: 906010b2134e ("perf_event: Provide vmalloc() based mmap() backing")
-Signed-off-by: Zhipeng Xie <xiezhipeng1@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20220209145417.6495-1-xiezhipeng1@huawei.com
+Fixes: e55ed3423c1bb29f ("perf arm-spe: Synthesize memory event")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: German Gomez <german.gomez@arm.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: James Clark <james.clark@arm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220417114837.839896-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c        | 2 +-
- kernel/events/internal.h    | 5 +++++
- kernel/events/ring_buffer.c | 5 -----
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ tools/perf/builtin-script.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 0ee9ffceb976..baa0fe350246 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6352,7 +6352,7 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
- again:
- 	mutex_lock(&event->mmap_mutex);
- 	if (event->rb) {
--		if (event->rb->nr_pages != nr_pages) {
-+		if (data_page_nr(event->rb) != nr_pages) {
- 			ret = -EINVAL;
- 			goto unlock;
- 		}
-diff --git a/kernel/events/internal.h b/kernel/events/internal.h
-index 082832738c8f..5150d5f84c03 100644
---- a/kernel/events/internal.h
-+++ b/kernel/events/internal.h
-@@ -116,6 +116,11 @@ static inline int page_order(struct perf_buffer *rb)
- }
- #endif
+diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
+index 18b56256bb6f..cb3d81adf5ca 100644
+--- a/tools/perf/builtin-script.c
++++ b/tools/perf/builtin-script.c
+@@ -455,7 +455,7 @@ static int evsel__check_attr(struct evsel *evsel, struct perf_session *session)
+ 		return -EINVAL;
  
-+static inline int data_page_nr(struct perf_buffer *rb)
-+{
-+	return rb->nr_pages << page_order(rb);
-+}
-+
- static inline unsigned long perf_data_size(struct perf_buffer *rb)
- {
- 	return rb->nr_pages << (PAGE_SHIFT + page_order(rb));
-diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
-index 52868716ec35..fb35b926024c 100644
---- a/kernel/events/ring_buffer.c
-+++ b/kernel/events/ring_buffer.c
-@@ -859,11 +859,6 @@ void rb_free(struct perf_buffer *rb)
- }
+ 	if (PRINT_FIELD(DATA_SRC) &&
+-	    evsel__check_stype(evsel, PERF_SAMPLE_DATA_SRC, "DATA_SRC", PERF_OUTPUT_DATA_SRC))
++	    evsel__do_check_stype(evsel, PERF_SAMPLE_DATA_SRC, "DATA_SRC", PERF_OUTPUT_DATA_SRC, allow_user_set))
+ 		return -EINVAL;
  
- #else
--static int data_page_nr(struct perf_buffer *rb)
--{
--	return rb->nr_pages << page_order(rb);
--}
--
- static struct page *
- __perf_mmap_to_page(struct perf_buffer *rb, unsigned long pgoff)
- {
+ 	if (PRINT_FIELD(WEIGHT) &&
 -- 
 2.35.1
 
