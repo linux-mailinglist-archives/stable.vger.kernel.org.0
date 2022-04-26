@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5BB950F6E6
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48BCC50F6DD
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238024AbiDZJBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:01:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
+        id S239485AbiDZJBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:01:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346049AbiDZI7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:59:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 354513AA5D;
-        Tue, 26 Apr 2022 01:43:01 -0700 (PDT)
+        with ESMTP id S1345714AbiDZI5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6678B6425;
+        Tue, 26 Apr 2022 01:42:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38EF761338;
-        Tue, 26 Apr 2022 08:43:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4060EC385AE;
-        Tue, 26 Apr 2022 08:42:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05BFE604F5;
+        Tue, 26 Apr 2022 08:42:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14D20C385AC;
+        Tue, 26 Apr 2022 08:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962579;
-        bh=gylZe0XJUpkh0pl4BBjl+oWL65orNRhQm0YgsYC6tBQ=;
+        s=korg; t=1650962550;
+        bh=uM7454b4WHtaSh+zB7AnS37DDl6s9mS+Cm6hrktUsBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZU4hwe/1n8xCTQsNy1J7nZe8WNzp9dUx59HIeVbdIIpao04U83RCpBYOi0/qs+YY
-         /N9ms+/rTSYxuUwWt1YMtcqv20x8xeu6s3g4WuYt7004H8Kq6hXJkXHwgJTbYFsYAb
-         mB3VfUoKpxB8bU0aLDiG/FQTM1Aycoh5YlLuDEnM=
+        b=uJeRbOdfBgpvHydIPTYhNlU8VN1PtKv0fqh/ZyusYZDg/ejaIvK2v8zz1ghX7WHxf
+         BKzKE2Ke7Dd2b1CtIhUDNJdKeuGnhCgNKkxj1b6LxOwmqDC4obZGmHhU3bWFGwNTVC
+         fe/LfVl8m9EyiFVEnHMfiJImUreApJbRLnPjhq/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Avogadro <mavoga@gmail.com>,
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 009/146] ALSA: usb-audio: add mapping for MSI MAG X570S Torpedo MAX.
-Date:   Tue, 26 Apr 2022 10:20:04 +0200
-Message-Id: <20220426081750.325268107@linuxfoundation.org>
+Subject: [PATCH 5.17 010/146] ALSA: hda/realtek: Add quirk for Clevo NP70PNP
+Date:   Tue, 26 Apr 2022 10:20:05 +0200
+Message-Id: <20220426081750.353875412@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -52,37 +52,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Avogadro <mavoga@gmail.com>
+From: Tim Crawford <tcrawford@system76.com>
 
-commit 4ddef9c4d70aae0c9029bdec7c3f7f1c1c51ff8c upstream.
+commit 86222af07abf1f5f07a5873cc399c29ab8a9b8b8 upstream.
 
-The USB audio device 0db0:a073 based on the Realtek ALC4080 chipset
-exposes all playback volume controls as "PCM". This makes
-distinguishing the individual functions hard.
-The mapping already adopted for device 0db0:419c based on the same
-chipset fixes the issue, apply it for this device too.
+Fixes headset detection on Clevo NP70PNP.
 
-Signed-off-by: Maurizio Avogadro <mavoga@gmail.com>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Yl1ykPaGgsFf3SnW@ryzen
+Link: https://lore.kernel.org/r/20220421170412.3697-1-tcrawford@system76.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer_maps.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -599,6 +599,10 @@ static const struct usbmix_ctl_map usbmi
- 		.id = USB_ID(0x0db0, 0x419c),
- 		.map = msi_mpg_x570s_carbon_max_wifi_alc4080_map,
- 	},
-+	{	/* MSI MAG X570S Torpedo Max */
-+		.id = USB_ID(0x0db0, 0xa073),
-+		.map = msi_mpg_x570s_carbon_max_wifi_alc4080_map,
-+	},
- 	{	/* MSI TRX40 */
- 		.id = USB_ID(0x0db0, 0x543d),
- 		.map = trx40_mobo_map,
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9116,6 +9116,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[57][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x866d, "Clevo NP5[05]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1558, 0x867c, "Clevo NP7[01]PNP", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x867d, "Clevo NP7[01]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME),
 
 
