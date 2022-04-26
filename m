@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84E8A50FD05
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 14:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9E5D50FD17
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 14:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234942AbiDZMdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 08:33:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45612 "EHLO
+        id S1349979AbiDZMgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 08:36:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346613AbiDZMdT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 08:33:19 -0400
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D48C20F56
-        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 05:30:11 -0700 (PDT)
-Received: by mail-ed1-x534.google.com with SMTP id z99so22127710ede.5
-        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 05:30:11 -0700 (PDT)
+        with ESMTP id S1349964AbiDZMgm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 08:36:42 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7DED117D
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 05:33:31 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id w5-20020a17090aaf8500b001d74c754128so2135094pjq.0
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 05:33:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=aIwyEe6pw8BoST7kzB3chnuVOcOnUCeAaOG42SeMGJo=;
-        b=FER0zH/anDThkLCd4JUSyAUk33bOhJ5RWhoEdNcWPeQtbAJjB+wZCnpxsRV3tE6QAr
-         fYbj3n3bsQLmNjQ+J+8ySGpX3Ef9WxBIk8NaM8/ZsL61gY/zn61bHipu9PkReCiy4OCB
-         rUJqE+nG6xfGosHH47zkZCgChZlDXeZwLSFlA8p6Ua8nKvRap0j0PxU48OCDLn4CO9bJ
-         tXpkiDxjRiN8Ca7HkmuN9qE+cKOlJ4G0P0/gFO/Sxi6qQtkIPxf+vKZ0ixQYXk7tRyUR
-         //EGEyt15Z+nogETq0zAnVQyQAFVysMJ40wtR1waQaw3KYbAEA8wBLIylcRmExo3UiTe
-         /hTQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=W7uerVL0KAYwBxZQoXfBVu99Yrmtdh7tYW+bdVwXY1Q=;
+        b=xkUeswpqCvfq1SSQCh3uLNGuLVMEpHJPYCV26VYGcSvNlv3t2WVvKesuXgK1DxrN4H
+         xzKygNIWO0XPbhUsv2SlRhPmvPx5cxJ1X+2Bj9Y024jaquGBH5e+aRCZ7P1wnSgPtdfT
+         B3BHAOBZdEejkDC4vQztr9bAIaS6tAWrpAFRWaK6UltecfUF1EVEHJyKJSQXWuK5t2Ks
+         qKqal948567Dtkdqk0cVet9WGfYcuhTiZALkzeHnTE6lceiMNDolmUVFgVSHKRYK6Cuw
+         3ZiNr2aa6v15eixOqNhQu/ABKeZebWxg5s2sJ4jcHArxq7DLvyan1ZWoxEPqzGvLjYhH
+         IFKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=aIwyEe6pw8BoST7kzB3chnuVOcOnUCeAaOG42SeMGJo=;
-        b=jqiGTbx13vgeCfFeP082FmxASwU+eQcSBrjCyFlTDmub5RdM1njIoQbkllWoHi35aQ
-         vYLSnj/wYy/ZVmvZy5vJZ0AcgmU8q+O7suOeuTamcqVKEHituyJ32lY6JIlexAKfu0fa
-         md6eN2vFz+TakWcp2wVlrJBLxbBcE3qquGqJtyYSF2xfkueGpiu6J5+UXAWSJQQk5au3
-         jPI6QJDlbCKrENCV4ogD3mrPggkDekcKEWSMutoTi9gW6asMKjetpAAt8RTzPYtZC32p
-         UNRPCFspTNO7D5Xv8wdMJrCEq41bGLGC+2QP5QH5Iu0yz5DQiXWFX5eLwNHKuOuR92W3
-         g5OQ==
-X-Gm-Message-State: AOAM531vXaqe5V0VYuzAVh6m7Mjm2Ari6Lx0lTlNMlYtC2DvWtSJH9Q0
-        fYO57zUK3wtR3GI3NHJEvLkndSTv3ReRyPI9n4qU
-X-Google-Smtp-Source: ABdhPJw6KD31osaYUI1RDGU2+2glczm0r6BUqyAw7SsLOG1AKRdy+Bj9NQPoKU5PZOnHtW/Ud9hB8eygTqRLHWvuDbc=
-X-Received: by 2002:a05:6402:51d2:b0:424:536:94dd with SMTP id
- r18-20020a05640251d200b00424053694ddmr24575637edd.191.1650976209877; Tue, 26
- Apr 2022 05:30:09 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=W7uerVL0KAYwBxZQoXfBVu99Yrmtdh7tYW+bdVwXY1Q=;
+        b=F0i4R4RdEGxgz32m0JO+gTqOAboPr0lQfrYriZZTae1LRzkMjFBn/Mybw0N52oROUy
+         o+2FsQ2oypKELDpVySY6VkE7Nlz3V/PSQe03NLP3ltqHlLXVEGdmZeOmPfBCenrjYghp
+         RLhE+zQLCJk7J3ptWxmHlJwdn7kWjJSdOUuaLD4UIVZzKuMWZnzEiBcdBlrZ59fQFR3v
+         oBfNQ1QS5blpajfBpKSIKHxQ6ZdAtvPjswb9QbKvzrcWM53bEz0qu7nuOpiuvWUoV8If
+         Mdzg44NIBuT6IpZy9HwW56CpImnBgQeSqcG79RRLMpSoCOX00JmNz1RVyz3qvPsUDY7M
+         da8A==
+X-Gm-Message-State: AOAM5311HPux7pB66RMkIpdkVUR/wkqXKGlhkEgnhAWB9eiU5BQ2o4cm
+        aABT9Ovi+pfU+m5bbjg8nJg0+Vxkra5wQxrTFsI=
+X-Google-Smtp-Source: ABdhPJz97J9qwFM9qVWeXO/OhwPaNvSTppLHoQVunoubTH7uZ4Phe3/AxvI2KQF1i1I/ED4aDHAVSg==
+X-Received: by 2002:a17:903:22c1:b0:15d:1f54:2246 with SMTP id y1-20020a17090322c100b0015d1f542246mr7580351plg.159.1650976410598;
+        Tue, 26 Apr 2022 05:33:30 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l15-20020a62be0f000000b005059cc9cc34sm15480569pff.92.2022.04.26.05.33.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Apr 2022 05:33:30 -0700 (PDT)
+Message-ID: <6267e69a.1c69fb81.7cf6e.4697@mx.google.com>
+Date:   Tue, 26 Apr 2022 05:33:30 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220426073656.229-1-xieyongji@bytedance.com> <YmeoSuMfsdVxuGlf@kroah.com>
- <CACycT3sLgihkgX5cB6GxDehaTsPn9rqhtWF7G_=J=__oTopJZw@mail.gmail.com> <YmfIv2YuARnPe97k@kroah.com>
-In-Reply-To: <YmfIv2YuARnPe97k@kroah.com>
-From:   Yongji Xie <xieyongji@bytedance.com>
-Date:   Tue, 26 Apr 2022 20:30:38 +0800
-Message-ID: <CACycT3sq6WM1uCa+ix79AwTJHaEOhkLycwkZOhqPhABZ4xa2AA@mail.gmail.com>
-Subject: Re: [PATCH v2] vduse: Fix NULL pointer dereference on sysfs access
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.35-124-g4ee77b595524f
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+Subject: stable-rc/queue/5.15 baseline: 113 runs,
+ 3 regressions (v5.15.35-124-g4ee77b595524f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
@@ -70,128 +70,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 6:26 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Apr 26, 2022 at 05:41:15PM +0800, Yongji Xie wrote:
-> > On Tue, Apr 26, 2022 at 4:07 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Tue, Apr 26, 2022 at 03:36:56PM +0800, Xie Yongji wrote:
-> > > > The control device has no drvdata. So we will get a
-> > > > NULL pointer dereference when accessing control
-> > > > device's msg_timeout attribute via sysfs:
-> > > >
-> > > > [ 132.841881][ T3644] BUG: kernel NULL pointer dereference, address: 00000000000000f8
-> > > > [ 132.850619][ T3644] RIP: 0010:msg_timeout_show (drivers/vdpa/vdpa_user/vduse_dev.c:1271)
-> > > > [ 132.869447][ T3644] dev_attr_show (drivers/base/core.c:2094)
-> > > > [ 132.870215][ T3644] sysfs_kf_seq_show (fs/sysfs/file.c:59)
-> > > > [ 132.871164][ T3644] ? device_remove_bin_file (drivers/base/core.c:2088)
-> > > > [ 132.872082][ T3644] kernfs_seq_show (fs/kernfs/file.c:164)
-> > > > [ 132.872838][ T3644] seq_read_iter (fs/seq_file.c:230)
-> > > > [ 132.873578][ T3644] ? __vmalloc_area_node (mm/vmalloc.c:3041)
-> > > > [ 132.874532][ T3644] kernfs_fop_read_iter (fs/kernfs/file.c:238)
-> > > > [ 132.875513][ T3644] __kernel_read (fs/read_write.c:440 (discriminator 1))
-> > > > [ 132.876319][ T3644] kernel_read (fs/read_write.c:459)
-> > > > [ 132.877129][ T3644] kernel_read_file (fs/kernel_read_file.c:94)
-> > > > [ 132.877978][ T3644] kernel_read_file_from_fd (include/linux/file.h:45 fs/kernel_read_file.c:186)
-> > > > [ 132.879019][ T3644] __do_sys_finit_module (kernel/module.c:4207)
-> > > > [ 132.879930][ T3644] __ia32_sys_finit_module (kernel/module.c:4189)
-> > > > [ 132.880930][ T3644] do_int80_syscall_32 (arch/x86/entry/common.c:112 arch/x86/entry/common.c:132)
-> > > > [ 132.881847][ T3644] entry_INT80_compat (arch/x86/entry/entry_64_compat.S:419)
-> > > >
-> > > > To fix it, don't create the unneeded attribute for
-> > > > control device anymore.
-> > > >
-> > > > Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-> > > > Reported-by: kernel test robot <oliver.sang@intel.com>
-> > > > Cc: stable@vger.kernel.org
-> > > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > > ---
-> > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 7 +++----
-> > > >  1 file changed, 3 insertions(+), 4 deletions(-)
-> > > >
-> > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > index f85d1a08ed87..160e40d03084 100644
-> > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > @@ -1344,9 +1344,9 @@ static int vduse_create_dev(struct vduse_dev_config *config,
-> > > >
-> > > >       dev->minor = ret;
-> > > >       dev->msg_timeout = VDUSE_MSG_DEFAULT_TIMEOUT;
-> > > > -     dev->dev = device_create(vduse_class, NULL,
-> > > > -                              MKDEV(MAJOR(vduse_major), dev->minor),
-> > > > -                              dev, "%s", config->name);
-> > > > +     dev->dev = device_create_with_groups(vduse_class, NULL,
-> > > > +                             MKDEV(MAJOR(vduse_major), dev->minor),
-> > > > +                             dev, vduse_dev_groups, "%s", config->name);
-> > > >       if (IS_ERR(dev->dev)) {
-> > > >               ret = PTR_ERR(dev->dev);
-> > > >               goto err_dev;
-> > > > @@ -1595,7 +1595,6 @@ static int vduse_init(void)
-> > > >               return PTR_ERR(vduse_class);
-> > > >
-> > > >       vduse_class->devnode = vduse_devnode;
-> > > > -     vduse_class->dev_groups = vduse_dev_groups;
-> > >
-> > > Ok, this looks much better.
-> > >
-> > > But wow, there are some problems in this code overall.  I see a number
-> > > of flat-out-wrong things in there that should have been caught by code
-> > > reviews.  Some examples:
-> > >         - empty release() callbacks.  That is a huge sign the code
-> > >           design is wrong and broken and you are just trying to make the
-> > >           driver core quiet for some reason.  The documentation in the
-> > >           kernel explains why this is not ok.
-> >
-> > Sorry, I failed to find the documentation. Do you mean we should
-> > remove the empty release() callbacks?
->
-> Yes, why are they needed?
->
-> (hint, retorical question, you added them to remove the driver core
-> warning when the device is removed, which means someone added them just
-> because they thought that their code could ignore the hints that the
-> driver core was telling them.)
->
+stable-rc/queue/5.15 baseline: 113 runs, 3 regressions (v5.15.35-124-g4ee77=
+b595524f)
 
-OK, I see.
+Regressions Summary
+-------------------
 
-> Please properly free the memory here.
->
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+at91sam9g20ek    | arm   | lab-broonie   | gcc-10   | multi_v5_defconfig   =
+      | 1          =
 
-One question is how to deal with the case if the device/kobject is
-defined as a static variable. We should not need to free any resources
-in this case. Or do you suggest just using dynamic allocation here?
+beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
+      | 1          =
 
-> > >         - __module_get(THIS_MODULE);  That's racy, buggy, and doesn't do
-> > >           what you think it does.  Please never ever ever do that.  It
-> > >           too is a sign of a broken design.
-> >
-> > I don't find a good way to remove it. We have to make sure the module
-> > can't be removed until all vduse devices are destroyed.
->
-> That will happen automatically when the module is removed.
->
-> > And I think __module_get(THIS_MODULE) should be safe in our case since
-> > we always call it when we have a reference from open().
->
-> What happened if someone removed the module _right before_ this was
-> called?  You can not grab your own reference count safely.
->
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-I don't get you here. We should already grab a reference count from
-open() before calling this. So it should fail if someone tries to
-remove the module at this time.
 
-> Please just remove it, it's not needed and is broken.  There should not
-> be any reason that the module can not be unloaded, UNLESS a file handle
-> is open, and you properly handle that already.
->
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.35-124-g4ee77b595524f/plan/baseline/
 
-But in our case, I think we should prevent unloading the module If we
-already created some vduse devices via /dev/vduse/control (note that
-the control device's file handle could be closed after device
-creation). Otherwise, we might get some crashes when accessing those
-created vduse devices.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.35-124-g4ee77b595524f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4ee77b595524f58e6a4b86eb132143554655c62c =
 
-Thanks,
-Yongji
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+at91sam9g20ek    | arm   | lab-broonie   | gcc-10   | multi_v5_defconfig   =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6267b4096673b15433ff946b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v5_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
+124-g4ee77b595524f/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91s=
+am9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
+124-g4ee77b595524f/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91s=
+am9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220422.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6267b4096673b15433ff9=
+46c
+        new failure (last pass: v5.15.35-119-g4fff198d225d) =
+
+ =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6267b3e594e67515bfff946a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
+124-g4ee77b595524f/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-bea=
+gle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
+124-g4ee77b595524f/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-bea=
+gle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220422.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6267b3e594e67515bfff9=
+46b
+        failing since 26 days (last pass: v5.15.31-2-g57d4301e22c2, first f=
+ail: v5.15.31-3-g4ae45332eb9c) =
+
+ =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6267b6f66bab632e8eff9471
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
+124-g4ee77b595524f/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.35-=
+124-g4ee77b595524f/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
+seline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220422.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6267b6f66bab632e8eff9497
+        failing since 49 days (last pass: v5.15.26-42-gc89c0807b943, first =
+fail: v5.15.26-257-g2b9a22cd5eb8)
+
+    2022-04-26T09:09:53.396077  <8>[   32.763612] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-04-26T09:09:54.419611  /lava-6180838/1/../bin/lava-test-case
+    2022-04-26T09:09:54.430966  <8>[   33.798465] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
