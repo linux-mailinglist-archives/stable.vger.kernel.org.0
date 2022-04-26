@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F23150F84E
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCE550F52D
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346205AbiDZJHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43432 "EHLO
+        id S1345574AbiDZInd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:43:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346816AbiDZJFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6CC8EA1D9;
-        Tue, 26 Apr 2022 01:43:55 -0700 (PDT)
+        with ESMTP id S1345583AbiDZIl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:41:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E01159787;
+        Tue, 26 Apr 2022 01:33:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0ADAEB81CF2;
-        Tue, 26 Apr 2022 08:43:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CEE5C385AC;
-        Tue, 26 Apr 2022 08:43:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67D6B6185D;
+        Tue, 26 Apr 2022 08:33:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FA2BC385A0;
+        Tue, 26 Apr 2022 08:33:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962632;
-        bh=PTHyB/JAPnr23g96J2lvylkfzjNZfe7Uuy9eBoGUcoc=;
+        s=korg; t=1650961995;
+        bh=/TMUWetx3+P/4PGL0bH92LjO0vr668Ype3Zm2jhJ/4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUBpH7kkvGTW/xKqeOGNq/Uiqx9Uyf/jeIVHE/EoSThvshZrNGLSq0qNb1nnQDtwu
-         gUFLSXMpt0Uon82/bvGbqdxzXYekQDkEecIG8ckUxsBXoX9ym90FH3fOVkAa8A/c8c
-         i7aPAEfCBAVSqxZHWGa7xR2WnB5xHk55HkN/Dq6s=
+        b=brjzEDdeaySDRgMOpVrKt8uamF+zIv0w8PvypiuCVJ4vmRwo/f+oP5qwxMgHfnkaO
+         9Gcy39CjgpJARE5kYQ2pehOUsbfzr1gzjPJSkZLR3ScPfhIx9mnPeLeoSNyM1REiNG
+         LkuRlI8dvkfqaWAamOxsPg3L2GzYI7nKehVT+RbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 037/146] net/sched: cls_u32: fix possible leak in u32_init_knode()
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 04/86] perf tools: Fix segfault accessing sample_id xyarray
 Date:   Tue, 26 Apr 2022 10:20:32 +0200
-Message-Id: <20220426081751.112036028@linuxfoundation.org>
+Message-Id: <20220426081741.332847179@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit ec5b0f605b105457f257f2870acad4a5d463984b ]
+commit a668cc07f990d2ed19424d5c1a529521a9d1cee1 upstream.
 
-While investigating a related syzbot report,
-I found that whenever call to tcf_exts_init()
-from u32_init_knode() is failing, we end up
-with an elevated refcount on ht->refcnt
+perf_evsel::sample_id is an xyarray which can cause a segfault when
+accessed beyond its size. e.g.
 
-To avoid that, only increase the refcount after
-all possible errors have been evaluated.
+  # perf record -e intel_pt// -C 1 sleep 1
+  Segmentation fault (core dumped)
+  #
 
-Fixes: b9a24bb76bf6 ("net_sched: properly handle failure case of tcf_exts_init()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+That is happening because a dummy event is opened to capture text poke
+events accross all CPUs, however the mmap logic is allocating according
+to the number of user_requested_cpus.
+
+In general, perf sometimes uses the evsel cpus to open events, and
+sometimes the evlist user_requested_cpus. However, it is not necessary
+to determine which case is which because the opened event file
+descriptors are also in an xyarray, the size of whch can be used
+to correctly allocate the size of the sample_id xyarray, because there
+is one ID per file descriptor.
+
+Note, in the affected code path, perf_evsel fd array is subsequently
+used to get the file descriptor for the mmap, so it makes sense for the
+xyarrays to be the same size there.
+
+Fixes: d1a177595b3a824c ("libperf: Adopt perf_evlist__mmap()/munmap() from tools/perf")
+Fixes: 246eba8e9041c477 ("perf tools: Add support for PERF_RECORD_TEXT_POKE")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: stable@vger.kernel.org # 5.5+
+Link: https://lore.kernel.org/r/20220413114232.26914-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_u32.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/lib/perf/evlist.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/sched/cls_u32.c b/net/sched/cls_u32.c
-index fcba6c43ba50..4d27300c287c 100644
---- a/net/sched/cls_u32.c
-+++ b/net/sched/cls_u32.c
-@@ -815,10 +815,6 @@ static struct tc_u_knode *u32_init_knode(struct net *net, struct tcf_proto *tp,
- 	new->flags = n->flags;
- 	RCU_INIT_POINTER(new->ht_down, ht);
+--- a/tools/lib/perf/evlist.c
++++ b/tools/lib/perf/evlist.c
+@@ -571,7 +571,6 @@ int perf_evlist__mmap_ops(struct perf_ev
+ {
+ 	struct perf_evsel *evsel;
+ 	const struct perf_cpu_map *cpus = evlist->cpus;
+-	const struct perf_thread_map *threads = evlist->threads;
  
--	/* bump reference count as long as we hold pointer to structure */
--	if (ht)
--		ht->refcnt++;
--
- #ifdef CONFIG_CLS_U32_PERF
- 	/* Statistics may be incremented by readers during update
- 	 * so we must keep them in tact. When the node is later destroyed
-@@ -840,6 +836,10 @@ static struct tc_u_knode *u32_init_knode(struct net *net, struct tcf_proto *tp,
- 		return NULL;
+ 	if (!ops || !ops->get || !ops->mmap)
+ 		return -EINVAL;
+@@ -583,7 +582,7 @@ int perf_evlist__mmap_ops(struct perf_ev
+ 	perf_evlist__for_each_entry(evlist, evsel) {
+ 		if ((evsel->attr.read_format & PERF_FORMAT_ID) &&
+ 		    evsel->sample_id == NULL &&
+-		    perf_evsel__alloc_id(evsel, perf_cpu_map__nr(cpus), threads->nr) < 0)
++		    perf_evsel__alloc_id(evsel, evsel->fd->max_x, evsel->fd->max_y) < 0)
+ 			return -ENOMEM;
  	}
  
-+	/* bump reference count as long as we hold pointer to structure */
-+	if (ht)
-+		ht->refcnt++;
-+
- 	return new;
- }
- 
--- 
-2.35.1
-
 
 
