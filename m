@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF5D50F686
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF9E150F7BF
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233060AbiDZI4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:56:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42704 "EHLO
+        id S1346713AbiDZJI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346015AbiDZIxw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:53:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596CBD64DA;
-        Tue, 26 Apr 2022 01:41:00 -0700 (PDT)
+        with ESMTP id S1347927AbiDZJGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 587CBB82DF;
+        Tue, 26 Apr 2022 01:47:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B65E860A29;
-        Tue, 26 Apr 2022 08:40:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4315C385A0;
-        Tue, 26 Apr 2022 08:40:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E93C7B81A2F;
+        Tue, 26 Apr 2022 08:47:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A52C385A0;
+        Tue, 26 Apr 2022 08:47:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962454;
-        bh=3A1i8MzKkFsqMtigRC0ncBLbLhWH3+rRTK5SrBZ6KJY=;
+        s=korg; t=1650962842;
+        bh=pPUGC2QOI+p+xw95cth8tUH43wg/hfGzB4GQieCVmOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjYC252xtnaIuochww0U2p6hWPwRjfVDmtby5v+Dpop15D1uRIBdoeNprPmVDuv+t
-         XcwRpnvB9dc2XgMTHRE/mfrLeAI/iYdSDHqWzAbqCzo0lnv8J+f0gAm/umitHxgF/T
-         sBdWKqkStc15Rs1ND3pDd/FtKY12rlZgHqj/kwY8=
+        b=TjaybJkubdRaXsHzGYy6A9HRzKUKMJ+ZTu1EP7UwPABgf1wCHqEhDrTsM6K601WKU
+         jAGOhL8PkYIgTvCo2n1D2dpNJudbVnnna96wdrtDEBRRrJy33/bKncCO70rMr5vp2/
+         oVSK3r/EN8/cnwGoMiGispCMsZCSIaIhK7SBkauU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Shreeya Patel <shreeya.patel@collabora.com>,
-        =?UTF-8?q?Samuel=20=C4=8Cavoj?= <samuel@cavoj.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        lukeluk498@gmail.com, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 102/124] gpio: Request interrupts after IRQ is initialized
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 108/146] drm/vc4: Use pm_runtime_resume_and_get to fix pm_runtime_get_sync() usage
 Date:   Tue, 26 Apr 2022 10:21:43 +0200
-Message-Id: <20220426081750.196950196@linuxfoundation.org>
+Message-Id: <20220426081753.093144757@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,70 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 06fb4ecfeac7e00d6704fa5ed19299f2fefb3cc9 upstream.
+[ Upstream commit 3d0b93d92a2790337aa9d18cb332d02356a24126 ]
 
-Commit 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members
-before initialization") attempted to fix a race condition that lead to a
-NULL pointer, but in the process caused a regression for _AEI/_EVT
-declared GPIOs.
+If the device is already in a runtime PM enabled state
+pm_runtime_get_sync() will return 1.
 
-This manifests in messages showing deferred probing while trying to
-allocate IRQs like so:
+Also, we need to call pm_runtime_put_noidle() when pm_runtime_get_sync()
+fails, so use pm_runtime_resume_and_get() instead. this function
+will handle this.
 
-  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0000 to IRQ, err -517
-  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x002C to IRQ, err -517
-  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003D to IRQ, err -517
-  [ .. more of the same .. ]
-
-The code for walking _AEI doesn't handle deferred probing and so this
-leads to non-functional GPIO interrupts.
-
-Fix this issue by moving the call to `acpi_gpiochip_request_interrupts`
-to occur after gc->irc.initialized is set.
-
-Fixes: 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members before initialization")
-Link: https://lore.kernel.org/linux-gpio/BL1PR12MB51577A77F000A008AA694675E2EF9@BL1PR12MB5157.namprd12.prod.outlook.com/
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1198697
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215850
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1979
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1976
-Reported-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Shreeya Patel <shreeya.patel@collabora.com>
-Tested-By: Samuel Čavoj <samuel@cavoj.net>
-Tested-By: lukeluk498@gmail.com Link:
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-and-tested-by: Takashi Iwai <tiwai@suse.de>
-Cc: Shreeya Patel <shreeya.patel@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 4078f5757144 ("drm/vc4: Add DSI driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220420135008.2757-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_dsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -1560,8 +1560,6 @@ static int gpiochip_add_irqchip(struct g
+diff --git a/drivers/gpu/drm/vc4/vc4_dsi.c b/drivers/gpu/drm/vc4/vc4_dsi.c
+index 9300d3354c51..64dfefeb03f5 100644
+--- a/drivers/gpu/drm/vc4/vc4_dsi.c
++++ b/drivers/gpu/drm/vc4/vc4_dsi.c
+@@ -846,7 +846,7 @@ static void vc4_dsi_encoder_enable(struct drm_encoder *encoder)
+ 	unsigned long phy_clock;
+ 	int ret;
  
- 	gpiochip_set_irq_hooks(gc);
- 
--	acpi_gpiochip_request_interrupts(gc);
--
- 	/*
- 	 * Using barrier() here to prevent compiler from reordering
- 	 * gc->irq.initialized before initialization of above
-@@ -1571,6 +1569,8 @@ static int gpiochip_add_irqchip(struct g
- 
- 	gc->irq.initialized = true;
- 
-+	acpi_gpiochip_request_interrupts(gc);
-+
- 	return 0;
- }
- 
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret) {
+ 		DRM_ERROR("Failed to runtime PM enable on DSI%d\n", dsi->variant->port);
+ 		return;
+-- 
+2.35.1
+
 
 
