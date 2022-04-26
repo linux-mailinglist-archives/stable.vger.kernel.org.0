@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CE7350F6DA
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 321D350F7A4
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232588AbiDZJBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:01:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55640 "EHLO
+        id S243598AbiDZJLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:11:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345723AbiDZI5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E3C563F4;
-        Tue, 26 Apr 2022 01:42:21 -0700 (PDT)
+        with ESMTP id S1346280AbiDZJH3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:07:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F9ACA0D7;
+        Tue, 26 Apr 2022 01:48:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 259F9B81CFA;
-        Tue, 26 Apr 2022 08:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 742FFC385AC;
-        Tue, 26 Apr 2022 08:42:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B14F5B81D0A;
+        Tue, 26 Apr 2022 08:48:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB37C385A0;
+        Tue, 26 Apr 2022 08:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962538;
-        bh=5LIZ/1e221/eZNMH009XDwuBO9lGABuwHPc/8OUDcug=;
+        s=korg; t=1650962912;
+        bh=dTrkoAicnKNbR8OoKD9QRqhGbzc5PwsgGK9Ouyr9B7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2FArstRPAOeV6hDQzNOYLgqYXYBZtCml8HupI7vyNABbDFmlykza6reHq4J9mndNG
-         mU+gjFThFKhwOnyXeAHVUuK6zKVTOssbqpsnZgvgwNQMjyFqWxf0P8140eHqAIK3Jz
-         4LeLu0EzQ8bW7qiuX9wMzz2IPs1IS9bw4p9dIIFY=
+        b=wALMeqXus2Z04YUG1AhB9X/AGLzp18hM5tVNhD8GYAyJlqEGHStxb0xfR8uEPbdpc
+         P53UcnmQPhyclO2+xYXhgtrTCfXd3bRQnTuqI8WNcAkjM4HtJDN1M8MPShwBoGiteB
+         Sy0kED6HcevFT/bKP/Rod8oXiaT2wI9Qh7wkKVv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Khazhismel Kumykov <khazhy@google.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 123/124] block/compat_ioctl: fix range check in BLKGETSIZE
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 129/146] KVM: x86: Dont re-acquire SRCU lock in complete_emulated_io()
 Date:   Tue, 26 Apr 2022 10:22:04 +0200
-Message-Id: <20220426081750.784976477@linuxfoundation.org>
+Message-Id: <20220426081753.688082335@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khazhismel Kumykov <khazhy@google.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit ccf16413e520164eb718cf8b22a30438da80ff23 upstream.
+commit 2d08935682ac5f6bfb70f7e6844ec27d4a245fa4 upstream.
 
-kernel ulong and compat_ulong_t may not be same width. Use type directly
-to eliminate mismatches.
+Don't re-acquire SRCU in complete_emulated_io() now that KVM acquires the
+lock in kvm_arch_vcpu_ioctl_run().  More importantly, don't overwrite
+vcpu->srcu_idx.  If the index acquired by complete_emulated_io() differs
+from the one acquired by kvm_arch_vcpu_ioctl_run(), KVM will effectively
+leak a lock and hang if/when synchronize_srcu() is invoked for the
+relevant grace period.
 
-This would result in truncation rather than EFBIG for 32bit mode for
-large disks.
-
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Link: https://lore.kernel.org/r/20220414224056.2875681-1-khazhy@google.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 8d25b7beca7e ("KVM: x86: pull kvm->srcu read-side to kvm_arch_vcpu_ioctl_run")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220415004343.2203171-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -645,7 +645,7 @@ long compat_blkdev_ioctl(struct file *fi
- 			(bdev->bd_disk->bdi->ra_pages * PAGE_SIZE) / 512);
- 	case BLKGETSIZE:
- 		size = i_size_read(bdev->bd_inode);
--		if ((size >> 9) > ~0UL)
-+		if ((size >> 9) > ~(compat_ulong_t)0)
- 			return -EFBIG;
- 		return compat_put_ulong(argp, size >> 9);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -10296,12 +10296,7 @@ static int vcpu_run(struct kvm_vcpu *vcp
  
+ static inline int complete_emulated_io(struct kvm_vcpu *vcpu)
+ {
+-	int r;
+-
+-	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
+-	r = kvm_emulate_instruction(vcpu, EMULTYPE_NO_DECODE);
+-	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
+-	return r;
++	return kvm_emulate_instruction(vcpu, EMULTYPE_NO_DECODE);
+ }
+ 
+ static int complete_emulated_pio(struct kvm_vcpu *vcpu)
 
 
