@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC2B750F7B2
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78E5B50F667
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346173AbiDZJHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36992 "EHLO
+        id S237966AbiDZIzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:55:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347281AbiDZJFY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA7B10AE07;
-        Tue, 26 Apr 2022 01:44:19 -0700 (PDT)
+        with ESMTP id S1346918AbiDZIux (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F378170441;
+        Tue, 26 Apr 2022 01:39:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE745B81CF2;
-        Tue, 26 Apr 2022 08:44:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5103AC385A0;
-        Tue, 26 Apr 2022 08:44:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 57FF7CE1BB4;
+        Tue, 26 Apr 2022 08:39:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B04C385A0;
+        Tue, 26 Apr 2022 08:39:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962656;
-        bh=tkS3gKgva/XIqZkE+JFNTwrjyxtyCeez1zb6zWntjpk=;
+        s=korg; t=1650962346;
+        bh=Qe2fgAm189XICDfRKp2WfFEyRLGDq5+OziHxA7nd2no=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMDNDCpnCkQKwpSi0dh1OGxbx6IQ24/y1jH8ClKpcr/6V5c2w/KnHYPDT0tGJH+K3
-         vSd+oXxK+bWOnVvX7iC97YeA99jFMDtnhWurdscHxQwJ378JDIxJSDpMXOmQ9Bi31s
-         GMVoZ5oaxY8UvgLAz1mNR6LHcgsRzFzNrIdPjr0c=
+        b=nmmounRgfadoOBqLRiJhXMXAEitTno8B9sI928aKLoEcfQXTb3A0w5C0/1+LVSvAQ
+         KbN/sFw6XOdACN8jU798Cmh1oh9Lh8LeUhVAWIVuLY/ONihOoK3c4b6Y4HWjcf/dG8
+         0Idn/QXeH12kdkWUjdP47/F+iGMvQRR90dwrEgpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Stephen Hemminger <stephen@networkplumber.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 044/146] drm/i915/display/psr: Unset enable_psr2_sel_fetch if other checks in intel_psr2_config_valid() fails
+Subject: [PATCH 5.15 038/124] net: restore alpha order to Ethernet devices in config
 Date:   Tue, 26 Apr 2022 10:20:39 +0200
-Message-Id: <20220426081751.309180604@linuxfoundation.org>
+Message-Id: <20220426081748.386171035@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +54,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Roberto de Souza <jose.souza@intel.com>
+From: Stephen Hemminger <stephen@networkplumber.org>
 
-[ Upstream commit bb02330408a7bde33b5f46aa14fd5d7bfe6093b7 ]
+[ Upstream commit da367ac74aecb59b62a9538009d4aee8ce4bdfb3 ]
 
-If any of the PSR2 checks after intel_psr2_sel_fetch_config_valid()
-fails, enable_psr2_sel_fetch will be kept enabled causing problems
-in the functions that only checks for it and not for has_psr2.
+The displayed list of Ethernet devices in make menuconfig
+has gotten out of order. This is mostly due to changes in vendor
+names etc, but also because of new Microsoft entry in wrong place.
 
-So here moving the check that do not depend on enable_psr2_sel_fetch
-and for the remaning ones jumping to a section that unset
-enable_psr2_sel_fetch in case of failure to support PSR2.
+This restores so that the display is in order even if the names
+of the sub directories are not.
 
-Fixes: 6e43e276b8c9 ("drm/i915: Initial implementation of PSR2 selective fetch")
-Cc: Jouni Högander <jouni.hogander@intel.com>
-Reviewed-by: Jouni Högander <jouni.hogander@intel.com>
-Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220414151118.21980-1-jose.souza@intel.com
-(cherry picked from commit 554ae8dce1268789e72767a67f0635cb743b3cea)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Fixes: ca9c54d2d6a5 ("net: mana: Add a driver for Microsoft Azure Network Adapter (MANA)")
+Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_psr.c | 38 +++++++++++++-----------
- 1 file changed, 21 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/Kconfig | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_psr.c b/drivers/gpu/drm/i915/display/intel_psr.c
-index b00de57cc957..cd32e1470b3c 100644
---- a/drivers/gpu/drm/i915/display/intel_psr.c
-+++ b/drivers/gpu/drm/i915/display/intel_psr.c
-@@ -887,6 +887,20 @@ static bool intel_psr2_config_valid(struct intel_dp *intel_dp,
- 		return false;
- 	}
+diff --git a/drivers/net/ethernet/Kconfig b/drivers/net/ethernet/Kconfig
+index 412ae3e43ffb..35ac6fe7529c 100644
+--- a/drivers/net/ethernet/Kconfig
++++ b/drivers/net/ethernet/Kconfig
+@@ -34,15 +34,6 @@ source "drivers/net/ethernet/apple/Kconfig"
+ source "drivers/net/ethernet/aquantia/Kconfig"
+ source "drivers/net/ethernet/arc/Kconfig"
+ source "drivers/net/ethernet/atheros/Kconfig"
+-source "drivers/net/ethernet/broadcom/Kconfig"
+-source "drivers/net/ethernet/brocade/Kconfig"
+-source "drivers/net/ethernet/cadence/Kconfig"
+-source "drivers/net/ethernet/calxeda/Kconfig"
+-source "drivers/net/ethernet/cavium/Kconfig"
+-source "drivers/net/ethernet/chelsio/Kconfig"
+-source "drivers/net/ethernet/cirrus/Kconfig"
+-source "drivers/net/ethernet/cisco/Kconfig"
+-source "drivers/net/ethernet/cortina/Kconfig"
  
-+	/* Wa_16011303918:adl-p */
-+	if (crtc_state->vrr.enable &&
-+	    IS_ADLP_DISPLAY_STEP(dev_priv, STEP_A0, STEP_B0)) {
-+		drm_dbg_kms(&dev_priv->drm,
-+			    "PSR2 not enabled, not compatible with HW stepping + VRR\n");
-+		return false;
-+	}
-+
-+	if (!_compute_psr2_sdp_prior_scanline_indication(intel_dp, crtc_state)) {
-+		drm_dbg_kms(&dev_priv->drm,
-+			    "PSR2 not enabled, PSR2 SDP indication do not fit in hblank\n");
-+		return false;
-+	}
-+
- 	if (HAS_PSR2_SEL_FETCH(dev_priv)) {
- 		if (!intel_psr2_sel_fetch_config_valid(intel_dp, crtc_state) &&
- 		    !HAS_PSR_HW_TRACKING(dev_priv)) {
-@@ -900,12 +914,12 @@ static bool intel_psr2_config_valid(struct intel_dp *intel_dp,
- 	if (!crtc_state->enable_psr2_sel_fetch &&
- 	    IS_TGL_DISPLAY_STEP(dev_priv, STEP_A0, STEP_C0)) {
- 		drm_dbg_kms(&dev_priv->drm, "PSR2 HW tracking is not supported this Display stepping\n");
--		return false;
-+		goto unsupported;
- 	}
+ config CX_ECAT
+ 	tristate "Beckhoff CX5020 EtherCAT master support"
+@@ -56,6 +47,14 @@ config CX_ECAT
+ 	  To compile this driver as a module, choose M here. The module
+ 	  will be called ec_bhf.
  
- 	if (!psr2_granularity_check(intel_dp, crtc_state)) {
- 		drm_dbg_kms(&dev_priv->drm, "PSR2 not enabled, SU granularity not compatible\n");
--		return false;
-+		goto unsupported;
- 	}
++source "drivers/net/ethernet/broadcom/Kconfig"
++source "drivers/net/ethernet/cadence/Kconfig"
++source "drivers/net/ethernet/calxeda/Kconfig"
++source "drivers/net/ethernet/cavium/Kconfig"
++source "drivers/net/ethernet/chelsio/Kconfig"
++source "drivers/net/ethernet/cirrus/Kconfig"
++source "drivers/net/ethernet/cisco/Kconfig"
++source "drivers/net/ethernet/cortina/Kconfig"
+ source "drivers/net/ethernet/davicom/Kconfig"
  
- 	if (!crtc_state->enable_psr2_sel_fetch &&
-@@ -914,25 +928,15 @@ static bool intel_psr2_config_valid(struct intel_dp *intel_dp,
- 			    "PSR2 not enabled, resolution %dx%d > max supported %dx%d\n",
- 			    crtc_hdisplay, crtc_vdisplay,
- 			    psr_max_h, psr_max_v);
--		return false;
--	}
--
--	if (!_compute_psr2_sdp_prior_scanline_indication(intel_dp, crtc_state)) {
--		drm_dbg_kms(&dev_priv->drm,
--			    "PSR2 not enabled, PSR2 SDP indication do not fit in hblank\n");
--		return false;
--	}
--
--	/* Wa_16011303918:adl-p */
--	if (crtc_state->vrr.enable &&
--	    IS_ADLP_DISPLAY_STEP(dev_priv, STEP_A0, STEP_B0)) {
--		drm_dbg_kms(&dev_priv->drm,
--			    "PSR2 not enabled, not compatible with HW stepping + VRR\n");
--		return false;
-+		goto unsupported;
- 	}
+ config DNET
+@@ -82,7 +81,6 @@ source "drivers/net/ethernet/huawei/Kconfig"
+ source "drivers/net/ethernet/i825xx/Kconfig"
+ source "drivers/net/ethernet/ibm/Kconfig"
+ source "drivers/net/ethernet/intel/Kconfig"
+-source "drivers/net/ethernet/microsoft/Kconfig"
+ source "drivers/net/ethernet/xscale/Kconfig"
  
- 	tgl_dc3co_exitline_compute_config(intel_dp, crtc_state);
- 	return true;
-+
-+unsupported:
-+	crtc_state->enable_psr2_sel_fetch = false;
-+	return false;
- }
+ config JME
+@@ -125,8 +123,9 @@ source "drivers/net/ethernet/mediatek/Kconfig"
+ source "drivers/net/ethernet/mellanox/Kconfig"
+ source "drivers/net/ethernet/micrel/Kconfig"
+ source "drivers/net/ethernet/microchip/Kconfig"
+-source "drivers/net/ethernet/moxa/Kconfig"
+ source "drivers/net/ethernet/mscc/Kconfig"
++source "drivers/net/ethernet/microsoft/Kconfig"
++source "drivers/net/ethernet/moxa/Kconfig"
+ source "drivers/net/ethernet/myricom/Kconfig"
  
- void intel_psr_compute_config(struct intel_dp *intel_dp,
+ config FEALNX
+@@ -138,10 +137,10 @@ config FEALNX
+ 	  Say Y here to support the Myson MTD-800 family of PCI-based Ethernet
+ 	  cards. <http://www.myson.com.tw/>
+ 
++source "drivers/net/ethernet/ni/Kconfig"
+ source "drivers/net/ethernet/natsemi/Kconfig"
+ source "drivers/net/ethernet/neterion/Kconfig"
+ source "drivers/net/ethernet/netronome/Kconfig"
+-source "drivers/net/ethernet/ni/Kconfig"
+ source "drivers/net/ethernet/8390/Kconfig"
+ source "drivers/net/ethernet/nvidia/Kconfig"
+ source "drivers/net/ethernet/nxp/Kconfig"
+@@ -161,6 +160,7 @@ source "drivers/net/ethernet/packetengines/Kconfig"
+ source "drivers/net/ethernet/pasemi/Kconfig"
+ source "drivers/net/ethernet/pensando/Kconfig"
+ source "drivers/net/ethernet/qlogic/Kconfig"
++source "drivers/net/ethernet/brocade/Kconfig"
+ source "drivers/net/ethernet/qualcomm/Kconfig"
+ source "drivers/net/ethernet/rdc/Kconfig"
+ source "drivers/net/ethernet/realtek/Kconfig"
+@@ -168,10 +168,10 @@ source "drivers/net/ethernet/renesas/Kconfig"
+ source "drivers/net/ethernet/rocker/Kconfig"
+ source "drivers/net/ethernet/samsung/Kconfig"
+ source "drivers/net/ethernet/seeq/Kconfig"
+-source "drivers/net/ethernet/sfc/Kconfig"
+ source "drivers/net/ethernet/sgi/Kconfig"
+ source "drivers/net/ethernet/silan/Kconfig"
+ source "drivers/net/ethernet/sis/Kconfig"
++source "drivers/net/ethernet/sfc/Kconfig"
+ source "drivers/net/ethernet/smsc/Kconfig"
+ source "drivers/net/ethernet/socionext/Kconfig"
+ source "drivers/net/ethernet/stmicro/Kconfig"
 -- 
 2.35.1
 
