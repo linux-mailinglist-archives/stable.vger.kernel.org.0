@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF2D050F41B
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FD3550F43E
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344929AbiDZIct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:32:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60316 "EHLO
+        id S1345100AbiDZIfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:35:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344933AbiDZIbs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:31:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 196503D1C1;
-        Tue, 26 Apr 2022 01:25:03 -0700 (PDT)
+        with ESMTP id S1345113AbiDZIeG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07176E4C1;
+        Tue, 26 Apr 2022 01:26:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67549B81CED;
-        Tue, 26 Apr 2022 08:25:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5AAEC385AE;
-        Tue, 26 Apr 2022 08:25:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 506AF61842;
+        Tue, 26 Apr 2022 08:26:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61887C385A0;
+        Tue, 26 Apr 2022 08:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961501;
-        bh=6q3MVf4nHhuH09Yg+WjAfZtTohlj9q7nciKajxjDsKE=;
+        s=korg; t=1650961565;
+        bh=6+QctaSr/hBOUwCHEottWVCkAyN343hqOCaKvjdq/xI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wj6BBiMWk0fuPAzY1R1U6g33B8GuX5A5CIM06RcoSra7vzIkUQsXd+Bt19tTBXBEB
-         4AOLyUiq6p84Q3A72+Du9EW3DUzlln8D1tLNioDOU4LGmO+se3TZ7z97pqamk/4wpD
-         2swWoc1er6dgqJKH39iA8k2ERG3uj630oG6fHLhA=
+        b=SzWOoQ/RRO784M4Idt0GP3e7g7RjFpt1BkVt3k1k0Ui1HHhhwEh3VnJP36OoD5ppD
+         GAlwnswiHjrjjdPOlAFyQz5NVl24lJArl3j3QI2PFIWJrQtoanAGbehOVG2h6Hq0Zi
+         PE23sQzdHeKfEXwOPbYfnBLzPM3DB+IUMSwPnfF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricardo Dias <rdias@singlestore.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/43] tcp: fix race condition when creating child sockets from syncookies
+Subject: [PATCH 4.19 10/53] ASoC: atmel: Remove system clock tree configuration for at91sam9g20ek
 Date:   Tue, 26 Apr 2022 10:20:50 +0200
-Message-Id: <20220426081734.762343142@linuxfoundation.org>
+Message-Id: <20220426081735.958006682@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,296 +53,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Dias <rdias@singlestore.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 01770a166165738a6e05c3d911fb4609cc4eb416 ]
+[ Upstream commit c775cbf62ed4911e4f0f23880f01815753123690 ]
 
-When the TCP stack is in SYN flood mode, the server child socket is
-created from the SYN cookie received in a TCP packet with the ACK flag
-set.
+The MCLK of the WM8731 on the AT91SAM9G20-EK board is connected to the
+PCK0 output of the SoC, intended in the reference software to be supplied
+using PLLB and programmed to 12MHz. As originally written for use with a
+board file the audio driver was responsible for configuring the entire tree
+but in the conversion to the common clock framework the registration of
+the named pck0 and pllb clocks was removed so the driver has failed to
+instantiate ever since.
 
-The child socket is created when the server receives the first TCP
-packet with a valid SYN cookie from the client. Usually, this packet
-corresponds to the final step of the TCP 3-way handshake, the ACK
-packet. But is also possible to receive a valid SYN cookie from the
-first TCP data packet sent by the client, and thus create a child socket
-from that SYN cookie.
+Since the WM8731 driver has had support for managing a MCLK provided via
+the common clock framework for some time we can simply drop all the clock
+management code from the machine driver other than configuration of the
+sysclk rate, the CODEC driver still respects that configuration from the
+machine driver.
 
-Since a client socket is ready to send data as soon as it receives the
-SYN+ACK packet from the server, the client can send the ACK packet (sent
-by the TCP stack code), and the first data packet (sent by the userspace
-program) almost at the same time, and thus the server will equally
-receive the two TCP packets with valid SYN cookies almost at the same
-instant.
-
-When such event happens, the TCP stack code has a race condition that
-occurs between the momement a lookup is done to the established
-connections hashtable to check for the existence of a connection for the
-same client, and the moment that the child socket is added to the
-established connections hashtable. As a consequence, this race condition
-can lead to a situation where we add two child sockets to the
-established connections hashtable and deliver two sockets to the
-userspace program to the same client.
-
-This patch fixes the race condition by checking if an existing child
-socket exists for the same client when we are adding the second child
-socket to the established connections socket. If an existing child
-socket exists, we drop the packet and discard the second child socket
-to the same client.
-
-Signed-off-by: Ricardo Dias <rdias@singlestore.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20201120111133.GA67501@rdias-suse-pc.lan
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ff78a189b0ae55f ("ARM: at91: remove old at91-specific clock driver")
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20220325154241.1600757-2-broonie@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/inet_hashtables.h   |    5 +-
- net/dccp/ipv4.c                 |    2 -
- net/dccp/ipv6.c                 |    2 -
- net/ipv4/inet_connection_sock.c |    2 -
- net/ipv4/inet_hashtables.c      |   68 +++++++++++++++++++++++++++++++++++-----
- net/ipv4/tcp_ipv4.c             |   15 +++++++-
- net/ipv6/tcp_ipv6.c             |   13 +++++++
- 7 files changed, 91 insertions(+), 16 deletions(-)
+ sound/soc/atmel/sam9g20_wm8731.c | 61 --------------------------------
+ 1 file changed, 61 deletions(-)
 
---- a/include/net/inet_hashtables.h
-+++ b/include/net/inet_hashtables.h
-@@ -215,8 +215,9 @@ void inet_put_port(struct sock *sk);
- 
- void inet_hashinfo_init(struct inet_hashinfo *h);
- 
--bool inet_ehash_insert(struct sock *sk, struct sock *osk);
--bool inet_ehash_nolisten(struct sock *sk, struct sock *osk);
-+bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk);
-+bool inet_ehash_nolisten(struct sock *sk, struct sock *osk,
-+			 bool *found_dup_sk);
- int __inet_hash(struct sock *sk, struct sock *osk);
- int inet_hash(struct sock *sk);
- void inet_unhash(struct sock *sk);
---- a/net/dccp/ipv4.c
-+++ b/net/dccp/ipv4.c
-@@ -428,7 +428,7 @@ struct sock *dccp_v4_request_recv_sock(c
- 
- 	if (__inet_inherit_port(sk, newsk) < 0)
- 		goto put_and_exit;
--	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash));
-+	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash), NULL);
- 	if (*own_req)
- 		ireq->ireq_opt = NULL;
- 	else
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -538,7 +538,7 @@ static struct sock *dccp_v6_request_recv
- 		dccp_done(newsk);
- 		goto out;
- 	}
--	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash));
-+	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash), NULL);
- 	/* Clone pktoptions received with SYN, if we own the req */
- 	if (*own_req && ireq->pktopts) {
- 		newnp->pktoptions = skb_clone(ireq->pktopts, GFP_ATOMIC);
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -784,7 +784,7 @@ static void reqsk_queue_hash_req(struct
- 			    (unsigned long)req);
- 	mod_timer(&req->rsk_timer, jiffies + timeout);
- 
--	inet_ehash_insert(req_to_sk(req), NULL);
-+	inet_ehash_insert(req_to_sk(req), NULL, NULL);
- 	/* before letting lookups find us, make sure all req fields
- 	 * are committed to memory and refcnt initialized.
- 	 */
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -23,6 +23,9 @@
- #include <net/addrconf.h>
- #include <net/inet_connection_sock.h>
- #include <net/inet_hashtables.h>
-+#if IS_ENABLED(CONFIG_IPV6)
-+#include <net/inet6_hashtables.h>
-+#endif
- #include <net/secure_seq.h>
- #include <net/ip.h>
- #include <net/tcp.h>
-@@ -395,10 +398,52 @@ static u32 inet_sk_port_offset(const str
- 					  inet->inet_dport);
- }
- 
--/* insert a socket into ehash, and eventually remove another one
-- * (The another one can be a SYN_RECV or TIMEWAIT
-+/* Searches for an exsiting socket in the ehash bucket list.
-+ * Returns true if found, false otherwise.
+diff --git a/sound/soc/atmel/sam9g20_wm8731.c b/sound/soc/atmel/sam9g20_wm8731.c
+index 5041f43ee5f7..06d32257ddb6 100644
+--- a/sound/soc/atmel/sam9g20_wm8731.c
++++ b/sound/soc/atmel/sam9g20_wm8731.c
+@@ -59,35 +59,6 @@
   */
--bool inet_ehash_insert(struct sock *sk, struct sock *osk)
-+static bool inet_ehash_lookup_by_sk(struct sock *sk,
-+				    struct hlist_nulls_head *list)
-+{
-+	const __portpair ports = INET_COMBINED_PORTS(sk->sk_dport, sk->sk_num);
-+	const int sdif = sk->sk_bound_dev_if;
-+	const int dif = sk->sk_bound_dev_if;
-+	const struct hlist_nulls_node *node;
-+	struct net *net = sock_net(sk);
-+	struct sock *esk;
-+
-+	INET_ADDR_COOKIE(acookie, sk->sk_daddr, sk->sk_rcv_saddr);
-+
-+	sk_nulls_for_each_rcu(esk, node, list) {
-+		if (esk->sk_hash != sk->sk_hash)
-+			continue;
-+		if (sk->sk_family == AF_INET) {
-+			if (unlikely(INET_MATCH(esk, net, acookie,
-+						sk->sk_daddr,
-+						sk->sk_rcv_saddr,
-+						ports, dif, sdif))) {
-+				return true;
-+			}
-+		}
-+#if IS_ENABLED(CONFIG_IPV6)
-+		else if (sk->sk_family == AF_INET6) {
-+			if (unlikely(INET6_MATCH(esk, net,
-+						 &sk->sk_v6_daddr,
-+						 &sk->sk_v6_rcv_saddr,
-+						 ports, dif, sdif))) {
-+				return true;
-+			}
-+		}
-+#endif
-+	}
-+	return false;
-+}
-+
-+/* Insert a socket into ehash, and eventually remove another one
-+ * (The another one can be a SYN_RECV or TIMEWAIT)
-+ * If an existing socket already exists, socket sk is not inserted,
-+ * and sets found_dup_sk parameter to true.
-+ */
-+bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+ #undef ENABLE_MIC_INPUT
+ 
+-static struct clk *mclk;
+-
+-static int at91sam9g20ek_set_bias_level(struct snd_soc_card *card,
+-					struct snd_soc_dapm_context *dapm,
+-					enum snd_soc_bias_level level)
+-{
+-	static int mclk_on;
+-	int ret = 0;
+-
+-	switch (level) {
+-	case SND_SOC_BIAS_ON:
+-	case SND_SOC_BIAS_PREPARE:
+-		if (!mclk_on)
+-			ret = clk_enable(mclk);
+-		if (ret == 0)
+-			mclk_on = 1;
+-		break;
+-
+-	case SND_SOC_BIAS_OFF:
+-	case SND_SOC_BIAS_STANDBY:
+-		if (mclk_on)
+-			clk_disable(mclk);
+-		mclk_on = 0;
+-		break;
+-	}
+-
+-	return ret;
+-}
+-
+ static const struct snd_soc_dapm_widget at91sam9g20ek_dapm_widgets[] = {
+ 	SND_SOC_DAPM_MIC("Int Mic", NULL),
+ 	SND_SOC_DAPM_SPK("Ext Spk", NULL),
+@@ -146,7 +117,6 @@ static struct snd_soc_card snd_soc_at91sam9g20ek = {
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &at91sam9g20ek_dai,
+ 	.num_links = 1,
+-	.set_bias_level = at91sam9g20ek_set_bias_level,
+ 
+ 	.dapm_widgets = at91sam9g20ek_dapm_widgets,
+ 	.num_dapm_widgets = ARRAY_SIZE(at91sam9g20ek_dapm_widgets),
+@@ -159,7 +129,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
  {
- 	struct inet_hashinfo *hashinfo = sk->sk_prot->h.hashinfo;
- 	struct hlist_nulls_head *list;
-@@ -417,16 +462,23 @@ bool inet_ehash_insert(struct sock *sk,
- 	if (osk) {
- 		WARN_ON_ONCE(sk->sk_hash != osk->sk_hash);
- 		ret = sk_nulls_del_node_init_rcu(osk);
-+	} else if (found_dup_sk) {
-+		*found_dup_sk = inet_ehash_lookup_by_sk(sk, list);
-+		if (*found_dup_sk)
-+			ret = false;
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct device_node *codec_np, *cpu_np;
+-	struct clk *pllb;
+ 	struct snd_soc_card *card = &snd_soc_at91sam9g20ek;
+ 	int ret;
+ 
+@@ -173,31 +142,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
+ 		return -EINVAL;
  	}
-+
- 	if (ret)
- 		__sk_nulls_add_node_rcu(sk, list);
-+
- 	spin_unlock(lock);
-+
+ 
+-	/*
+-	 * Codec MCLK is supplied by PCK0 - set it up.
+-	 */
+-	mclk = clk_get(NULL, "pck0");
+-	if (IS_ERR(mclk)) {
+-		dev_err(&pdev->dev, "Failed to get MCLK\n");
+-		ret = PTR_ERR(mclk);
+-		goto err;
+-	}
+-
+-	pllb = clk_get(NULL, "pllb");
+-	if (IS_ERR(pllb)) {
+-		dev_err(&pdev->dev, "Failed to get PLLB\n");
+-		ret = PTR_ERR(pllb);
+-		goto err_mclk;
+-	}
+-	ret = clk_set_parent(mclk, pllb);
+-	clk_put(pllb);
+-	if (ret != 0) {
+-		dev_err(&pdev->dev, "Failed to set MCLK parent\n");
+-		goto err_mclk;
+-	}
+-
+-	clk_set_rate(mclk, MCLK_RATE);
+-
+ 	card->dev = &pdev->dev;
+ 
+ 	/* Parse device node info */
+@@ -241,9 +185,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
+ 
  	return ret;
- }
  
--bool inet_ehash_nolisten(struct sock *sk, struct sock *osk)
-+bool inet_ehash_nolisten(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+-err_mclk:
+-	clk_put(mclk);
+-	mclk = NULL;
+ err:
+ 	atmel_ssc_put_audio(0);
+ 	return ret;
+@@ -253,8 +194,6 @@ static int at91sam9g20ek_audio_remove(struct platform_device *pdev)
  {
--	bool ok = inet_ehash_insert(sk, osk);
-+	bool ok = inet_ehash_insert(sk, osk, found_dup_sk);
+ 	struct snd_soc_card *card = platform_get_drvdata(pdev);
  
- 	if (ok) {
- 		sock_prot_inuse_add(sock_net(sk), sk->sk_prot, 1);
-@@ -469,7 +521,7 @@ int __inet_hash(struct sock *sk, struct
- 	int err = 0;
+-	clk_disable(mclk);
+-	mclk = NULL;
+ 	snd_soc_unregister_card(card);
+ 	atmel_ssc_put_audio(0);
  
- 	if (sk->sk_state != TCP_LISTEN) {
--		inet_ehash_nolisten(sk, osk);
-+		inet_ehash_nolisten(sk, osk, NULL);
- 		return 0;
- 	}
- 	WARN_ON(!sk_unhashed(sk));
-@@ -556,7 +608,7 @@ int __inet_hash_connect(struct inet_time
- 		tb = inet_csk(sk)->icsk_bind_hash;
- 		spin_lock_bh(&head->lock);
- 		if (sk_head(&tb->owners) == sk && !sk->sk_bind_node.next) {
--			inet_ehash_nolisten(sk, NULL);
-+			inet_ehash_nolisten(sk, NULL, NULL);
- 			spin_unlock_bh(&head->lock);
- 			return 0;
- 		}
-@@ -632,7 +684,7 @@ ok:
- 	inet_bind_hash(sk, tb, port);
- 	if (sk_unhashed(sk)) {
- 		inet_sk(sk)->inet_sport = htons(port);
--		inet_ehash_nolisten(sk, (struct sock *)tw);
-+		inet_ehash_nolisten(sk, (struct sock *)tw, NULL);
- 	}
- 	if (tw)
- 		inet_twsk_bind_unhash(tw, hinfo);
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -1344,6 +1344,7 @@ struct sock *tcp_v4_syn_recv_sock(const
- 				  bool *own_req)
- {
- 	struct inet_request_sock *ireq;
-+	bool found_dup_sk = false;
- 	struct inet_sock *newinet;
- 	struct tcp_sock *newtp;
- 	struct sock *newsk;
-@@ -1414,12 +1415,22 @@ struct sock *tcp_v4_syn_recv_sock(const
- 
- 	if (__inet_inherit_port(sk, newsk) < 0)
- 		goto put_and_exit;
--	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash));
-+	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash),
-+				       &found_dup_sk);
- 	if (likely(*own_req)) {
- 		tcp_move_syn(newtp, req);
- 		ireq->ireq_opt = NULL;
- 	} else {
--		newinet->inet_opt = NULL;
-+		if (!req_unhash && found_dup_sk) {
-+			/* This code path should only be executed in the
-+			 * syncookie case only
-+			 */
-+			bh_unlock_sock(newsk);
-+			sock_put(newsk);
-+			newsk = NULL;
-+		} else {
-+			newinet->inet_opt = NULL;
-+		}
- 	}
- 	return newsk;
- 
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -1064,6 +1064,7 @@ static struct sock *tcp_v6_syn_recv_sock
- 	struct ipv6_txoptions *opt;
- 	struct tcp6_sock *newtcp6sk;
- 	struct inet_sock *newinet;
-+	bool found_dup_sk = false;
- 	struct tcp_sock *newtp;
- 	struct sock *newsk;
- #ifdef CONFIG_TCP_MD5SIG
-@@ -1232,7 +1233,8 @@ static struct sock *tcp_v6_syn_recv_sock
- 		tcp_done(newsk);
- 		goto out;
- 	}
--	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash));
-+	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash),
-+				       &found_dup_sk);
- 	if (*own_req) {
- 		tcp_move_syn(newtp, req);
- 
-@@ -1247,6 +1249,15 @@ static struct sock *tcp_v6_syn_recv_sock
- 				skb_set_owner_r(newnp->pktoptions, newsk);
- 			}
- 		}
-+	} else {
-+		if (!req_unhash && found_dup_sk) {
-+			/* This code path should only be executed in the
-+			 * syncookie case only
-+			 */
-+			bh_unlock_sock(newsk);
-+			sock_put(newsk);
-+			newsk = NULL;
-+		}
- 	}
- 
- 	return newsk;
+-- 
+2.35.1
+
 
 
