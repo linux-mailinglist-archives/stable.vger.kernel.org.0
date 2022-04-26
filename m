@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9724850F4A8
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A61CF50F44C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345020AbiDZIgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:36:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34114 "EHLO
+        id S235135AbiDZId3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:33:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345090AbiDZIeE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B3C56A02B;
-        Tue, 26 Apr 2022 01:25:59 -0700 (PDT)
+        with ESMTP id S1344918AbiDZIcs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:32:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDDFFBBC;
+        Tue, 26 Apr 2022 01:25:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1D2D7B81CF5;
-        Tue, 26 Apr 2022 08:25:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74CCEC385AC;
-        Tue, 26 Apr 2022 08:25:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60EDC61839;
+        Tue, 26 Apr 2022 08:25:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A9F3C385A0;
+        Tue, 26 Apr 2022 08:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961556;
-        bh=hQQJexZ4MpOJ5d+Pv/RnkJ5TuHvqDFbTbbPUzM6su/Q=;
+        s=korg; t=1650961513;
+        bh=X8qnbVXmUWHyuawsIW67ZDlZuk4oW9Z3jmdspdOypBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6Hlj63Kb19kWYO86cjgJx3Nass0YQBn9gQbF/UODNKnHd9VW7qIcsROKAZkZlkKC
-         8E5DIVUEIiYw8F2u3RQeseTXvv1arrUm2yTZ/XqJfzvrV6uZaeeR4+ebTVqGgGn3u6
-         e8/lVR0nsRM2w8ZWMbR6YeSaELkLhwF1P+jKavAc=
+        b=ENhpwXOWfcmyKlDHUaLOpKLt+DOpPKrO8IxVJjBOPL4mtP41RFHlZ3G59Wc3D4oDw
+         0mwrZC96wfao6yMYsjLe4af4fuJ1UXZ9BhchQ6lgaESgAY2NknRzgRqjFyM88TJfTh
+         FBaLgvUn0KebTbCwm/EN2yLrM1VNxF/LN4sVD8js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 35/43] ax25: add refcount in ax25_dev to avoid UAF bugs
-Date:   Tue, 26 Apr 2022 10:21:17 +0200
-Message-Id: <20220426081735.550901087@linuxfoundation.org>
+Subject: [PATCH 4.14 36/43] ax25: fix reference count leaks of ax25_dev
+Date:   Tue, 26 Apr 2022 10:21:18 +0200
+Message-Id: <20220426081735.581664889@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
 References: <20220426081734.509314186@linuxfoundation.org>
@@ -55,191 +56,235 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit d01ffb9eee4af165d83b08dd73ebdf9fe94a519b upstream.
+commit 87563a043cef044fed5db7967a75741cc16ad2b1 upstream.
 
-If we dereference ax25_dev after we call kfree(ax25_dev) in
-ax25_dev_device_down(), it will lead to concurrency UAF bugs.
-There are eight syscall functions suffer from UAF bugs, include
-ax25_bind(), ax25_release(), ax25_connect(), ax25_ioctl(),
-ax25_getname(), ax25_sendmsg(), ax25_getsockopt() and
-ax25_info_show().
+The previous commit d01ffb9eee4a ("ax25: add refcount in ax25_dev
+to avoid UAF bugs") introduces refcount into ax25_dev, but there
+are reference leak paths in ax25_ctl_ioctl(), ax25_fwd_ioctl(),
+ax25_rt_add(), ax25_rt_del() and ax25_rt_opt().
 
-One of the concurrency UAF can be shown as below:
+This patch uses ax25_dev_put() and adjusts the position of
+ax25_addr_ax25dev() to fix reference cout leaks of ax25_dev.
 
-  (USE)                       |    (FREE)
-                              |  ax25_device_event
-                              |    ax25_dev_device_down
-ax25_bind                     |    ...
-  ...                         |      kfree(ax25_dev)
-  ax25_fillin_cb()            |    ...
-    ax25_fillin_cb_from_dev() |
-  ...                         |
-
-The root cause of UAF bugs is that kfree(ax25_dev) in
-ax25_dev_device_down() is not protected by any locks.
-When ax25_dev, which there are still pointers point to,
-is released, the concurrency UAF bug will happen.
-
-This patch introduces refcount into ax25_dev in order to
-guarantee that there are no pointers point to it when ax25_dev
-is released.
-
+Fixes: d01ffb9eee4a ("ax25: add refcount in ax25_dev to avoid UAF bugs")
 Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[OP: backport to 4.14: adjusted context]
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20220203150811.42256-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[OP: backport to 4.14: adjust context]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/ax25.h    |   10 ++++++++++
- net/ax25/af_ax25.c    |    2 ++
- net/ax25/ax25_dev.c   |   12 ++++++++++--
- net/ax25/ax25_route.c |    3 +++
- 4 files changed, 25 insertions(+), 2 deletions(-)
+ include/net/ax25.h    |    8 +++++---
+ net/ax25/af_ax25.c    |   12 ++++++++----
+ net/ax25/ax25_dev.c   |   24 +++++++++++++++++-------
+ net/ax25/ax25_route.c |   16 +++++++++++-----
+ 4 files changed, 41 insertions(+), 19 deletions(-)
 
 --- a/include/net/ax25.h
 +++ b/include/net/ax25.h
-@@ -235,6 +235,7 @@ typedef struct ax25_dev {
- #if defined(CONFIG_AX25_DAMA_SLAVE) || defined(CONFIG_AX25_DAMA_MASTER)
- 	ax25_dama_info		dama;
- #endif
-+	refcount_t		refcount;
- } ax25_dev;
- 
- typedef struct ax25_cb {
-@@ -289,6 +290,15 @@ static __inline__ void ax25_cb_put(ax25_
+@@ -290,10 +290,12 @@ static __inline__ void ax25_cb_put(ax25_
  	}
  }
  
-+#define ax25_dev_hold(__ax25_dev) \
-+	refcount_inc(&((__ax25_dev)->refcount))
-+
-+static __inline__ void ax25_dev_put(ax25_dev *ax25_dev)
+-#define ax25_dev_hold(__ax25_dev) \
+-	refcount_inc(&((__ax25_dev)->refcount))
++static inline void ax25_dev_hold(ax25_dev *ax25_dev)
 +{
-+	if (refcount_dec_and_test(&ax25_dev->refcount)) {
-+		kfree(ax25_dev);
-+	}
++	refcount_inc(&ax25_dev->refcount);
 +}
- static inline __be16 ax25_type_trans(struct sk_buff *skb, struct net_device *dev)
+ 
+-static __inline__ void ax25_dev_put(ax25_dev *ax25_dev)
++static inline void ax25_dev_put(ax25_dev *ax25_dev)
  {
- 	skb->dev      = dev;
+ 	if (refcount_dec_and_test(&ax25_dev->refcount)) {
+ 		kfree(ax25_dev);
 --- a/net/ax25/af_ax25.c
 +++ b/net/ax25/af_ax25.c
-@@ -101,6 +101,7 @@ again:
- 			spin_unlock_bh(&ax25_list_lock);
- 			lock_sock(sk);
- 			s->ax25_dev = NULL;
-+			ax25_dev_put(ax25_dev);
- 			release_sock(sk);
- 			ax25_disconnect(s, ENETUNREACH);
- 			spin_lock_bh(&ax25_list_lock);
-@@ -450,6 +451,7 @@ static int ax25_ctl_ioctl(const unsigned
- 	  }
+@@ -370,21 +370,25 @@ static int ax25_ctl_ioctl(const unsigned
+ 	if (copy_from_user(&ax25_ctl, arg, sizeof(ax25_ctl)))
+ 		return -EFAULT;
  
- out_put:
-+	ax25_dev_put(ax25_dev);
- 	ax25_cb_put(ax25);
- 	return ret;
+-	if ((ax25_dev = ax25_addr_ax25dev(&ax25_ctl.port_addr)) == NULL)
+-		return -ENODEV;
+-
+ 	if (ax25_ctl.digi_count > AX25_MAX_DIGIS)
+ 		return -EINVAL;
  
+ 	if (ax25_ctl.arg > ULONG_MAX / HZ && ax25_ctl.cmd != AX25_KILL)
+ 		return -EINVAL;
+ 
++	ax25_dev = ax25_addr_ax25dev(&ax25_ctl.port_addr);
++	if (!ax25_dev)
++		return -ENODEV;
++
+ 	digi.ndigi = ax25_ctl.digi_count;
+ 	for (k = 0; k < digi.ndigi; k++)
+ 		digi.calls[k] = ax25_ctl.digi_addr[k];
+ 
+-	if ((ax25 = ax25_find_cb(&ax25_ctl.source_addr, &ax25_ctl.dest_addr, &digi, ax25_dev->dev)) == NULL)
++	ax25 = ax25_find_cb(&ax25_ctl.source_addr, &ax25_ctl.dest_addr, &digi, ax25_dev->dev);
++	if (!ax25) {
++		ax25_dev_put(ax25_dev);
+ 		return -ENOTCONN;
++	}
+ 
+ 	switch (ax25_ctl.cmd) {
+ 	case AX25_KILL:
 --- a/net/ax25/ax25_dev.c
 +++ b/net/ax25/ax25_dev.c
-@@ -40,6 +40,7 @@ ax25_dev *ax25_addr_ax25dev(ax25_address
- 	for (ax25_dev = ax25_dev_list; ax25_dev != NULL; ax25_dev = ax25_dev->next)
- 		if (ax25cmp(addr, (ax25_address *)ax25_dev->dev->dev_addr) == 0) {
- 			res = ax25_dev;
-+			ax25_dev_hold(ax25_dev);
- 		}
- 	spin_unlock_bh(&ax25_dev_lock);
- 
-@@ -59,6 +60,7 @@ void ax25_dev_device_up(struct net_devic
- 		return;
- 	}
- 
-+	refcount_set(&ax25_dev->refcount, 1);
- 	dev->ax25_ptr     = ax25_dev;
- 	ax25_dev->dev     = dev;
- 	dev_hold(dev);
-@@ -86,6 +88,7 @@ void ax25_dev_device_up(struct net_devic
+@@ -88,8 +88,8 @@ void ax25_dev_device_up(struct net_devic
  	spin_lock_bh(&ax25_dev_lock);
  	ax25_dev->next = ax25_dev_list;
  	ax25_dev_list  = ax25_dev;
-+	ax25_dev_hold(ax25_dev);
+-	ax25_dev_hold(ax25_dev);
  	spin_unlock_bh(&ax25_dev_lock);
++	ax25_dev_hold(ax25_dev);
  
  	ax25_register_dev_sysctl(ax25_dev);
-@@ -115,20 +118,22 @@ void ax25_dev_device_down(struct net_dev
+ }
+@@ -118,8 +118,8 @@ void ax25_dev_device_down(struct net_dev
  
  	if ((s = ax25_dev_list) == ax25_dev) {
  		ax25_dev_list = s->next;
-+		ax25_dev_put(ax25_dev);
+-		ax25_dev_put(ax25_dev);
  		spin_unlock_bh(&ax25_dev_lock);
++		ax25_dev_put(ax25_dev);
  		dev->ax25_ptr = NULL;
  		dev_put(dev);
--		kfree(ax25_dev);
-+		ax25_dev_put(ax25_dev);
- 		return;
- 	}
- 
+ 		ax25_dev_put(ax25_dev);
+@@ -129,8 +129,8 @@ void ax25_dev_device_down(struct net_dev
  	while (s != NULL && s->next != NULL) {
  		if (s->next == ax25_dev) {
  			s->next = ax25_dev->next;
-+			ax25_dev_put(ax25_dev);
+-			ax25_dev_put(ax25_dev);
  			spin_unlock_bh(&ax25_dev_lock);
++			ax25_dev_put(ax25_dev);
  			dev->ax25_ptr = NULL;
  			dev_put(dev);
--			kfree(ax25_dev);
+ 			ax25_dev_put(ax25_dev);
+@@ -153,25 +153,35 @@ int ax25_fwd_ioctl(unsigned int cmd, str
+ 
+ 	switch (cmd) {
+ 	case SIOCAX25ADDFWD:
+-		if ((fwd_dev = ax25_addr_ax25dev(&fwd->port_to)) == NULL)
++		fwd_dev = ax25_addr_ax25dev(&fwd->port_to);
++		if (!fwd_dev) {
 +			ax25_dev_put(ax25_dev);
- 			return;
- 		}
- 
-@@ -136,6 +141,7 @@ void ax25_dev_device_down(struct net_dev
- 	}
- 	spin_unlock_bh(&ax25_dev_lock);
- 	dev->ax25_ptr = NULL;
-+	ax25_dev_put(ax25_dev);
- }
- 
- int ax25_fwd_ioctl(unsigned int cmd, struct ax25_fwd_struct *fwd)
-@@ -152,6 +158,7 @@ int ax25_fwd_ioctl(unsigned int cmd, str
- 		if (ax25_dev->forward != NULL)
  			return -EINVAL;
+-		if (ax25_dev->forward != NULL)
++		}
++		if (ax25_dev->forward) {
++			ax25_dev_put(fwd_dev);
++			ax25_dev_put(ax25_dev);
+ 			return -EINVAL;
++		}
  		ax25_dev->forward = fwd_dev->dev;
-+		ax25_dev_put(fwd_dev);
+ 		ax25_dev_put(fwd_dev);
++		ax25_dev_put(ax25_dev);
  		break;
  
  	case SIOCAX25DELFWD:
-@@ -164,6 +171,7 @@ int ax25_fwd_ioctl(unsigned int cmd, str
+-		if (ax25_dev->forward == NULL)
++		if (!ax25_dev->forward) {
++			ax25_dev_put(ax25_dev);
+ 			return -EINVAL;
++		}
+ 		ax25_dev->forward = NULL;
++		ax25_dev_put(ax25_dev);
+ 		break;
+ 
+ 	default:
++		ax25_dev_put(ax25_dev);
  		return -EINVAL;
  	}
  
-+	ax25_dev_put(ax25_dev);
+-	ax25_dev_put(ax25_dev);
  	return 0;
  }
  
 --- a/net/ax25/ax25_route.c
 +++ b/net/ax25/ax25_route.c
-@@ -119,6 +119,7 @@ static int __must_check ax25_rt_add(stru
+@@ -78,11 +78,13 @@ static int __must_check ax25_rt_add(stru
+ 	ax25_dev *ax25_dev;
+ 	int i;
+ 
+-	if ((ax25_dev = ax25_addr_ax25dev(&route->port_addr)) == NULL)
+-		return -EINVAL;
+ 	if (route->digi_count > AX25_MAX_DIGIS)
+ 		return -EINVAL;
+ 
++	ax25_dev = ax25_addr_ax25dev(&route->port_addr);
++	if (!ax25_dev)
++		return -EINVAL;
++
+ 	write_lock_bh(&ax25_route_lock);
+ 
+ 	ax25_rt = ax25_route_list;
+@@ -94,6 +96,7 @@ static int __must_check ax25_rt_add(stru
+ 			if (route->digi_count != 0) {
+ 				if ((ax25_rt->digipeat = kmalloc(sizeof(ax25_digi), GFP_ATOMIC)) == NULL) {
+ 					write_unlock_bh(&ax25_route_lock);
++					ax25_dev_put(ax25_dev);
+ 					return -ENOMEM;
+ 				}
+ 				ax25_rt->digipeat->lastrepeat = -1;
+@@ -104,6 +107,7 @@ static int __must_check ax25_rt_add(stru
+ 				}
+ 			}
+ 			write_unlock_bh(&ax25_route_lock);
++			ax25_dev_put(ax25_dev);
+ 			return 0;
+ 		}
+ 		ax25_rt = ax25_rt->next;
+@@ -111,6 +115,7 @@ static int __must_check ax25_rt_add(stru
+ 
+ 	if ((ax25_rt = kmalloc(sizeof(ax25_route), GFP_ATOMIC)) == NULL) {
+ 		write_unlock_bh(&ax25_route_lock);
++		ax25_dev_put(ax25_dev);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -119,11 +124,11 @@ static int __must_check ax25_rt_add(stru
  	ax25_rt->dev          = ax25_dev->dev;
  	ax25_rt->digipeat     = NULL;
  	ax25_rt->ip_mode      = ' ';
-+	ax25_dev_put(ax25_dev);
+-	ax25_dev_put(ax25_dev);
  	if (route->digi_count != 0) {
  		if ((ax25_rt->digipeat = kmalloc(sizeof(ax25_digi), GFP_ATOMIC)) == NULL) {
  			write_unlock_bh(&ax25_route_lock);
-@@ -175,6 +176,7 @@ static int ax25_rt_del(struct ax25_route
+ 			kfree(ax25_rt);
++			ax25_dev_put(ax25_dev);
+ 			return -ENOMEM;
+ 		}
+ 		ax25_rt->digipeat->lastrepeat = -1;
+@@ -136,6 +141,7 @@ static int __must_check ax25_rt_add(stru
+ 	ax25_rt->next   = ax25_route_list;
+ 	ax25_route_list = ax25_rt;
+ 	write_unlock_bh(&ax25_route_lock);
++	ax25_dev_put(ax25_dev);
+ 
+ 	return 0;
+ }
+@@ -176,8 +182,8 @@ static int ax25_rt_del(struct ax25_route
  			}
  		}
  	}
-+	ax25_dev_put(ax25_dev);
+-	ax25_dev_put(ax25_dev);
  	write_unlock_bh(&ax25_route_lock);
++	ax25_dev_put(ax25_dev);
  
  	return 0;
-@@ -217,6 +219,7 @@ static int ax25_rt_opt(struct ax25_route
+ }
+@@ -219,8 +225,8 @@ static int ax25_rt_opt(struct ax25_route
  	}
  
  out:
-+	ax25_dev_put(ax25_dev);
+-	ax25_dev_put(ax25_dev);
  	write_unlock_bh(&ax25_route_lock);
++	ax25_dev_put(ax25_dev);
  	return err;
  }
+ 
 
 
