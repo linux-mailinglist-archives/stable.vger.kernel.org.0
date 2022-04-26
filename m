@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4452350F3C1
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E36850F57E
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244968AbiDZI14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:27:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36076 "EHLO
+        id S1345349AbiDZInP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:43:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344708AbiDZI1g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:36 -0400
+        with ESMTP id S1345516AbiDZIl5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:41:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFAF53AA5F;
-        Tue, 26 Apr 2022 01:23:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB64158F84;
+        Tue, 26 Apr 2022 01:33:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48A6F617EA;
-        Tue, 26 Apr 2022 08:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57982C385A4;
-        Tue, 26 Apr 2022 08:23:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D7766185D;
+        Tue, 26 Apr 2022 08:33:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E370C385A0;
+        Tue, 26 Apr 2022 08:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961419;
-        bh=b28C6sxV5/ySAeFce2tzdxxxiRiKxVIZJhblxl+HbkY=;
+        s=korg; t=1650961986;
+        bh=EGbn0DdCYwtJ3+c4oJdDYP5vjRTc9aYEwtto72wo0VU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQ+IXZbFKJP4+XV9rGKSlDFrOI4gnHe1yD7EItJhE1NEDuGC82KnZXDSp7PKxeflm
-         c3UNO60kaiQ6ypjqDtIGaZMn2waOUQMtEM1kknh25pw3ViO1QycWdCD1MuuSMqMiPD
-         Q7BmkXoRak22xFz0MRma8hEqGI5cEQ9dSn9Mxpc8=
+        b=Rzp1M/9YPMg/Jw3VrV530uL3STcRG6QwJ7PEe7H0lIVNNDcIwsQvJfYzmR3AUxjq9
+         qp/TZA2lNTN+iM9GD86qpSmybw6Ii4HvTZvGQg9kPaM4nUQpANrgQ7GJKUIg9d+Dg3
+         SKmeAci1fZyxPFuOMAsE9dgb/xJxbnhu+yFTx3nI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 07/24] netlink: reset network and mac headers in netlink_dump()
+        stable@vger.kernel.org, Qian Cai <quic_qiancai@quicinc.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 33/86] arm64: mm: fix p?d_leaf()
 Date:   Tue, 26 Apr 2022 10:21:01 +0200
-Message-Id: <20220426081731.588949864@linuxfoundation.org>
+Message-Id: <20220426081742.162293381@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
-References: <20220426081731.370823950@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,134 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 99c07327ae11e24886d552dddbe4537bfca2765d ]
+[ Upstream commit 23bc8f69f0eceecbb87c3801d2e48827d2dca92b ]
 
-netlink_dump() is allocating an skb, reserves space in it
-but forgets to reset network header.
+The pmd_leaf() is used to test a leaf mapped PMD, however, it misses
+the PROT_NONE mapped PMD on arm64.  Fix it.  A real world issue [1]
+caused by this was reported by Qian Cai. Also fix pud_leaf().
 
-This allows a BPF program, invoked later from sk_filter()
-to access uninitialized kernel memory from the reserved
-space.
-
-Theorically mac header reset could be omitted, because
-it is set to a special initial value.
-bpf_internal_load_pointer_neg_helper calls skb_mac_header()
-without checking skb_mac_header_was_set().
-Relying on skb->len not being too big seems fragile.
-We also could add a sanity check in bpf_internal_load_pointer_neg_helper()
-to avoid surprises in the future.
-
-syzbot report was:
-
-BUG: KMSAN: uninit-value in ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
- ___bpf_prog_run+0xa22b/0xb420 kernel/bpf/core.c:1637
- __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
- bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
- __bpf_prog_run include/linux/filter.h:626 [inline]
- bpf_prog_run include/linux/filter.h:633 [inline]
- __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
- bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
- sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
- sk_filter include/linux/filter.h:905 [inline]
- netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
- netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- sock_read_iter+0x5a9/0x630 net/socket.c:1039
- do_iter_readv_writev+0xa7f/0xc70
- do_iter_read+0x52c/0x14c0 fs/read_write.c:786
- vfs_readv fs/read_write.c:906 [inline]
- do_readv+0x432/0x800 fs/read_write.c:943
- __do_sys_readv fs/read_write.c:1034 [inline]
- __se_sys_readv fs/read_write.c:1031 [inline]
- __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was stored to memory at:
- ___bpf_prog_run+0x96c/0xb420 kernel/bpf/core.c:1558
- __bpf_prog_run32+0x121/0x180 kernel/bpf/core.c:1796
- bpf_dispatcher_nop_func include/linux/bpf.h:784 [inline]
- __bpf_prog_run include/linux/filter.h:626 [inline]
- bpf_prog_run include/linux/filter.h:633 [inline]
- __bpf_prog_run_save_cb+0x168/0x580 include/linux/filter.h:756
- bpf_prog_run_save_cb include/linux/filter.h:770 [inline]
- sk_filter_trim_cap+0x3bc/0x8c0 net/core/filter.c:150
- sk_filter include/linux/filter.h:905 [inline]
- netlink_dump+0xe0c/0x16c0 net/netlink/af_netlink.c:2276
- netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- sock_read_iter+0x5a9/0x630 net/socket.c:1039
- do_iter_readv_writev+0xa7f/0xc70
- do_iter_read+0x52c/0x14c0 fs/read_write.c:786
- vfs_readv fs/read_write.c:906 [inline]
- do_readv+0x432/0x800 fs/read_write.c:943
- __do_sys_readv fs/read_write.c:1034 [inline]
- __se_sys_readv fs/read_write.c:1031 [inline]
- __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:737 [inline]
- slab_alloc_node mm/slub.c:3244 [inline]
- __kmalloc_node_track_caller+0xde3/0x14f0 mm/slub.c:4972
- kmalloc_reserve net/core/skbuff.c:354 [inline]
- __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
- alloc_skb include/linux/skbuff.h:1158 [inline]
- netlink_dump+0x30f/0x16c0 net/netlink/af_netlink.c:2242
- netlink_recvmsg+0x1129/0x1c80 net/netlink/af_netlink.c:2002
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- sock_read_iter+0x5a9/0x630 net/socket.c:1039
- do_iter_readv_writev+0xa7f/0xc70
- do_iter_read+0x52c/0x14c0 fs/read_write.c:786
- vfs_readv fs/read_write.c:906 [inline]
- do_readv+0x432/0x800 fs/read_write.c:943
- __do_sys_readv fs/read_write.c:1034 [inline]
- __se_sys_readv fs/read_write.c:1031 [inline]
- __x64_sys_readv+0xe5/0x120 fs/read_write.c:1031
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:81
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-CPU: 0 PID: 3470 Comm: syz-executor751 Not tainted 5.17.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: db65a3aaf29e ("netlink: Trim skb to alloc size to avoid MSG_TRUNC")
-Fixes: 9063e21fb026 ("netlink: autosize skb lengthes")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220415181442.551228-1-eric.dumazet@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://patchwork.kernel.org/comment/24798260/ [1]
+Fixes: 8aa82df3c123 ("arm64: mm: add p?d_leaf() definitions")
+Reported-by: Qian Cai <quic_qiancai@quicinc.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Link: https://lore.kernel.org/r/20220422060033.48711-1-songmuchun@bytedance.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm64/include/asm/pgtable.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 8aef475fef31..a8674e9ff37b 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -2194,6 +2194,13 @@ static int netlink_dump(struct sock *sk)
- 	 * single netdev. The outcome is MSG_TRUNC error.
- 	 */
- 	skb_reserve(skb, skb_tailroom(skb) - alloc_size);
-+
-+	/* Make sure malicious BPF programs can not read unitialized memory
-+	 * from skb->head -> skb->data
-+	 */
-+	skb_reset_network_header(skb);
-+	skb_reset_mac_header(skb);
-+
- 	netlink_skb_set_owner_r(skb, sk);
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index 9cf8e304bb56..3f74db7b0a31 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -516,7 +516,7 @@ extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
+ 				 PMD_TYPE_TABLE)
+ #define pmd_sect(pmd)		((pmd_val(pmd) & PMD_TYPE_MASK) == \
+ 				 PMD_TYPE_SECT)
+-#define pmd_leaf(pmd)		pmd_sect(pmd)
++#define pmd_leaf(pmd)		(pmd_present(pmd) && !pmd_table(pmd))
+ #define pmd_bad(pmd)		(!pmd_table(pmd))
  
- 	if (nlk->dump_done_errno > 0)
+ #if defined(CONFIG_ARM64_64K_PAGES) || CONFIG_PGTABLE_LEVELS < 3
+@@ -603,7 +603,7 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+ #define pud_none(pud)		(!pud_val(pud))
+ #define pud_bad(pud)		(!pud_table(pud))
+ #define pud_present(pud)	pte_present(pud_pte(pud))
+-#define pud_leaf(pud)		pud_sect(pud)
++#define pud_leaf(pud)		(pud_present(pud) && !pud_table(pud))
+ #define pud_valid(pud)		pte_valid(pud_pte(pud))
+ 
+ static inline void set_pud(pud_t *pudp, pud_t pud)
 -- 
 2.35.1
 
