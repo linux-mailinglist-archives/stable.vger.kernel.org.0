@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3535450F5D5
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC5950F783
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345512AbiDZIqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:46:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54922 "EHLO
+        id S1346163AbiDZJG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:06:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345854AbiDZIoP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:44:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13D2015CEC8;
-        Tue, 26 Apr 2022 01:33:46 -0700 (PDT)
+        with ESMTP id S1347819AbiDZJGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB72C161A60;
+        Tue, 26 Apr 2022 01:46:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A536B81D0B;
-        Tue, 26 Apr 2022 08:33:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 570BDC385A0;
-        Tue, 26 Apr 2022 08:33:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F1FB60C42;
+        Tue, 26 Apr 2022 08:46:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52A25C385A4;
+        Tue, 26 Apr 2022 08:46:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962023;
-        bh=FHOoRQKM9G1KcSgPBrPXjx/pUGxStPcnPNWD+fHc5Ls=;
+        s=korg; t=1650962762;
+        bh=G1DZZHPxxzY9jiiWaHLSmkavsSyRc4W3bovaeI/JEGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICMeEgnWK+ZavIc2bH7y1dN/86rgMdEqsnz/wj6ExQaGqaoJzjUX6H+UArfIzr0aF
-         nEdPyAeplyOk3w3Yd8CEaHcmwjz6a0ysWHSJWJ/CER4dANPtkfNMvmF/F7l5A5vWfu
-         W8PdmO8E8sYVwpXNk9JPmgIkSO0bDl9bjjC4TEfk=
+        b=NmYYwgpas5CyAn5DvnGsfbioikERLjTM291G+eoc05+nxeRF76Ee+fdJFGqKe+ab7
+         H+CTfltQkhufu6X4opdKV3lMM0svAfHm3JzjbGEVz95GrLIKM6D5GqYfqxXeMN/tbu
+         MHTiTmtxZghAVii2KMXghgkWZCkqfxrs2Mx8T7kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 47/86] scsi: qedi: Fix failed disconnect handling
-Date:   Tue, 26 Apr 2022 10:21:15 +0200
-Message-Id: <20220426081742.562888089@linuxfoundation.org>
+Subject: [PATCH 5.17 081/146] scsi: qedi: Fix failed disconnect handling
+Date:   Tue, 26 Apr 2022 10:21:16 +0200
+Message-Id: <20220426081752.339186805@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -83,10 +83,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 34 insertions(+), 35 deletions(-)
 
 diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 5f7e62f19d83..3bcadb3dd40d 100644
+index 282ecb4e39bb..e1fe989ad7b3 100644
 --- a/drivers/scsi/qedi/qedi_iscsi.c
 +++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -828,6 +828,37 @@ static int qedi_task_xmit(struct iscsi_task *task)
+@@ -859,6 +859,37 @@ static int qedi_task_xmit(struct iscsi_task *task)
  	return qedi_iscsi_send_ioreq(task);
  }
  
@@ -124,7 +124,7 @@ index 5f7e62f19d83..3bcadb3dd40d 100644
  static struct iscsi_endpoint *
  qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
  		int non_blocking)
-@@ -876,6 +907,7 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
+@@ -907,6 +938,7 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
  	}
  	qedi_ep = ep->dd_data;
  	memset(qedi_ep, 0, sizeof(struct qedi_endpoint));
@@ -132,7 +132,7 @@ index 5f7e62f19d83..3bcadb3dd40d 100644
  	qedi_ep->state = EP_STATE_IDLE;
  	qedi_ep->iscsi_cid = (u32)-1;
  	qedi_ep->qedi = qedi;
-@@ -1026,12 +1058,11 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+@@ -1055,12 +1087,11 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
  	qedi_ep = ep->dd_data;
  	qedi = qedi_ep->qedi;
  
@@ -146,8 +146,8 @@ index 5f7e62f19d83..3bcadb3dd40d 100644
 -
  	if (qedi_ep->conn) {
  		qedi_conn = qedi_ep->conn;
- 		conn = qedi_conn->cls_conn->dd_data;
-@@ -1196,37 +1227,6 @@ static int qedi_data_avail(struct qedi_ctx *qedi, u16 vlanid)
+ 		abrt_conn = qedi_conn->abrt_conn;
+@@ -1234,37 +1265,6 @@ static int qedi_data_avail(struct qedi_ctx *qedi, u16 vlanid)
  	return rc;
  }
  
@@ -185,7 +185,7 @@ index 5f7e62f19d83..3bcadb3dd40d 100644
  static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
  {
  	struct qedi_ctx *qedi;
-@@ -1342,7 +1342,6 @@ static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
+@@ -1380,7 +1380,6 @@ static int qedi_set_path(struct Scsi_Host *shost, struct iscsi_path *path_data)
  			  qedi_ep->dst_addr, qedi_ep->dst_port);
  	}
  
