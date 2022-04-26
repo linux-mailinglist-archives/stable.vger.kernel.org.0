@@ -2,53 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85ACA510740
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 20:38:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4466B510747
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 20:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343969AbiDZSlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 14:41:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32784 "EHLO
+        id S233690AbiDZSnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 14:43:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241045AbiDZSlz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 14:41:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA7DB6A006;
-        Tue, 26 Apr 2022 11:38:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95CF9B81DE7;
-        Tue, 26 Apr 2022 18:38:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1324C385A0;
-        Tue, 26 Apr 2022 18:38:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650998324;
-        bh=Ybj8IchajmkzAQ5r0wEtBIPCgRxzxJki5uddLEvY3aY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iyLOsNSK6YJyUtSna1fyEzFOYk6Y7UP+F9+dhQOji8sEBX7rnC50SwvfR9hGGGUdX
-         FBqn+ZmpzWJdI+e4vVj7ZFEbulOo7eIj5EZLwRBH7YliURljEovkvrO8BW5rNKveFx
-         qkyG43CylYmlYxDHpCOaKDftmptA6lyTYshKXpGI=
-Date:   Tue, 26 Apr 2022 20:38:41 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     John Donnelly <John.p.donnelly@oracle.com>
+        with ESMTP id S1350644AbiDZSnT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 14:43:19 -0400
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9206447
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 11:40:09 -0700 (PDT)
+Received: by mail-yb1-xb36.google.com with SMTP id r189so34569788ybr.6
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 11:40:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=kC/hHVlJTLkuw6/dwp8gJkcWrFg59cwvlSIUKi7uniM=;
+        b=Bn+jIWB2NtvirSdis3306YhWqQqDNINCVflSSVbu+Qc9Rh2GTk45+Y1qSOTCZqXeXf
+         CRgIMTkdJGHzeGFw48ckawet+eGrW0dzXM9RtZN3iCHRdpHsoT1fcOp4txutKNibBlwr
+         Jjs2udwTOWy60z28iVUlOyIWABrL5syTHPUbCFj+l6wZOWctvLXY1EsdcqnMNB9Uz/zc
+         Rk/9uiqE7qh2YhyrApiNoONZqLs5YdzNLnlBbbOMUDRAZ9dendcqpjwB4di6V4UMKOFy
+         6XY8OQSP75wkZQ3YV8KoqchHixoIX+2WDs2kw9+DPVL+obvkh5MEEaI5XGe4nU6znMy/
+         Tixg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=kC/hHVlJTLkuw6/dwp8gJkcWrFg59cwvlSIUKi7uniM=;
+        b=4R0Y/aJyNOkgdavdQrmuGx5JF95k8IOAwk8Oaej3yDnL5DlBAusYgb2BJ7xqVN0SSx
+         GiX5lGjF7nWjjKUKZLCCfu5XH+lKliMTlyqwe/cqQmc0QE4o1Dyx7K2BgQ2oH5AaOD9h
+         +38AdjG5EnF9frWxF8cDMWbDGih4I2RlmFguECGmyAFqnr/v+6SFudrOMfVk6d6n/H1c
+         7t2pJd70mbkjL8WqkwvL4xEd+tCBLYTkzKl+DSNKowC7Ta3RNr01J3lWOnnlXq8+t9zU
+         YxqFpp384+gXqxk9aULe+i5bCR1R8np6+UAB97NR+Ag4Jk0e0omd/pbSuTOHig114TNa
+         Fb1w==
+X-Gm-Message-State: AOAM532Fa4FzftiWMtZ5fXCcas+Dr1a02o8bmEz/ZB0N4USxVO0itCaW
+        kJwlPgFTWMnwaqdEp+h+SSKRXf6CPOOLjnjAOA3UUQ==
+X-Google-Smtp-Source: ABdhPJxwPb+pnLNJc2Op3gilbJLa/zdLsYx0eRFiuPAuGb1DHCmCUmXHNy4yGnDvwPqZvjJA4M+Jo9pO8VYc4ZOhGKg=
+X-Received: by 2002:a25:6652:0:b0:645:d4c1:eb7 with SMTP id
+ z18-20020a256652000000b00645d4c10eb7mr20252740ybm.412.1650998408356; Tue, 26
+ Apr 2022 11:40:08 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 27 Apr 2022 00:09:56 +0530
+Message-ID: <CA+G9fYtR=HBTEZ0gKH-JS=Auz6nzecbAn1Dw9bQRUAeeNk3arg@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/124] 5.15.36-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com, Waiman Long <longman@redhat.com>
-Subject: Re: [PATCH 5.15 000/124] 5.15.36-rc1 review
-Message-ID: <Ymg8MSKq93nSS1rq@kroah.com>
-References: <20220426081747.286685339@linuxfoundation.org>
- <09eb98b8-6200-20c2-faa2-ced7f0e4fc95@oracle.com>
- <Ymgxd6WGhUBuntkS@kroah.com>
- <e1eb47ea-7327-7565-3a8f-3d9cf4ee904c@oracle.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e1eb47ea-7327-7565-3a8f-3d9cf4ee904c@oracle.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,33 +69,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 12:24:24PM -0500, John Donnelly wrote:
-> On 4/26/22 12:52 PM, Greg Kroah-Hartman wrote:
-> > On Tue, Apr 26, 2022 at 12:37:21PM -0500, john.p.donnelly@oracle.com wrote:
-> > > 76723ed1fb89 2021-12-01 | locking/rwsem: Make handoff bit handling more
-> > > consistent
-> > > 
-> > > In Linux 5.15.y.
-> > 
-> > That commit is in 5.15.6, released December 1, 2021.  And this just now
-> > shows up?  How is this related to 5.15.36-rc1?
-> 
-> Hi,
-> 
-> This  was briefly discussed in :
-> 
-> Re: [PATCH v5] locking/rwsem: Make handoff bit handling more consistent
+On Tue, 26 Apr 2022 at 14:07, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.36 release.
+> There are 124 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 28 Apr 2022 08:17:22 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.36-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Have a lore.kernel.org link?  Why not continue it there?
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> Additional testing shows the rwsem hang still exists.  It takes a 24hr fio
-> soak test to show up.
-> 
-> It likely still exists in Linux 5.18.y too. We will be testing that in the
-> future as time permits.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Can you test 5.17.y also as there is no 5.18.y yet :)
+## Build
+* kernel: 5.15.36-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.15.y
+* git commit: ba92a7feb8d6c5f9baf0f85bd8b1a0e4ee2833c0
+* git describe: v5.15.35-125-gba92a7feb8d6
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.35-125-gba92a7feb8d6
 
-thanks,
+## Test Regressions (compared to v5.15.35)
+No test regressions found.
 
-greg k-h
+## Metric Regressions (compared to v5.15.35)
+No metric regressions found.
+
+## Test Fixes (compared to v5.15.35)
+No test fixes found.
+
+## Metric Fixes (compared to v5.15.35)
+No metric fixes found.
+
+## Test result summary
+total: 105208, pass: 88483, fail: 1064, skip: 14478, xfail: 1183
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 291 total, 291 passed, 0 failed
+* arm64: 41 total, 41 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 40 total, 40 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 60 total, 54 passed, 6 failed
+* riscv: 27 total, 22 passed, 5 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 41 total, 41 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
