@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E157C50F4E6
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D7450F3E9
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230164AbiDZIka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58644 "EHLO
+        id S244547AbiDZI3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:29:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345296AbiDZIhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:37:48 -0400
+        with ESMTP id S1344916AbiDZI3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:29:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF3C9137B;
-        Tue, 26 Apr 2022 01:29:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5E1137D87;
+        Tue, 26 Apr 2022 01:24:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7639E617E1;
-        Tue, 26 Apr 2022 08:29:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83966C385A0;
-        Tue, 26 Apr 2022 08:29:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFDE96179E;
+        Tue, 26 Apr 2022 08:24:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0619AC385AE;
+        Tue, 26 Apr 2022 08:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961767;
-        bh=y4FzcMqIYjP6yJMMswEni40ksnSonHHl5KEbQHYCCgw=;
+        s=korg; t=1650961474;
+        bh=yx8av04Y5xxLJJnNv+WtjSdUDUvPluHDdTSScXGxX4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZCEePbLwTskMA3u36MCYGY5Pna+DKIXaIkOolQwlZW8DIJmoZVF2Byioog9Vw4I8
-         2jmd2tmdQ9B9OP5EvMEVVr+pO0BN0WevnnPWDQ9dcz02euQYMgozH07Mn6uYczEbmV
-         e9LtSn0Miez7MyC33RE8d1KJWkZjyEqsdoNVK1zk=
+        b=twvjfrEF3vcrk333shd08mC+4snDPTQRT7v9PpgMqm+YLem/2BgKlTNLg2Tw0pJG9
+         KLQWVU1R5DVGV030gFFEkH5V+HHJum9iKiyZNJMDFB649UiY2+7m0cGDhdi/SGOu5u
+         qbrYj1FmSW75kphnr0deoimbiS5aVKbC480AeACU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        linux-arm-kernel@lists.infradead.org,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/62] ARM: vexpress/spc: Avoid negative array index when !SMP
-Date:   Tue, 26 Apr 2022 10:21:03 +0200
-Message-Id: <20220426081737.892454125@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 4.14 22/43] ata: pata_marvell: Check the bmdma_addr beforing reading
+Date:   Tue, 26 Apr 2022 10:21:04 +0200
+Message-Id: <20220426081735.173804032@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,58 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit b3f1dd52c991d79118f35e6d1bf4d7cb09882e38 ]
+commit aafa9f958342db36c17ac2a7f1b841032c96feb4 upstream.
 
-When building multi_v7_defconfig+CONFIG_SMP=n, -Warray-bounds exposes
-a couple negative array index accesses:
+Before detecting the cable type on the dma bar, the driver should check
+whether the 'bmdma_addr' is zero, which means the adapter does not
+support DMA, otherwise we will get the following error:
 
-arch/arm/mach-vexpress/spc.c: In function 've_spc_clk_init':
-arch/arm/mach-vexpress/spc.c:583:21: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
-  583 |   if (init_opp_table[cluster])
-      |       ~~~~~~~~~~~~~~^~~~~~~~~
-arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
-  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
-      |       ^~~~~~~~~~~~~~
-arch/arm/mach-vexpress/spc.c:592:18: warning: array subscript -1 is below array bounds of 'bool[2]' {aka '_Bool[2]'} [-Warray-bounds]
-  592 |    init_opp_table[cluster] = true;
-      |    ~~~~~~~~~~~~~~^~~~~~~~~
-arch/arm/mach-vexpress/spc.c:556:7: note: while referencing 'init_opp_table'
-  556 |  bool init_opp_table[MAX_CLUSTERS] = { false };
-      |       ^~~~~~~~~~~~~~
+[    5.146634] Bad IO access at port 0x1 (return inb(port))
+[    5.147206] WARNING: CPU: 2 PID: 303 at lib/iomap.c:44 ioread8+0x4a/0x60
+[    5.150856] RIP: 0010:ioread8+0x4a/0x60
+[    5.160238] Call Trace:
+[    5.160470]  <TASK>
+[    5.160674]  marvell_cable_detect+0x6e/0xc0 [pata_marvell]
+[    5.161728]  ata_eh_recover+0x3520/0x6cc0
+[    5.168075]  ata_do_eh+0x49/0x3c0
 
-Skip this logic when built !SMP.
-
-Link: https://lore.kernel.org/r/20220331190443.851661-1-keescook@chromium.org
-Cc: Liviu Dudau <liviu.dudau@arm.com>
-Cc: Sudeep Holla <sudeep.holla@arm.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-vexpress/spc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/pata_marvell.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
-index 1da11bdb1dfb..1c6500c4e6a1 100644
---- a/arch/arm/mach-vexpress/spc.c
-+++ b/arch/arm/mach-vexpress/spc.c
-@@ -580,7 +580,7 @@ static int __init ve_spc_clk_init(void)
- 		}
- 
- 		cluster = topology_physical_package_id(cpu_dev->id);
--		if (init_opp_table[cluster])
-+		if (cluster < 0 || init_opp_table[cluster])
- 			continue;
- 
- 		if (ve_init_opp_table(cpu_dev))
--- 
-2.35.1
-
+--- a/drivers/ata/pata_marvell.c
++++ b/drivers/ata/pata_marvell.c
+@@ -82,6 +82,8 @@ static int marvell_cable_detect(struct a
+ 	switch(ap->port_no)
+ 	{
+ 	case 0:
++		if (!ap->ioaddr.bmdma_addr)
++			return ATA_CBL_PATA_UNK;
+ 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
+ 			return ATA_CBL_PATA40;
+ 		return ATA_CBL_PATA80;
 
 
