@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F70F50F421
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77C7A50F41A
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344828AbiDZIfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60518 "EHLO
+        id S1344940AbiDZIcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345133AbiDZIeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C7A6E4DE;
-        Tue, 26 Apr 2022 01:26:09 -0700 (PDT)
+        with ESMTP id S1344943AbiDZIbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:31:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B5B192B4;
+        Tue, 26 Apr 2022 01:25:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A2B661842;
-        Tue, 26 Apr 2022 08:26:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60645C385A0;
-        Tue, 26 Apr 2022 08:26:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85EC961778;
+        Tue, 26 Apr 2022 08:25:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F53C385A4;
+        Tue, 26 Apr 2022 08:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961568;
-        bh=yEBUQ3Oky58l2b8wmKhvmQEVbc+IegdlWMDvZjewPFk=;
+        s=korg; t=1650961504;
+        bh=UiupeQkFTQvqJQSThXyiRApkOfAntuxNJuCUQopE/c8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kyh/qpoG5wbPLPJCZNU1BBVTKijJxFdXn5ZrS8lqBcycz2Tn/5Cyp5QCCEmFX3CqG
-         wyMBGNefBlU/phvbtpBpea4kcg2vT6+tgDC0WMXR+ROC6ToKbVQAX8S3BtyblLl8FF
-         2ES+jFHt0ih4HVlYW6ZcLE7wLaOsyCq42pWlapY8=
+        b=i8qC1Uk2wk0pomaDUiORjfYXRHTL4iC0uV1ekfy1H6xnCzW9gu41tRwLITm3t84zr
+         //ATdA65x/t+LKvfTOPsHFyWg2h+BroNrJD1ilLn8i7mR4YQLMH9Xs1XJb7IsrDBdI
+         qAmnWBD2ATiPBScYuFlagbu/w5Yo9al3detQ96YA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 11/53] ASoC: msm8916-wcd-digital: Check failure for devm_snd_soc_register_component
+        stable@vger.kernel.org, Ricardo Dias <rdias@singlestore.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        Benjamin Herrenschmidt <benh@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 09/43] tcp: Fix potential use-after-free due to double kfree()
 Date:   Tue, 26 Apr 2022 10:20:51 +0200
-Message-Id: <20220426081735.986492167@linuxfoundation.org>
+Message-Id: <20220426081734.791889606@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-[ Upstream commit e927b05f3cc20de87f6b7d912a5bbe556931caca ]
+commit c89dffc70b340780e5b933832d8c3e045ef3791e upstream.
 
-devm_snd_soc_register_component() may fails, we should check the error
-and do the corresponding error handling.
+Receiving ACK with a valid SYN cookie, cookie_v4_check() allocates struct
+request_sock and then can allocate inet_rsk(req)->ireq_opt. After that,
+tcp_v4_syn_recv_sock() allocates struct sock and copies ireq_opt to
+inet_sk(sk)->inet_opt. Normally, tcp_v4_syn_recv_sock() inserts the full
+socket into ehash and sets NULL to ireq_opt. Otherwise,
+tcp_v4_syn_recv_sock() has to reset inet_opt by NULL and free the full
+socket.
 
-Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220403115239.30140-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The commit 01770a1661657 ("tcp: fix race condition when creating child
+sockets from syncookies") added a new path, in which more than one cores
+create full sockets for the same SYN cookie. Currently, the core which
+loses the race frees the full socket without resetting inet_opt, resulting
+in that both sock_put() and reqsk_put() call kfree() for the same memory:
+
+  sock_put
+    sk_free
+      __sk_free
+        sk_destruct
+          __sk_destruct
+            sk->sk_destruct/inet_sock_destruct
+              kfree(rcu_dereference_protected(inet->inet_opt, 1));
+
+  reqsk_put
+    reqsk_free
+      __reqsk_free
+        req->rsk_ops->destructor/tcp_v4_reqsk_destructor
+          kfree(rcu_dereference_protected(inet_rsk(req)->ireq_opt, 1));
+
+Calling kmalloc() between the double kfree() can lead to use-after-free, so
+this patch fixes it by setting NULL to inet_opt before sock_put().
+
+As a side note, this kind of issue does not happen for IPv6. This is
+because tcp_v6_syn_recv_sock() clones both ipv6_opt and pktopts which
+correspond to ireq_opt in IPv4.
+
+Fixes: 01770a166165 ("tcp: fix race condition when creating child sockets from syncookies")
+CC: Ricardo Dias <rdias@singlestore.com>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Reviewed-by: Benjamin Herrenschmidt <benh@amazon.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210118055920.82516-1-kuniyu@amazon.co.jp
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/msm8916-wcd-digital.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_ipv4.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
-index e6750bda542a..fa813ec32119 100644
---- a/sound/soc/codecs/msm8916-wcd-digital.c
-+++ b/sound/soc/codecs/msm8916-wcd-digital.c
-@@ -923,9 +923,16 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
- 
- 	dev_set_drvdata(dev, priv);
- 
--	return devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
-+	ret = devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
- 				      msm8916_wcd_digital_dai,
- 				      ARRAY_SIZE(msm8916_wcd_digital_dai));
-+	if (ret)
-+		goto err_mclk;
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -1421,6 +1421,8 @@ struct sock *tcp_v4_syn_recv_sock(const
+ 		tcp_move_syn(newtp, req);
+ 		ireq->ireq_opt = NULL;
+ 	} else {
++		newinet->inet_opt = NULL;
 +
-+	return 0;
-+
-+err_mclk:
-+	clk_disable_unprepare(priv->mclk);
- err_clk:
- 	clk_disable_unprepare(priv->ahbclk);
- 	return ret;
--- 
-2.35.1
-
+ 		if (!req_unhash && found_dup_sk) {
+ 			/* This code path should only be executed in the
+ 			 * syncookie case only
+@@ -1428,8 +1430,6 @@ struct sock *tcp_v4_syn_recv_sock(const
+ 			bh_unlock_sock(newsk);
+ 			sock_put(newsk);
+ 			newsk = NULL;
+-		} else {
+-			newinet->inet_opt = NULL;
+ 		}
+ 	}
+ 	return newsk;
 
 
