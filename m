@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7840E50F663
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FDFE50F7A6
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345643AbiDZIqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:46:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
+        id S1346619AbiDZJIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346816AbiDZIpY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 546533BF89;
-        Tue, 26 Apr 2022 01:35:46 -0700 (PDT)
+        with ESMTP id S1347935AbiDZJGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F81BBAB88;
+        Tue, 26 Apr 2022 01:47:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E80D36185A;
-        Tue, 26 Apr 2022 08:35:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00799C385A0;
-        Tue, 26 Apr 2022 08:35:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1981FB81A2F;
+        Tue, 26 Apr 2022 08:47:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47128C385A0;
+        Tue, 26 Apr 2022 08:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962145;
-        bh=rW6yEKuVGsLMEoEc+BoXhVds8ZGtpnr5lkrCxZp1kwI=;
+        s=korg; t=1650962857;
+        bh=6u3Lw04ae7BNxpRscauU4CwkkTx3Rv+lfvEmnyV8btA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H+Gg5FICjl3ynToe6HLF2DnbtgXGzxPUFMZjUwtq8YBqxLSbd6r8K74O74LAEMjkL
-         jMTQYnY4caNDpGsgP0r+CdmU1V4KBKbHM8wm+c30YeW1wIln22rzh9pqYZybYefdti
-         ZCZIAc1qcs/khnKw+Vw3xn8l3WIyoo4jG/GY10fo=
+        b=1hEcCaKkSBnLUX/rybJP42RQV55GSm+DkG1iQz9xdQ1tjcLOKlJJb/vjrI69BHzU4
+         Vhfj3ytvWq4lcvpopNX5YgT3wkaojKW6G+R3d2RNwkr/1jkmFKFcp55q1qHhtlLjQ3
+         z1VztyxDRAG+2ey9kJgRuNfqPyZv+2lqaloK2d7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.10 80/86] ext4: force overhead calculation if the s_overhead_cluster makes no sense
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        German Gomez <german.gomez@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 113/146] perf report: Set PERF_SAMPLE_DATA_SRC bit for Arm SPE event
 Date:   Tue, 26 Apr 2022 10:21:48 +0200
-Message-Id: <20220426081743.524330987@linuxfoundation.org>
+Message-Id: <20220426081753.230607369@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,44 +61,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit 85d825dbf4899a69407338bae462a59aa9a37326 upstream.
+[ Upstream commit ccb17caecfbd542f49a2a79ae088136ba8bfb794 ]
 
-If the file system does not use bigalloc, calculating the overhead is
-cheap, so force the recalculation of the overhead so we don't have to
-trust the precalculated overhead in the superblock.
+Since commit bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem
+info is not available") "perf mem report" and "perf report --mem-mode"
+don't report result if the PERF_SAMPLE_DATA_SRC bit is missed in sample
+type.
 
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The commit ffab487052054162 ("perf: arm-spe: Fix perf report
+--mem-mode") partially fixes the issue.  It adds PERF_SAMPLE_DATA_SRC
+bit for Arm SPE event, this allows the perf data file generated by
+kernel v5.18-rc1 or later version can be reported properly.
+
+On the other hand, perf tool still fails to be backward compatibility
+for a data file recorded by an older version's perf which contains Arm
+SPE trace data.  This patch is a workaround in reporting phase, when
+detects ARM SPE PMU event and without PERF_SAMPLE_DATA_SRC bit, it will
+force to set the bit in the sample type and give a warning info.
+
+Fixes: bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem info is not available")
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Tested-by: German Gomez <german.gomez@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220414123201.842754-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ tools/perf/builtin-report.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4933,9 +4933,18 @@ no_journal:
- 	 * Get the # of file system overhead blocks from the
- 	 * superblock if present.
- 	 */
--	if (es->s_overhead_clusters)
--		sbi->s_overhead = le32_to_cpu(es->s_overhead_clusters);
--	else {
-+	sbi->s_overhead = le32_to_cpu(es->s_overhead_clusters);
-+	/* ignore the precalculated value if it is ridiculous */
-+	if (sbi->s_overhead > ext4_blocks_count(es))
-+		sbi->s_overhead = 0;
-+	/*
-+	 * If the bigalloc feature is not enabled recalculating the
-+	 * overhead doesn't take long, so we might as well just redo
-+	 * it to make sure we are using the correct value.
-+	 */
-+	if (!ext4_has_feature_bigalloc(sb))
-+		sbi->s_overhead = 0;
-+	if (sbi->s_overhead == 0) {
- 		err = ext4_calculate_overhead(sb);
- 		if (err)
- 			goto failed_mount_wq;
+diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
+index 1dd92d8c9279..a6bb35b0af9f 100644
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -349,6 +349,7 @@ static int report__setup_sample_type(struct report *rep)
+ 	struct perf_session *session = rep->session;
+ 	u64 sample_type = evlist__combined_sample_type(session->evlist);
+ 	bool is_pipe = perf_data__is_pipe(session->data);
++	struct evsel *evsel;
+ 
+ 	if (session->itrace_synth_opts->callchain ||
+ 	    session->itrace_synth_opts->add_callchain ||
+@@ -403,6 +404,19 @@ static int report__setup_sample_type(struct report *rep)
+ 	}
+ 
+ 	if (sort__mode == SORT_MODE__MEMORY) {
++		/*
++		 * FIXUP: prior to kernel 5.18, Arm SPE missed to set
++		 * PERF_SAMPLE_DATA_SRC bit in sample type.  For backward
++		 * compatibility, set the bit if it's an old perf data file.
++		 */
++		evlist__for_each_entry(session->evlist, evsel) {
++			if (strstr(evsel->name, "arm_spe") &&
++				!(sample_type & PERF_SAMPLE_DATA_SRC)) {
++				evsel->core.attr.sample_type |= PERF_SAMPLE_DATA_SRC;
++				sample_type |= PERF_SAMPLE_DATA_SRC;
++			}
++		}
++
+ 		if (!is_pipe && !(sample_type & PERF_SAMPLE_DATA_SRC)) {
+ 			ui__error("Selected --mem-mode but no mem data. "
+ 				  "Did you call perf record without -d?\n");
+-- 
+2.35.1
+
 
 
