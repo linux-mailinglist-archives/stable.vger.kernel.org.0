@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86AA850F84B
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 718CF50F562
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbiDZJGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:06:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44958 "EHLO
+        id S1345618AbiDZIqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:46:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346969AbiDZJFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFBAF1368;
-        Tue, 26 Apr 2022 01:44:02 -0700 (PDT)
+        with ESMTP id S1345313AbiDZInI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:43:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F5A115B443;
+        Tue, 26 Apr 2022 01:33:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B134ACE1BD6;
-        Tue, 26 Apr 2022 08:44:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D69BC385A4;
-        Tue, 26 Apr 2022 08:43:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72E7C6185A;
+        Tue, 26 Apr 2022 08:33:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66EA7C385A0;
+        Tue, 26 Apr 2022 08:33:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962639;
-        bh=AxCq9Te8CDy//AGhRuI/uCoayWcvoqpu3VgSru80L8Y=;
+        s=korg; t=1650962001;
+        bh=SWvMRXkvf+X4DBjrZbBTYFmrjgpYffeBe3Uy39pBiJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPNj2AtAJi+C61Vp6ox+qj8Hla9EaorMZ3I8qiQjiUtxvpT1pINxZTt2GQ616EsIH
-         s/gqDD9+DR6OipkYTnRqXcuYlyJN2lSJdsuw1C5IOXys5jqfoIYoXXBJnUu99t7SUE
-         FGdKokvm00gKmK0ttyuTPWk8e/BibHa3NRgUot+8=
+        b=2qnWoYhkRtap5KzvoatkdPrCHC7zbWat24x9mhF35QRZCnS2xJSYNHwKzULQPVfFG
+         scI74l0mwOeYvaicFIDnyYFUaP/hc1Lo7nBShFeakFMyJP+fucyF6z9lvB3KV1Yzdm
+         wjDEIh3wtcgBBrV9o2UjGQlP2z8ytmmBR3iDRKgM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 039/146] ipv6: make ip6_rt_gc_expire an atomic_t
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 06/86] net/sched: cls_u32: fix netns refcount changes in u32_change()
 Date:   Tue, 26 Apr 2022 10:20:34 +0200
-Message-Id: <20220426081751.167876212@linuxfoundation.org>
+Message-Id: <20220426081741.391271584@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,122 +58,136 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9cb7c013420f98fa6fd12fc6a5dc055170c108db ]
+commit 3db09e762dc79584a69c10d74a6b98f89a9979f8 upstream.
 
-Reads and Writes to ip6_rt_gc_expire always have been racy,
-as syzbot reported lately [1]
+We are now able to detect extra put_net() at the moment
+they happen, instead of much later in correct code paths.
 
-There is a possible risk of under-flow, leading
-to unexpected high value passed to fib6_run_gc(),
-although I have not observed this in the field.
+u32_init_knode() / tcf_exts_init() populates the ->exts.net
+pointer, but as mentioned in tcf_exts_init(),
+the refcount on netns has not been elevated yet.
 
-Hosts hitting ip6_dst_gc() very hard are under pretty bad
-state anyway.
+The refcount is taken only once tcf_exts_get_net()
+is called.
 
-[1]
-BUG: KCSAN: data-race in ip6_dst_gc / ip6_dst_gc
+So the two u32_destroy_key() calls from u32_change()
+are attempting to release an invalid reference on the netns.
 
-read-write to 0xffff888102110744 of 4 bytes by task 13165 on cpu 1:
- ip6_dst_gc+0x1f3/0x220 net/ipv6/route.c:3311
- dst_alloc+0x9b/0x160 net/core/dst.c:86
- ip6_dst_alloc net/ipv6/route.c:344 [inline]
- icmp6_dst_alloc+0xb2/0x360 net/ipv6/route.c:3261
- mld_sendpack+0x2b9/0x580 net/ipv6/mcast.c:1807
- mld_send_cr net/ipv6/mcast.c:2119 [inline]
- mld_ifc_work+0x576/0x800 net/ipv6/mcast.c:2651
- process_one_work+0x3d3/0x720 kernel/workqueue.c:2289
- worker_thread+0x618/0xa70 kernel/workqueue.c:2436
- kthread+0x1a9/0x1e0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30
+syzbot report:
 
-read-write to 0xffff888102110744 of 4 bytes by task 11607 on cpu 0:
- ip6_dst_gc+0x1f3/0x220 net/ipv6/route.c:3311
- dst_alloc+0x9b/0x160 net/core/dst.c:86
- ip6_dst_alloc net/ipv6/route.c:344 [inline]
- icmp6_dst_alloc+0xb2/0x360 net/ipv6/route.c:3261
- mld_sendpack+0x2b9/0x580 net/ipv6/mcast.c:1807
- mld_send_cr net/ipv6/mcast.c:2119 [inline]
- mld_ifc_work+0x576/0x800 net/ipv6/mcast.c:2651
- process_one_work+0x3d3/0x720 kernel/workqueue.c:2289
- worker_thread+0x618/0xa70 kernel/workqueue.c:2436
- kthread+0x1a9/0x1e0 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30
-
-value changed: 0x00000bb3 -> 0x00000ba9
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 11607 Comm: kworker/0:21 Not tainted 5.18.0-rc1-syzkaller-00037-g42e7a03d3bad-dirty #0
+refcount_t: decrement hit 0; leaking memory.
+WARNING: CPU: 0 PID: 21708 at lib/refcount.c:31 refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
+Modules linked in:
+CPU: 0 PID: 21708 Comm: syz-executor.5 Not tainted 5.18.0-rc2-next-20220412-syzkaller #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: mld mld_ifc_work
+RIP: 0010:refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
+Code: 1d 14 b6 b2 09 31 ff 89 de e8 6d e9 89 fd 84 db 75 e0 e8 84 e5 89 fd 48 c7 c7 40 aa 26 8a c6 05 f4 b5 b2 09 01 e8 e5 81 2e 05 <0f> 0b eb c4 e8 68 e5 89 fd 0f b6 1d e3 b5 b2 09 31 ff 89 de e8 38
+RSP: 0018:ffffc900051af1b0 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000040000 RSI: ffffffff8160a0c8 RDI: fffff52000a35e28
+RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff81604a9e R11: 0000000000000000 R12: 1ffff92000a35e3b
+R13: 00000000ffffffef R14: ffff8880211a0194 R15: ffff8880577d0a00
+FS:  00007f25d183e700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f19c859c028 CR3: 0000000051009000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __refcount_dec include/linux/refcount.h:344 [inline]
+ refcount_dec include/linux/refcount.h:359 [inline]
+ ref_tracker_free+0x535/0x6b0 lib/ref_tracker.c:118
+ netns_tracker_free include/net/net_namespace.h:327 [inline]
+ put_net_track include/net/net_namespace.h:341 [inline]
+ tcf_exts_put_net include/net/pkt_cls.h:255 [inline]
+ u32_destroy_key.isra.0+0xa7/0x2b0 net/sched/cls_u32.c:394
+ u32_change+0xe01/0x3140 net/sched/cls_u32.c:909
+ tc_new_tfilter+0x98d/0x2200 net/sched/cls_api.c:2148
+ rtnetlink_rcv_msg+0x80d/0xb80 net/core/rtnetlink.c:6016
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2495
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:725
+ ____sys_sendmsg+0x6e2/0x800 net/socket.c:2413
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2496
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7f25d0689049
+Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f25d183e168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 00007f25d079c030 RCX: 00007f25d0689049
+RDX: 0000000000000000 RSI: 0000000020000340 RDI: 0000000000000005
+RBP: 00007f25d06e308d R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007ffd0b752e3f R14: 00007f25d183e300 R15: 0000000000022000
+ </TASK>
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: 35c55fc156d8 ("cls_u32: use tcf_exts_get_net() before call_rcu()")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220413181333.649424-1-eric.dumazet@gmail.com
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/netns/ipv6.h |  4 ++--
- net/ipv6/route.c         | 11 ++++++-----
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ net/sched/cls_u32.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/include/net/netns/ipv6.h b/include/net/netns/ipv6.h
-index 6bd7e5a85ce7..ff82983b7ab4 100644
---- a/include/net/netns/ipv6.h
-+++ b/include/net/netns/ipv6.h
-@@ -75,8 +75,8 @@ struct netns_ipv6 {
- 	struct list_head	fib6_walkers;
- 	rwlock_t		fib6_walker_lock;
- 	spinlock_t		fib6_gc_lock;
--	unsigned int		 ip6_rt_gc_expire;
--	unsigned long		 ip6_rt_last_gc;
-+	atomic_t		ip6_rt_gc_expire;
-+	unsigned long		ip6_rt_last_gc;
- 	unsigned char		flowlabel_has_excl;
- #ifdef CONFIG_IPV6_MULTIPLE_TABLES
- 	bool			fib6_has_custom_rules;
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index da1bf48e7937..1caeb1ef2095 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -3303,6 +3303,7 @@ static int ip6_dst_gc(struct dst_ops *ops)
- 	int rt_elasticity = net->ipv6.sysctl.ip6_rt_gc_elasticity;
- 	int rt_gc_timeout = net->ipv6.sysctl.ip6_rt_gc_timeout;
- 	unsigned long rt_last_gc = net->ipv6.ip6_rt_last_gc;
-+	unsigned int val;
- 	int entries;
- 
- 	entries = dst_entries_get_fast(ops);
-@@ -3313,13 +3314,13 @@ static int ip6_dst_gc(struct dst_ops *ops)
- 	    entries <= rt_max_size)
- 		goto out;
- 
--	net->ipv6.ip6_rt_gc_expire++;
--	fib6_run_gc(net->ipv6.ip6_rt_gc_expire, net, true);
-+	fib6_run_gc(atomic_inc_return(&net->ipv6.ip6_rt_gc_expire), net, true);
- 	entries = dst_entries_get_slow(ops);
- 	if (entries < ops->gc_thresh)
--		net->ipv6.ip6_rt_gc_expire = rt_gc_timeout>>1;
-+		atomic_set(&net->ipv6.ip6_rt_gc_expire, rt_gc_timeout >> 1);
- out:
--	net->ipv6.ip6_rt_gc_expire -= net->ipv6.ip6_rt_gc_expire>>rt_elasticity;
-+	val = atomic_read(&net->ipv6.ip6_rt_gc_expire);
-+	atomic_set(&net->ipv6.ip6_rt_gc_expire, val - (val >> rt_elasticity));
- 	return entries > rt_max_size;
+--- a/net/sched/cls_u32.c
++++ b/net/sched/cls_u32.c
+@@ -386,14 +386,19 @@ static int u32_init(struct tcf_proto *tp
+ 	return 0;
  }
  
-@@ -6514,7 +6515,7 @@ static int __net_init ip6_route_net_init(struct net *net)
- 	net->ipv6.sysctl.ip6_rt_min_advmss = IPV6_MIN_MTU - 20 - 40;
- 	net->ipv6.sysctl.skip_notify_on_dev_down = 0;
+-static int u32_destroy_key(struct tc_u_knode *n, bool free_pf)
++static void __u32_destroy_key(struct tc_u_knode *n)
+ {
+ 	struct tc_u_hnode *ht = rtnl_dereference(n->ht_down);
  
--	net->ipv6.ip6_rt_gc_expire = 30*HZ;
-+	atomic_set(&net->ipv6.ip6_rt_gc_expire, 30*HZ);
+ 	tcf_exts_destroy(&n->exts);
+-	tcf_exts_put_net(&n->exts);
+ 	if (ht && --ht->refcnt == 0)
+ 		kfree(ht);
++	kfree(n);
++}
++
++static void u32_destroy_key(struct tc_u_knode *n, bool free_pf)
++{
++	tcf_exts_put_net(&n->exts);
+ #ifdef CONFIG_CLS_U32_PERF
+ 	if (free_pf)
+ 		free_percpu(n->pf);
+@@ -402,8 +407,7 @@ static int u32_destroy_key(struct tc_u_k
+ 	if (free_pf)
+ 		free_percpu(n->pcpu_success);
+ #endif
+-	kfree(n);
+-	return 0;
++	__u32_destroy_key(n);
+ }
  
- 	ret = 0;
- out:
--- 
-2.35.1
-
+ /* u32_delete_key_rcu should be called when free'ing a copied
+@@ -898,13 +902,13 @@ static int u32_change(struct net *net, s
+ 				    tca[TCA_RATE], ovr, extack);
+ 
+ 		if (err) {
+-			u32_destroy_key(new, false);
++			__u32_destroy_key(new);
+ 			return err;
+ 		}
+ 
+ 		err = u32_replace_hw_knode(tp, new, flags, extack);
+ 		if (err) {
+-			u32_destroy_key(new, false);
++			__u32_destroy_key(new);
+ 			return err;
+ 		}
+ 
 
 
