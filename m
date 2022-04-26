@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF76A50F6BC
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60AE750F43B
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345927AbiDZI6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45584 "EHLO
+        id S1345027AbiDZIdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:33:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345657AbiDZI5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:42 -0400
+        with ESMTP id S1344973AbiDZIct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:32:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B8C96470;
-        Tue, 26 Apr 2022 01:42:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8363BA49;
+        Tue, 26 Apr 2022 01:25:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ED5A1B81CF2;
-        Tue, 26 Apr 2022 08:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B9E2C385AC;
-        Tue, 26 Apr 2022 08:42:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60641B81CF5;
+        Tue, 26 Apr 2022 08:25:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B58C385A0;
+        Tue, 26 Apr 2022 08:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962532;
-        bh=5nPtu9t92kGsW9AlcmC024WwTYkzekGbB+m4q4NzhtU=;
+        s=korg; t=1650961517;
+        bh=JUshGMI/abP8kj6/OlahffOc0YFPLXutXE/WlMFStqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgDoFogpq3wfH0hkFsiHvaNBbpDvodqOG8sr20ToeEmb7yxnmfvsJSXwilmM1bWze
-         Ya8ytkRmRBpvB838foJTkBqHmsNRHV8lj6PLdQZ8QmB7AjKv0Cq6YR4yzys9aih5lb
-         2UMA90VNOUBkC5IXzYr6XIlCm7hsrxj8JvEQniVM=
+        b=BlzszmPxdsQrEen24pyDnPgWcddJPhYOh0r/8rJuy9/PeMdP3aUH5CB9PBJmetfEe
+         LJNSxt6B4SXlqyNF9blLeA4tqez/Jf/6z2QOozTdDkW2G3KwBb02z6Z36Iu5/72sPQ
+         9ADmF2zeYRFCnbkkg3IU5idaaqpPJLmgq30MoKGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Yu <xuyu@linux.alibaba.com>,
-        Abaci <abaci@linux.alibaba.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 078/124] mm/memory-failure.c: skip huge_zero_page in memory_failure()
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 37/43] ax25: fix UAF bugs of net_device caused by rebinding operation
 Date:   Tue, 26 Apr 2022 10:21:19 +0200
-Message-Id: <20220426081749.517957403@linuxfoundation.org>
+Message-Id: <20220426081735.611569090@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,95 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yu <xuyu@linux.alibaba.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit d173d5417fb67411e623d394aab986d847e47dad upstream.
+commit feef318c855a361a1eccd880f33e88c460eb63b4 upstream.
 
-Kernel panic when injecting memory_failure for the global
-huge_zero_page, when CONFIG_DEBUG_VM is enabled, as follows.
+The ax25_kill_by_device() will set s->ax25_dev = NULL and
+call ax25_disconnect() to change states of ax25_cb and
+sock, if we call ax25_bind() before ax25_kill_by_device().
 
-  Injecting memory failure for pfn 0x109ff9 at process virtual address 0x20ff9000
-  page:00000000fb053fc3 refcount:2 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x109e00
-  head:00000000fb053fc3 order:9 compound_mapcount:0 compound_pincount:0
-  flags: 0x17fffc000010001(locked|head|node=0|zone=2|lastcpupid=0x1ffff)
-  raw: 017fffc000010001 0000000000000000 dead000000000122 0000000000000000
-  raw: 0000000000000000 0000000000000000 00000002ffffffff 0000000000000000
-  page dumped because: VM_BUG_ON_PAGE(is_huge_zero_page(head))
-  ------------[ cut here ]------------
-  kernel BUG at mm/huge_memory.c:2499!
-  invalid opcode: 0000 [#1] PREEMPT SMP PTI
-  CPU: 6 PID: 553 Comm: split_bug Not tainted 5.18.0-rc1+ #11
-  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 3288b3c 04/01/2014
-  RIP: 0010:split_huge_page_to_list+0x66a/0x880
-  Code: 84 9b fb ff ff 48 8b 7c 24 08 31 f6 e8 9f 5d 2a 00 b8 b8 02 00 00 e9 e8 fb ff ff 48 c7 c6 e8 47 3c 82 4c b
-  RSP: 0018:ffffc90000dcbdf8 EFLAGS: 00010246
-  RAX: 000000000000003c RBX: 0000000000000001 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffffffff823e4c4f RDI: 00000000ffffffff
-  RBP: ffff88843fffdb40 R08: 0000000000000000 R09: 00000000fffeffff
-  R10: ffffc90000dcbc48 R11: ffffffff82d68448 R12: ffffea0004278000
-  R13: ffffffff823c6203 R14: 0000000000109ff9 R15: ffffea000427fe40
-  FS:  00007fc375a26740(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fc3757c9290 CR3: 0000000102174006 CR4: 00000000003706e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   try_to_split_thp_page+0x3a/0x130
-   memory_failure+0x128/0x800
-   madvise_inject_error.cold+0x8b/0xa1
-   __x64_sys_madvise+0x54/0x60
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7fc3754f8bf9
-  Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 8
-  RSP: 002b:00007ffeda93a1d8 EFLAGS: 00000217 ORIG_RAX: 000000000000001c
-  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc3754f8bf9
-  RDX: 0000000000000064 RSI: 0000000000003000 RDI: 0000000020ff9000
-  RBP: 00007ffeda93a200 R08: 0000000000000000 R09: 0000000000000000
-  R10: 00000000ffffffff R11: 0000000000000217 R12: 0000000000400490
-  R13: 00007ffeda93a2e0 R14: 0000000000000000 R15: 0000000000000000
+However, if we call ax25_bind() again between the window of
+ax25_kill_by_device() and ax25_dev_device_down(), the values
+and states changed by ax25_kill_by_device() will be reassigned.
 
-This makes huge_zero_page bail out explicitly before split in
-memory_failure(), thus the panic above won't happen again.
+Finally, ax25_dev_device_down() will deallocate net_device.
+If we dereference net_device in syscall functions such as
+ax25_release(), ax25_sendmsg(), ax25_getsockopt(), ax25_getname()
+and ax25_info_show(), a UAF bug will occur.
 
-Link: https://lkml.kernel.org/r/497d3835612610e370c74e697ea3c721d1d55b9c.1649775850.git.xuyu@linux.alibaba.com
-Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+One of the possible race conditions is shown below:
+
+      (USE)                   |      (FREE)
+ax25_bind()                   |
+                              |  ax25_kill_by_device()
+ax25_bind()                   |
+ax25_connect()                |    ...
+                              |  ax25_dev_device_down()
+                              |    ...
+                              |    dev_put_track(dev, ...) //FREE
+ax25_release()                |    ...
+  ax25_send_control()         |
+    alloc_skb()      //USE    |
+
+the corresponding fail log is shown below:
+===============================================================
+BUG: KASAN: use-after-free in ax25_send_control+0x43/0x210
+...
+Call Trace:
+  ...
+  ax25_send_control+0x43/0x210
+  ax25_release+0x2db/0x3b0
+  __sock_release+0x6d/0x120
+  sock_close+0xf/0x20
+  __fput+0x11f/0x420
+  ...
+Allocated by task 1283:
+  ...
+  __kasan_kmalloc+0x81/0xa0
+  alloc_netdev_mqs+0x5a/0x680
+  mkiss_open+0x6c/0x380
+  tty_ldisc_open+0x55/0x90
+  ...
+Freed by task 1969:
+  ...
+  kfree+0xa3/0x2c0
+  device_release+0x54/0xe0
+  kobject_put+0xa5/0x120
+  tty_ldisc_kill+0x3e/0x80
+  ...
+
+In order to fix these UAF bugs caused by rebinding operation,
+this patch adds dev_hold_track() into ax25_bind() and
+corresponding dev_put_track() into ax25_kill_by_device().
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: backport to 4.14: adjust dev_put_track()->dev_put() and
+dev_hold_track()->dev_hold()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory-failure.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ net/ax25/af_ax25.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -1690,6 +1690,19 @@ try_again:
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -101,6 +101,7 @@ again:
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
+ 			s->ax25_dev = NULL;
++			dev_put(ax25_dev->dev);
+ 			ax25_dev_put(ax25_dev);
+ 			release_sock(sk);
+ 			ax25_disconnect(s, ENETUNREACH);
+@@ -1126,8 +1127,10 @@ static int ax25_bind(struct socket *sock
+ 		}
+ 	}
  
- 	if (PageTransHuge(hpage)) {
- 		/*
-+		 * Bail out before SetPageHasHWPoisoned() if hpage is
-+		 * huge_zero_page, although PG_has_hwpoisoned is not
-+		 * checked in set_huge_zero_page().
-+		 *
-+		 * TODO: Handle memory failure of huge_zero_page thoroughly.
-+		 */
-+		if (is_huge_zero_page(hpage)) {
-+			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
-+			res = -EBUSY;
-+			goto unlock_mutex;
-+		}
-+
-+		/*
- 		 * The flag must be set after the refcount is bumped
- 		 * otherwise it may race with THP split.
- 		 * And the flag can't be set in get_hwpoison_page() since
+-	if (ax25_dev != NULL)
++	if (ax25_dev) {
+ 		ax25_fillin_cb(ax25, ax25_dev);
++		dev_hold(ax25_dev->dev);
++	}
+ 
+ done:
+ 	ax25_cb_add(ax25);
 
 
