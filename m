@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 321D350F7A4
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB1550F6BE
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243598AbiDZJLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:11:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55036 "EHLO
+        id S1345936AbiDZI6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346280AbiDZJH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:07:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01F9ACA0D7;
-        Tue, 26 Apr 2022 01:48:35 -0700 (PDT)
+        with ESMTP id S1345709AbiDZI5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0096404;
+        Tue, 26 Apr 2022 01:42:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B14F5B81D0A;
-        Tue, 26 Apr 2022 08:48:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDB37C385A0;
-        Tue, 26 Apr 2022 08:48:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6BFBECE1BD5;
+        Tue, 26 Apr 2022 08:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D072C385A4;
+        Tue, 26 Apr 2022 08:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962912;
-        bh=dTrkoAicnKNbR8OoKD9QRqhGbzc5PwsgGK9Ouyr9B7M=;
+        s=korg; t=1650962541;
+        bh=34w/b33et7kzb1s2qIqXMIqbE9amLUVDm17qap+t5v4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wALMeqXus2Z04YUG1AhB9X/AGLzp18hM5tVNhD8GYAyJlqEGHStxb0xfR8uEPbdpc
-         P53UcnmQPhyclO2+xYXhgtrTCfXd3bRQnTuqI8WNcAkjM4HtJDN1M8MPShwBoGiteB
-         Sy0kED6HcevFT/bKP/Rod8oXiaT2wI9Qh7wkKVv4=
+        b=x8sk5lews89mBxOMyKJnqk9r1T1MLzM/ozspg+Uu5T1EoshWLuygiRaSr1xmd+YxU
+         Fg5u29QSTjGarkgCgPUdNiPDRPX0X/XVIPHHXohvGg+thJlICYjLrXTQN9Ceqd5UkQ
+         zhUFUsV5N9lE3FqRay8UtOq/6EYqoCVaE45dbVtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 129/146] KVM: x86: Dont re-acquire SRCU lock in complete_emulated_io()
-Date:   Tue, 26 Apr 2022 10:22:04 +0200
-Message-Id: <20220426081753.688082335@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.15 124/124] arm64: dts: qcom: add IPA qcom,qmp property
+Date:   Tue, 26 Apr 2022 10:22:05 +0200
+Message-Id: <20220426081750.813653061@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +52,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Alex Elder <elder@linaro.org>
 
-commit 2d08935682ac5f6bfb70f7e6844ec27d4a245fa4 upstream.
+commit 73419e4d2fd1b838fcb1df6a978d67b3ae1c5c01 upstream.
 
-Don't re-acquire SRCU in complete_emulated_io() now that KVM acquires the
-lock in kvm_arch_vcpu_ioctl_run().  More importantly, don't overwrite
-vcpu->srcu_idx.  If the index acquired by complete_emulated_io() differs
-from the one acquired by kvm_arch_vcpu_ioctl_run(), KVM will effectively
-leak a lock and hang if/when synchronize_srcu() is invoked for the
-relevant grace period.
+At least three platforms require the "qcom,qmp" property to be
+specified, so the IPA driver can request register retention across
+power collapse.  Update DTS files accordingly.
 
-Fixes: 8d25b7beca7e ("KVM: x86: pull kvm->srcu read-side to kvm_arch_vcpu_ioctl_run")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220415004343.2203171-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220201140723.467431-1-elder@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7180.dtsi |    2 ++
+ arch/arm64/boot/dts/qcom/sc7280.dtsi |    2 ++
+ arch/arm64/boot/dts/qcom/sm8350.dtsi |    2 ++
+ 3 files changed, 6 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10296,12 +10296,7 @@ static int vcpu_run(struct kvm_vcpu *vcp
+--- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
+@@ -1460,6 +1460,8 @@
+ 					     "imem",
+ 					     "config";
  
- static inline int complete_emulated_io(struct kvm_vcpu *vcpu)
- {
--	int r;
--
--	vcpu->srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
--	r = kvm_emulate_instruction(vcpu, EMULTYPE_NO_DECODE);
--	srcu_read_unlock(&vcpu->kvm->srcu, vcpu->srcu_idx);
--	return r;
-+	return kvm_emulate_instruction(vcpu, EMULTYPE_NO_DECODE);
- }
++			qcom,qmp = <&aoss_qmp>;
++
+ 			qcom,smem-states = <&ipa_smp2p_out 0>,
+ 					   <&ipa_smp2p_out 1>;
+ 			qcom,smem-state-names = "ipa-clock-enabled-valid",
+--- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+@@ -615,6 +615,8 @@
+ 			interconnect-names = "memory",
+ 					     "config";
  
- static int complete_emulated_pio(struct kvm_vcpu *vcpu)
++			qcom,qmp = <&aoss_qmp>;
++
+ 			qcom,smem-states = <&ipa_smp2p_out 0>,
+ 					   <&ipa_smp2p_out 1>;
+ 			qcom,smem-state-names = "ipa-clock-enabled-valid",
+--- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
+@@ -736,6 +736,8 @@
+ 			interconnect-names = "memory",
+ 					     "config";
+ 
++			qcom,qmp = <&aoss_qmp>;
++
+ 			qcom,smem-states = <&ipa_smp2p_out 0>,
+ 					   <&ipa_smp2p_out 1>;
+ 			qcom,smem-state-names = "ipa-clock-enabled-valid",
 
 
