@@ -2,267 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F5F750F419
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F2950F497
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344959AbiDZIdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:33:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38390 "EHLO
+        id S1345166AbiDZIgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344778AbiDZIbu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:31:50 -0400
+        with ESMTP id S1345228AbiDZIfW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:22 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 901DB37A3C;
-        Tue, 26 Apr 2022 01:25:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D78814BC;
+        Tue, 26 Apr 2022 01:28:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2434B81D00;
-        Tue, 26 Apr 2022 08:25:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 243D5C385A0;
-        Tue, 26 Apr 2022 08:25:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA456B81CF7;
+        Tue, 26 Apr 2022 08:28:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EEC6C385A0;
+        Tue, 26 Apr 2022 08:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961507;
-        bh=neyDk7t4Z/jpUoviJWkV1ENMxBM0RE0WTia6Z9s6V4U=;
-        h=From:To:Cc:Subject:Date:From;
-        b=IYpTEi+xvm7FzafU/4YxK3eAAtkKC+HeCJEeEBUGrKnq7hU0VVUQXJbhu39Gl+lDG
-         lrNC4OqhaVm56y9ay//9kerH2VI0W4qXsaZ8vdF4wvUV5aGYYgVz8FIoHSZjzj+dac
-         P8WpE88CkvF9xCCSU4H92OlBCOLjRkqI8jVsh8qI=
+        s=korg; t=1650961725;
+        bh=sLfaJ2yFtJbrru835t7MerWkZ2wruPNKYI5YQ6PVADE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=l8o0gLe64wfd+HWoZmALs5lyxKqtBNrphtx8k+IlIXxZN95hP2SU2xBX4jbMToIxI
+         uN9luqae88TXPYJi/RvG977b27s7o7sKqgxe5fTpGvGccWaeUbgBiVHpjhQicCueua
+         PLRvldksiUizU+MrjmuSaAW7BQW0eXwt7q6fY6Wg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.14 00/43] 4.14.277-rc1 review
+        stable@vger.kernel.org, Xiongwei Song <sxwjean@gmail.com>,
+        Arthur Marsh <arthur.marsh@internode.on.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Khem Raj <raj.khem@gmail.com>
+Subject: [PATCH 5.4 02/62] mm: page_alloc: fix building error on -Werror=array-compare
 Date:   Tue, 26 Apr 2022 10:20:42 +0200
-Message-Id: <20220426081734.509314186@linuxfoundation.org>
+Message-Id: <20220426081737.283239650@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-MIME-Version: 1.0
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.277-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.277-rc1
-X-KernelTest-Deadline: 2022-04-28T08:17+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.277 release.
-There are 43 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Xiongwei Song <sxwjean@gmail.com>
 
-Responses should be made by Thu, 28 Apr 2022 08:17:22 +0000.
-Anything received after that time might be too late.
+commit ca831f29f8f25c97182e726429b38c0802200c8f upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.277-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+Arthur Marsh reported we would hit the error below when building kernel
+with gcc-12:
 
-thanks,
+  CC      mm/page_alloc.o
+  mm/page_alloc.c: In function `mem_init_print_info':
+  mm/page_alloc.c:8173:27: error: comparison between two arrays [-Werror=array-compare]
+   8173 |                 if (start <= pos && pos < end && size > adj) \
+        |
 
-greg k-h
+In C++20, the comparision between arrays should be warned.
 
--------------
-Pseudo-Shortlog of commits:
+Link: https://lkml.kernel.org/r/20211125130928.32465-1-sxwjean@me.com
+Signed-off-by: Xiongwei Song <sxwjean@gmail.com>
+Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ mm/page_alloc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.277-rc1
-
-Marek Vasut <marex@denx.de>
-    Revert "net: micrel: fix KS8851_MLL Kconfig"
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: Fix UAF bugs in ax25 timers
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: Fix NULL pointer dereferences in ax25 timers
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: fix NPD bug in ax25_disconnect
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: fix UAF bug in ax25_send_control()
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: Fix refcount leaks caused by ax25_cb_del()
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: fix UAF bugs of net_device caused by rebinding operation
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: fix reference count leaks of ax25_dev
-
-Duoming Zhou <duoming@zju.edu.cn>
-    ax25: add refcount in ax25_dev to avoid UAF bugs
-
-Khazhismel Kumykov <khazhy@google.com>
-    block/compat_ioctl: fix range check in BLKGETSIZE
-
-Lee Jones <lee.jones@linaro.org>
-    staging: ion: Prevent incorrect reference counting behavour
-
-Theodore Ts'o <tytso@mit.edu>
-    ext4: force overhead calculation if the s_overhead_cluster makes no sense
-
-Theodore Ts'o <tytso@mit.edu>
-    ext4: fix overhead calculation to account for the reserved gdt blocks
-
-Tadeusz Struk <tadeusz.struk@linaro.org>
-    ext4: limit length to bitmap_maxbytes - blocksize in punch_hole
-
-Ye Bin <yebin10@huawei.com>
-    ext4: fix symlink file size not match to file content
-
-Sergey Matyukevich <sergey.matyukevich@synopsys.com>
-    ARC: entry: fix syscall_trace_exit argument
-
-Sasha Neftin <sasha.neftin@intel.com>
-    e1000e: Fix possible overflow in LTR decoding
-
-Xiaomeng Tong <xiam0nd.tong@gmail.com>
-    ASoC: soc-dapm: fix two incorrect uses of list iterator
-
-Paolo Valerio <pvalerio@redhat.com>
-    openvswitch: fix OOB access in reserve_sfa_size()
-
-Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-    powerpc/perf: Fix power9 event alternatives
-
-Xiaomeng Tong <xiam0nd.tong@gmail.com>
-    dma: at_xdmac: fix a missing check on list iterator
-
-Zheyu Ma <zheyuma97@gmail.com>
-    ata: pata_marvell: Check the 'bmdma_addr' beforing reading
-
-Mikulas Patocka <mpatocka@redhat.com>
-    stat: fix inconsistency between struct stat and struct compat_stat
-
-Tomas Melin <tomas.melin@vaisala.com>
-    net: macb: Restart tx only if queue pointer is lagging
-
-Xiaoke Wang <xkernel.wang@foxmail.com>
-    drm/msm/mdp5: check the return of kzalloc()
-
-Borislav Petkov <bp@alien8.de>
-    brcmfmac: sdio: Fix undefined behavior due to shift overflowing the constant
-
-David Howells <dhowells@redhat.com>
-    cifs: Check the IOCB_DIRECT flag, not O_DIRECT
-
-Hongbin Wang <wh_bin@126.com>
-    vxlan: fix error return code in vxlan_fdb_append
-
-Borislav Petkov <bp@suse.de>
-    ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
-
-Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-    platform/x86: samsung-laptop: Fix an unsigned comparison which can never be negative
-
-Kees Cook <keescook@chromium.org>
-    ARM: vexpress/spc: Avoid negative array index when !SMP
-
-Eric Dumazet <edumazet@google.com>
-    netlink: reset network and mac headers in netlink_dump()
-
-Hangbin Liu <liuhangbin@gmail.com>
-    net/packet: fix packet_sock xmit return value checking
-
-Miaoqian Lin <linmq006@gmail.com>
-    dmaengine: imx-sdma: Fix error checking in sdma_event_remap
-
-Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-    tcp: Fix potential use-after-free due to double kfree()
-
-Ricardo Dias <rdias@singlestore.com>
-    tcp: fix race condition when creating child sockets from syncookies
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: usb-audio: Clear MIDI port active flag after draining
-
-Bob Peterson <rpeterso@redhat.com>
-    gfs2: assign rgrp glock before compute_bitstructs
-
-Hangyu Hua <hbh25y@gmail.com>
-    can: usb_8dev: usb_8dev_start_xmit(): fix double dev_kfree_skb() in error path
-
-Daniel Bristot de Oliveira <bristot@kernel.org>
-    tracing: Dump stacktrace trigger to the corresponding instance
-
-Steven Rostedt (Google) <rostedt@goodmis.org>
-    tracing: Have traceon and traceoff trigger honor the instance
-
-Xiongwei Song <sxwjean@gmail.com>
-    mm: page_alloc: fix building error on -Werror=array-compare
-
-Kees Cook <keescook@chromium.org>
-    etherdevice: Adjust ether_addr* prototypes to silence -Wstringop-overead
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arc/kernel/entry.S                            |  1 +
- arch/arm/mach-vexpress/spc.c                       |  2 +-
- arch/powerpc/perf/power9-pmu.c                     |  8 +--
- arch/x86/include/asm/compat.h                      |  6 +-
- block/compat_ioctl.c                               |  2 +-
- drivers/ata/pata_marvell.c                         |  2 +
- drivers/dma/at_xdmac.c                             | 12 ++--
- drivers/dma/imx-sdma.c                             |  4 +-
- drivers/gpu/drm/msm/mdp/mdp5/mdp5_plane.c          |  3 +
- drivers/net/can/usb/usb_8dev.c                     | 30 +++++-----
- drivers/net/ethernet/cadence/macb_main.c           |  8 +++
- drivers/net/ethernet/intel/e1000e/ich8lan.c        |  4 +-
- drivers/net/ethernet/micrel/Kconfig                |  1 -
- drivers/net/vxlan.c                                |  4 +-
- .../wireless/broadcom/brcm80211/brcmfmac/sdio.c    |  2 +-
- drivers/platform/x86/samsung-laptop.c              |  2 -
- drivers/staging/android/ion/ion.c                  |  3 +
- fs/cifs/cifsfs.c                                   |  2 +-
- fs/ext4/inode.c                                    | 11 +++-
- fs/ext4/page-io.c                                  |  4 +-
- fs/ext4/super.c                                    | 19 ++++--
- fs/gfs2/rgrp.c                                     |  9 +--
- fs/stat.c                                          | 19 +++---
- include/linux/etherdevice.h                        |  5 +-
- include/net/ax25.h                                 | 12 ++++
- include/net/inet_hashtables.h                      |  5 +-
- kernel/trace/trace_events_trigger.c                | 61 ++++++++++++++++---
- mm/page_alloc.c                                    |  2 +-
- net/ax25/af_ax25.c                                 | 38 +++++++++---
- net/ax25/ax25_dev.c                                | 28 +++++++--
- net/ax25/ax25_route.c                              | 13 ++++-
- net/ax25/ax25_subr.c                               | 20 +++++--
- net/dccp/ipv4.c                                    |  2 +-
- net/dccp/ipv6.c                                    |  2 +-
- net/ipv4/inet_connection_sock.c                    |  2 +-
- net/ipv4/inet_hashtables.c                         | 68 +++++++++++++++++++---
- net/ipv4/tcp_ipv4.c                                | 13 ++++-
- net/ipv6/tcp_ipv6.c                                | 13 ++++-
- net/netlink/af_netlink.c                           |  7 +++
- net/openvswitch/flow_netlink.c                     |  2 +-
- net/packet/af_packet.c                             | 13 +++--
- sound/soc/soc-dapm.c                               |  6 +-
- sound/usb/midi.c                                   |  1 +
- sound/usb/usbaudio.h                               |  2 +-
- 45 files changed, 357 insertions(+), 120 deletions(-)
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -7588,7 +7588,7 @@ void __init mem_init_print_info(const ch
+ 	 */
+ #define adj_init_size(start, end, size, pos, adj) \
+ 	do { \
+-		if (start <= pos && pos < end && size > adj) \
++		if (&start[0] <= &pos[0] && &pos[0] < &end[0] && size > adj) \
+ 			size -= adj; \
+ 	} while (0)
+ 
 
 
