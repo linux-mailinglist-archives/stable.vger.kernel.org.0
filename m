@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F139D50F3F2
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:28:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC81750F44A
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238819AbiDZIaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:30:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36344 "EHLO
+        id S1345174AbiDZIfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:35:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239180AbiDZI3Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:29:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF28E3AA48;
-        Tue, 26 Apr 2022 01:24:41 -0700 (PDT)
+        with ESMTP id S1345280AbiDZIe2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19A6873063;
+        Tue, 26 Apr 2022 01:26:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25BDC61776;
-        Tue, 26 Apr 2022 08:24:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1623DC385A0;
-        Tue, 26 Apr 2022 08:24:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A97AB617F1;
+        Tue, 26 Apr 2022 08:26:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B87EEC385AC;
+        Tue, 26 Apr 2022 08:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961480;
-        bh=XOebLSvaZWmiWP1AJ5v3UtPKfIYko/HEBYFcseh+p9g=;
+        s=korg; t=1650961616;
+        bh=XEncWXOOTgqkk9+t/TZHK1gvF3HW9nBti41MaEMdk0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzjeMiS4RBdYbyc1jhd/gzntPA60UdxwG3xOf1Hr+TozYHoHvrfh3xta7JZpjOMpb
-         xLTVNTS7AhA7GXsU5e7zNzR2I9oG65GiWUQ9xoXXeVQt7xL3GnyzwHn6nXOuA59j21
-         SC9kmquE2qq6sOFy5ZQypfaFzKkTeiLcXY60QAWA=
+        b=VAt8+Xo6uAuJ7B6tHuMRxYp13DRYtsZWQHXaaW+lVNFWXmi63MvoPe0kHGbVw0sMT
+         zYkILQjpAtYRJSbqlP9mEuivdZ1L7gOPXGAZOk/kUYjKA2QU4nQI4VwiKyFav6k2EE
+         lLDQ/s9Qx96oFO8FW/tYUWRKkdEiN/mXnqaGAJpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/43] powerpc/perf: Fix power9 event alternatives
+Subject: [PATCH 4.19 26/53] drm/msm/mdp5: check the return of kzalloc()
 Date:   Tue, 26 Apr 2022 10:21:06 +0200
-Message-Id: <20220426081735.231873391@linuxfoundation.org>
+Message-Id: <20220426081736.415772090@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 0dcad700bb2776e3886fe0a645a4bf13b1e747cd ]
+[ Upstream commit 047ae665577776b7feb11bd4f81f46627cff95e7 ]
 
-When scheduling a group of events, there are constraint checks done to
-make sure all events can go in a group. Example, one of the criteria is
-that events in a group cannot use the same PMC. But platform specific
-PMU supports alternative event for some of the event codes. During
-perf_event_open(), if any event group doesn't match constraint check
-criteria, further lookup is done to find alternative event.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check it to
+prevent potential wrong memory access.
 
-By current design, the array of alternatives events in PMU code is
-expected to be sorted by column 0. This is because in
-find_alternative() the return criteria is based on event code
-comparison. ie. "event < ev_alt[i][0])". This optimisation is there
-since find_alternative() can be called multiple times. In power9 PMU
-code, the alternative event array is not sorted properly and hence there
-is breakage in finding alternative events.
+Besides, since mdp5_plane_reset() is void type, so we should better
+set `plane-state` to NULL after releasing it.
 
-To work with existing logic, fix the alternative event array to be
-sorted by column 0 for power9-pmu.c
-
-Results:
-
-With alternative events, multiplexing can be avoided. That is, for
-example, in power9 PM_LD_MISS_L1 (0x3e054) has alternative event,
-PM_LD_MISS_L1_ALT (0x400f0). This is an identical event which can be
-programmed in a different PMC.
-
-Before:
-
- # perf stat -e r3e054,r300fc
-
- Performance counter stats for 'system wide':
-
-           1057860      r3e054              (50.21%)
-               379      r300fc              (49.79%)
-
-       0.944329741 seconds time elapsed
-
-Since both the events are using PMC3 in this case, they are
-multiplexed here.
-
-After:
-
- # perf stat -e r3e054,r300fc
-
- Performance counter stats for 'system wide':
-
-           1006948      r3e054
-               182      r300fc
-
-Fixes: 91e0bd1e6251 ("powerpc/perf: Add PM_LD_MISS_L1 and PM_BR_2PATH to power9 event list")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220419114828.89843-1-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/481055/
+Link: https://lore.kernel.org/r/tencent_8E2A1C78140EE1784AB2FF4B2088CC0AB908@qq.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/power9-pmu.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/perf/power9-pmu.c b/arch/powerpc/perf/power9-pmu.c
-index efb19b089023..75d3a10e20fe 100644
---- a/arch/powerpc/perf/power9-pmu.c
-+++ b/arch/powerpc/perf/power9-pmu.c
-@@ -107,11 +107,11 @@ extern struct attribute_group isa207_pmu_format_group;
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+index 1ddf07514de6..3d8eaa25bea0 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+@@ -188,7 +188,10 @@ static void mdp5_plane_reset(struct drm_plane *plane)
+ 		drm_framebuffer_unreference(plane->state->fb);
  
- /* Table of alternatives, sorted by column 0 */
- static const unsigned int power9_event_alternatives[][MAX_ALT] = {
--	{ PM_INST_DISP,			PM_INST_DISP_ALT },
--	{ PM_RUN_CYC_ALT,		PM_RUN_CYC },
--	{ PM_RUN_INST_CMPL_ALT,		PM_RUN_INST_CMPL },
--	{ PM_LD_MISS_L1,		PM_LD_MISS_L1_ALT },
- 	{ PM_BR_2PATH,			PM_BR_2PATH_ALT },
-+	{ PM_INST_DISP,			PM_INST_DISP_ALT },
-+	{ PM_RUN_CYC_ALT,               PM_RUN_CYC },
-+	{ PM_LD_MISS_L1,                PM_LD_MISS_L1_ALT },
-+	{ PM_RUN_INST_CMPL_ALT,         PM_RUN_INST_CMPL },
- };
+ 	kfree(to_mdp5_plane_state(plane->state));
++	plane->state = NULL;
+ 	mdp5_state = kzalloc(sizeof(*mdp5_state), GFP_KERNEL);
++	if (!mdp5_state)
++		return;
  
- static int power9_get_alternatives(u64 event, unsigned int flags, u64 alt[])
+ 	/* assign default blend parameters */
+ 	mdp5_state->alpha = 255;
 -- 
 2.35.1
 
