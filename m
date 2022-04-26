@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6971650F569
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49FB50F509
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345486AbiDZIsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:48:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59718 "EHLO
+        id S1345434AbiDZIlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:41:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346540AbiDZIpJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775DAE98;
-        Tue, 26 Apr 2022 01:35:01 -0700 (PDT)
+        with ESMTP id S1345789AbiDZIjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F6A66D864;
+        Tue, 26 Apr 2022 01:31:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C38DB81A2F;
-        Tue, 26 Apr 2022 08:35:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63CF3C385A4;
-        Tue, 26 Apr 2022 08:34:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF66B6189A;
+        Tue, 26 Apr 2022 08:31:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B13DCC385A4;
+        Tue, 26 Apr 2022 08:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962098;
-        bh=FV8BG+7T+xITBrrDvInA32UvQ3xfvYvM7lbb9r9AwBA=;
+        s=korg; t=1650961867;
+        bh=cAHJHvv5OO7Wdml7C5cnVYBlU08Dp1ge/HrmNel2wYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcBosTKjFG0zh5A7FDWcJ6MJxJ5hcHYTfJu1h1iXUVGQXmGoLffNxd+Aa4P7IC3P/
-         PeC6n6BEnJmaB4adEtnzvXfBxWwgaWIHCZvrZM94hoYTb6GVgw9reueiGK6RxHiMeG
-         8yA3AXuWApq/7EAjWLllHUMAdFcD+9VxLT4Okpng=
+        b=XxgTQ157zKyXhXp75zzpFTek9Ude9VQzqxPFAOKm8ua55yu+XwbhdZpUubRoL4opt
+         HSCBm81QnS3+iDLRL/PUdhlfNIxCi4ysQR7x7KFKwxKoZLDEHPgKwqLBmQrDxHxVgh
+         yklgu9KxC1ODd2yxaeobxE5r1MJDHayields5nVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 70/86] KVM: PPC: Fix TCE handling for VFIO
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.4 58/62] jbd2: fix a potential race while discarding reserved buffers after an abort
 Date:   Tue, 26 Apr 2022 10:21:38 +0200
-Message-Id: <20220426081743.229621780@linuxfoundation.org>
+Message-Id: <20220426081738.884850289@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,294 +52,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 26a62b750a4e6364b0393562f66759b1494c3a01 ]
+commit 23e3d7f7061f8682c751c46512718f47580ad8f0 upstream.
 
-The LoPAPR spec defines a guest visible IOMMU with a variable page size.
-Currently QEMU advertises 4K, 64K, 2M, 16MB pages, a Linux VM picks
-the biggest (16MB). In the case of a passed though PCI device, there is
-a hardware IOMMU which does not support all pages sizes from the above -
-P8 cannot do 2MB and P9 cannot do 16MB. So for each emulated
-16M IOMMU page we may create several smaller mappings ("TCEs") in
-the hardware IOMMU.
+we got issue as follows:
+[   72.796117] EXT4-fs error (device sda): ext4_journal_check_start:83: comm fallocate: Detected aborted journal
+[   72.826847] EXT4-fs (sda): Remounting filesystem read-only
+fallocate: fallocate failed: Read-only file system
+[   74.791830] jbd2_journal_commit_transaction: jh=0xffff9cfefe725d90 bh=0x0000000000000000 end delay
+[   74.793597] ------------[ cut here ]------------
+[   74.794203] kernel BUG at fs/jbd2/transaction.c:2063!
+[   74.794886] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[   74.795533] CPU: 4 PID: 2260 Comm: jbd2/sda-8 Not tainted 5.17.0-rc8-next-20220315-dirty #150
+[   74.798327] RIP: 0010:__jbd2_journal_unfile_buffer+0x3e/0x60
+[   74.801971] RSP: 0018:ffffa828c24a3cb8 EFLAGS: 00010202
+[   74.802694] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+[   74.803601] RDX: 0000000000000001 RSI: ffff9cfefe725d90 RDI: ffff9cfefe725d90
+[   74.804554] RBP: ffff9cfefe725d90 R08: 0000000000000000 R09: ffffa828c24a3b20
+[   74.805471] R10: 0000000000000001 R11: 0000000000000001 R12: ffff9cfefe725d90
+[   74.806385] R13: ffff9cfefe725d98 R14: 0000000000000000 R15: ffff9cfe833a4d00
+[   74.807301] FS:  0000000000000000(0000) GS:ffff9d01afb00000(0000) knlGS:0000000000000000
+[   74.808338] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   74.809084] CR2: 00007f2b81bf4000 CR3: 0000000100056000 CR4: 00000000000006e0
+[   74.810047] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   74.810981] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   74.811897] Call Trace:
+[   74.812241]  <TASK>
+[   74.812566]  __jbd2_journal_refile_buffer+0x12f/0x180
+[   74.813246]  jbd2_journal_refile_buffer+0x4c/0xa0
+[   74.813869]  jbd2_journal_commit_transaction.cold+0xa1/0x148
+[   74.817550]  kjournald2+0xf8/0x3e0
+[   74.819056]  kthread+0x153/0x1c0
+[   74.819963]  ret_from_fork+0x22/0x30
 
-The code wrongly uses the emulated TCE index instead of hardware TCE
-index in error handling. The problem is easier to see on POWER8 with
-multi-level TCE tables (when only the first level is preallocated)
-as hash mode uses real mode TCE hypercalls handlers.
-The kernel starts using indirect tables when VMs get bigger than 128GB
-(depends on the max page order).
-The very first real mode hcall is going to fail with H_TOO_HARD as
-in the real mode we cannot allocate memory for TCEs (we can in the virtual
-mode) but on the way out the code attempts to clear hardware TCEs using
-emulated TCE indexes which corrupts random kernel memory because
-it_offset==1<<59 is subtracted from those indexes and the resulting index
-is out of the TCE table bounds.
+Above issue may happen as follows:
+        write                   truncate                   kjournald2
+generic_perform_write
+ ext4_write_begin
+  ext4_walk_page_buffers
+   do_journal_get_write_access ->add BJ_Reserved list
+ ext4_journalled_write_end
+  ext4_walk_page_buffers
+   write_end_fn
+    ext4_handle_dirty_metadata
+                ***************JBD2 ABORT**************
+     jbd2_journal_dirty_metadata
+ -> return -EROFS, jh in reserved_list
+                                                   jbd2_journal_commit_transaction
+                                                    while (commit_transaction->t_reserved_list)
+                                                      jh = commit_transaction->t_reserved_list;
+                        truncate_pagecache_range
+                         do_invalidatepage
+			  ext4_journalled_invalidatepage
+			   jbd2_journal_invalidatepage
+			    journal_unmap_buffer
+			     __dispose_buffer
+			      __jbd2_journal_unfile_buffer
+			       jbd2_journal_put_journal_head ->put last ref_count
+			        __journal_remove_journal_head
+				 bh->b_private = NULL;
+				 jh->b_bh = NULL;
+				                      jbd2_journal_refile_buffer(journal, jh);
+							bh = jh2bh(jh);
+							->bh is NULL, later will trigger null-ptr-deref
+				 journal_free_journal_head(jh);
 
-This fixes kvmppc_clear_tce() to use the correct TCE indexes.
+After commit 96f1e0974575, we no longer hold the j_state_lock while
+iterating over the list of reserved handles in
+jbd2_journal_commit_transaction().  This potentially allows the
+journal_head to be freed by journal_unmap_buffer while the commit
+codepath is also trying to free the BJ_Reserved buffers.  Keeping
+j_state_lock held while trying extends hold time of the lock
+minimally, and solves this issue.
 
-While at it, this fixes TCE cache invalidation which uses emulated TCE
-indexes instead of the hardware ones. This went unnoticed as 64bit DMA
-is used these days and VMs map all RAM in one go and only then do DMA
-and this is when the TCE cache gets populated.
-
-Potentially this could slow down mapping, however normally 16MB
-emulated pages are backed by 64K hardware pages so it is one write to
-the "TCE Kill" per 256 updates which is not that bad considering the size
-of the cache (1024 TCEs or so).
-
-Fixes: ca1fc489cfa0 ("KVM: PPC: Book3S: Allow backing bigger guest IOMMU pages with smaller physical pages")
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Tested-by: David Gibson <david@gibson.dropbear.id.au>
-Reviewed-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Reviewed-by: David Gibson <david@gibson.dropbear.id.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220420050840.328223-1-aik@ozlabs.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 96f1e0974575("jbd2: avoid long hold times of j_state_lock while committing a transaction")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220317142137.1821590-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_64_vio.c    | 45 +++++++++++++++--------------
- arch/powerpc/kvm/book3s_64_vio_hv.c | 44 ++++++++++++++--------------
- 2 files changed, 45 insertions(+), 44 deletions(-)
+ fs/jbd2/commit.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_64_vio.c b/arch/powerpc/kvm/book3s_64_vio.c
-index 8da93fdfa59e..c640053ab03f 100644
---- a/arch/powerpc/kvm/book3s_64_vio.c
-+++ b/arch/powerpc/kvm/book3s_64_vio.c
-@@ -421,13 +421,19 @@ static void kvmppc_tce_put(struct kvmppc_spapr_tce_table *stt,
- 	tbl[idx % TCES_PER_PAGE] = tce;
- }
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -451,7 +451,6 @@ void jbd2_journal_commit_transaction(jou
+ 	}
+ 	spin_unlock(&commit_transaction->t_handle_lock);
+ 	commit_transaction->t_state = T_SWITCH;
+-	write_unlock(&journal->j_state_lock);
  
--static void kvmppc_clear_tce(struct mm_struct *mm, struct iommu_table *tbl,
--		unsigned long entry)
-+static void kvmppc_clear_tce(struct mm_struct *mm, struct kvmppc_spapr_tce_table *stt,
-+		struct iommu_table *tbl, unsigned long entry)
- {
--	unsigned long hpa = 0;
--	enum dma_data_direction dir = DMA_NONE;
-+	unsigned long i;
-+	unsigned long subpages = 1ULL << (stt->page_shift - tbl->it_page_shift);
-+	unsigned long io_entry = entry << (stt->page_shift - tbl->it_page_shift);
-+
-+	for (i = 0; i < subpages; ++i) {
-+		unsigned long hpa = 0;
-+		enum dma_data_direction dir = DMA_NONE;
- 
--	iommu_tce_xchg_no_kill(mm, tbl, entry, &hpa, &dir);
-+		iommu_tce_xchg_no_kill(mm, tbl, io_entry + i, &hpa, &dir);
-+	}
- }
- 
- static long kvmppc_tce_iommu_mapped_dec(struct kvm *kvm,
-@@ -486,6 +492,8 @@ static long kvmppc_tce_iommu_unmap(struct kvm *kvm,
- 			break;
+ 	J_ASSERT (atomic_read(&commit_transaction->t_outstanding_credits) <=
+ 			journal->j_max_transaction_buffers);
+@@ -471,6 +470,8 @@ void jbd2_journal_commit_transaction(jou
+ 	 * has reserved.  This is consistent with the existing behaviour
+ 	 * that multiple jbd2_journal_get_write_access() calls to the same
+ 	 * buffer are perfectly permissible.
++	 * We use journal->j_state_lock here to serialize processing of
++	 * t_reserved_list with eviction of buffers from journal_unmap_buffer().
+ 	 */
+ 	while (commit_transaction->t_reserved_list) {
+ 		jh = commit_transaction->t_reserved_list;
+@@ -490,6 +491,7 @@ void jbd2_journal_commit_transaction(jou
+ 		jbd2_journal_refile_buffer(journal, jh);
  	}
  
-+	iommu_tce_kill(tbl, io_entry, subpages);
-+
- 	return ret;
- }
- 
-@@ -545,6 +553,8 @@ static long kvmppc_tce_iommu_map(struct kvm *kvm,
- 			break;
- 	}
- 
-+	iommu_tce_kill(tbl, io_entry, subpages);
-+
- 	return ret;
- }
- 
-@@ -591,10 +601,9 @@ long kvmppc_h_put_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
- 			ret = kvmppc_tce_iommu_map(vcpu->kvm, stt, stit->tbl,
- 					entry, ua, dir);
- 
--		iommu_tce_kill(stit->tbl, entry, 1);
- 
- 		if (ret != H_SUCCESS) {
--			kvmppc_clear_tce(vcpu->kvm->mm, stit->tbl, entry);
-+			kvmppc_clear_tce(vcpu->kvm->mm, stt, stit->tbl, entry);
- 			goto unlock_exit;
- 		}
- 	}
-@@ -670,13 +679,13 @@ long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
- 		 */
- 		if (get_user(tce, tces + i)) {
- 			ret = H_TOO_HARD;
--			goto invalidate_exit;
-+			goto unlock_exit;
- 		}
- 		tce = be64_to_cpu(tce);
- 
- 		if (kvmppc_tce_to_ua(vcpu->kvm, tce, &ua)) {
- 			ret = H_PARAMETER;
--			goto invalidate_exit;
-+			goto unlock_exit;
- 		}
- 
- 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
-@@ -685,19 +694,15 @@ long kvmppc_h_put_tce_indirect(struct kvm_vcpu *vcpu,
- 					iommu_tce_direction(tce));
- 
- 			if (ret != H_SUCCESS) {
--				kvmppc_clear_tce(vcpu->kvm->mm, stit->tbl,
--						entry);
--				goto invalidate_exit;
-+				kvmppc_clear_tce(vcpu->kvm->mm, stt, stit->tbl,
-+						 entry + i);
-+				goto unlock_exit;
- 			}
- 		}
- 
- 		kvmppc_tce_put(stt, entry + i, tce);
- 	}
- 
--invalidate_exit:
--	list_for_each_entry_lockless(stit, &stt->iommu_tables, next)
--		iommu_tce_kill(stit->tbl, entry, npages);
--
- unlock_exit:
- 	srcu_read_unlock(&vcpu->kvm->srcu, idx);
- 
-@@ -736,20 +741,16 @@ long kvmppc_h_stuff_tce(struct kvm_vcpu *vcpu,
- 				continue;
- 
- 			if (ret == H_TOO_HARD)
--				goto invalidate_exit;
-+				return ret;
- 
- 			WARN_ON_ONCE(1);
--			kvmppc_clear_tce(vcpu->kvm->mm, stit->tbl, entry);
-+			kvmppc_clear_tce(vcpu->kvm->mm, stt, stit->tbl, entry + i);
- 		}
- 	}
- 
- 	for (i = 0; i < npages; ++i, ioba += (1ULL << stt->page_shift))
- 		kvmppc_tce_put(stt, ioba >> stt->page_shift, tce_value);
- 
--invalidate_exit:
--	list_for_each_entry_lockless(stit, &stt->iommu_tables, next)
--		iommu_tce_kill(stit->tbl, ioba >> stt->page_shift, npages);
--
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(kvmppc_h_stuff_tce);
-diff --git a/arch/powerpc/kvm/book3s_64_vio_hv.c b/arch/powerpc/kvm/book3s_64_vio_hv.c
-index e5ba96c41f3f..57af53a6a2d8 100644
---- a/arch/powerpc/kvm/book3s_64_vio_hv.c
-+++ b/arch/powerpc/kvm/book3s_64_vio_hv.c
-@@ -247,13 +247,19 @@ static void iommu_tce_kill_rm(struct iommu_table *tbl,
- 		tbl->it_ops->tce_kill(tbl, entry, pages, true);
- }
- 
--static void kvmppc_rm_clear_tce(struct kvm *kvm, struct iommu_table *tbl,
--		unsigned long entry)
-+static void kvmppc_rm_clear_tce(struct kvm *kvm, struct kvmppc_spapr_tce_table *stt,
-+		struct iommu_table *tbl, unsigned long entry)
- {
--	unsigned long hpa = 0;
--	enum dma_data_direction dir = DMA_NONE;
-+	unsigned long i;
-+	unsigned long subpages = 1ULL << (stt->page_shift - tbl->it_page_shift);
-+	unsigned long io_entry = entry << (stt->page_shift - tbl->it_page_shift);
-+
-+	for (i = 0; i < subpages; ++i) {
-+		unsigned long hpa = 0;
-+		enum dma_data_direction dir = DMA_NONE;
- 
--	iommu_tce_xchg_no_kill_rm(kvm->mm, tbl, entry, &hpa, &dir);
-+		iommu_tce_xchg_no_kill_rm(kvm->mm, tbl, io_entry + i, &hpa, &dir);
-+	}
- }
- 
- static long kvmppc_rm_tce_iommu_mapped_dec(struct kvm *kvm,
-@@ -316,6 +322,8 @@ static long kvmppc_rm_tce_iommu_unmap(struct kvm *kvm,
- 			break;
- 	}
- 
-+	iommu_tce_kill_rm(tbl, io_entry, subpages);
-+
- 	return ret;
- }
- 
-@@ -379,6 +387,8 @@ static long kvmppc_rm_tce_iommu_map(struct kvm *kvm,
- 			break;
- 	}
- 
-+	iommu_tce_kill_rm(tbl, io_entry, subpages);
-+
- 	return ret;
- }
- 
-@@ -424,10 +434,8 @@ long kvmppc_rm_h_put_tce(struct kvm_vcpu *vcpu, unsigned long liobn,
- 			ret = kvmppc_rm_tce_iommu_map(vcpu->kvm, stt,
- 					stit->tbl, entry, ua, dir);
- 
--		iommu_tce_kill_rm(stit->tbl, entry, 1);
--
- 		if (ret != H_SUCCESS) {
--			kvmppc_rm_clear_tce(vcpu->kvm, stit->tbl, entry);
-+			kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl, entry);
- 			return ret;
- 		}
- 	}
-@@ -569,7 +577,7 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
- 		ua = 0;
- 		if (kvmppc_rm_tce_to_ua(vcpu->kvm, tce, &ua)) {
- 			ret = H_PARAMETER;
--			goto invalidate_exit;
-+			goto unlock_exit;
- 		}
- 
- 		list_for_each_entry_lockless(stit, &stt->iommu_tables, next) {
-@@ -578,19 +586,15 @@ long kvmppc_rm_h_put_tce_indirect(struct kvm_vcpu *vcpu,
- 					iommu_tce_direction(tce));
- 
- 			if (ret != H_SUCCESS) {
--				kvmppc_rm_clear_tce(vcpu->kvm, stit->tbl,
--						entry);
--				goto invalidate_exit;
-+				kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl,
-+						entry + i);
-+				goto unlock_exit;
- 			}
- 		}
- 
- 		kvmppc_rm_tce_put(stt, entry + i, tce);
- 	}
- 
--invalidate_exit:
--	list_for_each_entry_lockless(stit, &stt->iommu_tables, next)
--		iommu_tce_kill_rm(stit->tbl, entry, npages);
--
- unlock_exit:
- 	if (!prereg)
- 		arch_spin_unlock(&kvm->mmu_lock.rlock.raw_lock);
-@@ -632,20 +636,16 @@ long kvmppc_rm_h_stuff_tce(struct kvm_vcpu *vcpu,
- 				continue;
- 
- 			if (ret == H_TOO_HARD)
--				goto invalidate_exit;
-+				return ret;
- 
- 			WARN_ON_ONCE_RM(1);
--			kvmppc_rm_clear_tce(vcpu->kvm, stit->tbl, entry);
-+			kvmppc_rm_clear_tce(vcpu->kvm, stt, stit->tbl, entry + i);
- 		}
- 	}
- 
- 	for (i = 0; i < npages; ++i, ioba += (1ULL << stt->page_shift))
- 		kvmppc_rm_tce_put(stt, ioba >> stt->page_shift, tce_value);
- 
--invalidate_exit:
--	list_for_each_entry_lockless(stit, &stt->iommu_tables, next)
--		iommu_tce_kill_rm(stit->tbl, ioba >> stt->page_shift, npages);
--
- 	return ret;
- }
- 
--- 
-2.35.1
-
++	write_unlock(&journal->j_state_lock);
+ 	/*
+ 	 * Now try to drop any written-back buffers from the journal's
+ 	 * checkpoint lists.  We do this *before* commit because it potentially
 
 
