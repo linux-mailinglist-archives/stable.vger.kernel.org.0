@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA7E550F550
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 655C950F699
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237492AbiDZIsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:48:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60668 "EHLO
+        id S1345505AbiDZI5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:57:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347152AbiDZIpx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97A3B7B106;
-        Tue, 26 Apr 2022 01:37:30 -0700 (PDT)
+        with ESMTP id S235510AbiDZIn1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:43:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE974158FBE;
+        Tue, 26 Apr 2022 01:33:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3033860A67;
-        Tue, 26 Apr 2022 08:37:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39A5FC385A0;
-        Tue, 26 Apr 2022 08:37:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39061B81A2F;
+        Tue, 26 Apr 2022 08:33:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 973A7C385A0;
+        Tue, 26 Apr 2022 08:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962249;
-        bh=nDv3ZUX4ndQ8MpYE3JNAFqkJacWDpguWL47ft7pczH0=;
+        s=korg; t=1650962005;
+        bh=rv/GX7icARfrLpZuyE33Cr4F/qHjUe73i7Nfj25q3AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gT0hKcWFbrDfpQcocWi64NHK75xu1QrM2tHb8QaL0DLqsHl7pLtRjdYVkabrBGaxm
-         9bcN2MWx9Oc8v53fuNdPLlRU8z7aMoRhAE5Po0n0LnAQRRaEXv3Ob/cpR4SJIWfHI0
-         EKsqfJJKlYpx0RY470yuzLece42ENTKS50gp7HkU=
+        b=Gv02G5rnHOYhjROFCK6Nieyuy2BPdEwKxwgtomAabzRy4Ua6XU2pTctGkGHNlrsNa
+         mkp24+iYLGR7YJcuJp4oj/TeboR1gwlTOU4K4YtcW5s9ZMIRGZHgk9FuVPqN40SKUi
+         H9o4Lby+quHYAF52QWOXHWsjMSp8rlUEBO/N8cm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 033/124] rxrpc: Restore removed timer deletion
-Date:   Tue, 26 Apr 2022 10:20:34 +0200
-Message-Id: <20220426081748.245548607@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+70e777a39907d6d5fd0a@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 07/86] ALSA: usb-audio: Clear MIDI port active flag after draining
+Date:   Tue, 26 Apr 2022 10:20:35 +0200
+Message-Id: <20220426081741.419981588@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ee3b0826b4764f6c13ad6db67495c5a1c38e9025 ]
+commit 0665886ad1392e6b5bae85d7a6ccbed48dca1522 upstream.
 
-A recent patch[1] from Eric Dumazet flipped the order in which the
-keepalive timer and the keepalive worker were cancelled in order to fix a
-syzbot reported issue[2].  Unfortunately, this enables the mirror image bug
-whereby the timer races with rxrpc_exit_net(), restarting the worker after
-it has been cancelled:
+When a rawmidi output stream is closed, it calls the drain at first,
+then does trigger-off only when the drain returns -ERESTARTSYS as a
+fallback.  It implies that each driver should turn off the stream
+properly after the drain.  Meanwhile, USB-audio MIDI interface didn't
+change the port->active flag after the drain.  This may leave the
+output work picking up the port that is closed right now, which
+eventually leads to a use-after-free for the already released rawmidi
+object.
 
-	CPU 1		CPU 2
-	===============	=====================
-			if (rxnet->live)
-			<INTERRUPT>
-	rxnet->live = false;
- 	cancel_work_sync(&rxnet->peer_keepalive_work);
-			rxrpc_queue_work(&rxnet->peer_keepalive_work);
-	del_timer_sync(&rxnet->peer_keepalive_timer);
+This patch fixes the bug by properly clearing the port->active flag
+after the output drain.
 
-Fix this by restoring the removed del_timer_sync() so that we try to remove
-the timer twice.  If the timer runs again, it should see ->live == false
-and not restart the worker.
-
-Fixes: 1946014ca3b1 ("rxrpc: fix a race in rxrpc_exit_net()")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Eric Dumazet <edumazet@google.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/20220404183439.3537837-1-eric.dumazet@gmail.com/ [1]
-Link: https://syzkaller.appspot.com/bug?extid=724378c4bb58f703b09a [2]
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+70e777a39907d6d5fd0a@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/00000000000011555605dceaff03@google.com
+Link: https://lore.kernel.org/r/20220420130247.22062-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/net_ns.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/midi.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/rxrpc/net_ns.c b/net/rxrpc/net_ns.c
-index f15d6942da45..cc7e30733feb 100644
---- a/net/rxrpc/net_ns.c
-+++ b/net/rxrpc/net_ns.c
-@@ -113,7 +113,9 @@ static __net_exit void rxrpc_exit_net(struct net *net)
- 	struct rxrpc_net *rxnet = rxrpc_net(net);
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1210,6 +1210,7 @@ static void snd_usbmidi_output_drain(str
+ 		} while (drain_urbs && timeout);
+ 		finish_wait(&ep->drain_wait, &wait);
+ 	}
++	port->active = 0;
+ 	spin_unlock_irq(&ep->buffer_lock);
+ }
  
- 	rxnet->live = false;
-+	del_timer_sync(&rxnet->peer_keepalive_timer);
- 	cancel_work_sync(&rxnet->peer_keepalive_work);
-+	/* Remove the timer again as the worker may have restarted it. */
- 	del_timer_sync(&rxnet->peer_keepalive_timer);
- 	rxrpc_destroy_all_calls(rxnet);
- 	rxrpc_destroy_all_connections(rxnet);
--- 
-2.35.1
-
 
 
