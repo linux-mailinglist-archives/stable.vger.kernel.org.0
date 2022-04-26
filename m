@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0376750F3DD
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1BB550F3C4
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234812AbiDZI3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:29:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36356 "EHLO
+        id S1344728AbiDZI2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:28:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344774AbiDZI21 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:28:27 -0400
+        with ESMTP id S1344735AbiDZI1E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29009133E78;
-        Tue, 26 Apr 2022 01:24:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C90943394;
+        Tue, 26 Apr 2022 01:23:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8DAB6179E;
-        Tue, 26 Apr 2022 08:24:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D85C385A4;
-        Tue, 26 Apr 2022 08:24:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 969686179E;
+        Tue, 26 Apr 2022 08:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5259C385A0;
+        Tue, 26 Apr 2022 08:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961450;
-        bh=j0gl3vwHeaKb2MMhrqnV3OYaEofGRoT5zWN/DeGK2dI=;
+        s=korg; t=1650961408;
+        bh=g77+6m7gXsy6z6hMtIuJX/2wFFibPS8xVrVqqxMjjgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpqVUqD7O0pZUnvsVJlyUEwhKtKbKepzhGHOUY5x5AHvY1xF8CGvMSLRA6zYWDcKQ
-         cZPXxg0UoDgh9rSCPvXk2Zh22AqFhR2+6xkjagqWHgrsHo2pymX429N6jr1sV/q40N
-         eQssQQbydWZP8APmpxCBi3KNPlX9byIt1eq/TBHY=
+        b=mfBUFIzoY9xgCCT0M5BTZ2pBri4UmaUTX2jF0ZEDEGnNneZqRumW0u86xpKR8wWvm
+         YBYvKDUbPMOMUqfs82i5MSR84pbc2WMPhjV7eIEZZPxwqNwm6yiVErVOXBO5DT5fGc
+         UA8EKaW92V8C/qpl2WIOxeegvSljaZ9285xrQSHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/43] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
+        stable@vger.kernel.org,
+        syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 4.9 03/24] gfs2: assign rgrp glock before compute_bitstructs
 Date:   Tue, 26 Apr 2022 10:20:57 +0200
-Message-Id: <20220426081734.968707855@linuxfoundation.org>
+Message-Id: <20220426081731.475169845@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
+References: <20220426081731.370823950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 1ef8715975de8bd481abbd0839ed4f49d9e5b0ff ]
+commit 428f651cb80b227af47fc302e4931791f2fb4741 upstream.
 
-Fix:
+Before this patch, function read_rindex_entry called compute_bitstructs
+before it allocated a glock for the rgrp. But if compute_bitstructs found
+a problem with the rgrp, it called gfs2_consist_rgrpd, and that called
+gfs2_dump_glock for rgd->rd_gl which had not yet been assigned.
 
-  sound/usb/midi.c: In function ‘snd_usbmidi_out_endpoint_create’:
-  sound/usb/midi.c:1389:2: error: case label does not reduce to an integer constant
-    case USB_ID(0xfc08, 0x0101): /* Unknown vendor Cable */
-    ^~~~
+read_rindex_entry
+   compute_bitstructs
+      gfs2_consist_rgrpd
+         gfs2_dump_glock <---------rgd->rd_gl was not set.
 
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
+This patch changes read_rindex_entry so it assigns an rgrp glock before
+calling compute_bitstructs so gfs2_dump_glock does not reference an
+unassigned pointer. If an error is discovered, the glock must also be
+put, so a new goto and label were added.
 
-[ A slight correction with parentheses around the argument by tiwai ]
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220405151517.29753-3-bp@alien8.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/usbaudio.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/rgrp.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index 62456a806bb4..4b8f1c46420d 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -22,7 +22,7 @@
-  */
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -917,15 +917,15 @@ static int read_rindex_entry(struct gfs2
+ 	rgd->rd_bitbytes = be32_to_cpu(buf.ri_bitbytes);
+ 	spin_lock_init(&rgd->rd_rsspin);
  
- /* handling of USB vendor/product ID pairs as 32-bit numbers */
--#define USB_ID(vendor, product) (((vendor) << 16) | (product))
-+#define USB_ID(vendor, product) (((unsigned int)(vendor) << 16) | (product))
- #define USB_ID_VENDOR(id) ((id) >> 16)
- #define USB_ID_PRODUCT(id) ((u16)(id))
+-	error = compute_bitstructs(rgd);
+-	if (error)
+-		goto fail;
+-
+ 	error = gfs2_glock_get(sdp, rgd->rd_addr,
+ 			       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
+ 	if (error)
+ 		goto fail;
  
--- 
-2.35.1
-
++	error = compute_bitstructs(rgd);
++	if (error)
++		goto fail_glock;
++
+ 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
+ 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
+ 	if (rgd->rd_data > sdp->sd_max_rg_data)
+@@ -942,6 +942,7 @@ static int read_rindex_entry(struct gfs2
+ 	}
+ 
+ 	error = 0; /* someone else read in the rgrp; free it and ignore it */
++fail_glock:
+ 	gfs2_glock_put(rgd->rd_gl);
+ 
+ fail:
 
 
