@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24C5450F6A6
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73D8450F59F
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241199AbiDZI6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56196 "EHLO
+        id S1343814AbiDZIqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:46:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345546AbiDZI4h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:56:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A933DC5BE;
-        Tue, 26 Apr 2022 01:41:19 -0700 (PDT)
+        with ESMTP id S1346834AbiDZIpZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2874BAFB3F;
+        Tue, 26 Apr 2022 01:35:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 233D6604F5;
-        Tue, 26 Apr 2022 08:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 342F3C385A4;
-        Tue, 26 Apr 2022 08:41:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1E7961805;
+        Tue, 26 Apr 2022 08:35:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B42C2C385A0;
+        Tue, 26 Apr 2022 08:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962478;
-        bh=YqHERyHUxwYJs79q5FsoWblJusq3+OePBnS0nEGGnn8=;
+        s=korg; t=1650962151;
+        bh=2/IZvJ+qVFTh6s3x4X3bG8Ze9HfhPuFDaBwbS1++4Yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KuLWnI/5V1u7RqUfKysiocBEn6GP4rTbcyyEtOqJeogjupl9bezgPMkUWbC3zR9n1
-         omxhhONQftOi4osRhXb2ZGW4egplsPCYdiYTHttP4qfsk0jzhQCj4Hdi3L1uPtwuBA
-         Oi6gJMcwM4veg5UFjQ4Hcrrt5n+UGjkOLbc9rmC8=
+        b=qpLxkULZMaSxJ+IwbBOLwN9dtKxIUJVVSQ9afP3G3ZhVS4nhmzioyFCJ/wCxWvC0C
+         XB9kPmJdPCxdbnh81rXcEdiBSLFkHvERzbfK4kygmCJdFiT31tS/dfwuRS7jmKVN5U
+         rQWkDcDyPL7jm6B/SmM8FBkxUVmIekBt6Z6o/SnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 109/124] KVM: nVMX: Defer APICv updates while L2 is active until L1 is active
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 82/86] jbd2: fix a potential race while discarding reserved buffers after an abort
 Date:   Tue, 26 Apr 2022 10:21:50 +0200
-Message-Id: <20220426081750.393843374@linuxfoundation.org>
+Message-Id: <20220426081743.581782923@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,93 +52,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Ye Bin <yebin10@huawei.com>
 
-commit 7c69661e225cc484fbf44a0b99b56714a5241ae3 upstream.
+commit 23e3d7f7061f8682c751c46512718f47580ad8f0 upstream.
 
-Defer APICv updates that occur while L2 is active until nested VM-Exit,
-i.e. until L1 regains control.  vmx_refresh_apicv_exec_ctrl() assumes L1
-is active and (a) stomps all over vmcs02 and (b) neglects to ever updated
-vmcs01.  E.g. if vmcs12 doesn't enable the TPR shadow for L2 (and thus no
-APICv controls), L1 performs nested VM-Enter APICv inhibited, and APICv
-becomes unhibited while L2 is active, KVM will set various APICv controls
-in vmcs02 and trigger a failed VM-Entry.  The kicker is that, unless
-running with nested_early_check=1, KVM blames L1 and chaos ensues.
+we got issue as follows:
+[   72.796117] EXT4-fs error (device sda): ext4_journal_check_start:83: comm fallocate: Detected aborted journal
+[   72.826847] EXT4-fs (sda): Remounting filesystem read-only
+fallocate: fallocate failed: Read-only file system
+[   74.791830] jbd2_journal_commit_transaction: jh=0xffff9cfefe725d90 bh=0x0000000000000000 end delay
+[   74.793597] ------------[ cut here ]------------
+[   74.794203] kernel BUG at fs/jbd2/transaction.c:2063!
+[   74.794886] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[   74.795533] CPU: 4 PID: 2260 Comm: jbd2/sda-8 Not tainted 5.17.0-rc8-next-20220315-dirty #150
+[   74.798327] RIP: 0010:__jbd2_journal_unfile_buffer+0x3e/0x60
+[   74.801971] RSP: 0018:ffffa828c24a3cb8 EFLAGS: 00010202
+[   74.802694] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+[   74.803601] RDX: 0000000000000001 RSI: ffff9cfefe725d90 RDI: ffff9cfefe725d90
+[   74.804554] RBP: ffff9cfefe725d90 R08: 0000000000000000 R09: ffffa828c24a3b20
+[   74.805471] R10: 0000000000000001 R11: 0000000000000001 R12: ffff9cfefe725d90
+[   74.806385] R13: ffff9cfefe725d98 R14: 0000000000000000 R15: ffff9cfe833a4d00
+[   74.807301] FS:  0000000000000000(0000) GS:ffff9d01afb00000(0000) knlGS:0000000000000000
+[   74.808338] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   74.809084] CR2: 00007f2b81bf4000 CR3: 0000000100056000 CR4: 00000000000006e0
+[   74.810047] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   74.810981] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   74.811897] Call Trace:
+[   74.812241]  <TASK>
+[   74.812566]  __jbd2_journal_refile_buffer+0x12f/0x180
+[   74.813246]  jbd2_journal_refile_buffer+0x4c/0xa0
+[   74.813869]  jbd2_journal_commit_transaction.cold+0xa1/0x148
+[   74.817550]  kjournald2+0xf8/0x3e0
+[   74.819056]  kthread+0x153/0x1c0
+[   74.819963]  ret_from_fork+0x22/0x30
 
-In all cases, ignoring vmcs02 and always deferring the inhibition change
-to vmcs01 is correct (or at least acceptable).  The ABSENT and DISABLE
-inhibitions cannot truly change while L2 is active (see below).
+Above issue may happen as follows:
+        write                   truncate                   kjournald2
+generic_perform_write
+ ext4_write_begin
+  ext4_walk_page_buffers
+   do_journal_get_write_access ->add BJ_Reserved list
+ ext4_journalled_write_end
+  ext4_walk_page_buffers
+   write_end_fn
+    ext4_handle_dirty_metadata
+                ***************JBD2 ABORT**************
+     jbd2_journal_dirty_metadata
+ -> return -EROFS, jh in reserved_list
+                                                   jbd2_journal_commit_transaction
+                                                    while (commit_transaction->t_reserved_list)
+                                                      jh = commit_transaction->t_reserved_list;
+                        truncate_pagecache_range
+                         do_invalidatepage
+			  ext4_journalled_invalidatepage
+			   jbd2_journal_invalidatepage
+			    journal_unmap_buffer
+			     __dispose_buffer
+			      __jbd2_journal_unfile_buffer
+			       jbd2_journal_put_journal_head ->put last ref_count
+			        __journal_remove_journal_head
+				 bh->b_private = NULL;
+				 jh->b_bh = NULL;
+				                      jbd2_journal_refile_buffer(journal, jh);
+							bh = jh2bh(jh);
+							->bh is NULL, later will trigger null-ptr-deref
+				 journal_free_journal_head(jh);
 
-IRQ_BLOCKING can change, but it is firmly a best effort debug feature.
-Furthermore, only L2's APIC is accelerated/virtualized to the full extent
-possible, e.g. even if L1 passes through its APIC to L2, normal MMIO/MSR
-interception will apply to the virtual APIC managed by KVM.
-The exception is the SELF_IPI register when x2APIC is enabled, but that's
-an acceptable hole.
+After commit 96f1e0974575, we no longer hold the j_state_lock while
+iterating over the list of reserved handles in
+jbd2_journal_commit_transaction().  This potentially allows the
+journal_head to be freed by journal_unmap_buffer while the commit
+codepath is also trying to free the BJ_Reserved buffers.  Keeping
+j_state_lock held while trying extends hold time of the lock
+minimally, and solves this issue.
 
-Lastly, Hyper-V's Auto EOI can technically be toggled if L1 exposes the
-MSRs to L2, but for that to work in any sane capacity, L1 would need to
-pass through IRQs to L2 as well, and IRQs must be intercepted to enable
-virtual interrupt delivery.  I.e. exposing Auto EOI to L2 and enabling
-VID for L2 are, for all intents and purposes, mutually exclusive.
-
-Lack of dynamic toggling is also why this scenario is all but impossible
-to encounter in KVM's current form.  But a future patch will pend an
-APICv update request _during_ vCPU creation to plug a race where a vCPU
-that's being created doesn't get included in the "all vCPUs request"
-because it's not yet visible to other vCPUs.  If userspaces restores L2
-after VM creation (hello, KVM selftests), the first KVM_RUN will occur
-while L2 is active and thus service the APICv update request made during
-VM creation.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220420013732.3308816-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 96f1e0974575("jbd2: avoid long hold times of j_state_lock while committing a transaction")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220317142137.1821590-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |    5 +++++
- arch/x86/kvm/vmx/vmx.c    |    5 +++++
- arch/x86/kvm/vmx/vmx.h    |    1 +
- 3 files changed, 11 insertions(+)
+ fs/jbd2/commit.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -4601,6 +4601,11 @@ void nested_vmx_vmexit(struct kvm_vcpu *
- 		kvm_make_request(KVM_REQ_APIC_PAGE_RELOAD, vcpu);
+--- a/fs/jbd2/commit.c
++++ b/fs/jbd2/commit.c
+@@ -501,7 +501,6 @@ void jbd2_journal_commit_transaction(jou
+ 	}
+ 	spin_unlock(&commit_transaction->t_handle_lock);
+ 	commit_transaction->t_state = T_SWITCH;
+-	write_unlock(&journal->j_state_lock);
+ 
+ 	J_ASSERT (atomic_read(&commit_transaction->t_outstanding_credits) <=
+ 			journal->j_max_transaction_buffers);
+@@ -521,6 +520,8 @@ void jbd2_journal_commit_transaction(jou
+ 	 * has reserved.  This is consistent with the existing behaviour
+ 	 * that multiple jbd2_journal_get_write_access() calls to the same
+ 	 * buffer are perfectly permissible.
++	 * We use journal->j_state_lock here to serialize processing of
++	 * t_reserved_list with eviction of buffers from journal_unmap_buffer().
+ 	 */
+ 	while (commit_transaction->t_reserved_list) {
+ 		jh = commit_transaction->t_reserved_list;
+@@ -540,6 +541,7 @@ void jbd2_journal_commit_transaction(jou
+ 		jbd2_journal_refile_buffer(journal, jh);
  	}
  
-+	if (vmx->nested.update_vmcs01_apicv_status) {
-+		vmx->nested.update_vmcs01_apicv_status = false;
-+		kvm_make_request(KVM_REQ_APICV_UPDATE, vcpu);
-+	}
-+
- 	if ((vm_exit_reason != -1) &&
- 	    (enable_shadow_vmcs || evmptr_is_valid(vmx->nested.hv_evmcs_vmptr)))
- 		vmx->nested.need_vmcs12_to_shadow_sync = true;
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -4098,6 +4098,11 @@ static void vmx_refresh_apicv_exec_ctrl(
- {
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
- 
-+	if (is_guest_mode(vcpu)) {
-+		vmx->nested.update_vmcs01_apicv_status = true;
-+		return;
-+	}
-+
- 	pin_controls_set(vmx, vmx_pin_based_exec_ctrl(vmx));
- 	if (cpu_has_secondary_exec_ctrls()) {
- 		if (kvm_vcpu_apicv_active(vcpu))
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -164,6 +164,7 @@ struct nested_vmx {
- 	bool change_vmcs01_virtual_apic_mode;
- 	bool reload_vmcs01_apic_access_page;
- 	bool update_vmcs01_cpu_dirty_logging;
-+	bool update_vmcs01_apicv_status;
- 
++	write_unlock(&journal->j_state_lock);
  	/*
- 	 * Enlightened VMCS has been enabled. It does not mean that L1 has to
+ 	 * Now try to drop any written-back buffers from the journal's
+ 	 * checkpoint lists.  We do this *before* commit because it potentially
 
 
