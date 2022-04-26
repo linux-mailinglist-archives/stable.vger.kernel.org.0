@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C882350F846
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9346E50F62D
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346369AbiDZJHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51282 "EHLO
+        id S240405AbiDZIrF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347544AbiDZJF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB34158F96;
-        Tue, 26 Apr 2022 01:44:56 -0700 (PDT)
+        with ESMTP id S1346891AbiDZIp2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90F3965DC;
+        Tue, 26 Apr 2022 01:36:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA19B60EC7;
-        Tue, 26 Apr 2022 08:44:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7EAAC385A0;
-        Tue, 26 Apr 2022 08:44:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D440617E7;
+        Tue, 26 Apr 2022 08:36:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 236A3C385A0;
+        Tue, 26 Apr 2022 08:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962695;
-        bh=+2Fi1ILVgr/TXV+c7AXwJyqn3eo8rkvAxRa7kZL1PaY=;
+        s=korg; t=1650962177;
+        bh=F9IihVuh+cy8kK9Rt7DkAAR8plTl6SHz8WpoM3/HKzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PjCHrEjeTKm+1DvRDiGYgGk8gKghwbRe+RL7YLjJCc9WJG8bsVuDcCyk5XV/a8mBl
-         0QJwcz1hPx2DhTSGbGXR2kAahXxHVzwP3o8CGQpEoWuK7tU6sWYnhnVrC1iMWIeQDK
-         2pgm53uAYZ9CrffprotqeD4nhThBudq/BVMj4Pm4=
+        b=TCtTMfd8qH6Mry8nL+vY/wtzFxiPsiHk3BdqPgBZ8esHQRFJlMzCDIKeOMENTydZv
+         12ZQCNsyqSsc6WTjSHf3wSDOP1Yg5h5zaiiPAbyeXE1cJFHF+pWSWzQgUA55NCnN4A
+         OPf/ZrT/jCfH14NChINhb3Jb8o0H7/yMyNxhKTk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 018/146] dmaengine: mediatek:Fix PM usage reference leak of mtk_uart_apdma_alloc_chan_resources
+        stable@vger.kernel.org,
+        syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.15 012/124] gfs2: assign rgrp glock before compute_bitstructs
 Date:   Tue, 26 Apr 2022 10:20:13 +0200
-Message-Id: <20220426081750.577997239@linuxfoundation.org>
+Message-Id: <20220426081747.648707539@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,65 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangqilong <zhangqilong3@huawei.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 545b2baac89b859180e51215468c05d85ea8465a ]
+commit 428f651cb80b227af47fc302e4931791f2fb4741 upstream.
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-We fix it:
-1) Replacing it with pm_runtime_resume_and_get to keep usage counter
-   balanced.
-2) Add putting operation before returning error.
+Before this patch, function read_rindex_entry called compute_bitstructs
+before it allocated a glock for the rgrp. But if compute_bitstructs found
+a problem with the rgrp, it called gfs2_consist_rgrpd, and that called
+gfs2_dump_glock for rgd->rd_gl which had not yet been assigned.
 
-Fixes:9135408c3ace4 ("dmaengine: mediatek: Add MediaTek UART APDMA support")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220319022142.142709-1-zhangqilong3@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+read_rindex_entry
+   compute_bitstructs
+      gfs2_consist_rgrpd
+         gfs2_dump_glock <---------rgd->rd_gl was not set.
+
+This patch changes read_rindex_entry so it assigns an rgrp glock before
+calling compute_bitstructs so gfs2_dump_glock does not reference an
+unassigned pointer. If an error is discovered, the glock must also be
+put, so a new goto and label were added.
+
+Reported-by: syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/mediatek/mtk-uart-apdma.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/gfs2/rgrp.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dma/mediatek/mtk-uart-apdma.c b/drivers/dma/mediatek/mtk-uart-apdma.c
-index 375e7e647df6..a1517ef1f4a0 100644
---- a/drivers/dma/mediatek/mtk-uart-apdma.c
-+++ b/drivers/dma/mediatek/mtk-uart-apdma.c
-@@ -274,7 +274,7 @@ static int mtk_uart_apdma_alloc_chan_resources(struct dma_chan *chan)
- 	unsigned int status;
- 	int ret;
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -923,15 +923,15 @@ static int read_rindex_entry(struct gfs2
+ 	spin_lock_init(&rgd->rd_rsspin);
+ 	mutex_init(&rgd->rd_mutex);
  
--	ret = pm_runtime_get_sync(mtkd->ddev.dev);
-+	ret = pm_runtime_resume_and_get(mtkd->ddev.dev);
- 	if (ret < 0) {
- 		pm_runtime_put_noidle(chan->device->dev);
- 		return ret;
-@@ -288,18 +288,21 @@ static int mtk_uart_apdma_alloc_chan_resources(struct dma_chan *chan)
- 	ret = readx_poll_timeout(readl, c->base + VFF_EN,
- 			  status, !status, 10, 100);
- 	if (ret)
--		return ret;
-+		goto err_pm;
+-	error = compute_bitstructs(rgd);
+-	if (error)
+-		goto fail;
+-
+ 	error = gfs2_glock_get(sdp, rgd->rd_addr,
+ 			       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
+ 	if (error)
+ 		goto fail;
  
- 	ret = request_irq(c->irq, mtk_uart_apdma_irq_handler,
- 			  IRQF_TRIGGER_NONE, KBUILD_MODNAME, chan);
- 	if (ret < 0) {
- 		dev_err(chan->device->dev, "Can't request dma IRQ\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_pm;
++	error = compute_bitstructs(rgd);
++	if (error)
++		goto fail_glock;
++
+ 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
+ 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
+ 	if (rgd->rd_data > sdp->sd_max_rg_data)
+@@ -945,6 +945,7 @@ static int read_rindex_entry(struct gfs2
  	}
  
- 	if (mtkd->support_33bits)
- 		mtk_uart_apdma_write(c, VFF_4G_SUPPORT, VFF_4G_SUPPORT_CLR_B);
+ 	error = 0; /* someone else read in the rgrp; free it and ignore it */
++fail_glock:
+ 	gfs2_glock_put(rgd->rd_gl);
  
-+err_pm:
-+	pm_runtime_put_noidle(mtkd->ddev.dev);
- 	return ret;
- }
- 
--- 
-2.35.1
-
+ fail:
 
 
