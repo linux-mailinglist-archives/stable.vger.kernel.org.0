@@ -2,128 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6277950F090
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 08:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5DC50F091
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 08:01:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242099AbiDZGEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 02:04:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41608 "EHLO
+        id S243357AbiDZGE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 02:04:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243283AbiDZGEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 02:04:22 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13AB41AF31
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 23:01:15 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id h1so17004338pfv.12
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 23:01:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=FwwHo+H2QBPRH3iTkT+m0A5KVecgbTlfdCVKWR+HKgQ=;
-        b=ZTfmNhk18FlzdHE44AfVQrA0V0GkQs2kCjbhXzEe1IMqoyWq8KoE4ml1ChquFLjNEn
-         22vGVAEdXsYnQU8e+97KrNGupuzSDl6X0t8bHtdHJ4Em/25x+4kBo4KDY8VsEhx8XF1r
-         e4VG+5S032vemA8NXxeoT92HXdVIuPPOB6ZRRGw6zsZe47vzt60RBvO5pg1ywPAJyV2J
-         JP7v202giNNbdvfflgvIsOdVv4q+KeHnE+4qYNA+JUrSgNmWpEqPgbb4yVwHS/FQ/5KF
-         ez55Ib6XkOB9X646U8tpdgcPlZPdWTafpXqEEuUYhG9H9sa0qwM6r/QCte2CHLR6j8fY
-         mkkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=FwwHo+H2QBPRH3iTkT+m0A5KVecgbTlfdCVKWR+HKgQ=;
-        b=wvagW0t+ZaQ4/zl1zU5DEigBLxbO5keBoO/9NDrOYJLWRFeGkgKhExxY73YW3oeyye
-         LIDuwnj297np/EKWC5oM1DMVvfbfRGqopBHAOjN52JGeRZBCcA2xYZ15eSwwJd4k7UjL
-         Op/dzFpjOdR8SYaKhK999XTMgA4MsBYLCyHKzYjVKDrOtfKlTBrCkDSFQihomxCKppeJ
-         ur8Ggi9hccAEsV9Y2Ym6FuzilsAvyfkvXD7re8E1zz/F8MZ65wX86lzxL8zn5bCiLt8w
-         ob4Up2p5AG7SdWLTa8dZ+IL8GcVMZ+VXOiwvIr+B9cIhVD3D5NrZnPihopd5xGD2MvDo
-         XHbg==
-X-Gm-Message-State: AOAM530L3heyiUN3n0XTXIoDE6ezKvuL76jbw8SaNxZBQOQXC85cvPOT
-        uctlbENdKIH1w4SEkkm+gDMQ
-X-Google-Smtp-Source: ABdhPJzweQORRnWXw4qqVANkJ05EPo+IV6KwlR2ZNFpjKbDp5SXrcPZPHaa0oWK4bW9NWTR5BuCDMA==
-X-Received: by 2002:a63:2b97:0:b0:3aa:ffe8:b2da with SMTP id r145-20020a632b97000000b003aaffe8b2damr12163548pgr.194.1650952874519;
-        Mon, 25 Apr 2022 23:01:14 -0700 (PDT)
-Received: from localhost ([139.177.225.225])
-        by smtp.gmail.com with ESMTPSA id o2-20020a62f902000000b0050cfb6994e2sm10879494pfh.130.2022.04.25.23.01.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 Apr 2022 23:01:13 -0700 (PDT)
-From:   Xie Yongji <xieyongji@bytedance.com>
-To:     mst@redhat.com, jasowang@redhat.com
-Cc:     mcgrof@kernel.org, akpm@linux-foundation.org,
-        oliver.sang@intel.com, virtualization@lists.linux-foundation.org,
+        with ESMTP id S243283AbiDZGE0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 02:04:26 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFEAC483A4;
+        Mon, 25 Apr 2022 23:01:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4832BCE1A7D;
+        Tue, 26 Apr 2022 06:01:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C2D9C385A4;
+        Tue, 26 Apr 2022 06:01:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1650952876;
+        bh=stLEuDXX75MDqjxXONL4N5v+IrSw0sqB7MdOVePbc1Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NRl338cF79FV/h0d5uo38dZiCwHYSURL2dseO3EvJ1RGeZlZ+Sz+1rDkgmFTSv+HQ
+         atl6PKDjE4OrFYTugXkSQVdqYDA0kLkMmm6jvE4XOwbvAO/Jib0YUqDJzMoPnSG8P7
+         uQFGW5aQJjDhwZqxaz3pm/8DYjLwGvIwQUsPlAgHa2Y5RBqNTsh9MVoIt5zBGJ404M
+         auFA3I/Y/msuS3jKE/J9L0f6R+nEfYs0PLEcoKC8hRt8jfHR+3caoJdyi6nSI7oa8R
+         XsMbeEPiBiyEKVcbexBYqlsn71ar48pSKWyQ1wO0Ff+8lxoP+ai/CEoge4lDjCS7qg
+         Bs2aqvr/RnzIw==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ard Biesheuvel <ardb@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guillaume Tucker <gtucker@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Tony Lindgren <tony@atomide.com>,
+        Will Deacon <will@kernel.org>, bot@kernelci.org,
+        kernelci-results@groups.io, linux-arm-kernel@lists.infradead.org,
         stable@vger.kernel.org
-Subject: [PATCH] vduse: Fix NULL pointer dereference on sysfs access
-Date:   Tue, 26 Apr 2022 14:01:03 +0800
-Message-Id: <20220426060103.104-1-xieyongji@bytedance.com>
-X-Mailer: git-send-email 2.25.1
+Subject: [PATCH v2] arm[64]/memremap: don't abuse pfn_valid() to ensure presence of linear map
+Date:   Tue, 26 Apr 2022 09:01:07 +0300
+Message-Id: <20220426060107.7618-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The control device has no drvdata. So we will get a NULL
-NULL pointer dereference when accessing control device's
-msg_timeout via sysfs:
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-[ 132.841881][ T3644] BUG: kernel NULL pointer dereference, address: 00000000000000f8
-[ 132.850619][ T3644] RIP: 0010:msg_timeout_show (drivers/vdpa/vdpa_user/vduse_dev.c:1271)
-[ 132.869447][ T3644] dev_attr_show (drivers/base/core.c:2094)
-[ 132.870215][ T3644] sysfs_kf_seq_show (fs/sysfs/file.c:59)
-[ 132.871164][ T3644] ? device_remove_bin_file (drivers/base/core.c:2088)
-[ 132.872082][ T3644] kernfs_seq_show (fs/kernfs/file.c:164)
-[ 132.872838][ T3644] seq_read_iter (fs/seq_file.c:230)
-[ 132.873578][ T3644] ? __vmalloc_area_node (mm/vmalloc.c:3041)
-[ 132.874532][ T3644] kernfs_fop_read_iter (fs/kernfs/file.c:238)
-[ 132.875513][ T3644] __kernel_read (fs/read_write.c:440 (discriminator 1))
-[ 132.876319][ T3644] kernel_read (fs/read_write.c:459)
-[ 132.877129][ T3644] kernel_read_file (fs/kernel_read_file.c:94)
-[ 132.877978][ T3644] kernel_read_file_from_fd (include/linux/file.h:45 fs/kernel_read_file.c:186)
-[ 132.879019][ T3644] __do_sys_finit_module (kernel/module.c:4207)
-[ 132.879930][ T3644] __ia32_sys_finit_module (kernel/module.c:4189)
-[ 132.880930][ T3644] do_int80_syscall_32 (arch/x86/entry/common.c:112 arch/x86/entry/common.c:132)
-[ 132.881847][ T3644] entry_INT80_compat (arch/x86/entry/entry_64_compat.S:419)
+The semantics of pfn_valid() is to check presence of the memory map for a
+PFN and not whether a PFN is covered by the linear map. The memory map may
+be present for NOMAP memory regions, but they won't be mapped in the linear
+mapping.  Accessing such regions via __va() when they are memremap()'ed
+will cause a crash.
 
-To fix it, let's add a NULL check in msg_timeout_show() and
-msg_timeout_store().
+On v5.4.y the crash happens on qemu-arm with UEFI [1]:
 
-Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+<1>[    0.084476] 8<--- cut here ---
+<1>[    0.084595] Unable to handle kernel paging request at virtual address dfb76000
+<1>[    0.084938] pgd = (ptrval)
+<1>[    0.085038] [dfb76000] *pgd=5f7fe801, *pte=00000000, *ppte=00000000
+
+...
+
+<4>[    0.093923] [<c0ed6ce8>] (memcpy) from [<c16a06f8>] (dmi_setup+0x60/0x418)
+<4>[    0.094204] [<c16a06f8>] (dmi_setup) from [<c16a38d4>] (arm_dmi_init+0x8/0x10)
+<4>[    0.094408] [<c16a38d4>] (arm_dmi_init) from [<c0302e9c>] (do_one_initcall+0x50/0x228)
+<4>[    0.094619] [<c0302e9c>] (do_one_initcall) from [<c16011e4>] (kernel_init_freeable+0x15c/0x1f8)
+<4>[    0.094841] [<c16011e4>] (kernel_init_freeable) from [<c0f028cc>] (kernel_init+0x8/0x10c)
+<4>[    0.095057] [<c0f028cc>] (kernel_init) from [<c03010e8>] (ret_from_fork+0x14/0x2c)
+
+On kernels v5.10.y and newer the same crash won't reproduce on ARM because
+commit b10d6bca8720 ("arch, drivers: replace for_each_membock() with
+for_each_mem_range()") changed the way memory regions are registered in the
+resource tree, but that merely covers up the problem.
+
+On ARM64 memory resources registered in yet another way and there the
+issue of wrong usage of pfn_valid() to ensure availability of the linear
+map is also covered.
+
+Implement arch_memremap_can_ram_remap() on ARM and ARM64 to prevent access
+to NOMAP regions via the linear mapping in memremap().
+
+Link: https://lore.kernel.org/all/Yl65zxGgFzF1Okac@sirena.org.uk
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Tested-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org	# 5.4+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+v2: don't remove pfn_valid() from try_ram_remap(), per Ard
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index f85d1a08ed87..f1c42f4aabb4 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1268,6 +1268,9 @@ static ssize_t msg_timeout_show(struct device *device,
+ arch/arm/include/asm/io.h   | 3 +++
+ arch/arm/mm/ioremap.c       | 8 ++++++++
+ arch/arm64/include/asm/io.h | 4 ++++
+ arch/arm64/mm/ioremap.c     | 8 ++++++++
+ 4 files changed, 23 insertions(+)
+
+diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
+index 0c70eb688a00..2a0739a2350b 100644
+--- a/arch/arm/include/asm/io.h
++++ b/arch/arm/include/asm/io.h
+@@ -440,6 +440,9 @@ extern void pci_iounmap(struct pci_dev *dev, void __iomem *addr);
+ #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
+ extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
+ extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
++extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
++					unsigned long flags);
++#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
+ #endif
+ 
+ /*
+diff --git a/arch/arm/mm/ioremap.c b/arch/arm/mm/ioremap.c
+index aa08bcb72db9..290702328a33 100644
+--- a/arch/arm/mm/ioremap.c
++++ b/arch/arm/mm/ioremap.c
+@@ -493,3 +493,11 @@ void __init early_ioremap_init(void)
  {
- 	struct vduse_dev *dev = dev_get_drvdata(device);
- 
-+	if (!dev)
-+		return -EPERM;
-+
- 	return sysfs_emit(buf, "%u\n", dev->msg_timeout);
+ 	early_ioremap_setup();
  }
- 
-@@ -1278,6 +1281,9 @@ static ssize_t msg_timeout_store(struct device *device,
- 	struct vduse_dev *dev = dev_get_drvdata(device);
- 	int ret;
- 
-+	if (!dev)
-+		return -EPERM;
 +
- 	ret = kstrtouint(buf, 10, &dev->msg_timeout);
- 	if (ret < 0)
- 		return ret;
++bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
++				 unsigned long flags)
++{
++	unsigned long pfn = PHYS_PFN(offset);
++
++	return memblock_is_map_memory(pfn);
++}
+diff --git a/arch/arm64/include/asm/io.h b/arch/arm64/include/asm/io.h
+index 7fd836bea7eb..3995652daf81 100644
+--- a/arch/arm64/include/asm/io.h
++++ b/arch/arm64/include/asm/io.h
+@@ -192,4 +192,8 @@ extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
+ extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
+ extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
+ 
++extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
++					unsigned long flags);
++#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
++
+ #endif	/* __ASM_IO_H */
+diff --git a/arch/arm64/mm/ioremap.c b/arch/arm64/mm/ioremap.c
+index b7c81dacabf0..b21f91cd830d 100644
+--- a/arch/arm64/mm/ioremap.c
++++ b/arch/arm64/mm/ioremap.c
+@@ -99,3 +99,11 @@ void __init early_ioremap_init(void)
+ {
+ 	early_ioremap_setup();
+ }
++
++bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
++				 unsigned long flags)
++{
++	unsigned long pfn = PHYS_PFN(offset);
++
++	return pfn_is_map_memory(pfn);
++}
+
+base-commit: b2d229d4ddb17db541098b83524d901257e93845
 -- 
-2.20.1
+2.28.0
 
