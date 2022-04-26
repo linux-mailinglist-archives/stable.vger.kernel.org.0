@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CE850F5B7
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E0950F6B2
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239311AbiDZIwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:52:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57808 "EHLO
+        id S244933AbiDZI6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346152AbiDZIoj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:44:39 -0400
+        with ESMTP id S1345602AbiDZI51 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF9BD161EBE;
-        Tue, 26 Apr 2022 01:34:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B84384EC6;
+        Tue, 26 Apr 2022 01:42:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AFAB6185C;
-        Tue, 26 Apr 2022 08:34:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43E3CC385A4;
-        Tue, 26 Apr 2022 08:34:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBCF660A67;
+        Tue, 26 Apr 2022 08:42:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C29CFC385A0;
+        Tue, 26 Apr 2022 08:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962056;
-        bh=RGoE0lV4Gt1FzGtH18FsPre8pQCqlrkKwqFydH7HAbA=;
+        s=korg; t=1650962521;
+        bh=+kalJFicQos3OPzHJvD22NxkzItAti/SDX2f8dJuBmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqdDdhjpbyMb8yx7TbBq5mtmqLSbWesjbfM9Ch1NHK3ffn5uSFxf+JsU/2YQD6Rfg
-         Cuyp3FXHpbyNTN2fJtFoaW3HJ0VjQ8piojljg+aAWCfX3YVQiP68AeFKUiZjo9t8CH
-         HJAdowvaM4CIHOdj9tGOEMcH8jHl3LlqfzgYUp6o=
+        b=WNzq6ozR+EZtz59Dbtwqf493lVRfwg8lXRA0UWyTcrLeF9fzumMWiKsR6veGz1/R+
+         uXhY+ea1SqHZyaS4jAb6xpW72l4tS5xaVVSUmhDD6edjMerDv3XzzmEXtqXaz5F83t
+         TWVwCODU8K2MdpZF8ZHraM7IUI4u4f29/9tI79m0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, koo5 <kolman.jindrich@gmail.com>,
-        Manuel Ullmann <labre@posteo.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 57/86] net: atlantic: invert deep par in pm functions, preventing null derefs
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 084/124] dma: at_xdmac: fix a missing check on list iterator
 Date:   Tue, 26 Apr 2022 10:21:25 +0200
-Message-Id: <20220426081742.851286029@linuxfoundation.org>
+Message-Id: <20220426081749.689618472@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manuel Ullmann <labre@posteo.de>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c upstream.
+commit 206680c4e46b62fd8909385e0874a36952595b85 upstream.
 
-This will reset deeply on freeze and thaw instead of suspend and
-resume and prevent null pointer dereferences of the uninitialized ring
-0 buffer while thawing.
+The bug is here:
+	__func__, desc, &desc->tx_dma_desc.phys, ret, cookie, residue);
 
-The impact is an indefinitely hanging kernel. You can't switch
-consoles after this and the only possible user interaction is SysRq.
+The list iterator 'desc' will point to a bogus position containing
+HEAD if the list is empty or no element is found. To avoid dev_dbg()
+prints a invalid address, use a new variable 'iter' as the list
+iterator, while use the origin variable 'desc' as a dedicated
+pointer to point to the found element.
 
-BUG: kernel NULL pointer dereference
-RIP: 0010:aq_ring_rx_fill+0xcf/0x210 [atlantic]
-aq_vec_init+0x85/0xe0 [atlantic]
-aq_nic_init+0xf7/0x1d0 [atlantic]
-atl_resume_common+0x4f/0x100 [atlantic]
-pci_pm_thaw+0x42/0xa0
-
-resolves in aq_ring.o to
-
-```
-0000000000000ae0 <aq_ring_rx_fill>:
-{
-/* ... */
- baf:	48 8b 43 08          	mov    0x8(%rbx),%rax
- 		buff->flags = 0U; /* buff is NULL */
-```
-
-The bug has been present since the introduction of the new pm code in
-8aaa112a57c1 ("net: atlantic: refactoring pm logic") and was hidden
-until 8ce84271697a ("net: atlantic: changes for multi-TC support"),
-which refactored the aq_vec_{free,alloc} functions into
-aq_vec_{,ring}_{free,alloc}, but is technically not wrong. The
-original functions just always reinitialized the buffers on S3/S4. If
-the interface is down before freezing, the bug does not occur. It does
-not matter, whether the initrd contains and loads the module before
-thawing.
-
-So the fix is to invert the boolean parameter deep in all pm function
-calls, which was clearly intended to be set like that.
-
-First report was on Github [1], which you have to guess from the
-resume logs in the posted dmesg snippet. Recently I posted one on
-Bugzilla [2], since I did not have an AQC device so far.
-
-#regzbot introduced: 8ce84271697a
-#regzbot from: koo5 <kolman.jindrich@gmail.com>
-#regzbot monitor: https://github.com/Aquantia/AQtion/issues/32
-
-Fixes: 8aaa112a57c1 ("net: atlantic: refactoring pm logic")
-Link: https://github.com/Aquantia/AQtion/issues/32 [1]
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215798 [2]
 Cc: stable@vger.kernel.org
-Reported-by: koo5 <kolman.jindrich@gmail.com>
-Signed-off-by: Manuel Ullmann <labre@posteo.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 82e2424635f4c ("dmaengine: xdmac: fix print warning on dma_addr_t variable")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220327061154.4867-1-xiam0nd.tong@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/dma/at_xdmac.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -450,22 +450,22 @@ err_exit:
- 
- static int aq_pm_freeze(struct device *dev)
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1450,7 +1450,7 @@ at_xdmac_tx_status(struct dma_chan *chan
  {
--	return aq_suspend_common(dev, false);
-+	return aq_suspend_common(dev, true);
- }
+ 	struct at_xdmac_chan	*atchan = to_at_xdmac_chan(chan);
+ 	struct at_xdmac		*atxdmac = to_at_xdmac(atchan->chan.device);
+-	struct at_xdmac_desc	*desc, *_desc;
++	struct at_xdmac_desc	*desc, *_desc, *iter;
+ 	struct list_head	*descs_list;
+ 	enum dma_status		ret;
+ 	int			residue, retry;
+@@ -1565,11 +1565,13 @@ at_xdmac_tx_status(struct dma_chan *chan
+ 	 * microblock.
+ 	 */
+ 	descs_list = &desc->descs_list;
+-	list_for_each_entry_safe(desc, _desc, descs_list, desc_node) {
+-		dwidth = at_xdmac_get_dwidth(desc->lld.mbr_cfg);
+-		residue -= (desc->lld.mbr_ubc & 0xffffff) << dwidth;
+-		if ((desc->lld.mbr_nda & 0xfffffffc) == cur_nda)
++	list_for_each_entry_safe(iter, _desc, descs_list, desc_node) {
++		dwidth = at_xdmac_get_dwidth(iter->lld.mbr_cfg);
++		residue -= (iter->lld.mbr_ubc & 0xffffff) << dwidth;
++		if ((iter->lld.mbr_nda & 0xfffffffc) == cur_nda) {
++			desc = iter;
+ 			break;
++		}
+ 	}
+ 	residue += cur_ubc << dwidth;
  
- static int aq_pm_suspend_poweroff(struct device *dev)
- {
--	return aq_suspend_common(dev, true);
-+	return aq_suspend_common(dev, false);
- }
- 
- static int aq_pm_thaw(struct device *dev)
- {
--	return atl_resume_common(dev, false);
-+	return atl_resume_common(dev, true);
- }
- 
- static int aq_pm_resume_restore(struct device *dev)
- {
--	return atl_resume_common(dev, true);
-+	return atl_resume_common(dev, false);
- }
- 
- static const struct dev_pm_ops aq_pm_ops = {
 
 
