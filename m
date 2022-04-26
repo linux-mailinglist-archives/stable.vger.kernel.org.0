@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD14250F5D4
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D67C450F892
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234339AbiDZIyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:54:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55772 "EHLO
+        id S242030AbiDZJH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347252AbiDZIvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E8DC29C;
-        Tue, 26 Apr 2022 01:40:02 -0700 (PDT)
+        with ESMTP id S1347395AbiDZJFd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F401114F9B;
+        Tue, 26 Apr 2022 01:44:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B62BCB81CF0;
-        Tue, 26 Apr 2022 08:40:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07FE9C385A4;
-        Tue, 26 Apr 2022 08:39:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 68893CE1BC9;
+        Tue, 26 Apr 2022 08:44:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B25BC385B1;
+        Tue, 26 Apr 2022 08:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962399;
-        bh=c4tV8qVMiEPhY0Aru+SR6B5J65uqhDU1LrLy5WMOB+A=;
+        s=korg; t=1650962671;
+        bh=1XJ1Sf60yZQU4IASk4WLywESxjLgzcT8qGbx2geJLIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unAd7+PUnXCNRyJHnoJ43UxmaFQvXPXCD3Ff3TE+fGRp66ruMKWJf/D7S80TwlzZ5
-         S9CHkY2h3GtrilQvBBPEjw35B6JLpIEAHsHnLvNrvDOoWqhBcJ4D/rWFSkMChM6KO2
-         HQP8WuicPCt9ca0M0ahelca8sJ2qDHS0TUaGvY8o=
+        b=uPT7lObJB2Dho6jYke9Eoj6X84bCWj3Uy5vT/fREBl4+f4FMIctXHjIKBh68tGIib
+         REFEWr7cfscVI2Svs/mYavZi+pnMVPeY1uucplIjRGdL0/RbMuupP5auvIditxHtNX
+         kcxxGAsoeT/CTa413VfOAhLAjWyryQIv7/Cbi9U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 043/124] net: dsa: hellcreek: Calculate checksums in tagger
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 049/146] dmaengine: idxd: fix retry value to be constant for duration of function call
 Date:   Tue, 26 Apr 2022 10:20:44 +0200
-Message-Id: <20220426081748.526546166@linuxfoundation.org>
+Message-Id: <20220426081751.449551776@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kurt Kanzenbach <kurt@linutronix.de>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 0763120b090418a5257402754e22a34227ae5f12 ]
+[ Upstream commit bc3452cdfc468a65965d0ac397c940acb787ea4d ]
 
-In case the checksum calculation is offloaded to the DSA master network
-interface, it will include the switch trailing tag. As soon as the switch strips
-that tag on egress, the calculated checksum is wrong.
+When retries is compared to wq->enqcmds_retries each loop of idxd_enqcmds(),
+wq->enqcmds_retries can potentially changed by user. Assign the value
+of retries to wq->enqcmds_retries during initialization so it is the
+original value set when entering the function.
 
-Therefore, add the checksum calculation to the tagger (if required) before
-adding the switch tag. This way, the hellcreek code works with all DSA master
-interfaces regardless of their declared feature set.
-
-Fixes: 01ef09caad66 ("net: dsa: Add tag handling for Hirschmann Hellcreek switches")
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220415103320.90657-1-kurt@linutronix.de
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 7930d8553575 ("dmaengine: idxd: add knob for enqcmds retries")
+Suggested-by: Dave Hansen <dave.hansen@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/165031760154.3658664.1983547716619266558.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_hellcreek.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/dma/idxd/submit.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/dsa/tag_hellcreek.c b/net/dsa/tag_hellcreek.c
-index f64b805303cd..eb204ad36eee 100644
---- a/net/dsa/tag_hellcreek.c
-+++ b/net/dsa/tag_hellcreek.c
-@@ -21,6 +21,14 @@ static struct sk_buff *hellcreek_xmit(struct sk_buff *skb,
- 	struct dsa_port *dp = dsa_slave_to_port(dev);
- 	u8 *tag;
+diff --git a/drivers/dma/idxd/submit.c b/drivers/dma/idxd/submit.c
+index 554b0602d2e9..c01db23e3333 100644
+--- a/drivers/dma/idxd/submit.c
++++ b/drivers/dma/idxd/submit.c
+@@ -150,7 +150,7 @@ static void llist_abort_desc(struct idxd_wq *wq, struct idxd_irq_entry *ie,
+  */
+ int idxd_enqcmds(struct idxd_wq *wq, void __iomem *portal, const void *desc)
+ {
+-	unsigned int retries = 0;
++	unsigned int retries = wq->enqcmds_retries;
+ 	int rc;
  
-+	/* Calculate checksums (if required) before adding the trailer tag to
-+	 * avoid including it in calculations. That would lead to wrong
-+	 * checksums after the switch strips the tag.
-+	 */
-+	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-+	    skb_checksum_help(skb))
-+		return NULL;
-+
- 	/* Tag encoding */
- 	tag  = skb_put(skb, HELLCREEK_TAG_LEN);
- 	*tag = BIT(dp->index);
+ 	do {
+@@ -158,7 +158,7 @@ int idxd_enqcmds(struct idxd_wq *wq, void __iomem *portal, const void *desc)
+ 		if (rc == 0)
+ 			break;
+ 		cpu_relax();
+-	} while (retries++ < wq->enqcmds_retries);
++	} while (retries--);
+ 
+ 	return rc;
+ }
 -- 
 2.35.1
 
