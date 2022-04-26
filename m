@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A6550F4B7
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6975F50F440
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239647AbiDZIkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36450 "EHLO
+        id S1344999AbiDZIfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:35:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345416AbiDZIjF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B02F77E598;
-        Tue, 26 Apr 2022 01:29:43 -0700 (PDT)
+        with ESMTP id S1345094AbiDZIeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 557286D4E0;
+        Tue, 26 Apr 2022 01:26:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 392B96185A;
-        Tue, 26 Apr 2022 08:29:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 486F1C385A4;
-        Tue, 26 Apr 2022 08:29:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E599B81CF5;
+        Tue, 26 Apr 2022 08:26:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E1DC385A4;
+        Tue, 26 Apr 2022 08:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961782;
-        bh=Ur+qrFp95DSa9IMjlSvxCSHi7EATab9Fnm0+mekuBe4=;
+        s=korg; t=1650961559;
+        bh=OZh4LPinysjplNiwT4eLfT6wOyCunHQ9OYvn5K7otxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5hoaxeSFpn1d2uhKSvVMW6mLwkG85nxi17wUqcBtxMhQmWq8La8J1vtQeDRyv3aE
-         qH9WNAIhw5CYl6VnvH25wsOK5p9MmD14jGF+k29ZKLe8IqkNXHee0PKpuD/rGuzR1Q
-         qeSRtp9FrzL/+7t2Cc3iKGR7tX6UCqNGkUhS06Jg=
+        b=FWTt+8fiJe7yNaIvAzBpg5q87Hg4LwrxKRT9UrsXV+7ZjSuxRKwfKD/3nOBMFfRuO
+         U0IH2RoXQUOQg7qvSN4tYS0kzSzQ6a2Tg4b8i8usy5hSUuGL69ep9ucyyTUJVVZlns
+         w/yqQhS7jxV0EwGRcl0x90dx8eZiqZimLeF5tHtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Steve French <sfrench@samba.org>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Rohith Surabattula <rohiths.msft@gmail.com>,
-        linux-cifs@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 28/62] cifs: Check the IOCB_DIRECT flag, not O_DIRECT
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 26/43] ASoC: soc-dapm: fix two incorrect uses of list iterator
 Date:   Tue, 26 Apr 2022 10:21:08 +0200
-Message-Id: <20220426081738.032445614@linuxfoundation.org>
+Message-Id: <20220426081735.290430235@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 994fd530a512597ffcd713b0f6d5bc916c5698f0 ]
+commit f730a46b931d894816af34a0ff8e4ad51565b39f upstream.
 
-Use the IOCB_DIRECT indicator flag on the I/O context rather than checking to
-see if the file was opened O_DIRECT.
+These two bug are here:
+	list_for_each_entry_safe_continue(w, n, list,
+					power_list);
+	list_for_each_entry_safe_continue(w, n, list,
+					power_list);
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Steve French <sfrench@samba.org>
-cc: Shyam Prasad N <nspmangalore@gmail.com>
-cc: Rohith Surabattula <rohiths.msft@gmail.com>
-cc: linux-cifs@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After the list_for_each_entry_safe_continue() exits, the list iterator
+will always be a bogus pointer which point to an invalid struct objdect
+containing HEAD member. The funciton poniter 'w->event' will be a
+invalid value which can lead to a control-flow hijack if the 'w' can be
+controlled.
+
+The original intention was to continue the outer list_for_each_entry_safe()
+loop with the same entry if w->event is NULL, but misunderstanding the
+meaning of list_for_each_entry_safe_continue().
+
+So just add a 'continue;' to fix the bug.
+
+Cc: stable@vger.kernel.org
+Fixes: 163cac061c973 ("ASoC: Factor out DAPM sequence execution")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220329012134.9375-1-xiam0nd.tong@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-dapm.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index f44b6f9d0777..79a18692b84c 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -889,7 +889,7 @@ cifs_loose_read_iter(struct kiocb *iocb, struct iov_iter *iter)
- 	ssize_t rc;
- 	struct inode *inode = file_inode(iocb->ki_filp);
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -1617,8 +1617,7 @@ static void dapm_seq_run(struct snd_soc_
+ 		switch (w->id) {
+ 		case snd_soc_dapm_pre:
+ 			if (!w->event)
+-				list_for_each_entry_safe_continue(w, n, list,
+-								  power_list);
++				continue;
  
--	if (iocb->ki_filp->f_flags & O_DIRECT)
-+	if (iocb->ki_flags & IOCB_DIRECT)
- 		return cifs_user_readv(iocb, iter);
+ 			if (event == SND_SOC_DAPM_STREAM_START)
+ 				ret = w->event(w,
+@@ -1630,8 +1629,7 @@ static void dapm_seq_run(struct snd_soc_
  
- 	rc = cifs_revalidate_mapping(inode);
--- 
-2.35.1
-
+ 		case snd_soc_dapm_post:
+ 			if (!w->event)
+-				list_for_each_entry_safe_continue(w, n, list,
+-								  power_list);
++				continue;
+ 
+ 			if (event == SND_SOC_DAPM_STREAM_START)
+ 				ret = w->event(w,
 
 
