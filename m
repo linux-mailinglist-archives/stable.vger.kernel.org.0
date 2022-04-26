@@ -2,123 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AAD950FA90
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 12:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C482D50FC07
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 13:34:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349041AbiDZKdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 06:33:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36160 "EHLO
+        id S1345860AbiDZLhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 07:37:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349130AbiDZKda (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 06:33:30 -0400
-Received: from mail1.bemta36.messagelabs.com (mail1.bemta36.messagelabs.com [85.158.142.2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17E13152796;
-        Tue, 26 Apr 2022 03:10:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fujitsu.com;
-        s=170520fj; t=1650967853; i=@fujitsu.com;
-        bh=8H4EYBmAmvlD4ppPy7czpIZvvSugYPtrUgavqYgtwHU=;
-        h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-         MIME-Version:Content-Type;
-        b=gjIsZW/AWk7M/XjvMS2pZ8n9BXA1IqIEqdxvSlJmIoP6+U0NTbD1JqJxiF1yg6ZzL
-         E9z83my0iCXePoD31kRpR1zcgtDmOFMpHnVyYI7E3JnTqZeT2GDFVdaCiBcO0b2iO0
-         0jW0WYOz5968oFYxGFefHphj9vpxBhARifxwUCl5y5/SznhLCyurJx84mWtkFAcRUa
-         Xc+PKzgyMv4ZE1PXJZhrooMC3Sa40+JYgQRVWethGgCXZmoUaEoQ0iQX1Vrm0RvpSR
-         dZyO/vvLh5bHpKE4KJJRGSVc7oUHOnH0EfuuPWTaQcFE1xNSBH0SDL8/kBfXi6f43X
-         I8qL4VnexuZ1Q==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpnleJIrShJLcpLzFFi42Kxs+FI1NU5mp5
-  k8GWeusXrw58YLT7cnMRkseXYPUaLy0/4LH4uW8VusWfvSRaLBRsfMVqc/3uc1eL3jzlsDpwe
-  pxZJeGxeoeWxaVUnm8fnTXIem568ZQpgjWLNzEvKr0hgzZi79y1zwSbOig0TdrE3MHZwdDFyc
-  QgJbGGUuDz5JBOEs4BJYvW5Q4xdjJxAzh5GiZ8bokFsNgFNiWedC5hBbBEBR4kX7TNYQBqYBc
-  4ySnTMWMQOkhAWcJL4dnsTE4jNIqAq8XTVWjYQm1fAQ6L1zEWwZgkBBYkpD9+D2ZwCnhJv+6d
-  ALfOQuLW8jwmiXlDi5MwnLCA2s4CExMEXL6B6FSUudXxjhLArJGbNamOCsNUkrp7bxDyBUXAW
-  kvZZSNoXMDKtYrRLKspMzyjJTczM0TU0MNA1NDTVNTPTNbQw00us0k3USy3VTU7NKylKBErrJ
-  ZYX66UWF+sVV+Ym56To5aWWbGIExk9KsdOuHYwH+37qHWKU5GBSEuXV2ZeeJMSXlJ9SmZFYnB
-  FfVJqTWnyIUYaDQ0mCN/AQUE6wKDU9tSItMwcYyzBpCQ4eJRHet4eB0rzFBYm5xZnpEKlTjIp
-  S4rzL9wIlBEASGaV5cG2w9HGJUVZKmJeRgYFBiKcgtSg3swRV/hWjOAejkjDEeJ7MvBK46a+A
-  FjMBLf5UmwqyuCQRISXVwKTiqe2+ZdlRq+D6dR3PQq+4WpzUq/x54+AqgcxHcwyNlkTNPZ52/
-  cwe4/UVS0r+8mZbSYoELBPbdCX+do/P/jqtr87XmQR0Nus9UHrt+26C+EQOTY4DCifkbbQ8Hl
-  R6SXXfnvPTKv7at/cHGgMNg75w27pwSd3z/GP0T5f9lt+rA918MfzVapFVL5VvvdfZcWPZlvl
-  5QuHiRXtubdV5I3lUsjLr5eFP+09yrqu5WGF2zkrSUMJhNc9KvwcXQvQ/P6rbsKP5eFVpj7pX
-  y/nfmw1aDjxVPF84xXV/a9n5O/2+POF3tvFELpty0kRpufFbDf11YhlH29KPCegZntfXWj1Le
-  kroRDbLi/XzNt7xO6bEUpyRaKjFXFScCABvv5xnmgMAAA==
-X-Env-Sender: xuyang2018.jy@fujitsu.com
-X-Msg-Ref: server-17.tower-545.messagelabs.com!1650967852!237794!1
-X-Originating-IP: [62.60.8.97]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.85.8; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 18532 invoked from network); 26 Apr 2022 10:10:52 -0000
-Received: from unknown (HELO n03ukasimr01.n03.fujitsu.local) (62.60.8.97)
-  by server-17.tower-545.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 26 Apr 2022 10:10:52 -0000
-Received: from n03ukasimr01.n03.fujitsu.local (localhost [127.0.0.1])
-        by n03ukasimr01.n03.fujitsu.local (Postfix) with ESMTP id EF25F1001A2;
-        Tue, 26 Apr 2022 11:10:51 +0100 (BST)
-Received: from R01UKEXCASM126.r01.fujitsu.local (unknown [10.183.43.178])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by n03ukasimr01.n03.fujitsu.local (Postfix) with ESMTPS id CCFB9100181;
-        Tue, 26 Apr 2022 11:10:51 +0100 (BST)
-Received: from localhost.localdomain (10.167.220.84) by
- R01UKEXCASM126.r01.fujitsu.local (10.183.43.178) with Microsoft SMTP Server
- (TLS) id 15.0.1497.32; Tue, 26 Apr 2022 11:10:39 +0100
-From:   Yang Xu <xuyang2018.jy@fujitsu.com>
-To:     <linux-fsdevel@vger.kernel.org>, <ceph-devel@vger.kernel.org>
-CC:     <viro@zeniv.linux.org.uk>, <david@fromorbit.com>,
-        <djwong@kernel.org>, <brauner@kernel.org>, <willy@infradead.org>,
-        <jlayton@kernel.org>, Yang Xu <xuyang2018.jy@fujitsu.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v8 2/4] fs: Add missing umask strip in vfs_tmpfile
-Date:   Tue, 26 Apr 2022 19:11:28 +0800
-Message-ID: <1650971490-4532-2-git-send-email-xuyang2018.jy@fujitsu.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1650971490-4532-1-git-send-email-xuyang2018.jy@fujitsu.com>
-References: <1650971490-4532-1-git-send-email-xuyang2018.jy@fujitsu.com>
+        with ESMTP id S238202AbiDZLhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 07:37:51 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 965A0CD679
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 04:34:43 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id y3so15067137ejo.12
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 04:34:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=wBwx+D2h9mUsrjkCxoqYGuTcK+8+/+bvMvTubg4MT2I=;
+        b=bu64gBrXkRgiQAML8TC0geTacBImpLY9ZLCpe0mr7gwsGiPPcdrt84yZ8BTkp9OkF5
+         bY8YcTMsS0HJeUhMWjaM3UmlRQRkt4ZjLxKl49jgmBGimtlNEFs2nW/Dmz0oDAXSFF6+
+         yhB0J9CxIBpbKKiYp7xxxNE3vl7Zcw/01H7MNdWXOkEAKO5H4+b37lXcKejG7I4emfX4
+         a1gf5yW5ZEkyBfP4i2UIMKXcZfDMFLeIXwBtPHEt8qkl6iwXNy6+H0SAq1ai8xpC04DR
+         uqP9M70Oetrl+0CliwUn/ta8TxEcAplgqOUdvQvUfG9FW1ixdhRolo9Qenhis1CMXIJa
+         nCvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=wBwx+D2h9mUsrjkCxoqYGuTcK+8+/+bvMvTubg4MT2I=;
+        b=Fdar6jNKj1HWec7g7aeZtuOxCw4aieJHLPLORhPtXD6ZlDpHh0qGGx799WR95WVmbX
+         jSdWqDuorWC2fisYmT3/Jb9t+dKAGnDzocvHUYtuWka0WHP+aJ2O1lZ5Sx8e7Ht2BGpx
+         GIEHWK67wlRLZNzRZDXEI319/x4YJN1N/DR4dPwJ6QKB7lhXUuRnYsmjNyGRNeslzDq8
+         mzAQfmaXwT2tuFWIZW14U4gk6nl02zEVLw9VlG31DOiirsxdCuahlt64n6Jd733C8cAV
+         CYo5Cqgohm+uG5t2P7MbOU5WVoctbU5SC3Riq+8aAFYwR91GkBYt75ASV1jz/3FvTkz6
+         7gfg==
+X-Gm-Message-State: AOAM531MAcijkYobUreIa+A7wFC09qkobTmm1zuvZOIBnifRrCgTpzAG
+        Agu+MFdEdEHySwOwrjnqyrWpll6cDWnJtNpSJt0=
+X-Google-Smtp-Source: ABdhPJxdOFFLpLNjcZc+rg4JxoQmOO2y9qdJT2P5RbWDMqHaGA0Ec0TLJ/3rbxuOVTMosWq15Xoq8/H/DBxS0AVU5L0=
+X-Received: by 2002:a17:907:3f86:b0:6df:ad43:583 with SMTP id
+ hr6-20020a1709073f8600b006dfad430583mr21587140ejc.535.1650972881773; Tue, 26
+ Apr 2022 04:34:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.167.220.84]
-X-ClientProxiedBy: G08CNEXCHPEKD07.g08.fujitsu.local (10.167.33.80) To
- R01UKEXCASM126.r01.fujitsu.local (10.183.43.178)
-X-Virus-Scanned: ClamAV using ClamSMTP
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Received: by 2002:a55:aac6:0:b0:172:401f:9a7a with HTTP; Tue, 26 Apr 2022
+ 04:34:40 -0700 (PDT)
+Reply-To: wbuff5300@gmail.com
+From:   "WARREN E. BUFFETT" <mnamutebi5@gmail.com>
+Date:   Tue, 26 Apr 2022 04:34:40 -0700
+Message-ID: <CAFx6cq7Y+DE0jijKOwnHdyRNyjzMPJT-7+HZd5ag_7EhFkmyHg@mail.gmail.com>
+Subject: Donation to you
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=7.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,UNDISC_FREEM,UNDISC_MONEY,US_DOLLARS_3 autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:643 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5008]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [mnamutebi5[at]gmail.com]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [wbuff5300[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [mnamutebi5[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 US_DOLLARS_3 BODY: Mentions millions of $ ($NN,NNN,NNN.NN)
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  0.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
+        *      email?
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+        *  2.2 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-All creation paths except for O_TMPFILE handle umask in the vfs directly
-if the filesystem doesn't support or enable POSIX ACLs. If the filesystem
-does then umask handling is deferred until posix_acl_create().
-Because, O_TMPFILE misses umask handling in the vfs it will not honor
-umask settings. Fix this by adding the missing umask handling.
-
-Fixes: 60545d0d4610 ("[O_TMPFILE] it's still short a few helpers, but infrastructure should be OK now...")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reported-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
----
- fs/namei.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/fs/namei.c b/fs/namei.c
-index 509657fdf4f5..73646e28fae0 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -3521,6 +3521,8 @@ struct dentry *vfs_tmpfile(struct user_namespace *mnt_userns,
- 	child = d_alloc(dentry, &slash_name);
- 	if (unlikely(!child))
- 		goto out_err;
-+	if (!IS_POSIXACL(dir))
-+		mode &= ~current_umask();
- 	error = dir->i_op->tmpfile(mnt_userns, dir, child, mode);
- 	if (error)
- 		goto out_err;
 -- 
-2.27.0
+Hello,
 
+My name is Warren E. Buffett, an American business magnate, investor
+and philanthropist. I am the most successful investor in the world. I
+believe strongly in giving while living' I had one idea that never
+changed in my mind ? That you should use your wealth to help people
+and I have decided to give you $2,500,000.00 to randomly selected
+individuals worldwide. You should count yourself as the lucky
+individual. Kindly reply back so I know your email address is valid.
+
+God bless you.
+Mr. Warren E. Buffett
