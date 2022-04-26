@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4CB750F55B
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B41250F648
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231946AbiDZIwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:52:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55576 "EHLO
+        id S243073AbiDZIqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:46:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347343AbiDZIvU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63D8DD0A80;
-        Tue, 26 Apr 2022 01:40:12 -0700 (PDT)
+        with ESMTP id S1346270AbiDZIor (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:44:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01A083B28;
+        Tue, 26 Apr 2022 01:34:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4F776104A;
-        Tue, 26 Apr 2022 08:40:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4291C385B0;
-        Tue, 26 Apr 2022 08:40:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1188B81CED;
+        Tue, 26 Apr 2022 08:34:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29545C385AC;
+        Tue, 26 Apr 2022 08:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962411;
-        bh=QWLitrRvFmVyVyJOX1rFDP8ZYjWDXNK6XBXYNABfqg0=;
+        s=korg; t=1650962068;
+        bh=NbsUClvZy0wolQZaaxQ4Sw5keVUOpjaf+AR7ay8B04w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XiXaC0KUNB1O3jxleJlZFZKueqJY3c2oleBs2Is6VvJypdYjeaP+zESH/P0TBg2Pd
-         3FwbepJyzbiLw3gabea7bT1PZjEKKJiT5o+ypJDYpFnKQEF82UE8pxvCGjWIL0ZCcP
-         Btya+hW8kHPuMKkhD4g9mUtPugBvVg2B5kCyeGVY=
+        b=Abt+Wlqqtuw0SItjJDDt/E+JD69PrPYbfVP0aArsbHdClp40dfMfR88zPREqHSVnp
+         qt9z7WeggG+RiCdL8E8Qgs5/w5AAqZZ0PNjsON4+vBW6tEOUFjmvASh2RMNdZp3o1Q
+         UnqrrdFq0OAWzbpEqIb2NmgYo/wRl2s+QvvQAxUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Tom Rix <trix@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/124] scsi: sr: Do not leak information in ioctl
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Shreeya Patel <shreeya.patel@collabora.com>,
+        =?UTF-8?q?Samuel=20=C4=8Cavoj?= <samuel@cavoj.net>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        lukeluk498@gmail.com, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 61/86] gpio: Request interrupts after IRQ is initialized
 Date:   Tue, 26 Apr 2022 10:21:29 +0200
-Message-Id: <20220426081749.801857443@linuxfoundation.org>
+Message-Id: <20220426081742.967932943@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,120 +58,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit faad6cebded8e0fd902b672f220449b93db479eb ]
+commit 06fb4ecfeac7e00d6704fa5ed19299f2fefb3cc9 upstream.
 
-sr_ioctl.c uses this pattern:
+Commit 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members
+before initialization") attempted to fix a race condition that lead to a
+NULL pointer, but in the process caused a regression for _AEI/_EVT
+declared GPIOs.
 
-  result = sr_do_ioctl(cd, &cgc);
-  to-user = buffer[];
-  kfree(buffer);
-  return result;
+This manifests in messages showing deferred probing while trying to
+allocate IRQs like so:
 
-Use of a buffer without checking leaks information. Check result and jump
-over the use of buffer if there is an error.
+  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x0000 to IRQ, err -517
+  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x002C to IRQ, err -517
+  amd_gpio AMDI0030:00: Failed to translate GPIO pin 0x003D to IRQ, err -517
+  [ .. more of the same .. ]
 
-  result = sr_do_ioctl(cd, &cgc);
-  if (result)
-    goto err;
-  to-user = buffer[];
-err:
-  kfree(buffer);
-  return result;
+The code for walking _AEI doesn't handle deferred probing and so this
+leads to non-functional GPIO interrupts.
 
-Additionally, initialize the buffer to zero.
+Fix this issue by moving the call to `acpi_gpiochip_request_interrupts`
+to occur after gc->irc.initialized is set.
 
-This problem can be seen in the 2.4.0 kernel.
-
-Link: https://lore.kernel.org/r/20220411174756.2418435-1-trix@redhat.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5467801f1fcb ("gpio: Restrict usage of GPIO chip irq members before initialization")
+Link: https://lore.kernel.org/linux-gpio/BL1PR12MB51577A77F000A008AA694675E2EF9@BL1PR12MB5157.namprd12.prod.outlook.com/
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1198697
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215850
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1979
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1976
+Reported-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Shreeya Patel <shreeya.patel@collabora.com>
+Tested-By: Samuel Čavoj <samuel@cavoj.net>
+Tested-By: lukeluk498@gmail.com Link:
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-and-tested-by: Takashi Iwai <tiwai@suse.de>
+Cc: Shreeya Patel <shreeya.patel@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/sr_ioctl.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/gpio/gpiolib.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/sr_ioctl.c b/drivers/scsi/sr_ioctl.c
-index ddd00efc4882..fbdb5124d7f7 100644
---- a/drivers/scsi/sr_ioctl.c
-+++ b/drivers/scsi/sr_ioctl.c
-@@ -41,7 +41,7 @@ static int sr_read_tochdr(struct cdrom_device_info *cdi,
- 	int result;
- 	unsigned char *buffer;
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -1612,8 +1612,6 @@ static int gpiochip_add_irqchip(struct g
  
--	buffer = kmalloc(32, GFP_KERNEL);
-+	buffer = kzalloc(32, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
+ 	gpiochip_set_irq_hooks(gc);
  
-@@ -55,10 +55,13 @@ static int sr_read_tochdr(struct cdrom_device_info *cdi,
- 	cgc.data_direction = DMA_FROM_DEVICE;
+-	acpi_gpiochip_request_interrupts(gc);
+-
+ 	/*
+ 	 * Using barrier() here to prevent compiler from reordering
+ 	 * gc->irq.initialized before initialization of above
+@@ -1623,6 +1621,8 @@ static int gpiochip_add_irqchip(struct g
  
- 	result = sr_do_ioctl(cd, &cgc);
-+	if (result)
-+		goto err;
+ 	gc->irq.initialized = true;
  
- 	tochdr->cdth_trk0 = buffer[2];
- 	tochdr->cdth_trk1 = buffer[3];
- 
-+err:
- 	kfree(buffer);
- 	return result;
++	acpi_gpiochip_request_interrupts(gc);
++
+ 	return 0;
  }
-@@ -71,7 +74,7 @@ static int sr_read_tocentry(struct cdrom_device_info *cdi,
- 	int result;
- 	unsigned char *buffer;
  
--	buffer = kmalloc(32, GFP_KERNEL);
-+	buffer = kzalloc(32, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
- 
-@@ -86,6 +89,8 @@ static int sr_read_tocentry(struct cdrom_device_info *cdi,
- 	cgc.data_direction = DMA_FROM_DEVICE;
- 
- 	result = sr_do_ioctl(cd, &cgc);
-+	if (result)
-+		goto err;
- 
- 	tocentry->cdte_ctrl = buffer[5] & 0xf;
- 	tocentry->cdte_adr = buffer[5] >> 4;
-@@ -98,6 +103,7 @@ static int sr_read_tocentry(struct cdrom_device_info *cdi,
- 		tocentry->cdte_addr.lba = (((((buffer[8] << 8) + buffer[9]) << 8)
- 			+ buffer[10]) << 8) + buffer[11];
- 
-+err:
- 	kfree(buffer);
- 	return result;
- }
-@@ -384,7 +390,7 @@ int sr_get_mcn(struct cdrom_device_info *cdi, struct cdrom_mcn *mcn)
- {
- 	Scsi_CD *cd = cdi->handle;
- 	struct packet_command cgc;
--	char *buffer = kmalloc(32, GFP_KERNEL);
-+	char *buffer = kzalloc(32, GFP_KERNEL);
- 	int result;
- 
- 	if (!buffer)
-@@ -400,10 +406,13 @@ int sr_get_mcn(struct cdrom_device_info *cdi, struct cdrom_mcn *mcn)
- 	cgc.data_direction = DMA_FROM_DEVICE;
- 	cgc.timeout = IOCTL_TIMEOUT;
- 	result = sr_do_ioctl(cd, &cgc);
-+	if (result)
-+		goto err;
- 
- 	memcpy(mcn->medium_catalog_number, buffer + 9, 13);
- 	mcn->medium_catalog_number[13] = 0;
- 
-+err:
- 	kfree(buffer);
- 	return result;
- }
--- 
-2.35.1
-
 
 
