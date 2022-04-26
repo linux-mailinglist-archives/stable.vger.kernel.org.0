@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF3150F448
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D053F50F4E3
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344794AbiDZIfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39890 "EHLO
+        id S1345373AbiDZIk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:40:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345517AbiDZIel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32EF578928;
-        Tue, 26 Apr 2022 01:27:34 -0700 (PDT)
+        with ESMTP id S1345579AbiDZIjO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05B6B33EB7;
+        Tue, 26 Apr 2022 01:30:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C587EB81A2F;
-        Tue, 26 Apr 2022 08:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3394BC385A0;
-        Tue, 26 Apr 2022 08:27:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AAB961864;
+        Tue, 26 Apr 2022 08:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 529D7C385A0;
+        Tue, 26 Apr 2022 08:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961651;
-        bh=Wgd36B5rjC5/ZHNoZuT+EVys1kOLNjl1nZr2tmHVyXc=;
+        s=korg; t=1650961818;
+        bh=GYRN8gEHNluHJetTN7qwHBSbp5xnHOcjNQsr6hRA2LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyzQG7MDEsrk00dbVINB6OWteuS2qv0XG8cFthcLoJi7NK7NcKYXiwV1VPVqAp5u7
-         tciKl/6QpYxTRW4e3WsP4FdJf7kCGT9/7ekdJ3I/a0mhpemZRzB4ZsYw9nhGfvfBrN
-         j9HwIp8Uk070iUSqKP8EKfOfUUs81pWIN4gge72s=
+        b=jRizSTf8ZyqAl3lcCeXodLUekO2Lgb4YzZ3IZcYuQDwLM44/hXrDO2EtZrT2SsrNz
+         uQVdUgkGhbCt1t6DOB2YR5JWqU28EWuU/IDcx28B3mWrgV3v8fwuzdmBCof0db4wSV
+         jOtHDDY2zZ7l2kpmZ+Am6i9GaJNQhY6aymmZSAQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.19 39/53] ext4: fix symlink file size not match to file content
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 39/62] dma: at_xdmac: fix a missing check on list iterator
 Date:   Tue, 26 Apr 2022 10:21:19 +0200
-Message-Id: <20220426081736.794937216@linuxfoundation.org>
+Message-Id: <20220426081738.342995248@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-commit a2b0b205d125f27cddfb4f7280e39affdaf46686 upstream.
+commit 206680c4e46b62fd8909385e0874a36952595b85 upstream.
 
-We got issue as follows:
-[home]# fsck.ext4  -fn  ram0yb
-e2fsck 1.45.6 (20-Mar-2020)
-Pass 1: Checking inodes, blocks, and sizes
-Pass 2: Checking directory structure
-Symlink /p3/d14/d1a/l3d (inode #3494) is invalid.
-Clear? no
-Entry 'l3d' in /p3/d14/d1a (3383) has an incorrect filetype (was 7, should be 0).
-Fix? no
+The bug is here:
+	__func__, desc, &desc->tx_dma_desc.phys, ret, cookie, residue);
 
-As the symlink file size does not match the file content. If the writeback
-of the symlink data block failed, ext4_finish_bio() handles the end of IO.
-However this function fails to mark the buffer with BH_write_io_error and
-so when unmount does journal checkpoint it cannot detect the writeback
-error and will cleanup the journal. Thus we've lost the correct data in the
-journal area. To solve this issue, mark the buffer as BH_write_io_error in
-ext4_finish_bio().
+The list iterator 'desc' will point to a bogus position containing
+HEAD if the list is empty or no element is found. To avoid dev_dbg()
+prints a invalid address, use a new variable 'iter' as the list
+iterator, while use the origin variable 'desc' as a dedicated
+pointer to point to the found element.
 
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220321144438.201685-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@vger.kernel.org
+Fixes: 82e2424635f4c ("dmaengine: xdmac: fix print warning on dma_addr_t variable")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220327061154.4867-1-xiam0nd.tong@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/page-io.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/dma/at_xdmac.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/page-io.c
-+++ b/fs/ext4/page-io.c
-@@ -105,8 +105,10 @@ static void ext4_finish_bio(struct bio *
- 				continue;
- 			}
- 			clear_buffer_async_write(bh);
--			if (bio->bi_status)
-+			if (bio->bi_status) {
-+				set_buffer_write_io_error(bh);
- 				buffer_io_error(bh);
-+			}
- 		} while ((bh = bh->b_this_page) != head);
- 		bit_spin_unlock(BH_Uptodate_Lock, &head->b_state);
- 		local_irq_restore(flags);
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1390,7 +1390,7 @@ at_xdmac_tx_status(struct dma_chan *chan
+ {
+ 	struct at_xdmac_chan	*atchan = to_at_xdmac_chan(chan);
+ 	struct at_xdmac		*atxdmac = to_at_xdmac(atchan->chan.device);
+-	struct at_xdmac_desc	*desc, *_desc;
++	struct at_xdmac_desc	*desc, *_desc, *iter;
+ 	struct list_head	*descs_list;
+ 	enum dma_status		ret;
+ 	int			residue, retry;
+@@ -1505,11 +1505,13 @@ at_xdmac_tx_status(struct dma_chan *chan
+ 	 * microblock.
+ 	 */
+ 	descs_list = &desc->descs_list;
+-	list_for_each_entry_safe(desc, _desc, descs_list, desc_node) {
+-		dwidth = at_xdmac_get_dwidth(desc->lld.mbr_cfg);
+-		residue -= (desc->lld.mbr_ubc & 0xffffff) << dwidth;
+-		if ((desc->lld.mbr_nda & 0xfffffffc) == cur_nda)
++	list_for_each_entry_safe(iter, _desc, descs_list, desc_node) {
++		dwidth = at_xdmac_get_dwidth(iter->lld.mbr_cfg);
++		residue -= (iter->lld.mbr_ubc & 0xffffff) << dwidth;
++		if ((iter->lld.mbr_nda & 0xfffffffc) == cur_nda) {
++			desc = iter;
+ 			break;
++		}
+ 	}
+ 	residue += cur_ubc << dwidth;
+ 
 
 
