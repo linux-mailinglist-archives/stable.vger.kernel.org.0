@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB1550F6BE
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6F450F89A
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345936AbiDZI6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55642 "EHLO
+        id S1346955AbiDZJMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:12:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345709AbiDZI5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:44 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0096404;
-        Tue, 26 Apr 2022 01:42:25 -0700 (PDT)
+        with ESMTP id S1346277AbiDZJH3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:07:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D04CC53F;
+        Tue, 26 Apr 2022 01:48:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6BFBECE1BD5;
-        Tue, 26 Apr 2022 08:42:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D072C385A4;
-        Tue, 26 Apr 2022 08:42:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D71E760C42;
+        Tue, 26 Apr 2022 08:48:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D64FFC385A4;
+        Tue, 26 Apr 2022 08:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962541;
-        bh=34w/b33et7kzb1s2qIqXMIqbE9amLUVDm17qap+t5v4=;
+        s=korg; t=1650962915;
+        bh=Yo5ElvkPW5uz/nsLviwvUNIFZpOzBi2hvJAW0IiEdbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x8sk5lews89mBxOMyKJnqk9r1T1MLzM/ozspg+Uu5T1EoshWLuygiRaSr1xmd+YxU
-         Fg5u29QSTjGarkgCgPUdNiPDRPX0X/XVIPHHXohvGg+thJlICYjLrXTQN9Ceqd5UkQ
-         zhUFUsV5N9lE3FqRay8UtOq/6EYqoCVaE45dbVtI=
+        b=ge0F6QyHWgG9ZjaZAJtX3IGOoD+sshZtOLpnQ1XXPRqWA16biLkwWOaY3llipzwt5
+         rGl0lORQnlq+r576lG9Tfz/DbFqrRqiXWtFFoYJhDxFEECdgGnTZR2fYuTEJsKKj/f
+         oclpFU/TUecCQyltk8tlXm6s1D+QsiaCm829XKLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: [PATCH 5.15 124/124] arm64: dts: qcom: add IPA qcom,qmp property
+        stable@vger.kernel.org, Gaoning Pan <pgn@zju.edu.cn>,
+        Yongkang Jia <kangel@zju.edu.cn>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 130/146] KVM: x86: Pend KVM_REQ_APICV_UPDATE during vCPU creation to fix a race
 Date:   Tue, 26 Apr 2022 10:22:05 +0200
-Message-Id: <20220426081750.813653061@linuxfoundation.org>
+Message-Id: <20220426081753.715426184@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +55,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 73419e4d2fd1b838fcb1df6a978d67b3ae1c5c01 upstream.
+commit 423ecfea77dda83823c71b0fad1c2ddb2af1e5fc upstream.
 
-At least three platforms require the "qcom,qmp" property to be
-specified, so the IPA driver can request register retention across
-power collapse.  Update DTS files accordingly.
+Make a KVM_REQ_APICV_UPDATE request when creating a vCPU with an
+in-kernel local APIC and APICv enabled at the module level.  Consuming
+kvm_apicv_activated() and stuffing vcpu->arch.apicv_active directly can
+race with __kvm_set_or_clear_apicv_inhibit(), as vCPU creation happens
+before the vCPU is fully onlined, i.e. it won't get the request made to
+"all" vCPUs.  If APICv is globally inhibited between setting apicv_active
+and onlining the vCPU, the vCPU will end up running with APICv enabled
+and trigger KVM's sanity check.
 
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20220201140723.467431-1-elder@linaro.org
+Mark APICv as active during vCPU creation if APICv is enabled at the
+module level, both to be optimistic about it's final state, e.g. to avoid
+additional VMWRITEs on VMX, and because there are likely bugs lurking
+since KVM checks apicv_active in multiple vCPU creation paths.  While
+keeping the current behavior of consuming kvm_apicv_activated() is
+arguably safer from a regression perspective, force apicv_active so that
+vCPU creation runs with deterministic state and so that if there are bugs,
+they are found sooner than later, i.e. not when some crazy race condition
+is hit.
+
+  WARNING: CPU: 0 PID: 484 at arch/x86/kvm/x86.c:9877 vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
+  Modules linked in:
+  CPU: 0 PID: 484 Comm: syz-executor361 Not tainted 5.16.13 #2
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1~cloud0 04/01/2014
+  RIP: 0010:vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
+  Call Trace:
+   <TASK>
+   vcpu_run arch/x86/kvm/x86.c:10039 [inline]
+   kvm_arch_vcpu_ioctl_run+0x337/0x15e0 arch/x86/kvm/x86.c:10234
+   kvm_vcpu_ioctl+0x4d2/0xc80 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3727
+   vfs_ioctl fs/ioctl.c:51 [inline]
+   __do_sys_ioctl fs/ioctl.c:874 [inline]
+   __se_sys_ioctl fs/ioctl.c:860 [inline]
+   __x64_sys_ioctl+0x16d/0x1d0 fs/ioctl.c:860
+   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+   do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The bug was hit by a syzkaller spamming VM creation with 2 vCPUs and a
+call to KVM_SET_GUEST_DEBUG.
+
+  r0 = openat$kvm(0xffffffffffffff9c, &(0x7f0000000000), 0x0, 0x0)
+  r1 = ioctl$KVM_CREATE_VM(r0, 0xae01, 0x0)
+  ioctl$KVM_CAP_SPLIT_IRQCHIP(r1, 0x4068aea3, &(0x7f0000000000)) (async)
+  r2 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x0) (async)
+  r3 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x400000000000002)
+  ioctl$KVM_SET_GUEST_DEBUG(r3, 0x4048ae9b, &(0x7f00000000c0)={0x5dda9c14aa95f5c5})
+  ioctl$KVM_RUN(r2, 0xae80, 0x0)
+
+Reported-by: Gaoning Pan <pgn@zju.edu.cn>
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Fixes: 8df14af42f00 ("kvm: x86: Add support for dynamic APICv activation")
+Cc: stable@vger.kernel.org
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220420013732.3308816-4-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180.dtsi |    2 ++
- arch/arm64/boot/dts/qcom/sc7280.dtsi |    2 ++
- arch/arm64/boot/dts/qcom/sm8350.dtsi |    2 ++
- 3 files changed, 6 insertions(+)
+ arch/x86/kvm/x86.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/qcom/sc7180.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180.dtsi
-@@ -1460,6 +1460,8 @@
- 					     "imem",
- 					     "config";
- 
-+			qcom,qmp = <&aoss_qmp>;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -11113,8 +11113,21 @@ int kvm_arch_vcpu_create(struct kvm_vcpu
+ 		r = kvm_create_lapic(vcpu, lapic_timer_advance_ns);
+ 		if (r < 0)
+ 			goto fail_mmu_destroy;
+-		if (kvm_apicv_activated(vcpu->kvm))
 +
- 			qcom,smem-states = <&ipa_smp2p_out 0>,
- 					   <&ipa_smp2p_out 1>;
- 			qcom,smem-state-names = "ipa-clock-enabled-valid",
---- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
-@@ -615,6 +615,8 @@
- 			interconnect-names = "memory",
- 					     "config";
++		/*
++		 * Defer evaluating inhibits until the vCPU is first run, as
++		 * this vCPU will not get notified of any changes until this
++		 * vCPU is visible to other vCPUs (marked online and added to
++		 * the set of vCPUs).  Opportunistically mark APICv active as
++		 * VMX in particularly is highly unlikely to have inhibits.
++		 * Ignore the current per-VM APICv state so that vCPU creation
++		 * is guaranteed to run with a deterministic value, the request
++		 * will ensure the vCPU gets the correct state before VM-Entry.
++		 */
++		if (enable_apicv) {
+ 			vcpu->arch.apicv_active = true;
++			kvm_make_request(KVM_REQ_APICV_UPDATE, vcpu);
++		}
+ 	} else
+ 		static_branch_inc(&kvm_has_noapic_vcpu);
  
-+			qcom,qmp = <&aoss_qmp>;
-+
- 			qcom,smem-states = <&ipa_smp2p_out 0>,
- 					   <&ipa_smp2p_out 1>;
- 			qcom,smem-state-names = "ipa-clock-enabled-valid",
---- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-@@ -736,6 +736,8 @@
- 			interconnect-names = "memory",
- 					     "config";
- 
-+			qcom,qmp = <&aoss_qmp>;
-+
- 			qcom,smem-states = <&ipa_smp2p_out 0>,
- 					   <&ipa_smp2p_out 1>;
- 			qcom,smem-state-names = "ipa-clock-enabled-valid",
 
 
