@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EECD050F740
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:39:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B76E450F488
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345659AbiDZJIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39570 "EHLO
+        id S1345128AbiDZIgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347851AbiDZJGP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DAE167F12;
-        Tue, 26 Apr 2022 01:46:16 -0700 (PDT)
+        with ESMTP id S1345529AbiDZIen (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4D7878FD8;
+        Tue, 26 Apr 2022 01:27:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9598460C42;
-        Tue, 26 Apr 2022 08:46:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DDA1C385A4;
-        Tue, 26 Apr 2022 08:46:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 89850B81A2F;
+        Tue, 26 Apr 2022 08:27:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 068A4C385A0;
+        Tue, 26 Apr 2022 08:27:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962775;
-        bh=YPTj9OOrUeZwZkfCIZpAkWUxMPpzXgHJJrP8oXqzkWs=;
+        s=korg; t=1650961654;
+        bh=IJ+nbtrDHGWw4Lcw0tSqjxDYcCIa1vJufjN0F60rhA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzBLoDyu7yHHqZZDU7EsskIjk1rrqRD+c9JEXSvO6NsQAgNAt5FVhRpOAffhJhwsT
-         hIUBpsMlYOVlEaRF12P1iD1BU0nTfu9x8rvKMXs5lkfXyB/0P//2j3dsIG4fuslBUp
-         rctaDUejtCGMiYjVkpavvFw1UvwbXB+S2BZYCWYA=
+        b=jnogcxvw8uO6CpRKwshHvBwGPF04EyiPOmywK0lB2IZ79ktK+DAAIKYiew07fPnMG
+         uaq550Ug8/aHPqk6/RT1zFGXvY4kWtlOiaskgNW+7iF0iJ0GYs7vl56+86MVfH2DRs
+         SjyKy6hwgACh3/ZKAXn1nGOMPrwhvwYX0TlFyiqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?=E9=87=91=E9=9F=AC?= <me@kingtous.cn>,
-        Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 085/146] nvme-pci: disable namespace identifiers for the MAXIO MAP1002/1202
+        syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.19 40/53] ext4: limit length to bitmap_maxbytes - blocksize in punch_hole
 Date:   Tue, 26 Apr 2022 10:21:20 +0200
-Message-Id: <20220426081752.450072201@linuxfoundation.org>
+Message-Id: <20220426081736.823404701@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-[ Upstream commit a98a945b80f8684121d477ae68ebc01da953da1f ]
+commit 2da376228a2427501feb9d15815a45dbdbdd753e upstream.
 
-The MAXIO MAP1002/1202 controllers reports completely bogus Namespace
-identifiers that even change after suspend cycles.  Disable using
-the Identifiers entirely.
+Syzbot found an issue [1] in ext4_fallocate().
+The C reproducer [2] calls fallocate(), passing size 0xffeffeff000ul,
+and offset 0x1000000ul, which, when added together exceed the
+bitmap_maxbytes for the inode. This triggers a BUG in
+ext4_ind_remove_space(). According to the comments in this function
+the 'end' parameter needs to be one block after the last block to be
+removed. In the case when the BUG is triggered it points to the last
+block. Modify the ext4_punch_hole() function and add constraint that
+caps the length to satisfy the one before laster block requirement.
 
-Reported-by: 金韬 <me@kingtous.cn>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Tested-by: 金韬 <me@kingtous.cn>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+LINK: [1] https://syzkaller.appspot.com/bug?id=b80bd9cf348aac724a4f4dff251800106d721331
+LINK: [2] https://syzkaller.appspot.com/text?tag=ReproC&x=14ba0238700000
+
+Fixes: a4bb6b64e39a ("ext4: enable "punch hole" functionality")
+Reported-by: syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Link: https://lore.kernel.org/r/20220331200515.153214-1-tadeusz.struk@linaro.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/pci.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/ext4/inode.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 6a99ed680915..6be611f49a45 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3443,6 +3443,10 @@ static const struct pci_device_id nvme_id_table[] = {
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
- 	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
-+	{ PCI_DEVICE(0x1e4B, 0x1002),   /* MAXIO MAP1002 */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
-+	{ PCI_DEVICE(0x1e4B, 0x1202),   /* MAXIO MAP1202 */
-+		.driver_data = NVME_QUIRK_BOGUS_NID, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0061),
- 		.driver_data = NVME_QUIRK_DMA_ADDRESS_BITS_48, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMAZON, 0x0065),
--- 
-2.35.1
-
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4314,7 +4314,8 @@ int ext4_punch_hole(struct inode *inode,
+ 	struct super_block *sb = inode->i_sb;
+ 	ext4_lblk_t first_block, stop_block;
+ 	struct address_space *mapping = inode->i_mapping;
+-	loff_t first_block_offset, last_block_offset;
++	loff_t first_block_offset, last_block_offset, max_length;
++	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+ 	handle_t *handle;
+ 	unsigned int credits;
+ 	int ret = 0;
+@@ -4360,6 +4361,14 @@ int ext4_punch_hole(struct inode *inode,
+ 		   offset;
+ 	}
+ 
++	/*
++	 * For punch hole the length + offset needs to be within one block
++	 * before last range. Adjust the length if it goes beyond that limit.
++	 */
++	max_length = sbi->s_bitmap_maxbytes - inode->i_sb->s_blocksize;
++	if (offset + length > max_length)
++		length = max_length - offset;
++
+ 	if (offset & (sb->s_blocksize - 1) ||
+ 	    (offset + length) & (sb->s_blocksize - 1)) {
+ 		/*
 
 
