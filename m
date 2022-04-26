@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFB650F4E8
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD14250F5D4
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345347AbiDZIkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34928 "EHLO
+        id S234339AbiDZIyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:54:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345470AbiDZIjJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA6E213BD4D;
-        Tue, 26 Apr 2022 01:29:52 -0700 (PDT)
+        with ESMTP id S1347252AbiDZIvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E8DC29C;
+        Tue, 26 Apr 2022 01:40:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D7D06179E;
-        Tue, 26 Apr 2022 08:29:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AA4CC385A4;
-        Tue, 26 Apr 2022 08:29:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B62BCB81CF0;
+        Tue, 26 Apr 2022 08:40:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07FE9C385A4;
+        Tue, 26 Apr 2022 08:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961791;
-        bh=/wgBA+hpXo+XQmSZi+TUIb/xyayLMsJe0/EHsoAHXsU=;
+        s=korg; t=1650962399;
+        bh=c4tV8qVMiEPhY0Aru+SR6B5J65uqhDU1LrLy5WMOB+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=izku0X6LoNJrvcnxRKOM7FX6eOpdN+kp1V05rl2poJfwg5pPvoQikxr5OgaZlBP30
-         bc49b7c9BPGco2v9J+uID0y86flgyKB0+0ySyT032wLZxhw76vzGtmY9/Pq/yncq+r
-         OG4VvEY7+u8cjApWhtzP5A71WygY0DX/W8MwipTM=
+        b=unAd7+PUnXCNRyJHnoJ43UxmaFQvXPXCD3Ff3TE+fGRp66ruMKWJf/D7S80TwlzZ5
+         S9CHkY2h3GtrilQvBBPEjw35B6JLpIEAHsHnLvNrvDOoWqhBcJ4D/rWFSkMChM6KO2
+         HQP8WuicPCt9ca0M0ahelca8sJ2qDHS0TUaGvY8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Dragos-Marian Panait <dragos.panait@windriver.com>
-Subject: [PATCH 5.4 04/62] can: usb_8dev: usb_8dev_start_xmit(): fix double dev_kfree_skb() in error path
+        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 043/124] net: dsa: hellcreek: Calculate checksums in tagger
 Date:   Tue, 26 Apr 2022 10:20:44 +0200
-Message-Id: <20220426081737.348112880@linuxfoundation.org>
+Message-Id: <20220426081748.526546166@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Kurt Kanzenbach <kurt@linutronix.de>
 
-commit 3d3925ff6433f98992685a9679613a2cc97f3ce2 upstream.
+[ Upstream commit 0763120b090418a5257402754e22a34227ae5f12 ]
 
-There is no need to call dev_kfree_skb() when usb_submit_urb() fails
-because can_put_echo_skb() deletes original skb and
-can_free_echo_skb() deletes the cloned skb.
+In case the checksum calculation is offloaded to the DSA master network
+interface, it will include the switch trailing tag. As soon as the switch strips
+that tag on egress, the calculated checksum is wrong.
 
-Fixes: 0024d8ad1639 ("can: usb_8dev: Add support for USB2CAN interface from 8 devices")
-Link: https://lore.kernel.org/all/20220311080614.45229-1-hbh25y@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-[DP: adjusted params of can_free_echo_skb() for 5.4 stable]
-Signed-off-by: Dragos-Marian Panait <dragos.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Therefore, add the checksum calculation to the tagger (if required) before
+adding the switch tag. This way, the hellcreek code works with all DSA master
+interfaces regardless of their declared feature set.
+
+Fixes: 01ef09caad66 ("net: dsa: Add tag handling for Hirschmann Hellcreek switches")
+Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220415103320.90657-1-kurt@linutronix.de
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/usb_8dev.c |   30 ++++++++++++++----------------
- 1 file changed, 14 insertions(+), 16 deletions(-)
+ net/dsa/tag_hellcreek.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/net/can/usb/usb_8dev.c
-+++ b/drivers/net/can/usb/usb_8dev.c
-@@ -670,9 +670,20 @@ static netdev_tx_t usb_8dev_start_xmit(s
- 	atomic_inc(&priv->active_tx_urbs);
+diff --git a/net/dsa/tag_hellcreek.c b/net/dsa/tag_hellcreek.c
+index f64b805303cd..eb204ad36eee 100644
+--- a/net/dsa/tag_hellcreek.c
++++ b/net/dsa/tag_hellcreek.c
+@@ -21,6 +21,14 @@ static struct sk_buff *hellcreek_xmit(struct sk_buff *skb,
+ 	struct dsa_port *dp = dsa_slave_to_port(dev);
+ 	u8 *tag;
  
- 	err = usb_submit_urb(urb, GFP_ATOMIC);
--	if (unlikely(err))
--		goto failed;
--	else if (atomic_read(&priv->active_tx_urbs) >= MAX_TX_URBS)
-+	if (unlikely(err)) {
-+		can_free_echo_skb(netdev, context->echo_index);
++	/* Calculate checksums (if required) before adding the trailer tag to
++	 * avoid including it in calculations. That would lead to wrong
++	 * checksums after the switch strips the tag.
++	 */
++	if (skb->ip_summed == CHECKSUM_PARTIAL &&
++	    skb_checksum_help(skb))
++		return NULL;
 +
-+		usb_unanchor_urb(urb);
-+		usb_free_coherent(priv->udev, size, buf, urb->transfer_dma);
-+
-+		atomic_dec(&priv->active_tx_urbs);
-+
-+		if (err == -ENODEV)
-+			netif_device_detach(netdev);
-+		else
-+			netdev_warn(netdev, "failed tx_urb %d\n", err);
-+		stats->tx_dropped++;
-+	} else if (atomic_read(&priv->active_tx_urbs) >= MAX_TX_URBS)
- 		/* Slow down tx path */
- 		netif_stop_queue(netdev);
- 
-@@ -691,19 +702,6 @@ nofreecontext:
- 
- 	return NETDEV_TX_BUSY;
- 
--failed:
--	can_free_echo_skb(netdev, context->echo_index);
--
--	usb_unanchor_urb(urb);
--	usb_free_coherent(priv->udev, size, buf, urb->transfer_dma);
--
--	atomic_dec(&priv->active_tx_urbs);
--
--	if (err == -ENODEV)
--		netif_device_detach(netdev);
--	else
--		netdev_warn(netdev, "failed tx_urb %d\n", err);
--
- nomembuf:
- 	usb_free_urb(urb);
- 
+ 	/* Tag encoding */
+ 	tag  = skb_put(skb, HELLCREEK_TAG_LEN);
+ 	*tag = BIT(dp->index);
+-- 
+2.35.1
+
 
 
