@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F09E450F428
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F95250F839
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344011AbiDZIff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60316 "EHLO
+        id S1346298AbiDZJIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344907AbiDZIdR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:33:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5507A3D4B2;
-        Tue, 26 Apr 2022 01:25:33 -0700 (PDT)
+        with ESMTP id S1347870AbiDZJGT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A39A76CF;
+        Tue, 26 Apr 2022 01:46:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10C57B81CF9;
-        Tue, 26 Apr 2022 08:25:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B3B2C385A4;
-        Tue, 26 Apr 2022 08:25:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97740604F5;
+        Tue, 26 Apr 2022 08:46:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DEB7C385A4;
+        Tue, 26 Apr 2022 08:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961530;
-        bh=M1EoUdOlEfwEvT3mFKB1QFhizqGdGGZuqIkH2iI4Muc=;
+        s=korg; t=1650962790;
+        bh=V926YmHTdA7rACZ2zyMbnrRNHwioqQYNO8bk8iUKYCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyDGzPV/XzFpglXnXyrckCSnaU1ZHTdY+YTEpM6tpeUNFYoOAr7cDCAY3pvvL9NXu
-         fsKtUwGMZxseQzybC14yf7tLP5NwmIblWurOpsCK9EaNESuGHmi0FGYZ9tSqMkXZN3
-         IB0w7rEO2W7gOM48tfwMLsm2qCVWcHlVA6UNgJ+8=
+        b=p/p+qPnyY7TxAi/znFiU4BhYWsi8z5T9EdbxVTNOSRLmwh/mqf0Tr6aIVBX3C1agN
+         dYRVUmhy/hV14B9pFOHhzpq58jktW5RQXp/puJcuWPLwrVbq+X8XkKwNdePi9q+mpw
+         8/DgO7PYZuDbP9mMEWk98CcnFgyzHKrDTT2JMUpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 42/43] ax25: Fix UAF bugs in ax25 timers
+        stable@vger.kernel.org, Xu Yu <xuyu@linux.alibaba.com>,
+        Abaci <abaci@linux.alibaba.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 089/146] mm/memory-failure.c: skip huge_zero_page in memory_failure()
 Date:   Tue, 26 Apr 2022 10:21:24 +0200
-Message-Id: <20220426081735.761411609@linuxfoundation.org>
+Message-Id: <20220426081752.561084976@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +58,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Xu Yu <xuyu@linux.alibaba.com>
 
-commit 82e31755e55fbcea6a9dfaae5fe4860ade17cbc0 upstream.
+commit d173d5417fb67411e623d394aab986d847e47dad upstream.
 
-There are race conditions that may lead to UAF bugs in
-ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
-ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we call
-ax25_release() to deallocate ax25_dev.
+Kernel panic when injecting memory_failure for the global
+huge_zero_page, when CONFIG_DEBUG_VM is enabled, as follows.
 
-One of the UAF bugs caused by ax25_release() is shown below:
+  Injecting memory failure for pfn 0x109ff9 at process virtual address 0x20ff9000
+  page:00000000fb053fc3 refcount:2 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x109e00
+  head:00000000fb053fc3 order:9 compound_mapcount:0 compound_pincount:0
+  flags: 0x17fffc000010001(locked|head|node=0|zone=2|lastcpupid=0x1ffff)
+  raw: 017fffc000010001 0000000000000000 dead000000000122 0000000000000000
+  raw: 0000000000000000 0000000000000000 00000002ffffffff 0000000000000000
+  page dumped because: VM_BUG_ON_PAGE(is_huge_zero_page(head))
+  ------------[ cut here ]------------
+  kernel BUG at mm/huge_memory.c:2499!
+  invalid opcode: 0000 [#1] PREEMPT SMP PTI
+  CPU: 6 PID: 553 Comm: split_bug Not tainted 5.18.0-rc1+ #11
+  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 3288b3c 04/01/2014
+  RIP: 0010:split_huge_page_to_list+0x66a/0x880
+  Code: 84 9b fb ff ff 48 8b 7c 24 08 31 f6 e8 9f 5d 2a 00 b8 b8 02 00 00 e9 e8 fb ff ff 48 c7 c6 e8 47 3c 82 4c b
+  RSP: 0018:ffffc90000dcbdf8 EFLAGS: 00010246
+  RAX: 000000000000003c RBX: 0000000000000001 RCX: 0000000000000000
+  RDX: 0000000000000000 RSI: ffffffff823e4c4f RDI: 00000000ffffffff
+  RBP: ffff88843fffdb40 R08: 0000000000000000 R09: 00000000fffeffff
+  R10: ffffc90000dcbc48 R11: ffffffff82d68448 R12: ffffea0004278000
+  R13: ffffffff823c6203 R14: 0000000000109ff9 R15: ffffea000427fe40
+  FS:  00007fc375a26740(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fc3757c9290 CR3: 0000000102174006 CR4: 00000000003706e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   try_to_split_thp_page+0x3a/0x130
+   memory_failure+0x128/0x800
+   madvise_inject_error.cold+0x8b/0xa1
+   __x64_sys_madvise+0x54/0x60
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x7fc3754f8bf9
+  Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 8
+  RSP: 002b:00007ffeda93a1d8 EFLAGS: 00000217 ORIG_RAX: 000000000000001c
+  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc3754f8bf9
+  RDX: 0000000000000064 RSI: 0000000000003000 RDI: 0000000020ff9000
+  RBP: 00007ffeda93a200 R08: 0000000000000000 R09: 0000000000000000
+  R10: 00000000ffffffff R11: 0000000000000217 R12: 0000000000400490
+  R13: 00007ffeda93a2e0 R14: 0000000000000000 R15: 0000000000000000
 
-      (Thread 1)                    |      (Thread 2)
-ax25_dev_device_up() //(1)          |
-...                                 | ax25_kill_by_device()
-ax25_bind()          //(2)          |
-ax25_connect()                      | ...
- ax25_std_establish_data_link()     |
-  ax25_start_t1timer()              | ax25_dev_device_down() //(3)
-   mod_timer(&ax25->t1timer,..)     |
-                                    | ax25_release()
-   (wait a time)                    |  ...
-                                    |  ax25_dev_put(ax25_dev) //(4)FREE
-   ax25_t1timer_expiry()            |
-    ax25->ax25_dev->values[..] //USE|  ...
-     ...                            |
+This makes huge_zero_page bail out explicitly before split in
+memory_failure(), thus the panic above won't happen again.
 
-We increase the refcount of ax25_dev in position (1) and (2), and
-decrease the refcount of ax25_dev in position (3) and (4).
-The ax25_dev will be freed in position (4) and be used in
-ax25_t1timer_expiry().
-
-The fail log is shown below:
-==============================================================
-
-[  106.116942] BUG: KASAN: use-after-free in ax25_t1timer_expiry+0x1c/0x60
-[  106.116942] Read of size 8 at addr ffff88800bda9028 by task swapper/0/0
-[  106.116942] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-06123-g0905eec574
-[  106.116942] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-14
-[  106.116942] Call Trace:
-...
-[  106.116942]  ax25_t1timer_expiry+0x1c/0x60
-[  106.116942]  call_timer_fn+0x122/0x3d0
-[  106.116942]  __run_timers.part.0+0x3f6/0x520
-[  106.116942]  run_timer_softirq+0x4f/0xb0
-[  106.116942]  __do_softirq+0x1c2/0x651
-...
-
-This patch adds del_timer_sync() in ax25_release(), which could ensure
-that all timers stop before we deallocate ax25_dev.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-[OP: backport to 4.14: adjust context]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Link: https://lkml.kernel.org/r/497d3835612610e370c74e697ea3c721d1d55b9c.1649775850.git.xuyu@linux.alibaba.com
+Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
+Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ax25/af_ax25.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ mm/memory-failure.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1056,6 +1056,11 @@ static int ax25_release(struct socket *s
- 		ax25_destroy_socket(ax25);
- 	}
- 	if (ax25_dev) {
-+		del_timer_sync(&ax25->timer);
-+		del_timer_sync(&ax25->t1timer);
-+		del_timer_sync(&ax25->t2timer);
-+		del_timer_sync(&ax25->t3timer);
-+		del_timer_sync(&ax25->idletimer);
- 		dev_put(ax25_dev->dev);
- 		ax25_dev_put(ax25_dev);
- 	}
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1780,6 +1780,19 @@ try_again:
+ 
+ 	if (PageTransHuge(hpage)) {
+ 		/*
++		 * Bail out before SetPageHasHWPoisoned() if hpage is
++		 * huge_zero_page, although PG_has_hwpoisoned is not
++		 * checked in set_huge_zero_page().
++		 *
++		 * TODO: Handle memory failure of huge_zero_page thoroughly.
++		 */
++		if (is_huge_zero_page(hpage)) {
++			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
++			res = -EBUSY;
++			goto unlock_mutex;
++		}
++
++		/*
+ 		 * The flag must be set after the refcount is bumped
+ 		 * otherwise it may race with THP split.
+ 		 * And the flag can't be set in get_hwpoison_page() since
 
 
