@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4E850F49A
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 777CD50F534
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345140AbiDZIgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:36:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39892 "EHLO
+        id S241162AbiDZIxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:53:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345722AbiDZIfH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:07 -0400
+        with ESMTP id S1347526AbiDZIvm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469797C15D;
-        Tue, 26 Apr 2022 01:28:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DC23CE646;
+        Tue, 26 Apr 2022 01:40:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3297B81D02;
-        Tue, 26 Apr 2022 08:28:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50224C385A4;
-        Tue, 26 Apr 2022 08:28:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3F04B81D0A;
+        Tue, 26 Apr 2022 08:40:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FAC7C385A0;
+        Tue, 26 Apr 2022 08:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961692;
-        bh=RggCRL5SrFoi30nwAWMWeA9cQ8rwc5pKG9UGPH75tLk=;
+        s=korg; t=1650962422;
+        bh=sr+Nk5FxcDLzx6uPd1VgAtnE1P3v/6qsQnnjLwf2oUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=utfj818o5wjk1Hbjb9MtzDaM+pR9PCnpn9fFmGRdicrB4+POYg1Kd33gtVoVdeWhf
-         SBGDVkQJmxhk46n6pFHvWPTaukKvnfQk1B+27dPRL/W9soTGAVD26hXxaUrS2RwGRJ
-         hAM7bRVKRiZuwn7te2M9Z+SuCxBLre7sZRmYAnaY=
+        b=X2fqpmhtld7mBvArSWCvBjiuajzNxqmrHY6gojhQHnfBrgH+XeWG5fXAXWzHDEmPN
+         dLtQs20fqzYL1jjqcemHhpJouSp+cbUVBtVqXin4qMvadpYCPKqn4OeyPYeB6qqgnf
+         Y7mnaGdeb33cqnGG5mnLjYDQjwYWawbjMrDPh7+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Duoming Zhou <duoming@zju.edu.cn>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 52/53] ax25: Fix UAF bugs in ax25 timers
-Date:   Tue, 26 Apr 2022 10:21:32 +0200
-Message-Id: <20220426081737.179313549@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 092/124] drm/panel/raspberrypi-touchscreen: Initialise the bridge in prepare
+Date:   Tue, 26 Apr 2022 10:21:33 +0200
+Message-Id: <20220426081749.914852716@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,78 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-commit 82e31755e55fbcea6a9dfaae5fe4860ade17cbc0 upstream.
+[ Upstream commit 5f18c0782b99e26121efa93d20b76c19e17aa1dd ]
 
-There are race conditions that may lead to UAF bugs in
-ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
-ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we call
-ax25_release() to deallocate ax25_dev.
+The panel has a prepare call which is before video starts, and an
+enable call which is after.
+The Toshiba bridge should be configured before video, so move
+the relevant power and initialisation calls to prepare.
 
-One of the UAF bugs caused by ax25_release() is shown below:
-
-      (Thread 1)                    |      (Thread 2)
-ax25_dev_device_up() //(1)          |
-...                                 | ax25_kill_by_device()
-ax25_bind()          //(2)          |
-ax25_connect()                      | ...
- ax25_std_establish_data_link()     |
-  ax25_start_t1timer()              | ax25_dev_device_down() //(3)
-   mod_timer(&ax25->t1timer,..)     |
-                                    | ax25_release()
-   (wait a time)                    |  ...
-                                    |  ax25_dev_put(ax25_dev) //(4)FREE
-   ax25_t1timer_expiry()            |
-    ax25->ax25_dev->values[..] //USE|  ...
-     ...                            |
-
-We increase the refcount of ax25_dev in position (1) and (2), and
-decrease the refcount of ax25_dev in position (3) and (4).
-The ax25_dev will be freed in position (4) and be used in
-ax25_t1timer_expiry().
-
-The fail log is shown below:
-==============================================================
-
-[  106.116942] BUG: KASAN: use-after-free in ax25_t1timer_expiry+0x1c/0x60
-[  106.116942] Read of size 8 at addr ffff88800bda9028 by task swapper/0/0
-[  106.116942] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.17.0-06123-g0905eec574
-[  106.116942] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-14
-[  106.116942] Call Trace:
-...
-[  106.116942]  ax25_t1timer_expiry+0x1c/0x60
-[  106.116942]  call_timer_fn+0x122/0x3d0
-[  106.116942]  __run_timers.part.0+0x3f6/0x520
-[  106.116942]  run_timer_softirq+0x4f/0xb0
-[  106.116942]  __do_softirq+0x1c2/0x651
-...
-
-This patch adds del_timer_sync() in ax25_release(), which could ensure
-that all timers stop before we deallocate ax25_dev.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-[OP: backport to 4.19: adjust context]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2f733d6194bd ("drm/panel: Add support for the Raspberry Pi 7" Touchscreen.")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220415162513.42190-3-stefan.wahren@i2se.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -1055,6 +1055,11 @@ static int ax25_release(struct socket *s
- 		ax25_destroy_socket(ax25);
- 	}
- 	if (ax25_dev) {
-+		del_timer_sync(&ax25->timer);
-+		del_timer_sync(&ax25->t1timer);
-+		del_timer_sync(&ax25->t2timer);
-+		del_timer_sync(&ax25->t3timer);
-+		del_timer_sync(&ax25->idletimer);
- 		dev_put(ax25_dev->dev);
- 		ax25_dev_put(ax25_dev);
- 	}
+diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+index 1f805eb8fdb5..145047e19394 100644
+--- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
++++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+@@ -265,7 +265,7 @@ static int rpi_touchscreen_noop(struct drm_panel *panel)
+ 	return 0;
+ }
+ 
+-static int rpi_touchscreen_enable(struct drm_panel *panel)
++static int rpi_touchscreen_prepare(struct drm_panel *panel)
+ {
+ 	struct rpi_touchscreen *ts = panel_to_ts(panel);
+ 	int i;
+@@ -295,6 +295,13 @@ static int rpi_touchscreen_enable(struct drm_panel *panel)
+ 	rpi_touchscreen_write(ts, DSI_STARTDSI, 0x01);
+ 	msleep(100);
+ 
++	return 0;
++}
++
++static int rpi_touchscreen_enable(struct drm_panel *panel)
++{
++	struct rpi_touchscreen *ts = panel_to_ts(panel);
++
+ 	/* Turn on the backlight. */
+ 	rpi_touchscreen_i2c_write(ts, REG_PWM, 255);
+ 
+@@ -349,7 +356,7 @@ static int rpi_touchscreen_get_modes(struct drm_panel *panel,
+ static const struct drm_panel_funcs rpi_touchscreen_funcs = {
+ 	.disable = rpi_touchscreen_disable,
+ 	.unprepare = rpi_touchscreen_noop,
+-	.prepare = rpi_touchscreen_noop,
++	.prepare = rpi_touchscreen_prepare,
+ 	.enable = rpi_touchscreen_enable,
+ 	.get_modes = rpi_touchscreen_get_modes,
+ };
+-- 
+2.35.1
+
 
 
