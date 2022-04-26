@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D528C50F832
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F4250F447
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344705AbiDZJHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
+        id S1344905AbiDZIfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:35:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347691AbiDZJGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:03 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A361015CEF0;
-        Tue, 26 Apr 2022 01:45:24 -0700 (PDT)
+        with ESMTP id S1345252AbiDZIe1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:27 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51BEF6D39C;
+        Tue, 26 Apr 2022 01:26:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1FBE5CE1BDD;
-        Tue, 26 Apr 2022 08:45:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1355CC385AC;
-        Tue, 26 Apr 2022 08:45:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07444B81CED;
+        Tue, 26 Apr 2022 08:26:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A8A0C385A4;
+        Tue, 26 Apr 2022 08:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962721;
-        bh=f78a7N9udEO6WWX9YD5+pQYN4AKP3qbQWx0V0kl2zAQ=;
+        s=korg; t=1650961606;
+        bh=IcmxqFD2X9nhz3AXQeNNFZ8G21v+9P1J/I/J4ImEWk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qy1m4J1HSHF/LlDtOwf2zkHenCBU5tcV0u0ow2UsozBV5DohWUCXFbT/PWL6iKV6Y
-         FNSahZNZ8hVNsn3yLi7HP00xdHS0YQfrPdUYFkfHrn+WIUaC5Dq4Aib4jTLHlNvePJ
-         oy7f0uYqbTe3zuP4VqfiV0GI6aheLDDS7PXj7avE=
+        b=YGk26lv4Jvx7yhQLq2iMtLY/SdE0u2beyok9mtjkcEd50Ij7a1VqWwuuCgxEw3pie
+         5haSsi1C1pIAGtWvdCEise4xV3SR9EyjQWp9QUq/NpO5WnMM3MCdOLWjWUTE8aOgf/
+         q1wy7X6rQy+Kd1l0TWLKZJ2PL7g2mI6kR3e/gW/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 068/146] arm64: dts: imx: Fix imx8*-var-som touchscreen property sizes
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Felix Fietkau <nbd@nbd.name>,
+        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Shayne Chen <shayne.chen@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 23/53] mt76: Fix undefined behavior due to shift overflowing the constant
 Date:   Tue, 26 Apr 2022 10:21:03 +0200
-Message-Id: <20220426081751.975523867@linuxfoundation.org>
+Message-Id: <20220426081736.328722681@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,65 +61,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 1bc12d301594eafde0a8529d28d459af81053b3a ]
+[ Upstream commit dbc2b1764734857d68425468ffa8486e97ab89df ]
 
-The common touchscreen properties are all 32-bit, not 16-bit. These
-properties must not be too important as they are all ignored in case of an
-error reading them.
+Fix:
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/Yk3moe6Hz8ELM0iS@robh.at.kernel.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+  drivers/net/wireless/mediatek/mt76/mt76x2/pci.c: In function ‘mt76x2e_probe’:
+  ././include/linux/compiler_types.h:352:38: error: call to ‘__compiletime_assert_946’ \
+	declared with attribute error: FIELD_PREP: mask is not constant
+    _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
+
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Felix Fietkau <nbd@nbd.name>
+Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+Cc: Ryder Lee <ryder.lee@mediatek.com>
+Cc: Shayne Chen <shayne.chen@mediatek.com>
+Cc: Sean Wang <sean.wang@mediatek.com>
+Cc: Kalle Valo <kvalo@kernel.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-wireless@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220405151517.29753-9-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi | 8 ++++----
- arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76x2_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
-index 1dc9d187601c..a0bd540f27d3 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-var-som.dtsi
-@@ -89,12 +89,12 @@
- 		pendown-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x2_pci.c b/drivers/net/wireless/mediatek/mt76/mt76x2_pci.c
+index 26cfda24ce08..e26947f89299 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x2_pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x2_pci.c
+@@ -73,7 +73,7 @@ mt76pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	mt76_rmw_field(dev, 0x15a10, 0x1f << 16, 0x9);
  
- 		ti,x-min = /bits/ 16 <125>;
--		touchscreen-size-x = /bits/ 16 <4008>;
-+		touchscreen-size-x = <4008>;
- 		ti,y-min = /bits/ 16 <282>;
--		touchscreen-size-y = /bits/ 16 <3864>;
-+		touchscreen-size-y = <3864>;
- 		ti,x-plate-ohms = /bits/ 16 <180>;
--		touchscreen-max-pressure = /bits/ 16 <255>;
--		touchscreen-average-samples = /bits/ 16 <10>;
-+		touchscreen-max-pressure = <255>;
-+		touchscreen-average-samples = <10>;
- 		ti,debounce-tol = /bits/ 16 <3>;
- 		ti,debounce-rep = /bits/ 16 <1>;
- 		ti,settle-delay-usec = /bits/ 16 <150>;
-diff --git a/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
-index b16c7caf34c1..87b5e23c766f 100644
---- a/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mn-var-som.dtsi
-@@ -70,12 +70,12 @@
- 		pendown-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
+ 	/* RG_SSUSB_G1_CDR_BIC_LTR = 0xf */
+-	mt76_rmw_field(dev, 0x15a0c, 0xf << 28, 0xf);
++	mt76_rmw_field(dev, 0x15a0c, 0xfU << 28, 0xf);
  
- 		ti,x-min = /bits/ 16 <125>;
--		touchscreen-size-x = /bits/ 16 <4008>;
-+		touchscreen-size-x = <4008>;
- 		ti,y-min = /bits/ 16 <282>;
--		touchscreen-size-y = /bits/ 16 <3864>;
-+		touchscreen-size-y = <3864>;
- 		ti,x-plate-ohms = /bits/ 16 <180>;
--		touchscreen-max-pressure = /bits/ 16 <255>;
--		touchscreen-average-samples = /bits/ 16 <10>;
-+		touchscreen-max-pressure = <255>;
-+		touchscreen-average-samples = <10>;
- 		ti,debounce-tol = /bits/ 16 <3>;
- 		ti,debounce-rep = /bits/ 16 <1>;
- 		ti,settle-delay-usec = /bits/ 16 <150>;
+ 	/* RG_SSUSB_CDR_BR_PE1D = 0x3 */
+ 	mt76_rmw_field(dev, 0x15c58, 0x3 << 6, 0x3);
 -- 
 2.35.1
 
