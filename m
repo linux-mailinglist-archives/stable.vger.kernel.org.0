@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB04F50F661
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB6350F81A
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344515AbiDZIxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:53:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
+        id S242907AbiDZJHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347107AbiDZIvH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91D7C174A00;
-        Tue, 26 Apr 2022 01:39:31 -0700 (PDT)
+        with ESMTP id S1347807AbiDZJGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A7F939D1;
+        Tue, 26 Apr 2022 01:45:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B5AE6090C;
-        Tue, 26 Apr 2022 08:39:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E55D7C385A0;
-        Tue, 26 Apr 2022 08:39:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12CF0B81A2F;
+        Tue, 26 Apr 2022 08:45:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7962EC385A0;
+        Tue, 26 Apr 2022 08:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962370;
-        bh=91IJCXFXrRhxZ3eZykcnYSPjUcHxOjTmk7YsarhCXlc=;
+        s=korg; t=1650962753;
+        bh=+KolcSOmUT8nfhzFWRnBxV23DouA6VHrhRtYpSvkK5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcl79l8X9vqlEt4w5KYGjlQxg353RuXMYeZSm0nCLq4sawsIwfml6NG4CXIvTF/p0
-         NM+6Le4I1Q0940JRIjzGDjsqDQ637rT+iOIuEkG3W5BTCf2uSUIhq26ib5h03idMge
-         HHdFsxz2SmiUH3HsbRuZq1ZsgoZU+GBuTKgs/yR0=
+        b=0bwTUt1UFD7Lfn4gw/WYsX8VyIIrBfhp67f6hSaQ4eXlKrTJdBIT1hKdQctNH06bt
+         LyMrsZS+4KEyTI3/ihcngvIQc4pC1JijGUS61kFo51Uqx2Xa5Axk3cGOBNGSLtdBkq
+         OW3z7DDZNxCRhGe7SpKZ6tr1qblVfrqU39L65B7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Andreas Schwab <schwab@linux-m68k.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Lee Duncan <lduncan@suse.com>, Chris Leech <cleech@redhat.com>,
+        Wu Bo <wubo40@huawei.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 072/124] stat: fix inconsistency between struct stat and struct compat_stat
+Subject: [PATCH 5.17 078/146] scsi: iscsi: Release endpoint ID when its freed
 Date:   Tue, 26 Apr 2022 10:21:13 +0200
-Message-Id: <20220426081749.348732389@linuxfoundation.org>
+Message-Id: <20220426081752.257290930@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,136 +56,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 932aba1e169090357a77af18850a10c256b50819 ]
+[ Upstream commit 3c6ae371b8a1ffba1fc415989fd581ebf841ed0a ]
 
-struct stat (defined in arch/x86/include/uapi/asm/stat.h) has 32-bit
-st_dev and st_rdev; struct compat_stat (defined in
-arch/x86/include/asm/compat.h) has 16-bit st_dev and st_rdev followed by
-a 16-bit padding.
+We can't release the endpoint ID until all references to the endpoint have
+been dropped or it could be allocated while in use. This has us use an idr
+instead of looping over all conns to find a free ID and then free the ID
+when all references have been dropped instead of when the device is only
+deleted.
 
-This patch fixes struct compat_stat to match struct stat.
-
-[ Historical note: the old x86 'struct stat' did have that 16-bit field
-  that the compat layer had kept around, but it was changes back in 2003
-  by "struct stat - support larger dev_t":
-
-    https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/commit/?id=e95b2065677fe32512a597a79db94b77b90c968d
-
-  and back in those days, the x86_64 port was still new, and separate
-  from the i386 code, and had already picked up the old version with a
-  16-bit st_dev field ]
-
-Note that we can't change compat_dev_t because it is used by
-compat_loop_info.
-
-Also, if the st_dev and st_rdev values are 32-bit, we don't have to use
-old_valid_dev to test if the value fits into them.  This fixes
--EOVERFLOW on filesystems that are on NVMe because NVMe uses the major
-number 259.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Andreas Schwab <schwab@linux-m68k.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20220408001314.5014-4-michael.christie@oracle.com
+Tested-by: Manish Rangankar <mrangankar@marvell.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Reviewed-by: Wu Bo <wubo40@huawei.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/compat.h |  6 ++----
- fs/stat.c                     | 19 ++++++++++---------
- 2 files changed, 12 insertions(+), 13 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 71 ++++++++++++++---------------
+ include/scsi/scsi_transport_iscsi.h |  2 +-
+ 2 files changed, 36 insertions(+), 37 deletions(-)
 
-diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
-index 7516e4199b3c..20fd0acd7d80 100644
---- a/arch/x86/include/asm/compat.h
-+++ b/arch/x86/include/asm/compat.h
-@@ -28,15 +28,13 @@ typedef u16		compat_ipc_pid_t;
- typedef __kernel_fsid_t	compat_fsid_t;
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index c7b1b2e8bb02..bcdfcb25349a 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -86,6 +86,9 @@ struct iscsi_internal {
+ 	struct transport_container session_cont;
+ };
  
- struct compat_stat {
--	compat_dev_t	st_dev;
--	u16		__pad1;
-+	u32		st_dev;
- 	compat_ino_t	st_ino;
- 	compat_mode_t	st_mode;
- 	compat_nlink_t	st_nlink;
- 	__compat_uid_t	st_uid;
- 	__compat_gid_t	st_gid;
--	compat_dev_t	st_rdev;
--	u16		__pad2;
-+	u32		st_rdev;
- 	u32		st_size;
- 	u32		st_blksize;
- 	u32		st_blocks;
-diff --git a/fs/stat.c b/fs/stat.c
-index 28d2020ba1f4..246d138ec066 100644
---- a/fs/stat.c
-+++ b/fs/stat.c
-@@ -334,9 +334,6 @@ SYSCALL_DEFINE2(fstat, unsigned int, fd, struct __old_kernel_stat __user *, stat
- #  define choose_32_64(a,b) b
- #endif
++static DEFINE_IDR(iscsi_ep_idr);
++static DEFINE_MUTEX(iscsi_ep_idr_mutex);
++
+ static atomic_t iscsi_session_nr; /* sysfs session id for next new session */
+ static struct workqueue_struct *iscsi_eh_timer_workq;
  
--#define valid_dev(x)  choose_32_64(old_valid_dev(x),true)
--#define encode_dev(x) choose_32_64(old_encode_dev,new_encode_dev)(x)
+@@ -169,6 +172,11 @@ struct device_attribute dev_attr_##_prefix##_##_name =	\
+ static void iscsi_endpoint_release(struct device *dev)
+ {
+ 	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
++
++	mutex_lock(&iscsi_ep_idr_mutex);
++	idr_remove(&iscsi_ep_idr, ep->id);
++	mutex_unlock(&iscsi_ep_idr_mutex);
++
+ 	kfree(ep);
+ }
+ 
+@@ -181,7 +189,7 @@ static ssize_t
+ show_ep_handle(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
+-	return sysfs_emit(buf, "%llu\n", (unsigned long long) ep->id);
++	return sysfs_emit(buf, "%d\n", ep->id);
+ }
+ static ISCSI_ATTR(ep, handle, S_IRUGO, show_ep_handle, NULL);
+ 
+@@ -194,48 +202,32 @@ static struct attribute_group iscsi_endpoint_group = {
+ 	.attrs = iscsi_endpoint_attrs,
+ };
+ 
+-#define ISCSI_MAX_EPID -1
 -
- #ifndef INIT_STRUCT_STAT_PADDING
- #  define INIT_STRUCT_STAT_PADDING(st) memset(&st, 0, sizeof(st))
- #endif
-@@ -345,7 +342,9 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
+-static int iscsi_match_epid(struct device *dev, const void *data)
+-{
+-	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
+-	const uint64_t *epid = data;
+-
+-	return *epid == ep->id;
+-}
+-
+ struct iscsi_endpoint *
+ iscsi_create_endpoint(int dd_size)
  {
- 	struct stat tmp;
+-	struct device *dev;
+ 	struct iscsi_endpoint *ep;
+-	uint64_t id;
+-	int err;
+-
+-	for (id = 1; id < ISCSI_MAX_EPID; id++) {
+-		dev = class_find_device(&iscsi_endpoint_class, NULL, &id,
+-					iscsi_match_epid);
+-		if (!dev)
+-			break;
+-		else
+-			put_device(dev);
+-	}
+-	if (id == ISCSI_MAX_EPID) {
+-		printk(KERN_ERR "Too many connections. Max supported %u\n",
+-		       ISCSI_MAX_EPID - 1);
+-		return NULL;
+-	}
++	int err, id;
  
--	if (!valid_dev(stat->dev) || !valid_dev(stat->rdev))
-+	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
-+		return -EOVERFLOW;
-+	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
- 		return -EOVERFLOW;
- #if BITS_PER_LONG == 32
- 	if (stat->size > MAX_NON_LFS)
-@@ -353,7 +352,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
- #endif
+ 	ep = kzalloc(sizeof(*ep) + dd_size, GFP_KERNEL);
+ 	if (!ep)
+ 		return NULL;
  
- 	INIT_STRUCT_STAT_PADDING(tmp);
--	tmp.st_dev = encode_dev(stat->dev);
-+	tmp.st_dev = new_encode_dev(stat->dev);
- 	tmp.st_ino = stat->ino;
- 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
- 		return -EOVERFLOW;
-@@ -363,7 +362,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
- 		return -EOVERFLOW;
- 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
- 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
--	tmp.st_rdev = encode_dev(stat->rdev);
-+	tmp.st_rdev = new_encode_dev(stat->rdev);
- 	tmp.st_size = stat->size;
- 	tmp.st_atime = stat->atime.tv_sec;
- 	tmp.st_mtime = stat->mtime.tv_sec;
-@@ -644,11 +643,13 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
++	mutex_lock(&iscsi_ep_idr_mutex);
++	id = idr_alloc(&iscsi_ep_idr, ep, 0, -1, GFP_NOIO);
++	if (id < 0) {
++		mutex_unlock(&iscsi_ep_idr_mutex);
++		printk(KERN_ERR "Could not allocate endpoint ID. Error %d.\n",
++		       id);
++		goto free_ep;
++	}
++	mutex_unlock(&iscsi_ep_idr_mutex);
++
+ 	ep->id = id;
+ 	ep->dev.class = &iscsi_endpoint_class;
+-	dev_set_name(&ep->dev, "ep-%llu", (unsigned long long) id);
++	dev_set_name(&ep->dev, "ep-%d", id);
+ 	err = device_register(&ep->dev);
+         if (err)
+-                goto free_ep;
++		goto free_id;
+ 
+ 	err = sysfs_create_group(&ep->dev.kobj, &iscsi_endpoint_group);
+ 	if (err)
+@@ -249,6 +241,10 @@ iscsi_create_endpoint(int dd_size)
+ 	device_unregister(&ep->dev);
+ 	return NULL;
+ 
++free_id:
++	mutex_lock(&iscsi_ep_idr_mutex);
++	idr_remove(&iscsi_ep_idr, id);
++	mutex_unlock(&iscsi_ep_idr_mutex);
+ free_ep:
+ 	kfree(ep);
+ 	return NULL;
+@@ -276,14 +272,17 @@ EXPORT_SYMBOL_GPL(iscsi_put_endpoint);
+  */
+ struct iscsi_endpoint *iscsi_lookup_endpoint(u64 handle)
  {
- 	struct compat_stat tmp;
+-	struct device *dev;
++	struct iscsi_endpoint *ep;
  
--	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev))
-+	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
-+		return -EOVERFLOW;
-+	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
- 		return -EOVERFLOW;
+-	dev = class_find_device(&iscsi_endpoint_class, NULL, &handle,
+-				iscsi_match_epid);
+-	if (!dev)
+-		return NULL;
++	mutex_lock(&iscsi_ep_idr_mutex);
++	ep = idr_find(&iscsi_ep_idr, handle);
++	if (!ep)
++		goto unlock;
  
- 	memset(&tmp, 0, sizeof(tmp));
--	tmp.st_dev = old_encode_dev(stat->dev);
-+	tmp.st_dev = new_encode_dev(stat->dev);
- 	tmp.st_ino = stat->ino;
- 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
- 		return -EOVERFLOW;
-@@ -658,7 +659,7 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
- 		return -EOVERFLOW;
- 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
- 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
--	tmp.st_rdev = old_encode_dev(stat->rdev);
-+	tmp.st_rdev = new_encode_dev(stat->rdev);
- 	if ((u64) stat->size > MAX_NON_LFS)
- 		return -EOVERFLOW;
- 	tmp.st_size = stat->size;
+-	return iscsi_dev_to_endpoint(dev);
++	get_device(&ep->dev);
++unlock:
++	mutex_unlock(&iscsi_ep_idr_mutex);
++	return ep;
+ }
+ EXPORT_SYMBOL_GPL(iscsi_lookup_endpoint);
+ 
+diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
+index 037c77fb5dc5..3ecf9702287b 100644
+--- a/include/scsi/scsi_transport_iscsi.h
++++ b/include/scsi/scsi_transport_iscsi.h
+@@ -296,7 +296,7 @@ extern void iscsi_host_for_each_session(struct Scsi_Host *shost,
+ struct iscsi_endpoint {
+ 	void *dd_data;			/* LLD private data */
+ 	struct device dev;
+-	uint64_t id;
++	int id;
+ 	struct iscsi_cls_conn *conn;
+ };
+ 
 -- 
 2.35.1
 
