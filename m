@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E34BC50F5E9
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E015F50F4FA
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243564AbiDZIzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:55:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55562 "EHLO
+        id S1345399AbiDZIkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:40:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347190AbiDZIvM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E45A175315;
-        Tue, 26 Apr 2022 01:39:39 -0700 (PDT)
+        with ESMTP id S1345543AbiDZIjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A674642F;
+        Tue, 26 Apr 2022 01:30:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AFD72B81D0A;
-        Tue, 26 Apr 2022 08:39:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0478FC385A4;
-        Tue, 26 Apr 2022 08:39:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA4CCB81D02;
+        Tue, 26 Apr 2022 08:30:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3883CC385A0;
+        Tue, 26 Apr 2022 08:30:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962376;
-        bh=pLJV1qtoBgUejyTtl1bi9Y8qfqHAmqzfVAIQozwD2d8=;
+        s=korg; t=1650961806;
+        bh=P4wHU4paOkXJSzIawgcr2zWj4eVddDDxzhzoHnGO/ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOU+akwHJmKN2xFiv3FaMbO6A7ffQrqBDHOdhyoGkQIzz+GsTgAJv0qT9Sbz4p+Z9
-         +oI5rVamUzt2LyAo07K1BkQ6o0V+WeF9i9e+767o7eFY0swP5PFgp35GMAoO1zUzyW
-         g6SMO71CLWf0JCH2jisbOP0Yoo67Tu+XvUZe1NgM=
+        b=orwfdJF7WAbHyz4wWCp4x7QV6CLujq5lfeyttOEf4OznXEc83MNWn12DtTzDwQgWF
+         Jx1VyIdsrpD+uR7AmY8Iy1grndNXHgHKNLDLEEIkq180cQBFG9SirSAQTNR/heAlox
+         bPUIBveAhUD+uO6mgHY96JkO2iZPx+wRZiTRRpdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Andreas Schwab <schwab@linux-m68k.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 074/124] nvme: add a quirk to disable namespace identifiers
+Subject: [PATCH 5.4 35/62] stat: fix inconsistency between struct stat and struct compat_stat
 Date:   Tue, 26 Apr 2022 10:21:15 +0200
-Message-Id: <20220426081749.405439554@linuxfoundation.org>
+Message-Id: <20220426081738.230895289@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,101 +56,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 00ff400e6deee00f7b15e200205b2708b63b8cf6 ]
+[ Upstream commit 932aba1e169090357a77af18850a10c256b50819 ]
 
-Add a quirk to disable using and exporting namespace identifiers for
-controllers where they are broken beyond repair.
+struct stat (defined in arch/x86/include/uapi/asm/stat.h) has 32-bit
+st_dev and st_rdev; struct compat_stat (defined in
+arch/x86/include/asm/compat.h) has 16-bit st_dev and st_rdev followed by
+a 16-bit padding.
 
-The most directly visible problem with non-unique namespace identifiers
-is that they break the /dev/disk/by-id/ links, with the link for a
-supposedly unique identifier now pointing to one of multiple possible
-namespaces that share the same ID, and a somewhat random selection of
-which one actually shows up.
+This patch fixes struct compat_stat to match struct stat.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+[ Historical note: the old x86 'struct stat' did have that 16-bit field
+  that the compat layer had kept around, but it was changes back in 2003
+  by "struct stat - support larger dev_t":
+
+    https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/commit/?id=e95b2065677fe32512a597a79db94b77b90c968d
+
+  and back in those days, the x86_64 port was still new, and separate
+  from the i386 code, and had already picked up the old version with a
+  16-bit st_dev field ]
+
+Note that we can't change compat_dev_t because it is used by
+compat_loop_info.
+
+Also, if the st_dev and st_rdev values are 32-bit, we don't have to use
+old_valid_dev to test if the value fits into them.  This fixes
+-EOVERFLOW on filesystems that are on NVMe because NVMe uses the major
+number 259.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Andreas Schwab <schwab@linux-m68k.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 24 ++++++++++++++++++------
- drivers/nvme/host/nvme.h |  5 +++++
- 2 files changed, 23 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/compat.h |  6 ++----
+ fs/stat.c                     | 19 ++++++++++---------
+ 2 files changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 4c35e9acf8ee..f2bb57615762 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1354,6 +1354,8 @@ static int nvme_process_ns_desc(struct nvme_ctrl *ctrl, struct nvme_ns_ids *ids,
- 				 warn_str, cur->nidl);
- 			return -1;
- 		}
-+		if (ctrl->quirks & NVME_QUIRK_BOGUS_NID)
-+			return NVME_NIDT_EUI64_LEN;
- 		memcpy(ids->eui64, data + sizeof(*cur), NVME_NIDT_EUI64_LEN);
- 		return NVME_NIDT_EUI64_LEN;
- 	case NVME_NIDT_NGUID:
-@@ -1362,6 +1364,8 @@ static int nvme_process_ns_desc(struct nvme_ctrl *ctrl, struct nvme_ns_ids *ids,
- 				 warn_str, cur->nidl);
- 			return -1;
- 		}
-+		if (ctrl->quirks & NVME_QUIRK_BOGUS_NID)
-+			return NVME_NIDT_NGUID_LEN;
- 		memcpy(ids->nguid, data + sizeof(*cur), NVME_NIDT_NGUID_LEN);
- 		return NVME_NIDT_NGUID_LEN;
- 	case NVME_NIDT_UUID:
-@@ -1370,6 +1374,8 @@ static int nvme_process_ns_desc(struct nvme_ctrl *ctrl, struct nvme_ns_ids *ids,
- 				 warn_str, cur->nidl);
- 			return -1;
- 		}
-+		if (ctrl->quirks & NVME_QUIRK_BOGUS_NID)
-+			return NVME_NIDT_UUID_LEN;
- 		uuid_copy(&ids->uuid, data + sizeof(*cur));
- 		return NVME_NIDT_UUID_LEN;
- 	case NVME_NIDT_CSI:
-@@ -1466,12 +1472,18 @@ static int nvme_identify_ns(struct nvme_ctrl *ctrl, unsigned nsid,
- 	if ((*id)->ncap == 0) /* namespace not allocated or attached */
- 		goto out_free_id;
+diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
+index 22c4dfe65992..b4dd6ab0fdfc 100644
+--- a/arch/x86/include/asm/compat.h
++++ b/arch/x86/include/asm/compat.h
+@@ -31,15 +31,13 @@ typedef s64 __attribute__((aligned(4))) compat_s64;
+ typedef u64 __attribute__((aligned(4))) compat_u64;
  
--	if (ctrl->vs >= NVME_VS(1, 1, 0) &&
--	    !memchr_inv(ids->eui64, 0, sizeof(ids->eui64)))
--		memcpy(ids->eui64, (*id)->eui64, sizeof(ids->eui64));
--	if (ctrl->vs >= NVME_VS(1, 2, 0) &&
--	    !memchr_inv(ids->nguid, 0, sizeof(ids->nguid)))
--		memcpy(ids->nguid, (*id)->nguid, sizeof(ids->nguid));
-+
-+	if (ctrl->quirks & NVME_QUIRK_BOGUS_NID) {
-+		dev_info(ctrl->device,
-+			 "Ignoring bogus Namespace Identifiers\n");
-+	} else {
-+		if (ctrl->vs >= NVME_VS(1, 1, 0) &&
-+		    !memchr_inv(ids->eui64, 0, sizeof(ids->eui64)))
-+			memcpy(ids->eui64, (*id)->eui64, sizeof(ids->eui64));
-+		if (ctrl->vs >= NVME_VS(1, 2, 0) &&
-+		    !memchr_inv(ids->nguid, 0, sizeof(ids->nguid)))
-+			memcpy(ids->nguid, (*id)->nguid, sizeof(ids->nguid));
-+	}
+ struct compat_stat {
+-	compat_dev_t	st_dev;
+-	u16		__pad1;
++	u32		st_dev;
+ 	compat_ino_t	st_ino;
+ 	compat_mode_t	st_mode;
+ 	compat_nlink_t	st_nlink;
+ 	__compat_uid_t	st_uid;
+ 	__compat_gid_t	st_gid;
+-	compat_dev_t	st_rdev;
+-	u16		__pad2;
++	u32		st_rdev;
+ 	u32		st_size;
+ 	u32		st_blksize;
+ 	u32		st_blocks;
+diff --git a/fs/stat.c b/fs/stat.c
+index c38e4c2e1221..268c9eb89656 100644
+--- a/fs/stat.c
++++ b/fs/stat.c
+@@ -290,9 +290,6 @@ SYSCALL_DEFINE2(fstat, unsigned int, fd, struct __old_kernel_stat __user *, stat
+ #  define choose_32_64(a,b) b
+ #endif
  
- 	return 0;
+-#define valid_dev(x)  choose_32_64(old_valid_dev(x),true)
+-#define encode_dev(x) choose_32_64(old_encode_dev,new_encode_dev)(x)
+-
+ #ifndef INIT_STRUCT_STAT_PADDING
+ #  define INIT_STRUCT_STAT_PADDING(st) memset(&st, 0, sizeof(st))
+ #endif
+@@ -301,7 +298,9 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
+ {
+ 	struct stat tmp;
  
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 0628e2d802e7..f1e5c7564cae 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -144,6 +144,11 @@ enum nvme_quirks {
- 	 * encoding the generation sequence number.
- 	 */
- 	NVME_QUIRK_SKIP_CID_GEN			= (1 << 17),
-+
-+	/*
-+	 * Reports garbage in the namespace identifiers (eui64, nguid, uuid).
-+	 */
-+	NVME_QUIRK_BOGUS_NID			= (1 << 18),
- };
+-	if (!valid_dev(stat->dev) || !valid_dev(stat->rdev))
++	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
++		return -EOVERFLOW;
++	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
+ 		return -EOVERFLOW;
+ #if BITS_PER_LONG == 32
+ 	if (stat->size > MAX_NON_LFS)
+@@ -309,7 +308,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
+ #endif
  
- /*
+ 	INIT_STRUCT_STAT_PADDING(tmp);
+-	tmp.st_dev = encode_dev(stat->dev);
++	tmp.st_dev = new_encode_dev(stat->dev);
+ 	tmp.st_ino = stat->ino;
+ 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
+ 		return -EOVERFLOW;
+@@ -319,7 +318,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
+ 		return -EOVERFLOW;
+ 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
+ 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
+-	tmp.st_rdev = encode_dev(stat->rdev);
++	tmp.st_rdev = new_encode_dev(stat->rdev);
+ 	tmp.st_size = stat->size;
+ 	tmp.st_atime = stat->atime.tv_sec;
+ 	tmp.st_mtime = stat->mtime.tv_sec;
+@@ -593,11 +592,13 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
+ {
+ 	struct compat_stat tmp;
+ 
+-	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev))
++	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
++		return -EOVERFLOW;
++	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
+ 		return -EOVERFLOW;
+ 
+ 	memset(&tmp, 0, sizeof(tmp));
+-	tmp.st_dev = old_encode_dev(stat->dev);
++	tmp.st_dev = new_encode_dev(stat->dev);
+ 	tmp.st_ino = stat->ino;
+ 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
+ 		return -EOVERFLOW;
+@@ -607,7 +608,7 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
+ 		return -EOVERFLOW;
+ 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
+ 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
+-	tmp.st_rdev = old_encode_dev(stat->rdev);
++	tmp.st_rdev = new_encode_dev(stat->rdev);
+ 	if ((u64) stat->size > MAX_NON_LFS)
+ 		return -EOVERFLOW;
+ 	tmp.st_size = stat->size;
 -- 
 2.35.1
 
