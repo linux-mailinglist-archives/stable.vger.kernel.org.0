@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8414D50F6DB
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B20350F6EF
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236742AbiDZJBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:01:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56194 "EHLO
+        id S1345803AbiDZJCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:02:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345815AbiDZI5o (ORCPT
+        with ESMTP id S1345700AbiDZI5o (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13D7538BF;
-        Tue, 26 Apr 2022 01:42:44 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2762564C4;
+        Tue, 26 Apr 2022 01:42:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBD90B81CED;
-        Tue, 26 Apr 2022 08:42:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EF93C385A0;
-        Tue, 26 Apr 2022 08:42:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1A12B81CED;
+        Tue, 26 Apr 2022 08:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3511CC385A0;
+        Tue, 26 Apr 2022 08:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962561;
-        bh=u4sbI5XwVnMsxy9SXjtwcoKdZpij0eoP3VcDQagwUCI=;
+        s=korg; t=1650962564;
+        bh=J+4i1vcd5/XjbgPWY6oEshrMLJ1WCfrhyL0vvFwQMNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwZXenHQrKvWIhD4C/4kLCQMeDmsjSUGeAohHCmYNS8EOLXZ3mfqa7iffv62tQPzq
-         nNzVPvGxre/6ihKxQBEKSrwVJuw1Vjx8ZzrUxeyqRVzIsqrmQ+X/cfHsImVwE9r7tB
-         AtnlF8Oel9Qz5+IDVM62H+pb1lpzajeSH3HsQdKI=
+        b=Da4WgEYiKXmnPFimqfHP0eQYS+QLQ3jfYEgt7pPOBicZBL1tIXBo4yZyvE0oDx6ii
+         Cck24CtF1hVAJdRwshG+zW4RGh7h0eWfopREq2APsZrYbhFc4/DEKtahumjXhbJcSN
+         eTVkG604nLAQsFJfjhe4OWNgR0mLsvgX4q2vUWN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Anthony Koo <Anthony.Koo@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.17 003/146] drm/amd/display: Only set PSR version when valid
-Date:   Tue, 26 Apr 2022 10:19:58 +0200
-Message-Id: <20220426081750.156293191@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Khazhismel Kumykov <khazhy@google.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 004/146] block/compat_ioctl: fix range check in BLKGETSIZE
+Date:   Tue, 26 Apr 2022 10:19:59 +0200
+Message-Id: <20220426081750.184589989@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -56,42 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Khazhismel Kumykov <khazhy@google.com>
 
-commit 1210b17dd4ece454d68a9283f391e3b036aeb010 upstream.
+commit ccf16413e520164eb718cf8b22a30438da80ff23 upstream.
 
-[Why]
-DMCUB will hang if we send a PSR unsupported set version command.
+kernel ulong and compat_ulong_t may not be same width. Use type directly
+to eliminate mismatches.
 
-This can occur if we fall-through into the default case in the switch
-statement for PSR version.
+This would result in truncation rather than EFBIG for 32bit mode for
+large disks.
 
-[How]
-Add an unsupported check after the switch statement.
-
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20220414224056.2875681-1-khazhy@google.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ block/ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dmub_psr.c
-@@ -138,6 +138,10 @@ static bool dmub_psr_set_version(struct
- 		cmd.psr_set_version.psr_set_version_data.version = PSR_VERSION_UNSUPPORTED;
- 		break;
- 	}
-+
-+	if (cmd.psr_set_version.psr_set_version_data.version == PSR_VERSION_UNSUPPORTED)
-+		return false;
-+
- 	cmd.psr_set_version.psr_set_version_data.cmd_version = DMUB_CMD_PSR_CONTROL_VERSION_1;
- 	cmd.psr_set_version.psr_set_version_data.panel_inst = panel_inst;
- 	cmd.psr_set_version.header.payload_bytes = sizeof(struct dmub_cmd_psr_set_version_data);
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -629,7 +629,7 @@ long compat_blkdev_ioctl(struct file *fi
+ 		return compat_put_long(argp,
+ 			(bdev->bd_disk->bdi->ra_pages * PAGE_SIZE) / 512);
+ 	case BLKGETSIZE:
+-		if (bdev_nr_sectors(bdev) > ~0UL)
++		if (bdev_nr_sectors(bdev) > ~(compat_ulong_t)0)
+ 			return -EFBIG;
+ 		return compat_put_ulong(argp, bdev_nr_sectors(bdev));
+ 
 
 
