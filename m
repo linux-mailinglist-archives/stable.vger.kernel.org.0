@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C81D950F863
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EECFE50F60E
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345832AbiDZJD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:03:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54960 "EHLO
+        id S245174AbiDZIrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345893AbiDZJCp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:02:45 -0400
+        with ESMTP id S1346995AbiDZIpm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0DDDE082;
-        Tue, 26 Apr 2022 01:43:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC3273ED38;
+        Tue, 26 Apr 2022 01:37:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D929611BB;
-        Tue, 26 Apr 2022 08:43:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD9EC385A4;
-        Tue, 26 Apr 2022 08:43:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D684618EA;
+        Tue, 26 Apr 2022 08:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7987AC385AC;
+        Tue, 26 Apr 2022 08:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962620;
-        bh=Urtn68nh2cnrStwYQ2ZjZ6cnqWEIAIE1PNUgiWD29HA=;
+        s=korg; t=1650962227;
+        bh=DMpaeTTuIh10Xdze5E5n9YBI3ta6Jp3ZHW7X2ellZSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVgc9mpBpsriNPJYm8w8Cpker9DNrhBMOwggAPaIF3LvUNxWeBLHJpMdf6AcBtMlE
-         S1sohlR4T5ioJSFx+GXvvbVDEKIgiTscXC73ofgAjNarbK5PDXQGjAYhR6wvr7TYIG
-         7NY8lA0HrifQvelyu/skr21qd3CPZJhcSXGxuaWA=
+        b=VFvbp/qt9HRjkVyoszjGqvN27eF0FaiMEfNm8/IFo0X/4tLp5Y0UdpOqz2xQpSMJX
+         zXauL4bWHCazpOE6jT3Ovds75Mj9LtDmJbvq27YJ+cCIDTOc4yToTabasAuzjk6kCM
+         TqvElT5rpcjQSIWX0ZwVoqiaD8/UDjo0cBDhyN/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Flavio Leitner <fbl@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 033/146] net/packet: fix packet_sock xmit return value checking
+Subject: [PATCH 5.15 027/124] esp: limit skb_page_frag_refill use to a single page
 Date:   Tue, 26 Apr 2022 10:20:28 +0200
-Message-Id: <20220426081750.998058054@linuxfoundation.org>
+Message-Id: <20220426081748.076838969@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 29e8e659f984be00d75ec5fef4e37c88def72712 ]
+[ Upstream commit 5bd8baab087dff657e05387aee802e70304cc813 ]
 
-packet_sock xmit could be dev_queue_xmit, which also returns negative
-errors. So only checking positive errors is not enough, or userspace
-sendmsg may return success while packet is not send out.
+Commit ebe48d368e97 ("esp: Fix possible buffer overflow in ESP
+transformation") tried to fix skb_page_frag_refill usage in ESP by
+capping allocsize to 32k, but that doesn't completely solve the issue,
+as skb_page_frag_refill may return a single page. If that happens, we
+will write out of bounds, despite the check introduced in the previous
+patch.
 
-Move the net_xmit_errno() assignment in the braces as checkpatch.pl said
-do not use assignment in if condition.
+This patch forces COW in cases where we would end up calling
+skb_page_frag_refill with a size larger than a page (first in
+esp_output_head with tailen, then in esp_output_tail with
+skb->data_len).
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Flavio Leitner <fbl@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
+Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ include/net/esp.h | 2 --
+ net/ipv4/esp4.c   | 5 ++---
+ net/ipv6/esp6.c   | 5 ++---
+ 3 files changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index a7273af2d900..e3c60251e708 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2856,8 +2856,9 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
+diff --git a/include/net/esp.h b/include/net/esp.h
+index 90cd02ff77ef..9c5637d41d95 100644
+--- a/include/net/esp.h
++++ b/include/net/esp.h
+@@ -4,8 +4,6 @@
  
- 		status = TP_STATUS_SEND_REQUEST;
- 		err = po->xmit(skb);
--		if (unlikely(err > 0)) {
--			err = net_xmit_errno(err);
-+		if (unlikely(err != 0)) {
-+			if (err > 0)
-+				err = net_xmit_errno(err);
- 			if (err && __packet_get_status(po, ph) ==
- 				   TP_STATUS_AVAILABLE) {
- 				/* skb was destructed already */
-@@ -3058,8 +3059,12 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
- 		skb->no_fcs = 1;
+ #include <linux/skbuff.h>
  
- 	err = po->xmit(skb);
--	if (err > 0 && (err = net_xmit_errno(err)) != 0)
--		goto out_unlock;
-+	if (unlikely(err != 0)) {
-+		if (err > 0)
-+			err = net_xmit_errno(err);
-+		if (err)
-+			goto out_unlock;
-+	}
+-#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
+-
+ struct ip_esp_hdr;
  
- 	dev_put(dev);
+ static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
+diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
+index 70e6c87fbe3d..d747166bb291 100644
+--- a/net/ipv4/esp4.c
++++ b/net/ipv4/esp4.c
+@@ -446,7 +446,6 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
+-	unsigned int allocsz;
  
+ 	/* this is non-NULL only with TCP/UDP Encapsulation */
+ 	if (x->encap) {
+@@ -456,8 +455,8 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
+ 			return err;
+ 	}
+ 
+-	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
+-	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
++	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
+ 		goto cow;
+ 
+ 	if (!skb_cloned(skb)) {
+diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
+index 5023f59a5b96..6219d97cac7a 100644
+--- a/net/ipv6/esp6.c
++++ b/net/ipv6/esp6.c
+@@ -483,7 +483,6 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 	struct page *page;
+ 	struct sk_buff *trailer;
+ 	int tailen = esp->tailen;
+-	unsigned int allocsz;
+ 
+ 	if (x->encap) {
+ 		int err = esp6_output_encap(x, skb, esp);
+@@ -492,8 +491,8 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
+ 			return err;
+ 	}
+ 
+-	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
+-	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
++	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
++	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
+ 		goto cow;
+ 
+ 	if (!skb_cloned(skb)) {
 -- 
 2.35.1
 
