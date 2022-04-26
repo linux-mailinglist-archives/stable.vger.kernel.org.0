@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1F4510856
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA2C51087B
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:06:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347398AbiDZTGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:06:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43228 "EHLO
+        id S232527AbiDZTG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:06:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353805AbiDZTFu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5994F19A48F;
-        Tue, 26 Apr 2022 12:02:42 -0700 (PDT)
+        with ESMTP id S1353809AbiDZTFx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:53 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CE5219AD8D;
+        Tue, 26 Apr 2022 12:02:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7D0D619C4;
-        Tue, 26 Apr 2022 19:02:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E34AC385A4;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6B478CE1CA4;
+        Tue, 26 Apr 2022 19:02:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A405FC385A0;
         Tue, 26 Apr 2022 19:02:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1650999761;
-        bh=UzaHSttgxLekgrWJttDuNNC3KNvjaox2XCxdt4LdC0k=;
+        bh=OHTg+xiRClRmND9KQSuB7CsN17t/zbL4VTawcUn5Ao8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QI3vajOT1YvTdZvLHeCLJ1Q9a1ZhpnsTwzLY2P224k/kmsjSKCszuPETa/5yT9oW4
-         TRKq0ypZmtq/noeBSIUdyn8KuhPVh1Yat2ezG7+ZZ47YebuE3GLwc3aNqv2hDoP4Q1
-         auQ95KnvojNJNwlzkYwTF+MRSFFUb/s93pOI2C5foCshUfXOsYAqHMSDDECfa4A9Ar
-         +rEmw6PHlhct5GLW801xVOUC0hwsj46YpMcPNEzyOD2L+jMxNG3hHTjl8OxytMQfvG
-         b3D4MkzuH8qdVCW//OuNhYhaBdcVeXn+Ps/c3MvDZqF2JZpoJNDsqyXnH7nj0ThOBF
-         j7Fqh+gSF/eFA==
+        b=BJHcQ8d2kMYsmYwsbFRNJMB6w6mCLpXL/TKv0B5MQPbKocmxgFncztqmIK/nELxJk
+         GGKgQpdgoE0Dr/LLEYLazBRRLPAeuu/IOndudf2UKv6vCTMcqGlu9dY8ez5W6N3TxU
+         f0kxRYGoRErjVlLjBQECwbyNWtomOpiUPfUfoXmIbZBucIn99DNBvp33GwOK+Ww4eJ
+         qDV1m7E8HGbTJAqxR6nX8knNvnV5afEMzZoL/j2zqOqNPcBVPbPMtfoOdRMWF1kc+q
+         PaluiR6hW7uxWxRlzRcjJj5XHpcp1VnwPBzHCUNZqqNTdbrkyUoQCDha/VPHXDDZ8b
+         viZhA5ukwgNwg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, nathan@kernel.org,
-        ndesaulniers@google.com, christophe.leroy@csgroup.eu,
-        msuchanek@suse.de, linuxppc-dev@lists.ozlabs.org,
-        llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 8/9] powerpc/perf: Fix 32bit compile
-Date:   Tue, 26 Apr 2022 15:02:29 -0400
-Message-Id: <20220426190232.2351606-8-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 9/9] ata: pata_marvell: Check the 'bmdma_addr' beforing reading
+Date:   Tue, 26 Apr 2022 15:02:30 -0400
+Message-Id: <20220426190232.2351606-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220426190232.2351606-1-sashal@kernel.org>
 References: <20220426190232.2351606-1-sashal@kernel.org>
@@ -58,42 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit bb82c574691daf8f7fa9a160264d15c5804cb769 ]
+[ Upstream commit aafa9f958342db36c17ac2a7f1b841032c96feb4 ]
 
-The "read_bhrb" global symbol is only called under CONFIG_PPC64 of
-arch/powerpc/perf/core-book3s.c but it is compiled for both 32 and 64 bit
-anyway (and LLVM fails to link this on 32bit).
+Before detecting the cable type on the dma bar, the driver should check
+whether the 'bmdma_addr' is zero, which means the adapter does not
+support DMA, otherwise we will get the following error:
 
-This fixes it by moving bhrb.o to obj64 targets.
+[    5.146634] Bad IO access at port 0x1 (return inb(port))
+[    5.147206] WARNING: CPU: 2 PID: 303 at lib/iomap.c:44 ioread8+0x4a/0x60
+[    5.150856] RIP: 0010:ioread8+0x4a/0x60
+[    5.160238] Call Trace:
+[    5.160470]  <TASK>
+[    5.160674]  marvell_cable_detect+0x6e/0xc0 [pata_marvell]
+[    5.161728]  ata_eh_recover+0x3520/0x6cc0
+[    5.168075]  ata_do_eh+0x49/0x3c0
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220421025756.571995-1-aik@ozlabs.ru
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ata/pata_marvell.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/perf/Makefile b/arch/powerpc/perf/Makefile
-index c02854dea2b2..da9f60ede97b 100644
---- a/arch/powerpc/perf/Makefile
-+++ b/arch/powerpc/perf/Makefile
-@@ -5,11 +5,11 @@ ifdef CONFIG_COMPAT
- obj-$(CONFIG_PERF_EVENTS)	+= callchain_32.o
- endif
- 
--obj-$(CONFIG_PPC_PERF_CTRS)	+= core-book3s.o bhrb.o
-+obj-$(CONFIG_PPC_PERF_CTRS)	+= core-book3s.o
- obj64-$(CONFIG_PPC_PERF_CTRS)	+= ppc970-pmu.o power5-pmu.o \
- 				   power5+-pmu.o power6-pmu.o power7-pmu.o \
- 				   isa207-common.o power8-pmu.o power9-pmu.o \
--				   generic-compat-pmu.o power10-pmu.o
-+				   generic-compat-pmu.o power10-pmu.o bhrb.o
- obj32-$(CONFIG_PPC_PERF_CTRS)	+= mpc7450-pmu.o
- 
- obj-$(CONFIG_PPC_POWERNV)	+= imc-pmu.o
+diff --git a/drivers/ata/pata_marvell.c b/drivers/ata/pata_marvell.c
+index b066809ba9a1..c56f4043b0cc 100644
+--- a/drivers/ata/pata_marvell.c
++++ b/drivers/ata/pata_marvell.c
+@@ -83,6 +83,8 @@ static int marvell_cable_detect(struct ata_port *ap)
+ 	switch(ap->port_no)
+ 	{
+ 	case 0:
++		if (!ap->ioaddr.bmdma_addr)
++			return ATA_CBL_PATA_UNK;
+ 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
+ 			return ATA_CBL_PATA40;
+ 		return ATA_CBL_PATA80;
 -- 
 2.35.1
 
