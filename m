@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C2E50F6DC
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CDF950F6E2
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238993AbiDZJBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:01:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46208 "EHLO
+        id S245696AbiDZJBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:01:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345732AbiDZI5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECFA641F;
-        Tue, 26 Apr 2022 01:42:30 -0700 (PDT)
+        with ESMTP id S1345662AbiDZI5p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72AF43889;
+        Tue, 26 Apr 2022 01:42:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F002EB81CFA;
-        Tue, 26 Apr 2022 08:42:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3965BC385A0;
-        Tue, 26 Apr 2022 08:42:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2568FB81CFA;
+        Tue, 26 Apr 2022 08:42:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 648B9C385A0;
+        Tue, 26 Apr 2022 08:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962547;
-        bh=fzE8vYXo5wvI4ZjE9j51qmJP2/qFmdVxd/QX78EPfTA=;
+        s=korg; t=1650962558;
+        bh=v3d3wJ8d7he5GKQ/gI1Bji2FZeuuYgCu3YXM/O7M85o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdUFGNA/Tfj8kPIckI5xK+/RlNxPGOPDwOGPNTcjh/BV4jboYUDFybQAkCBd8Hiko
-         IU7TKpOAzSKLPxZ5JBKHftMq7KBW+z9kN6f1LEd0kpW0wYeAG9pVHtlcx4pAkFProR
-         st/SFBuBvVN4liUvFApBlb1avNeOJby70GAwDR4w=
+        b=1F1sFbSr3M4k/cKzIpGewqR/6N3lrMuYI7WWovAnfpSC7eRLJs3JsNxVCVjn18UeF
+         oViDC96CZUz0fincMCVaM7OAAMuEE0P8pnUUy34KjnA9a03QMsqhyjgDFWMyZuOwC/
+         2g8tfwmmkq+XG649Sr8sYaI6zByCIwCYZYCa1t74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Khem Raj <raj.khem@gmail.com>
-Subject: [PATCH 5.17 001/146] etherdevice: Adjust ether_addr* prototypes to silence -Wstringop-overead
-Date:   Tue, 26 Apr 2022 10:19:56 +0200
-Message-Id: <20220426081750.095040051@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.17 002/146] perf tools: Fix segfault accessing sample_id xyarray
+Date:   Tue, 26 Apr 2022 10:19:57 +0200
+Message-Id: <20220426081750.123290229@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,59 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 2618a0dae09ef37728dab89ff60418cbe25ae6bd upstream.
+commit a668cc07f990d2ed19424d5c1a529521a9d1cee1 upstream.
 
-With GCC 12, -Wstringop-overread was warning about an implicit cast from
-char[6] to char[8]. However, the extra 2 bytes are always thrown away,
-alignment doesn't matter, and the risk of hitting the edge of unallocated
-memory has been accepted, so this prototype can just be converted to a
-regular char *. Silences:
+perf_evsel::sample_id is an xyarray which can cause a segfault when
+accessed beyond its size. e.g.
 
-net/core/dev.c: In function ‘bpf_prog_run_generic_xdp’: net/core/dev.c:4618:21: warning: ‘ether_addr_equal_64bits’ reading 8 bytes from a region of size 6 [-Wstringop-overread]
- 4618 |         orig_host = ether_addr_equal_64bits(eth->h_dest, > skb->dev->dev_addr);
-      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-net/core/dev.c:4618:21: note: referencing argument 1 of type ‘const u8[8]’ {aka ‘const unsigned char[8]’}
-net/core/dev.c:4618:21: note: referencing argument 2 of type ‘const u8[8]’ {aka ‘const unsigned char[8]’}
-In file included from net/core/dev.c:91: include/linux/etherdevice.h:375:20: note: in a call to function ‘ether_addr_equal_64bits’
-  375 | static inline bool ether_addr_equal_64bits(const u8 addr1[6+2],
-      |                    ^~~~~~~~~~~~~~~~~~~~~~~
+  # perf record -e intel_pt// -C 1 sleep 1
+  Segmentation fault (core dumped)
+  #
 
-Reported-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/netdev/20220212090811.uuzk6d76agw2vv73@pengutronix.de
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Khem Raj <raj.khem@gmail.com>
+That is happening because a dummy event is opened to capture text poke
+events accross all CPUs, however the mmap logic is allocating according
+to the number of user_requested_cpus.
+
+In general, perf sometimes uses the evsel cpus to open events, and
+sometimes the evlist user_requested_cpus. However, it is not necessary
+to determine which case is which because the opened event file
+descriptors are also in an xyarray, the size of whch can be used
+to correctly allocate the size of the sample_id xyarray, because there
+is one ID per file descriptor.
+
+Note, in the affected code path, perf_evsel fd array is subsequently
+used to get the file descriptor for the mmap, so it makes sense for the
+xyarrays to be the same size there.
+
+Fixes: d1a177595b3a824c ("libperf: Adopt perf_evlist__mmap()/munmap() from tools/perf")
+Fixes: 246eba8e9041c477 ("perf tools: Add support for PERF_RECORD_TEXT_POKE")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: stable@vger.kernel.org # 5.5+
+Link: https://lore.kernel.org/r/20220413114232.26914-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/etherdevice.h |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ tools/lib/perf/evlist.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/include/linux/etherdevice.h
-+++ b/include/linux/etherdevice.h
-@@ -134,7 +134,7 @@ static inline bool is_multicast_ether_ad
- #endif
- }
- 
--static inline bool is_multicast_ether_addr_64bits(const u8 addr[6+2])
-+static inline bool is_multicast_ether_addr_64bits(const u8 *addr)
+--- a/tools/lib/perf/evlist.c
++++ b/tools/lib/perf/evlist.c
+@@ -577,7 +577,6 @@ int perf_evlist__mmap_ops(struct perf_ev
  {
- #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
- #ifdef __BIG_ENDIAN
-@@ -372,8 +372,7 @@ static inline bool ether_addr_equal(cons
-  * Please note that alignment of addr1 & addr2 are only guaranteed to be 16 bits.
-  */
+ 	struct perf_evsel *evsel;
+ 	const struct perf_cpu_map *cpus = evlist->cpus;
+-	const struct perf_thread_map *threads = evlist->threads;
  
--static inline bool ether_addr_equal_64bits(const u8 addr1[6+2],
--					   const u8 addr2[6+2])
-+static inline bool ether_addr_equal_64bits(const u8 *addr1, const u8 *addr2)
- {
- #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
- 	u64 fold = (*(const u64 *)addr1) ^ (*(const u64 *)addr2);
+ 	if (!ops || !ops->get || !ops->mmap)
+ 		return -EINVAL;
+@@ -589,7 +588,7 @@ int perf_evlist__mmap_ops(struct perf_ev
+ 	perf_evlist__for_each_entry(evlist, evsel) {
+ 		if ((evsel->attr.read_format & PERF_FORMAT_ID) &&
+ 		    evsel->sample_id == NULL &&
+-		    perf_evsel__alloc_id(evsel, perf_cpu_map__nr(cpus), threads->nr) < 0)
++		    perf_evsel__alloc_id(evsel, evsel->fd->max_x, evsel->fd->max_y) < 0)
+ 			return -ENOMEM;
+ 	}
+ 
 
 
