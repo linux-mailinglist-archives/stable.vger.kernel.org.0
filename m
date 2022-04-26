@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8559150F87C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDF1A50F8C8
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346386AbiDZJHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38470 "EHLO
+        id S1346360AbiDZJHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347745AbiDZJGH (ORCPT
+        with ESMTP id S1347741AbiDZJGH (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:07 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B63218B;
-        Tue, 26 Apr 2022 01:45:33 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B7BB11168;
+        Tue, 26 Apr 2022 01:45:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 45963CE1BAF;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3566B81CF0;
+        Tue, 26 Apr 2022 08:45:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0F37C385A0;
         Tue, 26 Apr 2022 08:45:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04614C385AE;
-        Tue, 26 Apr 2022 08:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962730;
-        bh=td2dPsECXqyRY/ABkxSK/V+113r84hWAnEKvyOEtiLI=;
+        s=korg; t=1650962733;
+        bh=VZzwy19iC7YJm1kTY0EyD2FLrXjSzogP6pPLimC+ZCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njulX8p5PokXdxy3+bXIuItF9EtnDLgZmiqpaJ6zvXe6pNnjLG17bK9ux5Oi60XSL
-         veqBsLqO+rEkjj9d9mWfgEVd1hepuCpI2ih15RjgZKuTNAxpmx346lzwVKhNZaHCHz
-         DxTrjfPN45ZRvxYvN8+5iB/H8HI46U9ik3NhsnQY=
+        b=ZYErXwP4/gE/4laXU2tfZbFgHJkWYAqCUgwgSDnXfR+8oOdbrmUnYnEQxVaU+KSKM
+         z/cUxaUTFOR4fqLZFCf1DtGPkRBIaH8QHTYOR66gx0zcvXdrCqnOAGQuGwlwpTX4DO
+         zL16jjCI4H8mGbF0jKm1HU4VImL7ffnHzHtM8028=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Felix Fietkau <nbd@nbd.name>,
+        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Shayne Chen <shayne.chen@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Kalle Valo <kvalo@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 071/146] net: atlantic: Avoid out-of-bounds indexing
-Date:   Tue, 26 Apr 2022 10:21:06 +0200
-Message-Id: <20220426081752.058153194@linuxfoundation.org>
+Subject: [PATCH 5.17 072/146] mt76: Fix undefined behavior due to shift overflowing the constant
+Date:   Tue, 26 Apr 2022 10:21:07 +0200
+Message-Id: <20220426081752.085899297@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -56,125 +61,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 8d3a6c37d50d5a0504c126c932cc749e6dd9c78f ]
+[ Upstream commit dbc2b1764734857d68425468ffa8486e97ab89df ]
 
-UBSAN warnings are observed on atlantic driver:
-[ 294.432996] UBSAN: array-index-out-of-bounds in /build/linux-Qow4fL/linux-5.15.0/drivers/net/ethernet/aquantia/atlantic/aq_nic.c:484:48
-[ 294.433695] index 8 is out of range for type 'aq_vec_s *[8]'
+Fix:
 
-The ring is dereferenced right before breaking out the loop, to prevent
-that from happening, only use the index in the loop to fix the issue.
+  drivers/net/wireless/mediatek/mt76/mt76x2/pci.c: In function ‘mt76x2e_probe’:
+  ././include/linux/compiler_types.h:352:38: error: call to ‘__compiletime_assert_946’ \
+	declared with attribute error: FIELD_PREP: mask is not constant
+    _compiletime_assert(condition, msg, __compiletime_assert_, __COUNTER__)
 
-BugLink: https://bugs.launchpad.net/bugs/1958770
-Tested-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Igor Russkikh <irusskikh@marvell.com>
-Link: https://lore.kernel.org/r/20220408022204.16815-1-kai.heng.feng@canonical.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
+details as to why it triggers with older gccs only.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Felix Fietkau <nbd@nbd.name>
+Cc: Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>
+Cc: Ryder Lee <ryder.lee@mediatek.com>
+Cc: Shayne Chen <shayne.chen@mediatek.com>
+Cc: Sean Wang <sean.wang@mediatek.com>
+Cc: Kalle Valo <kvalo@kernel.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-wireless@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220405151517.29753-9-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/aquantia/atlantic/aq_nic.c   |  8 +++----
- .../net/ethernet/aquantia/atlantic/aq_vec.c   | 24 +++++++++----------
- 2 files changed, 16 insertions(+), 16 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76x2/pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-index 33f1a1377588..24d715c28a35 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_nic.c
-@@ -486,8 +486,8 @@ int aq_nic_start(struct aq_nic_s *self)
- 	if (err < 0)
- 		goto err_exit;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x2/pci.c b/drivers/net/wireless/mediatek/mt76/mt76x2/pci.c
+index 8a22ee581674..df85ebc6e1df 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x2/pci.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x2/pci.c
+@@ -80,7 +80,7 @@ mt76x2e_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	mt76_rmw_field(dev, 0x15a10, 0x1f << 16, 0x9);
  
--	for (i = 0U, aq_vec = self->aq_vec[0];
--		self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i]) {
-+	for (i = 0U; self->aq_vecs > i; ++i) {
-+		aq_vec = self->aq_vec[i];
- 		err = aq_vec_start(aq_vec);
- 		if (err < 0)
- 			goto err_exit;
-@@ -517,8 +517,8 @@ int aq_nic_start(struct aq_nic_s *self)
- 		mod_timer(&self->polling_timer, jiffies +
- 			  AQ_CFG_POLLING_TIMER_INTERVAL);
- 	} else {
--		for (i = 0U, aq_vec = self->aq_vec[0];
--			self->aq_vecs > i; ++i, aq_vec = self->aq_vec[i]) {
-+		for (i = 0U; self->aq_vecs > i; ++i) {
-+			aq_vec = self->aq_vec[i];
- 			err = aq_pci_func_alloc_irq(self, i, self->ndev->name,
- 						    aq_vec_isr, aq_vec,
- 						    aq_vec_get_affinity_mask(aq_vec));
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-index f4774cf051c9..6ab1f3212d24 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_vec.c
-@@ -43,8 +43,8 @@ static int aq_vec_poll(struct napi_struct *napi, int budget)
- 	if (!self) {
- 		err = -EINVAL;
- 	} else {
--		for (i = 0U, ring = self->ring[0];
--			self->tx_rings > i; ++i, ring = self->ring[i]) {
-+		for (i = 0U; self->tx_rings > i; ++i) {
-+			ring = self->ring[i];
- 			u64_stats_update_begin(&ring[AQ_VEC_RX_ID].stats.rx.syncp);
- 			ring[AQ_VEC_RX_ID].stats.rx.polls++;
- 			u64_stats_update_end(&ring[AQ_VEC_RX_ID].stats.rx.syncp);
-@@ -182,8 +182,8 @@ int aq_vec_init(struct aq_vec_s *self, const struct aq_hw_ops *aq_hw_ops,
- 	self->aq_hw_ops = aq_hw_ops;
- 	self->aq_hw = aq_hw;
+ 	/* RG_SSUSB_G1_CDR_BIC_LTR = 0xf */
+-	mt76_rmw_field(dev, 0x15a0c, 0xf << 28, 0xf);
++	mt76_rmw_field(dev, 0x15a0c, 0xfU << 28, 0xf);
  
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		err = aq_ring_init(&ring[AQ_VEC_TX_ID], ATL_RING_TX);
- 		if (err < 0)
- 			goto err_exit;
-@@ -224,8 +224,8 @@ int aq_vec_start(struct aq_vec_s *self)
- 	unsigned int i = 0U;
- 	int err = 0;
- 
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		err = self->aq_hw_ops->hw_ring_tx_start(self->aq_hw,
- 							&ring[AQ_VEC_TX_ID]);
- 		if (err < 0)
-@@ -248,8 +248,8 @@ void aq_vec_stop(struct aq_vec_s *self)
- 	struct aq_ring_s *ring = NULL;
- 	unsigned int i = 0U;
- 
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		self->aq_hw_ops->hw_ring_tx_stop(self->aq_hw,
- 						 &ring[AQ_VEC_TX_ID]);
- 
-@@ -268,8 +268,8 @@ void aq_vec_deinit(struct aq_vec_s *self)
- 	if (!self)
- 		goto err_exit;
- 
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		aq_ring_tx_clean(&ring[AQ_VEC_TX_ID]);
- 		aq_ring_rx_deinit(&ring[AQ_VEC_RX_ID]);
- 	}
-@@ -297,8 +297,8 @@ void aq_vec_ring_free(struct aq_vec_s *self)
- 	if (!self)
- 		goto err_exit;
- 
--	for (i = 0U, ring = self->ring[0];
--		self->tx_rings > i; ++i, ring = self->ring[i]) {
-+	for (i = 0U; self->tx_rings > i; ++i) {
-+		ring = self->ring[i];
- 		aq_ring_free(&ring[AQ_VEC_TX_ID]);
- 		if (i < self->rx_rings)
- 			aq_ring_free(&ring[AQ_VEC_RX_ID]);
+ 	/* RG_SSUSB_CDR_BR_PE1D = 0x3 */
+ 	mt76_rmw_field(dev, 0x15c58, 0x3 << 6, 0x3);
 -- 
 2.35.1
 
