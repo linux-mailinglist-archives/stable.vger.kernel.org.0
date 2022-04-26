@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C89A050F3A7
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C415A50F4CE
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344335AbiDZI0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:26:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60282 "EHLO
+        id S1345287AbiDZIkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:40:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344598AbiDZI0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:26:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B66753A5FE;
-        Tue, 26 Apr 2022 01:22:51 -0700 (PDT)
+        with ESMTP id S1345403AbiDZIjB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482C93B2B1;
+        Tue, 26 Apr 2022 01:29:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 61E65B81CFB;
-        Tue, 26 Apr 2022 08:22:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87E5EC385AE;
-        Tue, 26 Apr 2022 08:22:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F03A2B81CFA;
+        Tue, 26 Apr 2022 08:29:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7083FC385AC;
+        Tue, 26 Apr 2022 08:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961369;
-        bh=UjDI9k5rpkWDsJsDbTwJcb7IeffLcli7fjLQd5SwNQ4=;
+        s=korg; t=1650961779;
+        bh=288k9DnEcV4ejGaEJ796PXFMibFI/0Co3swJzfncqIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ab43g1pjtS9gaP75E17ToE0nJKGy+4xOQ5zZVut8RswoSIvrg8l6FJkJY9s85NTMh
-         Ru+2XsPJobe/AHLaMduSMoiFL9yHEkvyJq1jHp6xJq/pCDdf+22S9Eg4Po1w3toxNe
-         0YdTko5U/AcRBIQQEVvGWmjxQLb1o1HZqT4EDwqo=
+        b=P2P1xhQ43+RlD3eG5M+K/dHIzAmsv8r3kTGR7HQiyvRHDZr3SMgiGyhf79W1y1b1e
+         6QLgEVJmui2eCSinBMu48R1vLrRH7ivbf9W9nrT4q7lH7R/Tx/20alkaCEKWnDNX/E
+         aNFRtN5k0KFc0R18yzbbEjpXqbNOId1MwLW1uvR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Arend van Spriel <aspriel@gmail.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Kalle Valo <kvalo@kernel.org>,
+        stable@vger.kernel.org, Hongbin Wang <wh_bin@126.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        brcm80211-dev-list.pdl@broadcom.com, netdev@vger.kernel.org,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/24] brcmfmac: sdio: Fix undefined behavior due to shift overflowing the constant
+Subject: [PATCH 5.4 27/62] vxlan: fix error return code in vxlan_fdb_append
 Date:   Tue, 26 Apr 2022 10:21:07 +0200
-Message-Id: <20220426081731.765476495@linuxfoundation.org>
+Message-Id: <20220426081738.005147557@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
-References: <20220426081731.370823950@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,53 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@alien8.de>
+From: Hongbin Wang <wh_bin@126.com>
 
-[ Upstream commit 6fb3a5868b2117611f41e421e10e6a8c2a13039a ]
+[ Upstream commit 7cea5560bf656b84f9ed01c0cc829d4eecd0640b ]
 
-Fix:
+When kmalloc and dst_cache_init failed,
+should return ENOMEM rather than ENOBUFS.
 
-  drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c: In function ‘brcmf_sdio_drivestrengthinit’:
-  drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c:3798:2: error: case label does not reduce to an integer constant
-    case SDIOD_DRVSTR_KEY(BRCM_CC_43143_CHIP_ID, 17):
-    ^~~~
-  drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c:3809:2: error: case label does not reduce to an integer constant
-    case SDIOD_DRVSTR_KEY(BRCM_CC_43362_CHIP_ID, 13):
-    ^~~~
-
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Arend van Spriel <aspriel@gmail.com>
-Cc: Franky Lin <franky.lin@broadcom.com>
-Cc: Hante Meuleman <hante.meuleman@broadcom.com>
-Cc: Kalle Valo <kvalo@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: brcm80211-dev-list.pdl@broadcom.com
-Cc: netdev@vger.kernel.org
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/Ykx0iRlvtBnKqtbG@zn.tnic
+Signed-off-by: Hongbin Wang <wh_bin@126.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/vxlan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-index 998a4bd6db78..d8f34883c096 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -547,7 +547,7 @@ enum brcmf_sdio_frmtype {
- 	BRCMF_SDIO_FT_SUB,
- };
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index c5991e31c557..f4869b1836f3 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -679,11 +679,11 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
  
--#define SDIOD_DRVSTR_KEY(chip, pmu)     (((chip) << 16) | (pmu))
-+#define SDIOD_DRVSTR_KEY(chip, pmu)     (((unsigned int)(chip) << 16) | (pmu))
+ 	rd = kmalloc(sizeof(*rd), GFP_ATOMIC);
+ 	if (rd == NULL)
+-		return -ENOBUFS;
++		return -ENOMEM;
  
- /* SDIO Pad drive strength to select value mappings */
- struct sdiod_drive_str {
+ 	if (dst_cache_init(&rd->dst_cache, GFP_ATOMIC)) {
+ 		kfree(rd);
+-		return -ENOBUFS;
++		return -ENOMEM;
+ 	}
+ 
+ 	rd->remote_ip = *ip;
 -- 
 2.35.1
 
