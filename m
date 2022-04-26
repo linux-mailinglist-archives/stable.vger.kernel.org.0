@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C80250F499
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 348D150F3EF
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345064AbiDZIgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:36:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37114 "EHLO
+        id S240778AbiDZI3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:29:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345213AbiDZIeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A631970911;
-        Tue, 26 Apr 2022 01:26:34 -0700 (PDT)
+        with ESMTP id S1344692AbiDZI2k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:28:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A123135B19;
+        Tue, 26 Apr 2022 01:24:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53BAFB81CF9;
-        Tue, 26 Apr 2022 08:26:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3592C385A0;
-        Tue, 26 Apr 2022 08:26:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA1F8617F1;
+        Tue, 26 Apr 2022 08:24:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7CD2C385A0;
+        Tue, 26 Apr 2022 08:24:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961592;
-        bh=JrTg5TVja6fp8tRt+hMunCtik+nRg8374/t6ZUaDplY=;
+        s=korg; t=1650961456;
+        bh=IZI1pv8Ex4cfr00pOxZe1myvfnxTKl2H2WTiS4ekVeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=08bJLKK3YmCh4ptOrw76UJm7kNxamcNVln5oRp9A1L5lKutTo2496NNgeKQF+l8a3
-         jP7H5woQwz/osT054lU/kBM6k+vPy80VOOeDUd8IxS4ANwF0TJJQ6z0d0G5bnulrz0
-         t/n3cI6q3UTJ5XUvVNh1isiiIcQWwZs6rUazoiX0=
+        b=bL3ij8jUPa3PMEix5AcEq6F4kCBfwV9mI5DfBVcLhXR99Oq64qLwnutlKkLX16pxF
+         fn7OcWafOdNzEGBBQz6OpzySWe3lgxPSftG5OBE1b+XUVYQbdaNpprGK3RC0vq1CoJ
+         QYOms8PdH+z/UQULbiVwsJ241vq5LnCEnmEgBwa0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Steve French <sfrench@samba.org>,
+        Shyam Prasad N <nspmangalore@gmail.com>,
+        Rohith Surabattula <rohiths.msft@gmail.com>,
+        linux-cifs@vger.kernel.org, Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/53] platform/x86: samsung-laptop: Fix an unsigned comparison which can never be negative
+Subject: [PATCH 4.14 17/43] cifs: Check the IOCB_DIRECT flag, not O_DIRECT
 Date:   Tue, 26 Apr 2022 10:20:59 +0200
-Message-Id: <20220426081736.214242397@linuxfoundation.org>
+Message-Id: <20220426081735.026599886@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 0284d4d1be753f648f28b77bdfbe6a959212af5c ]
+[ Upstream commit 994fd530a512597ffcd713b0f6d5bc916c5698f0 ]
 
-Eliminate the follow smatch warnings:
+Use the IOCB_DIRECT indicator flag on the I/O context rather than checking to
+see if the file was opened O_DIRECT.
 
-drivers/platform/x86/samsung-laptop.c:1124 kbd_led_set() warn: unsigned
-'value' is never less than zero.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20220322061830.105579-1-jiapeng.chong@linux.alibaba.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Steve French <sfrench@samba.org>
+cc: Shyam Prasad N <nspmangalore@gmail.com>
+cc: Rohith Surabattula <rohiths.msft@gmail.com>
+cc: linux-cifs@vger.kernel.org
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/samsung-laptop.c | 2 --
- 1 file changed, 2 deletions(-)
+ fs/cifs/cifsfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/samsung-laptop.c b/drivers/platform/x86/samsung-laptop.c
-index 7b160ee98115..3e66be504a0d 100644
---- a/drivers/platform/x86/samsung-laptop.c
-+++ b/drivers/platform/x86/samsung-laptop.c
-@@ -1125,8 +1125,6 @@ static void kbd_led_set(struct led_classdev *led_cdev,
+diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+index dba0d12c3db1..1d3f98572068 100644
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -773,7 +773,7 @@ cifs_loose_read_iter(struct kiocb *iocb, struct iov_iter *iter)
+ 	ssize_t rc;
+ 	struct inode *inode = file_inode(iocb->ki_filp);
  
- 	if (value > samsung->kbd_led.max_brightness)
- 		value = samsung->kbd_led.max_brightness;
--	else if (value < 0)
--		value = 0;
+-	if (iocb->ki_filp->f_flags & O_DIRECT)
++	if (iocb->ki_flags & IOCB_DIRECT)
+ 		return cifs_user_readv(iocb, iter);
  
- 	samsung->kbd_led_wk = value;
- 	queue_work(samsung->led_workqueue, &samsung->kbd_led_work);
+ 	rc = cifs_revalidate_mapping(inode);
 -- 
 2.35.1
 
