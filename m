@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 232ED50F5FC
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 424F650F8FE
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241862AbiDZIwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:52:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55536 "EHLO
+        id S234085AbiDZJGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347300AbiDZIvS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E82F1890A6;
-        Tue, 26 Apr 2022 01:40:07 -0700 (PDT)
+        with ESMTP id S1347115AbiDZJFP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82AB0FAD9D;
+        Tue, 26 Apr 2022 01:44:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78F83B81D0B;
-        Tue, 26 Apr 2022 08:40:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6F75C385A4;
-        Tue, 26 Apr 2022 08:40:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B87BFB81D1C;
+        Tue, 26 Apr 2022 08:44:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28FAFC385A0;
+        Tue, 26 Apr 2022 08:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962405;
-        bh=G7DBDVabubEsHS3Fr6SjYXTJPuVUFXS31bzZnUqoGQY=;
+        s=korg; t=1650962645;
+        bh=c4tV8qVMiEPhY0Aru+SR6B5J65uqhDU1LrLy5WMOB+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ez3m+CZT8z1fujGW/Z75bEJWZK31AyeR2D426zquMQw3fFGbMD7M/P1+HOgehOhdu
-         xDs5EkxPSvYtQY9m/ehIJBZa0bpiU9NXL7qdQyOUwYUWpsXjs5iradg9imok3S7exN
-         pvFRRm7/eM5XBptKoYysb1FGd0x8qS3TLDOwM57s=
+        b=qK/Xf17KdKuqOibmMix55OlrU7MDrDHr1Uo5xwX5i51xYgWwDnKP36ct/8J8/KZY6
+         eJufuM6Hv/uVnQYzNHEoHsPC0YiN5nQ2WBNkV0PS/iQK29/JgGW5SfItvX3UlQaIXE
+         GNomokC63/sV/hszCAD6ElHjUDsTvUm/3Hz8lZzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Flavio Leitner <fbl@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 035/124] net/packet: fix packet_sock xmit return value checking
+Subject: [PATCH 5.17 041/146] net: dsa: hellcreek: Calculate checksums in tagger
 Date:   Tue, 26 Apr 2022 10:20:36 +0200
-Message-Id: <20220426081748.302047454@linuxfoundation.org>
+Message-Id: <20220426081751.223955523@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Kurt Kanzenbach <kurt@linutronix.de>
 
-[ Upstream commit 29e8e659f984be00d75ec5fef4e37c88def72712 ]
+[ Upstream commit 0763120b090418a5257402754e22a34227ae5f12 ]
 
-packet_sock xmit could be dev_queue_xmit, which also returns negative
-errors. So only checking positive errors is not enough, or userspace
-sendmsg may return success while packet is not send out.
+In case the checksum calculation is offloaded to the DSA master network
+interface, it will include the switch trailing tag. As soon as the switch strips
+that tag on egress, the calculated checksum is wrong.
 
-Move the net_xmit_errno() assignment in the braces as checkpatch.pl said
-do not use assignment in if condition.
+Therefore, add the checksum calculation to the tagger (if required) before
+adding the switch tag. This way, the hellcreek code works with all DSA master
+interfaces regardless of their declared feature set.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Flavio Leitner <fbl@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 01ef09caad66 ("net: dsa: Add tag handling for Hirschmann Hellcreek switches")
+Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220415103320.90657-1-kurt@linutronix.de
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ net/dsa/tag_hellcreek.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index c0d4a65931de..88c3b5cf8d94 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2820,8 +2820,9 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
+diff --git a/net/dsa/tag_hellcreek.c b/net/dsa/tag_hellcreek.c
+index f64b805303cd..eb204ad36eee 100644
+--- a/net/dsa/tag_hellcreek.c
++++ b/net/dsa/tag_hellcreek.c
+@@ -21,6 +21,14 @@ static struct sk_buff *hellcreek_xmit(struct sk_buff *skb,
+ 	struct dsa_port *dp = dsa_slave_to_port(dev);
+ 	u8 *tag;
  
- 		status = TP_STATUS_SEND_REQUEST;
- 		err = po->xmit(skb);
--		if (unlikely(err > 0)) {
--			err = net_xmit_errno(err);
-+		if (unlikely(err != 0)) {
-+			if (err > 0)
-+				err = net_xmit_errno(err);
- 			if (err && __packet_get_status(po, ph) ==
- 				   TP_STATUS_AVAILABLE) {
- 				/* skb was destructed already */
-@@ -3022,8 +3023,12 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
- 		skb->no_fcs = 1;
- 
- 	err = po->xmit(skb);
--	if (err > 0 && (err = net_xmit_errno(err)) != 0)
--		goto out_unlock;
-+	if (unlikely(err != 0)) {
-+		if (err > 0)
-+			err = net_xmit_errno(err);
-+		if (err)
-+			goto out_unlock;
-+	}
- 
- 	dev_put(dev);
- 
++	/* Calculate checksums (if required) before adding the trailer tag to
++	 * avoid including it in calculations. That would lead to wrong
++	 * checksums after the switch strips the tag.
++	 */
++	if (skb->ip_summed == CHECKSUM_PARTIAL &&
++	    skb_checksum_help(skb))
++		return NULL;
++
+ 	/* Tag encoding */
+ 	tag  = skb_put(skb, HELLCREEK_TAG_LEN);
+ 	*tag = BIT(dp->index);
 -- 
 2.35.1
 
