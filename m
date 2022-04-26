@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2281050F6B5
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1117850F6B4
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345796AbiDZI63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44654 "EHLO
+        id S235800AbiDZI62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239353AbiDZI5E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 040FC8302A;
-        Tue, 26 Apr 2022 01:41:44 -0700 (PDT)
+        with ESMTP id S1345571AbiDZI5Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE0583B23;
+        Tue, 26 Apr 2022 01:41:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADEE4B81CF2;
-        Tue, 26 Apr 2022 08:41:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5446C385A0;
-        Tue, 26 Apr 2022 08:41:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25077604F5;
+        Tue, 26 Apr 2022 08:41:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C1B0C385A0;
+        Tue, 26 Apr 2022 08:41:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962501;
-        bh=uKEYDWt3OoW+HTLnKcurD0UcjrAlNyV6usIFyO9hi1U=;
+        s=korg; t=1650962509;
+        bh=GTArJCbJt/PH4MavpqXS9m5Og/sdJEC9E8m9WgSVba4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bKtLkeh2Fpc072TkaCKomioVjdSpvtAJTmhoLyWLfTE4pmg6X2HWllCF3uJaHFqgc
-         OBPMuNBc4oTrGy8Qtd1UTcStQHKEP64+LyAvSxjDqxDG33ChM+965QF33vuYvpqNqx
-         ccSCKjSdjvGr7reM2h3i0R6/hx45b/z1z1acD3r0=
+        b=xIri91SeQpF9slsLak5nzixTbGRDQq57AK3o13MuGZK3ENaVYAXzSaehXHh14zZlm
+         C39wRDE4b16/nQSYF/Ly67VrRb4jxkhFXIVnVAuCL7+LnlRGUj5Ajy7oZsfH8Q/c97
+         Jmqepx4E0yYQNSh3LSIB4NedeR72s8vXB6GbfRXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Jianjian <wangjianjian3@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.15 117/124] ext4, doc: fix incorrect h_reserved size
-Date:   Tue, 26 Apr 2022 10:21:58 +0200
-Message-Id: <20220426081750.616408406@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.15 118/124] ext4: fix overhead calculation to account for the reserved gdt blocks
+Date:   Tue, 26 Apr 2022 10:21:59 +0200
+Message-Id: <20220426081750.644197809@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
 References: <20220426081747.286685339@linuxfoundation.org>
@@ -52,32 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wangjianjian (C) <wangjianjian3@huawei.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 7102ffe4c166ca0f5e35137e9f9de83768c2d27d upstream.
+commit 10b01ee92df52c8d7200afead4d5e5f55a5c58b1 upstream.
 
-According to document and code, ext4_xattr_header's size is 32 bytes, so
-h_reserved size should be 3.
+The kernel calculation was underestimating the overhead by not taking
+into account the reserved gdt blocks.  With this change, the overhead
+calculated by the kernel matches the overhead calculation in mke2fs.
 
-Signed-off-by: Wang Jianjian <wangjianjian3@huawei.com>
-Link: https://lore.kernel.org/r/92fcc3a6-7d77-8c09-4126-377fcb4c46a5@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/filesystems/ext4/attributes.rst |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/super.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/Documentation/filesystems/ext4/attributes.rst
-+++ b/Documentation/filesystems/ext4/attributes.rst
-@@ -76,7 +76,7 @@ The beginning of an extended attribute b
-      - Checksum of the extended attribute block.
-    * - 0x14
-      - \_\_u32
--     - h\_reserved[2]
-+     - h\_reserved[3]
-      - Zero.
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3697,9 +3697,11 @@ static int count_overhead(struct super_b
+ 	ext4_fsblk_t		first_block, last_block, b;
+ 	ext4_group_t		i, ngroups = ext4_get_groups_count(sb);
+ 	int			s, j, count = 0;
++	int			has_super = ext4_bg_has_super(sb, grp);
  
- The checksum is calculated against the FS UUID, the 64-bit block number
+ 	if (!ext4_has_feature_bigalloc(sb))
+-		return (ext4_bg_has_super(sb, grp) + ext4_bg_num_gdb(sb, grp) +
++		return (has_super + ext4_bg_num_gdb(sb, grp) +
++			(has_super ? le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) : 0) +
+ 			sbi->s_itb_per_group + 2);
+ 
+ 	first_block = le32_to_cpu(sbi->s_es->s_first_data_block) +
 
 
