@@ -2,47 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D898B50F8C5
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 846CF50F4BE
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346159AbiDZJGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
+        id S241096AbiDZIkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:40:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347831AbiDZJGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 028FE165EDB;
-        Tue, 26 Apr 2022 01:46:08 -0700 (PDT)
+        with ESMTP id S1345551AbiDZIjN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D83613F85;
+        Tue, 26 Apr 2022 01:30:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D50D1B81CB3;
-        Tue, 26 Apr 2022 08:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C6F1C385A0;
-        Tue, 26 Apr 2022 08:46:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5BFF9B81CFE;
+        Tue, 26 Apr 2022 08:30:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E58C385A0;
+        Tue, 26 Apr 2022 08:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962765;
-        bh=91IJCXFXrRhxZ3eZykcnYSPjUcHxOjTmk7YsarhCXlc=;
+        s=korg; t=1650961813;
+        bh=NDdNXZKnnThCRhYF5OdnBZCBBVtrCFHLKmbP7fMj5fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zWj5gYHndcaYu9vXqC7cJGGP7dkpIRu25sxd0OAA0cS/aX1h2hiG5CVJDRBEVO3uw
-         0GocnwAS4J+gU5KuprMifFoB7OydQhxFvgpTh4hTt8KEX5WGgTyD0sPCKMxYnM7NMM
-         k7a6O8GiYSmI6k/FtFXlQRossXPTCpYH91SqgSuM=
+        b=T/klOPzRvlsBBQqaFcq9IoIe6tR46HANYFCKrNJlwQLROqnRqrBCKa5V+I+C5zIPA
+         TQyefTzWVmJk5owjuNsYkeWb0mU8r3vJiJpQK/PAgb2AmB3Cf6fwj36/SqNZ8UhdMf
+         5RDIynLnq6S5QCcrcoC2wnXLYWdfr1Fa4Z9Wsc2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Andreas Schwab <schwab@linux-m68k.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 082/146] stat: fix inconsistency between struct stat and struct compat_stat
+        stable@vger.kernel.org, Joel Savitz <jsavitz@redhat.com>,
+        Nico Pache <npache@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Rafael Aquini <aquini@redhat.com>,
+        Waiman Long <longman@redhat.com>,
+        "Herton R. Krzesinski" <herton@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        David Rientjes <rientjes@google.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 37/62] oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
 Date:   Tue, 26 Apr 2022 10:21:17 +0200
-Message-Id: <20220426081752.368250706@linuxfoundation.org>
+Message-Id: <20220426081738.286712871@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,138 +71,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Nico Pache <npache@redhat.com>
 
-[ Upstream commit 932aba1e169090357a77af18850a10c256b50819 ]
+commit e4a38402c36e42df28eb1a5394be87e6571fb48a upstream.
 
-struct stat (defined in arch/x86/include/uapi/asm/stat.h) has 32-bit
-st_dev and st_rdev; struct compat_stat (defined in
-arch/x86/include/asm/compat.h) has 16-bit st_dev and st_rdev followed by
-a 16-bit padding.
+The pthread struct is allocated on PRIVATE|ANONYMOUS memory [1] which
+can be targeted by the oom reaper.  This mapping is used to store the
+futex robust list head; the kernel does not keep a copy of the robust
+list and instead references a userspace address to maintain the
+robustness during a process death.
 
-This patch fixes struct compat_stat to match struct stat.
+A race can occur between exit_mm and the oom reaper that allows the oom
+reaper to free the memory of the futex robust list before the exit path
+has handled the futex death:
 
-[ Historical note: the old x86 'struct stat' did have that 16-bit field
-  that the compat layer had kept around, but it was changes back in 2003
-  by "struct stat - support larger dev_t":
+    CPU1                               CPU2
+    --------------------------------------------------------------------
+    page_fault
+    do_exit "signal"
+    wake_oom_reaper
+                                        oom_reaper
+                                        oom_reap_task_mm (invalidates mm)
+    exit_mm
+    exit_mm_release
+    futex_exit_release
+    futex_cleanup
+    exit_robust_list
+    get_user (EFAULT- can't access memory)
 
-    https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git/commit/?id=e95b2065677fe32512a597a79db94b77b90c968d
+If the get_user EFAULT's, the kernel will be unable to recover the
+waiters on the robust_list, leaving userspace mutexes hung indefinitely.
 
-  and back in those days, the x86_64 port was still new, and separate
-  from the i386 code, and had already picked up the old version with a
-  16-bit st_dev field ]
+Delay the OOM reaper, allowing more time for the exit path to perform
+the futex cleanup.
 
-Note that we can't change compat_dev_t because it is used by
-compat_loop_info.
+Reproducer: https://gitlab.com/jsavitz/oom_futex_reproducer
 
-Also, if the st_dev and st_rdev values are 32-bit, we don't have to use
-old_valid_dev to test if the value fits into them.  This fixes
--EOVERFLOW on filesystems that are on NVMe because NVMe uses the major
-number 259.
+Based on a patch by Michal Hocko.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Andreas Schwab <schwab@linux-m68k.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Christoph Hellwig <hch@infradead.org>
+Link: https://elixir.bootlin.com/glibc/glibc-2.35/source/nptl/allocatestack.c#L370 [1]
+Link: https://lkml.kernel.org/r/20220414144042.677008-1-npache@redhat.com
+Fixes: 212925802454 ("mm: oom: let oom_reap_task and exit_mmap run concurrently")
+Signed-off-by: Joel Savitz <jsavitz@redhat.com>
+Signed-off-by: Nico Pache <npache@redhat.com>
+Co-developed-by: Joel Savitz <jsavitz@redhat.com>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Rafael Aquini <aquini@redhat.com>
+Cc: Waiman Long <longman@redhat.com>
+Cc: Herton R. Krzesinski <herton@redhat.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Savitz <jsavitz@redhat.com>
+Cc: Darren Hart <dvhart@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/compat.h |  6 ++----
- fs/stat.c                     | 19 ++++++++++---------
- 2 files changed, 12 insertions(+), 13 deletions(-)
+ include/linux/sched.h |    1 
+ mm/oom_kill.c         |   54 +++++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 41 insertions(+), 14 deletions(-)
 
-diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
-index 7516e4199b3c..20fd0acd7d80 100644
---- a/arch/x86/include/asm/compat.h
-+++ b/arch/x86/include/asm/compat.h
-@@ -28,15 +28,13 @@ typedef u16		compat_ipc_pid_t;
- typedef __kernel_fsid_t	compat_fsid_t;
- 
- struct compat_stat {
--	compat_dev_t	st_dev;
--	u16		__pad1;
-+	u32		st_dev;
- 	compat_ino_t	st_ino;
- 	compat_mode_t	st_mode;
- 	compat_nlink_t	st_nlink;
- 	__compat_uid_t	st_uid;
- 	__compat_gid_t	st_gid;
--	compat_dev_t	st_rdev;
--	u16		__pad2;
-+	u32		st_rdev;
- 	u32		st_size;
- 	u32		st_blksize;
- 	u32		st_blocks;
-diff --git a/fs/stat.c b/fs/stat.c
-index 28d2020ba1f4..246d138ec066 100644
---- a/fs/stat.c
-+++ b/fs/stat.c
-@@ -334,9 +334,6 @@ SYSCALL_DEFINE2(fstat, unsigned int, fd, struct __old_kernel_stat __user *, stat
- #  define choose_32_64(a,b) b
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1247,6 +1247,7 @@ struct task_struct {
+ 	int				pagefault_disabled;
+ #ifdef CONFIG_MMU
+ 	struct task_struct		*oom_reaper_list;
++	struct timer_list		oom_reaper_timer;
  #endif
+ #ifdef CONFIG_VMAP_STACK
+ 	struct vm_struct		*stack_vm_area;
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -631,7 +631,7 @@ done:
+ 	 */
+ 	set_bit(MMF_OOM_SKIP, &mm->flags);
  
--#define valid_dev(x)  choose_32_64(old_valid_dev(x),true)
--#define encode_dev(x) choose_32_64(old_encode_dev,new_encode_dev)(x)
+-	/* Drop a reference taken by wake_oom_reaper */
++	/* Drop a reference taken by queue_oom_reaper */
+ 	put_task_struct(tsk);
+ }
+ 
+@@ -641,12 +641,12 @@ static int oom_reaper(void *unused)
+ 		struct task_struct *tsk = NULL;
+ 
+ 		wait_event_freezable(oom_reaper_wait, oom_reaper_list != NULL);
+-		spin_lock(&oom_reaper_lock);
++		spin_lock_irq(&oom_reaper_lock);
+ 		if (oom_reaper_list != NULL) {
+ 			tsk = oom_reaper_list;
+ 			oom_reaper_list = tsk->oom_reaper_list;
+ 		}
+-		spin_unlock(&oom_reaper_lock);
++		spin_unlock_irq(&oom_reaper_lock);
+ 
+ 		if (tsk)
+ 			oom_reap_task(tsk);
+@@ -655,22 +655,48 @@ static int oom_reaper(void *unused)
+ 	return 0;
+ }
+ 
+-static void wake_oom_reaper(struct task_struct *tsk)
++static void wake_oom_reaper(struct timer_list *timer)
+ {
+-	/* mm is already queued? */
+-	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
++	struct task_struct *tsk = container_of(timer, struct task_struct,
++			oom_reaper_timer);
++	struct mm_struct *mm = tsk->signal->oom_mm;
++	unsigned long flags;
++
++	/* The victim managed to terminate on its own - see exit_mmap */
++	if (test_bit(MMF_OOM_SKIP, &mm->flags)) {
++		put_task_struct(tsk);
+ 		return;
++	}
+ 
+-	get_task_struct(tsk);
 -
- #ifndef INIT_STRUCT_STAT_PADDING
- #  define INIT_STRUCT_STAT_PADDING(st) memset(&st, 0, sizeof(st))
- #endif
-@@ -345,7 +342,9 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
+-	spin_lock(&oom_reaper_lock);
++	spin_lock_irqsave(&oom_reaper_lock, flags);
+ 	tsk->oom_reaper_list = oom_reaper_list;
+ 	oom_reaper_list = tsk;
+-	spin_unlock(&oom_reaper_lock);
++	spin_unlock_irqrestore(&oom_reaper_lock, flags);
+ 	trace_wake_reaper(tsk->pid);
+ 	wake_up(&oom_reaper_wait);
+ }
+ 
++/*
++ * Give the OOM victim time to exit naturally before invoking the oom_reaping.
++ * The timers timeout is arbitrary... the longer it is, the longer the worst
++ * case scenario for the OOM can take. If it is too small, the oom_reaper can
++ * get in the way and release resources needed by the process exit path.
++ * e.g. The futex robust list can sit in Anon|Private memory that gets reaped
++ * before the exit path is able to wake the futex waiters.
++ */
++#define OOM_REAPER_DELAY (2*HZ)
++static void queue_oom_reaper(struct task_struct *tsk)
++{
++	/* mm is already queued? */
++	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
++		return;
++
++	get_task_struct(tsk);
++	timer_setup(&tsk->oom_reaper_timer, wake_oom_reaper, 0);
++	tsk->oom_reaper_timer.expires = jiffies + OOM_REAPER_DELAY;
++	add_timer(&tsk->oom_reaper_timer);
++}
++
+ static int __init oom_init(void)
  {
- 	struct stat tmp;
- 
--	if (!valid_dev(stat->dev) || !valid_dev(stat->rdev))
-+	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
-+		return -EOVERFLOW;
-+	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
- 		return -EOVERFLOW;
- #if BITS_PER_LONG == 32
- 	if (stat->size > MAX_NON_LFS)
-@@ -353,7 +352,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
- #endif
- 
- 	INIT_STRUCT_STAT_PADDING(tmp);
--	tmp.st_dev = encode_dev(stat->dev);
-+	tmp.st_dev = new_encode_dev(stat->dev);
- 	tmp.st_ino = stat->ino;
- 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
- 		return -EOVERFLOW;
-@@ -363,7 +362,7 @@ static int cp_new_stat(struct kstat *stat, struct stat __user *statbuf)
- 		return -EOVERFLOW;
- 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
- 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
--	tmp.st_rdev = encode_dev(stat->rdev);
-+	tmp.st_rdev = new_encode_dev(stat->rdev);
- 	tmp.st_size = stat->size;
- 	tmp.st_atime = stat->atime.tv_sec;
- 	tmp.st_mtime = stat->mtime.tv_sec;
-@@ -644,11 +643,13 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
+ 	oom_reaper_th = kthread_run(oom_reaper, NULL, "oom_reaper");
+@@ -678,7 +704,7 @@ static int __init oom_init(void)
+ }
+ subsys_initcall(oom_init)
+ #else
+-static inline void wake_oom_reaper(struct task_struct *tsk)
++static inline void queue_oom_reaper(struct task_struct *tsk)
  {
- 	struct compat_stat tmp;
+ }
+ #endif /* CONFIG_MMU */
+@@ -927,7 +953,7 @@ static void __oom_kill_process(struct ta
+ 	rcu_read_unlock();
  
--	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev))
-+	if (sizeof(tmp.st_dev) < 4 && !old_valid_dev(stat->dev))
-+		return -EOVERFLOW;
-+	if (sizeof(tmp.st_rdev) < 4 && !old_valid_dev(stat->rdev))
- 		return -EOVERFLOW;
+ 	if (can_oom_reap)
+-		wake_oom_reaper(victim);
++		queue_oom_reaper(victim);
  
- 	memset(&tmp, 0, sizeof(tmp));
--	tmp.st_dev = old_encode_dev(stat->dev);
-+	tmp.st_dev = new_encode_dev(stat->dev);
- 	tmp.st_ino = stat->ino;
- 	if (sizeof(tmp.st_ino) < sizeof(stat->ino) && tmp.st_ino != stat->ino)
- 		return -EOVERFLOW;
-@@ -658,7 +659,7 @@ static int cp_compat_stat(struct kstat *stat, struct compat_stat __user *ubuf)
- 		return -EOVERFLOW;
- 	SET_UID(tmp.st_uid, from_kuid_munged(current_user_ns(), stat->uid));
- 	SET_GID(tmp.st_gid, from_kgid_munged(current_user_ns(), stat->gid));
--	tmp.st_rdev = old_encode_dev(stat->rdev);
-+	tmp.st_rdev = new_encode_dev(stat->rdev);
- 	if ((u64) stat->size > MAX_NON_LFS)
- 		return -EOVERFLOW;
- 	tmp.st_size = stat->size;
--- 
-2.35.1
-
+ 	mmdrop(mm);
+ 	put_task_struct(victim);
+@@ -963,7 +989,7 @@ static void oom_kill_process(struct oom_
+ 	task_lock(victim);
+ 	if (task_will_free_mem(victim)) {
+ 		mark_oom_victim(victim);
+-		wake_oom_reaper(victim);
++		queue_oom_reaper(victim);
+ 		task_unlock(victim);
+ 		put_task_struct(victim);
+ 		return;
+@@ -1061,7 +1087,7 @@ bool out_of_memory(struct oom_control *o
+ 	 */
+ 	if (task_will_free_mem(current)) {
+ 		mark_oom_victim(current);
+-		wake_oom_reaper(current);
++		queue_oom_reaper(current);
+ 		return true;
+ 	}
+ 
 
 
