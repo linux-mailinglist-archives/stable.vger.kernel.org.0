@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0E350F3AD
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C67D50F3E4
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244140AbiDZI1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36178 "EHLO
+        id S1344820AbiDZI3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:29:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239221AbiDZI0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:26:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C8A13CFEF;
-        Tue, 26 Apr 2022 01:23:13 -0700 (PDT)
+        with ESMTP id S1344654AbiDZI2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:28:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 857524130A;
+        Tue, 26 Apr 2022 01:24:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1152B81CF7;
-        Tue, 26 Apr 2022 08:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB5EC385A0;
-        Tue, 26 Apr 2022 08:23:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 328DDB81CFA;
+        Tue, 26 Apr 2022 08:24:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76F1BC385A0;
+        Tue, 26 Apr 2022 08:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961390;
-        bh=egwIRRSMu30r1F9VMK/dU1QtErCVb4A+qEWO9CxAxOg=;
+        s=korg; t=1650961446;
+        bh=kKCNAiRVSRYNBM3a+Hb6jDO/M8J2VQLjQI3FjTMlN74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQ/rRthtzBNv5twHv4GAN/IkHNQV94PL+CxhsjbRkfqiKmNd6luhRtuuWsJougfoR
-         qA38CCwQAHGtw86NSg1tI6rc75BBZgPqEPoxO2/oI36yeIn3kHo59uSe+C+PkxXXut
-         9dOKWrL0gn+8Q4ZRIQa1FSrmu+aSqy2LbdRKEOEo=
+        b=dn3OBoN3K5LEc+saFGAqsou3Muj55GJ3p3XxHOQ4wVlPFvmCqG97fRLhJevn7eUD7
+         FVp2J1qOIrs1Ijkejwsp6sCzhpmfbDAcr7oGqI9VtKEuh8C+621qsbLl6cngnqC/45
+         wrpztg8da3b5LBugGybaXElG1l09/tIoEszObjr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiongwei Song <sxwjean@gmail.com>,
-        Arthur Marsh <arthur.marsh@internode.on.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Khem Raj <raj.khem@gmail.com>
-Subject: [PATCH 4.9 02/24] mm: page_alloc: fix building error on -Werror=array-compare
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 14/43] platform/x86: samsung-laptop: Fix an unsigned comparison which can never be negative
 Date:   Tue, 26 Apr 2022 10:20:56 +0200
-Message-Id: <20220426081731.445639121@linuxfoundation.org>
+Message-Id: <20220426081734.939136412@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
-References: <20220426081731.370823950@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongwei Song <sxwjean@gmail.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-commit ca831f29f8f25c97182e726429b38c0802200c8f upstream.
+[ Upstream commit 0284d4d1be753f648f28b77bdfbe6a959212af5c ]
 
-Arthur Marsh reported we would hit the error below when building kernel
-with gcc-12:
+Eliminate the follow smatch warnings:
 
-  CC      mm/page_alloc.o
-  mm/page_alloc.c: In function `mem_init_print_info':
-  mm/page_alloc.c:8173:27: error: comparison between two arrays [-Werror=array-compare]
-   8173 |                 if (start <= pos && pos < end && size > adj) \
-        |
+drivers/platform/x86/samsung-laptop.c:1124 kbd_led_set() warn: unsigned
+'value' is never less than zero.
 
-In C++20, the comparision between arrays should be warned.
-
-Link: https://lkml.kernel.org/r/20211125130928.32465-1-sxwjean@me.com
-Signed-off-by: Xiongwei Song <sxwjean@gmail.com>
-Reported-by: Arthur Marsh <arthur.marsh@internode.on.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Khem Raj <raj.khem@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20220322061830.105579-1-jiapeng.chong@linux.alibaba.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/samsung-laptop.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6504,7 +6504,7 @@ void __init mem_init_print_info(const ch
- 	 */
- #define adj_init_size(start, end, size, pos, adj) \
- 	do { \
--		if (start <= pos && pos < end && size > adj) \
-+		if (&start[0] <= &pos[0] && &pos[0] < &end[0] && size > adj) \
- 			size -= adj; \
- 	} while (0)
+diff --git a/drivers/platform/x86/samsung-laptop.c b/drivers/platform/x86/samsung-laptop.c
+index d3cb26f6df73..c1c34b495519 100644
+--- a/drivers/platform/x86/samsung-laptop.c
++++ b/drivers/platform/x86/samsung-laptop.c
+@@ -1125,8 +1125,6 @@ static void kbd_led_set(struct led_classdev *led_cdev,
  
+ 	if (value > samsung->kbd_led.max_brightness)
+ 		value = samsung->kbd_led.max_brightness;
+-	else if (value < 0)
+-		value = 0;
+ 
+ 	samsung->kbd_led_wk = value;
+ 	queue_work(samsung->led_workqueue, &samsung->kbd_led_work);
+-- 
+2.35.1
+
 
 
