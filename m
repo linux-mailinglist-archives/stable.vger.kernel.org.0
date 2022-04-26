@@ -2,57 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8095550FF20
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 15:34:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB1950FFBF
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 15:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235434AbiDZNhj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 09:37:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52272 "EHLO
+        id S240014AbiDZN7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 09:59:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351007AbiDZNhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 09:37:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEFB3818D
-        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 06:34:26 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 715306159B
-        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 13:34:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DC9AC385A0;
-        Tue, 26 Apr 2022 13:34:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650980065;
-        bh=hf+UepEdZJFC1GpW/ipOPs30XWbBEK/Yv70v+y5qwzg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=batvxIBNZFJSUFXKD9NC+eRp5e7pFUxHjGvnZp/8l+zYYOVZW+XwCflYaxbUtsy/5
-         7tFX/jYkCxqgYDJeFYsNJL/c07R9MbVC98QY0LxU5TQ3TjGnAChW65VVDtozbuH/zU
-         bGa7ApS79lAKgSaCnvoK4r+HQWguSq6vgDkvj6PU=
-Date:   Tue, 26 Apr 2022 15:34:22 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Yongji Xie <xieyongji@bytedance.com>
-Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] vduse: Fix NULL pointer dereference on sysfs access
-Message-ID: <Ymf03l+Ag8ZBSGm2@kroah.com>
-References: <20220426073656.229-1-xieyongji@bytedance.com>
- <YmeoSuMfsdVxuGlf@kroah.com>
- <CACycT3sLgihkgX5cB6GxDehaTsPn9rqhtWF7G_=J=__oTopJZw@mail.gmail.com>
- <YmfIv2YuARnPe97k@kroah.com>
- <CACycT3sq6WM1uCa+ix79AwTJHaEOhkLycwkZOhqPhABZ4xa2AA@mail.gmail.com>
- <YmfpKGZB06Ix5WPu@kroah.com>
- <CACycT3vD9o+_uLaevCZ=W==YRA_WJP8UJ6czHTtsUny8Rwgd0A@mail.gmail.com>
+        with ESMTP id S1351298AbiDZN6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 09:58:53 -0400
+Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52CD615F581
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 06:55:45 -0700 (PDT)
+Received: by mail-yb1-xb2a.google.com with SMTP id e12so4242707ybc.11
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 06:55:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uBWTMy19BCU8GJLOpBmlkiJHgnhETyOqG4xsK78wLxQ=;
+        b=y0qlk5Wop1rWL3gXkgBl5O9PjeYqAiQ1ig5/DeQlJRMziLwwYQx+LkfhDm+OGi+g9j
+         7oliRUhScsahDl34Eu1Fa2j59Y8ajc/Vhlir2Y7/aPAFoB67qyf+oqHDK1XZ2UVaQNlw
+         sr0RkEERg55+T9vK0IZlgRpc6eSXLnVnM291eRkpVjMG3Z0VLQR9eTKNxCaKdALs5NFO
+         hBhWH+3ZRcXKKK1sultcqu8lbZ7aCzaRdi1IzAjb3TqCebP5VSiWhG6+vmvI6J4przib
+         ASXHvVFfO5rMIdh1GlBR0Q1uYleb+NKjAVVfkERYhkI039Egka5l45WNe6gJpXbgkXQt
+         rCuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uBWTMy19BCU8GJLOpBmlkiJHgnhETyOqG4xsK78wLxQ=;
+        b=otT7EMui+CEp4uYL7uOzYOjeJgTr+GrXLlheCsRIK8j75bKopyG08IDQj23tzEGLZb
+         SxzJx50S59e5jJQ+t+pkqC+hkU5H5suxyXjaIcS+HZ9ubaehWc023//KFXrGOX4Wq5Kl
+         7TKhlHq6sjG30paYfTZFISJiZcxwHnLm/ScyDV/VifXuzNCPkx3LF91eN/wllc3ZHlUz
+         lRlgofay0ANHJ/ilbFROyEqAWzJtXBu0wIMqIsUhtd+6/iaCJCeKltxAONHlTWzFnmw1
+         8ccQ7LjlydgMVX4lgjjvn0tWK706bUpgHLTFzL1AsiddDvBvPRtY3WhvGYP2tVsxnHrj
+         NtDA==
+X-Gm-Message-State: AOAM533vnv84gecN/EQhLcqlL0pyxTwV7o7uIxDDQ6/xGQ9p35dXUM47
+        lR29KIw2JFq+oNOiGVKcqGFtFHe3/dBEoQCE2jsCyg==
+X-Google-Smtp-Source: ABdhPJw92iLZ8A8h//KsmSd7zk7HfXV1sN9OJS8uxSz8+RRspq25GOq/lPymHBG1FtpLpzP8LuhhvxTuI+IgUuTf+0M=
+X-Received: by 2002:a05:6902:8c:b0:631:ef56:6694 with SMTP id
+ h12-20020a056902008c00b00631ef566694mr20679552ybs.194.1650981344539; Tue, 26
+ Apr 2022 06:55:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CACycT3vD9o+_uLaevCZ=W==YRA_WJP8UJ6czHTtsUny8Rwgd0A@mail.gmail.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20220423221623.1074556-1-huobean@gmail.com> <20220423221623.1074556-3-huobean@gmail.com>
+In-Reply-To: <20220423221623.1074556-3-huobean@gmail.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Tue, 26 Apr 2022 15:55:08 +0200
+Message-ID: <CAPDyKFrksB_kgrnmcay+ub0nDfmPVZfw-zJihop5N8_6qUqrug@mail.gmail.com>
+Subject: Re: [PATCH v1 2/2] mmc: core: Allows to override the timeout value
+ for ioctl() path
+To:     Bean Huo <huobean@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     adrian.hunter@intel.com, linux-mmc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, beanhuo@micron.com,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,168 +67,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 09:17:23PM +0800, Yongji Xie wrote:
-> On Tue, Apr 26, 2022 at 8:44 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Tue, Apr 26, 2022 at 08:30:38PM +0800, Yongji Xie wrote:
-> > > On Tue, Apr 26, 2022 at 6:26 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Tue, Apr 26, 2022 at 05:41:15PM +0800, Yongji Xie wrote:
-> > > > > On Tue, Apr 26, 2022 at 4:07 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > >
-> > > > > > On Tue, Apr 26, 2022 at 03:36:56PM +0800, Xie Yongji wrote:
-> > > > > > > The control device has no drvdata. So we will get a
-> > > > > > > NULL pointer dereference when accessing control
-> > > > > > > device's msg_timeout attribute via sysfs:
-> > > > > > >
-> > > > > > > [ 132.841881][ T3644] BUG: kernel NULL pointer dereference, address: 00000000000000f8
-> > > > > > > [ 132.850619][ T3644] RIP: 0010:msg_timeout_show (drivers/vdpa/vdpa_user/vduse_dev.c:1271)
-> > > > > > > [ 132.869447][ T3644] dev_attr_show (drivers/base/core.c:2094)
-> > > > > > > [ 132.870215][ T3644] sysfs_kf_seq_show (fs/sysfs/file.c:59)
-> > > > > > > [ 132.871164][ T3644] ? device_remove_bin_file (drivers/base/core.c:2088)
-> > > > > > > [ 132.872082][ T3644] kernfs_seq_show (fs/kernfs/file.c:164)
-> > > > > > > [ 132.872838][ T3644] seq_read_iter (fs/seq_file.c:230)
-> > > > > > > [ 132.873578][ T3644] ? __vmalloc_area_node (mm/vmalloc.c:3041)
-> > > > > > > [ 132.874532][ T3644] kernfs_fop_read_iter (fs/kernfs/file.c:238)
-> > > > > > > [ 132.875513][ T3644] __kernel_read (fs/read_write.c:440 (discriminator 1))
-> > > > > > > [ 132.876319][ T3644] kernel_read (fs/read_write.c:459)
-> > > > > > > [ 132.877129][ T3644] kernel_read_file (fs/kernel_read_file.c:94)
-> > > > > > > [ 132.877978][ T3644] kernel_read_file_from_fd (include/linux/file.h:45 fs/kernel_read_file.c:186)
-> > > > > > > [ 132.879019][ T3644] __do_sys_finit_module (kernel/module.c:4207)
-> > > > > > > [ 132.879930][ T3644] __ia32_sys_finit_module (kernel/module.c:4189)
-> > > > > > > [ 132.880930][ T3644] do_int80_syscall_32 (arch/x86/entry/common.c:112 arch/x86/entry/common.c:132)
-> > > > > > > [ 132.881847][ T3644] entry_INT80_compat (arch/x86/entry/entry_64_compat.S:419)
-> > > > > > >
-> > > > > > > To fix it, don't create the unneeded attribute for
-> > > > > > > control device anymore.
-> > > > > > >
-> > > > > > > Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-> > > > > > > Reported-by: kernel test robot <oliver.sang@intel.com>
-> > > > > > > Cc: stable@vger.kernel.org
-> > > > > > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > > > > > ---
-> > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 7 +++----
-> > > > > > >  1 file changed, 3 insertions(+), 4 deletions(-)
-> > > > > > >
-> > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > index f85d1a08ed87..160e40d03084 100644
-> > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > @@ -1344,9 +1344,9 @@ static int vduse_create_dev(struct vduse_dev_config *config,
-> > > > > > >
-> > > > > > >       dev->minor = ret;
-> > > > > > >       dev->msg_timeout = VDUSE_MSG_DEFAULT_TIMEOUT;
-> > > > > > > -     dev->dev = device_create(vduse_class, NULL,
-> > > > > > > -                              MKDEV(MAJOR(vduse_major), dev->minor),
-> > > > > > > -                              dev, "%s", config->name);
-> > > > > > > +     dev->dev = device_create_with_groups(vduse_class, NULL,
-> > > > > > > +                             MKDEV(MAJOR(vduse_major), dev->minor),
-> > > > > > > +                             dev, vduse_dev_groups, "%s", config->name);
-> > > > > > >       if (IS_ERR(dev->dev)) {
-> > > > > > >               ret = PTR_ERR(dev->dev);
-> > > > > > >               goto err_dev;
-> > > > > > > @@ -1595,7 +1595,6 @@ static int vduse_init(void)
-> > > > > > >               return PTR_ERR(vduse_class);
-> > > > > > >
-> > > > > > >       vduse_class->devnode = vduse_devnode;
-> > > > > > > -     vduse_class->dev_groups = vduse_dev_groups;
-> > > > > >
-> > > > > > Ok, this looks much better.
-> > > > > >
-> > > > > > But wow, there are some problems in this code overall.  I see a number
-> > > > > > of flat-out-wrong things in there that should have been caught by code
-> > > > > > reviews.  Some examples:
-> > > > > >         - empty release() callbacks.  That is a huge sign the code
-> > > > > >           design is wrong and broken and you are just trying to make the
-> > > > > >           driver core quiet for some reason.  The documentation in the
-> > > > > >           kernel explains why this is not ok.
-> > > > >
-> > > > > Sorry, I failed to find the documentation. Do you mean we should
-> > > > > remove the empty release() callbacks?
-> > > >
-> > > > Yes, why are they needed?
-> > > >
-> > > > (hint, retorical question, you added them to remove the driver core
-> > > > warning when the device is removed, which means someone added them just
-> > > > because they thought that their code could ignore the hints that the
-> > > > driver core was telling them.)
-> > > >
-> > >
-> > > OK, I see.
-> > >
-> > > > Please properly free the memory here.
-> > > >
-> > >
-> > > One question is how to deal with the case if the device/kobject is
-> > > defined as a static variable. We should not need to free any resources
-> > > in this case. Or do you suggest just using dynamic allocation here?
-> >
-> > A kobject can NEVER be a static variable[1].  That's not how the driver
-> > model works at all.  If this is how this code is written, it needs to be
-> > fixed.
-> >
-> 
-> OK, I see.
-> 
-> > [1] Ok, yes, drivers and busses and classes have static kobjects, ignore
-> >     them...
-> >
-> > >
-> > > > > >         - __module_get(THIS_MODULE);  That's racy, buggy, and doesn't do
-> > > > > >           what you think it does.  Please never ever ever do that.  It
-> > > > > >           too is a sign of a broken design.
-> > > > >
-> > > > > I don't find a good way to remove it. We have to make sure the module
-> > > > > can't be removed until all vduse devices are destroyed.
-> > > >
-> > > > That will happen automatically when the module is removed.
-> > > >
-> > > > > And I think __module_get(THIS_MODULE) should be safe in our case since
-> > > > > we always call it when we have a reference from open().
-> > > >
-> > > > What happened if someone removed the module _right before_ this was
-> > > > called?  You can not grab your own reference count safely.
-> > > >
-> > >
-> > > I don't get you here. We should already grab a reference count from
-> > > open() before calling this. So it should fail if someone tries to
-> > > remove the module at this time.
-> >
-> > Then why are you trying to grab the module reference again?
-> >
-> > > > Please just remove it, it's not needed and is broken.  There should not
-> > > > be any reason that the module can not be unloaded, UNLESS a file handle
-> > > > is open, and you properly handle that already.
-> > > >
-> > >
-> > > But in our case, I think we should prevent unloading the module If we
-> > > already created some vduse devices via /dev/vduse/control (note that
-> > > the control device's file handle could be closed after device
-> > > creation). Otherwise, we might get some crashes when accessing those
-> > > created vduse devices.
-> >
-> > Then the code is written incorrectly, this should not be an issue at
-> > all.  Your devices will all be cleaned up properly before your code is
-> > unloaded from the system.
-> >
-> 
-> In current design, the vduse device can't be cleaned up properly until
-> it is unbinded from the vDPA bus explicitly. So I use the extra
-> __module_get() to make sure we can't unload the module until the
-> device is cleaned up properly.
+On Sun, 24 Apr 2022 at 00:16, Bean Huo <huobean@gmail.com> wrote:
+>
+> From: Bean Huo <beanhuo@micron.com>
+>
+> Occasionally, user-land applications initiate longer timeout values for certain commands
+> through ioctl() system call. But so far we are still using a fixed timeout of 10 seconds
+> in mmc_poll_for_busy() on the ioctl() path, even if a custom timeout is specified in the
+> userspace application. This patch allows custom timeout values to override this default
+> timeout values on the ioctl path.
+>
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Bean Huo <beanhuo@micron.com>
 
-Then something is wrong, it should not work that way.
+Applied for next, thanks!
 
-> > Note that no other driver or bus does this, what makes this different?
-> >
-> 
-> I can see some similar behavior in loop and rbd modules.
+Linus, I interpreted your earlier reply as a reviewed-by tag, so I
+have added that. Please tell me, if you want me to drop it.
 
-Never treat the loop code as a good example :)
+Kind regards
+Uffe
 
-This should not be needed, when your module is unloaded, all devices it
-handled should be properly removed by it.
 
-thanks,
-
-greg k-h
+> ---
+>  drivers/mmc/core/block.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+> index b35e7a95798b..6cb701aa1abc 100644
+> --- a/drivers/mmc/core/block.c
+> +++ b/drivers/mmc/core/block.c
+> @@ -609,11 +609,11 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
+>
+>         if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
+>                 /*
+> -                * Ensure RPMB/R1B command has completed by polling CMD13
+> -                * "Send Status".
+> +                * Ensure RPMB/R1B command has completed by polling CMD13 "Send Status". Here we
+> +                * allow to override the default timeout value if a custom timeout is specified.
+>                  */
+> -               err = mmc_poll_for_busy(card, MMC_BLK_TIMEOUT_MS, false,
+> -                                       MMC_BUSY_IO);
+> +               err = mmc_poll_for_busy(card, idata->ic.cmd_timeout_ms ? : MMC_BLK_TIMEOUT_MS,
+> +                                       false, MMC_BUSY_IO);
+>         }
+>
+>         return err;
+> --
+> 2.34.1
+>
