@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9B8850F50F
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49EB350F6B0
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234795AbiDZIlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:41:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59206 "EHLO
+        id S1345607AbiDZI6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345759AbiDZIj2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE9451DA7D;
-        Tue, 26 Apr 2022 01:30:52 -0700 (PDT)
+        with ESMTP id S233983AbiDZI5Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4291684EC0;
+        Tue, 26 Apr 2022 01:41:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 123EBB81CFA;
-        Tue, 26 Apr 2022 08:30:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 643A3C385AE;
-        Tue, 26 Apr 2022 08:30:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D0F7D604F5;
+        Tue, 26 Apr 2022 08:41:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0C30C385A0;
+        Tue, 26 Apr 2022 08:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961849;
-        bh=Eo6mTp73waa3f5yP2nmLHCgRXXu0Ial0krgj6rRKqJ0=;
+        s=korg; t=1650962518;
+        bh=H2GVOsN4Wlnmq7iS7cjQO3AXAVt7hMVJpGRKNMcx78Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3HA4AQAxKUZrZ0E0hOrhZg4FSFWLmSxDrO6iTpZcTHuALl3RzhJrY7GvO1c1q5Lc
-         dK/PSeNakVvYKCVrMZg3/LlXLyxvaoKhKqRE5M7hcIvPlZaTUt20i7Vnm/d5mg4Si6
-         W0SK1ZOXb3r/GRe08YMLrwcvuCYHpes2YMV5xTfo=
+        b=Efk5+koe4LapixIGMtkz9ZNP4472FGtfJKdviBhib8Pz/PDRxV1YJ0DmEdSeLO6YI
+         wsyLliVxlhATZq4oMoyfX4lKNd6WcSrhmGVDE6juH7j9tMqxPcHbgj25IsfiJLSzCw
+         uZNbvIoisXCrjoHyH47UEm9ccqJn86mrWiIfkZNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 44/62] powerpc/perf: Fix power9 event alternatives
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 5.15 083/124] ata: pata_marvell: Check the bmdma_addr beforing reading
 Date:   Tue, 26 Apr 2022 10:21:24 +0200
-Message-Id: <20220426081738.485907049@linuxfoundation.org>
+Message-Id: <20220426081749.661460232@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,90 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 0dcad700bb2776e3886fe0a645a4bf13b1e747cd ]
+commit aafa9f958342db36c17ac2a7f1b841032c96feb4 upstream.
 
-When scheduling a group of events, there are constraint checks done to
-make sure all events can go in a group. Example, one of the criteria is
-that events in a group cannot use the same PMC. But platform specific
-PMU supports alternative event for some of the event codes. During
-perf_event_open(), if any event group doesn't match constraint check
-criteria, further lookup is done to find alternative event.
+Before detecting the cable type on the dma bar, the driver should check
+whether the 'bmdma_addr' is zero, which means the adapter does not
+support DMA, otherwise we will get the following error:
 
-By current design, the array of alternatives events in PMU code is
-expected to be sorted by column 0. This is because in
-find_alternative() the return criteria is based on event code
-comparison. ie. "event < ev_alt[i][0])". This optimisation is there
-since find_alternative() can be called multiple times. In power9 PMU
-code, the alternative event array is not sorted properly and hence there
-is breakage in finding alternative events.
+[    5.146634] Bad IO access at port 0x1 (return inb(port))
+[    5.147206] WARNING: CPU: 2 PID: 303 at lib/iomap.c:44 ioread8+0x4a/0x60
+[    5.150856] RIP: 0010:ioread8+0x4a/0x60
+[    5.160238] Call Trace:
+[    5.160470]  <TASK>
+[    5.160674]  marvell_cable_detect+0x6e/0xc0 [pata_marvell]
+[    5.161728]  ata_eh_recover+0x3520/0x6cc0
+[    5.168075]  ata_do_eh+0x49/0x3c0
 
-To work with existing logic, fix the alternative event array to be
-sorted by column 0 for power9-pmu.c
-
-Results:
-
-With alternative events, multiplexing can be avoided. That is, for
-example, in power9 PM_LD_MISS_L1 (0x3e054) has alternative event,
-PM_LD_MISS_L1_ALT (0x400f0). This is an identical event which can be
-programmed in a different PMC.
-
-Before:
-
- # perf stat -e r3e054,r300fc
-
- Performance counter stats for 'system wide':
-
-           1057860      r3e054              (50.21%)
-               379      r300fc              (49.79%)
-
-       0.944329741 seconds time elapsed
-
-Since both the events are using PMC3 in this case, they are
-multiplexed here.
-
-After:
-
- # perf stat -e r3e054,r300fc
-
- Performance counter stats for 'system wide':
-
-           1006948      r3e054
-               182      r300fc
-
-Fixes: 91e0bd1e6251 ("powerpc/perf: Add PM_LD_MISS_L1 and PM_BR_2PATH to power9 event list")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220419114828.89843-1-atrajeev@linux.vnet.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/perf/power9-pmu.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/ata/pata_marvell.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/perf/power9-pmu.c b/arch/powerpc/perf/power9-pmu.c
-index 08c3ef796198..1225f53609a4 100644
---- a/arch/powerpc/perf/power9-pmu.c
-+++ b/arch/powerpc/perf/power9-pmu.c
-@@ -131,11 +131,11 @@ int p9_dd22_bl_ev[] = {
- 
- /* Table of alternatives, sorted by column 0 */
- static const unsigned int power9_event_alternatives[][MAX_ALT] = {
--	{ PM_INST_DISP,			PM_INST_DISP_ALT },
--	{ PM_RUN_CYC_ALT,		PM_RUN_CYC },
--	{ PM_RUN_INST_CMPL_ALT,		PM_RUN_INST_CMPL },
--	{ PM_LD_MISS_L1,		PM_LD_MISS_L1_ALT },
- 	{ PM_BR_2PATH,			PM_BR_2PATH_ALT },
-+	{ PM_INST_DISP,			PM_INST_DISP_ALT },
-+	{ PM_RUN_CYC_ALT,               PM_RUN_CYC },
-+	{ PM_LD_MISS_L1,                PM_LD_MISS_L1_ALT },
-+	{ PM_RUN_INST_CMPL_ALT,         PM_RUN_INST_CMPL },
- };
- 
- static int power9_get_alternatives(u64 event, unsigned int flags, u64 alt[])
--- 
-2.35.1
-
+--- a/drivers/ata/pata_marvell.c
++++ b/drivers/ata/pata_marvell.c
+@@ -83,6 +83,8 @@ static int marvell_cable_detect(struct a
+ 	switch(ap->port_no)
+ 	{
+ 	case 0:
++		if (!ap->ioaddr.bmdma_addr)
++			return ATA_CBL_PATA_UNK;
+ 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
+ 			return ATA_CBL_PATA40;
+ 		return ATA_CBL_PATA80;
 
 
