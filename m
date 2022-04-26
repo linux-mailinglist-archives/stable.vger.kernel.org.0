@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C6F450F89A
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1376F50F77E
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346955AbiDZJMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:12:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
+        id S234939AbiDZJLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:11:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346277AbiDZJH3 (ORCPT
+        with ESMTP id S1346291AbiDZJH3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:07:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D04CC53F;
-        Tue, 26 Apr 2022 01:48:36 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B777B10FDD;
+        Tue, 26 Apr 2022 01:48:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D71E760C42;
-        Tue, 26 Apr 2022 08:48:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D64FFC385A4;
-        Tue, 26 Apr 2022 08:48:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7168FB81CFE;
+        Tue, 26 Apr 2022 08:48:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C560DC385AE;
+        Tue, 26 Apr 2022 08:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962915;
-        bh=Yo5ElvkPW5uz/nsLviwvUNIFZpOzBi2hvJAW0IiEdbI=;
+        s=korg; t=1650962918;
+        bh=zNPS6iT5Fq80XiP8/pWJ5zzdt4yqj14wbeneztDQ/3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ge0F6QyHWgG9ZjaZAJtX3IGOoD+sshZtOLpnQ1XXPRqWA16biLkwWOaY3llipzwt5
-         rGl0lORQnlq+r576lG9Tfz/DbFqrRqiXWtFFoYJhDxFEECdgGnTZR2fYuTEJsKKj/f
-         oclpFU/TUecCQyltk8tlXm6s1D+QsiaCm829XKLI=
+        b=kI9BsoFKdQbQPA/zB+ODtcjNLvtUkTA0rwgt9l27Ej22WHewizyMFxWfyDz7jJlN7
+         eDI1w/zxrZgxlzNpmPgOm+baWRkh2kmEkriULz6+ULq2aLEej2nWBymT/czHYxl4gW
+         ww+XvTNm/heGNHROixYs17fVZ5OB+I4P4KaTBG5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gaoning Pan <pgn@zju.edu.cn>,
-        Yongkang Jia <kangel@zju.edu.cn>,
-        Maxim Levitsky <mlevitsk@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.17 130/146] KVM: x86: Pend KVM_REQ_APICV_UPDATE during vCPU creation to fix a race
-Date:   Tue, 26 Apr 2022 10:22:05 +0200
-Message-Id: <20220426081753.715426184@linuxfoundation.org>
+Subject: [PATCH 5.17 131/146] KVM: nVMX: Defer APICv updates while L2 is active until L1 is active
+Date:   Tue, 26 Apr 2022 10:22:06 +0200
+Message-Id: <20220426081753.743120268@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -57,94 +54,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 423ecfea77dda83823c71b0fad1c2ddb2af1e5fc upstream.
+commit 7c69661e225cc484fbf44a0b99b56714a5241ae3 upstream.
 
-Make a KVM_REQ_APICV_UPDATE request when creating a vCPU with an
-in-kernel local APIC and APICv enabled at the module level.  Consuming
-kvm_apicv_activated() and stuffing vcpu->arch.apicv_active directly can
-race with __kvm_set_or_clear_apicv_inhibit(), as vCPU creation happens
-before the vCPU is fully onlined, i.e. it won't get the request made to
-"all" vCPUs.  If APICv is globally inhibited between setting apicv_active
-and onlining the vCPU, the vCPU will end up running with APICv enabled
-and trigger KVM's sanity check.
+Defer APICv updates that occur while L2 is active until nested VM-Exit,
+i.e. until L1 regains control.  vmx_refresh_apicv_exec_ctrl() assumes L1
+is active and (a) stomps all over vmcs02 and (b) neglects to ever updated
+vmcs01.  E.g. if vmcs12 doesn't enable the TPR shadow for L2 (and thus no
+APICv controls), L1 performs nested VM-Enter APICv inhibited, and APICv
+becomes unhibited while L2 is active, KVM will set various APICv controls
+in vmcs02 and trigger a failed VM-Entry.  The kicker is that, unless
+running with nested_early_check=1, KVM blames L1 and chaos ensues.
 
-Mark APICv as active during vCPU creation if APICv is enabled at the
-module level, both to be optimistic about it's final state, e.g. to avoid
-additional VMWRITEs on VMX, and because there are likely bugs lurking
-since KVM checks apicv_active in multiple vCPU creation paths.  While
-keeping the current behavior of consuming kvm_apicv_activated() is
-arguably safer from a regression perspective, force apicv_active so that
-vCPU creation runs with deterministic state and so that if there are bugs,
-they are found sooner than later, i.e. not when some crazy race condition
-is hit.
+In all cases, ignoring vmcs02 and always deferring the inhibition change
+to vmcs01 is correct (or at least acceptable).  The ABSENT and DISABLE
+inhibitions cannot truly change while L2 is active (see below).
 
-  WARNING: CPU: 0 PID: 484 at arch/x86/kvm/x86.c:9877 vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
-  Modules linked in:
-  CPU: 0 PID: 484 Comm: syz-executor361 Not tainted 5.16.13 #2
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1~cloud0 04/01/2014
-  RIP: 0010:vcpu_enter_guest+0x2ae3/0x3ee0 arch/x86/kvm/x86.c:9877
-  Call Trace:
-   <TASK>
-   vcpu_run arch/x86/kvm/x86.c:10039 [inline]
-   kvm_arch_vcpu_ioctl_run+0x337/0x15e0 arch/x86/kvm/x86.c:10234
-   kvm_vcpu_ioctl+0x4d2/0xc80 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3727
-   vfs_ioctl fs/ioctl.c:51 [inline]
-   __do_sys_ioctl fs/ioctl.c:874 [inline]
-   __se_sys_ioctl fs/ioctl.c:860 [inline]
-   __x64_sys_ioctl+0x16d/0x1d0 fs/ioctl.c:860
-   do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-   do_syscall_64+0x38/0x90 arch/x86/entry/common.c:80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+IRQ_BLOCKING can change, but it is firmly a best effort debug feature.
+Furthermore, only L2's APIC is accelerated/virtualized to the full extent
+possible, e.g. even if L1 passes through its APIC to L2, normal MMIO/MSR
+interception will apply to the virtual APIC managed by KVM.
+The exception is the SELF_IPI register when x2APIC is enabled, but that's
+an acceptable hole.
 
-The bug was hit by a syzkaller spamming VM creation with 2 vCPUs and a
-call to KVM_SET_GUEST_DEBUG.
+Lastly, Hyper-V's Auto EOI can technically be toggled if L1 exposes the
+MSRs to L2, but for that to work in any sane capacity, L1 would need to
+pass through IRQs to L2 as well, and IRQs must be intercepted to enable
+virtual interrupt delivery.  I.e. exposing Auto EOI to L2 and enabling
+VID for L2 are, for all intents and purposes, mutually exclusive.
 
-  r0 = openat$kvm(0xffffffffffffff9c, &(0x7f0000000000), 0x0, 0x0)
-  r1 = ioctl$KVM_CREATE_VM(r0, 0xae01, 0x0)
-  ioctl$KVM_CAP_SPLIT_IRQCHIP(r1, 0x4068aea3, &(0x7f0000000000)) (async)
-  r2 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x0) (async)
-  r3 = ioctl$KVM_CREATE_VCPU(r1, 0xae41, 0x400000000000002)
-  ioctl$KVM_SET_GUEST_DEBUG(r3, 0x4048ae9b, &(0x7f00000000c0)={0x5dda9c14aa95f5c5})
-  ioctl$KVM_RUN(r2, 0xae80, 0x0)
+Lack of dynamic toggling is also why this scenario is all but impossible
+to encounter in KVM's current form.  But a future patch will pend an
+APICv update request _during_ vCPU creation to plug a race where a vCPU
+that's being created doesn't get included in the "all vCPUs request"
+because it's not yet visible to other vCPUs.  If userspaces restores L2
+after VM creation (hello, KVM selftests), the first KVM_RUN will occur
+while L2 is active and thus service the APICv update request made during
+VM creation.
 
-Reported-by: Gaoning Pan <pgn@zju.edu.cn>
-Reported-by: Yongkang Jia <kangel@zju.edu.cn>
-Fixes: 8df14af42f00 ("kvm: x86: Add support for dynamic APICv activation")
 Cc: stable@vger.kernel.org
-Cc: Maxim Levitsky <mlevitsk@redhat.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20220420013732.3308816-4-seanjc@google.com>
+Message-Id: <20220420013732.3308816-3-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ arch/x86/kvm/vmx/nested.c |    5 +++++
+ arch/x86/kvm/vmx/vmx.c    |    5 +++++
+ arch/x86/kvm/vmx/vmx.h    |    1 +
+ 3 files changed, 11 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -11113,8 +11113,21 @@ int kvm_arch_vcpu_create(struct kvm_vcpu
- 		r = kvm_create_lapic(vcpu, lapic_timer_advance_ns);
- 		if (r < 0)
- 			goto fail_mmu_destroy;
--		if (kvm_apicv_activated(vcpu->kvm))
-+
-+		/*
-+		 * Defer evaluating inhibits until the vCPU is first run, as
-+		 * this vCPU will not get notified of any changes until this
-+		 * vCPU is visible to other vCPUs (marked online and added to
-+		 * the set of vCPUs).  Opportunistically mark APICv active as
-+		 * VMX in particularly is highly unlikely to have inhibits.
-+		 * Ignore the current per-VM APICv state so that vCPU creation
-+		 * is guaranteed to run with a deterministic value, the request
-+		 * will ensure the vCPU gets the correct state before VM-Entry.
-+		 */
-+		if (enable_apicv) {
- 			vcpu->arch.apicv_active = true;
-+			kvm_make_request(KVM_REQ_APICV_UPDATE, vcpu);
-+		}
- 	} else
- 		static_branch_inc(&kvm_has_noapic_vcpu);
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4618,6 +4618,11 @@ void nested_vmx_vmexit(struct kvm_vcpu *
+ 		kvm_make_request(KVM_REQ_APIC_PAGE_RELOAD, vcpu);
+ 	}
  
++	if (vmx->nested.update_vmcs01_apicv_status) {
++		vmx->nested.update_vmcs01_apicv_status = false;
++		kvm_make_request(KVM_REQ_APICV_UPDATE, vcpu);
++	}
++
+ 	if ((vm_exit_reason != -1) &&
+ 	    (enable_shadow_vmcs || evmptr_is_valid(vmx->nested.hv_evmcs_vmptr)))
+ 		vmx->nested.need_vmcs12_to_shadow_sync = true;
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -4182,6 +4182,11 @@ static void vmx_refresh_apicv_exec_ctrl(
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+ 
++	if (is_guest_mode(vcpu)) {
++		vmx->nested.update_vmcs01_apicv_status = true;
++		return;
++	}
++
+ 	pin_controls_set(vmx, vmx_pin_based_exec_ctrl(vmx));
+ 	if (cpu_has_secondary_exec_ctrls()) {
+ 		if (kvm_vcpu_apicv_active(vcpu))
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -183,6 +183,7 @@ struct nested_vmx {
+ 	bool change_vmcs01_virtual_apic_mode;
+ 	bool reload_vmcs01_apic_access_page;
+ 	bool update_vmcs01_cpu_dirty_logging;
++	bool update_vmcs01_apicv_status;
+ 
+ 	/*
+ 	 * Enlightened VMCS has been enabled. It does not mean that L1 has to
 
 
