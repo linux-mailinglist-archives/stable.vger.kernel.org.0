@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FD3550F43E
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF6D50F622
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345100AbiDZIfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37016 "EHLO
+        id S229662AbiDZIw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:52:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345113AbiDZIeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07176E4C1;
-        Tue, 26 Apr 2022 01:26:06 -0700 (PDT)
+        with ESMTP id S1346485AbiDZIuG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:06 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8D413C672;
+        Tue, 26 Apr 2022 01:38:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 506AF61842;
-        Tue, 26 Apr 2022 08:26:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61887C385A0;
-        Tue, 26 Apr 2022 08:26:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8CE1DCE1BB0;
+        Tue, 26 Apr 2022 08:38:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E90C385A4;
+        Tue, 26 Apr 2022 08:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961565;
-        bh=6+QctaSr/hBOUwCHEottWVCkAyN343hqOCaKvjdq/xI=;
+        s=korg; t=1650962296;
+        bh=dI4Xk1fyAX6wbNw/beUqTsvwcMn0SxWUnzr0b0qBVtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzWOoQ/RRO784M4Idt0GP3e7g7RjFpt1BkVt3k1k0Ui1HHhhwEh3VnJP36OoD5ppD
-         GAlwnswiHjrjjdPOlAFyQz5NVl24lJArl3j3QI2PFIWJrQtoanAGbehOVG2h6Hq0Zi
-         PE23sQzdHeKfEXwOPbYfnBLzPM3DB+IUMSwPnfF0=
+        b=y8z+LpG0R84XoZqZ3oS40X7zCauD4FgqV+W77YpTXe8pigLPCWbqZyeANrkFJPKOK
+         YvAnYOS92KmcnEaKKD/kll20eF3IJfIKiWZeOwgaSvlKd0SWnPDDdWNZjVztQPTCSz
+         xipH3KIJTP/IN5vZozGraKFbjOEFVZqyk8GZxvVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/53] ASoC: atmel: Remove system clock tree configuration for at91sam9g20ek
-Date:   Tue, 26 Apr 2022 10:20:50 +0200
-Message-Id: <20220426081735.958006682@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Zhu <tony.zhu@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 050/124] dmaengine: idxd: skip clearing device context when device is read-only
+Date:   Tue, 26 Apr 2022 10:20:51 +0200
+Message-Id: <20220426081748.723423013@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,140 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit c775cbf62ed4911e4f0f23880f01815753123690 ]
+[ Upstream commit 1cd8e751d96c43ece3f6842ac2244a37d9332c3a ]
 
-The MCLK of the WM8731 on the AT91SAM9G20-EK board is connected to the
-PCK0 output of the SoC, intended in the reference software to be supplied
-using PLLB and programmed to 12MHz. As originally written for use with a
-board file the audio driver was responsible for configuring the entire tree
-but in the conversion to the common clock framework the registration of
-the named pck0 and pllb clocks was removed so the driver has failed to
-instantiate ever since.
+If the device shows up as read-only configuration, skip the clearing of the
+state as the context must be preserved for device re-enable after being
+disabled.
 
-Since the WM8731 driver has had support for managing a MCLK provided via
-the common clock framework for some time we can simply drop all the clock
-management code from the machine driver other than configuration of the
-sysclk rate, the CODEC driver still respects that configuration from the
-machine driver.
-
-Fixes: ff78a189b0ae55f ("ARM: at91: remove old at91-specific clock driver")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220325154241.1600757-2-broonie@kernel.org
+Fixes: 0dcfe41e9a4c ("dmanegine: idxd: cleanup all device related bits after disabling device")
+Reported-by: Tony Zhu <tony.zhu@intel.com>
+Tested-by: Tony Zhu <tony.zhu@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/164971479479.2200566.13980022473526292759.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/sam9g20_wm8731.c | 61 --------------------------------
- 1 file changed, 61 deletions(-)
+ drivers/dma/idxd/device.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/atmel/sam9g20_wm8731.c b/sound/soc/atmel/sam9g20_wm8731.c
-index 5041f43ee5f7..06d32257ddb6 100644
---- a/sound/soc/atmel/sam9g20_wm8731.c
-+++ b/sound/soc/atmel/sam9g20_wm8731.c
-@@ -59,35 +59,6 @@
-  */
- #undef ENABLE_MIC_INPUT
+diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
+index a67bafc596b7..e622245c9380 100644
+--- a/drivers/dma/idxd/device.c
++++ b/drivers/dma/idxd/device.c
+@@ -730,6 +730,9 @@ static void idxd_device_wqs_clear_state(struct idxd_device *idxd)
  
--static struct clk *mclk;
--
--static int at91sam9g20ek_set_bias_level(struct snd_soc_card *card,
--					struct snd_soc_dapm_context *dapm,
--					enum snd_soc_bias_level level)
--{
--	static int mclk_on;
--	int ret = 0;
--
--	switch (level) {
--	case SND_SOC_BIAS_ON:
--	case SND_SOC_BIAS_PREPARE:
--		if (!mclk_on)
--			ret = clk_enable(mclk);
--		if (ret == 0)
--			mclk_on = 1;
--		break;
--
--	case SND_SOC_BIAS_OFF:
--	case SND_SOC_BIAS_STANDBY:
--		if (mclk_on)
--			clk_disable(mclk);
--		mclk_on = 0;
--		break;
--	}
--
--	return ret;
--}
--
- static const struct snd_soc_dapm_widget at91sam9g20ek_dapm_widgets[] = {
- 	SND_SOC_DAPM_MIC("Int Mic", NULL),
- 	SND_SOC_DAPM_SPK("Ext Spk", NULL),
-@@ -146,7 +117,6 @@ static struct snd_soc_card snd_soc_at91sam9g20ek = {
- 	.owner = THIS_MODULE,
- 	.dai_link = &at91sam9g20ek_dai,
- 	.num_links = 1,
--	.set_bias_level = at91sam9g20ek_set_bias_level,
- 
- 	.dapm_widgets = at91sam9g20ek_dapm_widgets,
- 	.num_dapm_widgets = ARRAY_SIZE(at91sam9g20ek_dapm_widgets),
-@@ -159,7 +129,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
+ void idxd_device_clear_state(struct idxd_device *idxd)
  {
- 	struct device_node *np = pdev->dev.of_node;
- 	struct device_node *codec_np, *cpu_np;
--	struct clk *pllb;
- 	struct snd_soc_card *card = &snd_soc_at91sam9g20ek;
- 	int ret;
- 
-@@ -173,31 +142,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	/*
--	 * Codec MCLK is supplied by PCK0 - set it up.
--	 */
--	mclk = clk_get(NULL, "pck0");
--	if (IS_ERR(mclk)) {
--		dev_err(&pdev->dev, "Failed to get MCLK\n");
--		ret = PTR_ERR(mclk);
--		goto err;
--	}
--
--	pllb = clk_get(NULL, "pllb");
--	if (IS_ERR(pllb)) {
--		dev_err(&pdev->dev, "Failed to get PLLB\n");
--		ret = PTR_ERR(pllb);
--		goto err_mclk;
--	}
--	ret = clk_set_parent(mclk, pllb);
--	clk_put(pllb);
--	if (ret != 0) {
--		dev_err(&pdev->dev, "Failed to set MCLK parent\n");
--		goto err_mclk;
--	}
--
--	clk_set_rate(mclk, MCLK_RATE);
--
- 	card->dev = &pdev->dev;
- 
- 	/* Parse device node info */
-@@ -241,9 +185,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
- 
- 	return ret;
- 
--err_mclk:
--	clk_put(mclk);
--	mclk = NULL;
- err:
- 	atmel_ssc_put_audio(0);
- 	return ret;
-@@ -253,8 +194,6 @@ static int at91sam9g20ek_audio_remove(struct platform_device *pdev)
- {
- 	struct snd_soc_card *card = platform_get_drvdata(pdev);
- 
--	clk_disable(mclk);
--	mclk = NULL;
- 	snd_soc_unregister_card(card);
- 	atmel_ssc_put_audio(0);
- 
++	if (!test_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags))
++		return;
++
+ 	idxd_groups_clear_state(idxd);
+ 	idxd_engines_clear_state(idxd);
+ 	idxd_device_wqs_clear_state(idxd);
 -- 
 2.35.1
 
