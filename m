@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD3B50F63E
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 592C150F504
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:38:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229840AbiDZIx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:53:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55508 "EHLO
+        id S1345022AbiDZIlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:41:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344418AbiDZIv4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:51:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD0A7D3AE7;
-        Tue, 26 Apr 2022 01:40:52 -0700 (PDT)
+        with ESMTP id S1345790AbiDZIjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8CB939CD;
+        Tue, 26 Apr 2022 01:31:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 233DF60C49;
-        Tue, 26 Apr 2022 08:40:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02300C385A0;
-        Tue, 26 Apr 2022 08:40:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 826F3B81CFA;
+        Tue, 26 Apr 2022 08:31:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5938C385A0;
+        Tue, 26 Apr 2022 08:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962442;
-        bh=4mFtDAy5yc/e9dUGPrNDYFYcOiFHuXZ4/OfamRyQG80=;
+        s=korg; t=1650961870;
+        bh=I8jUk6UlJme96tx2y02LVwef7dIYYkmsMzlL41Kj7dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wPvIy0PTIIuIXOqRFYIRcJhOgS6w6+fd/Rb6ZmtkE0/B8GzFu+KKCULNQBSDXjCm
-         oWY6RGR1gHS/trINmSXgT2+r7QBgJDDnXvKC4KuL0JLSAuQbYhjm+M5qgdKirheTaM
-         WauaalJ0oG9uEuYiMAuBmkABSePJKzx6jNUKdAj4=
+        b=OTLVBlW6JiOku/3ryoC7C8qpv9FEYqxuSpJUVLRiNJJ3b8W72t4jpB3iaaRxZNWp6
+         C6or+H/NAAfnn5Mt+9jkycjmUdPoSUd7luVew+2rI2JGbtZHUF6yE+UO3AAtI8RSUA
+         SJnkKv8c/BS6iaNbSC763JtLbjreWs7tOHpCplNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        German Gomez <german.gomez@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 098/124] perf report: Set PERF_SAMPLE_DATA_SRC bit for Arm SPE event
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 59/62] spi: atmel-quadspi: Fix the buswidth adjustment between spi-mem and controller
 Date:   Tue, 26 Apr 2022 10:21:39 +0200
-Message-Id: <20220426081750.085380367@linuxfoundation.org>
+Message-Id: <20220426081738.914423153@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,78 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit ccb17caecfbd542f49a2a79ae088136ba8bfb794 ]
+commit 8c235cc25087495c4288d94f547e9d3061004991 upstream.
 
-Since commit bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem
-info is not available") "perf mem report" and "perf report --mem-mode"
-don't report result if the PERF_SAMPLE_DATA_SRC bit is missed in sample
-type.
+Use the spi_mem_default_supports_op() core helper in order to take into
+account the buswidth specified by the user in device tree.
 
-The commit ffab487052054162 ("perf: arm-spe: Fix perf report
---mem-mode") partially fixes the issue.  It adds PERF_SAMPLE_DATA_SRC
-bit for Arm SPE event, this allows the perf data file generated by
-kernel v5.18-rc1 or later version can be reported properly.
-
-On the other hand, perf tool still fails to be backward compatibility
-for a data file recorded by an older version's perf which contains Arm
-SPE trace data.  This patch is a workaround in reporting phase, when
-detects ARM SPE PMU event and without PERF_SAMPLE_DATA_SRC bit, it will
-force to set the bit in the sample type and give a warning info.
-
-Fixes: bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem info is not available")
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Tested-by: German Gomez <german.gomez@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220414123201.842754-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: 0e6aae08e9ae ("spi: Add QuadSPI driver for Atmel SAMA5D2")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20220406133604.455356-1-tudor.ambarus@microchip.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-report.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/spi/atmel-quadspi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index 997e0a4b0902..6583ad9cc7de 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -349,6 +349,7 @@ static int report__setup_sample_type(struct report *rep)
- 	struct perf_session *session = rep->session;
- 	u64 sample_type = evlist__combined_sample_type(session->evlist);
- 	bool is_pipe = perf_data__is_pipe(session->data);
-+	struct evsel *evsel;
- 
- 	if (session->itrace_synth_opts->callchain ||
- 	    session->itrace_synth_opts->add_callchain ||
-@@ -403,6 +404,19 @@ static int report__setup_sample_type(struct report *rep)
- 	}
- 
- 	if (sort__mode == SORT_MODE__MEMORY) {
-+		/*
-+		 * FIXUP: prior to kernel 5.18, Arm SPE missed to set
-+		 * PERF_SAMPLE_DATA_SRC bit in sample type.  For backward
-+		 * compatibility, set the bit if it's an old perf data file.
-+		 */
-+		evlist__for_each_entry(session->evlist, evsel) {
-+			if (strstr(evsel->name, "arm_spe") &&
-+				!(sample_type & PERF_SAMPLE_DATA_SRC)) {
-+				evsel->core.attr.sample_type |= PERF_SAMPLE_DATA_SRC;
-+				sample_type |= PERF_SAMPLE_DATA_SRC;
-+			}
-+		}
+--- a/drivers/spi/atmel-quadspi.c
++++ b/drivers/spi/atmel-quadspi.c
+@@ -202,6 +202,9 @@ static int atmel_qspi_find_mode(const st
+ static bool atmel_qspi_supports_op(struct spi_mem *mem,
+ 				   const struct spi_mem_op *op)
+ {
++	if (!spi_mem_default_supports_op(mem, op))
++		return false;
 +
- 		if (!is_pipe && !(sample_type & PERF_SAMPLE_DATA_SRC)) {
- 			ui__error("Selected --mem-mode but no mem data. "
- 				  "Did you call perf record without -d?\n");
--- 
-2.35.1
-
+ 	if (atmel_qspi_find_mode(op) < 0)
+ 		return false;
+ 
 
 
