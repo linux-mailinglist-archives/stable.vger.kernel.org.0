@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D819050F3E3
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7CDA50F90C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344784AbiDZI3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:29:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36574 "EHLO
+        id S1346575AbiDZJIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344676AbiDZI2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:28:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C70153B014;
-        Tue, 26 Apr 2022 01:24:04 -0700 (PDT)
+        with ESMTP id S1347897AbiDZJGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F38EAC073;
+        Tue, 26 Apr 2022 01:46:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61A3C617D2;
-        Tue, 26 Apr 2022 08:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CFEBC385A0;
-        Tue, 26 Apr 2022 08:24:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDC42604F5;
+        Tue, 26 Apr 2022 08:46:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B04C2C385A4;
+        Tue, 26 Apr 2022 08:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961443;
-        bh=aj2MJe6FxnGwrXKvMahFbCQYAaT+4ocJ3YhgWHEGcDc=;
+        s=korg; t=1650962812;
+        bh=y4FzcMqIYjP6yJMMswEni40ksnSonHHl5KEbQHYCCgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3NlGZchKTguaYwH5ij/QXrblrqJy5+A/iJ1IOa0J+sMGGLM5HOvZ2ypxXQ7ASKWK
-         ecMpM+JXwNm3neQyYIIwwY0nG33JuK342LoVxO+hU/U46YuDuVxl+MdEiOdscG7o4K
-         c91t1xXme9sL6lFnHrimUVD5+4gWa4eyZXimZqAk=
+        b=e1osvW2DjRtrupRpOuzwDpRUIqLs7RGXzp3zpV5WE4ERzgMycDPjw3oqY4ce8T0zK
+         UPHA5XDPSY0pLZ54H1lwAJ5FDa0Zylfw5LwvYorRG+axwim90l7AC/k8OYCYOLz+3q
+         N1ZoT6wFx843zWV8CxiX06XK+kGAe7hh7NMPycI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,19 +38,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-arm-kernel@lists.infradead.org,
         Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/43] ARM: vexpress/spc: Avoid negative array index when !SMP
+Subject: [PATCH 5.17 060/146] ARM: vexpress/spc: Avoid negative array index when !SMP
 Date:   Tue, 26 Apr 2022 10:20:55 +0200
-Message-Id: <20220426081734.910120642@linuxfoundation.org>
+Message-Id: <20220426081751.754307470@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -95,10 +96,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm/mach-vexpress/spc.c b/arch/arm/mach-vexpress/spc.c
-index 635b0d549487..c16f39614003 100644
+index 1da11bdb1dfb..1c6500c4e6a1 100644
 --- a/arch/arm/mach-vexpress/spc.c
 +++ b/arch/arm/mach-vexpress/spc.c
-@@ -584,7 +584,7 @@ static int __init ve_spc_clk_init(void)
+@@ -580,7 +580,7 @@ static int __init ve_spc_clk_init(void)
  		}
  
  		cluster = topology_physical_package_id(cpu_dev->id);
