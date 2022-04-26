@@ -2,57 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A072750F176
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 08:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CC8F50F17E
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 08:48:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237092AbiDZGtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 02:49:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
+        id S1343529AbiDZGvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 02:51:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245648AbiDZGtp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 02:49:45 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 912B5186FD
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 23:46:38 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id y3so13656424ejo.12
-        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 23:46:38 -0700 (PDT)
+        with ESMTP id S1343527AbiDZGvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 02:51:02 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0DEB27B0E
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 23:47:55 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id g6so11208186ejw.1
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 23:47:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=bytedance-com.20210112.gappssmtp.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Fen/7x7QpxuTMdFlSeWgDV5I5clH/DAvJpLkJQ2a0WY=;
-        b=ll1kHo82Clz51swVgcRlbExnT4pC66DvJiQzgxgcWLf/lpmXLJPc6NIAk8gX09jkvy
-         fKuXuVkHkh0MEX7/ReZlS4GG4ji4JxjHVSTbyrsBI3M3/al+BIaow6bXBLCcOHX84CGC
-         3ZrsIaICqqvuEiCY7WNSHAVIdEsu14Gd3dNjLeLG3A/tKosBKwaGEJj7a6BBPatIOofl
-         QyTPaBBbj5piFax7861i4fJd+wkPx25kiV0kUQ7dHVvX1yYqeXz6zMGvgWtihR6pqpSS
-         w69rjUb2Kla0hWwJZnSsm1zjSW1e4z5Bo40S0ZyymglEZmLhP6t8p6AoOWkS1VJFxAc+
-         Js5Q==
+        bh=h4eAjqnVJzj5k5ilbbqHz80sPzWI6cSAAxt2X7Fn2ag=;
+        b=6QhhDBqB8F7ICCUgSayRPO8ZaAuiGvf/EOdhzmHi0iIYWSnBO0Tht3iLTTdVQGU4su
+         7QeesaXRpOzpN9RJtXAPlOEHmGsDVIi76RJBAuwZZ6lhBhZdx8qb2od1/6nJSck8csry
+         TzimzIqEhbhhrDEV4iKEYqhEaYH2ctJf9AD8su+GHC+wksWSxqIQn/mLmKeyQUdsDCXx
+         U8jji4Lb6eOJ0OCN6/3xI+KHukVwx29ZIZKTBkrztYhl+Krb5ZpTTpENBbNQ8nrRe44G
+         Xj5hjVzgCqrdi1ckI2aAd1TbQprOePARDYNF2Mi8nExk32cExl9Ri9ll5Sp1D35AZ6Uf
+         iCUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Fen/7x7QpxuTMdFlSeWgDV5I5clH/DAvJpLkJQ2a0WY=;
-        b=6lsN/nzzLR9825z129hu6WGHkQeZnv7HIy4XQdkBzY8U/5M9tw19guFtnKDksHPj8e
-         urjKWCw/VTw6AHYvKJJkoRDNgbenswnwjym1JysCKzLMyWNCEJTTTpnMshxJc6TAIqrs
-         8aVy53kcbKQdn+3vo/7rtK/Xs2vp6AIHLoTthyXArl/o6QQ0p/sYwucB7ioSmPfGBN9N
-         nCyEIhSULH/nqtf/D2uY9f9TkboaLd7tbAnYQ4VgnbxZxgrhi9v1L53XTG24RZxaN6o8
-         /66EGw453to5zs3iJvd9hFE0lTuU098EVRCbc12c8oXPI9DkTVr/V129cXsaCCmsOHye
-         965g==
-X-Gm-Message-State: AOAM532uhL2ecaOHvXFyZ/Pj+IxFsOhPZd8GhVUJVxbGnrUIfid6zbH2
-        nZtq/2HOalkDfLuWZ7hRmchRhXjMSCq9DhLMjNpt
-X-Google-Smtp-Source: ABdhPJyI//+7LCcmeYQQMuohT3HqZkHnjG5jaYJcCM/TbaV6r6ymvF8tJQf3E05ibobQYi/5cqhMCA63Zi9mwDoT8AA=
-X-Received: by 2002:a17:906:7954:b0:6f3:b2f4:b22b with SMTP id
- l20-20020a170906795400b006f3b2f4b22bmr1344611ejo.536.1650955597163; Mon, 25
- Apr 2022 23:46:37 -0700 (PDT)
+        bh=h4eAjqnVJzj5k5ilbbqHz80sPzWI6cSAAxt2X7Fn2ag=;
+        b=ktuGPQue6ATtO2lkY2q77E3kbarfviSpDP1hboYbT2h+nS/lZUi5GMbpi2a0OUKUMv
+         REO9ALRYmiqBqy/ulgRpp0pKTThpsY/ScShJx8GVrisnqhazdMyL5Emlz8i/AI5RdpGI
+         YSJE83aU4Tr0w74BtrWpAd9hyB90YsnPIF9m8ILlxsjAdtX+g+7v3hDebb6ZbXjufZ23
+         rybq45j6h/LnFsf39qtDJu2fnFVtL8dWnWp7lFgoNIwNsPyS5uUmr2emD5lcAS2Bjkcm
+         8G69VxUU5p85V+k/qolHB3NH+H13IvlzltG9yBNL06gOEzKOfGtgOobzBr5/bJpRCFjQ
+         2hVw==
+X-Gm-Message-State: AOAM531KqSKinzmt1MIrQ1/dZ7SOaCXuqvZjCTr1kMhPDEst+h96OXxn
+        uiRN5BZKB+Sq478z2ZMIugtdoxy8dhk4wVue+ik9x6wt7g==
+X-Google-Smtp-Source: ABdhPJyPZME6Uuwyn7BTlc/0LDcQs1TMC7nE1w3rfcjgDh3fwhVvaPKDEngSgXEI+uGv5jx687u3B1KLSOA5iAH3PkI=
+X-Received: by 2002:a17:907:6ea4:b0:6f3:87c8:21cc with SMTP id
+ sh36-20020a1709076ea400b006f387c821ccmr11062647ejc.490.1650955674286; Mon, 25
+ Apr 2022 23:47:54 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220426060103.104-1-xieyongji@bytedance.com> <CACGkMEued=Pewd-xfLu7nhY0_gvMowAte4084mLWxAkykzJ8gw@mail.gmail.com>
-In-Reply-To: <CACGkMEued=Pewd-xfLu7nhY0_gvMowAte4084mLWxAkykzJ8gw@mail.gmail.com>
+References: <20220426060103.104-1-xieyongji@bytedance.com> <YmeRp87WgjC9Bjr+@kroah.com>
+In-Reply-To: <YmeRp87WgjC9Bjr+@kroah.com>
 From:   Yongji Xie <xieyongji@bytedance.com>
-Date:   Tue, 26 Apr 2022 14:47:06 +0800
-Message-ID: <CACycT3sgQZVgSKWuvGbaduEhGHdUJcatPiCC28oibJYXNdjMZg@mail.gmail.com>
+Date:   Tue, 26 Apr 2022 14:48:23 +0800
+Message-ID: <CACycT3uf0Bf2RJ=F=MdH9w4K_U9BOAwsxWerU4P4wMYhcMOHHg@mail.gmail.com>
 Subject: Re: [PATCH] vduse: Fix NULL pointer dereference on sysfs access
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     mst <mst@redhat.com>, Luis Chamberlain <mcgrof@kernel.org>,
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         kernel test robot <oliver.sang@intel.com>,
         virtualization <virtualization@lists.linux-foundation.org>,
@@ -67,10 +69,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 2:19 PM Jason Wang <jasowang@redhat.com> wrote:
+On Tue, Apr 26, 2022 at 2:31 PM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
-> On Tue, Apr 26, 2022 at 2:01 PM Xie Yongji <xieyongji@bytedance.com> wrote:
-> >
+> On Tue, Apr 26, 2022 at 02:01:03PM +0800, Xie Yongji wrote:
 > > The control device has no drvdata. So we will get a NULL
 > > NULL pointer dereference when accessing control device's
 > > msg_timeout via sysfs:
@@ -110,16 +111,21 @@ On Tue, Apr 26, 2022 at 2:19 PM Jason Wang <jasowang@redhat.com> wrote:
 > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
 > > @@ -1268,6 +1268,9 @@ static ssize_t msg_timeout_show(struct device *device,
 > >  {
-> >         struct vduse_dev *dev = dev_get_drvdata(device);
+> >       struct vduse_dev *dev = dev_get_drvdata(device);
 > >
-> > +       if (!dev)
-> > +               return -EPERM;
+> > +     if (!dev)
+> > +             return -EPERM;
 > > +
+> >       return sysfs_emit(buf, "%u\n", dev->msg_timeout);
 >
-> I wonder if it's possible to not have those attributes for the control device.
+> What prevents the pointer from going away right after you checked it if
+> this is something that changes over time?
+>
+> If this attribute is never going to be valid for this device, just do
+> not create it.
 >
 
-Yes, I think we can. Will do it in v2.
+Got it. Will fix it in v2.
 
 Thanks,
 Yongji
