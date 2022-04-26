@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78E5B50F667
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5558F50F5A9
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237966AbiDZIzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:55:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52188 "EHLO
+        id S1345226AbiDZIlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:41:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346918AbiDZIux (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:53 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F378170441;
-        Tue, 26 Apr 2022 01:39:10 -0700 (PDT)
+        with ESMTP id S1345825AbiDZIjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC10A78FF2;
+        Tue, 26 Apr 2022 01:31:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57FF7CE1BB4;
-        Tue, 26 Apr 2022 08:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43B04C385A0;
-        Tue, 26 Apr 2022 08:39:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1522B81CF9;
+        Tue, 26 Apr 2022 08:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53305C385A4;
+        Tue, 26 Apr 2022 08:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962346;
-        bh=Qe2fgAm189XICDfRKp2WfFEyRLGDq5+OziHxA7nd2no=;
+        s=korg; t=1650961914;
+        bh=bcOTZJMicACjWXiZfXi+DQEm7lArO/AWDfEHBhtc7QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmmounRgfadoOBqLRiJhXMXAEitTno8B9sI928aKLoEcfQXTb3A0w5C0/1+LVSvAQ
-         KbN/sFw6XOdACN8jU798Cmh1oh9Lh8LeUhVAWIVuLY/ONihOoK3c4b6Y4HWjcf/dG8
-         0Idn/QXeH12kdkWUjdP47/F+iGMvQRR90dwrEgpI=
+        b=DaLBDPZHa/b8Vg5qIdJF7S0XKDQ2B7f0tW4Xi9VRZZZTGUUtUIrPGh29S+EMfW3DS
+         9E51Qn+ipimMVIm1DWz9Xart+Slw8lcbXSBa4b25r4EUBYd3pY8J75Yewpbm8tvSJO
+         YRixkBWoWD/3BgRqlKtG7tVCZdikUKbfak0C2XDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephen Hemminger <stephen@networkplumber.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/124] net: restore alpha order to Ethernet devices in config
+Subject: [PATCH 5.10 11/86] ASoC: msm8916-wcd-digital: Check failure for devm_snd_soc_register_component
 Date:   Tue, 26 Apr 2022 10:20:39 +0200
-Message-Id: <20220426081748.386171035@linuxfoundation.org>
+Message-Id: <20220426081741.533033818@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit da367ac74aecb59b62a9538009d4aee8ce4bdfb3 ]
+[ Upstream commit e927b05f3cc20de87f6b7d912a5bbe556931caca ]
 
-The displayed list of Ethernet devices in make menuconfig
-has gotten out of order. This is mostly due to changes in vendor
-names etc, but also because of new Microsoft entry in wrong place.
+devm_snd_soc_register_component() may fails, we should check the error
+and do the corresponding error handling.
 
-This restores so that the display is in order even if the names
-of the sub directories are not.
-
-Fixes: ca9c54d2d6a5 ("net: mana: Add a driver for Microsoft Azure Network Adapter (MANA)")
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 150db8c5afa1 ("ASoC: codecs: Add msm8916-wcd digital codec")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220403115239.30140-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/Kconfig | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ sound/soc/codecs/msm8916-wcd-digital.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/Kconfig b/drivers/net/ethernet/Kconfig
-index 412ae3e43ffb..35ac6fe7529c 100644
---- a/drivers/net/ethernet/Kconfig
-+++ b/drivers/net/ethernet/Kconfig
-@@ -34,15 +34,6 @@ source "drivers/net/ethernet/apple/Kconfig"
- source "drivers/net/ethernet/aquantia/Kconfig"
- source "drivers/net/ethernet/arc/Kconfig"
- source "drivers/net/ethernet/atheros/Kconfig"
--source "drivers/net/ethernet/broadcom/Kconfig"
--source "drivers/net/ethernet/brocade/Kconfig"
--source "drivers/net/ethernet/cadence/Kconfig"
--source "drivers/net/ethernet/calxeda/Kconfig"
--source "drivers/net/ethernet/cavium/Kconfig"
--source "drivers/net/ethernet/chelsio/Kconfig"
--source "drivers/net/ethernet/cirrus/Kconfig"
--source "drivers/net/ethernet/cisco/Kconfig"
--source "drivers/net/ethernet/cortina/Kconfig"
+diff --git a/sound/soc/codecs/msm8916-wcd-digital.c b/sound/soc/codecs/msm8916-wcd-digital.c
+index 9ad7fc0baf07..20a07c92b2fc 100644
+--- a/sound/soc/codecs/msm8916-wcd-digital.c
++++ b/sound/soc/codecs/msm8916-wcd-digital.c
+@@ -1206,9 +1206,16 @@ static int msm8916_wcd_digital_probe(struct platform_device *pdev)
  
- config CX_ECAT
- 	tristate "Beckhoff CX5020 EtherCAT master support"
-@@ -56,6 +47,14 @@ config CX_ECAT
- 	  To compile this driver as a module, choose M here. The module
- 	  will be called ec_bhf.
+ 	dev_set_drvdata(dev, priv);
  
-+source "drivers/net/ethernet/broadcom/Kconfig"
-+source "drivers/net/ethernet/cadence/Kconfig"
-+source "drivers/net/ethernet/calxeda/Kconfig"
-+source "drivers/net/ethernet/cavium/Kconfig"
-+source "drivers/net/ethernet/chelsio/Kconfig"
-+source "drivers/net/ethernet/cirrus/Kconfig"
-+source "drivers/net/ethernet/cisco/Kconfig"
-+source "drivers/net/ethernet/cortina/Kconfig"
- source "drivers/net/ethernet/davicom/Kconfig"
- 
- config DNET
-@@ -82,7 +81,6 @@ source "drivers/net/ethernet/huawei/Kconfig"
- source "drivers/net/ethernet/i825xx/Kconfig"
- source "drivers/net/ethernet/ibm/Kconfig"
- source "drivers/net/ethernet/intel/Kconfig"
--source "drivers/net/ethernet/microsoft/Kconfig"
- source "drivers/net/ethernet/xscale/Kconfig"
- 
- config JME
-@@ -125,8 +123,9 @@ source "drivers/net/ethernet/mediatek/Kconfig"
- source "drivers/net/ethernet/mellanox/Kconfig"
- source "drivers/net/ethernet/micrel/Kconfig"
- source "drivers/net/ethernet/microchip/Kconfig"
--source "drivers/net/ethernet/moxa/Kconfig"
- source "drivers/net/ethernet/mscc/Kconfig"
-+source "drivers/net/ethernet/microsoft/Kconfig"
-+source "drivers/net/ethernet/moxa/Kconfig"
- source "drivers/net/ethernet/myricom/Kconfig"
- 
- config FEALNX
-@@ -138,10 +137,10 @@ config FEALNX
- 	  Say Y here to support the Myson MTD-800 family of PCI-based Ethernet
- 	  cards. <http://www.myson.com.tw/>
- 
-+source "drivers/net/ethernet/ni/Kconfig"
- source "drivers/net/ethernet/natsemi/Kconfig"
- source "drivers/net/ethernet/neterion/Kconfig"
- source "drivers/net/ethernet/netronome/Kconfig"
--source "drivers/net/ethernet/ni/Kconfig"
- source "drivers/net/ethernet/8390/Kconfig"
- source "drivers/net/ethernet/nvidia/Kconfig"
- source "drivers/net/ethernet/nxp/Kconfig"
-@@ -161,6 +160,7 @@ source "drivers/net/ethernet/packetengines/Kconfig"
- source "drivers/net/ethernet/pasemi/Kconfig"
- source "drivers/net/ethernet/pensando/Kconfig"
- source "drivers/net/ethernet/qlogic/Kconfig"
-+source "drivers/net/ethernet/brocade/Kconfig"
- source "drivers/net/ethernet/qualcomm/Kconfig"
- source "drivers/net/ethernet/rdc/Kconfig"
- source "drivers/net/ethernet/realtek/Kconfig"
-@@ -168,10 +168,10 @@ source "drivers/net/ethernet/renesas/Kconfig"
- source "drivers/net/ethernet/rocker/Kconfig"
- source "drivers/net/ethernet/samsung/Kconfig"
- source "drivers/net/ethernet/seeq/Kconfig"
--source "drivers/net/ethernet/sfc/Kconfig"
- source "drivers/net/ethernet/sgi/Kconfig"
- source "drivers/net/ethernet/silan/Kconfig"
- source "drivers/net/ethernet/sis/Kconfig"
-+source "drivers/net/ethernet/sfc/Kconfig"
- source "drivers/net/ethernet/smsc/Kconfig"
- source "drivers/net/ethernet/socionext/Kconfig"
- source "drivers/net/ethernet/stmicro/Kconfig"
+-	return devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
++	ret = devm_snd_soc_register_component(dev, &msm8916_wcd_digital,
+ 				      msm8916_wcd_digital_dai,
+ 				      ARRAY_SIZE(msm8916_wcd_digital_dai));
++	if (ret)
++		goto err_mclk;
++
++	return 0;
++
++err_mclk:
++	clk_disable_unprepare(priv->mclk);
+ err_clk:
+ 	clk_disable_unprepare(priv->ahbclk);
+ 	return ret;
 -- 
 2.35.1
 
