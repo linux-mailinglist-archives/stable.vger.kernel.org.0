@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 575CE50F464
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:33:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B6950F3D4
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241986AbiDZIf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37010 "EHLO
+        id S1344691AbiDZI0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:26:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242176AbiDZIfK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04C9B7EA31;
-        Tue, 26 Apr 2022 01:28:22 -0700 (PDT)
+        with ESMTP id S1344674AbiDZI0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:26:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1876D3A19F;
+        Tue, 26 Apr 2022 01:23:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F44061862;
-        Tue, 26 Apr 2022 08:28:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C5AAC385A0;
-        Tue, 26 Apr 2022 08:28:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2B7B6179E;
+        Tue, 26 Apr 2022 08:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D005CC385A0;
+        Tue, 26 Apr 2022 08:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961701;
-        bh=znNaN40pmY2AdXWEBtRGKYdnNAEJBnzE65uE1lh9RXE=;
+        s=korg; t=1650961384;
+        bh=Zp0ODmEopr5z1F8ZsmkfyyFrMWNW4ooKim+LgFu0NRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fe7hvPLSxxMEmoTsC8Yf4r7eJZv+bB0MdyfLVI3NJQ6UKXqzUQho5o9iFUs9+u0DW
-         E+L03QiiyMVtpO3wkdwBqyK+FrECdfk/3PexIJu0DiuNLnX7yB9rn9MR8ynVI/NArR
-         dgZIULUMTE3CbhSOF9KSFONYZyr1hMWzeche/bqM=
+        b=NskFkqdo3SUyDickFvT0oT8mKABfiYK4biINV6AdWAjmhRGq43Y0936rpFix/3Nrp
+         sbZfaF6N8wVe6GeD0i6wp8k/3oQe8KjLy/pHWFhweMMHo8JsBfN/3OS17arEdbQyi5
+         99QWYhiNM0gBJGmDSyIyC+J0nbDUQUWD2kwSR/bU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/53] drm/panel/raspberrypi-touchscreen: Initialise the bridge in prepare
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 18/24] ASoC: soc-dapm: fix two incorrect uses of list iterator
 Date:   Tue, 26 Apr 2022 10:21:12 +0200
-Message-Id: <20220426081736.591376322@linuxfoundation.org>
+Message-Id: <20220426081731.911260704@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
+References: <20220426081731.370823950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 5f18c0782b99e26121efa93d20b76c19e17aa1dd ]
+commit f730a46b931d894816af34a0ff8e4ad51565b39f upstream.
 
-The panel has a prepare call which is before video starts, and an
-enable call which is after.
-The Toshiba bridge should be configured before video, so move
-the relevant power and initialisation calls to prepare.
+These two bug are here:
+	list_for_each_entry_safe_continue(w, n, list,
+					power_list);
+	list_for_each_entry_safe_continue(w, n, list,
+					power_list);
 
-Fixes: 2f733d6194bd ("drm/panel: Add support for the Raspberry Pi 7" Touchscreen.")
-Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220415162513.42190-3-stefan.wahren@i2se.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+After the list_for_each_entry_safe_continue() exits, the list iterator
+will always be a bogus pointer which point to an invalid struct objdect
+containing HEAD member. The funciton poniter 'w->event' will be a
+invalid value which can lead to a control-flow hijack if the 'w' can be
+controlled.
+
+The original intention was to continue the outer list_for_each_entry_safe()
+loop with the same entry if w->event is NULL, but misunderstanding the
+meaning of list_for_each_entry_safe_continue().
+
+So just add a 'continue;' to fix the bug.
+
+Cc: stable@vger.kernel.org
+Fixes: 163cac061c973 ("ASoC: Factor out DAPM sequence execution")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220329012134.9375-1-xiam0nd.tong@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ sound/soc/soc-dapm.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-index 2073e0e43e2f..f57eec47ef6a 100644
---- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-+++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
-@@ -269,7 +269,7 @@ static int rpi_touchscreen_noop(struct drm_panel *panel)
- 	return 0;
- }
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -1569,8 +1569,7 @@ static void dapm_seq_run(struct snd_soc_
+ 		switch (w->id) {
+ 		case snd_soc_dapm_pre:
+ 			if (!w->event)
+-				list_for_each_entry_safe_continue(w, n, list,
+-								  power_list);
++				continue;
  
--static int rpi_touchscreen_enable(struct drm_panel *panel)
-+static int rpi_touchscreen_prepare(struct drm_panel *panel)
- {
- 	struct rpi_touchscreen *ts = panel_to_ts(panel);
- 	int i;
-@@ -299,6 +299,13 @@ static int rpi_touchscreen_enable(struct drm_panel *panel)
- 	rpi_touchscreen_write(ts, DSI_STARTDSI, 0x01);
- 	msleep(100);
+ 			if (event == SND_SOC_DAPM_STREAM_START)
+ 				ret = w->event(w,
+@@ -1582,8 +1581,7 @@ static void dapm_seq_run(struct snd_soc_
  
-+	return 0;
-+}
-+
-+static int rpi_touchscreen_enable(struct drm_panel *panel)
-+{
-+	struct rpi_touchscreen *ts = panel_to_ts(panel);
-+
- 	/* Turn on the backlight. */
- 	rpi_touchscreen_i2c_write(ts, REG_PWM, 255);
+ 		case snd_soc_dapm_post:
+ 			if (!w->event)
+-				list_for_each_entry_safe_continue(w, n, list,
+-								  power_list);
++				continue;
  
-@@ -353,7 +360,7 @@ static int rpi_touchscreen_get_modes(struct drm_panel *panel)
- static const struct drm_panel_funcs rpi_touchscreen_funcs = {
- 	.disable = rpi_touchscreen_disable,
- 	.unprepare = rpi_touchscreen_noop,
--	.prepare = rpi_touchscreen_noop,
-+	.prepare = rpi_touchscreen_prepare,
- 	.enable = rpi_touchscreen_enable,
- 	.get_modes = rpi_touchscreen_get_modes,
- };
--- 
-2.35.1
-
+ 			if (event == SND_SOC_DAPM_STREAM_START)
+ 				ret = w->event(w,
 
 
