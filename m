@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F172950F886
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3DA50F640
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346428AbiDZJIR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57334 "EHLO
+        id S239268AbiDZIxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:53:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347101AbiDZJFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD1B9FC41B;
-        Tue, 26 Apr 2022 01:44:09 -0700 (PDT)
+        with ESMTP id S1346221AbiDZIt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:49:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05256C7EBF;
+        Tue, 26 Apr 2022 01:37:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E877D60EC3;
-        Tue, 26 Apr 2022 08:44:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06B6BC385AC;
-        Tue, 26 Apr 2022 08:44:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A6AD60A67;
+        Tue, 26 Apr 2022 08:37:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65F01C385A0;
+        Tue, 26 Apr 2022 08:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962648;
-        bh=6XUd9kPN56YUg9VaXhuKM1HVFut7iIMOVAlX9l/yiZU=;
+        s=korg; t=1650962278;
+        bh=CNOrExejcAtrT2uI/EvTsxM/o0aOOv5V/6eM/dQIZFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5H3jVQc2c1TyJRBSrq9yVehUVszstYbHmlpQKzwRi4MXan04HEXXPl7/lunejNck
-         RADmnfg0zhXVrZ7B2m4rzKytE/+fqWa+duyXlAR/zJbnoo75s76NeJ+ynm+6sbwjqt
-         xsHc5tx6XvMuixiuhqRx4EL6jHaKTcTOMaM9bV/E=
+        b=esFXcL9XtfPp7Y9Gw2Ul/ptMgjdhsYjwcrR8d7doyFN5FiyESXda8s/vY0jT4TQ+e
+         pPAhitrpVppOOusSnt76PLfqVoBXUYML5rOgDVTWWtyEHaETTPF0ZHNQY8Xm4hRKcj
+         1YV+8SI7wb/N5fLthq5+5vE+7gCprplrPum41K+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 042/146] net: mscc: ocelot: fix broken IP multicast flooding
+Subject: [PATCH 5.15 036/124] ip6_gre: Avoid updating tunnel->tun_hlen in __gre6_xmit()
 Date:   Tue, 26 Apr 2022 10:20:37 +0200
-Message-Id: <20220426081751.251746086@linuxfoundation.org>
+Message-Id: <20220426081748.330188844@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit 4cf35a2b627a020fe1a6b6fc7a6a12394644e474 ]
+[ Upstream commit f40c064e933d7787ca7411b699504d7a2664c1f5 ]
 
-When the user runs:
-bridge link set dev $br_port mcast_flood on
+Do not update tunnel->tun_hlen in data plane code.  Use a local variable
+instead, just like "tunnel_hlen" in net/ipv4/ip_gre.c:gre_fb_xmit().
 
-this command should affect not only L2 multicast, but also IPv4 and IPv6
-multicast.
-
-In the Ocelot switch, unknown multicast gets flooded according to
-different PGIDs according to its type, and PGID_MC only handles L2
-multicast. Therefore, by leaving PGID_MCIPV4 and PGID_MCIPV6 at their
-default value of 0, unknown IP multicast traffic is never flooded.
-
-Fixes: 421741ea5672 ("net: mscc: ocelot: offload bridge port flags to device")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20220415151950.219660-1-vladimir.oltean@nxp.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Co-developed-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv6/ip6_gre.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
-index fd3ceb74620d..a314040c1a6a 100644
---- a/drivers/net/ethernet/mscc/ocelot.c
-+++ b/drivers/net/ethernet/mscc/ocelot.c
-@@ -2508,6 +2508,8 @@ static void ocelot_port_set_mcast_flood(struct ocelot *ocelot, int port,
- 		val = BIT(port);
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 466a5610e3ca..288720838329 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -743,6 +743,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		struct ip_tunnel_info *tun_info;
+ 		const struct ip_tunnel_key *key;
+ 		__be16 flags;
++		int tun_hlen;
  
- 	ocelot_rmw_rix(ocelot, val, BIT(port), ANA_PGID_PGID, PGID_MC);
-+	ocelot_rmw_rix(ocelot, val, BIT(port), ANA_PGID_PGID, PGID_MCIPV4);
-+	ocelot_rmw_rix(ocelot, val, BIT(port), ANA_PGID_PGID, PGID_MCIPV6);
- }
+ 		tun_info = skb_tunnel_info_txcheck(skb);
+ 		if (IS_ERR(tun_info) ||
+@@ -760,9 +761,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		dsfield = key->tos;
+ 		flags = key->tun_flags &
+ 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
+-		tunnel->tun_hlen = gre_calc_hlen(flags);
++		tun_hlen = gre_calc_hlen(flags);
  
- static void ocelot_port_set_bcast_flood(struct ocelot *ocelot, int port,
+-		gre_build_header(skb, tunnel->tun_hlen,
++		gre_build_header(skb, tun_hlen,
+ 				 flags, protocol,
+ 				 tunnel_id_to_key32(tun_info->key.tun_id),
+ 				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
 -- 
 2.35.1
 
