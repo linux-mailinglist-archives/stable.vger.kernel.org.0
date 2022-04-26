@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F8650F5E4
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E6D50F7A8
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343673AbiDZIsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:48:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57922 "EHLO
+        id S238012AbiDZJHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347142AbiDZIpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2D147A9B0;
-        Tue, 26 Apr 2022 01:37:27 -0700 (PDT)
+        with ESMTP id S1346915AbiDZJFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CFCAEC122;
+        Tue, 26 Apr 2022 01:43:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2500260A67;
-        Tue, 26 Apr 2022 08:37:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F55CC385BD;
-        Tue, 26 Apr 2022 08:37:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FFC3B81CF0;
+        Tue, 26 Apr 2022 08:43:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F208C385A4;
+        Tue, 26 Apr 2022 08:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962246;
-        bh=LLV/XxascRu5rAXk8FZLPs4PljDo5AyzoRLSl71XhiE=;
+        s=korg; t=1650962635;
+        bh=DRVjv1iSoldURvC8VJBticy+OSiVUst8AokM4yOLhEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g8JOXsVlBeC7qtP7RHGnEyHX3qg7PxGkyW/Fhxivq2rksoXxYcv6QzfmHPgnw5+MK
-         5bc7bA96TCQ3H4GsIaPgGCqCo/C2jrtk42OQ0Q9JOwpIPVfNW/lIrAIcL0ZD7ABozC
-         oc0W8EnHxs8Xk8zip2lmFK2FQmwZmbSgA00cdl8c=
+        b=iw9E9TUL/7wjZYm3T8MkaInXd5NyCYUvNA6WNkm+CI3AnNPBCu77kWDwTtjSpLD9G
+         MTC4ZON6lTctWX3v0AVOOTCFUwTSR7V6qxZfg9e4LmFmVWTuQ3/tjq4xSG8jhrptlF
+         bLLm6BEu+5UW6JBl2p05npdNQGL6VBVpW1hQLdYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/124] ALSA: hda/hdmi: fix warning about PCM count when used with SOF
+        stable@vger.kernel.org, Ido Schimmel <idosch@idosch.org>,
+        David Ahern <dsahern@kernel.org>,
+        Alexis Bauvin <abauvin@scaleway.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 038/146] l3mdev: l3mdev_master_upper_ifindex_by_index_rcu should be using netdev_master_upper_dev_get_rcu
 Date:   Tue, 26 Apr 2022 10:20:33 +0200
-Message-Id: <20220426081748.217352078@linuxfoundation.org>
+Message-Id: <20220426081751.140051859@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+From: David Ahern <dsahern@kernel.org>
 
-[ Upstream commit c74193787b2f683751a67603fb5f15c7584f355f ]
+[ Upstream commit 83daab06252ee5d0e1f4373ff28b79304945fc19 ]
 
-With commit 13046370c4d1 ("ALSA: hda/hdmi: let new platforms assign the
-pcm slot dynamically"), old behaviour to consider the HDA pin number,
-when choosing PCM to assign, was dropped.
+Next patch uses l3mdev_master_upper_ifindex_by_index_rcu which throws
+a splat with debug kernels:
 
-Build on this change and limit the number of PCMs created to number of
-converters (= maximum number of concurrent display/receivers) when
-"mst_no_extra_pcms" and "dyn_pcm_no_legacy" quirks are both set.
+[13783.087570] ------------[ cut here ]------------
+[13783.093974] RTNL: assertion failed at net/core/dev.c (6702)
+[13783.100761] WARNING: CPU: 3 PID: 51132 at net/core/dev.c:6702 netdev_master_upper_dev_get+0x16a/0x1a0
 
-Fix the check in hdmi_find_pcm_slot() to ensure only spec->pcm_used
-entries are considered in the search. Elsewhere in the driver
-spec->pcm_used is already checked properly.
+[13783.184226] CPU: 3 PID: 51132 Comm: kworker/3:3 Not tainted 5.17.0-custom-100090-g6f963aafb1cc #682
+[13783.194788] Hardware name: Mellanox Technologies Ltd. MSN2010/SA002610, BIOS 5.6.5 08/24/2017
+[13783.204755] Workqueue: mld mld_ifc_work [ipv6]
+[13783.210338] RIP: 0010:netdev_master_upper_dev_get+0x16a/0x1a0
+[13783.217209] Code: 0f 85 e3 fe ff ff e8 65 ac ec fe ba 2e 1a 00 00 48 c7 c6 60 6f 38 83 48 c7 c7 c0 70 38 83 c6 05 5e b5 d7 01 01 e8 c6 29 52 00 <0f> 0b e9 b8 fe ff ff e8 5a 6c 35 ff e9 1c ff ff ff 48 89 ef e8 7d
+[13783.238659] RSP: 0018:ffffc9000b37f5a8 EFLAGS: 00010286
+[13783.244995] RAX: 0000000000000000 RBX: ffff88812ee5c000 RCX: 0000000000000000
+[13783.253379] RDX: ffff88811ce09d40 RSI: ffffffff812d0fcd RDI: fffff5200166fea7
+[13783.261769] RBP: 0000000000000000 R08: 0000000000000001 R09: ffff8882375f4287
+[13783.270138] R10: ffffed1046ebe850 R11: 0000000000000001 R12: dffffc0000000000
+[13783.278510] R13: 0000000000000275 R14: ffffc9000b37f688 R15: ffff8881273b4af8
+[13783.286870] FS:  0000000000000000(0000) GS:ffff888237400000(0000) knlGS:0000000000000000
+[13783.296352] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[13783.303177] CR2: 00007ff25fc9b2e8 CR3: 0000000174d23000 CR4: 00000000001006e0
+[13783.311546] Call Trace:
+[13783.314660]  <TASK>
+[13783.317553]  l3mdev_master_upper_ifindex_by_index_rcu+0x43/0xe0
+...
 
-Doing this avoids following warning at SOF driver probe for multiple
-machine drivers:
+Change l3mdev_master_upper_ifindex_by_index_rcu to use
+netdev_master_upper_dev_get_rcu.
 
-[  112.425297] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
-PCM in topology for HDMI converter 4
-[  112.425298] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
-PCM in topology for HDMI converter 5
-[  112.425299] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
-PCM in topology for HDMI converter 6
-
-Fixes: 13046370c4d1 ("ALSA: hda/hdmi: let new platforms assign the pcm slot dynamically")
-BugLink: https://github.com/thesofproject/linux/issues/2573
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20220414150516.3638283-1-kai.vehmanen@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 6a6d6681ac1a ("l3mdev: add function to retreive upper master")
+Signed-off-by: Ido Schimmel <idosch@idosch.org>
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Cc: Alexis Bauvin <abauvin@scaleway.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/l3mdev/l3mdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index 472d81679a27..24da843f39a1 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -1387,7 +1387,7 @@ static int hdmi_find_pcm_slot(struct hdmi_spec *spec,
+diff --git a/net/l3mdev/l3mdev.c b/net/l3mdev/l3mdev.c
+index 17927966abb3..8b14a24f1040 100644
+--- a/net/l3mdev/l3mdev.c
++++ b/net/l3mdev/l3mdev.c
+@@ -147,7 +147,7 @@ int l3mdev_master_upper_ifindex_by_index_rcu(struct net *net, int ifindex)
  
-  last_try:
- 	/* the last try; check the empty slots in pins */
--	for (i = 0; i < spec->num_nids; i++) {
-+	for (i = 0; i < spec->pcm_used; i++) {
- 		if (!test_bit(i, &spec->pcm_bitmap))
- 			return i;
- 	}
-@@ -2263,7 +2263,9 @@ static int generic_hdmi_build_pcms(struct hda_codec *codec)
- 	 * dev_num is the device entry number in a pin
- 	 */
+ 	dev = dev_get_by_index_rcu(net, ifindex);
+ 	while (dev && !netif_is_l3_master(dev))
+-		dev = netdev_master_upper_dev_get(dev);
++		dev = netdev_master_upper_dev_get_rcu(dev);
  
--	if (codec->mst_no_extra_pcms)
-+	if (spec->dyn_pcm_no_legacy && codec->mst_no_extra_pcms)
-+		pcm_num = spec->num_cvts;
-+	else if (codec->mst_no_extra_pcms)
- 		pcm_num = spec->num_nids;
- 	else
- 		pcm_num = spec->num_nids + spec->dev_num - 1;
+ 	return dev ? dev->ifindex : 0;
+ }
 -- 
 2.35.1
 
