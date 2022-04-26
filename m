@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 922DC50F6F0
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB8650F6E0
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345822AbiDZJCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:02:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55812 "EHLO
+        id S244086AbiDZJBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:01:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345668AbiDZI5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:45 -0400
+        with ESMTP id S1345836AbiDZI5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F6195F60;
-        Tue, 26 Apr 2022 01:42:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83900255;
+        Tue, 26 Apr 2022 01:42:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B80CB81CFA;
-        Tue, 26 Apr 2022 08:42:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C27E1C385A4;
-        Tue, 26 Apr 2022 08:42:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4658AB81CFA;
+        Tue, 26 Apr 2022 08:42:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87E13C385A0;
+        Tue, 26 Apr 2022 08:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962553;
-        bh=NVOb1+z+z+tkeyXb0Ow7XL3idaCx8Ke0kAe6jaD9rbM=;
+        s=korg; t=1650962556;
+        bh=m88EaHGaWG+yaFFMZJp6vGUHRl983e7S1YXxudfwUVM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmJrsZPI5PR/heGWUHwA7+fACsAjHANZ98rvabIge85SLrVOE+n0BI2dWPMpK/kFB
-         P8vz8EqCisoViOwuLpvWYW8yNwBK8Heaq9YUBcbC7SGbIQGsCVIET82ZUpHyQpAwAy
-         oUAi0NMyvTnGAOGflmOB2xB6GRTxIYXwkAGrt69Y=
+        b=KcgNivbaUgCcODlZLSTcGUdbTEVLszLuko+uAeH/fms8CBzz7kM8HFwP6BJIU0mLZ
+         XruQDm+Ym6bTNZ1VAIQQbMekExuOsT6KJRViNY8PwjY54I+Qa1xhM7x1ayuHeaPMSX
+         hUkWXoHH6JJi1MQuuikQa095qAV+9zDS1+bi24r8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        stable@vger.kernel.org,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 011/146] ASoC: atmel: Remove system clock tree configuration for at91sam9g20ek
-Date:   Tue, 26 Apr 2022 10:20:06 +0200
-Message-Id: <20220426081750.381331669@linuxfoundation.org>
+Subject: [PATCH 5.17 012/146] ASoC: topology: Correct error handling in soc_tplg_dapm_widget_create()
+Date:   Tue, 26 Apr 2022 10:20:07 +0200
+Message-Id: <20220426081750.408766325@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -53,140 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 
-[ Upstream commit c775cbf62ed4911e4f0f23880f01815753123690 ]
+[ Upstream commit 9c363532413cda3e2c6dfa10e5cca7cd221877a0 ]
 
-The MCLK of the WM8731 on the AT91SAM9G20-EK board is connected to the
-PCK0 output of the SoC, intended in the reference software to be supplied
-using PLLB and programmed to 12MHz. As originally written for use with a
-board file the audio driver was responsible for configuring the entire tree
-but in the conversion to the common clock framework the registration of
-the named pck0 and pllb clocks was removed so the driver has failed to
-instantiate ever since.
+Academic correction of error handling:
+In case the allocation of kc or kcontrol_type fails the correct label to
+jump is hdr_err since the template.sname has been also allocated at this
+point.
 
-Since the WM8731 driver has had support for managing a MCLK provided via
-the common clock framework for some time we can simply drop all the clock
-management code from the machine driver other than configuration of the
-sysclk rate, the CODEC driver still respects that configuration from the
-machine driver.
-
-Fixes: ff78a189b0ae55f ("ARM: at91: remove old at91-specific clock driver")
+Fixes: d29d41e28eea6 ("ASoC: topology: Add support for multiple kcontrol types to a widget")
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220331114957.519-1-peter.ujfalusi@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220325154241.1600757-2-broonie@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/sam9g20_wm8731.c | 61 --------------------------------
- 1 file changed, 61 deletions(-)
+ sound/soc/soc-topology.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/atmel/sam9g20_wm8731.c b/sound/soc/atmel/sam9g20_wm8731.c
-index 33e43013ff77..0d639a33ad96 100644
---- a/sound/soc/atmel/sam9g20_wm8731.c
-+++ b/sound/soc/atmel/sam9g20_wm8731.c
-@@ -46,35 +46,6 @@
-  */
- #undef ENABLE_MIC_INPUT
- 
--static struct clk *mclk;
--
--static int at91sam9g20ek_set_bias_level(struct snd_soc_card *card,
--					struct snd_soc_dapm_context *dapm,
--					enum snd_soc_bias_level level)
--{
--	static int mclk_on;
--	int ret = 0;
--
--	switch (level) {
--	case SND_SOC_BIAS_ON:
--	case SND_SOC_BIAS_PREPARE:
--		if (!mclk_on)
--			ret = clk_enable(mclk);
--		if (ret == 0)
--			mclk_on = 1;
--		break;
--
--	case SND_SOC_BIAS_OFF:
--	case SND_SOC_BIAS_STANDBY:
--		if (mclk_on)
--			clk_disable(mclk);
--		mclk_on = 0;
--		break;
--	}
--
--	return ret;
--}
--
- static const struct snd_soc_dapm_widget at91sam9g20ek_dapm_widgets[] = {
- 	SND_SOC_DAPM_MIC("Int Mic", NULL),
- 	SND_SOC_DAPM_SPK("Ext Spk", NULL),
-@@ -135,7 +106,6 @@ static struct snd_soc_card snd_soc_at91sam9g20ek = {
- 	.owner = THIS_MODULE,
- 	.dai_link = &at91sam9g20ek_dai,
- 	.num_links = 1,
--	.set_bias_level = at91sam9g20ek_set_bias_level,
- 
- 	.dapm_widgets = at91sam9g20ek_dapm_widgets,
- 	.num_dapm_widgets = ARRAY_SIZE(at91sam9g20ek_dapm_widgets),
-@@ -148,7 +118,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	struct device_node *codec_np, *cpu_np;
--	struct clk *pllb;
- 	struct snd_soc_card *card = &snd_soc_at91sam9g20ek;
- 	int ret;
- 
-@@ -162,31 +131,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	/*
--	 * Codec MCLK is supplied by PCK0 - set it up.
--	 */
--	mclk = clk_get(NULL, "pck0");
--	if (IS_ERR(mclk)) {
--		dev_err(&pdev->dev, "Failed to get MCLK\n");
--		ret = PTR_ERR(mclk);
+diff --git a/sound/soc/soc-topology.c b/sound/soc/soc-topology.c
+index cb24805668bd..f413238117af 100644
+--- a/sound/soc/soc-topology.c
++++ b/sound/soc/soc-topology.c
+@@ -1479,12 +1479,12 @@ static int soc_tplg_dapm_widget_create(struct soc_tplg *tplg,
+ 	template.num_kcontrols = le32_to_cpu(w->num_kcontrols);
+ 	kc = devm_kcalloc(tplg->dev, le32_to_cpu(w->num_kcontrols), sizeof(*kc), GFP_KERNEL);
+ 	if (!kc)
 -		goto err;
--	}
--
--	pllb = clk_get(NULL, "pllb");
--	if (IS_ERR(pllb)) {
--		dev_err(&pdev->dev, "Failed to get PLLB\n");
--		ret = PTR_ERR(pllb);
--		goto err_mclk;
--	}
--	ret = clk_set_parent(mclk, pllb);
--	clk_put(pllb);
--	if (ret != 0) {
--		dev_err(&pdev->dev, "Failed to set MCLK parent\n");
--		goto err_mclk;
--	}
--
--	clk_set_rate(mclk, MCLK_RATE);
--
- 	card->dev = &pdev->dev;
++		goto hdr_err;
  
- 	/* Parse device node info */
-@@ -230,9 +174,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
+ 	kcontrol_type = devm_kcalloc(tplg->dev, le32_to_cpu(w->num_kcontrols), sizeof(unsigned int),
+ 				     GFP_KERNEL);
+ 	if (!kcontrol_type)
+-		goto err;
++		goto hdr_err;
  
- 	return ret;
- 
--err_mclk:
--	clk_put(mclk);
--	mclk = NULL;
- err:
- 	atmel_ssc_put_audio(0);
- 	return ret;
-@@ -242,8 +183,6 @@ static int at91sam9g20ek_audio_remove(struct platform_device *pdev)
- {
- 	struct snd_soc_card *card = platform_get_drvdata(pdev);
- 
--	clk_disable(mclk);
--	mclk = NULL;
- 	snd_soc_unregister_card(card);
- 	atmel_ssc_put_audio(0);
- 
+ 	for (i = 0; i < le32_to_cpu(w->num_kcontrols); i++) {
+ 		control_hdr = (struct snd_soc_tplg_ctl_hdr *)tplg->pos;
 -- 
 2.35.1
 
