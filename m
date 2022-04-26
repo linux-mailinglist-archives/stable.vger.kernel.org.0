@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5035550F429
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6230D50F7ED
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345201AbiDZIfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:35:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60530 "EHLO
+        id S1345865AbiDZJGj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:06:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344928AbiDZIdb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:33:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609F3434A0;
-        Tue, 26 Apr 2022 01:25:37 -0700 (PDT)
+        with ESMTP id S1347770AbiDZJGJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3579513F96;
+        Tue, 26 Apr 2022 01:45:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF9C061722;
-        Tue, 26 Apr 2022 08:25:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B978C385AF;
-        Tue, 26 Apr 2022 08:25:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C613C61356;
+        Tue, 26 Apr 2022 08:45:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEB1EC385AC;
+        Tue, 26 Apr 2022 08:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961536;
-        bh=06XDKZ6eGspf8eNJ01Fmut9oFMZHv1vvkWCZjqwZm/w=;
+        s=korg; t=1650962742;
+        bh=rgM8kfe5zD9EZNfO/4CiOhR5Q/c5QFs9MDQG24jIl1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tHuJFSI0CL3z3Dj+IY2K3Vk3/46atQnTAL3ZB09zxlIulXG7OLbqFY0Z/12GKsXpi
-         +btGX4oq9GHHzCZeaBMa1h94DWtu3yUtB6gUx3Q4RIqNcnu0Zzf8G1WOr4RmkFDMvx
-         1bDB15XzA3Xn25E7bieU8X3QUtNyvb8LzSctJfy0=
+        b=azu5ahwscHyPbuLXcWU/46ySyTbZhiB3zPFuSlrMqpqMO76mU6wl1R+2+7tc4d5XA
+         QBt9PSuzjM7Vo9I4b18MgZxDKLbNZaYqMEWXXCxIF/Mf+gL1aFlSrrtlWxjGC0zhvJ
+         A55pZ29Nj8j6Ybx9cKCm92Y861uK3SbDKsQylx6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Matyukevich <sergey.matyukevich@synopsys.com>,
-        Vineet Gupta <vgupta@kernel.org>
-Subject: [PATCH 4.14 28/43] ARC: entry: fix syscall_trace_exit argument
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 075/146] drm/msm/mdp5: check the return of kzalloc()
 Date:   Tue, 26 Apr 2022 10:21:10 +0200
-Message-Id: <20220426081735.347616252@linuxfoundation.org>
+Message-Id: <20220426081752.175144889@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich@synopsys.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-commit b1c6ecfdd06907554518ec384ce8e99889d15193 upstream.
+[ Upstream commit 047ae665577776b7feb11bd4f81f46627cff95e7 ]
 
-Function syscall_trace_exit expects pointer to pt_regs. However
-r0 is also used to keep syscall return value. Restore pointer
-to pt_regs before calling syscall_trace_exit.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check it to
+prevent potential wrong memory access.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Besides, since mdp5_plane_reset() is void type, so we should better
+set `plane-state` to NULL after releasing it.
+
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/481055/
+Link: https://lore.kernel.org/r/tencent_8E2A1C78140EE1784AB2FF4B2088CC0AB908@qq.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/entry.S |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -191,6 +191,7 @@ tracesys_exit:
- 	st  r0, [sp, PT_r0]     ; sys call return value in pt_regs
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+index c6b69afcbac8..50e854207c70 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+@@ -90,7 +90,10 @@ static void mdp5_plane_reset(struct drm_plane *plane)
+ 		__drm_atomic_helper_plane_destroy_state(plane->state);
  
- 	;POST Sys Call Ptrace Hook
-+	mov r0, sp		; pt_regs needed
- 	bl  @syscall_trace_exit
- 	b   ret_from_exception ; NOT ret_from_system_call at is saves r0 which
- 	; we'd done before calling post hook above
+ 	kfree(to_mdp5_plane_state(plane->state));
++	plane->state = NULL;
+ 	mdp5_state = kzalloc(sizeof(*mdp5_state), GFP_KERNEL);
++	if (!mdp5_state)
++		return;
+ 
+ 	if (plane->type == DRM_PLANE_TYPE_PRIMARY)
+ 		mdp5_state->base.zpos = STAGE_BASE;
+-- 
+2.35.1
+
 
 
