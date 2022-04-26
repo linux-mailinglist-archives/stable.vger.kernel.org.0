@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C645E50F59A
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E803D50F87A
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345819AbiDZIry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:47:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55176 "EHLO
+        id S1345580AbiDZJDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:03:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346933AbiDZIpb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 651603BBFD;
-        Tue, 26 Apr 2022 01:36:52 -0700 (PDT)
+        with ESMTP id S1346707AbiDZJBK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:01:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA24370911;
+        Tue, 26 Apr 2022 01:43:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4624618E8;
-        Tue, 26 Apr 2022 08:36:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3F4CC385A0;
-        Tue, 26 Apr 2022 08:36:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C97CB81CFA;
+        Tue, 26 Apr 2022 08:43:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96D53C385A0;
+        Tue, 26 Apr 2022 08:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962211;
-        bh=O5cWtjT6oZ9kHdt3jLx0dw74Nywf3PaeWXGX73eSrJs=;
+        s=korg; t=1650962603;
+        bh=gY03yRQVgo2o+50+mkECFHvIIzQVh3HNSNFQU6Ptln8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8U5zN+LbLDcyYSiJ0UlwAT9RnmpiKXLmwGc3fFcoK4tDuKbsIQR3hBgS91Hh5huG
-         RNLRc3tqINJqQ/ELBEmkIgEYra/2wibdzMHxsZIEtDPc+X2A8uzoydL+ssEaLvlEnQ
-         wMyFUjyxU5Jv5w/4SLdm68GuwWtxPHU8f0gxgxT8=
+        b=AoSnJ0O1kxKfYJMD+wmCzcNw7NPLRTa2XzBinZqyXKy1Zd5q1EBWsB/bjn3yGpeGn
+         QxXAD6bvA6BmEm7DW2HA5/O/WVJNDW/MjyDam0B78q6ggP9NhKZeRSvPdHo6KPyHFx
+         wp7K/LaV7BfNt7i7v8IfnrfRGOxrw0Kzz73JFeUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Zhu <tony.zhu@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 022/124] dmaengine: idxd: fix device cleanup on disable
+        stable@vger.kernel.org,
+        Wojciech Drewek <wojciech.drewek@intel.com>,
+        Marcin Szycik <marcin.szycik@linux.intel.com>,
+        Michal Swiatkowski <michal.swiatkowski@linux.intel.com>,
+        Sandeep Penigalapati <sandeep.penigalapati@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 028/146] ice: fix crash in switchdev mode
 Date:   Tue, 26 Apr 2022 10:20:23 +0200
-Message-Id: <20220426081747.936081453@linuxfoundation.org>
+Message-Id: <20220426081750.858905110@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +57,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Wojciech Drewek <wojciech.drewek@intel.com>
 
-[ Upstream commit 12e45e89556d7a532120f976081e9e7582addd2b ]
+[ Upstream commit d201665147ae788b7cca9fab58a1826f64152034 ]
 
-There are certain parts of WQ that needs to be cleaned up even after WQ is
-disabled during the device disable. Those are the unchangeable parts for a
-WQ when the device is still enabled. Move the cleanup outside of WQ state
-check. Remove idxd_wq_disable_cleanup() inside idxd_wq_device_reset_cleanup()
-since only the unchangeable parts need to be cleared.
+Below steps end up with crash:
+- modprobe ice
+- devlink dev eswitch set $PF1_PCI mode switchdev
+- echo 64 > /sys/class/net/$PF1/device/sriov_numvfs
+- rmmod ice
 
-Fixes: 0f225705cf65 ("dmaengine: idxd: fix wq settings post wq disable")
-Reported-by: Tony Zhu <tony.zhu@intel.com>
-Tested-by: Tony Zhu <tony.zhu@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/164919561905.1455025.13542366389944678346.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Calling ice_eswitch_port_start_xmit while the process of removing
+VFs is in progress ends up with NULL pointer dereference.
+That's because PR netdev is not released but some resources
+are already freed. Fix it by checking if ICE_VF_DIS bit is set.
+
+Call trace:
+[ 1379.595146] BUG: kernel NULL pointer dereference, address: 0000000000000040
+[ 1379.595284] #PF: supervisor read access in kernel mode
+[ 1379.595410] #PF: error_code(0x0000) - not-present page
+[ 1379.595535] PGD 0 P4D 0
+[ 1379.595657] Oops: 0000 [#1] PREEMPT SMP PTI
+[ 1379.595783] CPU: 4 PID: 974 Comm: NetworkManager Kdump: loaded Tainted: G           OE     5.17.0-rc8_mrq_dev-queue+ #12
+[ 1379.595926] Hardware name: Intel Corporation S1200SP/S1200SP, BIOS S1200SP.86B.03.01.0042.013020190050 01/30/2019
+[ 1379.596063] RIP: 0010:ice_eswitch_port_start_xmit+0x46/0xd0 [ice]
+[ 1379.596292] Code: c7 c8 09 00 00 e8 9a c9 fc ff 84 c0 0f 85 82 00 00 00 4c 89 e7 e8 ca 70 fe ff 48 8b 7d 58 48 89 c3 48 85 ff 75 5e 48 8b 53 20 <8b> 42 40 85 c0 74 78 8d 48 01 f0 0f b1 4a 40 75 f2 0f b6 95 84 00
+[ 1379.596456] RSP: 0018:ffffaba0c0d7bad0 EFLAGS: 00010246
+[ 1379.596584] RAX: ffff969c14c71680 RBX: ffff969c14c71680 RCX: 000100107a0f0000
+[ 1379.596715] RDX: 0000000000000000 RSI: ffff969b9d631000 RDI: 0000000000000000
+[ 1379.596846] RBP: ffff969c07b46500 R08: ffff969becfca8ac R09: 0000000000000001
+[ 1379.596977] R10: 0000000000000004 R11: ffffaba0c0d7bbec R12: ffff969b9d631000
+[ 1379.597106] R13: ffffffffc08357a0 R14: ffff969c07b46500 R15: ffff969b9d631000
+[ 1379.597237] FS:  00007f72c0e25c80(0000) GS:ffff969f13500000(0000) knlGS:0000000000000000
+[ 1379.597414] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1379.597562] CR2: 0000000000000040 CR3: 000000012b316006 CR4: 00000000003706e0
+[ 1379.597713] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1379.597863] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 1379.598015] Call Trace:
+[ 1379.598153]  <TASK>
+[ 1379.598294]  dev_hard_start_xmit+0xd9/0x220
+[ 1379.598444]  sch_direct_xmit+0x8a/0x340
+[ 1379.598592]  __dev_queue_xmit+0xa3c/0xd30
+[ 1379.598739]  ? packet_parse_headers+0xb4/0xf0
+[ 1379.598890]  packet_sendmsg+0xa15/0x1620
+[ 1379.599038]  ? __check_object_size+0x46/0x140
+[ 1379.599186]  sock_sendmsg+0x5e/0x60
+[ 1379.599330]  ____sys_sendmsg+0x22c/0x270
+[ 1379.599474]  ? import_iovec+0x17/0x20
+[ 1379.599622]  ? sendmsg_copy_msghdr+0x59/0x90
+[ 1379.599771]  ___sys_sendmsg+0x81/0xc0
+[ 1379.599917]  ? __pollwait+0xd0/0xd0
+[ 1379.600061]  ? preempt_count_add+0x68/0xa0
+[ 1379.600210]  ? _raw_write_lock_irq+0x1a/0x40
+[ 1379.600369]  ? ep_done_scan+0xc9/0x110
+[ 1379.600494]  ? _raw_spin_unlock_irqrestore+0x25/0x40
+[ 1379.600622]  ? preempt_count_add+0x68/0xa0
+[ 1379.600747]  ? _raw_spin_lock_irq+0x1a/0x40
+[ 1379.600899]  ? __fget_light+0x8f/0x110
+[ 1379.601024]  __sys_sendmsg+0x49/0x80
+[ 1379.601148]  ? release_ds_buffers+0x50/0xe0
+[ 1379.601274]  do_syscall_64+0x3b/0x90
+[ 1379.601399]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 1379.601525] RIP: 0033:0x7f72c1e2e35d
+
+Fixes: f5396b8a663f ("ice: switchdev slow path")
+Signed-off-by: Wojciech Drewek <wojciech.drewek@intel.com>
+Reported-by: Marcin Szycik <marcin.szycik@linux.intel.com>
+Reviewed-by: Michal Swiatkowski <michal.swiatkowski@linux.intel.com>
+Tested-by: Sandeep Penigalapati <sandeep.penigalapati@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/device.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_eswitch.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index 7bd9ac1e93b2..a67bafc596b7 100644
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -406,7 +406,6 @@ static void idxd_wq_device_reset_cleanup(struct idxd_wq *wq)
- {
- 	lockdep_assert_held(&wq->wq_lock);
+diff --git a/drivers/net/ethernet/intel/ice/ice_eswitch.c b/drivers/net/ethernet/intel/ice/ice_eswitch.c
+index 73edc24d81d5..c54b72f9fd34 100644
+--- a/drivers/net/ethernet/intel/ice/ice_eswitch.c
++++ b/drivers/net/ethernet/intel/ice/ice_eswitch.c
+@@ -342,7 +342,8 @@ ice_eswitch_port_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 	np = netdev_priv(netdev);
+ 	vsi = np->vsi;
  
--	idxd_wq_disable_cleanup(wq);
- 	wq->size = 0;
- 	wq->group = NULL;
- }
-@@ -723,9 +722,9 @@ static void idxd_device_wqs_clear_state(struct idxd_device *idxd)
+-	if (ice_is_reset_in_progress(vsi->back->state))
++	if (ice_is_reset_in_progress(vsi->back->state) ||
++	    test_bit(ICE_VF_DIS, vsi->back->state))
+ 		return NETDEV_TX_BUSY;
  
- 		if (wq->state == IDXD_WQ_ENABLED) {
- 			idxd_wq_disable_cleanup(wq);
--			idxd_wq_device_reset_cleanup(wq);
- 			wq->state = IDXD_WQ_DISABLED;
- 		}
-+		idxd_wq_device_reset_cleanup(wq);
- 	}
- }
- 
+ 	repr = ice_netdev_to_repr(netdev);
 -- 
 2.35.1
 
