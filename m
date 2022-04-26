@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2DE150F3BE
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AE3D50F460
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:33:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244325AbiDZI1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:27:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36364 "EHLO
+        id S1344976AbiDZIfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:35:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344709AbiDZI1C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8957E3DA67;
-        Tue, 26 Apr 2022 01:23:20 -0700 (PDT)
+        with ESMTP id S1345058AbiDZIfP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 856038020E;
+        Tue, 26 Apr 2022 01:28:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E773E6179E;
-        Tue, 26 Apr 2022 08:23:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC605C385A4;
-        Tue, 26 Apr 2022 08:23:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDE1261861;
+        Tue, 26 Apr 2022 08:28:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01186C385A0;
+        Tue, 26 Apr 2022 08:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961399;
-        bh=0XxiZn4mWg4KSzNOvpLn5V0WlMZAF0KIEYiJ+q4stq8=;
+        s=korg; t=1650961713;
+        bh=5T3eTfQO08G5FmqikWHLKnbCUxqKl/QAJjfaLnqdXfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRMFlzuhXkI9xzasZco843Kw1LIF1x2HV4m1k8K+OjlLWZ+//gGkYrLzdGDHmttUZ
-         9zrQyZb+SJw6EssIrxmTYd97YZauGEN5o2Yd1KkM2CRalUbiLEclsBopwOerKQxi1b
-         B6ZPE2sc15so6akjKvmCeeM2Yo2D29ID72g0BV8o=
+        b=BhvQttUe6asurancf6SEYYBUdDZ0FnL3kHrDjIyDzPFNgSCAgGQK+y1t5Iw9f2bDk
+         +9d6Dkn4NlUAJPDt49nTrO6X4Kz4Lcks7/ABEDwq9thIAhT9b7CTMoScMhvG0jq//7
+         4VydgbvX/OGKS2NILgIuPaUBWyJ8ivR4gB6vuUz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.9 22/24] ext4: fix overhead calculation to account for the reserved gdt blocks
+        stable@vger.kernel.org,
+        James Hutchinson <jahutchinson99@googlemail.com>,
+        Dima Ruinskiy <dima.ruinskiy@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 4.19 36/53] e1000e: Fix possible overflow in LTR decoding
 Date:   Tue, 26 Apr 2022 10:21:16 +0200
-Message-Id: <20220426081732.028630377@linuxfoundation.org>
+Message-Id: <20220426081736.706339573@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
-References: <20220426081731.370823950@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-commit 10b01ee92df52c8d7200afead4d5e5f55a5c58b1 upstream.
+commit 04ebaa1cfddae5f240cc7404f009133bb0389a47 upstream.
 
-The kernel calculation was underestimating the overhead by not taking
-into account the reserved gdt blocks.  With this change, the overhead
-calculated by the kernel matches the overhead calculation in mke2fs.
+When we decode the latency and the max_latency, u16 value may not fit
+the required size and could lead to the wrong LTR representation.
 
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Scaling is represented as:
+scale 0 - 1         (2^(5*0)) = 2^0
+scale 1 - 32        (2^(5 *1))= 2^5
+scale 2 - 1024      (2^(5 *2)) =2^10
+scale 3 - 32768     (2^(5 *3)) =2^15
+scale 4 - 1048576   (2^(5 *4)) = 2^20
+scale 5 - 33554432  (2^(5 *4)) = 2^25
+scale 4 and scale 5 required 20 and 25 bits respectively.
+scale 6 reserved.
+
+Replace the u16 type with the u32 type and allow corrected LTR
+representation.
+
+Cc: stable@vger.kernel.org
+Fixes: 44a13a5d99c7 ("e1000e: Fix the max snoop/no-snoop latency for 10M")
+Reported-by: James Hutchinson <jahutchinson99@googlemail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215689
+Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Tested-by: James Hutchinson <jahutchinson99@googlemail.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3241,9 +3241,11 @@ static int count_overhead(struct super_b
- 	ext4_fsblk_t		first_block, last_block, b;
- 	ext4_group_t		i, ngroups = ext4_get_groups_count(sb);
- 	int			s, j, count = 0;
-+	int			has_super = ext4_bg_has_super(sb, grp);
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -995,8 +995,8 @@ static s32 e1000_platform_pm_pch_lpt(str
+ {
+ 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
+ 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
+-	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
+-	u16 lat_enc_d = 0;	/* latency decoded */
++	u32 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
++	u32 lat_enc_d = 0;	/* latency decoded */
+ 	u16 lat_enc = 0;	/* latency encoded */
  
- 	if (!ext4_has_feature_bigalloc(sb))
--		return (ext4_bg_has_super(sb, grp) + ext4_bg_num_gdb(sb, grp) +
-+		return (has_super + ext4_bg_num_gdb(sb, grp) +
-+			(has_super ? le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) : 0) +
- 			sbi->s_itb_per_group + 2);
- 
- 	first_block = le32_to_cpu(sbi->s_es->s_first_data_block) +
+ 	if (link) {
 
 
