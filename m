@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D3DB510824
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2838A510835
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:05:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353950AbiDZTGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:06:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43784 "EHLO
+        id S1353977AbiDZTGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:06:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353240AbiDZTF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222421999D9;
+        with ESMTP id S1353838AbiDZTGA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:06:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2C419A4AE;
         Tue, 26 Apr 2022 12:02:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA3A5B8224F;
-        Tue, 26 Apr 2022 19:02:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD27C385A4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D2D6B8225A;
+        Tue, 26 Apr 2022 19:02:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0094C385AA;
         Tue, 26 Apr 2022 19:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650999768;
-        bh=C3Yvy/qzZwrx37raEwVDeS3Z2P4nQvqPOYKe2HSqq5s=;
+        s=k20201202; t=1650999769;
+        bh=OHTg+xiRClRmND9KQSuB7CsN17t/zbL4VTawcUn5Ao8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPBDwM8n4x2rN3NvLVKicha0Zo9qIy6CBL1Li6i+7B7OqiqzqewEQ2urmFPPAtFsD
-         57/j7g9/0986ZkK0VVZCxYuAqY1XhOTouU2oCxOMG2HU38EgaaQyCmsx1vH5RLESHz
-         +aCaw6vnG3eZUFQSPSDll4ibGjkaAHtGL8vHIP6RhQiEO1QRvwK1KVEqXREVe1cxHD
-         jiXenTBgkjj8QG/B9EXPT7Swc/dwWIAXq9VfqIGrE1hcDOH3NzDyjDaxve8/Dsc9OK
-         z5N+eZvEvyh1J4gp2+JPJfUP/EByhszOjfv6cJVn8h4TbkJlLKsxaVMBvskAWofLEv
-         sVM+k9yvUZcyQ==
+        b=bZ00GZAEzWIs+F9ZBSnH935nI9+jqkshG/DzwmbfAoONzNAU5S27JqR1k3WBZkJaz
+         K5zXF7mz7vv99CNMIUgWpNh7ds+fO6InEjBQrS+HMzfRvQe9jNUi6zEpCkPS+FIpFo
+         sHmY8XAMc+1MALp5Xu9w6KuASfEGod563kh5iGJVoLaJfYceOBGmN7fq9WqFCs95/E
+         jfjhpaBlUqZdwkN9/fRSUdWK21b2/zIBuKgdTLKtwdeFxMPyLLdNl09ZA6b2rldqIn
+         RB++FXG0K6zhAuUknVmq+9rCBVoutKGWfPyVTmKiMxp3n7Sh9hzYCgAzzZA2zBqW/T
+         8PTzHYkVa8QIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Duoming Zhou <duoming@zju.edu.cn>, Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jes@trained-monkey.org,
-        davem@davemloft.net, kuba@kernel.org, linux-hippi@sunsite.dk,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 5/6] drivers: net: hippi: Fix deadlock in rr_close()
-Date:   Tue, 26 Apr 2022 15:02:41 -0400
-Message-Id: <20220426190243.2351733-5-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 6/6] ata: pata_marvell: Check the 'bmdma_addr' beforing reading
+Date:   Tue, 26 Apr 2022 15:02:42 -0400
+Message-Id: <20220426190243.2351733-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220426190243.2351733-1-sashal@kernel.org>
 References: <20220426190243.2351733-1-sashal@kernel.org>
@@ -56,51 +55,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit bc6de2878429e85c1f1afaa566f7b5abb2243eef ]
+[ Upstream commit aafa9f958342db36c17ac2a7f1b841032c96feb4 ]
 
-There is a deadlock in rr_close(), which is shown below:
+Before detecting the cable type on the dma bar, the driver should check
+whether the 'bmdma_addr' is zero, which means the adapter does not
+support DMA, otherwise we will get the following error:
 
-   (Thread 1)                |      (Thread 2)
-                             | rr_open()
-rr_close()                   |  add_timer()
- spin_lock_irqsave() //(1)   |  (wait a time)
- ...                         | rr_timer()
- del_timer_sync()            |  spin_lock_irqsave() //(2)
- (wait timer to stop)        |  ...
+[    5.146634] Bad IO access at port 0x1 (return inb(port))
+[    5.147206] WARNING: CPU: 2 PID: 303 at lib/iomap.c:44 ioread8+0x4a/0x60
+[    5.150856] RIP: 0010:ioread8+0x4a/0x60
+[    5.160238] Call Trace:
+[    5.160470]  <TASK>
+[    5.160674]  marvell_cable_detect+0x6e/0xc0 [pata_marvell]
+[    5.161728]  ata_eh_recover+0x3520/0x6cc0
+[    5.168075]  ata_do_eh+0x49/0x3c0
 
-We hold rrpriv->lock in position (1) of thread 1 and
-use del_timer_sync() to wait timer to stop, but timer handler
-also need rrpriv->lock in position (2) of thread 2.
-As a result, rr_close() will block forever.
-
-This patch extracts del_timer_sync() from the protection of
-spin_lock_irqsave(), which could let timer handler to obtain
-the needed lock.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220417125519.82618-1-duoming@zju.edu.cn
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hippi/rrunner.c | 2 ++
+ drivers/ata/pata_marvell.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/hippi/rrunner.c b/drivers/net/hippi/rrunner.c
-index a4b3fce69ecd..6016e182f008 100644
---- a/drivers/net/hippi/rrunner.c
-+++ b/drivers/net/hippi/rrunner.c
-@@ -1346,7 +1346,9 @@ static int rr_close(struct net_device *dev)
- 
- 	rrpriv->fw_running = 0;
- 
-+	spin_unlock_irqrestore(&rrpriv->lock, flags);
- 	del_timer_sync(&rrpriv->timer);
-+	spin_lock_irqsave(&rrpriv->lock, flags);
- 
- 	writel(0, &regs->TxPi);
- 	writel(0, &regs->IpRxPi);
+diff --git a/drivers/ata/pata_marvell.c b/drivers/ata/pata_marvell.c
+index b066809ba9a1..c56f4043b0cc 100644
+--- a/drivers/ata/pata_marvell.c
++++ b/drivers/ata/pata_marvell.c
+@@ -83,6 +83,8 @@ static int marvell_cable_detect(struct ata_port *ap)
+ 	switch(ap->port_no)
+ 	{
+ 	case 0:
++		if (!ap->ioaddr.bmdma_addr)
++			return ATA_CBL_PATA_UNK;
+ 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
+ 			return ATA_CBL_PATA40;
+ 		return ATA_CBL_PATA80;
 -- 
 2.35.1
 
