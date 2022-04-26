@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E89B250F79C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F35150F64C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344632AbiDZJK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:10:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
+        id S238330AbiDZIrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347930AbiDZJGX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB73CB89AB;
-        Tue, 26 Apr 2022 01:47:29 -0700 (PDT)
+        with ESMTP id S1346737AbiDZIpU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:20 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F5E11179;
+        Tue, 26 Apr 2022 01:35:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8670760C42;
-        Tue, 26 Apr 2022 08:47:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78BB8C385A0;
-        Tue, 26 Apr 2022 08:47:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 501AFCE1BC3;
+        Tue, 26 Apr 2022 08:35:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DADCC385A4;
+        Tue, 26 Apr 2022 08:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962848;
-        bh=2VVE/+sLnLWpQLloAt4kJUL1Cb8HZ2aTkZ01T7yi/a8=;
+        s=korg; t=1650962121;
+        bh=XCuP9Q+OSOn4+uv+BWAlyIA6CYtfJW9KurUJLikhzp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zmKE7g9FgFOI9Q85TvcExMZuWjUgG0M2j5hDxt6Ss1GTbTeKGCac6SmlNg1mKNCa
-         ptZWrdHiFBAMAbwzXmZVNFjAGXjAhBbi7KJXvSAOr1qpW/oaI1/Cbl4swlE4hRG6E7
-         XaGEx/0XnhQ4t7xq4rAhdfOWbkKaIbise6Y6qtjQ=
+        b=NtF6vIXlVwIqp9CCrfwFlZACLh1OFK1KI2kiMPb7ECjOIbQEDgpHZD0ILgZQrq3nX
+         PLl5YBEXPY5KbF+161zOZ949CcLs4nRG4fJiKVqsJAMRqcE6wMA8cWCaFU6xwxqVtN
+         I0mOc0xpobPvJfHJtloiv8HhgerL0Az5FgyawKWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 110/146] powerpc/perf: Fix power10 event alternatives
+        syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com,
+        Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.10 77/86] ext4: limit length to bitmap_maxbytes - blocksize in punch_hole
 Date:   Tue, 26 Apr 2022 10:21:45 +0200
-Message-Id: <20220426081753.148393358@linuxfoundation.org>
+Message-Id: <20220426081743.431380245@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,98 +54,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-[ Upstream commit c6cc9a852f123301d5271f1484df8e961b2b64f1 ]
+commit 2da376228a2427501feb9d15815a45dbdbdd753e upstream.
 
-When scheduling a group of events, there are constraint checks done to
-make sure all events can go in a group. Example, one of the criteria is
-that events in a group cannot use the same PMC. But platform specific
-PMU supports alternative event for some of the event codes. During
-perf_event_open(), if any event group doesn't match constraint check
-criteria, further lookup is done to find alternative event.
+Syzbot found an issue [1] in ext4_fallocate().
+The C reproducer [2] calls fallocate(), passing size 0xffeffeff000ul,
+and offset 0x1000000ul, which, when added together exceed the
+bitmap_maxbytes for the inode. This triggers a BUG in
+ext4_ind_remove_space(). According to the comments in this function
+the 'end' parameter needs to be one block after the last block to be
+removed. In the case when the BUG is triggered it points to the last
+block. Modify the ext4_punch_hole() function and add constraint that
+caps the length to satisfy the one before laster block requirement.
 
-By current design, the array of alternatives events in PMU code is
-expected to be sorted by column 0. This is because in
-find_alternative() the return criteria is based on event code
-comparison. ie. "event < ev_alt[i][0])". This optimisation is there
-since find_alternative() can be called multiple times. In power10 PMU
-code, the alternative event array is not sorted properly and hence there
-is breakage in finding alternative event.
+LINK: [1] https://syzkaller.appspot.com/bug?id=b80bd9cf348aac724a4f4dff251800106d721331
+LINK: [2] https://syzkaller.appspot.com/text?tag=ReproC&x=14ba0238700000
 
-To work with existing logic, fix the alternative event array to be
-sorted by column 0 for power10-pmu.c
-
-Results:
-
-In case where an alternative event is not chosen when we could, events
-will be multiplexed. ie, time sliced where it could actually run
-concurrently.
-
-Example, in power10 PM_INST_CMPL_ALT(0x00002) has alternative event,
-PM_INST_CMPL(0x500fa). Without the fix, if a group of events with PMC1
-to PMC4 is used along with PM_INST_CMPL_ALT, it will be time sliced
-since all programmable PMC's are consumed already. But with the fix,
-when it picks alternative event on PMC5, all events will run
-concurrently.
-
-Before:
-
- # perf stat -e r00002,r100fc,r200fa,r300fc,r400fc
-
- Performance counter stats for 'system wide':
-
-         328668935      r00002               (79.94%)
-          56501024      r100fc               (79.95%)
-          49564238      r200fa               (79.95%)
-               376      r300fc               (80.19%)
-               660      r400fc               (79.97%)
-
-       4.039150522 seconds time elapsed
-
-With the fix, since alternative event is chosen to run on PMC6, events
-will be run concurrently.
-
-After:
-
- # perf stat -e r00002,r100fc,r200fa,r300fc,r400fc
-
- Performance counter stats for 'system wide':
-
-          23596607      r00002
-           4907738      r100fc
-           2283608      r200fa
-               135      r300fc
-               248      r400fc
-
-       1.664671390 seconds time elapsed
-
-Fixes: a64e697cef23 ("powerpc/perf: power10 Performance Monitoring support")
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220419114828.89843-2-atrajeev@linux.vnet.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a4bb6b64e39a ("ext4: enable "punch hole" functionality")
+Reported-by: syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+Link: https://lore.kernel.org/r/20220331200515.153214-1-tadeusz.struk@linaro.org
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/perf/power10-pmu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/inode.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/power10-pmu.c b/arch/powerpc/perf/power10-pmu.c
-index 0975ad0b42c4..69b4565d1a8f 100644
---- a/arch/powerpc/perf/power10-pmu.c
-+++ b/arch/powerpc/perf/power10-pmu.c
-@@ -91,8 +91,8 @@ extern u64 PERF_REG_EXTENDED_MASK;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4034,7 +4034,8 @@ int ext4_punch_hole(struct file *file, l
+ 	struct super_block *sb = inode->i_sb;
+ 	ext4_lblk_t first_block, stop_block;
+ 	struct address_space *mapping = inode->i_mapping;
+-	loff_t first_block_offset, last_block_offset;
++	loff_t first_block_offset, last_block_offset, max_length;
++	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
+ 	handle_t *handle;
+ 	unsigned int credits;
+ 	int ret = 0, ret2 = 0;
+@@ -4077,6 +4078,14 @@ int ext4_punch_hole(struct file *file, l
+ 		   offset;
+ 	}
  
- /* Table of alternatives, sorted by column 0 */
- static const unsigned int power10_event_alternatives[][MAX_ALT] = {
--	{ PM_CYC_ALT,			PM_CYC },
- 	{ PM_INST_CMPL_ALT,		PM_INST_CMPL },
-+	{ PM_CYC_ALT,			PM_CYC },
- };
- 
- static int power10_get_alternatives(u64 event, unsigned int flags, u64 alt[])
--- 
-2.35.1
-
++	/*
++	 * For punch hole the length + offset needs to be within one block
++	 * before last range. Adjust the length if it goes beyond that limit.
++	 */
++	max_length = sbi->s_bitmap_maxbytes - inode->i_sb->s_blocksize;
++	if (offset + length > max_length)
++		length = max_length - offset;
++
+ 	if (offset & (sb->s_blocksize - 1) ||
+ 	    (offset + length) & (sb->s_blocksize - 1)) {
+ 		/*
 
 
