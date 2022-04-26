@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67E6D50F7A8
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86AA850F84B
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238012AbiDZJHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43434 "EHLO
+        id S232839AbiDZJGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346915AbiDZJFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CFCAEC122;
-        Tue, 26 Apr 2022 01:43:58 -0700 (PDT)
+        with ESMTP id S1346969AbiDZJFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:09 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFBAF1368;
+        Tue, 26 Apr 2022 01:44:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FFC3B81CF0;
-        Tue, 26 Apr 2022 08:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F208C385A4;
-        Tue, 26 Apr 2022 08:43:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B134ACE1BD6;
+        Tue, 26 Apr 2022 08:44:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D69BC385A4;
+        Tue, 26 Apr 2022 08:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962635;
-        bh=DRVjv1iSoldURvC8VJBticy+OSiVUst8AokM4yOLhEM=;
+        s=korg; t=1650962639;
+        bh=AxCq9Te8CDy//AGhRuI/uCoayWcvoqpu3VgSru80L8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iw9E9TUL/7wjZYm3T8MkaInXd5NyCYUvNA6WNkm+CI3AnNPBCu77kWDwTtjSpLD9G
-         MTC4ZON6lTctWX3v0AVOOTCFUwTSR7V6qxZfg9e4LmFmVWTuQ3/tjq4xSG8jhrptlF
-         bLLm6BEu+5UW6JBl2p05npdNQGL6VBVpW1hQLdYI=
+        b=sPNj2AtAJi+C61Vp6ox+qj8Hla9EaorMZ3I8qiQjiUtxvpT1pINxZTt2GQ616EsIH
+         s/gqDD9+DR6OipkYTnRqXcuYlyJN2lSJdsuw1C5IOXys5jqfoIYoXXBJnUu99t7SUE
+         FGdKokvm00gKmK0ttyuTPWk8e/BibHa3NRgUot+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@idosch.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         David Ahern <dsahern@kernel.org>,
-        Alexis Bauvin <abauvin@scaleway.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 038/146] l3mdev: l3mdev_master_upper_ifindex_by_index_rcu should be using netdev_master_upper_dev_get_rcu
-Date:   Tue, 26 Apr 2022 10:20:33 +0200
-Message-Id: <20220426081751.140051859@linuxfoundation.org>
+Subject: [PATCH 5.17 039/146] ipv6: make ip6_rt_gc_expire an atomic_t
+Date:   Tue, 26 Apr 2022 10:20:34 +0200
+Message-Id: <20220426081751.167876212@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -55,62 +55,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 83daab06252ee5d0e1f4373ff28b79304945fc19 ]
+[ Upstream commit 9cb7c013420f98fa6fd12fc6a5dc055170c108db ]
 
-Next patch uses l3mdev_master_upper_ifindex_by_index_rcu which throws
-a splat with debug kernels:
+Reads and Writes to ip6_rt_gc_expire always have been racy,
+as syzbot reported lately [1]
 
-[13783.087570] ------------[ cut here ]------------
-[13783.093974] RTNL: assertion failed at net/core/dev.c (6702)
-[13783.100761] WARNING: CPU: 3 PID: 51132 at net/core/dev.c:6702 netdev_master_upper_dev_get+0x16a/0x1a0
+There is a possible risk of under-flow, leading
+to unexpected high value passed to fib6_run_gc(),
+although I have not observed this in the field.
 
-[13783.184226] CPU: 3 PID: 51132 Comm: kworker/3:3 Not tainted 5.17.0-custom-100090-g6f963aafb1cc #682
-[13783.194788] Hardware name: Mellanox Technologies Ltd. MSN2010/SA002610, BIOS 5.6.5 08/24/2017
-[13783.204755] Workqueue: mld mld_ifc_work [ipv6]
-[13783.210338] RIP: 0010:netdev_master_upper_dev_get+0x16a/0x1a0
-[13783.217209] Code: 0f 85 e3 fe ff ff e8 65 ac ec fe ba 2e 1a 00 00 48 c7 c6 60 6f 38 83 48 c7 c7 c0 70 38 83 c6 05 5e b5 d7 01 01 e8 c6 29 52 00 <0f> 0b e9 b8 fe ff ff e8 5a 6c 35 ff e9 1c ff ff ff 48 89 ef e8 7d
-[13783.238659] RSP: 0018:ffffc9000b37f5a8 EFLAGS: 00010286
-[13783.244995] RAX: 0000000000000000 RBX: ffff88812ee5c000 RCX: 0000000000000000
-[13783.253379] RDX: ffff88811ce09d40 RSI: ffffffff812d0fcd RDI: fffff5200166fea7
-[13783.261769] RBP: 0000000000000000 R08: 0000000000000001 R09: ffff8882375f4287
-[13783.270138] R10: ffffed1046ebe850 R11: 0000000000000001 R12: dffffc0000000000
-[13783.278510] R13: 0000000000000275 R14: ffffc9000b37f688 R15: ffff8881273b4af8
-[13783.286870] FS:  0000000000000000(0000) GS:ffff888237400000(0000) knlGS:0000000000000000
-[13783.296352] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[13783.303177] CR2: 00007ff25fc9b2e8 CR3: 0000000174d23000 CR4: 00000000001006e0
-[13783.311546] Call Trace:
-[13783.314660]  <TASK>
-[13783.317553]  l3mdev_master_upper_ifindex_by_index_rcu+0x43/0xe0
-...
+Hosts hitting ip6_dst_gc() very hard are under pretty bad
+state anyway.
 
-Change l3mdev_master_upper_ifindex_by_index_rcu to use
-netdev_master_upper_dev_get_rcu.
+[1]
+BUG: KCSAN: data-race in ip6_dst_gc / ip6_dst_gc
 
-Fixes: 6a6d6681ac1a ("l3mdev: add function to retreive upper master")
-Signed-off-by: Ido Schimmel <idosch@idosch.org>
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Cc: Alexis Bauvin <abauvin@scaleway.com>
+read-write to 0xffff888102110744 of 4 bytes by task 13165 on cpu 1:
+ ip6_dst_gc+0x1f3/0x220 net/ipv6/route.c:3311
+ dst_alloc+0x9b/0x160 net/core/dst.c:86
+ ip6_dst_alloc net/ipv6/route.c:344 [inline]
+ icmp6_dst_alloc+0xb2/0x360 net/ipv6/route.c:3261
+ mld_sendpack+0x2b9/0x580 net/ipv6/mcast.c:1807
+ mld_send_cr net/ipv6/mcast.c:2119 [inline]
+ mld_ifc_work+0x576/0x800 net/ipv6/mcast.c:2651
+ process_one_work+0x3d3/0x720 kernel/workqueue.c:2289
+ worker_thread+0x618/0xa70 kernel/workqueue.c:2436
+ kthread+0x1a9/0x1e0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30
+
+read-write to 0xffff888102110744 of 4 bytes by task 11607 on cpu 0:
+ ip6_dst_gc+0x1f3/0x220 net/ipv6/route.c:3311
+ dst_alloc+0x9b/0x160 net/core/dst.c:86
+ ip6_dst_alloc net/ipv6/route.c:344 [inline]
+ icmp6_dst_alloc+0xb2/0x360 net/ipv6/route.c:3261
+ mld_sendpack+0x2b9/0x580 net/ipv6/mcast.c:1807
+ mld_send_cr net/ipv6/mcast.c:2119 [inline]
+ mld_ifc_work+0x576/0x800 net/ipv6/mcast.c:2651
+ process_one_work+0x3d3/0x720 kernel/workqueue.c:2289
+ worker_thread+0x618/0xa70 kernel/workqueue.c:2436
+ kthread+0x1a9/0x1e0 kernel/kthread.c:376
+ ret_from_fork+0x1f/0x30
+
+value changed: 0x00000bb3 -> 0x00000ba9
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 11607 Comm: kworker/0:21 Not tainted 5.18.0-rc1-syzkaller-00037-g42e7a03d3bad-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: mld mld_ifc_work
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220413181333.649424-1-eric.dumazet@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l3mdev/l3mdev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/netns/ipv6.h |  4 ++--
+ net/ipv6/route.c         | 11 ++++++-----
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/net/l3mdev/l3mdev.c b/net/l3mdev/l3mdev.c
-index 17927966abb3..8b14a24f1040 100644
---- a/net/l3mdev/l3mdev.c
-+++ b/net/l3mdev/l3mdev.c
-@@ -147,7 +147,7 @@ int l3mdev_master_upper_ifindex_by_index_rcu(struct net *net, int ifindex)
+diff --git a/include/net/netns/ipv6.h b/include/net/netns/ipv6.h
+index 6bd7e5a85ce7..ff82983b7ab4 100644
+--- a/include/net/netns/ipv6.h
++++ b/include/net/netns/ipv6.h
+@@ -75,8 +75,8 @@ struct netns_ipv6 {
+ 	struct list_head	fib6_walkers;
+ 	rwlock_t		fib6_walker_lock;
+ 	spinlock_t		fib6_gc_lock;
+-	unsigned int		 ip6_rt_gc_expire;
+-	unsigned long		 ip6_rt_last_gc;
++	atomic_t		ip6_rt_gc_expire;
++	unsigned long		ip6_rt_last_gc;
+ 	unsigned char		flowlabel_has_excl;
+ #ifdef CONFIG_IPV6_MULTIPLE_TABLES
+ 	bool			fib6_has_custom_rules;
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index da1bf48e7937..1caeb1ef2095 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -3303,6 +3303,7 @@ static int ip6_dst_gc(struct dst_ops *ops)
+ 	int rt_elasticity = net->ipv6.sysctl.ip6_rt_gc_elasticity;
+ 	int rt_gc_timeout = net->ipv6.sysctl.ip6_rt_gc_timeout;
+ 	unsigned long rt_last_gc = net->ipv6.ip6_rt_last_gc;
++	unsigned int val;
+ 	int entries;
  
- 	dev = dev_get_by_index_rcu(net, ifindex);
- 	while (dev && !netif_is_l3_master(dev))
--		dev = netdev_master_upper_dev_get(dev);
-+		dev = netdev_master_upper_dev_get_rcu(dev);
+ 	entries = dst_entries_get_fast(ops);
+@@ -3313,13 +3314,13 @@ static int ip6_dst_gc(struct dst_ops *ops)
+ 	    entries <= rt_max_size)
+ 		goto out;
  
- 	return dev ? dev->ifindex : 0;
+-	net->ipv6.ip6_rt_gc_expire++;
+-	fib6_run_gc(net->ipv6.ip6_rt_gc_expire, net, true);
++	fib6_run_gc(atomic_inc_return(&net->ipv6.ip6_rt_gc_expire), net, true);
+ 	entries = dst_entries_get_slow(ops);
+ 	if (entries < ops->gc_thresh)
+-		net->ipv6.ip6_rt_gc_expire = rt_gc_timeout>>1;
++		atomic_set(&net->ipv6.ip6_rt_gc_expire, rt_gc_timeout >> 1);
+ out:
+-	net->ipv6.ip6_rt_gc_expire -= net->ipv6.ip6_rt_gc_expire>>rt_elasticity;
++	val = atomic_read(&net->ipv6.ip6_rt_gc_expire);
++	atomic_set(&net->ipv6.ip6_rt_gc_expire, val - (val >> rt_elasticity));
+ 	return entries > rt_max_size;
  }
+ 
+@@ -6514,7 +6515,7 @@ static int __net_init ip6_route_net_init(struct net *net)
+ 	net->ipv6.sysctl.ip6_rt_min_advmss = IPV6_MIN_MTU - 20 - 40;
+ 	net->ipv6.sysctl.skip_notify_on_dev_down = 0;
+ 
+-	net->ipv6.ip6_rt_gc_expire = 30*HZ;
++	atomic_set(&net->ipv6.ip6_rt_gc_expire, 30*HZ);
+ 
+ 	ret = 0;
+ out:
 -- 
 2.35.1
 
