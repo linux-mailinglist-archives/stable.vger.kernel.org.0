@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8AAF50F889
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24C5450F6A6
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346665AbiDZJIv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51282 "EHLO
+        id S241199AbiDZI6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244323AbiDZJGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A540FC8488;
-        Tue, 26 Apr 2022 01:47:43 -0700 (PDT)
+        with ESMTP id S1345546AbiDZI4h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:56:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A933DC5BE;
+        Tue, 26 Apr 2022 01:41:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3ADE6B81CB3;
-        Tue, 26 Apr 2022 08:47:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9384C385A0;
-        Tue, 26 Apr 2022 08:47:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 233D6604F5;
+        Tue, 26 Apr 2022 08:41:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 342F3C385A4;
+        Tue, 26 Apr 2022 08:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962861;
-        bh=yij2d1Ux7ctNvj7P7J9HDGOnvtH6jjc+nI7oka++9FQ=;
+        s=korg; t=1650962478;
+        bh=YqHERyHUxwYJs79q5FsoWblJusq3+OePBnS0nEGGnn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xsrD4euY7v+y4w5W0N3BR2eTFTPkp/G+emBM/GpECuDFv/wSKnK7nPFUxunMUN896
-         IgujwGhRiiB+6I2wtoyVaG97h/VfuY5gEouShsnoOn2OX97rKhaQd+OjFrc0S+ne4b
-         JnGzCwyqgYRgGB4eMiOr0SC/ouWR1wmYVoU7NLXg=
+        b=KuLWnI/5V1u7RqUfKysiocBEn6GP4rTbcyyEtOqJeogjupl9bezgPMkUWbC3zR9n1
+         omxhhONQftOi4osRhXb2ZGW4egplsPCYdiYTHttP4qfsk0jzhQCj4Hdi3L1uPtwuBA
+         Oi6gJMcwM4veg5UFjQ4Hcrrt5n+UGjkOLbc9rmC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <sforshee@digitalocean.com>,
-        Christoph Hellwig <hch@lst.de>, regressions@lists.linux.dev,
-        "Christian Brauner (Microsoft)" <brauner@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 114/146] fs: fix acl translation
-Date:   Tue, 26 Apr 2022 10:21:49 +0200
-Message-Id: <20220426081753.258552761@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 109/124] KVM: nVMX: Defer APICv updates while L2 is active until L1 is active
+Date:   Tue, 26 Apr 2022 10:21:50 +0200
+Message-Id: <20220426081750.393843374@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +52,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <brauner@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 705191b03d507744c7e097f78d583621c14988ac upstream.
+commit 7c69661e225cc484fbf44a0b99b56714a5241ae3 upstream.
 
-Last cycle we extended the idmapped mounts infrastructure to support
-idmapped mounts of idmapped filesystems (No such filesystem yet exist.).
-Since then, the meaning of an idmapped mount is a mount whose idmapping
-is different from the filesystems idmapping.
+Defer APICv updates that occur while L2 is active until nested VM-Exit,
+i.e. until L1 regains control.  vmx_refresh_apicv_exec_ctrl() assumes L1
+is active and (a) stomps all over vmcs02 and (b) neglects to ever updated
+vmcs01.  E.g. if vmcs12 doesn't enable the TPR shadow for L2 (and thus no
+APICv controls), L1 performs nested VM-Enter APICv inhibited, and APICv
+becomes unhibited while L2 is active, KVM will set various APICv controls
+in vmcs02 and trigger a failed VM-Entry.  The kicker is that, unless
+running with nested_early_check=1, KVM blames L1 and chaos ensues.
 
-While doing that work we missed to adapt the acl translation helpers.
-They still assume that checking for the identity mapping is enough.  But
-they need to use the no_idmapping() helper instead.
+In all cases, ignoring vmcs02 and always deferring the inhibition change
+to vmcs01 is correct (or at least acceptable).  The ABSENT and DISABLE
+inhibitions cannot truly change while L2 is active (see below).
 
-Note, POSIX ACLs are always translated right at the userspace-kernel
-boundary using the caller's current idmapping and the initial idmapping.
-The order depends on whether we're coming from or going to userspace.
-The filesystem's idmapping doesn't matter at the border.
+IRQ_BLOCKING can change, but it is firmly a best effort debug feature.
+Furthermore, only L2's APIC is accelerated/virtualized to the full extent
+possible, e.g. even if L1 passes through its APIC to L2, normal MMIO/MSR
+interception will apply to the virtual APIC managed by KVM.
+The exception is the SELF_IPI register when x2APIC is enabled, but that's
+an acceptable hole.
 
-Consequently, if a non-idmapped mount is passed we need to make sure to
-always pass the initial idmapping as the mount's idmapping and not the
-filesystem idmapping.  Since it's irrelevant here it would yield invalid
-ids and prevent setting acls for filesystems that are mountable in a
-userns and support posix acls (tmpfs and fuse).
+Lastly, Hyper-V's Auto EOI can technically be toggled if L1 exposes the
+MSRs to L2, but for that to work in any sane capacity, L1 would need to
+pass through IRQs to L2 as well, and IRQs must be intercepted to enable
+virtual interrupt delivery.  I.e. exposing Auto EOI to L2 and enabling
+VID for L2 are, for all intents and purposes, mutually exclusive.
 
-I verified the regression reported in [1] and verified that this patch
-fixes it.  A regression test will be added to xfstests in parallel.
+Lack of dynamic toggling is also why this scenario is all but impossible
+to encounter in KVM's current form.  But a future patch will pend an
+APICv update request _during_ vCPU creation to plug a race where a vCPU
+that's being created doesn't get included in the "all vCPUs request"
+because it's not yet visible to other vCPUs.  If userspaces restores L2
+after VM creation (hello, KVM selftests), the first KVM_RUN will occur
+while L2 is active and thus service the APICv update request made during
+VM creation.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215849 [1]
-Fixes: bd303368b776 ("fs: support mapped mounts of mapped filesystems")
-Cc: Seth Forshee <sforshee@digitalocean.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: <stable@vger.kernel.org> # 5.17
-Cc: <regressions@lists.linux.dev>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220420013732.3308816-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/posix_acl.c                  |   10 ++++++++++
- fs/xattr.c                      |    6 ++++--
- include/linux/posix_acl_xattr.h |    4 ++++
- 3 files changed, 18 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c |    5 +++++
+ arch/x86/kvm/vmx/vmx.c    |    5 +++++
+ arch/x86/kvm/vmx/vmx.h    |    1 +
+ 3 files changed, 11 insertions(+)
 
---- a/fs/posix_acl.c
-+++ b/fs/posix_acl.c
-@@ -759,9 +759,14 @@ static void posix_acl_fix_xattr_userns(
- }
- 
- void posix_acl_fix_xattr_from_user(struct user_namespace *mnt_userns,
-+				   struct inode *inode,
- 				   void *value, size_t size)
- {
- 	struct user_namespace *user_ns = current_user_ns();
-+
-+	/* Leave ids untouched on non-idmapped mounts. */
-+	if (no_idmapping(mnt_userns, i_user_ns(inode)))
-+		mnt_userns = &init_user_ns;
- 	if ((user_ns == &init_user_ns) && (mnt_userns == &init_user_ns))
- 		return;
- 	posix_acl_fix_xattr_userns(&init_user_ns, user_ns, mnt_userns, value,
-@@ -769,9 +774,14 @@ void posix_acl_fix_xattr_from_user(struc
- }
- 
- void posix_acl_fix_xattr_to_user(struct user_namespace *mnt_userns,
-+				 struct inode *inode,
- 				 void *value, size_t size)
- {
- 	struct user_namespace *user_ns = current_user_ns();
-+
-+	/* Leave ids untouched on non-idmapped mounts. */
-+	if (no_idmapping(mnt_userns, i_user_ns(inode)))
-+		mnt_userns = &init_user_ns;
- 	if ((user_ns == &init_user_ns) && (mnt_userns == &init_user_ns))
- 		return;
- 	posix_acl_fix_xattr_userns(user_ns, &init_user_ns, mnt_userns, value,
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -569,7 +569,8 @@ setxattr(struct user_namespace *mnt_user
- 		}
- 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
- 		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
--			posix_acl_fix_xattr_from_user(mnt_userns, kvalue, size);
-+			posix_acl_fix_xattr_from_user(mnt_userns, d_inode(d),
-+						      kvalue, size);
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -4601,6 +4601,11 @@ void nested_vmx_vmexit(struct kvm_vcpu *
+ 		kvm_make_request(KVM_REQ_APIC_PAGE_RELOAD, vcpu);
  	}
  
- 	error = vfs_setxattr(mnt_userns, d, kname, kvalue, size, flags);
-@@ -667,7 +668,8 @@ getxattr(struct user_namespace *mnt_user
- 	if (error > 0) {
- 		if ((strcmp(kname, XATTR_NAME_POSIX_ACL_ACCESS) == 0) ||
- 		    (strcmp(kname, XATTR_NAME_POSIX_ACL_DEFAULT) == 0))
--			posix_acl_fix_xattr_to_user(mnt_userns, kvalue, error);
-+			posix_acl_fix_xattr_to_user(mnt_userns, d_inode(d),
-+						    kvalue, error);
- 		if (size && copy_to_user(value, kvalue, error))
- 			error = -EFAULT;
- 	} else if (error == -ERANGE && size >= XATTR_SIZE_MAX) {
---- a/include/linux/posix_acl_xattr.h
-+++ b/include/linux/posix_acl_xattr.h
-@@ -34,15 +34,19 @@ posix_acl_xattr_count(size_t size)
++	if (vmx->nested.update_vmcs01_apicv_status) {
++		vmx->nested.update_vmcs01_apicv_status = false;
++		kvm_make_request(KVM_REQ_APICV_UPDATE, vcpu);
++	}
++
+ 	if ((vm_exit_reason != -1) &&
+ 	    (enable_shadow_vmcs || evmptr_is_valid(vmx->nested.hv_evmcs_vmptr)))
+ 		vmx->nested.need_vmcs12_to_shadow_sync = true;
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -4098,6 +4098,11 @@ static void vmx_refresh_apicv_exec_ctrl(
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
  
- #ifdef CONFIG_FS_POSIX_ACL
- void posix_acl_fix_xattr_from_user(struct user_namespace *mnt_userns,
-+				   struct inode *inode,
- 				   void *value, size_t size);
- void posix_acl_fix_xattr_to_user(struct user_namespace *mnt_userns,
-+				   struct inode *inode,
- 				 void *value, size_t size);
- #else
- static inline void posix_acl_fix_xattr_from_user(struct user_namespace *mnt_userns,
-+						 struct inode *inode,
- 						 void *value, size_t size)
- {
- }
- static inline void posix_acl_fix_xattr_to_user(struct user_namespace *mnt_userns,
-+					       struct inode *inode,
- 					       void *value, size_t size)
- {
- }
++	if (is_guest_mode(vcpu)) {
++		vmx->nested.update_vmcs01_apicv_status = true;
++		return;
++	}
++
+ 	pin_controls_set(vmx, vmx_pin_based_exec_ctrl(vmx));
+ 	if (cpu_has_secondary_exec_ctrls()) {
+ 		if (kvm_vcpu_apicv_active(vcpu))
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -164,6 +164,7 @@ struct nested_vmx {
+ 	bool change_vmcs01_virtual_apic_mode;
+ 	bool reload_vmcs01_apic_access_page;
+ 	bool update_vmcs01_cpu_dirty_logging;
++	bool update_vmcs01_apicv_status;
+ 
+ 	/*
+ 	 * Enlightened VMCS has been enabled. It does not mean that L1 has to
 
 
