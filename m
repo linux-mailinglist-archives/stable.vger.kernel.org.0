@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B973E50F7E2
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F01350F603
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346833AbiDZJME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:12:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39044 "EHLO
+        id S230345AbiDZIp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:45:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346041AbiDZJGn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:43 -0400
+        with ESMTP id S1346870AbiDZIp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC2D816C176;
-        Tue, 26 Apr 2022 01:48:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 818967DAA4;
+        Tue, 26 Apr 2022 01:36:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94D04B81A2F;
-        Tue, 26 Apr 2022 08:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2868C385A0;
-        Tue, 26 Apr 2022 08:47:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3EC3DB81D09;
+        Tue, 26 Apr 2022 08:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 758C1C385A0;
+        Tue, 26 Apr 2022 08:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962879;
-        bh=nQ2HJD5nf4oTxFG5OTLGaKQFzVChDheTQyaznQhlggM=;
+        s=korg; t=1650962162;
+        bh=70qI1yjsoDgEU4yMqhafU1+UfBm/Xmzov+B9musjrjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxikVOgbi9IRH98bkYRfUza14uuyED0VbG1fxtc81JT3TFxkCEGOLzxojD9dr8M3n
-         Jn0GNtiHf8WK3/F+aVONKguEsV5EDhTcAvaM5H8/wyODv5kCnBqsGK6TVQxtB33Hzk
-         feB/YmN6SId9KPs15uCFXp0MrAr8JqPFnBaeOso8=
+        b=QrsMleYuf64SZnN9G9ghYNShZh2RqCDNt+C23bse3D8rSWLzQDg8PE3zLXD09/F/y
+         XNdQgql5tvyBci7I43Sf74v9etcsxFDHsOCWe9g8ObYbJ/e03UH9cgNt0r5p7xZrtC
+         uvZIiuSw8gjNQmlVNm8TMqwuG6EYQyeeNnTR1rv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Valerio <pvalerio@redhat.com>,
-        Eelco Chaudron <echaudro@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.17 119/146] openvswitch: fix OOB access in reserve_sfa_size()
+        Marek Vasut <marex@denx.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 86/86] Revert "net: micrel: fix KS8851_MLL Kconfig"
 Date:   Tue, 26 Apr 2022 10:21:54 +0200
-Message-Id: <20220426081753.401779005@linuxfoundation.org>
+Message-Id: <20220426081743.697134831@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valerio <pvalerio@redhat.com>
+From: Marek Vasut <marex@denx.de>
 
-commit cefa91b2332d7009bc0be5d951d6cbbf349f90f8 upstream.
+This reverts commit 1ff5359afa5ec0dd09fe76183dc4fa24b50e4125 which is
+commit c3efcedd272aa6dd5929e20cf902a52ddaa1197a upstream.
 
-Given a sufficiently large number of actions, while copying and
-reserving memory for a new action of a new flow, if next_offset is
-greater than MAX_ACTIONS_BUFSIZE, the function reserve_sfa_size() does
-not return -EMSGSIZE as expected, but it allocates MAX_ACTIONS_BUFSIZE
-bytes increasing actions_len by req_size. This can then lead to an OOB
-write access, especially when further actions need to be copied.
+The upstream commit c3efcedd272a ("net: micrel: fix KS8851_MLL Kconfig")
+depends on e5f31552674e ("ethernet: fix PTP_1588_CLOCK dependencies")
+which is not part of Linux 5.10.y . Revert the aforementioned commit to
+prevent breakage in 5.10.y .
 
-Fix it by rearranging the flow action size check.
-
-KASAN splat below:
-
-==================================================================
-BUG: KASAN: slab-out-of-bounds in reserve_sfa_size+0x1ba/0x380 [openvswitch]
-Write of size 65360 at addr ffff888147e4001c by task handler15/836
-
-CPU: 1 PID: 836 Comm: handler15 Not tainted 5.18.0-rc1+ #27
-...
-Call Trace:
- <TASK>
- dump_stack_lvl+0x45/0x5a
- print_report.cold+0x5e/0x5db
- ? __lock_text_start+0x8/0x8
- ? reserve_sfa_size+0x1ba/0x380 [openvswitch]
- kasan_report+0xb5/0x130
- ? reserve_sfa_size+0x1ba/0x380 [openvswitch]
- kasan_check_range+0xf5/0x1d0
- memcpy+0x39/0x60
- reserve_sfa_size+0x1ba/0x380 [openvswitch]
- __add_action+0x24/0x120 [openvswitch]
- ovs_nla_add_action+0xe/0x20 [openvswitch]
- ovs_ct_copy_action+0x29d/0x1130 [openvswitch]
- ? __kernel_text_address+0xe/0x30
- ? unwind_get_return_address+0x56/0xa0
- ? create_prof_cpu_mask+0x20/0x20
- ? ovs_ct_verify+0xf0/0xf0 [openvswitch]
- ? prep_compound_page+0x198/0x2a0
- ? __kasan_check_byte+0x10/0x40
- ? kasan_unpoison+0x40/0x70
- ? ksize+0x44/0x60
- ? reserve_sfa_size+0x75/0x380 [openvswitch]
- __ovs_nla_copy_actions+0xc26/0x2070 [openvswitch]
- ? __zone_watermark_ok+0x420/0x420
- ? validate_set.constprop.0+0xc90/0xc90 [openvswitch]
- ? __alloc_pages+0x1a9/0x3e0
- ? __alloc_pages_slowpath.constprop.0+0x1da0/0x1da0
- ? unwind_next_frame+0x991/0x1e40
- ? __mod_node_page_state+0x99/0x120
- ? __mod_lruvec_page_state+0x2e3/0x470
- ? __kasan_kmalloc_large+0x90/0xe0
- ovs_nla_copy_actions+0x1b4/0x2c0 [openvswitch]
- ovs_flow_cmd_new+0x3cd/0xb10 [openvswitch]
- ...
-
-Cc: stable@vger.kernel.org
-Fixes: f28cd2af22a0 ("openvswitch: fix flow actions reallocation")
-Signed-off-by: Paolo Valerio <pvalerio@redhat.com>
-Acked-by: Eelco Chaudron <echaudro@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # 5.10.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/flow_netlink.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/micrel/Kconfig |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/net/openvswitch/flow_netlink.c
-+++ b/net/openvswitch/flow_netlink.c
-@@ -2436,7 +2436,7 @@ static struct nlattr *reserve_sfa_size(s
- 	new_acts_size = max(next_offset + req_size, ksize(*sfa) * 2);
- 
- 	if (new_acts_size > MAX_ACTIONS_BUFSIZE) {
--		if ((MAX_ACTIONS_BUFSIZE - next_offset) < req_size) {
-+		if ((next_offset + req_size) > MAX_ACTIONS_BUFSIZE) {
- 			OVS_NLERR(log, "Flow action size exceeds max %u",
- 				  MAX_ACTIONS_BUFSIZE);
- 			return ERR_PTR(-EMSGSIZE);
+--- a/drivers/net/ethernet/micrel/Kconfig
++++ b/drivers/net/ethernet/micrel/Kconfig
+@@ -37,7 +37,6 @@ config KS8851
+ config KS8851_MLL
+ 	tristate "Micrel KS8851 MLL"
+ 	depends on HAS_IOMEM
+-	depends on PTP_1588_CLOCK_OPTIONAL
+ 	select MII
+ 	select CRC32
+ 	select EEPROM_93CX6
 
 
