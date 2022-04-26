@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 329E350F474
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:36:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7AEF50F53D
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:53:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345125AbiDZIgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:36:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36944 "EHLO
+        id S1345846AbiDZIws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:52:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345288AbiDZIe3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDB2474841;
-        Tue, 26 Apr 2022 01:26:59 -0700 (PDT)
+        with ESMTP id S1346944AbiDZIuz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E5CE17047C;
+        Tue, 26 Apr 2022 01:39:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7633E61840;
-        Tue, 26 Apr 2022 08:26:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8471DC385A4;
-        Tue, 26 Apr 2022 08:26:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C713B81D0A;
+        Tue, 26 Apr 2022 08:39:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59930C385A0;
+        Tue, 26 Apr 2022 08:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961618;
-        bh=+Io3hLHcIRjPNqlAsc4Dro7jHI0gIfKz6QljcJbbR9M=;
+        s=korg; t=1650962353;
+        bh=rgM8kfe5zD9EZNfO/4CiOhR5Q/c5QFs9MDQG24jIl1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGLzkJ53g3aZ2PpWq9feDtUKmrGJDWfCGWCUKW8wfaL7zynteHW8LStNgXx7SBl8p
-         aHn+fcQjcWtMxl9JYYWdlxUmhFR0gZb4B66DSFglsRBxEBpjW+e21ZgPTHKwHSv6yt
-         cp2Vm4/jjTSN2Il5NhuVrMeFbcIkYLKndodu1Q/g=
+        b=mS9MlMyD1rqeWzInphYDBuyIq9AsWkfbLVWHJP0MBndFz7DjxtI7awdeFWDHLlwpl
+         kRj7XO65daZnToXg0IFT+SozWlA5PeYRjWIt5JYf8l2fbTV6f+KWo6uec0wxZ0CMfH
+         vROjUdcGpqBp82SgZM7Wsh9okYUfsG7VKdP+FA2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Melin <tomas.melin@vaisala.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/53] net: macb: Restart tx only if queue pointer is lagging
+Subject: [PATCH 5.15 066/124] drm/msm/mdp5: check the return of kzalloc()
 Date:   Tue, 26 Apr 2022 10:21:07 +0200
-Message-Id: <20220426081736.444644841@linuxfoundation.org>
+Message-Id: <20220426081749.177593375@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Melin <tomas.melin@vaisala.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 5ad7f18cd82cee8e773d40cc7a1465a526f2615c ]
+[ Upstream commit 047ae665577776b7feb11bd4f81f46627cff95e7 ]
 
-commit 4298388574da ("net: macb: restart tx after tx used bit read")
-added support for restarting transmission. Restarting tx does not work
-in case controller asserts TXUBR interrupt and TQBP is already at the end
-of the tx queue. In that situation, restarting tx will immediately cause
-assertion of another TXUBR interrupt. The driver will end up in an infinite
-interrupt loop which it cannot break out of.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check it to
+prevent potential wrong memory access.
 
-For cases where TQBP is at the end of the tx queue, instead
-only clear TX_USED interrupt. As more data gets pushed to the queue,
-transmission will resume.
+Besides, since mdp5_plane_reset() is void type, so we should better
+set `plane-state` to NULL after releasing it.
 
-This issue was observed on a Xilinx Zynq-7000 based board.
-During stress test of the network interface,
-driver would get stuck on interrupt loop within seconds or minutes
-causing CPU to stall.
-
-Signed-off-by: Tomas Melin <tomas.melin@vaisala.com>
-Tested-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20220407161659.14532-1-tomas.melin@vaisala.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Patchwork: https://patchwork.freedesktop.org/patch/481055/
+Link: https://lore.kernel.org/r/tencent_8E2A1C78140EE1784AB2FF4B2088CC0AB908@qq.com
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 460bb81acf2b..d8e4842af055 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -1364,6 +1364,7 @@ static void macb_tx_restart(struct macb_queue *queue)
- 	unsigned int head = queue->tx_head;
- 	unsigned int tail = queue->tx_tail;
- 	struct macb *bp = queue->bp;
-+	unsigned int head_idx, tbqp;
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+index c6b69afcbac8..50e854207c70 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+@@ -90,7 +90,10 @@ static void mdp5_plane_reset(struct drm_plane *plane)
+ 		__drm_atomic_helper_plane_destroy_state(plane->state);
  
- 	if (bp->caps & MACB_CAPS_ISR_CLEAR_ON_WRITE)
- 		queue_writel(queue, ISR, MACB_BIT(TXUBR));
-@@ -1371,6 +1372,13 @@ static void macb_tx_restart(struct macb_queue *queue)
- 	if (head == tail)
- 		return;
- 
-+	tbqp = queue_readl(queue, TBQP) / macb_dma_desc_get_size(bp);
-+	tbqp = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, tbqp));
-+	head_idx = macb_adj_dma_desc_idx(bp, macb_tx_ring_wrap(bp, head));
-+
-+	if (tbqp == head_idx)
+ 	kfree(to_mdp5_plane_state(plane->state));
++	plane->state = NULL;
+ 	mdp5_state = kzalloc(sizeof(*mdp5_state), GFP_KERNEL);
++	if (!mdp5_state)
 +		return;
-+
- 	macb_writel(bp, NCR, macb_readl(bp, NCR) | MACB_BIT(TSTART));
- }
  
+ 	if (plane->type == DRM_PLANE_TYPE_PRIMARY)
+ 		mdp5_state->base.zpos = STAGE_BASE;
 -- 
 2.35.1
 
