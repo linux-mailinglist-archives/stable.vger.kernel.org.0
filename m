@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DEED450F47A
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:36:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B30250F7CE
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244671AbiDZIgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:36:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39904 "EHLO
+        id S232564AbiDZJHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345147AbiDZIeI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:08 -0400
+        with ESMTP id S1347782AbiDZJGK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB9B36E579;
-        Tue, 26 Apr 2022 01:26:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 390A419290;
+        Tue, 26 Apr 2022 01:45:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6347F617D2;
-        Tue, 26 Apr 2022 08:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73501C385A0;
-        Tue, 26 Apr 2022 08:26:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF29060A56;
+        Tue, 26 Apr 2022 08:45:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD409C385A0;
+        Tue, 26 Apr 2022 08:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961574;
-        bh=Mj66qixG3oF4aDbL/DAMbAe6GzKNhUn8FPQd/ng7zIA=;
+        s=korg; t=1650962745;
+        bh=6JIV9bAl3AlhOIFiWtU+aC2MWdNmcLlPqJm+dbFnVFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OyhdNiHJHriIbKpjxORS7KY/A40newrNMHM3Z7XBuX+Uw63FrmsY8L3FxUKaQpbPs
-         9AOixKkrwC0dWFdi3bt741+4zhK6nSJ9qdJC9m+78qnRmMgI45h0EOGA+q8q6sO7i/
-         LnY3cJ+muxFNxUzbBqGBKAlO7/Zwa0Ofg5/YuR10=
+        b=GtjE06vTMbP5TGqXnBNEbuz4n7TDPWe3zYZYc2B+Fr7ITDFHJx7yMYi+mndlYaHrx
+         6n1y2PAF1jX+k3DX3MD13Bbzd/MDhpe/u3McXjXQu1QqO0XpQlD1kwFjX8wt5ZR45l
+         Qqj3V0EMpBAtiUJyc3A+7X8XBQqlPQjG7wtmMbrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Marc Dionne <marc.dionne@auristor.com>,
-        linux-afs@lists.infradead.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/53] rxrpc: Restore removed timer deletion
+Subject: [PATCH 5.17 058/146] drm/msm/gpu: Rename runtime suspend/resume functions
 Date:   Tue, 26 Apr 2022 10:20:53 +0200
-Message-Id: <20220426081736.044392387@linuxfoundation.org>
+Message-Id: <20220426081751.698990532@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit ee3b0826b4764f6c13ad6db67495c5a1c38e9025 ]
+[ Upstream commit f7eab1ddb9f8bc99206e3efa8d34ca1d2faca209 ]
 
-A recent patch[1] from Eric Dumazet flipped the order in which the
-keepalive timer and the keepalive worker were cancelled in order to fix a
-syzbot reported issue[2].  Unfortunately, this enables the mirror image bug
-whereby the timer races with rxrpc_exit_net(), restarting the worker after
-it has been cancelled:
-
-	CPU 1		CPU 2
-	===============	=====================
-			if (rxnet->live)
-			<INTERRUPT>
-	rxnet->live = false;
- 	cancel_work_sync(&rxnet->peer_keepalive_work);
-			rxrpc_queue_work(&rxnet->peer_keepalive_work);
-	del_timer_sync(&rxnet->peer_keepalive_timer);
-
-Fix this by restoring the removed del_timer_sync() so that we try to remove
-the timer twice.  If the timer runs again, it should see ->live == false
-and not restart the worker.
-
-Fixes: 1946014ca3b1 ("rxrpc: fix a race in rxrpc_exit_net()")
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Eric Dumazet <edumazet@google.com>
-cc: Marc Dionne <marc.dionne@auristor.com>
-cc: linux-afs@lists.infradead.org
-Link: https://lore.kernel.org/r/20220404183439.3537837-1-eric.dumazet@gmail.com/ [1]
-Link: https://syzkaller.appspot.com/bug?extid=724378c4bb58f703b09a [2]
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: https://lore.kernel.org/r/20220310234611.424743-2-robdclark@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/net_ns.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/msm/adreno/adreno_device.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/rxrpc/net_ns.c b/net/rxrpc/net_ns.c
-index 1b403c2573da..39579cfcf9b8 100644
---- a/net/rxrpc/net_ns.c
-+++ b/net/rxrpc/net_ns.c
-@@ -117,7 +117,9 @@ static __net_exit void rxrpc_exit_net(struct net *net)
- 	struct rxrpc_net *rxnet = rxrpc_net(net);
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
+index fb261930ad1c..b93de79000e1 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_device.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
+@@ -601,7 +601,7 @@ static const struct of_device_id dt_match[] = {
+ };
  
- 	rxnet->live = false;
-+	del_timer_sync(&rxnet->peer_keepalive_timer);
- 	cancel_work_sync(&rxnet->peer_keepalive_work);
-+	/* Remove the timer again as the worker may have restarted it. */
- 	del_timer_sync(&rxnet->peer_keepalive_timer);
- 	rxrpc_destroy_all_calls(rxnet);
- 	rxrpc_destroy_all_connections(rxnet);
+ #ifdef CONFIG_PM
+-static int adreno_resume(struct device *dev)
++static int adreno_runtime_resume(struct device *dev)
+ {
+ 	struct msm_gpu *gpu = dev_to_gpu(dev);
+ 
+@@ -617,7 +617,7 @@ static int active_submits(struct msm_gpu *gpu)
+ 	return active_submits;
+ }
+ 
+-static int adreno_suspend(struct device *dev)
++static int adreno_runtime_suspend(struct device *dev)
+ {
+ 	struct msm_gpu *gpu = dev_to_gpu(dev);
+ 	int remaining;
+@@ -636,7 +636,7 @@ static int adreno_suspend(struct device *dev)
+ 
+ static const struct dev_pm_ops adreno_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
+-	SET_RUNTIME_PM_OPS(adreno_suspend, adreno_resume, NULL)
++	SET_RUNTIME_PM_OPS(adreno_runtime_suspend, adreno_runtime_resume, NULL)
+ };
+ 
+ static struct platform_driver adreno_driver = {
 -- 
 2.35.1
 
