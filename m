@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AEAB50F696
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4555650F3F3
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:28:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234448AbiDZI5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:57:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
+        id S245023AbiDZIaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:30:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345798AbiDZIoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:44:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9111F15C2B9;
-        Tue, 26 Apr 2022 01:33:40 -0700 (PDT)
+        with ESMTP id S1344969AbiDZI3H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:29:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BCDF3A5C6;
+        Tue, 26 Apr 2022 01:24:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FCD9B81A2F;
-        Tue, 26 Apr 2022 08:33:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62696C385A4;
-        Tue, 26 Apr 2022 08:33:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C574DB81CF6;
+        Tue, 26 Apr 2022 08:24:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3062FC385A4;
+        Tue, 26 Apr 2022 08:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962017;
-        bh=mI5uF3rn4LcSnNyEYRFVfpxL+mGAsmineE+zYsy/SWM=;
+        s=korg; t=1650961477;
+        bh=GYRN8gEHNluHJetTN7qwHBSbp5xnHOcjNQsr6hRA2LE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yn7m7dKKwKT/x3/HX2Pd4KFCFnnJ8ZuaW98dtVDFrEJ7fxnp01afDufSVxgvNnjVo
-         ZLjlT14CZXlMrIUPG6CvRV4e2sZPhfJ0U9n+Gs7VITmIBVYg3Mzz0Q42Fv/I5Fq0oi
-         nprcPX5eOSGK7hU4dgDWp4bpf3k9KnlePD+T7OKo=
+        b=juG99kQaKkVvECZjiFvDTqyxooE8tbLnzIu853S1TRlsDzXtaKEpQJSN3Q6+cH6xm
+         P6XA2AXuBc343QVVFu5mJttjIBFIiG+dTVP27NHSh+caksRxQoXVOjDHy8F4A7FGwI
+         sYDMDYtmyg42aBTDjx50qbC1RaMP7t2ZWQxRyAPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 37/86] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
+        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.14 23/43] dma: at_xdmac: fix a missing check on list iterator
 Date:   Tue, 26 Apr 2022 10:21:05 +0200
-Message-Id: <20220426081742.276968136@linuxfoundation.org>
+Message-Id: <20220426081735.203132279@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,45 +52,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-[ Upstream commit 1ef8715975de8bd481abbd0839ed4f49d9e5b0ff ]
+commit 206680c4e46b62fd8909385e0874a36952595b85 upstream.
 
-Fix:
+The bug is here:
+	__func__, desc, &desc->tx_dma_desc.phys, ret, cookie, residue);
 
-  sound/usb/midi.c: In function ‘snd_usbmidi_out_endpoint_create’:
-  sound/usb/midi.c:1389:2: error: case label does not reduce to an integer constant
-    case USB_ID(0xfc08, 0x0101): /* Unknown vendor Cable */
-    ^~~~
+The list iterator 'desc' will point to a bogus position containing
+HEAD if the list is empty or no element is found. To avoid dev_dbg()
+prints a invalid address, use a new variable 'iter' as the list
+iterator, while use the origin variable 'desc' as a dedicated
+pointer to point to the found element.
 
-See https://lore.kernel.org/r/YkwQ6%2BtIH8GQpuct@zn.tnic for the gory
-details as to why it triggers with older gccs only.
-
-[ A slight correction with parentheses around the argument by tiwai ]
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20220405151517.29753-3-bp@alien8.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 82e2424635f4c ("dmaengine: xdmac: fix print warning on dma_addr_t variable")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Link: https://lore.kernel.org/r/20220327061154.4867-1-xiam0nd.tong@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/usbaudio.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/at_xdmac.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
-index e54a98f46549..d8e31ee03b9d 100644
---- a/sound/usb/usbaudio.h
-+++ b/sound/usb/usbaudio.h
-@@ -8,7 +8,7 @@
-  */
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1390,7 +1390,7 @@ at_xdmac_tx_status(struct dma_chan *chan
+ {
+ 	struct at_xdmac_chan	*atchan = to_at_xdmac_chan(chan);
+ 	struct at_xdmac		*atxdmac = to_at_xdmac(atchan->chan.device);
+-	struct at_xdmac_desc	*desc, *_desc;
++	struct at_xdmac_desc	*desc, *_desc, *iter;
+ 	struct list_head	*descs_list;
+ 	enum dma_status		ret;
+ 	int			residue, retry;
+@@ -1505,11 +1505,13 @@ at_xdmac_tx_status(struct dma_chan *chan
+ 	 * microblock.
+ 	 */
+ 	descs_list = &desc->descs_list;
+-	list_for_each_entry_safe(desc, _desc, descs_list, desc_node) {
+-		dwidth = at_xdmac_get_dwidth(desc->lld.mbr_cfg);
+-		residue -= (desc->lld.mbr_ubc & 0xffffff) << dwidth;
+-		if ((desc->lld.mbr_nda & 0xfffffffc) == cur_nda)
++	list_for_each_entry_safe(iter, _desc, descs_list, desc_node) {
++		dwidth = at_xdmac_get_dwidth(iter->lld.mbr_cfg);
++		residue -= (iter->lld.mbr_ubc & 0xffffff) << dwidth;
++		if ((iter->lld.mbr_nda & 0xfffffffc) == cur_nda) {
++			desc = iter;
+ 			break;
++		}
+ 	}
+ 	residue += cur_ubc << dwidth;
  
- /* handling of USB vendor/product ID pairs as 32-bit numbers */
--#define USB_ID(vendor, product) (((vendor) << 16) | (product))
-+#define USB_ID(vendor, product) (((unsigned int)(vendor) << 16) | (product))
- #define USB_ID_VENDOR(id) ((id) >> 16)
- #define USB_ID_PRODUCT(id) ((u16)(id))
- 
--- 
-2.35.1
-
 
 
