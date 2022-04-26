@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E80A50F3CD
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7BC50F484
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232890AbiDZI2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:28:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36346 "EHLO
+        id S1345107AbiDZIgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344667AbiDZI1p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C3CD135647;
-        Tue, 26 Apr 2022 01:23:53 -0700 (PDT)
+        with ESMTP id S1345320AbiDZIea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AAF774877;
+        Tue, 26 Apr 2022 01:27:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 933D8617E8;
-        Tue, 26 Apr 2022 08:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A484BC385A4;
-        Tue, 26 Apr 2022 08:23:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5048B81CED;
+        Tue, 26 Apr 2022 08:27:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E345C385A0;
+        Tue, 26 Apr 2022 08:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961432;
-        bh=dkv8QN0gQVSZtZdSD5Khr9zcrthMVra0NtgbZ2JmCHI=;
+        s=korg; t=1650961621;
+        bh=MSOqXNS4Azyxzhiu/r4xu6CEimlb/9BkCfsl0L7K9oc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aqh1moOa8C3eMPo5rafEgZF9pWztGL8jd3t1PVv7YZPKw2QfizEz13m0SNuzSw9Db
-         Rj7HUsDmmG1PyW063n/5bts+8ZEfybwQ+xNIGQ/ipuv7EpLsFRJpLbvzRSqx7YyzWH
-         d0FSM0zRw6HAqZj60QfXgQImPkV8ENse8EuArYIw=
+        b=VAfyPzJqCNb7FkT2N8Jj9NwE2C3F4neXJUhpxNPhp07t4EtKcNOKuuSNcpKU6PN1B
+         GvYBLOsiPIxtokqh4T5Ow3CpRRAGn6dSp/Xq+eyH92rF6D6jfoLDT1uj4dX4VQ2gow
+         dU/Unl/+wt/+mP9ddSrwq1goXlDXbWDNI8Hm+1dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Khem Raj <raj.khem@gmail.com>
-Subject: [PATCH 4.14 01/43] etherdevice: Adjust ether_addr* prototypes to silence -Wstringop-overead
+        stable@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 03/53] tracing: Dump stacktrace trigger to the corresponding instance
 Date:   Tue, 26 Apr 2022 10:20:43 +0200
-Message-Id: <20220426081734.555738631@linuxfoundation.org>
+Message-Id: <20220426081735.755621847@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,59 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Daniel Bristot de Oliveira <bristot@kernel.org>
 
-commit 2618a0dae09ef37728dab89ff60418cbe25ae6bd upstream.
+commit ce33c845b030c9cf768370c951bc699470b09fa7 upstream.
 
-With GCC 12, -Wstringop-overread was warning about an implicit cast from
-char[6] to char[8]. However, the extra 2 bytes are always thrown away,
-alignment doesn't matter, and the risk of hitting the edge of unallocated
-memory has been accepted, so this prototype can just be converted to a
-regular char *. Silences:
+The stacktrace event trigger is not dumping the stacktrace to the instance
+where it was enabled, but to the global "instance."
 
-net/core/dev.c: In function ‘bpf_prog_run_generic_xdp’: net/core/dev.c:4618:21: warning: ‘ether_addr_equal_64bits’ reading 8 bytes from a region of size 6 [-Wstringop-overread]
- 4618 |         orig_host = ether_addr_equal_64bits(eth->h_dest, > skb->dev->dev_addr);
-      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-net/core/dev.c:4618:21: note: referencing argument 1 of type ‘const u8[8]’ {aka ‘const unsigned char[8]’}
-net/core/dev.c:4618:21: note: referencing argument 2 of type ‘const u8[8]’ {aka ‘const unsigned char[8]’}
-In file included from net/core/dev.c:91: include/linux/etherdevice.h:375:20: note: in a call to function ‘ether_addr_equal_64bits’
-  375 | static inline bool ether_addr_equal_64bits(const u8 addr1[6+2],
-      |                    ^~~~~~~~~~~~~~~~~~~~~~~
+Use the private_data, pointing to the trigger file, to figure out the
+corresponding trace instance, and use it in the trigger action, like
+snapshot_trigger does.
 
-Reported-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Link: https://lore.kernel.org/netdev/20220212090811.uuzk6d76agw2vv73@pengutronix.de
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Khem Raj <raj.khem@gmail.com>
+Link: https://lkml.kernel.org/r/afbb0b4f18ba92c276865bc97204d438473f4ebc.1645396236.git.bristot@kernel.org
+
+Cc: stable@vger.kernel.org
+Fixes: ae63b31e4d0e2 ("tracing: Separate out trace events from global variables")
+Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Tested-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/etherdevice.h |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ kernel/trace/trace_events_trigger.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/include/linux/etherdevice.h
-+++ b/include/linux/etherdevice.h
-@@ -130,7 +130,7 @@ static inline bool is_multicast_ether_ad
- #endif
+--- a/kernel/trace/trace_events_trigger.c
++++ b/kernel/trace/trace_events_trigger.c
+@@ -1212,7 +1212,14 @@ static void
+ stacktrace_trigger(struct event_trigger_data *data, void *rec,
+ 		   struct ring_buffer_event *event)
+ {
+-	trace_dump_stack(STACK_SKIP);
++	struct trace_event_file *file = data->private_data;
++	unsigned long flags;
++
++	if (file) {
++		local_save_flags(flags);
++		__trace_stack(file->tr, flags, STACK_SKIP, preempt_count());
++	} else
++		trace_dump_stack(STACK_SKIP);
  }
  
--static inline bool is_multicast_ether_addr_64bits(const u8 addr[6+2])
-+static inline bool is_multicast_ether_addr_64bits(const u8 *addr)
- {
- #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
- #ifdef __BIG_ENDIAN
-@@ -344,8 +344,7 @@ static inline bool ether_addr_equal(cons
-  * Please note that alignment of addr1 & addr2 are only guaranteed to be 16 bits.
-  */
- 
--static inline bool ether_addr_equal_64bits(const u8 addr1[6+2],
--					   const u8 addr2[6+2])
-+static inline bool ether_addr_equal_64bits(const u8 *addr1, const u8 *addr2)
- {
- #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
- 	u64 fold = (*(const u64 *)addr1) ^ (*(const u64 *)addr2);
+ static void
 
 
