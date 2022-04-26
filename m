@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B1250F88F
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8C2E50F57C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232527AbiDZJIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47484 "EHLO
+        id S1345751AbiDZIra (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347613AbiDZJF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5036B1D4;
-        Tue, 26 Apr 2022 01:45:07 -0700 (PDT)
+        with ESMTP id S1346906AbiDZIp3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:29 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16EDCE0F1;
+        Tue, 26 Apr 2022 01:36:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D2F361344;
-        Tue, 26 Apr 2022 08:45:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B066C385AE;
-        Tue, 26 Apr 2022 08:45:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 781CDCE1BB4;
+        Tue, 26 Apr 2022 08:36:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5029EC385A4;
+        Tue, 26 Apr 2022 08:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962706;
-        bh=lGc0mAUhfpdffiH5zcTjJhech/QCb4kZ9Ct3XGwOF3I=;
+        s=korg; t=1650962189;
+        bh=e766lgzO81TnmAlucJg6mez/beyPjY8tXcsTVqwGVK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhbE+lgqd1vwCT9Fmd4AZtTVeUjOOvtA3p4wonW6eUSu+ZrHVJdQ9JGmMjIXUTen5
-         I7axb67AD0tm/D+I1gVuuRJsKlZo5GUJwutTHzv3DzK8FWkew+6RNzZDvFjFDjDyE+
-         pP+Cfa50pOd8YiZtd2iwZgBsNap9u0XwY1WZ6ChA=
+        b=WqpxVZqq+4ufpNlFMs5aFqz9j0Z2YvXm/3saL8VkkIJwktRY62D6VTjfQ+3nM1sI8
+         bDx4a4OVVWKwnbJxFO0nimRC+pUWTkBNM8nsTpwpOci0eS4NN0+UJ63y0BnYrctcUF
+         X8vO2g4FgOTHCpKZOQ4kn8uiQYBfsB1idsqPhERY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 022/146] esp: limit skb_page_frag_refill use to a single page
+        stable@vger.kernel.org, Tim Crawford <tcrawford@system76.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 016/124] ALSA: hda/realtek: Add quirk for Clevo NP70PNP
 Date:   Tue, 26 Apr 2022 10:20:17 +0200
-Message-Id: <20220426081750.689360960@linuxfoundation.org>
+Message-Id: <20220426081747.763965949@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,94 +52,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Tim Crawford <tcrawford@system76.com>
 
-[ Upstream commit 5bd8baab087dff657e05387aee802e70304cc813 ]
+commit 86222af07abf1f5f07a5873cc399c29ab8a9b8b8 upstream.
 
-Commit ebe48d368e97 ("esp: Fix possible buffer overflow in ESP
-transformation") tried to fix skb_page_frag_refill usage in ESP by
-capping allocsize to 32k, but that doesn't completely solve the issue,
-as skb_page_frag_refill may return a single page. If that happens, we
-will write out of bounds, despite the check introduced in the previous
-patch.
+Fixes headset detection on Clevo NP70PNP.
 
-This patch forces COW in cases where we would end up calling
-skb_page_frag_refill with a size larger than a page (first in
-esp_output_head with tailen, then in esp_output_tail with
-skb->data_len).
-
-Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
-Fixes: 03e2a30f6a27 ("esp6: Avoid skb_cow_data whenever possible")
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tim Crawford <tcrawford@system76.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220421170412.3697-1-tcrawford@system76.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/esp.h | 2 --
- net/ipv4/esp4.c   | 5 ++---
- net/ipv6/esp6.c   | 5 ++---
- 3 files changed, 4 insertions(+), 8 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/esp.h b/include/net/esp.h
-index 90cd02ff77ef..9c5637d41d95 100644
---- a/include/net/esp.h
-+++ b/include/net/esp.h
-@@ -4,8 +4,6 @@
- 
- #include <linux/skbuff.h>
- 
--#define ESP_SKB_FRAG_MAXSIZE (PAGE_SIZE << SKB_FRAG_PAGE_ORDER)
--
- struct ip_esp_hdr;
- 
- static inline struct ip_esp_hdr *ip_esp_hdr(const struct sk_buff *skb)
-diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
-index 70e6c87fbe3d..d747166bb291 100644
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -446,7 +446,6 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
- 	struct page *page;
- 	struct sk_buff *trailer;
- 	int tailen = esp->tailen;
--	unsigned int allocsz;
- 
- 	/* this is non-NULL only with TCP/UDP Encapsulation */
- 	if (x->encap) {
-@@ -456,8 +455,8 @@ int esp_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info *
- 			return err;
- 	}
- 
--	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
--	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
-+	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
-+	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
- 		goto cow;
- 
- 	if (!skb_cloned(skb)) {
-diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
-index 55d604c9b3b3..f2120e92caf1 100644
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -482,7 +482,6 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
- 	struct page *page;
- 	struct sk_buff *trailer;
- 	int tailen = esp->tailen;
--	unsigned int allocsz;
- 
- 	if (x->encap) {
- 		int err = esp6_output_encap(x, skb, esp);
-@@ -491,8 +490,8 @@ int esp6_output_head(struct xfrm_state *x, struct sk_buff *skb, struct esp_info
- 			return err;
- 	}
- 
--	allocsz = ALIGN(skb->data_len + tailen, L1_CACHE_BYTES);
--	if (allocsz > ESP_SKB_FRAG_MAXSIZE)
-+	if (ALIGN(tailen, L1_CACHE_BYTES) > PAGE_SIZE ||
-+	    ALIGN(skb->data_len, L1_CACHE_BYTES) > PAGE_SIZE)
- 		goto cow;
- 
- 	if (!skb_cloned(skb)) {
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8962,6 +8962,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[57][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x866d, "Clevo NP5[05]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x1558, 0x867c, "Clevo NP7[01]PNP", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x867d, "Clevo NP7[01]PN[HJK]", ALC256_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC256_FIXUP_MIC_NO_PRESENCE_AND_RESUME),
 
 
