@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE9350F688
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615C250F5FB
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241688AbiDZI40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:56:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53426 "EHLO
+        id S234879AbiDZIq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:46:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346129AbiDZIyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:54:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F30FDA6EB;
-        Tue, 26 Apr 2022 01:41:06 -0700 (PDT)
+        with ESMTP id S1346883AbiDZIp2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78FD81FA5B;
+        Tue, 26 Apr 2022 01:36:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AE8760A67;
-        Tue, 26 Apr 2022 08:41:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D37C385B2;
-        Tue, 26 Apr 2022 08:41:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3635B81CED;
+        Tue, 26 Apr 2022 08:36:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FA1C385A4;
+        Tue, 26 Apr 2022 08:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962465;
-        bh=cO5fCD0ZzNkZaR/zh4/84j4XIbL0lFAwsD0hABYmrS8=;
+        s=korg; t=1650962165;
+        bh=UHRPuTmqGxLHdHpx4pWSZlvt+YX/rS3XZemVEwKUkWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svRegXr4hQBfWJpJex2ZQDiz9NX3YCRs51Zmw+eAhwf5O9AlV47YF31nCTO+174dg
-         C0uLwKXfkr4klvDKJH/dDlL4If389AxxFDwktrQbnX5L7AnLsiHiiOikjWaxv0M8K8
-         nhxhZpCfkTXRp+BOHKIAqwOGCSYVpqxS52rSKNp8=
+        b=Un0A8cf29pzC7mFHeXLVMOTqQa+SWAhXlaY4Cb5QKne2WzSWWVRf/d2qmk/SqRoVZ
+         5Z6pewUo+wquA2MOFPuBoQTDpJn0IiehRQ2ZGemrjx5KW9dgj/saQT/VcR+tLX5boW
+         IzuFEne25+ckeR5XSYlxlITjdS/JODzNm7fFZp8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Grant <al.grant@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.15 106/124] arm_pmu: Validate single/group leader events
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.10 79/86] ext4: fix overhead calculation to account for the reserved gdt blocks
 Date:   Tue, 26 Apr 2022 10:21:47 +0200
-Message-Id: <20220426081750.309103278@linuxfoundation.org>
+Message-Id: <20220426081743.496343497@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit e5c23779f93d45e39a52758ca593bd7e62e9b4be upstream.
+commit 10b01ee92df52c8d7200afead4d5e5f55a5c58b1 upstream.
 
-In the case where there is only a cycle counter available (i.e.
-PMCR_EL0.N is 0) and an event other than CPU cycles is opened, the open
-should fail as the event can never possibly be scheduled. However, the
-event validation when an event is opened is skipped when the group
-leader is opened. Fix this by always validating the group leader events.
+The kernel calculation was underestimating the overhead by not taking
+into account the reserved gdt blocks.  With this change, the overhead
+calculated by the kernel matches the overhead calculation in mke2fs.
 
-Reported-by: Al Grant <al.grant@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/20220408203330.4014015-1-robh@kernel.org
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/perf/arm_pmu.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ fs/ext4/super.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/perf/arm_pmu.c
-+++ b/drivers/perf/arm_pmu.c
-@@ -398,6 +398,9 @@ validate_group(struct perf_event *event)
- 	if (!validate_event(event->pmu, &fake_pmu, leader))
- 		return -EINVAL;
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3870,9 +3870,11 @@ static int count_overhead(struct super_b
+ 	ext4_fsblk_t		first_block, last_block, b;
+ 	ext4_group_t		i, ngroups = ext4_get_groups_count(sb);
+ 	int			s, j, count = 0;
++	int			has_super = ext4_bg_has_super(sb, grp);
  
-+	if (event == leader)
-+		return 0;
-+
- 	for_each_sibling_event(sibling, leader) {
- 		if (!validate_event(event->pmu, &fake_pmu, sibling))
- 			return -EINVAL;
-@@ -487,12 +490,7 @@ __hw_perf_event_init(struct perf_event *
- 		local64_set(&hwc->period_left, hwc->sample_period);
- 	}
+ 	if (!ext4_has_feature_bigalloc(sb))
+-		return (ext4_bg_has_super(sb, grp) + ext4_bg_num_gdb(sb, grp) +
++		return (has_super + ext4_bg_num_gdb(sb, grp) +
++			(has_super ? le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) : 0) +
+ 			sbi->s_itb_per_group + 2);
  
--	if (event->group_leader != event) {
--		if (validate_group(event) != 0)
--			return -EINVAL;
--	}
--
--	return 0;
-+	return validate_group(event);
- }
- 
- static int armpmu_event_init(struct perf_event *event)
+ 	first_block = le32_to_cpu(sbi->s_es->s_first_data_block) +
 
 
