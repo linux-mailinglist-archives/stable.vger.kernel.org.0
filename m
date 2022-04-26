@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B01E550F8D5
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2281050F6B5
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346654AbiDZJLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:11:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54916 "EHLO
+        id S1345796AbiDZI63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233404AbiDZJGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E7911738FB;
-        Tue, 26 Apr 2022 01:48:12 -0700 (PDT)
+        with ESMTP id S239353AbiDZI5E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 040FC8302A;
+        Tue, 26 Apr 2022 01:41:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACA9E60C43;
-        Tue, 26 Apr 2022 08:48:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC4DFC385A4;
-        Tue, 26 Apr 2022 08:48:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADEE4B81CF2;
+        Tue, 26 Apr 2022 08:41:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5446C385A0;
+        Tue, 26 Apr 2022 08:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962891;
-        bh=jxHhvnBGUxwf1Vmi/IZkKa8gPWOhQqbc43zwD+FUAEI=;
+        s=korg; t=1650962501;
+        bh=uKEYDWt3OoW+HTLnKcurD0UcjrAlNyV6usIFyO9hi1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAeCewSfKdSFKsfva66Ws2bHC2OSL7q8tymml/OJCgUJBcXdKSgFjqsO5WNZ8Krli
-         WqSPM2xQjtr3XXEcd5xbFuXgZa53IkiuM3bj7PcsmbCAM3rf2vXA2XHC7PwibsZBvq
-         GqRJAIVyyI+bhByEOv4oto7fi2XRurnenGeSqA+U=
+        b=bKtLkeh2Fpc072TkaCKomioVjdSpvtAJTmhoLyWLfTE4pmg6X2HWllCF3uJaHFqgc
+         OBPMuNBc4oTrGy8Qtd1UTcStQHKEP64+LyAvSxjDqxDG33ChM+965QF33vuYvpqNqx
+         ccSCKjSdjvGr7reM2h3i0R6/hx45b/z1z1acD3r0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        James Hutchinson <jahutchinson99@googlemail.com>,
-        Dima Ruinskiy <dima.ruinskiy@intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.17 123/146] e1000e: Fix possible overflow in LTR decoding
+        stable@vger.kernel.org, Wang Jianjian <wangjianjian3@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.15 117/124] ext4, doc: fix incorrect h_reserved size
 Date:   Tue, 26 Apr 2022 10:21:58 +0200
-Message-Id: <20220426081753.514499464@linuxfoundation.org>
+Message-Id: <20220426081750.616408406@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: wangjianjian (C) <wangjianjian3@huawei.com>
 
-commit 04ebaa1cfddae5f240cc7404f009133bb0389a47 upstream.
+commit 7102ffe4c166ca0f5e35137e9f9de83768c2d27d upstream.
 
-When we decode the latency and the max_latency, u16 value may not fit
-the required size and could lead to the wrong LTR representation.
+According to document and code, ext4_xattr_header's size is 32 bytes, so
+h_reserved size should be 3.
 
-Scaling is represented as:
-scale 0 - 1         (2^(5*0)) = 2^0
-scale 1 - 32        (2^(5 *1))= 2^5
-scale 2 - 1024      (2^(5 *2)) =2^10
-scale 3 - 32768     (2^(5 *3)) =2^15
-scale 4 - 1048576   (2^(5 *4)) = 2^20
-scale 5 - 33554432  (2^(5 *4)) = 2^25
-scale 4 and scale 5 required 20 and 25 bits respectively.
-scale 6 reserved.
-
-Replace the u16 type with the u32 type and allow corrected LTR
-representation.
-
-Cc: stable@vger.kernel.org
-Fixes: 44a13a5d99c7 ("e1000e: Fix the max snoop/no-snoop latency for 10M")
-Reported-by: James Hutchinson <jahutchinson99@googlemail.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215689
-Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Tested-by: James Hutchinson <jahutchinson99@googlemail.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Wang Jianjian <wangjianjian3@huawei.com>
+Link: https://lore.kernel.org/r/92fcc3a6-7d77-8c09-4126-377fcb4c46a5@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/e1000e/ich8lan.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/filesystems/ext4/attributes.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
-+++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
-@@ -1009,8 +1009,8 @@ static s32 e1000_platform_pm_pch_lpt(str
- {
- 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
- 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
--	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
--	u16 lat_enc_d = 0;	/* latency decoded */
-+	u32 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
-+	u32 lat_enc_d = 0;	/* latency decoded */
- 	u16 lat_enc = 0;	/* latency encoded */
+--- a/Documentation/filesystems/ext4/attributes.rst
++++ b/Documentation/filesystems/ext4/attributes.rst
+@@ -76,7 +76,7 @@ The beginning of an extended attribute b
+      - Checksum of the extended attribute block.
+    * - 0x14
+      - \_\_u32
+-     - h\_reserved[2]
++     - h\_reserved[3]
+      - Zero.
  
- 	if (link) {
+ The checksum is calculated against the FS UUID, the 64-bit block number
 
 
