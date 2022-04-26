@@ -2,62 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF6350EF2A
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 05:23:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D92F50EF1C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 05:19:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242876AbiDZD0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 23:26:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34158 "EHLO
+        id S242880AbiDZDWm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 25 Apr 2022 23:22:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235959AbiDZD0r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 23:26:47 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE59AC6152;
-        Mon, 25 Apr 2022 20:23:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1650943421; x=1682479421;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=MIZ9NnOqirQrvhaRVQ8rsuasqFgvVqtc65THhom/L0w=;
-  b=Ca+uNgPHuQDkjgv7MSPDTywLgxBzC/iyQTU2CnojwnDVXz59+n8WeXQD
-   acpcL9Hq0q+tUxYYnlu2X5sBcIOT3lt92a2Xs56Mf0i6IvwIRD3A2euUW
-   ipk0ZJu2KQI0qtHn2qH/5XYI3e7lbCYwvseqcMm3TPdbl0J40Nham8MQ0
-   k1jQF0gUxzUCXfU284nYDMDOFcLiQdT59xRUoMtcQEC+h2o2z9auIVE9w
-   +qaotL8F7U8cqeMMeh3UtPKO5/mRdJcsxKjXkoTm+R00DElB2gCyoeXEH
-   Jl+vrFUm0Aes9t0Uiz+36vI5k30MMU9Tc5OPFXj2XQd7UQDkr9Mn2HrwX
-   g==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10328"; a="351878222"
-X-IronPort-AV: E=Sophos;i="5.90,290,1643702400"; 
-   d="scan'208";a="351878222"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2022 20:23:41 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,290,1643702400"; 
-   d="scan'208";a="579644855"
-Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
-  by orsmga008.jf.intel.com with ESMTP; 25 Apr 2022 20:23:37 -0700
-Date:   Tue, 26 Apr 2022 11:23:37 +0800
-From:   Feng Tang <feng.tang@intel.com>
-To:     Waiman Long <longman@redhat.com>
-Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>, cgroups@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Dave Hansen <dave.hansen@intel.com>, ying.huang@intel.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] cgroup/cpuset: Remove cpus_allowed/mems_allowed setup
- in cpuset_init_smp()
-Message-ID: <20220426032337.GA84190@shbuild999.sh.intel.com>
-References: <20220425155505.1292896-1-longman@redhat.com>
+        with ESMTP id S232679AbiDZDWj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 23:22:39 -0400
+Received: from mail1.bemta34.messagelabs.com (mail1.bemta34.messagelabs.com [195.245.231.2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5C85939B3;
+        Mon, 25 Apr 2022 20:19:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fujitsu.com;
+        s=170520fj; t=1650943171; i=@fujitsu.com;
+        bh=8H4EYBmAmvlD4ppPy7czpIZvvSugYPtrUgavqYgtwHU=;
+        h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+         MIME-Version:Content-Type;
+        b=jkkgporBoA4Ux3kMbPf/FzsmiT8WrCB0YX7xhPQc7iknsE2PlSgsvVQP2aF0gpAKD
+         3UWrWlrgWNFYIJwKY6YkyzUKoHMkTRIqnxz6NRKJrFCPSP+gg1263kip8ZGSJ+aL4O
+         NAG5f2uqTg6gOs46MLle5kz7JlQHCjIyyqzf0hKJxlIrO5fYQoIQ2RHv8uckZBzk+l
+         OQkU4kspTCDxcIwPAg4bufkOsk8g0O77U9pFl40GKG7dK1VDFjboU2fOwUJBWW46g3
+         dkFj+xCAo++ud2H3ob+GwzQfJpxtOrFeO6Zij5AwaPU+dMrQPCyb+q+k9c5//+qBZG
+         Kg0YmpP1r1BPw==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmplleJIrShJLcpLzFFi42Kxs+FI1D2Ykp5
+  k0LtD1OL14U+MFh9uTmKy2HLsHqPF5Sd8Fj+XrWK32LP3JIvFgo2PGC3O/z3OavH7xxw2B06P
+  U4skPDav0PLYtKqTzePzJjmPTU/eMgWwRrFm5iXlVySwZszd+5a5YBNnxYYJu9gbGDs4uhi5O
+  IQEtjBKdK3/wQThLGCSWPx2FxuEs4dRYlrfKpYuRk4ONgFNiWedC5hBbBEBR4kX7TNYQIqYBc
+  4ySnTMWMQOkhAWcJLYfPsFWAOLgKrEhtkLmEBsXgEPiZ5Ta8FqJAQUJKY8fA82iFPAU+LX8XY
+  2EFsIqGbF0lmMEPWCEidnPgGbwywgIXHwxQtmiF5FiUsd3xgh7AqJWbPamCBsNYmr5zYxT2AU
+  nIWkfRaS9gWMTKsYrZOKMtMzSnITM3N0DQ0MdA0NTXWNLXWNDAz0Eqt0E/VSS3XLU4tLdI30E
+  suL9VKLi/WKK3OTc1L08lJLNjECYyelWP3EDsanK3/qHWKU5GBSEuXdkpSeJMSXlJ9SmZFYnB
+  FfVJqTWnyIUYaDQ0mClxUkJ1iUmp5akZaZA4xjmLQEB4+SCG8ZSJq3uCAxtzgzHSJ1ilFRSpz
+  XBRj9QgIgiYzSPLg2WOq4xCgrJczLyMDAIMRTkFqUm1mCKv+KUZyDUUmYlwNkCk9mXgnc9FdA
+  i5mAFn+qTQVZXJKIkJJqYNowc+8M34V6f39enJ/y9hTnnqfGF6eGKEhUdp7sP3E6Yd83H7Gzq
+  hN2LPG3q153aKaxruy7nz+XqYTycwUfzSzgqLBpr2qxWsCb8XWOVyqb4AGlY8FRmediJe2r50
+  ++UR9qE7pxnrrbgkePJlno8HFMeCt74FSS3aNqkcDqV9OueXxWvZe+l0HwwV273IjdohlPvn3
+  f+NNA4uJa2bB3U8/K/WvfLt1x+9GhUr+Tv/ff2sGz4FGBErN8dPHGp+kndrjeunTk3M49P6Qv
+  TXJjFhJkrsqwvz9POJH59ledbP1IFpb4cDv5Bi7jgJ3JG//0nU6YemXvgm+uzk8Dr+2/m8y34
+  SKX7v99Jozbz29Y2rtCiaU4I9FQi7moOBEA7/479JgDAAA=
+X-Env-Sender: xuyang2018.jy@fujitsu.com
+X-Msg-Ref: server-5.tower-565.messagelabs.com!1650943169!150990!1
+X-Originating-IP: [62.60.8.97]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.85.8; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 16073 invoked from network); 26 Apr 2022 03:19:29 -0000
+Received: from unknown (HELO n03ukasimr01.n03.fujitsu.local) (62.60.8.97)
+  by server-5.tower-565.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 26 Apr 2022 03:19:29 -0000
+Received: from n03ukasimr01.n03.fujitsu.local (localhost [127.0.0.1])
+        by n03ukasimr01.n03.fujitsu.local (Postfix) with ESMTP id C0BC3100191;
+        Tue, 26 Apr 2022 04:19:28 +0100 (BST)
+Received: from R01UKEXCASM126.r01.fujitsu.local (unknown [10.183.43.178])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by n03ukasimr01.n03.fujitsu.local (Postfix) with ESMTPS id 985FA10004D;
+        Tue, 26 Apr 2022 04:19:28 +0100 (BST)
+Received: from localhost.localdomain (10.167.220.84) by
+ R01UKEXCASM126.r01.fujitsu.local (10.183.43.178) with Microsoft SMTP Server
+ (TLS) id 15.0.1497.32; Tue, 26 Apr 2022 04:19:00 +0100
+From:   Yang Xu <xuyang2018.jy@fujitsu.com>
+To:     <linux-fsdevel@vger.kernel.org>, <ceph-devel@vger.kernel.org>
+CC:     <viro@zeniv.linux.org.uk>, <david@fromorbit.com>,
+        <djwong@kernel.org>, <brauner@kernel.org>, <willy@infradead.org>,
+        <jlayton@kernel.org>, Yang Xu <xuyang2018.jy@fujitsu.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v7 2/4] fs: Add missing umask strip in vfs_tmpfile
+Date:   Tue, 26 Apr 2022 12:19:50 +0800
+Message-ID: <1650946792-9545-2-git-send-email-xuyang2018.jy@fujitsu.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1650946792-9545-1-git-send-email-xuyang2018.jy@fujitsu.com>
+References: <1650946792-9545-1-git-send-email-xuyang2018.jy@fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220425155505.1292896-1-longman@redhat.com>
-X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,TVD_SUBJ_WIPE_DEBT autolearn=ham
+Content-Type: text/plain
+X-Originating-IP: [10.167.220.84]
+X-ClientProxiedBy: G08CNEXCHPEKD07.g08.fujitsu.local (10.167.33.80) To
+ R01UKEXCASM126.r01.fujitsu.local (10.183.43.178)
+X-Virus-Scanned: ClamAV using ClamSMTP
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -65,75 +90,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Waiman,
+All creation paths except for O_TMPFILE handle umask in the vfs directly
+if the filesystem doesn't support or enable POSIX ACLs. If the filesystem
+does then umask handling is deferred until posix_acl_create().
+Because, O_TMPFILE misses umask handling in the vfs it will not honor
+umask settings. Fix this by adding the missing umask handling.
 
-On Mon, Apr 25, 2022 at 11:55:05AM -0400, Waiman Long wrote:
-> There are 3 places where the cpu and node masks of the top cpuset can
-> be initialized in the order they are executed:
->  1) start_kernel -> cpuset_init()
->  2) start_kernel -> cgroup_init() -> cpuset_bind()
->  3) kernel_init_freeable() -> do_basic_setup() -> cpuset_init_smp()
-> 
-> The first cpuset_init() function just sets all the bits in the masks.
-> The last one executed is cpuset_init_smp() which sets up cpu and node
-> masks suitable for v1, but not v2.  cpuset_bind() does the right setup
-> for both v1 and v2.
-> 
-> For systems with cgroup v2 setup, cpuset_bind() is called once. For
-> systems with cgroup v1 setup, cpuset_bind() is called twice. It is
-> first called before cpuset_init_smp() in cgroup v2 mode.  Then it is
-> called again when cgroup v1 filesystem is mounted in v1 mode after
-> cpuset_init_smp().
-> 
->   [    2.609781] cpuset_bind() called - v2 = 1
->   [    3.079473] cpuset_init_smp() called
->   [    7.103710] cpuset_bind() called - v2 = 0
+Fixes: 60545d0d4610 ("[O_TMPFILE] it's still short a few helpers, but infrastructure should be OK now...")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reported-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
+---
+ fs/namei.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-I run some test, on a server with centOS, this did happen that
-cpuset_bind() is called twice, first as v2 during kernel boot,
-and then as v1 post-boot. 
+diff --git a/fs/namei.c b/fs/namei.c
+index 509657fdf4f5..73646e28fae0 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -3521,6 +3521,8 @@ struct dentry *vfs_tmpfile(struct user_namespace *mnt_userns,
+ 	child = d_alloc(dentry, &slash_name);
+ 	if (unlikely(!child))
+ 		goto out_err;
++	if (!IS_POSIXACL(dir))
++		mode &= ~current_umask();
+ 	error = dir->i_op->tmpfile(mnt_userns, dir, child, mode);
+ 	if (error)
+ 		goto out_err;
+-- 
+2.27.0
 
-However on a QEMU running with a basic debian rootfs image,
-the second  call of cpuset_bind() didn't happen. 
-
-> As a result, cpu and memory node hot add may fail to update the cpu and
-> node masks of the top cpuset to include the newly added cpu or node in
-> a cgroup v2 environment.
-> 
-> smp_init() is called after the first two init functions.  So we don't
-> have a complete list of active cpus and memory nodes until later in
-> cpuset_init_smp() which is the right time to set up effective_cpus
-> and effective_mems.
-> 
-> To fix this problem, the potentially incorrect cpus_allowed &
-> mems_allowed setup in cpuset_init_smp() are removed.  For cgroup v2
-> systems, the initial cpuset_bind() call will set them up correctly.
-> For cgroup v1 systems, the second call to cpuset_bind() will do the
-> right setup.
-> 
-> cc: stable@vger.kernel.org
-> Signed-off-by: Waiman Long <longman@redhat.com>
-> ---
->  kernel/cgroup/cpuset.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-> index 9390bfd9f1cd..6bd8f5ef40fe 100644
-> --- a/kernel/cgroup/cpuset.c
-> +++ b/kernel/cgroup/cpuset.c
-> @@ -3390,8 +3390,9 @@ static struct notifier_block cpuset_track_online_nodes_nb = {
->   */
->  void __init cpuset_init_smp(void)
->  {
-> -	cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
-> -	top_cpuset.mems_allowed = node_states[N_MEMORY];
-
-So can we keep line
-  cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
-
-and only remove line 
-       top_cpuset.mems_allowed = node_states[N_MEMORY];
-?
-
-Thanks,
-Feng
