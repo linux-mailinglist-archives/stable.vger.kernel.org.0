@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02D9F50F873
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B99F50F446
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344596AbiDZJGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:06:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47584 "EHLO
+        id S1345013AbiDZIfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:35:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347414AbiDZJFe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DFD11C986;
-        Tue, 26 Apr 2022 01:44:38 -0700 (PDT)
+        with ESMTP id S1345374AbiDZIed (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5EB47521F;
+        Tue, 26 Apr 2022 01:27:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 411D260A56;
-        Tue, 26 Apr 2022 08:44:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43847C385B4;
-        Tue, 26 Apr 2022 08:44:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3264B617AE;
+        Tue, 26 Apr 2022 08:27:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F91DC385A0;
+        Tue, 26 Apr 2022 08:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962677;
-        bh=Zef/20gInlPkxqalUsDjt0UXGQLCnsEk4RHQO/Fp1XU=;
+        s=korg; t=1650961630;
+        bh=fUb9shhM5zR/y7OMWBRItoP+f2r+tpNUzoLONBAWy0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pH6YIEB/xFJh6xVcxGr0LOD9N5IV3bDlGiZ9ld2lsoVR6BX29kyErW6t2WqhzA0rM
-         oc0n4vogDDhc65V1KVpbrP4bRRo8+lZ9iV8uuNhJLKg2S8YUsGdiLJ7oxTn/jKlymp
-         GHTmFhMZ44xwkP6gVQJSMXuchWL+wSnfSAoW1c7U=
+        b=Lh8KcdEqo4x8O/4Wm3oIXy7C11DtwNbb5BhIVoW1mIRlBoPqq6oweQ9O2APDIiA7g
+         VPvFMGStCe+F3eNCWli1tjPwY9oA4ZKTIrIN1b6llY3GzBHb4Qkd+YVwN7O+d/ikxC
+         c+lUKQlfHf9edVTORzLor0eJAe772Jgl8Arqc0yI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernice Zhang <bernice.zhang@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 051/146] dmaengine: idxd: add RO check for wq max_transfer_size write
+        stable@vger.kernel.org,
+        syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com,
+        Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 4.19 06/53] gfs2: assign rgrp glock before compute_bitstructs
 Date:   Tue, 26 Apr 2022 10:20:46 +0200
-Message-Id: <20220426081751.505301430@linuxfoundation.org>
+Message-Id: <20220426081735.843249540@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 505a2d1032ae656b0a8c736be110255503941cde ]
+commit 428f651cb80b227af47fc302e4931791f2fb4741 upstream.
 
-Block wq_max_transfer_size_store() when the device is configured as
-read-only and not configurable.
+Before this patch, function read_rindex_entry called compute_bitstructs
+before it allocated a glock for the rgrp. But if compute_bitstructs found
+a problem with the rgrp, it called gfs2_consist_rgrpd, and that called
+gfs2_dump_glock for rgd->rd_gl which had not yet been assigned.
 
-Fixes: d7aad5550eca ("dmaengine: idxd: add support for configurable max wq xfer size")
-Reported-by: Bernice Zhang <bernice.zhang@intel.com>
-Tested-by: Bernice Zhang <bernice.zhang@intel.com>
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/164971488154.2200913.10706665404118545941.stgit@djiang5-desk3.ch.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+read_rindex_entry
+   compute_bitstructs
+      gfs2_consist_rgrpd
+         gfs2_dump_glock <---------rgd->rd_gl was not set.
+
+This patch changes read_rindex_entry so it assigns an rgrp glock before
+calling compute_bitstructs so gfs2_dump_glock does not reference an
+unassigned pointer. If an error is discovered, the glock must also be
+put, so a new goto and label were added.
+
+Reported-by: syzbot+c6fd14145e2f62ca0784@syzkaller.appspotmail.com
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/idxd/sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/gfs2/rgrp.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
-index 6c41d429bd89..dfd549685c46 100644
---- a/drivers/dma/idxd/sysfs.c
-+++ b/drivers/dma/idxd/sysfs.c
-@@ -905,6 +905,9 @@ static ssize_t wq_max_transfer_size_store(struct device *dev, struct device_attr
- 	u64 xfer_size;
- 	int rc;
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -926,15 +926,15 @@ static int read_rindex_entry(struct gfs2
+ 	rgd->rd_bitbytes = be32_to_cpu(buf.ri_bitbytes);
+ 	spin_lock_init(&rgd->rd_rsspin);
  
-+	if (!test_bit(IDXD_FLAG_CONFIGURABLE, &idxd->flags))
-+		return -EPERM;
+-	error = compute_bitstructs(rgd);
+-	if (error)
+-		goto fail;
+-
+ 	error = gfs2_glock_get(sdp, rgd->rd_addr,
+ 			       &gfs2_rgrp_glops, CREATE, &rgd->rd_gl);
+ 	if (error)
+ 		goto fail;
+ 
++	error = compute_bitstructs(rgd);
++	if (error)
++		goto fail_glock;
 +
- 	if (wq->state != IDXD_WQ_DISABLED)
- 		return -EPERM;
+ 	rgd->rd_rgl = (struct gfs2_rgrp_lvb *)rgd->rd_gl->gl_lksb.sb_lvbptr;
+ 	rgd->rd_flags &= ~(GFS2_RDF_UPTODATE | GFS2_RDF_PREFERRED);
+ 	if (rgd->rd_data > sdp->sd_max_rg_data)
+@@ -951,6 +951,7 @@ static int read_rindex_entry(struct gfs2
+ 	}
  
--- 
-2.35.1
-
+ 	error = 0; /* someone else read in the rgrp; free it and ignore it */
++fail_glock:
+ 	gfs2_glock_put(rgd->rd_gl);
+ 
+ fail:
 
 
