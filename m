@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C415A50F4CE
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5D150F674
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345287AbiDZIkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59644 "EHLO
+        id S233861AbiDZIq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:46:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345403AbiDZIjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 482C93B2B1;
-        Tue, 26 Apr 2022 01:29:42 -0700 (PDT)
+        with ESMTP id S1346423AbiDZIpB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC955167F1E;
+        Tue, 26 Apr 2022 01:34:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F03A2B81CFA;
-        Tue, 26 Apr 2022 08:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7083FC385AC;
-        Tue, 26 Apr 2022 08:29:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7090FB81D09;
+        Tue, 26 Apr 2022 08:34:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE140C385A0;
+        Tue, 26 Apr 2022 08:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961779;
-        bh=288k9DnEcV4ejGaEJ796PXFMibFI/0Co3swJzfncqIU=;
+        s=korg; t=1650962083;
+        bh=vbMCQhYpFOrJqjfbCfIgDM/0g8eUs24bpcjR8pwBGS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2P1xhQ43+RlD3eG5M+K/dHIzAmsv8r3kTGR7HQiyvRHDZr3SMgiGyhf79W1y1b1e
-         6QLgEVJmui2eCSinBMu48R1vLrRH7ivbf9W9nrT4q7lH7R/Tx/20alkaCEKWnDNX/E
-         aNFRtN5k0KFc0R18yzbbEjpXqbNOId1MwLW1uvR8=
+        b=YmizzJofKY4RKUVOXtw+4Gul1HmWcPUys6RsvjcOHf2EFZifyZWgfd5+VeSJ3ZW1a
+         b+j4hw0QqkaNRTT2pyZ3tIHGn3JtpcIRrUIBFckdCoL2LCTPkMEuypqH2LznfqY7T4
+         9hVlUEZX7s8rAA4/qKS9uaZ35bl2oyf1/NqGWjmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hongbin Wang <wh_bin@126.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 27/62] vxlan: fix error return code in vxlan_fdb_append
+Subject: [PATCH 5.10 39/86] vxlan: fix error return code in vxlan_fdb_append
 Date:   Tue, 26 Apr 2022 10:21:07 +0200
-Message-Id: <20220426081738.005147557@linuxfoundation.org>
+Message-Id: <20220426081742.334423312@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -68,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index c5991e31c557..f4869b1836f3 100644
+index 48fbdce6a70e..72d670667f64 100644
 --- a/drivers/net/vxlan.c
 +++ b/drivers/net/vxlan.c
-@@ -679,11 +679,11 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
+@@ -710,11 +710,11 @@ static int vxlan_fdb_append(struct vxlan_fdb *f,
  
  	rd = kmalloc(sizeof(*rd), GFP_ATOMIC);
  	if (rd == NULL)
