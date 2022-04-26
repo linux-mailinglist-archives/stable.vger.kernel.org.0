@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07EED50F5B0
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 010D350F680
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345305AbiDZIlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:41:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59624 "EHLO
+        id S1344180AbiDZI4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:56:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345822AbiDZIje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4357F78FE6;
-        Tue, 26 Apr 2022 01:31:54 -0700 (PDT)
+        with ESMTP id S1346675AbiDZIuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:15 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9E22153771;
+        Tue, 26 Apr 2022 01:38:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F133FB81CFE;
-        Tue, 26 Apr 2022 08:31:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64333C385A4;
-        Tue, 26 Apr 2022 08:31:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 54C9BCE1BC9;
+        Tue, 26 Apr 2022 08:38:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D207C385AC;
+        Tue, 26 Apr 2022 08:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961911;
-        bh=Zg0RKzNVnX/cBhF2uFK+M+gvp7hkVVGk/9ryYNxE078=;
+        s=korg; t=1650962312;
+        bh=pCP7/cH25+g3Q4YdnXB4uOJeko31Uwuq9MNMwOC3uoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0nPHg1DATzcAJRICAIyoT8QbLhqg/KXik897QA4x20kN+D1XATw01DRQDH4/hfyRu
-         9DSgJjdoE2YotV73Le/anMUnvgs68whnlCp/uGVmZv6fLPLLHvPug9EwgUhz/7VnQi
-         Q1m2vWAoX7MceBxLaGx8Ye3hlbNWRvDjldIf9t2w=
+        b=diQ3KYmWuvdnJP2u5DQ49TV5xi6KJB5HgtGVXtIZjPwL/QPWt9EiQ0chzJsDcVfXR
+         G0mp++EaeSetGG1XSLUGXpbvt3ReCJcwqMbDVaiMOf8Aluhyu9EKsOPtyurvFVUCRr
+         2OihAvQNYxS0sngKRc9X15dE5XXMT5sS1XKNeafc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        stable@vger.kernel.org, Feng Zhou <zhoufeng.zf@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/86] ASoC: atmel: Remove system clock tree configuration for at91sam9g20ek
+Subject: [PATCH 5.15 037/124] ip6_gre: Fix skb_under_panic in __gre6_xmit()
 Date:   Tue, 26 Apr 2022 10:20:38 +0200
-Message-Id: <20220426081741.505015298@linuxfoundation.org>
+Message-Id: <20220426081748.358077005@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,140 +55,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit c775cbf62ed4911e4f0f23880f01815753123690 ]
+[ Upstream commit ab198e1d0dd8dc4bc7575fb50758e2cbd51e14e1 ]
 
-The MCLK of the WM8731 on the AT91SAM9G20-EK board is connected to the
-PCK0 output of the SoC, intended in the reference software to be supplied
-using PLLB and programmed to 12MHz. As originally written for use with a
-board file the audio driver was responsible for configuring the entire tree
-but in the conversion to the common clock framework the registration of
-the named pck0 and pllb clocks was removed so the driver has failed to
-instantiate ever since.
+Feng reported an skb_under_panic BUG triggered by running
+test_ip6gretap() in tools/testing/selftests/bpf/test_tunnel.sh:
 
-Since the WM8731 driver has had support for managing a MCLK provided via
-the common clock framework for some time we can simply drop all the clock
-management code from the machine driver other than configuration of the
-sysclk rate, the CODEC driver still respects that configuration from the
-machine driver.
+[   82.492551] skbuff: skb_under_panic: text:ffffffffb268bb8e len:403 put:12 head:ffff9997c5480000 data:ffff9997c547fff8 tail:0x18b end:0x2c0 dev:ip6gretap11
+<...>
+[   82.607380] Call Trace:
+[   82.609389]  <TASK>
+[   82.611136]  skb_push.cold.109+0x10/0x10
+[   82.614289]  __gre6_xmit+0x41e/0x590
+[   82.617169]  ip6gre_tunnel_xmit+0x344/0x3f0
+[   82.620526]  dev_hard_start_xmit+0xf1/0x330
+[   82.623882]  sch_direct_xmit+0xe4/0x250
+[   82.626961]  __dev_queue_xmit+0x720/0xfe0
+<...>
+[   82.633431]  packet_sendmsg+0x96a/0x1cb0
+[   82.636568]  sock_sendmsg+0x30/0x40
+<...>
 
-Fixes: ff78a189b0ae55f ("ARM: at91: remove old at91-specific clock driver")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220325154241.1600757-2-broonie@kernel.org
+The following sequence of events caused the BUG:
+
+1. During ip6gretap device initialization, tunnel->tun_hlen (e.g. 4) is
+   calculated based on old flags (see ip6gre_calc_hlen());
+2. packet_snd() reserves header room for skb A, assuming
+   tunnel->tun_hlen is 4;
+3. Later (in clsact Qdisc), the eBPF program sets a new tunnel key for
+   skb A using bpf_skb_set_tunnel_key() (see _ip6gretap_set_tunnel());
+4. __gre6_xmit() detects the new tunnel key, and recalculates
+   "tun_hlen" (e.g. 12) based on new flags (e.g. TUNNEL_KEY and
+   TUNNEL_SEQ);
+5. gre_build_header() calls skb_push() with insufficient reserved header
+   room, triggering the BUG.
+
+As sugguested by Cong, fix it by moving the call to skb_cow_head() after
+the recalculation of tun_hlen.
+
+Reproducer:
+
+  OBJ=$LINUX/tools/testing/selftests/bpf/test_tunnel_kern.o
+
+  ip netns add at_ns0
+  ip link add veth0 type veth peer name veth1
+  ip link set veth0 netns at_ns0
+  ip netns exec at_ns0 ip addr add 172.16.1.100/24 dev veth0
+  ip netns exec at_ns0 ip link set dev veth0 up
+  ip link set dev veth1 up mtu 1500
+  ip addr add dev veth1 172.16.1.200/24
+
+  ip netns exec at_ns0 ip addr add ::11/96 dev veth0
+  ip netns exec at_ns0 ip link set dev veth0 up
+  ip addr add dev veth1 ::22/96
+  ip link set dev veth1 up
+
+  ip netns exec at_ns0 \
+  	ip link add dev ip6gretap00 type ip6gretap seq flowlabel 0xbcdef key 2 \
+  	local ::11 remote ::22
+
+  ip netns exec at_ns0 ip addr add dev ip6gretap00 10.1.1.100/24
+  ip netns exec at_ns0 ip addr add dev ip6gretap00 fc80::100/96
+  ip netns exec at_ns0 ip link set dev ip6gretap00 up
+
+  ip link add dev ip6gretap11 type ip6gretap external
+  ip addr add dev ip6gretap11 10.1.1.200/24
+  ip addr add dev ip6gretap11 fc80::200/24
+  ip link set dev ip6gretap11 up
+
+  tc qdisc add dev ip6gretap11 clsact
+  tc filter add dev ip6gretap11 egress bpf da obj $OBJ sec ip6gretap_set_tunnel
+  tc filter add dev ip6gretap11 ingress bpf da obj $OBJ sec ip6gretap_get_tunnel
+
+  ping6 -c 3 -w 10 -q ::11
+
+Fixes: 6712abc168eb ("ip6_gre: add ip6 gre and gretap collect_md mode")
+Reported-by: Feng Zhou <zhoufeng.zf@bytedance.com>
+Co-developed-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/sam9g20_wm8731.c | 61 --------------------------------
- 1 file changed, 61 deletions(-)
+ net/ipv6/ip6_gre.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/atmel/sam9g20_wm8731.c b/sound/soc/atmel/sam9g20_wm8731.c
-index 8a55d59a6c2a..d243de5f23dc 100644
---- a/sound/soc/atmel/sam9g20_wm8731.c
-+++ b/sound/soc/atmel/sam9g20_wm8731.c
-@@ -46,35 +46,6 @@
-  */
- #undef ENABLE_MIC_INPUT
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 288720838329..869c3337e319 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -733,9 +733,6 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 	else
+ 		fl6->daddr = tunnel->parms.raddr;
  
--static struct clk *mclk;
+-	if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
+-		return -ENOMEM;
 -
--static int at91sam9g20ek_set_bias_level(struct snd_soc_card *card,
--					struct snd_soc_dapm_context *dapm,
--					enum snd_soc_bias_level level)
--{
--	static int mclk_on;
--	int ret = 0;
--
--	switch (level) {
--	case SND_SOC_BIAS_ON:
--	case SND_SOC_BIAS_PREPARE:
--		if (!mclk_on)
--			ret = clk_enable(mclk);
--		if (ret == 0)
--			mclk_on = 1;
--		break;
--
--	case SND_SOC_BIAS_OFF:
--	case SND_SOC_BIAS_STANDBY:
--		if (mclk_on)
--			clk_disable(mclk);
--		mclk_on = 0;
--		break;
--	}
--
--	return ret;
--}
--
- static const struct snd_soc_dapm_widget at91sam9g20ek_dapm_widgets[] = {
- 	SND_SOC_DAPM_MIC("Int Mic", NULL),
- 	SND_SOC_DAPM_SPK("Ext Spk", NULL),
-@@ -135,7 +106,6 @@ static struct snd_soc_card snd_soc_at91sam9g20ek = {
- 	.owner = THIS_MODULE,
- 	.dai_link = &at91sam9g20ek_dai,
- 	.num_links = 1,
--	.set_bias_level = at91sam9g20ek_set_bias_level,
+ 	/* Push GRE header. */
+ 	protocol = (dev->type == ARPHRD_ETHER) ? htons(ETH_P_TEB) : proto;
  
- 	.dapm_widgets = at91sam9g20ek_dapm_widgets,
- 	.num_dapm_widgets = ARRAY_SIZE(at91sam9g20ek_dapm_widgets),
-@@ -148,7 +118,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	struct device_node *codec_np, *cpu_np;
--	struct clk *pllb;
- 	struct snd_soc_card *card = &snd_soc_at91sam9g20ek;
- 	int ret;
+@@ -763,6 +760,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
+ 		tun_hlen = gre_calc_hlen(flags);
  
-@@ -162,31 +131,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
++		if (skb_cow_head(skb, dev->needed_headroom ?: tun_hlen + tunnel->encap_hlen))
++			return -ENOMEM;
++
+ 		gre_build_header(skb, tun_hlen,
+ 				 flags, protocol,
+ 				 tunnel_id_to_key32(tun_info->key.tun_id),
+@@ -773,6 +773,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		if (tunnel->parms.o_flags & TUNNEL_SEQ)
+ 			tunnel->o_seqno++;
  
--	/*
--	 * Codec MCLK is supplied by PCK0 - set it up.
--	 */
--	mclk = clk_get(NULL, "pck0");
--	if (IS_ERR(mclk)) {
--		dev_err(&pdev->dev, "Failed to get MCLK\n");
--		ret = PTR_ERR(mclk);
--		goto err;
--	}
--
--	pllb = clk_get(NULL, "pllb");
--	if (IS_ERR(pllb)) {
--		dev_err(&pdev->dev, "Failed to get PLLB\n");
--		ret = PTR_ERR(pllb);
--		goto err_mclk;
--	}
--	ret = clk_set_parent(mclk, pllb);
--	clk_put(pllb);
--	if (ret != 0) {
--		dev_err(&pdev->dev, "Failed to set MCLK parent\n");
--		goto err_mclk;
--	}
--
--	clk_set_rate(mclk, MCLK_RATE);
--
- 	card->dev = &pdev->dev;
- 
- 	/* Parse device node info */
-@@ -230,9 +174,6 @@ static int at91sam9g20ek_audio_probe(struct platform_device *pdev)
- 
- 	return ret;
- 
--err_mclk:
--	clk_put(mclk);
--	mclk = NULL;
- err:
- 	atmel_ssc_put_audio(0);
- 	return ret;
-@@ -242,8 +183,6 @@ static int at91sam9g20ek_audio_remove(struct platform_device *pdev)
- {
- 	struct snd_soc_card *card = platform_get_drvdata(pdev);
- 
--	clk_disable(mclk);
--	mclk = NULL;
- 	snd_soc_unregister_card(card);
- 	atmel_ssc_put_audio(0);
- 
++		if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
++			return -ENOMEM;
++
+ 		gre_build_header(skb, tunnel->tun_hlen, tunnel->parms.o_flags,
+ 				 protocol, tunnel->parms.o_key,
+ 				 htonl(tunnel->o_seqno));
 -- 
 2.35.1
 
