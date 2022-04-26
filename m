@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE67850F506
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1183F50F641
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345335AbiDZIlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:41:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58484 "EHLO
+        id S243545AbiDZIyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345794AbiDZIjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ACD595A31;
-        Tue, 26 Apr 2022 01:31:14 -0700 (PDT)
+        with ESMTP id S245512AbiDZIwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:52:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 673A5D5557;
+        Tue, 26 Apr 2022 01:40:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18CF96185A;
-        Tue, 26 Apr 2022 08:31:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20F44C385A0;
-        Tue, 26 Apr 2022 08:31:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0561F604F5;
+        Tue, 26 Apr 2022 08:40:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 169C9C385A0;
+        Tue, 26 Apr 2022 08:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961873;
-        bh=KqzuKxuQJCdfP2D+y8yU6DtCUL++GH2XJYDjiu7Erv0=;
+        s=korg; t=1650962448;
+        bh=I7E4f3rFKZQ0HQraiuVyxk/qYySAiRYvtrWeIKvVc1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3rqmWPKeF+YQ/+4N5d2aL5rO6O9NBaK/RG0aJ/daaMYcKS/CHZhMusONSrcmxzC3
-         aB13jhIEGZ6hz4s8DznCYZxEDGevWG21D72Cd3zT2A5NmEg0Mft0oGjvuf/WEpOJuE
-         7MpThxqi7vY1hvEsZlm7v74HB9x7lNH/Kh1+b1t4=
+        b=XFZJBce1zmlyWPWF59zjCtk0uR3wh5CZlFLQyIG2XIhvLNoTEwZ5LRu/HGjMKTQe3
+         ISZNHkuGIEg5rzrafX7VfJOk/LhxLACiW6yXCkJZ/pSAytVO5hAaw+Gbh5Oi87s09v
+         qPdXoS2qURq6igt85JzsIDFi5rYpAsAnBqfdRS9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, lee.jones@linaro.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "stable@vger.kernel.org, Dan Carpenter" <dan.carpenter@oracle.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.4 60/62] staging: ion: Prevent incorrect reference counting behavour
-Date:   Tue, 26 Apr 2022 10:21:40 +0200
-Message-Id: <20220426081738.942624771@linuxfoundation.org>
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 5.15 100/124] xtensa: fix a7 clobbering in coprocessor context load/store
+Date:   Tue, 26 Apr 2022 10:21:41 +0200
+Message-Id: <20220426081750.141678316@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,28 +51,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-Supply additional check in order to prevent unexpected results.
+commit 839769c35477d4acc2369e45000ca7b0b6af39a7 upstream.
 
-Fixes: b892bf75b2034 ("ion: Switch ion to use dma-buf")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fast coprocessor exception handler saves a3..a6, but coprocessor context
+load/store code uses a4..a7 as temporaries, potentially clobbering a7.
+'Potentially' because coprocessor state load/store macros may not use
+all four temporary registers (and neither FPU nor HiFi macros do).
+Use a3..a6 as intended.
+
+Cc: stable@vger.kernel.org
+Fixes: c658eac628aa ("[XTENSA] Add support for configurable registers and coprocessors")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/android/ion/ion.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/xtensa/kernel/coprocessor.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/android/ion/ion.c
-+++ b/drivers/staging/android/ion/ion.c
-@@ -114,6 +114,9 @@ static void *ion_buffer_kmap_get(struct
- 	void *vaddr;
+--- a/arch/xtensa/kernel/coprocessor.S
++++ b/arch/xtensa/kernel/coprocessor.S
+@@ -29,7 +29,7 @@
+ 	.if XTENSA_HAVE_COPROCESSOR(x);					\
+ 		.align 4;						\
+ 	.Lsave_cp_regs_cp##x:						\
+-		xchal_cp##x##_store a2 a4 a5 a6 a7;			\
++		xchal_cp##x##_store a2 a3 a4 a5 a6;			\
+ 		jx	a0;						\
+ 	.endif
  
- 	if (buffer->kmap_cnt) {
-+		if (buffer->kmap_cnt == INT_MAX)
-+			return ERR_PTR(-EOVERFLOW);
-+
- 		buffer->kmap_cnt++;
- 		return buffer->vaddr;
- 	}
+@@ -46,7 +46,7 @@
+ 	.if XTENSA_HAVE_COPROCESSOR(x);					\
+ 		.align 4;						\
+ 	.Lload_cp_regs_cp##x:						\
+-		xchal_cp##x##_load a2 a4 a5 a6 a7;			\
++		xchal_cp##x##_load a2 a3 a4 a5 a6;			\
+ 		jx	a0;						\
+ 	.endif
+ 
 
 
