@@ -2,62 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 268B750F84D
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A9E750F5F6
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346440AbiDZJIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57338 "EHLO
+        id S242514AbiDZIxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:53:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347886AbiDZJGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:21 -0400
+        with ESMTP id S1346227AbiDZIoo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:44:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F12C169E6D;
-        Tue, 26 Apr 2022 01:46:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1170B163D1E;
+        Tue, 26 Apr 2022 01:34:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A50B5604F5;
-        Tue, 26 Apr 2022 08:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 398B6C385A0;
-        Tue, 26 Apr 2022 08:46:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DEAF61899;
+        Tue, 26 Apr 2022 08:34:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3579FC385A4;
+        Tue, 26 Apr 2022 08:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962799;
-        bh=sPlpemsexSgenhCRInyJb5QD1uukvUGP9eqOzpS0KTo=;
+        s=korg; t=1650962065;
+        bh=nQ2HJD5nf4oTxFG5OTLGaKQFzVChDheTQyaznQhlggM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xliGvFDqDw9hXHntLMXNmRK5kPyoyeMJrWi+oQYjrHKg/jL5JzwD8vbnfkbu88/Qy
-         cc/fjZhxm7Ksmzg1S/i9qk54APsRHezwcfTHbCuwyOMIn+J7NNuWyyGZl635Utogc5
-         fQgCGiUFb5sICyNbxJ/JqXDCezuZ7zG2/BflhMBc=
+        b=G7U8Ul3X1LbDmEXuGfi6qCSX9pM/BLKlDskfwTGQ9q3PuN3701HtccLxBn8C56fTf
+         Ts0ZtDes/oazQP+YftWXCA7Oi2tzi1ecRmPYm5BRTY2nETJjnybtZB6hU+4QHDyaC4
+         +xLRnPMBithbyh1HvjUYe3JLhUMJXyEhRv29YEW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Savitz <jsavitz@redhat.com>,
-        Nico Pache <npache@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Michal Hocko <mhocko@suse.com>,
-        Rafael Aquini <aquini@redhat.com>,
-        Waiman Long <longman@redhat.com>,
-        "Herton R. Krzesinski" <herton@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        David Rientjes <rientjes@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Darren Hart <dvhart@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 092/146] oom_kill.c: futex: delay the OOM reaper to allow time for proper futex cleanup
-Date:   Tue, 26 Apr 2022 10:21:27 +0200
-Message-Id: <20220426081752.644257997@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Valerio <pvalerio@redhat.com>,
+        Eelco Chaudron <echaudro@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 60/86] openvswitch: fix OOB access in reserve_sfa_size()
+Date:   Tue, 26 Apr 2022 10:21:28 +0200
+Message-Id: <20220426081742.938388458@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -71,206 +53,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nico Pache <npache@redhat.com>
+From: Paolo Valerio <pvalerio@redhat.com>
 
-commit e4a38402c36e42df28eb1a5394be87e6571fb48a upstream.
+commit cefa91b2332d7009bc0be5d951d6cbbf349f90f8 upstream.
 
-The pthread struct is allocated on PRIVATE|ANONYMOUS memory [1] which
-can be targeted by the oom reaper.  This mapping is used to store the
-futex robust list head; the kernel does not keep a copy of the robust
-list and instead references a userspace address to maintain the
-robustness during a process death.
+Given a sufficiently large number of actions, while copying and
+reserving memory for a new action of a new flow, if next_offset is
+greater than MAX_ACTIONS_BUFSIZE, the function reserve_sfa_size() does
+not return -EMSGSIZE as expected, but it allocates MAX_ACTIONS_BUFSIZE
+bytes increasing actions_len by req_size. This can then lead to an OOB
+write access, especially when further actions need to be copied.
 
-A race can occur between exit_mm and the oom reaper that allows the oom
-reaper to free the memory of the futex robust list before the exit path
-has handled the futex death:
+Fix it by rearranging the flow action size check.
 
-    CPU1                               CPU2
-    --------------------------------------------------------------------
-    page_fault
-    do_exit "signal"
-    wake_oom_reaper
-                                        oom_reaper
-                                        oom_reap_task_mm (invalidates mm)
-    exit_mm
-    exit_mm_release
-    futex_exit_release
-    futex_cleanup
-    exit_robust_list
-    get_user (EFAULT- can't access memory)
+KASAN splat below:
 
-If the get_user EFAULT's, the kernel will be unable to recover the
-waiters on the robust_list, leaving userspace mutexes hung indefinitely.
+==================================================================
+BUG: KASAN: slab-out-of-bounds in reserve_sfa_size+0x1ba/0x380 [openvswitch]
+Write of size 65360 at addr ffff888147e4001c by task handler15/836
 
-Delay the OOM reaper, allowing more time for the exit path to perform
-the futex cleanup.
+CPU: 1 PID: 836 Comm: handler15 Not tainted 5.18.0-rc1+ #27
+...
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x45/0x5a
+ print_report.cold+0x5e/0x5db
+ ? __lock_text_start+0x8/0x8
+ ? reserve_sfa_size+0x1ba/0x380 [openvswitch]
+ kasan_report+0xb5/0x130
+ ? reserve_sfa_size+0x1ba/0x380 [openvswitch]
+ kasan_check_range+0xf5/0x1d0
+ memcpy+0x39/0x60
+ reserve_sfa_size+0x1ba/0x380 [openvswitch]
+ __add_action+0x24/0x120 [openvswitch]
+ ovs_nla_add_action+0xe/0x20 [openvswitch]
+ ovs_ct_copy_action+0x29d/0x1130 [openvswitch]
+ ? __kernel_text_address+0xe/0x30
+ ? unwind_get_return_address+0x56/0xa0
+ ? create_prof_cpu_mask+0x20/0x20
+ ? ovs_ct_verify+0xf0/0xf0 [openvswitch]
+ ? prep_compound_page+0x198/0x2a0
+ ? __kasan_check_byte+0x10/0x40
+ ? kasan_unpoison+0x40/0x70
+ ? ksize+0x44/0x60
+ ? reserve_sfa_size+0x75/0x380 [openvswitch]
+ __ovs_nla_copy_actions+0xc26/0x2070 [openvswitch]
+ ? __zone_watermark_ok+0x420/0x420
+ ? validate_set.constprop.0+0xc90/0xc90 [openvswitch]
+ ? __alloc_pages+0x1a9/0x3e0
+ ? __alloc_pages_slowpath.constprop.0+0x1da0/0x1da0
+ ? unwind_next_frame+0x991/0x1e40
+ ? __mod_node_page_state+0x99/0x120
+ ? __mod_lruvec_page_state+0x2e3/0x470
+ ? __kasan_kmalloc_large+0x90/0xe0
+ ovs_nla_copy_actions+0x1b4/0x2c0 [openvswitch]
+ ovs_flow_cmd_new+0x3cd/0xb10 [openvswitch]
+ ...
 
-Reproducer: https://gitlab.com/jsavitz/oom_futex_reproducer
-
-Based on a patch by Michal Hocko.
-
-Link: https://elixir.bootlin.com/glibc/glibc-2.35/source/nptl/allocatestack.c#L370 [1]
-Link: https://lkml.kernel.org/r/20220414144042.677008-1-npache@redhat.com
-Fixes: 212925802454 ("mm: oom: let oom_reap_task and exit_mmap run concurrently")
-Signed-off-by: Joel Savitz <jsavitz@redhat.com>
-Signed-off-by: Nico Pache <npache@redhat.com>
-Co-developed-by: Joel Savitz <jsavitz@redhat.com>
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Rafael Aquini <aquini@redhat.com>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Herton R. Krzesinski <herton@redhat.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Savitz <jsavitz@redhat.com>
-Cc: Darren Hart <dvhart@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: f28cd2af22a0 ("openvswitch: fix flow actions reallocation")
+Signed-off-by: Paolo Valerio <pvalerio@redhat.com>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sched.h |    1 
- mm/oom_kill.c         |   54 +++++++++++++++++++++++++++++++++++++-------------
- 2 files changed, 41 insertions(+), 14 deletions(-)
+ net/openvswitch/flow_netlink.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1440,6 +1440,7 @@ struct task_struct {
- 	int				pagefault_disabled;
- #ifdef CONFIG_MMU
- 	struct task_struct		*oom_reaper_list;
-+	struct timer_list		oom_reaper_timer;
- #endif
- #ifdef CONFIG_VMAP_STACK
- 	struct vm_struct		*stack_vm_area;
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -635,7 +635,7 @@ done:
- 	 */
- 	set_bit(MMF_OOM_SKIP, &mm->flags);
+--- a/net/openvswitch/flow_netlink.c
++++ b/net/openvswitch/flow_netlink.c
+@@ -2436,7 +2436,7 @@ static struct nlattr *reserve_sfa_size(s
+ 	new_acts_size = max(next_offset + req_size, ksize(*sfa) * 2);
  
--	/* Drop a reference taken by wake_oom_reaper */
-+	/* Drop a reference taken by queue_oom_reaper */
- 	put_task_struct(tsk);
- }
- 
-@@ -647,12 +647,12 @@ static int oom_reaper(void *unused)
- 		struct task_struct *tsk = NULL;
- 
- 		wait_event_freezable(oom_reaper_wait, oom_reaper_list != NULL);
--		spin_lock(&oom_reaper_lock);
-+		spin_lock_irq(&oom_reaper_lock);
- 		if (oom_reaper_list != NULL) {
- 			tsk = oom_reaper_list;
- 			oom_reaper_list = tsk->oom_reaper_list;
- 		}
--		spin_unlock(&oom_reaper_lock);
-+		spin_unlock_irq(&oom_reaper_lock);
- 
- 		if (tsk)
- 			oom_reap_task(tsk);
-@@ -661,22 +661,48 @@ static int oom_reaper(void *unused)
- 	return 0;
- }
- 
--static void wake_oom_reaper(struct task_struct *tsk)
-+static void wake_oom_reaper(struct timer_list *timer)
- {
--	/* mm is already queued? */
--	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
-+	struct task_struct *tsk = container_of(timer, struct task_struct,
-+			oom_reaper_timer);
-+	struct mm_struct *mm = tsk->signal->oom_mm;
-+	unsigned long flags;
-+
-+	/* The victim managed to terminate on its own - see exit_mmap */
-+	if (test_bit(MMF_OOM_SKIP, &mm->flags)) {
-+		put_task_struct(tsk);
- 		return;
-+	}
- 
--	get_task_struct(tsk);
--
--	spin_lock(&oom_reaper_lock);
-+	spin_lock_irqsave(&oom_reaper_lock, flags);
- 	tsk->oom_reaper_list = oom_reaper_list;
- 	oom_reaper_list = tsk;
--	spin_unlock(&oom_reaper_lock);
-+	spin_unlock_irqrestore(&oom_reaper_lock, flags);
- 	trace_wake_reaper(tsk->pid);
- 	wake_up(&oom_reaper_wait);
- }
- 
-+/*
-+ * Give the OOM victim time to exit naturally before invoking the oom_reaping.
-+ * The timers timeout is arbitrary... the longer it is, the longer the worst
-+ * case scenario for the OOM can take. If it is too small, the oom_reaper can
-+ * get in the way and release resources needed by the process exit path.
-+ * e.g. The futex robust list can sit in Anon|Private memory that gets reaped
-+ * before the exit path is able to wake the futex waiters.
-+ */
-+#define OOM_REAPER_DELAY (2*HZ)
-+static void queue_oom_reaper(struct task_struct *tsk)
-+{
-+	/* mm is already queued? */
-+	if (test_and_set_bit(MMF_OOM_REAP_QUEUED, &tsk->signal->oom_mm->flags))
-+		return;
-+
-+	get_task_struct(tsk);
-+	timer_setup(&tsk->oom_reaper_timer, wake_oom_reaper, 0);
-+	tsk->oom_reaper_timer.expires = jiffies + OOM_REAPER_DELAY;
-+	add_timer(&tsk->oom_reaper_timer);
-+}
-+
- static int __init oom_init(void)
- {
- 	oom_reaper_th = kthread_run(oom_reaper, NULL, "oom_reaper");
-@@ -684,7 +710,7 @@ static int __init oom_init(void)
- }
- subsys_initcall(oom_init)
- #else
--static inline void wake_oom_reaper(struct task_struct *tsk)
-+static inline void queue_oom_reaper(struct task_struct *tsk)
- {
- }
- #endif /* CONFIG_MMU */
-@@ -935,7 +961,7 @@ static void __oom_kill_process(struct ta
- 	rcu_read_unlock();
- 
- 	if (can_oom_reap)
--		wake_oom_reaper(victim);
-+		queue_oom_reaper(victim);
- 
- 	mmdrop(mm);
- 	put_task_struct(victim);
-@@ -971,7 +997,7 @@ static void oom_kill_process(struct oom_
- 	task_lock(victim);
- 	if (task_will_free_mem(victim)) {
- 		mark_oom_victim(victim);
--		wake_oom_reaper(victim);
-+		queue_oom_reaper(victim);
- 		task_unlock(victim);
- 		put_task_struct(victim);
- 		return;
-@@ -1070,7 +1096,7 @@ bool out_of_memory(struct oom_control *o
- 	 */
- 	if (task_will_free_mem(current)) {
- 		mark_oom_victim(current);
--		wake_oom_reaper(current);
-+		queue_oom_reaper(current);
- 		return true;
- 	}
- 
+ 	if (new_acts_size > MAX_ACTIONS_BUFSIZE) {
+-		if ((MAX_ACTIONS_BUFSIZE - next_offset) < req_size) {
++		if ((next_offset + req_size) > MAX_ACTIONS_BUFSIZE) {
+ 			OVS_NLERR(log, "Flow action size exceeds max %u",
+ 				  MAX_ACTIONS_BUFSIZE);
+ 			return ERR_PTR(-EMSGSIZE);
 
 
