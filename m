@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC2A5107F3
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFD805107F1
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 21:02:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350282AbiDZTFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 15:05:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39634 "EHLO
+        id S1351052AbiDZTFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 15:05:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350538AbiDZTFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DE319916C;
-        Tue, 26 Apr 2022 12:01:56 -0700 (PDT)
+        with ESMTP id S1350783AbiDZTFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 15:05:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9034F19916B;
+        Tue, 26 Apr 2022 12:02:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 950B3B8224E;
-        Tue, 26 Apr 2022 19:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CE8EC385A4;
-        Tue, 26 Apr 2022 19:01:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B06D9619B9;
+        Tue, 26 Apr 2022 19:02:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE86C385AA;
+        Tue, 26 Apr 2022 19:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650999713;
-        bh=HzXEB+jiefZVdvXEiPjM7zJ7btDrrLOGhLbd7Aa/u8A=;
+        s=k20201202; t=1650999720;
+        bh=0wa8R2ae7L5HvBja6cgYpwoZNRFRA5di92a2dlL7/Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+XWC9p3rE/oWbJGRHMUV0tpjTCFLpUznTyk9OV/U3HTwaUSmmxckY68j15RqyMrC
-         U/UaEdZ6Oq6dafm2jOMAhF+VkaCUfnEJbOTBt0zTiZOMjUZUAaRiCQtmoccX3H1Lz0
-         kqGgIegzmGVRzai+e3MYIvV5Me8BIIEZJdenB4VN8IUfWUpxJ1PN8XXY1RGo5x1exV
-         tcbfqSEkHHjV+kr3EuMLJVCMZuQYckKttvzoM+vOZFxeSnAecouDbxjO+L62UwzMU8
-         RtUqLeOV+nMVZ9Un2guEUqjuQ927RbnVzwXn5bQ3N1/0jK0t2lBKj9hArfYzDq/CDs
-         Dv5Nr3i8CGdGw==
+        b=GQrhIvv5cSV+xbheXI4gmS7HafKBEpY1H585Z8pXQuQalOW6Ci+TPUC8MCMJGKqK8
+         s3a2kUS913wA3A05MTT1gSjmtsMwhEkjg7uTKcFv+fkc0/hzJqL5mjhFzI1z8zsGA2
+         zUb3kVUpIyrMkUOR+wNxz5w/B+Fo/ImG6YSI5Iw7UyU5euGVnTuRjf+qN1fdUuwZQy
+         KjaK4QRILGM5e3Mh/BYC2+vzR9wEm2FVHAlXKgVg49r0T718iLQeKgicddpFwzKsCU
+         uh/arpViRmHc0wosCVr0SmVV2fzS2ZFmLdnfYzI4uOEjTNk8DOyE9iynxppNJDbnGA
+         2A2MqiQikPCGw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
-        u.kleine-koenig@pengutronix.de, patches@opensource.cirrus.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 05/22] ASoC: wm8731: Disable the regulator when probing fails
-Date:   Tue, 26 Apr 2022 15:01:28 -0400
-Message-Id: <20220426190145.2351135-5-sashal@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
+        liam.r.girdwood@linux.intel.com, yang.jie@linux.intel.com,
+        perex@perex.cz, tiwai@suse.com, peter.ujfalusi@linux.intel.com,
+        yung-chuan.liao@linux.intel.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.17 06/22] ASoC: Intel: sof_es8336: Add a quirk for Huawei Matebook D15
+Date:   Tue, 26 Apr 2022 15:01:29 -0400
+Message-Id: <20220426190145.2351135-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220426190145.2351135-1-sashal@kernel.org>
 References: <20220426190145.2351135-1-sashal@kernel.org>
@@ -57,88 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Mauro Carvalho Chehab <mchehab@kernel.org>
 
-[ Upstream commit 92ccbf17eeacf510cf1eed9c252d9332ca24f02d ]
+[ Upstream commit c7cb4717f641db68e8117635bfcf62a9c27dc8d3 ]
 
-When the driver fails during probing, the driver should disable the
-regulator, not just handle it in wm8731_hw_init().
+Based on experimental tests, Huawei Matebook D15 actually uses
+both gpio0 and gpio1: the first one controls the speaker, while
+the other one controls the headphone.
 
-The following log reveals it:
+Also, the headset is mapped as MIC1, instead of MIC2.
 
-[   17.812483] WARNING: CPU: 1 PID: 364 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
-[   17.815958] RIP: 0010:_regulator_put+0x3ec/0x4e0
-[   17.824467] Call Trace:
-[   17.824774]  <TASK>
-[   17.825040]  regulator_bulk_free+0x82/0xe0
-[   17.825514]  devres_release_group+0x319/0x3d0
-[   17.825882]  i2c_device_probe+0x766/0x940
-[   17.829198]  i2c_register_driver+0xb5/0x130
+So, add a quirk for it.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/20220405121038.4094051-1-zheyuma97@gmail.com
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/d678aef9fc9a07aced611aa7cb8c9b800c649e5a.1649357263.git.mchehab@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wm8731.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ sound/soc/intel/boards/sof_es8336.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/sound/soc/codecs/wm8731.c b/sound/soc/codecs/wm8731.c
-index 86b1f6eaa599..518167d90b10 100644
---- a/sound/soc/codecs/wm8731.c
-+++ b/sound/soc/codecs/wm8731.c
-@@ -602,7 +602,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
- 	ret = wm8731_reset(wm8731->regmap);
- 	if (ret < 0) {
- 		dev_err(dev, "Failed to issue reset: %d\n", ret);
--		goto err_regulator_enable;
-+		goto err;
- 	}
+diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
+index 28d7670b8f8f..b18951a8f309 100644
+--- a/sound/soc/intel/boards/sof_es8336.c
++++ b/sound/soc/intel/boards/sof_es8336.c
+@@ -252,6 +252,15 @@ static const struct dmi_system_id sof_es8336_quirk_table[] = {
+ 					SOF_ES8336_TGL_GPIO_QUIRK |
+ 					SOF_ES8336_ENABLE_DMIC)
+ 	},
++	{
++		.callback = sof_es8336_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "HUAWEI"),
++			DMI_MATCH(DMI_BOARD_NAME, "BOHB-WAX9-PCB-B2"),
++		},
++		.driver_data = (void *)(SOF_ES8336_HEADPHONE_GPIO |
++					SOC_ES8336_HEADSET_MIC1)
++	},
+ 	{}
+ };
  
- 	/* Clear POWEROFF, keep everything else disabled */
-@@ -619,10 +619,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
- 
- 	regcache_mark_dirty(wm8731->regmap);
- 
--err_regulator_enable:
--	/* Regulators will be enabled by bias management */
--	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
--
-+err:
- 	return ret;
- }
- 
-@@ -760,21 +757,27 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
- 		ret = PTR_ERR(wm8731->regmap);
- 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
- 			ret);
--		return ret;
-+		goto err_regulator_enable;
- 	}
- 
- 	ret = wm8731_hw_init(&i2c->dev, wm8731);
- 	if (ret != 0)
--		return ret;
-+		goto err_regulator_enable;
- 
- 	ret = devm_snd_soc_register_component(&i2c->dev,
- 			&soc_component_dev_wm8731, &wm8731_dai, 1);
- 	if (ret != 0) {
- 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
--		return ret;
-+		goto err_regulator_enable;
- 	}
- 
- 	return 0;
-+
-+err_regulator_enable:
-+	/* Regulators will be enabled by bias management */
-+	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
-+
-+	return ret;
- }
- 
- static int wm8731_i2c_remove(struct i2c_client *client)
 -- 
 2.35.1
 
