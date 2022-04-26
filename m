@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9FB450F3C9
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6661250F8B9
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344799AbiDZI1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:27:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38292 "EHLO
+        id S236319AbiDZJHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344804AbiDZI1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD223AA51;
-        Tue, 26 Apr 2022 01:23:39 -0700 (PDT)
+        with ESMTP id S1347670AbiDZJGB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BDDA15C3A7;
+        Tue, 26 Apr 2022 01:45:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF6DBB81CF5;
-        Tue, 26 Apr 2022 08:23:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50A2BC385A0;
-        Tue, 26 Apr 2022 08:23:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E214AB81CF0;
+        Tue, 26 Apr 2022 08:45:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50856C385AC;
+        Tue, 26 Apr 2022 08:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961416;
-        bh=tdz095G80P1i4qrgKfufNWH7/6XIFBlB7ZaGZPFwVok=;
+        s=korg; t=1650962715;
+        bh=zqYE2dBiFpRl4OeuEjvjF+2WlsvVq3M+PLNfL0rUOW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVIqNekU/fDNUQknN6bDJ/Sx6izyPdf30M6ApsQeISPX8K7N7leAI4prGZz86D5t1
-         +0hGahcZhUAsNu3v3gcL42trb4DBkgqLkLrXLCeuMweBwcRXPynlawnB//vXdhYg68
-         +qKl20Z/V3ShJOwrm21csj4mSWO09aZfBW2RuCLM=
+        b=0Qcw77QJ89XaQBUmHN54RgYBTS/UnhnkJSj77M3TMO5i8hDqS/BvmyNN6dfp7PXjq
+         tg0B+75xxnGxHT8jxOgibCHVt63lYoIQ6TYUYTNz+ZCqPXpth+6kSCKLqioPMhGaw6
+         hJsLUxlUfdlOF2CKXFH1loyUESyaLKouYBYV++VI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Flavio Leitner <fbl@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/24] net/packet: fix packet_sock xmit return value checking
-Date:   Tue, 26 Apr 2022 10:21:00 +0200
-Message-Id: <20220426081731.561787886@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Upton <oupton@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 066/146] selftests: KVM: Free the GIC FD when cleaning up in arch_timer
+Date:   Tue, 26 Apr 2022 10:21:01 +0200
+Message-Id: <20220426081751.920361986@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
-References: <20220426081731.370823950@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Oliver Upton <oupton@google.com>
 
-[ Upstream commit 29e8e659f984be00d75ec5fef4e37c88def72712 ]
+[ Upstream commit 21db83846683d3987666505a3ec38f367708199a ]
 
-packet_sock xmit could be dev_queue_xmit, which also returns negative
-errors. So only checking positive errors is not enough, or userspace
-sendmsg may return success while packet is not send out.
+In order to correctly destroy a VM, all references to the VM must be
+freed. The arch_timer selftest creates a VGIC for the guest, which
+itself holds a reference to the VM.
 
-Move the net_xmit_errno() assignment in the braces as checkpatch.pl said
-do not use assignment in if condition.
+Close the GIC FD when cleaning up a VM.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Flavio Leitner <fbl@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Oliver Upton <oupton@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20220406235615.1447180-4-oupton@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ tools/testing/selftests/kvm/aarch64/arch_timer.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index e79d6881a97e..2ae2801dd7be 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -2808,8 +2808,9 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
+diff --git a/tools/testing/selftests/kvm/aarch64/arch_timer.c b/tools/testing/selftests/kvm/aarch64/arch_timer.c
+index b08d30bf71c5..3b940a101bc0 100644
+--- a/tools/testing/selftests/kvm/aarch64/arch_timer.c
++++ b/tools/testing/selftests/kvm/aarch64/arch_timer.c
+@@ -362,11 +362,12 @@ static void test_init_timer_irq(struct kvm_vm *vm)
+ 	pr_debug("ptimer_irq: %d; vtimer_irq: %d\n", ptimer_irq, vtimer_irq);
+ }
  
- 		status = TP_STATUS_SEND_REQUEST;
- 		err = po->xmit(skb);
--		if (unlikely(err > 0)) {
--			err = net_xmit_errno(err);
-+		if (unlikely(err != 0)) {
-+			if (err > 0)
-+				err = net_xmit_errno(err);
- 			if (err && __packet_get_status(po, ph) ==
- 				   TP_STATUS_AVAILABLE) {
- 				/* skb was destructed already */
-@@ -3009,8 +3010,12 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
- 		skb->no_fcs = 1;
++static int gic_fd;
++
+ static struct kvm_vm *test_vm_create(void)
+ {
+ 	struct kvm_vm *vm;
+ 	unsigned int i;
+-	int ret;
+ 	int nr_vcpus = test_args.nr_vcpus;
  
- 	err = po->xmit(skb);
--	if (err > 0 && (err = net_xmit_errno(err)) != 0)
--		goto out_unlock;
-+	if (unlikely(err != 0)) {
-+		if (err > 0)
-+			err = net_xmit_errno(err);
-+		if (err)
-+			goto out_unlock;
-+	}
+ 	vm = vm_create_default_with_vcpus(nr_vcpus, 0, 0, guest_code, NULL);
+@@ -383,8 +384,8 @@ static struct kvm_vm *test_vm_create(void)
  
- 	dev_put(dev);
+ 	ucall_init(vm, NULL);
+ 	test_init_timer_irq(vm);
+-	ret = vgic_v3_setup(vm, nr_vcpus, 64, GICD_BASE_GPA, GICR_BASE_GPA);
+-	if (ret < 0) {
++	gic_fd = vgic_v3_setup(vm, nr_vcpus, 64, GICD_BASE_GPA, GICR_BASE_GPA);
++	if (gic_fd < 0) {
+ 		print_skip("Failed to create vgic-v3");
+ 		exit(KSFT_SKIP);
+ 	}
+@@ -395,6 +396,12 @@ static struct kvm_vm *test_vm_create(void)
+ 	return vm;
+ }
  
++static void test_vm_cleanup(struct kvm_vm *vm)
++{
++	close(gic_fd);
++	kvm_vm_free(vm);
++}
++
+ static void test_print_help(char *name)
+ {
+ 	pr_info("Usage: %s [-h] [-n nr_vcpus] [-i iterations] [-p timer_period_ms]\n",
+@@ -478,7 +485,7 @@ int main(int argc, char *argv[])
+ 
+ 	vm = test_vm_create();
+ 	test_run(vm);
+-	kvm_vm_free(vm);
++	test_vm_cleanup(vm);
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
