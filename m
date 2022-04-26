@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8007450F656
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9063350F8C4
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239183AbiDZIr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:47:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56526 "EHLO
+        id S1346330AbiDZJHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346885AbiDZIp2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89FE864C4;
-        Tue, 26 Apr 2022 01:36:12 -0700 (PDT)
+        with ESMTP id S1347175AbiDZJFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1528A7B138;
+        Tue, 26 Apr 2022 01:44:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 268D36185C;
-        Tue, 26 Apr 2022 08:36:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A29C385AC;
-        Tue, 26 Apr 2022 08:36:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70C0CB81A2F;
+        Tue, 26 Apr 2022 08:44:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6101C385A0;
+        Tue, 26 Apr 2022 08:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962171;
-        bh=v3d3wJ8d7he5GKQ/gI1Bji2FZeuuYgCu3YXM/O7M85o=;
+        s=korg; t=1650962651;
+        bh=YT0TQpCJuFryPx3YwctFYZLSB1ycbxSfcqaPeBl/pbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZpMRm+XASXQLK8kknecqQh5UBTZv9hmoacSUtjMoDJ5Uy7vuCY6c29Lflsq+Uq5+
-         ORO/XkoHGXODm93GQLtcuS7hIXUSFItd59X4yIOm2Ae2Us1ySIxNFkNJrON+OTXMhY
-         L6J3w/RixkjbOwl2pp4g5dqKw0//668cdF8S8Pgk=
+        b=lH+SQ90JYrKvWjRIUywAqgCZepPlVOxkN4UyHPSt3RYNlwLY2saStTSyy/gGtJkL+
+         0pTOLlVwZ8WfDOG+szr+AKGH/0jgf4iCCbwHidmH7v7IViZUaHaXsJXG7kQfkmu1vR
+         +S+yXCd8nsD2WlR6M/CHXzKeDVecz7GUy6cFaHaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 010/124] perf tools: Fix segfault accessing sample_id xyarray
+        stable@vger.kernel.org, Tony Zhu <tony.zhu@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 016/146] dmaengine: idxd: fix device cleanup on disable
 Date:   Tue, 26 Apr 2022 10:20:11 +0200
-Message-Id: <20220426081747.590453260@linuxfoundation.org>
+Message-Id: <20220426081750.522108976@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-commit a668cc07f990d2ed19424d5c1a529521a9d1cee1 upstream.
+[ Upstream commit 12e45e89556d7a532120f976081e9e7582addd2b ]
 
-perf_evsel::sample_id is an xyarray which can cause a segfault when
-accessed beyond its size. e.g.
+There are certain parts of WQ that needs to be cleaned up even after WQ is
+disabled during the device disable. Those are the unchangeable parts for a
+WQ when the device is still enabled. Move the cleanup outside of WQ state
+check. Remove idxd_wq_disable_cleanup() inside idxd_wq_device_reset_cleanup()
+since only the unchangeable parts need to be cleared.
 
-  # perf record -e intel_pt// -C 1 sleep 1
-  Segmentation fault (core dumped)
-  #
-
-That is happening because a dummy event is opened to capture text poke
-events accross all CPUs, however the mmap logic is allocating according
-to the number of user_requested_cpus.
-
-In general, perf sometimes uses the evsel cpus to open events, and
-sometimes the evlist user_requested_cpus. However, it is not necessary
-to determine which case is which because the opened event file
-descriptors are also in an xyarray, the size of whch can be used
-to correctly allocate the size of the sample_id xyarray, because there
-is one ID per file descriptor.
-
-Note, in the affected code path, perf_evsel fd array is subsequently
-used to get the file descriptor for the mmap, so it makes sense for the
-xyarrays to be the same size there.
-
-Fixes: d1a177595b3a824c ("libperf: Adopt perf_evlist__mmap()/munmap() from tools/perf")
-Fixes: 246eba8e9041c477 ("perf tools: Add support for PERF_RECORD_TEXT_POKE")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: stable@vger.kernel.org # 5.5+
-Link: https://lore.kernel.org/r/20220413114232.26914-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0f225705cf65 ("dmaengine: idxd: fix wq settings post wq disable")
+Reported-by: Tony Zhu <tony.zhu@intel.com>
+Tested-by: Tony Zhu <tony.zhu@intel.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/164919561905.1455025.13542366389944678346.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/perf/evlist.c |    3 +--
+ drivers/dma/idxd/device.c | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/tools/lib/perf/evlist.c
-+++ b/tools/lib/perf/evlist.c
-@@ -577,7 +577,6 @@ int perf_evlist__mmap_ops(struct perf_ev
+diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
+index 3061fe857d69..5a0535a0f850 100644
+--- a/drivers/dma/idxd/device.c
++++ b/drivers/dma/idxd/device.c
+@@ -373,7 +373,6 @@ static void idxd_wq_device_reset_cleanup(struct idxd_wq *wq)
  {
- 	struct perf_evsel *evsel;
- 	const struct perf_cpu_map *cpus = evlist->cpus;
--	const struct perf_thread_map *threads = evlist->threads;
+ 	lockdep_assert_held(&wq->wq_lock);
  
- 	if (!ops || !ops->get || !ops->mmap)
- 		return -EINVAL;
-@@ -589,7 +588,7 @@ int perf_evlist__mmap_ops(struct perf_ev
- 	perf_evlist__for_each_entry(evlist, evsel) {
- 		if ((evsel->attr.read_format & PERF_FORMAT_ID) &&
- 		    evsel->sample_id == NULL &&
--		    perf_evsel__alloc_id(evsel, perf_cpu_map__nr(cpus), threads->nr) < 0)
-+		    perf_evsel__alloc_id(evsel, evsel->fd->max_x, evsel->fd->max_y) < 0)
- 			return -ENOMEM;
+-	idxd_wq_disable_cleanup(wq);
+ 	wq->size = 0;
+ 	wq->group = NULL;
+ }
+@@ -701,9 +700,9 @@ static void idxd_device_wqs_clear_state(struct idxd_device *idxd)
+ 
+ 		if (wq->state == IDXD_WQ_ENABLED) {
+ 			idxd_wq_disable_cleanup(wq);
+-			idxd_wq_device_reset_cleanup(wq);
+ 			wq->state = IDXD_WQ_DISABLED;
+ 		}
++		idxd_wq_device_reset_cleanup(wq);
  	}
+ }
  
+-- 
+2.35.1
+
 
 
