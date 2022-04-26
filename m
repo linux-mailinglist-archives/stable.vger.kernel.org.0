@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C05450F805
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C217D50F73D
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245478AbiDZJLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:11:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37858 "EHLO
+        id S234829AbiDZJLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:11:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346307AbiDZJH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:07:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7A0CFBA0;
-        Tue, 26 Apr 2022 01:48:49 -0700 (PDT)
+        with ESMTP id S1346321AbiDZJHa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:07:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5364CFB81;
+        Tue, 26 Apr 2022 01:48:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C2B6B81CFE;
-        Tue, 26 Apr 2022 08:48:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0BAAC385AC;
-        Tue, 26 Apr 2022 08:48:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A4F8B81A2F;
+        Tue, 26 Apr 2022 08:48:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAAD3C385C6;
+        Tue, 26 Apr 2022 08:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962927;
-        bh=iDX79xvbTalm2R4kyk5qgSkqfkRXarvyuKkGLJt4DC4=;
+        s=korg; t=1650962930;
+        bh=mt4oTxRDRytd2sDxSUA4c6vTrTy49Qqxkea0a5v82a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JgOXZrKEyoklFBFjOZdnTIXL8HE0NCSEm5BS/vkVNu8lwYQIyQZ8MKayKVNcoVezA
-         2yzgAMFP2SUVokrE3FG1zPZHf65wzR+E5GnVIclCed7gna4MSwMqG9vuVaUssW9j5E
-         /ds64l+EghLI9fcg3RjNwLuJeyUCWMn2NoIOOed8=
+        b=Grank+nkG1TEqJt1zhydLDTLXRYMwvDDnUhCA6uej95QpUbod4POjRXp36POmkjYE
+         vKNblCY7/TpNC0SXVgf9Nh1J7MdRdD43kh5QviUoeGHuKRaJnOQ9IJ2QqcltY9TeYX
+         8IrTcu5yq8SW8lvJO0g1k40a3HfnB/ZyRy2Tsqn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.17 134/146] ext4: fix fallocate to use file_modified to update permissions consistently
-Date:   Tue, 26 Apr 2022 10:22:09 +0200
-Message-Id: <20220426081753.825769455@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.17 135/146] ext4: fix symlink file size not match to file content
+Date:   Tue, 26 Apr 2022 10:22:10 +0200
+Message-Id: <20220426081753.854119673@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -52,170 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Ye Bin <yebin10@huawei.com>
 
-commit ad5cd4f4ee4d5fcdb1bfb7a0c073072961e70783 upstream.
+commit a2b0b205d125f27cddfb4f7280e39affdaf46686 upstream.
 
-Since the initial introduction of (posix) fallocate back at the turn of
-the century, it has been possible to use this syscall to change the
-user-visible contents of files.  This can happen by extending the file
-size during a preallocation, or through any of the newer modes (punch,
-zero, collapse, insert range).  Because the call can be used to change
-file contents, we should treat it like we do any other modification to a
-file -- update the mtime, and drop set[ug]id privileges/capabilities.
+We got issue as follows:
+[home]# fsck.ext4  -fn  ram0yb
+e2fsck 1.45.6 (20-Mar-2020)
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Symlink /p3/d14/d1a/l3d (inode #3494) is invalid.
+Clear? no
+Entry 'l3d' in /p3/d14/d1a (3383) has an incorrect filetype (was 7, should be 0).
+Fix? no
 
-The VFS function file_modified() does all this for us if pass it a
-locked inode, so let's make fallocate drop permissions correctly.
+As the symlink file size does not match the file content. If the writeback
+of the symlink data block failed, ext4_finish_bio() handles the end of IO.
+However this function fails to mark the buffer with BH_write_io_error and
+so when unmount does journal checkpoint it cannot detect the writeback
+error and will cleanup the journal. Thus we've lost the correct data in the
+journal area. To solve this issue, mark the buffer as BH_write_io_error in
+ext4_finish_bio().
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Link: https://lore.kernel.org/r/20220308185043.GA117678@magnolia
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220321144438.201685-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h    |    2 +-
- fs/ext4/extents.c |   32 +++++++++++++++++++++++++-------
- fs/ext4/inode.c   |    7 ++++++-
- 3 files changed, 32 insertions(+), 9 deletions(-)
+ fs/ext4/page-io.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -3030,7 +3030,7 @@ extern int ext4_inode_attach_jinode(stru
- extern int ext4_can_truncate(struct inode *inode);
- extern int ext4_truncate(struct inode *);
- extern int ext4_break_layouts(struct inode *);
--extern int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length);
-+extern int ext4_punch_hole(struct file *file, loff_t offset, loff_t length);
- extern void ext4_set_inode_flags(struct inode *, bool init);
- extern int ext4_alloc_da_blocks(struct inode *inode);
- extern void ext4_set_aops(struct inode *inode);
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -4501,9 +4501,9 @@ retry:
- 	return ret > 0 ? ret2 : ret;
- }
- 
--static int ext4_collapse_range(struct inode *inode, loff_t offset, loff_t len);
-+static int ext4_collapse_range(struct file *file, loff_t offset, loff_t len);
- 
--static int ext4_insert_range(struct inode *inode, loff_t offset, loff_t len);
-+static int ext4_insert_range(struct file *file, loff_t offset, loff_t len);
- 
- static long ext4_zero_range(struct file *file, loff_t offset,
- 			    loff_t len, int mode)
-@@ -4575,6 +4575,10 @@ static long ext4_zero_range(struct file
- 	/* Wait all existing dio workers, newcomers will block on i_rwsem */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_mutex;
-+
- 	/* Preallocate the range including the unaligned edges */
- 	if (partial_begin || partial_end) {
- 		ret = ext4_alloc_file_blocks(file,
-@@ -4691,7 +4695,7 @@ long ext4_fallocate(struct file *file, i
- 		return -EOPNOTSUPP;
- 
- 	if (mode & FALLOC_FL_PUNCH_HOLE) {
--		ret = ext4_punch_hole(inode, offset, len);
-+		ret = ext4_punch_hole(file, offset, len);
- 		goto exit;
- 	}
- 
-@@ -4700,12 +4704,12 @@ long ext4_fallocate(struct file *file, i
- 		goto exit;
- 
- 	if (mode & FALLOC_FL_COLLAPSE_RANGE) {
--		ret = ext4_collapse_range(inode, offset, len);
-+		ret = ext4_collapse_range(file, offset, len);
- 		goto exit;
- 	}
- 
- 	if (mode & FALLOC_FL_INSERT_RANGE) {
--		ret = ext4_insert_range(inode, offset, len);
-+		ret = ext4_insert_range(file, offset, len);
- 		goto exit;
- 	}
- 
-@@ -4741,6 +4745,10 @@ long ext4_fallocate(struct file *file, i
- 	/* Wait all existing dio workers, newcomers will block on i_rwsem */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out;
-+
- 	ret = ext4_alloc_file_blocks(file, lblk, max_blocks, new_size, flags);
- 	if (ret)
- 		goto out;
-@@ -5242,8 +5250,9 @@ out:
-  * This implements the fallocate's collapse range functionality for ext4
-  * Returns: 0 and non-zero on error.
-  */
--static int ext4_collapse_range(struct inode *inode, loff_t offset, loff_t len)
-+static int ext4_collapse_range(struct file *file, loff_t offset, loff_t len)
- {
-+	struct inode *inode = file_inode(file);
- 	struct super_block *sb = inode->i_sb;
- 	struct address_space *mapping = inode->i_mapping;
- 	ext4_lblk_t punch_start, punch_stop;
-@@ -5295,6 +5304,10 @@ static int ext4_collapse_range(struct in
- 	/* Wait for existing dio to complete */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_mutex;
-+
- 	/*
- 	 * Prevent page faults from reinstantiating pages we have released from
- 	 * page cache.
-@@ -5388,8 +5401,9 @@ out_mutex:
-  * by len bytes.
-  * Returns 0 on success, error otherwise.
-  */
--static int ext4_insert_range(struct inode *inode, loff_t offset, loff_t len)
-+static int ext4_insert_range(struct file *file, loff_t offset, loff_t len)
- {
-+	struct inode *inode = file_inode(file);
- 	struct super_block *sb = inode->i_sb;
- 	struct address_space *mapping = inode->i_mapping;
- 	handle_t *handle;
-@@ -5446,6 +5460,10 @@ static int ext4_insert_range(struct inod
- 	/* Wait for existing dio to complete */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_mutex;
-+
- 	/*
- 	 * Prevent page faults from reinstantiating pages we have released from
- 	 * page cache.
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3944,8 +3944,9 @@ int ext4_break_layouts(struct inode *ino
-  * Returns: 0 on success or negative on failure
-  */
- 
--int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
-+int ext4_punch_hole(struct file *file, loff_t offset, loff_t length)
- {
-+	struct inode *inode = file_inode(file);
- 	struct super_block *sb = inode->i_sb;
- 	ext4_lblk_t first_block, stop_block;
- 	struct address_space *mapping = inode->i_mapping;
-@@ -4007,6 +4008,10 @@ int ext4_punch_hole(struct inode *inode,
- 	/* Wait all existing dio workers, newcomers will block on i_rwsem */
- 	inode_dio_wait(inode);
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto out_mutex;
-+
- 	/*
- 	 * Prevent page faults from reinstantiating pages we have released from
- 	 * page cache.
+--- a/fs/ext4/page-io.c
++++ b/fs/ext4/page-io.c
+@@ -134,8 +134,10 @@ static void ext4_finish_bio(struct bio *
+ 				continue;
+ 			}
+ 			clear_buffer_async_write(bh);
+-			if (bio->bi_status)
++			if (bio->bi_status) {
++				set_buffer_write_io_error(bh);
+ 				buffer_io_error(bh);
++			}
+ 		} while ((bh = bh->b_this_page) != head);
+ 		spin_unlock_irqrestore(&head->b_uptodate_lock, flags);
+ 		if (!under_io) {
 
 
