@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F35150F64C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B9350F615
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238330AbiDZIrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
+        id S244520AbiDZIzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:55:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346737AbiDZIpU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:20 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F5E11179;
-        Tue, 26 Apr 2022 01:35:25 -0700 (PDT)
+        with ESMTP id S1345845AbiDZIws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:52:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BC32D8905;
+        Tue, 26 Apr 2022 01:41:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 501AFCE1BC3;
-        Tue, 26 Apr 2022 08:35:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DADCC385A4;
-        Tue, 26 Apr 2022 08:35:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECCB0B81D09;
+        Tue, 26 Apr 2022 08:41:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F8C4C385AE;
+        Tue, 26 Apr 2022 08:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962121;
-        bh=XCuP9Q+OSOn4+uv+BWAlyIA6CYtfJW9KurUJLikhzp4=;
+        s=korg; t=1650962459;
+        bh=jxHhvnBGUxwf1Vmi/IZkKa8gPWOhQqbc43zwD+FUAEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NtF6vIXlVwIqp9CCrfwFlZACLh1OFK1KI2kiMPb7ECjOIbQEDgpHZD0ILgZQrq3nX
-         PLl5YBEXPY5KbF+161zOZ949CcLs4nRG4fJiKVqsJAMRqcE6wMA8cWCaFU6xwxqVtN
-         I0mOc0xpobPvJfHJtloiv8HhgerL0Az5FgyawKWM=
+        b=azknxtdBeNqlZ+rfdjPoewk26ow01KhU7ac1J/YR89qtY3JKGKd5aA+W+Qq6oItDg
+         9sk9ShNSHiceoxvdaV2+72/bvvgBEyIzGJQyilOceoFMoGrsar8NVUnMDTB9mI1VON
+         ZeSXigm9OuyhZiagtSTzcBybQ8/lPhSyxb5k+pu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com,
-        Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 77/86] ext4: limit length to bitmap_maxbytes - blocksize in punch_hole
+        James Hutchinson <jahutchinson99@googlemail.com>,
+        Dima Ruinskiy <dima.ruinskiy@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.15 104/124] e1000e: Fix possible overflow in LTR decoding
 Date:   Tue, 26 Apr 2022 10:21:45 +0200
-Message-Id: <20220426081743.431380245@linuxfoundation.org>
+Message-Id: <20220426081750.253091656@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,60 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tadeusz Struk <tadeusz.struk@linaro.org>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-commit 2da376228a2427501feb9d15815a45dbdbdd753e upstream.
+commit 04ebaa1cfddae5f240cc7404f009133bb0389a47 upstream.
 
-Syzbot found an issue [1] in ext4_fallocate().
-The C reproducer [2] calls fallocate(), passing size 0xffeffeff000ul,
-and offset 0x1000000ul, which, when added together exceed the
-bitmap_maxbytes for the inode. This triggers a BUG in
-ext4_ind_remove_space(). According to the comments in this function
-the 'end' parameter needs to be one block after the last block to be
-removed. In the case when the BUG is triggered it points to the last
-block. Modify the ext4_punch_hole() function and add constraint that
-caps the length to satisfy the one before laster block requirement.
+When we decode the latency and the max_latency, u16 value may not fit
+the required size and could lead to the wrong LTR representation.
 
-LINK: [1] https://syzkaller.appspot.com/bug?id=b80bd9cf348aac724a4f4dff251800106d721331
-LINK: [2] https://syzkaller.appspot.com/text?tag=ReproC&x=14ba0238700000
+Scaling is represented as:
+scale 0 - 1         (2^(5*0)) = 2^0
+scale 1 - 32        (2^(5 *1))= 2^5
+scale 2 - 1024      (2^(5 *2)) =2^10
+scale 3 - 32768     (2^(5 *3)) =2^15
+scale 4 - 1048576   (2^(5 *4)) = 2^20
+scale 5 - 33554432  (2^(5 *4)) = 2^25
+scale 4 and scale 5 required 20 and 25 bits respectively.
+scale 6 reserved.
 
-Fixes: a4bb6b64e39a ("ext4: enable "punch hole" functionality")
-Reported-by: syzbot+7a806094edd5d07ba029@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-Link: https://lore.kernel.org/r/20220331200515.153214-1-tadeusz.struk@linaro.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Replace the u16 type with the u32 type and allow corrected LTR
+representation.
+
+Cc: stable@vger.kernel.org
+Fixes: 44a13a5d99c7 ("e1000e: Fix the max snoop/no-snoop latency for 10M")
+Reported-by: James Hutchinson <jahutchinson99@googlemail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215689
+Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Tested-by: James Hutchinson <jahutchinson99@googlemail.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4034,7 +4034,8 @@ int ext4_punch_hole(struct file *file, l
- 	struct super_block *sb = inode->i_sb;
- 	ext4_lblk_t first_block, stop_block;
- 	struct address_space *mapping = inode->i_mapping;
--	loff_t first_block_offset, last_block_offset;
-+	loff_t first_block_offset, last_block_offset, max_length;
-+	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
- 	handle_t *handle;
- 	unsigned int credits;
- 	int ret = 0, ret2 = 0;
-@@ -4077,6 +4078,14 @@ int ext4_punch_hole(struct file *file, l
- 		   offset;
- 	}
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1009,8 +1009,8 @@ static s32 e1000_platform_pm_pch_lpt(str
+ {
+ 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
+ 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
+-	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
+-	u16 lat_enc_d = 0;	/* latency decoded */
++	u32 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
++	u32 lat_enc_d = 0;	/* latency decoded */
+ 	u16 lat_enc = 0;	/* latency encoded */
  
-+	/*
-+	 * For punch hole the length + offset needs to be within one block
-+	 * before last range. Adjust the length if it goes beyond that limit.
-+	 */
-+	max_length = sbi->s_bitmap_maxbytes - inode->i_sb->s_blocksize;
-+	if (offset + length > max_length)
-+		length = max_length - offset;
-+
- 	if (offset & (sb->s_blocksize - 1) ||
- 	    (offset + length) & (sb->s_blocksize - 1)) {
- 		/*
+ 	if (link) {
 
 
