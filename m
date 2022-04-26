@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2430250F6AB
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9A350F437
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345685AbiDZI6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44656 "EHLO
+        id S1344985AbiDZIdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:33:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345581AbiDZI5Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B1B83B15;
-        Tue, 26 Apr 2022 01:41:48 -0700 (PDT)
+        with ESMTP id S1345006AbiDZIdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:33:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4AB3C71C;
+        Tue, 26 Apr 2022 01:25:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 762CAB81CF0;
-        Tue, 26 Apr 2022 08:41:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B76EC385A4;
-        Tue, 26 Apr 2022 08:41:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAAE261778;
+        Tue, 26 Apr 2022 08:25:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF2E3C385AE;
+        Tue, 26 Apr 2022 08:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962506;
-        bh=UQHtrv06tWWNq/VuBscRZKo9WCfY+hF9zl3LNoY7nQY=;
+        s=korg; t=1650961528;
+        bh=2gCPftisxH1j4e1ofueef1YyWbkhVxvMOlZwLwcZkvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=et+jP9IPuEjbAzuebZ2VlKM8vyq4VLi9aBrTXhxTx/DxEI8INsDgbQ80+hrseaP0m
-         bai7Io9S/3v57XsJwaKO+S79iDM4VBw7rejWlDE6qNuiWSDU6+pqoccOyO84SNK4Jm
-         m7J39e56MxnQAe/uh7iVzTKd+yXte2rxswryvw78=
+        b=hLh0pNovgx4IzzG9L8xn6Dbd3wJ9Fm2yhbUxaSbTIiAGHwno/j2mmBMCZNZH3qCM0
+         34DCIvQy0v9QY80mTUV7qoCk3w/9bEMRCPcMcT4BJdMt9Vy100ADXud5xzbzUGiEQ0
+         rc+XipzUUQO/wU9yaKeQ2YJoyrymATqVMin4jUhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alistair Popple <apopple@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 082/124] mm/mmu_notifier.c: fix race in mmu_interval_notifier_remove()
+        Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 41/43] ax25: Fix NULL pointer dereferences in ax25 timers
 Date:   Tue, 26 Apr 2022 10:21:23 +0200
-Message-Id: <20220426081749.632977756@linuxfoundation.org>
+Message-Id: <20220426081735.731645767@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
+References: <20220426081734.509314186@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,81 +53,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Popple <apopple@nvidia.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 319561669a59d8e9206ab311ae5433ef92fd79d1 upstream.
+commit fc6d01ff9ef03b66d4a3a23b46fc3c3d8cf92009 upstream.
 
-In some cases it is possible for mmu_interval_notifier_remove() to race
-with mn_tree_inv_end() allowing it to return while the notifier data
-structure is still in use.  Consider the following sequence:
+The previous commit 7ec02f5ac8a5 ("ax25: fix NPD bug in ax25_disconnect")
+move ax25_disconnect into lock_sock() in order to prevent NPD bugs. But
+there are race conditions that may lead to null pointer dereferences in
+ax25_heartbeat_expiry(), ax25_t1timer_expiry(), ax25_t2timer_expiry(),
+ax25_t3timer_expiry() and ax25_idletimer_expiry(), when we use
+ax25_kill_by_device() to detach the ax25 device.
 
-  CPU0 - mn_tree_inv_end()            CPU1 - mmu_interval_notifier_remove()
-  ----------------------------------- ------------------------------------
-                                      spin_lock(subscriptions->lock);
-                                      seq = subscriptions->invalidate_seq;
-  spin_lock(subscriptions->lock);     spin_unlock(subscriptions->lock);
-  subscriptions->invalidate_seq++;
-                                      wait_event(invalidate_seq != seq);
-                                      return;
-  interval_tree_remove(interval_sub); kfree(interval_sub);
-  spin_unlock(subscriptions->lock);
-  wake_up_all();
+One of the race conditions that cause null pointer dereferences can be
+shown as below:
 
-As the wait_event() condition is true it will return immediately.  This
-can lead to use-after-free type errors if the caller frees the data
-structure containing the interval notifier subscription while it is
-still on a deferred list.  Fix this by taking the appropriate lock when
-reading invalidate_seq to ensure proper synchronisation.
+      (Thread 1)                    |      (Thread 2)
+ax25_connect()                      |
+ ax25_std_establish_data_link()     |
+  ax25_start_t1timer()              |
+   mod_timer(&ax25->t1timer,..)     |
+                                    | ax25_kill_by_device()
+   (wait a time)                    |  ...
+                                    |  s->ax25_dev = NULL; //(1)
+   ax25_t1timer_expiry()            |
+    ax25->ax25_dev->values[..] //(2)|  ...
+     ...                            |
 
-I observed this whilst running stress testing during some development.
-You do have to be pretty unlucky, but it leads to the usual problems of
-use-after-free (memory corruption, kernel crash, difficult to diagnose
-WARN_ON, etc).
+We set null to ax25_cb->ax25_dev in position (1) and dereference
+the null pointer in position (2).
 
-Link: https://lkml.kernel.org/r/20220420043734.476348-1-apopple@nvidia.com
-Fixes: 99cb252f5e68 ("mm/mmu_notifier: add an interval tree notifier")
-Signed-off-by: Alistair Popple <apopple@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The corresponding fail log is shown below:
+===============================================================
+BUG: kernel NULL pointer dereference, address: 0000000000000050
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.17.0-rc6-00794-g45690b7d0
+RIP: 0010:ax25_t1timer_expiry+0x12/0x40
+...
+Call Trace:
+ call_timer_fn+0x21/0x120
+ __run_timers.part.0+0x1ca/0x250
+ run_timer_softirq+0x2c/0x60
+ __do_softirq+0xef/0x2f3
+ irq_exit_rcu+0xb6/0x100
+ sysvec_apic_timer_interrupt+0xa2/0xd0
+...
+
+This patch moves ax25_disconnect() before s->ax25_dev = NULL
+and uses del_timer_sync() to delete timers in ax25_disconnect().
+If ax25_disconnect() is called by ax25_kill_by_device() or
+ax25->ax25_dev is NULL, the reason in ax25_disconnect() will be
+equal to ENETUNREACH, it will wait all timers to stop before we
+set null to s->ax25_dev in ax25_kill_by_device().
+
+Fixes: 7ec02f5ac8a5 ("ax25: fix NPD bug in ax25_disconnect")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[OP: backport to 4.14: adjust context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mmu_notifier.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ net/ax25/af_ax25.c   |    4 ++--
+ net/ax25/ax25_subr.c |   20 ++++++++++++++------
+ 2 files changed, 16 insertions(+), 8 deletions(-)
 
---- a/mm/mmu_notifier.c
-+++ b/mm/mmu_notifier.c
-@@ -1036,6 +1036,18 @@ int mmu_interval_notifier_insert_locked(
- }
- EXPORT_SYMBOL_GPL(mmu_interval_notifier_insert_locked);
+--- a/net/ax25/af_ax25.c
++++ b/net/ax25/af_ax25.c
+@@ -92,20 +92,20 @@ again:
+ 			sk = s->sk;
+ 			if (!sk) {
+ 				spin_unlock_bh(&ax25_list_lock);
+-				s->ax25_dev = NULL;
+ 				ax25_disconnect(s, ENETUNREACH);
++				s->ax25_dev = NULL;
+ 				spin_lock_bh(&ax25_list_lock);
+ 				goto again;
+ 			}
+ 			sock_hold(sk);
+ 			spin_unlock_bh(&ax25_list_lock);
+ 			lock_sock(sk);
++			ax25_disconnect(s, ENETUNREACH);
+ 			s->ax25_dev = NULL;
+ 			if (sk->sk_socket) {
+ 				dev_put(ax25_dev->dev);
+ 				ax25_dev_put(ax25_dev);
+ 			}
+-			ax25_disconnect(s, ENETUNREACH);
+ 			release_sock(sk);
+ 			spin_lock_bh(&ax25_list_lock);
+ 			sock_put(sk);
+--- a/net/ax25/ax25_subr.c
++++ b/net/ax25/ax25_subr.c
+@@ -264,12 +264,20 @@ void ax25_disconnect(ax25_cb *ax25, int
+ {
+ 	ax25_clear_queues(ax25);
  
-+static bool
-+mmu_interval_seq_released(struct mmu_notifier_subscriptions *subscriptions,
-+			  unsigned long seq)
-+{
-+	bool ret;
-+
-+	spin_lock(&subscriptions->lock);
-+	ret = subscriptions->invalidate_seq != seq;
-+	spin_unlock(&subscriptions->lock);
-+	return ret;
-+}
-+
- /**
-  * mmu_interval_notifier_remove - Remove a interval notifier
-  * @interval_sub: Interval subscription to unregister
-@@ -1083,7 +1095,7 @@ void mmu_interval_notifier_remove(struct
- 	lock_map_release(&__mmu_notifier_invalidate_range_start_map);
- 	if (seq)
- 		wait_event(subscriptions->wq,
--			   READ_ONCE(subscriptions->invalidate_seq) != seq);
-+			   mmu_interval_seq_released(subscriptions, seq));
+-	if (!ax25->sk || !sock_flag(ax25->sk, SOCK_DESTROY))
+-		ax25_stop_heartbeat(ax25);
+-	ax25_stop_t1timer(ax25);
+-	ax25_stop_t2timer(ax25);
+-	ax25_stop_t3timer(ax25);
+-	ax25_stop_idletimer(ax25);
++	if (reason == ENETUNREACH) {
++		del_timer_sync(&ax25->timer);
++		del_timer_sync(&ax25->t1timer);
++		del_timer_sync(&ax25->t2timer);
++		del_timer_sync(&ax25->t3timer);
++		del_timer_sync(&ax25->idletimer);
++	} else {
++		if (!ax25->sk || !sock_flag(ax25->sk, SOCK_DESTROY))
++			ax25_stop_heartbeat(ax25);
++		ax25_stop_t1timer(ax25);
++		ax25_stop_t2timer(ax25);
++		ax25_stop_t3timer(ax25);
++		ax25_stop_idletimer(ax25);
++	}
  
- 	/* pairs with mmgrab in mmu_interval_notifier_insert() */
- 	mmdrop(mm);
+ 	ax25->state = AX25_STATE_0;
+ 
 
 
