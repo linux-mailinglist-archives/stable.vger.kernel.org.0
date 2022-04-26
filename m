@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B09750F8F9
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E312350F490
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346116AbiDZJGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:06:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57760 "EHLO
+        id S1345056AbiDZIgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347259AbiDZJFX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB5910771F;
-        Tue, 26 Apr 2022 01:44:20 -0700 (PDT)
+        with ESMTP id S1345106AbiDZIeF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 965476D95E;
+        Tue, 26 Apr 2022 01:26:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D4F560A56;
-        Tue, 26 Apr 2022 08:44:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A84AC385A4;
-        Tue, 26 Apr 2022 08:44:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04426B81CED;
+        Tue, 26 Apr 2022 08:26:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 529B7C385A0;
+        Tue, 26 Apr 2022 08:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962660;
-        bh=ac3HYVGc0CjlMIGOg7yoMrHUVzc5WDX2OrhG5mg8J5w=;
+        s=korg; t=1650961562;
+        bh=dkv8QN0gQVSZtZdSD5Khr9zcrthMVra0NtgbZ2JmCHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZK2KR/goc4OVnlT/GsKigYus0RVWbXWC2Gb9ZMAGVD0qS/j0K1WHuJiloI7V+QS3
-         AmRx0IOlhsqknRMIZg/vWZtz164IJb8T45GYMYqDcc76Um2GTev3zEabnZMR7rhVip
-         YuL4Zo4cFo9+vICsTuhFR/EugJ5yjMWAFf4XMT8A=
+        b=EsQBKkLrJOFzoLEamucKtxOZWK2vchdtXJ4MlwDS4YC0aubuy6HO5F1rbcjQM6/Bz
+         HBxKUMCtqReZFLBEIR+ej5uCE8S4RshMvnMFRe6xkjr8dinQd2W2je5l6EEZG2+bhn
+         Jc167B3vV/ywmZHrQSl36LqB8VKL+xmG6bfPkaLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atish Patra <atishp@rivosinc.com>,
-        Anup Patel <anup@brainfault.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 045/146] RISC-V: KVM: Remove s & u as valid ISA extension
-Date:   Tue, 26 Apr 2022 10:20:40 +0200
-Message-Id: <20220426081751.336985407@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Khem Raj <raj.khem@gmail.com>
+Subject: [PATCH 4.19 01/53] etherdevice: Adjust ether_addr* prototypes to silence -Wstringop-overead
+Date:   Tue, 26 Apr 2022 10:20:41 +0200
+Message-Id: <20220426081735.697201013@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,42 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atish Patra <atishp@rivosinc.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 3ab75a793e4939519d288ef1994db73b8e2d1d86 ]
+commit 2618a0dae09ef37728dab89ff60418cbe25ae6bd upstream.
 
-There are no ISA extension defined as 's' & 'u' in RISC-V specifications.
-The misa register defines 's' & 'u' bit as Supervisor/User privilege mode
-enabled. But it should not appear in the ISA extension in the device tree.
+With GCC 12, -Wstringop-overread was warning about an implicit cast from
+char[6] to char[8]. However, the extra 2 bytes are always thrown away,
+alignment doesn't matter, and the risk of hitting the edge of unallocated
+memory has been accepted, so this prototype can just be converted to a
+regular char *. Silences:
 
-Remove those from the allowed ISA extension for kvm.
+net/core/dev.c: In function ‘bpf_prog_run_generic_xdp’: net/core/dev.c:4618:21: warning: ‘ether_addr_equal_64bits’ reading 8 bytes from a region of size 6 [-Wstringop-overread]
+ 4618 |         orig_host = ether_addr_equal_64bits(eth->h_dest, > skb->dev->dev_addr);
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+net/core/dev.c:4618:21: note: referencing argument 1 of type ‘const u8[8]’ {aka ‘const unsigned char[8]’}
+net/core/dev.c:4618:21: note: referencing argument 2 of type ‘const u8[8]’ {aka ‘const unsigned char[8]’}
+In file included from net/core/dev.c:91: include/linux/etherdevice.h:375:20: note: in a call to function ‘ether_addr_equal_64bits’
+  375 | static inline bool ether_addr_equal_64bits(const u8 addr1[6+2],
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~
 
-Fixes: a33c72faf2d7 ("RISC-V: KVM: Implement VCPU create, init and
-destroy functions")
-Signed-off-by: Atish Patra <atishp@rivosinc.com>
-Signed-off-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Link: https://lore.kernel.org/netdev/20220212090811.uuzk6d76agw2vv73@pengutronix.de
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kvm/vcpu.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ include/linux/etherdevice.h |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/kvm/vcpu.c b/arch/riscv/kvm/vcpu.c
-index 6785aef4cbd4..2e25a7b83a1b 100644
---- a/arch/riscv/kvm/vcpu.c
-+++ b/arch/riscv/kvm/vcpu.c
-@@ -43,9 +43,7 @@ const struct kvm_stats_header kvm_vcpu_stats_header = {
- 				 riscv_isa_extension_mask(d) | \
- 				 riscv_isa_extension_mask(f) | \
- 				 riscv_isa_extension_mask(i) | \
--				 riscv_isa_extension_mask(m) | \
--				 riscv_isa_extension_mask(s) | \
--				 riscv_isa_extension_mask(u))
-+				 riscv_isa_extension_mask(m))
+--- a/include/linux/etherdevice.h
++++ b/include/linux/etherdevice.h
+@@ -130,7 +130,7 @@ static inline bool is_multicast_ether_ad
+ #endif
+ }
  
- static void kvm_riscv_reset_vcpu(struct kvm_vcpu *vcpu)
+-static inline bool is_multicast_ether_addr_64bits(const u8 addr[6+2])
++static inline bool is_multicast_ether_addr_64bits(const u8 *addr)
  {
--- 
-2.35.1
-
+ #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
+ #ifdef __BIG_ENDIAN
+@@ -344,8 +344,7 @@ static inline bool ether_addr_equal(cons
+  * Please note that alignment of addr1 & addr2 are only guaranteed to be 16 bits.
+  */
+ 
+-static inline bool ether_addr_equal_64bits(const u8 addr1[6+2],
+-					   const u8 addr2[6+2])
++static inline bool ether_addr_equal_64bits(const u8 *addr1, const u8 *addr2)
+ {
+ #if defined(CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS) && BITS_PER_LONG == 64
+ 	u64 fold = (*(const u64 *)addr1) ^ (*(const u64 *)addr2);
 
 
