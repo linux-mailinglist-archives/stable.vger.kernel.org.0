@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C49750F8ED
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:44:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CD5C50F6F5
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242782AbiDZJDr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:03:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44740 "EHLO
+        id S245149AbiDZJDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:03:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346714AbiDZJBK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:01:10 -0400
+        with ESMTP id S1346741AbiDZJBL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:01:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFABF7DAAF;
-        Tue, 26 Apr 2022 01:43:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6CA1793B2;
+        Tue, 26 Apr 2022 01:43:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D3FC60A56;
-        Tue, 26 Apr 2022 08:43:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7411FC385AC;
-        Tue, 26 Apr 2022 08:43:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A7B9611A3;
+        Tue, 26 Apr 2022 08:43:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80783C385A4;
+        Tue, 26 Apr 2022 08:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962605;
-        bh=dMzO9NbcYCk4F9iz1CCQtjpG4YJv/4z7OV6cEnqqQAs=;
+        s=korg; t=1650962608;
+        bh=1kzBCrS/4dNEaFZo2xGXwRPSegciKCrtTqSWBwzICZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZE8chdlzUcDBA5OxvaLbVZNLJ8yaKoXSRF7Vs267gZpFDl+m37RgVvsV5+LHx6kF0
-         nT3MO8L4azSoy5ao0q7CwKP9t1xVRctHMXs1wIa4YY5WPxAwIQZzmwLv440vYnv0XP
-         tdpBlvOHMOeranW3WSZRe9Ymiyu1rIFiqRxmAM7o=
+        b=y+t67OceqFieOhbyOhJqpoUY9KJDOBG1ktfoMk7owRCdC2eU7fJZguMTkPaag+BUn
+         I9nOJkgjub436IwdJwF7GifF6/KyOQRJUKcuK3zz884Pu4/dH+eb7c8OjsDydeb8+M
+         vTuleF2BAV4ocN73GhCRTgLfoQ5Pme4bsFjVndBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianglei Nie <niejianglei2021@163.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.17 029/146] ice: Fix memory leak in ice_get_orom_civd_data()
-Date:   Tue, 26 Apr 2022 10:20:24 +0200
-Message-Id: <20220426081750.886273697@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 030/146] ALSA: hda/hdmi: fix warning about PCM count when used with SOF
+Date:   Tue, 26 Apr 2022 10:20:25 +0200
+Message-Id: <20220426081750.914813903@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -54,37 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianglei Nie <niejianglei2021@163.com>
+From: Kai Vehmanen <kai.vehmanen@linux.intel.com>
 
-[ Upstream commit 7c8881b77908a51814a050da408c89f1a25b7fb7 ]
+[ Upstream commit c74193787b2f683751a67603fb5f15c7584f355f ]
 
-A memory chunk was allocated for orom_data in ice_get_orom_civd_data()
-by vzmalloc(). But when ice_read_flash_module() fails, the allocated
-memory is not freed, which will lead to a memory leak.
+With commit 13046370c4d1 ("ALSA: hda/hdmi: let new platforms assign the
+pcm slot dynamically"), old behaviour to consider the HDA pin number,
+when choosing PCM to assign, was dropped.
 
-We can fix it by freeing the orom_data when ce_read_flash_module() fails.
+Build on this change and limit the number of PCMs created to number of
+converters (= maximum number of concurrent display/receivers) when
+"mst_no_extra_pcms" and "dyn_pcm_no_legacy" quirks are both set.
 
-Fixes: af18d8866c80 ("ice: reduce time to read Option ROM CIVD data")
-Signed-off-by: Jianglei Nie <niejianglei2021@163.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fix the check in hdmi_find_pcm_slot() to ensure only spec->pcm_used
+entries are considered in the search. Elsewhere in the driver
+spec->pcm_used is already checked properly.
+
+Doing this avoids following warning at SOF driver probe for multiple
+machine drivers:
+
+[  112.425297] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
+PCM in topology for HDMI converter 4
+[  112.425298] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
+PCM in topology for HDMI converter 5
+[  112.425299] sof_sdw sof_sdw: hda_dsp_hdmi_build_controls: no
+PCM in topology for HDMI converter 6
+
+Fixes: 13046370c4d1 ("ALSA: hda/hdmi: let new platforms assign the pcm slot dynamically")
+BugLink: https://github.com/thesofproject/linux/issues/2573
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20220414150516.3638283-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_nvm.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_hdmi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_nvm.c b/drivers/net/ethernet/intel/ice/ice_nvm.c
-index 4eb0599714f4..13cdb5ea594d 100644
---- a/drivers/net/ethernet/intel/ice/ice_nvm.c
-+++ b/drivers/net/ethernet/intel/ice/ice_nvm.c
-@@ -641,6 +641,7 @@ ice_get_orom_civd_data(struct ice_hw *hw, enum ice_bank_select bank,
- 	status = ice_read_flash_module(hw, bank, ICE_SR_1ST_OROM_BANK_PTR, 0,
- 				       orom_data, hw->flash.banks.orom_size);
- 	if (status) {
-+		vfree(orom_data);
- 		ice_debug(hw, ICE_DBG_NVM, "Unable to read Option ROM data\n");
- 		return status;
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index cf4f277dccdd..26637a695979 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -1387,7 +1387,7 @@ static int hdmi_find_pcm_slot(struct hdmi_spec *spec,
+ 
+  last_try:
+ 	/* the last try; check the empty slots in pins */
+-	for (i = 0; i < spec->num_nids; i++) {
++	for (i = 0; i < spec->pcm_used; i++) {
+ 		if (!test_bit(i, &spec->pcm_bitmap))
+ 			return i;
  	}
+@@ -2263,7 +2263,9 @@ static int generic_hdmi_build_pcms(struct hda_codec *codec)
+ 	 * dev_num is the device entry number in a pin
+ 	 */
+ 
+-	if (codec->mst_no_extra_pcms)
++	if (spec->dyn_pcm_no_legacy && codec->mst_no_extra_pcms)
++		pcm_num = spec->num_cvts;
++	else if (codec->mst_no_extra_pcms)
+ 		pcm_num = spec->num_nids;
+ 	else
+ 		pcm_num = spec->num_nids + spec->dev_num - 1;
 -- 
 2.35.1
 
