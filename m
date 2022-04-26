@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5805750F49B
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C1450F3BC
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345134AbiDZIgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:36:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39898 "EHLO
+        id S239221AbiDZI1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:27:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345119AbiDZIfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FDD681182;
-        Tue, 26 Apr 2022 01:28:39 -0700 (PDT)
+        with ESMTP id S1344762AbiDZI1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:27:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DE3042A0A;
+        Tue, 26 Apr 2022 01:23:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 002C1B81CF7;
-        Tue, 26 Apr 2022 08:28:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA10C385A4;
-        Tue, 26 Apr 2022 08:28:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CDCDD617E8;
+        Tue, 26 Apr 2022 08:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D971FC385A0;
+        Tue, 26 Apr 2022 08:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961716;
-        bh=06XDKZ6eGspf8eNJ01Fmut9oFMZHv1vvkWCZjqwZm/w=;
+        s=korg; t=1650961402;
+        bh=JzjMa0IWnDzGXlD4dHmc/gL8xCl2SsWafXDC/SIaMcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgqfPa/Ng2e7Dsuk9tL7T0e3CSeZpgUQzsg/DzcJDUwrrGkcktea5lTjQTrT8T6a/
-         HJ8LE2wagjydPQ8umfTAhHI+TCnlGNtoouuEbtTycpGFTDx9o6vdSAgyx6PqBsA6Y6
-         Rlaa2SZP1BPzez/NmdKX1xZ4Kh5xS5KR7OjshGWc=
+        b=u2d+HJKOhJdIamlylI237LvYLOp2lE9K1daFsuNaOCPlVJrX2hjHK6Ds+QcK411Ah
+         2VPC1Tds7ux1ina2U+tVMv2cH7ytfGQZGK/F/VxzjXfgG7qyGvuWt1gTO/d6s9Z5Bp
+         Jcuw9axgwvZam33DAExFA3Ufpd0fIs2ZLXVitiZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Matyukevich <sergey.matyukevich@synopsys.com>,
-        Vineet Gupta <vgupta@kernel.org>
-Subject: [PATCH 4.19 37/53] ARC: entry: fix syscall_trace_exit argument
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.9 23/24] ext4: force overhead calculation if the s_overhead_cluster makes no sense
 Date:   Tue, 26 Apr 2022 10:21:17 +0200
-Message-Id: <20220426081736.735615790@linuxfoundation.org>
+Message-Id: <20220426081732.056406709@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
-References: <20220426081735.651926456@linuxfoundation.org>
+In-Reply-To: <20220426081731.370823950@linuxfoundation.org>
+References: <20220426081731.370823950@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich@synopsys.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit b1c6ecfdd06907554518ec384ce8e99889d15193 upstream.
+commit 85d825dbf4899a69407338bae462a59aa9a37326 upstream.
 
-Function syscall_trace_exit expects pointer to pt_regs. However
-r0 is also used to keep syscall return value. Restore pointer
-to pt_regs before calling syscall_trace_exit.
+If the file system does not use bigalloc, calculating the overhead is
+cheap, so force the recalculation of the overhead so we don't have to
+trust the precalculated overhead in the superblock.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@kernel.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arc/kernel/entry.S |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/super.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -191,6 +191,7 @@ tracesys_exit:
- 	st  r0, [sp, PT_r0]     ; sys call return value in pt_regs
- 
- 	;POST Sys Call Ptrace Hook
-+	mov r0, sp		; pt_regs needed
- 	bl  @syscall_trace_exit
- 	b   ret_from_exception ; NOT ret_from_system_call at is saves r0 which
- 	; we'd done before calling post hook above
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -4164,9 +4164,18 @@ no_journal:
+ 	 * Get the # of file system overhead blocks from the
+ 	 * superblock if present.
+ 	 */
+-	if (es->s_overhead_clusters)
+-		sbi->s_overhead = le32_to_cpu(es->s_overhead_clusters);
+-	else {
++	sbi->s_overhead = le32_to_cpu(es->s_overhead_clusters);
++	/* ignore the precalculated value if it is ridiculous */
++	if (sbi->s_overhead > ext4_blocks_count(es))
++		sbi->s_overhead = 0;
++	/*
++	 * If the bigalloc feature is not enabled recalculating the
++	 * overhead doesn't take long, so we might as well just redo
++	 * it to make sure we are using the correct value.
++	 */
++	if (!ext4_has_feature_bigalloc(sb))
++		sbi->s_overhead = 0;
++	if (sbi->s_overhead == 0) {
+ 		err = ext4_calculate_overhead(sb);
+ 		if (err)
+ 			goto failed_mount_wq;
 
 
