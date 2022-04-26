@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81B4750F617
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73DDF50F834
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345507AbiDZIxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:53:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55694 "EHLO
+        id S1346221AbiDZJLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:11:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346695AbiDZIuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 273A916FADE;
-        Tue, 26 Apr 2022 01:38:43 -0700 (PDT)
+        with ESMTP id S1347915AbiDZJGW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD25B6E6E;
+        Tue, 26 Apr 2022 01:47:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 911EF60C2B;
-        Tue, 26 Apr 2022 08:38:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E7A5C385B1;
-        Tue, 26 Apr 2022 08:38:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1DFDB81CF2;
+        Tue, 26 Apr 2022 08:47:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E660DC385AC;
+        Tue, 26 Apr 2022 08:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962322;
+        s=korg; t=1650962830;
         bh=Bzgv5WqWQfy17psL16EYWYKGoHPWRb79U3suFi4PhDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iiWjWcdIlIPcHkIaCMfZ/GVVe43xRDta37+kg7C82rRq3PssjAYJCjkGovI0IhN5v
-         noxqYYMYhAz9C4BDK9IWK9KXElQeRVJQkYxb0yDiA9Sy74hRzaNcLtv37T6Xq5IZ6W
-         RQ4V7GpBgcFfd2VaTuGXF6wpg4m4h5jinABLdMNQ=
+        b=hsaS9Hc4thL8tmkqd7F3/ZXCOsC/GgMTDbCipjBzx1phkoMT+imjWEWJ1tXazgDVk
+         WrS7rAB4nU4cuBxgUDYn7/cu/n/ntvY1hIDs/rDN0wKyp9GkjcjhsE0YrReOJKkPzx
+         Yw4NHVdEAb9btsnoPSGjA2Fgw8CIV6yd4YVRilyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
         Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 057/124] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
-Date:   Tue, 26 Apr 2022 10:20:58 +0200
-Message-Id: <20220426081748.922713856@linuxfoundation.org>
+Subject: [PATCH 5.17 064/146] ALSA: usb-audio: Fix undefined behavior due to shift overflowing the constant
+Date:   Tue, 26 Apr 2022 10:20:59 +0200
+Message-Id: <20220426081751.864849229@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
