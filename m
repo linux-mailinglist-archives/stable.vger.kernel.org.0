@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B30250F7CE
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1929650F7EC
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232564AbiDZJHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55036 "EHLO
+        id S1346402AbiDZJIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347782AbiDZJGK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:10 -0400
+        with ESMTP id S1347856AbiDZJGQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 390A419290;
-        Tue, 26 Apr 2022 01:45:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0396F167F1E;
+        Tue, 26 Apr 2022 01:46:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BF29060A56;
-        Tue, 26 Apr 2022 08:45:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD409C385A0;
-        Tue, 26 Apr 2022 08:45:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A75E1604F5;
+        Tue, 26 Apr 2022 08:46:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97777C385A4;
+        Tue, 26 Apr 2022 08:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962745;
-        bh=6JIV9bAl3AlhOIFiWtU+aC2MWdNmcLlPqJm+dbFnVFU=;
+        s=korg; t=1650962778;
+        bh=HHSBzrlIipK0nujA927z1nFCcxi1J+e1mhmEtz+5L5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtjE06vTMbP5TGqXnBNEbuz4n7TDPWe3zYZYc2B+Fr7ITDFHJx7yMYi+mndlYaHrx
-         6n1y2PAF1jX+k3DX3MD13Bbzd/MDhpe/u3McXjXQu1QqO0XpQlD1kwFjX8wt5ZR45l
-         Qqj3V0EMpBAtiUJyc3A+7X8XBQqlPQjG7wtmMbrA=
+        b=cauXoI3ZmrqtyU8cdJO+L7m7yPyHXwoi+TY8SZpmuUsJwGP+DNIgYh2jOjzryYU42
+         9l0BBUwM4/g0KqITrGwNQsfOYu/CjT9TWA58cMlVYcNuWueKtWmX74gJGK+9JkeaK+
+         p7EaZWyZDnonLlDynN5bQe4DoT5oDzx9gpbuCNEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 058/146] drm/msm/gpu: Rename runtime suspend/resume functions
-Date:   Tue, 26 Apr 2022 10:20:53 +0200
-Message-Id: <20220426081751.698990532@linuxfoundation.org>
+Subject: [PATCH 5.17 059/146] drm/msm/gpu: Remove mutex from wait_event condition
+Date:   Tue, 26 Apr 2022 10:20:54 +0200
+Message-Id: <20220426081751.726569557@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -54,46 +54,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit f7eab1ddb9f8bc99206e3efa8d34ca1d2faca209 ]
+[ Upstream commit 7242795d520d3fb48e005e3c96ba54bb59639d6e ]
+
+The mutex wasn't really protecting anything before.  Before the previous
+patch we could still be racing with the scheduler's kthread, as that is
+not necessarily frozen yet.  Now that we've parked the sched threads,
+the only race is with jobs retiring, and that is harmless, ie.
 
 Signed-off-by: Rob Clark <robdclark@chromium.org>
-Link: https://lore.kernel.org/r/20220310234611.424743-2-robdclark@gmail.com
+Link: https://lore.kernel.org/r/20220310234611.424743-4-robdclark@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_device.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/adreno/adreno_device.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
 diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
-index fb261930ad1c..b93de79000e1 100644
+index b93de79000e1..e8a8240a6868 100644
 --- a/drivers/gpu/drm/msm/adreno/adreno_device.c
 +++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
-@@ -601,7 +601,7 @@ static const struct of_device_id dt_match[] = {
- };
- 
- #ifdef CONFIG_PM
--static int adreno_resume(struct device *dev)
-+static int adreno_runtime_resume(struct device *dev)
- {
- 	struct msm_gpu *gpu = dev_to_gpu(dev);
- 
-@@ -617,7 +617,7 @@ static int active_submits(struct msm_gpu *gpu)
- 	return active_submits;
+@@ -608,22 +608,13 @@ static int adreno_runtime_resume(struct device *dev)
+ 	return gpu->funcs->pm_resume(gpu);
  }
  
--static int adreno_suspend(struct device *dev)
-+static int adreno_runtime_suspend(struct device *dev)
+-static int active_submits(struct msm_gpu *gpu)
+-{
+-	int active_submits;
+-	mutex_lock(&gpu->active_lock);
+-	active_submits = gpu->active_submits;
+-	mutex_unlock(&gpu->active_lock);
+-	return active_submits;
+-}
+-
+ static int adreno_runtime_suspend(struct device *dev)
  {
  	struct msm_gpu *gpu = dev_to_gpu(dev);
  	int remaining;
-@@ -636,7 +636,7 @@ static int adreno_suspend(struct device *dev)
  
- static const struct dev_pm_ops adreno_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend, pm_runtime_force_resume)
--	SET_RUNTIME_PM_OPS(adreno_suspend, adreno_resume, NULL)
-+	SET_RUNTIME_PM_OPS(adreno_runtime_suspend, adreno_runtime_resume, NULL)
- };
- 
- static struct platform_driver adreno_driver = {
+ 	remaining = wait_event_timeout(gpu->retire_event,
+-				       active_submits(gpu) == 0,
++				       gpu->active_submits == 0,
+ 				       msecs_to_jiffies(1000));
+ 	if (remaining == 0) {
+ 		dev_err(dev, "Timeout waiting for GPU to suspend\n");
 -- 
 2.35.1
 
