@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77F2750F7B9
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87DC450F7FA
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245375AbiDZJIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51480 "EHLO
+        id S1346243AbiDZJH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347560AbiDZJF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49617D6;
-        Tue, 26 Apr 2022 01:44:58 -0700 (PDT)
+        with ESMTP id S1347591AbiDZJF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:05:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD605BCC;
+        Tue, 26 Apr 2022 01:45:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74C5861344;
-        Tue, 26 Apr 2022 08:44:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80739C385A0;
-        Tue, 26 Apr 2022 08:44:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53A68B81C76;
+        Tue, 26 Apr 2022 08:45:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96B34C385A4;
+        Tue, 26 Apr 2022 08:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962697;
-        bh=Fu+nhyd4Ftx9wFwzYrhYVHcQbXFxR67KTnPhaztFH/o=;
+        s=korg; t=1650962701;
+        bh=trXIu8XHmAnC0fElf80oY0FbsOH2cP1tf1pUgA0Dk4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5krVWyUWsNw91QjtpY5qQ2B0EMhUES4YdvsSMNgbEGefMQxJArnsAFcazvjC0fhS
-         0d2K8dFxkCgRy6vp4eC1GyRRmRuttasKYi2ifh94eC25VGAV7ya/6YIqsygYHexX96
-         gkTtsFohREiNTW0WNNezQSDrFtf9LQ89sKBaI8go=
+        b=t0ZUfzrP8LlImrxQlbAMd7QDXs9ALZ5yMCksW0BOSUOUMd/rTINPRdma0485eyGmn
+         eUjqj/SQBuW+5boeNzSjcoIYBraZoYppjglgEm+4GeIHwPca5cgtMEG2rLPKX06vh9
+         N4l42XPXZnQZgGevUUrfqOs0CqeMkDbFvckEfAHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herve Codina <herve.codina@bootlin.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 019/146] dmaengine: dw-edma: Fix unaligned 64bit access
-Date:   Tue, 26 Apr 2022 10:20:14 +0200
-Message-Id: <20220426081750.605299587@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Allen-KH Cheng <allen-kh.cheng@mediatek.com>,
+        Rex-BC Chen <rex-bc.chen@mediatek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 020/146] spi: spi-mtk-nor: initialize spi controller after resume
+Date:   Tue, 26 Apr 2022 10:20:15 +0200
+Message-Id: <20220426081750.633307968@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -52,58 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herve Codina <herve.codina@bootlin.com>
+From: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
 
-[ Upstream commit 8fc5133d6d4da65cad6b73152fc714ad3d7f91c1 ]
+[ Upstream commit 317c2045618cc1f8d38beb8c93a7bdb6ad8638c6 ]
 
-On some arch (ie aarch64 iMX8MM) unaligned PCIe accesses are
-not allowed and lead to a kernel Oops.
-  [ 1911.668835] Unable to handle kernel paging request at virtual address ffff80001bc00a8c
-  [ 1911.668841] Mem abort info:
-  [ 1911.668844]   ESR = 0x96000061
-  [ 1911.668847]   EC = 0x25: DABT (current EL), IL = 32 bits
-  [ 1911.668850]   SET = 0, FnV = 0
-  [ 1911.668852]   EA = 0, S1PTW = 0
-  [ 1911.668853] Data abort info:
-  [ 1911.668855]   ISV = 0, ISS = 0x00000061
-  [ 1911.668857]   CM = 0, WnR = 1
-  [ 1911.668861] swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000040ff4000
-  [ 1911.668864] [ffff80001bc00a8c] pgd=00000000bffff003, pud=00000000bfffe003, pmd=0068000018400705
-  [ 1911.668872] Internal error: Oops: 96000061 [#1] PREEMPT SMP
-  ...
+After system resumes, the registers of nor controller are
+initialized with default values. The nor controller will
+not function properly.
 
-The llp register present in the channel group registers is not
-aligned on 64bit.
+To handle both issues above, we add mtk_nor_init() in
+mtk_nor_resume after pm_runtime_force_resume().
 
-Fix unaligned 64bit access using two 32bit accesses
+Fixes: 3bfd9103c7af ("spi: spi-mtk-nor: Add power management support")
 
-Fixes: 04e0a39fc10f ("dmaengine: dw-edma: Add writeq() and readq() for 64 bits architectures")
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-Link: https://lore.kernel.org/r/20220225120252.309404-1-herve.codina@bootlin.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Allen-KH Cheng <allen-kh.cheng@mediatek.com>
+Reviewed-by: Rex-BC Chen <rex-bc.chen@mediatek.com>
+Link: https://lore.kernel.org/r/20220412115743.22641-1-allen-kh.cheng@mediatek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dw-edma/dw-edma-v0-core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/spi/spi-mtk-nor.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/dw-edma/dw-edma-v0-core.c b/drivers/dma/dw-edma/dw-edma-v0-core.c
-index 329fc2e57b70..b5b8f8181e77 100644
---- a/drivers/dma/dw-edma/dw-edma-v0-core.c
-+++ b/drivers/dma/dw-edma/dw-edma-v0-core.c
-@@ -415,8 +415,11 @@ void dw_edma_v0_core_start(struct dw_edma_chunk *chunk, bool first)
- 			  (DW_EDMA_V0_CCS | DW_EDMA_V0_LLE));
- 		/* Linked list */
- 		#ifdef CONFIG_64BIT
--			SET_CH_64(dw, chan->dir, chan->id, llp.reg,
--				  chunk->ll_region.paddr);
-+			/* llp is not aligned on 64bit -> keep 32bit accesses */
-+			SET_CH_32(dw, chan->dir, chan->id, llp.lsb,
-+				  lower_32_bits(chunk->ll_region.paddr));
-+			SET_CH_32(dw, chan->dir, chan->id, llp.msb,
-+				  upper_32_bits(chunk->ll_region.paddr));
- 		#else /* CONFIG_64BIT */
- 			SET_CH_32(dw, chan->dir, chan->id, llp.lsb,
- 				  lower_32_bits(chunk->ll_region.paddr));
+diff --git a/drivers/spi/spi-mtk-nor.c b/drivers/spi/spi-mtk-nor.c
+index 5c93730615f8..6d203477c04b 100644
+--- a/drivers/spi/spi-mtk-nor.c
++++ b/drivers/spi/spi-mtk-nor.c
+@@ -909,7 +909,17 @@ static int __maybe_unused mtk_nor_suspend(struct device *dev)
+ 
+ static int __maybe_unused mtk_nor_resume(struct device *dev)
+ {
+-	return pm_runtime_force_resume(dev);
++	struct spi_controller *ctlr = dev_get_drvdata(dev);
++	struct mtk_nor *sp = spi_controller_get_devdata(ctlr);
++	int ret;
++
++	ret = pm_runtime_force_resume(dev);
++	if (ret)
++		return ret;
++
++	mtk_nor_init(sp);
++
++	return 0;
+ }
+ 
+ static const struct dev_pm_ops mtk_nor_pm_ops = {
 -- 
 2.35.1
 
