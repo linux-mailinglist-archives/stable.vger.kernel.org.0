@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF2B50F4E5
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B3850F5E2
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345381AbiDZIk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59622 "EHLO
+        id S244867AbiDZIrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:47:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345787AbiDZIjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DF34505A;
-        Tue, 26 Apr 2022 01:31:02 -0700 (PDT)
+        with ESMTP id S1346525AbiDZIpH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71D94169429;
+        Tue, 26 Apr 2022 01:34:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC41061896;
-        Tue, 26 Apr 2022 08:31:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA0DFC385A4;
-        Tue, 26 Apr 2022 08:31:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B405DB81CF2;
+        Tue, 26 Apr 2022 08:34:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FF81C385B0;
+        Tue, 26 Apr 2022 08:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961861;
-        bh=zlFNlgiWN8d/TLCRFsjLrNWeu1z43hW4bs5yotmPwKM=;
+        s=korg; t=1650962092;
+        bh=dbYAWSh4EZVbvWQb33QdDvnB5dTTw2cTTKNqUf7AllA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wYqYy5gJgdnLazyEUxQeSXMHcM4ZusDBzDw3ZeK1al7MVZsjybpv6HTdmqfYRhovN
-         x5q6CudHGNcbUZzRX1Op5INFC0auwSqyJeh2yN5zTkDiMOiZS4X2k8IGckMLeDYSHt
-         RR0hI+8g130pS3mBg42rPakUPfw3kN5ZdJhXizoQ=
+        b=bdbQfV7UgSIStzOy+jtQoIsVBpwyYbKtTuLxNReCYvZH1jZtGr5VGVqAHE6DR2mSr
+         FYH1Ij3I2s+BvwpipxVyKT3AfhtXJpb1fPU4/nbQ0pWi0rXsrX9JyySVcF/hReiSEJ
+         ekN8Hcear4DDEnlUeM+y+Bp+czXoGavzJ1aczv8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 5.4 56/62] ext4: fix overhead calculation to account for the reserved gdt blocks
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 68/86] drm/panel/raspberrypi-touchscreen: Avoid NULL deref if not initialised
 Date:   Tue, 26 Apr 2022 10:21:36 +0200
-Message-Id: <20220426081738.828053637@linuxfoundation.org>
+Message-Id: <20220426081743.170776638@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
 
-commit 10b01ee92df52c8d7200afead4d5e5f55a5c58b1 upstream.
+[ Upstream commit f92055ae0acb035891e988ce345d6b81a0316423 ]
 
-The kernel calculation was underestimating the overhead by not taking
-into account the reserved gdt blocks.  With this change, the overhead
-calculated by the kernel matches the overhead calculation in mke2fs.
+If a call to rpi_touchscreen_i2c_write from rpi_touchscreen_probe
+fails before mipi_dsi_device_register_full is called, then
+in trying to log the error message if uses ts->dsi->dev when
+it is still NULL.
 
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Use ts->i2c->dev instead, which is initialised earlier in probe.
+
+Fixes: 2f733d6194bd ("drm/panel: Add support for the Raspberry Pi 7" Touchscreen.")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220415162513.42190-2-stefan.wahren@i2se.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3485,9 +3485,11 @@ static int count_overhead(struct super_b
- 	ext4_fsblk_t		first_block, last_block, b;
- 	ext4_group_t		i, ngroups = ext4_get_groups_count(sb);
- 	int			s, j, count = 0;
-+	int			has_super = ext4_bg_has_super(sb, grp);
+diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+index bbdd086be7f5..90487df62480 100644
+--- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
++++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+@@ -229,7 +229,7 @@ static void rpi_touchscreen_i2c_write(struct rpi_touchscreen *ts,
  
- 	if (!ext4_has_feature_bigalloc(sb))
--		return (ext4_bg_has_super(sb, grp) + ext4_bg_num_gdb(sb, grp) +
-+		return (has_super + ext4_bg_num_gdb(sb, grp) +
-+			(has_super ? le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) : 0) +
- 			sbi->s_itb_per_group + 2);
+ 	ret = i2c_smbus_write_byte_data(ts->i2c, reg, val);
+ 	if (ret)
+-		dev_err(&ts->dsi->dev, "I2C write failed: %d\n", ret);
++		dev_err(&ts->i2c->dev, "I2C write failed: %d\n", ret);
+ }
  
- 	first_block = le32_to_cpu(sbi->s_es->s_first_data_block) +
+ static int rpi_touchscreen_write(struct rpi_touchscreen *ts, u16 reg, u32 val)
+-- 
+2.35.1
+
 
 
