@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B3E50F7B1
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B054250F82C
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347242AbiDZJOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:14:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33272 "EHLO
+        id S245475AbiDZJMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:12:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346597AbiDZJLd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:11:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D4A18073D;
-        Tue, 26 Apr 2022 01:49:49 -0700 (PDT)
+        with ESMTP id S1347384AbiDZJKs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:10:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88DD017F125;
+        Tue, 26 Apr 2022 01:49:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EEB5B81CF2;
-        Tue, 26 Apr 2022 08:49:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D69A4C385A4;
-        Tue, 26 Apr 2022 08:49:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9DF860C42;
+        Tue, 26 Apr 2022 08:49:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D20F2C385A0;
+        Tue, 26 Apr 2022 08:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962977;
-        bh=UWC72dGlqRXg6M7M3WA8IxxrcfepfpHwL+5g3PuDktc=;
+        s=korg; t=1650962980;
+        bh=zMT2bqha3hiEmZn2PZkK+h5nbupE7FfoSqKxXILC13g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5d8wj8CJINQvRxmnGUXDGDAkbud3+Nt9iyxhBZDZyH/yfW5id9F60CyPM8S87gQo
-         mShdhonId5OMB+eph8OJDHaQ+SaoaJ8EzYt8ITA8dXQiHRwPYQnB04wIQluTDOAklh
-         mzJZBrjt3miAG2Jmmrwf3aL6kxnnjl4eln1zCUx4=
+        b=Uyg46sB0JVQAABr512IcMJpXW6VHdiYSeYFU77JyriJ6/KYFs0j22A+Oe7BpmMDxk
+         +3AqSQbwdl0sutS/KoC2XK/yHW0en1TGWA29sO38L2ZpWRp1753Z+pfGpo6KQaSQgG
+         WhUMOt4SeAM+2Zkb7H6roKM2Mae6CWjmvsoiFY/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.17 144/146] ASoC: SOF: topology: cleanup dailinks on widget unload
-Date:   Tue, 26 Apr 2022 10:22:19 +0200
-Message-Id: <20220426081754.107256382@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 145/146] io_uring: fix leaks on IOPOLL and CQE_SKIP
+Date:   Tue, 26 Apr 2022 10:22:20 +0200
+Message-Id: <20220426081754.135044907@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
 References: <20220426081750.051179617@linuxfoundation.org>
@@ -56,85 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 20744617bdbafe2e7fb7bf5401f616e24bde4471 upstream.
+commit c0713540f6d55c53dca65baaead55a5a8b20552d upstream.
 
-We set the cpu_dai capture_ or playback_widget on widget_ready but
-never clear them, which leads to failures when unloading/reloading a
-topology in modprobe/rmmod tests
+If all completed requests in io_do_iopoll() were marked with
+REQ_F_CQE_SKIP, we'll not only skip CQE posting but also
+io_free_batch_list() leaking memory and resources.
 
-BugLink: https://github.com/thesofproject/linux/issues/3535
-Fixes: 311ce4fe7637 ("ASoC: SOF: Add support for loading topologies")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220406191606.254576-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Move @nr_events increment before REQ_F_CQE_SKIP check. We'll potentially
+return the value greater than the real one, but iopolling will deal with
+it and the userspace will re-iopoll if needed. In anyway, I don't think
+there are many use cases for REQ_F_CQE_SKIP + IOPOLL.
+
+Fixes: 83a13a4181b0e ("io_uring: tweak iopoll CQE_SKIP event counting")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/5072fc8693fbfd595f89e5d4305bfcfd5d2f0a64.1650186611.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/topology.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ fs/io_uring.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/soc/sof/topology.c
-+++ b/sound/soc/sof/topology.c
-@@ -1569,6 +1569,46 @@ static int sof_widget_load_buffer(struct
- 	return 0;
- }
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2612,11 +2612,10 @@ static int io_do_iopoll(struct io_ring_c
+ 		/* order with io_complete_rw_iopoll(), e.g. ->result updates */
+ 		if (!smp_load_acquire(&req->iopoll_completed))
+ 			break;
++		nr_events++;
+ 		if (unlikely(req->flags & REQ_F_CQE_SKIP))
+ 			continue;
+-
+ 		__io_fill_cqe(ctx, req->user_data, req->result, io_put_kbuf(req));
+-		nr_events++;
+ 	}
  
-+static void sof_disconnect_dai_widget(struct snd_soc_component *scomp,
-+				      struct snd_soc_dapm_widget *w)
-+{
-+	struct snd_soc_card *card = scomp->card;
-+	struct snd_soc_pcm_runtime *rtd;
-+	struct snd_soc_dai *cpu_dai;
-+	int i;
-+
-+	if (!w->sname)
-+		return;
-+
-+	list_for_each_entry(rtd, &card->rtd_list, list) {
-+		/* does stream match DAI link ? */
-+		if (!rtd->dai_link->stream_name ||
-+		    strcmp(w->sname, rtd->dai_link->stream_name))
-+			continue;
-+
-+		switch (w->id) {
-+		case snd_soc_dapm_dai_out:
-+			for_each_rtd_cpu_dais(rtd, i, cpu_dai) {
-+				if (cpu_dai->capture_widget == w) {
-+					cpu_dai->capture_widget = NULL;
-+					break;
-+				}
-+			}
-+			break;
-+		case snd_soc_dapm_dai_in:
-+			for_each_rtd_cpu_dais(rtd, i, cpu_dai) {
-+				if (cpu_dai->playback_widget == w) {
-+					cpu_dai->playback_widget = NULL;
-+					break;
-+				}
-+			}
-+			break;
-+		default:
-+			break;
-+		}
-+	}
-+}
-+
- /* bind PCM ID to host component ID */
- static int spcm_bind(struct snd_soc_component *scomp, struct snd_sof_pcm *spcm,
- 		     int dir)
-@@ -2449,6 +2489,9 @@ static int sof_widget_unload(struct snd_
- 			kfree(dai->dai_config);
- 			list_del(&dai->list);
- 		}
-+
-+		sof_disconnect_dai_widget(scomp, widget);
-+
- 		break;
- 	default:
- 		break;
+ 	if (unlikely(!nr_events))
 
 
