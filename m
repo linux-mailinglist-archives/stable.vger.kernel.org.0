@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1929650F7EC
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:42:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7755850F443
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:32:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346402AbiDZJIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39086 "EHLO
+        id S1345102AbiDZIfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:35:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347856AbiDZJGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:16 -0400
+        with ESMTP id S1345160AbiDZIeK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:10 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0396F167F1E;
-        Tue, 26 Apr 2022 01:46:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78E23A5E0;
+        Tue, 26 Apr 2022 01:26:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A75E1604F5;
-        Tue, 26 Apr 2022 08:46:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97777C385A4;
-        Tue, 26 Apr 2022 08:46:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 445F1617AE;
+        Tue, 26 Apr 2022 08:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B942C385AC;
+        Tue, 26 Apr 2022 08:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962778;
-        bh=HHSBzrlIipK0nujA927z1nFCcxi1J+e1mhmEtz+5L5w=;
+        s=korg; t=1650961577;
+        bh=LeWPxh0IAzIoGKsay5d2EsBqNSqXGDoQrwxNNt9kzI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cauXoI3ZmrqtyU8cdJO+L7m7yPyHXwoi+TY8SZpmuUsJwGP+DNIgYh2jOjzryYU42
-         9l0BBUwM4/g0KqITrGwNQsfOYu/CjT9TWA58cMlVYcNuWueKtWmX74gJGK+9JkeaK+
-         p7EaZWyZDnonLlDynN5bQe4DoT5oDzx9gpbuCNEw=
+        b=Z6dbo6i3EkhM8uFWCUYvRBY2/TCF97me3BJF566yr+AYP9LgS5+btv+0FCUqiJ7Fi
+         9nsm5EXmnhBn4iP+qF8GQOo6bIAmOrHxWIszpFKWe402nWF8zGJHmQnIGqm/IQFteD
+         Jo3TS50Z7cVfQSkAgV6Ym6asDhmshltfn5PSGzwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Flavio Leitner <fbl@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 059/146] drm/msm/gpu: Remove mutex from wait_event condition
+Subject: [PATCH 4.19 14/53] net/packet: fix packet_sock xmit return value checking
 Date:   Tue, 26 Apr 2022 10:20:54 +0200
-Message-Id: <20220426081751.726569557@linuxfoundation.org>
+Message-Id: <20220426081736.072486186@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,50 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit 7242795d520d3fb48e005e3c96ba54bb59639d6e ]
+[ Upstream commit 29e8e659f984be00d75ec5fef4e37c88def72712 ]
 
-The mutex wasn't really protecting anything before.  Before the previous
-patch we could still be racing with the scheduler's kthread, as that is
-not necessarily frozen yet.  Now that we've parked the sched threads,
-the only race is with jobs retiring, and that is harmless, ie.
+packet_sock xmit could be dev_queue_xmit, which also returns negative
+errors. So only checking positive errors is not enough, or userspace
+sendmsg may return success while packet is not send out.
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Link: https://lore.kernel.org/r/20220310234611.424743-4-robdclark@gmail.com
+Move the net_xmit_errno() assignment in the braces as checkpatch.pl said
+do not use assignment in if condition.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Flavio Leitner <fbl@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/adreno_device.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ net/packet/af_packet.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
-index b93de79000e1..e8a8240a6868 100644
---- a/drivers/gpu/drm/msm/adreno/adreno_device.c
-+++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
-@@ -608,22 +608,13 @@ static int adreno_runtime_resume(struct device *dev)
- 	return gpu->funcs->pm_resume(gpu);
- }
+diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
+index b951f411dded..f654f79e3310 100644
+--- a/net/packet/af_packet.c
++++ b/net/packet/af_packet.c
+@@ -2791,8 +2791,9 @@ static int tpacket_snd(struct packet_sock *po, struct msghdr *msg)
  
--static int active_submits(struct msm_gpu *gpu)
--{
--	int active_submits;
--	mutex_lock(&gpu->active_lock);
--	active_submits = gpu->active_submits;
--	mutex_unlock(&gpu->active_lock);
--	return active_submits;
--}
--
- static int adreno_runtime_suspend(struct device *dev)
- {
- 	struct msm_gpu *gpu = dev_to_gpu(dev);
- 	int remaining;
+ 		status = TP_STATUS_SEND_REQUEST;
+ 		err = po->xmit(skb);
+-		if (unlikely(err > 0)) {
+-			err = net_xmit_errno(err);
++		if (unlikely(err != 0)) {
++			if (err > 0)
++				err = net_xmit_errno(err);
+ 			if (err && __packet_get_status(po, ph) ==
+ 				   TP_STATUS_AVAILABLE) {
+ 				/* skb was destructed already */
+@@ -2993,8 +2994,12 @@ static int packet_snd(struct socket *sock, struct msghdr *msg, size_t len)
+ 		skb->no_fcs = 1;
  
- 	remaining = wait_event_timeout(gpu->retire_event,
--				       active_submits(gpu) == 0,
-+				       gpu->active_submits == 0,
- 				       msecs_to_jiffies(1000));
- 	if (remaining == 0) {
- 		dev_err(dev, "Timeout waiting for GPU to suspend\n");
+ 	err = po->xmit(skb);
+-	if (err > 0 && (err = net_xmit_errno(err)) != 0)
+-		goto out_unlock;
++	if (unlikely(err != 0)) {
++		if (err > 0)
++			err = net_xmit_errno(err);
++		if (err)
++			goto out_unlock;
++	}
+ 
+ 	dev_put(dev);
+ 
 -- 
 2.35.1
 
