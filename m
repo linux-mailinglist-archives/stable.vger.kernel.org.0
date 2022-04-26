@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 405C550F773
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 989A850F687
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344612AbiDZJH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:07:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38488 "EHLO
+        id S239386AbiDZI4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:56:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347656AbiDZJGA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:00 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A996515B46E;
-        Tue, 26 Apr 2022 01:45:12 -0700 (PDT)
+        with ESMTP id S1345859AbiDZItA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:49:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0540B8985;
+        Tue, 26 Apr 2022 01:37:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 467C7CE1BC9;
-        Tue, 26 Apr 2022 08:45:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23232C385A4;
-        Tue, 26 Apr 2022 08:45:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9217FCE1BBB;
+        Tue, 26 Apr 2022 08:37:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44945C385A4;
+        Tue, 26 Apr 2022 08:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962709;
-        bh=LNen/Hol42nJKmCO91F1P60/W/lNiA3tn9i6VwXxB0o=;
+        s=korg; t=1650962266;
+        bh=gJJX+P5oVPPmJ/jF+tf+hPzMZO+E1W428uqYIfRDOsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g0iOJI1YZbXGxmb3kPo2efPruK1LVXzR2SI+a4pm0zFpQqEC5iyaaWhnEWtNdVuNk
-         X2a3zYF8bhQlna7z3a2VbKbqLOZt/VaqKqBIBd1vFwFffrdTsIgTxkvqfrgckWc/OR
-         SRzHrIhyQHrljYJ90BAyO0olY5hfqxHmqGxUrWO4=
+        b=LoK6F9MuYMGvEpwb1pgn3mqJLW3BrMRg9oKA2SAZjiysSrI7qMM1CbnLF4hTY8Cmd
+         aDrWVlgz9U3cLDP7K87+H6VHHjNzrDlxdh0r8BI1Yt9mF6RwjvISC0dMcBW3kGgwa5
+         GK29Lv/Q0cKtjtHfhRy/480cCu7mG3HC8yinKtN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 013/146] ASoC: rk817: Use devm_clk_get() in rk817_platform_probe
+        stable@vger.kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Georgi Djakov <quic_c_gdjako@quicinc.com>
+Subject: [PATCH 5.15 007/124] arm64/mm: drop HAVE_ARCH_PFN_VALID
 Date:   Tue, 26 Apr 2022 10:20:08 +0200
-Message-Id: <20220426081750.437199412@linuxfoundation.org>
+Message-Id: <20220426081747.503282169@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +59,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit 8ba08d3a367a70f707b7c5d53ad92b98b960ee88 ]
+commit 3de360c3fdb34fbdbaf6da3af94367d3fded95d3 upstream.
 
-We need to call clk_put() to undo clk_get() in the error path.
-Use devm_clk_get() to obtain a reference to the clock, It has
-the benefit that clk_put() is no longer required.
+CONFIG_SPARSEMEM_VMEMMAP is now the only available memory model on arm64
+platforms and free_unused_memmap() would just return without creating any
+holes in the memmap mapping.  There is no need for any special handling in
+pfn_valid() and HAVE_ARCH_PFN_VALID can just be dropped.  This also moves
+the pfn upper bits sanity check into generic pfn_valid().
 
-Fixes: 0d6a04da9b25 ("ASoC: Add Rockchip rk817 audio CODEC support")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220404090753.17940-1-linmq006@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[rppt: rebased on v5.15-rc3]
+
+Link: https://lkml.kernel.org/r/1621947349-25421-1-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Mike Rapoport <rppt@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210930013039.11260-3-rppt@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 859a85ddf90e ("mm: remove pfn_valid_within() and CONFIG_HOLES_IN_ZONE")
+Link: https://lore.kernel.org/r/Yl0IZWT2nsiYtqBT@linux.ibm.com
+Signed-off-by: Georgi Djakov <quic_c_gdjako@quicinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rk817_codec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/Kconfig            |    1 -
+ arch/arm64/include/asm/page.h |    1 -
+ arch/arm64/mm/init.c          |   37 -------------------------------------
+ 3 files changed, 39 deletions(-)
 
-diff --git a/sound/soc/codecs/rk817_codec.c b/sound/soc/codecs/rk817_codec.c
-index 8fffe378618d..cce6f4e7992f 100644
---- a/sound/soc/codecs/rk817_codec.c
-+++ b/sound/soc/codecs/rk817_codec.c
-@@ -489,7 +489,7 @@ static int rk817_platform_probe(struct platform_device *pdev)
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -154,7 +154,6 @@ config ARM64
+ 	select HAVE_ARCH_KGDB
+ 	select HAVE_ARCH_MMAP_RND_BITS
+ 	select HAVE_ARCH_MMAP_RND_COMPAT_BITS if COMPAT
+-	select HAVE_ARCH_PFN_VALID
+ 	select HAVE_ARCH_PREL32_RELOCATIONS
+ 	select HAVE_ARCH_RANDOMIZE_KSTACK_OFFSET
+ 	select HAVE_ARCH_SECCOMP_FILTER
+--- a/arch/arm64/include/asm/page.h
++++ b/arch/arm64/include/asm/page.h
+@@ -41,7 +41,6 @@ void tag_clear_highpage(struct page *to)
  
- 	rk817_codec_parse_dt_property(&pdev->dev, rk817_codec_data);
+ typedef struct page *pgtable_t;
  
--	rk817_codec_data->mclk = clk_get(pdev->dev.parent, "mclk");
-+	rk817_codec_data->mclk = devm_clk_get(pdev->dev.parent, "mclk");
- 	if (IS_ERR(rk817_codec_data->mclk)) {
- 		dev_dbg(&pdev->dev, "Unable to get mclk\n");
- 		ret = -ENXIO;
--- 
-2.35.1
-
+-int pfn_valid(unsigned long pfn);
+ int pfn_is_map_memory(unsigned long pfn);
+ 
+ #include <asm/memory.h>
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -184,43 +184,6 @@ static void __init zone_sizes_init(unsig
+ 	free_area_init(max_zone_pfns);
+ }
+ 
+-int pfn_valid(unsigned long pfn)
+-{
+-	phys_addr_t addr = PFN_PHYS(pfn);
+-	struct mem_section *ms;
+-
+-	/*
+-	 * Ensure the upper PAGE_SHIFT bits are clear in the
+-	 * pfn. Else it might lead to false positives when
+-	 * some of the upper bits are set, but the lower bits
+-	 * match a valid pfn.
+-	 */
+-	if (PHYS_PFN(addr) != pfn)
+-		return 0;
+-
+-	if (pfn_to_section_nr(pfn) >= NR_MEM_SECTIONS)
+-		return 0;
+-
+-	ms = __pfn_to_section(pfn);
+-	if (!valid_section(ms))
+-		return 0;
+-
+-	/*
+-	 * ZONE_DEVICE memory does not have the memblock entries.
+-	 * memblock_is_map_memory() check for ZONE_DEVICE based
+-	 * addresses will always fail. Even the normal hotplugged
+-	 * memory will never have MEMBLOCK_NOMAP flag set in their
+-	 * memblock entries. Skip memblock search for all non early
+-	 * memory sections covering all of hotplug memory including
+-	 * both normal and ZONE_DEVICE based.
+-	 */
+-	if (!early_section(ms))
+-		return pfn_section_valid(ms, pfn);
+-
+-	return memblock_is_memory(addr);
+-}
+-EXPORT_SYMBOL(pfn_valid);
+-
+ int pfn_is_map_memory(unsigned long pfn)
+ {
+ 	phys_addr_t addr = PFN_PHYS(pfn);
 
 
