@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FDFE50F7A6
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 442D550F5C3
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346619AbiDZJIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38492 "EHLO
+        id S1345631AbiDZIqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:46:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347935AbiDZJGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F81BBAB88;
-        Tue, 26 Apr 2022 01:47:40 -0700 (PDT)
+        with ESMTP id S1346823AbiDZIpY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:45:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E043A90CF1;
+        Tue, 26 Apr 2022 01:35:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1981FB81A2F;
-        Tue, 26 Apr 2022 08:47:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47128C385A0;
-        Tue, 26 Apr 2022 08:47:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99298B81CFE;
+        Tue, 26 Apr 2022 08:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB3BEC385A4;
+        Tue, 26 Apr 2022 08:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962857;
-        bh=6u3Lw04ae7BNxpRscauU4CwkkTx3Rv+lfvEmnyV8btA=;
+        s=korg; t=1650962148;
+        bh=3aLdmpvxaChLzyHcYZwWLEm72qRpXWXyd7TlPmtCnCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hEcCaKkSBnLUX/rybJP42RQV55GSm+DkG1iQz9xdQ1tjcLOKlJJb/vjrI69BHzU4
-         Vhfj3ytvWq4lcvpopNX5YgT3wkaojKW6G+R3d2RNwkr/1jkmFKFcp55q1qHhtlLjQ3
-         z1VztyxDRAG+2ey9kJgRuNfqPyZv+2lqaloK2d7M=
+        b=R0Dwtz/GFhSrIU5JxHSaVxx1zwPOrtb4MQFfxLv7EmXSwrtZWS12iH4MezHhdL/L0
+         h4e2Jo2qqBchjxGB1Z6h43QAA3nlDy1yaq+W/jnak6kVYhpux46xozP2ZX74e28KtP
+         AAjw7b8ahrpqop/G7DDCukGLnLP3etJOFj9Pt1Cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        German Gomez <german.gomez@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 113/146] perf report: Set PERF_SAMPLE_DATA_SRC bit for Arm SPE event
-Date:   Tue, 26 Apr 2022 10:21:48 +0200
-Message-Id: <20220426081753.230607369@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.10 81/86] can: isotp: stop timeout monitoring when no first frame was sent
+Date:   Tue, 26 Apr 2022 10:21:49 +0200
+Message-Id: <20220426081743.553084500@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
+References: <20220426081741.202366502@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,78 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit ccb17caecfbd542f49a2a79ae088136ba8bfb794 ]
+commit d73497081710c876c3c61444445512989e102152 upstream.
 
-Since commit bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem
-info is not available") "perf mem report" and "perf report --mem-mode"
-don't report result if the PERF_SAMPLE_DATA_SRC bit is missed in sample
-type.
+The first attempt to fix a the 'impossible' WARN_ON_ONCE(1) in
+isotp_tx_timer_handler() focussed on the identical CAN IDs created by
+the syzbot reproducer and lead to upstream fix/commit 3ea566422cbd
+("can: isotp: sanitize CAN ID checks in isotp_bind()"). But this did
+not catch the root cause of the wrong tx.state in the tx_timer handler.
 
-The commit ffab487052054162 ("perf: arm-spe: Fix perf report
---mem-mode") partially fixes the issue.  It adds PERF_SAMPLE_DATA_SRC
-bit for Arm SPE event, this allows the perf data file generated by
-kernel v5.18-rc1 or later version can be reported properly.
+In the isotp 'first frame' case a timeout monitoring needs to be started
+before the 'first frame' is send. But when this sending failed the timeout
+monitoring for this specific frame has to be disabled too.
 
-On the other hand, perf tool still fails to be backward compatibility
-for a data file recorded by an older version's perf which contains Arm
-SPE trace data.  This patch is a workaround in reporting phase, when
-detects ARM SPE PMU event and without PERF_SAMPLE_DATA_SRC bit, it will
-force to set the bit in the sample type and give a warning info.
+Otherwise the tx_timer is fired with the 'warn me' tx.state of ISOTP_IDLE.
 
-Fixes: bb30acae4c4dacfa ("perf report: Bail out --mem-mode if mem info is not available")
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Tested-by: German Gomez <german.gomez@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220414123201.842754-1-leo.yan@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/all/20220405175112.2682-1-socketcan@hartkopp.net
+Reported-by: syzbot+2339c27f5c66c652843e@syzkaller.appspotmail.com
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/builtin-report.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ net/can/isotp.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index 1dd92d8c9279..a6bb35b0af9f 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -349,6 +349,7 @@ static int report__setup_sample_type(struct report *rep)
- 	struct perf_session *session = rep->session;
- 	u64 sample_type = evlist__combined_sample_type(session->evlist);
- 	bool is_pipe = perf_data__is_pipe(session->data);
-+	struct evsel *evsel;
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -864,6 +864,7 @@ static int isotp_sendmsg(struct socket *
+ 	struct canfd_frame *cf;
+ 	int ae = (so->opt.flags & CAN_ISOTP_EXTEND_ADDR) ? 1 : 0;
+ 	int wait_tx_done = (so->opt.flags & CAN_ISOTP_WAIT_TX_DONE) ? 1 : 0;
++	s64 hrtimer_sec = 0;
+ 	int off;
+ 	int err;
  
- 	if (session->itrace_synth_opts->callchain ||
- 	    session->itrace_synth_opts->add_callchain ||
-@@ -403,6 +404,19 @@ static int report__setup_sample_type(struct report *rep)
+@@ -962,7 +963,9 @@ static int isotp_sendmsg(struct socket *
+ 		isotp_create_fframe(cf, so, ae);
+ 
+ 		/* start timeout for FC */
+-		hrtimer_start(&so->txtimer, ktime_set(1, 0), HRTIMER_MODE_REL_SOFT);
++		hrtimer_sec = 1;
++		hrtimer_start(&so->txtimer, ktime_set(hrtimer_sec, 0),
++			      HRTIMER_MODE_REL_SOFT);
  	}
  
- 	if (sort__mode == SORT_MODE__MEMORY) {
-+		/*
-+		 * FIXUP: prior to kernel 5.18, Arm SPE missed to set
-+		 * PERF_SAMPLE_DATA_SRC bit in sample type.  For backward
-+		 * compatibility, set the bit if it's an old perf data file.
-+		 */
-+		evlist__for_each_entry(session->evlist, evsel) {
-+			if (strstr(evsel->name, "arm_spe") &&
-+				!(sample_type & PERF_SAMPLE_DATA_SRC)) {
-+				evsel->core.attr.sample_type |= PERF_SAMPLE_DATA_SRC;
-+				sample_type |= PERF_SAMPLE_DATA_SRC;
-+			}
-+		}
+ 	/* send the first or only CAN frame */
+@@ -975,6 +978,11 @@ static int isotp_sendmsg(struct socket *
+ 	if (err) {
+ 		pr_notice_once("can-isotp: %s: can_send_ret %d\n",
+ 			       __func__, err);
 +
- 		if (!is_pipe && !(sample_type & PERF_SAMPLE_DATA_SRC)) {
- 			ui__error("Selected --mem-mode but no mem data. "
- 				  "Did you call perf record without -d?\n");
--- 
-2.35.1
-
++		/* no transmission -> no timeout monitoring */
++		if (hrtimer_sec)
++			hrtimer_cancel(&so->txtimer);
++
+ 		goto err_out_drop;
+ 	}
+ 
 
 
