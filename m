@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30CBE50F5CD
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0321450F6BA
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345480AbiDZIqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:46:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59716 "EHLO
+        id S236667AbiDZI6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:58:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346193AbiDZIol (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:44:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F73E83B24;
-        Tue, 26 Apr 2022 01:34:22 -0700 (PDT)
+        with ESMTP id S1343871AbiDZI5l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:41 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B2BCE98;
+        Tue, 26 Apr 2022 01:42:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03D4FB81CF2;
-        Tue, 26 Apr 2022 08:34:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6044BC385A0;
-        Tue, 26 Apr 2022 08:34:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 78149CE1BC9;
+        Tue, 26 Apr 2022 08:42:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A672C385A4;
+        Tue, 26 Apr 2022 08:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962059;
-        bh=wa6DKY7ihCAiI4ORJ4Lemo2W/kJEgxqyoapglfQxiiI=;
+        s=korg; t=1650962526;
+        bh=Q/NB08VUd3vxv4x7BsltP3dVqaSoPQUEhqVzMWg51P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPfH6T0YdR+9AWPXnQCYPShqt4OaIfhk4E3WB8tfrTJof21OBgV9+av/jevnj9oN9
-         s/92BF2eptJmdYnSjphk8XzSIHkBiCjjkoo1zEVWjvtecct16DbGTkqPBjEiqQJGGe
-         NYzpOKVCTq2chSiTWdiABrXO7TUP31roXjWvDxgo=
+        b=cHox6g8qUbPSs2toTNfp0qRyhXxP0+3OL85qATCiSx+8sfydZjxhKUuV4BOmu79/Q
+         LjiJ7LeMOnyBZ8gfrnupSyKuCwMzMdp5YKI3GBzyRT6nybglVfRCxGl/dnWXBiNDSE
+         Au0COdKDfOxhvQhVIfbzaPOSWFmoEyLH6otmpULs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>, Max Filippov <jcmvbkbc@gmail.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: [PATCH 5.10 58/86] xtensa: patch_text: Fixup last cpu should be master
-Date:   Tue, 26 Apr 2022 10:21:26 +0200
-Message-Id: <20220426081742.879470986@linuxfoundation.org>
+        stable@vger.kernel.org, koo5 <kolman.jindrich@gmail.com>,
+        Manuel Ullmann <labre@posteo.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 086/124] net: atlantic: invert deep par in pm functions, preventing null derefs
+Date:   Tue, 26 Apr 2022 10:21:27 +0200
+Message-Id: <20220426081749.745559934@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081741.202366502@linuxfoundation.org>
-References: <20220426081741.202366502@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Manuel Ullmann <labre@posteo.de>
 
-commit ee69d4be8fd064cd08270b4808d2dfece3614ee0 upstream.
+commit cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c upstream.
 
-These patch_text implementations are using stop_machine_cpuslocked
-infrastructure with atomic cpu_count. The original idea: When the
-master CPU patch_text, the others should wait for it. But current
-implementation is using the first CPU as master, which couldn't
-guarantee the remaining CPUs are waiting. This patch changes the
-last CPU as the master to solve the potential risk.
+This will reset deeply on freeze and thaw instead of suspend and
+resume and prevent null pointer dereferences of the uninitialized ring
+0 buffer while thawing.
 
-Fixes: 64711f9a47d4 ("xtensa: implement jump_label support")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Max Filippov <jcmvbkbc@gmail.com>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: <stable@vger.kernel.org>
-Message-Id: <20220407073323.743224-4-guoren@kernel.org>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+The impact is an indefinitely hanging kernel. You can't switch
+consoles after this and the only possible user interaction is SysRq.
+
+BUG: kernel NULL pointer dereference
+RIP: 0010:aq_ring_rx_fill+0xcf/0x210 [atlantic]
+aq_vec_init+0x85/0xe0 [atlantic]
+aq_nic_init+0xf7/0x1d0 [atlantic]
+atl_resume_common+0x4f/0x100 [atlantic]
+pci_pm_thaw+0x42/0xa0
+
+resolves in aq_ring.o to
+
+```
+0000000000000ae0 <aq_ring_rx_fill>:
+{
+/* ... */
+ baf:	48 8b 43 08          	mov    0x8(%rbx),%rax
+ 		buff->flags = 0U; /* buff is NULL */
+```
+
+The bug has been present since the introduction of the new pm code in
+8aaa112a57c1 ("net: atlantic: refactoring pm logic") and was hidden
+until 8ce84271697a ("net: atlantic: changes for multi-TC support"),
+which refactored the aq_vec_{free,alloc} functions into
+aq_vec_{,ring}_{free,alloc}, but is technically not wrong. The
+original functions just always reinitialized the buffers on S3/S4. If
+the interface is down before freezing, the bug does not occur. It does
+not matter, whether the initrd contains and loads the module before
+thawing.
+
+So the fix is to invert the boolean parameter deep in all pm function
+calls, which was clearly intended to be set like that.
+
+First report was on Github [1], which you have to guess from the
+resume logs in the posted dmesg snippet. Recently I posted one on
+Bugzilla [2], since I did not have an AQC device so far.
+
+#regzbot introduced: 8ce84271697a
+#regzbot from: koo5 <kolman.jindrich@gmail.com>
+#regzbot monitor: https://github.com/Aquantia/AQtion/issues/32
+
+Fixes: 8aaa112a57c1 ("net: atlantic: refactoring pm logic")
+Link: https://github.com/Aquantia/AQtion/issues/32 [1]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215798 [2]
+Cc: stable@vger.kernel.org
+Reported-by: koo5 <kolman.jindrich@gmail.com>
+Signed-off-by: Manuel Ullmann <labre@posteo.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/kernel/jump_label.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/xtensa/kernel/jump_label.c
-+++ b/arch/xtensa/kernel/jump_label.c
-@@ -40,7 +40,7 @@ static int patch_text_stop_machine(void
- {
- 	struct patch *patch = data;
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
+@@ -444,22 +444,22 @@ err_exit:
  
--	if (atomic_inc_return(&patch->cpu_count) == 1) {
-+	if (atomic_inc_return(&patch->cpu_count) == num_online_cpus()) {
- 		local_patch_text(patch->addr, patch->data, patch->sz);
- 		atomic_inc(&patch->cpu_count);
- 	} else {
+ static int aq_pm_freeze(struct device *dev)
+ {
+-	return aq_suspend_common(dev, false);
++	return aq_suspend_common(dev, true);
+ }
+ 
+ static int aq_pm_suspend_poweroff(struct device *dev)
+ {
+-	return aq_suspend_common(dev, true);
++	return aq_suspend_common(dev, false);
+ }
+ 
+ static int aq_pm_thaw(struct device *dev)
+ {
+-	return atl_resume_common(dev, false);
++	return atl_resume_common(dev, true);
+ }
+ 
+ static int aq_pm_resume_restore(struct device *dev)
+ {
+-	return atl_resume_common(dev, true);
++	return atl_resume_common(dev, false);
+ }
+ 
+ static const struct dev_pm_ops aq_pm_ops = {
 
 
