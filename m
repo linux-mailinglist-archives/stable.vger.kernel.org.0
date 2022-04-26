@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 377BD50F6B8
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BC1350F76E
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345806AbiDZI6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:58:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45586 "EHLO
+        id S237760AbiDZJIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 05:08:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345646AbiDZI5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:57:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8073C8564A;
-        Tue, 26 Apr 2022 01:42:06 -0700 (PDT)
+        with ESMTP id S1347881AbiDZJGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED66C1696DD;
+        Tue, 26 Apr 2022 01:46:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C7E7B81CED;
-        Tue, 26 Apr 2022 08:42:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABBE9C385A4;
-        Tue, 26 Apr 2022 08:42:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88266604F5;
+        Tue, 26 Apr 2022 08:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85836C385A0;
+        Tue, 26 Apr 2022 08:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962524;
-        bh=kh1oM6zhDY2AfxWFZwSmhLWkWY21yY0iNrd9a3v9HKw=;
+        s=korg; t=1650962796;
+        bh=8mfSUAHbPizDD8vvjH4LtwLjXf99s2vmSz5RFCBZHt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOahogxxHIbLnS+krJ2Q6pe4RP0GdA69BqkzWbIW2Je0J6kpOFbz37tliMWAyp/0R
-         0D7wg6G9sXspvMYe0J5PYKggdx9SYEPpuBxiL9LEBelUyt/p6YtqZL3f8i4FUw6Sy2
-         xflnvW/PVamPi5XInyMkr7Eq58kd7WzQGqxiQuLo=
+        b=xRz4zvZAp4lf2eWclkcjkO31/i4PgACvSRdKpgSKT+y77stt6aR4lWMXaxGHu4UfX
+         oLqHykxaW8nkbPFaOAL3o3YZXe3GjBFacRcq6I9p0bHvb++k57T9RmmZFYdTnORoFk
+         lrZvz19CzhELVx6Hg9Wo3CjvlMO+DPsvSUzO+pg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kevin Groeneveld <kgroeneveld@lenbrook.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 085/124] dmaengine: imx-sdma: fix init of uart scripts
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 091/146] mm, hugetlb: allow for "high" userspace addresses
 Date:   Tue, 26 Apr 2022 10:21:26 +0200
-Message-Id: <20220426081749.717496684@linuxfoundation.org>
+Message-Id: <20220426081752.616201976@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
-References: <20220426081747.286685339@linuxfoundation.org>
+In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
+References: <20220426081750.051179617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,103 +57,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Groeneveld <kgroeneveld@lenbrook.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit a3ae97f4c87d9570e7e9a3e3324c443757f6e29a upstream.
+commit 5f24d5a579d1eace79d505b148808a850b417d4c upstream.
 
-Commit b98ce2f4e32b ("dmaengine: imx-sdma: add uart rom script") broke
-uart rx on imx5 when using sdma firmware from older Freescale 2.6.35
-kernel. In this case reading addr->uartXX_2_mcu_addr was going out of
-bounds of the firmware memory and corrupting the uart script addresses.
+This is a fix for commit f6795053dac8 ("mm: mmap: Allow for "high"
+userspace addresses") for hugetlb.
 
-Simply adding a bounds check before accessing addr->uartXX_2_mcu_addr
-does not work as the uartXX_2_mcu_addr members are now beyond the size
-of the older firmware and the uart addresses would never be populated
-in that case. There are other ways to fix this but overall the logic
-seems clearer to me to revert the uartXX_2_mcu_ram_addr structure
-entries back to uartXX_2_mcu_addr, change the newer entries to
-uartXX_2_mcu_rom_addr and update the logic accordingly.
+This patch adds support for "high" userspace addresses that are
+optionally supported on the system and have to be requested via a hint
+mechanism ("high" addr parameter to mmap).
 
-I have tested this patch on:
-1. An i.MX53 system with sdma firmware from Freescale 2.6.35 kernel.
-   Without this patch uart rx is broken in this scenario, with the
-   patch uart rx is restored.
-2. An i.MX6D system with no external sdma firmware. uart is okay with
-   or without this patch.
-3. An i.MX8MM system using current sdma-imx7d.bin firmware from
-   linux-firmware. uart is okay with or without this patch and I
-   confirmed the rom version of the uart script is being used which was
-   the intention and reason for commit b98ce2f4e32b ("dmaengine:
-   imx-sdma: add uart rom script") in the first place.
+Architectures such as powerpc and x86 achieve this by making changes to
+their architectural versions of hugetlb_get_unmapped_area() function.
+However, arm64 uses the generic version of that function.
 
-Fixes: b98ce2f4e32b ("dmaengine: imx-sdma: add uart rom script")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kevin Groeneveld <kgroeneveld@lenbrook.com>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/20220410223118.15086-1-kgroeneveld@lenbrook.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+So take into account arch_get_mmap_base() and arch_get_mmap_end() in
+hugetlb_get_unmapped_area().  To allow that, move those two macros out
+of mm/mmap.c into include/linux/sched/mm.h
+
+If these macros are not defined in architectural code then they default
+to (TASK_SIZE) and (base) so should not introduce any behavioural
+changes to architectures that do not define them.
+
+For the time being, only ARM64 is affected by this change.
+
+Catalin (ARM64) said
+ "We should have fixed hugetlb_get_unmapped_area() as well when we added
+  support for 52-bit VA. The reason for commit f6795053dac8 was to
+  prevent normal mmap() from returning addresses above 48-bit by default
+  as some user-space had hard assumptions about this.
+
+  It's a slight ABI change if you do this for hugetlb_get_unmapped_area()
+  but I doubt anyone would notice. It's more likely that the current
+  behaviour would cause issues, so I'd rather have them consistent.
+
+  Basically when arm64 gained support for 52-bit addresses we did not
+  want user-space calling mmap() to suddenly get such high addresses,
+  otherwise we could have inadvertently broken some programs (similar
+  behaviour to x86 here). Hence we added commit f6795053dac8. But we
+  missed hugetlbfs which could still get such high mmap() addresses. So
+  in theory that's a potential regression that should have bee addressed
+  at the same time as commit f6795053dac8 (and before arm64 enabled
+  52-bit addresses)"
+
+Link: https://lkml.kernel.org/r/ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu
+Fixes: f6795053dac8 ("mm: mmap: Allow for "high" userspace addresses")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: <stable@vger.kernel.org>	[5.0.x]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/imx-sdma.c |   28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ fs/hugetlbfs/inode.c     |    9 +++++----
+ include/linux/sched/mm.h |    8 ++++++++
+ mm/mmap.c                |    8 --------
+ 3 files changed, 13 insertions(+), 12 deletions(-)
 
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -198,12 +198,12 @@ struct sdma_script_start_addrs {
- 	s32 per_2_firi_addr;
- 	s32 mcu_2_firi_addr;
- 	s32 uart_2_per_addr;
--	s32 uart_2_mcu_ram_addr;
-+	s32 uart_2_mcu_addr;
- 	s32 per_2_app_addr;
- 	s32 mcu_2_app_addr;
- 	s32 per_2_per_addr;
- 	s32 uartsh_2_per_addr;
--	s32 uartsh_2_mcu_ram_addr;
-+	s32 uartsh_2_mcu_addr;
- 	s32 per_2_shp_addr;
- 	s32 mcu_2_shp_addr;
- 	s32 ata_2_mcu_addr;
-@@ -232,8 +232,8 @@ struct sdma_script_start_addrs {
- 	s32 mcu_2_ecspi_addr;
- 	s32 mcu_2_sai_addr;
- 	s32 sai_2_mcu_addr;
--	s32 uart_2_mcu_addr;
--	s32 uartsh_2_mcu_addr;
-+	s32 uart_2_mcu_rom_addr;
-+	s32 uartsh_2_mcu_rom_addr;
- 	/* End of v3 array */
- 	s32 mcu_2_zqspi_addr;
- 	/* End of v4 array */
-@@ -1780,17 +1780,17 @@ static void sdma_add_scripts(struct sdma
- 			saddr_arr[i] = addr_arr[i];
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -206,7 +206,7 @@ hugetlb_get_unmapped_area_bottomup(struc
+ 	info.flags = 0;
+ 	info.length = len;
+ 	info.low_limit = current->mm->mmap_base;
+-	info.high_limit = TASK_SIZE;
++	info.high_limit = arch_get_mmap_end(addr);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	return vm_unmapped_area(&info);
+@@ -222,7 +222,7 @@ hugetlb_get_unmapped_area_topdown(struct
+ 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
+ 	info.length = len;
+ 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
+-	info.high_limit = current->mm->mmap_base;
++	info.high_limit = arch_get_mmap_base(addr, current->mm->mmap_base);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	addr = vm_unmapped_area(&info);
+@@ -237,7 +237,7 @@ hugetlb_get_unmapped_area_topdown(struct
+ 		VM_BUG_ON(addr != -ENOMEM);
+ 		info.flags = 0;
+ 		info.low_limit = current->mm->mmap_base;
+-		info.high_limit = TASK_SIZE;
++		info.high_limit = arch_get_mmap_end(addr);
+ 		addr = vm_unmapped_area(&info);
+ 	}
  
- 	/*
--	 * get uart_2_mcu_addr/uartsh_2_mcu_addr rom script specially because
--	 * they are now replaced by uart_2_mcu_ram_addr/uartsh_2_mcu_ram_addr
--	 * to be compatible with legacy freescale/nxp sdma firmware, and they
--	 * are located in the bottom part of sdma_script_start_addrs which are
--	 * beyond the SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V1.
-+	 * For compatibility with NXP internal legacy kernel before 4.19 which
-+	 * is based on uart ram script and mainline kernel based on uart rom
-+	 * script, both uart ram/rom scripts are present in newer sdma
-+	 * firmware. Use the rom versions if they are present (V3 or newer).
- 	 */
--	if (addr->uart_2_mcu_addr)
--		sdma->script_addrs->uart_2_mcu_addr = addr->uart_2_mcu_addr;
--	if (addr->uartsh_2_mcu_addr)
--		sdma->script_addrs->uartsh_2_mcu_addr = addr->uartsh_2_mcu_addr;
--
-+	if (sdma->script_number >= SDMA_SCRIPT_ADDRS_ARRAY_SIZE_V3) {
-+		if (addr->uart_2_mcu_rom_addr)
-+			sdma->script_addrs->uart_2_mcu_addr = addr->uart_2_mcu_rom_addr;
-+		if (addr->uartsh_2_mcu_rom_addr)
-+			sdma->script_addrs->uartsh_2_mcu_addr = addr->uartsh_2_mcu_rom_addr;
-+	}
+@@ -251,6 +251,7 @@ hugetlb_get_unmapped_area(struct file *f
+ 	struct mm_struct *mm = current->mm;
+ 	struct vm_area_struct *vma;
+ 	struct hstate *h = hstate_file(file);
++	const unsigned long mmap_end = arch_get_mmap_end(addr);
+ 
+ 	if (len & ~huge_page_mask(h))
+ 		return -EINVAL;
+@@ -266,7 +267,7 @@ hugetlb_get_unmapped_area(struct file *f
+ 	if (addr) {
+ 		addr = ALIGN(addr, huge_page_size(h));
+ 		vma = find_vma(mm, addr);
+-		if (TASK_SIZE - len >= addr &&
++		if (mmap_end - len >= addr &&
+ 		    (!vma || addr + len <= vm_start_gap(vma)))
+ 			return addr;
+ 	}
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -135,6 +135,14 @@ static inline void mm_update_next_owner(
+ #endif /* CONFIG_MEMCG */
+ 
+ #ifdef CONFIG_MMU
++#ifndef arch_get_mmap_end
++#define arch_get_mmap_end(addr)	(TASK_SIZE)
++#endif
++
++#ifndef arch_get_mmap_base
++#define arch_get_mmap_base(addr, base) (base)
++#endif
++
+ extern void arch_pick_mmap_layout(struct mm_struct *mm,
+ 				  struct rlimit *rlim_stack);
+ extern unsigned long
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2119,14 +2119,6 @@ unsigned long vm_unmapped_area(struct vm
+ 	return addr;
  }
  
- static void sdma_load_firmware(const struct firmware *fw, void *context)
+-#ifndef arch_get_mmap_end
+-#define arch_get_mmap_end(addr)	(TASK_SIZE)
+-#endif
+-
+-#ifndef arch_get_mmap_base
+-#define arch_get_mmap_base(addr, base) (base)
+-#endif
+-
+ /* Get an address range which is currently unmapped.
+  * For shmat() with addr=0.
+  *
 
 
