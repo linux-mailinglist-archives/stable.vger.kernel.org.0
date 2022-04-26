@@ -2,123 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D92F50EF1C
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 05:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D83C050F007
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 06:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242880AbiDZDWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 25 Apr 2022 23:22:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49432 "EHLO
+        id S244109AbiDZEuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 00:50:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232679AbiDZDWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 25 Apr 2022 23:22:39 -0400
-Received: from mail1.bemta34.messagelabs.com (mail1.bemta34.messagelabs.com [195.245.231.2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5C85939B3;
-        Mon, 25 Apr 2022 20:19:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fujitsu.com;
-        s=170520fj; t=1650943171; i=@fujitsu.com;
-        bh=8H4EYBmAmvlD4ppPy7czpIZvvSugYPtrUgavqYgtwHU=;
-        h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-         MIME-Version:Content-Type;
-        b=jkkgporBoA4Ux3kMbPf/FzsmiT8WrCB0YX7xhPQc7iknsE2PlSgsvVQP2aF0gpAKD
-         3UWrWlrgWNFYIJwKY6YkyzUKoHMkTRIqnxz6NRKJrFCPSP+gg1263kip8ZGSJ+aL4O
-         NAG5f2uqTg6gOs46MLle5kz7JlQHCjIyyqzf0hKJxlIrO5fYQoIQ2RHv8uckZBzk+l
-         OQkU4kspTCDxcIwPAg4bufkOsk8g0O77U9pFl40GKG7dK1VDFjboU2fOwUJBWW46g3
-         dkFj+xCAo++ud2H3ob+GwzQfJpxtOrFeO6Zij5AwaPU+dMrQPCyb+q+k9c5//+qBZG
-         Kg0YmpP1r1BPw==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmplleJIrShJLcpLzFFi42Kxs+FI1D2Ykp5
-  k0LtD1OL14U+MFh9uTmKy2HLsHqPF5Sd8Fj+XrWK32LP3JIvFgo2PGC3O/z3OavH7xxw2B06P
-  U4skPDav0PLYtKqTzePzJjmPTU/eMgWwRrFm5iXlVySwZszd+5a5YBNnxYYJu9gbGDs4uhi5O
-  IQEtjBKdK3/wQThLGCSWPx2FxuEs4dRYlrfKpYuRk4ONgFNiWedC5hBbBEBR4kX7TNYQIqYBc
-  4ySnTMWMQOkhAWcJLYfPsFWAOLgKrEhtkLmEBsXgEPiZ5Ta8FqJAQUJKY8fA82iFPAU+LX8XY
-  2EFsIqGbF0lmMEPWCEidnPgGbwywgIXHwxQtmiF5FiUsd3xgh7AqJWbPamCBsNYmr5zYxT2AU
-  nIWkfRaS9gWMTKsYrZOKMtMzSnITM3N0DQ0MdA0NTXWNLXWNDAz0Eqt0E/VSS3XLU4tLdI30E
-  suL9VKLi/WKK3OTc1L08lJLNjECYyelWP3EDsanK3/qHWKU5GBSEuXdkpSeJMSXlJ9SmZFYnB
-  FfVJqTWnyIUYaDQ0mClxUkJ1iUmp5akZaZA4xjmLQEB4+SCG8ZSJq3uCAxtzgzHSJ1ilFRSpz
-  XBRj9QgIgiYzSPLg2WOq4xCgrJczLyMDAIMRTkFqUm1mCKv+KUZyDUUmYlwNkCk9mXgnc9FdA
-  i5mAFn+qTQVZXJKIkJJqYNowc+8M34V6f39enJ/y9hTnnqfGF6eGKEhUdp7sP3E6Yd83H7Gzq
-  hN2LPG3q153aKaxruy7nz+XqYTycwUfzSzgqLBpr2qxWsCb8XWOVyqb4AGlY8FRmediJe2r50
-  ++UR9qE7pxnrrbgkePJlno8HFMeCt74FSS3aNqkcDqV9OueXxWvZe+l0HwwV273IjdohlPvn3
-  f+NNA4uJa2bB3U8/K/WvfLt1x+9GhUr+Tv/ff2sGz4FGBErN8dPHGp+kndrjeunTk3M49P6Qv
-  TXJjFhJkrsqwvz9POJH59ledbP1IFpb4cDv5Bi7jgJ3JG//0nU6YemXvgm+uzk8Dr+2/m8y34
-  SKX7v99Jozbz29Y2rtCiaU4I9FQi7moOBEA7/479JgDAAA=
-X-Env-Sender: xuyang2018.jy@fujitsu.com
-X-Msg-Ref: server-5.tower-565.messagelabs.com!1650943169!150990!1
-X-Originating-IP: [62.60.8.97]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.85.8; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 16073 invoked from network); 26 Apr 2022 03:19:29 -0000
-Received: from unknown (HELO n03ukasimr01.n03.fujitsu.local) (62.60.8.97)
-  by server-5.tower-565.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 26 Apr 2022 03:19:29 -0000
-Received: from n03ukasimr01.n03.fujitsu.local (localhost [127.0.0.1])
-        by n03ukasimr01.n03.fujitsu.local (Postfix) with ESMTP id C0BC3100191;
-        Tue, 26 Apr 2022 04:19:28 +0100 (BST)
-Received: from R01UKEXCASM126.r01.fujitsu.local (unknown [10.183.43.178])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by n03ukasimr01.n03.fujitsu.local (Postfix) with ESMTPS id 985FA10004D;
-        Tue, 26 Apr 2022 04:19:28 +0100 (BST)
-Received: from localhost.localdomain (10.167.220.84) by
- R01UKEXCASM126.r01.fujitsu.local (10.183.43.178) with Microsoft SMTP Server
- (TLS) id 15.0.1497.32; Tue, 26 Apr 2022 04:19:00 +0100
-From:   Yang Xu <xuyang2018.jy@fujitsu.com>
-To:     <linux-fsdevel@vger.kernel.org>, <ceph-devel@vger.kernel.org>
-CC:     <viro@zeniv.linux.org.uk>, <david@fromorbit.com>,
-        <djwong@kernel.org>, <brauner@kernel.org>, <willy@infradead.org>,
-        <jlayton@kernel.org>, Yang Xu <xuyang2018.jy@fujitsu.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v7 2/4] fs: Add missing umask strip in vfs_tmpfile
-Date:   Tue, 26 Apr 2022 12:19:50 +0800
-Message-ID: <1650946792-9545-2-git-send-email-xuyang2018.jy@fujitsu.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1650946792-9545-1-git-send-email-xuyang2018.jy@fujitsu.com>
-References: <1650946792-9545-1-git-send-email-xuyang2018.jy@fujitsu.com>
+        with ESMTP id S230037AbiDZEuc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 00:50:32 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052BA37003
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 21:47:26 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id x18so23722812wrc.0
+        for <stable@vger.kernel.org>; Mon, 25 Apr 2022 21:47:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:from:mime-version:content-transfer-encoding
+         :content-description:subject:to:date:reply-to;
+        bh=wOncCm4D5xaKJK+xUihNEE4S2KHHwIL9rFi6rUKg53w=;
+        b=ZXx6rCgU8U64M6ndJX0OIIi8muJmths3Rek451RmxlvnpHC1oykT14WYsyfsu7mNhp
+         sBqQ7/hEMo72OfKQ4gPYKHEsXoBymizI2vq8P3czpC9fJVWFyyB6HmOpDhPLlrAYI+29
+         d/hiRQNXx8AD7c5gaNwbc19bPAs/GJoDh9YrgZcNxyNAQvQfp7DwOHeH5js0wlXhZ8Wb
+         ehIJi1yhxJcSyYC2Dca7qrTBAxUiOwyMyE93HOSdS7pn9++0CKIP5eNxvYhSmzxFGUlX
+         BCXfkrVNg3f94fYE/8RDnHPL2Is/pqZnPVNM5oIpwR2dneXEqB+xN8KrGMzLkfQ7aaix
+         OEyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:from:mime-version
+         :content-transfer-encoding:content-description:subject:to:date
+         :reply-to;
+        bh=wOncCm4D5xaKJK+xUihNEE4S2KHHwIL9rFi6rUKg53w=;
+        b=2jcZZPqh8Zazs/LhIjurt0CtMyT02bF3ox9CumDlKofR07c8cnof07IwDESHUHXHN1
+         pEK4nAf6viJN0dKjYGxTYGJX9Twa7Cn+gLeD3rvYLDOL0p5SObbfxggnG5pdd+jpzORA
+         SmY9MNqqNfPB0g98o7TQBFWlF3H2dRKca9jF2L9C2xpjMf90usYeMbINwdLtbQXw6wLm
+         r1TdPIJwMgy4q7i0Ps137t4LVeZ3TnB1fxBNLyXdqdMNZxmqOWSalHDfnNJ2xsnd3ZT/
+         Fa97k6NpGjHZUYUEukefmP43GFeAtA0txpZCMtgdGI5io0K8fUZOUvMS91P7xFnNOv0p
+         FLsg==
+X-Gm-Message-State: AOAM530EUfvF3TOVXj48Z75oWinztxWs1KTPH4racmUVR8qeEJupQcmr
+        5ahRR7xFRYh2vPVyUyT266I=
+X-Google-Smtp-Source: ABdhPJykqyYcAexPlClCIYDR3UYCq4hzzjO5HF5BjHILpLLf0nz9A8XETayC5XN79cPQ+RDCUybarw==
+X-Received: by 2002:adf:fc52:0:b0:20a:e296:6e8a with SMTP id e18-20020adffc52000000b0020ae2966e8amr2249000wrs.432.1650948444545;
+        Mon, 25 Apr 2022 21:47:24 -0700 (PDT)
+Received: from [192.168.43.217] ([102.89.45.245])
+        by smtp.gmail.com with ESMTPSA id u19-20020a05600c19d300b00393f081d49fsm2018745wmq.2.2022.04.25.21.47.10
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Mon, 25 Apr 2022 21:47:23 -0700 (PDT)
+Message-ID: <6267795b.1c69fb81.47772.c30e@mx.google.com>
+From:   "''Sharon Sanosy''" <sillr429@gmail.com>
+X-Google-Original-From: ''Sharon Sanosy''  <m.milan@att.net>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.167.220.84]
-X-ClientProxiedBy: G08CNEXCHPEKD07.g08.fujitsu.local (10.167.33.80) To
- R01UKEXCASM126.r01.fujitsu.local (10.183.43.178)
-X-Virus-Scanned: ClamAV using ClamSMTP
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: SANOSYL ENERGY, OIL & GAS
+To:     Recipients <m.milan@att.net>
+Date:   Tue, 26 Apr 2022 12:47:33 +0800
+Reply-To: info@sanosylenergy.com
+X-Antivirus: AVG (VPS 220425-8, 4/25/2022), Outbound message
+X-Antivirus-Status: Clean
+X-Spam-Status: No, score=4.4 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
+        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,LOTS_OF_MONEY,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,SUBJ_ALL_CAPS,US_DOLLARS_3
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-All creation paths except for O_TMPFILE handle umask in the vfs directly
-if the filesystem doesn't support or enable POSIX ACLs. If the filesystem
-does then umask handling is deferred until posix_acl_create().
-Because, O_TMPFILE misses umask handling in the vfs it will not honor
-umask settings. Fix this by adding the missing umask handling.
+Good day! I know this email might be a surprise to you, due to the
+fact that we have never met before, I got your email contact from
+WORLD TRADE UNION and I believed that you will be of help to this deal
+I am proposing to you.
 
-Fixes: 60545d0d4610 ("[O_TMPFILE] it's still short a few helpers, but infrastructure should be OK now...")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reported-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
----
- fs/namei.c | 2 ++
- 1 file changed, 2 insertions(+)
+I am Mrs. Sharon Sanosy, I need your assistant to help me  retrieve my
+late husband=E2=80=99s Fund $500,000,000.00 which he deposited in a SECURIT=
+Y
+BANK. He was  CEO of  SANOSYL ENERGY, OIL & GAS. TEXAS. My husband Dr.
+PAUL POLMAN SANOSY died last year of the COVID19 pandemic, I wish to 
+have a deal with you regarding the fund.
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 509657fdf4f5..73646e28fae0 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -3521,6 +3521,8 @@ struct dentry *vfs_tmpfile(struct user_namespace *mnt_userns,
- 	child = d_alloc(dentry, &slash_name);
- 	if (unlikely(!child))
- 		goto out_err;
-+	if (!IS_POSIXACL(dir))
-+		mode &= ~current_umask();
- 	error = dir->i_op->tmpfile(mnt_userns, dir, child, mode);
- 	if (error)
- 		goto out_err;
+As a result of his sudden death his business associates are trying to
+rip me off my late husband=E2=80=99s assets and heirlooms which he had left=
+
+for me before his painful demise. I want you to help me retrieve the
+FUND from the Bank, as my late Husband=E2=80=99s Business partner.
+
+l ready and willing to divulge more information to you upon your
+positive response. Please let me know your thoughts . Kindly reply
+through this  email: info@sanosylenergy.com
+
+Yours faithfully,
+Mrs. Sharon Sanosy
+
 -- 
-2.27.0
+This email has been checked for viruses by AVG.
+https://www.avg.com
 
