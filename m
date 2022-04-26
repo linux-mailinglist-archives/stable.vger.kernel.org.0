@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F95250F839
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 11:43:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B8850F50F
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346298AbiDZJIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 05:08:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54272 "EHLO
+        id S234795AbiDZIlJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:41:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347870AbiDZJGT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 05:06:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A39A76CF;
-        Tue, 26 Apr 2022 01:46:31 -0700 (PDT)
+        with ESMTP id S1345759AbiDZIj2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE9451DA7D;
+        Tue, 26 Apr 2022 01:30:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97740604F5;
-        Tue, 26 Apr 2022 08:46:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DEB7C385A4;
-        Tue, 26 Apr 2022 08:46:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 123EBB81CFA;
+        Tue, 26 Apr 2022 08:30:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 643A3C385AE;
+        Tue, 26 Apr 2022 08:30:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650962790;
-        bh=V926YmHTdA7rACZ2zyMbnrRNHwioqQYNO8bk8iUKYCI=;
+        s=korg; t=1650961849;
+        bh=Eo6mTp73waa3f5yP2nmLHCgRXXu0Ial0krgj6rRKqJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/p+qPnyY7TxAi/znFiU4BhYWsi8z5T9EdbxVTNOSRLmwh/mqf0Tr6aIVBX3C1agN
-         dYRVUmhy/hV14B9pFOHhzpq58jktW5RQXp/puJcuWPLwrVbq+X8XkKwNdePi9q+mpw
-         8/DgO7PYZuDbP9mMEWk98CcnFgyzHKrDTT2JMUpU=
+        b=r3HA4AQAxKUZrZ0E0hOrhZg4FSFWLmSxDrO6iTpZcTHuALl3RzhJrY7GvO1c1q5Lc
+         dK/PSeNakVvYKCVrMZg3/LlXLyxvaoKhKqRE5M7hcIvPlZaTUt20i7Vnm/d5mg4Si6
+         W0SK1ZOXb3r/GRe08YMLrwcvuCYHpes2YMV5xTfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Yu <xuyu@linux.alibaba.com>,
-        Abaci <abaci@linux.alibaba.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 089/146] mm/memory-failure.c: skip huge_zero_page in memory_failure()
+        stable@vger.kernel.org,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 44/62] powerpc/perf: Fix power9 event alternatives
 Date:   Tue, 26 Apr 2022 10:21:24 +0200
-Message-Id: <20220426081752.561084976@linuxfoundation.org>
+Message-Id: <20220426081738.485907049@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081750.051179617@linuxfoundation.org>
-References: <20220426081750.051179617@linuxfoundation.org>
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
+References: <20220426081737.209637816@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,95 +55,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yu <xuyu@linux.alibaba.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-commit d173d5417fb67411e623d394aab986d847e47dad upstream.
+[ Upstream commit 0dcad700bb2776e3886fe0a645a4bf13b1e747cd ]
 
-Kernel panic when injecting memory_failure for the global
-huge_zero_page, when CONFIG_DEBUG_VM is enabled, as follows.
+When scheduling a group of events, there are constraint checks done to
+make sure all events can go in a group. Example, one of the criteria is
+that events in a group cannot use the same PMC. But platform specific
+PMU supports alternative event for some of the event codes. During
+perf_event_open(), if any event group doesn't match constraint check
+criteria, further lookup is done to find alternative event.
 
-  Injecting memory failure for pfn 0x109ff9 at process virtual address 0x20ff9000
-  page:00000000fb053fc3 refcount:2 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x109e00
-  head:00000000fb053fc3 order:9 compound_mapcount:0 compound_pincount:0
-  flags: 0x17fffc000010001(locked|head|node=0|zone=2|lastcpupid=0x1ffff)
-  raw: 017fffc000010001 0000000000000000 dead000000000122 0000000000000000
-  raw: 0000000000000000 0000000000000000 00000002ffffffff 0000000000000000
-  page dumped because: VM_BUG_ON_PAGE(is_huge_zero_page(head))
-  ------------[ cut here ]------------
-  kernel BUG at mm/huge_memory.c:2499!
-  invalid opcode: 0000 [#1] PREEMPT SMP PTI
-  CPU: 6 PID: 553 Comm: split_bug Not tainted 5.18.0-rc1+ #11
-  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 3288b3c 04/01/2014
-  RIP: 0010:split_huge_page_to_list+0x66a/0x880
-  Code: 84 9b fb ff ff 48 8b 7c 24 08 31 f6 e8 9f 5d 2a 00 b8 b8 02 00 00 e9 e8 fb ff ff 48 c7 c6 e8 47 3c 82 4c b
-  RSP: 0018:ffffc90000dcbdf8 EFLAGS: 00010246
-  RAX: 000000000000003c RBX: 0000000000000001 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffffffff823e4c4f RDI: 00000000ffffffff
-  RBP: ffff88843fffdb40 R08: 0000000000000000 R09: 00000000fffeffff
-  R10: ffffc90000dcbc48 R11: ffffffff82d68448 R12: ffffea0004278000
-  R13: ffffffff823c6203 R14: 0000000000109ff9 R15: ffffea000427fe40
-  FS:  00007fc375a26740(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fc3757c9290 CR3: 0000000102174006 CR4: 00000000003706e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   try_to_split_thp_page+0x3a/0x130
-   memory_failure+0x128/0x800
-   madvise_inject_error.cold+0x8b/0xa1
-   __x64_sys_madvise+0x54/0x60
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7fc3754f8bf9
-  Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 8
-  RSP: 002b:00007ffeda93a1d8 EFLAGS: 00000217 ORIG_RAX: 000000000000001c
-  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc3754f8bf9
-  RDX: 0000000000000064 RSI: 0000000000003000 RDI: 0000000020ff9000
-  RBP: 00007ffeda93a200 R08: 0000000000000000 R09: 0000000000000000
-  R10: 00000000ffffffff R11: 0000000000000217 R12: 0000000000400490
-  R13: 00007ffeda93a2e0 R14: 0000000000000000 R15: 0000000000000000
+By current design, the array of alternatives events in PMU code is
+expected to be sorted by column 0. This is because in
+find_alternative() the return criteria is based on event code
+comparison. ie. "event < ev_alt[i][0])". This optimisation is there
+since find_alternative() can be called multiple times. In power9 PMU
+code, the alternative event array is not sorted properly and hence there
+is breakage in finding alternative events.
 
-This makes huge_zero_page bail out explicitly before split in
-memory_failure(), thus the panic above won't happen again.
+To work with existing logic, fix the alternative event array to be
+sorted by column 0 for power9-pmu.c
 
-Link: https://lkml.kernel.org/r/497d3835612610e370c74e697ea3c721d1d55b9c.1649775850.git.xuyu@linux.alibaba.com
-Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Results:
+
+With alternative events, multiplexing can be avoided. That is, for
+example, in power9 PM_LD_MISS_L1 (0x3e054) has alternative event,
+PM_LD_MISS_L1_ALT (0x400f0). This is an identical event which can be
+programmed in a different PMC.
+
+Before:
+
+ # perf stat -e r3e054,r300fc
+
+ Performance counter stats for 'system wide':
+
+           1057860      r3e054              (50.21%)
+               379      r300fc              (49.79%)
+
+       0.944329741 seconds time elapsed
+
+Since both the events are using PMC3 in this case, they are
+multiplexed here.
+
+After:
+
+ # perf stat -e r3e054,r300fc
+
+ Performance counter stats for 'system wide':
+
+           1006948      r3e054
+               182      r300fc
+
+Fixes: 91e0bd1e6251 ("powerpc/perf: Add PM_LD_MISS_L1 and PM_BR_2PATH to power9 event list")
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220419114828.89843-1-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory-failure.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/powerpc/perf/power9-pmu.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -1780,6 +1780,19 @@ try_again:
+diff --git a/arch/powerpc/perf/power9-pmu.c b/arch/powerpc/perf/power9-pmu.c
+index 08c3ef796198..1225f53609a4 100644
+--- a/arch/powerpc/perf/power9-pmu.c
++++ b/arch/powerpc/perf/power9-pmu.c
+@@ -131,11 +131,11 @@ int p9_dd22_bl_ev[] = {
  
- 	if (PageTransHuge(hpage)) {
- 		/*
-+		 * Bail out before SetPageHasHWPoisoned() if hpage is
-+		 * huge_zero_page, although PG_has_hwpoisoned is not
-+		 * checked in set_huge_zero_page().
-+		 *
-+		 * TODO: Handle memory failure of huge_zero_page thoroughly.
-+		 */
-+		if (is_huge_zero_page(hpage)) {
-+			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
-+			res = -EBUSY;
-+			goto unlock_mutex;
-+		}
-+
-+		/*
- 		 * The flag must be set after the refcount is bumped
- 		 * otherwise it may race with THP split.
- 		 * And the flag can't be set in get_hwpoison_page() since
+ /* Table of alternatives, sorted by column 0 */
+ static const unsigned int power9_event_alternatives[][MAX_ALT] = {
+-	{ PM_INST_DISP,			PM_INST_DISP_ALT },
+-	{ PM_RUN_CYC_ALT,		PM_RUN_CYC },
+-	{ PM_RUN_INST_CMPL_ALT,		PM_RUN_INST_CMPL },
+-	{ PM_LD_MISS_L1,		PM_LD_MISS_L1_ALT },
+ 	{ PM_BR_2PATH,			PM_BR_2PATH_ALT },
++	{ PM_INST_DISP,			PM_INST_DISP_ALT },
++	{ PM_RUN_CYC_ALT,               PM_RUN_CYC },
++	{ PM_LD_MISS_L1,                PM_LD_MISS_L1_ALT },
++	{ PM_RUN_INST_CMPL_ALT,         PM_RUN_INST_CMPL },
+ };
+ 
+ static int power9_get_alternatives(u64 event, unsigned int flags, u64 alt[])
+-- 
+2.35.1
+
 
 
