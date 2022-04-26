@@ -2,67 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F154511769
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 14:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 010D9511981
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 16:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234489AbiD0MpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 08:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
+        id S234714AbiD0MyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 08:54:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234440AbiD0MpX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 08:45:23 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 486B52ED51
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 05:42:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1651063333; x=1682599333;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=7BAMJHEu/uZpWQqW4zjmnovM1Ybd5i/f2rUSryqnHoU=;
-  b=lJeWsA4wtFqTNJzncMt2rqJDX2+MoYcU0Fi6otCrKhNUfwObj/D8AP1C
-   t1Xau55j3VGvQtJBhRHe8beklBNEvuIQbgOs2V31SEvb+gmiFqRLf0cao
-   Etsk7eSQv4VhkHuJ6vcxFM2SlJ8dnt78kdiPLvG91gk4xQgKSI1DM25pQ
-   oZ7+MqAla/TlE6meBzptt/2e2ySnqZYN/51flpXoUflfgqM318MX1zpf8
-   q0CuogArkA+v2pB8Zy9utC9U8Id9fYrzHY7c+efpNN8S+HWtBq6Zd3msi
-   6PpSg8nJCFMrZBAEJ0UEoTl6a8VCKqbwdrSe0VnQN9EVt/jrSx2HPu4z/
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10329"; a="247845185"
-X-IronPort-AV: E=Sophos;i="5.90,293,1643702400"; 
-   d="scan'208";a="247845185"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Apr 2022 05:42:12 -0700
-X-IronPort-AV: E=Sophos;i="5.90,293,1643702400"; 
-   d="scan'208";a="580573257"
-Received: from brutrata-mobl.ger.corp.intel.com (HELO intel.com) ([10.252.33.100])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Apr 2022 05:42:11 -0700
-Date:   Wed, 27 Apr 2022 14:42:08 +0200
-From:   Andi Shyti <andi.shyti@linux.intel.com>
-To:     Anusha Srivatsa <anusha.srivatsa@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/dmc: Add MMIO range restrictions
-Message-ID: <Ymk6ICgcRio8zE4g@intel.intel>
-References: <20220427003509.267683-1-anusha.srivatsa@intel.com>
+        with ESMTP id S235034AbiD0MyC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 08:54:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C6971BA79F;
+        Wed, 27 Apr 2022 05:50:51 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E20DA61B41;
+        Wed, 27 Apr 2022 12:50:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E0D2C385A9;
+        Wed, 27 Apr 2022 12:50:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651063850;
+        bh=l6Uv1aghVwRUkGWE9Fea1FBCo3Be8k7dY9Jva4qOpe8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=aNEhdpxQS99prDfh72nIUYHNrqoiN1aK5jb9lW6gWbnc9L5LSTyP7sOfIttEHHPwF
+         kRPdd9I0pSfnM5//n4z0758Kfdu+ueWjNqpCUL8nS1aCGiGlXwSuCWnM5UbJZTWiQ4
+         ALuEx6n4IiPXSZP1CZEFAHV03D2Pj53sdswcYkZrMijV2vMpmL5Hk0xkSijtfDbKuX
+         17aB7vr3VWGRzP+5g/MLal4vWGWJ0bJWJ3DXD7gGQ+TasQcwjs/NeXf91AARFwTLHa
+         0Rbw2reBnut8MISQanW19xpgZhVLxnwiCMG4Skyi7ud32fbLWpPZwJ/kpopOashCAi
+         3ndOdBiRirH4A==
+From:   Chao Yu <chao@kernel.org>
+To:     jaegeuk@kernel.org
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
+        Chao Yu <chao.yu@oppo.com>
+Subject: [PATCH] f2fs: fix to avoid f2fs_bug_on() in dec_valid_node_count()
+Date:   Wed, 27 Apr 2022 01:06:02 +0800
+Message-Id: <20220426170602.7431-1-chao@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220427003509.267683-1-anusha.srivatsa@intel.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-6.6 required=5.0 tests=BAYES_00,DATE_IN_PAST_12_24,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[...]
+As Yanming reported in bugzilla:
 
-> +	if (!dmc_mmio_addr_sanity_check(dmc, mmioaddr, mmio_count, dmc_header->header_ver, dmc_id))
-> +		drm_err(&i915->drm, "DMC firmware has Wrong MMIO Addresses\n");
-> +		return 0;
-> +
+https://bugzilla.kernel.org/show_bug.cgi?id=215897
 
-mh? :)
+I have encountered a bug in F2FS file system in kernel v5.17.
+
+The kernel should enable CONFIG_KASAN=y and CONFIG_KASAN_INLINE=y. You can
+reproduce the bug by running the following commands:
+
+The kernel message is shown below:
+
+kernel BUG at fs/f2fs/f2fs.h:2511!
+Call Trace:
+ f2fs_remove_inode_page+0x2a2/0x830
+ f2fs_evict_inode+0x9b7/0x1510
+ evict+0x282/0x4e0
+ do_unlinkat+0x33a/0x540
+ __x64_sys_unlinkat+0x8e/0xd0
+ do_syscall_64+0x3b/0x90
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The root cause is: .total_valid_block_count or .total_valid_node_count
+could fuzzed to zero, then once dec_valid_node_count() was called, it
+will cause BUG_ON(), this patch fixes to print warning info and set
+SBI_NEED_FSCK into CP instead of panic.
+
+Cc: stable@vger.kernel.org
+Reported-by: Ming Yan <yanming@tju.edu.cn>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+---
+ fs/f2fs/f2fs.h | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index f3eda4f13646..56adc3b68e14 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -2605,11 +2605,17 @@ static inline void dec_valid_node_count(struct f2fs_sb_info *sbi,
+ {
+ 	spin_lock(&sbi->stat_lock);
+ 
+-	f2fs_bug_on(sbi, !sbi->total_valid_block_count);
+-	f2fs_bug_on(sbi, !sbi->total_valid_node_count);
++	if (unlikely(!sbi->total_valid_block_count ||
++			!sbi->total_valid_node_count)) {
++		f2fs_warn(sbi, "dec_valid_node_count: inconsistent block counts, total_valid_block:%u, total_valid_node:%u",
++			  sbi->total_valid_block_count,
++			  sbi->total_valid_node_count);
++		set_sbi_flag(sbi, SBI_NEED_FSCK);
++	} else {
++		sbi->total_valid_block_count--;
++		sbi->total_valid_node_count--;
++	}
+ 
+-	sbi->total_valid_node_count--;
+-	sbi->total_valid_block_count--;
+ 	if (sbi->reserved_blocks &&
+ 		sbi->current_reserved_blocks < sbi->reserved_blocks)
+ 		sbi->current_reserved_blocks++;
+-- 
+2.32.0
+
