@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E2750F4E9
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 623B450F481
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:37:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345447AbiDZIkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:40:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33634 "EHLO
+        id S1345117AbiDZIg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:36:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345569AbiDZIjO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:39:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 622981B782;
-        Tue, 26 Apr 2022 01:30:18 -0700 (PDT)
+        with ESMTP id S1345498AbiDZIek (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:34:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13237762B1;
+        Tue, 26 Apr 2022 01:27:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DA3BB81A2F;
-        Tue, 26 Apr 2022 08:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 759F0C385A0;
-        Tue, 26 Apr 2022 08:30:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4425E617F1;
+        Tue, 26 Apr 2022 08:27:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07E75C385A0;
+        Tue, 26 Apr 2022 08:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961815;
-        bh=H2GVOsN4Wlnmq7iS7cjQO3AXAVt7hMVJpGRKNMcx78Y=;
+        s=korg; t=1650961648;
+        bh=uohlWFwBq9UC0CYbsoaezznRmsKwW5dkGs3AXvj3XO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDwszEN6JZ9N+wraZG0lEidqxzt9ci1HYrfS65ai2yixmau2RB16iuAO6ypx3mwbI
-         oro4gUFNC362PyhLk2eunPpzKw+e/uTbuzjAwJ3EIQkBUy4DQDw1HE42LIyb0UxWYE
-         TkMCkvqt+2UlaUahiidTV4EKAqyIoVzLb2WwPSHA=
+        b=NAjEYCoPu8Cg5Hx93RdZpGYeSyzt869XDG06BkDd7hNqHp8hq/4LC/zHAYdTOAzVD
+         JpxgiHvea1VV3TiLPhU8ie1464rksKOp20e3UTui8e/MO8GUHOTCbsU6/Th//PSogW
+         eTkAAITVc0utVWZYHL2sn2iR2Vsx8HRcHaBiDA9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Subject: [PATCH 5.4 38/62] ata: pata_marvell: Check the bmdma_addr beforing reading
+        stable@vger.kernel.org, Al Grant <al.grant@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 4.19 38/53] arm_pmu: Validate single/group leader events
 Date:   Tue, 26 Apr 2022 10:21:18 +0200
-Message-Id: <20220426081738.315038318@linuxfoundation.org>
+Message-Id: <20220426081736.765051355@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081735.651926456@linuxfoundation.org>
+References: <20220426081735.651926456@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Rob Herring <robh@kernel.org>
 
-commit aafa9f958342db36c17ac2a7f1b841032c96feb4 upstream.
+commit e5c23779f93d45e39a52758ca593bd7e62e9b4be upstream.
 
-Before detecting the cable type on the dma bar, the driver should check
-whether the 'bmdma_addr' is zero, which means the adapter does not
-support DMA, otherwise we will get the following error:
+In the case where there is only a cycle counter available (i.e.
+PMCR_EL0.N is 0) and an event other than CPU cycles is opened, the open
+should fail as the event can never possibly be scheduled. However, the
+event validation when an event is opened is skipped when the group
+leader is opened. Fix this by always validating the group leader events.
 
-[    5.146634] Bad IO access at port 0x1 (return inb(port))
-[    5.147206] WARNING: CPU: 2 PID: 303 at lib/iomap.c:44 ioread8+0x4a/0x60
-[    5.150856] RIP: 0010:ioread8+0x4a/0x60
-[    5.160238] Call Trace:
-[    5.160470]  <TASK>
-[    5.160674]  marvell_cable_detect+0x6e/0xc0 [pata_marvell]
-[    5.161728]  ata_eh_recover+0x3520/0x6cc0
-[    5.168075]  ata_do_eh+0x49/0x3c0
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reported-by: Al Grant <al.grant@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20220408203330.4014015-1-robh@kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/pata_marvell.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/perf/arm_pmu.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/ata/pata_marvell.c
-+++ b/drivers/ata/pata_marvell.c
-@@ -83,6 +83,8 @@ static int marvell_cable_detect(struct a
- 	switch(ap->port_no)
- 	{
- 	case 0:
-+		if (!ap->ioaddr.bmdma_addr)
-+			return ATA_CBL_PATA_UNK;
- 		if (ioread8(ap->ioaddr.bmdma_addr + 1) & 1)
- 			return ATA_CBL_PATA40;
- 		return ATA_CBL_PATA80;
+--- a/drivers/perf/arm_pmu.c
++++ b/drivers/perf/arm_pmu.c
+@@ -321,6 +321,9 @@ validate_group(struct perf_event *event)
+ 	if (!validate_event(event->pmu, &fake_pmu, leader))
+ 		return -EINVAL;
+ 
++	if (event == leader)
++		return 0;
++
+ 	for_each_sibling_event(sibling, leader) {
+ 		if (!validate_event(event->pmu, &fake_pmu, sibling))
+ 			return -EINVAL;
+@@ -418,12 +421,7 @@ __hw_perf_event_init(struct perf_event *
+ 		local64_set(&hwc->period_left, hwc->sample_period);
+ 	}
+ 
+-	if (event->group_leader != event) {
+-		if (validate_group(event) != 0)
+-			return -EINVAL;
+-	}
+-
+-	return 0;
++	return validate_group(event);
+ }
+ 
+ static int armpmu_event_init(struct perf_event *event)
 
 
