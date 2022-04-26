@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 348D150F3EF
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:26:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3BA150F5D0
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240778AbiDZI3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:29:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36074 "EHLO
+        id S238623AbiDZIwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:52:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344692AbiDZI2k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:28:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A123135B19;
-        Tue, 26 Apr 2022 01:24:17 -0700 (PDT)
+        with ESMTP id S1346718AbiDZIuR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 623CE16FE23;
+        Tue, 26 Apr 2022 01:38:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA1F8617F1;
-        Tue, 26 Apr 2022 08:24:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7CD2C385A0;
-        Tue, 26 Apr 2022 08:24:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67F4860A67;
+        Tue, 26 Apr 2022 08:38:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71562C385A0;
+        Tue, 26 Apr 2022 08:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961456;
-        bh=IZI1pv8Ex4cfr00pOxZe1myvfnxTKl2H2WTiS4ekVeI=;
+        s=korg; t=1650962324;
+        bh=T1EzDUfwjggOELHvvCTAYsHts3WIZamAMmLGdfdkNLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bL3ij8jUPa3PMEix5AcEq6F4kCBfwV9mI5DfBVcLhXR99Oq64qLwnutlKkLX16pxF
-         fn7OcWafOdNzEGBBQz6OpzySWe3lgxPSftG5OBE1b+XUVYQbdaNpprGK3RC0vq1CoJ
-         QYOms8PdH+z/UQULbiVwsJ241vq5LnCEnmEgBwa0=
+        b=DLtPytgUrjsAdV1fvqDNqoOHDj/386YsDhJunlF+dgsf6XeHP7cSUUuHmyHRW2DOk
+         W0E7/tqgt8au41YwZvxS5M3HdVEOIoqUKU8Cj8ZQ/nBEQb6XNM7wMrnarr3EqRaQE2
+         Arf5cftSqui/FvC9UsN7MGf3xFApOwNBv2I7Xh5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Steve French <sfrench@samba.org>,
-        Shyam Prasad N <nspmangalore@gmail.com>,
-        Rohith Surabattula <rohiths.msft@gmail.com>,
-        linux-cifs@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/43] cifs: Check the IOCB_DIRECT flag, not O_DIRECT
+Subject: [PATCH 5.15 058/124] drm/msm/disp: check the return value of kzalloc()
 Date:   Tue, 26 Apr 2022 10:20:59 +0200
-Message-Id: <20220426081735.026599886@linuxfoundation.org>
+Message-Id: <20220426081748.950560919@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081734.509314186@linuxfoundation.org>
-References: <20220426081734.509314186@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,37 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit 994fd530a512597ffcd713b0f6d5bc916c5698f0 ]
+[ Upstream commit f75e582b0c3ee8f0bddc2248cc8b9175f29c5937 ]
 
-Use the IOCB_DIRECT indicator flag on the I/O context rather than checking to
-see if the file was opened O_DIRECT.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check it to
+prevent potential wrong memory access.
 
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Steve French <sfrench@samba.org>
-cc: Shyam Prasad N <nspmangalore@gmail.com>
-cc: Rohith Surabattula <rohiths.msft@gmail.com>
-cc: linux-cifs@vger.kernel.org
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
+Link: https://lore.kernel.org/r/tencent_B3E19486FF39415098B572B7397C2936C309@qq.com
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index dba0d12c3db1..1d3f98572068 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -773,7 +773,7 @@ cifs_loose_read_iter(struct kiocb *iocb, struct iov_iter *iter)
- 	ssize_t rc;
- 	struct inode *inode = file_inode(iocb->ki_filp);
+diff --git a/drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c b/drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c
+index cabe15190ec1..369e57f73a47 100644
+--- a/drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c
++++ b/drivers/gpu/drm/msm/disp/msm_disp_snapshot_util.c
+@@ -169,6 +169,8 @@ void msm_disp_snapshot_add_block(struct msm_disp_state *disp_state, u32 len,
+ 	va_list va;
  
--	if (iocb->ki_filp->f_flags & O_DIRECT)
-+	if (iocb->ki_flags & IOCB_DIRECT)
- 		return cifs_user_readv(iocb, iter);
+ 	new_blk = kzalloc(sizeof(struct msm_disp_state_block), GFP_KERNEL);
++	if (!new_blk)
++		return;
  
- 	rc = cifs_revalidate_mapping(inode);
+ 	va_start(va, fmt);
+ 
 -- 
 2.35.1
 
