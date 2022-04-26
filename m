@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D8C750F46F
-	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F95350F662
+	for <lists+stable@lfdr.de>; Tue, 26 Apr 2022 10:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239628AbiDZIhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 04:37:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36944 "EHLO
+        id S235210AbiDZIwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 04:52:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345103AbiDZIfi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:35:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84D28595F;
-        Tue, 26 Apr 2022 01:28:57 -0700 (PDT)
+        with ESMTP id S1346533AbiDZIuJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 04:50:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720D514C3F0;
+        Tue, 26 Apr 2022 01:38:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A0ADB81CAF;
-        Tue, 26 Apr 2022 08:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A39C385A4;
-        Tue, 26 Apr 2022 08:28:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AA3160C4A;
+        Tue, 26 Apr 2022 08:38:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A023AC385A4;
+        Tue, 26 Apr 2022 08:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1650961735;
-        bh=k6LJWplTqIP4iynBoUVkI1G6phkHQXVkwOV33uvQP48=;
+        s=korg; t=1650962303;
+        bh=FJrOSWDpdzwdtuPtPjQ59biReYwoyVznx2mr8ink2CE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jemHM3HQ2jjnM6MdASnuRBI8djAqstp6Dky2241sHnY/xSEl9kxk8v0+iz3DJBghN
-         u7eBGSB9HsT7TvBlO9rjdN+oenUWx2f+nX9Rz7MTQSv6D5gUbq16pHZNAYkNlq/WD+
-         Yy8quIUYL54JyycVgmUEmIRQOMOTUS1sXbopnidM=
+        b=RSejPBqGC5hcrnzIYv/vrzlOXnZdREzYEzC2EUuCUSbBr75XoIPlX9714qBV/JSKp
+         oiSZj4JddVEAlqi3VKu8kszrukCx6DPbbjAMaQb6Bf7yLGwVh8AQtUbFLiC2P5q30I
+         a5WCPkF8K2q7Vpb+jrirh7wc0PL5DZTptGu+2KZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/62] dmaengine: mediatek:Fix PM usage reference leak of mtk_uart_apdma_alloc_chan_resources
+        stable@vger.kernel.org, Qian Cai <quic_qiancai@quicinc.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 052/124] arm64: mm: fix p?d_leaf()
 Date:   Tue, 26 Apr 2022 10:20:53 +0200
-Message-Id: <20220426081737.607593955@linuxfoundation.org>
+Message-Id: <20220426081748.781082477@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
-References: <20220426081737.209637816@linuxfoundation.org>
+In-Reply-To: <20220426081747.286685339@linuxfoundation.org>
+References: <20220426081747.286685339@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,63 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangqilong <zhangqilong3@huawei.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 545b2baac89b859180e51215468c05d85ea8465a ]
+[ Upstream commit 23bc8f69f0eceecbb87c3801d2e48827d2dca92b ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-We fix it:
-1) Replacing it with pm_runtime_resume_and_get to keep usage counter
-   balanced.
-2) Add putting operation before returning error.
+The pmd_leaf() is used to test a leaf mapped PMD, however, it misses
+the PROT_NONE mapped PMD on arm64.  Fix it.  A real world issue [1]
+caused by this was reported by Qian Cai. Also fix pud_leaf().
 
-Fixes:9135408c3ace4 ("dmaengine: mediatek: Add MediaTek UART APDMA support")
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220319022142.142709-1-zhangqilong3@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://patchwork.kernel.org/comment/24798260/ [1]
+Fixes: 8aa82df3c123 ("arm64: mm: add p?d_leaf() definitions")
+Reported-by: Qian Cai <quic_qiancai@quicinc.com>
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Link: https://lore.kernel.org/r/20220422060033.48711-1-songmuchun@bytedance.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/mediatek/mtk-uart-apdma.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/pgtable.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/mediatek/mtk-uart-apdma.c b/drivers/dma/mediatek/mtk-uart-apdma.c
-index 9c0ea13ca788..7718d09e3d29 100644
---- a/drivers/dma/mediatek/mtk-uart-apdma.c
-+++ b/drivers/dma/mediatek/mtk-uart-apdma.c
-@@ -274,7 +274,7 @@ static int mtk_uart_apdma_alloc_chan_resources(struct dma_chan *chan)
- 	unsigned int status;
- 	int ret;
+diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
+index 08363d3cc1da..ed57717cd004 100644
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -535,7 +535,7 @@ extern pgprot_t phys_mem_access_prot(struct file *file, unsigned long pfn,
+ 				 PMD_TYPE_TABLE)
+ #define pmd_sect(pmd)		((pmd_val(pmd) & PMD_TYPE_MASK) == \
+ 				 PMD_TYPE_SECT)
+-#define pmd_leaf(pmd)		pmd_sect(pmd)
++#define pmd_leaf(pmd)		(pmd_present(pmd) && !pmd_table(pmd))
+ #define pmd_bad(pmd)		(!pmd_table(pmd))
  
--	ret = pm_runtime_get_sync(mtkd->ddev.dev);
-+	ret = pm_runtime_resume_and_get(mtkd->ddev.dev);
- 	if (ret < 0) {
- 		pm_runtime_put_noidle(chan->device->dev);
- 		return ret;
-@@ -288,18 +288,21 @@ static int mtk_uart_apdma_alloc_chan_resources(struct dma_chan *chan)
- 	ret = readx_poll_timeout(readl, c->base + VFF_EN,
- 			  status, !status, 10, 100);
- 	if (ret)
--		return ret;
-+		goto err_pm;
+ #define pmd_leaf_size(pmd)	(pmd_cont(pmd) ? CONT_PMD_SIZE : PMD_SIZE)
+@@ -625,7 +625,7 @@ static inline unsigned long pmd_page_vaddr(pmd_t pmd)
+ #define pud_none(pud)		(!pud_val(pud))
+ #define pud_bad(pud)		(!pud_table(pud))
+ #define pud_present(pud)	pte_present(pud_pte(pud))
+-#define pud_leaf(pud)		pud_sect(pud)
++#define pud_leaf(pud)		(pud_present(pud) && !pud_table(pud))
+ #define pud_valid(pud)		pte_valid(pud_pte(pud))
  
- 	ret = request_irq(c->irq, mtk_uart_apdma_irq_handler,
- 			  IRQF_TRIGGER_NONE, KBUILD_MODNAME, chan);
- 	if (ret < 0) {
- 		dev_err(chan->device->dev, "Can't request dma IRQ\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_pm;
- 	}
- 
- 	if (mtkd->support_33bits)
- 		mtk_uart_apdma_write(c, VFF_4G_SUPPORT, VFF_4G_SUPPORT_CLR_B);
- 
-+err_pm:
-+	pm_runtime_put_noidle(mtkd->ddev.dev);
- 	return ret;
- }
- 
+ static inline void set_pud(pud_t *pudp, pud_t pud)
 -- 
 2.35.1
 
