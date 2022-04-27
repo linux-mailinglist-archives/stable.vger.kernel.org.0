@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AFE6512229
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 21:08:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAD2C51222A
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 21:08:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229516AbiD0TLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 15:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43402 "EHLO
+        id S232502AbiD0TLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 15:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232710AbiD0TLY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 15:11:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64D558878D;
-        Wed, 27 Apr 2022 12:00:35 -0700 (PDT)
+        with ESMTP id S232727AbiD0TLZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 15:11:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A719E887AF;
+        Wed, 27 Apr 2022 12:00:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B93E46151B;
-        Wed, 27 Apr 2022 19:00:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 190CDC385AA;
-        Wed, 27 Apr 2022 19:00:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C190BB8292A;
+        Wed, 27 Apr 2022 19:00:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7262CC385A9;
+        Wed, 27 Apr 2022 19:00:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1651086034;
-        bh=K5V0L7D8p5Nd59qPZJYkX5jCCAx0iW2BP5NHSFGCtnE=;
+        s=korg; t=1651086036;
+        bh=vAWIq7IG0efF42ABjeR3sG4vAPsZ7lWpjgWQ9MgBLUM=;
         h=Date:To:From:Subject:From;
-        b=wfUk1XNZxWkfhnkV/3IkJ9roOKlSmASn+CuIa7fs9zRyrbUMHc/poCZpf1CotrJe0
-         mn3X5H5g1Ricb0FBE/r9TAbKC9nyJ5pMEoDvFk3vR2TkCz+qjryoj4nBdWU1UFFrSC
-         R7iztaEuUXZZTOOelQsKv0whsVjRO6OMHXkmRtKI=
-Date:   Wed, 27 Apr 2022 12:00:33 -0700
+        b=xH6aCY7u4x5roMR9H1mK40K7iMqgKcy/L8uCMrokEXONY5qTa8br++AHgogCyKpWB
+         onlhQn1ownvQeyRJbccMbFViUnTZ4uXZzIb9RCII5s0YaKJMista50tDS9YZ4bwLCT
+         kronxQxQjJS22218GbNlgfwKEmTnx8im19Dvnw64=
+Date:   Wed, 27 Apr 2022 12:00:35 -0700
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        shy828301@gmail.com, naoya.horiguchi@nec.com,
+        shy828301@gmail.com, naoya.horiguchi@nec.com, lkp@intel.com,
         xuyu@linux.alibaba.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + revert-mm-memory-failurec-skip-huge_zero_page-in-memory_failure.patch added to -mm tree
-Message-Id: <20220427190034.190CDC385AA@smtp.kernel.org>
+Subject: + mm-huge_memory-do-not-overkill-when-splitting-huge_zero_page.patch added to -mm tree
+Message-Id: <20220427190036.7262CC385A9@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,14 +46,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: Revert "mm/memory-failure.c: skip huge_zero_page in memory_failure()"
+     Subject: mm/huge_memory: do not overkill when splitting huge_zero_page
 has been added to the -mm tree.  Its filename is
-     revert-mm-memory-failurec-skip-huge_zero_page-in-memory_failure.patch
+     mm-huge_memory-do-not-overkill-when-splitting-huge_zero_page.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/revert-mm-memory-failurec-skip-huge_zero_page-in-memory_failure.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-huge_memory-do-not-overkill-when-splitting-huge_zero_page.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/revert-mm-memory-failurec-skip-huge_zero_page-in-memory_failure.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-huge_memory-do-not-overkill-when-splitting-huge_zero_page.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -68,80 +68,91 @@ there every 3-4 working days
 
 ------------------------------------------------------
 From: Xu Yu <xuyu@linux.alibaba.com>
-Subject: Revert "mm/memory-failure.c: skip huge_zero_page in memory_failure()"
+Subject: mm/huge_memory: do not overkill when splitting huge_zero_page
 
-Patch series "mm/memory-failure: rework fix on huge_zero_page splitting".
+Kernel panic when injecting memory_failure for the global huge_zero_page,
+when CONFIG_DEBUG_VM is enabled, as follows.
 
+  Injecting memory failure for pfn 0x109ff9 at process virtual address 0x20ff9000
+  page:00000000fb053fc3 refcount:2 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x109e00
+  head:00000000fb053fc3 order:9 compound_mapcount:0 compound_pincount:0
+  flags: 0x17fffc000010001(locked|head|node=0|zone=2|lastcpupid=0x1ffff)
+  raw: 017fffc000010001 0000000000000000 dead000000000122 0000000000000000
+  raw: 0000000000000000 0000000000000000 00000002ffffffff 0000000000000000
+  page dumped because: VM_BUG_ON_PAGE(is_huge_zero_page(head))
+  ------------[ cut here ]------------
+  kernel BUG at mm/huge_memory.c:2499!
+  invalid opcode: 0000 [#1] PREEMPT SMP PTI
+  CPU: 6 PID: 553 Comm: split_bug Not tainted 5.18.0-rc1+ #11
+  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS 3288b3c 04/01/2014
+  RIP: 0010:split_huge_page_to_list+0x66a/0x880
+  Code: 84 9b fb ff ff 48 8b 7c 24 08 31 f6 e8 9f 5d 2a 00 b8 b8 02 00 00 e9 e8 fb ff ff 48 c7 c6 e8 47 3c 82 4c b
+  RSP: 0018:ffffc90000dcbdf8 EFLAGS: 00010246
+  RAX: 000000000000003c RBX: 0000000000000001 RCX: 0000000000000000
+  RDX: 0000000000000000 RSI: ffffffff823e4c4f RDI: 00000000ffffffff
+  RBP: ffff88843fffdb40 R08: 0000000000000000 R09: 00000000fffeffff
+  R10: ffffc90000dcbc48 R11: ffffffff82d68448 R12: ffffea0004278000
+  R13: ffffffff823c6203 R14: 0000000000109ff9 R15: ffffea000427fe40
+  FS:  00007fc375a26740(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fc3757c9290 CR3: 0000000102174006 CR4: 00000000003706e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+  try_to_split_thp_page+0x3a/0x130
+  memory_failure+0x128/0x800
+  madvise_inject_error.cold+0x8b/0xa1
+  __x64_sys_madvise+0x54/0x60
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x7fc3754f8bf9
+  Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 8
+  RSP: 002b:00007ffeda93a1d8 EFLAGS: 00000217 ORIG_RAX: 000000000000001c
+  RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fc3754f8bf9
+  RDX: 0000000000000064 RSI: 0000000000003000 RDI: 0000000020ff9000
+  RBP: 00007ffeda93a200 R08: 0000000000000000 R09: 0000000000000000
+  R10: 00000000ffffffff R11: 0000000000000217 R12: 0000000000400490
+  R13: 00007ffeda93a2e0 R14: 0000000000000000 R15: 0000000000000000
 
-This patch (of 2):
+We think that raising BUG is overkilling for splitting huge_zero_page, the
+huge_zero_page can't be met from normal paths other than memory failure,
+but memory failure is a valid caller.  So we tend to replace the BUG to
+WARN + returning -EBUSY, and thus the panic above won't happen again.
 
-This reverts commit d173d5417fb67411e623d394aab986d847e47dad.
-
-The commit d173d5417fb6 ("mm/memory-failure.c: skip huge_zero_page in
-memory_failure()") explicitly skips huge_zero_page in memory_failure(), in
-order to avoid triggering VM_BUG_ON_PAGE on huge_zero_page in
-split_huge_page_to_list().
-
-This works, but Yang Shi thinks that,
-
-    Raising BUG is overkilling for splitting huge_zero_page. The
-    huge_zero_page can't be met from normal paths other than memory
-    failure, but memory failure is a valid caller. So I tend to replace
-    the BUG to WARN + returning -EBUSY. If we don't care about the
-    reason code in memory failure, we don't have to touch memory
-    failure.
-
-And for the issue that huge_zero_page will be set PG_has_hwpoisoned,
-Yang Shi comments that,
-
-    The anonymous page fault doesn't check if the page is poisoned or
-    not since it typically gets a fresh allocated page and assumes the
-    poisoned page (isolated successfully) can't be reallocated again.
-    But huge zero page and base zero page are reused every time. So no
-    matter what fix we pick, the issue is always there.
-
-Finally, Yang, David, Anshuman and Naoya all agree to fix the bug, i.e.,
-to split huge_zero_page, in split_huge_page_to_list().
-
-This reverts the commit d173d5417fb6 ("mm/memory-failure.c: skip
-huge_zero_page in memory_failure()"), and the original bug will be fixed
-by the next patch.
-
-Link: https://lkml.kernel.org/r/872cefb182ba1dd686b0e7db1e6b2ebe5a4fff87.1651039624.git.xuyu@linux.alibaba.com
+Link: https://lkml.kernel.org/r/f35f8b97377d5d3ede1bc5ac3114da888c57cbce.1651052574.git.xuyu@linux.alibaba.com
 Fixes: d173d5417fb ("mm/memory-failure.c: skip huge_zero_page in memory_failure()")
 Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
 Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
 Suggested-by: Yang Shi <shy828301@gmail.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory-failure.c |   13 -------------
- 1 file changed, 13 deletions(-)
+ mm/huge_memory.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/mm/memory-failure.c~revert-mm-memory-failurec-skip-huge_zero_page-in-memory_failure
-+++ a/mm/memory-failure.c
-@@ -1861,19 +1861,6 @@ try_again:
+--- a/mm/huge_memory.c~mm-huge_memory-do-not-overkill-when-splitting-huge_zero_page
++++ a/mm/huge_memory.c
+@@ -2495,11 +2495,16 @@ int split_huge_page_to_list(struct page
+ 	struct address_space *mapping = NULL;
+ 	int extra_pins, ret;
+ 	pgoff_t end;
++	bool is_hzp;
  
- 	if (PageTransHuge(hpage)) {
- 		/*
--		 * Bail out before SetPageHasHWPoisoned() if hpage is
--		 * huge_zero_page, although PG_has_hwpoisoned is not
--		 * checked in set_huge_zero_page().
--		 *
--		 * TODO: Handle memory failure of huge_zero_page thoroughly.
--		 */
--		if (is_huge_zero_page(hpage)) {
--			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
--			res = -EBUSY;
--			goto unlock_mutex;
--		}
--
--		/*
- 		 * The flag must be set after the refcount is bumped
- 		 * otherwise it may race with THP split.
- 		 * And the flag can't be set in get_hwpoison_page() since
+-	VM_BUG_ON_PAGE(is_huge_zero_page(head), head);
+ 	VM_BUG_ON_PAGE(!PageLocked(head), head);
+ 	VM_BUG_ON_PAGE(!PageCompound(head), head);
+ 
++	is_hzp = is_huge_zero_page(head);
++	VM_WARN_ON_ONCE_PAGE(is_hzp, head);
++	if (is_hzp)
++		return -EBUSY;
++
+ 	if (PageWriteback(head))
+ 		return -EBUSY;
+ 
 _
 
 Patches currently in -mm which might be from xuyu@linux.alibaba.com are
