@@ -2,76 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1207C511D57
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEF41511FCD
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:38:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242220AbiD0Qah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 12:30:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43138 "EHLO
+        id S242726AbiD0Q1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 12:27:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243152AbiD0Q2K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 12:28:10 -0400
+        with ESMTP id S243136AbiD0Q0y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 12:26:54 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7EBC7366B3
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:22:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 94584263C98
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:21:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651076559;
+        s=mimecast20190719; t=1651076375;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=cpdTKSdO+rieFpHnkUAZpM/6Dw8rA4JkcSTNkjZ8rq0=;
-        b=HhTHtiAmg5UBUPuBJOnN2ZRMUzf+PQW4XcqiepYv3IgHMOUWfU8ZoNW7dnqWt32KQU2Y8v
-        wS3zcFzdab7oSopE2dBoSdxfqd7Kwz5UsbJsPpmhGJZcLBOxWKBgmtxU+E47nUUugJZaRg
-        iL5v30XYEFs5nnXD7BWjXQbT2RM8KHk=
+        bh=1cvcOaXCpruv4T1c9qiJWLMyaDmKLEQmVrfnev71Sng=;
+        b=f2AxcsMvXuQXhtf/mx6TsHncyuVlkdl9IgnhpGBAfKnNIPF6Ozkxop1q4fdqAIM9p6eI55
+        6vlSEsnPcqP046bqmTiukMhos2BR4TspnT71Zo3tm3SVHuKrEEjQY6LMCP5NeVSawdJsFu
+        aSbD5ACGm7Pf12AEBgBSI7gmutkeyYU=
 Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
  [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-212-Am-Xo0OjO5uLgmfHIi54rw-1; Wed, 27 Apr 2022 12:19:29 -0400
-X-MC-Unique: Am-Xo0OjO5uLgmfHIi54rw-1
-Received: by mail-ed1-f69.google.com with SMTP id s24-20020a05640217d800b00425e19e7deaso1265069edy.3
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:19:28 -0700 (PDT)
+ us-mta-611-OYy-N-GEM2OoBXmXmlFQDw-1; Wed, 27 Apr 2022 12:19:33 -0400
+X-MC-Unique: OYy-N-GEM2OoBXmXmlFQDw-1
+Received: by mail-ed1-f69.google.com with SMTP id ch28-20020a0564021bdc00b00425cb227ab4so1274209edb.4
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:19:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=cpdTKSdO+rieFpHnkUAZpM/6Dw8rA4JkcSTNkjZ8rq0=;
-        b=OA9ImEI5p7qcl6T6PemRgA1oSX8BA27hTA3XvmrRu0VnuSxstimFDRBuzJJU4b+g0o
-         AjHDeZk36JfUWYbqWTjnKrleJUKSCwVbeUd57N6npprnoVXsLdTkEX58i/WW7oDQE3qu
-         VJxIC0jLhUdUtE3oFM9eoRy0FUx+/cnkJfRrcT7hOIMeu/q1nX24JezUTAJoqeXzBc9R
-         vnFMTD16g6AEythUMUUivBIj+rVdAKr45eL35bv/ryJ96MuKR84Bqc/huDDNu6QKfvoj
-         69C8H7RHKaCM4ciYfo/ACjJxBFVmTNLLGkYgr1ibfIi24aVyPnbMA6P6mDqypTA0DWCz
-         9AHw==
-X-Gm-Message-State: AOAM531h+Ump6PnCLYndhhHyT+sgGKhFRMtJd8D27CsvoNZzQ4r/pREn
-        PbcjU669HDTvfThZejko+puhYQYBDe9kc7ujc9i3RRBQWy0bGHwHZmLrvHxcrhAXEzID3dhNGW2
-        CxA0IAeHkQJJwTkJU
-X-Received: by 2002:a05:6402:4004:b0:426:1a0a:a2b8 with SMTP id d4-20020a056402400400b004261a0aa2b8mr2943537eda.241.1651076367942;
-        Wed, 27 Apr 2022 09:19:27 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzRi274/0pJFnefUE34/+I0M2mwYpfNL1VVyniwojXwdGQHhToi5cq0Vivpg5gmlGbu04FBdw==
-X-Received: by 2002:a05:6402:4004:b0:426:1a0a:a2b8 with SMTP id d4-20020a056402400400b004261a0aa2b8mr2943517eda.241.1651076367773;
-        Wed, 27 Apr 2022 09:19:27 -0700 (PDT)
+        bh=1cvcOaXCpruv4T1c9qiJWLMyaDmKLEQmVrfnev71Sng=;
+        b=YHDTJhIG+3GndIvC0dc0QITfA4HfcQUNwE496s+BUtdEzKcfYtIXJWFNB0my1rw9j6
+         WAKSkRZQbhtDwNjFrMnPrCI6P+uNkFQfmvGgPmX4C0faWwOnfKc7YUOBgvvWRfSO1TSi
+         tseyA2YO5NRiVNQCCKhz2qlnjZbBPIId8in+S4/7e/CLh3T3VvCh9F2xgfBxib1eKQA2
+         J3pzRR8sKnn75I7MKzNynn4Ngztn9kUks/8Wfy6W4G8gNrVxyiM0/Q93IsfNjKRD4Mmm
+         C1ry5Ww0OnczBzD/2Vvan2CgQ+Vv/JVSobAcYvFAKMvbYQGTw6DWpU5KxTJkQnjibTpv
+         Kgaw==
+X-Gm-Message-State: AOAM532T3kq7ceQiewdar1i5rFWhPGis+PFpPqQMPyZWWqtr+ZUv73Ad
+        nR4sgfDznKmHpLEYhXvQmpIzjcFz+VamFtSHvR61pNTrYGytEj9uT3nN4RN1B6FYLBhKvLFrT9P
+        TjoJ6xVb6FlAGfwvF
+X-Received: by 2002:a17:907:1c8d:b0:6f2:eb2:1cd6 with SMTP id nb13-20020a1709071c8d00b006f20eb21cd6mr19630439ejc.568.1651076372547;
+        Wed, 27 Apr 2022 09:19:32 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyOw3/rr2uhK+bOiKaMJvU87tDXfQr2FFam0AAS2cqlmruwG3KHI4kJpoc4faRL6UiMeQMUlQ==
+X-Received: by 2002:a17:907:1c8d:b0:6f2:eb2:1cd6 with SMTP id nb13-20020a1709071c8d00b006f20eb21cd6mr19630317ejc.568.1651076370838;
+        Wed, 27 Apr 2022 09:19:30 -0700 (PDT)
 Received: from ?IPV6:2001:b07:6468:f312:1c09:f536:3de6:228c? ([2001:b07:6468:f312:1c09:f536:3de6:228c])
-        by smtp.googlemail.com with ESMTPSA id t27-20020a1709063e5b00b006f3a94f5194sm3347586eji.77.2022.04.27.09.19.25
+        by smtp.googlemail.com with ESMTPSA id q6-20020a17090622c600b006f3876cd90csm5206122eja.198.2022.04.27.09.19.29
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Apr 2022 09:19:27 -0700 (PDT)
-Message-ID: <032e22bd-4faa-7a0c-da78-8bf7ee3df31f@redhat.com>
-Date:   Wed, 27 Apr 2022 18:19:25 +0200
+        Wed, 27 Apr 2022 09:19:29 -0700 (PDT)
+Message-ID: <ede8b06a-1458-b96d-917a-2de75736a53a@redhat.com>
+Date:   Wed, 27 Apr 2022 18:19:28 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.0
-Subject: Re: [PATCH MANUALSEL 5.15 2/7] KVM: selftests: Silence compiler
- warning in the kvm_page_table_test
+Subject: Re: [PATCH MANUALSEL 5.15 3/7] x86/kvm: Preserve BSP
+ MSR_KVM_POLL_CONTROL across suspend/resume
 Content-Language: en-US
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>, shuah@kernel.org,
-        kvm@vger.kernel.org, linux-kselftest@vger.kernel.org
+Cc:     Wanpeng Li <wanpengli@tencent.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, kvm@vger.kernel.org
 References: <20220427155431.19458-1-sashal@kernel.org>
- <20220427155431.19458-2-sashal@kernel.org>
+ <20220427155431.19458-3-sashal@kernel.org>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220427155431.19458-2-sashal@kernel.org>
+In-Reply-To: <20220427155431.19458-3-sashal@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -85,46 +86,69 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 4/27/22 17:54, Sasha Levin wrote:
-> From: Thomas Huth <thuth@redhat.com>
+> From: Wanpeng Li <wanpengli@tencent.com>
 > 
-> [ Upstream commit 266a19a0bc4fbfab4d981a47640ca98972a01865 ]
+> [ Upstream commit 0361bdfddca20c8855ea3bdbbbc9c999912b10ff ]
 > 
-> When compiling kvm_page_table_test.c, I get this compiler warning
-> with gcc 11.2:
+> MSR_KVM_POLL_CONTROL is cleared on reset, thus reverting guests to
+> host-side polling after suspend/resume.  Non-bootstrap CPUs are
+> restored correctly by the haltpoll driver because they are hot-unplugged
+> during suspend and hot-plugged during resume; however, the BSP
+> is not hotpluggable and remains in host-sde polling mode after
+> the guest resume.  The makes the guest pay for the cost of vmexits
+> every time the guest enters idle.
 > 
-> kvm_page_table_test.c: In function 'pre_init_before_test':
-> ../../../../tools/include/linux/kernel.h:44:24: warning: comparison of
->   distinct pointer types lacks a cast
->     44 |         (void) (&_max1 == &_max2);              \
->        |                        ^~
-> kvm_page_table_test.c:281:21: note: in expansion of macro 'max'
->    281 |         alignment = max(0x100000, alignment);
->        |                     ^~~
+> Fix it by recording BSP's haltpoll state and resuming it during guest
+> resume.
 > 
-> Fix it by adjusting the type of the absolute value.
-> 
-> Signed-off-by: Thomas Huth <thuth@redhat.com>
-> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-> Message-Id: <20220414103031.565037-1-thuth@redhat.com>
+> Cc: Marcelo Tosatti <mtosatti@redhat.com>
+> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+> Message-Id: <1650267752-46796-1-git-send-email-wanpengli@tencent.com>
 > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->   tools/testing/selftests/kvm/kvm_page_table_test.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>   arch/x86/kernel/kvm.c | 13 +++++++++++++
+>   1 file changed, 13 insertions(+)
 > 
-> diff --git a/tools/testing/selftests/kvm/kvm_page_table_test.c b/tools/testing/selftests/kvm/kvm_page_table_test.c
-> index 36407cb0ec85..f1ddfe4c4a03 100644
-> --- a/tools/testing/selftests/kvm/kvm_page_table_test.c
-> +++ b/tools/testing/selftests/kvm/kvm_page_table_test.c
-> @@ -278,7 +278,7 @@ static struct kvm_vm *pre_init_before_test(enum vm_guest_mode mode, void *arg)
->   	else
->   		guest_test_phys_mem = p->phys_offset;
->   #ifdef __s390x__
-> -	alignment = max(0x100000, alignment);
-> +	alignment = max(0x100000UL, alignment);
->   #endif
->   	guest_test_phys_mem &= ~(alignment - 1);
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> index bd7b65081eb0..d36b58e705b6 100644
+> --- a/arch/x86/kernel/kvm.c
+> +++ b/arch/x86/kernel/kvm.c
+> @@ -66,6 +66,7 @@ static DEFINE_PER_CPU_DECRYPTED(struct kvm_vcpu_pv_apf_data, apf_reason) __align
+>   DEFINE_PER_CPU_DECRYPTED(struct kvm_steal_time, steal_time) __aligned(64) __visible;
+>   static int has_steal_clock = 0;
 >   
+> +static int has_guest_poll = 0;
+>   /*
+>    * No need for any "IO delay" on KVM
+>    */
+> @@ -650,14 +651,26 @@ static int kvm_cpu_down_prepare(unsigned int cpu)
+>   
+>   static int kvm_suspend(void)
+>   {
+> +	u64 val = 0;
+> +
+>   	kvm_guest_cpu_offline(false);
+>   
+> +#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
+> +	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL))
+> +		rdmsrl(MSR_KVM_POLL_CONTROL, val);
+> +	has_guest_poll = !(val & 1);
+> +#endif
+>   	return 0;
+>   }
+>   
+>   static void kvm_resume(void)
+>   {
+>   	kvm_cpu_online(raw_smp_processor_id());
+> +
+> +#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
+> +	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL) && has_guest_poll)
+> +		wrmsrl(MSR_KVM_POLL_CONTROL, 0);
+> +#endif
+>   }
+>   
+>   static struct syscore_ops kvm_syscore_ops = {
 
 Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
