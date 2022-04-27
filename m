@@ -2,136 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D0D5510D3A
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 02:35:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3954E510D4E
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 02:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356380AbiD0AiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 20:38:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46512 "EHLO
+        id S1349881AbiD0AmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 20:42:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356351AbiD0AiT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 20:38:19 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D28225F0
-        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 17:35:10 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id g3so225085pgg.3
-        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 17:35:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=o+qGkf2S3/x0xbaZP2aOBILagHlJghcBh66UP9Qh1yc=;
-        b=G7mYkqOtH/mJz4pDLHUY0l3r9Dg6Q0rDtYsTs5gKtcrSl89bHFnToOXuzYCfl0/Fir
-         fNyD/abJnS4zgtwubQKzYcFU1Y6elRLhufmGR7JwTeJSekelQb9CbMMwqmLpOMyNMVJM
-         tL5c44R+MG9x3tipmRwlY8CxTeeSMjizh9Ki4aWHYR5AKeqLSAwnEX0jnj7e8Ngll5Mi
-         OYZk9iM/tLYwRKiXdPlyE8cpaI7ppbSLGnCgT6W8Qk7hl+6O9rEXClV7CbG/z3aBsGYq
-         9sFPmCDtAdvYUWfQP66uysrMBDQ11N/V5+ipMzmtQoSYlYGVDDNzb/0xk9kqNN9iVQ/N
-         SphQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=o+qGkf2S3/x0xbaZP2aOBILagHlJghcBh66UP9Qh1yc=;
-        b=DH88Fnq4YiSImBX2NolxQQxkYpeOpJ0X5Hc4dmaib4gHFv6zoOqkHcjY1b82eq7U4/
-         U3Dt1LiM1OmcdtRBSuRt6lmfU6teECkh/hO3Yw6aG6zIMkdfcEexVDwXIWjkIH0Dcoxu
-         qKo3mvawES3y3dKqxYEqg1uUtYaB7OGFjs8vT0DswjnG1y/ABT95+z5RQMHCg0APCvdI
-         GCu4R2oJvFrpYvjno1kad22F/R0vLkcPVVxHo3wT0++RGv6dt9cpo8TOKK/TPn8AEzkF
-         dTDhKJb3HQI0NlQOT+7+LqlycK3zyavMuaH9CHV4Ye0zliMAvz6J3X4M1RpYF/BRuk9D
-         AEdQ==
-X-Gm-Message-State: AOAM5304NE4NYkv+L0R5qyAii8vydcSU8bLCP4XyxArHDN0NTVpNLctK
-        jn3ugyxxt3M6Oj65KFYXSLGEiqWcaVH/oLaQeYs=
-X-Google-Smtp-Source: ABdhPJxUeaHZcXEVIf7oWS1AJJx5XFIPYKnn/6WjDp/Hku9N9ExhukUsK5TsWnpQVDdhWIas7K0SLQ==
-X-Received: by 2002:a63:85c6:0:b0:3ab:4545:e29e with SMTP id u189-20020a6385c6000000b003ab4545e29emr10672820pgd.573.1651019708379;
-        Tue, 26 Apr 2022 17:35:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c18-20020a056a000ad200b004f0f9696578sm18399435pfl.141.2022.04.26.17.35.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Apr 2022 17:35:08 -0700 (PDT)
-Message-ID: <62688fbc.1c69fb81.3ce36.b420@mx.google.com>
-Date:   Tue, 26 Apr 2022 17:35:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1356400AbiD0AmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 20:42:04 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC2D38DA4
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 17:38:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1651019925; x=1682555925;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=RmBT1xO53/+kazaWqeW8z7eHMIMTa+q8o02e8VJw9eM=;
+  b=AzB22GFCG0aMAdAVWto5LKsgLgkqCNWRGuLYwRA98Dw3QZ2OkbitDQY1
+   cGwR0OBZeq5mNLudlhbbxRKkaAwclitts0zB/ls05yKQIt9g7B2+GCCVW
+   Y9RFIIJeM5fLYgOLkAfMN/g66GVI0MTU3HAkSUgc5/sHtGKYqO3EOdLZt
+   9d8ht4WqO8HO4uedinbsBvTeI6W/U1iqvJHEsDp1dpsjxn0pKUCUu8RWN
+   jf1s/8eHVAz9KgomrkizVGuA316nxgw4ubLHC2OZHLJLhyBUzgMDrGOH/
+   9RJJ1n75AljEFGR5C0PPz8TDVeDClS2uQa9Hc3QOp5l9jNgNBoje+/R8s
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10329"; a="265929797"
+X-IronPort-AV: E=Sophos;i="5.90,292,1643702400"; 
+   d="scan'208";a="265929797"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2022 17:38:45 -0700
+X-IronPort-AV: E=Sophos;i="5.90,292,1643702400"; 
+   d="scan'208";a="679515307"
+Received: from anushasr-mobl6.jf.intel.com ([10.165.21.155])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2022 17:38:45 -0700
+From:   Anusha Srivatsa <anusha.srivatsa@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Anusha Srivatsa <anusha.srivatsa@intel.com>,
+        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>
+Subject: [PATCH] drm/i915/dmc: Add MMIO range restrictions
+Date:   Tue, 26 Apr 2022 17:35:09 -0700
+Message-Id: <20220427003509.267683-1-anusha.srivatsa@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.112-87-g889ce55360e75
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable-rc/linux-5.10.y baseline: 120 runs,
- 1 regressions (v5.10.112-87-g889ce55360e75)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 120 runs, 1 regressions (v5.10.112-87-g889=
-ce55360e75)
+Bspec has added some steps that check forDMC MMIO range before
+programming them
 
-Regressions Summary
--------------------
+v2: Fix for CI
+v3: move register defines to .h (Anusha)
+- Check MMIO restrictions per pipe
+- Add MMIO restricton for v1 dmc header as well (Lucas)
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+BSpec: 49193
 
+Cc: <stable@vger.kernel.org>
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Signed-off-by: Anusha Srivatsa <anusha.srivatsa@intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_dmc.c      | 48 ++++++++++++++++---
+ drivers/gpu/drm/i915/display/intel_dmc_regs.h | 31 ++++++++++++
+ 2 files changed, 72 insertions(+), 7 deletions(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.112-87-g889ce55360e75/plan/baseline/
+diff --git a/drivers/gpu/drm/i915/display/intel_dmc.c b/drivers/gpu/drm/i915/display/intel_dmc.c
+index 257cf662f9f4..ac7896835bfa 100644
+--- a/drivers/gpu/drm/i915/display/intel_dmc.c
++++ b/drivers/gpu/drm/i915/display/intel_dmc.c
+@@ -97,13 +97,6 @@ MODULE_FIRMWARE(SKL_DMC_PATH);
+ #define BXT_DMC_MAX_FW_SIZE		0x3000
+ MODULE_FIRMWARE(BXT_DMC_PATH);
+ 
+-#define DMC_DEFAULT_FW_OFFSET		0xFFFFFFFF
+-#define PACKAGE_MAX_FW_INFO_ENTRIES	20
+-#define PACKAGE_V2_MAX_FW_INFO_ENTRIES	32
+-#define DMC_V1_MAX_MMIO_COUNT		8
+-#define DMC_V3_MAX_MMIO_COUNT		20
+-#define DMC_V1_MMIO_START_RANGE		0x80000
+-
+ struct intel_css_header {
+ 	/* 0x09 for DMC */
+ 	u32 module_type;
+@@ -374,6 +367,43 @@ static void dmc_set_fw_offset(struct intel_dmc *dmc,
+ 	}
+ }
+ 
++static bool dmc_mmio_addr_sanity_check(struct intel_dmc *dmc, const u32 *mmioaddr,
++				       u32 mmio_count, int header_ver, u8 dmc_id)
++{
++	struct drm_i915_private *i915 = container_of(dmc, typeof(*i915), dmc);
++	int i;
++
++	if (header_ver == 1) {
++		for (i = 0; i < mmio_count; i++) {
++			if (mmioaddr[i] < DMC_MMIO_START_RANGE || mmioaddr[i] > DMC_MMIO_END_RANGE)
++				return false;
++		}
++	}
++
++	/* Main DMC MMIO check */
++	if (dmc_id == DMC_FW_MAIN) {
++		for (i = 0; i < mmio_count; i++) {
++			if (mmioaddr[i] < TGL_DMC_MMIO_START(dmc_id) || mmioaddr[i] > TGL_DMC_MMIO_END(dmc_id))
++				return false;
++		}
++	}
++
++	/* Pipe DMC MMIO check */
++	if (IS_DG2(i915) || IS_ALDERLAKE_P(i915)) {
++		for (i = 0; i < mmio_count; i++) {
++			if (mmioaddr[i] < ADLP_PIPE_MMIO_START && mmioaddr[i] > ADLP_PIPE_MMIO_END)
++				return false;
++		}
++	} else if (IS_TIGERLAKE(i915) || IS_DG1(i915) || IS_ALDERLAKE_S(i915)) {
++		for (i = 0; i < mmio_count; i++) {
++			if (mmioaddr[i] < TGL_DMC_MMIO_START(dmc_id) || mmioaddr[i] > TGL_DMC_MMIO_END(dmc_id))
++				return false;
++		}
++	}
++
++	return true;
++}
++
+ static u32 parse_dmc_fw_header(struct intel_dmc *dmc,
+ 			       const struct intel_dmc_header_base *dmc_header,
+ 			       size_t rem_size, u8 dmc_id)
+@@ -443,6 +473,10 @@ static u32 parse_dmc_fw_header(struct intel_dmc *dmc,
+ 		return 0;
+ 	}
+ 
++	if (!dmc_mmio_addr_sanity_check(dmc, mmioaddr, mmio_count, dmc_header->header_ver, dmc_id))
++		drm_err(&i915->drm, "DMC firmware has Wrong MMIO Addresses\n");
++		return 0;
++
+ 	for (i = 0; i < mmio_count; i++) {
+ 		dmc_info->mmioaddr[i] = _MMIO(mmioaddr[i]);
+ 		dmc_info->mmiodata[i] = mmiodata[i];
+diff --git a/drivers/gpu/drm/i915/display/intel_dmc_regs.h b/drivers/gpu/drm/i915/display/intel_dmc_regs.h
+index d65e698832eb..235d1b721334 100644
+--- a/drivers/gpu/drm/i915/display/intel_dmc_regs.h
++++ b/drivers/gpu/drm/i915/display/intel_dmc_regs.h
+@@ -11,12 +11,43 @@
+ #define DMC_PROGRAM(addr, i)	_MMIO((addr) + (i) * 4)
+ #define DMC_SSP_BASE_ADDR_GEN9	0x00002FC0
+ #define DMC_HTP_ADDR_SKL	0x00500034
++#define DMC_DEFAULT_FW_OFFSET	0xFFFFFFFF
+ #define DMC_SSP_BASE		_MMIO(0x8F074)
+ #define DMC_HTP_SKL		_MMIO(0x8F004)
+ #define DMC_LAST_WRITE		_MMIO(0x8F034)
+ #define DMC_LAST_WRITE_VALUE	0xc003b400
+ #define DMC_MMIO_START_RANGE	0x80000
+ #define DMC_MMIO_END_RANGE	0x8FFFF
++#define PACKAGE_MAX_FW_INFO_ENTRIES	20
++#define PACKAGE_V2_MAX_FW_INFO_ENTRIES	32
++#define DMC_V1_MAX_MMIO_COUNT		8
++#define DMC_V3_MAX_MMIO_COUNT		20
++#define DMC_V1_MMIO_START_RANGE		0x80000
++#define _TGL_MAIN_MMIO_START		0x8F000
++#define _TGL_MAIN_MMIO_END		0x8FFFF
++#define _TGL_PIPEA_MMIO_START		0x92000
++#define _TGL_PIPEA_MMIO_END		0x93FFF
++#define _TGL_PIPEB_MMIO_START		0x96000
++#define _TGL_PIPEB_MMIO_END		0x97FFF
++#define _TGL_PIPEC_MMIO_START		0x9A000
++#define _TGL_PIPEC_MMIO_END		0x9BFFF
++#define _TGL_PIPED_MMIO_START		0x9E000
++#define _TGL_PIPED_MMIO_END		0x9FFFF
++#define ADLP_PIPE_MMIO_START		0x5F000
++#define ADLP_PIPE_MMIO_END		0x5FFFF
++
++#define TGL_DMC_MMIO_START(pipe)	_PICK(pipe, _TGL_MAIN_MMIO_START,\
++					      _TGL_PIPEA_MMIO_START,\
++					      _TGL_PIPEB_MMIO_START,\
++					      _TGL_PIPEC_MMIO_START,\
++					      _TGL_PIPEB_MMIO_START)
++
++#define TGL_DMC_MMIO_END(pipe)		_PICK(pipe, _TGL_MAIN_MMIO_END,\
++					      _TGL_PIPEA_MMIO_END,\
++					      _TGL_PIPEB_MMIO_END,\
++					      _TGL_PIPEC_MMIO_END,\
++					      _TGL_PIPEB_MMIO_END)
++
+ #define SKL_DMC_DC3_DC5_COUNT	_MMIO(0x80030)
+ #define SKL_DMC_DC5_DC6_COUNT	_MMIO(0x8002C)
+ #define BXT_DMC_DC3_DC5_COUNT	_MMIO(0x80038)
+-- 
+2.25.1
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.112-87-g889ce55360e75
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      889ce55360e75088d2b85d71e5119d5e3d45c90c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62685fbc9e5a6d270fff955a
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-12-87-g889ce55360e75/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
-baseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-12-87-g889ce55360e75/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
-baseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220422.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62685fbc9e5a6d270fff957f
-        failing since 50 days (last pass: v5.10.103, first fail: v5.10.103-=
-106-g79bd6348914c)
-
-    2022-04-26T21:10:10.799990  /lava-6183187/1/../bin/lava-test-case   =
-
- =20
