@@ -2,76 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62DC75120BD
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9707511D9B
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242296AbiD0Q1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 12:27:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43348 "EHLO
+        id S242255AbiD0Q1k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 12:27:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243307AbiD0Q0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 12:26:53 -0400
+        with ESMTP id S243213AbiD0Q0z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 12:26:55 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8D6FB56238
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:21:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 273FC59B8A
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:21:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651076444;
+        s=mimecast20190719; t=1651076451;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=rsca3nN9F0L3L7CF4f4/JIiLe+nDncGsHBTvE+SQpns=;
-        b=Nh6Dhltmu0r/XkRi+yKiSHncdF3ktBBthQizASkd9Leo34UPb+lkTiZVFQIgsM/71UjB2m
-        qbI+q+nV8gGG3MiJXsXI3gP6Qrl1M2rjtcTGnb3RILKzLPtYG2F7rClpdJZcdu00rVltoH
-        aRZ3VYMziPowuxVW50v/ujUr+L5npMQ=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=vVPmAljf4Rq+oNSJqgnV7vXLKD2O/E/5jwKdydcKC90=;
+        b=jKzKaZ4SBfzrnDnmH2CYTwJja8DBmTWGXjOhECAQylOdhHnogMsezf/xD/K2XQknJ0uPcT
+        RFl/dXWnpajFKkAu/QoS9rRUJ0Np/YvtPt5LFTxy7WuXW1KU68iFa3/fLlrij1UKxbWvZ2
+        vkYoeYEyIXbZEvOcum+CJPQx/3WKpRM=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-605-hGyweWS7NuSPnQPt04JY_w-1; Wed, 27 Apr 2022 12:20:43 -0400
-X-MC-Unique: hGyweWS7NuSPnQPt04JY_w-1
-Received: by mail-ej1-f70.google.com with SMTP id jg25-20020a170907971900b006f010192c19so1426991ejc.21
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:20:43 -0700 (PDT)
+ us-mta-529-urlxHnvbMm6R1I6cMO6AuA-1; Wed, 27 Apr 2022 12:20:49 -0400
+X-MC-Unique: urlxHnvbMm6R1I6cMO6AuA-1
+Received: by mail-ej1-f71.google.com with SMTP id sd16-20020a1709076e1000b006f3c9ec53f6so1366818ejc.0
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:20:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=rsca3nN9F0L3L7CF4f4/JIiLe+nDncGsHBTvE+SQpns=;
-        b=HOcaOKFZ8uDjx6q6lJGIMPUznV8VJmVu3mjaLDOZisXkov2UvUAxwr5BAbhDC1iv7p
-         x8z84CMLUIFAnnnO4TTVCzksgM5jvZ778De3nxbs5CBEtAdS878XqcwYUVQqF8mcJ/j7
-         zGsDBOp79hQiU1v6J3pKvtHPGVnA0ggV+qyGYsVW3YcG0sM7wvtr4OO5pqzNqfytN6Jq
-         OOzKBcp5oY3OpdmqkftVVg8tlTn6uaIrziTphSNIzoHthLbZ1VFfAEHhA1GRqU6dPbaT
-         2YyTG4zXYnYRpUCpjbF2KUkQMuicGPZrxJ1jwcXJLqthEp+6K7nCBy6QmrM5canp5IqV
-         kWZA==
-X-Gm-Message-State: AOAM532bAFPv1qLJSH77vRKH539YAEp1/Y8gISTlB3xuVv0bntU/QkUP
-        Fwaa/Egd/KP4Adfbl1y3gtgpzqBmt9istNQ2arGgwNZLPZNTIo7I7a+FgrWdIYvLwB3gYPthTbM
-        0J6eMWePRLCEBudVr
-X-Received: by 2002:a05:6402:1a42:b0:424:20bb:3e37 with SMTP id bf2-20020a0564021a4200b0042420bb3e37mr31381784edb.29.1651076441831;
-        Wed, 27 Apr 2022 09:20:41 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzy79Ti+40bhX02i6AE/YohVsvCl0+6reMKemh3Hg1j7DTh1D/TMmfHWFR50FWzqoAwUbxSgA==
-X-Received: by 2002:a05:6402:1a42:b0:424:20bb:3e37 with SMTP id bf2-20020a0564021a4200b0042420bb3e37mr31381758edb.29.1651076441571;
-        Wed, 27 Apr 2022 09:20:41 -0700 (PDT)
+        bh=vVPmAljf4Rq+oNSJqgnV7vXLKD2O/E/5jwKdydcKC90=;
+        b=TaP2wvWMxVdXNEEPOIxdwHLKrUDtRMrYxVDYeJ/OdBfhrob7i5hDuZ7mB/ECWimzUA
+         PJoyTdWpLwguGIco+Vcu7FDW8FlVL8OFfOcnaV+z++aXDBA1iid6Sdid24BblC1fSvka
+         S1USgTlrItYtiveyKjWh3QOcRPOhAeDCS5dceKHooV5EkzsxXJ9n9jS+oydbmg1UBVtk
+         QrsIfyLExQ2+7PbbYT/+LjxcsD2JP003lh06XOVpESMQzacTtlEpYh7PXyU+pTcYkPif
+         QqKwGjkXt0PqyRl+M5kBiU/glVoX7iRUYkmohaGvk2vJRD/gU0jlp6Nf+L7GaLtCTz3B
+         CYRg==
+X-Gm-Message-State: AOAM531APbdLrDcp5Z+PIQ7sP5dwlPlxyFn2LQXd/TE0MKjeIbEtHYY9
+        OBwpuhHKsK5ObeCyca6IV67nXKjNbaAdzs9jSWHTO0zvOcMQzLF2tkJnZGfNFbq5NXQXMN+XeDm
+        li5XUqsOBeRz7oqKj
+X-Received: by 2002:a17:907:2d11:b0:6f0:f39:f647 with SMTP id gs17-20020a1709072d1100b006f00f39f647mr26641603ejc.694.1651076448689;
+        Wed, 27 Apr 2022 09:20:48 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxXmviWfjwPmeeCW7yQt3igdzgO0LD3hEcXQeDEytyOjaJsiyJkYY1xJLviJ6oRtfVvEVVy0A==
+X-Received: by 2002:a17:907:2d11:b0:6f0:f39:f647 with SMTP id gs17-20020a1709072d1100b006f00f39f647mr26641584ejc.694.1651076448478;
+        Wed, 27 Apr 2022 09:20:48 -0700 (PDT)
 Received: from ?IPV6:2001:b07:6468:f312:1c09:f536:3de6:228c? ([2001:b07:6468:f312:1c09:f536:3de6:228c])
-        by smtp.googlemail.com with ESMTPSA id s12-20020a1709062ecc00b006e8558c9a5csm7003572eji.94.2022.04.27.09.20.39
+        by smtp.googlemail.com with ESMTPSA id 17-20020a170906059100b006cee1bceddasm6870663ejn.130.2022.04.27.09.20.45
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 27 Apr 2022 09:20:40 -0700 (PDT)
-Message-ID: <143ede94-5231-de84-9e8a-97a5f9ca8563@redhat.com>
-Date:   Wed, 27 Apr 2022 18:20:39 +0200
+        Wed, 27 Apr 2022 09:20:47 -0700 (PDT)
+Message-ID: <9eaa82a4-3dba-1ab2-ca2c-8f59252c863b@redhat.com>
+Date:   Wed, 27 Apr 2022 18:20:43 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.8.0
-Subject: Re: [PATCH MANUALSEL 5.15 6/7] KVM: x86/mmu: avoid NULL-pointer
- dereference on page freeing bugs
+Subject: Re: [PATCH MANUALSEL 5.15 7/7] KVM: LAPIC: Enable timer
+ posted-interrupt only when mwait/hlt is advertised
 Content-Language: en-US
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     Sean Christopherson <seanjc@google.com>, tglx@linutronix.de,
+Cc:     Wanpeng Li <wanpengli@tencent.com>,
+        Aili Yao <yaoaili@kingsoft.com>,
+        Sean Christopherson <seanjc@google.com>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
         x86@kernel.org, kvm@vger.kernel.org
 References: <20220427155431.19458-1-sashal@kernel.org>
- <20220427155431.19458-6-sashal@kernel.org>
+ <20220427155431.19458-7-sashal@kernel.org>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-In-Reply-To: <20220427155431.19458-6-sashal@kernel.org>
+In-Reply-To: <20220427155431.19458-7-sashal@kernel.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -85,37 +87,51 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 4/27/22 17:54, Sasha Levin wrote:
-> From: Paolo Bonzini <pbonzini@redhat.com>
+> From: Wanpeng Li <wanpengli@tencent.com>
 > 
-> [ Upstream commit 9191b8f0745e63edf519e4a54a4aaae1d3d46fbd ]
+> [ Upstream commit 1714a4eb6fb0cb79f182873cd011a8ed60ac65e8 ]
 > 
-> WARN and bail if KVM attempts to free a root that isn't backed by a shadow
-> page.  KVM allocates a bare page for "special" roots, e.g. when using PAE
-> paging or shadowing 2/3/4-level page tables with 4/5-level, and so root_hpa
-> will be valid but won't be backed by a shadow page.  It's all too easy to
-> blindly call mmu_free_root_page() on root_hpa, be nice and WARN instead of
-> crashing KVM and possibly the kernel.
+> As commit 0c5f81dad46 ("KVM: LAPIC: Inject timer interrupt via posted
+> interrupt") mentioned that the host admin should well tune the guest
+> setup, so that vCPUs are placed on isolated pCPUs, and with several pCPUs
+> surplus for *busy* housekeeping.  In this setup, it is preferrable to
+> disable mwait/hlt/pause vmexits to keep the vCPUs in non-root mode.
 > 
+> However, if only some guests isolated and others not, they would not
+> have any benefit from posted timer interrupts, and at the same time lose
+> VMX preemption timer fast paths because kvm_can_post_timer_interrupt()
+> returns true and therefore forces kvm_can_use_hv_timer() to false.
+> 
+> By guaranteeing that posted-interrupt timer is only used if MWAIT or
+> HLT are done without vmexit, KVM can make a better choice and use the
+> VMX preemption timer and the corresponding fast paths.
+> 
+> Reported-by: Aili Yao <yaoaili@kingsoft.com>
 > Reviewed-by: Sean Christopherson <seanjc@google.com>
+> Cc: Aili Yao <yaoaili@kingsoft.com>
+> Cc: Sean Christopherson <seanjc@google.com>
+> Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+> Message-Id: <1643112538-36743-1-git-send-email-wanpengli@tencent.com>
 > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->   arch/x86/kvm/mmu/mmu.c | 2 ++
->   1 file changed, 2 insertions(+)
+>   arch/x86/kvm/lapic.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-> index 34e828badc51..806f9d42bcce 100644
-> --- a/arch/x86/kvm/mmu/mmu.c
-> +++ b/arch/x86/kvm/mmu/mmu.c
-> @@ -3314,6 +3314,8 @@ static void mmu_free_root_page(struct kvm *kvm, hpa_t *root_hpa,
->   		return;
+> diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+> index 83d1743a1dd0..493d636e6231 100644
+> --- a/arch/x86/kvm/lapic.c
+> +++ b/arch/x86/kvm/lapic.c
+> @@ -113,7 +113,8 @@ static inline u32 kvm_x2apic_id(struct kvm_lapic *apic)
 >   
->   	sp = to_shadow_page(*root_hpa & PT64_BASE_ADDR_MASK);
-> +	if (WARN_ON(!sp))
-> +		return;
+>   static bool kvm_can_post_timer_interrupt(struct kvm_vcpu *vcpu)
+>   {
+> -	return pi_inject_timer && kvm_vcpu_apicv_active(vcpu);
+> +	return pi_inject_timer && kvm_vcpu_apicv_active(vcpu) &&
+> +		(kvm_mwait_in_guest(vcpu->kvm) || kvm_hlt_in_guest(vcpu->kvm));
+>   }
 >   
->   	if (is_tdp_mmu_page(sp))
->   		kvm_tdp_mmu_put_root(kvm, sp, false);
+>   bool kvm_can_use_hv_timer(struct kvm_vcpu *vcpu)
 
 Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
