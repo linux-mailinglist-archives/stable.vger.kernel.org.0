@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 434D7511434
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 11:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45276511439
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 11:18:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229653AbiD0JTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 05:19:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60144 "EHLO
+        id S231502AbiD0JTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 05:19:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235062AbiD0JTq (ORCPT
+        with ESMTP id S235001AbiD0JTq (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 05:19:46 -0400
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A9F2702C9
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 02:16:04 -0700 (PDT)
-Received: by mail-pj1-f42.google.com with SMTP id e24so956142pjt.2
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 02:16:04 -0700 (PDT)
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C34CB26FA2F
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 02:16:05 -0700 (PDT)
+Received: by mail-pj1-f54.google.com with SMTP id bd19-20020a17090b0b9300b001d98af6dcd1so4462699pjb.4
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 02:16:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=xd9Vi+TZVOyznXtBRJX4AQ1a8xIEz2piwkxXO1Z3zAM=;
-        b=FDiIZqNtv1KpIWzluSeIR1oedPi7e6yc18UB4Hm4v4rCX5jyQoon2NPIIeNdN4T9aL
-         840fpWuPlqFuXtHYHVKRgNFU6SoVIg3gBw63pgnDFbXmpq4jGi39FJqDfWokwW+fcg86
-         wf1jFBfkSRwN/d55VLT0dm9RcJYSN2pRlsv0qUur7rRqgExlsVPtri4DUx3yGFQjvUSr
-         sm90XIeFBfequmoovclurpgBYilN/hT06bUOcI6imV0TqfvfdIqTrRVOc1LJnhVZBuET
-         +Kxf/kPsyLHKb3N4127QvzmBljyRX9u2U0PTwg7OpAdTe+qGCG1u39ada7f/YUDAdCQv
-         CFFQ==
+        bh=y+tLUVMr3QiUmbwQFd625iqiVYrOhFHJkxf0KM4D024=;
+        b=ELLpMwjaJE7pMA/LxJyiNutAywNXSxoQtuor1RdwNCsEBhfPiFZzmq3iRVddrTKH5U
+         2oKO3xXhtKwLZVaREWhfefyBbG/dnKRLQKAFJeRUXqKcRLkH0saHaA7oTsFwM+iilXad
+         qhKeotkqCnmm7Z6MJIEOZWHMM2jr3q6UGxXPzhwRU1OR16UaFYV+wPq5Ffd1SxmFFcqp
+         BchlPHKYM1yWLnyieBrDJyjgH5Hsxys7ZOay33v3QhlVFPyzWSUQiBO4uEbg5PFdrTDk
+         juP4ZgSYwz8fqo5A5qMBGqoKFVyJ8aARiwzdRLzBi/dSspA2kCxx0h0CoxJ5+f8T42UA
+         26EA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=xd9Vi+TZVOyznXtBRJX4AQ1a8xIEz2piwkxXO1Z3zAM=;
-        b=xtKKFYfkSH3zSiq9ptf+xYSOdUQKDKGFpbjdC/5XzO8IxwGIR+NrbghOfV/H/NJ2P5
-         2bQSAxXjx5DyIzTLXmKXkHgQHpmvrprRLk9aisxswXaCIDyeD9WCVYK7XH3uY5foiCN3
-         xNnXMQYlvzVpftaAwtBWMnkEdw391Wxrdyhsh09WTxZ65SlBA4HLzK6+WYCuCmlb6KFR
-         25kxE3lzQcL+UirnnvpsoVHoz2NiBajm6obiojuurRgMaRWBq2nd2UDwwihubzydAU7h
-         AtMfOP2BiooRw/Mbs3MFXEoNcyoDFOkcmFMXuFgB2l+5bHU8c1PRB24Q+Z3/m9//ihFN
-         Iv3Q==
-X-Gm-Message-State: AOAM533GMW52Uq0wpQTZWPfA5Tb2kDDiK/DeDHoKs1SAmeU1ybiNlNi7
-        msdUuCIP0NnObPPxbm9y3EuDiXTRTfQ1/edb4B8=
-X-Google-Smtp-Source: ABdhPJxpZDcEjoCRnZ+YAtJonQxBHKiSMTpn3pswR9zU7KpbxBA08pPd5VFOoj3FEVSrNgnUHQC3VA==
-X-Received: by 2002:a17:90b:1d0c:b0:1d2:a91e:24dc with SMTP id on12-20020a17090b1d0c00b001d2a91e24dcmr32287414pjb.165.1651050643816;
-        Wed, 27 Apr 2022 02:10:43 -0700 (PDT)
+        bh=y+tLUVMr3QiUmbwQFd625iqiVYrOhFHJkxf0KM4D024=;
+        b=Q7LzaAZ5MkAR8kEYLJ+2TP0ueiIbiK8/lO/kgsWKFXL/3OaWlFAcDpuUdViW1LJRIu
+         /wzqorOmkOd7EVC23UXqzuRAe6azUNI4ChAxRHYK3IuZb8g/WrEqQFDBw4thnB8xvYcV
+         bkFsxBVm0Ngch6zCPYWQ1BDUOYP233TBRUthsgR4Pq7UpgqVgNtaVJTR12iMlOM0COSz
+         AsDdMPDDvTj72nGuDw8fQsaO+Urg2UM1UJxHSuAXj1AnBRHa+oeHPmz+U02HfuFFtPd9
+         stL5EFr/izz3GqmQTwj86soHefhd6Ec8o8m4mSSnV5sE49wp4RhdYR/cxiocZl8n1skD
+         SYGw==
+X-Gm-Message-State: AOAM531CgMF2UBDHLBpqs3tzInxiVoZnA9aSEbPWS7jfrWoR7Xyrt++a
+        KKxnzQT4HX9XM434JmeMHsId4A+9eZ1EiC+Fu0g=
+X-Google-Smtp-Source: ABdhPJxrAWJVx8o09ifRDuD9/qxanGN0EDFz9CZLFvvQRZ4UW53Lqm8i846QXPfG0eQ/htPROhzb4Q==
+X-Received: by 2002:a17:902:c2d5:b0:15a:2804:259b with SMTP id c21-20020a170902c2d500b0015a2804259bmr27620266pla.97.1651050644105;
+        Wed, 27 Apr 2022 02:10:44 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 5-20020a631045000000b0039d942d18f0sm15308998pgq.48.2022.04.27.02.10.43
+        by smtp.gmail.com with ESMTPSA id bo3-20020a17090b090300b001cd4989fecesm6103484pjb.26.2022.04.27.02.10.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Wed, 27 Apr 2022 02:10:43 -0700 (PDT)
-Message-ID: <62690893.1c69fb81.f0642.55eb@mx.google.com>
+Message-ID: <62690893.1c69fb81.3a60a.e356@mx.google.com>
 Date:   Wed, 27 Apr 2022 02:10:43 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.239-54-g5e5c9d690926
+X-Kernelci-Kernel: v4.19.239-53-ga89a977c18bc5
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y build: 198 builds: 198 failed, 0 passed,
- 2 errors, 32 warnings (v4.19.239-54-g5e5c9d690926)
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 build: 198 builds: 198 failed, 0 passed, 2 errors,
+ 32 warnings (v4.19.239-53-ga89a977c18bc5)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,16 +70,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y build: 198 builds: 198 failed, 0 passed, 2 errors, 3=
-2 warnings (v4.19.239-54-g5e5c9d690926)
+stable-rc/queue/4.19 build: 198 builds: 198 failed, 0 passed, 2 errors, 32 =
+warnings (v4.19.239-53-ga89a977c18bc5)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.239-54-g5e5c9d690926/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
+9/kernel/v4.19.239-53-ga89a977c18bc5/
 
 Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.239-54-g5e5c9d690926
-Git Commit: 5e5c9d690926bf43bc1405d163e02768a56c56dc
+Branch: queue/4.19
+Git Describe: v4.19.239-53-ga89a977c18bc5
+Git Commit: a89a977c18bc5ce213bca9caf9c08c4de9561487
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -383,11 +383,6 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (i386, gcc-10) =E2=80=94 FAIL, 0 errors, 2 warnings, 0 section =
 mismatches
 
@@ -398,8 +393,8 @@ y section `.head.text'
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
-ismatches
+allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -412,6 +407,11 @@ Warnings:
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -575,6 +575,11 @@ decstation_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
+defconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 defconfig (arm64, gcc-10) =E2=80=94 FAIL, 0 errors, 3 warnings, 0 section m=
 ismatches
 
@@ -582,11 +587,6 @@ Warnings:
     aarch64-linux-gnu-ld: warning: -z norelro ignored
     aarch64-linux-gnu-ld: warning: -z norelro ignored
     aarch64-linux-gnu-ld: warning: -z norelro ignored
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1328,11 +1328,6 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
 tinyconfig (x86_64, gcc-10) =E2=80=94 FAIL, 0 errors, 3 warnings, 0 section=
  mismatches
 
@@ -1342,6 +1337,11 @@ Warnings:
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
