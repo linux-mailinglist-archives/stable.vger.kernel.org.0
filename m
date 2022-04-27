@@ -2,100 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E93A7511F7E
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CB41511FE7
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbiD0Ra4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 13:30:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39578 "EHLO
+        id S244211AbiD0RlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 13:41:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243990AbiD0Ra4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 13:30:56 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDC6474DE0;
-        Wed, 27 Apr 2022 10:27:44 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id h1so2121552pfv.12;
-        Wed, 27 Apr 2022 10:27:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=BzSUWHcbSbIUG8Be1XSOAdrtfZjDbG3/mXUuT1itZXc=;
-        b=VxBKksreuBYZNErBWS4bqoHxx9xPZ+nj7mVZ8RqPksMrWbPjOByZHpFdHzo8eSwE2u
-         w0IBM7UDwKQ9irFxTXg3OIdwxCtw43Gya+r26wQEgMOpDgotTePN6z9Ud3zEprsY7wDA
-         vHv6/vFQcrhrV7mnbZfG5AJS8yA5w3J3kMVR5fPwdYev2n78fTZhEQipueB5bG5jT2O8
-         k/sn58V9WXDgx8fgm+9QncL3AM3wQ7FvHyf8wBlf02BMg9GrA+4hSbCZdiyx4uPXObko
-         dAyFfnUtiicAro3PGwNm6nQqZVQXHCskWr9ymzMRZYAtlIl00Zgbi6qaD2ZwdzG3HLDk
-         3JLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=BzSUWHcbSbIUG8Be1XSOAdrtfZjDbG3/mXUuT1itZXc=;
-        b=YCVFoOdwRO+h0zPWaqmvJe9ZEyc0EY6q5dVifIbGHtjzdyzSLuwvwfAc/7/S34qj94
-         fr5/+w1Z2zDtavxTrhSQTU82TDj7nysBD1HlUmy+Q9jauSi5yvrV511i2DTkfCVPmUqp
-         9tqOTO0N1bYfI5DqM73OzIEl+0g40SByMbqty3253UWdazn/KGfRmrMQdUD5x2irVatd
-         Ibet57vdmqHLNOc3Rz8/Y87c0EgEX6tWJFNirPcet26/zRNuTYpsR3AnDfkoOEJmMiG5
-         rgEcziJDpUYDuY2lOr6ytzbLW97QyWsriTPu09dlzyBvei7QIA2y2DoD7X/T1fwnu376
-         o3/g==
-X-Gm-Message-State: AOAM530ZO2W0PAjH66hriyfsNmFs2PTjIpELw92Inrh1pi9CAagumSMm
-        UT0v7MyppTfvt/cQtM/3xSA=
-X-Google-Smtp-Source: ABdhPJwAX++wrhvaoohbEVduON8WDdFuUdRNvuGm+VfnK2Nx+3CpW61edOXdfoPxMuKYm/07nEHPPg==
-X-Received: by 2002:a05:6a00:1749:b0:50a:8eed:b824 with SMTP id j9-20020a056a00174900b0050a8eedb824mr31049201pfc.50.1651080464269;
-        Wed, 27 Apr 2022 10:27:44 -0700 (PDT)
-Received: from localhost ([2620:10d:c090:400::5:4f81])
-        by smtp.gmail.com with ESMTPSA id h9-20020a17090a054900b001d953eb2412sm3669504pjf.19.2022.04.27.10.27.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Apr 2022 10:27:43 -0700 (PDT)
-Sender: Tejun Heo <htejun@gmail.com>
-Date:   Wed, 27 Apr 2022 07:27:42 -1000
-From:   Tejun Heo <tj@kernel.org>
-To:     Minchan Kim <minchan@kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jirka Hladky <jhladky@redhat.com>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        regressions@lists.linux.dev,
-        Justin Forbes <jforbes@fedoraproject.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] kernfs: fix NULL dereferencing in kernfs_remove
-Message-ID: <Yml9Djpe5HT0HqoN@slm.duckdns.org>
-References: <20220427172152.3505364-1-minchan@kernel.org>
+        with ESMTP id S244175AbiD0RlP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 13:41:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 63C4542485
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 10:38:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651081083;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=FCEYz9iiBoLYp3MC39QvQcLFQE/JiMBJg4nT2bv7piQ=;
+        b=K9OJez0fDtdgYKl67gXkjSk7O/xuG0eSD9uLpTIjJNErXRZeYdM9Bqfp6oo3eLiQdQ5qD9
+        1aLq+0lp7RUFPLPTTKGQgZTfnDznmvbEOi1BEG04sOCJhtsHr83oOUznITOkEBRzpvVe5r
+        y7QXj+YsL/7wnfH+NHbdmm34TZIKQJk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-442-SPR1-pTnOS-M4R1bFzKV9Q-1; Wed, 27 Apr 2022 13:37:59 -0400
+X-MC-Unique: SPR1-pTnOS-M4R1bFzKV9Q-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3E1AD101AA46;
+        Wed, 27 Apr 2022 17:37:59 +0000 (UTC)
+Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 163A5407DEC3;
+        Wed, 27 Apr 2022 17:37:59 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     mlevitsk@redhat.com, seanjc@google.com, stable@vger.kernel.org
+Subject: [PATCH 1/3] KVM: x86: make vendor code check for all nested events
+Date:   Wed, 27 Apr 2022 13:37:56 -0400
+Message-Id: <20220427173758.517087-2-pbonzini@redhat.com>
+In-Reply-To: <20220427173758.517087-1-pbonzini@redhat.com>
+References: <20220427173758.517087-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220427172152.3505364-1-minchan@kernel.org>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Apr 27, 2022 at 10:21:51AM -0700, Minchan Kim wrote:
-> kernfs_remove supported NULL kernfs_node param to bail out but revent
-                                                                 ^
-                                                                 typo
-> per-fs lock change introduced regression that dereferencing the
-> param without NULL check so kernel goes crash.
-> 
-> This patch checks the NULL kernfs_node in kernfs_remove and if so,
-> just return.
-...
-> Cc: stable@vger.kernel.org
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=215696
-> Link: https://lore.kernel.org/lkml/CAE4VaGDZr_4wzRn2___eDYRtmdPaGGJdzu_LCSkJYuY9BEO3cw@mail.gmail.com/
-> Fixes: 393c3714081a (kernfs: switch global kernfs_rwsem lock to per-fs lock)
-> Reported-by: Jirka Hladky <jhladky@redhat.com>
-> Tested-by: Jirka Hladky <jhladky@redhat.com>
-> Signed-off-by: Minchan Kim <minchan@kernel.org>
+Right now, the VMX preemption timer is special cased via the
+hv_timer_pending, but the purpose of the callback can be easily
+extended to observing any event that can occur only in non-root
+mode.  Interrupts, NMIs etc. are already handled properly by
+the *_interrupt_allowed callbacks, so what is missing is only
+MTF.  Check it in the newly-renamed callback, so that
+kvm_vcpu_running's call to kvm_check_nested_events
+becomes redundant.
 
-Acked-by: Tejun Heo <tj@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/include/asm/kvm_host.h | 2 +-
+ arch/x86/kvm/vmx/nested.c       | 7 ++++++-
+ arch/x86/kvm/x86.c              | 8 ++++----
+ 3 files changed, 11 insertions(+), 6 deletions(-)
 
-Thanks.
-
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 4ff36610af6a..e2e4f60159e9 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1504,7 +1504,7 @@ struct kvm_x86_ops {
+ struct kvm_x86_nested_ops {
+ 	void (*leave_nested)(struct kvm_vcpu *vcpu);
+ 	int (*check_events)(struct kvm_vcpu *vcpu);
+-	bool (*hv_timer_pending)(struct kvm_vcpu *vcpu);
++	bool (*has_events)(struct kvm_vcpu *vcpu);
+ 	void (*triple_fault)(struct kvm_vcpu *vcpu);
+ 	int (*get_state)(struct kvm_vcpu *vcpu,
+ 			 struct kvm_nested_state __user *user_kvm_nested_state,
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 856c87563883..54672025c3a1 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -3857,6 +3857,11 @@ static bool nested_vmx_preemption_timer_pending(struct kvm_vcpu *vcpu)
+ 	       to_vmx(vcpu)->nested.preemption_timer_expired;
+ }
+ 
++static bool vmx_has_nested_events(struct kvm_vcpu *vcpu)
++{
++	return nested_vmx_preemption_timer_pending(vcpu) || vmx->nested.mtf_pending;
++}
++
+ static int vmx_check_nested_events(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+@@ -6809,7 +6814,7 @@ __init int nested_vmx_hardware_setup(int (*exit_handlers[])(struct kvm_vcpu *))
+ struct kvm_x86_nested_ops vmx_nested_ops = {
+ 	.leave_nested = vmx_leave_nested,
+ 	.check_events = vmx_check_nested_events,
+-	.hv_timer_pending = nested_vmx_preemption_timer_pending,
++	.has_events = vmx_has_nested_events,
+ 	.triple_fault = nested_vmx_triple_fault,
+ 	.get_state = vmx_get_nested_state,
+ 	.set_state = vmx_set_nested_state,
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index a6ab19afc638..0e73607b02bd 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -9471,8 +9471,8 @@ static int inject_pending_event(struct kvm_vcpu *vcpu, bool *req_immediate_exit)
+ 	}
+ 
+ 	if (is_guest_mode(vcpu) &&
+-	    kvm_x86_ops.nested_ops->hv_timer_pending &&
+-	    kvm_x86_ops.nested_ops->hv_timer_pending(vcpu))
++	    kvm_x86_ops.nested_ops->has_events &&
++	    kvm_x86_ops.nested_ops->has_events(vcpu))
+ 		*req_immediate_exit = true;
+ 
+ 	WARN_ON(vcpu->arch.exception.pending);
+@@ -12183,8 +12183,8 @@ static inline bool kvm_vcpu_has_events(struct kvm_vcpu *vcpu)
+ 		return true;
+ 
+ 	if (is_guest_mode(vcpu) &&
+-	    kvm_x86_ops.nested_ops->hv_timer_pending &&
+-	    kvm_x86_ops.nested_ops->hv_timer_pending(vcpu))
++	    kvm_x86_ops.nested_ops->has_events &&
++	    kvm_x86_ops.nested_ops->has_events(vcpu))
+ 		return true;
+ 
+ 	return false;
 -- 
-tejun
+2.31.1
+
+
