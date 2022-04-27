@@ -2,134 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3C1D51157B
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 13:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9395511578
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 13:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232342AbiD0LIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 07:08:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56450 "EHLO
+        id S231839AbiD0LKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 07:10:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231967AbiD0LHz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 07:07:55 -0400
-Received: from smtp110.ord1d.emailsrvr.com (smtp110.ord1d.emailsrvr.com [184.106.54.110])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A6E80BE3
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 04:01:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
-        s=20190130-41we5z8j; t=1651056874;
-        bh=TWYQidF18CD3BHzOD5gTEys7gjZpmZbfQHDWi01K3ao=;
-        h=From:To:Subject:Date:From;
-        b=IpmFVq0oy0B6ns0kBEx3tQdWLuM4d0H6gsSCDvGqECmH+Zzy4TBTJxNFRIcH2On0L
-         I5fPLHQ3Yuf3LWMVHElrwRNZs0w1Sc7uZGMzj+Blj5f+Nwcum6ux5cHYKW5fciDn/v
-         fpTYlDG5Jt9FBo+9qIzP66ukMFo9v8mMnyQLGbzE=
-X-Auth-ID: abbotti@mev.co.uk
-Received: by smtp6.relay.ord1d.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id 4FA86E00E0;
-        Wed, 27 Apr 2022 06:54:33 -0400 (EDT)
-From:   Ian Abbott <abbotti@mev.co.uk>
-To:     stable@vger.kernel.org
-Cc:     linux-spi@vger.kernel.org, devicetree@vger.kernel.org,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.15 2/2] ARM: dts: socfpga: change qspi to "intel,socfpga-qspi"
-Date:   Wed, 27 Apr 2022 11:54:07 +0100
-Message-Id: <20220427105407.40167-3-abbotti@mev.co.uk>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220427105407.40167-1-abbotti@mev.co.uk>
-References: <20220427105407.40167-1-abbotti@mev.co.uk>
+        with ESMTP id S233441AbiD0LJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 07:09:22 -0400
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67EAE403FD;
+        Wed, 27 Apr 2022 04:06:04 -0700 (PDT)
+Received: by mail-wm1-x333.google.com with SMTP id l16-20020a05600c1d1000b00394011013e8so752707wms.1;
+        Wed, 27 Apr 2022 04:06:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=9RwDixBgSb/XMoXlUTpq9dYnl7i1MQjOiSQxUvjUqGg=;
+        b=XyRV+m0Lv/FmF/IbshnFURENCtvD11keeqsHX5JYBzjWWFx0zevZKvWFm797AF8t3o
+         NF1z9b2M8F/TK1pEncITIdhv+5gEAMkCLFLTFVj73kw4gazV0hfpJ6y8GI6hAiV4gSeS
+         zbWC+Nu9HGsJ90tDg1HBn/hQPiTvm3nqaREP3SD+Xztpb395syDtvark+8pQ6IdmTfoh
+         zeejTNNlQc0NrMqFG812gmBG0JShR5RuKCikbRmU9hHgUZAYUnJ5eUovgUWGcnivipE6
+         3lU9a5plvd8c2d2io1B5+cwaW2Y8iLSK5mfnCmOZ8kJ4WR1w4ShFh2ekyc4hGEAw2X68
+         y6NQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=9RwDixBgSb/XMoXlUTpq9dYnl7i1MQjOiSQxUvjUqGg=;
+        b=BRyqtma2BcRgjmH42sXaipbU++flkhiJOxBD4fjBNbKcBA96tMFfonjMH05cT/yrbe
+         aXq5XqSevgLreBdxaoI4fmOFBn1sWULeFfn3JC46cXeuuIBOBOH0rAFKnf4Ns/2+Ib0S
+         EZlLjsT77/QcTdYWUQVFRw4qrgzYigpou+xKCBYJ9pGQsARw2yL7oW88/p6qBYt8FNP8
+         92BGR0mhMPza7wiJrz5biyw5gbgL27nV9q1QbsH+2qkkdQWypV08I2XRh4U5nQo5w6BQ
+         tgm0tc6Gpt6USRORVD/jJOTvJnbqhdGf9mvlp0ERowycCqe8EmeLwtjnDpwpxgO02wcY
+         HP8g==
+X-Gm-Message-State: AOAM530kJq7MQNkvIGbpHNrhrD9JlEOdB5rOuT1N9qF2nEmNDGbards9
+        MXGNOAmvItto11mlhBtb9J0=
+X-Google-Smtp-Source: ABdhPJxQjv6ox2AVdSZkiONW/c9Wd7u1Cw0+G6teeUO9dWxu/UPDD7B6qW8Y3oU/OtIJxo5dzIKSEA==
+X-Received: by 2002:a05:600c:a08:b0:392:a561:9542 with SMTP id z8-20020a05600c0a0800b00392a5619542mr25017257wmp.62.1651057562803;
+        Wed, 27 Apr 2022 04:06:02 -0700 (PDT)
+Received: from debian (host-78-145-97-89.as13285.net. [78.145.97.89])
+        by smtp.gmail.com with ESMTPSA id k11-20020a5d6d4b000000b0020599079f68sm13557633wri.106.2022.04.27.04.06.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Apr 2022 04:06:02 -0700 (PDT)
+Date:   Wed, 27 Apr 2022 12:06:00 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.4 00/62] 5.4.191-rc1 review
+Message-ID: <YmkjmDF4KPLvkqWK@debian>
+References: <20220426081737.209637816@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Classification-ID: 3bf3f977-eed8-458c-82a7-dc4c605c474d-3-1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220426081737.209637816@linuxfoundation.org>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+Hi Greg,
 
-commit 36de991e93908f7ad5c2a0eac9c4ecf8b723fa4a upstream.
+On Tue, Apr 26, 2022 at 10:20:40AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.191 release.
+> There are 62 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 28 Apr 2022 08:17:22 +0000.
+> Anything received after that time might be too late.
 
-Because of commit 9cb2ff111712 ("spi: cadence-quadspi: Disable Auto-HW polling"),
-which does a write to the CQSPI_REG_WR_COMPLETION_CTRL register
-regardless of any condition. Well, the Cadence QuadSPI controller on
-Intel's SoCFPGA platforms does not implement the
-CQSPI_REG_WR_COMPLETION_CTRL register, thus a write to this register
-results in a crash!
+Build test:
+mips (gcc version 11.2.1 20220408): 65 configs -> no failure
+arm (gcc version 11.2.1 20220408): 107 configs -> no new failure
+arm64 (gcc version 11.2.1 20220408): 2 configs -> no failure
+x86_64 (gcc version 11.2.1 20220408): 4 configs -> no failure
 
-So starting with v5.16, I introduced the patch
-98d948eb833 ("spi: cadence-quadspi: fix write completion support"),
-which adds the dts compatible "intel,socfpga-qspi" that is specific for
-versions that doesn't have the CQSPI_REG_WR_COMPLETION_CTRL register implemented.
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
 
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-[IA: submitted for linux-5.15.y]
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
----
-v3: revert back to "intel,socfpga-qspi"
-v2: use both "cdns,qspi-nor" and "cdns,qspi-nor-0010"
----
- arch/arm/boot/dts/socfpga.dtsi                    | 2 +-
- arch/arm/boot/dts/socfpga_arria10.dtsi            | 2 +-
- arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi | 2 +-
- arch/arm64/boot/dts/intel/socfpga_agilex.dtsi     | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+[1]. https://openqa.qa.codethink.co.uk/tests/1066
 
-diff --git a/arch/arm/boot/dts/socfpga.dtsi b/arch/arm/boot/dts/socfpga.dtsi
-index 0b021eef0b53..7c1d6423d7f8 100644
---- a/arch/arm/boot/dts/socfpga.dtsi
-+++ b/arch/arm/boot/dts/socfpga.dtsi
-@@ -782,7 +782,7 @@ ocram: sram@ffff0000 {
- 		};
- 
- 		qspi: spi@ff705000 {
--			compatible = "cdns,qspi-nor";
-+			compatible = "intel,socfpga-qspi", "cdns,qspi-nor";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0xff705000 0x1000>,
-diff --git a/arch/arm/boot/dts/socfpga_arria10.dtsi b/arch/arm/boot/dts/socfpga_arria10.dtsi
-index a574ea91d9d3..3ba431dfa8c9 100644
---- a/arch/arm/boot/dts/socfpga_arria10.dtsi
-+++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
-@@ -756,7 +756,7 @@ usb0-ecc@ff8c8800 {
- 		};
- 
- 		qspi: spi@ff809000 {
--			compatible = "cdns,qspi-nor";
-+			compatible = "intel,socfpga-qspi", "cdns,qspi-nor";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0xff809000 0x100>,
-diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-index d301ac0d406b..3ec301bd08a9 100644
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-@@ -594,7 +594,7 @@ emac0-tx-ecc@ff8c0400 {
- 		};
- 
- 		qspi: spi@ff8d2000 {
--			compatible = "cdns,qspi-nor";
-+			compatible =  "intel,socfpga-qspi", "cdns,qspi-nor";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0xff8d2000 0x100>,
-diff --git a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-index de1e98c99ec5..f4270cf18996 100644
---- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-+++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-@@ -628,7 +628,7 @@ sdmmca-ecc@ff8c8c00 {
- 		};
- 
- 		qspi: spi@ff8d2000 {
--			compatible = "cdns,qspi-nor";
-+			compatible = "intel,socfpga-qspi", "cdns,qspi-nor";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0xff8d2000 0x100>,
--- 
-2.35.1
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
 
