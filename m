@@ -2,93 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F982511D1F
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:34:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA548511E72
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244145AbiD0RlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 13:41:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53870 "EHLO
+        id S232245AbiD0RuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 13:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244166AbiD0RlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 13:41:15 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3354B41FB2
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 10:38:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651081083;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        with ESMTP id S230395AbiD0RuK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 13:50:10 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D04443ECB;
+        Wed, 27 Apr 2022 10:46:58 -0700 (PDT)
+Date:   Wed, 27 Apr 2022 17:46:55 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1651081617;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=NrnrIbR3L39VOrIgvRZkUaU80AMLT3lel5AFpVPIXhk=;
-        b=IjDMRAAB1uIH0SzFGAUayoCmeqV7K2NfylLC2AFeJ/tWT84E3kTAwSRR5GKqhEU2xZgR5Z
-        XcWYzCcrVwYRPv0RwkhEyXFzgmypCfgsMfGGyXOyDCX2hH2C+tI5z+6lnoocj+JAHiJFrB
-        Kxkx5x9gqg3s52t+qIQGbzgbzAy9FZo=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-617-YckeZTk2M4S3Fq1wKK3kTA-1; Wed, 27 Apr 2022 13:38:00 -0400
-X-MC-Unique: YckeZTk2M4S3Fq1wKK3kTA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9F925802812;
-        Wed, 27 Apr 2022 17:37:59 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 773C4407DEC3;
-        Wed, 27 Apr 2022 17:37:59 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     mlevitsk@redhat.com, seanjc@google.com, stable@vger.kernel.org
-Subject: [PATCH 3/3] KVM: x86: never write to memory from kvm_vcpu_check_block
-Date:   Wed, 27 Apr 2022 13:37:58 -0400
-Message-Id: <20220427173758.517087-4-pbonzini@redhat.com>
-In-Reply-To: <20220427173758.517087-1-pbonzini@redhat.com>
-References: <20220427173758.517087-1-pbonzini@redhat.com>
+        bh=htCv97HWJBXwAKxNDO9I9Cj0Tvfm3S+nPV9KJDmcKOc=;
+        b=ygpt40bOBuPv+hVmP5XfTRu4QwtBigQYjep7+fj0ggnhq+VKAGoatMJXNmtCL+vX19PwQz
+        cchJnW+g33lL6dlcNrMvSL43D4r01So4d3ar9CXk1EmQ4iw5cAZELXIlO9lA+mTdjwD/RK
+        t3CnnCEf4uSkxMa2eILm1pt73QcswdE/j1DPkN09gMGYraUEOSx5BDe56fr1cvIM04hBan
+        auzFTuafO9fW5mqJwOBCf8H9GcoH1owEwUZC3VSdoHKG7qiCJGSiMo55z9iG3ceZdqbbNx
+        9C51CTi3Vv8fBVRjEtYk8ZJhECaAike6QIxh09jjg8QpXSG5PxysZwlOwKaUCA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1651081617;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=htCv97HWJBXwAKxNDO9I9Cj0Tvfm3S+nPV9KJDmcKOc=;
+        b=J6rXUH80Hv6fnznLPYhb0GnKRjzqRFnLszHSc+/7JukNM4BeKovLmDrFKJfQ0x3upcdQqe
+        kJV8Vl/90DBJQoBA==
+From:   "tip-bot2 for Shin'ichiro Kawasaki" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: irq/urgent] bus: fsl-mc-msi: Fix MSI descriptor mutex lock for
+ msi_first_desc()
+Cc:     "Shin'ichiro Kawasaki" <shinichiro.kawasaki@wdc.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, maz@kernel.org
+In-Reply-To: <20220412075636.755454-1-shinichiro.kawasaki@wdc.com>
+References: <20220412075636.755454-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Message-ID: <165108161560.4207.6285834000819152880.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-kvm_vcpu_check_block is called while not in TASK_RUNNING, and therefore
-cannot sleep.  Writing to guest memory is therefore forbidden, but it
-can happen if kvm_check_nested_events causes a vmexit.
+The following commit has been merged into the irq/urgent branch of tip:
 
-Fortunately, all events that are caught by kvm_check_nested_events are
-also handled by kvm_vcpu_has_events through vendor callbacks such as
-kvm_x86_interrupt_allowed or kvm_x86_ops.nested_ops->has_events, so
-remove the call.
+Commit-ID:     c7d2f89fea26c84d5accc55d9976dd7e5305e63a
+Gitweb:        https://git.kernel.org/tip/c7d2f89fea26c84d5accc55d9976dd7e5305e63a
+Author:        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+AuthorDate:    Tue, 12 Apr 2022 16:56:36 +09:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Wed, 27 Apr 2022 19:42:32 +02:00
 
+bus: fsl-mc-msi: Fix MSI descriptor mutex lock for msi_first_desc()
+
+Commit e8604b1447b4 introduced a call to the helper function
+msi_first_desc(), which needs MSI descriptor mutex lock before
+call. However, the required mutex lock was not added. This results in
+lockdep assertion:
+
+ WARNING: CPU: 4 PID: 119 at kernel/irq/msi.c:274 msi_first_desc+0xd0/0x10c
+  msi_first_desc+0xd0/0x10c
+  fsl_mc_msi_domain_alloc_irqs+0x7c/0xc0
+  fsl_mc_populate_irq_pool+0x80/0x3cc
+
+Fix this by adding the mutex lock and unlock around the function call.
+
+Fixes: e8604b1447b4 ("bus: fsl-mc-msi: Simplify MSI descriptor handling")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Cc: stable@vger.kernel.org
-Reported-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/20220412075636.755454-1-shinichiro.kawasaki@wdc.com
+
 ---
- arch/x86/kvm/x86.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/bus/fsl-mc/fsl-mc-msi.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index d563812ca229..90b4f50b9a84 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10341,9 +10341,6 @@ static inline int vcpu_block(struct kvm_vcpu *vcpu)
+diff --git a/drivers/bus/fsl-mc/fsl-mc-msi.c b/drivers/bus/fsl-mc/fsl-mc-msi.c
+index 5e0e439..0cfe859 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-msi.c
++++ b/drivers/bus/fsl-mc/fsl-mc-msi.c
+@@ -224,8 +224,12 @@ int fsl_mc_msi_domain_alloc_irqs(struct device *dev,  unsigned int irq_count)
+ 	if (error)
+ 		return error;
  
- static inline bool kvm_vcpu_running(struct kvm_vcpu *vcpu)
- {
--	if (is_guest_mode(vcpu))
--		kvm_check_nested_events(vcpu);
--
- 	return (vcpu->arch.mp_state == KVM_MP_STATE_RUNNABLE &&
- 		!vcpu->arch.apf.halted);
- }
--- 
-2.31.1
-
++	msi_lock_descs(dev);
+ 	if (msi_first_desc(dev, MSI_DESC_ALL))
+-		return -EINVAL;
++		error = -EINVAL;
++	msi_unlock_descs(dev);
++	if (error)
++		return error;
+ 
+ 	/*
+ 	 * NOTE: Calling this function will trigger the invocation of the
