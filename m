@@ -2,104 +2,342 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B133D511F4F
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57A03511F1A
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:37:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241782AbiD0QJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 12:09:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52550 "EHLO
+        id S242781AbiD0QRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 12:17:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242328AbiD0QJb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 12:09:31 -0400
-Received: from mail-vk1-xa42.google.com (mail-vk1-xa42.google.com [IPv6:2607:f8b0:4864:20::a42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65D3E3F9378
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:04:42 -0700 (PDT)
-Received: by mail-vk1-xa42.google.com with SMTP id n135so1117470vkn.7
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:04:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=rYTfbZLRcHw/WonX2YsGxFHffObd2Qg2pNsxDak9pAU=;
-        b=JO4hZudNn8pASQmAN5I7gMs36ei0QD+APFpabeb494dqwgmpfNMIZ1WD4kaYh/LMer
-         B/y2qrqQngdnvngNwE+d4J60COB8itGePgJIKj+Xu8l7xGgO7/MRwHLDG+Fr8TdI7vtx
-         sGIa6fvflkAWyJzAsXXorY/HC4GROj3Xdj1GRVB0m/VbNUV9DlWzbidYCUmYoPNVpqBf
-         R34spCH/iA6CAmUKL7fIkq5kcYknsUDXKgyK+QOywZ7pODEVZXp4moiIF0RGxhMK1QAf
-         CiIGECJB0DzShWIo6/sp4HGtFDtfyxHeA1FnSx6zrA9/7RetUkR/3ahDntiyACXhdgOk
-         Mh3g==
+        with ESMTP id S244126AbiD0QPt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 12:15:49 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3378A441066
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:12:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651075871;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=sFc20t4Fawn4HcmOMiQMfQ+t+zsv9RfRTHop2w51OBY=;
+        b=OmKGGf1aGUqFG3vDgbZ+JOXFxbLGBQHymX8oFAm/u3R8MK7pZ3WkWM/dA3JtjIw6IA0E7M
+        o9LVZqFjECnHSGPq8Q2IimMzebh33fU8Z++Hjb4c5NndZBQoAnNul1wzT4Yf/DgD5u0Qxz
+        isytxd5Pi7BCGLrtjW2QuZqzlYMn0jE=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-63-ifxfitZaPZ2DnWch3-5MLw-1; Wed, 27 Apr 2022 12:04:58 -0400
+X-MC-Unique: ifxfitZaPZ2DnWch3-5MLw-1
+Received: by mail-ed1-f71.google.com with SMTP id l24-20020a056402231800b00410f19a3103so1251328eda.5
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 09:04:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=rYTfbZLRcHw/WonX2YsGxFHffObd2Qg2pNsxDak9pAU=;
-        b=OwG4g0n/UbwygmquPeM3dJGOhxUbtJxiHwj/6Wc9nQL542ArvO2brdsuZIQgznNn12
-         0+HpEizGlFso/QA8zvA2iSJyA7dMgj0cnViqd3o+562EhtYVQB6/hfFr6LPmMdbfixlm
-         q3h4TOSs2ONSdg25iegfrzszlYvRiuGnT86bRUaiH7E1gpV+xY93ZvY+zVH6McJoq8dY
-         GqR6KuduFB7psVubHNrIXJGjO6A7Cc1nmNV+ZLD3jnxK1OMNkYl61Ws5Y0lRgWbwKmK6
-         O/XSEXlu9CScjATzLFhuIO1F8kra5HkvMEcb/q+LY171cXON5aIOkDUBdfEoHDAlyryA
-         If/w==
-X-Gm-Message-State: AOAM5313oMTl8+y/OUeurZqUXb9aOI1Sf8hU1y3jO97CJTlxhpNfL4uq
-        4r92NLxDB2TlcrtfplLP587Dge468pmZcY+AsW0=
-X-Google-Smtp-Source: ABdhPJzdnNQ2sXNfLbJ96Fxus5TIuvRmq45aAwNyunWgC/OeTR5p27ytTzK2ytnOErNhxZWXwTgJ5QVKjOVZMWFUH+s=
-X-Received: by 2002:a05:6122:7cf:b0:34d:fc88:c703 with SMTP id
- l15-20020a05612207cf00b0034dfc88c703mr1167834vkr.1.1651075477578; Wed, 27 Apr
- 2022 09:04:37 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=sFc20t4Fawn4HcmOMiQMfQ+t+zsv9RfRTHop2w51OBY=;
+        b=ze3a1bptaOZ8aWxbEem4YPLrELRimUhP/VgZz9E1+3VLII8rJNhZ/eeS8EUWprIFRU
+         wgJgvTv3e1PXq6oX8aZ5i4rfNY7eTXXESbQxjxuEk15gwr5oYEBNcSbouuEed4x4yNCc
+         yN3SnMvUFJ33I3CACgW9fgNqZfPMwANtIcdyMzjSIgNsLV29uJnS410NzzVq4oO+Q3ul
+         vjT8hqDl1Qh5rv7YYO+1MKiJHP/Bj1VDVvKqCY/h5mbcwMeccGrrPZaSx88xRGCRfiyZ
+         usdwSgZmGfRD+b+3a5RcTd7EOShryxFqSLd1778lwNW0g0x0uGaySdaWeb9GmIzGZzVR
+         q0iw==
+X-Gm-Message-State: AOAM5310Rd4kSHoRIysZzu9amfXPzIxLAXEkxGWotp2atfynAt+wQzRM
+        I/YMJKXymkluf6+URU96z3JJetWJ9ETnoISB/l19fHVrUSMRR1gaNVPNOWG/0y110cXusM8nqJg
+        9jSYnBJJ/MLwqBPXs
+X-Received: by 2002:a05:6402:4396:b0:426:1bac:ec8e with SMTP id o22-20020a056402439600b004261bacec8emr2595332edc.127.1651075497456;
+        Wed, 27 Apr 2022 09:04:57 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxtkMRCC7iFIg553pfAq0G1hyWgV7GPKDWn4F7ecqeNassaGQOMNoNiOoH9aE0X0vc/J585yQ==
+X-Received: by 2002:a05:6402:4396:b0:426:1bac:ec8e with SMTP id o22-20020a056402439600b004261bacec8emr2595304edc.127.1651075497189;
+        Wed, 27 Apr 2022 09:04:57 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:1c09:f536:3de6:228c? ([2001:b07:6468:f312:1c09:f536:3de6:228c])
+        by smtp.googlemail.com with ESMTPSA id i6-20020a170906850600b006f3984d939esm4384576ejx.65.2022.04.27.09.04.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 27 Apr 2022 09:04:56 -0700 (PDT)
+Message-ID: <654e8afb-6417-d146-0cea-64ab3d693643@redhat.com>
+Date:   Wed, 27 Apr 2022 18:04:54 +0200
 MIME-Version: 1.0
-Received: by 2002:a05:6102:21c3:0:0:0:0 with HTTP; Wed, 27 Apr 2022 09:04:37
- -0700 (PDT)
-Reply-To: wijh555@gmail.com
-From:   "Mrs. Yameogo Oumarou," <yameogooumarou32@gmail.com>
-Date:   Wed, 27 Apr 2022 09:04:37 -0700
-Message-ID: <CAMnmtNXA_YQXo-A2T46-rx-nRTqpWGkQKnUsvuyr4=z7z49PcQ@mail.gmail.com>
-Subject: Good Day,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:a42 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5002]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [yameogooumarou32[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [wijh555[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [yameogooumarou32[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  0.0 T_HK_NAME_FM_MR_MRS No description available.
-        *  3.6 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: [PATCH MANUALSEL 5.17 6/7] KVM: SEV: Allow SEV intra-host
+ migration of VM with mirrors
+Content-Language: en-US
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Peter Gonda <pgonda@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Marc Orr <marcorr@google.com>, kvm@vger.kernel.org,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org, shuah@kernel.org,
+        linux-kselftest@vger.kernel.org
+References: <20220427155408.19352-1-sashal@kernel.org>
+ <20220427155408.19352-6-sashal@kernel.org>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20220427155408.19352-6-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Greetings,
-I'm Mrs. Yameogo Oumarou, how are you doing hope you are in good health, the
-Board director
-try to reach you on phone several times Meanwhile, your number was not
-connecting. before he ask me to send you an email to hear from you if
-you are fine. hope to hear you are in good Health.
+On 4/27/22 17:54, Sasha Levin wrote:
+> From: Peter Gonda <pgonda@google.com>
+> 
+> [ Upstream commit b2125513dfc0dd0ec5a9605138a3c356592cfb73 ]
+> 
+> For SEV-ES VMs with mirrors to be intra-host migrated they need to be
+> able to migrate with the mirror. This is due to that fact that all VMSAs
+> need to be added into the VM with LAUNCH_UPDATE_VMSA before
+> lAUNCH_FINISH. Allowing migration with mirrors allows users of SEV-ES to
+> keep the mirror VMs VMSAs during migration.
+> 
+> Adds a list of mirror VMs for the original VM iterate through during its
+> migration. During the iteration the owner pointers can be updated from
+> the source to the destination. This fixes the ASID leaking issue which
+> caused the blocking of migration of VMs with mirrors.
+> 
+> Signed-off-by: Peter Gonda <pgonda@google.com>
+> Cc: Sean Christopherson <seanjc@google.com>
+> Cc: Marc Orr <marcorr@google.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: kvm@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Message-Id: <20220211193634.3183388-1-pgonda@google.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Thanks,
-Mrs. Yameogo Oumarou.
+Too scary,
+
+NACK
+
+Paolo
+
+> ---
+>   arch/x86/kvm/svm/sev.c                        | 57 ++++++++++++-------
+>   arch/x86/kvm/svm/svm.h                        |  3 +-
+>   .../selftests/kvm/x86_64/sev_migrate_tests.c  | 47 ++++++++++-----
+>   3 files changed, 73 insertions(+), 34 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+> index fef975852582..553d6dbf19a2 100644
+> --- a/arch/x86/kvm/svm/sev.c
+> +++ b/arch/x86/kvm/svm/sev.c
+> @@ -258,6 +258,7 @@ static int sev_guest_init(struct kvm *kvm, struct kvm_sev_cmd *argp)
+>   		goto e_free;
+>   
+>   	INIT_LIST_HEAD(&sev->regions_list);
+> +	INIT_LIST_HEAD(&sev->mirror_vms);
+>   
+>   	return 0;
+>   
+> @@ -1623,9 +1624,12 @@ static void sev_unlock_vcpus_for_migration(struct kvm *kvm)
+>   	}
+>   }
+>   
+> -static void sev_migrate_from(struct kvm_sev_info *dst,
+> -			      struct kvm_sev_info *src)
+> +static void sev_migrate_from(struct kvm *dst_kvm, struct kvm *src_kvm)
+>   {
+> +	struct kvm_sev_info *dst = &to_kvm_svm(dst_kvm)->sev_info;
+> +	struct kvm_sev_info *src = &to_kvm_svm(src_kvm)->sev_info;
+> +	struct kvm_sev_info *mirror;
+> +
+>   	dst->active = true;
+>   	dst->asid = src->asid;
+>   	dst->handle = src->handle;
+> @@ -1639,6 +1643,30 @@ static void sev_migrate_from(struct kvm_sev_info *dst,
+>   	src->enc_context_owner = NULL;
+>   
+>   	list_cut_before(&dst->regions_list, &src->regions_list, &src->regions_list);
+> +
+> +	/*
+> +	 * If this VM has mirrors, "transfer" each mirror's refcount of the
+> +	 * source to the destination (this KVM).  The caller holds a reference
+> +	 * to the source, so there's no danger of use-after-free.
+> +	 */
+> +	list_cut_before(&dst->mirror_vms, &src->mirror_vms, &src->mirror_vms);
+> +	list_for_each_entry(mirror, &dst->mirror_vms, mirror_entry) {
+> +		kvm_get_kvm(dst_kvm);
+> +		kvm_put_kvm(src_kvm);
+> +		mirror->enc_context_owner = dst_kvm;
+> +	}
+> +
+> +	/*
+> +	 * If this VM is a mirror, remove the old mirror from the owners list
+> +	 * and add the new mirror to the list.
+> +	 */
+> +	if (is_mirroring_enc_context(dst_kvm)) {
+> +		struct kvm_sev_info *owner_sev_info =
+> +			&to_kvm_svm(dst->enc_context_owner)->sev_info;
+> +
+> +		list_del(&src->mirror_entry);
+> +		list_add_tail(&dst->mirror_entry, &owner_sev_info->mirror_vms);
+> +	}
+>   }
+>   
+>   static int sev_es_migrate_from(struct kvm *dst, struct kvm *src)
+> @@ -1708,15 +1736,6 @@ int svm_vm_migrate_from(struct kvm *kvm, unsigned int source_fd)
+>   
+>   	src_sev = &to_kvm_svm(source_kvm)->sev_info;
+>   
+> -	/*
+> -	 * VMs mirroring src's encryption context rely on it to keep the
+> -	 * ASID allocated, but below we are clearing src_sev->asid.
+> -	 */
+> -	if (src_sev->num_mirrored_vms) {
+> -		ret = -EBUSY;
+> -		goto out_unlock;
+> -	}
+> -
+>   	dst_sev->misc_cg = get_current_misc_cg();
+>   	cg_cleanup_sev = dst_sev;
+>   	if (dst_sev->misc_cg != src_sev->misc_cg) {
+> @@ -1738,7 +1757,8 @@ int svm_vm_migrate_from(struct kvm *kvm, unsigned int source_fd)
+>   		if (ret)
+>   			goto out_source_vcpu;
+>   	}
+> -	sev_migrate_from(dst_sev, src_sev);
+> +
+> +	sev_migrate_from(kvm, source_kvm);
+>   	kvm_vm_dead(source_kvm);
+>   	cg_cleanup_sev = src_sev;
+>   	ret = 0;
+> @@ -2008,10 +2028,10 @@ int svm_vm_copy_asid_from(struct kvm *kvm, unsigned int source_fd)
+>   	 */
+>   	source_sev = &to_kvm_svm(source_kvm)->sev_info;
+>   	kvm_get_kvm(source_kvm);
+> -	source_sev->num_mirrored_vms++;
+> +	mirror_sev = &to_kvm_svm(kvm)->sev_info;
+> +	list_add_tail(&mirror_sev->mirror_entry, &source_sev->mirror_vms);
+>   
+>   	/* Set enc_context_owner and copy its encryption context over */
+> -	mirror_sev = &to_kvm_svm(kvm)->sev_info;
+>   	mirror_sev->enc_context_owner = source_kvm;
+>   	mirror_sev->active = true;
+>   	mirror_sev->asid = source_sev->asid;
+> @@ -2019,6 +2039,7 @@ int svm_vm_copy_asid_from(struct kvm *kvm, unsigned int source_fd)
+>   	mirror_sev->es_active = source_sev->es_active;
+>   	mirror_sev->handle = source_sev->handle;
+>   	INIT_LIST_HEAD(&mirror_sev->regions_list);
+> +	INIT_LIST_HEAD(&mirror_sev->mirror_vms);
+>   	ret = 0;
+>   
+>   	/*
+> @@ -2041,19 +2062,17 @@ void sev_vm_destroy(struct kvm *kvm)
+>   	struct list_head *head = &sev->regions_list;
+>   	struct list_head *pos, *q;
+>   
+> -	WARN_ON(sev->num_mirrored_vms);
+> -
+>   	if (!sev_guest(kvm))
+>   		return;
+>   
+> +	WARN_ON(!list_empty(&sev->mirror_vms));
+> +
+>   	/* If this is a mirror_kvm release the enc_context_owner and skip sev cleanup */
+>   	if (is_mirroring_enc_context(kvm)) {
+>   		struct kvm *owner_kvm = sev->enc_context_owner;
+> -		struct kvm_sev_info *owner_sev = &to_kvm_svm(owner_kvm)->sev_info;
+>   
+>   		mutex_lock(&owner_kvm->lock);
+> -		if (!WARN_ON(!owner_sev->num_mirrored_vms))
+> -			owner_sev->num_mirrored_vms--;
+> +		list_del(&sev->mirror_entry);
+>   		mutex_unlock(&owner_kvm->lock);
+>   		kvm_put_kvm(owner_kvm);
+>   		return;
+> diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
+> index 86bcfed6599e..831bca1fdc29 100644
+> --- a/arch/x86/kvm/svm/svm.h
+> +++ b/arch/x86/kvm/svm/svm.h
+> @@ -81,7 +81,8 @@ struct kvm_sev_info {
+>   	struct list_head regions_list;  /* List of registered regions */
+>   	u64 ap_jump_table;	/* SEV-ES AP Jump Table address */
+>   	struct kvm *enc_context_owner; /* Owner of copied encryption context */
+> -	unsigned long num_mirrored_vms; /* Number of VMs sharing this ASID */
+> +	struct list_head mirror_vms; /* List of VMs mirroring */
+> +	struct list_head mirror_entry; /* Use as a list entry of mirrors */
+>   	struct misc_cg *misc_cg; /* For misc cgroup accounting */
+>   	atomic_t migration_in_progress;
+>   };
+> diff --git a/tools/testing/selftests/kvm/x86_64/sev_migrate_tests.c b/tools/testing/selftests/kvm/x86_64/sev_migrate_tests.c
+> index 80056bbbb003..2e5a42cb470b 100644
+> --- a/tools/testing/selftests/kvm/x86_64/sev_migrate_tests.c
+> +++ b/tools/testing/selftests/kvm/x86_64/sev_migrate_tests.c
+> @@ -341,35 +341,54 @@ static void test_sev_mirror_parameters(void)
+>   
+>   static void test_sev_move_copy(void)
+>   {
+> -	struct kvm_vm *dst_vm, *sev_vm, *mirror_vm, *dst_mirror_vm;
+> -	int ret;
+> +	struct kvm_vm *dst_vm, *dst2_vm, *dst3_vm, *sev_vm, *mirror_vm,
+> +		      *dst_mirror_vm, *dst2_mirror_vm, *dst3_mirror_vm;
+>   
+>   	sev_vm = sev_vm_create(/* es= */ false);
+>   	dst_vm = aux_vm_create(true);
+> +	dst2_vm = aux_vm_create(true);
+> +	dst3_vm = aux_vm_create(true);
+>   	mirror_vm = aux_vm_create(false);
+>   	dst_mirror_vm = aux_vm_create(false);
+> +	dst2_mirror_vm = aux_vm_create(false);
+> +	dst3_mirror_vm = aux_vm_create(false);
+>   
+>   	sev_mirror_create(mirror_vm->fd, sev_vm->fd);
+> -	ret = __sev_migrate_from(dst_vm->fd, sev_vm->fd);
+> -	TEST_ASSERT(ret == -1 && errno == EBUSY,
+> -		    "Cannot migrate VM that has mirrors. ret %d, errno: %d\n", ret,
+> -		    errno);
+>   
+> -	/* The mirror itself can be migrated.  */
+>   	sev_migrate_from(dst_mirror_vm->fd, mirror_vm->fd);
+> -	ret = __sev_migrate_from(dst_vm->fd, sev_vm->fd);
+> -	TEST_ASSERT(ret == -1 && errno == EBUSY,
+> -		    "Cannot migrate VM that has mirrors. ret %d, errno: %d\n", ret,
+> -		    errno);
+> +	sev_migrate_from(dst_vm->fd, sev_vm->fd);
+> +
+> +	sev_migrate_from(dst2_vm->fd, dst_vm->fd);
+> +	sev_migrate_from(dst2_mirror_vm->fd, dst_mirror_vm->fd);
+> +
+> +	sev_migrate_from(dst3_mirror_vm->fd, dst2_mirror_vm->fd);
+> +	sev_migrate_from(dst3_vm->fd, dst2_vm->fd);
+> +
+> +	kvm_vm_free(dst_vm);
+> +	kvm_vm_free(sev_vm);
+> +	kvm_vm_free(dst2_vm);
+> +	kvm_vm_free(dst3_vm);
+> +	kvm_vm_free(mirror_vm);
+> +	kvm_vm_free(dst_mirror_vm);
+> +	kvm_vm_free(dst2_mirror_vm);
+> +	kvm_vm_free(dst3_mirror_vm);
+>   
+>   	/*
+> -	 * mirror_vm is not a mirror anymore, dst_mirror_vm is.  Thus,
+> -	 * the owner can be copied as soon as dst_mirror_vm is gone.
+> +	 * Run similar test be destroy mirrors before mirrored VMs to ensure
+> +	 * destruction is done safely.
+>   	 */
+> -	kvm_vm_free(dst_mirror_vm);
+> +	sev_vm = sev_vm_create(/* es= */ false);
+> +	dst_vm = aux_vm_create(true);
+> +	mirror_vm = aux_vm_create(false);
+> +	dst_mirror_vm = aux_vm_create(false);
+> +
+> +	sev_mirror_create(mirror_vm->fd, sev_vm->fd);
+> +
+> +	sev_migrate_from(dst_mirror_vm->fd, mirror_vm->fd);
+>   	sev_migrate_from(dst_vm->fd, sev_vm->fd);
+>   
+>   	kvm_vm_free(mirror_vm);
+> +	kvm_vm_free(dst_mirror_vm);
+>   	kvm_vm_free(dst_vm);
+>   	kvm_vm_free(sev_vm);
+>   }
+
