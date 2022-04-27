@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F449510DC3
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 03:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F20B4510DC1
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 03:13:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242985AbiD0BKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 26 Apr 2022 21:10:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47646 "EHLO
+        id S1354034AbiD0BOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 26 Apr 2022 21:14:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240618AbiD0BKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 21:10:08 -0400
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F77A5E17B;
-        Tue, 26 Apr 2022 18:06:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1651021619; x=1682557619;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=qXiurggk6lNRwvUejqTYj42K/KnKmAqkVluTK7PeL+g=;
-  b=dXR7FtgY3Mxx1t/ANn1Lw9iD+nVbMwHDNG5vLz7Xk/kR3QBS87xhkiel
-   9j78xCD2KsPiCzPU6zbX7gEWuwGwY3lOWwF1MTUFCVvP2DAMNJLJ4c0cu
-   EHG+wyVIXSGTe+QR3Fv+m5efsQh3n+sMiRfId4TsVcjwhxo7Lvyk0eGVG
-   lZjxneFly37peSAXycvrM1GCh5AT3B7gPjzClGXmbZJvV2Zrb58gK03TN
-   mmMSHCC5c6sMXZoNCgM5OjQQNnunL8nkF9JDAmVsdRf2X+c/xm6fLCErO
-   O/N1WkqyKT8vO9fUM22ASvVBeP8L5WDPShGQQR4JosPBecdt8GJNg+sG7
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10329"; a="265935183"
-X-IronPort-AV: E=Sophos;i="5.90,292,1643702400"; 
-   d="scan'208";a="265935183"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Apr 2022 18:06:58 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.90,292,1643702400"; 
-   d="scan'208";a="558635915"
-Received: from shbuild999.sh.intel.com (HELO localhost) ([10.239.146.138])
-  by orsmga007.jf.intel.com with ESMTP; 26 Apr 2022 18:06:55 -0700
-Date:   Wed, 27 Apr 2022 09:06:54 +0800
-From:   Feng Tang <feng.tang@intel.com>
-To:     Waiman Long <longman@redhat.com>
-Cc:     Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "cgroups@vger.kernel.org" <cgroups@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] cgroup/cpuset: Remove cpus_allowed/mems_allowed setup
- in cpuset_init_smp()
-Message-ID: <20220427010654.GC84190@shbuild999.sh.intel.com>
-References: <20220425155505.1292896-1-longman@redhat.com>
- <20220426032337.GA84190@shbuild999.sh.intel.com>
- <be293d58-1084-b586-2267-6a1e6a400762@redhat.com>
+        with ESMTP id S239232AbiD0BOt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 26 Apr 2022 21:14:49 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A2A148395
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 18:11:40 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id b12so295623plg.4
+        for <stable@vger.kernel.org>; Tue, 26 Apr 2022 18:11:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=emRnDwMTzXsgZrQ5BIiu3vFvxy0fCeNFd5w0YEKTuno=;
+        b=Smmng8uvWxPeOFesIOsXo/ltGOKtL7i5I/Cj8msT5DPjKOuLThUCxQh7rppirhPZIF
+         reQPcki1iN9rp85Em7fx/YHXCi0WZp+fO+omnTH1FEH1GAOeGNezhiutaMAhyxbj1ONC
+         ChBR2d+TgHp7OyEypM9w5/gSeEkrpTjJwzYXVUD7UI9nXmp6QQbZW8MJuMBTjSVU7JTq
+         ZNjXjmJ/C9ACjsihEIdbMafU6b/nEBXoltkbs0b326VgptiG9utc6e//D9KlBArnCs1z
+         pxRyjfFHZEpj1mjOgFkqRR1zPJvYCVFErW6N1GfJLr/ZLFwTfH/wjEY1smjIDZsXaFpj
+         XESw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=emRnDwMTzXsgZrQ5BIiu3vFvxy0fCeNFd5w0YEKTuno=;
+        b=J/GP7JTcbd5b0p31bxptI3srprD0FMUfR2ST7WhkcjkmwS1Yk9rnpePMrgp+vs2eg/
+         fsTOV1g2QTCW253nhtAwqnBUiuisCTH3h3XWZA0Z+C4VNWfJPxoGCcSF4mMnEyUPmVBw
+         ZGDK5t0hZ0kgmJLEV5vK7V8gTl1Dlhwt5DnWbgDsdRGoUP9TD8d2bqLkmjoXp5M5JvIN
+         knK+bqhdgX/FGy6qKOnjeClQciWfOXfUVjAjRqKQwpOpZMZ1Z6yz2VXSrafsDdxE8055
+         Wbc9JKTf0+FsutEpu7yI60W4eOmVhRtpgGg19nSx6GHjJsO4bi1UG5c1OZqwR6Mn0xAf
+         YBVw==
+X-Gm-Message-State: AOAM533BuIXo2KFFjKvWvY1lCysmwEFWpcGTG2yOe0TvSHPWFnF7nPsO
+        /J0x9ldBTYIW1ykGuzOCEcxjB110j0NFU9UXAAM=
+X-Google-Smtp-Source: ABdhPJw0/+fCiwoLPgcCtOm6Ll5KOiS7xEgpmYFa3/zTkiAfenjCpA14632xeeNgFAyD/Uqe03lO7A==
+X-Received: by 2002:a17:902:f2ca:b0:15d:180d:704 with SMTP id h10-20020a170902f2ca00b0015d180d0704mr12530908plc.102.1651021899466;
+        Tue, 26 Apr 2022 18:11:39 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j6-20020a63b606000000b003808b0ea96fsm13730752pgf.66.2022.04.26.18.11.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Apr 2022 18:11:39 -0700 (PDT)
+Message-ID: <6268984b.1c69fb81.4f18c.1df2@mx.google.com>
+Date:   Tue, 26 Apr 2022 18:11:39 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <be293d58-1084-b586-2267-6a1e6a400762@redhat.com>
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_NONE,TVD_SUBJ_WIPE_DEBT autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.35-125-gba92a7feb8d6c
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.15.y
+Subject: stable-rc/linux-5.15.y baseline: 120 runs,
+ 2 regressions (v5.15.35-125-gba92a7feb8d6c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,111 +70,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 26, 2022 at 10:58:21PM +0800, Waiman Long wrote:
-> On 4/25/22 23:23, Feng Tang wrote:
-> > Hi Waiman,
-> >
-> > On Mon, Apr 25, 2022 at 11:55:05AM -0400, Waiman Long wrote:
-> >> There are 3 places where the cpu and node masks of the top cpuset can
-> >> be initialized in the order they are executed:
-> >>   1) start_kernel -> cpuset_init()
-> >>   2) start_kernel -> cgroup_init() -> cpuset_bind()
-> >>   3) kernel_init_freeable() -> do_basic_setup() -> cpuset_init_smp()
-> >>
-> >> The first cpuset_init() function just sets all the bits in the masks.
-> >> The last one executed is cpuset_init_smp() which sets up cpu and node
-> >> masks suitable for v1, but not v2.  cpuset_bind() does the right setup
-> >> for both v1 and v2.
-> >>
-> >> For systems with cgroup v2 setup, cpuset_bind() is called once. For
-> >> systems with cgroup v1 setup, cpuset_bind() is called twice. It is
-> >> first called before cpuset_init_smp() in cgroup v2 mode.  Then it is
-> >> called again when cgroup v1 filesystem is mounted in v1 mode after
-> >> cpuset_init_smp().
-> >>
-> >>    [    2.609781] cpuset_bind() called - v2 = 1
-> >>    [    3.079473] cpuset_init_smp() called
-> >>    [    7.103710] cpuset_bind() called - v2 = 0
-> > I run some test, on a server with centOS, this did happen that
-> > cpuset_bind() is called twice, first as v2 during kernel boot,
-> > and then as v1 post-boot.
-> >
-> > However on a QEMU running with a basic debian rootfs image,
-> > the second  call of cpuset_bind() didn't happen.
-> 
-> The first time cpuset_bind() is called in cgroup_init(), the kernel 
-> doesn't know if userspace is going to mount v1 or v2 cgroup. By default, 
-> it is assumed to be v2. However, if userspace mounts the cgroup v1 
-> filesystem for cpuset, cpuset_bind() will be run at this point by 
-> rebind_subsystem() to set up cgroup v1 environment and 
-> cpus_allowed/mems_allowed will be correctly set at this point. Mounting 
-> the cgroup v2 filesystem, however, does not cause rebind_subsystem() to 
-> run and hence cpuset_bind() is not called again.
-> 
-> Is the QEMU setup not mounting any cgroup filesystem at all? If so, does 
-> it matter whether v1 or v2 setup is used?
+stable-rc/linux-5.15.y baseline: 120 runs, 2 regressions (v5.15.35-125-gba9=
+2a7feb8d6c)
 
-When I got the cpuset binding error report, I tried first on qemu to
-reproduce and failed (due to there was no memory hotplug), then I
-reproduced it on a real server. For both system, I used "cgroup_no_v1=all"
-cmdline parameter to test cgroup-v2, could this be the reason? (TBH,
-this is the first time I use cgroup-v2).
+Regressions Summary
+-------------------
 
-Here is the info dump:
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
+      | 1          =
 
-# mount | grep cgroup
-tmpfs on /sys/fs/cgroup type tmpfs (ro,nosuid,nodev,noexec,mode=755)
-cgroup on /sys/fs/cgroup/systemd type cgroup (rw,nosuid,nodev,noexec,relatime,xattr,release_agent=/lib/systemd/systemd-cgroups-agent,name=systemd)
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-#cat /proc/filesystems | grep cgroup
-nodev   cgroup
-nodev   cgroup2
 
-Thanks,
-Feng
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.35-125-gba92a7feb8d6c/plan/baseline/
 
-> >> As a result, cpu and memory node hot add may fail to update the cpu and
-> >> node masks of the top cpuset to include the newly added cpu or node in
-> >> a cgroup v2 environment.
-> >>
-> >> smp_init() is called after the first two init functions.  So we don't
-> >> have a complete list of active cpus and memory nodes until later in
-> >> cpuset_init_smp() which is the right time to set up effective_cpus
-> >> and effective_mems.
-> >>
-> >> To fix this problem, the potentially incorrect cpus_allowed &
-> >> mems_allowed setup in cpuset_init_smp() are removed.  For cgroup v2
-> >> systems, the initial cpuset_bind() call will set them up correctly.
-> >> For cgroup v1 systems, the second call to cpuset_bind() will do the
-> >> right setup.
-> >>
-> >> cc: stable@vger.kernel.org
-> >> Signed-off-by: Waiman Long <longman@redhat.com>
-> >> ---
-> >>   kernel/cgroup/cpuset.c | 5 +++--
-> >>   1 file changed, 3 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-> >> index 9390bfd9f1cd..6bd8f5ef40fe 100644
-> >> --- a/kernel/cgroup/cpuset.c
-> >> +++ b/kernel/cgroup/cpuset.c
-> >> @@ -3390,8 +3390,9 @@ static struct notifier_block cpuset_track_online_nodes_nb = {
-> >>    */
-> >>   void __init cpuset_init_smp(void)
-> >>   {
-> >> -	cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
-> >> -	top_cpuset.mems_allowed = node_states[N_MEMORY];
-> > So can we keep line
-> >    cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
-> >
-> > and only remove line
-> >         top_cpuset.mems_allowed = node_states[N_MEMORY];
-> > ?
-> 
-> That may cause cpusets.cpu to be set incorrectly for systems using 
-> cgroup v2. What is really important is that effective_cpus and 
-> effective_mems are set correctly.
-> 
-> Cheers,
-> Longman
-> 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.35-125-gba92a7feb8d6c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ba92a7feb8d6c5f9baf0f85bd8b1a0e4ee2833c0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6268685272b5cb281aff945c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
+5-125-gba92a7feb8d6c/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-b=
+eagle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
+5-125-gba92a7feb8d6c/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-b=
+eagle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220422.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6268685272b5cb281aff9=
+45d
+        failing since 96 days (last pass: v5.15.14-70-g9cb47c4d3cbf, first =
+fail: v5.15.16) =
+
+ =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6268671e0e3bfd2b06ff951a
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
+5-125-gba92a7feb8d6c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
+baseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
+5-125-gba92a7feb8d6c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/=
+baseline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220422.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6268671e0e3bfd2b06ff9540
+        failing since 50 days (last pass: v5.15.26, first fail: v5.15.26-25=
+8-g7b9aacd770fa)
+
+    2022-04-26T21:41:22.716322  /lava-6183399/1/../bin/lava-test-case
+    2022-04-26T21:41:22.728246  <8>[   33.617687] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
