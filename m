@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DF75511FC8
-	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A57BB511D71
+	for <lists+stable@lfdr.de>; Wed, 27 Apr 2022 20:35:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240623AbiD0P6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 27 Apr 2022 11:58:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56828 "EHLO
+        id S241033AbiD0P6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 27 Apr 2022 11:58:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240753AbiD0P6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 11:58:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F26077F2F;
-        Wed, 27 Apr 2022 08:54:38 -0700 (PDT)
+        with ESMTP id S240897AbiD0P6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 27 Apr 2022 11:58:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CDB7712EF;
+        Wed, 27 Apr 2022 08:54:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 60C6E61B4D;
-        Wed, 27 Apr 2022 15:54:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BD97C385AD;
-        Wed, 27 Apr 2022 15:54:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32032B8288A;
+        Wed, 27 Apr 2022 15:54:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADE40C385A9;
+        Wed, 27 Apr 2022 15:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651074875;
-        bh=nt4Jl+T/r56aML4HwP1tjND6t2tSipFlS5Q/81Noaz0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/QKHXHMD9uFlfq5qvqlsSkSfCtHLDWNpspub7lz51EJx9XkzDuBNxK8LQjgVSh6n
-         JnyOUwnuQr/tp0RSYp5u7A1XYEOZ2sVGKdtewWHkyPWyX2El/KvGZIpdIm8r9iT6ES
-         00K0zFYkLkZStOdTR+zrkkLHRf3QYC4qiUO/3gPqqX8Zaplm14sVo3GE6yl9qsiGvy
-         EC6+9Zt0EqU6146Re86vo9NDuhkQBFQ3kjT0av7QN9ZYjRwmEXWyukLnBWeNGhxLPQ
-         GddfAdlvPOvcPjAxXotIViuTddH3fWRsUMZH/lg0r75u+QkLu2MpQQfUbRLAHqXEKa
-         lPBDuQLIOmWLw==
+        s=k20201202; t=1651074876;
+        bh=u5R2NEE5dxIq9yDn+X6t+uU7aAhLsijujCU70CcrrLA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=TpGzXJbLRb+pn0Ocq3ZJF60vQ1RT0q28WNZCuud2pKn/++9lBZAVLQI8o7ETWo/e/
+         wwz/bBk5FOFoRiNf6IzDTDuS1FyBXj3buS5ghXl+BXtq/M7hv9bXbERvBXnSZMeF6h
+         mIarqi37q9qOFHFfzclYope1CAMU4Skn04NkVD5y+S3FRR2A0epVl0P/wlidu5ZsWx
+         knZFaCBGZvqUgGGv78giHLohMIBqb4FW3sj7lCfuB4uop3MkRuFtASgo2sZJeOeObA
+         N4zvXAX2PHQlsdevZ345vUNm5+DQrCixHCr8IXATec09pZsGaFGkUY3sdMATThEZaH
+         i+8l7obk3krvw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wanpeng Li <wanpengli@tencent.com>,
-        Aili Yao <yaoaili@kingsoft.com>,
-        Sean Christopherson <seanjc@google.com>,
+        Marcelo Tosatti <mtosatti@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
         mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
         x86@kernel.org, kvm@vger.kernel.org
-Subject: [PATCH MANUALSEL 5.15 7/7] KVM: LAPIC: Enable timer posted-interrupt only when mwait/hlt is advertised
-Date:   Wed, 27 Apr 2022 11:54:27 -0400
-Message-Id: <20220427155431.19458-7-sashal@kernel.org>
+Subject: [PATCH MANUALSEL 5.10 1/4] x86/kvm: Preserve BSP MSR_KVM_POLL_CONTROL across suspend/resume
+Date:   Wed, 27 Apr 2022 11:54:32 -0400
+Message-Id: <20220427155435.19554-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220427155431.19458-1-sashal@kernel.org>
-References: <20220427155431.19458-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -61,49 +58,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit 1714a4eb6fb0cb79f182873cd011a8ed60ac65e8 ]
+[ Upstream commit 0361bdfddca20c8855ea3bdbbbc9c999912b10ff ]
 
-As commit 0c5f81dad46 ("KVM: LAPIC: Inject timer interrupt via posted
-interrupt") mentioned that the host admin should well tune the guest
-setup, so that vCPUs are placed on isolated pCPUs, and with several pCPUs
-surplus for *busy* housekeeping.  In this setup, it is preferrable to
-disable mwait/hlt/pause vmexits to keep the vCPUs in non-root mode.
+MSR_KVM_POLL_CONTROL is cleared on reset, thus reverting guests to
+host-side polling after suspend/resume.  Non-bootstrap CPUs are
+restored correctly by the haltpoll driver because they are hot-unplugged
+during suspend and hot-plugged during resume; however, the BSP
+is not hotpluggable and remains in host-sde polling mode after
+the guest resume.  The makes the guest pay for the cost of vmexits
+every time the guest enters idle.
 
-However, if only some guests isolated and others not, they would not
-have any benefit from posted timer interrupts, and at the same time lose
-VMX preemption timer fast paths because kvm_can_post_timer_interrupt()
-returns true and therefore forces kvm_can_use_hv_timer() to false.
+Fix it by recording BSP's haltpoll state and resuming it during guest
+resume.
 
-By guaranteeing that posted-interrupt timer is only used if MWAIT or
-HLT are done without vmexit, KVM can make a better choice and use the
-VMX preemption timer and the corresponding fast paths.
-
-Reported-by: Aili Yao <yaoaili@kingsoft.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Cc: Aili Yao <yaoaili@kingsoft.com>
-Cc: Sean Christopherson <seanjc@google.com>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>
 Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1643112538-36743-1-git-send-email-wanpengli@tencent.com>
+Message-Id: <1650267752-46796-1-git-send-email-wanpengli@tencent.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/kvm.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 83d1743a1dd0..493d636e6231 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -113,7 +113,8 @@ static inline u32 kvm_x2apic_id(struct kvm_lapic *apic)
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 18e952fed021..6c3d38b5a8ad 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -66,6 +66,7 @@ static DEFINE_PER_CPU_DECRYPTED(struct kvm_vcpu_pv_apf_data, apf_reason) __align
+ DEFINE_PER_CPU_DECRYPTED(struct kvm_steal_time, steal_time) __aligned(64) __visible;
+ static int has_steal_clock = 0;
  
- static bool kvm_can_post_timer_interrupt(struct kvm_vcpu *vcpu)
++static int has_guest_poll = 0;
+ /*
+  * No need for any "IO delay" on KVM
+  */
+@@ -624,14 +625,26 @@ static int kvm_cpu_down_prepare(unsigned int cpu)
+ 
+ static int kvm_suspend(void)
  {
--	return pi_inject_timer && kvm_vcpu_apicv_active(vcpu);
-+	return pi_inject_timer && kvm_vcpu_apicv_active(vcpu) &&
-+		(kvm_mwait_in_guest(vcpu->kvm) || kvm_hlt_in_guest(vcpu->kvm));
++	u64 val = 0;
++
+ 	kvm_guest_cpu_offline(false);
+ 
++#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
++	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL))
++		rdmsrl(MSR_KVM_POLL_CONTROL, val);
++	has_guest_poll = !(val & 1);
++#endif
+ 	return 0;
  }
  
- bool kvm_can_use_hv_timer(struct kvm_vcpu *vcpu)
+ static void kvm_resume(void)
+ {
+ 	kvm_cpu_online(raw_smp_processor_id());
++
++#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
++	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL) && has_guest_poll)
++		wrmsrl(MSR_KVM_POLL_CONTROL, 0);
++#endif
+ }
+ 
+ static struct syscore_ops kvm_syscore_ops = {
 -- 
 2.35.1
 
