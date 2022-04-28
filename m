@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D96EA5138E5
+	by mail.lfdr.de (Postfix) with ESMTP id 46EAA5138E3
 	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 17:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349453AbiD1PqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 11:46:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34902 "EHLO
+        id S1347971AbiD1PqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 11:46:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349432AbiD1PqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 11:46:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2F5B97BA4;
-        Thu, 28 Apr 2022 08:42:51 -0700 (PDT)
+        with ESMTP id S1349432AbiD1PqU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 11:46:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C937AB3DCB;
+        Thu, 28 Apr 2022 08:42:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FE92B82919;
-        Thu, 28 Apr 2022 15:42:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E5B9C385AE;
-        Thu, 28 Apr 2022 15:42:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 78605B82E5E;
+        Thu, 28 Apr 2022 15:42:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 796F1C385AE;
+        Thu, 28 Apr 2022 15:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651160569;
-        bh=vTiTP7APfnXW+lzB1PYghHO5btI5VUE0Bb+7eSWCJao=;
+        s=korg; t=1651160572;
+        bh=FigP1rKu5Y706yYbX73vbKh4dLtC3zR1Bbs8LKoNESA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vj5em6zaSmA0fQ4h3Wl+2NIaKChNi94AD96GtWWo210nnOg5ILZLXWP35M5oJoCE1
-         rsQwqEMcRH0VCQX178rpyK5ad++NlYKQtNRa35M7H1DBpHAeigQS/egrLE5xDiVKy/
-         bJ2RigzmX2F+nbsUDf6ObfNbYAeFPvCg+wuUbmsc=
+        b=mBgp7CDHDBsvGPmxf48mgvcPTrEKpp/9bsSeDh2RNuSe4Jl7Aje5Su/+kdCxUracj
+         XEpcTr509prF175AmINfaAoIn+uFlPQX7U6p8a/Ts0gIz0noYMl16ZJLu2g2j5VA5j
+         LJEGSqwpNGjD/aXx9OCtWiQKOZP+1twuLtmApyvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Muchun Song <songmuchun@bytedance.com>,
@@ -43,14 +43,14 @@ Cc:     Muchun Song <songmuchun@bytedance.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH AUTOSEL 03/14] mm: hugetlb: fix missing cache flush in copy_huge_page_from_user()
-Date:   Thu, 28 Apr 2022 17:42:11 +0200
-Message-Id: <20220428154222.1230793-3-gregkh@linuxfoundation.org>
+Subject: [PATCH AUTOSEL 04/14] mm: hugetlb: fix missing cache flush in hugetlb_mcopy_atomic_pte()
+Date:   Thu, 28 Apr 2022 17:42:12 +0200
+Message-Id: <20220428154222.1230793-4-gregkh@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
 References: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1634; i=gregkh@linuxfoundation.org; h=from:subject; bh=RDNUkPqpYNC5Fqd1rPdREkz34APkzrftk+046XZIsXU=; b=owGbwMvMwCRo6H6F97bub03G02pJDElZW+8w9h6q2DrPSUctb/PaO1o2O1PniZ57Iv1iZoRWl0fU /A+fO2JZGASZGGTFFFm+bOM5ur/ikKKXoe1pmDmsTCBDGLg4BWAikXwM8yv97fbsizJcusV7puzR3m 3BfYdvvmJYcKXWgj/77RUB926ODUdS7X7UpRpsBQA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1942; i=gregkh@linuxfoundation.org; h=from:subject; bh=Bx716YFt3zvnDbB2iimMq8Rzl+VGbS5K+OqBTq22op8=; b=owGbwMvMwCRo6H6F97bub03G02pJDElZW+/8f37obMjhjuuxE7+eOxbQLHV3U5QhU8jWTDGbtK5k 0bM9HbEsDIJMDLJiiixftvEc3V9xSNHL0PY0zBxWJpAhDFycAjCRj0sY5sq4fmbQK5I9arnhlSKTcf W0vyytLxjmmekePSB2Zvnu+LBFLN2Xuf+aiWbzAAA=
 X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -64,18 +64,23 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Muchun Song <songmuchun@bytedance.com>
 
-commit e763243cc6cb1fcc720ec58cfd6e7c35ae90a479 upstream.
+commit 348923665a0e50ad9fc0b3bb8127d3cb976691cc upstream.
 
-userfaultfd calls copy_huge_page_from_user() which does not do any cache
-flushing for the target page.  Then the target page will be mapped to
-the user space with a different address (user address), which might have
-an alias issue with the kernel address used to copy the data from the
-user to.
+folio_copy() will copy the data from one page to the target page, then
+the target page will be mapped to the user space address, which might
+have an alias issue with the kernel address used to copy the data from
+the page to.  There are 2 ways to fix this issue.
 
-Fix this issue by flushing dcache in copy_huge_page_from_user().
+ 1) insert flush_dcache_page() after folio_copy().
 
-Link: https://lkml.kernel.org/r/20220210123058.79206-4-songmuchun@bytedance.com
-Fixes: fa4d75c1de13 ("userfaultfd: hugetlbfs: add copy_huge_page_from_user for hugetlb userfaultfd support")
+ 2) replace folio_copy() with copy_user_huge_page() which already
+    considers the cache maintenance.
+
+We chose 2) way to fix the issue since architectures can optimize this
+situation.  It is also make backports easier.
+
+Link: https://lkml.kernel.org/r/20220210123058.79206-5-songmuchun@bytedance.com
+Fixes: 8cc5fcbb5be8 ("mm, hugetlb: fix racy resv_huge_pages underflow on UFFDIO_COPY")
 Signed-off-by: Muchun Song <songmuchun@bytedance.com>
 Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
 Cc: Axel Rasmussen <axelrasmussen@google.com>
@@ -90,22 +95,23 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c | 2 ++
- 1 file changed, 2 insertions(+)
+ mm/hugetlb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/mm/memory.c b/mm/memory.c
-index b69afe3dd597..886925d97759 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5475,6 +5475,8 @@ long copy_huge_page_from_user(struct page *dst_page,
- 		if (rc)
- 			break;
- 
-+		flush_dcache_page(subpage);
-+
- 		cond_resched();
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index a1da8757cc9c..e2dc190c6725 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -5820,7 +5820,8 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 			*pagep = NULL;
+ 			goto out;
+ 		}
+-		folio_copy(page_folio(page), page_folio(*pagep));
++		copy_user_huge_page(page, *pagep, dst_addr, dst_vma,
++				    pages_per_huge_page(h));
+ 		put_page(*pagep);
+ 		*pagep = NULL;
  	}
- 	return ret_val;
 -- 
 2.36.0
 
