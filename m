@@ -2,66 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6B8A512B38
-	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 07:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC494512B9C
+	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 08:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232401AbiD1GCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 02:02:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53088 "EHLO
+        id S243860AbiD1GgO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 02:36:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231218AbiD1GCf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 02:02:35 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DA1D52B3C
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 22:59:22 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id c23so3484013plo.0
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 22:59:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6VKrD9fP10nq/aEHEE4WTiT/q9oIAXUe9qY+LOJBLhc=;
-        b=Pmo70M6CeZ0xycCz3a2t36Lb8HjzqYzkfHF/WK60EV4ZAZdfdf3jeSthQBnobIr82L
-         njaLncAHs99L5c1I6QcazN77ijVdweuFH4PJ449fHPC4QaJe+2NsUbkDD/vWtvnI44m4
-         5xxeZe0+3JmcqzBQWzDUnjXb6vBBXBkHhk9uDHQeieqFOfwLmSGM9Wg8FiAvComg42ES
-         Cgy0lXsYYUsfjnrOWvAk+nAvgJSskh+LWs+1DK2ZKv2I+JNah+esDnl3oI4h+XLyHrVO
-         FAApEDAwE3l+Zfbt7wAJRwZIAhg2fE+DHwAx0SmG2QcQ+sKKNSFLORUHZbpXhjla1tVP
-         XLcw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6VKrD9fP10nq/aEHEE4WTiT/q9oIAXUe9qY+LOJBLhc=;
-        b=ehEzKm7et7rv74PvbXY7Eo55nxzGgDCNvOISFxM0JO/6I0AfkBvrF5h6DdYTtqAiWg
-         Zpn0iBsdZJiyBBr+kQ0+OFuc0+DrBLu+6HdmXbZOgKGnQItYAFA8j6LsHY7KYnikv2Or
-         drLpqem4tnxdvOwNz+g+51Mc+/aaq92PxtakUZhPcFWeCFYkQZv6j2ahs9Q4AyPdviDx
-         tO7bbLkdMQkx141M6JStYUtPW9FISnteVTvMaIRBrBBLJhSz0yaxZL1cbK8sfF/womm8
-         t6LTKL8jHRUSzed3OcgK/zDEWaTUZ4WAOdvNM59GSPN5rYzfqghjoKmR6s+DD7ND0n2g
-         SUjg==
-X-Gm-Message-State: AOAM531kB1kVhJSijGx7J+4aXT4VRAMPZInQ1RQq8Ou96bNDJNoh3s0B
-        klO+dMjCZuPCfS9VDVMTr9olKMzJRzOxev6rYkw=
-X-Google-Smtp-Source: ABdhPJyiH25R9yLBUbTJ5QN63Jeb3akAY1ZCyJLqvHVId9UWnMucQhteuOMVSW9ycgeLmqePk+kC/w==
-X-Received: by 2002:a17:902:70c8:b0:156:509b:68e3 with SMTP id l8-20020a17090270c800b00156509b68e3mr32346962plt.113.1651125561404;
-        Wed, 27 Apr 2022 22:59:21 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z6-20020a63e106000000b003c14af5061bsm1288364pgh.51.2022.04.27.22.59.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Apr 2022 22:59:21 -0700 (PDT)
-Message-ID: <626a2d39.1c69fb81.11063.3b70@mx.google.com>
-Date:   Wed, 27 Apr 2022 22:59:21 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233520AbiD1GgO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 02:36:14 -0400
+Received: from fllv0016.ext.ti.com (fllv0016.ext.ti.com [198.47.19.142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0961821E0F
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 23:32:59 -0700 (PDT)
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 23S6Wdqn115702;
+        Thu, 28 Apr 2022 01:32:39 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1651127559;
+        bh=AuCn46SOHizXCif9euMaGC+fc3ayXPHXv/N04x/Z+Lg=;
+        h=Date:Subject:To:CC:References:From:In-Reply-To;
+        b=hOAufCDdTKPVxcbQVRLW3ejTQaZTPsrKUNLeOUGgmxstevT/karR5A4Re31oiJvW+
+         RWUn36VBBjPJFcamRkqAQYMHgarPBcmgz0svSXW6TN0cCXBL2JL9LH+ZskzF6HLoZB
+         ClKyeFtSQeOVm4b4oasc0i9QBS1Xt2OamzFW8Rxg=
+Received: from DFLE108.ent.ti.com (dfle108.ent.ti.com [10.64.6.29])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 23S6WdPo049938
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Thu, 28 Apr 2022 01:32:39 -0500
+Received: from DFLE107.ent.ti.com (10.64.6.28) by DFLE108.ent.ti.com
+ (10.64.6.29) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14; Thu, 28
+ Apr 2022 01:32:39 -0500
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DFLE107.ent.ti.com
+ (10.64.6.28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14 via
+ Frontend Transport; Thu, 28 Apr 2022 01:32:39 -0500
+Received: from [172.24.145.176] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 23S6Wa6s010886;
+        Thu, 28 Apr 2022 01:32:37 -0500
+Message-ID: <b1f196f2-04ec-fa3c-557f-85ec9e6472f3@ti.com>
+Date:   Thu, 28 Apr 2022 12:02:35 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.15.36
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.15.y
-Subject: stable/linux-5.15.y baseline: 84 runs, 1 regressions (v5.15.36)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH v7 0/4] mtd: cfi_cmdset_0002: Use chip_ready() for write
+ on S29GL064N
+Content-Language: en-US
+To:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>
+CC:     Tokunori Ikegami <ikegami.t@gmail.com>, <richard@nod.at>,
+        <linux-mtd@lists.infradead.org>, <stable@vger.kernel.org>
+References: <20220323170458.5608-1-ikegami.t@gmail.com>
+ <6b09d10e-2098-9fb7-be4c-ae67d802cd2d@leemhuis.info>
+ <20220411094047.06556ee1@xps13> <20220427113709.01f460c8@xps13>
+From:   Vignesh Raghavendra <vigneshr@ti.com>
+In-Reply-To: <20220427113709.01f460c8@xps13>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,70 +69,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.15.y baseline: 84 runs, 1 regressions (v5.15.36)
-
-Regressions Summary
--------------------
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
-/v5.15.36/plan/baseline/
+On 27/04/22 15:07, Miquel Raynal wrote:
+> Hi Vignesh,
+> 
+> miquel.raynal@bootlin.com wrote on Mon, 11 Apr 2022 09:40:47 +0200:
+> 
+>> Hello,
+>>
+>> regressions@leemhuis.info wrote on Sun, 10 Apr 2022 10:51:17 +0200:
+>>
+>>> Hi, this is your Linux kernel regression tracker. Top-posting for once,
+>>> to make this easily accessible to everyone.
+>>>
+>>> Miquel, Richard, Vignesh: what's up here? This patchset fixes a
+>>> regression. It's quite old, so it's not that urgent, but it looked like
+>>> nothing happened for two and a half week now. Or was progress made
+>>> somewhere?  
+>>
+>> Vignesh, I'm waiting for your review/ack ;)
+> 
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.15.y
-  Describe: v5.15.36
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      45451e8015a91de5d1a512c3e3d7373bbcb58fb0 =
+Sorry for the delay, I was able to test this series and to see no
+regression on CFI an HyperFlashes that I have access to
 
+I think series is in good shape now.
 
+So
 
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6269fae9b9537ae73dff9462
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.36/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.36/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220422.0/arm64/rootfs.cpio.gz =
+Acked-by: Vignesh Raghavendra <vigneshr@ti.com>
 
 
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6269fae9b9537ae73dff9488
-        failing since 50 days (last pass: v5.15.25, first fail: v5.15.27)
-
-    2022-04-28T02:24:04.244402  <8>[   32.678856] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-04-28T02:24:05.269927  /lava-6195905/1/../bin/lava-test-case
-    2022-04-28T02:24:05.280910  <8>[   33.717219] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+[...]
