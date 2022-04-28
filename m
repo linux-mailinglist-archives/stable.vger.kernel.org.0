@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B18555138DD
-	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 17:44:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 804975138D9
+	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 17:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349516AbiD1Pq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 11:46:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35982 "EHLO
+        id S1349499AbiD1PqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 11:46:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349520AbiD1PqU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 11:46:20 -0400
+        with ESMTP id S1349525AbiD1PqV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 11:46:21 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9372B821A;
-        Thu, 28 Apr 2022 08:43:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44650B822D;
+        Thu, 28 Apr 2022 08:43:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19A5262010;
-        Thu, 28 Apr 2022 15:43:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAF52C385AE;
-        Thu, 28 Apr 2022 15:43:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C4A6B61F94;
+        Thu, 28 Apr 2022 15:43:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE76C385A9;
+        Thu, 28 Apr 2022 15:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651160581;
-        bh=uBhpMoiEbz/kzy6AX3rpsSw0CWwU7xwTlMeypxaO5Po=;
+        s=korg; t=1651160584;
+        bh=Fq4knAc0N9RbSq3BiSeCJKGfs+zsd8UULSsA9idnt9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GxkkCEAAWJoTphppzHibkcxUM81IURKMlKh3LYBQkIr+Mn7JeWIL+fLC08TLib+HZ
-         LpQt9ptXPtjFwKApX6HukTOWXquSUqV0D0eeIeZjbfamW2wITFjq7c7HMGdyVYYdNh
-         VzvPyu8kGK2CowpYFCOXtfvUY5cI32P2pEYfLQhY=
+        b=DhFQEvAacfymIR2uipsYpNI/NEVaKi8nVS6P/l+bb4PqbYXvAdJUr9PY1JhRBcBFE
+         Y/PqMCMGkskzKia+1sInvGmkTYEl2Gu+M6fkEdiyAsqFXZ+6JQb0OM3RSBYvic3msl
+         3aSFfsGCmxJG5iLjgOk6ifzmhYFOYbgy7fMFrpjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Mel Gorman <mgorman@techsingularity.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Shakeel Butt <shakeelb@google.com>,
         Vlastimil Babka <vbabka@suse.cz>,
-        Aaron Lu <aaron.lu@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
+        David Rientjes <rientjes@google.com>,
+        Michal Hocko <mhocko@kernel.org>, Wei Xu <weixugc@google.com>,
+        Greg Thelen <gthelen@google.com>,
+        Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH AUTOSEL 07/14] mm/page_alloc: fetch the correct pcp buddy during bulk free
-Date:   Thu, 28 Apr 2022 17:42:15 +0200
-Message-Id: <20220428154222.1230793-7-gregkh@linuxfoundation.org>
+Subject: [PATCH AUTOSEL 08/14] mm/page_alloc: check high-order pages for corruption during PCP operations
+Date:   Thu, 28 Apr 2022 17:42:16 +0200
+Message-Id: <20220428154222.1230793-8-gregkh@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
 References: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3124; i=gregkh@linuxfoundation.org; h=from:subject; bh=tCOXBoUo5NxQepLUpCqvv6otafb9oNj1S1MmG8sm4mw=; b=owGbwMvMwCRo6H6F97bub03G02pJDElZW+8efZNz48WD91FnTyqYi+YEL07d4rHs3UYJaV+966H5 Bxde6YhlYRBkYpAVU2T5so3n6P6KQ4pehranYeawMoEMYeDiFICJpK5gmB/04G/zEu+3uUs9PzIJPS 1qfW3X/othnpriz49rzNUUXN+GcV88sNXiuaHaLwA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4241; i=gregkh@linuxfoundation.org; h=from:subject; bh=RipHcCeR+SVHuWApuTUzNGeBcEpnHJuOJblMoYeKjOw=; b=owGbwMvMwCRo6H6F97bub03G02pJDElZW+8q9Hv/Ovfr6sfZApFxL36u2yT0d/P0So5UNZuaY+5m FT0SHbEsDIJMDLJiiixftvEc3V9xSNHL0PY0zBxWJpAhDFycAjCRuVMY5kcdXiNlVL3pw5F/xu/sp1 cl/Qm6pM0wTyXn0wkuVpGzbSfEPRo+HDPMjNRtBAA=
 X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -60,78 +62,133 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mel Gorman <mgorman@techsingularity.net>
 
-commit ca7b59b1de72450b3e696bada3506a519ac5455c upstream.
+commit 77fe7f136a7312954b1b8b7eeb4bc91fc3c14a3f upstream.
 
-Patch series "Follow-up on high-order PCP caching", v2.
+Eric Dumazet pointed out that commit 44042b449872 ("mm/page_alloc: allow
+high-order pages to be stored on the per-cpu lists") only checks the
+head page during PCP refill and allocation operations.  This was an
+oversight and all pages should be checked.  This will incur a small
+performance penalty but it's necessary for correctness.
 
-Commit 44042b449872 ("mm/page_alloc: allow high-order pages to be stored
-on the per-cpu lists") was primarily aimed at reducing the cost of SLUB
-cache refills of high-order pages in two ways.  Firstly, zone lock
-acquisitions was reduced and secondly, there were fewer buddy list
-modifications.  This is a follow-up series fixing some issues that
-became apparant after merging.
-
-Patch 1 is a functional fix.  It's harmless but inefficient.
-
-Patches 2-5 reduce the overhead of bulk freeing of PCP pages.  While the
-overhead is small, it's cumulative and noticable when truncating large
-files.  The changelog for patch 4 includes results of a microbench that
-deletes large sparse files with data in page cache.  Sparse files were
-used to eliminate filesystem overhead.
-
-Patch 6 addresses issues with high-order PCP pages being stored on PCP
-lists for too long.  Pages freed on a CPU potentially may not be quickly
-reused and in some cases this can increase cache miss rates.  Details
-are included in the changelog.
-
-This patch (of 6):
-
-free_pcppages_bulk() prefetches buddies about to be freed but the order
-must also be passed in as PCP lists store multiple orders.
-
-Link: https://lkml.kernel.org/r/20220217002227.5739-1-mgorman@techsingularity.net
-Link: https://lkml.kernel.org/r/20220217002227.5739-2-mgorman@techsingularity.net
+Link: https://lkml.kernel.org/r/20220310092456.GJ15701@techsingularity.net
 Fixes: 44042b449872 ("mm/page_alloc: allow high-order pages to be stored on the per-cpu lists")
 Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Aaron Lu <aaron.lu@intel.com>
-Tested-by: Aaron Lu <aaron.lu@intel.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Reported-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: David Rientjes <rientjes@google.com>
 Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+Cc: Wei Xu <weixugc@google.com>
+Cc: Greg Thelen <gthelen@google.com>
+Cc: Hugh Dickins <hughd@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/page_alloc.c | 46 +++++++++++++++++++++++-----------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
 
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index e6f211dcf82e..b2ef0e75fd29 100644
+index b2ef0e75fd29..adceee44adf6 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -1432,10 +1432,10 @@ static bool bulkfree_pcp_prepare(struct page *page)
+@@ -2342,23 +2342,36 @@ static inline int check_new_page(struct page *page)
+ 	return 1;
+ }
+ 
++static bool check_new_pages(struct page *page, unsigned int order)
++{
++	int i;
++	for (i = 0; i < (1 << order); i++) {
++		struct page *p = page + i;
++
++		if (unlikely(check_new_page(p)))
++			return true;
++	}
++
++	return false;
++}
++
+ #ifdef CONFIG_DEBUG_VM
+ /*
+  * With DEBUG_VM enabled, order-0 pages are checked for expected state when
+  * being allocated from pcp lists. With debug_pagealloc also enabled, they are
+  * also checked when pcp lists are refilled from the free lists.
+  */
+-static inline bool check_pcp_refill(struct page *page)
++static inline bool check_pcp_refill(struct page *page, unsigned int order)
+ {
+ 	if (debug_pagealloc_enabled_static())
+-		return check_new_page(page);
++		return check_new_pages(page, order);
+ 	else
+ 		return false;
+ }
+ 
+-static inline bool check_new_pcp(struct page *page)
++static inline bool check_new_pcp(struct page *page, unsigned int order)
+ {
+-	return check_new_page(page);
++	return check_new_pages(page, order);
+ }
+ #else
+ /*
+@@ -2366,32 +2379,19 @@ static inline bool check_new_pcp(struct page *page)
+  * when pcp lists are being refilled from the free lists. With debug_pagealloc
+  * enabled, they are also checked when being allocated from the pcp lists.
+  */
+-static inline bool check_pcp_refill(struct page *page)
++static inline bool check_pcp_refill(struct page *page, unsigned int order)
+ {
+-	return check_new_page(page);
++	return check_new_pages(page, order);
+ }
+-static inline bool check_new_pcp(struct page *page)
++static inline bool check_new_pcp(struct page *page, unsigned int order)
+ {
+ 	if (debug_pagealloc_enabled_static())
+-		return check_new_page(page);
++		return check_new_pages(page, order);
+ 	else
+ 		return false;
  }
  #endif /* CONFIG_DEBUG_VM */
  
--static inline void prefetch_buddy(struct page *page)
-+static inline void prefetch_buddy(struct page *page, unsigned int order)
+-static bool check_new_pages(struct page *page, unsigned int order)
+-{
+-	int i;
+-	for (i = 0; i < (1 << order); i++) {
+-		struct page *p = page + i;
+-
+-		if (unlikely(check_new_page(p)))
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+ inline void post_alloc_hook(struct page *page, unsigned int order,
+ 				gfp_t gfp_flags)
  {
- 	unsigned long pfn = page_to_pfn(page);
--	unsigned long buddy_pfn = __find_buddy_pfn(pfn, 0);
-+	unsigned long buddy_pfn = __find_buddy_pfn(pfn, order);
- 	struct page *buddy = page + (buddy_pfn - pfn);
+@@ -3037,7 +3037,7 @@ static int rmqueue_bulk(struct zone *zone, unsigned int order,
+ 		if (unlikely(page == NULL))
+ 			break;
  
- 	prefetch(buddy);
-@@ -1512,7 +1512,7 @@ static void free_pcppages_bulk(struct zone *zone, int count,
- 			 * prefetch buddy for the first pcp->batch nr of pages.
- 			 */
- 			if (prefetch_nr) {
--				prefetch_buddy(page);
-+				prefetch_buddy(page, order);
- 				prefetch_nr--;
- 			}
- 		} while (count > 0 && --batch_free && !list_empty(list));
+-		if (unlikely(check_pcp_refill(page)))
++		if (unlikely(check_pcp_refill(page, order)))
+ 			continue;
+ 
+ 		/*
+@@ -3641,7 +3641,7 @@ struct page *__rmqueue_pcplist(struct zone *zone, unsigned int order,
+ 		page = list_first_entry(list, struct page, lru);
+ 		list_del(&page->lru);
+ 		pcp->count -= 1 << order;
+-	} while (check_new_pcp(page));
++	} while (check_new_pcp(page, order));
+ 
+ 	return page;
+ }
 -- 
 2.36.0
 
