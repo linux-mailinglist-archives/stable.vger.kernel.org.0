@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DAE0513F08
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 01:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7309A513F0A
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 01:26:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353267AbiD1X3H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 19:29:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38090 "EHLO
+        id S1353268AbiD1X3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 19:29:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234016AbiD1X3G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 19:29:06 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F946BCB4D
-        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 16:25:50 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-2f4e17a5809so60680167b3.2
-        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 16:25:50 -0700 (PDT)
+        with ESMTP id S234016AbiD1X3m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 19:29:42 -0400
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF21BCB4D
+        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 16:26:26 -0700 (PDT)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-2f84aeb403fso53636207b3.22
+        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 16:26:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=date:message-id:mime-version:subject:from:to:cc;
-        bh=fe75SRdVaB/DzSXNcSSUKHm8LARXkMuRs+/tYKFLVSc=;
-        b=Sdd4hfD8omUWGnOdA8y8f0Z+2kxPws736xiRQuZJgjvKGG9R5fWvOA2ksa4Jzoynu1
-         YWXI3ldLPUQhpkSLwVgq1/iUALjeqIDoHzsRs9oV+LxPHW23e6ST/4iacpiKbi9xfpRL
-         n5nlYvPUaY/X8OxmapP7b6rRYcfClIryTJADvunBnVF7bdwjhwBe3PFkGR3BClHGLBW9
-         vOReb+TPfvyqn004Wkbp5XsXVz3oglzj4dpBk+2urnxKJykVwBWoJRJXEbSgUYaPvhNg
-         VJklN1AtIABRGNX/DMmOVt0ftXG/0oQCFmllYU6ZQKM6sj7bMxgrCoiQ0eCvLeHKtJhX
-         nsDA==
+        bh=yHn7VkdEiG7nyywZ806Ja4HL84YfXUIIFhfk9KGhrTg=;
+        b=ps3Ij1OJIhQkiIlDn8MMrreqhgfWZuebOZIGsLjaaMt5qLuC40TMsuY6t2TuX0xmcF
+         AWl2ySDmNOu9xJlN3821JrFLszkbOqL5Sxm16cOaWUOtkx10NW39PuKDptfzT48uVck2
+         v/h075o0PU/kfZq9APW2Eck9p6qoihKUiFkI3MsTYOcMfXxlP90T6V6cvWZjecjQY7eD
+         shnMEse2vl+oF9Uekmev6hj/5EVOWsxfvNtrQXPyz8bhOXpDB3KlFq2T9PFrWMrCqlMy
+         uMg7tqw5FgJyZUE8yn65JAzG4HzzME9xnuQ8aNWBXfvR2xm97HZq/q3cwuCtncESocbV
+         wJ4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=fe75SRdVaB/DzSXNcSSUKHm8LARXkMuRs+/tYKFLVSc=;
-        b=XnKwtRx1fm0j4ty+auuqH6lFVXDFRKoFjAnF1rWlTro9NDJoWYr7OAgYCkofp2VYcw
-         h/0IdRfbWXA2pxm5s1OGfItrh5+nxjCCFaaboPnEC0In3+j3QO/0Lu7QbSJVttzpzIP+
-         Ga4UESY2oiTKkFVqA37g9pwBInf4DLAglog7VmzXTj8kw41VvRDyse1oprjWwtJPKoo3
-         KbSq6bXzY9derRKtkKzh554ed0F7sGnnb2ks7KSWTK//V+FldzTj08xxoX9GEoTKGVbT
-         IWPUwkfKHRDNQEBXwX5lnD+1Y8phoP5kJ/FajZrDrmZk1YODyDSrEgH+teVzqAJEUFdG
-         uzcA==
-X-Gm-Message-State: AOAM531ljj4LuPntnO5Gd/UWvJY1zeUJvdXdiOoCwZeBUPuYVrG/iaEQ
-        2LR4Yj6W7WCTuUllldTGWs2pi0CSslaQJEFtqERqaArQZFZGczd+MZ+MuYhv6VShPaesRoUfF0V
-        p2VywdCrhNCPqISPIAz8QTXlvgwEBlVh3SpujAUo6fmBTJqvbkIx4qh4kbLzvc9nCOWFvCVjy7g
+        bh=yHn7VkdEiG7nyywZ806Ja4HL84YfXUIIFhfk9KGhrTg=;
+        b=5nMj8W4akg7mNc/tabBQUwYWG0OHlNHtEdfHdx/VnbJs1SmkqgxZbhTi9kcLI89OCD
+         uusu997U6DN1Wgm98yZpvTVEjnRbfXHvUzh7Ay9LbOCxb4HyYX6UnR1fxyjqutDGj383
+         VQYS/7j5AAeNhviM1mwGkUPK9zxTLyFoJBgP/w8W/T4QGhbtvgdm5H6syU9l25qWQTJP
+         JD1e1gdbYU47ghsNE6yqeze3eEuK7wZNlKE4RCpebP9BucqEQPxme8z8w2USoo6ayKxx
+         1Y9gsKFwo8R4YHmobzRvKJEPoAqdO/nbS/DNoym5nrlSzop2c46ljphB8SbxCj3lQP+X
+         pw+Q==
+X-Gm-Message-State: AOAM532hW9qsJxsCOldCOTy4f5C8hh8HRS1ZwdiPMn/DI8ywHJeyVHdL
+        Ufe8QihhoXA8NWMmBhi2xVseTeSajiBJWjA0YaaFGZVPUhaR8e5lfeyicGPMvYt9IO/4mViawvv
+        GucrFZuceb/XiMCVyfGwru07RChX9ZKcSfQUShkI86n1bQZqAImoN9r5SC7StAq8AY94WQZ4TbQ
         ==
-X-Google-Smtp-Source: ABdhPJw+BFQ7/wGMq4YQFYMNsEWUpJX0TLPWuFHInC/3t6OeDXpROIg/dY7umrNp1KBAxEcQ+GKxTOKQG2dppZh3Pw==
+X-Google-Smtp-Source: ABdhPJzICw5s5xX5nvMp067u4XsheGuC9g+pMneAKc0AtHUI3u5koq19XQFT2DFA/l6vZMqFfnuAuK6FFz7Nsqk3OA==
 X-Received: from rkolchmeyer.c.googlers.com ([fda3:e722:ac3:cc00:20:ed76:c0a8:7f04])
- (user=rkolchmeyer job=sendgmr) by 2002:a25:dfca:0:b0:645:d61b:1ff9 with SMTP
- id w193-20020a25dfca000000b00645d61b1ff9mr31127822ybg.310.1651188349566; Thu,
- 28 Apr 2022 16:25:49 -0700 (PDT)
-Date:   Thu, 28 Apr 2022 16:25:34 -0700
-Message-Id: <20220428232534.1230905-1-rkolchmeyer@google.com>
+ (user=rkolchmeyer job=sendgmr) by 2002:a05:6902:1381:b0:633:3683:78da with
+ SMTP id x1-20020a056902138100b00633368378damr32297508ybu.275.1651188385456;
+ Thu, 28 Apr 2022 16:26:25 -0700 (PDT)
+Date:   Thu, 28 Apr 2022 16:26:05 -0700
+Message-Id: <20220428232605.1231397-1-rkolchmeyer@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.36.0.464.gb9c8b46e94-goog
-Subject: [PATCH 4.19] net/sched: cls_u32: fix netns refcount changes in u32_change()
+Subject: [PATCH 4.14] net/sched: cls_u32: fix netns refcount changes in u32_change()
 From:   Robert Kolchmeyer <rkolchmeyer@google.com>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, edumazet@google.com,
@@ -147,22 +147,23 @@ Cc: Cong Wang <xiyou.wangcong@gmail.com>
 Cc: Jiri Pirko <jiri@resnulli.us>
 Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[rkolchmeyer: Backported to 4.19: adjusted u32_destroy_key() signature]
+[rkolchmeyer: Backported to 4.14: adjusted u32_destroy_key() signature]
 Signed-off-by: Robert Kolchmeyer <rkolchmeyer@google.com>
 ---
 u32_destroy_key() takes an additional argument (struct tcf_proto *tp) on
-4.19, so I updated the patch to include this. But u32_destroy_key()
+4.14, so I updated the patch to include this. But u32_destroy_key()
 doesn't actually use this argument, so the semantics of the patch aren't
-impacted by this change.
+impacted by this change. The patch context here is slightly different
+from the 4.19 patch.
 
  net/sched/cls_u32.c | 18 +++++++++++-------
  1 file changed, 11 insertions(+), 7 deletions(-)
 
 diff --git a/net/sched/cls_u32.c b/net/sched/cls_u32.c
-index fe246e03fcd9c..ad82c63094821 100644
+index 0c9bc29dcf97a..fdbdcba44917e 100644
 --- a/net/sched/cls_u32.c
 +++ b/net/sched/cls_u32.c
-@@ -404,15 +404,20 @@ static int u32_init(struct tcf_proto *tp)
+@@ -395,15 +395,20 @@ static int u32_init(struct tcf_proto *tp)
  	return 0;
  }
  
@@ -180,13 +181,13 @@ index fe246e03fcd9c..ad82c63094821 100644
 +}
 +
 +static void u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
-+			    bool free_pf)
++			   bool free_pf)
 +{
 +	tcf_exts_put_net(&n->exts);
  #ifdef CONFIG_CLS_U32_PERF
  	if (free_pf)
  		free_percpu(n->pf);
-@@ -421,8 +426,7 @@ static int u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
+@@ -412,8 +417,7 @@ static int u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
  	if (free_pf)
  		free_percpu(n->pcpu_success);
  #endif
@@ -196,8 +197,8 @@ index fe246e03fcd9c..ad82c63094821 100644
  }
  
  /* u32_delete_key_rcu should be called when free'ing a copied
-@@ -965,13 +969,13 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
- 				    tca[TCA_RATE], ovr, extack);
+@@ -942,13 +946,13 @@ static int u32_change(struct net *net, struct sk_buff *in_skb,
+ 				    tca[TCA_RATE], ovr);
  
  		if (err) {
 -			u32_destroy_key(tp, new, false);
@@ -205,7 +206,7 @@ index fe246e03fcd9c..ad82c63094821 100644
  			return err;
  		}
  
- 		err = u32_replace_hw_knode(tp, new, flags, extack);
+ 		err = u32_replace_hw_knode(tp, new, flags);
  		if (err) {
 -			u32_destroy_key(tp, new, false);
 +			__u32_destroy_key(new);
@@ -213,5 +214,5 @@ index fe246e03fcd9c..ad82c63094821 100644
  		}
  
 -- 
-2.36.0.rc2.479.g8af0fa9b8e-goog
+2.36.0.464.gb9c8b46e94-goog
 
