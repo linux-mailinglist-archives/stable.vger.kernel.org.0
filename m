@@ -2,113 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 779C9513E6E
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 00:16:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E52D6513EA3
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 00:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245263AbiD1WUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 18:20:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59858 "EHLO
+        id S1352988AbiD1Wsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 18:48:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237230AbiD1WUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 18:20:06 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E24CCBF31B;
-        Thu, 28 Apr 2022 15:16:48 -0700 (PDT)
-Date:   Thu, 28 Apr 2022 22:16:45 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1651184206;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6XUAGNI2/DJ8fzMzq4AB/zY+bre+PBrgDH1qfXscxwI=;
-        b=f7dsZ3GrfRUVfRu882jogb00ijfgvQfB0PKy7agxd885QocKyeEyMs3cXhzQ/CD7LM763q
-        arD4HbhdxbAZco3Pnxa0USUGxS2+KMzZ/G8xnRbTLvpfxXCm0rLZAP9CGxB0w7EF0VQEIo
-        wpw0EzM8ozW9ddeLaZ+Z6lTTZr4ROMchphW9G9g7cN0xGU1uVUpMecxzDHnlogVbCdi3Wh
-        jfYRVTJs1e4XHV4rZixnwkiOd+yafs2qxvtlkACMNXl2u0foceqMGloYMuH7MxMuqsUcDB
-        Z3ULDpmAz9qAjaG0bRvuDES+6iBXk9D4BwXby+Y/G6mRWgrfHHYzlrylina7aA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1651184206;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6XUAGNI2/DJ8fzMzq4AB/zY+bre+PBrgDH1qfXscxwI=;
-        b=A93aJha1ZsQRQzQs7MGwQkUmiolBAtNyp0jA1p4+xwo85HG4anNV+AIrY55H005HXfSoDQ
-        +NPQxzD5NuFOwBCw==
-From:   "tip-bot2 for Kurt Kanzenbach" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] timekeeping: Mark NMI safe time accessors as notrace
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Kurt Kanzenbach <kurt@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20220428062432.61063-1-kurt@linutronix.de>
-References: <20220428062432.61063-1-kurt@linutronix.de>
+        with ESMTP id S1349982AbiD1Wsj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 18:48:39 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE7B49278
+        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 15:45:23 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id x23so146255pff.9
+        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 15:45:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=AqP7wSbo7WSzSy4l6HYEqupzMjO7gFTkhIq2MzyNb0A=;
+        b=JqDgqAkqxRfNNLmqV0twQnowQWIPaTFVuaA6ZtSE2/W9+7fCBmVrEfYajEb2YLBSLl
+         FLK4CRbHHZ7Adr96TTRTSNLbqFpTqCm7lDaCsi+ReAeevvlfLijXIIlJHigrlO3hAWxH
+         9EpDd9RGsANOfddzRbR+hpqBrPEqHTT7QYWnYEaqkBdZ10YQaukl3uZrWNJqv34AEams
+         bj+/Y7gd5kuuqZ9mbAxfsdfhb7PnR7I84PbvfJeEF0ZN22JHRTnofBOZ6YxtLY+84DS8
+         wm8xYzPO7IECkoYW9eMr9CEEIgSONOgWiY8dURFPl9tPSea7arRJiDHQU09dGvY3WFnz
+         ivIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=AqP7wSbo7WSzSy4l6HYEqupzMjO7gFTkhIq2MzyNb0A=;
+        b=i18i71OY6dG10cTTqDZLLP6piRKlPbf0M7KDJutXe7MUQex5tXvDCd58FBeRujUblr
+         Xfs3BxZFlyPxXxc54s1QpZqdlJlWgdkGf23A8j4bkoQQn6lY29C6FbAv9ElFQf4PtRJH
+         vnzHaKz2K6wjlgbid3JIm26nxwwjp3iZSiBVzpgidmbnfoqc3iwDnN877blT1mzIIlFm
+         pKTp0+3gVzb50SPMLCStPXBCJKXaCkHNJBy1IW4zXKLuEVZ9yZdTSlijkBtRbO7LGDvQ
+         jd7xO4uJ9UhufLhX0eNZW+kQ3jlXwSfmrZ1rEqMVFoDvd3gO8M4cH70NA2S11Nw/Ze5Q
+         oOng==
+X-Gm-Message-State: AOAM531AH8KSAwNW/ufEt16wFW6R0n6/2aGE4THDds0VJlmk2zU6oAzd
+        8Sq0E0trgJiQ7zc7lflRlw44G1l8knCWxA==
+X-Google-Smtp-Source: ABdhPJwsExo1O7NKf8dvwXFhJjc/mnTP4ZYbb9E59TysQme5AwpU/tMHJ2sr1oRhM5YRyDB3LjC4pg==
+X-Received: by 2002:a05:6a00:190f:b0:50d:8b82:cb90 with SMTP id y15-20020a056a00190f00b0050d8b82cb90mr8179971pfi.65.1651185922372;
+        Thu, 28 Apr 2022 15:45:22 -0700 (PDT)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id n14-20020a17090a394e00b001d5f22845bdsm11955505pjf.1.2022.04.28.15.45.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 Apr 2022 15:45:21 -0700 (PDT)
+Date:   Thu, 28 Apr 2022 22:45:18 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Yang Shi <shy828301@gmail.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-mm@kvack.org, Sasha Levin <sashal@kernel.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH AUTOSEL 13/14] mm/thp: ClearPageDoubleMap in first
+ page_add_file_rmap()
+Message-ID: <YmsY/n+yXkoEaqqr@google.com>
+References: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
+ <20220428154222.1230793-13-gregkh@linuxfoundation.org>
+ <c2ed1fe1-247e-e644-c367-87d32eb92cf5@google.com>
+ <YmrHsVZTEzqIDiKd@kroah.com>
+ <bec6e6cf-daa7-d632-7f81-471acba69c9d@google.com>
 MIME-Version: 1.0
-Message-ID: <165118420512.4207.5310310414914439031.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bec6e6cf-daa7-d632-7f81-471acba69c9d@google.com>
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
++Sasha and Paolo
 
-Commit-ID:     2c33d775ef4c25c0e1e1cc0fd5496d02f76bfa20
-Gitweb:        https://git.kernel.org/tip/2c33d775ef4c25c0e1e1cc0fd5496d02f76bfa20
-Author:        Kurt Kanzenbach <kurt@linutronix.de>
-AuthorDate:    Thu, 28 Apr 2022 08:24:32 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Fri, 29 Apr 2022 00:07:53 +02:00
+On Thu, Apr 28, 2022, Hugh Dickins wrote:
+> On Thu, 28 Apr 2022, Greg Kroah-Hartman wrote:
+> > On Thu, Apr 28, 2022 at 09:51:58AM -0700, Hugh Dickins wrote:
+> > > On Thu, 28 Apr 2022, Greg Kroah-Hartman wrote:
+> > > 
+> > > > From: Hugh Dickins <hughd@google.com>
+> > > > 
+> > > > commit bd55b0c2d64e84a75575f548a33a3dfecc135b65 upstream.
+> > > > 
+> > > > PageDoubleMap is maintained differently for anon and for shmem+file: the
+> > > > shmem+file one was never cleared, because a safe place to do so could
+> > > > not be found; so it would blight future use of the cached hugepage until
+> > > > evicted.
+> > > > 
+> > > > See https://lore.kernel.org/lkml/1571938066-29031-1-git-send-email-yang.shi@linux.alibaba.com/
+> > > > 
+> > > > But page_add_file_rmap() does provide a safe place to do so (though later
+> > > > than one might wish): allowing testing to return to an initial state
+> > > > without a damaging drop_caches.
+> > > > 
+> > > > Link: https://lkml.kernel.org/r/61c5cf99-a962-9a25-597a-53ab1bd8fbc0@google.com
+> > > > Fixes: 9a73f61bdb8a ("thp, mlock: do not mlock PTE-mapped file huge pages")
+> > > > Signed-off-by: Hugh Dickins <hughd@google.com>
+> > > > Reviewed-by: Yang Shi <shy828301@gmail.com>
+> > > > Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+> > > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > 
+> > > NAK.
+> > > 
+> > > I thought we had a long-standing agreement that AUTOSEL does not try
+> > > to add patches from akpm's tree which had not been marked for stable.
+> > 
+> > True, this was my attempt at saying "hey these all look like they should
+> > go to stable trees, why not?"
+> 
+> Okay, it seems I should have read "AUTOSEL" as "Hey, GregKH here,
+> these all look like they should go to stable trees, why not?",
+> which would have drawn a friendlier response.
 
-timekeeping: Mark NMI safe time accessors as notrace
-
-Mark the CLOCK_MONOTONIC fast time accessors as notrace. These functions are
-used in tracing to retrieve timestamps, so they should not recurse.
-
-Fixes: 4498e7467e9e ("time: Parametrize all tk_fast_mono users")
-Fixes: f09cb9a1808e ("time: Introduce tk_fast_raw")
-Reported-by: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220426175338.3807ca4f@gandalf.local.home/
-Link: https://lore.kernel.org/r/20220428062432.61063-1-kurt@linutronix.de
----
- kernel/time/timekeeping.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index dcdcb85..3b1398f 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -482,7 +482,7 @@ static __always_inline u64 __ktime_get_fast_ns(struct tk_fast *tkf)
-  * of the following timestamps. Callers need to be aware of that and
-  * deal with it.
-  */
--u64 ktime_get_mono_fast_ns(void)
-+u64 notrace ktime_get_mono_fast_ns(void)
- {
- 	return __ktime_get_fast_ns(&tk_fast_mono);
- }
-@@ -494,7 +494,7 @@ EXPORT_SYMBOL_GPL(ktime_get_mono_fast_ns);
-  * Contrary to ktime_get_mono_fast_ns() this is always correct because the
-  * conversion factor is not affected by NTP/PTP correction.
-  */
--u64 ktime_get_raw_fast_ns(void)
-+u64 notrace ktime_get_raw_fast_ns(void)
- {
- 	return __ktime_get_fast_ns(&tk_fast_raw);
- }
+FWIW, Sasha has been using MANUALSEL for the KVM tree to solicit an explicit ACK
+from Paolo for these types of patches.  AFAICT, it has been working quite well.
