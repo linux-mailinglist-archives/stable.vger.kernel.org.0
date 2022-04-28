@@ -2,53 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 371AA5138D8
-	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 17:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 528265138E6
+	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 17:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349411AbiD1Pp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 11:45:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33428 "EHLO
+        id S1349446AbiD1PqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 11:46:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349433AbiD1Ppx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 11:45:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70B17B820D;
-        Thu, 28 Apr 2022 08:42:37 -0700 (PDT)
+        with ESMTP id S1349384AbiD1Pp6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 11:45:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA861B820F;
+        Thu, 28 Apr 2022 08:42:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E661B61FCF;
-        Thu, 28 Apr 2022 15:42:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C22CAC385A0;
-        Thu, 28 Apr 2022 15:42:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9885961FCF;
+        Thu, 28 Apr 2022 15:42:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C296C385A0;
+        Thu, 28 Apr 2022 15:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651160556;
-        bh=HsbSG3CAnlJ/cEIDeoisNp5iwOSsom+ptW9Us2eqOLs=;
+        s=korg; t=1651160560;
+        bh=ilVGieZZEUUvQGWgxV/ekNNEKBv8j99uQo8L2J5iPnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvtjL7OoWKYGYZu5yPfrNUT5XoOWuWi6TJGPs3ijLwYyRolb0/fDrLLIGvAM/rLXB
-         ui9VdXpOwMZblhcvzIMnj+CGmotU8NPH9kdWuhhgawLTtg7jnGrmADUKm1FH501Yqr
-         k0FfXv2zf6IllzWN60/WKjB13/GCM746mcDf5DxY=
+        b=TphhwJI1zDAFX85nU7OlzRbFcWxeMhtHQXNO03ghzEVhdh+AnuBmpXvO05ukLPq7w
+         0r2qwhfPcteuyDNlPvIfVvk2dGevzA8z0PqgEwEZOJ7LY9H2r/vjq8H/8D6b5ab4Kg
+         gF0vGZbGbRGXCWzjyld3aE0UXSXnS0vq58UdCfLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Huang Ying <ying.huang@intel.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Zi Yan <ziy@nvidia.com>, Oscar Salvador <osalvador@suse.de>,
-        Yang Shi <shy828301@gmail.com>,
-        zhongjiang-ali <zhongjiang-ali@linux.alibaba.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
+Cc:     Hugh Dickins <hughd@google.com>, Yang Shi <shy828301@gmail.com>,
+        Ralph Campbell <rcampbell@nvidia.com>, Zi Yan <ziy@nvidia.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH AUTOSEL 11/14] mm,migrate: fix establishing demotion target
-Date:   Thu, 28 Apr 2022 17:42:19 +0200
-Message-Id: <20220428154222.1230793-11-gregkh@linuxfoundation.org>
+Subject: [PATCH AUTOSEL 12/14] mm/thp: refix __split_huge_pmd_locked() for migration PMD
+Date:   Thu, 28 Apr 2022 17:42:20 +0200
+Message-Id: <20220428154222.1230793-12-gregkh@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
 References: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3098; i=gregkh@linuxfoundation.org; h=from:subject; bh=2ZV8t8XlvoZw7kzU/r+KeXZFYrnKitmm6D3IvWd8z4w=; b=owGbwMvMwCRo6H6F97bub03G02pJDElZW+8tsKhKk3/AviXlrpfnjq+9T4uDun7d5lnN8OBB1qEX RtV+HbEsDIJMDLJiiixftvEc3V9xSNHL0PY0zBxWJpAhDFycAjCRLxEMc7ijBSZXrGCwKPq7yH/C6m UlOj+mKTAsWOJ+MmKixPEmmTbxWSVKYccNnq4+CQA=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2125; i=gregkh@linuxfoundation.org; h=from:subject; bh=2n4FFedWfpMpKCUPl3SXm4kSvYrTBoaoARY2+jFW1hk=; b=owGbwMvMwCRo6H6F97bub03G02pJDElZW++pcwp8fCAvs2yu/Yys01Pe9v9Y9m9xb8FF0fsRe97w nOXU64hlYRBkYpAVU2T5so3n6P6KQ4pehranYeawMoEMYeDiFICJfLrEsKCha/qJglfTnob7dEYvW/ HF7Xnr230M80vSHtmarV24JTdQ/Mb+UmHJ9D13+AA=
 X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -60,88 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Ying <ying.huang@intel.com>
+From: Hugh Dickins <hughd@google.com>
 
-commit fc89213a636c3735eb3386f10a34c082271b4192 upstream.
+commit 9d84604b845c3888d1bede43d16ab3ebedb13e24 upstream.
 
-In commit ac16ec835314 ("mm: migrate: support multiple target nodes
-demotion"), after the first demotion target node is found, we will
-continue to check the next candidate obtained via find_next_best_node().
-This is to find all demotion target nodes with same NUMA distance.  But
-one side effect of find_next_best_node() is that the candidate node
-returned will be set in "used" parameter, even if the candidate node isn't
-passed in the following NUMA distance checking, the candidate node will
-not be used as demotion target node for the following nodes.  For example,
-for system as follows,
+Migration entries do not contribute to a page's reference count: move
+__split_huge_pmd_locked()'s page_ref_add() into pmd_migration's else
+block (along with the page_count() check - a page is quite likely to
+have reference count frozen to 0 when a migration entry is found).
 
-node distances:
-node   0   1   2   3
-  0:  10  21  17  28
-  1:  21  10  28  17
-  2:  17  28  10  28
-  3:  28  17  28  10
+This will fix a very rare anonymous memory leak, after a
+split_huge_pmd() raced with an anon split_huge_page() or an anon THP
+migrate_pages(): since the wrongly raised refcount stopped the page
+(perhaps small, perhaps huge, depending on when the race hit) from ever
+being freed.
 
-when we establish demotion target node for node 0, in the first round node
-2 is added to the demotion target node set.  Then in the second round,
-node 3 is checked and failed because distance(0, 3) > distance(0, 2).  But
-node 3 is set in "used" nodemask too.  When we establish demotion target
-node for node 1, there is no available node.  This is wrong, node 3 should
-be set as the demotion target of node 1.
+At first I thought there were worse risks, from prematurely unfreezing a
+frozen page: but now think that would only affect page cache pages,
+which do not come this way (except for anonymous pages in swap cache,
+perhaps).
 
-To fix this, if the candidate node is failed to pass the distance
-checking, it will be cleared in "used" nodemask.  So that it can be used
-for the following node.
-
-The bug can be reproduced and fixed with this patch on a 2 socket server
-machine with DRAM and PMEM.
-
-Link: https://lkml.kernel.org/r/20220128055940.1792614-1-ying.huang@intel.com
-Fixes: ac16ec835314 ("mm: migrate: support multiple target nodes demotion")
-Signed-off-by: "Huang, Ying" <ying.huang@intel.com>
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Link: https://lkml.kernel.org/r/84792468-f512-e48f-378c-e34c3641e97@google.com
+Fixes: ec0abae6dcdf ("mm/thp: fix __split_huge_pmd_locked() for migration PMD")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
 Cc: Zi Yan <ziy@nvidia.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: zhongjiang-ali <zhongjiang-ali@linux.alibaba.com>
-Cc: Xunlei Pang <xlpang@linux.alibaba.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/migrate.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ mm/huge_memory.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index fc0e14ecd42a..ac7673e43dda 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -3085,18 +3085,21 @@ static int establish_migrate_target(int node, nodemask_t *used,
- 	if (best_distance != -1) {
- 		val = node_distance(node, migration_target);
- 		if (val > best_distance)
--			return NUMA_NO_NODE;
-+			goto out_clear;
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 406a3c28c026..468fca576bc2 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2055,9 +2055,9 @@ static void __split_huge_pmd_locked(struct vm_area_struct *vma, pmd_t *pmd,
+ 		young = pmd_young(old_pmd);
+ 		soft_dirty = pmd_soft_dirty(old_pmd);
+ 		uffd_wp = pmd_uffd_wp(old_pmd);
++		VM_BUG_ON_PAGE(!page_count(page), page);
++		page_ref_add(page, HPAGE_PMD_NR - 1);
  	}
+-	VM_BUG_ON_PAGE(!page_count(page), page);
+-	page_ref_add(page, HPAGE_PMD_NR - 1);
  
- 	index = nd->nr;
- 	if (WARN_ONCE(index >= DEMOTION_TARGET_NODES,
- 		      "Exceeds maximum demotion target nodes\n"))
--		return NUMA_NO_NODE;
-+		goto out_clear;
- 
- 	nd->nodes[index] = migration_target;
- 	nd->nr++;
- 
- 	return migration_target;
-+out_clear:
-+	node_clear(migration_target, *used);
-+	return NUMA_NO_NODE;
- }
- 
- /*
+ 	/*
+ 	 * Withdraw the table only after we mark the pmd entry invalid.
 -- 
 2.36.0
 
