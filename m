@@ -2,131 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B05F512AC0
-	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 06:57:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AD11512B16
+	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 07:47:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232761AbiD1FA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 01:00:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33636 "EHLO
+        id S243198AbiD1Fup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 01:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229647AbiD1FA0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 01:00:26 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE6698F60
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 21:57:13 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id cu23-20020a17090afa9700b001d98d8e53b7so5296488pjb.0
-        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 21:57:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+fRWd7aw7a5qswfF7/eBoXrhUD0kI7I6A5e+8TTYXJY=;
-        b=NqnOqvkf7DG4K2+1K2FrlGyUrcBDhNtbnAYf9HcFUsdphVaxawWPfRXBb/WGZD8Pva
-         b5ONHSZIMIs6dR1VJUQWdcyBgvvWDm2xfquxBe4A6rn5a/GhKlWYuezFm/cbHozN4RRH
-         R4ffNpMb2nnwJMqP6wxG7C4dQxeMHik0PJ9VrJ2wfLRO3fVwne60YxjyUxG8lzqZpH3c
-         gb7pQbKYuS02IeEY8kz8Wtio37hr/ID0/wSrsNkVhQD2FnFjqe7jn6ASHbyhX9yB2LcZ
-         GyISruajFik/iIML6Wfu7mtmQUTettzFU7yyHYv99Q3M0tkktI2nnrvYysdW0/fsaTqy
-         13Qg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+fRWd7aw7a5qswfF7/eBoXrhUD0kI7I6A5e+8TTYXJY=;
-        b=C1Un2/OlzHYXlkN61t+i3Y2dDrhkMKBNo1tJ7MJn7Aj2Io04XwfqAEc3uEaFq7F6Uy
-         1ro8P7oJlE6J3CsG3SD/OOtS5XbyOloAn/BEnIi005avouNDDaClxCSmspMFu32jpTJk
-         NP1YoUNvjn2Rf/XMfmaz8cl0WNfhNIoVIBKH4CIvb3di+xWOoGbKuirBxm1WJoGuUg74
-         jXPFODmjl7cdiBZ/ZOMdt1HNlpV2zpSvih0Xa26YYYF1cb4VKHOk5H+avzCW3ZvIc+tC
-         eBC1LsL1B1wGmdWFemIX7Z7dyMEw2w0O1Y9i/NkO6ArSMni9bUC0mNlb/Xl8agpuNr4X
-         TG6w==
-X-Gm-Message-State: AOAM532oTxDWTJvy4il7VXPfYImeL68CDwMp3ilsArIEAWMlt6ZWOxC0
-        GDkymkYw5n1/Sy85f7AiSDvTPwJySBOVukr8EVs=
-X-Google-Smtp-Source: ABdhPJyE6zZWda0tiOfAbr+9YLvCNCcnXnV7jq+qQ7JBw1p0P6gfi2YG4/FhwB8A5tABThuL3uIVfA==
-X-Received: by 2002:a17:90b:4d08:b0:1ce:8d09:1c58 with SMTP id mw8-20020a17090b4d0800b001ce8d091c58mr36861756pjb.168.1651121832442;
-        Wed, 27 Apr 2022 21:57:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h92-20020a17090a29e500b001cd4989ff62sm4493110pjd.41.2022.04.27.21.57.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Apr 2022 21:57:12 -0700 (PDT)
-Message-ID: <626a1ea8.1c69fb81.f681.aa01@mx.google.com>
-Date:   Wed, 27 Apr 2022 21:57:12 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S236607AbiD1Fun (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 01:50:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 65D5960D8E
+        for <stable@vger.kernel.org>; Wed, 27 Apr 2022 22:47:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651124847;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DG+ZWTYM+2N3N8ie381woeSNrk5TKMnxDxFcPW5T2gU=;
+        b=ANwMoVLoAPNn52nzcbabSYPK29Jup2CneEKztpm5MJ8wWbnMN/Qh0TNALykpONhXTVgOun
+        DC+kHDQ0lbzWAivtd6O72H7/FAUn677Y0i9gW2UouYaQtbVg+Trm+tJnJ5ZPDaoTjG7Cfj
+        SUJz6CqkU21+xhii2z2t1SMs/Whx8iE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-671-6NkoKukGOtaavdgTVDpqmw-1; Thu, 28 Apr 2022 01:47:23 -0400
+X-MC-Unique: 6NkoKukGOtaavdgTVDpqmw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C903885A5BE;
+        Thu, 28 Apr 2022 05:47:22 +0000 (UTC)
+Received: from starship (unknown [10.40.192.41])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2536C2024CBB;
+        Thu, 28 Apr 2022 05:47:14 +0000 (UTC)
+Message-ID: <68707ba71f3e03d9d9a7bc5b0f592fb3cef2f776.camel@redhat.com>
+Subject: Re: [PATCH 1/8] KVM: x86: avoid loading a vCPU after .vm_destroy
+ was called
+From:   Maxim Levitsky <mlevitsk@redhat.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>
+Cc:     kvm@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Borislav Petkov <bp@alien8.de>, Joerg Roedel <joro@8bytes.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        linux-kernel@vger.kernel.org,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
+Date:   Thu, 28 Apr 2022 08:47:13 +0300
+In-Reply-To: <27670a35-c67e-726f-f03f-9cf2eae83523@redhat.com>
+References: <20220322172449.235575-1-mlevitsk@redhat.com>
+         <20220322172449.235575-2-mlevitsk@redhat.com> <YkOkCwUgMD1SVfaD@google.com>
+         <27670a35-c67e-726f-f03f-9cf2eae83523@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.113
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable/linux-5.10.y baseline: 78 runs, 1 regressions (v5.10.113)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 78 runs, 1 regressions (v5.10.113)
+On Wed, 2022-03-30 at 14:07 +0200, Paolo Bonzini wrote:
+> On 3/30/22 02:27, Sean Christopherson wrote:
+> > Rather than split kvm_free_vcpus(), can we instead move the call to svm_vm_destroy()
+> > by adding a second hook, .vm_teardown(), which is needed for TDX?  I.e. keep VMX
+> > where it is by using vm_teardown, but effectively move SVM?
+> > 
+> > https://lore.kernel.org/all/1fa2d0db387a99352d44247728c5b8ae5f5cab4d.1637799475.git.isaku.yamahata@intel.com
+> 
+> I'd rather do that only for the TDX patches.
+> 
+> Paolo
+> 
+Any update on this patch? Looks like it is not upstream nor in kvm/queue.
 
-Regressions Summary
--------------------
+Best regards,
+	Maxim Levitsky
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-imx6q-var-dt6customboard | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.113/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.113
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      54af9dd2b958096a25860b80d48a04cf59b53475 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-imx6q-var-dt6customboard | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6269eaa19b98a869c3ff9480
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.113/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-var-dt6customboar=
-d.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.113/=
-arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-var-dt6customboar=
-d.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220422.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6269eaa19b98a869c3ff9=
-481
-        new failure (last pass: v5.10.112) =
-
- =20
