@@ -2,107 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3754513F31
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 01:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C378513F41
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 01:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353412AbiD1XuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 19:50:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37790 "EHLO
+        id S1353425AbiD2ACb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 20:02:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353304AbiD1XuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 19:50:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD4194EA0F;
-        Thu, 28 Apr 2022 16:46:57 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 469876212C;
-        Thu, 28 Apr 2022 23:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9627EC385AD;
-        Thu, 28 Apr 2022 23:46:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1651189616;
-        bh=dzloeFneAwUatQ82nBzs4vry1IR3EoFMQekP5IA5WnY=;
-        h=Date:To:From:Subject:From;
-        b=Bk2AsfeR4QZrVd9TJMyUk2ef6f1nCFww80JKBBTbSrACD72SgQ0+j7BBrv1ZfS3rG
-         GQHtfx4vv6rrASN4l1Mihg588H0RpmtvPmBD+mvnjfK3OuApufBF5j5oxhHsKWEAJx
-         lXLy40GfoLZ2jcyZO8QTFDCkA1+bgluIZ8o1dee0=
-Date:   Thu, 28 Apr 2022 16:46:55 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        mike.kravetz@oracle.com, almasrymina@google.com,
-        dossche.niels@gmail.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-mremap-fix-sign-for-efault-error-return-value.patch added to -mm tree
-Message-Id: <20220428234656.9627EC385AD@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S230353AbiD2AC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 20:02:29 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18D0BA146B
+        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 16:59:13 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id b12-20020a056902030c00b0061d720e274aso5998213ybs.20
+        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 16:59:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=zAY11kRcY66zSxhpVQX/q9oPTivyh5TfNYxMuCdOw+k=;
+        b=LPn0801gU0l3ZtqyVjEyXPWhPJF3MqjgaxOWKY5cCYlPIkiOFownoMVm2h93n2ix8O
+         Tb00mRnMGKnu9s2tOsxc/Ahpa2/ZmvZTG53zoYbx/8U6Mw6GBz+cqZi/V8TSV797+cRv
+         xaAcrq9tEpk7rzFjNbZMyHCGJVNN7JqpUJy0HyC7tL3Ab2OO1qhEMSKGcrQk0aULXU7U
+         LvZhxG9bKPe7sRjl6r51dgbrTzFTKAo6qN6eDx/8sz0QC4dxssyEkBWTGbSUqUJmb6U8
+         S6dSm9d63WSG9kVGM/HWgXSkVEwXo5OgQlgFGYkCusXs2hXO83BBzbu8kjoLBJ+moB6P
+         vTyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=zAY11kRcY66zSxhpVQX/q9oPTivyh5TfNYxMuCdOw+k=;
+        b=l+c4KqiIdfZLiaAUBQRgwX4lJHq8YtM9Q3S8RU/9mrIMsOPX49jqFlVh9K8uiOWgrh
+         x9nyRkw9aDAZ6qIVKpYpnHFexZvpPvgjrrlrJ8ZI3rD+lSLgk0lqQ7iURUrhd3uotKAm
+         qhHntprJU8xAV6dMsMPNFOL0hD9WbIHlHJLuZOOg7dAePEyCZn2MUrcs85SX6iUalNHC
+         vPIfS8026Qmt2b/N1MWkqypogk9fGZSNXP3F6OSowZWG8vn4mrqU9smqyvUnE4hCsE+f
+         dBY1fjXs6T9RLuODgcJro9RHlPDZNFJUzjGHwwTnlS3GsYYx/MPUi6Fk4/O63E/psrnL
+         YSlA==
+X-Gm-Message-State: AOAM531Xbjiux0NcaCsxcuxt5BN41+GTRsdQ1dLzH3zzlKtt7YueQ4o8
+        muXnmxn/PJ+9fyRmhvUvXTS3+N17GTE=
+X-Google-Smtp-Source: ABdhPJwFt31ODXzGu5O3Zg+N0JxAyhDzZjZv00HzQz88MxXDfAGUVXiWhklpBO888Gnz4zfMWXtJJK3s4C4=
+X-Received: from haoluo.svl.corp.google.com ([2620:15c:2cd:202:25cd:1665:36bc:f38e])
+ (user=haoluo job=sendgmr) by 2002:a5b:483:0:b0:634:dd7:9569 with SMTP id
+ n3-20020a5b0483000000b006340dd79569mr33282868ybp.214.1651190352237; Thu, 28
+ Apr 2022 16:59:12 -0700 (PDT)
+Date:   Thu, 28 Apr 2022 16:57:41 -0700
+Message-Id: <20220428235751.103203-1-haoluo@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.36.0.464.gb9c8b46e94-goog
+Subject: [PATCH stable linux-5.15.y 00/10] Fix bpf mem read/write vulnerability.
+From:   Hao Luo <haoluo@google.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>, laura@labbott.name,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        stable@vger.kernel.org, Hao Luo <haoluo@google.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-The patch titled
-     Subject: mm: mremap: fix sign for EFAULT error return value
-has been added to the -mm tree.  Its filename is
-     mm-mremap-fix-sign-for-efault-error-return-value.patch
+Please cherry-pick this patch series into 5.15.y stable. It
+includes a feature that fixes CVE-2022-0500 which allows a user with
+cap_bpf privileges to get root privileges. The patch that fixes
+the bug is
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-mremap-fix-sign-for-efault-error-return-value.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-mremap-fix-sign-for-efault-error-return-value.patch
+ patch 7/10: bpf: Make per_cpu_ptr return rdonly
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+The rest are the depedences required by the fix patch. Note that v5.10 and
+below are not affected by this bug.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+This patchset has been merged in mainline v5.17 and backported to v5.16[1],
+except patch 10/10 ("bpf: Fix crash due to out of bounds access into reg2btf_ids."),
+which fixes an out-of-bound access in the main feature in this series and
+hasn't been backported to v5.16 yet. If it's convenient, could you
+apply patch 10/10 to 5.16? I can send a separate patch for v5.16, if you
+prefer.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Tested by compile, build and run through the bpf selftest test_progs.
 
-------------------------------------------------------
-From: Niels Dossche <dossche.niels@gmail.com>
-Subject: mm: mremap: fix sign for EFAULT error return value
+[1] https://www.spinics.net/lists/stable/msg535877.html
 
-The mremap syscall is supposed to return a pointer to the new virtual
-memory area on success, and a negative value of the error code in case of
-failure.  Currently, EFAULT is returned when the VMA is not found, instead
-of -EFAULT.  The users of this syscall will therefore believe the syscall
-succeeded in case the VMA didn't exist, as it returns a pointer to address
-0xe (0xe being the value of EFAULT).  Fix the sign of the error value.
+Hao Luo (9):
+  bpf: Introduce composable reg, ret and arg types.
+  bpf: Replace ARG_XXX_OR_NULL with ARG_XXX | PTR_MAYBE_NULL
+  bpf: Replace RET_XXX_OR_NULL with RET_XXX | PTR_MAYBE_NULL
+  bpf: Replace PTR_TO_XXX_OR_NULL with PTR_TO_XXX | PTR_MAYBE_NULL
+  bpf: Introduce MEM_RDONLY flag
+  bpf: Convert PTR_TO_MEM_OR_NULL to composable types.
+  bpf: Make per_cpu_ptr return rdonly PTR_TO_MEM.
+  bpf: Add MEM_RDONLY for helper args that are pointers to rdonly mem.
+  bpf/selftests: Test PTR_TO_RDONLY_MEM
 
-Link: https://lkml.kernel.org/r/20220427224439.23828-2-dossche.niels@gmail.com
-Fixes: 550a7d60bd5e ("mm, hugepages: add mremap() support for hugepage backed vma")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Kumar Kartikeya Dwivedi (1):
+  bpf: Fix crash due to out of bounds access into reg2btf_ids.
 
- mm/mremap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/bpf.h                           | 101 +++-
+ include/linux/bpf_verifier.h                  |  18 +
+ kernel/bpf/btf.c                              |  16 +-
+ kernel/bpf/cgroup.c                           |   2 +-
+ kernel/bpf/helpers.c                          |  12 +-
+ kernel/bpf/map_iter.c                         |   4 +-
+ kernel/bpf/ringbuf.c                          |   2 +-
+ kernel/bpf/syscall.c                          |   2 +-
+ kernel/bpf/verifier.c                         | 488 +++++++++---------
+ kernel/trace/bpf_trace.c                      |  22 +-
+ net/core/bpf_sk_storage.c                     |   2 +-
+ net/core/filter.c                             |  64 +--
+ net/core/sock_map.c                           |   2 +-
+ .../selftests/bpf/prog_tests/ksyms_btf.c      |  14 +
+ .../bpf/progs/test_ksyms_btf_write_check.c    |  29 ++
+ 15 files changed, 445 insertions(+), 333 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/progs/test_ksyms_btf_write_check.c
 
---- a/mm/mremap.c~mm-mremap-fix-sign-for-efault-error-return-value
-+++ a/mm/mremap.c
-@@ -941,7 +941,7 @@ SYSCALL_DEFINE5(mremap, unsigned long, a
- 		return -EINTR;
- 	vma = vma_lookup(mm, addr);
- 	if (!vma) {
--		ret = EFAULT;
-+		ret = -EFAULT;
- 		goto out;
- 	}
- 
-_
-
-Patches currently in -mm which might be from dossche.niels@gmail.com are
-
-mm-mremap-fix-sign-for-efault-error-return-value.patch
+-- 
+2.36.0.464.gb9c8b46e94-goog
 
