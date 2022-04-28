@@ -2,157 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE7E5513A69
-	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 18:52:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 274B2513A7A
+	for <lists+stable@lfdr.de>; Thu, 28 Apr 2022 18:57:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350401AbiD1Qzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 28 Apr 2022 12:55:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55596 "EHLO
+        id S236484AbiD1RAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 28 Apr 2022 13:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235369AbiD1Qz3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 12:55:29 -0400
-Received: from mail-qk1-x729.google.com (mail-qk1-x729.google.com [IPv6:2607:f8b0:4864:20::729])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB299A94E8
-        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 09:52:13 -0700 (PDT)
-Received: by mail-qk1-x729.google.com with SMTP id 126so3090067qkm.4
-        for <stable@vger.kernel.org>; Thu, 28 Apr 2022 09:52:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :mime-version;
-        bh=ge3ZPWN0M9amQ6mKSg0omt63Nk/S+2cZMmx9LZwp68s=;
-        b=ljDUmMK6e/vLTCndgDDSANmK5RkqAFHOzkTv1LANQNLVtJx7jHydDO96kr/QUFkFL5
-         8Mp9tmkS7I1gQxYtkwfpUlDsPs8GRBsJ0ykxxNJDKBb6pwlPNlweAukPs5GHsryNdD1b
-         UzIVHdKWP0fKg7XjBrKILhxYCgKFsUk1K9I12+QrUiMWpL+PVE6a2tekJuW80qnjvAQ8
-         3sdRbOUDWLoFE4GvDuaA6i9KYvoWLSxCsqbWD6osE3xFU4yOTQ3urv59AFsppRrpdZJn
-         lImagqiFa9fVCtEPY+qnzhumXUrNulpfVQK2fGBCxYK+/uPY0EFdjxXwfNDtcJfC2hEo
-         RCSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:mime-version;
-        bh=ge3ZPWN0M9amQ6mKSg0omt63Nk/S+2cZMmx9LZwp68s=;
-        b=P1SSFtM5teHH1+RC2s0G2DuSWfX40nTgmuVnkWcK2k8fz++GJ7ufYVPzl447uHALOq
-         muSNQIv55EJieJuCeQwWQIWZk9T/sr9hn74BzRBDYMLkQY6ACLR36E9oSmEfkP90CsuK
-         W6UawvqqC/IKYfp+oZMSVFvrqNcXC/Jqs/UcrIglEHhxxpo8feTlksOjC8t1XXAI7qcT
-         4VWC8EIxUjXEbX8fmto8PT+Wo0MldbzzYohcKldBNu9n78dQGjksqLLkVLpLUj/3IeBv
-         g+r3iOmsRMXKmsXfKzfErPHqxJhOUs/wwmSIDQnkGixQeR/BtrJUloVI6zKW6SgyYi4g
-         zyJg==
-X-Gm-Message-State: AOAM533UfB5Iin/AQ2xcLx0xNwNodIbKxS9rd4LTn02XaWmZJAJ4aRfJ
-        4uljKLEex7lISqmRBHlIR9TXCQ==
-X-Google-Smtp-Source: ABdhPJwzfes0ShPwouYNOLRg6xLyz9XwoSBWEQsuuqe3bVE9E4WYyzToSnX9IlhVbJ944pqcLt97bg==
-X-Received: by 2002:a05:620a:28cb:b0:69e:befa:a4c5 with SMTP id l11-20020a05620a28cb00b0069ebefaa4c5mr20228939qkp.477.1651164732094;
-        Thu, 28 Apr 2022 09:52:12 -0700 (PDT)
-Received: from ripple.attlocal.net (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
-        by smtp.gmail.com with ESMTPSA id q27-20020a05620a039b00b0069c8307d9c4sm205919qkm.18.2022.04.28.09.52.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Apr 2022 09:52:11 -0700 (PDT)
-Date:   Thu, 28 Apr 2022 09:51:58 -0700 (PDT)
-From:   Hugh Dickins <hughd@google.com>
-X-X-Sender: hugh@ripple.anvils
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Hugh Dickins <hughd@google.com>,
-        Yang Shi <shy828301@gmail.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-mm@kvack.org
-Subject: Re: [PATCH AUTOSEL 13/14] mm/thp: ClearPageDoubleMap in first
- page_add_file_rmap()
-In-Reply-To: <20220428154222.1230793-13-gregkh@linuxfoundation.org>
-Message-ID: <c2ed1fe1-247e-e644-c367-87d32eb92cf5@google.com>
-References: <20220428154222.1230793-1-gregkh@linuxfoundation.org> <20220428154222.1230793-13-gregkh@linuxfoundation.org>
+        with ESMTP id S236416AbiD1RAn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 28 Apr 2022 13:00:43 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88740B53C2;
+        Thu, 28 Apr 2022 09:57:27 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 40096210EB;
+        Thu, 28 Apr 2022 16:57:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1651165046; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=sI0Q4qCHHuJeHrCT7hRK8KULGr3GzzzrmyaJAYZra3o=;
+        b=dVA4YthPmXCw8w1ju6hpYrbycaGoL0t7OWJbQGzfBkQVH9r1zBbWoO4k+gONFqG5trQVuB
+        7pilT8pA+QOXX7pSlL8Ifr442npyo3Aw3oAmw7YiA0SQ2g4/4TADBx8VsQgx20vTz7C8Df
+        cZ37SnDNLXBXfV5Sl6ouihbmb3xRp+M=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1651165046;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=sI0Q4qCHHuJeHrCT7hRK8KULGr3GzzzrmyaJAYZra3o=;
+        b=asFIO0NfC2COfU/Uk3pVdGJatW2YeCh67pSQ8bYbpygdOYt1mncC0WMFnJp6WY5ALpKgPx
+        9WIVYcyfv8ZH6yBw==
+Received: from quack3.suse.cz (unknown [10.100.224.230])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id DA7242C141;
+        Thu, 28 Apr 2022 16:57:25 +0000 (UTC)
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 61818A061A; Thu, 28 Apr 2022 18:57:25 +0200 (CEST)
+Date:   Thu, 28 Apr 2022 18:57:25 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Baokun Li <libaokun1@huawei.com>
+Cc:     linux-ext4@vger.kernel.org, tytso@mit.edu,
+        adilger.kernel@dilger.ca, jack@suse.cz,
+        linux-kernel@vger.kernel.org, yi.zhang@huawei.com,
+        yebin10@huawei.com, yukuai3@huawei.com, stable@vger.kernel.org,
+        Hulk Robot <hulkci@huawei.com>
+Subject: Re: [PATCH v3] ext4: fix race condition between ext4_write and
+ ext4_convert_inline_data
+Message-ID: <20220428165725.mvjh6mx7gr5vekqe@quack3.lan>
+References: <20220428134031.4153381-1-libaokun1@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220428134031.4153381-1-libaokun1@huawei.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 28 Apr 2022, Greg Kroah-Hartman wrote:
-
-> From: Hugh Dickins <hughd@google.com>
+On Thu 28-04-22 21:40:31, Baokun Li wrote:
+> Hulk Robot reported a BUG_ON:
+>  ==================================================================
+>  EXT4-fs error (device loop3): ext4_mb_generate_buddy:805: group 0,
+>  block bitmap and bg descriptor inconsistent: 25 vs 31513 free clusters
+>  kernel BUG at fs/ext4/ext4_jbd2.c:53!
+>  invalid opcode: 0000 [#1] SMP KASAN PTI
+>  CPU: 0 PID: 25371 Comm: syz-executor.3 Not tainted 5.10.0+ #1
+>  RIP: 0010:ext4_put_nojournal fs/ext4/ext4_jbd2.c:53 [inline]
+>  RIP: 0010:__ext4_journal_stop+0x10e/0x110 fs/ext4/ext4_jbd2.c:116
+>  [...]
+>  Call Trace:
+>   ext4_write_inline_data_end+0x59a/0x730 fs/ext4/inline.c:795
+>   generic_perform_write+0x279/0x3c0 mm/filemap.c:3344
+>   ext4_buffered_write_iter+0x2e3/0x3d0 fs/ext4/file.c:270
+>   ext4_file_write_iter+0x30a/0x11c0 fs/ext4/file.c:520
+>   do_iter_readv_writev+0x339/0x3c0 fs/read_write.c:732
+>   do_iter_write+0x107/0x430 fs/read_write.c:861
+>   vfs_writev fs/read_write.c:934 [inline]
+>   do_pwritev+0x1e5/0x380 fs/read_write.c:1031
+>  [...]
+>  ==================================================================
 > 
-> commit bd55b0c2d64e84a75575f548a33a3dfecc135b65 upstream.
+> Above issue may happen as follows:
+>            cpu1                     cpu2
+> __________________________|__________________________
+> do_pwritev
+>  vfs_writev
+>   do_iter_write
+>    ext4_file_write_iter
+>     ext4_buffered_write_iter
+>      generic_perform_write
+>       ext4_da_write_begin
+>                            vfs_fallocate
+>                             ext4_fallocate
+>                              ext4_convert_inline_data
+>                               ext4_convert_inline_data_nolock
+>                                ext4_destroy_inline_data_nolock
+>                                 clear EXT4_STATE_MAY_INLINE_DATA
+>                                ext4_map_blocks
+>                                 ext4_ext_map_blocks
+>                                  ext4_mb_new_blocks
+>                                   ext4_mb_regular_allocator
+>                                    ext4_mb_good_group_nolock
+>                                     ext4_mb_init_group
+>                                      ext4_mb_init_cache
+>                                       ext4_mb_generate_buddy  --> error
+>        ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
+>                                 ext4_restore_inline_data
+>                                  set EXT4_STATE_MAY_INLINE_DATA
+>        ext4_block_write_begin
+>       ext4_da_write_end
+>        ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
+>        ext4_write_inline_data_end
+>         handle=NULL
+>         ext4_journal_stop(handle)
+>          __ext4_journal_stop
+>           ext4_put_nojournal(handle)
+>            ref_cnt = (unsigned long)handle
+>            BUG_ON(ref_cnt == 0)  ---> BUG_ON
 > 
-> PageDoubleMap is maintained differently for anon and for shmem+file: the
-> shmem+file one was never cleared, because a safe place to do so could
-> not be found; so it would blight future use of the cached hugepage until
-> evicted.
+> The lock held by ext4_convert_inline_data is xattr_sem, but the lock
+> held by generic_perform_write is i_rwsem. Therefore, the two locks can
+> be concurrent.
 > 
-> See https://lore.kernel.org/lkml/1571938066-29031-1-git-send-email-yang.shi@linux.alibaba.com/
+> To solve above issue, we add inode_lock() for ext4_convert_inline_data().
+> At the same time, move ext4_convert_inline_data() in front of
+> ext4_punch_hole(), remove similar handling from ext4_punch_hole().
 > 
-> But page_add_file_rmap() does provide a safe place to do so (though later
-> than one might wish): allowing testing to return to an initial state
-> without a damaging drop_caches.
-> 
-> Link: https://lkml.kernel.org/r/61c5cf99-a962-9a25-597a-53ab1bd8fbc0@google.com
-> Fixes: 9a73f61bdb8a ("thp, mlock: do not mlock PTE-mapped file huge pages")
-> Signed-off-by: Hugh Dickins <hughd@google.com>
-> Reviewed-by: Yang Shi <shy828301@gmail.com>
-> Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Fixes: 0c8d414f163f ("ext4: let fallocate handle inline data correctly")
+> Cc: stable@vger.kernel.org
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Baokun Li <libaokun1@huawei.com>
 
-NAK.
+Looks good to me. Feel free to add:
 
-I thought we had a long-standing agreement that AUTOSEL does not try
-to add patches from akpm's tree which had not been marked for stable.
+Reviewed-by: Jan Kara <jack@suse.cz>
 
-(Whereas, if a developer asks for such a patch to be added to stable
-later, and verifies the result, that's of course a different matter.)
-
-I've chosen to answer to this patch of my 3 in your 14 AUTOSELs,
-because this one is just an improvement, not at all a bugfix needed
-for stable (maybe AUTOSEL noticed "racy" or "safely" in the comments,
-and misunderstood).  The "Fixes" was intended to help any humans who
-wanted to backport into their trees.
-
-I do recall that this 13/14, and 14/14, are mods to mm/rmap.c
-which followed other (mm/munlock) mods to mm/rmap.c in 5.18-rc1,
-which affected the out path of the function involved, and somehow
-made 14/14 a little cleaner.  I'm sorry, but I just don't rate it
-worth my time at the moment, to verify whether 14/14 happens to
-have ended up as a correct patch or not.
-
-And nobody can verify them without these AUTOSELs saying to which
-tree they are targeted - 5.17 I suppose.
-
-Hugh
+								Honza
 
 > ---
->  mm/rmap.c | 11 +++++++++++
->  1 file changed, 11 insertions(+)
+> V1->V2:
+> 	Increase the range of the inode_lock.
+> V2->V3:
+> 	Move the lock outside the ext4_convert_inline_data().
+> 	And reorganize ext4_fallocate().
 > 
-> diff --git a/mm/rmap.c b/mm/rmap.c
-> index 9e27f9f038d3..444d0d958aff 100644
-> --- a/mm/rmap.c
-> +++ b/mm/rmap.c
-> @@ -1252,6 +1252,17 @@ void page_add_file_rmap(struct page *page, bool compound)
->  		}
->  		if (!atomic_inc_and_test(compound_mapcount_ptr(page)))
->  			goto out;
+>  fs/ext4/extents.c | 10 ++++++----
+>  fs/ext4/inode.c   |  9 ---------
+>  2 files changed, 6 insertions(+), 13 deletions(-)
+> 
+> diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
+> index e473fde6b64b..474479ce76e0 100644
+> --- a/fs/ext4/extents.c
+> +++ b/fs/ext4/extents.c
+> @@ -4693,15 +4693,17 @@ long ext4_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
+>  		     FALLOC_FL_INSERT_RANGE))
+>  		return -EOPNOTSUPP;
+>  
+> +	inode_lock(inode);
+> +	ret = ext4_convert_inline_data(inode);
+> +	inode_unlock(inode);
+> +	if (ret)
+> +		goto exit;
 > +
-> +		/*
-> +		 * It is racy to ClearPageDoubleMap in page_remove_file_rmap();
-> +		 * but page lock is held by all page_add_file_rmap() compound
-> +		 * callers, and SetPageDoubleMap below warns if !PageLocked:
-> +		 * so here is a place that DoubleMap can be safely cleared.
-> +		 */
-> +		VM_WARN_ON_ONCE(!PageLocked(page));
-> +		if (nr == nr_pages && PageDoubleMap(page))
-> +			ClearPageDoubleMap(page);
-> +
->  		if (PageSwapBacked(page))
->  			__mod_lruvec_page_state(page, NR_SHMEM_PMDMAPPED,
->  						nr_pages);
+>  	if (mode & FALLOC_FL_PUNCH_HOLE) {
+>  		ret = ext4_punch_hole(file, offset, len);
+>  		goto exit;
+>  	}
+>  
+> -	ret = ext4_convert_inline_data(inode);
+> -	if (ret)
+> -		goto exit;
+> -
+>  	if (mode & FALLOC_FL_COLLAPSE_RANGE) {
+>  		ret = ext4_collapse_range(file, offset, len);
+>  		goto exit;
+> diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+> index 646ece9b3455..4779673d733e 100644
+> --- a/fs/ext4/inode.c
+> +++ b/fs/ext4/inode.c
+> @@ -3967,15 +3967,6 @@ int ext4_punch_hole(struct file *file, loff_t offset, loff_t length)
+>  
+>  	trace_ext4_punch_hole(inode, offset, length, 0);
+>  
+> -	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
+> -	if (ext4_has_inline_data(inode)) {
+> -		filemap_invalidate_lock(mapping);
+> -		ret = ext4_convert_inline_data(inode);
+> -		filemap_invalidate_unlock(mapping);
+> -		if (ret)
+> -			return ret;
+> -	}
+> -
+>  	/*
+>  	 * Write out all dirty pages to avoid race conditions
+>  	 * Then release them.
 > -- 
-> 2.36.0
+> 2.31.1
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
