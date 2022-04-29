@@ -2,115 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A1425148EE
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 14:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450C95149B6
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 14:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358945AbiD2MQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 08:16:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50756 "EHLO
+        id S1359319AbiD2MtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 08:49:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358940AbiD2MQY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 08:16:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C25FAB89A5;
-        Fri, 29 Apr 2022 05:13:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BCEF6211A;
-        Fri, 29 Apr 2022 12:13:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39947C385A7;
-        Fri, 29 Apr 2022 12:13:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651234385;
-        bh=jw3d4LjLrONS5HEaxrtjgz2gOcFZwXgKxK34kfuT4Fo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cuaxore1r67I0zMIAh5pfZjIzO8Mw3KTAeSh0/X2rmMZWK+F6NQQnlz7gSV20veKC
-         7aUzCdcz3ur6BsW+hQHcRVS/oS3cX1Tp5bfJjCRbKdiMtl9g1+35n/D3kYP+yx7oSx
-         Pz3POg2/Nv/zv2inYg+xG+eumP5KQS1IqXRX5qtg=
-Date:   Fri, 29 Apr 2022 14:13:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Hugh Dickins <hughd@google.com>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-mm@kvack.org, Sasha Levin <sashal@kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH AUTOSEL 13/14] mm/thp: ClearPageDoubleMap in first
- page_add_file_rmap()
-Message-ID: <YmvWTrT+3jaWHpkC@kroah.com>
-References: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
- <20220428154222.1230793-13-gregkh@linuxfoundation.org>
- <c2ed1fe1-247e-e644-c367-87d32eb92cf5@google.com>
- <YmrHsVZTEzqIDiKd@kroah.com>
- <bec6e6cf-daa7-d632-7f81-471acba69c9d@google.com>
- <YmsY/n+yXkoEaqqr@google.com>
+        with ESMTP id S241199AbiD2MtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 08:49:09 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E808BF16
+        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 05:45:51 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id a11so6838927pff.1
+        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 05:45:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:in-reply-to:references:subject:message-id:date
+         :mime-version:content-transfer-encoding;
+        bh=ocs0mbwWAgp+tAzV857SlK6UIswo55neeWcWC4SY3Dg=;
+        b=M75tT7fYDZfjp2tooPLlxMQYQCHtfgnPjxrcG9sjO42fIEVdkZaBnWBzOBXOEmYC9W
+         JabKq23L0OLWu8ahSAEd6NPC3Sfeq91RQmUzFmjWiz4Ws889UkTQi1Fk81nTagfrlfWu
+         K23tTRDPhdroVfIEBbspC8P+AglAXcN+MIvl8wK2OmLa5DHdQ/3VwU6N16EHIuBeYRKi
+         OPJGTUV5KkJ+9ELMNfwH+ihmvDC1E9uPkW9uTbSx2wp8H0o0P+TbBP3ECVmyi4BaHlRb
+         08sKokJAjEYkmy3pUBk8kB/Y18B8zN3n6WJqZ5QD1zgR+qTs1qncEBVKors9RsYHTRoN
+         aukg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=ocs0mbwWAgp+tAzV857SlK6UIswo55neeWcWC4SY3Dg=;
+        b=uOrzxwD/jcp6KIJDCnwkyWB7NoqdrYBIyBLPEatbMukQQcCe/Vy73Y58xTVb8GM+Nx
+         gpdPnAyKocACuvPLaXUYrBu5YiypNet6QhZrkrUfPbcnkh4e0D7eVsn8A7lesEB/nsUr
+         kFQwqgenSIaPvzR5sP6wyIlfguy9iJrUh8k9g4LyBZoknXRXW8Wi1fhNzPafIw/WYGFz
+         PEPwQVAz+RSSu38SdNA8BA6YG8vJntHI7bfyTIRigWvBOsRgvtNxt5U04zFsFAsiZeQn
+         EBv7bi6ckJkV6rl1L8IZ8XSTAATp04G92kuYsYOhTPgCmEh6DeDSDRkBiTGWZaAUcwY0
+         FHRw==
+X-Gm-Message-State: AOAM531h/2tT2RA0/Urk9FoUrgrrxOOmYqFyXOz8QbxiCWeuquvNbAI4
+        XAOO+48mqVSkQpYXKvZpURpjHA==
+X-Google-Smtp-Source: ABdhPJwKlSzZpHDij9KxX7qhr19A8CctJ49N5nK9OCJnkYsL5jYSRcGt1HiFqXKIJmXzYMOH6YWc1Q==
+X-Received: by 2002:a05:6a00:1749:b0:50a:8eed:b824 with SMTP id j9-20020a056a00174900b0050a8eedb824mr39902311pfc.50.1651236351379;
+        Fri, 29 Apr 2022 05:45:51 -0700 (PDT)
+Received: from [127.0.1.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id x186-20020a6363c3000000b003c14af505f6sm6010824pgb.14.2022.04.29.05.45.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Apr 2022 05:45:50 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     jack@suse.cz, paolo.valente@linaro.org
+Cc:     yukuai3@huawei.com, stable@vger.kernel.org,
+        linux-block@vger.kernel.org, lists@colorremedies.com
+In-Reply-To: <20220407140738.9723-1-jack@suse.cz>
+References: <20220407140738.9723-1-jack@suse.cz>
+Subject: Re: [PATCH] bfq: Fix warning in bfqq_request_over_limit()
+Message-Id: <165123635009.46786.3093085989076098329.b4-ty@kernel.dk>
+Date:   Fri, 29 Apr 2022 06:45:50 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YmsY/n+yXkoEaqqr@google.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,RCVD_IN_SBL_CSS,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: *
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 28, 2022 at 10:45:18PM +0000, Sean Christopherson wrote:
-> +Sasha and Paolo
+On Thu, 7 Apr 2022 16:07:38 +0200, Jan Kara wrote:
+> People are occasionally reporting a warning bfqq_request_over_limit()
+> triggering reporting that BFQ's idea of cgroup hierarchy (and its depth)
+> does not match what generic blkcg code thinks. This can actually happen
+> when bfqq gets moved between BFQ groups while bfqq_request_over_limit()
+> is running. Make sure the code is safe against BFQ queue being moved to
+> a different BFQ group.
 > 
-> On Thu, Apr 28, 2022, Hugh Dickins wrote:
-> > On Thu, 28 Apr 2022, Greg Kroah-Hartman wrote:
-> > > On Thu, Apr 28, 2022 at 09:51:58AM -0700, Hugh Dickins wrote:
-> > > > On Thu, 28 Apr 2022, Greg Kroah-Hartman wrote:
-> > > > 
-> > > > > From: Hugh Dickins <hughd@google.com>
-> > > > > 
-> > > > > commit bd55b0c2d64e84a75575f548a33a3dfecc135b65 upstream.
-> > > > > 
-> > > > > PageDoubleMap is maintained differently for anon and for shmem+file: the
-> > > > > shmem+file one was never cleared, because a safe place to do so could
-> > > > > not be found; so it would blight future use of the cached hugepage until
-> > > > > evicted.
-> > > > > 
-> > > > > See https://lore.kernel.org/lkml/1571938066-29031-1-git-send-email-yang.shi@linux.alibaba.com/
-> > > > > 
-> > > > > But page_add_file_rmap() does provide a safe place to do so (though later
-> > > > > than one might wish): allowing testing to return to an initial state
-> > > > > without a damaging drop_caches.
-> > > > > 
-> > > > > Link: https://lkml.kernel.org/r/61c5cf99-a962-9a25-597a-53ab1bd8fbc0@google.com
-> > > > > Fixes: 9a73f61bdb8a ("thp, mlock: do not mlock PTE-mapped file huge pages")
-> > > > > Signed-off-by: Hugh Dickins <hughd@google.com>
-> > > > > Reviewed-by: Yang Shi <shy828301@gmail.com>
-> > > > > Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-> > > > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > > > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> > > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > 
-> > > > NAK.
-> > > > 
-> > > > I thought we had a long-standing agreement that AUTOSEL does not try
-> > > > to add patches from akpm's tree which had not been marked for stable.
-> > > 
-> > > True, this was my attempt at saying "hey these all look like they should
-> > > go to stable trees, why not?"
-> > 
-> > Okay, it seems I should have read "AUTOSEL" as "Hey, GregKH here,
-> > these all look like they should go to stable trees, why not?",
-> > which would have drawn a friendlier response.
-> 
-> FWIW, Sasha has been using MANUALSEL for the KVM tree to solicit an explicit ACK
-> from Paolo for these types of patches.  AFAICT, it has been working quite well.
+> [...]
 
-Yes, that is what I should have put here, sorry about that.  These were
-manually picked by me and I am asking if they should be included or not.
-I'll resend after dropping Hugh's patches from the series.
+Applied, thanks!
 
-thanks,
+[1/1] bfq: Fix warning in bfqq_request_over_limit()
+      commit: 09df6a75fffa68169c5ef9bef990cd7ba94f3eef
 
-greg k-h
+Best regards,
+-- 
+Jens Axboe
+
+
