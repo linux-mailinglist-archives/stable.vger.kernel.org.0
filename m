@@ -2,197 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F282514ABD
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 15:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06038514C29
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 16:03:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352129AbiD2Nmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 09:42:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53908 "EHLO
+        id S1376913AbiD2OGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 10:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357952AbiD2Nmb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 09:42:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AED1CB036;
-        Fri, 29 Apr 2022 06:39:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4922622B7;
-        Fri, 29 Apr 2022 13:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D1C5C385B7;
-        Fri, 29 Apr 2022 13:39:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651239552;
-        bh=N9fQmEl3ImvB9J7VUSPgaqnkcUMXRSpOC2WJD514V+0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=vRMWlIw46xZ4PUBO6CL6zDq8poNp54VbHQ7VuENmgOwp/wnbycRE4v3oQ5HMGV7Ja
-         Ss5tiEpr8pbZYlY1z2QmGIKiKonn1xwlVYEFpQycPxgAdlUGowTcZ3aodlK1cO/DAs
-         nZLYGcdp8B9dtNVbH3AAze2sEMO3lw5OdQNqnAJFCG8Jvr+PDm6yOwlGB4T15CieHl
-         htZQ7qPZ2x01YVAviEsvaRZ4u6WdCAEW2Jkh216N5MtU0gQi9gPxS3fLqaJ3GV4H0o
-         3CIK12NmGJs9NumheTn1zTN3swwTtur7aSUd0hKHR66PjyLGqmNb5eUuCK9JLBDJP2
-         VAy3afiE8Wp6Q==
-Received: by mail-oi1-f181.google.com with SMTP id l203so8577262oif.0;
-        Fri, 29 Apr 2022 06:39:12 -0700 (PDT)
-X-Gm-Message-State: AOAM533hpWj4ec1m2yQuxpTr5MzMMq6OlrDSJJzPU+boWzgROf/UxXdS
-        idW845RNoPtymZ79XtAOP9nSyWZ57mYSm9QidbQ=
-X-Google-Smtp-Source: ABdhPJyfcM/dpIqHcAvX21o5Cf+UNAua/EhPe35gS7dpx3y4FsOiH9bq+O94L0HeoPl+2Z1iI+tS76jLqoO83/0kiOI=
-X-Received: by 2002:a05:6808:e8d:b0:322:bac0:2943 with SMTP id
- k13-20020a0568080e8d00b00322bac02943mr1461318oil.126.1651239551067; Fri, 29
- Apr 2022 06:39:11 -0700 (PDT)
+        with ESMTP id S1376912AbiD2OG1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 10:06:27 -0400
+Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 327FF5BD34;
+        Fri, 29 Apr 2022 06:54:42 -0700 (PDT)
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1nkR4B-0004Nf-00; Fri, 29 Apr 2022 15:53:51 +0200
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id 77961C01CB; Fri, 29 Apr 2022 15:53:38 +0200 (CEST)
+Date:   Fri, 29 Apr 2022 15:53:38 +0200
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: Fix CP0 counter erratum detection for R4k CPUs
+Message-ID: <20220429135338.GA3357@alpha.franken.de>
+References: <alpine.DEB.2.21.2204240214430.9383@angie.orcam.me.uk>
 MIME-Version: 1.0
-References: <20220426060107.7618-1-rppt@kernel.org>
-In-Reply-To: <20220426060107.7618-1-rppt@kernel.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Fri, 29 Apr 2022 15:38:59 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXG=-YFKLkv3EkMeuhS7fiuTsEctehxRCueyTuYBxY1kUQ@mail.gmail.com>
-Message-ID: <CAMj1kXG=-YFKLkv3EkMeuhS7fiuTsEctehxRCueyTuYBxY1kUQ@mail.gmail.com>
-Subject: Re: [PATCH v2] arm[64]/memremap: don't abuse pfn_valid() to ensure
- presence of linear map
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guillaume Tucker <gtucker@collabora.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Tony Lindgren <tony@atomide.com>,
-        Will Deacon <will@kernel.org>,
-        "kernelci . org bot" <bot@kernelci.org>,
-        kernelci-results@groups.io,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.21.2204240214430.9383@angie.orcam.me.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 26 Apr 2022 at 08:01, Mike Rapoport <rppt@kernel.org> wrote:
->
-> From: Mike Rapoport <rppt@linux.ibm.com>
->
-> The semantics of pfn_valid() is to check presence of the memory map for a
-> PFN and not whether a PFN is covered by the linear map. The memory map may
-> be present for NOMAP memory regions, but they won't be mapped in the linear
-> mapping.  Accessing such regions via __va() when they are memremap()'ed
-> will cause a crash.
->
-> On v5.4.y the crash happens on qemu-arm with UEFI [1]:
->
-> <1>[    0.084476] 8<--- cut here ---
-> <1>[    0.084595] Unable to handle kernel paging request at virtual address dfb76000
-> <1>[    0.084938] pgd = (ptrval)
-> <1>[    0.085038] [dfb76000] *pgd=5f7fe801, *pte=00000000, *ppte=00000000
->
-> ...
->
-> <4>[    0.093923] [<c0ed6ce8>] (memcpy) from [<c16a06f8>] (dmi_setup+0x60/0x418)
-> <4>[    0.094204] [<c16a06f8>] (dmi_setup) from [<c16a38d4>] (arm_dmi_init+0x8/0x10)
-> <4>[    0.094408] [<c16a38d4>] (arm_dmi_init) from [<c0302e9c>] (do_one_initcall+0x50/0x228)
-> <4>[    0.094619] [<c0302e9c>] (do_one_initcall) from [<c16011e4>] (kernel_init_freeable+0x15c/0x1f8)
-> <4>[    0.094841] [<c16011e4>] (kernel_init_freeable) from [<c0f028cc>] (kernel_init+0x8/0x10c)
-> <4>[    0.095057] [<c0f028cc>] (kernel_init) from [<c03010e8>] (ret_from_fork+0x14/0x2c)
->
-> On kernels v5.10.y and newer the same crash won't reproduce on ARM because
-> commit b10d6bca8720 ("arch, drivers: replace for_each_membock() with
-> for_each_mem_range()") changed the way memory regions are registered in the
-> resource tree, but that merely covers up the problem.
->
-> On ARM64 memory resources registered in yet another way and there the
-> issue of wrong usage of pfn_valid() to ensure availability of the linear
-> map is also covered.
->
-> Implement arch_memremap_can_ram_remap() on ARM and ARM64 to prevent access
-> to NOMAP regions via the linear mapping in memremap().
->
-> Link: https://lore.kernel.org/all/Yl65zxGgFzF1Okac@sirena.org.uk
-> Reported-by: "kernelci.org bot" <bot@kernelci.org>
-> Tested-by: Mark Brown <broonie@kernel.org>
-> Cc: stable@vger.kernel.org      # 5.4+
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+On Sun, Apr 24, 2022 at 12:46:23PM +0100, Maciej W. Rozycki wrote:
+> Fix the discrepancy between the two places we check for the CP0 counter 
+> erratum in along with the incorrect comparison of the R4400 revision 
+> number against 0x30 which matches none and consistently consider all 
+> R4000 and R4400 processors affected, as documented in processor errata 
+> publications[1][2][3], following the mapping between CP0 PRId register 
+> values and processor models:
+> 
+>   PRId   |  Processor Model
+> ---------+--------------------
+> 00000422 | R4000 Revision 2.2
+> 00000430 | R4000 Revision 3.0
+> 00000440 | R4400 Revision 1.0
+> 00000450 | R4400 Revision 2.0
+> 00000460 | R4400 Revision 3.0
+> 
+> No other revision of either processor has ever been spotted.
+> 
+> Contrary to what has been stated in commit ce202cbb9e0b ("[MIPS] Assume 
+> R4000/R4400 newer than 3.0 don't have the mfc0 count bug") marking the 
+> CP0 counter as buggy does not preclude it from being used as either a 
+> clock event or a clock source device.  It just cannot be used as both at 
+> a time, because in that case clock event interrupts will be occasionally 
+> lost, and the use as a clock event device takes precedence.
+> 
+> Compare against 0x4ff in `can_use_mips_counter' so that a single machine 
+> instruction is produced.
+> 
+> References:
+> 
+> [1] "MIPS R4000PC/SC Errata, Processor Revision 2.2 and 3.0", MIPS
+>     Technologies Inc., May 10, 1994, Erratum 53, p.13
+> 
+> [2] "MIPS R4400PC/SC Errata, Processor Revision 1.0", MIPS Technologies
+>     Inc., February 9, 1994, Erratum 21, p.4
+> 
+> [3] "MIPS R4400PC/SC Errata, Processor Revision 2.0 & 3.0", MIPS 
+>     Technologies Inc., January 24, 1995, Erratum 14, p.3
+> 
+> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+> Fixes: ce202cbb9e0b ("[MIPS] Assume R4000/R4400 newer than 3.0 don't have the mfc0 count bug")
+> Cc: stable@vger.kernel.org # v2.6.24+
 > ---
-> v2: don't remove pfn_valid() from try_ram_remap(), per Ard
->
->  arch/arm/include/asm/io.h   | 3 +++
->  arch/arm/mm/ioremap.c       | 8 ++++++++
->  arch/arm64/include/asm/io.h | 4 ++++
->  arch/arm64/mm/ioremap.c     | 8 ++++++++
->  4 files changed, 23 insertions(+)
->
+> Thomas,
+> 
+>  Please review the requirements for SNI platforms.  In the case of an 
+> erratic CP0 timer we give precedence to the use as a clock event rather 
+> than clock source device; see `time_init' in arch/mips/kernel/time.c. 
+> Therefore if SNI systems have no alternative timer interrupt source, then 
+> the CP0 timer is supposed to still do regardless of the erratum.
+> 
+>  Conversely a system can do without a high-precision clock source, in
+> which case jiffies will be used.  Of course such a system will suffer if 
+> used for precision timekeeping, but such is the price for broken hardware.  
+> Don't SNI systems have any alternative timer available, not even the 
+> venerable 8254?
+> 
+>  Long-term I think this code should be factored out and rewritten so that 
+> it lives in one place and can take advantage of compile-time constants, 
+> which will be the case for the majority of platforms.  For the time being 
+> fix the immediate breakage however.
+> 
+>  With the considerations above in mind, please apply.
+> 
+>   Maciej
+> ---
+>  arch/mips/include/asm/timex.h |    8 ++++----
+>  arch/mips/kernel/time.c       |   11 +++--------
+>  2 files changed, 7 insertions(+), 12 deletions(-)
 
-I think this looks reasonable, but you'll need to split it in two if
-it is going through the respective arch trees.
+applied to mips-fixes.
 
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Thomas.
 
-> diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
-> index 0c70eb688a00..2a0739a2350b 100644
-> --- a/arch/arm/include/asm/io.h
-> +++ b/arch/arm/include/asm/io.h
-> @@ -440,6 +440,9 @@ extern void pci_iounmap(struct pci_dev *dev, void __iomem *addr);
->  #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
->  extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
->  extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
-> +extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-> +                                       unsigned long flags);
-> +#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
->  #endif
->
->  /*
-> diff --git a/arch/arm/mm/ioremap.c b/arch/arm/mm/ioremap.c
-> index aa08bcb72db9..290702328a33 100644
-> --- a/arch/arm/mm/ioremap.c
-> +++ b/arch/arm/mm/ioremap.c
-> @@ -493,3 +493,11 @@ void __init early_ioremap_init(void)
->  {
->         early_ioremap_setup();
->  }
-> +
-> +bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-> +                                unsigned long flags)
-> +{
-> +       unsigned long pfn = PHYS_PFN(offset);
-> +
-> +       return memblock_is_map_memory(pfn);
-> +}
-> diff --git a/arch/arm64/include/asm/io.h b/arch/arm64/include/asm/io.h
-> index 7fd836bea7eb..3995652daf81 100644
-> --- a/arch/arm64/include/asm/io.h
-> +++ b/arch/arm64/include/asm/io.h
-> @@ -192,4 +192,8 @@ extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
->  extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
->  extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
->
-> +extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-> +                                       unsigned long flags);
-> +#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
-> +
->  #endif /* __ASM_IO_H */
-> diff --git a/arch/arm64/mm/ioremap.c b/arch/arm64/mm/ioremap.c
-> index b7c81dacabf0..b21f91cd830d 100644
-> --- a/arch/arm64/mm/ioremap.c
-> +++ b/arch/arm64/mm/ioremap.c
-> @@ -99,3 +99,11 @@ void __init early_ioremap_init(void)
->  {
->         early_ioremap_setup();
->  }
-> +
-> +bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-> +                                unsigned long flags)
-> +{
-> +       unsigned long pfn = PHYS_PFN(offset);
-> +
-> +       return pfn_is_map_memory(pfn);
-> +}
->
-> base-commit: b2d229d4ddb17db541098b83524d901257e93845
-> --
-> 2.28.0
->
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
