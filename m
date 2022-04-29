@@ -2,136 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97984514427
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 10:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3209951445C
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 10:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229947AbiD2I2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 04:28:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46606 "EHLO
+        id S1355769AbiD2IlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 04:41:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355667AbiD2I16 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 04:27:58 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E80AC1C8E
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 01:24:40 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id p6so6524122plf.9
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 01:24:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KuS+yH1kiQLApjfE4L/tp3jDdwz85Wr4UpNM1EDBZlM=;
-        b=x9qh1hlmn28S/F/8CpMvxv1xa58LOj4+WRZep6aRTwXcU2HxBSVr5L/H7mRWqQambb
-         2cD2EnMIywA6e/Wejkow/qMv7bd7EXfoXpYaL/UMInRWG31Zp7XMzK2yFF45jyJi65d0
-         qrDqD6Yc5V9BAsiduZ8pwK9H65ITgmFcgKoCdzQfv6KM+qIi4OMvrQN7y7NOpyYDzGdI
-         SRnqjlk/Aogtoliw+NkTT3Tb+fEMsyMIN36Ff3MGBi470K+QB3WklhKFhNMXhdjFb83K
-         hVreFpvwsNUHPHj/i7FhU9WhlP0XTqstM5VIMIaTuFU9tLIdfqWTTJctBvlKzwoqTj9J
-         jvbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KuS+yH1kiQLApjfE4L/tp3jDdwz85Wr4UpNM1EDBZlM=;
-        b=jg2ixKvNKvmvzR0hBFDxJZ7r0ld1C6QU66prQN8mpglO7v+bAFNK4G8S20Qjsb7gtG
-         IArwhVLguRt26Dk6S3pNKZ71gWCdxqdXVOExYctZDe8ldeBYb3KWbyNz9oVdymtqVmPh
-         Wm+mf8ThZJiPQNhifBAOREqbMrGB/NjyQn8qZ49J4LwWG37T3dPjSIWLzD8wbF53AjSq
-         SmmQ+IzodB1InlZ3iqYc+bt9eOitHpuGGf6ZUre/WFKeBDkVEJliFTUzAg2YejDT7oJt
-         6JPBRalB4TVpMkjaEUn8sZjQtdZfpBfuWtaINM3pwvmpHVOOvPVaJk2Hjs+PbpJyc7Yd
-         M+Lw==
-X-Gm-Message-State: AOAM530jS1y8Icjuhim1FGV66hJMzQ1gbWK8L6xwQpHh/WiCKLFEBhwE
-        iLlrM37wXD5KREkOiY+Z3t2qHsmqs3XLmw3hPx4=
-X-Google-Smtp-Source: ABdhPJxit4uUBhC+Rp/dZ/jytgliFwdcNsFmS8jjGg3s0zUFzs9EHHkSdZHrM/kR54FSz3vsDrgF/w==
-X-Received: by 2002:a17:902:868e:b0:15a:7c9d:b11f with SMTP id g14-20020a170902868e00b0015a7c9db11fmr38613433plo.151.1651220679919;
-        Fri, 29 Apr 2022 01:24:39 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z13-20020a17090a468d00b001cd4989fedfsm13799773pjf.43.2022.04.29.01.24.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Apr 2022 01:24:39 -0700 (PDT)
-Message-ID: <626ba0c7.1c69fb81.3eecd.03ba@mx.google.com>
-Date:   Fri, 29 Apr 2022 01:24:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1351551AbiD2IlA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 04:41:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F8CA777E
+        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 01:37:42 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53464B83290
+        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 08:37:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A16FC385A4;
+        Fri, 29 Apr 2022 08:37:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651221459;
+        bh=CZbc3NLs5UB/GOr1yq0DL6qsy6DPtAYbsTSdagd5TL4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RxkaXikUryp72tRGdncSYWs4pZ9/cLPFVM7DnwCkAcQ1zvo7DNGZVc7KdJnRaxp1C
+         VP9anXOcF+EavPIAugFQ94eUF+i14SrQiOQDfIcbcsZZOone2Tddb5jNf13nCfzGah
+         +bz7qk7oRpJ/xpqjUa7Y69bmvQsrXpNYgrnPsa4k=
+Date:   Fri, 29 Apr 2022 10:37:37 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Mikulas Patocka <mpatocka@redhat.com>
+Cc:     Mike Snitzer <msnitzer@redhat.com>, dm-devel@redhat.com,
+        stable@vger.kernel.org
+Subject: Re: [dm-devel] [PATCH v5.10] dm: fix mempool NULL pointer race when
+ completing IO
+Message-ID: <Ymuj0Y2A6WHOi05c@kroah.com>
+References: <alpine.LRH.2.02.2204211407220.761@file01.intranet.prod.int.rdu2.redhat.com>
+ <YmeUXC3DZGLPJlWw@kroah.com>
+ <alpine.LRH.2.02.2204281155460.5963@file01.intranet.prod.int.rdu2.redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.113-1-gb17d6612542c
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 83 runs,
- 1 regressions (v5.10.113-1-gb17d6612542c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LRH.2.02.2204281155460.5963@file01.intranet.prod.int.rdu2.redhat.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 83 runs, 1 regressions (v5.10.113-1-gb17d661=
-2542c)
+On Thu, Apr 28, 2022 at 12:22:26PM -0400, Mikulas Patocka wrote:
+> 
+> 
+> On Tue, 26 Apr 2022, Greg Kroah-Hartman wrote:
+> 
+> > On Thu, Apr 21, 2022 at 02:08:30PM -0400, Mikulas Patocka wrote:
+> > > Hi
+> > 
+> > Not really needed in a changelog text :)
+> > 
+> > > This is backport of patches d208b89401e0 ("dm: fix mempool NULL pointer
+> > > race when completing IO") and 9f6dc6337610 ("dm: interlock pending dm_io
+> > > and dm_wait_for_bios_completion") for the kernel 5.10.
+> > 
+> > Can you just make these 2 different patches?
+> > 
+> > > 
+> > > The bugs fixed by these patches can cause random crashing when reloading
+> > > dm table, so it is eligible for stable backport.
+> > > 
+> > > This patch is different from the upstream patches because the code
+> > > diverged significantly.
+> > > 
+> > 
+> > This change is _VERY_ different.  I would need acks from the maintainers
+> > of this code before I could accept this, along with a much more detailed
+> > description of why the original commits will not work here as well.
+> > 
+> > Same for the other backports.
+> 
+> Regarding backporting of 9f6dc633:
+> 
+> My reasoning was that introducing "md->pending_io" in the backported 
+> stable kernels is useless - it will just degrade performance by consuming 
+> one more cache line per I/O without providing any gain.
+> 
+> In the upstream kernels, Mike needs that "md->pending_io" variable for 
+> other reasons (the I/O accounting was reworked there in order to avoid 
+> some spikes with dm-crypt), but there is no need for it in the stable 
+> kernels.
+> 
+> In order to fix that race condition, all we need to do is to make sure 
+> that dm_stats_account_io is called before bio_end_io_acct - and the patch 
+> does that - it swaps them.
+> 
+> Do you still insist that this useless percpu variable must be added to the 
+> stable kernels? If you do, I can make it, but I think it's better to just 
+> swap those two functions.
 
-Regressions Summary
--------------------
+I am no insisting on anything, I want the dm maintainers to agree that
+this change is acceptable to take as it is not what is in Linus's tree.
+Every time we take a "not upstream" commit, the odds are 90% that it
+ends up being wrong, so I need extra review and assurances that it is
+acceptable before I can apply it.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+thanks,
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.113-1-gb17d6612542c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.113-1-gb17d6612542c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b17d6612542ce90b6ee71a4a9fbb00490864a1fa =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/626b6bfe573bb23e86ff9469
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
--1-gb17d6612542c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
-line-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
--1-gb17d6612542c/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/base=
-line-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220422.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/626b6bfe573bb23e86ff948b
-        failing since 52 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-04-29T04:39:08.088708  /lava-6206206/1/../bin/lava-test-case   =
-
- =20
+greg k-h
