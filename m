@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21F945146FB
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083A85146FE
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236806AbiD2Kqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:46:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58896 "EHLO
+        id S1356614AbiD2Kqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:46:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357954AbiD2Kql (ORCPT
+        with ESMTP id S1357986AbiD2Kql (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:46:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D13C4C8659;
-        Fri, 29 Apr 2022 03:42:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED1A8C8A83;
+        Fri, 29 Apr 2022 03:42:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7D933B83453;
-        Fri, 29 Apr 2022 10:42:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E87C5C385A4;
-        Fri, 29 Apr 2022 10:42:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DB68B83457;
+        Fri, 29 Apr 2022 10:42:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 907F1C385A7;
+        Fri, 29 Apr 2022 10:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651228961;
-        bh=+lUj1egDd/S8i8vocwID7TWy5hgJ20adUlTHwM8tQzQ=;
+        s=korg; t=1651228964;
+        bh=scbClq3bvSuUSn6OVTdOTqVruX5K+Ttq0QqFNqGeeu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pquQUwoR1hwTPZFNzVAEJ+RIbPhFF6/ho0TOC8ViYtdr1egqu9bKU4ut7xHv6AAk8
-         RPiPaWY9TPkiRS/2MU6fULDbEOsqlIHepxixzdYEWJ/aKMGW5k0w5iwb504HRXXmhv
-         vkaD2ON+rxikqwxPwqzmBmQZumY01V23lQbthwYU=
+        b=KSst96yGccGWQH5kJyQXH5GJtUN3I3tDTM1+MUxZnyVYBZDfRzPDd3oA91amBiLY9
+         8kGYAaALrFSoUD4+HGcuYCYam+FXxVuwt5UbkQw5g04TEfDn0PHjFiS+l79abjbjVe
+         jv0lt5ypbNr3MFhWcsylRm0VJwedjMOENnFCXPh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.15 13/33] ARM: dts: socfpga: change qspi to "intel,socfpga-qspi"
-Date:   Fri, 29 Apr 2022 12:42:00 +0200
-Message-Id: <20220429104052.729847451@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Marco Elver <elver@google.com>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 14/33] mm: kfence: fix objcgs vector allocation
+Date:   Fri, 29 Apr 2022 12:42:01 +0200
+Message-Id: <20220429104052.756801254@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
 References: <20220429104052.345760505@linuxfoundation.org>
@@ -52,76 +58,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 36de991e93908f7ad5c2a0eac9c4ecf8b723fa4a upstream.
+commit 8f0b36497303487d5a32c75789c77859cc2ee895 upstream.
 
-Because of commit 9cb2ff111712 ("spi: cadence-quadspi: Disable Auto-HW polling"),
-which does a write to the CQSPI_REG_WR_COMPLETION_CTRL register
-regardless of any condition. Well, the Cadence QuadSPI controller on
-Intel's SoCFPGA platforms does not implement the
-CQSPI_REG_WR_COMPLETION_CTRL register, thus a write to this register
-results in a crash!
+If the kfence object is allocated to be used for objects vector, then
+this slot of the pool eventually being occupied permanently since the
+vector is never freed.  The solutions could be (1) freeing vector when
+the kfence object is freed or (2) allocating all vectors statically.
 
-So starting with v5.16, I introduced the patch
-98d948eb833 ("spi: cadence-quadspi: fix write completion support"),
-which adds the dts compatible "intel,socfpga-qspi" that is specific for
-versions that doesn't have the CQSPI_REG_WR_COMPLETION_CTRL register implemented.
+Since the memory consumption of object vectors is low, it is better to
+chose (2) to fix the issue and it is also can reduce overhead of vectors
+allocating in the future.
 
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-[IA: submitted for linux-5.15.y]
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lkml.kernel.org/r/20220328132843.16624-1-songmuchun@bytedance.com
+Fixes: d3fb45f370d9 ("mm, kfence: insert KFENCE hooks for SLAB")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Reviewed-by: Roman Gushchin <roman.gushchin@linux.dev>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/socfpga.dtsi                    |    2 +-
- arch/arm/boot/dts/socfpga_arria10.dtsi            |    2 +-
- arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi |    2 +-
- arch/arm64/boot/dts/intel/socfpga_agilex.dtsi     |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ mm/kfence/core.c   |   11 ++++++++++-
+ mm/kfence/kfence.h |    3 +++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
---- a/arch/arm/boot/dts/socfpga.dtsi
-+++ b/arch/arm/boot/dts/socfpga.dtsi
-@@ -782,7 +782,7 @@
- 		};
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -528,6 +528,8 @@ static bool __init kfence_init_pool(void
+ 	 * enters __slab_free() slow-path.
+ 	 */
+ 	for (i = 0; i < KFENCE_POOL_SIZE / PAGE_SIZE; i++) {
++		struct page *page = &pages[i];
++
+ 		if (!i || (i % 2))
+ 			continue;
  
- 		qspi: spi@ff705000 {
--			compatible = "cdns,qspi-nor";
-+			compatible = "intel,socfpga-qspi", "cdns,qspi-nor";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0xff705000 0x1000>,
---- a/arch/arm/boot/dts/socfpga_arria10.dtsi
-+++ b/arch/arm/boot/dts/socfpga_arria10.dtsi
-@@ -756,7 +756,7 @@
- 		};
+@@ -535,7 +537,11 @@ static bool __init kfence_init_pool(void
+ 		if (WARN_ON(compound_head(&pages[i]) != &pages[i]))
+ 			goto err;
  
- 		qspi: spi@ff809000 {
--			compatible = "cdns,qspi-nor";
-+			compatible = "intel,socfpga-qspi", "cdns,qspi-nor";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0xff809000 0x100>,
---- a/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-+++ b/arch/arm64/boot/dts/altera/socfpga_stratix10.dtsi
-@@ -594,7 +594,7 @@
- 		};
+-		__SetPageSlab(&pages[i]);
++		__SetPageSlab(page);
++#ifdef CONFIG_MEMCG
++		page->memcg_data = (unsigned long)&kfence_metadata[i / 2 - 1].objcg |
++				   MEMCG_DATA_OBJCGS;
++#endif
+ 	}
  
- 		qspi: spi@ff8d2000 {
--			compatible = "cdns,qspi-nor";
-+			compatible =  "intel,socfpga-qspi", "cdns,qspi-nor";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0xff8d2000 0x100>,
---- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-+++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
-@@ -628,7 +628,7 @@
- 		};
+ 	/*
+@@ -911,6 +917,9 @@ void __kfence_free(void *addr)
+ {
+ 	struct kfence_metadata *meta = addr_to_metadata((unsigned long)addr);
  
- 		qspi: spi@ff8d2000 {
--			compatible = "cdns,qspi-nor";
-+			compatible = "intel,socfpga-qspi", "cdns,qspi-nor";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			reg = <0xff8d2000 0x100>,
++#ifdef CONFIG_MEMCG
++	KFENCE_WARN_ON(meta->objcg);
++#endif
+ 	/*
+ 	 * If the objects of the cache are SLAB_TYPESAFE_BY_RCU, defer freeing
+ 	 * the object, as the object page may be recycled for other-typed
+--- a/mm/kfence/kfence.h
++++ b/mm/kfence/kfence.h
+@@ -89,6 +89,9 @@ struct kfence_metadata {
+ 	struct kfence_track free_track;
+ 	/* For updating alloc_covered on frees. */
+ 	u32 alloc_stack_hash;
++#ifdef CONFIG_MEMCG
++	struct obj_cgroup *objcg;
++#endif
+ };
+ 
+ extern struct kfence_metadata kfence_metadata[CONFIG_KFENCE_NUM_OBJECTS];
 
 
