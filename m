@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7410251471D
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B97514725
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357689AbiD2Kpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:45:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59092 "EHLO
+        id S1357703AbiD2Kpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357720AbiD2Kp3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:45:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3283C6EC9;
-        Fri, 29 Apr 2022 03:42:01 -0700 (PDT)
+        with ESMTP id S1357635AbiD2Kpa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:45:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4094C749E;
+        Fri, 29 Apr 2022 03:42:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8983B8344E;
-        Fri, 29 Apr 2022 10:41:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A944C385B0;
-        Fri, 29 Apr 2022 10:41:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4CF52CE31AF;
+        Fri, 29 Apr 2022 10:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AF83C385A4;
+        Fri, 29 Apr 2022 10:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651228918;
-        bh=sb3U7kKxOkPrgUu031Z8E3BAeQBlFgHRxUmkO8bn1mE=;
+        s=korg; t=1651228921;
+        bh=dNuZwPRwnqBgUohvCWXMh+zRpw7Ey1IgPmtXMhJ6YnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dw8zHysPBB1vX6wuIuJZTElaZmM8BR1hDK3jHQtK3WbJwH8EEGa5XtW/PMfisZqSw
-         epjiDuKgKD2EUvcXU3pXbM8G8Wa3Z2nTEi0Ys8OhymUMjVvBRgJqnBOeprNXPVbgoc
-         aOjm6DiZkOmOnWPGw4q3qxM4EEemxaSZiOVfLk3A=
+        b=QwPFdTwBz7Aectl0hIa73673jfK1EtQusgylQJ9wOJCF1kfi1anURN6k7BqAW3x96
+         hHAFXDCBLgwfjcgcoEUV3Wy5pBDxC7l6QyBlNDlxo3zkwo2U0WYbqBE7Cm5fNHtz0l
+         Bl6H6hEeurUfj9TOgUToSCNRG7LRqn6N8dJo8hyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Robert Kolchmeyer <rkolchmeyer@google.com>
-Subject: [PATCH 4.19 05/12] net/sched: cls_u32: fix netns refcount changes in u32_change()
-Date:   Fri, 29 Apr 2022 12:41:22 +0200
-Message-Id: <20220429104048.616912783@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 06/12] powerpc/64/interrupt: Temporarily save PPR on stack to fix register corruption due to SLB miss
+Date:   Fri, 29 Apr 2022 12:41:23 +0200
+Message-Id: <20220429104048.645508753@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104048.459089941@linuxfoundation.org>
 References: <20220429104048.459089941@linuxfoundation.org>
@@ -57,142 +52,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 3db09e762dc79584a69c10d74a6b98f89a9979f8 upstream.
+This is a minimal stable kernel fix for the problem solved by
+4c2de74cc869 ("powerpc/64: Interrupts save PPR on stack rather than
+thread_struct").
 
-We are now able to detect extra put_net() at the moment
-they happen, instead of much later in correct code paths.
+Upstream kernels between 4.17-4.20 have this bug, so I propose this
+patch for 4.19 stable.
 
-u32_init_knode() / tcf_exts_init() populates the ->exts.net
-pointer, but as mentioned in tcf_exts_init(),
-the refcount on netns has not been elevated yet.
+Longer description from mpe:
 
-The refcount is taken only once tcf_exts_get_net()
-is called.
+In commit f384796c4 ("powerpc/mm: Add support for handling > 512TB
+address in SLB miss") we added support for using multiple context ids
+per process. Previously accessing past the first context id was a fatal
+error for the process. With the new support it became non-fatal, and so
+the previous "bad_addr_slb" handler was changed to be the
+"large_addr_slb" handler.
 
-So the two u32_destroy_key() calls from u32_change()
-are attempting to release an invalid reference on the netns.
+That handler uses the EXCEPTION_PROLOG_COMMON() macro, which in-turn
+calls the SAVE_PPR() macro. At the point where SAVE_PPR() is used, the
+r9-13 register values from the original user fault are saved in
+paca->exslb. It's not until later in EXCEPTION_PROLOG_COMMON_2() that
+they are saved from paca->exslb onto the kernel stack.
 
-syzbot report:
+The PPR is saved into current->thread.ppr, which is notably not on the
+kernel stack the way pt_regs are. This means we can take an SLB miss on
+current->thread.ppr. If that happens in the "large_addr_slb" case we
+will clobber the saved user r9-r13 in paca->exslb with kernel values.
+Later we will save those clobbered values into the pt_regs on the stack,
+and when we return to userspace those kernel values will be restored.
 
-refcount_t: decrement hit 0; leaking memory.
-WARNING: CPU: 0 PID: 21708 at lib/refcount.c:31 refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
-Modules linked in:
-CPU: 0 PID: 21708 Comm: syz-executor.5 Not tainted 5.18.0-rc2-next-20220412-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
-Code: 1d 14 b6 b2 09 31 ff 89 de e8 6d e9 89 fd 84 db 75 e0 e8 84 e5 89 fd 48 c7 c7 40 aa 26 8a c6 05 f4 b5 b2 09 01 e8 e5 81 2e 05 <0f> 0b eb c4 e8 68 e5 89 fd 0f b6 1d e3 b5 b2 09 31 ff 89 de e8 38
-RSP: 0018:ffffc900051af1b0 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000040000 RSI: ffffffff8160a0c8 RDI: fffff52000a35e28
-RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff81604a9e R11: 0000000000000000 R12: 1ffff92000a35e3b
-R13: 00000000ffffffef R14: ffff8880211a0194 R15: ffff8880577d0a00
-FS:  00007f25d183e700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f19c859c028 CR3: 0000000051009000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __refcount_dec include/linux/refcount.h:344 [inline]
- refcount_dec include/linux/refcount.h:359 [inline]
- ref_tracker_free+0x535/0x6b0 lib/ref_tracker.c:118
- netns_tracker_free include/net/net_namespace.h:327 [inline]
- put_net_track include/net/net_namespace.h:341 [inline]
- tcf_exts_put_net include/net/pkt_cls.h:255 [inline]
- u32_destroy_key.isra.0+0xa7/0x2b0 net/sched/cls_u32.c:394
- u32_change+0xe01/0x3140 net/sched/cls_u32.c:909
- tc_new_tfilter+0x98d/0x2200 net/sched/cls_api.c:2148
- rtnetlink_rcv_msg+0x80d/0xb80 net/core/rtnetlink.c:6016
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2495
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:725
- ____sys_sendmsg+0x6e2/0x800 net/socket.c:2413
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2496
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f25d0689049
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f25d183e168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007f25d079c030 RCX: 00007f25d0689049
-RDX: 0000000000000000 RSI: 0000000020000340 RDI: 0000000000000005
-RBP: 00007f25d06e308d R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffd0b752e3f R14: 00007f25d183e300 R15: 0000000000022000
- </TASK>
+Typically this appears as some sort of segfault in userspace, with an
+address that looks like a kernel address. In dmesg it can appear as:
 
-Fixes: 35c55fc156d8 ("cls_u32: use tcf_exts_get_net() before call_rcu()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[rkolchmeyer: Backported to 4.19: adjusted u32_destroy_key() signature]
-Signed-off-by: Robert Kolchmeyer <rkolchmeyer@google.com>
+  [19117.440331] some_program[1869625]: unhandled signal 11 at c00000000f6bda10 nip 00007fff780d559c lr 00007fff781ae56c code 30001
+
+The upstream fix for this issue was to move PPR into pt_regs, on the
+kernel stack, avoiding the possibility of an SLB fault when saving it.
+
+However changing the size of pt_regs is an intrusive change, and has
+side effects in other parts of the kernel. A minimal fix is to
+temporarily save the PPR in an unused part of pt_regs, then save the
+user register values from paca->exslb into pt_regs, and then move the
+saved PPR into thread.ppr.
+
+Fixes: f384796c40dc ("powerpc/mm: Add support for handling > 512TB address in SLB miss")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220316033235.903657-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_u32.c |   18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ arch/powerpc/include/asm/exception-64s.h |   22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
---- a/net/sched/cls_u32.c
-+++ b/net/sched/cls_u32.c
-@@ -404,15 +404,20 @@ static int u32_init(struct tcf_proto *tp
- 	return 0;
- }
- 
--static int u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
--			   bool free_pf)
-+static void __u32_destroy_key(struct tc_u_knode *n)
- {
- 	struct tc_u_hnode *ht = rtnl_dereference(n->ht_down);
- 
- 	tcf_exts_destroy(&n->exts);
--	tcf_exts_put_net(&n->exts);
- 	if (ht && --ht->refcnt == 0)
- 		kfree(ht);
-+	kfree(n);
-+}
+--- a/arch/powerpc/include/asm/exception-64s.h
++++ b/arch/powerpc/include/asm/exception-64s.h
+@@ -243,10 +243,22 @@
+  * PPR save/restore macros used in exceptions_64s.S  
+  * Used for P7 or later processors
+  */
+-#define SAVE_PPR(area, ra, rb)						\
++#define SAVE_PPR(area, ra)						\
++BEGIN_FTR_SECTION_NESTED(940)						\
++	ld	ra,area+EX_PPR(r13);	/* Read PPR from paca */	\
++	std	ra,RESULT(r1);		/* Store PPR in RESULT for now */ \
++END_FTR_SECTION_NESTED(CPU_FTR_HAS_PPR,CPU_FTR_HAS_PPR,940)
 +
-+static void u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
-+			    bool free_pf)
-+{
-+	tcf_exts_put_net(&n->exts);
- #ifdef CONFIG_CLS_U32_PERF
- 	if (free_pf)
- 		free_percpu(n->pf);
-@@ -421,8 +426,7 @@ static int u32_destroy_key(struct tcf_pr
- 	if (free_pf)
- 		free_percpu(n->pcpu_success);
- #endif
--	kfree(n);
--	return 0;
-+	__u32_destroy_key(n);
- }
++/*
++ * This is called after we are finished accessing 'area', so we can now take
++ * SLB faults accessing the thread struct, which will use PACA_EXSLB area.
++ * This is required because the large_addr_slb handler uses EXSLB and it also
++ * uses the common exception macros including this PPR saving.
++ */
++#define MOVE_PPR_TO_THREAD(ra, rb)					\
+ BEGIN_FTR_SECTION_NESTED(940)						\
+ 	ld	ra,PACACURRENT(r13);					\
+-	ld	rb,area+EX_PPR(r13);	/* Read PPR from paca */	\
++	ld	rb,RESULT(r1);		/* Read PPR from stack */	\
+ 	std	rb,TASKTHREADPPR(ra);					\
+ END_FTR_SECTION_NESTED(CPU_FTR_HAS_PPR,CPU_FTR_HAS_PPR,940)
  
- /* u32_delete_key_rcu should be called when free'ing a copied
-@@ -965,13 +969,13 @@ static int u32_change(struct net *net, s
- 				    tca[TCA_RATE], ovr, extack);
+@@ -515,9 +527,11 @@ END_FTR_SECTION_NESTED(ftr,ftr,943)
+ 3:	EXCEPTION_PROLOG_COMMON_1();					   \
+ 	beq	4f;			/* if from kernel mode		*/ \
+ 	ACCOUNT_CPU_USER_ENTRY(r13, r9, r10);				   \
+-	SAVE_PPR(area, r9, r10);					   \
++	SAVE_PPR(area, r9);						   \
+ 4:	EXCEPTION_PROLOG_COMMON_2(area)					   \
+-	EXCEPTION_PROLOG_COMMON_3(n)					   \
++	beq	5f;			/* if from kernel mode		*/ \
++	MOVE_PPR_TO_THREAD(r9, r10);					   \
++5:	EXCEPTION_PROLOG_COMMON_3(n)					   \
+ 	ACCOUNT_STOLEN_TIME
  
- 		if (err) {
--			u32_destroy_key(tp, new, false);
-+			__u32_destroy_key(new);
- 			return err;
- 		}
- 
- 		err = u32_replace_hw_knode(tp, new, flags, extack);
- 		if (err) {
--			u32_destroy_key(tp, new, false);
-+			__u32_destroy_key(new);
- 			return err;
- 		}
- 
+ /* Save original regs values from save area to stack frame. */
 
 
