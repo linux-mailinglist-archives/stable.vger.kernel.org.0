@@ -2,141 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B839D51488F
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 13:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A5285148B8
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 14:02:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358708AbiD2Lys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 07:54:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52002 "EHLO
+        id S1354960AbiD2MFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 08:05:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358676AbiD2Lyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 07:54:46 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6693AC6EC8;
-        Fri, 29 Apr 2022 04:51:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1651233088; x=1682769088;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=vUGUX7Nvc/8LjzsG1/1jXvrhtbo00tkto7h2bu3JZ70=;
-  b=H4DSI1d+94Djdk3XQD/VbKAY2wwOazJtVUnjc6AqU7ayVl8Ihh5xw/hQ
-   djKsrR45uV5NYLqM33Lqa0aIQo6SNYPeAgAI9ZjrQvoXYpYuVCiBHSQve
-   7aN4RqDOzFQpzlfg15Y80nJD5RAirT2kb7D7tgzde/AJzy12LsfpUmi8B
-   GXXb8gy5+ZgLpdim8rHfj9a4tl7+NXpPfNVR2gcWB2ueSUu5ZRchO6SGp
-   fbg0vhNDGrnVtdfk98i5XzgdRafq8xdg5ZxlJ2k/BQkw9DdTtVqACvWOg
-   /NpcPba+nQREkDMy9QbXbcBR1iLaUb2nHhzl0z8gP/5o607bvMxAESrOG
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10331"; a="329565488"
-X-IronPort-AV: E=Sophos;i="5.91,185,1647327600"; 
-   d="scan'208";a="329565488"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2022 04:51:28 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,185,1647327600"; 
-   d="scan'208";a="582085655"
-Received: from p12hl01tmin.png.intel.com ([10.158.65.175])
-  by orsmga008.jf.intel.com with ESMTP; 29 Apr 2022 04:51:21 -0700
-From:   Tan Tee Min <tee.min.tan@linux.intel.com>
-To:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Michael Sit Wei Hong <michael.wei.hong.sit@intel.com>,
-        Xiaoliang Yang <xiaoliang.yang_1@nxp.com>,
-        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
-        Tan Tee Min <tee.min.tan@linux.intel.com>,
-        Ling Pei Lee <pei.lee.ling@intel.com>,
-        Bhupesh Sharma <bhupesh.sharma@linaro.org>,
-        Matthew Hagan <mnhagan88@gmail.com>,
-        Kurt Kanzenbach <kurt@linutronix.de>
-Cc:     netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Voon Wei Feng <weifeng.voon@intel.com>,
-        Song Yoong Siang <yoong.siang.song@intel.com>,
-        Ong@vger.kernel.org, Boon Leong <boon.leong.ong@intel.com>,
-        Tan Tee Min <tee.min.tan@intel.com>,
-        Looi Hong Aun <hong.aun.looi@intel.com>
-Subject: [PATCH net v2 1/1] net: stmmac: disable Split Header (SPH) for Intel platforms
-Date:   Fri, 29 Apr 2022 19:58:07 +0800
-Message-Id: <20220429115807.2198448-1-tee.min.tan@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S235150AbiD2MFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 08:05:16 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8571483BF;
+        Fri, 29 Apr 2022 05:01:54 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 900311F891;
+        Fri, 29 Apr 2022 12:01:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1651233713; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=E4v0J7E7TIHLnhe4FA9TirvyYrl7Jt4fCW8B/8OF+Yg=;
+        b=YatVXBU0Ln0fYAWeEC4C+9MDbnW73SALU1/KHMg6VYTowiLWgr+2icn5jSy9L8CmpnvIP6
+        0SSrKsr9BkP+JtvAJmfZhx3JPtspLDdvi0v+jxWRQNnGN0JfGKJMZLEFL3k3M0k3J4tS7u
+        JlL+6Uom/HX98RRa768k7Fj4ohwBjoE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1651233713;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=E4v0J7E7TIHLnhe4FA9TirvyYrl7Jt4fCW8B/8OF+Yg=;
+        b=tDW/+ovYrQU5rvIe9X3ygr4epYrmg2WPyV+fj7EgsTH40ntyD53UTIAq7ApSNK3Nw4MJp9
+        o1NzFT1Spv3nnFAQ==
+Received: from quack3.suse.cz (unknown [10.100.224.230])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 315862C141;
+        Fri, 29 Apr 2022 12:01:53 +0000 (UTC)
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id D8669A061D; Fri, 29 Apr 2022 14:01:52 +0200 (CEST)
+Date:   Fri, 29 Apr 2022 14:01:52 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Paolo Valente <paolo.valente@linaro.org>
+Cc:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Chris Murphy <lists@colorremedies.com>,
+        "yukuai (C)" <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] bfq: Fix warning in bfqq_request_over_limit()
+Message-ID: <20220429120152.w6stp5nfedwoyzp3@quack3.lan>
+References: <20220407140738.9723-1-jack@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220407140738.9723-1-jack@suse.cz>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Based on DesignWare Ethernet QoS datasheet, we are seeing the limitation
-of Split Header (SPH) feature is not supported for Ipv4 fragmented packet.
-This SPH limitation will cause ping failure when the packets size exceed
-the MTU size. For example, the issue happens once the basic ping packet
-size is larger than the configured MTU size and the data is lost inside
-the fragmented packet, replaced by zeros/corrupted values, and leads to
-ping fail.
+On Thu 07-04-22 16:07:38, Jan Kara wrote:
+> People are occasionally reporting a warning bfqq_request_over_limit()
+> triggering reporting that BFQ's idea of cgroup hierarchy (and its depth)
+> does not match what generic blkcg code thinks. This can actually happen
+> when bfqq gets moved between BFQ groups while bfqq_request_over_limit()
+> is running. Make sure the code is safe against BFQ queue being moved to
+> a different BFQ group.
+> 
+> Fixes: 76f1df88bbc2 ("bfq: Limit number of requests consumed by each cgroup")
+> CC: stable@vger.kernel.org
+> Link: https://lore.kernel.org/all/CAJCQCtTw_2C7ZSz7as5Gvq=OmnDiio=HRkQekqWpKot84sQhFA@mail.gmail.com/
+> Reported-by: Chris Murphy <lists@colorremedies.com>
+> Reported-by: "yukuai (C)" <yukuai3@huawei.com>
+> Signed-off-by: Jan Kara <jack@suse.cz>
 
-So, disable the Split Header for Intel platforms.
+Ping guys? Can we get the fix in please? It is pretty trivial...
 
-v2: Add fixes tag in commit message.
+								Honza
 
-Fixes: 67afd6d1cfdf("net: stmmac: Add Split Header support and enable it
-in XGMAC cores")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Suggested-by: Ong, Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
----
- drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c | 1 +
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
- include/linux/stmmac.h                            | 1 +
- 3 files changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-index 63754a9c4ba7..0b0be0898ac5 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-@@ -454,6 +454,7 @@ static int intel_mgbe_common_data(struct pci_dev *pdev,
- 	plat->has_gmac4 = 1;
- 	plat->force_sf_dma_mode = 0;
- 	plat->tso_en = 1;
-+	plat->sph_disable = 1;
- 
- 	/* Multiplying factor to the clk_eee_i clock time
- 	 * period to make it closer to 100 ns. This value
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 4a4b3651ab3e..2525a80353b7 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -7021,7 +7021,7 @@ int stmmac_dvr_probe(struct device *device,
- 		dev_info(priv->device, "TSO feature enabled\n");
- 	}
- 
--	if (priv->dma_cap.sphen) {
-+	if (priv->dma_cap.sphen && !priv->plat->sph_disable) {
- 		ndev->hw_features |= NETIF_F_GRO;
- 		priv->sph_cap = true;
- 		priv->sph = priv->sph_cap;
-diff --git a/include/linux/stmmac.h b/include/linux/stmmac.h
-index 24eea1b05ca2..29917850f079 100644
---- a/include/linux/stmmac.h
-+++ b/include/linux/stmmac.h
-@@ -270,5 +270,6 @@ struct plat_stmmacenet_data {
- 	int msi_rx_base_vec;
- 	int msi_tx_base_vec;
- 	bool use_phy_wol;
-+	bool sph_disable;
- };
- #endif
+> ---
+>  block/bfq-iosched.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
+> 
+> diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+> index e47c75f1fa0f..272d48d8f326 100644
+> --- a/block/bfq-iosched.c
+> +++ b/block/bfq-iosched.c
+> @@ -569,7 +569,7 @@ static bool bfqq_request_over_limit(struct bfq_queue *bfqq, int limit)
+>  	struct bfq_entity *entity = &bfqq->entity;
+>  	struct bfq_entity *inline_entities[BFQ_LIMIT_INLINE_DEPTH];
+>  	struct bfq_entity **entities = inline_entities;
+> -	int depth, level;
+> +	int depth, level, alloc_depth = BFQ_LIMIT_INLINE_DEPTH;
+>  	int class_idx = bfqq->ioprio_class - 1;
+>  	struct bfq_sched_data *sched_data;
+>  	unsigned long wsum;
+> @@ -578,15 +578,21 @@ static bool bfqq_request_over_limit(struct bfq_queue *bfqq, int limit)
+>  	if (!entity->on_st_or_in_serv)
+>  		return false;
+>  
+> +retry:
+> +	spin_lock_irq(&bfqd->lock);
+>  	/* +1 for bfqq entity, root cgroup not included */
+>  	depth = bfqg_to_blkg(bfqq_group(bfqq))->blkcg->css.cgroup->level + 1;
+> -	if (depth > BFQ_LIMIT_INLINE_DEPTH) {
+> +	if (depth > alloc_depth) {
+> +		spin_unlock_irq(&bfqd->lock);
+> +		if (entities != inline_entities)
+> +			kfree(entities);
+>  		entities = kmalloc_array(depth, sizeof(*entities), GFP_NOIO);
+>  		if (!entities)
+>  			return false;
+> +		alloc_depth = depth;
+> +		goto retry;
+>  	}
+>  
+> -	spin_lock_irq(&bfqd->lock);
+>  	sched_data = entity->sched_data;
+>  	/* Gather our ancestors as we need to traverse them in reverse order */
+>  	level = 0;
+> -- 
+> 2.34.1
+> 
 -- 
-2.25.1
-
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
