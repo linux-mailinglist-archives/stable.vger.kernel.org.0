@@ -2,85 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 639ED514629
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:01:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0F41514714
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241787AbiD2KFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39158 "EHLO
+        id S1357582AbiD2Ko5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:44:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234948AbiD2KFD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:05:03 -0400
-Received: from elvis.franken.de (elvis.franken.de [193.175.24.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C645578FD4;
-        Fri, 29 Apr 2022 03:01:43 -0700 (PDT)
-Received: from uucp (helo=alpha)
-        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
-        id 1nkNRW-0002HQ-01; Fri, 29 Apr 2022 12:01:42 +0200
-Received: by alpha.franken.de (Postfix, from userid 1000)
-        id 438A7C01CB; Fri, 29 Apr 2022 12:01:28 +0200 (CEST)
-Date:   Fri, 29 Apr 2022 12:01:28 +0200
-From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc:     linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] MIPS: Fix CP0 counter erratum detection for R4k CPUs
-Message-ID: <20220429100128.GB11365@alpha.franken.de>
-References: <alpine.DEB.2.21.2204240214430.9383@angie.orcam.me.uk>
+        with ESMTP id S1357570AbiD2Koz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:44:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C4D5B82DD;
+        Fri, 29 Apr 2022 03:41:37 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3AC162351;
+        Fri, 29 Apr 2022 10:41:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D807C385A4;
+        Fri, 29 Apr 2022 10:41:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651228896;
+        bh=gSIo23UnH9bNLn4a6l75u8Olgj6fvPblKdNnVRDlAiI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DBqrLoWWlZMHIFq7kMycTfbDayMsNHFBGu2Exu+ievEM7ggfjRwdUKG2RieqFCSOl
+         P4EjmtZUAmbzbVvgwpKVsA4VeAvv68UN0JhJmWprzi/MK49WOkbibVLArxKVtiszLD
+         gU4TlyOxwoKDXJIeYuLzuzl1DKgNAK4JewcK4J2M=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.19 00/12] 4.19.241-rc1 review
+Date:   Fri, 29 Apr 2022 12:41:17 +0200
+Message-Id: <20220429104048.459089941@linuxfoundation.org>
+X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.21.2204240214430.9383@angie.orcam.me.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.241-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.19.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.19.241-rc1
+X-KernelTest-Deadline: 2022-05-01T10:40+00:00
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Apr 24, 2022 at 12:46:23PM +0100, Maciej W. Rozycki wrote:
-> Fix the discrepancy between the two places we check for the CP0 counter 
-> erratum in along with the incorrect comparison of the R4400 revision 
-> number against 0x30 which matches none and consistently consider all 
-> R4000 and R4400 processors affected, as documented in processor errata 
-> publications[1][2][3], following the mapping between CP0 PRId register 
-> values and processor models:
-> 
->   PRId   |  Processor Model
-> ---------+--------------------
-> 00000422 | R4000 Revision 2.2
-> 00000430 | R4000 Revision 3.0
-> 00000440 | R4400 Revision 1.0
-> 00000450 | R4400 Revision 2.0
-> 00000460 | R4400 Revision 3.0
+This is the start of the stable review cycle for the 4.19.241 release.
+There are 12 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-interesting, where is this documented ? And it's quite funny that so far
-everybody messed up revision printing for R4400 CPUs. 
+Responses should be made by Sun, 01 May 2022 10:40:41 +0000.
+Anything received after that time might be too late.
 
->  Please review the requirements for SNI platforms.  In the case of an 
-> erratic CP0 timer we give precedence to the use as a clock event rather 
-> than clock source device; see `time_init' in arch/mips/kernel/time.c. 
-> Therefore if SNI systems have no alternative timer interrupt source, then 
-> the CP0 timer is supposed to still do regardless of the erratum.
->
->  Conversely a system can do without a high-precision clock source, in
-> which case jiffies will be used.  Of course such a system will suffer if 
-> used for precision timekeeping, but such is the price for broken hardware.  
-> Don't SNI systems have any alternative timer available, not even the 
-> venerable 8254?
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.241-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+and the diffstat can be found below.
 
-all SNI systems have a i8254 in their EISA/PCI chipsets. But they aren't
-that nice for clock events as their interupts are connected via an i8259
-addresses via ISA PIO. 
+thanks,
 
->  With the considerations above in mind, please apply.
+greg k-h
 
-will do later.
+-------------
+Pseudo-Shortlog of commits:
 
-Thomas.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.19.241-rc1
 
--- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
-good idea.                                                [ RFC1925, 2.3 ]
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    lightnvm: disable the subsystem
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link"
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    ia64: kprobes: Fix to pass correct trampoline address to the handler
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    Revert "ia64: kprobes: Use generic kretprobe trampoline handler"
+
+Masami Hiramatsu <mhiramat@kernel.org>
+    Revert "ia64: kprobes: Fix to pass correct trampoline address to the handler"
+
+Michael Ellerman <mpe@ellerman.id.au>
+    powerpc/64s: Unmerge EX_LR and EX_DAR
+
+Nicholas Piggin <npiggin@gmail.com>
+    powerpc/64/interrupt: Temporarily save PPR on stack to fix register corruption due to SLB miss
+
+Eric Dumazet <edumazet@google.com>
+    net/sched: cls_u32: fix netns refcount changes in u32_change()
+
+Lin Ma <linma@zju.edu.cn>
+    hamradio: remove needs_free_netdev to avoid UAF
+
+Lin Ma <linma@zju.edu.cn>
+    hamradio: defer 6pack kfree after unregister_netdev
+
+Willy Tarreau <w@1wt.eu>
+    floppy: disable FDRAWCMD by default
+
+Dafna Hirschfeld <dafna3@gmail.com>
+    media: vicodec: upon release, call m2m release before freeing ctrl handler
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/ia64/kernel/kprobes.c                         | 78 +++++++++++++++++++++-
+ arch/powerpc/include/asm/exception-64s.h           | 37 +++++-----
+ drivers/block/Kconfig                              | 16 +++++
+ drivers/block/floppy.c                             | 43 +++++++++---
+ drivers/lightnvm/Kconfig                           |  2 +-
+ drivers/media/platform/vicodec/vicodec-core.c      |  6 +-
+ drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c |  8 +++
+ drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h |  4 --
+ .../net/ethernet/stmicro/stmmac/dwmac-socfpga.c    | 13 ++--
+ drivers/net/hamradio/6pack.c                       |  5 +-
+ net/sched/cls_u32.c                                | 18 +++--
+ 12 files changed, 181 insertions(+), 53 deletions(-)
+
+
