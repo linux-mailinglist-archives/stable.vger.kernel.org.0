@@ -2,90 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 450C95149B6
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 14:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B346E514A03
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 14:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359319AbiD2MtL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 08:49:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37832 "EHLO
+        id S236806AbiD2M7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 08:59:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241199AbiD2MtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 08:49:09 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2E808BF16
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 05:45:51 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id a11so6838927pff.1
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 05:45:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=ocs0mbwWAgp+tAzV857SlK6UIswo55neeWcWC4SY3Dg=;
-        b=M75tT7fYDZfjp2tooPLlxMQYQCHtfgnPjxrcG9sjO42fIEVdkZaBnWBzOBXOEmYC9W
-         JabKq23L0OLWu8ahSAEd6NPC3Sfeq91RQmUzFmjWiz4Ws889UkTQi1Fk81nTagfrlfWu
-         K23tTRDPhdroVfIEBbspC8P+AglAXcN+MIvl8wK2OmLa5DHdQ/3VwU6N16EHIuBeYRKi
-         OPJGTUV5KkJ+9ELMNfwH+ihmvDC1E9uPkW9uTbSx2wp8H0o0P+TbBP3ECVmyi4BaHlRb
-         08sKokJAjEYkmy3pUBk8kB/Y18B8zN3n6WJqZ5QD1zgR+qTs1qncEBVKors9RsYHTRoN
-         aukg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=ocs0mbwWAgp+tAzV857SlK6UIswo55neeWcWC4SY3Dg=;
-        b=uOrzxwD/jcp6KIJDCnwkyWB7NoqdrYBIyBLPEatbMukQQcCe/Vy73Y58xTVb8GM+Nx
-         gpdPnAyKocACuvPLaXUYrBu5YiypNet6QhZrkrUfPbcnkh4e0D7eVsn8A7lesEB/nsUr
-         kFQwqgenSIaPvzR5sP6wyIlfguy9iJrUh8k9g4LyBZoknXRXW8Wi1fhNzPafIw/WYGFz
-         PEPwQVAz+RSSu38SdNA8BA6YG8vJntHI7bfyTIRigWvBOsRgvtNxt5U04zFsFAsiZeQn
-         EBv7bi6ckJkV6rl1L8IZ8XSTAATp04G92kuYsYOhTPgCmEh6DeDSDRkBiTGWZaAUcwY0
-         FHRw==
-X-Gm-Message-State: AOAM531h/2tT2RA0/Urk9FoUrgrrxOOmYqFyXOz8QbxiCWeuquvNbAI4
-        XAOO+48mqVSkQpYXKvZpURpjHA==
-X-Google-Smtp-Source: ABdhPJwKlSzZpHDij9KxX7qhr19A8CctJ49N5nK9OCJnkYsL5jYSRcGt1HiFqXKIJmXzYMOH6YWc1Q==
-X-Received: by 2002:a05:6a00:1749:b0:50a:8eed:b824 with SMTP id j9-20020a056a00174900b0050a8eedb824mr39902311pfc.50.1651236351379;
-        Fri, 29 Apr 2022 05:45:51 -0700 (PDT)
-Received: from [127.0.1.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id x186-20020a6363c3000000b003c14af505f6sm6010824pgb.14.2022.04.29.05.45.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Apr 2022 05:45:50 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     jack@suse.cz, paolo.valente@linaro.org
-Cc:     yukuai3@huawei.com, stable@vger.kernel.org,
-        linux-block@vger.kernel.org, lists@colorremedies.com
-In-Reply-To: <20220407140738.9723-1-jack@suse.cz>
-References: <20220407140738.9723-1-jack@suse.cz>
-Subject: Re: [PATCH] bfq: Fix warning in bfqq_request_over_limit()
-Message-Id: <165123635009.46786.3093085989076098329.b4-ty@kernel.dk>
-Date:   Fri, 29 Apr 2022 06:45:50 -0600
+        with ESMTP id S1359595AbiD2M7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 08:59:37 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065723A705
+        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 05:56:19 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1nkQAT-00008Y-9w
+        for stable@vger.kernel.org; Fri, 29 Apr 2022 14:56:17 +0200
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id 149C270EFB
+        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 12:56:14 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id A60AD70EDB;
+        Fri, 29 Apr 2022 12:56:13 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 0a78f4ea;
+        Fri, 29 Apr 2022 12:56:13 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Oliver Hartkopp <socketcan@hartkopp.net>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net 1/5] can: isotp: remove re-binding of bound socket
+Date:   Fri, 29 Apr 2022 14:56:08 +0200
+Message-Id: <20220429125612.1792561-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220429125612.1792561-1-mkl@pengutronix.de>
+References: <20220429125612.1792561-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=1.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,RCVD_IN_SBL_CSS,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: *
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 7 Apr 2022 16:07:38 +0200, Jan Kara wrote:
-> People are occasionally reporting a warning bfqq_request_over_limit()
-> triggering reporting that BFQ's idea of cgroup hierarchy (and its depth)
-> does not match what generic blkcg code thinks. This can actually happen
-> when bfqq gets moved between BFQ groups while bfqq_request_over_limit()
-> is running. Make sure the code is safe against BFQ queue being moved to
-> a different BFQ group.
-> 
-> [...]
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-Applied, thanks!
+As a carry over from the CAN_RAW socket (which allows to change the CAN
+interface while mantaining the filter setup) the re-binding of the
+CAN_ISOTP socket needs to take care about CAN ID address information and
+subscriptions. It turned out that this feature is so limited (e.g. the
+sockopts remain fix) that it finally has never been needed/used.
 
-[1/1] bfq: Fix warning in bfqq_request_over_limit()
-      commit: 09df6a75fffa68169c5ef9bef990cd7ba94f3eef
+In opposite to the stateless CAN_RAW socket the switching of the CAN ID
+subscriptions might additionally lead to an interrupted ongoing PDU
+reception. So better remove this unneeded complexity.
 
-Best regards,
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/all/20220422082337.1676-1-socketcan@hartkopp.net
+Cc: stable@vger.kernel.org
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ net/can/isotp.c | 25 +++++--------------------
+ 1 file changed, 5 insertions(+), 20 deletions(-)
+
+diff --git a/net/can/isotp.c b/net/can/isotp.c
+index ff5d7870294e..1e7c6a460ef9 100644
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1189,6 +1189,11 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 
+ 	lock_sock(sk);
+ 
++	if (so->bound) {
++		err = -EINVAL;
++		goto out;
++	}
++
+ 	/* do not register frame reception for functional addressing */
+ 	if (so->opt.flags & CAN_ISOTP_SF_BROADCAST)
+ 		do_rx_reg = 0;
+@@ -1199,10 +1204,6 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 		goto out;
+ 	}
+ 
+-	if (so->bound && addr->can_ifindex == so->ifindex &&
+-	    rx_id == so->rxid && tx_id == so->txid)
+-		goto out;
+-
+ 	dev = dev_get_by_index(net, addr->can_ifindex);
+ 	if (!dev) {
+ 		err = -ENODEV;
+@@ -1237,22 +1238,6 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
+ 
+ 	dev_put(dev);
+ 
+-	if (so->bound && do_rx_reg) {
+-		/* unregister old filter */
+-		if (so->ifindex) {
+-			dev = dev_get_by_index(net, so->ifindex);
+-			if (dev) {
+-				can_rx_unregister(net, dev, so->rxid,
+-						  SINGLE_MASK(so->rxid),
+-						  isotp_rcv, sk);
+-				can_rx_unregister(net, dev, so->txid,
+-						  SINGLE_MASK(so->txid),
+-						  isotp_rcv_echo, sk);
+-				dev_put(dev);
+-			}
+-		}
+-	}
+-
+ 	/* switch to new settings */
+ 	so->ifindex = ifindex;
+ 	so->rxid = rx_id;
+
+base-commit: d9157f6806d1499e173770df1f1b234763de5c79
 -- 
-Jens Axboe
+2.35.1
 
 
