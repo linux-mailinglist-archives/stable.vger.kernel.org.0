@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3209951445C
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 10:37:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E8A514463
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 10:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355769AbiD2IlA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 04:41:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53830 "EHLO
+        id S238647AbiD2ImD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 04:42:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351551AbiD2IlA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 04:41:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F8CA777E
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 01:37:42 -0700 (PDT)
+        with ESMTP id S235473AbiD2ImD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 04:42:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3746DC3E96;
+        Fri, 29 Apr 2022 01:38:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53464B83290
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 08:37:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A16FC385A4;
-        Fri, 29 Apr 2022 08:37:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C663E6218F;
+        Fri, 29 Apr 2022 08:38:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FCA4C385A4;
+        Fri, 29 Apr 2022 08:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651221459;
-        bh=CZbc3NLs5UB/GOr1yq0DL6qsy6DPtAYbsTSdagd5TL4=;
+        s=korg; t=1651221525;
+        bh=xNhnkNqOw++2z7Vmck3E5MYYlt3eyS8EsoL+hkP9rxs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RxkaXikUryp72tRGdncSYWs4pZ9/cLPFVM7DnwCkAcQ1zvo7DNGZVc7KdJnRaxp1C
-         VP9anXOcF+EavPIAugFQ94eUF+i14SrQiOQDfIcbcsZZOone2Tddb5jNf13nCfzGah
-         +bz7qk7oRpJ/xpqjUa7Y69bmvQsrXpNYgrnPsa4k=
-Date:   Fri, 29 Apr 2022 10:37:37 +0200
+        b=uk5qrD0ypQbkvPX0GQ3K4HbxZf4Pyom4W+xGxQwxqM7mA7yTZLh5C88jCKZiRbKKj
+         Jzx3dBsmP4aPUzM4bkjnJkutxBn/ecvbnvTTWTyFDBEkCaq4BzPNaovMj1EI8rRU4d
+         GkzayYLHZLsUllMDZV9QCDE6vgmJMrwFari6nkGQ=
+Date:   Fri, 29 Apr 2022 10:38:42 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Mikulas Patocka <mpatocka@redhat.com>
-Cc:     Mike Snitzer <msnitzer@redhat.com>, dm-devel@redhat.com,
-        stable@vger.kernel.org
-Subject: Re: [dm-devel] [PATCH v5.10] dm: fix mempool NULL pointer race when
- completing IO
-Message-ID: <Ymuj0Y2A6WHOi05c@kroah.com>
-References: <alpine.LRH.2.02.2204211407220.761@file01.intranet.prod.int.rdu2.redhat.com>
- <YmeUXC3DZGLPJlWw@kroah.com>
- <alpine.LRH.2.02.2204281155460.5963@file01.intranet.prod.int.rdu2.redhat.com>
+To:     Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH stable 0/3] SOF_TIMESTAMPING_OPT_ID backport to 4.14 and
+ 4.19
+Message-ID: <YmukEb1gyBKXIDUP@kroah.com>
+References: <20220406192956.3291614-1-vladimir.oltean@nxp.com>
+ <20220408152929.4zd2mclusdpazclv@skbuf>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.2204281155460.5963@file01.intranet.prod.int.rdu2.redhat.com>
+In-Reply-To: <20220408152929.4zd2mclusdpazclv@skbuf>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -52,60 +57,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 28, 2022 at 12:22:26PM -0400, Mikulas Patocka wrote:
+On Fri, Apr 08, 2022 at 03:29:30PM +0000, Vladimir Oltean wrote:
+> Hello Greg, Sasha,
 > 
-> 
-> On Tue, 26 Apr 2022, Greg Kroah-Hartman wrote:
-> 
-> > On Thu, Apr 21, 2022 at 02:08:30PM -0400, Mikulas Patocka wrote:
-> > > Hi
+> On Wed, Apr 06, 2022 at 10:29:53PM +0300, Vladimir Oltean wrote:
+> > As discussed with Willem here:
+> > https://lore.kernel.org/netdev/CA+FuTSdQ57O6RWj_Lenmu_Vd3NEX9xMzMYkB0C3rKMzGgcPc6A@mail.gmail.com/T/
 > > 
-> > Not really needed in a changelog text :)
+> > the kernel silently doesn't act upon the SOF_TIMESTAMPING_OPT_ID socket
+> > option in several cases on older kernels, yet user space has no way to
+> > find out about this, practically resulting in broken functionality.
 > > 
-> > > This is backport of patches d208b89401e0 ("dm: fix mempool NULL pointer
-> > > race when completing IO") and 9f6dc6337610 ("dm: interlock pending dm_io
-> > > and dm_wait_for_bios_completion") for the kernel 5.10.
+> > This patch set backports the support towards linux-4.14.y and linux-4.19.y,
+> > which fixes the issue described above by simply making the kernel act
+> > upon SOF_TIMESTAMPING_OPT_ID as expected.
 > > 
-> > Can you just make these 2 different patches?
-> > 
-> > > 
-> > > The bugs fixed by these patches can cause random crashing when reloading
-> > > dm table, so it is eligible for stable backport.
-> > > 
-> > > This patch is different from the upstream patches because the code
-> > > diverged significantly.
-> > > 
-> > 
-> > This change is _VERY_ different.  I would need acks from the maintainers
-> > of this code before I could accept this, along with a much more detailed
-> > description of why the original commits will not work here as well.
-> > 
-> > Same for the other backports.
+> > Testing was done with the most recent (not the vintage-correct one)
+> > kselftest script at:
+> > tools/testing/selftests/networking/timestamping/txtimestamp.sh
+> > with the message "OK. All tests passed".
 > 
-> Regarding backporting of 9f6dc633:
-> 
-> My reasoning was that introducing "md->pending_io" in the backported 
-> stable kernels is useless - it will just degrade performance by consuming 
-> one more cache line per I/O without providing any gain.
-> 
-> In the upstream kernels, Mike needs that "md->pending_io" variable for 
-> other reasons (the I/O accounting was reworked there in order to avoid 
-> some spikes with dm-crypt), but there is no need for it in the stable 
-> kernels.
-> 
-> In order to fix that race condition, all we need to do is to make sure 
-> that dm_stats_account_io is called before bio_end_io_acct - and the patch 
-> does that - it swaps them.
-> 
-> Do you still insist that this useless percpu variable must be added to the 
-> stable kernels? If you do, I can make it, but I think it's better to just 
-> swap those two functions.
+> Could you please pick up these backports for "stable"? Thanks.
 
-I am no insisting on anything, I want the dm maintainers to agree that
-this change is acceptable to take as it is not what is in Linus's tree.
-Every time we take a "not upstream" commit, the odds are 90% that it
-ends up being wrong, so I need extra review and assurances that it is
-acceptable before I can apply it.
+Do you not already see these in a released kernel?  If not, please
+resubmit what is missing as I think they are all there...
 
 thanks,
 
