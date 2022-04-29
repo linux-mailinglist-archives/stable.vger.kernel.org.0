@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08EDC51472D
+	by mail.lfdr.de (Postfix) with ESMTP id 5160E51472E
 	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358019AbiD2Krd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:47:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58896 "EHLO
+        id S1349798AbiD2Kre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:47:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357957AbiD2Kqv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:46:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C97BC8BFA;
-        Fri, 29 Apr 2022 03:42:55 -0700 (PDT)
+        with ESMTP id S1357794AbiD2KrC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:47:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5E34C90CA;
+        Fri, 29 Apr 2022 03:42:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D87A0B83451;
-        Fri, 29 Apr 2022 10:42:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 508B5C385A4;
-        Fri, 29 Apr 2022 10:42:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46FB262347;
+        Fri, 29 Apr 2022 10:42:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 497EEC385A4;
+        Fri, 29 Apr 2022 10:42:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651228972;
-        bh=JBM7TEKp7jX5Ll6RGCQ6sUtSgSG6dnk4IbVRKCZ0Qv4=;
+        s=korg; t=1651228975;
+        bh=EGEVJxKSlnUmob6HnZRZpa7KRntmPL+HxdonKBurzWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ql9jM7WD/JEaDF7bej61KXAgT7us5p8Xrms0i+AgUdTQo0Ob0hd1xwQqy9cM/335g
-         zIGfnoIaon/OHb4t2IAe+XHUrQgb/R2ofe4NZgguoIuk31fw8rN1tmm4gsvRxTrWCc
-         D8npdVSoPUQWWNNcMgJh6iX1TU+hY3lwCOViW0EU=
+        b=DprNt6A+Ky6pPSLmtiOrbq8QjcuwT9I/Zg+makhjiHFyHjeeqer6P1HbOnNDvUlze
+         gC9mx3PTd7+KJVUOKhZMIJtA7a9qY4aDIzzzxhgKpSkeq5klqU5fGkKxqokc/GhxGG
+         Uyna9Hz/5R+fX0mfzkyVmSmh6veeRTU3/uIXx+es=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andreas Gruenbacher <agruenba@redhat.com>,
         Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 5.15 17/33] iov_iter: Introduce fault_in_iov_iter_writeable
-Date:   Fri, 29 Apr 2022 12:42:04 +0200
-Message-Id: <20220429104052.840367250@linuxfoundation.org>
+Subject: [PATCH 5.15 18/33] gfs2: Add wrapper for iomap_file_buffered_write
+Date:   Fri, 29 Apr 2022 12:42:05 +0200
+Message-Id: <20220429104052.869325697@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
 References: <20220429104052.345760505@linuxfoundation.org>
@@ -54,164 +54,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit cdd591fc86e38ad3899196066219fbbd845f3162 upstream
+commit 2eb7509a05443048fb4df60b782de3f03c6c298b upstream
 
-Introduce a new fault_in_iov_iter_writeable helper for safely faulting
-in an iterator for writing.  Uses get_user_pages() to fault in the pages
-without actually writing to them, which would be destructive.
-
-We'll use fault_in_iov_iter_writeable in gfs2 once we've determined that
-the iterator passed to .read_iter isn't in memory.
+Add a wrapper around iomap_file_buffered_write.  We'll add code for when
+the operation needs to be retried here later.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/pagemap.h |    1 
- include/linux/uio.h     |    1 
- lib/iov_iter.c          |   39 +++++++++++++++++++++++++++++
- mm/gup.c                |   63 ++++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 104 insertions(+)
+ fs/gfs2/file.c |   27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
---- a/include/linux/pagemap.h
-+++ b/include/linux/pagemap.h
-@@ -736,6 +736,7 @@ extern void add_page_wait_queue(struct p
-  * Fault in userspace address range.
-  */
- size_t fault_in_writeable(char __user *uaddr, size_t size);
-+size_t fault_in_safe_writeable(const char __user *uaddr, size_t size);
- size_t fault_in_readable(const char __user *uaddr, size_t size);
- 
- int add_to_page_cache_locked(struct page *page, struct address_space *mapping,
---- a/include/linux/uio.h
-+++ b/include/linux/uio.h
-@@ -134,6 +134,7 @@ size_t copy_page_from_iter_atomic(struct
- void iov_iter_advance(struct iov_iter *i, size_t bytes);
- void iov_iter_revert(struct iov_iter *i, size_t bytes);
- size_t fault_in_iov_iter_readable(const struct iov_iter *i, size_t bytes);
-+size_t fault_in_iov_iter_writeable(const struct iov_iter *i, size_t bytes);
- size_t iov_iter_single_seg_count(const struct iov_iter *i);
- size_t copy_page_to_iter(struct page *page, size_t offset, size_t bytes,
- 			 struct iov_iter *i);
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -468,6 +468,45 @@ size_t fault_in_iov_iter_readable(const
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -877,6 +877,20 @@ out_uninit:
+ 	return written ? written : ret;
  }
- EXPORT_SYMBOL(fault_in_iov_iter_readable);
  
-+/*
-+ * fault_in_iov_iter_writeable - fault in iov iterator for writing
-+ * @i: iterator
-+ * @size: maximum length
-+ *
-+ * Faults in the iterator using get_user_pages(), i.e., without triggering
-+ * hardware page faults.  This is primarily useful when we already know that
-+ * some or all of the pages in @i aren't in memory.
-+ *
-+ * Returns the number of bytes not faulted in, like copy_to_user() and
-+ * copy_from_user().
-+ *
-+ * Always returns 0 for non-user-space iterators.
-+ */
-+size_t fault_in_iov_iter_writeable(const struct iov_iter *i, size_t size)
++static ssize_t gfs2_file_buffered_write(struct kiocb *iocb, struct iov_iter *from)
 +{
-+	if (iter_is_iovec(i)) {
-+		size_t count = min(size, iov_iter_count(i));
-+		const struct iovec *p;
-+		size_t skip;
++	struct file *file = iocb->ki_filp;
++	struct inode *inode = file_inode(file);
++	ssize_t ret;
 +
-+		size -= count;
-+		for (p = i->iov, skip = i->iov_offset; count; p++, skip = 0) {
-+			size_t len = min(count, p->iov_len - skip);
-+			size_t ret;
-+
-+			if (unlikely(!len))
-+				continue;
-+			ret = fault_in_safe_writeable(p->iov_base + skip, len);
-+			count -= len - ret;
-+			if (ret)
-+				break;
-+		}
-+		return count + size;
-+	}
-+	return 0;
++	current->backing_dev_info = inode_to_bdi(inode);
++	ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
++	current->backing_dev_info = NULL;
++	if (ret > 0)
++		iocb->ki_pos += ret;
++	return ret;
 +}
-+EXPORT_SYMBOL(fault_in_iov_iter_writeable);
-+
- void iov_iter_init(struct iov_iter *i, unsigned int direction,
- 			const struct iovec *iov, unsigned long nr_segs,
- 			size_t count)
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -1716,6 +1716,69 @@ out:
- }
- EXPORT_SYMBOL(fault_in_writeable);
- 
-+/*
-+ * fault_in_safe_writeable - fault in an address range for writing
-+ * @uaddr: start of address range
-+ * @size: length of address range
-+ *
-+ * Faults in an address range using get_user_pages, i.e., without triggering
-+ * hardware page faults.  This is primarily useful when we already know that
-+ * some or all of the pages in the address range aren't in memory.
-+ *
-+ * Other than fault_in_writeable(), this function is non-destructive.
-+ *
-+ * Note that we don't pin or otherwise hold the pages referenced that we fault
-+ * in.  There's no guarantee that they'll stay in memory for any duration of
-+ * time.
-+ *
-+ * Returns the number of bytes not faulted in, like copy_to_user() and
-+ * copy_from_user().
-+ */
-+size_t fault_in_safe_writeable(const char __user *uaddr, size_t size)
-+{
-+	unsigned long start = (unsigned long)untagged_addr(uaddr);
-+	unsigned long end, nstart, nend;
-+	struct mm_struct *mm = current->mm;
-+	struct vm_area_struct *vma = NULL;
-+	int locked = 0;
-+
-+	nstart = start & PAGE_MASK;
-+	end = PAGE_ALIGN(start + size);
-+	if (end < nstart)
-+		end = 0;
-+	for (; nstart != end; nstart = nend) {
-+		unsigned long nr_pages;
-+		long ret;
-+
-+		if (!locked) {
-+			locked = 1;
-+			mmap_read_lock(mm);
-+			vma = find_vma(mm, nstart);
-+		} else if (nstart >= vma->vm_end)
-+			vma = vma->vm_next;
-+		if (!vma || vma->vm_start >= end)
-+			break;
-+		nend = end ? min(end, vma->vm_end) : vma->vm_end;
-+		if (vma->vm_flags & (VM_IO | VM_PFNMAP))
-+			continue;
-+		if (nstart < vma->vm_start)
-+			nstart = vma->vm_start;
-+		nr_pages = (nend - nstart) / PAGE_SIZE;
-+		ret = __get_user_pages_locked(mm, nstart, nr_pages,
-+					      NULL, NULL, &locked,
-+					      FOLL_TOUCH | FOLL_WRITE);
-+		if (ret <= 0)
-+			break;
-+		nend = nstart + ret * PAGE_SIZE;
-+	}
-+	if (locked)
-+		mmap_read_unlock(mm);
-+	if (nstart == end)
-+		return 0;
-+	return size - min_t(size_t, nstart - start, size);
-+}
-+EXPORT_SYMBOL(fault_in_safe_writeable);
 +
  /**
-  * fault_in_readable - fault in userspace address range for reading
-  * @uaddr: start of user address range
+  * gfs2_file_write_iter - Perform a write to a file
+  * @iocb: The io context
+@@ -928,9 +942,7 @@ static ssize_t gfs2_file_write_iter(stru
+ 			goto out_unlock;
+ 
+ 		iocb->ki_flags |= IOCB_DSYNC;
+-		current->backing_dev_info = inode_to_bdi(inode);
+-		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
+-		current->backing_dev_info = NULL;
++		buffered = gfs2_file_buffered_write(iocb, from);
+ 		if (unlikely(buffered <= 0)) {
+ 			if (!ret)
+ 				ret = buffered;
+@@ -944,7 +956,6 @@ static ssize_t gfs2_file_write_iter(stru
+ 		 * the direct I/O range as we don't know if the buffered pages
+ 		 * made it to disk.
+ 		 */
+-		iocb->ki_pos += buffered;
+ 		ret2 = generic_write_sync(iocb, buffered);
+ 		invalidate_mapping_pages(mapping,
+ 				(iocb->ki_pos - buffered) >> PAGE_SHIFT,
+@@ -952,13 +963,9 @@ static ssize_t gfs2_file_write_iter(stru
+ 		if (!ret || ret2 > 0)
+ 			ret += ret2;
+ 	} else {
+-		current->backing_dev_info = inode_to_bdi(inode);
+-		ret = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
+-		current->backing_dev_info = NULL;
+-		if (likely(ret > 0)) {
+-			iocb->ki_pos += ret;
++		ret = gfs2_file_buffered_write(iocb, from);
++		if (likely(ret > 0))
+ 			ret = generic_write_sync(iocb, ret);
+-		}
+ 	}
+ 
+ out_unlock:
 
 
