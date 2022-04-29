@@ -2,93 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5468D514F43
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 17:24:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 198B7514FF9
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 17:53:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378354AbiD2P2M convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 29 Apr 2022 11:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32984 "EHLO
+        id S1378688AbiD2P45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 11:56:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377960AbiD2P2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 11:28:11 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id BDCA5D4C55
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 08:24:52 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-148-H2iRa9rHN0SC6_3kj-vIRQ-1; Fri, 29 Apr 2022 16:24:49 +0100
-X-MC-Unique: H2iRa9rHN0SC6_3kj-vIRQ-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.32; Fri, 29 Apr 2022 16:24:48 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.033; Fri, 29 Apr 2022 16:24:48 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     "'Maciej W. Rozycki'" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-CC:     "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] MIPS: Fix CP0 counter erratum detection for R4k CPUs
-Thread-Topic: [PATCH] MIPS: Fix CP0 counter erratum detection for R4k CPUs
-Thread-Index: AQHYW7e8izRkWzTXwESA/9rrqnvRW60HAA6w
-Date:   Fri, 29 Apr 2022 15:24:48 +0000
-Message-ID: <3582358fb8ae47d7b88f85aa895a7109@AcuMS.aculab.com>
-References: <alpine.DEB.2.21.2204240214430.9383@angie.orcam.me.uk>
- <20220429100128.GB11365@alpha.franken.de>
- <alpine.DEB.2.21.2204291119040.9383@angie.orcam.me.uk>
-In-Reply-To: <alpine.DEB.2.21.2204291119040.9383@angie.orcam.me.uk>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        with ESMTP id S1378674AbiD2P4x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 11:56:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA6BD0A9B;
+        Fri, 29 Apr 2022 08:53:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5D4262267;
+        Fri, 29 Apr 2022 15:53:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1B13C385B4;
+        Fri, 29 Apr 2022 15:53:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651247607;
+        bh=+Y0eY5oyMZ5T469ibdO89+Q3BDTE3e0txfsZVfaWGT4=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=dyVkpfqgxYPSTkdVqD0o/koqN0WFC/iW8JJIjBH4FGc89p8Vp7WLdZ76/YtX1VAA7
+         wmho9HhFd71J1mrSjORuSRWtFcyi4MWJ+1Rh2SsE8+2YrVK5sNcqHy1UQqiCVfMGrx
+         J/rBZaHQxrMR29wkYPLTjdtZMdBDzOJaSYT4rjtdgZeyxDwWeD21C4Y5slvQvVQnLR
+         cB9dIR9EiayQoWy85ivIxySIIq4c+6IPpnwSeZNIbL0fy5T6cNPbuD+VCjxh6A88TT
+         i3LqOc6cGXvJOpCKXi9nwEnVH8HCgCfzvJb1r5YNn/+uOTsY+aJ7eEi8rfVYazIbeh
+         GPv2TFVfr2aTQ==
+Message-ID: <f194f679-4052-84cb-a3e4-165a28a98314@kernel.org>
+Date:   Fri, 29 Apr 2022 10:53:22 -0500
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 4.19 00/53] 4.19.240-rc1 review [net: ethernet: stmmac:
+ fix altr_tse_pcs function when using a]
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Pavel Machek <pavel@denx.de>
+Cc:     iwamatsu@nigauri.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220426081735.651926456@linuxfoundation.org>
+ <20220426200000.GB9427@duo.ucw.cz> <YmkrZ5t2cb1JSHR8@kroah.com>
+ <20220429074341.GB1423@amd> <YmuuTb7Cv/JExahQ@kroah.com>
+From:   Dinh Nguyen <dinguyen@kernel.org>
+In-Reply-To: <YmuuTb7Cv/JExahQ@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-10.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
->  That said reading from the 8254 is messy too and you may need a spinlock
-> (you need to write the Counter Latch or Read-Back command to the control
-> register and then issue consecutive two reads to the requested timer's
-> data register[2]).  Which is I guess why support for it has been removed
-> from x86 code.  For non-SMP it might be good enough.
 
-It is important to 'latch' the counter before reading it.
-I tried to optimise some code to avoid the extra accesses.
-In principle it ought to have worked, but reading the
-unlatched values gave garbage - not just messed up 16bit values.
-It was probably returning a value that was being ripple-counted.
 
-The sheer number of IO cycles you need to read the counters
-just beggars belief.
-So while they can be used to get an accurate timestamp it
-really takes too long to be useful.
-Even in a modern x86 chipset I think they are still ISA
-speed cycles.
-(Mind you, we've an fpga based PCIe boards where reads
-are ISA speed....)
+On 4/29/22 04:22, Greg Kroah-Hartman wrote:
+> On Fri, Apr 29, 2022 at 09:43:41AM +0200, Pavel Machek wrote:
+>> Hi!
+>>
+>>>>> This is the start of the stable review cycle for the 4.19.240 release.
+>>>>> There are 53 patches in this series, all will be posted as a response
+>>>>> to this one.  If anyone has any issues with these being applied, please
+>>>>> let me know.
+>> ...
+>>>> I still see problems on socfpga:
+>>>>
+>>>> [    1.227759]  mmcblk0: p1 p2 p3
+>>>> [    1.269825] Micrel KSZ9031 Gigabit PHY stmmac-0:01: attached PHY driver [Micrel KSZ9031 Gigabit PHY] (mii_bus:phy_addr=stmmac-0:01, irq=POLL)
+>>>> [    1.284600] socfpga-dwmac ff702000.ethernet eth0: No Safety Features support found
+>>>> [    1.292374] socfpga-dwmac ff702000.ethernet eth0: registered PTP clock
+>>>> [    1.299247] IPv6: ADDRCONF(NETDEV_UP): eth0: link is not ready
+>>>> [    5.444552] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>> ...
+>>>> [    5.478679] Workqueue: events_power_efficient phy_state_machine
+>>>> [    5.484579] PC is at socfpga_dwmac_fix_mac_speed+0x3c/0xbc
+>>>> [    5.490044] LR is at arm_heavy_mb+0x2c/0x48
+>>
+>>>> https://lava.ciplatform.org/scheduler/job/669257
+>>>> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/jobs/2377419824
+>>>
+>>> Can you run git bisect?
+>>
+>> Not a bisect, but we guessed e2423aa174e6 was responsible, and tested
+>> it boots with that patch reverted.
+>>
+>> Best regards,
+>> 								Pavel
+>>
+>> commit e2423aa174e6c3e9805e96db778245ba73cdd88c
+>>
+>>      net: ethernet: stmmac: fix altr_tse_pcs function when using a
+>>      fixed-link
+>>
+>>      [ Upstream commit a6aaa00324240967272b451bfa772547bd576ee6 ]
+>>      
+> 
+> Thanks, now reverted from 4.19.y, 4.14.y, and 4.9.y
+> 
 
-OTOH I'd have though that for a real 486 (one without a TSC)
-that is the only way to get a high res timer count.
+I have fixed this with this patch that is in linux-next:
 
-	David
+5fd1fe4807f9 ("net: ethernet: stmmac: fix write to sgmii_adapter_base")
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+Dinh
 
