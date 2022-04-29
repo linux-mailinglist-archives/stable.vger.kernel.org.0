@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFC0514756
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:50:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50AD35146FF
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357981AbiD2KtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:49:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59526 "EHLO
+        id S1357909AbiD2Kql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:46:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358149AbiD2Ksz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:48:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BBBACAB84;
-        Fri, 29 Apr 2022 03:44:01 -0700 (PDT)
+        with ESMTP id S245509AbiD2KqD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:46:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63437C749C;
+        Fri, 29 Apr 2022 03:42:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 983B2B83406;
-        Fri, 29 Apr 2022 10:43:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 707A7C385A7;
-        Fri, 29 Apr 2022 10:43:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01CD862325;
+        Fri, 29 Apr 2022 10:42:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C82ADC385A4;
+        Fri, 29 Apr 2022 10:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651229038;
-        bh=OBsWue1A2fhd8M5Du5vxJ4LxAot1H5ZCUuTpoLcQ89A=;
+        s=korg; t=1651228955;
+        bh=OEBy9BIJsvJj8QlMo6Gd+ZfXJ26Uwm0qSRRilNBekfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gHDMedxxRWHDe1CuKWSs769B/3y4c83kQvmRyg0twdoawyhY3RWy8amawZpgNxD5E
-         Dv1tjG8NVBrnuzOQ5boq95Vea4MKOefNkM1/lnsfLXtUL3qiMJpe+An6qOefQ2ef9e
-         vjT5kcyhYMdLpF+BVtBSnHP1TSrodTRFFVqmkZgE=
+        b=bpEHM6Ekg66RxowrLo8kxZJXWHyl4OeowUp/AFoRkbDf7dpxuw5atiJ/bYtFvMGzy
+         Uzlxhpp1wahM4Lv7kYshlJX6hk8yCJYs1iZm1nxb7+lGxAQAvBOz2oxAiFI2/ISavX
+         FvthfY02940hAhtz6iMkSGEGVpLlk/vkwoN6lOOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Luo <haoluo@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>
-Subject: [PATCH 5.15 10/33] bpf/selftests: Test PTR_TO_RDONLY_MEM
-Date:   Fri, 29 Apr 2022 12:41:57 +0200
-Message-Id: <20220429104052.643178141@linuxfoundation.org>
+        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Hao Luo <haoluo@google.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 11/33] bpf: Fix crash due to out of bounds access into reg2btf_ids.
+Date:   Fri, 29 Apr 2022 12:41:58 +0200
+Message-Id: <20220429104052.672989921@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
 References: <20220429104052.345760505@linuxfoundation.org>
@@ -53,91 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Luo <haoluo@google.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 
-commit 9497c458c10b049438ef6e6ddda898edbc3ec6a8 upstream.
+commit 45ce4b4f9009102cd9f581196d480a59208690c1 upstream
 
-This test verifies that a ksym of non-struct can not be directly
-updated.
+When commit e6ac2450d6de ("bpf: Support bpf program calling kernel function") added
+kfunc support, it defined reg2btf_ids as a cheap way to translate the verifier
+reg type to the appropriate btf_vmlinux BTF ID, however
+commit c25b2ae13603 ("bpf: Replace PTR_TO_XXX_OR_NULL with PTR_TO_XXX | PTR_MAYBE_NULL")
+moved the __BPF_REG_TYPE_MAX from the last member of bpf_reg_type enum to after
+the base register types, and defined other variants using type flag
+composition. However, now, the direct usage of reg->type to index into
+reg2btf_ids may no longer fall into __BPF_REG_TYPE_MAX range, and hence lead to
+out of bounds access and kernel crash on dereference of bad pointer.
 
+[backport note: commit 3363bd0cfbb80 ("bpf: Extend kfunc with PTR_TO_CTX, PTR_TO_MEM
+ argument support") was introduced after 5.15 and contains an out of bound
+ reg2btf_ids access. Since that commit hasn't been backported, this patch
+ doesn't include fix to that access. If we backport that commit in future,
+ we need to fix its faulting access as well.]
+
+Fixes: c25b2ae13603 ("bpf: Replace PTR_TO_XXX_OR_NULL with PTR_TO_XXX | PTR_MAYBE_NULL")
+Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
 Signed-off-by: Hao Luo <haoluo@google.com>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20211217003152.48334-10-haoluo@google.com
-Cc: stable@vger.kernel.org # 5.15.x
+Link: https://lore.kernel.org/bpf/20220216201943.624869-1-memxor@gmail.com
+Cc: stable@vger.kernel.org # v5.15+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/prog_tests/ksyms_btf.c             |   14 ++++
- tools/testing/selftests/bpf/progs/test_ksyms_btf_write_check.c |   29 ++++++++++
- 2 files changed, 43 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/progs/test_ksyms_btf_write_check.c
+ kernel/bpf/btf.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/bpf/prog_tests/ksyms_btf.c
-+++ b/tools/testing/selftests/bpf/prog_tests/ksyms_btf.c
-@@ -7,6 +7,7 @@
- #include "test_ksyms_btf.skel.h"
- #include "test_ksyms_btf_null_check.skel.h"
- #include "test_ksyms_weak.skel.h"
-+#include "test_ksyms_btf_write_check.skel.h"
- 
- static int duration;
- 
-@@ -109,6 +110,16 @@ cleanup:
- 	test_ksyms_weak__destroy(skel);
- }
- 
-+static void test_write_check(void)
-+{
-+	struct test_ksyms_btf_write_check *skel;
-+
-+	skel = test_ksyms_btf_write_check__open_and_load();
-+	ASSERT_ERR_PTR(skel, "unexpected load of a prog writing to ksym memory\n");
-+
-+	test_ksyms_btf_write_check__destroy(skel);
-+}
-+
- void test_ksyms_btf(void)
- {
- 	int percpu_datasec;
-@@ -136,4 +147,7 @@ void test_ksyms_btf(void)
- 
- 	if (test__start_subtest("weak_ksyms"))
- 		test_weak_syms();
-+
-+	if (test__start_subtest("write_check"))
-+		test_write_check();
- }
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/test_ksyms_btf_write_check.c
-@@ -0,0 +1,29 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Copyright (c) 2021 Google */
-+
-+#include "vmlinux.h"
-+
-+#include <bpf/bpf_helpers.h>
-+
-+extern const int bpf_prog_active __ksym; /* int type global var. */
-+
-+SEC("raw_tp/sys_enter")
-+int handler(const void *ctx)
-+{
-+	int *active;
-+	__u32 cpu;
-+
-+	cpu = bpf_get_smp_processor_id();
-+	active = (int *)bpf_per_cpu_ptr(&bpf_prog_active, cpu);
-+	if (active) {
-+		/* Kernel memory obtained from bpf_{per,this}_cpu_ptr
-+		 * is read-only, should _not_ pass verification.
-+		 */
-+		/* WRITE_ONCE */
-+		*(volatile int *)active = -1;
-+	}
-+
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -5510,9 +5510,9 @@ static int btf_check_func_arg_match(stru
+ 			if (reg->type == PTR_TO_BTF_ID) {
+ 				reg_btf = reg->btf;
+ 				reg_ref_id = reg->btf_id;
+-			} else if (reg2btf_ids[reg->type]) {
++			} else if (reg2btf_ids[base_type(reg->type)]) {
+ 				reg_btf = btf_vmlinux;
+-				reg_ref_id = *reg2btf_ids[reg->type];
++				reg_ref_id = *reg2btf_ids[base_type(reg->type)];
+ 			} else {
+ 				bpf_log(log, "kernel function %s args#%d expected pointer to %s %s but R%d is not a pointer to btf_id\n",
+ 					func_name, i,
 
 
