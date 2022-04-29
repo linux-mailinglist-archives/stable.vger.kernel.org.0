@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C02AA514780
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F4C514777
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232739AbiD2KsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345729AbiD2KsW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 29 Apr 2022 06:48:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59086 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357997AbiD2KsE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:48:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3AF3C90F3;
-        Fri, 29 Apr 2022 03:43:17 -0700 (PDT)
+        with ESMTP id S1358004AbiD2KsF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:48:05 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9B7CA0CE;
+        Fri, 29 Apr 2022 03:43:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 842DE62370;
-        Fri, 29 Apr 2022 10:43:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89822C385A7;
-        Fri, 29 Apr 2022 10:43:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 77EE6CE31B0;
+        Fri, 29 Apr 2022 10:43:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66A53C385AD;
+        Fri, 29 Apr 2022 10:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651228997;
-        bh=m9uHld/2Afw0iDRGRG2PyWPGIDnBmhadS3dACiiHojs=;
+        s=korg; t=1651228999;
+        bh=EtH3uLb0oVcU5ZA8jXax1Kcu+FfvZi13RlPITGQ6mQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xw177wjD/Qcx+XBPq+bjINq9Td1R9gbQsDKu6LSmJc127JQIfy2GRUtZvB1UXm1Lw
-         KRpXmcgOqdWV00UgldwxnR7DSOxLSrTMibiYPZkDGtcgSlBtWlu8EwgDa4/odoYWv7
-         XxQTW0BbxCK6NkZ0twiYd29+MygyB9cdOEax5v/E=
+        b=VX0F8I2C95c21cXJkanT+xOGGwAeOluP8RWBlzh1AxWl8WRQ9x8Z1zRObZHdXvlKN
+         R6a/UV9BpPDxI9OqPWCZfB7+TQHNn20NZfqjoa4T1bE4n4IEtBrynZCUVBUkI6/NIm
+         sqA8WWwOTeDXQBYukOAalFH2R4XH4ABKNN1pS33A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andreas Gruenbacher <agruenba@redhat.com>,
         "Darrick J. Wong" <djwong@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
         Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 5.15 24/33] iomap: Fix iomap_dio_rw return value for user copies
-Date:   Fri, 29 Apr 2022 12:42:11 +0200
-Message-Id: <20220429104053.039706422@linuxfoundation.org>
+Subject: [PATCH 5.15 25/33] iomap: Support partial direct I/O on user copy failures
+Date:   Fri, 29 Apr 2022 12:42:12 +0200
+Message-Id: <20220429104053.068440240@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
 References: <20220429104052.345760505@linuxfoundation.org>
@@ -56,42 +55,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 42c498c18a94eed79896c50871889af52fa0822e upstream
+commit 97308f8b0d867e9ef59528cd97f0db55ffdf5651 upstream
 
-When a user copy fails in one of the helpers of iomap_dio_rw, fail with
--EFAULT instead of returning 0.  This matches what iomap_dio_bio_actor
-returns when it gets an -EFAULT from bio_iov_iter_get_pages.  With these
-changes, iomap_dio_actor now consistently fails with -EFAULT when a user
-page cannot be faulted in.
+In iomap_dio_rw, when iomap_apply returns an -EFAULT error and the
+IOMAP_DIO_PARTIAL flag is set, complete the request synchronously and
+return a partial result.  This allows the caller to deal with the page
+fault and retry the remainder of the request.
 
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/iomap/direct-io.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/iomap/direct-io.c  |    6 ++++++
+ include/linux/iomap.h |    7 +++++++
+ 2 files changed, 13 insertions(+)
 
 --- a/fs/iomap/direct-io.c
 +++ b/fs/iomap/direct-io.c
-@@ -371,6 +371,8 @@ static loff_t iomap_dio_hole_iter(const
- 	loff_t length = iov_iter_zero(iomap_length(iter), dio->submit.iter);
+@@ -581,6 +581,12 @@ __iomap_dio_rw(struct kiocb *iocb, struc
+ 	if (iov_iter_rw(iter) == READ && iomi.pos >= dio->i_size)
+ 		iov_iter_revert(iter, iomi.pos - dio->i_size);
  
- 	dio->size += length;
-+	if (!length)
-+		return -EFAULT;
- 	return length;
- }
++	if (ret == -EFAULT && dio->size && (dio_flags & IOMAP_DIO_PARTIAL)) {
++		if (!(iocb->ki_flags & IOCB_NOWAIT))
++			wait_for_completion = true;
++		ret = 0;
++	}
++
+ 	/* magic error code to fall back to buffered I/O */
+ 	if (ret == -ENOTBLK) {
+ 		wait_for_completion = true;
+--- a/include/linux/iomap.h
++++ b/include/linux/iomap.h
+@@ -330,6 +330,13 @@ struct iomap_dio_ops {
+   */
+ #define IOMAP_DIO_OVERWRITE_ONLY	(1 << 1)
  
-@@ -402,6 +404,8 @@ static loff_t iomap_dio_inline_iter(cons
- 		copied = copy_to_iter(inline_data, length, iter);
- 	}
- 	dio->size += copied;
-+	if (!copied)
-+		return -EFAULT;
- 	return copied;
- }
- 
++/*
++ * When a page fault occurs, return a partial synchronous result and allow
++ * the caller to retry the rest of the operation after dealing with the page
++ * fault.
++ */
++#define IOMAP_DIO_PARTIAL		(1 << 2)
++
+ ssize_t iomap_dio_rw(struct kiocb *iocb, struct iov_iter *iter,
+ 		const struct iomap_ops *ops, const struct iomap_dio_ops *dops,
+ 		unsigned int dio_flags);
 
 
