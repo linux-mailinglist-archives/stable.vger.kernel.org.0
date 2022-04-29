@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50AD35146FF
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D09514712
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357909AbiD2Kql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:46:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58736 "EHLO
+        id S1357762AbiD2Kqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:46:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245509AbiD2KqD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:46:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63437C749C;
-        Fri, 29 Apr 2022 03:42:36 -0700 (PDT)
+        with ESMTP id S1357842AbiD2Kqc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:46:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8AABC7E85;
+        Fri, 29 Apr 2022 03:42:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01CD862325;
-        Fri, 29 Apr 2022 10:42:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C82ADC385A4;
-        Fri, 29 Apr 2022 10:42:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A758B8301B;
+        Fri, 29 Apr 2022 10:42:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EECC3C385A7;
+        Fri, 29 Apr 2022 10:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651228955;
-        bh=OEBy9BIJsvJj8QlMo6Gd+ZfXJ26Uwm0qSRRilNBekfY=;
+        s=korg; t=1651228958;
+        bh=B7TioHBEjs15QhBChEqdu1+Jdcxktbsgy5vf3tM2sBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpEHM6Ekg66RxowrLo8kxZJXWHyl4OeowUp/AFoRkbDf7dpxuw5atiJ/bYtFvMGzy
-         Uzlxhpp1wahM4Lv7kYshlJX6hk8yCJYs1iZm1nxb7+lGxAQAvBOz2oxAiFI2/ISavX
-         FvthfY02940hAhtz6iMkSGEGVpLlk/vkwoN6lOOw=
+        b=yA+iGt5jLnt59hxAtdyAIkFY50jBD3Fg5Zm86//GF+XENd6ZcJQZpxS4eFc88yZwK
+         CPkQepa6cyWKTEdkJzAUgZaKJGyzL9A7iJVrxXgAVCa7fD/KAuwxTgoSGGB8hUVUuJ
+         Wv/tB8p04iGzJIb3Yx3ZdlJEk4SiJhbZQLdAUBrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Hao Luo <haoluo@google.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 11/33] bpf: Fix crash due to out of bounds access into reg2btf_ids.
-Date:   Fri, 29 Apr 2022 12:41:58 +0200
-Message-Id: <20220429104052.672989921@linuxfoundation.org>
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        Pratyush Yadav <p.yadav@ti.com>,
+        Mark Brown <broonie@kernel.org>, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.15 12/33] spi: cadence-quadspi: fix write completion support
+Date:   Fri, 29 Apr 2022 12:41:59 +0200
+Message-Id: <20220429104052.701673099@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
 References: <20220429104052.345760505@linuxfoundation.org>
@@ -53,50 +53,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-commit 45ce4b4f9009102cd9f581196d480a59208690c1 upstream
+commit 98d948eb833104a094517401ed8be26ba3ce9935 upstream.
 
-When commit e6ac2450d6de ("bpf: Support bpf program calling kernel function") added
-kfunc support, it defined reg2btf_ids as a cheap way to translate the verifier
-reg type to the appropriate btf_vmlinux BTF ID, however
-commit c25b2ae13603 ("bpf: Replace PTR_TO_XXX_OR_NULL with PTR_TO_XXX | PTR_MAYBE_NULL")
-moved the __BPF_REG_TYPE_MAX from the last member of bpf_reg_type enum to after
-the base register types, and defined other variants using type flag
-composition. However, now, the direct usage of reg->type to index into
-reg2btf_ids may no longer fall into __BPF_REG_TYPE_MAX range, and hence lead to
-out of bounds access and kernel crash on dereference of bad pointer.
+Some versions of the Cadence QSPI controller does not have the write
+completion register implemented(CQSPI_REG_WR_COMPLETION_CTRL). On the
+Intel SoCFPGA platform the CQSPI_REG_WR_COMPLETION_CTRL register is
+not configured.
 
-[backport note: commit 3363bd0cfbb80 ("bpf: Extend kfunc with PTR_TO_CTX, PTR_TO_MEM
- argument support") was introduced after 5.15 and contains an out of bound
- reg2btf_ids access. Since that commit hasn't been backported, this patch
- doesn't include fix to that access. If we backport that commit in future,
- we need to fix its faulting access as well.]
+Add a quirk to not write to the CQSPI_REG_WR_COMPLETION_CTRL register.
 
-Fixes: c25b2ae13603 ("bpf: Replace PTR_TO_XXX_OR_NULL with PTR_TO_XXX | PTR_MAYBE_NULL")
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Hao Luo <haoluo@google.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220216201943.624869-1-memxor@gmail.com
-Cc: stable@vger.kernel.org # v5.15+
+Fixes: 9cb2ff111712 ("spi: cadence-quadspi: Disable Auto-HW polling)
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Link: https://lore.kernel.org/r/20211108200854.3616121-1-dinguyen@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[IA: backported for linux=5.15.y]
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/btf.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/spi/spi-cadence-quadspi.c |   24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -5510,9 +5510,9 @@ static int btf_check_func_arg_match(stru
- 			if (reg->type == PTR_TO_BTF_ID) {
- 				reg_btf = reg->btf;
- 				reg_ref_id = reg->btf_id;
--			} else if (reg2btf_ids[reg->type]) {
-+			} else if (reg2btf_ids[base_type(reg->type)]) {
- 				reg_btf = btf_vmlinux;
--				reg_ref_id = *reg2btf_ids[reg->type];
-+				reg_ref_id = *reg2btf_ids[base_type(reg->type)];
- 			} else {
- 				bpf_log(log, "kernel function %s args#%d expected pointer to %s %s but R%d is not a pointer to btf_id\n",
- 					func_name, i,
+--- a/drivers/spi/spi-cadence-quadspi.c
++++ b/drivers/spi/spi-cadence-quadspi.c
+@@ -36,6 +36,7 @@
+ /* Quirks */
+ #define CQSPI_NEEDS_WR_DELAY		BIT(0)
+ #define CQSPI_DISABLE_DAC_MODE		BIT(1)
++#define CQSPI_NO_SUPPORT_WR_COMPLETION	BIT(3)
+ 
+ /* Capabilities */
+ #define CQSPI_SUPPORTS_OCTAL		BIT(0)
+@@ -83,6 +84,7 @@ struct cqspi_st {
+ 	u32			wr_delay;
+ 	bool			use_direct_mode;
+ 	struct cqspi_flash_pdata f_pdata[CQSPI_MAX_CHIPSELECT];
++	bool			wr_completion;
+ };
+ 
+ struct cqspi_driver_platdata {
+@@ -797,9 +799,11 @@ static int cqspi_write_setup(struct cqsp
+ 	 * polling on the controller's side. spinand and spi-nor will take
+ 	 * care of polling the status register.
+ 	 */
+-	reg = readl(reg_base + CQSPI_REG_WR_COMPLETION_CTRL);
+-	reg |= CQSPI_REG_WR_DISABLE_AUTO_POLL;
+-	writel(reg, reg_base + CQSPI_REG_WR_COMPLETION_CTRL);
++	if (cqspi->wr_completion) {
++		reg = readl(reg_base + CQSPI_REG_WR_COMPLETION_CTRL);
++		reg |= CQSPI_REG_WR_DISABLE_AUTO_POLL;
++		writel(reg, reg_base + CQSPI_REG_WR_COMPLETION_CTRL);
++	}
+ 
+ 	reg = readl(reg_base + CQSPI_REG_SIZE);
+ 	reg &= ~CQSPI_REG_SIZE_ADDRESS_MASK;
+@@ -1532,6 +1536,10 @@ static int cqspi_probe(struct platform_d
+ 
+ 	cqspi->master_ref_clk_hz = clk_get_rate(cqspi->clk);
+ 	master->max_speed_hz = cqspi->master_ref_clk_hz;
++
++	/* write completion is supported by default */
++	cqspi->wr_completion = true;
++
+ 	ddata  = of_device_get_match_data(dev);
+ 	if (ddata) {
+ 		if (ddata->quirks & CQSPI_NEEDS_WR_DELAY)
+@@ -1541,6 +1549,8 @@ static int cqspi_probe(struct platform_d
+ 			master->mode_bits |= SPI_RX_OCTAL | SPI_TX_OCTAL;
+ 		if (!(ddata->quirks & CQSPI_DISABLE_DAC_MODE))
+ 			cqspi->use_direct_mode = true;
++		if (ddata->quirks & CQSPI_NO_SUPPORT_WR_COMPLETION)
++			cqspi->wr_completion = false;
+ 	}
+ 
+ 	ret = devm_request_irq(dev, irq, cqspi_irq_handler, 0,
+@@ -1649,6 +1659,10 @@ static const struct cqspi_driver_platdat
+ 	.quirks = CQSPI_DISABLE_DAC_MODE,
+ };
+ 
++static const struct cqspi_driver_platdata socfpga_qspi = {
++	.quirks = CQSPI_NO_SUPPORT_WR_COMPLETION,
++};
++
+ static const struct of_device_id cqspi_dt_ids[] = {
+ 	{
+ 		.compatible = "cdns,qspi-nor",
+@@ -1666,6 +1680,10 @@ static const struct of_device_id cqspi_d
+ 		.compatible = "intel,lgm-qspi",
+ 		.data = &intel_lgm_qspi,
+ 	},
++	{
++		.compatible = "intel,socfpga-qspi",
++		.data = (void *)&socfpga_qspi,
++	},
+ 	{ /* end of table */ }
+ };
+ 
 
 
