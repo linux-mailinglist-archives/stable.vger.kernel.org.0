@@ -2,102 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E44D51473C
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 480995147A4
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:56:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358070AbiD2KtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:49:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36266 "EHLO
+        id S239241AbiD2K7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:59:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358186AbiD2Ks4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:48:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D017EC8AB1;
-        Fri, 29 Apr 2022 03:44:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E1C9B83405;
-        Fri, 29 Apr 2022 10:44:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCC23C385A7;
-        Fri, 29 Apr 2022 10:44:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651229044;
-        bh=Ssb6HytEiLZ5XlzsnjG4rgI3TrxZRqzekDkLWbmBAcQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugRo41V0QfvyTInDUS5rB6DIkkp56u74wP2sobzArBJGAtyFbT2gNIvRtGP+Y3M81
-         E6NpyuVZVFuKoQ1e9+6fZ2dvgO9xL32OiGuhrcErzZ3v+O3TVXYi5VchzJ7ExkBzd6
-         KnuiwP5N3VpvRBuzpwu4noKNzWBA3dkmLeCQXBQo=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 33/33] selftests/bpf: Add test for reg2btf_ids out of bounds access
-Date:   Fri, 29 Apr 2022 12:42:20 +0200
-Message-Id: <20220429104053.296096344@linuxfoundation.org>
-X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
-References: <20220429104052.345760505@linuxfoundation.org>
-User-Agent: quilt/0.66
+        with ESMTP id S1358074AbiD2K7N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:59:13 -0400
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 18F3EA76DD;
+        Fri, 29 Apr 2022 03:55:54 -0700 (PDT)
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+        id 97E2792009C; Fri, 29 Apr 2022 12:55:53 +0200 (CEST)
+Received: from localhost (localhost [127.0.0.1])
+        by angie.orcam.me.uk (Postfix) with ESMTP id 8B80892009B;
+        Fri, 29 Apr 2022 11:55:53 +0100 (BST)
+Date:   Fri, 29 Apr 2022 11:55:53 +0100 (BST)
+From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+cc:     linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: Fix CP0 counter erratum detection for R4k CPUs
+In-Reply-To: <20220429100128.GB11365@alpha.franken.de>
+Message-ID: <alpine.DEB.2.21.2204291119040.9383@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2204240214430.9383@angie.orcam.me.uk> <20220429100128.GB11365@alpha.franken.de>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+On Fri, 29 Apr 2022, Thomas Bogendoerfer wrote:
 
-commit 13c6a37d409db9abc9c0bfc6d0a2f07bf0fff60e upstream.
+> > Fix the discrepancy between the two places we check for the CP0 counter 
+> > erratum in along with the incorrect comparison of the R4400 revision 
+> > number against 0x30 which matches none and consistently consider all 
+> > R4000 and R4400 processors affected, as documented in processor errata 
+> > publications[1][2][3], following the mapping between CP0 PRId register 
+> > values and processor models:
+> > 
+> >   PRId   |  Processor Model
+> > ---------+--------------------
+> > 00000422 | R4000 Revision 2.2
+> > 00000430 | R4000 Revision 3.0
+> > 00000440 | R4400 Revision 1.0
+> > 00000450 | R4400 Revision 2.0
+> > 00000460 | R4400 Revision 3.0
+> 
+> interesting, where is this documented ? And it's quite funny that so far
+> everybody messed up revision printing for R4400 CPUs. 
 
-This test tries to pass a PTR_TO_BTF_ID_OR_NULL to the release function,
-which would trigger a out of bounds access without the fix in commit
-45ce4b4f9009 ("bpf: Fix crash due to out of bounds access into reg2btf_ids.")
-but after the fix, it should only index using base_type(reg->type),
-which should be less than __BPF_REG_TYPE_MAX, and also not permit any
-type flags to be set for the reg->type.
+ That's just observation combined with past discussions with Ralf.
 
-Signed-off-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220220023138.2224652-1-memxor@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- tools/testing/selftests/bpf/verifier/calls.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ Basically the PRId implementation number is 0x04 for both the R4000 and 
+the R4400 (the only difference between the two CPUs is the addition of the 
+write-back buffer in the latter one, making it weakly ordered).  And then 
+the PRId revision number matches exactly the documented CPU revision for 
+the R4000, while for the R4400 you need to subtract 3 from the PRId 
+revision number to get the documented CPU revision (i.e. what would be 
+R4000 Revision 4.0 actually became R4400 Revision 1.0).
 
---- a/tools/testing/selftests/bpf/verifier/calls.c
-+++ b/tools/testing/selftests/bpf/verifier/calls.c
-@@ -108,6 +108,25 @@
- 	.errstr = "R0 min value is outside of the allowed memory range",
- },
- {
-+	"calls: trigger reg2btf_ids[reg->type] for reg->type > __BPF_REG_TYPE_MAX",
-+	.insns = {
-+	BPF_MOV64_REG(BPF_REG_1, BPF_REG_10),
-+	BPF_ALU64_IMM(BPF_ADD, BPF_REG_1, -8),
-+	BPF_ST_MEM(BPF_DW, BPF_REG_1, 0, 0),
-+	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, BPF_PSEUDO_KFUNC_CALL, 0, 0),
-+	BPF_MOV64_REG(BPF_REG_1, BPF_REG_0),
-+	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, BPF_PSEUDO_KFUNC_CALL, 0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
-+	.result = REJECT,
-+	.errstr = "arg#0 pointer type STRUCT prog_test_ref_kfunc must point",
-+	.fixup_kfunc_btf_id = {
-+		{ "bpf_kfunc_call_test_acquire", 3 },
-+		{ "bpf_kfunc_call_test_release", 5 },
-+	},
-+},
-+{
- 	"calls: overlapping caller/callee",
- 	.insns = {
- 	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 1, 0, 0),
+ At this time no old MIPSer from the SGI days may be around to confirm or 
+contradict this observation.  Documentation explicitly says[1]:
 
+"The revision number can distinguish some chip revisions, however there is 
+no guarantee that changes to the chip will necessarily be reflected in the 
+PRId register, or that changes to the revision number necessarily reflect 
+real chip changes.  For this reason, these values are not listed and 
+software should not rely on the revision number in the PRId register to 
+characterize the chip."
 
+but surely the author didn't have errata workarounds in mind plus all CPU 
+revisions have already been manufactured so the mapping has been fixed.
+
+> >  Conversely a system can do without a high-precision clock source, in
+> > which case jiffies will be used.  Of course such a system will suffer if 
+> > used for precision timekeeping, but such is the price for broken hardware.  
+> > Don't SNI systems have any alternative timer available, not even the 
+> > venerable 8254?
+> 
+> all SNI systems have a i8254 in their EISA/PCI chipsets. But they aren't
+> that nice for clock events as their interupts are connected via an i8259
+> addresses via ISA PIO. 
+
+ Interrupts are used for clock events, so you don't need one here.  For 
+clock sources you just read the counter.
+
+ That said reading from the 8254 is messy too and you may need a spinlock 
+(you need to write the Counter Latch or Read-Back command to the control 
+register and then issue consecutive two reads to the requested timer's 
+data register[2]).  Which is I guess why support for it has been removed 
+from x86 code.  For non-SMP it might be good enough.
+
+> >  With the considerations above in mind, please apply.
+> 
+> will do later.
+
+ Great, thanks!
+
+References:
+
+[1] Joe Heinrich: "MIPS R4000 Microprocessor User's Manual", Second
+    Edition, MIPS Technologies, Inc., April 1, 1994, Chapter 4 "Memory 
+    Management", p.90
+
+[2] "8254 Programmable Interval Timer", Intel Corporation, Order Number: 
+    231164-005, September 1993, Section "Read Operations", pp.7-9
+
+  Maciej
