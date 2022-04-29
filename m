@@ -2,91 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F17A0514305
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 09:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E53CD514362
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 09:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232023AbiD2HOK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 03:14:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57272 "EHLO
+        id S1355243AbiD2HrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 03:47:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354979AbiD2HN4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 03:13:56 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FED165F9
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 00:10:37 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id d5so9533063wrb.6
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 00:10:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=eU2K7hFb85v49HupfOauBv/JqeNYoVQ8Es/ogQztH9I=;
-        b=rVNkFnQDzCpWsi8uW5f3jUysx64p01AAL/g7+RbN3B7asBhziEA7oArOam0DI2l82n
-         6rQKGqiMYE/wAdGmf+MpbfoWl9VxCLDhT4sZkf3z1OR4nkcm+j2OAlEN+AJzlRfzA6++
-         9KoUDxK9aSSPqcTe/6H6UZZyEFE2gHADijMc4PyIcLLxk8ikC2qHYubwA0ltdXeeZ/yS
-         rprRpZWrEPm9Xq0b8mXkUvfo/rsqSH7JjvbK0uT2TcTtyDDSoLn1r4L2FOUXf0us2RQf
-         IHOBV2ED0xSUi1+9WFSIRSIG3OA5lotwKQVxOleqKoc17txpfeftRq0KfjyQM2qlSg6b
-         8eLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=eU2K7hFb85v49HupfOauBv/JqeNYoVQ8Es/ogQztH9I=;
-        b=79DW3tpUYKdOtN8+qJhbzPVaKC2H0ey9Dwi6o+b1IgpAUBdfbIE3eH6Y/9UDlJPRCB
-         RuHXUeFhSDtSiGls88qSZWGrjiAWyTnHsj+hvg6PIjK3hpDTDbpEFtC1jrfoL0XNMbQe
-         trFMl8HZYUw/mBwBEwAkJzv8Nw88HedF1PKJR9+BQFvyRjMBVXWweGlcF9MWeR960PvI
-         frMo0nfe5WlfYPWZ170ml1YhreSipGpBEY0392j2jtV7eBFADp/oASYJhOZLUcypff0m
-         h2j+e8lo54zJ1YE1/VP4HAic4bBnkSvoO9j8JqB/2l89etMzEmhL19UEW1+AGN+/F7+m
-         8UaQ==
-X-Gm-Message-State: AOAM530AIATZrqeYf+ynP7KRzFl6CmbPN30RHIHZ4d8W0StD7vppzpfA
-        VEYVHvBije/zNu3aLq1auxG+lQ==
-X-Google-Smtp-Source: ABdhPJyZal4neXE/dKPKaoOqDGmypXJSpsymt46sH4fu/rK9ljAoneXvv0uUuZfUL767GNjUvhNVwA==
-X-Received: by 2002:a5d:638b:0:b0:20a:f2ea:f8ef with SMTP id p11-20020a5d638b000000b0020af2eaf8efmr7674124wru.186.1651216235489;
-        Fri, 29 Apr 2022 00:10:35 -0700 (PDT)
-Received: from elver.google.com ([2a00:79e0:15:13:1476:89ab:7172:aa69])
-        by smtp.gmail.com with ESMTPSA id i27-20020a1c541b000000b003928e866d32sm5877213wmb.37.2022.04.29.00.10.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Apr 2022 00:10:35 -0700 (PDT)
-Date:   Fri, 29 Apr 2022 09:10:29 +0200
-From:   Marco Elver <elver@google.com>
-To:     Muchun Song <songmuchun@bytedance.com>
-Cc:     gregkh@linuxfoundation.org, akpm@linux-foundation.org,
-        duanxiongchun@bytedance.com, dvyukov@google.com, glider@google.com,
-        roman.gushchin@linux.dev, torvalds@linux-foundation.org,
-        stable@vger.kernel.org
-Subject: Re: [External] FAILED: patch "[PATCH] mm: kfence: fix objcgs vector
- allocation" failed to apply to 5.15-stable tree
-Message-ID: <YmuPZQLKLfV3X6cW@elver.google.com>
-References: <165116018052255@kroah.com>
- <CAMZfGtXuQr77H2juiJTK5ZhP6tHFj4fNLDFZ82VBOfknnoa3pg@mail.gmail.com>
+        with ESMTP id S1351092AbiD2HrC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 03:47:02 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6633A8888;
+        Fri, 29 Apr 2022 00:43:44 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id DCD121C0B8E; Fri, 29 Apr 2022 09:43:41 +0200 (CEST)
+Date:   Fri, 29 Apr 2022 09:43:41 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        iwamatsu@nigauri.org, dinguyen@kernel.org
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 4.19 00/53] 4.19.240-rc1 review [net: ethernet: stmmac:
+ fix altr_tse_pcs function when using a]
+Message-ID: <20220429074341.GB1423@amd>
+References: <20220426081735.651926456@linuxfoundation.org>
+ <20220426200000.GB9427@duo.ucw.cz>
+ <YmkrZ5t2cb1JSHR8@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="St7VIuEGZ6dlpu13"
 Content-Disposition: inline
-In-Reply-To: <CAMZfGtXuQr77H2juiJTK5ZhP6tHFj4fNLDFZ82VBOfknnoa3pg@mail.gmail.com>
-User-Agent: Mutt/2.1.4 (2021-12-11)
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <YmkrZ5t2cb1JSHR8@kroah.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 29, 2022 at 12:15PM +0800, Muchun Song wrote:
-> On Thu, Apr 28, 2022 at 11:36 PM <gregkh@linuxfoundation.org> wrote:
-> >
-> >
-> > The patch below does not apply to the 5.15-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> >
-> 
-> I have fixed all conflicts and the attachment is the new patch for 5.15.
-> 
-> Thanks.
 
-I wanted to test, but unfortunately this doesn't apply to 5.15.36.
+--St7VIuEGZ6dlpu13
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi!
+
+> > > This is the start of the stable review cycle for the 4.19.240 release.
+> > > There are 53 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, plea=
+se
+> > > let me know.
+=2E..
+> > I still see problems on socfpga:
+> >=20
+> > [    1.227759]  mmcblk0: p1 p2 p3
+> > [    1.269825] Micrel KSZ9031 Gigabit PHY stmmac-0:01: attached PHY dri=
+ver [Micrel KSZ9031 Gigabit PHY] (mii_bus:phy_addr=3Dstmmac-0:01, irq=3DPOL=
+L)
+> > [    1.284600] socfpga-dwmac ff702000.ethernet eth0: No Safety Features=
+ support found
+> > [    1.292374] socfpga-dwmac ff702000.ethernet eth0: registered PTP clo=
+ck
+> > [    1.299247] IPv6: ADDRCONF(NETDEV_UP): eth0: link is not ready
+> > [    5.444552] Unable to handle kernel NULL pointer dereference at virt=
+ual address 00000000
+=2E..
+> > [    5.478679] Workqueue: events_power_efficient phy_state_machine
+> > [    5.484579] PC is at socfpga_dwmac_fix_mac_speed+0x3c/0xbc
+> > [    5.490044] LR is at arm_heavy_mb+0x2c/0x48
+
+> > https://lava.ciplatform.org/scheduler/job/669257
+> > https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/jobs/23=
+77419824
+>=20
+> Can you run git bisect?
+
+Not a bisect, but we guessed e2423aa174e6 was responsible, and tested
+it boots with that patch reverted.
+
+Best regards,
+								Pavel
+
+commit e2423aa174e6c3e9805e96db778245ba73cdd88c
+
+    net: ethernet: stmmac: fix altr_tse_pcs function when using a
+    fixed-link
+
+    [ Upstream commit a6aaa00324240967272b451bfa772547bd576ee6 ]
+   =20
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--St7VIuEGZ6dlpu13
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmJrly0ACgkQMOfwapXb+vLeHgCcDTzrfnL1ZpnCLpPO1czIfto3
+bbIAoKcaBBlem+j0GygF58WrrPRFTn7d
+=UPXn
+-----END PGP SIGNATURE-----
+
+--St7VIuEGZ6dlpu13--
