@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D2F514786
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7176251475C
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357952AbiD2KsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:48:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59528 "EHLO
+        id S1356176AbiD2KtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:49:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357932AbiD2Krd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:47:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B68C9B49;
-        Fri, 29 Apr 2022 03:43:07 -0700 (PDT)
+        with ESMTP id S1358071AbiD2KsS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:48:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DEFFC865F;
+        Fri, 29 Apr 2022 03:43:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AFB6B8344E;
-        Fri, 29 Apr 2022 10:43:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93397C385A7;
-        Fri, 29 Apr 2022 10:43:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A4C5B83405;
+        Fri, 29 Apr 2022 10:43:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2AFDC385A4;
+        Fri, 29 Apr 2022 10:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651228985;
-        bh=PH2fEo2gX2WYr22TAaYwcnFxMKwrIJ2TF9uLgs2SCVQ=;
+        s=korg; t=1651229017;
+        bh=reDSbp8xMqyh27R/JkwS8GqI9GdQdQrFP43vsRS78Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ElcljPtxIN9sMuK7AOvpVX45MfxTr6/o+Ys2gRF9O+wd7QOVbfBCgr2URI8rzvVQm
-         pNNZEQLvwUBSKd3Fill3Svs+5bSR8a4Udn0/Xl8bHpo5vGl30c8giwobsbNIOpNq9x
-         AlQ67eHigy/UNq0qijR9yx2jfgXJl4Fd4zNslkY0=
+        b=mBRm8wSAsAVdBLefL/2BtbLHrx52Fi8hh9HNNr3zo/Tp/rUqJLjYVH+J3sNgOSCG3
+         GrejcNluRrlMujuBds+0NeQPtPRByvi3/y96HcfNk+KIjHFW+NcFBayiGP8LhPnAOj
+         Ta1HnWzCShwJrGhdQeMdap9ZFEwIkBCFAfX8t3hc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hao Luo <haoluo@google.com>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 03/33] bpf: Replace ARG_XXX_OR_NULL with ARG_XXX | PTR_MAYBE_NULL
-Date:   Fri, 29 Apr 2022 12:41:50 +0200
-Message-Id: <20220429104052.444732851@linuxfoundation.org>
+Subject: [PATCH 5.15 04/33] bpf: Replace RET_XXX_OR_NULL with RET_XXX | PTR_MAYBE_NULL
+Date:   Fri, 29 Apr 2022 12:41:51 +0200
+Message-Id: <20220429104052.472800855@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
 References: <20220429104052.345760505@linuxfoundation.org>
@@ -54,196 +54,197 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hao Luo <haoluo@google.com>
 
-commit 48946bd6a5d695c50b34546864b79c1f910a33c1 upstream.
+commit 3c4807322660d4290ac9062c034aed6b87243861 upstream.
 
-We have introduced a new type to make bpf_arg composable, by
-reserving high bits of bpf_arg to represent flags of a type.
+We have introduced a new type to make bpf_ret composable, by
+reserving high bits to represent flags.
 
-One of the flags is PTR_MAYBE_NULL which indicates a pointer
-may be NULL. When applying this flag to an arg_type, it means
-the arg can take NULL pointer. This patch switches the
-qualified arg_types to use this flag. The arg_types changed
-in this patch include:
+One of the flag is PTR_MAYBE_NULL, which indicates a pointer
+may be NULL. When applying this flag to ret_types, it means
+the returned value could be a NULL pointer. This patch
+switches the qualified arg_types to use this flag.
+The ret_types changed in this patch include:
 
-1. ARG_PTR_TO_MAP_VALUE_OR_NULL
-2. ARG_PTR_TO_MEM_OR_NULL
-3. ARG_PTR_TO_CTX_OR_NULL
-4. ARG_PTR_TO_SOCKET_OR_NULL
-5. ARG_PTR_TO_ALLOC_MEM_OR_NULL
-6. ARG_PTR_TO_STACK_OR_NULL
+1. RET_PTR_TO_MAP_VALUE_OR_NULL
+2. RET_PTR_TO_SOCKET_OR_NULL
+3. RET_PTR_TO_TCP_SOCK_OR_NULL
+4. RET_PTR_TO_SOCK_COMMON_OR_NULL
+5. RET_PTR_TO_ALLOC_MEM_OR_NULL
+6. RET_PTR_TO_MEM_OR_BTF_ID_OR_NULL
+7. RET_PTR_TO_BTF_ID_OR_NULL
 
-This patch does not eliminate the use of these arg_types, instead
-it makes them an alias to the 'ARG_XXX | PTR_MAYBE_NULL'.
+This patch doesn't eliminate the use of these names, instead
+it makes them aliases to 'RET_PTR_TO_XXX | PTR_MAYBE_NULL'.
 
 Signed-off-by: Hao Luo <haoluo@google.com>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211217003152.48334-3-haoluo@google.com
+Link: https://lore.kernel.org/bpf/20211217003152.48334-4-haoluo@google.com
 Cc: stable@vger.kernel.org # 5.15.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bpf.h   |   15 +++++++++------
- kernel/bpf/verifier.c |   39 ++++++++++++++-------------------------
- 2 files changed, 23 insertions(+), 31 deletions(-)
+ include/linux/bpf.h   |   19 +++++++++++-------
+ kernel/bpf/helpers.c  |    2 -
+ kernel/bpf/verifier.c |   52 +++++++++++++++++++++++++-------------------------
+ 3 files changed, 39 insertions(+), 34 deletions(-)
 
 --- a/include/linux/bpf.h
 +++ b/include/linux/bpf.h
-@@ -327,13 +327,11 @@ enum bpf_arg_type {
- 	ARG_PTR_TO_MAP_KEY,	/* pointer to stack used as map key */
- 	ARG_PTR_TO_MAP_VALUE,	/* pointer to stack used as map value */
- 	ARG_PTR_TO_UNINIT_MAP_VALUE,	/* pointer to valid memory used to store a map value */
--	ARG_PTR_TO_MAP_VALUE_OR_NULL,	/* pointer to stack used as map value or NULL */
+@@ -378,17 +378,22 @@ enum bpf_return_type {
+ 	RET_INTEGER,			/* function returns integer */
+ 	RET_VOID,			/* function doesn't return anything */
+ 	RET_PTR_TO_MAP_VALUE,		/* returns a pointer to map elem value */
+-	RET_PTR_TO_MAP_VALUE_OR_NULL,	/* returns a pointer to map elem value or NULL */
+-	RET_PTR_TO_SOCKET_OR_NULL,	/* returns a pointer to a socket or NULL */
+-	RET_PTR_TO_TCP_SOCK_OR_NULL,	/* returns a pointer to a tcp_sock or NULL */
+-	RET_PTR_TO_SOCK_COMMON_OR_NULL,	/* returns a pointer to a sock_common or NULL */
+-	RET_PTR_TO_ALLOC_MEM_OR_NULL,	/* returns a pointer to dynamically allocated memory or NULL */
+-	RET_PTR_TO_BTF_ID_OR_NULL,	/* returns a pointer to a btf_id or NULL */
+-	RET_PTR_TO_MEM_OR_BTF_ID_OR_NULL, /* returns a pointer to a valid memory or a btf_id or NULL */
++	RET_PTR_TO_SOCKET,		/* returns a pointer to a socket */
++	RET_PTR_TO_TCP_SOCK,		/* returns a pointer to a tcp_sock */
++	RET_PTR_TO_SOCK_COMMON,		/* returns a pointer to a sock_common */
++	RET_PTR_TO_ALLOC_MEM,		/* returns a pointer to dynamically allocated memory */
+ 	RET_PTR_TO_MEM_OR_BTF_ID,	/* returns a pointer to a valid memory or a btf_id */
+ 	RET_PTR_TO_BTF_ID,		/* returns a pointer to a btf_id */
+ 	__BPF_RET_TYPE_MAX,
  
- 	/* the following constraints used to prototype bpf_memcmp() and other
- 	 * functions that access data on eBPF program stack
- 	 */
- 	ARG_PTR_TO_MEM,		/* pointer to valid memory (stack, packet, map value) */
--	ARG_PTR_TO_MEM_OR_NULL, /* pointer to valid memory or NULL */
- 	ARG_PTR_TO_UNINIT_MEM,	/* pointer to memory does not need to be initialized,
- 				 * helper function must fill all bytes or clear
- 				 * them in error case.
-@@ -343,26 +341,31 @@ enum bpf_arg_type {
- 	ARG_CONST_SIZE_OR_ZERO,	/* number of bytes accessed from memory or 0 */
- 
- 	ARG_PTR_TO_CTX,		/* pointer to context */
--	ARG_PTR_TO_CTX_OR_NULL,	/* pointer to context or NULL */
- 	ARG_ANYTHING,		/* any (initialized) argument is ok */
- 	ARG_PTR_TO_SPIN_LOCK,	/* pointer to bpf_spin_lock */
- 	ARG_PTR_TO_SOCK_COMMON,	/* pointer to sock_common */
- 	ARG_PTR_TO_INT,		/* pointer to int */
- 	ARG_PTR_TO_LONG,	/* pointer to long */
- 	ARG_PTR_TO_SOCKET,	/* pointer to bpf_sock (fullsock) */
--	ARG_PTR_TO_SOCKET_OR_NULL,	/* pointer to bpf_sock (fullsock) or NULL */
- 	ARG_PTR_TO_BTF_ID,	/* pointer to in-kernel struct */
- 	ARG_PTR_TO_ALLOC_MEM,	/* pointer to dynamically allocated memory */
--	ARG_PTR_TO_ALLOC_MEM_OR_NULL,	/* pointer to dynamically allocated memory or NULL */
- 	ARG_CONST_ALLOC_SIZE_OR_ZERO,	/* number of allocated bytes requested */
- 	ARG_PTR_TO_BTF_ID_SOCK_COMMON,	/* pointer to in-kernel sock_common or bpf-mirrored bpf_sock */
- 	ARG_PTR_TO_PERCPU_BTF_ID,	/* pointer to in-kernel percpu type */
- 	ARG_PTR_TO_FUNC,	/* pointer to a bpf program function */
--	ARG_PTR_TO_STACK_OR_NULL,	/* pointer to stack or NULL */
-+	ARG_PTR_TO_STACK,	/* pointer to stack */
- 	ARG_PTR_TO_CONST_STR,	/* pointer to a null terminated read-only string */
- 	ARG_PTR_TO_TIMER,	/* pointer to bpf_timer */
- 	__BPF_ARG_TYPE_MAX,
- 
-+	/* Extended arg_types. */
-+	ARG_PTR_TO_MAP_VALUE_OR_NULL	= PTR_MAYBE_NULL | ARG_PTR_TO_MAP_VALUE,
-+	ARG_PTR_TO_MEM_OR_NULL		= PTR_MAYBE_NULL | ARG_PTR_TO_MEM,
-+	ARG_PTR_TO_CTX_OR_NULL		= PTR_MAYBE_NULL | ARG_PTR_TO_CTX,
-+	ARG_PTR_TO_SOCKET_OR_NULL	= PTR_MAYBE_NULL | ARG_PTR_TO_SOCKET,
-+	ARG_PTR_TO_ALLOC_MEM_OR_NULL	= PTR_MAYBE_NULL | ARG_PTR_TO_ALLOC_MEM,
-+	ARG_PTR_TO_STACK_OR_NULL	= PTR_MAYBE_NULL | ARG_PTR_TO_STACK,
++	/* Extended ret_types. */
++	RET_PTR_TO_MAP_VALUE_OR_NULL	= PTR_MAYBE_NULL | RET_PTR_TO_MAP_VALUE,
++	RET_PTR_TO_SOCKET_OR_NULL	= PTR_MAYBE_NULL | RET_PTR_TO_SOCKET,
++	RET_PTR_TO_TCP_SOCK_OR_NULL	= PTR_MAYBE_NULL | RET_PTR_TO_TCP_SOCK,
++	RET_PTR_TO_SOCK_COMMON_OR_NULL	= PTR_MAYBE_NULL | RET_PTR_TO_SOCK_COMMON,
++	RET_PTR_TO_ALLOC_MEM_OR_NULL	= PTR_MAYBE_NULL | RET_PTR_TO_ALLOC_MEM,
++	RET_PTR_TO_BTF_ID_OR_NULL	= PTR_MAYBE_NULL | RET_PTR_TO_BTF_ID,
 +
  	/* This must be the last entry. Its purpose is to ensure the enum is
  	 * wide enough to hold the higher bits reserved for bpf_type_flag.
  	 */
+--- a/kernel/bpf/helpers.c
++++ b/kernel/bpf/helpers.c
+@@ -667,7 +667,7 @@ BPF_CALL_2(bpf_per_cpu_ptr, const void *
+ const struct bpf_func_proto bpf_per_cpu_ptr_proto = {
+ 	.func		= bpf_per_cpu_ptr,
+ 	.gpl_only	= false,
+-	.ret_type	= RET_PTR_TO_MEM_OR_BTF_ID_OR_NULL,
++	.ret_type	= RET_PTR_TO_MEM_OR_BTF_ID | PTR_MAYBE_NULL,
+ 	.arg1_type	= ARG_PTR_TO_PERCPU_BTF_ID,
+ 	.arg2_type	= ARG_ANYTHING,
+ };
 --- a/kernel/bpf/verifier.c
 +++ b/kernel/bpf/verifier.c
-@@ -478,14 +478,9 @@ static bool arg_type_may_be_refcounted(e
- 	return type == ARG_PTR_TO_SOCK_COMMON;
- }
- 
--static bool arg_type_may_be_null(enum bpf_arg_type type)
-+static bool type_may_be_null(u32 type)
+@@ -6195,6 +6195,7 @@ static int check_helper_call(struct bpf_
+ 			     int *insn_idx_p)
  {
--	return type == ARG_PTR_TO_MAP_VALUE_OR_NULL ||
--	       type == ARG_PTR_TO_MEM_OR_NULL ||
--	       type == ARG_PTR_TO_CTX_OR_NULL ||
--	       type == ARG_PTR_TO_SOCKET_OR_NULL ||
--	       type == ARG_PTR_TO_ALLOC_MEM_OR_NULL ||
--	       type == ARG_PTR_TO_STACK_OR_NULL;
-+	return type & PTR_MAYBE_NULL;
- }
+ 	const struct bpf_func_proto *fn = NULL;
++	enum bpf_return_type ret_type;
+ 	struct bpf_reg_state *regs;
+ 	struct bpf_call_arg_meta meta;
+ 	int insn_idx = *insn_idx_p;
+@@ -6328,13 +6329,13 @@ static int check_helper_call(struct bpf_
+ 	regs[BPF_REG_0].subreg_def = DEF_NOT_SUBREG;
  
- /* Determine whether the function releases some resources allocated by another
-@@ -4796,9 +4791,8 @@ static int process_timer_func(struct bpf
+ 	/* update return register (already marked as written above) */
+-	if (fn->ret_type == RET_INTEGER) {
++	ret_type = fn->ret_type;
++	if (ret_type == RET_INTEGER) {
+ 		/* sets type to SCALAR_VALUE */
+ 		mark_reg_unknown(env, regs, BPF_REG_0);
+-	} else if (fn->ret_type == RET_VOID) {
++	} else if (ret_type == RET_VOID) {
+ 		regs[BPF_REG_0].type = NOT_INIT;
+-	} else if (fn->ret_type == RET_PTR_TO_MAP_VALUE_OR_NULL ||
+-		   fn->ret_type == RET_PTR_TO_MAP_VALUE) {
++	} else if (base_type(ret_type) == RET_PTR_TO_MAP_VALUE) {
+ 		/* There is no offset yet applied, variable or fixed */
+ 		mark_reg_known_zero(env, regs, BPF_REG_0);
+ 		/* remember map_ptr, so that check_map_access()
+@@ -6348,28 +6349,27 @@ static int check_helper_call(struct bpf_
+ 		}
+ 		regs[BPF_REG_0].map_ptr = meta.map_ptr;
+ 		regs[BPF_REG_0].map_uid = meta.map_uid;
+-		if (fn->ret_type == RET_PTR_TO_MAP_VALUE) {
++		if (type_may_be_null(ret_type)) {
++			regs[BPF_REG_0].type = PTR_TO_MAP_VALUE_OR_NULL;
++		} else {
+ 			regs[BPF_REG_0].type = PTR_TO_MAP_VALUE;
+ 			if (map_value_has_spin_lock(meta.map_ptr))
+ 				regs[BPF_REG_0].id = ++env->id_gen;
+-		} else {
+-			regs[BPF_REG_0].type = PTR_TO_MAP_VALUE_OR_NULL;
+ 		}
+-	} else if (fn->ret_type == RET_PTR_TO_SOCKET_OR_NULL) {
++	} else if (base_type(ret_type) == RET_PTR_TO_SOCKET) {
+ 		mark_reg_known_zero(env, regs, BPF_REG_0);
+ 		regs[BPF_REG_0].type = PTR_TO_SOCKET_OR_NULL;
+-	} else if (fn->ret_type == RET_PTR_TO_SOCK_COMMON_OR_NULL) {
++	} else if (base_type(ret_type) == RET_PTR_TO_SOCK_COMMON) {
+ 		mark_reg_known_zero(env, regs, BPF_REG_0);
+ 		regs[BPF_REG_0].type = PTR_TO_SOCK_COMMON_OR_NULL;
+-	} else if (fn->ret_type == RET_PTR_TO_TCP_SOCK_OR_NULL) {
++	} else if (base_type(ret_type) == RET_PTR_TO_TCP_SOCK) {
+ 		mark_reg_known_zero(env, regs, BPF_REG_0);
+ 		regs[BPF_REG_0].type = PTR_TO_TCP_SOCK_OR_NULL;
+-	} else if (fn->ret_type == RET_PTR_TO_ALLOC_MEM_OR_NULL) {
++	} else if (base_type(ret_type) == RET_PTR_TO_ALLOC_MEM) {
+ 		mark_reg_known_zero(env, regs, BPF_REG_0);
+ 		regs[BPF_REG_0].type = PTR_TO_MEM_OR_NULL;
+ 		regs[BPF_REG_0].mem_size = meta.mem_size;
+-	} else if (fn->ret_type == RET_PTR_TO_MEM_OR_BTF_ID_OR_NULL ||
+-		   fn->ret_type == RET_PTR_TO_MEM_OR_BTF_ID) {
++	} else if (base_type(ret_type) == RET_PTR_TO_MEM_OR_BTF_ID) {
+ 		const struct btf_type *t;
  
- static bool arg_type_is_mem_ptr(enum bpf_arg_type type)
- {
--	return type == ARG_PTR_TO_MEM ||
--	       type == ARG_PTR_TO_MEM_OR_NULL ||
--	       type == ARG_PTR_TO_UNINIT_MEM;
-+	return base_type(type) == ARG_PTR_TO_MEM ||
-+	       base_type(type) == ARG_PTR_TO_UNINIT_MEM;
- }
+ 		mark_reg_known_zero(env, regs, BPF_REG_0);
+@@ -6388,28 +6388,28 @@ static int check_helper_call(struct bpf_
+ 				return -EINVAL;
+ 			}
+ 			regs[BPF_REG_0].type =
+-				fn->ret_type == RET_PTR_TO_MEM_OR_BTF_ID ?
+-				PTR_TO_MEM : PTR_TO_MEM_OR_NULL;
++				(ret_type & PTR_MAYBE_NULL) ?
++				PTR_TO_MEM_OR_NULL : PTR_TO_MEM;
+ 			regs[BPF_REG_0].mem_size = tsize;
+ 		} else {
+ 			regs[BPF_REG_0].type =
+-				fn->ret_type == RET_PTR_TO_MEM_OR_BTF_ID ?
+-				PTR_TO_BTF_ID : PTR_TO_BTF_ID_OR_NULL;
++				(ret_type & PTR_MAYBE_NULL) ?
++				PTR_TO_BTF_ID_OR_NULL : PTR_TO_BTF_ID;
+ 			regs[BPF_REG_0].btf = meta.ret_btf;
+ 			regs[BPF_REG_0].btf_id = meta.ret_btf_id;
+ 		}
+-	} else if (fn->ret_type == RET_PTR_TO_BTF_ID_OR_NULL ||
+-		   fn->ret_type == RET_PTR_TO_BTF_ID) {
++	} else if (base_type(ret_type) == RET_PTR_TO_BTF_ID) {
+ 		int ret_btf_id;
  
- static bool arg_type_is_mem_size(enum bpf_arg_type type)
-@@ -4932,31 +4926,26 @@ static const struct bpf_reg_types *compa
- 	[ARG_PTR_TO_MAP_KEY]		= &map_key_value_types,
- 	[ARG_PTR_TO_MAP_VALUE]		= &map_key_value_types,
- 	[ARG_PTR_TO_UNINIT_MAP_VALUE]	= &map_key_value_types,
--	[ARG_PTR_TO_MAP_VALUE_OR_NULL]	= &map_key_value_types,
- 	[ARG_CONST_SIZE]		= &scalar_types,
- 	[ARG_CONST_SIZE_OR_ZERO]	= &scalar_types,
- 	[ARG_CONST_ALLOC_SIZE_OR_ZERO]	= &scalar_types,
- 	[ARG_CONST_MAP_PTR]		= &const_map_ptr_types,
- 	[ARG_PTR_TO_CTX]		= &context_types,
--	[ARG_PTR_TO_CTX_OR_NULL]	= &context_types,
- 	[ARG_PTR_TO_SOCK_COMMON]	= &sock_types,
- #ifdef CONFIG_NET
- 	[ARG_PTR_TO_BTF_ID_SOCK_COMMON]	= &btf_id_sock_common_types,
- #endif
- 	[ARG_PTR_TO_SOCKET]		= &fullsock_types,
--	[ARG_PTR_TO_SOCKET_OR_NULL]	= &fullsock_types,
- 	[ARG_PTR_TO_BTF_ID]		= &btf_ptr_types,
- 	[ARG_PTR_TO_SPIN_LOCK]		= &spin_lock_types,
- 	[ARG_PTR_TO_MEM]		= &mem_types,
--	[ARG_PTR_TO_MEM_OR_NULL]	= &mem_types,
- 	[ARG_PTR_TO_UNINIT_MEM]		= &mem_types,
- 	[ARG_PTR_TO_ALLOC_MEM]		= &alloc_mem_types,
--	[ARG_PTR_TO_ALLOC_MEM_OR_NULL]	= &alloc_mem_types,
- 	[ARG_PTR_TO_INT]		= &int_ptr_types,
- 	[ARG_PTR_TO_LONG]		= &int_ptr_types,
- 	[ARG_PTR_TO_PERCPU_BTF_ID]	= &percpu_btf_ptr_types,
- 	[ARG_PTR_TO_FUNC]		= &func_ptr_types,
--	[ARG_PTR_TO_STACK_OR_NULL]	= &stack_ptr_types,
-+	[ARG_PTR_TO_STACK]		= &stack_ptr_types,
- 	[ARG_PTR_TO_CONST_STR]		= &const_str_ptr_types,
- 	[ARG_PTR_TO_TIMER]		= &timer_types,
- };
-@@ -4970,7 +4959,7 @@ static int check_reg_type(struct bpf_ver
- 	const struct bpf_reg_types *compatible;
- 	int i, j;
- 
--	compatible = compatible_reg_types[arg_type];
-+	compatible = compatible_reg_types[base_type(arg_type)];
- 	if (!compatible) {
- 		verbose(env, "verifier internal error: unsupported arg type %d\n", arg_type);
- 		return -EFAULT;
-@@ -5051,15 +5040,14 @@ static int check_func_arg(struct bpf_ver
- 		return -EACCES;
+ 		mark_reg_known_zero(env, regs, BPF_REG_0);
+-		regs[BPF_REG_0].type = fn->ret_type == RET_PTR_TO_BTF_ID ?
+-						     PTR_TO_BTF_ID :
+-						     PTR_TO_BTF_ID_OR_NULL;
++		regs[BPF_REG_0].type = (ret_type & PTR_MAYBE_NULL) ?
++						     PTR_TO_BTF_ID_OR_NULL :
++						     PTR_TO_BTF_ID;
+ 		ret_btf_id = *fn->ret_btf_id;
+ 		if (ret_btf_id == 0) {
+-			verbose(env, "invalid return type %d of func %s#%d\n",
+-				fn->ret_type, func_id_name(func_id), func_id);
++			verbose(env, "invalid return type %u of func %s#%d\n",
++				base_type(ret_type), func_id_name(func_id),
++				func_id);
+ 			return -EINVAL;
+ 		}
+ 		/* current BPF helper definitions are only coming from
+@@ -6418,8 +6418,8 @@ static int check_helper_call(struct bpf_
+ 		regs[BPF_REG_0].btf = btf_vmlinux;
+ 		regs[BPF_REG_0].btf_id = ret_btf_id;
+ 	} else {
+-		verbose(env, "unknown return type %d of func %s#%d\n",
+-			fn->ret_type, func_id_name(func_id), func_id);
++		verbose(env, "unknown return type %u of func %s#%d\n",
++			base_type(ret_type), func_id_name(func_id), func_id);
+ 		return -EINVAL;
  	}
  
--	if (arg_type == ARG_PTR_TO_MAP_VALUE ||
--	    arg_type == ARG_PTR_TO_UNINIT_MAP_VALUE ||
--	    arg_type == ARG_PTR_TO_MAP_VALUE_OR_NULL) {
-+	if (base_type(arg_type) == ARG_PTR_TO_MAP_VALUE ||
-+	    base_type(arg_type) == ARG_PTR_TO_UNINIT_MAP_VALUE) {
- 		err = resolve_map_arg_type(env, meta, &arg_type);
- 		if (err)
- 			return err;
- 	}
- 
--	if (register_is_null(reg) && arg_type_may_be_null(arg_type))
-+	if (register_is_null(reg) && type_may_be_null(arg_type))
- 		/* A NULL register has a SCALAR_VALUE type, so skip
- 		 * type checking.
- 		 */
-@@ -5128,10 +5116,11 @@ skip_type_check:
- 		err = check_helper_mem_access(env, regno,
- 					      meta->map_ptr->key_size, false,
- 					      NULL);
--	} else if (arg_type == ARG_PTR_TO_MAP_VALUE ||
--		   (arg_type == ARG_PTR_TO_MAP_VALUE_OR_NULL &&
--		    !register_is_null(reg)) ||
--		   arg_type == ARG_PTR_TO_UNINIT_MAP_VALUE) {
-+	} else if (base_type(arg_type) == ARG_PTR_TO_MAP_VALUE ||
-+		   base_type(arg_type) == ARG_PTR_TO_UNINIT_MAP_VALUE) {
-+		if (type_may_be_null(arg_type) && register_is_null(reg))
-+			return 0;
-+
- 		/* bpf_map_xxx(..., map_ptr, ..., value) call:
- 		 * check [value, value + map->value_size) validity
- 		 */
 
 
