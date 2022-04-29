@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91260514708
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C78F514703
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:44:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357885AbiD2Kp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:45:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59112 "EHLO
+        id S1357771AbiD2Kp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:45:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357770AbiD2Kpb (ORCPT
+        with ESMTP id S1357767AbiD2Kpb (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:45:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70558C74BB;
-        Fri, 29 Apr 2022 03:42:07 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E2EC6665;
+        Fri, 29 Apr 2022 03:42:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C03F5B8344F;
-        Fri, 29 Apr 2022 10:42:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17877C385AD;
-        Fri, 29 Apr 2022 10:42:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7AD762323;
+        Fri, 29 Apr 2022 10:42:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7571C385A4;
+        Fri, 29 Apr 2022 10:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651228924;
-        bh=0F6TBKnCFr61BEFHyfLR4wJLAhzXc4xMHSmn3xx8ndw=;
+        s=korg; t=1651228927;
+        bh=kO4IqmqhecTTjI1c3QBs2oCIiXGINhsrdjQ9SKOwUmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJzbRBc0A1bdKmgxeKVJCJd/pk3vXMowgx9sv+voh8lQrZZZRn85xI7PHidR24aMA
-         KH+FRiqJMH+WVzQNCPo1te0CtW4zLfUEKDpXtxmq7WN4gjR8+EC4ub09YUtJxe1ElN
-         xxOMWz1Any2QDnpDLHdlDIJwFpNSSNi9YoKToIgc=
+        b=Y3Xi00JKod735NHm4kAYcoZrLXU5Q2u7D+xvJzQE5SIly1t3abslFrPY9Ct/1zjrl
+         lUv6fySA9nNHuXufiAMZeJbUrYOsMHmZZMLNkgWffj5Ye1xMHpshniVPToAJJEoPj7
+         PB8uf2OQTTavGQZi+B39uodJTXkMxrLaXNRdJ4KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 07/12] powerpc/64s: Unmerge EX_LR and EX_DAR
-Date:   Fri, 29 Apr 2022 12:41:24 +0200
-Message-Id: <20220429104048.675722620@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [PATCH 4.19 08/12] Revert "ia64: kprobes: Fix to pass correct trampoline address to the handler"
+Date:   Fri, 29 Apr 2022 12:41:25 +0200
+Message-Id: <20220429104048.703832413@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104048.459089941@linuxfoundation.org>
 References: <20220429104048.459089941@linuxfoundation.org>
@@ -51,117 +51,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-The SLB miss handler is not fully re-entrant, it is able to work because
-we ensure that the SLB entries for the kernel text and data segment, as
-well as the kernel stack are pinned in the SLB. Accesses to kernel data
-outside of those areas has to be carefully managed and can only occur in
-certain parts of the code. One way we deal with that is by storing some
-values in temporary slots in the paca.
+This reverts commit f5f96e3643dc33d6117cf7047e73512046e4858b.
 
-In v4.13 in commit dbeea1d6b4bd ("powerpc/64s/paca: EX_LR can be merged
-with EX_DAR") we merged the storage for two temporary slots for register
-storage during SLB miss handling. That was safe at the time because the
-two slots were never used at the same time.
+The commit f5f96e3643dc ("ia64: kprobes: Fix to pass correct trampoline
+address to the handler") was wrongly backported. It involves another
+commit which is a part of another bigger series, so it should not be
+backported to the stable tree.
 
-Unfortunately in v4.17 in commit c2b4d8b7417a ("powerpc/mm/hash64:
-Increase the VA range") we broke that condition, and introduced a case
-where the two slots could be in use at the same time, leading to one
-being corrupted.
-
-Specifically in slb_miss_common() when we detect that we're handling a
-fault for a large virtual address (> 512TB) we go to the "8" label,
-there we store the original fault address into paca->exslb[EX_DAR],
-before jumping to large_addr_slb() (using rfid).
-
-We then use the EXCEPTION_PROLOG_COMMON and RECONCILE_IRQ_STATE macros
-to do exception setup, before reloading the fault address from
-paca->exslb[EX_DAR] and storing it into pt_regs->dar (Data Address
-Register).
-
-However the code generated by those macros can cause a recursive SLB
-miss on a kernel address in three places.
-
-Firstly is the saving of the PPR (Program Priority Register), which
-happens on all CPUs since Power7, the PPR is saved to the thread struct
-which can be anywhere in memory. There is also the call to
-accumulate_stolen_time() if CONFIG_VIRT_CPU_ACCOUNTING_NATIVE=y and
-CONFIG_PPC_SPLPAR=y, and also the call to trace_hardirqs_off() if
-CONFIG_TRACE_IRQFLAGS=y. The latter two call into generic C code and can
-lead to accesses anywhere in memory.
-
-On modern 64-bit CPUs we have 1TB segments, so for any of those accesses
-to cause an SLB fault they must access memory more than 1TB away from
-the kernel text, data and kernel stack. That typically only happens on
-machines with more than 1TB of RAM. However it is possible on multi-node
-Power9 systems, because memory on the 2nd node begins at 32TB in the
-linear mapping.
-
-If we take a recursive SLB fault then we will corrupt the original fault
-address with the LR (Link Register) value, because the EX_DAR and EX_LR
-slots share storage. Subsequently we will think we're trying to fault
-that LR address, which is the wrong address, and will also mostly likely
-lead to a segfault because the LR address will be < 512TB and so will be
-rejected by slb_miss_large_addr().
-
-This appears as a spurious segfault to userspace, and if
-show_unhandled_signals is enabled you will see a fault reported in dmesg
-with the LR address, not the expected fault address, eg:
-
-  prog[123]: segfault (11) at 128a61808 nip 128a618cc lr 128a61808 code 3 in prog[128a60000+10000]
-  prog[123]: code: 4bffffa4 39200040 3ce00004 7d2903a6 3c000200 78e707c6 780083e4 7d3b4b78
-  prog[123]: code: 7d455378 7d7d5b78 7d9f6378 7da46b78 <f8670000> 7d3a4b78 7d465378 7d7c5b78
-
-Notice that the fault address == the LR, and the faulting instruction is
-a simple store that should never use LR.
-
-In upstream this was fixed in v4.20 in commit
-48e7b7695745 ("powerpc/64s/hash: Convert SLB miss handlers to C"),
-however that is a huge rewrite and not backportable.
-
-The minimal fix for stable is to just unmerge the EX_LR and EX_DAR slots
-again, avoiding the corruption of the DAR value. This uses an extra 8
-bytes per CPU, which is negligble.
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/exception-64s.h |   15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ arch/ia64/kernel/kprobes.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/include/asm/exception-64s.h
-+++ b/arch/powerpc/include/asm/exception-64s.h
-@@ -48,11 +48,12 @@
- #define EX_CCR		52
- #define EX_CFAR		56
- #define EX_PPR		64
-+#define EX_LR		72
- #if defined(CONFIG_RELOCATABLE)
--#define EX_CTR		72
--#define EX_SIZE		10	/* size in u64 units */
-+#define EX_CTR		80
-+#define EX_SIZE		11	/* size in u64 units */
- #else
--#define EX_SIZE		9	/* size in u64 units */
-+#define EX_SIZE		10	/* size in u64 units */
- #endif
+--- a/arch/ia64/kernel/kprobes.c
++++ b/arch/ia64/kernel/kprobes.c
+@@ -411,8 +411,7 @@ static void kretprobe_trampoline(void)
  
- /*
-@@ -61,14 +62,6 @@
- #define MAX_MCE_DEPTH	4
+ int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+ {
+-	regs->cr_iip = __kretprobe_trampoline_handler(regs,
+-		dereference_function_descriptor(kretprobe_trampoline), NULL);
++	regs->cr_iip = __kretprobe_trampoline_handler(regs, kretprobe_trampoline, NULL);
+ 	/*
+ 	 * By returning a non-zero value, we are telling
+ 	 * kprobe_handler() that we don't want the post_handler
+@@ -428,7 +427,7 @@ void __kprobes arch_prepare_kretprobe(st
+ 	ri->fp = NULL;
  
- /*
-- * EX_LR is only used in EXSLB and where it does not overlap with EX_DAR
-- * EX_CCR similarly with DSISR, but being 4 byte registers there is a hole
-- * in the save area so it's not necessary to overlap them. Could be used
-- * for future savings though if another 4 byte register was to be saved.
-- */
--#define EX_LR		EX_DAR
--
--/*
-  * EX_R3 is only used by the bad_stack handler. bad_stack reloads and
-  * saves DAR from SPRN_DAR, and EX_DAR is not used. So EX_R3 can overlap
-  * with EX_DAR.
+ 	/* Replace the return addr with trampoline addr */
+-	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
++	regs->b0 = ((struct fnptr *)kretprobe_trampoline)->ip;
+ }
+ 
+ /* Check the instruction in the slot is break */
+@@ -958,14 +957,14 @@ static struct kprobe trampoline_p = {
+ int __init arch_init_kprobes(void)
+ {
+ 	trampoline_p.addr =
+-		dereference_function_descriptor(kretprobe_trampoline);
++		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip;
+ 	return register_kprobe(&trampoline_p);
+ }
+ 
+ int __kprobes arch_trampoline_kprobe(struct kprobe *p)
+ {
+ 	if (p->addr ==
+-		dereference_function_descriptor(kretprobe_trampoline))
++		(kprobe_opcode_t *)((struct fnptr *)kretprobe_trampoline)->ip)
+ 		return 1;
+ 
+ 	return 0;
 
 
