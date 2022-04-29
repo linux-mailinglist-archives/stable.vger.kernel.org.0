@@ -2,91 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AEAF5154CF
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 21:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEEE1515591
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 22:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359116AbiD2Tnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 15:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45018 "EHLO
+        id S1380676AbiD2Ub5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 16:31:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380372AbiD2Tne (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 15:43:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05D3205FC;
-        Fri, 29 Apr 2022 12:40:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S232546AbiD2Ub4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 16:31:56 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DE13D5EA5;
+        Fri, 29 Apr 2022 13:28:37 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 830166118F;
-        Fri, 29 Apr 2022 19:40:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E62EDC385A7;
-        Fri, 29 Apr 2022 19:40:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651261213;
-        bh=8Gm/sQflVpRRENHPWvy4rbuw1D2BbVEEUkqIZOebixk=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=NuDHV13rHTsltDA7rnEH+kO7qIqhJG1Diu0o8cwsh7fR8pWuG8LF3f7aQpf+ukpIW
-         W0TQambQ9gkHCG7ZACgtwgNCeKjcnKeIHOQJrfrxpa2nOjVzBv3x2QMiGFhftLtxMA
-         7cbXOBbMqcY1O1/UImEU1nzxCw5vqkDcLaU4fkvwQeq9Mo+JZBIO8jq90A1Ij4+p7q
-         S5xUlyyYcZwMDId/eRSBOgJHRUIu5ErVCLeDsm9rd2s/iopo8ISle0Th/R07FME82x
-         8w9RI0BGaWCgROIFiRQuk/NcnhC+yRJXz21d2yAv7EfZy0mby49I8iR43F113L3tgX
-         fmhSn8YHXdYcQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CC39CEAC09C;
-        Fri, 29 Apr 2022 19:40:12 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 2A2821F894;
+        Fri, 29 Apr 2022 20:28:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1651264116;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Hc9AaVP53iHZIiBs2rA9+w/nGzXOcurXV1kB68peBLg=;
+        b=v8IRUwo90EMDMmw4mKD/0Qric38qC+/BbIyY097qvhboxiiZO8QY0W+xtezkyCDXxcdA3P
+        AkXdgLjvPxqJwXxKcd0xbO44nrVgnlv1GuUiUb0mPcCRLfwxwnIaYXgz54sqNT5DD9mQNA
+        BoYhwW6L3/0iuQ7nv7k3ba32bMHwTWk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1651264116;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+         cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Hc9AaVP53iHZIiBs2rA9+w/nGzXOcurXV1kB68peBLg=;
+        b=uVScP6cP4wwieDg5J1mW3VneGdtOKt9kMETG5GociDauqToO6MLdF1gd1A0qdJnmcbPlPS
+        PUl6NOHDVdXgXxCw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id EB1DB13446;
+        Fri, 29 Apr 2022 20:28:35 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id sXV8OHNKbGIhFAAAMHmgww
+        (envelope-from <dsterba@suse.cz>); Fri, 29 Apr 2022 20:28:35 +0000
+Date:   Fri, 29 Apr 2022 22:24:27 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Qu Wenruo <wqu@suse.com>
+Cc:     linux-btrfs@vger.kernel.org, Matt Corallo <blnxfsl@bluematt.me>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] btrfs: force v2 space cache usage for subpage mount
+Message-ID: <20220429202427.GJ18596@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Qu Wenruo <wqu@suse.com>,
+        linux-btrfs@vger.kernel.org, Matt Corallo <blnxfsl@bluematt.me>,
+        stable@vger.kernel.org
+References: <1f622305ee7ecb3b6ec09f878c26ad0446e18311.1648798164.git.wqu@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 1/5] can: isotp: remove re-binding of bound socket
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <165126121283.7558.15534576695235848293.git-patchwork-notify@kernel.org>
-Date:   Fri, 29 Apr 2022 19:40:12 +0000
-References: <20220429125612.1792561-2-mkl@pengutronix.de>
-In-Reply-To: <20220429125612.1792561-2-mkl@pengutronix.de>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux-can@vger.kernel.org, kernel@pengutronix.de,
-        socketcan@hartkopp.net, stable@vger.kernel.org
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1f622305ee7ecb3b6ec09f878c26ad0446e18311.1648798164.git.wqu@suse.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This series was applied to netdev/net.git (master)
-by Marc Kleine-Budde <mkl@pengutronix.de>:
-
-On Fri, 29 Apr 2022 14:56:08 +0200 you wrote:
-> From: Oliver Hartkopp <socketcan@hartkopp.net>
+On Fri, Apr 01, 2022 at 03:29:37PM +0800, Qu Wenruo wrote:
+> [BUG]
+> For a 4K sector sized btrfs with v1 cache enabled and only mounted on
+> systems with 4K page size, if it's mounted on subpage (64K page size)
+> systems, it can cause the following warning on v1 space cache:
 > 
-> As a carry over from the CAN_RAW socket (which allows to change the CAN
-> interface while mantaining the filter setup) the re-binding of the
-> CAN_ISOTP socket needs to take care about CAN ID address information and
-> subscriptions. It turned out that this feature is so limited (e.g. the
-> sockopts remain fix) that it finally has never been needed/used.
+>  BTRFS error (device dm-1): csum mismatch on free space cache
+>  BTRFS warning (device dm-1): failed to load free space cache for block group 84082688, rebuilding it now
 > 
-> [...]
+> Although not a big deal, as kernel can rebuild it without problem, such
+> warning will bother end users, especially if they want to switch the
+> same btrfs seamlessly between different page sized systems.
+> 
+> [CAUSE]
+> V1 free space cache is still using fixed PAGE_SIZE for various bitmap,
+> like BITS_PER_BITMAP.
+> 
+> Such hard-coded PAGE_SIZE usage will cause various mismatch, from v1
+> cache size to checksum.
+> 
+> Thus kernel will always reject v1 cache with a different PAGE_SIZE with
+> csum mismatch.
+> 
+> [FIX]
+> Although we should fix v1 cache, it's already going to be marked
+> deprecated soon.
+> 
+> And we have v2 cache based on metadata (which is already fully subpage
+> compatible), and it has almost everything superior than v1 cache.
+> 
+> So just force subpage mount to use v2 cache on mount.
+> 
+> Reported-by: Matt Corallo <blnxfsl@bluematt.me>
+> CC: stable@vger.kernel.org # 5.15+
+> Link: https://lore.kernel.org/linux-btrfs/61aa27d1-30fc-c1a9-f0f4-9df544395ec3@bluematt.me/
+> Signed-off-by: Qu Wenruo <wqu@suse.com>
 
-Here is the summary with links:
-  - [net,1/5] can: isotp: remove re-binding of bound socket
-    https://git.kernel.org/netdev/net/c/72ed3ee9fa0b
-  - [net,2/5] can: grcan: grcan_close(): fix deadlock
-    https://git.kernel.org/netdev/net/c/47f070a63e73
-  - [net,3/5] can: grcan: use ofdev->dev when allocating DMA memory
-    https://git.kernel.org/netdev/net/c/101da4268626
-  - [net,4/5] can: grcan: grcan_probe(): fix broken system id check for errata workaround needs
-    https://git.kernel.org/netdev/net/c/1e93ed26acf0
-  - [net,5/5] can: grcan: only use the NAPI poll budget for RX
-    https://git.kernel.org/netdev/net/c/2873d4d52f7c
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Added to misc-next, thanks.
