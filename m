@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CC7B51474F
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:50:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62D6A514755
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 12:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233440AbiD2KtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 06:49:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60000 "EHLO
+        id S1358148AbiD2KtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 06:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358088AbiD2KsS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:48:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3C51C8A83;
-        Fri, 29 Apr 2022 03:43:41 -0700 (PDT)
+        with ESMTP id S1358212AbiD2Ks5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 06:48:57 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B83BC8BCA;
+        Fri, 29 Apr 2022 03:44:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01DD660DE9;
-        Fri, 29 Apr 2022 10:43:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8436C385A4;
-        Fri, 29 Apr 2022 10:43:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 87F23CE31AD;
+        Fri, 29 Apr 2022 10:44:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A1FDC385A4;
+        Fri, 29 Apr 2022 10:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651229020;
-        bh=Cc4bwEM5ZvakBvbRo2P3NpCCXdt4Zuwj1eVdDCGqlDE=;
+        s=korg; t=1651229046;
+        bh=xdLcGSFgeD/hce6ftZaN2X8YgTAMN42pVZmyF6hUKzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVzpLfeogDTz795soTtwXCNS+5OQgen93DhK+TIvabSMclW2qDnA6NSJm+Y4Ga61M
-         4s3vEEwx382KB3KLzM5Aq4JtRZvYa190Glo/IcHPSpAqCx6rQ5cv82NAN1y8p8wKbr
-         XVIfm2p53sQsDiHWGVJr08K9NIRkjV+8NtPHt5w8=
+        b=cYb99I/dE7ZSC1s3k6qlrodmPe1S9xmMa2twkB2iKwAe3vkrCQNp45v1aZP6Vadv+
+         tGH3uU0bfROxK9Ig7Qp1v10OEvfLM27G49MUu3Tp+tv7yKfXvg8OCrhR5sNT+cr79t
+         TOGwCIrhzClPs2uobaLnsrKwGQjT8PvCf9QcHX/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Anand Jain <anand.jain@oracle.com>
-Subject: [PATCH 5.15 31/33] btrfs: fallback to blocking mode when doing async dio over multiple extents
-Date:   Fri, 29 Apr 2022 12:42:18 +0200
-Message-Id: <20220429104053.239796659@linuxfoundation.org>
+        David Hildenbrand <david@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Anand Jain <anand.jain@oracle.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.15 32/33] mm: gup: make fault_in_safe_writeable() use fixup_user_fault()
+Date:   Fri, 29 Apr 2022 12:42:19 +0200
+Message-Id: <20220429104053.267876141@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
 References: <20220429104052.345760505@linuxfoundation.org>
@@ -54,319 +54,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit ca93e44bfb5fd7996b76f0f544999171f647f93b upstream
+commit fe673d3f5bf1fc50cdc4b754831db91a2ec10126 upstream
 
-Some users recently reported that MariaDB was getting a read corruption
-when using io_uring on top of btrfs. This started to happen in 5.16,
-after commit 51bd9563b6783d ("btrfs: fix deadlock due to page faults
-during direct IO reads and writes"). That changed btrfs to use the new
-iomap flag IOMAP_DIO_PARTIAL and to disable page faults before calling
-iomap_dio_rw(). This was necessary to fix deadlocks when the iovector
-corresponds to a memory mapped file region. That type of scenario is
-exercised by test case generic/647 from fstests.
+Instead of using GUP, make fault_in_safe_writeable() actually force a
+'handle_mm_fault()' using the same fixup_user_fault() machinery that
+futexes already use.
 
-For this MariaDB scenario, we attempt to read 16K from file offset X
-using IOCB_NOWAIT and io_uring. In that range we have 4 extents, each
-with a size of 4K, and what happens is the following:
+Using the GUP machinery meant that fault_in_safe_writeable() did not do
+everything that a real fault would do, ranging from not auto-expanding
+the stack segment, to not updating accessed or dirty flags in the page
+tables (GUP sets those flags on the pages themselves).
 
-1) btrfs_direct_read() disables page faults and calls iomap_dio_rw();
+The latter causes problems on architectures (like s390) that do accessed
+bit handling in software, which meant that fault_in_safe_writeable()
+didn't actually do all the fault handling it needed to, and trying to
+access the user address afterwards would still cause faults.
 
-2) iomap creates a struct iomap_dio object, its reference count is
-   initialized to 1 and its ->size field is initialized to 0;
-
-3) iomap calls btrfs_dio_iomap_begin() with file offset X, which finds
-   the first 4K extent, and setups an iomap for this extent consisting
-   of a single page;
-
-4) At iomap_dio_bio_iter(), we are able to access the first page of the
-   buffer (struct iov_iter) with bio_iov_iter_get_pages() without
-   triggering a page fault;
-
-5) iomap submits a bio for this 4K extent
-   (iomap_dio_submit_bio() -> btrfs_submit_direct()) and increments
-   the refcount on the struct iomap_dio object to 2; The ->size field
-   of the struct iomap_dio object is incremented to 4K;
-
-6) iomap calls btrfs_iomap_begin() again, this time with a file
-   offset of X + 4K. There we setup an iomap for the next extent
-   that also has a size of 4K;
-
-7) Then at iomap_dio_bio_iter() we call bio_iov_iter_get_pages(),
-   which tries to access the next page (2nd page) of the buffer.
-   This triggers a page fault and returns -EFAULT;
-
-8) At __iomap_dio_rw() we see the -EFAULT, but we reset the error
-   to 0 because we passed the flag IOMAP_DIO_PARTIAL to iomap and
-   the struct iomap_dio object has a ->size value of 4K (we submitted
-   a bio for an extent already). The 'wait_for_completion' variable
-   is not set to true, because our iocb has IOCB_NOWAIT set;
-
-9) At the bottom of __iomap_dio_rw(), we decrement the reference count
-   of the struct iomap_dio object from 2 to 1. Because we were not
-   the only ones holding a reference on it and 'wait_for_completion' is
-   set to false, -EIOCBQUEUED is returned to btrfs_direct_read(), which
-   just returns it up the callchain, up to io_uring;
-
-10) The bio submitted for the first extent (step 5) completes and its
-    bio endio function, iomap_dio_bio_end_io(), decrements the last
-    reference on the struct iomap_dio object, resulting in calling
-    iomap_dio_complete_work() -> iomap_dio_complete().
-
-11) At iomap_dio_complete() we adjust the iocb->ki_pos from X to X + 4K
-    and return 4K (the amount of io done) to iomap_dio_complete_work();
-
-12) iomap_dio_complete_work() calls the iocb completion callback,
-    iocb->ki_complete() with a second argument value of 4K (total io
-    done) and the iocb with the adjust ki_pos of X + 4K. This results
-    in completing the read request for io_uring, leaving it with a
-    result of 4K bytes read, and only the first page of the buffer
-    filled in, while the remaining 3 pages, corresponding to the other
-    3 extents, were not filled;
-
-13) For the application, the result is unexpected because if we ask
-    to read N bytes, it expects to get N bytes read as long as those
-    N bytes don't cross the EOF (i_size).
-
-MariaDB reports this as an error, as it's not expecting a short read,
-since it knows it's asking for read operations fully within the i_size
-boundary. This is typical in many applications, but it may also be
-questionable if they should react to such short reads by issuing more
-read calls to get the remaining data. Nevertheless, the short read
-happened due to a change in btrfs regarding how it deals with page
-faults while in the middle of a read operation, and there's no reason
-why btrfs can't have the previous behaviour of returning the whole data
-that was requested by the application.
-
-The problem can also be triggered with the following simple program:
-
-  /* Get O_DIRECT */
-  #ifndef _GNU_SOURCE
-  #define _GNU_SOURCE
-  #endif
-
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <unistd.h>
-  #include <fcntl.h>
-  #include <errno.h>
-  #include <string.h>
-  #include <liburing.h>
-
-  int main(int argc, char *argv[])
-  {
-      char *foo_path;
-      struct io_uring ring;
-      struct io_uring_sqe *sqe;
-      struct io_uring_cqe *cqe;
-      struct iovec iovec;
-      int fd;
-      long pagesize;
-      void *write_buf;
-      void *read_buf;
-      ssize_t ret;
-      int i;
-
-      if (argc != 2) {
-          fprintf(stderr, "Use: %s <directory>\n", argv[0]);
-          return 1;
-      }
-
-      foo_path = malloc(strlen(argv[1]) + 5);
-      if (!foo_path) {
-          fprintf(stderr, "Failed to allocate memory for file path\n");
-          return 1;
-      }
-      strcpy(foo_path, argv[1]);
-      strcat(foo_path, "/foo");
-
-      /*
-       * Create file foo with 2 extents, each with a size matching
-       * the page size. Then allocate a buffer to read both extents
-       * with io_uring, using O_DIRECT and IOCB_NOWAIT. Before doing
-       * the read with io_uring, access the first page of the buffer
-       * to fault it in, so that during the read we only trigger a
-       * page fault when accessing the second page of the buffer.
-       */
-       fd = open(foo_path, O_CREAT | O_TRUNC | O_WRONLY |
-                O_DIRECT, 0666);
-       if (fd == -1) {
-           fprintf(stderr,
-                   "Failed to create file 'foo': %s (errno %d)",
-                   strerror(errno), errno);
-           return 1;
-       }
-
-       pagesize = sysconf(_SC_PAGE_SIZE);
-       ret = posix_memalign(&write_buf, pagesize, 2 * pagesize);
-       if (ret) {
-           fprintf(stderr, "Failed to allocate write buffer\n");
-           return 1;
-       }
-
-       memset(write_buf, 0xab, pagesize);
-       memset(write_buf + pagesize, 0xcd, pagesize);
-
-       /* Create 2 extents, each with a size matching page size. */
-       for (i = 0; i < 2; i++) {
-           ret = pwrite(fd, write_buf + i * pagesize, pagesize,
-                        i * pagesize);
-           if (ret != pagesize) {
-               fprintf(stderr,
-                     "Failed to write to file, ret = %ld errno %d (%s)\n",
-                      ret, errno, strerror(errno));
-               return 1;
-           }
-           ret = fsync(fd);
-           if (ret != 0) {
-               fprintf(stderr, "Failed to fsync file\n");
-               return 1;
-           }
-       }
-
-       close(fd);
-       fd = open(foo_path, O_RDONLY | O_DIRECT);
-       if (fd == -1) {
-           fprintf(stderr,
-                   "Failed to open file 'foo': %s (errno %d)",
-                   strerror(errno), errno);
-           return 1;
-       }
-
-       ret = posix_memalign(&read_buf, pagesize, 2 * pagesize);
-       if (ret) {
-           fprintf(stderr, "Failed to allocate read buffer\n");
-           return 1;
-       }
-
-       /*
-        * Fault in only the first page of the read buffer.
-        * We want to trigger a page fault for the 2nd page of the
-        * read buffer during the read operation with io_uring
-        * (O_DIRECT and IOCB_NOWAIT).
-        */
-       memset(read_buf, 0, 1);
-
-       ret = io_uring_queue_init(1, &ring, 0);
-       if (ret != 0) {
-           fprintf(stderr, "Failed to create io_uring queue\n");
-           return 1;
-       }
-
-       sqe = io_uring_get_sqe(&ring);
-       if (!sqe) {
-           fprintf(stderr, "Failed to get io_uring sqe\n");
-           return 1;
-       }
-
-       iovec.iov_base = read_buf;
-       iovec.iov_len = 2 * pagesize;
-       io_uring_prep_readv(sqe, fd, &iovec, 1, 0);
-
-       ret = io_uring_submit_and_wait(&ring, 1);
-       if (ret != 1) {
-           fprintf(stderr,
-                   "Failed at io_uring_submit_and_wait()\n");
-           return 1;
-       }
-
-       ret = io_uring_wait_cqe(&ring, &cqe);
-       if (ret < 0) {
-           fprintf(stderr, "Failed at io_uring_wait_cqe()\n");
-           return 1;
-       }
-
-       printf("io_uring read result for file foo:\n\n");
-       printf("  cqe->res == %d (expected %d)\n", cqe->res, 2 * pagesize);
-       printf("  memcmp(read_buf, write_buf) == %d (expected 0)\n",
-              memcmp(read_buf, write_buf, 2 * pagesize));
-
-       io_uring_cqe_seen(&ring, cqe);
-       io_uring_queue_exit(&ring);
-
-       return 0;
-  }
-
-When running it on an unpatched kernel:
-
-  $ gcc io_uring_test.c -luring
-  $ mkfs.btrfs -f /dev/sda
-  $ mount /dev/sda /mnt/sda
-  $ ./a.out /mnt/sda
-  io_uring read result for file foo:
-
-    cqe->res == 4096 (expected 8192)
-    memcmp(read_buf, write_buf) == -205 (expected 0)
-
-After this patch, the read always returns 8192 bytes, with the buffer
-filled with the correct data. Although that reproducer always triggers
-the bug in my test vms, it's possible that it will not be so reliable
-on other environments, as that can happen if the bio for the first
-extent completes and decrements the reference on the struct iomap_dio
-object before we do the atomic_dec_and_test() on the reference at
-__iomap_dio_rw().
-
-Fix this in btrfs by having btrfs_dio_iomap_begin() return -EAGAIN
-whenever we try to satisfy a non blocking IO request (IOMAP_NOWAIT flag
-set) over a range that spans multiple extents (or a mix of extents and
-holes). This avoids returning success to the caller when we only did
-partial IO, which is not optimal for writes and for reads it's actually
-incorrect, as the caller doesn't expect to get less bytes read than it has
-requested (unless EOF is crossed), as previously mentioned. This is also
-the type of behaviour that xfs follows (xfs_direct_write_iomap_begin()),
-even though it doesn't use IOMAP_DIO_PARTIAL.
-
-A test case for fstests will follow soon.
-
-Link: https://lore.kernel.org/linux-btrfs/CABVffEM0eEWho+206m470rtM0d9J8ue85TtR-A_oVTuGLWFicA@mail.gmail.com/
-Link: https://lore.kernel.org/linux-btrfs/CAHF2GV6U32gmqSjLe=XKgfcZAmLCiH26cJ2OnHGp5x=VAH4OHQ@mail.gmail.com/
-CC: stable@vger.kernel.org # 5.16+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-and-tested-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: cdd591fc86e3 ("iov_iter: Introduce fault_in_iov_iter_writeable")
+Link: https://lore.kernel.org/all/CAHc6FU5nP+nziNGG0JAF1FUx-GV7kKFvM7aZuU_XD2_1v4vnvg@mail.gmail.com/
+Acked-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |   28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ mm/gup.c |   57 +++++++++++++++++++--------------------------------------
+ 1 file changed, 19 insertions(+), 38 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -7961,6 +7961,34 @@ static int btrfs_dio_iomap_begin(struct
- 	}
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -1723,11 +1723,11 @@ EXPORT_SYMBOL(fault_in_writeable);
+  * @uaddr: start of address range
+  * @size: length of address range
+  *
+- * Faults in an address range using get_user_pages, i.e., without triggering
+- * hardware page faults.  This is primarily useful when we already know that
+- * some or all of the pages in the address range aren't in memory.
++ * Faults in an address range for writing.  This is primarily useful when we
++ * already know that some or all of the pages in the address range aren't in
++ * memory.
+  *
+- * Other than fault_in_writeable(), this function is non-destructive.
++ * Unlike fault_in_writeable(), this function is non-destructive.
+  *
+  * Note that we don't pin or otherwise hold the pages referenced that we fault
+  * in.  There's no guarantee that they'll stay in memory for any duration of
+@@ -1738,46 +1738,27 @@ EXPORT_SYMBOL(fault_in_writeable);
+  */
+ size_t fault_in_safe_writeable(const char __user *uaddr, size_t size)
+ {
+-	unsigned long start = (unsigned long)untagged_addr(uaddr);
+-	unsigned long end, nstart, nend;
++	unsigned long start = (unsigned long)uaddr, end;
+ 	struct mm_struct *mm = current->mm;
+-	struct vm_area_struct *vma = NULL;
+-	int locked = 0;
++	bool unlocked = false;
  
- 	len = min(len, em->len - (start - em->start));
+-	nstart = start & PAGE_MASK;
++	if (unlikely(size == 0))
++		return 0;
+ 	end = PAGE_ALIGN(start + size);
+-	if (end < nstart)
++	if (end < start)
+ 		end = 0;
+-	for (; nstart != end; nstart = nend) {
+-		unsigned long nr_pages;
+-		long ret;
+ 
+-		if (!locked) {
+-			locked = 1;
+-			mmap_read_lock(mm);
+-			vma = find_vma(mm, nstart);
+-		} else if (nstart >= vma->vm_end)
+-			vma = vma->vm_next;
+-		if (!vma || vma->vm_start >= end)
+-			break;
+-		nend = end ? min(end, vma->vm_end) : vma->vm_end;
+-		if (vma->vm_flags & (VM_IO | VM_PFNMAP))
+-			continue;
+-		if (nstart < vma->vm_start)
+-			nstart = vma->vm_start;
+-		nr_pages = (nend - nstart) / PAGE_SIZE;
+-		ret = __get_user_pages_locked(mm, nstart, nr_pages,
+-					      NULL, NULL, &locked,
+-					      FOLL_TOUCH | FOLL_WRITE);
+-		if (ret <= 0)
++	mmap_read_lock(mm);
++	do {
++		if (fixup_user_fault(mm, start, FAULT_FLAG_WRITE, &unlocked))
+ 			break;
+-		nend = nstart + ret * PAGE_SIZE;
+-	}
+-	if (locked)
+-		mmap_read_unlock(mm);
+-	if (nstart == end)
+-		return 0;
+-	return size - min_t(size_t, nstart - start, size);
++		start = (start + PAGE_SIZE) & PAGE_MASK;
++	} while (start != end);
++	mmap_read_unlock(mm);
 +
-+	/*
-+	 * If we have a NOWAIT request and the range contains multiple extents
-+	 * (or a mix of extents and holes), then we return -EAGAIN to make the
-+	 * caller fallback to a context where it can do a blocking (without
-+	 * NOWAIT) request. This way we avoid doing partial IO and returning
-+	 * success to the caller, which is not optimal for writes and for reads
-+	 * it can result in unexpected behaviour for an application.
-+	 *
-+	 * When doing a read, because we use IOMAP_DIO_PARTIAL when calling
-+	 * iomap_dio_rw(), we can end up returning less data then what the caller
-+	 * asked for, resulting in an unexpected, and incorrect, short read.
-+	 * That is, the caller asked to read N bytes and we return less than that,
-+	 * which is wrong unless we are crossing EOF. This happens if we get a
-+	 * page fault error when trying to fault in pages for the buffer that is
-+	 * associated to the struct iov_iter passed to iomap_dio_rw(), and we
-+	 * have previously submitted bios for other extents in the range, in
-+	 * which case iomap_dio_rw() may return us EIOCBQUEUED if not all of
-+	 * those bios have completed by the time we get the page fault error,
-+	 * which we return back to our caller - we should only return EIOCBQUEUED
-+	 * after we have submitted bios for all the extents in the range.
-+	 */
-+	if ((flags & IOMAP_NOWAIT) && len < length) {
-+		free_extent_map(em);
-+		ret = -EAGAIN;
-+		goto unlock_err;
-+	}
-+
- 	if (write) {
- 		ret = btrfs_get_blocks_direct_write(&em, inode, dio_data,
- 						    start, len);
++	if (size > (unsigned long)uaddr - start)
++		return size - ((unsigned long)uaddr - start);
++	return 0;
+ }
+ EXPORT_SYMBOL(fault_in_safe_writeable);
+ 
 
 
