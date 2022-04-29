@@ -2,287 +2,237 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 727C751561B
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 22:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA582515683
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 23:14:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380986AbiD2Uw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 16:52:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33850 "EHLO
+        id S234391AbiD2VRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 17:17:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347507AbiD2Uw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 16:52:56 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A393852E2
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 13:49:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1651265377; x=1682801377;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ih+1nzoQ7hxFd7Rz+ZfVh6AGJb2PhuPDzqwMX0Dt3M8=;
-  b=EQN8tvuA590RJD/1DgeE/6TTuu3+Y+wiTkhL3OfbM+gcRPe+3LntVjxx
-   LS87RlnuTMvmrqMRxko9saPCBhctI+hwzz7lE1ieWNxWZDAZ1HlVl+FJe
-   LixOR5cDrjY0DJM7FrqhUz7Wc47QJysBYb6pg5njK2y4eynCgf71T463G
-   ZhSeWtpFTMlFQPf3GsgVy14H49RHX5VUmRYEhSun1cFbulzoNj4ycQn8f
-   foIu9P7TPCbe87zNT4Z9HQc5fgEQ92nms5rUG0eU/0pm7AF8LRjJRnSx3
-   FTwsoDL9xjI56MzKeW30P9OfVTFhybXY6HWQ+znBsczyF5WZFIEsscYuS
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10332"; a="329717523"
-X-IronPort-AV: E=Sophos;i="5.91,186,1647327600"; 
-   d="scan'208";a="329717523"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2022 13:49:37 -0700
-X-IronPort-AV: E=Sophos;i="5.91,186,1647327600"; 
-   d="scan'208";a="732268387"
-Received: from ticede-or-098.amr.corp.intel.com (HELO ldmartin-desk2) ([10.212.231.141])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2022 13:49:37 -0700
-Date:   Fri, 29 Apr 2022 13:49:37 -0700
-From:   Lucas De Marchi <lucas.demarchi@intel.com>
-To:     "Srivatsa, Anusha" <anusha.srivatsa@intel.com>
-Cc:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] drm/i915/dmc: Add MMIO range restrictions
-Message-ID: <20220429204937.ntnicwggcgobmmon@ldmartin-desk2>
-X-Patchwork-Hint: comment
-References: <20220427003509.267683-1-anusha.srivatsa@intel.com>
- <20220427054154.mrila5bwwk2durvv@ldmartin-desk2>
- <93b22db44cf7494086285212d5d7615a@intel.com>
+        with ESMTP id S234108AbiD2VRe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 17:17:34 -0400
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9085D3AD7
+        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 14:14:14 -0700 (PDT)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-2f7bb893309so97554707b3.12
+        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 14:14:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=HHiNWR4Gj+7WX0sCAUa6tn2uhhIucy+5z2qpTD06QQI=;
+        b=JSHLmibei0jgkcWbPj9HXgdd+MhHC+OyPSKhuI2XV6AHUd3y3m296Nxh89oFkAvEVr
+         gAOcLc8V+8EnUVsL20yuw8mVQN59JVIbjbWtowpSKuGn459PWbiqv0aOHp0eMpmS7/C9
+         GIIUZdg+2wcbmV+RcHfAfaQjYxe3tIUZ1dkRZZXo2X12l9WF1hVT3HiSaXby6h/Wyv8T
+         gWT+OXFy1d+ABcoA7M4M0UuVVzHoEeLgoryOnJ2ABJFPvGNg2GShgdXy0P148AVAwSxE
+         osCh6JkPgoWtaMxXbuwuVmehGTQ4QFQyx+xal3y46aLeldq4DRLtclvp4LO4MWPXV1/b
+         w7Vg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=HHiNWR4Gj+7WX0sCAUa6tn2uhhIucy+5z2qpTD06QQI=;
+        b=sKZTM4lcyb+AbYY2Tgz8ydRlSEGykqWS9oY8D5tIwulMBDnIFBHDGPQUQoKouMvIek
+         cDKkDXTo3dxIC+WyIFV8d8zk7om9P4p3JPnIoiwrEBuUOtAKs2VNcyrLt6l7fd3XFpZN
+         ATiJKnIGDS8+J0Rycb6g2FtsfB8SlmuS6DlAa5PH0PKn/KDuz/xOdPdF7qsMkF6sF5pf
+         EK+5bsVn8T8AMT8glfIAKRO3I1JgTwxKwtf/Wq0rAASt8Q6eIrVD96zbe9Rxgk5sLlOS
+         WhZIQJaiOXRxkjqUulWzWZgY4+kyswYOpZfR1fNCK1SApN0lGdipsAtJGr0gUVikDVvC
+         SdkQ==
+X-Gm-Message-State: AOAM531aCqeAS0O0iC1pL0u318T/w0BtxAljN6rILo1cYYa5WjdrcQyh
+        1etkKl7efttSyTHLuV/hP5oHJO3a846d50qv7tIpCw==
+X-Google-Smtp-Source: ABdhPJxMEXOOz7/3ZcLI/C+SyN5tKSdtu6eoAlmQKG5g155dtcRnngUP4k9RCkDxyuI/1C3yeScBL5Tbp72EbYKfZWk=
+X-Received: by 2002:a81:3ac2:0:b0:2f7:f777:a43 with SMTP id
+ h185-20020a813ac2000000b002f7f7770a43mr1356235ywa.60.1651266853771; Fri, 29
+ Apr 2022 14:14:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <93b22db44cf7494086285212d5d7615a@intel.com>
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <20220429104052.345760505@linuxfoundation.org>
+In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 30 Apr 2022 02:44:02 +0530
+Message-ID: <CA+G9fYs4hjCbTE-OQjgXiGFVQ2dD4FW4-iSQV8aqHR57Fv06uw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/33] 5.15.37-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 29, 2022 at 01:39:03PM -0700, Anusha Srivatsa wrote:
+On Fri, 29 Apr 2022 at 16:12, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
+> This is the start of the stable review cycle for the 5.15.37 release.
+> There are 33 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
->> -----Original Message-----
->> From: De Marchi, Lucas <lucas.demarchi@intel.com>
->> Sent: Tuesday, April 26, 2022 10:42 PM
->> To: Srivatsa, Anusha <anusha.srivatsa@intel.com>
->> Cc: intel-gfx@lists.freedesktop.org; stable@vger.kernel.org
->> Subject: Re: [PATCH] drm/i915/dmc: Add MMIO range restrictions
->>
->> On Tue, Apr 26, 2022 at 05:35:09PM -0700, Anusha Srivatsa wrote:
->> >Bspec has added some steps that check forDMC MMIO range before
->> >programming them
->> >
->> >v2: Fix for CI
->> >v3: move register defines to .h (Anusha)
->> >- Check MMIO restrictions per pipe
->> >- Add MMIO restricton for v1 dmc header as well (Lucas)
->> >
->> >BSpec: 49193
->> >
->> >Cc: <stable@vger.kernel.org>
->> >Cc: Lucas De Marchi <lucas.demarchi@intel.com>
->> >Signed-off-by: Anusha Srivatsa <anusha.srivatsa@intel.com>
->> >---
->> > drivers/gpu/drm/i915/display/intel_dmc.c      | 48 ++++++++++++++++---
->> > drivers/gpu/drm/i915/display/intel_dmc_regs.h | 31 ++++++++++++
->> > 2 files changed, 72 insertions(+), 7 deletions(-)
->> >
->> >diff --git a/drivers/gpu/drm/i915/display/intel_dmc.c
->> >b/drivers/gpu/drm/i915/display/intel_dmc.c
->> >index 257cf662f9f4..ac7896835bfa 100644
->> >--- a/drivers/gpu/drm/i915/display/intel_dmc.c
->> >+++ b/drivers/gpu/drm/i915/display/intel_dmc.c
->> >@@ -97,13 +97,6 @@ MODULE_FIRMWARE(SKL_DMC_PATH);
->> > #define BXT_DMC_MAX_FW_SIZE		0x3000
->> > MODULE_FIRMWARE(BXT_DMC_PATH);
->> >
->> >-#define DMC_DEFAULT_FW_OFFSET		0xFFFFFFFF
->> >-#define PACKAGE_MAX_FW_INFO_ENTRIES	20
->> >-#define PACKAGE_V2_MAX_FW_INFO_ENTRIES	32
->> >-#define DMC_V1_MAX_MMIO_COUNT		8
->> >-#define DMC_V3_MAX_MMIO_COUNT		20
->> >-#define DMC_V1_MMIO_START_RANGE		0x80000
->> >-
->> > struct intel_css_header {
->> > 	/* 0x09 for DMC */
->> > 	u32 module_type;
->> >@@ -374,6 +367,43 @@ static void dmc_set_fw_offset(struct intel_dmc
->> *dmc,
->> > 	}
->> > }
->> >
->> >+static bool dmc_mmio_addr_sanity_check(struct intel_dmc *dmc, const
->> u32 *mmioaddr,
->> >+				       u32 mmio_count, int header_ver, u8
->> dmc_id) {
->> >+	struct drm_i915_private *i915 = container_of(dmc, typeof(*i915),
->> dmc);
->> >+	int i;
->> >+
->> >+	if (header_ver == 1) {
->> >+		for (i = 0; i < mmio_count; i++) {
->> >+			if (mmioaddr[i] < DMC_MMIO_START_RANGE ||
->> mmioaddr[i] > DMC_MMIO_END_RANGE)
->> >+				return false;
->> >+		}
->>
->> return missing here
->>
->> >+	}
->> >+
->> >+	/* Main DMC MMIO check */
->> >+	if (dmc_id == DMC_FW_MAIN) {
->> >+		for (i = 0; i < mmio_count; i++) {
->> >+			if (mmioaddr[i] < TGL_DMC_MMIO_START(dmc_id)
->> || mmioaddr[i] > TGL_DMC_MMIO_END(dmc_id))
->> >+				return false;
->> >+		}
->> >+	}
->> >+
->> >+	/* Pipe DMC MMIO check */
->> >+	if (IS_DG2(i915) || IS_ALDERLAKE_P(i915)) {
->> >+		for (i = 0; i < mmio_count; i++) {
->> >+			if (mmioaddr[i] < ADLP_PIPE_MMIO_START &&
->> mmioaddr[i] > ADLP_PIPE_MMIO_END)
->> >+				return false;
->> >+		}
->>
->> for DG2, main should use TGL_DMC_MMIO_START? and then fail here
->> because of another missing return above?
->>
->> >+	} else if (IS_TIGERLAKE(i915) || IS_DG1(i915) ||
->> IS_ALDERLAKE_S(i915)) {
->> >+		for (i = 0; i < mmio_count; i++) {
->> >+			if (mmioaddr[i] < TGL_DMC_MMIO_START(dmc_id)
->> || mmioaddr[i] > TGL_DMC_MMIO_END(dmc_id))
->> >+				return false;
->>
->> this is handling DMC_FW_MAIN twice.
->>
->>
->> Maybe something like this:
->>
->> 	u32 start, end;
->>
->> 	if (header_ver == 1) {
->> 		start = DMC_MMIO_START_RANGE;
->> 		end = DMC_MMIO_END_RANGE;
->> 	} else if (dmc_id == DMC_FW_MAIN || IS_TIGERLAKE(i915) ||
->> IS_DG1(i915) || IS_ALDERLAKE_S(i915)) {
->> 		start = TGL_DMC_MMIO_START(dmc_id);
->> 		end = TGL_DMC_MMIO_END(dmc_id);
->> 	} else if (IS_DG2(i915) || IS_ALDERLAKE_P(i915)) {
->> 		start = ADLP_PIPE_MMIO_START;
->> 		end = ADLP_PIPE_MMIO_END;
->> 	} else {
->> 		drm_warn(&i915->drm, "Unknown mmio range for sanity
->> check");
->> 		return false;
->> 	}
->>
->> 	for (i = 0; i < mmio_count; i++)
->> 		if (mmioaddr[i] < start || mmioaddr[i] > end)
->> 			return false;
->>
->> 	return true;
->>
->>
->> ... untested, and may need tweaks depending on the answer to the question
->> above on what range to use for ADL-P/DG2 on main DMC.
->The above approach is definitely neater.
->The main DMC offset is the same for all platforms.
+> Responses should be made by Sun, 01 May 2022 10:40:41 +0000.
+> Anything received after that time might be too late.
 >
->> >+		}
->> >+	}
->> >+
->> >+	return true;
->> >+}
->> >+
->> > static u32 parse_dmc_fw_header(struct intel_dmc *dmc,
->> > 			       const struct intel_dmc_header_base
->> *dmc_header,
->> > 			       size_t rem_size, u8 dmc_id)
->> >@@ -443,6 +473,10 @@ static u32 parse_dmc_fw_header(struct intel_dmc
->> *dmc,
->> > 		return 0;
->> > 	}
->> >
->> >+	if (!dmc_mmio_addr_sanity_check(dmc, mmioaddr, mmio_count,
->> dmc_header->header_ver, dmc_id))
->> >+		drm_err(&i915->drm, "DMC firmware has Wrong MMIO
->> Addresses\n");
->> >+		return 0;
->>
->> you don't like DMC and decided to fail it for all platforms?
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.37-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
 >
-><facepalm>
+> thanks,
 >
->> >+
->> > 	for (i = 0; i < mmio_count; i++) {
->> > 		dmc_info->mmioaddr[i] = _MMIO(mmioaddr[i]);
->> > 		dmc_info->mmiodata[i] = mmiodata[i]; diff --git
->> >a/drivers/gpu/drm/i915/display/intel_dmc_regs.h
->> >b/drivers/gpu/drm/i915/display/intel_dmc_regs.h
->> >index d65e698832eb..235d1b721334 100644
->> >--- a/drivers/gpu/drm/i915/display/intel_dmc_regs.h
->> >+++ b/drivers/gpu/drm/i915/display/intel_dmc_regs.h
->> >@@ -11,12 +11,43 @@
->> > #define DMC_PROGRAM(addr, i)	_MMIO((addr) + (i) * 4)
->> > #define DMC_SSP_BASE_ADDR_GEN9	0x00002FC0
->> > #define DMC_HTP_ADDR_SKL	0x00500034
->> >+#define DMC_DEFAULT_FW_OFFSET	0xFFFFFFFF
->> > #define DMC_SSP_BASE		_MMIO(0x8F074)
->> > #define DMC_HTP_SKL		_MMIO(0x8F004)
->> > #define DMC_LAST_WRITE		_MMIO(0x8F034)
->> > #define DMC_LAST_WRITE_VALUE	0xc003b400
->> > #define DMC_MMIO_START_RANGE	0x80000
->> > #define DMC_MMIO_END_RANGE	0x8FFFF
->> >+#define PACKAGE_MAX_FW_INFO_ENTRIES	20
->> >+#define PACKAGE_V2_MAX_FW_INFO_ENTRIES	32
->> >+#define DMC_V1_MAX_MMIO_COUNT		8
->> >+#define DMC_V3_MAX_MMIO_COUNT		20
->>
->>
->> why are you moving these to _regs?  these describe the DMC header/blob
->
->Yeah my mistake. While making the change they seemed like the right thing to do.
->
->>
->> >+#define DMC_V1_MMIO_START_RANGE		0x80000
->> >+#define _TGL_MAIN_MMIO_START		0x8F000
->> >+#define _TGL_MAIN_MMIO_END		0x8FFFF
->> >+#define _TGL_PIPEA_MMIO_START		0x92000
->> >+#define _TGL_PIPEA_MMIO_END		0x93FFF
->> >+#define _TGL_PIPEB_MMIO_START		0x96000
->> >+#define _TGL_PIPEB_MMIO_END		0x97FFF
->> >+#define _TGL_PIPEC_MMIO_START		0x9A000
->> >+#define _TGL_PIPEC_MMIO_END		0x9BFFF
->> >+#define _TGL_PIPED_MMIO_START		0x9E000
->> >+#define _TGL_PIPED_MMIO_END		0x9FFFF
->> >+#define ADLP_PIPE_MMIO_START		0x5F000
->> >+#define ADLP_PIPE_MMIO_END		0x5FFFF
->> >+
->> >+#define TGL_DMC_MMIO_START(pipe)	_PICK(pipe,
->> _TGL_MAIN_MMIO_START,\
->>
->> _PICK?  Did you miss my previous review?
->
->No. the thing is Main DMC with the Pipe DMCs are not evenly spaced. So using PICK_EVEN is not the right choice here. We also don't need to do _MMIO really.....
->Unless I am missing something, this seems like the right approach.
+> greg k-h
 
-Because the name you chose for your variable:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-	TGL_DMC_MMIO_START(pipe)   _PICK(pipe,
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I was expecting this to be used only with the pipe DMC address, which
-are evenly spaced. It seems the argument you're expecting here is a
-dmc_id. But.... you said:
+## Build
+* kernel: 5.15.37-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: ff3177a2b8b333ce1007cb22d7e2adafdcda9720
+* git describe: v5.15.36-34-gff3177a2b8b3
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.36-34-gff3177a2b8b3
 
->The main DMC offset is the same for all platforms.
+## Test Regressions (compared to v5.15.35)
+No test regressions found.
 
-So, maybe just handle that separately and keep using pipe here? Then you
-can switch to _PICK_EVEN()
+## Metric Regressions (compared to v5.15.35)
+No metric regressions found.
 
-Lucas De Marchi
+## Test Fixes (compared to v5.15.35)
+No test fixes found.
+
+## Metric Fixes (compared to v5.15.35)
+No metric fixes found.
+
+## Test result summary
+total: 102673, pass: 87138, fail: 713, skip: 13898, xfail: 924
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 291 total, 291 passed, 0 failed
+* arm64: 41 total, 41 passed, 0 failed
+* i386: 39 total, 39 passed, 0 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 60 total, 54 passed, 6 failed
+* riscv: 27 total, 22 passed, 5 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 41 total, 41 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
