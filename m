@@ -2,144 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D54514A0A
-	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 14:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5257514A35
+	for <lists+stable@lfdr.de>; Fri, 29 Apr 2022 15:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359613AbiD2M7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 08:59:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34226 "EHLO
+        id S1359666AbiD2NHn convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 29 Apr 2022 09:07:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359610AbiD2M7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 08:59:38 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94069C9B77
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 05:56:20 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1nkQAU-0000B7-R8
-        for stable@vger.kernel.org; Fri, 29 Apr 2022 14:56:18 +0200
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 3F61D70F0E
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 12:56:14 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id EBFAB70EEF;
-        Fri, 29 Apr 2022 12:56:13 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id e38266ba;
-        Fri, 29 Apr 2022 12:56:13 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Andreas Larsson <andreas@gaisler.com>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net 5/5] can: grcan: only use the NAPI poll budget for RX
-Date:   Fri, 29 Apr 2022 14:56:12 +0200
-Message-Id: <20220429125612.1792561-6-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220429125612.1792561-1-mkl@pengutronix.de>
-References: <20220429125612.1792561-1-mkl@pengutronix.de>
+        with ESMTP id S238686AbiD2NHm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 09:07:42 -0400
+Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com [209.85.219.174])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA62BCAB85;
+        Fri, 29 Apr 2022 06:04:19 -0700 (PDT)
+Received: by mail-yb1-f174.google.com with SMTP id g28so14318516ybj.10;
+        Fri, 29 Apr 2022 06:04:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ycd1bPuiSrNE0SR6b+uO4l9ZEm/fD3tp9CiU84zTTmU=;
+        b=5zPZXmz+32c5o1tN5qdniB8ttQuR2ZHlD7U09g20gj5hHBDxvpLbzHU8EZN51wyZ+g
+         8rtvy5cWcaAPVoAPTJnUDu50SPshf5x9ahZRZIXlOn62OK388H/Eqc16OAScxyoKIPj3
+         E/7CbrGqyRdsfWofxqtSLkM6+gtPeEscai2sTl8u9gaXRGyHNK7CuyZxOaPzIMpSHh/M
+         E3ygBF86NFU2ob6KZuoGArocQNlP/Z7GL+AV0mSBBUnS+nDKYZ/8GbmBaDwfHCNO2qhY
+         BdLUvcs6QqcBTyFbbhMFKXyqPyvtWrT6zB2LRaOTnSU/Sq8KrcsdwFzQLd+uZDFPzDp4
+         woYA==
+X-Gm-Message-State: AOAM532sWV3t2a7k8r/+wIcvIEyqtZSlJg8PsarYQxruQ7yPT0wwuDLe
+        Ago1PjRpnK5KrXXRDyMtSsT3sljEc0RP30nX1Fj20ilXHk0=
+X-Google-Smtp-Source: ABdhPJxZooP6OXVMOJBlu2rNQgt4VBjevrGHyY768DhaEwUitikkXWtnYUcIktDJU/bwFtVBVPGLmLbgEz3WX/gAZ1A=
+X-Received: by 2002:a25:6e89:0:b0:642:57b:ccd7 with SMTP id
+ j131-20020a256e89000000b00642057bccd7mr35395074ybc.115.1651237458734; Fri, 29
+ Apr 2022 06:04:18 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <alpine.DEB.2.21.2204240214430.9383@angie.orcam.me.uk>
+In-Reply-To: <alpine.DEB.2.21.2204240214430.9383@angie.orcam.me.uk>
+From:   =?UTF-8?Q?Philippe_Mathieu=2DDaud=C3=A9?= <f4bug@amsat.org>
+Date:   Fri, 29 Apr 2022 15:04:07 +0200
+Message-ID: <CAAdtpL6=b9hYeBggV3XNUtkOMxd=Zt0_7-TkKKdCTku2y1ip+g@mail.gmail.com>
+Subject: Re: [PATCH] MIPS: Fix CP0 counter erratum detection for R4k CPUs
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Larsson <andreas@gaisler.com>
+On Mon, Apr 25, 2022 at 9:39 AM Maciej W. Rozycki <macro@orcam.me.uk> wrote:
+>
+> Fix the discrepancy between the two places we check for the CP0 counter
+> erratum in along with the incorrect comparison of the R4400 revision
+> number against 0x30 which matches none and consistently consider all
+> R4000 and R4400 processors affected, as documented in processor errata
+> publications[1][2][3], following the mapping between CP0 PRId register
+> values and processor models:
+>
+>   PRId   |  Processor Model
+> ---------+--------------------
+> 00000422 | R4000 Revision 2.2
+> 00000430 | R4000 Revision 3.0
+> 00000440 | R4400 Revision 1.0
+> 00000450 | R4400 Revision 2.0
+> 00000460 | R4400 Revision 3.0
+>
+> No other revision of either processor has ever been spotted.
+>
+> Contrary to what has been stated in commit ce202cbb9e0b ("[MIPS] Assume
+> R4000/R4400 newer than 3.0 don't have the mfc0 count bug") marking the
+> CP0 counter as buggy does not preclude it from being used as either a
+> clock event or a clock source device.  It just cannot be used as both at
+> a time, because in that case clock event interrupts will be occasionally
+> lost, and the use as a clock event device takes precedence.
+>
+> Compare against 0x4ff in `can_use_mips_counter' so that a single machine
+> instruction is produced.
+>
+> References:
+>
+> [1] "MIPS R4000PC/SC Errata, Processor Revision 2.2 and 3.0", MIPS
+>     Technologies Inc., May 10, 1994, Erratum 53, p.13
+>
+> [2] "MIPS R4400PC/SC Errata, Processor Revision 1.0", MIPS Technologies
+>     Inc., February 9, 1994, Erratum 21, p.4
+>
+> [3] "MIPS R4400PC/SC Errata, Processor Revision 2.0 & 3.0", MIPS
+>     Technologies Inc., January 24, 1995, Erratum 14, p.3
+>
+> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+> Fixes: ce202cbb9e0b ("[MIPS] Assume R4000/R4400 newer than 3.0 don't have the mfc0 count bug")
+> Cc: stable@vger.kernel.org # v2.6.24+
+> ---
+>  arch/mips/include/asm/timex.h |    8 ++++----
+>  arch/mips/kernel/time.c       |   11 +++--------
+>  2 files changed, 7 insertions(+), 12 deletions(-)
 
-The previous split budget between TX and RX made it return not using
-the entire budget but at the same time not having calling called
-napi_complete. This sometimes led to the poll to not be called, and at
-the same time having TX and RX interrupts disabled resulting in the
-driver getting stuck.
-
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-4-andreas@gaisler.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- drivers/net/can/grcan.c | 22 +++++++---------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/net/can/grcan.c b/drivers/net/can/grcan.c
-index 4ca3da56d3aa..5215bd9b2c80 100644
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -1125,7 +1125,7 @@ static int grcan_close(struct net_device *dev)
- 	return 0;
- }
- 
--static int grcan_transmit_catch_up(struct net_device *dev, int budget)
-+static void grcan_transmit_catch_up(struct net_device *dev)
- {
- 	struct grcan_priv *priv = netdev_priv(dev);
- 	unsigned long flags;
-@@ -1133,7 +1133,7 @@ static int grcan_transmit_catch_up(struct net_device *dev, int budget)
- 
- 	spin_lock_irqsave(&priv->lock, flags);
- 
--	work_done = catch_up_echo_skb(dev, budget, true);
-+	work_done = catch_up_echo_skb(dev, -1, true);
- 	if (work_done) {
- 		if (!priv->resetting && !priv->closing &&
- 		    !(priv->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
-@@ -1147,8 +1147,6 @@ static int grcan_transmit_catch_up(struct net_device *dev, int budget)
- 	}
- 
- 	spin_unlock_irqrestore(&priv->lock, flags);
--
--	return work_done;
- }
- 
- static int grcan_receive(struct net_device *dev, int budget)
-@@ -1230,19 +1228,13 @@ static int grcan_poll(struct napi_struct *napi, int budget)
- 	struct net_device *dev = priv->dev;
- 	struct grcan_registers __iomem *regs = priv->regs;
- 	unsigned long flags;
--	int tx_work_done, rx_work_done;
--	int rx_budget = budget / 2;
--	int tx_budget = budget - rx_budget;
-+	int work_done;
- 
--	/* Half of the budget for receiving messages */
--	rx_work_done = grcan_receive(dev, rx_budget);
-+	work_done = grcan_receive(dev, budget);
- 
--	/* Half of the budget for transmitting messages as that can trigger echo
--	 * frames being received
--	 */
--	tx_work_done = grcan_transmit_catch_up(dev, tx_budget);
-+	grcan_transmit_catch_up(dev);
- 
--	if (rx_work_done < rx_budget && tx_work_done < tx_budget) {
-+	if (work_done < budget) {
- 		napi_complete(napi);
- 
- 		/* Guarantee no interference with a running reset that otherwise
-@@ -1259,7 +1251,7 @@ static int grcan_poll(struct napi_struct *napi, int budget)
- 		spin_unlock_irqrestore(&priv->lock, flags);
- 	}
- 
--	return rx_work_done + tx_work_done;
-+	return work_done;
- }
- 
- /* Work tx bug by waiting while for the risky situation to clear. If that fails,
--- 
-2.35.1
-
-
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
