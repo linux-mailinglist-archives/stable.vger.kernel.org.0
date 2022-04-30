@@ -2,118 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D091515929
-	for <lists+stable@lfdr.de>; Sat, 30 Apr 2022 01:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B036515950
+	for <lists+stable@lfdr.de>; Sat, 30 Apr 2022 02:28:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239952AbiD2X60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 29 Apr 2022 19:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52424 "EHLO
+        id S1378716AbiD3Aa1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 29 Apr 2022 20:30:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377213AbiD2X6Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 19:58:25 -0400
-Received: from qproxy4-pub.mail.unifiedlayer.com (qproxy4-pub.mail.unifiedlayer.com [66.147.248.250])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3BD3BCB2
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 16:55:04 -0700 (PDT)
-Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
-        by qproxy4.mail.unifiedlayer.com (Postfix) with ESMTP id B73948033200
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 23:55:03 +0000 (UTC)
-Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
-        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id 66288100452D8
-        for <stable@vger.kernel.org>; Fri, 29 Apr 2022 23:55:01 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id kaRwntUCSY8yckaRxnSzIB; Fri, 29 Apr 2022 23:55:01 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=TZJTCTch c=1 sm=1 tr=0 ts=626c7ad5
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=z0gMJWrwH1QA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=+zDWKjAZ8tQ8EUFo5UO3FzlqhqC8WXwNkjhLshulIYQ=; b=BgWsa8sTSyRxBJ+/uNLYcEU1k9
-        C6EWJC7qdgwmZVeaRY3hB+KeWUitV19XeSB5bT3m1hhf6rRizUVTw2m4k10k+D4CAmstqUpks0JAU
-        gSmxxiKIPq3++imCkX5OxuO9C8/aStwPVBZjMbNIQUvTyzFdhzVeaw+ObyXGSeDUWKur0jmN17JRQ
-        Znu2NKL8hAlLjyI5IaHkjgOHcSG9XlAALnvNDb+U44VUUhpzT1S3eIAryjqip5Cd/hJirztqP9+eC
-        67NQuxEFpj7V63/5bDbIO0RuE7SPuNTxUlYX2MasNnOXbqShLGQlMVwi3kDULXQcLsriiBkH5hH6D
-        1+lGrh+A==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:49206 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nkaRv-001PEA-On; Fri, 29 Apr 2022 17:54:59 -0600
-Subject: Re: [PATCH 5.15 00/33] 5.15.37-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220429104052.345760505@linuxfoundation.org>
-In-Reply-To: <20220429104052.345760505@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <97a91dad-da08-258b-4b43-7bc6e0e2ba45@w6rz.net>
-Date:   Fri, 29 Apr 2022 16:54:57 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S235155AbiD3Aa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 29 Apr 2022 20:30:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0064ED0808;
+        Fri, 29 Apr 2022 17:27:06 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAB07B83800;
+        Sat, 30 Apr 2022 00:27:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38725C385A4;
+        Sat, 30 Apr 2022 00:27:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651278424;
+        bh=ZY6lCWFeGbK7gENJJ1vDCLA1WWWMx/zm0VeDflagIBE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ygg6MGVn6QSNdq7kp3gNjqQmB+hnOtu40Z295SdnBj8b75mTmT4cr+r2YS65ZT3rd
+         G85xL5kf/tgTwTbGOK0yKXWvvfL626D4+JyJFG7BlhxefUxwPXnBdQqjiU6bdnQhlv
+         xrEKvbOn7h4TBnueU2Y8KeCWjl9AcDNX+nPEDnoyEoG3fC9fNzU1YS3hBnWkpwdzG7
+         JwPTSfNJhd9BQFcbkA7+jW6xCz/c/7FhJx5ucds7cClGkvIb2dikZzB4mbSmSuO1+g
+         izzp+WcjjDqOyDFr4wkxBW3ptbeejChEpyT/Cr33bUHUXLUwmbNqY2wZOSW9SSmnBO
+         nnq9v9yYi4zTQ==
+Date:   Fri, 29 Apr 2022 20:27:02 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Hugh Dickins <hughd@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Yang Shi <shy828301@gmail.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-mm@kvack.org
+Subject: Re: [PATCH AUTOSEL 13/14] mm/thp: ClearPageDoubleMap in first
+ page_add_file_rmap()
+Message-ID: <YmyCVofxgjqXCqiU@sashalap>
+References: <20220428154222.1230793-1-gregkh@linuxfoundation.org>
+ <20220428154222.1230793-13-gregkh@linuxfoundation.org>
+ <c2ed1fe1-247e-e644-c367-87d32eb92cf5@google.com>
+ <YmrHsVZTEzqIDiKd@kroah.com>
+ <bec6e6cf-daa7-d632-7f81-471acba69c9d@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nkaRv-001PEA-On
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:49206
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <bec6e6cf-daa7-d632-7f81-471acba69c9d@google.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 4/29/22 3:41 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.37 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 01 May 2022 10:40:41 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.37-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Thu, Apr 28, 2022 at 12:27:40PM -0700, Hugh Dickins wrote:
+>On Thu, 28 Apr 2022, Greg Kroah-Hartman wrote:
+>> On Thu, Apr 28, 2022 at 09:51:58AM -0700, Hugh Dickins wrote:
+>> > On Thu, 28 Apr 2022, Greg Kroah-Hartman wrote:
+>> >
+>> > > From: Hugh Dickins <hughd@google.com>
+>> > >
+>> > > commit bd55b0c2d64e84a75575f548a33a3dfecc135b65 upstream.
+>> > >
+>> > > PageDoubleMap is maintained differently for anon and for shmem+file: the
+>> > > shmem+file one was never cleared, because a safe place to do so could
+>> > > not be found; so it would blight future use of the cached hugepage until
+>> > > evicted.
+>> > >
+>> > > See https://lore.kernel.org/lkml/1571938066-29031-1-git-send-email-yang.shi@linux.alibaba.com/
+>> > >
+>> > > But page_add_file_rmap() does provide a safe place to do so (though later
+>> > > than one might wish): allowing testing to return to an initial state
+>> > > without a damaging drop_caches.
+>> > >
+>> > > Link: https://lkml.kernel.org/r/61c5cf99-a962-9a25-597a-53ab1bd8fbc0@google.com
+>> > > Fixes: 9a73f61bdb8a ("thp, mlock: do not mlock PTE-mapped file huge pages")
+>> > > Signed-off-by: Hugh Dickins <hughd@google.com>
+>> > > Reviewed-by: Yang Shi <shy828301@gmail.com>
+>> > > Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+>> > > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+>> > > Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+>> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> >
+>> > NAK.
+>> >
+>> > I thought we had a long-standing agreement that AUTOSEL does not try
+>> > to add patches from akpm's tree which had not been marked for stable.
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+I guess it was only between myself and mm/ :p
 
-Tested-by: Ron Economos <re@w6rz.net>
+>> True, this was my attempt at saying "hey these all look like they should
+>> go to stable trees, why not?"
+>
+>Okay, it seems I should have read "AUTOSEL" as "Hey, GregKH here,
+>these all look like they should go to stable trees, why not?",
+>which would have drawn a friendlier response.
 
+FRIENDLYGREGBOT :)
+
+>The answer is that I considered stable at the time, and akpm did too,
+>and none of my three (I've not looked through the other 11) are serious
+>enough to be needed in stable; and I'm cautious about backports, because
+>I know that the tree they went on top of differs thereabouts from 5.17.
+>
+>Of course I think the patches in 5.18-rc are good, and yes, they're
+>things I've thought worthwhile enough for me personally to port forward
+>over several releases until I had time to send in.  But that doesn't
+>make them safe stable candidates, without someone to verify and vouch
+>for the results in this or that tree - I run on a much slower clock
+>than you and most around here, I do not have time for that at present
+>(and would prefer not even to be having this conversation).
+>
+>But I'm happily overruled if any mm guys think they are worth that
+>extra effort, and will verify and vouch for them.
+
+What's the extra effort here? We're seeing so many cases where we see
+issues with LTS kernels and we end up spending so much time triaging and
+diagnosing them only to find out that they've already been fixed.
+
+Honesly, having them in -stable seems like *less* effort to me.
+
+-- 
+Thanks,
+Sasha
