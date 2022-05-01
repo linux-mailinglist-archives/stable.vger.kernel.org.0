@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B78C151668B
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 19:13:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 695C551668A
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 19:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241051AbiEARRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 13:17:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34356 "EHLO
+        id S237080AbiEARRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 13:17:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231591AbiEARRM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 13:17:12 -0400
+        with ESMTP id S231591AbiEARRE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 13:17:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E433580D3
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 10:13:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FAC580D0
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 10:13:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26BE460F5E
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 17:13:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A33ACC385AA;
-        Sun,  1 May 2022 17:13:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C68160F39
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 17:13:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D94C385A9;
+        Sun,  1 May 2022 17:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651425225;
-        bh=9De8E2jgp27bVPRdgOqUrz9s0k/JQ9mqp9MB7EJ2JOA=;
+        s=korg; t=1651425217;
+        bh=faK3GE4uJwL0DWR00CvGmgTqVN0/SHJIt2VOi75zt5s=;
         h=Subject:To:Cc:From:Date:From;
-        b=ivcPr2AKB3DN135ucDPppLmk/0fz1S+RrVjAssRx7M1TeS2v7ERO51JL4RpS0691o
-         yb5ulMJJcGmocf318+9r0GSf2zQlrTTWrbPgSpwG4REKl5Y4d1W+SYJDrSa41FQ46P
-         nnii6uobLmw2QCT9XTeUTGQQ/+wXy/2P7lVrKFho=
-Subject: FAILED: patch "[PATCH] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config" failed to apply to 4.19-stable tree
+        b=m0fh8DQu2un3BfYIuus0U/igevgJhv7xXI1Xpnfv4RKIOnLWgSDK/N4mWA1sCckOv
+         MTQBhQfnxlzeewLaIfPKT18WAxQXESXxttTbGUZ2tTKvoqU3tUVDotm44ifJaR86iL
+         Rfq/Vy4OXCxVN4Bl64+y1PFXGOdVu8MGYp3aEEw0=
+Subject: FAILED: patch "[PATCH] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config" failed to apply to 4.14-stable tree
 To:     krzysztof.kozlowski@linaro.org, arnd@arndb.de,
         fazilyildiran@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 01 May 2022 19:13:23 +0200
-Message-ID: <165142520310615@kroah.com>
+Message-ID: <1651425203212164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
