@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CDC1516548
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C16516549
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:31:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348893AbiEAQey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 12:34:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37720 "EHLO
+        id S1349133AbiEAQfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 12:35:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349133AbiEAQex (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:34:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAAE917045
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:31:27 -0700 (PDT)
+        with ESMTP id S242187AbiEAQfA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:35:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA23F1A06D
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:31:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CA20B80E5A
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:31:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F313C385A9;
-        Sun,  1 May 2022 16:31:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DC82B80E31
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:31:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D696C385AA;
+        Sun,  1 May 2022 16:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651422685;
-        bh=JNIfotlFUcJ5g4KHHa1uRZsSfOnS18Yigkl3sOo8Dhs=;
+        s=korg; t=1651422692;
+        bh=f+7fy0hQXLarFl4Gu5hCYUjsMh3DqAFTZb7t/OEOP14=;
         h=Subject:To:Cc:From:Date:From;
-        b=s9jOGMJKg5uK+PnYHeBuZiE3d08TQk/R0PRtLa5QY24i097t3E/P+B+JHCf6ebJIJ
-         5SI1RL6gq93HgEFDchk5wFvukX++5bOgP9Fy+HQkjbpJBlHUZSL/N3gW7R4P4cGE3Y
-         FQpFsyQMMYg9b1ewIzSDFjWqu5fBueQiBuJk2dos=
-Subject: FAILED: patch "[PATCH] eeprom: at25: Use DMA safe buffers" failed to apply to 4.19-stable tree
+        b=ROAT50D5exW/HqS9z91nfpve7ZVVJQ+ProQolhdsdXIV/Nur1LNG17nrfuOcfMsjx
+         Z5TtcJ1EhtDviQlRHt08YfQgHNnPPhOdwn8X7FvOJYTKhddR1lecSEWdJbpx+A6QRZ
+         315CJTfzDBctcyDLTWgxG0mzcCzg+1k6HkySV580=
+Subject: FAILED: patch "[PATCH] eeprom: at25: Use DMA safe buffers" failed to apply to 4.14-stable tree
 To:     christophe.leroy@csgroup.eu, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 01 May 2022 18:30:46 +0200
-Message-ID: <165142264634236@kroah.com>
+Date:   Sun, 01 May 2022 18:30:48 +0200
+Message-ID: <1651422648171109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
