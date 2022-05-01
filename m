@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87B1551670D
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 20:29:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C6F51670E
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 20:29:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235278AbiEAScb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 14:32:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42162 "EHLO
+        id S235990AbiEAScl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 14:32:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230461AbiEAScb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 14:32:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4503162105
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 11:29:05 -0700 (PDT)
+        with ESMTP id S230461AbiEASck (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 14:32:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E9C62107
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 11:29:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFBA9B80D07
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 18:29:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAC1FC385A9;
-        Sun,  1 May 2022 18:29:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E26F2B80DC1
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 18:29:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B11DBC385A9;
+        Sun,  1 May 2022 18:29:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651429742;
-        bh=A6lgbu9JFJ6iELoWICeogcSChghZVyVRTTaegqafa+o=;
+        s=korg; t=1651429750;
+        bh=dIP3WT5FJd78Q7BWabsYFztLdKmSWlf/cRaip52xd70=;
         h=Subject:To:Cc:From:Date:From;
-        b=JxwvKS31BINzhi0wO8UoLRx6+QMi604eIGbzG+1bBYn03k48+gQ3WhnwJxCng0MKi
-         NOqptBtMKLF02JbUJ5jOkisPTqYeWqiGHo8idXtSMM5Nzz7oSdR7x/MVjNMfKn+9P9
-         vloeJbLNJCA/LuLs9c9XuzIJ38cjmo2DsJ0kRMH0=
-Subject: FAILED: patch "[PATCH] x86/pci/xen: Disable PCI/MSI[-X] masking for XEN_HVM guests" failed to apply to 4.19-stable tree
+        b=hIGvGweMe84w4Y+5/6pnphyGGSd+9ycE+V084d9bX5x625RbyY/HUn11eiIXPmh3C
+         Ufhzjjmrs8b4F7gRwsqnPWg1qIrzkl3/64n13winf38wypfQp+XYBxsqFqzou9FwCn
+         JS7c0dZ1Q86giTV5+OFOQoWmHqts1wsBxyspTFZ0=
+Subject: FAILED: patch "[PATCH] x86/pci/xen: Disable PCI/MSI[-X] masking for XEN_HVM guests" failed to apply to 4.14-stable tree
 To:     tglx@linutronix.de, carnil@debian.org, dustymabe@redhat.com,
         jpiotrowski@linux.microsoft.com, noahm@debian.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 01 May 2022 20:28:48 +0200
-Message-ID: <165142972895248@kroah.com>
+Date:   Sun, 01 May 2022 20:28:50 +0200
+Message-ID: <165142973021963@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
