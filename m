@@ -2,129 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47608516299
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 10:12:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 981BC516378
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 11:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242703AbiEAIQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 04:16:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60308 "EHLO
+        id S1345340AbiEAJkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 05:40:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229632AbiEAIQD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 04:16:03 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA131402A;
-        Sun,  1 May 2022 01:12:39 -0700 (PDT)
-Date:   Sun, 01 May 2022 08:12:36 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1651392757;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Btm8cdhggXjho6O0WPgq4RkAAi9zylcOI/eBifzYWp8=;
-        b=WLK3Z36jq0QkP6HqWQgymJ+5w6nepgQbmdC4B5mau7rLZJjyyBC12c+ADWi3ALCCoEityh
-        9eQnaq4ASKphRUnPu5MTnOaWL3mwiFoSbvuB0Yj30ij3pHQax/vbsHjGE3fTpOW9qnjw6y
-        DHnz55tZKuHP4MbKyxtLHeDpP8vv7D/tiqedJ3ZNm0YCYFdpcK+1c1JUqYBvtQcGrnURZ2
-        sB+gkxJ+LXaFFYdm+bN1iY4cpaP9V1DlZaolPuvBHBlSvcpTWBXetQ8xS0lh7VgA+6PjhC
-        N0tFfedGbZvA3AtLNwZkqJn16qquyZzNzHkfyaiQSf2GmL7SFUdDrSFbb+3Fbw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1651392757;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Btm8cdhggXjho6O0WPgq4RkAAi9zylcOI/eBifzYWp8=;
-        b=eeGr6Yw/+j0xBR79JMNk1GCZz/kWWvkfLK/C4b0J2vxmG+Dq5rtg0ScHm4/RMH4N+s8RU5
-        LCvv3xTQOuFeBjBg==
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/pci/xen: Disable PCI/MSI[-X] masking for XEN_HVM guests
-Cc:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
-        Dusty Mabe <dustymabe@redhat.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Noah Meyerhans <noahm@debian.org>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <87tuaduxj5.ffs@tglx>
-References: <87tuaduxj5.ffs@tglx>
+        with ESMTP id S1344857AbiEAJkc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 05:40:32 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1376A3E5E3;
+        Sun,  1 May 2022 02:37:07 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id gh6so23025704ejb.0;
+        Sun, 01 May 2022 02:37:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=5ViapVJF1DFMpUvvMCDM92Zu3wHEo/8IwGcBaU15+L4=;
+        b=fc0OUI4hcrKZ13LClof+9OLUFGhxUGRJKfwAwwBNc2Z6hzXAKMV6I0E0vJmplmp89n
+         IMwXMxkqX4UDDAUlhXecEDwJ+ufyY/xJBsCnUE06OR4IctHsgr/aO/E1PNQqn5SG4TKb
+         ODFE3dBWgj6YyR69KdrDwO9IzCXLeZLrWzPS3e7iEGJZZIDCrjt4VvHJ1wfIn6OCkskO
+         /gN9g3ub0skYAqHBiQDKR4Bi1lgr2F99cnwbCnI5ynTldlR4HBjpgcx4oWODs0bGfnYO
+         zUVDeCfKZ3lQ/QvDN3vX4LZG2LoNzDqGs5RVaG6IaF6pa2cUIjHFeDPtiPTH0EsB0ojS
+         ndIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=5ViapVJF1DFMpUvvMCDM92Zu3wHEo/8IwGcBaU15+L4=;
+        b=EriJEfJU7XCRn+is8f3MvOnltKuy8TBQsT5YcOpIlFQCHmSlkN+vnOJj+vZbcL8dcE
+         3Zx7bojAf0JmmMZQW2JWzLs4F416ToixSyiy6TuOuk2A8Z2iSOqwvIKYGqVhe6cZVnhg
+         4czxvbKvtweDmTfgybP1mGTjWfhMsI3P6lRtjLpADOjU+pt0F03erpvY30Q9HI0W8MVK
+         LtkNI1Nomzd8yDSlCibwPNHMlyYaGpDFqGRjN5tkNr6UHtibnV0zcEptS4yaa3vyTMPY
+         k6hV7jPAAcE3Itz5PJxLpFZ6ezM2jnu4+5oQ06pEubV4shXO6qFn5iO/84yui7wvJE+D
+         Lp9Q==
+X-Gm-Message-State: AOAM530LYu0yPqmddDe+C+gO+dtFj/XQJW0TOj3lcgB97cICf0wMvyI5
+        AQltFRMG/jfvZE5VY0ZtBGg=
+X-Google-Smtp-Source: ABdhPJwvLGZJe26G5CI3UDLVL7/1xA5JOXqq5rVPEoAbydvnyktC8O++HUoBW8w7GFe0/Cm0NgTXEA==
+X-Received: by 2002:a17:907:eab:b0:6dd:e8fe:3dc with SMTP id ho43-20020a1709070eab00b006dde8fe03dcmr6775847ejc.165.1651397825377;
+        Sun, 01 May 2022 02:37:05 -0700 (PDT)
+Received: from debian64.daheim (p5b0d70a2.dip0.t-ipconnect.de. [91.13.112.162])
+        by smtp.gmail.com with ESMTPSA id ia12-20020a170907a06c00b006f3ef214da8sm2444863ejc.14.2022.05.01.02.37.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 01 May 2022 02:37:04 -0700 (PDT)
+Received: from localhost.daheim ([127.0.0.1])
+        by debian64.daheim with esmtp (Exim 4.95)
+        (envelope-from <chunkeey@gmail.com>)
+        id 1nl60X-0002IO-0L;
+        Sun, 01 May 2022 11:37:03 +0200
+Message-ID: <21e8a296-d756-78c7-8dc9-80fc416302c7@gmail.com>
+Date:   Sun, 1 May 2022 11:37:03 +0200
 MIME-Version: 1.0
-Message-ID: <165139275608.4207.16060979873182920732.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH v2] carl9170: tx: fix an incorrect use of list iterator
+Content-Language: en-US
+To:     Kalle Valo <kvalo@kernel.org>,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        linville@tuxdriver.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20220328122820.1004-1-xiam0nd.tong@gmail.com>
+ <164914623778.12306.14074908465775082444.kvalo@kernel.org>
+From:   Christian Lamparter <chunkeey@gmail.com>
+In-Reply-To: <164914623778.12306.14074908465775082444.kvalo@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On 05/04/2022 10:10, Kalle Valo wrote:
+> Xiaomeng Tong <xiam0nd.tong@gmail.com> wrote:
+> 
+>> If the previous list_for_each_entry_continue_rcu() don't exit early
+>> (no goto hit inside the loop), the iterator 'cvif' after the loop
+>> will be a bogus pointer to an invalid structure object containing
+>> the HEAD (&ar->vif_list). As a result, the use of 'cvif' after that
+>> will lead to a invalid memory access (i.e., 'cvif->id': the invalid
+>> pointer dereference when return back to/after the callsite in the
+>> carl9170_update_beacon()).
+>>
+>> The original intention should have been to return the valid 'cvif'
+>> when found in list, NULL otherwise. So just return NULL when no
+>> entry found, to fix this bug.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 1f1d9654e183c ("carl9170: refactor carl9170_update_beacon")
+>> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+>> Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+> 
+> Christian, is this ok to take?
+> 
+First things first:
 
-Commit-ID:     7e0815b3e09986d2fe651199363e135b9358132a
-Gitweb:        https://git.kernel.org/tip/7e0815b3e09986d2fe651199363e135b9358132a
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Thu, 28 Apr 2022 15:50:54 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Fri, 29 Apr 2022 14:37:39 +02:00
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
 
-x86/pci/xen: Disable PCI/MSI[-X] masking for XEN_HVM guests
+patch is OK as is.
 
-When a XEN_HVM guest uses the XEN PIRQ/Eventchannel mechanism, then
-PCI/MSI[-X] masking is solely controlled by the hypervisor, but contrary to
-XEN_PV guests this does not disable PCI/MSI[-X] masking in the PCI/MSI
-layer.
+In theory, the "return NULL;" could be moved one line down
+(i.e.:after the closing bracket). This would make it so it would
+cover the surrounding if (ar->vifs > 0 && cvif) { ... } check too.
+But I can't tell you whenever this move actually overs extra
+protection (the function isn't called if there isn't already a
+virtual interface present).
 
-This can lead to a situation where the PCI/MSI layer masks an MSI[-X]
-interrupt and the hypervisor grants the write despite the fact that it
-already requested the interrupt. As a consequence interrupt delivery on the
-affected device is not happening ever.
+As for the BUG that this patch addresses.  It is possible to trigger
+it: the device needs to have a primary AP/Ad-hoc or Mesh-Interface
+and the firmware needs to send a rogue PRETBTT-Event before any
+beaconing is setup.
 
-Set pci_msi_ignore_mask to prevent that like it's done for XEN_PV guests
-already.
+In my test case (changed the firmware to send out PRETBTT
+events every 100 ms as soon as it starts running). It didn't crash
+outright after setting up the AP interface. But I managed to see
+the corruptions, once I reloaded the module:
 
-Fixes: 809f9267bbab ("xen: map MSIs into pirqs")
-Reported-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
-Reported-by: Dusty Mabe <dustymabe@redhat.com>
-Reported-by: Salvatore Bonaccorso <carnil@debian.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Noah Meyerhans <noahm@debian.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87tuaduxj5.ffs@tglx
+[  958.763802] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[  958.764560] #PF: supervisor read access in kernel mode
+[  958.765246] #PF: error_code(0x0000) - not-present page
+[  958.765550] carl9170 3-2:1.0 wlx001f33fcd15b: renamed from wlan0
+[  958.765841] PGD 0 P4D 0
+[  958.766985] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[  958.767063] CPU: 3 PID: 716 Comm: kworker/3:2 Tainted: G           OE     5.18.0-rc4-wt #50
+[  958.767063] Workqueue: events request_firmware_work_func
+[  958.767063] RIP: 0010:strcmp+0xc/0x20
+[  958.767063] Code: 75 f7 31 d2 44 0f b6 04 16 44 88 04 11 48 83 c2 01 45 84 c0 75 ee c3 cc 66 0f 1f 44 00 00 31 c0 eb 08 48 83 c0 01 84 d2 74 >
+systemd-udevd[5870]: regulatory.0: Process '/lib/crda/crda' failed with exit code 255.
+[  958.767063] RSP: 0018:ffffa720026b7d90 EFLAGS: 00010246
+[  958.767063] RAX: 0000000000000000 RBX: ffff980c2e96fd98 RCX: 0000000000000001
+[  958.767063] RDX: 0000000000000074 RSI: ffff980c0fd73e10 RDI: 0000000000000000
+[  958.767063] RBP: ffff980c0fd73d98 R08: ffffa720026b7d50 R09: ffff980c17a0f640
+[  958.767063] R10: ffffffffffffffff R11: ffff980c982e82b7 R12: ffff980c0fd73e10
+[  958.767063] R13: ffff980c128de0a8 R14: ffff980c0fd73788 R15: ffff980c0fd720c0
+[  958.767063] FS:  0000000000000000(0000) GS:ffff980eff8c0000(0000) knlGS:0000000000000000
+[  958.767063] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  958.767063] CR2: 0000000000000000 CR3: 000000012e924000 CR4: 0000000000350ee0
+[  958.767063] Call Trace:
+[  958.767063]  <TASK>
+[  958.767063]  hwrng_register+0x5c/0x1a0
+[  958.767063]  devm_hwrng_register+0x3e/0x80
+[  958.767063]  carl9170_register+0x3ea/0x560 [carl9170]
+[  958.767063]  carl9170_usb_firmware_step2+0xaf/0xf0 [carl9170]
+[  958.767063]  request_firmware_work_func+0x48/0x90
+[  958.767063]  process_one_work+0x1bd/0x310
+[  958.767063]  ? rescuer_thread+0x390/0x390
+[  958.767063]  worker_thread+0x4b/0x390
+[  958.767063]  ? rescuer_thread+0x390/0x390
+...
 
----
- arch/x86/pci/xen.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+with the "return NULL;" in place, no crashes happened anymore
+when reloading the module in the same setup.
 
-diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
-index 9bb1e29..b94f727 100644
---- a/arch/x86/pci/xen.c
-+++ b/arch/x86/pci/xen.c
-@@ -467,7 +467,6 @@ static __init void xen_setup_pci_msi(void)
- 		else
- 			xen_msi_ops.setup_msi_irqs = xen_setup_msi_irqs;
- 		xen_msi_ops.teardown_msi_irqs = xen_pv_teardown_msi_irqs;
--		pci_msi_ignore_mask = 1;
- 	} else if (xen_hvm_domain()) {
- 		xen_msi_ops.setup_msi_irqs = xen_hvm_setup_msi_irqs;
- 		xen_msi_ops.teardown_msi_irqs = xen_teardown_msi_irqs;
-@@ -481,6 +480,11 @@ static __init void xen_setup_pci_msi(void)
- 	 * in allocating the native domain and never use it.
- 	 */
- 	x86_init.irqs.create_pci_msi_domain = xen_create_pci_msi_domain;
-+	/*
-+	 * With XEN PIRQ/Eventchannels in use PCI/MSI[-X] masking is solely
-+	 * controlled by the hypervisor.
-+	 */
-+	pci_msi_ignore_mask = 1;
- }
- 
- #else /* CONFIG_PCI_MSI */
+Cheers,
+Christian
