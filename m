@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 042CA516522
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:16:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B17F9516537
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348929AbiEAQUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 12:20:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60682 "EHLO
+        id S1349142AbiEAQ3S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 12:29:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237250AbiEAQUV (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 1 May 2022 12:20:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD1BB1118
-        for <Stable@vger.kernel.org>; Sun,  1 May 2022 09:16:55 -0700 (PDT)
+        with ESMTP id S238590AbiEAQ3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:29:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26AF9BCA6
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:25:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6694A60F0D
-        for <Stable@vger.kernel.org>; Sun,  1 May 2022 16:16:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09419C385AA;
-        Sun,  1 May 2022 16:16:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CB8E60DD9
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:25:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D23C385AA;
+        Sun,  1 May 2022 16:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651421814;
-        bh=fwRuEriX9hO7J7VhNV6cEqltb8imF3xliTvJe6l161Y=;
+        s=korg; t=1651422350;
+        bh=XUJyCWhbtqy3DYsUlWyBPzFmziM/1H9WybQceI/3ZSw=;
         h=Subject:To:Cc:From:Date:From;
-        b=fB+wHSWaoxJ/SOjG6CMfrywc6Ik5QbV6QxX9O/Eps3gL14v4EeKIKbsnLKGGsTIVs
-         b3X3oTD9bRNoNr7TtSJOCdl/P6tm/kHlXAk/10nQEfMuZPUOe8FFGGO1HCzFKup8qp
-         jb1Wuq9MYZ3xIW0ebihoz+M5jJSfELxPUwXP4XU0=
-Subject: FAILED: patch "[PATCH] iio:proximity:sx_common: Fix device property parsing on DT" failed to apply to 5.15-stable tree
-To:     swboyd@chromium.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, gwendal@chromium.org
+        b=hPCnd3BqDb8rsQWLviokuxQUARCKB9/IX0F7Hbcp5uZ+oZrOH5zcwvqEEzzj8UgJE
+         I5GCLpSkGCyQCqfgCgfB4npFVnYEbCT9lNocp1pNuUUl/hlZ7F2QVxAqxVLhjVMaHV
+         Qm6KTcgorAB6UITnAzeJzyBsLdAJJ1O89HBjl1dQ=
+Subject: FAILED: patch "[PATCH] usb: cdns3: Fix issue for clear halt endpoint" failed to apply to 5.4-stable tree
+To:     pawell@cadence.com, gregkh@linuxfoundation.org,
+        peter.chen@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 01 May 2022 18:16:39 +0200
-Message-ID: <1651421799255218@kroah.com>
+Date:   Sun, 01 May 2022 18:25:44 +0200
+Message-ID: <165142234419551@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,39 +60,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 74a53a959028e5f28e3c0e9445a876e5c8da147c Mon Sep 17 00:00:00 2001
-From: Stephen Boyd <swboyd@chromium.org>
-Date: Thu, 31 Mar 2022 14:04:25 -0700
-Subject: [PATCH] iio:proximity:sx_common: Fix device property parsing on DT
- systems
+From b3fa25de31fb7e9afebe9599b8ff32eda13d7c94 Mon Sep 17 00:00:00 2001
+From: Pawel Laszczak <pawell@cadence.com>
+Date: Tue, 29 Mar 2022 10:46:05 +0200
+Subject: [PATCH] usb: cdns3: Fix issue for clear halt endpoint
 
-After commit 7a3605bef878 ("iio: sx9310: Support ACPI property") we
-started using the 'indio_dev->dev' to extract device properties for
-various register settings in sx9310_get_default_reg(). This broke DT
-based systems because dev_fwnode() used in the device_property*() APIs
-can't find an 'of_node'. That's because the 'indio_dev->dev.of_node'
-pointer isn't set until iio_device_register() is called. Set the pointer
-earlier, next to where the ACPI companion is set, so that the device
-property APIs work on DT systems.
+Path fixes bug which occurs during resetting endpoint in
+__cdns3_gadget_ep_clear_halt function. During resetting endpoint
+controller will change HW/DMA owned TRB. It set Abort flag in
+trb->control and will change trb->length field. If driver want
+to use the aborted trb it must update the changed field in
+TRB.
 
-Cc: Gwendal Grignou <gwendal@chromium.org>
-Fixes: 7a3605bef878 ("iio: sx9310: Support ACPI property")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Gwendal Grignou <gwendal@chromium.org>
-Link: https://lore.kernel.org/r/20220331210425.3908278-1-swboyd@chromium.org
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+cc: <stable@vger.kernel.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20220329084605.4022-1-pawell@cadence.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/iio/proximity/sx_common.c b/drivers/iio/proximity/sx_common.c
-index a7c07316a0a9..8ad814d96b7e 100644
---- a/drivers/iio/proximity/sx_common.c
-+++ b/drivers/iio/proximity/sx_common.c
-@@ -521,6 +521,7 @@ int sx_common_probe(struct i2c_client *client,
- 		return dev_err_probe(dev, ret, "error reading WHOAMI\n");
+diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
+index f9af7ebe003d..d6d515d598dc 100644
+--- a/drivers/usb/cdns3/cdns3-gadget.c
++++ b/drivers/usb/cdns3/cdns3-gadget.c
+@@ -2684,6 +2684,7 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
+ 	struct usb_request *request;
+ 	struct cdns3_request *priv_req;
+ 	struct cdns3_trb *trb = NULL;
++	struct cdns3_trb trb_tmp;
+ 	int ret;
+ 	int val;
  
- 	ACPI_COMPANION_SET(&indio_dev->dev, ACPI_COMPANION(dev));
-+	indio_dev->dev.of_node = client->dev.of_node;
- 	indio_dev->modes = INDIO_DIRECT_MODE;
+@@ -2693,8 +2694,10 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
+ 	if (request) {
+ 		priv_req = to_cdns3_request(request);
+ 		trb = priv_req->trb;
+-		if (trb)
++		if (trb) {
++			trb_tmp = *trb;
+ 			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
++		}
+ 	}
  
- 	indio_dev->channels =  data->chip_info->iio_channels;
+ 	writel(EP_CMD_CSTALL | EP_CMD_EPRST, &priv_dev->regs->ep_cmd);
+@@ -2709,7 +2712,7 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
+ 
+ 	if (request) {
+ 		if (trb)
+-			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
++			*trb = trb_tmp;
+ 
+ 		cdns3_rearm_transfer(priv_ep, 1);
+ 	}
 
