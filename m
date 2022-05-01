@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B82A751689B
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 00:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF54E51689E
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 00:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355656AbiEAWRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 18:17:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33848 "EHLO
+        id S1378471AbiEAWRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 18:17:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354760AbiEAWRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 18:17:43 -0400
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 335F42DFC;
-        Sun,  1 May 2022 15:14:17 -0700 (PDT)
+        with ESMTP id S1378175AbiEAWRw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 18:17:52 -0400
+Received: from angie.orcam.me.uk (angie.orcam.me.uk [78.133.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7F8D42DFC;
+        Sun,  1 May 2022 15:14:23 -0700 (PDT)
 Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id 8073492009D; Mon,  2 May 2022 00:14:16 +0200 (CEST)
+        id C187592009E; Mon,  2 May 2022 00:14:22 +0200 (CEST)
 Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id 7CDC292009B;
-        Sun,  1 May 2022 23:14:16 +0100 (BST)
-Date:   Sun, 1 May 2022 23:14:16 +0100 (BST)
+        by angie.orcam.me.uk (Postfix) with ESMTP id BB3CB92009B;
+        Sun,  1 May 2022 23:14:22 +0100 (BST)
+Date:   Sun, 1 May 2022 23:14:22 +0100 (BST)
 From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
 To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 cc:     Joshua Kinard <kumba@gentoo.org>,
         Stephen Zhang <starzhangzsd@gmail.com>,
         linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH v3 1/2] MIPS: IP27: Remove incorrect `cpu_has_fpu' override
+Subject: [PATCH v3 2/2] MIPS: IP30: Remove incorrect `cpu_has_fpu' override
 In-Reply-To: <alpine.DEB.2.21.2205012307310.9383@angie.orcam.me.uk>
-Message-ID: <alpine.DEB.2.21.2205012309300.9383@angie.orcam.me.uk>
+Message-ID: <alpine.DEB.2.21.2205012311470.9383@angie.orcam.me.uk>
 References: <alpine.DEB.2.21.2205012307310.9383@angie.orcam.me.uk>
 User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
@@ -54,8 +54,8 @@ where the CONFIG_MIPS_FP_SUPPORT configuration option has been disabled.
 
 Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
 Reported-by: Stephen Zhang <starzhangzsd@gmail.com>
-Fixes: 0ebb2f4159af ("MIPS: IP27: Update/restructure CPU overrides")
-Cc: stable@vger.kernel.org # v4.2+
+Fixes: 7505576d1c1a ("MIPS: add support for SGI Octane (IP30)")
+Cc: stable@vger.kernel.org # v5.5+
 ---
 Changes from v2:
 
@@ -65,15 +65,15 @@ Changes from v1:
 
 - s/chosen/disabled/ in the change description.
 ---
- arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h |    1 -
+ arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h |    1 -
  1 file changed, 1 deletion(-)
 
-linux-mips-ip27-cpu-has-fpu.diff
-Index: linux-macro/arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h
+linux-mips-ip30-cpu-has-fpu.diff
+Index: linux-macro/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
 ===================================================================
---- linux-macro.orig/arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h
-+++ linux-macro/arch/mips/include/asm/mach-ip27/cpu-feature-overrides.h
-@@ -25,7 +25,6 @@
+--- linux-macro.orig/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
++++ linux-macro/arch/mips/include/asm/mach-ip30/cpu-feature-overrides.h
+@@ -28,7 +28,6 @@
  #define cpu_has_4kex			1
  #define cpu_has_3k_cache		0
  #define cpu_has_4k_cache		1
