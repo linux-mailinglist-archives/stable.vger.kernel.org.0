@@ -2,107 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D45F8515EE3
-	for <lists+stable@lfdr.de>; Sat, 30 Apr 2022 17:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47608516299
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 10:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235869AbiD3PzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 30 Apr 2022 11:55:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51668 "EHLO
+        id S242703AbiEAIQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 04:16:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232786AbiD3PzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 30 Apr 2022 11:55:07 -0400
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B640D49F92;
-        Sat, 30 Apr 2022 08:51:45 -0700 (PDT)
-Received: by mail-pf1-x434.google.com with SMTP id x52so7673192pfu.11;
-        Sat, 30 Apr 2022 08:51:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LpVI+wHvPmtuQd7BRofKYFwZVUXSQ/H1fRvs7yRvcu8=;
-        b=T6VqIbSNwWtxsP2iTpZwkecEU9TxdUfWQg102Z4oprwO++xzkOjrF8S5CPwAuuhFoC
-         ywfnEV5HXFU4Jc8W9tYVmW2iwwVXsBrKi3L1mqIbYVwvcuUUbJC1pw1Qm3PjfKNzeZww
-         BUxQJ2CE8sDkMWDXwJObdoFLa+eJcytzQ+SzBSBIY8JIRBXwe1XK2uZrSeU2qtHCrp/I
-         eaRXHoIJgT7sfWnvtqZuOR3X0cTaFHUsEjQKGre2U3QrFS4U7+dRijXWzNHvkXdcbvVU
-         QvOznGEDYDPiXi6Ws7AZzzXUVpEWkPz7Azsqis0cbE4M9zuv6j6rajjAoPGpQeOAjQNq
-         r+Sg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=LpVI+wHvPmtuQd7BRofKYFwZVUXSQ/H1fRvs7yRvcu8=;
-        b=1Ls8LwW9EIKttUQ4QaOBrX/+BFUtiGsVpVsw9Q0EAQSGmAK4ggzqTKl3+ZzESptAPB
-         aH7Qckh4E+AEJ/uXC7b/UjWdhlUsXwHEbOzp6TAGFX6fFT/uIUjk3HGSRoYTP5nm2wge
-         v3Cg4crrSU+BNJ1OQJhqMLthTGnBtnzysAHAaRzNfZLsMnUfQXqiyG+58/S/qovbQJMk
-         X4AKEDjK78mbY9efi1Q60vo69PNcf9tut0g2J9z+okiOEw+uUPp40w+v6s9z55clbhM2
-         u0yboOj+6NpRoNIf4aCOdGqZGkS7xOWcSwxFhu5yALJqncPbRbxY2WI88A+Qk0cr42fC
-         //IQ==
-X-Gm-Message-State: AOAM532tKN6GQtKLLqfrmueCNUVn/m/gwKhzZ8HMyn2gejB/T5XNnR5D
-        y1IRYREByOqhcxvTN8yUZr5LA9Xpx40ASg==
-X-Google-Smtp-Source: ABdhPJxZR+6dKYd/WUpP6bN1rIoOdXa/nL+GYJHP2ncA9uKKuYd0a53b5ViyBDHJJx9n2czHRuyEow==
-X-Received: by 2002:a65:6657:0:b0:381:1b99:3f04 with SMTP id z23-20020a656657000000b003811b993f04mr3479256pgv.512.1651333905220;
-        Sat, 30 Apr 2022 08:51:45 -0700 (PDT)
-Received: from guoguo-omen.lan ([2001:250:3000:7000:c0f1:53a1:ea79:5d2f])
-        by smtp.gmail.com with ESMTPSA id j16-20020aa783d0000000b0050dc76281b8sm1755734pfn.146.2022.04.30.08.51.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 Apr 2022 08:51:44 -0700 (PDT)
-From:   Chuanhong Guo <gch981213@gmail.com>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     Chuanhong Guo <gch981213@gmail.com>, stable@vger.kernel.org,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED
-        DEVICE TREE BINDINGS),
-        linux-mediatek@lists.infradead.org (moderated list:ARM/Mediatek SoC
-        support), linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] arm64: dts: mt7622: add irq to spi-nor controller
-Date:   Sat, 30 Apr 2022 23:51:11 +0800
-Message-Id: <20220430155112.227902-1-gch981213@gmail.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S229632AbiEAIQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 04:16:03 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AA131402A;
+        Sun,  1 May 2022 01:12:39 -0700 (PDT)
+Date:   Sun, 01 May 2022 08:12:36 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1651392757;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Btm8cdhggXjho6O0WPgq4RkAAi9zylcOI/eBifzYWp8=;
+        b=WLK3Z36jq0QkP6HqWQgymJ+5w6nepgQbmdC4B5mau7rLZJjyyBC12c+ADWi3ALCCoEityh
+        9eQnaq4ASKphRUnPu5MTnOaWL3mwiFoSbvuB0Yj30ij3pHQax/vbsHjGE3fTpOW9qnjw6y
+        DHnz55tZKuHP4MbKyxtLHeDpP8vv7D/tiqedJ3ZNm0YCYFdpcK+1c1JUqYBvtQcGrnURZ2
+        sB+gkxJ+LXaFFYdm+bN1iY4cpaP9V1DlZaolPuvBHBlSvcpTWBXetQ8xS0lh7VgA+6PjhC
+        N0tFfedGbZvA3AtLNwZkqJn16qquyZzNzHkfyaiQSf2GmL7SFUdDrSFbb+3Fbw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1651392757;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Btm8cdhggXjho6O0WPgq4RkAAi9zylcOI/eBifzYWp8=;
+        b=eeGr6Yw/+j0xBR79JMNk1GCZz/kWWvkfLK/C4b0J2vxmG+Dq5rtg0ScHm4/RMH4N+s8RU5
+        LCvv3xTQOuFeBjBg==
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/pci/xen: Disable PCI/MSI[-X] masking for XEN_HVM guests
+Cc:     Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
+        Dusty Mabe <dustymabe@redhat.com>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Noah Meyerhans <noahm@debian.org>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <87tuaduxj5.ffs@tglx>
+References: <87tuaduxj5.ffs@tglx>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Message-ID: <165139275608.4207.16060979873182920732.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Save some CPU from unnecessary polling and make SPI flash reading
-a tiny bit faster.
+The following commit has been merged into the x86/urgent branch of tip:
 
-Cc: <stable@vger.kernel.org> # v5.7+
-Fixes: 23beb1adb5f6 ("arm64: dts: mt7622: add flash related device nodes")
-Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+Commit-ID:     7e0815b3e09986d2fe651199363e135b9358132a
+Gitweb:        https://git.kernel.org/tip/7e0815b3e09986d2fe651199363e135b9358132a
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 28 Apr 2022 15:50:54 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Fri, 29 Apr 2022 14:37:39 +02:00
+
+x86/pci/xen: Disable PCI/MSI[-X] masking for XEN_HVM guests
+
+When a XEN_HVM guest uses the XEN PIRQ/Eventchannel mechanism, then
+PCI/MSI[-X] masking is solely controlled by the hypervisor, but contrary to
+XEN_PV guests this does not disable PCI/MSI[-X] masking in the PCI/MSI
+layer.
+
+This can lead to a situation where the PCI/MSI layer masks an MSI[-X]
+interrupt and the hypervisor grants the write despite the fact that it
+already requested the interrupt. As a consequence interrupt delivery on the
+affected device is not happening ever.
+
+Set pci_msi_ignore_mask to prevent that like it's done for XEN_PV guests
+already.
+
+Fixes: 809f9267bbab ("xen: map MSIs into pirqs")
+Reported-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+Reported-by: Dusty Mabe <dustymabe@redhat.com>
+Reported-by: Salvatore Bonaccorso <carnil@debian.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Noah Meyerhans <noahm@debian.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87tuaduxj5.ffs@tglx
+
 ---
-The nor controller driver in kernem when this dt is added doesn't
-support IRQ so there isn't one defined in dt back then. However,
-device-tree is supposed to describe the hardware, so I think this
-can count as a fix.
-My main purpose for the fixes tag is just for the linux-stable
-backport though. spi-mtk-nor supports interrupt since v5.7.
+ arch/x86/pci/xen.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
- arch/arm64/boot/dts/mediatek/mt7622.dtsi | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/arm64/boot/dts/mediatek/mt7622.dtsi b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
-index 8c2563a3919a..e263a81a011b 100644
---- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
-@@ -570,6 +570,7 @@ nor_flash: spi@11014000 {
- 		compatible = "mediatek,mt7622-nor",
- 			     "mediatek,mt8173-nor";
- 		reg = <0 0x11014000 0 0xe0>;
-+		interrupts = <GIC_SPI 88 IRQ_TYPE_LEVEL_LOW>;
- 		clocks = <&pericfg CLK_PERI_FLASH_PD>,
- 			 <&topckgen CLK_TOP_FLASH_SEL>;
- 		clock-names = "spi", "sf";
--- 
-2.35.1
-
+diff --git a/arch/x86/pci/xen.c b/arch/x86/pci/xen.c
+index 9bb1e29..b94f727 100644
+--- a/arch/x86/pci/xen.c
++++ b/arch/x86/pci/xen.c
+@@ -467,7 +467,6 @@ static __init void xen_setup_pci_msi(void)
+ 		else
+ 			xen_msi_ops.setup_msi_irqs = xen_setup_msi_irqs;
+ 		xen_msi_ops.teardown_msi_irqs = xen_pv_teardown_msi_irqs;
+-		pci_msi_ignore_mask = 1;
+ 	} else if (xen_hvm_domain()) {
+ 		xen_msi_ops.setup_msi_irqs = xen_hvm_setup_msi_irqs;
+ 		xen_msi_ops.teardown_msi_irqs = xen_teardown_msi_irqs;
+@@ -481,6 +480,11 @@ static __init void xen_setup_pci_msi(void)
+ 	 * in allocating the native domain and never use it.
+ 	 */
+ 	x86_init.irqs.create_pci_msi_domain = xen_create_pci_msi_domain;
++	/*
++	 * With XEN PIRQ/Eventchannels in use PCI/MSI[-X] masking is solely
++	 * controlled by the hypervisor.
++	 */
++	pci_msi_ignore_mask = 1;
+ }
+ 
+ #else /* CONFIG_PCI_MSI */
