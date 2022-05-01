@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B17F9516537
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45043516545
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349142AbiEAQ3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 12:29:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53278 "EHLO
+        id S1349007AbiEAQeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 12:34:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238590AbiEAQ3S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:29:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26AF9BCA6
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:25:51 -0700 (PDT)
+        with ESMTP id S1348893AbiEAQeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:34:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE802734
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:30:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CB8E60DD9
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:25:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D23C385AA;
-        Sun,  1 May 2022 16:25:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6A92B80E5A
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:30:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAE81C385AA;
+        Sun,  1 May 2022 16:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651422350;
-        bh=XUJyCWhbtqy3DYsUlWyBPzFmziM/1H9WybQceI/3ZSw=;
+        s=korg; t=1651422649;
+        bh=siVmTi39awvSgpAvunx50Jn2wPUfpK6ozktq+nzGltA=;
         h=Subject:To:Cc:From:Date:From;
-        b=hPCnd3BqDb8rsQWLviokuxQUARCKB9/IX0F7Hbcp5uZ+oZrOH5zcwvqEEzzj8UgJE
-         I5GCLpSkGCyQCqfgCgfB4npFVnYEbCT9lNocp1pNuUUl/hlZ7F2QVxAqxVLhjVMaHV
-         Qm6KTcgorAB6UITnAzeJzyBsLdAJJ1O89HBjl1dQ=
-Subject: FAILED: patch "[PATCH] usb: cdns3: Fix issue for clear halt endpoint" failed to apply to 5.4-stable tree
-To:     pawell@cadence.com, gregkh@linuxfoundation.org,
-        peter.chen@kernel.org, stable@vger.kernel.org
+        b=y/xVK3MnwxA17iLyLm1td77AbkthqEqhyWC26iEIcLQfjCvM8k/BWAbQKQqUG9SAZ
+         ZCmQ2sJORflnIZZUqPBXPBzx6mUpJubqed9XsZqABPOFQgwyVWYVnmocsX8+QkRkka
+         eiYCcPg34qtQxa1NgCVQsDIgVDsghLSLXiGa28qU=
+Subject: FAILED: patch "[PATCH] eeprom: at25: Use DMA safe buffers" failed to apply to 5.15-stable tree
+To:     christophe.leroy@csgroup.eu, gregkh@linuxfoundation.org,
+        stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 01 May 2022 18:25:44 +0200
-Message-ID: <165142234419551@kroah.com>
+Date:   Sun, 01 May 2022 18:30:42 +0200
+Message-ID: <165142264210061@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,56 +60,154 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b3fa25de31fb7e9afebe9599b8ff32eda13d7c94 Mon Sep 17 00:00:00 2001
-From: Pawel Laszczak <pawell@cadence.com>
-Date: Tue, 29 Mar 2022 10:46:05 +0200
-Subject: [PATCH] usb: cdns3: Fix issue for clear halt endpoint
+From 5b47b751b760ee1c74a51660fd096aa148a362cd Mon Sep 17 00:00:00 2001
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Wed, 23 Mar 2022 11:51:55 +0100
+Subject: [PATCH] eeprom: at25: Use DMA safe buffers
 
-Path fixes bug which occurs during resetting endpoint in
-__cdns3_gadget_ep_clear_halt function. During resetting endpoint
-controller will change HW/DMA owned TRB. It set Abort flag in
-trb->control and will change trb->length field. If driver want
-to use the aborted trb it must update the changed field in
-TRB.
+Reading EEPROM fails with following warning:
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-cc: <stable@vger.kernel.org>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20220329084605.4022-1-pawell@cadence.com
+[   16.357496] ------------[ cut here ]------------
+[   16.357529] fsl_spi b01004c0.spi: rejecting DMA map of vmalloc memory
+[   16.357698] WARNING: CPU: 0 PID: 371 at include/linux/dma-mapping.h:326 fsl_spi_cpm_bufs+0x2a0/0x2d8
+[   16.357775] CPU: 0 PID: 371 Comm: od Not tainted 5.16.11-s3k-dev-01743-g19beecbfe9d6-dirty #109
+[   16.357806] NIP:  c03fbc9c LR: c03fbc9c CTR: 00000000
+[   16.357825] REGS: e68d9b20 TRAP: 0700   Not tainted  (5.16.11-s3k-dev-01743-g19beecbfe9d6-dirty)
+[   16.357849] MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 24002282  XER: 00000000
+[   16.357931]
+[   16.357931] GPR00: c03fbc9c e68d9be0 c26d06a0 00000039 00000001 c0d36364 c0e96428 00000027
+[   16.357931] GPR08: 00000001 00000000 00000023 3fffc000 24002282 100d3dd6 100a2ffc 00000000
+[   16.357931] GPR16: 100cd280 100b0000 00000000 aff54f7e 100d0000 100d0000 00000001 100cf328
+[   16.357931] GPR24: 100cf328 00000000 00000003 e68d9e30 c156b410 e67ab4c0 e68d9d38 c24ab278
+[   16.358253] NIP [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8
+[   16.358292] LR [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8
+[   16.358325] Call Trace:
+[   16.358336] [e68d9be0] [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8 (unreliable)
+[   16.358388] [e68d9c00] [c03fcb44] fsl_spi_bufs.isra.0+0x94/0x1a0
+[   16.358436] [e68d9c20] [c03fd970] fsl_spi_do_one_msg+0x254/0x3dc
+[   16.358483] [e68d9cb0] [c03f7e50] __spi_pump_messages+0x274/0x8a4
+[   16.358529] [e68d9ce0] [c03f9d30] __spi_sync+0x344/0x378
+[   16.358573] [e68d9d20] [c03fb52c] spi_sync+0x34/0x60
+[   16.358616] [e68d9d30] [c03b4dec] at25_ee_read+0x138/0x1a8
+[   16.358667] [e68d9e50] [c04a8fb8] bin_attr_nvmem_read+0x98/0x110
+[   16.358725] [e68d9e60] [c0204b14] kernfs_fop_read_iter+0xc0/0x1fc
+[   16.358774] [e68d9e80] [c0168660] vfs_read+0x284/0x410
+[   16.358821] [e68d9f00] [c016925c] ksys_read+0x6c/0x11c
+[   16.358863] [e68d9f30] [c00160e0] ret_from_syscall+0x0/0x28
+...
+[   16.359608] ---[ end trace a4ce3e34afef0cb5 ]---
+[   16.359638] fsl_spi b01004c0.spi: unable to map tx dma
+
+This is due to the AT25 driver using buffers on stack, which is not
+possible with CONFIG_VMAP_STACK.
+
+As mentionned in kernel Documentation (Documentation/spi/spi-summary.rst):
+
+  - Follow standard kernel rules, and provide DMA-safe buffers in
+    your messages.  That way controller drivers using DMA aren't forced
+    to make extra copies unless the hardware requires it (e.g. working
+    around hardware errata that force the use of bounce buffering).
+
+Modify the driver to use a buffer located in the at25 device structure
+which is allocated via kmalloc during probe.
+
+Protect writes in this new buffer with the driver's mutex.
+
+Fixes: b587b13a4f67 ("[PATCH] SPI eeprom driver")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Link: https://lore.kernel.org/r/230a9486fc68ea0182df46255e42a51099403642.1648032613.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index f9af7ebe003d..d6d515d598dc 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -2684,6 +2684,7 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
- 	struct usb_request *request;
- 	struct cdns3_request *priv_req;
- 	struct cdns3_trb *trb = NULL;
-+	struct cdns3_trb trb_tmp;
- 	int ret;
- 	int val;
+diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
+index 91f96abbb3f9..8d169a35cf13 100644
+--- a/drivers/misc/eeprom/at25.c
++++ b/drivers/misc/eeprom/at25.c
+@@ -31,6 +31,8 @@
+  */
  
-@@ -2693,8 +2694,10 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
- 	if (request) {
- 		priv_req = to_cdns3_request(request);
- 		trb = priv_req->trb;
--		if (trb)
-+		if (trb) {
-+			trb_tmp = *trb;
- 			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
-+		}
- 	}
+ #define	FM25_SN_LEN	8		/* serial number length */
++#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
++
+ struct at25_data {
+ 	struct spi_eeprom	chip;
+ 	struct spi_device	*spi;
+@@ -39,6 +41,7 @@ struct at25_data {
+ 	struct nvmem_config	nvmem_config;
+ 	struct nvmem_device	*nvmem;
+ 	u8 sernum[FM25_SN_LEN];
++	u8 command[EE_MAXADDRLEN + 1];
+ };
  
- 	writel(EP_CMD_CSTALL | EP_CMD_EPRST, &priv_dev->regs->ep_cmd);
-@@ -2709,7 +2712,7 @@ int __cdns3_gadget_ep_clear_halt(struct cdns3_endpoint *priv_ep)
+ #define	AT25_WREN	0x06		/* latch the write enable */
+@@ -61,8 +64,6 @@ struct at25_data {
  
- 	if (request) {
- 		if (trb)
--			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
-+			*trb = trb_tmp;
+ #define	FM25_ID_LEN	9		/* ID length */
  
- 		cdns3_rearm_transfer(priv_ep, 1);
- 	}
+-#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
+-
+ /*
+  * Specs often allow 5ms for a page write, sometimes 20ms;
+  * it's important to recover from write timeouts.
+@@ -78,7 +79,6 @@ static int at25_ee_read(void *priv, unsigned int offset,
+ {
+ 	struct at25_data *at25 = priv;
+ 	char *buf = val;
+-	u8			command[EE_MAXADDRLEN + 1];
+ 	u8			*cp;
+ 	ssize_t			status;
+ 	struct spi_transfer	t[2];
+@@ -92,12 +92,15 @@ static int at25_ee_read(void *priv, unsigned int offset,
+ 	if (unlikely(!count))
+ 		return -EINVAL;
+ 
+-	cp = command;
++	cp = at25->command;
+ 
+ 	instr = AT25_READ;
+ 	if (at25->chip.flags & EE_INSTR_BIT3_IS_ADDR)
+ 		if (offset >= BIT(at25->addrlen * 8))
+ 			instr |= AT25_INSTR_BIT3;
++
++	mutex_lock(&at25->lock);
++
+ 	*cp++ = instr;
+ 
+ 	/* 8/16/24-bit address is written MSB first */
+@@ -116,7 +119,7 @@ static int at25_ee_read(void *priv, unsigned int offset,
+ 	spi_message_init(&m);
+ 	memset(t, 0, sizeof(t));
+ 
+-	t[0].tx_buf = command;
++	t[0].tx_buf = at25->command;
+ 	t[0].len = at25->addrlen + 1;
+ 	spi_message_add_tail(&t[0], &m);
+ 
+@@ -124,8 +127,6 @@ static int at25_ee_read(void *priv, unsigned int offset,
+ 	t[1].len = count;
+ 	spi_message_add_tail(&t[1], &m);
+ 
+-	mutex_lock(&at25->lock);
+-
+ 	/*
+ 	 * Read it all at once.
+ 	 *
+@@ -152,7 +153,7 @@ static int fm25_aux_read(struct at25_data *at25, u8 *buf, uint8_t command,
+ 	spi_message_init(&m);
+ 	memset(t, 0, sizeof(t));
+ 
+-	t[0].tx_buf = &command;
++	t[0].tx_buf = at25->command;
+ 	t[0].len = 1;
+ 	spi_message_add_tail(&t[0], &m);
+ 
+@@ -162,6 +163,8 @@ static int fm25_aux_read(struct at25_data *at25, u8 *buf, uint8_t command,
+ 
+ 	mutex_lock(&at25->lock);
+ 
++	at25->command[0] = command;
++
+ 	status = spi_sync(at25->spi, &m);
+ 	dev_dbg(&at25->spi->dev, "read %d aux bytes --> %d\n", len, status);
+ 
 
