@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CDE15165D5
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35A31516689
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 19:13:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351769AbiEAQzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 12:55:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52318 "EHLO
+        id S232083AbiEARQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 13:16:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351733AbiEAQyc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:54:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14DF42314D
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:50:50 -0700 (PDT)
+        with ESMTP id S231591AbiEARQ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 13:16:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB35C580D0
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 10:13:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 210F5B80E8B
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:50:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3E25C385AA;
-        Sun,  1 May 2022 16:50:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF0A9B80E91
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 17:13:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DA1EC385AA;
+        Sun,  1 May 2022 17:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651423847;
-        bh=j+vOT3OBH3iHXOVNVhu/JLJFqfdEh9gBXjjerIX85JM=;
+        s=korg; t=1651425209;
+        bh=ay+6afZo8WD3HxzaJexfMj8eIGAkQXprxmAblM4g/lA=;
         h=Subject:To:Cc:From:Date:From;
-        b=wgIDykPwnQ306VkAt2WPgbu9cn0ThOxtemPngpo3IlYosgnlfLXQIcYbnblJ3TmRv
-         MMR/xrUHvALCKdARxFhR0iKi1cqshqVDmjnEt2+YK8PJy7wWmaCAb9QYo7utDyTeQ+
-         mG96fpa590iPe3mMo4Tqbd9V+JJ3tPblu/sLx0sA=
-Subject: FAILED: patch "[PATCH] usb: dwc3: core: Only handle soft-reset in DCTL" failed to apply to 5.4-stable tree
-To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=uGoMmK8LMqjTgfvepuyuItBxkFfHxZeKFicfbTm0Zida1Q2rWqu1wx7+40dF1Co4T
+         npNTLtsNFJ2lml2ceOrhiJwwrbPFALVO1YYb+Z/IJa7cJxY2azMf8cEWwT214RX+Jz
+         lHPOGQ8QF3qj81UHmXcEFyybrnPqN/4t8Pbl3gZ8=
+Subject: FAILED: patch "[PATCH] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config" failed to apply to 5.4-stable tree
+To:     krzysztof.kozlowski@linaro.org, arnd@arndb.de,
+        fazilyildiran@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 01 May 2022 18:44:30 +0200
-Message-ID: <165142347045148@kroah.com>
+Date:   Sun, 01 May 2022 19:13:22 +0200
+Message-ID: <1651425202250211@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,34 +60,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f4fd84ae0765a80494b28c43b756a95100351a94 Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Thu, 21 Apr 2022 19:33:56 -0700
-Subject: [PATCH] usb: dwc3: core: Only handle soft-reset in DCTL
+From ac875df4d854ab13d9c4af682a1837a1214fecec Mon Sep 17 00:00:00 2001
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Date: Wed, 20 Apr 2022 16:14:07 +0200
+Subject: [PATCH] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config
 
-Make sure not to set run_stop bit or link state change request while
-initiating soft-reset. Register read-modify-write operation may
-unintentionally start the controller before the initialization completes
-with its previous DCTL value, which can cause initialization failure.
+The Samsung pinctrl drivers depend on OF_GPIO, which is part of GPIOLIB.
+ARMv7 Exynos platform selects GPIOLIB and Samsung pinctrl drivers. ARMv8
+Exynos selects only the latter leading to possible wrong configuration
+on ARMv8 build:
 
-Fixes: f59dcab17629 ("usb: dwc3: core: improve reset sequence")
+  WARNING: unmet direct dependencies detected for PINCTRL_EXYNOS
+    Depends on [n]: PINCTRL [=y] && OF_GPIO [=n] && (ARCH_EXYNOS [=y] || ARCH_S5PV210 || COMPILE_TEST [=y])
+    Selected by [y]:
+    - ARCH_EXYNOS [=y]
+
+Always select the GPIOLIB from the Samsung pinctrl drivers to fix the
+issue.  This requires removing of OF_GPIO dependency (to avoid recursive
+dependency), so add dependency on OF for COMPILE_TEST cases.
+
+Reported-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Fixes: eed6b3eb20b9 ("arm64: Split out platform options to separate Kconfig")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/6aecbd78328f102003d40ccf18ceeebd411d3703.1650594792.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20220420141407.470955-1-krzysztof.kozlowski@linaro.org
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index 1ca9dae57855..d28cd1a6709b 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -274,7 +274,8 @@ int dwc3_core_soft_reset(struct dwc3 *dwc)
+diff --git a/arch/arm/mach-exynos/Kconfig b/arch/arm/mach-exynos/Kconfig
+index f7d993628cb7..a9c1efcf7c9c 100644
+--- a/arch/arm/mach-exynos/Kconfig
++++ b/arch/arm/mach-exynos/Kconfig
+@@ -17,7 +17,6 @@ menuconfig ARCH_EXYNOS
+ 	select EXYNOS_PMU
+ 	select EXYNOS_SROM
+ 	select EXYNOS_PM_DOMAINS if PM_GENERIC_DOMAINS
+-	select GPIOLIB
+ 	select HAVE_ARM_ARCH_TIMER if ARCH_EXYNOS5
+ 	select HAVE_ARM_SCU if SMP
+ 	select PINCTRL
+diff --git a/drivers/pinctrl/samsung/Kconfig b/drivers/pinctrl/samsung/Kconfig
+index dfd805e76862..7b0576f71376 100644
+--- a/drivers/pinctrl/samsung/Kconfig
++++ b/drivers/pinctrl/samsung/Kconfig
+@@ -4,14 +4,13 @@
+ #
+ config PINCTRL_SAMSUNG
+ 	bool
+-	depends on OF_GPIO
++	select GPIOLIB
+ 	select PINMUX
+ 	select PINCONF
  
- 	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
- 	reg |= DWC3_DCTL_CSFTRST;
--	dwc3_writel(dwc->regs, DWC3_DCTL, reg);
-+	reg &= ~DWC3_DCTL_RUN_STOP;
-+	dwc3_gadget_dctl_write_safe(dwc, reg);
+ config PINCTRL_EXYNOS
+ 	bool "Pinctrl common driver part for Samsung Exynos SoCs"
+-	depends on OF_GPIO
+-	depends on ARCH_EXYNOS || ARCH_S5PV210 || COMPILE_TEST
++	depends on ARCH_EXYNOS || ARCH_S5PV210 || (COMPILE_TEST && OF)
+ 	select PINCTRL_SAMSUNG
+ 	select PINCTRL_EXYNOS_ARM if ARM && (ARCH_EXYNOS || ARCH_S5PV210)
+ 	select PINCTRL_EXYNOS_ARM64 if ARM64 && ARCH_EXYNOS
+@@ -26,12 +25,10 @@ config PINCTRL_EXYNOS_ARM64
  
- 	/*
- 	 * For DWC_usb31 controller 1.90a and later, the DCTL.CSFRST bit
+ config PINCTRL_S3C24XX
+ 	bool "Samsung S3C24XX SoC pinctrl driver"
+-	depends on OF_GPIO
+-	depends on ARCH_S3C24XX || COMPILE_TEST
++	depends on ARCH_S3C24XX || (COMPILE_TEST && OF)
+ 	select PINCTRL_SAMSUNG
+ 
+ config PINCTRL_S3C64XX
+ 	bool "Samsung S3C64XX SoC pinctrl driver"
+-	depends on OF_GPIO
+-	depends on ARCH_S3C64XX || COMPILE_TEST
++	depends on ARCH_S3C64XX || (COMPILE_TEST && OF)
+ 	select PINCTRL_SAMSUNG
 
