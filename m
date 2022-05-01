@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 613585165F4
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:53:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C24045165E0
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351190AbiEAQ41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 12:56:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50716 "EHLO
+        id S233731AbiEAQ4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 12:56:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351495AbiEAQxq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:53:46 -0400
+        with ESMTP id S1351338AbiEAQxo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:53:44 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D19083884
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:50:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27D62B7
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:50:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A54F360F78
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:50:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F903C385BD;
-        Sun,  1 May 2022 16:50:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70C6760F5F
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:50:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028D4C385B5;
+        Sun,  1 May 2022 16:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651423818;
+        s=korg; t=1651423816;
         bh=efjfYbwU5XyDioEi9eqKmEhwWW8VieQLU/1757O+gUU=;
         h=Subject:To:Cc:From:Date:From;
-        b=nfoLeymdJk2UmieNInkUfzesT1hIy/K+2fyZHQQsW2c6O4FDxxox0suHxlw13spof
-         xOErWS84ed3GKuboTqwz4kYzZ00axDzAIyie2QI29S+sevQ5jtWd6RWDaFrEirAlew
-         cCU4eE/vQCTZMtAKAD3QMNaZxFQXvh9QeSd7SCiQ=
+        b=eFyx9QpxBw+VrQxCxiIbc1AeY0kqwzbLS77DcXHgULDhMFLJSybP84v/jkYsJl2mz
+         pzgcRg4zYEDspdvI9rvH1I28gakg4hWEKN6b8NnX9ehKu7rjEJfzmPFtOKfKpF7ame
+         cdA0Bt+MOkX4XfmeiftU+6eGRCVhOhyg3HDgvfZA=
 Subject: FAILED: patch "[PATCH] usb: dwc3: core: Only handle soft-reset in DCTL" failed to apply to 4.4-stable tree
 To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
