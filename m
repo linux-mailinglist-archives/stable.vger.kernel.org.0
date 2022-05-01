@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C67F8516602
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 200F45165EB
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351441AbiEAQ4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 12:56:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
+        id S1350711AbiEAQ4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 12:56:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351348AbiEAQxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:53:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8622FB19
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:50:14 -0700 (PDT)
+        with ESMTP id S1351448AbiEAQxp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:53:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DFF272A
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:50:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D29B60F68
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C796C385B9;
-        Sun,  1 May 2022 16:50:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8395D60F55
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:50:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC087C385B2;
+        Sun,  1 May 2022 16:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651423810;
-        bh=RyxBhPjwrAOFrNtxlPgRoBEPVcptKmcndggv8Qy4diw=;
+        s=korg; t=1651423817;
+        bh=efjfYbwU5XyDioEi9eqKmEhwWW8VieQLU/1757O+gUU=;
         h=Subject:To:Cc:From:Date:From;
-        b=AQ66jPIrRrvGwLqSawo2ijs+jz2bBHLHDOhrbyP5hZt7ioNqj1MXFOG0LY/GNZPcM
-         OuowEC94VJZUq6kN7Tj9h9isP/okq3Wm/OYVlzpLC8n5ZP5IKffErYxa4aqJMlQP9h
-         G++F+zgc7eM2TW4p7nGexb4qSjvqg87G4GH69FvY=
-Subject: FAILED: patch "[PATCH] usb: phy: generic: Get the vbus supply" failed to apply to 4.14-stable tree
-To:     sean.anderson@seco.com, gregkh@linuxfoundation.org,
-        stable@kernel.org
+        b=LNnAQajytrNPjhHt56HmwgpKWW+dt1WRe8lu7tDCZGEMyycZ8zCXxB9Y7wBDZGm6x
+         4QYVFE+xD8J2NWzg+EPuBxuzZG71kBWEobEKygPMZI/h/6FbDdeo6OIuCi9adaoPgi
+         o1GJmaOdb4avzddOvY0JJ010cd4Cvt0Be6Zr5TsI=
+Subject: FAILED: patch "[PATCH] usb: dwc3: core: Only handle soft-reset in DCTL" failed to apply to 4.4-stable tree
+To:     Thinh.Nguyen@synopsys.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 01 May 2022 18:40:57 +0200
-Message-ID: <1651423257158114@kroah.com>
+Date:   Sun, 01 May 2022 18:41:04 +0200
+Message-ID: <1651423264166176@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,37 +60,34 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 03e607cbb2931374db1825f371e9c7f28526d3f4 Mon Sep 17 00:00:00 2001
-From: Sean Anderson <sean.anderson@seco.com>
-Date: Mon, 25 Apr 2022 13:14:09 -0400
-Subject: [PATCH] usb: phy: generic: Get the vbus supply
+From f4fd84ae0765a80494b28c43b756a95100351a94 Mon Sep 17 00:00:00 2001
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Date: Thu, 21 Apr 2022 19:33:56 -0700
+Subject: [PATCH] usb: dwc3: core: Only handle soft-reset in DCTL
 
-While support for working with a vbus was added, the regulator was never
-actually gotten (despite what was documented). Fix this by actually
-getting the supply from the device tree.
+Make sure not to set run_stop bit or link state change request while
+initiating soft-reset. Register read-modify-write operation may
+unintentionally start the controller before the initialization completes
+with its previous DCTL value, which can cause initialization failure.
 
-Fixes: 7acc9973e3c4 ("usb: phy: generic: add vbus support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Link: https://lore.kernel.org/r/20220425171412.1188485-3-sean.anderson@seco.com
+Fixes: f59dcab17629 ("usb: dwc3: core: improve reset sequence")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/6aecbd78328f102003d40ccf18ceeebd411d3703.1650594792.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/phy/phy-generic.c b/drivers/usb/phy/phy-generic.c
-index 661a229c105d..34b9f8140187 100644
---- a/drivers/usb/phy/phy-generic.c
-+++ b/drivers/usb/phy/phy-generic.c
-@@ -268,6 +268,13 @@ int usb_phy_gen_create_phy(struct device *dev, struct usb_phy_generic *nop)
- 			return -EPROBE_DEFER;
- 	}
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 1ca9dae57855..d28cd1a6709b 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -274,7 +274,8 @@ int dwc3_core_soft_reset(struct dwc3 *dwc)
  
-+	nop->vbus_draw = devm_regulator_get_exclusive(dev, "vbus");
-+	if (PTR_ERR(nop->vbus_draw) == -ENODEV)
-+		nop->vbus_draw = NULL;
-+	if (IS_ERR(nop->vbus_draw))
-+		return dev_err_probe(dev, PTR_ERR(nop->vbus_draw),
-+				     "could not get vbus regulator\n");
-+
- 	nop->dev		= dev;
- 	nop->phy.dev		= nop->dev;
- 	nop->phy.label		= "nop-xceiv";
+ 	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
+ 	reg |= DWC3_DCTL_CSFTRST;
+-	dwc3_writel(dwc->regs, DWC3_DCTL, reg);
++	reg &= ~DWC3_DCTL_RUN_STOP;
++	dwc3_gadget_dctl_write_safe(dwc, reg);
+ 
+ 	/*
+ 	 * For DWC_usb31 controller 1.90a and later, the DCTL.CSFRST bit
 
