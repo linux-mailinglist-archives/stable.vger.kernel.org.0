@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF4C516546
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:31:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF78516547
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:31:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349062AbiEAQe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 12:34:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36014 "EHLO
+        id S1349218AbiEAQet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 12:34:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348893AbiEAQe2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:34:28 -0400
+        with ESMTP id S1348893AbiEAQep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:34:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4EEE62F2
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:31:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D844A13D0E
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:31:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E3A060F32
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:31:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1D02C385AA;
-        Sun,  1 May 2022 16:31:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 70BDD60F1A
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:31:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15CFCC385A9;
+        Sun,  1 May 2022 16:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651422661;
-        bh=Ub9pkuUnby423LPF8RMozBTuaZJaTJ8c0VMPBqPk0mI=;
+        s=korg; t=1651422677;
+        bh=ff75Lz+vBGWWaKpXwG8EpgtR1Qv/cWzzFa+NTC2o3qw=;
         h=Subject:To:Cc:From:Date:From;
-        b=u/y9V9WxMDx9IgP08IxMTwW1kX4I4Pm/z5m+MPFDsCw2Z6YJblXXPB6MIs17y2I7t
-         sJ/s8fFW66n2rRInowQxv54gq86FsPsAxG8dJ0o3j0Spr1mRufZDv0O/TsE1Wu/qlX
-         TlO/kyTHoEGl6fFjtqmeZghPfbiL+TurapWwxOr8=
-Subject: FAILED: patch "[PATCH] eeprom: at25: Use DMA safe buffers" failed to apply to 5.10-stable tree
+        b=1TVovEHMKmDEx07Qtrub5ix1qAMpzaJWpW/P6pW8m/NNHlozywfeP4kVHg9jF7GLZ
+         XZCURFNtDpV1oGKwkZyDGAOeGXgQTDe6lNyjsdNPYwycHaj/01WH4/3Ze6LhbgUn9F
+         5O0+9KQVFFLpptLGvUtdNdJHDTFfZBAlPMM8zd7M=
+Subject: FAILED: patch "[PATCH] eeprom: at25: Use DMA safe buffers" failed to apply to 5.4-stable tree
 To:     christophe.leroy@csgroup.eu, gregkh@linuxfoundation.org,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 01 May 2022 18:30:44 +0200
-Message-ID: <165142264418625@kroah.com>
+Date:   Sun, 01 May 2022 18:30:45 +0200
+Message-ID: <165142264556238@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
