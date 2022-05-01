@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B876E5165B9
-	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C05835165B3
+	for <lists+stable@lfdr.de>; Sun,  1 May 2022 18:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351259AbiEAQy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 1 May 2022 12:54:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50628 "EHLO
+        id S1351130AbiEAQyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 1 May 2022 12:54:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351274AbiEAQxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:53:41 -0400
+        with ESMTP id S1351259AbiEAQxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 1 May 2022 12:53:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E202E1CB
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:50:12 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D30176150
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 09:50:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 899B7B80E9E
-        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:50:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44DB2C385C8;
-        Sun,  1 May 2022 16:50:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E115EB80E92
+        for <stable@vger.kernel.org>; Sun,  1 May 2022 16:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA5B2C385AA;
+        Sun,  1 May 2022 16:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651423811;
+        s=korg; t=1651423809;
         bh=RyxBhPjwrAOFrNtxlPgRoBEPVcptKmcndggv8Qy4diw=;
         h=Subject:To:Cc:From:Date:From;
-        b=jNcHesU5Mfk39l5wqpTQ5jR97g2i2H5cVJLzCzLGKTgKfHPZ2i2fdd4TdIOKILMtg
-         a1UbcYQOHCO0Uz4KilHEnFOqzDZ21xq9grOWDIF3MgY8jrQbcVO4W6RkQS3cX8joZY
-         eVU2WkbvjbNSfbuUkzsgYO8R6AoqPi1s4szPLHcw=
+        b=O7/1OuLHUT4gsXqzlIugurhJ+dLEmcFcIFChWLxe8qDzQWseDXF9fglLjFD3He5CU
+         M3DluYucZW9Tkedix/U+xhmfF/OCXohd9hIqDZ03U/ujGwjHFXfQgg+e9HTtKufMx/
+         3QXD7U8lSfi0e0ia8pKoqtQO0SLBLfBEGxT4e/4s=
 Subject: FAILED: patch "[PATCH] usb: phy: generic: Get the vbus supply" failed to apply to 4.14-stable tree
 To:     sean.anderson@seco.com, gregkh@linuxfoundation.org,
         stable@kernel.org
