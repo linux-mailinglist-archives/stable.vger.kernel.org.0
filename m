@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F20CE517A97
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 01:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45216517A98
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 01:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbiEBXVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 19:21:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37282 "EHLO
+        id S230303AbiEBXVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 19:21:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230303AbiEBXVB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 19:21:01 -0400
+        with ESMTP id S230183AbiEBXVD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 19:21:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B0D730F7A
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 16:17:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07AF5205D5
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 16:17:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8758B81A9D
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 23:17:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 577B9C385A4;
-        Mon,  2 May 2022 23:17:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0B0EB81A65
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 23:17:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A5A7C385A4;
+        Mon,  2 May 2022 23:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651533447;
-        bh=OTp1KC8S8E9dFg0pstKzBEDdj5bU3p/35m3UXQ3wLWU=;
+        s=korg; t=1651533448;
+        bh=elqaBZRCfYIHDGa88MChvlb5kydgSVmbt+WRP9eOw8g=;
         h=Subject:To:Cc:From:Date:From;
-        b=nQD0nMlaI3qrztXx9hg89QCzyLm57taXN48rsb9dABjkxJPTt7+37JbSa06sJrUwB
-         Dgx134N6tEcizCRHfWbdFCU5qAYtZeRIx5gVWxQgE3aDe6Z2siFokhsB6nhNabkChR
-         jDPg/sEb9wcZYDbqA6cDsH4YSq7MUqKYFKNZm2gE=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix frame reception handling" failed to apply to 4.19-stable tree
+        b=s5uX6+gPHwdzCivuKvsd0d5LRfZPqK4m9LeFT72WGrVHEhnpMYQJshLGNeHu4Lwef
+         WIeaEZ399zXmDsNXI2Ljb6MsRJjuGLdhzxdpXx4ktsjmSHUHp4Fy2NpxrbYaBVuybd
+         MfMbQmxJykXpxnCt7wgdHrLMBoXGwxQDPL0CXC+g=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix frame reception handling" failed to apply to 4.9-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 May 2022 01:17:24 +0200
-Message-ID: <1651533444171214@kroah.com>
+Date:   Tue, 03 May 2022 01:17:25 +0200
+Message-ID: <165153344552155@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
