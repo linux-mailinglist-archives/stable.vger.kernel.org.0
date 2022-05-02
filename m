@@ -2,64 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D47517125
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 16:01:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3755171B3
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 16:38:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235196AbiEBOEk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 10:04:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43192 "EHLO
+        id S237875AbiEBOlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 10:41:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385479AbiEBOEi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 10:04:38 -0400
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F25B5DFA5;
-        Mon,  2 May 2022 07:01:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1651500068; x=1683036068;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=SB+mn4fRsEDPQCfTw8QCueHkfqpMzSgEmOFpanrd+SA=;
-  b=HLjXlPk1fIrq24lnJRFLHJZTzAxyw81Bt6lDHioqNAJ9jSZp47Y4vlma
-   fVCvxsmuTI7LDZe0JxO/d+2OXKZMy3RaLbyCVT9jr/VGVfy3q6+k/NyWa
-   gZBRZuwy/4heV6HNs3lj0YuqtjSIYHHyYe8GPyK38jytHgPXIL7rtsB1a
-   jaU3/jLFmXEW55nkMjf+Uzu+4iGxaTU2XlATiMtXQiehLZLFheclSmhSD
-   XjWRdpFSS/q2OCZrjjFFS2/x7697nOf4LQLNMJhbKWQNRWAj1LI80IfWC
-   181T859R/jpRxyVedFL8wjFspONIZWCR2bO9mTTo9pyxFn1Iz8W7YlKh8
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10334"; a="327758741"
-X-IronPort-AV: E=Sophos;i="5.91,192,1647327600"; 
-   d="scan'208";a="327758741"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2022 07:01:06 -0700
-X-IronPort-AV: E=Sophos;i="5.91,192,1647327600"; 
-   d="scan'208";a="561742281"
-Received: from sushilsu-mobl1.amr.corp.intel.com (HELO [10.251.9.25]) ([10.251.9.25])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2022 07:01:05 -0700
-Message-ID: <62f73d83-56b0-1ccb-c7f6-5bf975f7bf9b@linux.intel.com>
-Date:   Mon, 2 May 2022 09:01:04 -0500
+        with ESMTP id S237799AbiEBOla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 10:41:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F35CF10BD
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 07:38:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651502281;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wVoPR7+BaUM00iEkwlBxjF0xXPgmMZX2vpPWycEtV78=;
+        b=ZS2/40R1iUOIYVDEhNdS10GFGN5FbeZEKHU8f2VEETFm8HuMOX/5Y+wypBiTHq0gcnjwRM
+        IbmP2ROLc9S8T4oqkv32x75Ofl+iO/OG1RGMSZQHqy77qxTL8NHPNo8e3F5zUohhYmUy5o
+        JTcAMpTCeJIwr/nGlH6knbsRIoLQDRU=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-152-MmWCcKafP32gX5GLYtBFzw-1; Mon, 02 May 2022 10:37:59 -0400
+X-MC-Unique: MmWCcKafP32gX5GLYtBFzw-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3E91C3806707;
+        Mon,  2 May 2022 14:37:58 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.40.192.34])
+        by smtp.corp.redhat.com (Postfix) with SMTP id DBB8540869CE;
+        Mon,  2 May 2022 14:37:52 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Mon,  2 May 2022 16:37:57 +0200 (CEST)
+Date:   Mon, 2 May 2022 16:37:51 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     linux-kernel@vger.kernel.org, rjw@rjwysocki.net, mingo@kernel.org,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        rostedt@goodmis.org, mgorman@suse.de, bigeasy@linutronix.de,
+        Will Deacon <will@kernel.org>, tj@kernel.org,
+        linux-pm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        linux-um@lists.infradead.org, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, linux-ia64@vger.kernel.org,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH v2 06/12] ptrace: Reimplement PTRACE_KILL by always
+ sending SIGKILL
+Message-ID: <20220502143750.GC17276@redhat.com>
+References: <87k0b7v9yk.fsf_-_@email.froward.int.ebiederm.org>
+ <20220429214837.386518-6-ebiederm@xmission.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Firefox/91.0 Thunderbird/91.5.0
-Subject: Re: [PATCH AUTOSEL 5.17 06/22] ASoC: Intel: sof_es8336: Add a quirk
- for Huawei Matebook D15
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, Mark Brown <broonie@kernel.org>
-Cc:     cezary.rojewski@intel.com, alsa-devel@alsa-project.org,
-        yung-chuan.liao@linux.intel.com, tiwai@suse.com,
-        yang.jie@linux.intel.com, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, liam.r.girdwood@linux.intel.com,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        peter.ujfalusi@linux.intel.com
-References: <20220426190145.2351135-1-sashal@kernel.org>
- <20220426190145.2351135-6-sashal@kernel.org> <Ymko4F24MvbGJUXp@sirena.org.uk>
- <Ym7gMZRI7ad6u0fL@sashalap>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-In-Reply-To: <Ym7gMZRI7ad6u0fL@sashalap>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220429214837.386518-6-ebiederm@xmission.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.84 on 10.11.54.1
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -68,25 +75,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 04/29, Eric W. Biederman wrote:
+>
+> Call send_sig_info in PTRACE_KILL instead of ptrace_resume.  Calling
+> ptrace_resume is not safe to call if the task has not been stopped
+> with ptrace_freeze_traced.
 
+Oh, I was never, never able to understand why do we have PTRACE_KILL
+and what should it actually do.
 
-On 5/1/22 14:32, Sasha Levin wrote:
-> On Wed, Apr 27, 2022 at 12:28:32PM +0100, Mark Brown wrote:
->> On Tue, Apr 26, 2022 at 03:01:29PM -0400, Sasha Levin wrote:
->>> From: Mauro Carvalho Chehab <mchehab@kernel.org>
->>>
->>> [ Upstream commit c7cb4717f641db68e8117635bfcf62a9c27dc8d3 ]
->>>
->>> Based on experimental tests, Huawei Matebook D15 actually uses
->>> both gpio0 and gpio1: the first one controls the speaker, while
->>> the other one controls the headphone.
->>
->> Are you sure this doesn't need the rest of the series it came along
->> with?
-> 
-> I'm not :) Should we queue it too?
+I suggested many times to simply remove it but OK, we probably can't
+do this.
 
-If you add this platform to -stable, you'd need the entire series https://lore.kernel.org/alsa-devel/20220308192610.392950-1-pierre-louis.bossart@linux.intel.com/, and the additions made by Mauro.
+> --- a/kernel/ptrace.c
+> +++ b/kernel/ptrace.c
+> @@ -1238,7 +1238,7 @@ int ptrace_request(struct task_struct *child, long request,
+>  	case PTRACE_KILL:
+>  		if (child->exit_state)	/* already dead */
+>  			return 0;
+> -		return ptrace_resume(child, request, SIGKILL);
+> +		return send_sig_info(SIGKILL, SEND_SIG_NOINFO, child);
 
-My take is that it's not really relevant for -stable, support for this hardware codec is still a works-in-progress and while we'd certainly want to have more distributions use the hardware support it's quite disruptive for -stable maintainers, with the risk of compilation problems and functional issues introduced. it'll make more sense for 5.18+.
+Note that currently ptrace(PTRACE_KILL) can never fail (yes, yes, it
+is unsafe), but send_sig_info() can. If we do not remove PTRACE_KILL,
+then I'd suggest
+
+	case PTRACE_KILL:
+		if (!child->exit_state)
+			send_sig_info(SIGKILL);
+		return 0;
+
+to make this change a bit more compatible.
+
+Also, please remove the note about PTRACE_KILL in set_task_blockstep().
+
+Oleg.
 
