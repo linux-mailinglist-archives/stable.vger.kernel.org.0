@@ -2,67 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B602516B5A
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 09:37:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66689516BEF
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 10:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348738AbiEBHko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 03:40:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42678 "EHLO
+        id S1382647AbiEBIVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 04:21:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358360AbiEBHkj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 03:40:39 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FA181838D
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 00:37:05 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id i1so5707638plg.7
-        for <stable@vger.kernel.org>; Mon, 02 May 2022 00:37:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qylWuJPFxDs6c/NuX9PrtyFbyTvx09ky3vB04MABDp4=;
-        b=nDnZS2DUxc9+PpX8Qs/NXPEuMqn1BF78QV0BHJ4LNMgF0NINjoju8CmJNi5T2jV0v5
-         P7OXsUqytvUbMBpRG/Pajvdqdo8JsEY8YITFfXlmyGXcnU2LGxsGGxIX9YfeJjsXY5sx
-         ZkLBg8G3CcMxgshwIXiLIsrFoyFXIHYICBT0GIxuwpeSkAtJ4SJGwZ6nKFDftso+Wpes
-         z6anOlKaf8Yn9weYHk11hZHtkwjyUqaRrUlmSV/Km1txKVHBdik9XzKTDfUssp37r2OZ
-         39no1MxGBCjxKAAVPJHFmonhb/vp08MuYvz9O+WA+KmfMI8FeK2ZHGhbODCn2ce9mLrq
-         HviQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qylWuJPFxDs6c/NuX9PrtyFbyTvx09ky3vB04MABDp4=;
-        b=xSEAHDVqsPzPrQMtvzvQAOc9XXCdxTpTDElwl9Nhn+PIFyTiPu5imCwsXSXMaMfZOx
-         0SaMG0gjrT0HRouefv1wW+dS+kcx2QFDLD79sMmwcCgk+9VpJT25Np6HSbOwdZetnR3S
-         3Lf9DmWAnrsCmh6jtIafL5xnvDoqhnaHzGNZNCOQ207GISyv8xgfmLWE9TgBTyd7BMdV
-         B2GeUr7r+IU69i1Q/qmYFridSwXz/EX6ysyJ7wSH753T5GDhVn57U990oHg9b3wW7bjt
-         S+CznTqua1z1vtSymfXyPUCftH+ztNO9P6a15yVrwLgmEosi12Ayn+TOhQmRQKH1HxHy
-         6cRA==
-X-Gm-Message-State: AOAM531882+42HZ8mlKpQQmFgfNdt1FGP0LxskRNeZ6mC46XJgl0giNr
-        0zJ4gwyMCaQLKY8QcvlW3mQaDc2bpcZUOcTIX1A=
-X-Google-Smtp-Source: ABdhPJxeHUN5DRLu/qLf//sQERjDdm6PoawcxPDpCQZF8AKLO31MOdNt+JcwBHToQPYXlKZ3ervGaQ==
-X-Received: by 2002:a17:903:41c5:b0:15e:a7b6:e031 with SMTP id u5-20020a17090341c500b0015ea7b6e031mr2922522ple.82.1651477023760;
-        Mon, 02 May 2022 00:37:03 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a37-20020a634d25000000b003c14af505ecsm10822290pgb.4.2022.05.02.00.37.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 00:37:03 -0700 (PDT)
-Message-ID: <626f8a1f.1c69fb81.1c79d.a251@mx.google.com>
-Date:   Mon, 02 May 2022 00:37:03 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
+        with ESMTP id S239965AbiEBIVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 04:21:08 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E9AB3190F;
+        Mon,  2 May 2022 01:17:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1651479460; x=1683015460;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=mQSxDc6AnoSmayWV5vSGp3/hSb4d5dA8qPKNuEkQi2A=;
+  b=YnuS6/58F4etS8bf9dzXksnUlIJkg812S0QgY5+1y6mZAuu0FEEC+Azx
+   GcKS+u1PRpfSLJ893wl8GVwk7K8H9xu9GAIRKY6mi82rPpsoBG5cm8deK
+   aAAVEnpBqkJl1itFzbxjgj7arSxP7FV/PHs2IRt1gThTakm8akEGMzdgf
+   kBMWeYZKDG/C54U1V3bLS6zV3qXlEERUWnFGHzUYfy/iz0NY7TUN+JY7l
+   U0KxBqH+kMt4O+M+ayGORC50B0yrLJJmJb6L6s8l60KlqiivAXFka0dF9
+   44Yqit4Ze8Qv9OGdczw7MlETpmzgDFmP+o2q9wP4mh+jvhDT8VrrXPBUs
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10334"; a="266732921"
+X-IronPort-AV: E=Sophos;i="5.91,190,1647327600"; 
+   d="scan'208";a="266732921"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2022 01:17:39 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,190,1647327600"; 
+   d="scan'208";a="535750378"
+Received: from fmsmsx604.amr.corp.intel.com ([10.18.126.84])
+  by orsmga006.jf.intel.com with ESMTP; 02 May 2022 01:17:39 -0700
+Received: from fmsmsx609.amr.corp.intel.com (10.18.126.89) by
+ fmsmsx604.amr.corp.intel.com (10.18.126.84) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.27; Mon, 2 May 2022 01:17:39 -0700
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx609.amr.corp.intel.com (10.18.126.89) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.27 via Frontend Transport; Mon, 2 May 2022 01:17:39 -0700
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (104.47.55.174)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2308.27; Mon, 2 May 2022 01:17:38 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Z/fdPONySa42wRiUKm09Iu8CV6XZp/R7jR3fP/PznlqHKtw8tQGN5HD2zH3Pg8vKnPCzwcoeF6C2f9a+4Alq3kZOcILUn6HaTX2EUkOacvUaxj6AOc4GvTcaFskDA3P8SAK4/xCXk9gooaII5KJN4NyNpYEhzQiJX3V798A0ZkEi9naMxWH1lEKpORtWf9RXSYzAMbMR5CQHPFOlsmTFkNSItCGrd5XI/u+5QgsGmNlDNdoOaW0D6eAD/0j8bpjjQUkAk+Y8DOCJtTUQc/13fTcnJBjXA9gArqz88MQB2AOHP9GNhyRso6l5I8NqlTufOO8NLKVIiz5UGtHya30ZNw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/ZKdmVaU9EGM9/Y9oCm9CP3gDYJIaFd7Qo6AvC+ubls=;
+ b=nYVlg1jBroLkGrAUUvOdGHNrOevEyxtXS1Oj56ToC29ICi7dAxEiAzNagGRCW3oHM5LUBdDtQXBXWfZKi1SOVE6iS54/5XPzn7nLr9XYxN5jjKEq7jIMcPhcTFBWqA5+dolXzDXNrckw3m6z5H0Ii9ey2gbrFQBfeDRvcqU26/5cErUPnI2xuI2JlMIVgDnmP6LDqaegJ1EhLWx2QZdtYSsMu2FJSUrK6IrZ4i2ed/Q9lW/Be5FS0RdUGb7XlC9k/By/N7/wmAj1cfD2rjqYTi5dMjJRLfIWyy1pOCMwqTb0Y9d8dyll0L6SC7IGuRlT/pbyMO/IZvIzlT1XCI56zg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from BYAPR11MB3367.namprd11.prod.outlook.com (2603:10b6:a03:79::29)
+ by BYAPR11MB3590.namprd11.prod.outlook.com (2603:10b6:a03:b2::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.23; Mon, 2 May
+ 2022 08:17:32 +0000
+Received: from BYAPR11MB3367.namprd11.prod.outlook.com
+ ([fe80::829:3da:fb91:c8e7]) by BYAPR11MB3367.namprd11.prod.outlook.com
+ ([fe80::829:3da:fb91:c8e7%6]) with mapi id 15.20.5206.024; Mon, 2 May 2022
+ 08:17:32 +0000
+From:   "G, GurucharanX" <gurucharanx.g@intel.com>
+To:     "Keller, Jacob E" <jacob.e.keller@intel.com>,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>,
+        "Brandeburg, Jesse" <jesse.brandeburg@intel.com>
+CC:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "Raj, Victor" <victor.raj@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "intel-wired-lan@lists.osuosl.org" <intel-wired-lan@lists.osuosl.org>,
+        "kuba@kernel.org" <kuba@kernel.org>,
+        "pabeni@redhat.com" <pabeni@redhat.com>,
+        "davem@davemloft.net" <davem@davemloft.net>
+Subject: RE: [PATCH] ice: ice_sched: fix an incorrect NULL check on list
+ iterator
+Thread-Topic: [PATCH] ice: ice_sched: fix an incorrect NULL check on list
+ iterator
+Thread-Index: AQHYQs2qcyGuccie4kiSQSnllar1gK0Lc9/Q
+Date:   Mon, 2 May 2022 08:17:32 +0000
+Message-ID: <BYAPR11MB336781C93921216983F8BE3CFCC19@BYAPR11MB3367.namprd11.prod.outlook.com>
+References: <20220327064344.7573-1-xiam0nd.tong@gmail.com>
+ <CO1PR11MB5089C7298CC46861FF41D3E3D61D9@CO1PR11MB5089.namprd11.prod.outlook.com>
+In-Reply-To: <CO1PR11MB5089C7298CC46861FF41D3E3D61D9@CO1PR11MB5089.namprd11.prod.outlook.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 4b6722e0-3082-4080-f633-08da2c1434c2
+x-ms-traffictypediagnostic: BYAPR11MB3590:EE_
+x-microsoft-antispam-prvs: <BYAPR11MB35905CFA850E12DCA1B9AD2AFCC19@BYAPR11MB3590.namprd11.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: LyEGmDA6/njbVBRKvn57Bg0cuOzuEMwZfYzBJvbEgs7SkkTxrtItvAS6xXaUIN7p79ZSmx97/qHnGK345nh4XclcQ7X3/8k8r3QQlk3+KqI2Kf2sbGqzqzPehdlhzy+wHVZh4adT7IVpyz9WExMnLKQ+BhNSOjJyUlpfiF5WVvTifbRlfLss9HjbK6Mj9I7vzdvwwYmGw8SGvXjgfl2re6LnorVBPfvtxd276HCvBUiyxVTOgxWh80vI0aE+J+GQZVyl4AkyQfJOc9hCY4yAj0LhLoG2txYD3amrlie8aePMIh1SV1Mu6h+g9huzKNXBi085IobTrdw351eHit/WwDMMHk+Us5i5uVoV1XHcPF+aIeEQj7P+EHkyCqqsTRor33pPTkyKgFbW+ld8wq8Ui3d2yKMa8h76gStydz0onQftchUPmzGO3IcdmVwwDyYhLa2jIRDSbyf9ztUA/IyWN+lO6SgnhAgPvn7m0+/p21dnewdj7LVoJt+oV9VGHT868Ole93NNJo0G4KbdOhN8RHx/BjKDqjusqWCdSW3aekn8hP6kbk6XA5GgcOUrHHPa1OVQP8rvobCcwYqKM1meWYJCPKF7zXQZl7tUCUdzW5LCpgXflQyt1esNc2DJe9R5VYJj3kbv0R3IceHQH2XD1THHgYCigDt6ePAjmKNtGdHCnZn9it8ifvy9uAm2grR1CivXtJQp/4QBLA4y1JbGeg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR11MB3367.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(4326008)(8676002)(2906002)(86362001)(66476007)(64756008)(52536014)(66556008)(66946007)(66446008)(71200400001)(6636002)(316002)(82960400001)(33656002)(8936002)(5660300002)(122000001)(38070700005)(76116006)(38100700002)(508600001)(54906003)(110136005)(83380400001)(186003)(6506007)(9686003)(53546011)(55016003)(7696005)(26005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ZKjAxYKNrEo2Q9EnLiL/L1SZTETO+wi/mINmBV9KR9ys86/Z4m//9EGxF3Ri?=
+ =?us-ascii?Q?+ceUjsOgTaSDdGwNVXEWjfQPb7AzBrMfha2QEuLIPVZRjHPCfCszCGPzg+po?=
+ =?us-ascii?Q?TLNUgm+7Tl55mGVlZJEvbQZC69RPWAEzGPui2n2jgVkKG8iqrcCRLCm1q/HN?=
+ =?us-ascii?Q?HLN8bueb1YsRI3xuQN1FmbiNp/RQC2WTBtCsWpGuzkKaKUq9UkZXcqE0Enq/?=
+ =?us-ascii?Q?NqkOR3EsZaZqhbdLTCDUjY4a6P/tqiZT7DMI6tc46bRr3R8y16wW/AGdyF3t?=
+ =?us-ascii?Q?B4G3QdeE/x6RGgUOT6lhQN5weHihbdYDO0/BI/AHmxzjpwMpc7TEE5hLp4Rm?=
+ =?us-ascii?Q?CxcPuhi2LKJxcFzYvPRcgVImi1/ycHMa1UBMij5dGD0kjiOqiFUbWqfSKcLg?=
+ =?us-ascii?Q?QxdeJFwj8Y//qylNysUPp+lD91qhU6ZQWEnGlZMseKYAEs9kgR+PbMiYxuJV?=
+ =?us-ascii?Q?4O+g1BbeGyG5PGdKxb2oz3Yc5wbsqamCv21dNsKdVwK9C3tq/S1bwGFdCHva?=
+ =?us-ascii?Q?YtU8u5pUwwUt6NoiVNuQ65pqAaX38ao+g60H2SiPiPCNI4uCjVzGATL72Zvn?=
+ =?us-ascii?Q?EYSqMRwvk3BSY38nVwhGCUKLwQQLTHZ/0NNKiq7QdCF5Z1j62BFbr1Og31GG?=
+ =?us-ascii?Q?UWh/co//aPwSVFlOmSrma3KyHzi/RH13lPWAyb/OyJKHeGa6IqSlMVBBJin9?=
+ =?us-ascii?Q?fPQZGtQVrdnbmnFq4bcebjcjI0AsHiH0WF+z91jXzXFBk5O4HnP0H6hUk7aB?=
+ =?us-ascii?Q?EcPhVmj+fW3egoXYrAb6GI1jrolZpZ2cqBf1w6COrbh+SUM6CHami/PO2n89?=
+ =?us-ascii?Q?kFBNzH+O3tatZlvaUHJglA+p1hk/ReiulwuHKTfliSuQr+Eqlnof3pPszD2R?=
+ =?us-ascii?Q?uPIX5ZHZLm7nJq+OETMdhVjY8kOxWkdfjKzFabnSfQY0idyc1WB6mvsrA5ZZ?=
+ =?us-ascii?Q?37AeN8m3NgBHNAMq5y0Fm0wH2YS6ctvoTXvKPqh+7LYZYBJ67G9bj4qBPA2X?=
+ =?us-ascii?Q?s65KkfQ5SIGZKTPfkgyzZA5NF3BBSyc24SpJEt8O/ZzKcur4yEPvUY7BvZFn?=
+ =?us-ascii?Q?jFM8mgFMHq9BwD+Jk6zmdlLMjGpfirf9tOXzyJ7tDqBma9pX4EGzKWbJbjYJ?=
+ =?us-ascii?Q?FkLcqyHpIyW2fPVvqMGdEPgDSuoHE/2OQaVJLEOGzFAridyT9g6sG9mUjDHJ?=
+ =?us-ascii?Q?/rlc79mmks4qql04iMkJZMQX3Q0/wZlayjv/CpdY+hrnrNyAqjLu0GLic5hE?=
+ =?us-ascii?Q?zWdc7xmfCKepv2r+JYh3a5G1cs5trrzRai7xW8u2jkMuhOG0Gwh6C1Kgwhiv?=
+ =?us-ascii?Q?VrD5NV1a7gGcamA/IN6VsgU23PGuIpXSVaQdJzaCV/ekk81uoOelbtKYi6wG?=
+ =?us-ascii?Q?eTEEGM1AoCvbyHhaG7gemS6C+LKxg6RnlD47gEK1W+fl0M6SsW+yXXuEr0/f?=
+ =?us-ascii?Q?eTIRG6bicxiIxy/YHaRX436RDPc1N8LJgmt5BCicXXB8hUeJ+BVdVn8Grc1+?=
+ =?us-ascii?Q?PPTx2cvcGxHAZiCPz53e319wgcPGA0m8n0Yz2Z2avivTMxYW8pgYb3hxCJYQ?=
+ =?us-ascii?Q?aOJBbndt25v3MnFKACKOJGEGc47FGEGcDoYPsIc8btCz2qN8XsQPI233Tq2l?=
+ =?us-ascii?Q?vbRohcfMRiHPzZJTc04KcYZm2dgSh2YFgrFwfQFYOsDeakF7NQNJmirzSrpK?=
+ =?us-ascii?Q?cWdJgQx5jLovHbfY7A5hJc1t1mKUT75r21Gdf5iT9rmqNDAfKrPYvh9/qm0O?=
+ =?us-ascii?Q?ldvmjYlGKg=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.191-28-g0c37fef7ceeb
-X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/5.4 build: 190 builds: 190 failed, 0 passed, 28 errors,
- 52 warnings (v5.4.191-28-g0c37fef7ceeb)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR11MB3367.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4b6722e0-3082-4080-f633-08da2c1434c2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 May 2022 08:17:32.1881
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: KEaGjIljMtlFIXS7x+Y/jnFBhdECe9ojxGDvNwU70IX1jAXqiRiHBWItxN0kfgjPR1GML3HfQ/WhYBdgqjqDeQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR11MB3590
+X-OriginatorOrg: intel.com
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,1654 +160,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 build: 190 builds: 190 failed, 0 passed, 28 errors, 52 =
-warnings (v5.4.191-28-g0c37fef7ceeb)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
-/kernel/v5.4.191-28-g0c37fef7ceeb/
 
-Tree: stable-rc
-Branch: queue/5.4
-Git Describe: v5.4.191-28-g0c37fef7ceeb
-Git Commit: 0c37fef7ceebd5a737e0944d5b3de279d707d25a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Build Failures Detected:
-
-arc:
-    allnoconfig: (gcc-10) FAIL
-    axs103_defconfig: (gcc-10) FAIL
-    axs103_smp_defconfig: (gcc-10) FAIL
-    haps_hs_defconfig: (gcc-10) FAIL
-    haps_hs_smp_defconfig: (gcc-10) FAIL
-    hsdk_defconfig: (gcc-10) FAIL
-    nsim_hs_defconfig: (gcc-10) FAIL
-    nsim_hs_smp_defconfig: (gcc-10) FAIL
-    nsimosci_hs_defconfig: (gcc-10) FAIL
-    nsimosci_hs_smp_defconfig: (gcc-10) FAIL
-    tinyconfig: (gcc-10) FAIL
-    vdk_hs38_defconfig: (gcc-10) FAIL
-    vdk_hs38_smp_defconfig: (gcc-10) FAIL
-
-arm64:
-    defconfig: (gcc-10) FAIL
-    defconfig+arm64-chromebook: (gcc-10) FAIL
-
-arm:
-    am200epdkit_defconfig: (gcc-10) FAIL
-    aspeed_g4_defconfig: (gcc-10) FAIL
-    aspeed_g5_defconfig: (gcc-10) FAIL
-    assabet_defconfig: (gcc-10) FAIL
-    at91_dt_defconfig: (gcc-10) FAIL
-    axm55xx_defconfig: (gcc-10) FAIL
-    badge4_defconfig: (gcc-10) FAIL
-    bcm2835_defconfig: (gcc-10) FAIL
-    cerfcube_defconfig: (gcc-10) FAIL
-    cm_x2xx_defconfig: (gcc-10) FAIL
-    cm_x300_defconfig: (gcc-10) FAIL
-    colibri_pxa270_defconfig: (gcc-10) FAIL
-    colibri_pxa300_defconfig: (gcc-10) FAIL
-    collie_defconfig: (gcc-10) FAIL
-    corgi_defconfig: (gcc-10) FAIL
-    davinci_all_defconfig: (gcc-10) FAIL
-    dove_defconfig: (gcc-10) FAIL
-    ebsa110_defconfig: (gcc-10) FAIL
-    efm32_defconfig: (gcc-10) FAIL
-    em_x270_defconfig: (gcc-10) FAIL
-    ep93xx_defconfig: (gcc-10) FAIL
-    eseries_pxa_defconfig: (gcc-10) FAIL
-    exynos_defconfig: (gcc-10) FAIL
-    ezx_defconfig: (gcc-10) FAIL
-    footbridge_defconfig: (gcc-10) FAIL
-    gemini_defconfig: (gcc-10) FAIL
-    h3600_defconfig: (gcc-10) FAIL
-    h5000_defconfig: (gcc-10) FAIL
-    hackkit_defconfig: (gcc-10) FAIL
-    hisi_defconfig: (gcc-10) FAIL
-    imote2_defconfig: (gcc-10) FAIL
-    imx_v4_v5_defconfig: (gcc-10) FAIL
-    imx_v6_v7_defconfig: (gcc-10) FAIL
-    integrator_defconfig: (gcc-10) FAIL
-    iop32x_defconfig: (gcc-10) FAIL
-    ixp4xx_defconfig: (gcc-10) FAIL
-    jornada720_defconfig: (gcc-10) FAIL
-    keystone_defconfig: (gcc-10) FAIL
-    lart_defconfig: (gcc-10) FAIL
-    lpc18xx_defconfig: (gcc-10) FAIL
-    lpc32xx_defconfig: (gcc-10) FAIL
-    lpd270_defconfig: (gcc-10) FAIL
-    lubbock_defconfig: (gcc-10) FAIL
-    magician_defconfig: (gcc-10) FAIL
-    mainstone_defconfig: (gcc-10) FAIL
-    milbeaut_m10v_defconfig: (gcc-10) FAIL
-    mini2440_defconfig: (gcc-10) FAIL
-    mmp2_defconfig: (gcc-10) FAIL
-    moxart_defconfig: (gcc-10) FAIL
-    mps2_defconfig: (gcc-10) FAIL
-    multi_v4t_defconfig: (gcc-10) FAIL
-    multi_v5_defconfig: (gcc-10) FAIL
-    multi_v7_defconfig: (gcc-10) FAIL
-    mvebu_v5_defconfig: (gcc-10) FAIL
-    mvebu_v7_defconfig: (gcc-10) FAIL
-    mxs_defconfig: (gcc-10) FAIL
-    neponset_defconfig: (gcc-10) FAIL
-    netwinder_defconfig: (gcc-10) FAIL
-    nhk8815_defconfig: (gcc-10) FAIL
-    omap1_defconfig: (gcc-10) FAIL
-    omap2plus_defconfig: (gcc-10) FAIL
-    orion5x_defconfig: (gcc-10) FAIL
-    oxnas_v6_defconfig: (gcc-10) FAIL
-    palmz72_defconfig: (gcc-10) FAIL
-    pcm027_defconfig: (gcc-10) FAIL
-    pleb_defconfig: (gcc-10) FAIL
-    prima2_defconfig: (gcc-10) FAIL
-    pxa168_defconfig: (gcc-10) FAIL
-    pxa255-idp_defconfig: (gcc-10) FAIL
-    pxa3xx_defconfig: (gcc-10) FAIL
-    pxa910_defconfig: (gcc-10) FAIL
-    pxa_defconfig: (gcc-10) FAIL
-    qcom_defconfig: (gcc-10) FAIL
-    realview_defconfig: (gcc-10) FAIL
-    rpc_defconfig: (gcc-10) FAIL
-    s3c2410_defconfig: (gcc-10) FAIL
-    s3c6400_defconfig: (gcc-10) FAIL
-    s5pv210_defconfig: (gcc-10) FAIL
-    sama5_defconfig: (gcc-10) FAIL
-    shannon_defconfig: (gcc-10) FAIL
-    shmobile_defconfig: (gcc-10) FAIL
-    simpad_defconfig: (gcc-10) FAIL
-    socfpga_defconfig: (gcc-10) FAIL
-    spear13xx_defconfig: (gcc-10) FAIL
-    spear3xx_defconfig: (gcc-10) FAIL
-    spear6xx_defconfig: (gcc-10) FAIL
-    spitz_defconfig: (gcc-10) FAIL
-    stm32_defconfig: (gcc-10) FAIL
-    sunxi_defconfig: (gcc-10) FAIL
-    tango4_defconfig: (gcc-10) FAIL
-    tct_hammer_defconfig: (gcc-10) FAIL
-    tegra_defconfig: (gcc-10) FAIL
-    trizeps4_defconfig: (gcc-10) FAIL
-    u300_defconfig: (gcc-10) FAIL
-    u8500_defconfig: (gcc-10) FAIL
-    versatile_defconfig: (gcc-10) FAIL
-    vexpress_defconfig: (gcc-10) FAIL
-    vf610m4_defconfig: (gcc-10) FAIL
-    viper_defconfig: (gcc-10) FAIL
-    vt8500_v6_v7_defconfig: (gcc-10) FAIL
-    xcep_defconfig: (gcc-10) FAIL
-    zeus_defconfig: (gcc-10) FAIL
-    zx_defconfig: (gcc-10) FAIL
-
-i386:
-    allnoconfig: (gcc-10) FAIL
-    i386_defconfig: (gcc-10) FAIL
-    tinyconfig: (gcc-10) FAIL
-
-mips:
-    32r2el_defconfig: (gcc-10) FAIL
-    ar7_defconfig: (gcc-10) FAIL
-    ath25_defconfig: (gcc-10) FAIL
-    ath79_defconfig: (gcc-10) FAIL
-    bcm47xx_defconfig: (gcc-10) FAIL
-    bcm63xx_defconfig: (gcc-10) FAIL
-    bigsur_defconfig: (gcc-10) FAIL
-    bmips_be_defconfig: (gcc-10) FAIL
-    bmips_stb_defconfig: (gcc-10) FAIL
-    capcella_defconfig: (gcc-10) FAIL
-    cavium_octeon_defconfig: (gcc-10) FAIL
-    ci20_defconfig: (gcc-10) FAIL
-    cobalt_defconfig: (gcc-10) FAIL
-    db1xxx_defconfig: (gcc-10) FAIL
-    decstation_64_defconfig: (gcc-10) FAIL
-    decstation_defconfig: (gcc-10) FAIL
-    decstation_r4k_defconfig: (gcc-10) FAIL
-    e55_defconfig: (gcc-10) FAIL
-    fuloong2e_defconfig: (gcc-10) FAIL
-    gcw0_defconfig: (gcc-10) FAIL
-    gpr_defconfig: (gcc-10) FAIL
-    ip22_defconfig: (gcc-10) FAIL
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-    ip32_defconfig: (gcc-10) FAIL
-    jazz_defconfig: (gcc-10) FAIL
-    jmr3927_defconfig: (gcc-10) FAIL
-    lasat_defconfig: (gcc-10) FAIL
-    lemote2f_defconfig: (gcc-10) FAIL
-    loongson1b_defconfig: (gcc-10) FAIL
-    loongson1c_defconfig: (gcc-10) FAIL
-    loongson3_defconfig: (gcc-10) FAIL
-    malta_defconfig: (gcc-10) FAIL
-    malta_kvm_defconfig: (gcc-10) FAIL
-    malta_kvm_guest_defconfig: (gcc-10) FAIL
-    malta_qemu_32r6_defconfig: (gcc-10) FAIL
-    maltaaprp_defconfig: (gcc-10) FAIL
-    maltasmvp_defconfig: (gcc-10) FAIL
-    maltasmvp_eva_defconfig: (gcc-10) FAIL
-    maltaup_defconfig: (gcc-10) FAIL
-    maltaup_xpa_defconfig: (gcc-10) FAIL
-    markeins_defconfig: (gcc-10) FAIL
-    mips_paravirt_defconfig: (gcc-10) FAIL
-    mpc30x_defconfig: (gcc-10) FAIL
-    msp71xx_defconfig: (gcc-10) FAIL
-    mtx1_defconfig: (gcc-10) FAIL
-    nlm_xlp_defconfig: (gcc-10) FAIL
-    nlm_xlr_defconfig: (gcc-10) FAIL
-    omega2p_defconfig: (gcc-10) FAIL
-    pic32mzda_defconfig: (gcc-10) FAIL
-    pistachio_defconfig: (gcc-10) FAIL
-    pnx8335_stb225_defconfig: (gcc-10) FAIL
-    qi_lb60_defconfig: (gcc-10) FAIL
-    rb532_defconfig: (gcc-10) FAIL
-    rbtx49xx_defconfig: (gcc-10) FAIL
-    rm200_defconfig: (gcc-10) FAIL
-    rt305x_defconfig: (gcc-10) FAIL
-    sb1250_swarm_defconfig: (gcc-10) FAIL
-    tb0219_defconfig: (gcc-10) FAIL
-    tb0226_defconfig: (gcc-10) FAIL
-    tb0287_defconfig: (gcc-10) FAIL
-    vocore2_defconfig: (gcc-10) FAIL
-    workpad_defconfig: (gcc-10) FAIL
-    xway_defconfig: (gcc-10) FAIL
-
-riscv:
-    defconfig: (gcc-10) FAIL
-
-x86_64:
-    allnoconfig: (gcc-10) FAIL
-    tinyconfig: (gcc-10) FAIL
-    x86_64_defconfig: (gcc-10) FAIL
-    x86_64_defconfig+x86-chromebook: (gcc-10) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-
-arm64:
-    defconfig (gcc-10): 1 error, 3 warnings
-    defconfig+arm64-chromebook (gcc-10): 1 error, 3 warnings
-
-arm:
-    assabet_defconfig (gcc-10): 1 warning
-    bcm2835_defconfig (gcc-10): 2 errors, 2 warnings
-    collie_defconfig (gcc-10): 1 warning
-    davinci_all_defconfig (gcc-10): 1 error, 1 warning
-    exynos_defconfig (gcc-10): 1 error, 1 warning
-    h3600_defconfig (gcc-10): 1 warning
-    hisi_defconfig (gcc-10): 2 errors, 2 warnings
-    imx_v4_v5_defconfig (gcc-10): 1 error, 1 warning
-    imx_v6_v7_defconfig (gcc-10): 1 error, 1 warning
-    keystone_defconfig (gcc-10): 1 error, 1 warning
-    multi_v7_defconfig (gcc-10): 1 error, 1 warning
-    mvebu_v7_defconfig (gcc-10): 1 error, 1 warning
-    neponset_defconfig (gcc-10): 1 warning
-    omap2plus_defconfig (gcc-10): 1 error, 1 warning
-    pxa_defconfig (gcc-10): 1 error, 1 warning
-    rpc_defconfig (gcc-10): 4 errors
-    shannon_defconfig (gcc-10): 1 warning
-    socfpga_defconfig (gcc-10): 1 error, 1 warning
-    sunxi_defconfig (gcc-10): 1 error, 1 warning
-    vt8500_v6_v7_defconfig (gcc-10): 1 error, 1 warning
-
-i386:
-    allnoconfig (gcc-10): 2 warnings
-    i386_defconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
-
-mips:
-    cavium_octeon_defconfig (gcc-10): 1 error, 1 warning
-    gcw0_defconfig (gcc-10): 2 errors, 2 warnings
-    mtx1_defconfig (gcc-10): 3 warnings
-    qi_lb60_defconfig (gcc-10): 1 error, 1 warning
-    xway_defconfig (gcc-10): 2 errors, 2 warnings
-
-riscv:
-
-x86_64:
-    allnoconfig (gcc-10): 3 warnings
-    tinyconfig (gcc-10): 3 warnings
-    x86_64_defconfig (gcc-10): 2 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 2 warnings
-
-Errors summary:
-
-    12   drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration =
-of function =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_r=
-eprobe=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    8    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of func=
-tion =E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98d=
-wc3_gadget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaratio=
-n]
-    4    drivers/usb/phy/phy-generic.c:286:19: error: implicit declaration =
-of function =E2=80=98devm_regulator_get_exclusive=E2=80=99; did you mean =
-=E2=80=98regulator_get_exclusive=E2=80=99? [-Werror=3Dimplicit-function-dec=
-laration]
-    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
-h=3D=E2=80=99
-
-Warnings summary:
-
-    20   cc1: some warnings being treated as errors
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
-min_dma_period=E2=80=99 defined but not used [-Wunused-function]
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    4    drivers/usb/phy/phy-generic.c:286:17: warning: assignment to =E2=
-=80=98struct regulator *=E2=80=99 from =E2=80=98int=E2=80=99 makes pointer =
-from integer without a cast [-Wint-conversion]
-    4    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
- to integer of different size [-Wpointer-to-int-cast]
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic s=
-uffix given and no register operands; using default for `sysret'
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-
-Section mismatches summary:
-
-    2    WARNING: vmlinux.o(.text+0xcb50): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text.unlikely+0x3774): Section mismatch in ref=
-erence from the function pmax_setup_memory_region() to the function .init.t=
-ext:add_memory_region()
-    1    WARNING: vmlinux.o(.text+0xcf84): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xce80): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xcd90): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xcc84): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xcb58): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xcb30): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xc9fc): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xc8b8): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0xb954): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0x7f4c): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-    1    WARNING: vmlinux.o(.text+0x75b4): Section mismatch in reference fr=
-om the function __arm_ioremap_pfn_caller() to the function .meminit.text:me=
-mblock_is_map_memory()
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 FAIL, 0 errors, 2 warnings, 0 section =
-mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 FAIL, 0 errors, 3 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xcb50): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xcc84): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sec=
-tion mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:286:19: error: implicit declaration of fu=
-nction =E2=80=98devm_regulator_get_exclusive=E2=80=99; did you mean =E2=80=
-=98regulator_get_exclusive=E2=80=99? [-Werror=3Dimplicit-function-declarati=
-on]
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    drivers/usb/phy/phy-generic.c:286:17: warning: assignment to =E2=80=98s=
-truct regulator *=E2=80=99 from =E2=80=98int=E2=80=99 makes pointer from in=
-teger without a cast [-Wint-conversion]
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, =
-0 section mismatches
-
-Errors:
-    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of function =
-=E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98dwc3_g=
-adget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0x75b4): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xb954): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
- section mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text.unlikely+0x3774): Section mismatch in referenc=
-e from the function pmax_setup_memory_region() to the function .init.text:a=
-dd_memory_region()
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 FAIL, 1 error, 3 warnings, 0 section mi=
-smatches
-
-Errors:
-    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of function =
-=E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98dwc3_g=
-adget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 FAIL, 1 error, 3 warni=
-ngs, 0 section mismatches
-
-Errors:
-    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of function =
-=E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98dwc3_g=
-adget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0x7f4c): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of function =
-=E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98dwc3_g=
-adget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 secti=
-on mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:286:19: error: implicit declaration of fu=
-nction =E2=80=98devm_regulator_get_exclusive=E2=80=99; did you mean =E2=80=
-=98regulator_get_exclusive=E2=80=99? [-Werror=3Dimplicit-function-declarati=
-on]
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    drivers/usb/phy/phy-generic.c:286:17: warning: assignment to =E2=80=98s=
-truct regulator *=E2=80=99 from =E2=80=98int=E2=80=99 makes pointer from in=
-teger without a cast [-Wint-conversion]
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xcb50): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xce80): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sectio=
-n mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:286:19: error: implicit declaration of fu=
-nction =E2=80=98devm_regulator_get_exclusive=E2=80=99; did you mean =E2=80=
-=98regulator_get_exclusive=E2=80=99? [-Werror=3Dimplicit-function-declarati=
-on]
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    drivers/usb/phy/phy-generic.c:286:17: warning: assignment to =E2=80=98s=
-truct regulator *=E2=80=99 from =E2=80=98int=E2=80=99 makes pointer from in=
-teger without a cast [-Wint-conversion]
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 FAIL, 0 errors, 2 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xc9fc): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of function =
-=E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98dwc3_g=
-adget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xcb58): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-milbeaut_m10v_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 3 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of function =
-=E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98dwc3_g=
-adget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xcd90): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of function =
-=E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98dwc3_g=
-adget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xc8b8): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
-ismatches
-
-Errors:
-    drivers/usb/dwc3/core.c:259:2: error: implicit declaration of function =
-=E2=80=98dwc3_gadget_dctl_write_safe=E2=80=99; did you mean =E2=80=98dwc3_g=
-adget_set_link_state=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 4 errors, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
-    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3m
-    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
-=E2=80=99
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
-ma_period=E2=80=99 defined but not used [-Wunused-function]
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xcb30): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text+0xcf84): Section mismatch in reference from th=
-e function __arm_ioremap_pfn_caller() to the function .meminit.text:membloc=
-k_is_map_memory()
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 FAIL, 0 errors, 3 warnings, 0 section=
- mismatches
-
-Warnings:
-    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic suffix=
- given and no register operands; using default for `sysret'
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 FAIL, 0 errors, 2 warnings, 0 section m=
-ismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
-section mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 FAIL, 0 errors, 2 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 FAIL, 0 errors, =
-2 warnings, 0 section mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-10) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 secti=
-on mismatches
-
-Errors:
-    drivers/usb/phy/phy-generic.c:286:19: error: implicit declaration of fu=
-nction =E2=80=98devm_regulator_get_exclusive=E2=80=99; did you mean =E2=80=
-=98regulator_get_exclusive=E2=80=99? [-Werror=3Dimplicit-function-declarati=
-on]
-    drivers/usb/phy/phy-generic.c:290:10: error: implicit declaration of fu=
-nction =E2=80=98dev_err_probe=E2=80=99; did you mean =E2=80=98device_reprob=
-e=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    drivers/usb/phy/phy-generic.c:286:17: warning: assignment to =E2=80=98s=
-truct regulator *=E2=80=99 from =E2=80=98int=E2=80=99 makes pointer from in=
-teger without a cast [-Wint-conversion]
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
-mismatches
-
----
-For more info write to <info@kernelci.org>
+-----Original Message-----
+> From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> Sent: Saturday, March 26, 2022 11:44 PM
+> To: Brandeburg, Jesse <jesse.brandeburg@intel.com>
+> Cc: Nguyen, Anthony L <anthony.l.nguyen@intel.com>;
+> davem@davemloft.net; kuba@kernel.org; pabeni@redhat.com; Raj, Victor
+> <victor.raj@intel.com>; intel- wired-lan@lists.osuosl.org;
+> netdev@vger.kernel.org; linux- kernel@vger.kernel.org; Xiaomeng Tong
+> <xiam0nd.tong@gmail.com>; stable@vger.kernel.org
+> Subject: [PATCH] ice: ice_sched: fix an incorrect NULL check on list
+> iterator
+>
+> The bugs are here:
+> 	if (old_agg_vsi_info)
+> 	if (old_agg_vsi_info && !old_agg_vsi_info->tc_bitmap[0]) {
+>
+> The list iterator value 'old_agg_vsi_info' will *always* be set and
+> non-NULL by list_for_each_entry_safe(), so it is incorrect to assume
+> that the iterator value will be NULL if the list is empty or no
+> element found (in this case, the check 'if (old_agg_vsi_info)' will
+> always be true unexpectly).
+>
+> To fix the bug, use a new variable 'iter' as the list iterator, while
+> use the original variable 'old_agg_vsi_info' as a dedicated pointer to
+> point to the found element.
+>
+
+Yep. This looks correct to me.
+
+> Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+>=20
+> Thanks,
+> Jake
+
+> Cc: stable@vger.kernel.org
+> Fixes: 37c592062b16d ("ice: remove the VSI info from previous agg")
+> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+> ---
+>  drivers/net/ethernet/intel/ice/ice_sched.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+>
+
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Int=
+el)
