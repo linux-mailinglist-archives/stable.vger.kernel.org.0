@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B145176F3
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 20:54:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4E35176F4
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 20:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230422AbiEBS5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 14:57:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34454 "EHLO
+        id S231194AbiEBS6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 14:58:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230484AbiEBS5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 14:57:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 880CEB7E1
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 11:54:12 -0700 (PDT)
+        with ESMTP id S230484AbiEBS6I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 14:58:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2607E6322
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 11:54:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 117A4614B1
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 18:54:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61AF5C385AC;
-        Mon,  2 May 2022 18:54:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4E1FB819CB
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 18:54:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD8FC385AC;
+        Mon,  2 May 2022 18:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651517651;
-        bh=p+UCH1d47RtFcZs+ic+Xk7imvURbz1bVc6XN4XBKW1k=;
+        s=korg; t=1651517676;
+        bh=8328WLiXoL9b/b69aoHnb3V75xZDdfjKISuwia5kXJ4=;
         h=Subject:To:Cc:From:Date:From;
-        b=pNaQ8hKT2ik7+dgsprVYEN6Y8dxLQszlFd7R+qeCIn04I0Z6F0O2kM/s5i5Vu+eu9
-         CQAl3rACY8Z1OeGBriqvbCBJdkxm7+X6Y+BXcZtHr/e4miYiNynuZfVcqxMzCEKO0I
-         Sm2tUuGQ/zepteoIBFpQa7u+5/1mpMulXvWHRJFY=
-Subject: FAILED: patch "[PATCH] scsi: target: pscsi: Set SCF_TREAT_READ_AS_NORMAL flag only" failed to apply to 4.19-stable tree
-To:     djeffery@redhat.com, loberman@redhat.com,
-        martin.petersen@oracle.com, scott.hamilton@atos.net
+        b=aCIRbAvLuAM2cJaH/t/L6+YXKFbo56+eB7QR9+MtDuoRh09Z3CLMAjJRTpqnYAEkM
+         NS/M3i4bn58QOLd6H+USkDXkWlH58QRRnhDGCtQUUs1cLcsOs3me6IBBHrnXk3y3Mj
+         2tw6k9yY6xsfIHj0spFEeA7qcbGjq+JOrmSsyEs4=
+Subject: FAILED: patch "[PATCH] netfilter: nft_socket: only do sk lookups when indev is" failed to apply to 5.17-stable tree
+To:     fw@strlen.de, pablo@netfilter.org, toiwoton@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 May 2022 20:54:04 +0200
-Message-ID: <16515176449633@kroah.com>
+Date:   Mon, 02 May 2022 20:54:35 +0200
+Message-ID: <1651517675190177@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,76 +59,109 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8be70a842f70c0fe8e00fd488b1966344fa10ff4 Mon Sep 17 00:00:00 2001
-From: David Jeffery <djeffery@redhat.com>
-Date: Wed, 27 Apr 2022 14:32:50 -0400
-Subject: [PATCH] scsi: target: pscsi: Set SCF_TREAT_READ_AS_NORMAL flag only
- if there is valid data
+From 743b83f15d4069ea57c3e40996bf4a1077e0cdc1 Mon Sep 17 00:00:00 2001
+From: Florian Westphal <fw@strlen.de>
+Date: Thu, 28 Apr 2022 09:39:21 +0200
+Subject: [PATCH] netfilter: nft_socket: only do sk lookups when indev is
+ available
 
-With tape devices, the SCF_TREAT_READ_AS_NORMAL flag is used by the target
-subsystem to mark commands which have both data to return as well as sense
-data. But with pscsi, SCF_TREAT_READ_AS_NORMAL can be set even if there is
-no data to return. The SCF_TREAT_READ_AS_NORMAL flag causes the target core
-to call iscsit data-in callbacks even if there is no data, which iscsit
-does not support. This results in iscsit going into an error state
-requiring recovery and being unable to complete the command to the
-initiator.
+Check if the incoming interface is available and NFT_BREAK
+in case neither skb->sk nor input device are set.
 
-This issue can be resolved by fixing pscsi to only set
-SCF_TREAT_READ_AS_NORMAL if there is valid data to return alongside the
-sense data.
+Because nf_sk_lookup_slow*() assume packet headers are in the
+'in' direction, use in postrouting is not going to yield a meaningful
+result.  Same is true for the forward chain, so restrict the use
+to prerouting, input and output.
 
-Link: https://lore.kernel.org/r/20220427183250.291881-1-djeffery@redhat.com
-Fixes: bd81372065fa ("scsi: target: transport should handle st FM/EOM/ILI reads")
-Reported-by: Scott Hamilton <scott.hamilton@atos.net>
-Tested-by: Laurence Oberman <loberman@redhat.com>
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Use in output work if a socket is already attached to the skb.
 
-diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
-index ff292b75e23f..60dafe4c581b 100644
---- a/drivers/target/target_core_pscsi.c
-+++ b/drivers/target/target_core_pscsi.c
-@@ -588,7 +588,7 @@ static void pscsi_destroy_device(struct se_device *dev)
+Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
+Reported-and-tested-by: Topi Miettinen <toiwoton@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+
+diff --git a/net/netfilter/nft_socket.c b/net/netfilter/nft_socket.c
+index 6d9e8e0a3a7d..05ae5a338b6f 100644
+--- a/net/netfilter/nft_socket.c
++++ b/net/netfilter/nft_socket.c
+@@ -54,6 +54,32 @@ nft_sock_get_eval_cgroupv2(u32 *dest, struct sock *sk, const struct nft_pktinfo
+ }
+ #endif
+ 
++static struct sock *nft_socket_do_lookup(const struct nft_pktinfo *pkt)
++{
++	const struct net_device *indev = nft_in(pkt);
++	const struct sk_buff *skb = pkt->skb;
++	struct sock *sk = NULL;
++
++	if (!indev)
++		return NULL;
++
++	switch (nft_pf(pkt)) {
++	case NFPROTO_IPV4:
++		sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, indev);
++		break;
++#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
++	case NFPROTO_IPV6:
++		sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, indev);
++		break;
++#endif
++	default:
++		WARN_ON_ONCE(1);
++		break;
++	}
++
++	return sk;
++}
++
+ static void nft_socket_eval(const struct nft_expr *expr,
+ 			    struct nft_regs *regs,
+ 			    const struct nft_pktinfo *pkt)
+@@ -67,20 +93,7 @@ static void nft_socket_eval(const struct nft_expr *expr,
+ 		sk = NULL;
+ 
+ 	if (!sk)
+-		switch(nft_pf(pkt)) {
+-		case NFPROTO_IPV4:
+-			sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, nft_in(pkt));
+-			break;
+-#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
+-		case NFPROTO_IPV6:
+-			sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, nft_in(pkt));
+-			break;
+-#endif
+-		default:
+-			WARN_ON_ONCE(1);
+-			regs->verdict.code = NFT_BREAK;
+-			return;
+-		}
++		sk = nft_socket_do_lookup(pkt);
+ 
+ 	if (!sk) {
+ 		regs->verdict.code = NFT_BREAK;
+@@ -224,6 +237,16 @@ static bool nft_socket_reduce(struct nft_regs_track *track,
+ 	return nft_expr_reduce_bitwise(track, expr);
  }
  
- static void pscsi_complete_cmd(struct se_cmd *cmd, u8 scsi_status,
--			       unsigned char *req_sense)
-+			       unsigned char *req_sense, int valid_data)
- {
- 	struct pscsi_dev_virt *pdv = PSCSI_DEV(cmd->se_dev);
- 	struct scsi_device *sd = pdv->pdv_sd;
-@@ -681,7 +681,7 @@ static void pscsi_complete_cmd(struct se_cmd *cmd, u8 scsi_status,
- 		 * back despite framework assumption that a
- 		 * check condition means there is no data
- 		 */
--		if (sd->type == TYPE_TAPE &&
-+		if (sd->type == TYPE_TAPE && valid_data &&
- 		    cmd->data_direction == DMA_FROM_DEVICE) {
- 			/*
- 			 * is sense data valid, fixed format,
-@@ -1032,6 +1032,7 @@ static void pscsi_req_done(struct request *req, blk_status_t status)
- 	struct se_cmd *cmd = req->end_io_data;
- 	struct scsi_cmnd *scmd = blk_mq_rq_to_pdu(req);
- 	enum sam_status scsi_status = scmd->result & 0xff;
-+	int valid_data = cmd->data_length - scmd->resid_len;
- 	u8 *cdb = cmd->priv;
++static int nft_socket_validate(const struct nft_ctx *ctx,
++			       const struct nft_expr *expr,
++			       const struct nft_data **data)
++{
++	return nft_chain_validate_hooks(ctx->chain,
++					(1 << NF_INET_PRE_ROUTING) |
++					(1 << NF_INET_LOCAL_IN) |
++					(1 << NF_INET_LOCAL_OUT));
++}
++
+ static struct nft_expr_type nft_socket_type;
+ static const struct nft_expr_ops nft_socket_ops = {
+ 	.type		= &nft_socket_type,
+@@ -231,6 +254,7 @@ static const struct nft_expr_ops nft_socket_ops = {
+ 	.eval		= nft_socket_eval,
+ 	.init		= nft_socket_init,
+ 	.dump		= nft_socket_dump,
++	.validate	= nft_socket_validate,
+ 	.reduce		= nft_socket_reduce,
+ };
  
- 	if (scsi_status != SAM_STAT_GOOD) {
-@@ -1039,12 +1040,11 @@ static void pscsi_req_done(struct request *req, blk_status_t status)
- 			" 0x%02x Result: 0x%08x\n", cmd, cdb[0], scmd->result);
- 	}
- 
--	pscsi_complete_cmd(cmd, scsi_status, scmd->sense_buffer);
-+	pscsi_complete_cmd(cmd, scsi_status, scmd->sense_buffer, valid_data);
- 
- 	switch (host_byte(scmd->result)) {
- 	case DID_OK:
--		target_complete_cmd_with_length(cmd, scsi_status,
--			cmd->data_length - scmd->resid_len);
-+		target_complete_cmd_with_length(cmd, scsi_status, valid_data);
- 		break;
- 	default:
- 		pr_debug("PSCSI Host Byte exception at cmd: %p CDB:"
 
