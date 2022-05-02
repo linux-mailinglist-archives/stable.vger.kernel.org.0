@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C98B65176E4
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 20:52:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4EE55176E3
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 20:52:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229468AbiEBS4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 14:56:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33512 "EHLO
+        id S229744AbiEBS4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 14:56:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbiEBS4B (ORCPT
+        with ESMTP id S229468AbiEBS4B (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 14:56:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8861C60E4
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 11:52:31 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0226243
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 11:52:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDA85B819C9
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 18:52:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 630D8C385A4;
-        Mon,  2 May 2022 18:52:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFF02B819CA
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 18:52:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B186C385AC;
+        Mon,  2 May 2022 18:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651517548;
-        bh=ycLfy/1MJC55Ulu9zsSIFV4xjYLpPFq1mttr6NK0Y3Q=;
+        s=korg; t=1651517549;
+        bh=wEbr+tmGO5WJlbKjbAc5wzEODylUh4GObH9bwsngEdc=;
         h=Subject:To:Cc:From:Date:From;
-        b=OFOyJbGIvaQzo9YxJmTW2ZFnKj6AbPzL4PUOnZlNGDc7XV9Uuo1j9dXwLcaY0c2oY
-         hjxqJnUXDumByFdNUTT9iH2QlFXBUcTEqLfBvG5Xmr22bSbwSS6PXf/N+PzZoA/Yj6
-         ot9kF+Yw512yF1ZX0ipKqxi/xN1y90Z1x/ObJ5Ag=
-Subject: FAILED: patch "[PATCH] ice: Fix incorrect locking in ice_vc_process_vf_msg()" failed to apply to 5.15-stable tree
+        b=VARsSf06saKDMAoJBnbdPOgwUY80qDYDNcpbQ2lXhRZ3IXzjjAIEsZ4eMNYWiPqqc
+         tu2269CTg3Q/qbrA5ALe2QUcDiNqCKVPL9uX/V4e5o9iBlZ74Yp8MQ9/Fa9wpdMkvj
+         X5hSvO1AFCAAHDzTPnPRPMFVGqeezvzH4rerGyrQ=
+Subject: FAILED: patch "[PATCH] ice: Fix incorrect locking in ice_vc_process_vf_msg()" failed to apply to 5.10-stable tree
 To:     ivecera@redhat.com, anthony.l.nguyen@intel.com,
         konrad0.jankowski@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 May 2022 20:52:24 +0200
-Message-ID: <16515175447262@kroah.com>
+Date:   Mon, 02 May 2022 20:52:27 +0200
+Message-ID: <1651517547121191@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
